@@ -261,6 +261,37 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(})('}')""".stripMargin)
 */
 
+  def testTypePatternLowercase(): Unit = checkTree(
+    "??? match { case _: t => }",
+    """ScalaFile
+      |  MatchStatement
+      |    ReferenceExpression: ???
+      |      PsiElement(identifier)('???')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(match)('match')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement({)('{')
+      |    PsiWhiteSpace(' ')
+      |    CaseClauses
+      |      CaseClause
+      |        PsiElement(case)('case')
+      |        PsiWhiteSpace(' ')
+      |        Scala3 TypedPattern
+      |          WildcardPattern
+      |            PsiElement(_)('_')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          TypePattern
+      |            SimpleType: t
+      |              CodeReferenceElement: t
+      |                PsiElement(identifier)('t')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        BlockOfExpressions
+      |          <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(})('}')""".stripMargin)
+
   def testTypeVariable(): Unit = checkTree(
     "type T = Seq[Int] match { case Seq[x] => x }",
     """ScalaFile
@@ -370,6 +401,59 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |                    PsiElement(identifier)('x')
       |                  PsiElement(])(']')
       |              PsiElement(])(']')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=>)('=>')
+      |          PsiWhiteSpace(' ')
+      |          SimpleType: x
+      |            CodeReferenceElement: x
+      |              PsiElement(identifier)('x')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(})('}')""".stripMargin)
+
+  def testTypeVariableInfix(): Unit = checkTree(
+    "type T = Int && Long match { case x && y => x }",
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    MatchType: Int && Long match { case x && y => x }
+      |      InfixType: Int && Long
+      |        SimpleType: Int
+      |          CodeReferenceElement: Int
+      |            PsiElement(identifier)('Int')
+      |        PsiWhiteSpace(' ')
+      |        CodeReferenceElement: &&
+      |          PsiElement(identifier)('&&')
+      |        PsiWhiteSpace(' ')
+      |        SimpleType: Long
+      |          CodeReferenceElement: Long
+      |            PsiElement(identifier)('Long')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(match)('match')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace(' ')
+      |      ScMatchTypeCasesImpl(match type cases)
+      |        ScMatchTypeCaseImpl(match type case)
+      |          PsiElement(case)('case')
+      |          PsiWhiteSpace(' ')
+      |          InfixType: x && y
+      |            TypeVariable: x
+      |              PsiElement(identifier)('x')
+      |            PsiWhiteSpace(' ')
+      |            CodeReferenceElement: &&
+      |              PsiElement(identifier)('&&')
+      |            PsiWhiteSpace(' ')
+      |            TypeVariable: y
+      |              PsiElement(identifier)('y')
       |          PsiWhiteSpace(' ')
       |          PsiElement(=>)('=>')
       |          PsiWhiteSpace(' ')

@@ -45,7 +45,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_12093(): Unit = doTest("12093", false) // #unionType, #matchType
   def test_12278(): Unit = doTest("12278", true) // #matchType
   def test_12944(): Unit = doTest("12944", false) // #matchType
-  def test_13455(): Unit = doTest("13455", false) // #matchType
+  def test_13455(): Unit = doTest("13455", true) // #matchType
   def test_13469(): Unit = doTest("13469", false) // #intersectionType, #matchType, #unionType
   def test_13491(): Unit = doTest("13491", true) // #matchType
   def test_13495(): Unit = doTest("13495", false) // #matchType, #intersectionType

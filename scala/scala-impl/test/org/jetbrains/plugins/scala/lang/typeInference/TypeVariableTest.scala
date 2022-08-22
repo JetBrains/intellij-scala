@@ -149,7 +149,6 @@ class TypeVariableTest extends TypeInferenceTestBase {
   // Default type arguments in Scala 3
   // Nested patterns (now that SCL-20494 is fixed)
   // Test multiple bonds simultaneously
-  // Test infix pattern
   // Test lower & upper bounds explicitly?
   // Pattern definition (val)
   // Type pattern (in a match type)

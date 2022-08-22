@@ -152,16 +152,41 @@ trait InfixType {
             case _ => true
           }
         } else {
-          componentType(star, isPattern)
+          parseTypeVariable() || componentType(star, isPattern)
         }
 
       override protected def parseOperator()(implicit builder: ScalaPsiBuilder): Boolean =
-        parseInfixWildcardType() || componentType(star, isPattern)
+        parseInfixWildcardType() || parseTypeVariable() || componentType(star, isPattern)
 
       // TODO Disambiguate between _: A | _: B in a match expression and A | B in a match type, see MatchParserTest.testMatchTypeInfixTypeWithoutParentheses
       override protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
         (!isPattern || builder.getTokenText != "|" || star) && super.shouldContinue
-}
+
+    // TODO Disambiguate between _: t and _: C[t] lowercase identifiers more properly
+    private def parseTypeVariable(): Boolean = if (isPattern && builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
+      builder.getCurrentOffset > 1 && builder.getOriginalText.charAt(builder.getCurrentOffset - 2) != ':') {
+        val firstChar = builder.getTokenText.charAt(0)
+        if (firstChar != '`' && firstChar.isLower) {
+          val typeVariableMarker = builder.mark()
+          val identifierMarker = builder.mark()
+          builder.advanceLexer()
+          builder.getTokenType match {
+            case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tFUNTYPE  =>
+              identifierMarker.drop()
+              typeVariableMarker.done(ScalaElementType.TYPE_VARIABLE)
+              true
+            case _ =>
+              identifierMarker.rollbackTo()
+              typeVariableMarker.drop()
+              false
+          }
+        } else {
+          false
+        }
+      } else {
+        false
+      }
+    }
 
     infixParsingRule()
   }
