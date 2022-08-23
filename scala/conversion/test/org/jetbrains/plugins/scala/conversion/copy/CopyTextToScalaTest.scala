@@ -15,8 +15,11 @@ class CopyTextToScalaTest extends CopyPasteTestBase {
   override protected def doTest(from: String, to: String, after: String, fromFileName: String, toFileName: String): Unit = {
     val insideIdeBefore = TextJavaCopyPastePostProcessor.insideIde
     TextJavaCopyPastePostProcessor.insideIde = false
-    super.doTest(fromText, toText, expectedText)
-    TextJavaCopyPastePostProcessor.insideIde = true
+    try {
+      super.doTest(from: String, to: String, after: String, fromFileName: String, toFileName: String)
+    } finally {
+      TextJavaCopyPastePostProcessor.insideIde = insideIdeBefore
+    }
   }
 
   def testWrapWithExpression(): Unit = {
