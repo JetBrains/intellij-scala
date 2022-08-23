@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.copy
 
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert.assertTrue
+
+import scala.collection.mutable.ArrayBuffer
 
 abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   protected val Start = EditorTestUtil.SELECTION_START_TAG
@@ -17,8 +20,15 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter
 
   def fromLangExtension: String = "scala"
 
+  //copy/paste action might involve collection of some information which requires type inference & resolve
+  //(for example see org.jetbrains.plugins.scala.lang.refactoring.Associations.collectAssociations)
+  //files from previous tests might affect this process, so we want to be clean
+  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
+
   private var oldSettings: ScalaCodeStyleSettings = _
   private var oldBlankLineSetting: Int = _
+
+  private val myASTHardRefs: ArrayBuffer[ASTNode] = ArrayBuffer.empty
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -31,6 +41,7 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter
   }
 
   override def tearDown(): Unit = {
+    myASTHardRefs.clear()
     val project = getProject
     ScalaCodeStyleSettings.getInstance(project).BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = oldBlankLineSetting
     TypeAnnotationSettings.set(project, oldSettings)
@@ -41,15 +52,21 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter
     doTest(from, to, after, s"from.$fromLangExtension", "to.scala")
   }
 
+  //NOTE: in IntelliJ Platform tests for copy/paste
+  //they use IdeActions.ACTION_EDITOR_COPY/ACTION_EDITOR_PASTE
+  //instead of IdeActions.ACTION_COPY & IdeActions.ACTION_PASTE
+  //I am not sure what is the difference though
   protected def doTest(from: String, to: String, after: String, fromFileName: String, toFileName: String): Unit = {
     def normalize(s: String): String = s.replace("\r", "")
 
     assertTrue("Content of target file doesn't contain caret marker", to.contains(Caret))
 
-    myFixture.configureByText(fromFileName, normalize(from))
+    val fileFrom = myFixture.configureByText(fromFileName, normalize(from))
+    myASTHardRefs += fileFrom.getNode
     myFixture.performEditorAction(IdeActions.ACTION_COPY)
 
-    myFixture.configureByText(toFileName, normalize(to))
+    val fileTo = myFixture.configureByText(toFileName, normalize(to))
+    myASTHardRefs += fileTo.getNode
     myFixture.performEditorAction(IdeActions.ACTION_PASTE)
 
     myFixture.checkResult(normalize(after), true)
