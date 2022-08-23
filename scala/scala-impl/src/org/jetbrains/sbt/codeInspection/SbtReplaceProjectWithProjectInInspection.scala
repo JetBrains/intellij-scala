@@ -1,10 +1,9 @@
 package org.jetbrains.sbt
 package codeInspection
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -12,12 +11,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-import scala.annotation.nowarn
+import scala.annotation.unused
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class SbtReplaceProjectWithProjectInInspection extends AbstractInspection {
+@unused("registered in scala-plugin-common.xml")
+class SbtReplaceProjectWithProjectInInspection extends LocalInspectionTool {
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case defn: ScPatternDefinition if defn.getContainingFile.getFileType.getName == Sbt.Name =>
       (defn.expr, defn.bindings) match {
         case (Some(call: ScMethodCall), Seq(projectNamePattern: ScReferencePattern)) =>
@@ -28,6 +27,7 @@ class SbtReplaceProjectWithProjectInInspection extends AbstractInspection {
           }
         case _ => // do nothing
       }
+    case _ =>
   }
 
   private def findPlaceToFix(call: ScMethodCall, projectName: String): Option[ScMethodCall] = {

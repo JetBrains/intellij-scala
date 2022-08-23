@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -20,7 +19,7 @@ final class UnitInMapInspection extends OperationOnCollectionInspection {
 
   import UnitInMapInspection._
 
-  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case MethodRepr(call, _, Some(ref), Seq(arg@lambdaWithBody(body))) if ref.refName == "map" &&
       checkResolve(ref, getLikeCollectionClasses) && expressionResultIsNotUsed(call) =>
 
@@ -38,6 +37,7 @@ final class UnitInMapInspection extends OperationOnCollectionInspection {
         highlightType,
         quickFixes: _*
       )
+    case _ =>
   }
 
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq.empty

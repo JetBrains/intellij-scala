@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -13,17 +12,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 
-import scala.annotation.nowarn
-
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class VariableNullInitializerInspection extends AbstractInspection(Message) {
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
+class VariableNullInitializerInspection extends LocalInspectionTool {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case definition: ScVariableDefinition if definition.isDefinedInClass =>
       if (definition.declaredType.exists(isApplicable)) {
         definition.expr.filter(e => e.isValid && isNull(e)).foreach { expression =>
           holder.registerProblem(expression, Message, new UseUnderscoreInitializerQuickFix(definition), new UseOptionTypeQuickFix(definition))
         }
       }
+    case _ =>
   }
 }
 

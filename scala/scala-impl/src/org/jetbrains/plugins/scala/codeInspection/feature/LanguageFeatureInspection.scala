@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.feature
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
@@ -19,10 +19,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.scalaVersionSinceWhichHigherKindsAreAlwaysEnabled
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 
-import scala.annotation.nowarn
-
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.advanced.language.features")) {
+class LanguageFeatureInspection extends LocalInspectionTool {
 
   private val Features = Seq(
     Feature(ScalaInspectionBundle.message("language.feature.postfix.operator.notation"), "scala.language", "postfixOps", _.postfixOps, _.copy(postfixOps = true),
@@ -31,8 +28,8 @@ class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle
       case e: ScPostfixExpr => e.operation
     },
     Feature(ScalaInspectionBundle.message("language.feature.reflective.call"), "scala.language", "reflectiveCalls", _.reflectiveCalls, _.copy(reflectiveCalls = true)) {
-      case e @ ReferenceTarget(decl@Parent(_: ScRefinement)) if !decl.is[ScTypeAlias] => e.getLastChild match {
-        case id @ ElementType(ScalaTokenTypes.tIDENTIFIER) => id
+      case e@ReferenceTarget(decl@Parent(_: ScRefinement)) if !decl.is[ScTypeAlias] => e.getLastChild match {
+        case id@ElementType(ScalaTokenTypes.tIDENTIFIER) => id
         case _ => e
       }
     },
@@ -58,11 +55,13 @@ class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle
     }
   )
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = { case e: PsiElement =>
-    val hasScala = e.module.exists(_.hasScala)
-    if (hasScala) {
-      Features.foreach(_.process(e, holder))
-    }
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case e: PsiElement =>
+      val hasScala = e.module.exists(_.hasScala)
+      if (hasScala) {
+        Features.foreach(_.process(e, holder))
+      }
+    case _ =>
   }
 }
 
@@ -104,7 +103,7 @@ private case class Feature(@Nls name: String,
     val reference = ScalaPsiElementFactory.createReferenceFromText(flagName, e, e)
     reference.resolve() match {
       case e: ScReferencePattern => Option(e.containingClass).exists(_.qualifiedName == flagQualifier)
-      case _                     => false
+      case _ => false
     }
   }
 }

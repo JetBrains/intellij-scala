@@ -1,30 +1,21 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.PostfixUnaryOperationInspection.{createQuickfix, isPostfixUnaryOperation}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractRegisteredInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-class PostfixUnaryOperationInspection extends AbstractRegisteredInspection {
-  override protected def problemDescriptor(element: PsiElement,
-                                           maybeQuickFix: Option[LocalQuickFix],
-                                           descriptionTemplate: String,
-                                           highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager, isOnTheFly: Boolean)
-  : Option[ProblemDescriptor] =
-    element match {
-      case ref: ScReferenceExpression if isPostfixUnaryOperation(ref) =>
-        super.problemDescriptor(ref.nameId, createQuickfix(ref, ref.qualifier.get, ref.refName),
-          descriptionTemplate, highlightType)
-      case postfix: ScPostfixExpr if isPostfixUnaryOperation(postfix) =>
-        super.problemDescriptor(postfix.operation, createQuickfix(postfix, postfix.operand, postfix.operation.refName),
-          descriptionTemplate, highlightType)
-      case _ => None
-    }
+class PostfixUnaryOperationInspection extends LocalInspectionTool {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case ref: ScReferenceExpression if isPostfixUnaryOperation(ref) =>
+      holder.registerProblem(ref.nameId, getDisplayName, createQuickfix(ref, ref.qualifier.get, ref.refName))
+    case postfix: ScPostfixExpr if isPostfixUnaryOperation(postfix) =>
+      holder.registerProblem(postfix.operation, getDisplayName, createQuickfix(postfix, postfix.operand, postfix.operation.refName))
+    case _ =>
+  }
 }
 
 object PostfixUnaryOperationInspection {
@@ -62,17 +53,13 @@ object PostfixUnaryOperationInspection {
    * Creates the quick fix for postfix unary operations. This fix creates a new prefix operation expression and replaces
    * the old expression for it.
    *
-   * @param target The target element that will be transformed.
-   * @param operand The expression the unary operation is performed on.
+   * @param target   The target element that will be transformed.
+   * @param operand  The expression the unary operation is performed on.
    * @param operator The unary operator that is used in its 'unary_*' form.
    * @return The quick-fix.
    */
-  private def createQuickfix(target: ScExpression, operand: ScExpression, operator: String): Option[PostfixUnaryOperationQuickFix] =
-    Some(new PostfixUnaryOperationQuickFix(
-      ScalaInspectionBundle.message("unary.operation.can.use.prefix.notation"),
-      target,
-      operand,
-      operator))
+  private def createQuickfix(target: ScExpression, operand: ScExpression, operator: String): PostfixUnaryOperationQuickFix =
+    new PostfixUnaryOperationQuickFix(ScalaInspectionBundle.message("unary.operation.can.use.prefix.notation"), target, operand, operator)
 
   private[syntacticSimplification] class PostfixUnaryOperationQuickFix(@Nls name: String,
                                                                        target: ScExpression,

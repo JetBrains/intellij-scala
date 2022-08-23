@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
@@ -98,4 +98,12 @@ package object codeInspection {
 
   val charExpr = new ExpressionOfTypeMatcher("scala.Char")
   val stringExpr = new ExpressionOfTypeMatcher("java.lang.String")
+
+  // TODO -- Move to AbstractInspection or AbstractRegisteredInspection, whichever will be left over after
+  //  cleaning up as per #SCL-20396
+  abstract class PsiElementVisitorSimple extends PsiElementVisitor {
+    override final def visitElement(element: PsiElement): Unit = visitPsiElement(element)
+
+    def visitPsiElement(element: PsiElement): Unit
+  }
 }

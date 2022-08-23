@@ -8,8 +8,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 package object parentheses {
 
   private[codeInspection]
-  def registerRedundantParensProblem(@Nls description: String, element: ScalaPsiElement, quickfix: LocalQuickFix)
-                                    (implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
+  def registerRedundantParensProblem(@Nls description: String,
+                                     element: ScalaPsiElement,
+                                     quickfix: LocalQuickFix,
+                                     holder: ProblemsHolder,
+                                     isOnTheFly: Boolean): Unit = {
     import com.intellij.codeInspection.ProblemHighlightType._
 
     if (isOnTheFly) {

@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection
 
-import com.intellij.codeInspection.LocalInspectionEP
 import com.intellij.codeInspection.ex.LocalInspectionToolWrapper
-import org.jetbrains.plugins.scala.base.SimpleTestCase
+import com.intellij.codeInspection.{InspectionManager, LocalInspectionEP, LocalInspectionTool, ProblemsHolder}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.junit.Assert.assertFalse
 
-class GeneralInspectionSanityTest extends SimpleTestCase {
+class GeneralInspectionSanityTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def acquireAllInspectionEPs(): Seq[LocalInspectionEP] =
     LocalInspectionEP.LOCAL_INSPECTION
@@ -74,180 +76,32 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
       s"The following inspection's description files have code blocks with wrong indentation:\n  ${inspectionsWithoutProperDescription.mkString(",\n  ")}")
   }
 
-  /*
-  def test_inspection_list_is_correct(): Unit = {
-    val inspectionEPs = acquireAllScalaInspectionEPs()
+  def test_run_all_inspections(): Unit = {
+    myFixture.configureByText("foo.scala", "class A")
+    val inspectionManager = InspectionManager.getInstance(getProject)
 
-    assert(expectedInspections.sorted == expectedInspections, "Please keep expectedInspections sorted!")
-    val doubleExpectedInspections =
-      expectedInspections
-        .groupBy(identity)
-        .mapValues(_.length)
-        .filter(_._2 > 1)
-        .keys
-        .toSeq
-    assert(doubleExpectedInspections.isEmpty,
-      s"The following expectedInspections are duplicated: ${doubleExpectedInspections.mkString(", ")}")
+    val inspections = acquireAllScalaInspectionEPs()
 
-    val expectedInspectionSet = expectedInspections.toSet
-    // check if all expected inspections are present
-    val foundInspections = inspectionEPs.map(_.implementationClass.split('.').last).toSet
+    inspections.foreach { inspection =>
+      val inspectionTool = inspection.instantiateTool()
+      myFixture.enableInspections(inspectionTool)
 
-    val nonExistentInspections = expectedInspectionSet -- foundInspections
-    val unregisteredInspections = foundInspections -- expectedInspectionSet
+      assertNoThrowable(() => {
+        val highlights = myFixture.doHighlighting()
+        assertFalse("Expecting at least 1 highlight", highlights.isEmpty)
+      })
 
-    assert(nonExistentInspections.isEmpty,
-      s"The following expected inspections were not found: ${nonExistentInspections.mkString(", ")}")
+      myFixture.disableInspections(inspectionTool)
 
-    assert(unregisteredInspections.isEmpty,
-      s"Please add the following inspections to expectedInspections: ${unregisteredInspections.mkString(", ")}")
+      val holder = new ProblemsHolder(inspectionManager, getFile, true)
+      val visitor = inspectionTool.asInstanceOf[LocalInspectionTool].buildVisitor(holder, true)
+
+      assertNoThrowable(() => {
+        inReadAction {
+          visitor.visitFile(getFile)
+          visitor.visitElement(getFile)
+        }
+      })
+    }
   }
-  
-  val expectedInspections = Seq(
-    "AbstractValueInTraitInspection",
-    "AccessorLikeMethodInspection$EmptyParentheses",
-    "AccessorLikeMethodInspection$UnitReturnType",
-    "AmmoniteUnresolvedLibrary",
-    "AnnotatorBasedErrorInspection",
-    "ApparentResultTypeRefinementInspection",
-    "AppliedTypeLambdaCanBeSimplifiedInspection",
-    "AutoTuplingInspection",
-    "BuiltinMatcherExistsInspection",
-    "BundledCompoundInspection",
-    "CaseClassParamInspection",
-    "ChainedPackageInspection",
-    "CollectHeadOptionInspection",
-    "ComparingDiffCollectionKindsInspection",
-    "ComparingLengthInspection",
-    "ComparingUnrelatedTypesInspection",
-    "ConcealedApplyCall",
-    "ConvertExpressionToSAMInspection",
-    "ConvertibleToMethodValueInspection",
-    "CorrespondsUnsortedInspection",
-    "DangerousCatchAllInspection",
-    "DeprecatedViewBoundInspection",
-    "DoubleNegationInspection",
-    "DropTakeToSliceInspection",
-    "EmptyCheckInspection",
-    "EmptyParenOverrideInspection$JavaAccessorMethodOverriddenAsEmptyParenInspection",
-    "EmptyParenOverrideInspection$ParameterlessMemberOverriddenAsEmptyParenInspection",
-    "EmulateFlattenInspection",
-    "EqualityToSameElementsInspection",
-    "ExistsEqualsInspection",
-    "ExistsForallReplaceInspection",
-    "FieldFromDelayedInitInspection",
-    "FilterEmptyCheckInspection",
-    "FilterHeadOptionInspection",
-    "FilterOtherContainsInspection",
-    "FilterSetContainsInspection",
-    "FilterSizeInspection",
-    "FindAndMapToApplyInspection",
-    "FindEmptyCheckInspection",
-    "FloatLiteralEndingWithDecimalPointInspection",
-    "FoldTrueAndInspection",
-    "ForwardReferenceInspection",
-    "FunctionTupleSyntacticSugarInspection",
-    "GetGetOrElseInspection",
-    "GetOrElseNullInspection",
-    "HashCodeUsesVarInspection",
-    "HeadOrLastOptionInspection",
-    "IfElseToFilteredOptionInspection",
-    "IfElseToOptionInspection",
-    "IndexBoundsCheckInspection",
-    "JavaAccessorEmptyParenCallInspection",
-    "KindProjectorSimplifyTypeProjectionInspection",
-    "KindProjectorUseCorrectLambdaKeywordInspection",
-    "LanguageFeatureInspection",
-    "LastIndexToLastInspection",
-    "LegacyStringFormattingInspection",
-    "LoopVariableNotUpdatedInspection",
-    "MapFlattenInspection",
-    "MapGetGetInspection",
-    "MapGetOrElseBooleanInspection",
-    "MapGetOrElseInspection",
-    "MapKeysInspection",
-    "MapLiftInspection",
-    "MapToBooleanContainsInspection",
-    "MapValuesInspection",
-    "MatchToPartialFunctionInspection",
-    "MultipleArgLists",
-    "NameBooleanParametersInspection",
-    "NestedStatefulMonadsInspection",
-    "NoTailRecursionAnnotationInspection",
-    "NotImplementedCodeInspection",
-    "OptionEqualsSomeToContainsInspection",
-    "ParameterlessAccessInspection$EmptyParenMethod",
-    "ParameterlessAccessInspection$JavaMutator",
-    "ParameterlessOverrideInspection$EmptyParenMethod",
-    "ParameterlessOverrideInspection$JavaMutator",
-    "ParameterlessOverrideInspection$MutatorLikeMethod",
-    "PostfixMethodCallInspection",
-    "RangeToIndicesInspection",
-    "RedundantBlockInspection",
-    "RedundantCollectionConversionInspection",
-    "RedundantDefaultArgumentInspection",
-    "RedundantHeadOrLastOptionInspection",
-    "RedundantNewCaseClassInspection",
-    "ReferenceMustBePrefixedInspection",
-    "RelativeImportInspection",
-    "RemoveRedundantReturnInspection",
-    "ReplaceToWithUntilInspection",
-    "ReverseIteratorInspection",
-    "ReverseMapInspection",
-    "ReverseTakeReverseInspection",
-    "SameElementsToEqualsInspection",
-    "SbtReplaceProjectWithProjectInInspection",
-    "ScalaDefaultFileTemplateUsageInspection",
-    "ScalaDeprecatedIdentifierInspection",
-    "ScalaDeprecationInspection",
-    "ScalaDocInlinedTagInspection",
-    "ScalaDocMissingParameterDescriptionInspection",
-    "ScalaDocParserErrorInspection",
-    "ScalaDocUnbalancedHeaderInspection",
-    "ScalaDocUnclosedTagWithoutParserInspection",
-    "ScalaDocUnknownParameterInspection",
-    "ScalaDocUnknownTagInspection",
-    "ScalaFileNameInspection",
-    "ScalaMalformedFormatStringInspection",
-    "ScalaPackageNameInspection",
-    "ScalaRedundantCastInspection",
-    "ScalaRedundantConversionInspection",
-    "ScalaUnnecessaryParenthesesInspection",
-    "ScalaUnnecessarySemicolonInspection",
-    "ScalaUnreachableCodeInspection",
-    "ScalaUnusedExpressionInspection",
-    "ScalaUnusedSymbolInspection",
-    "ScalaXmlUnmatchedTagInspection",
-    "ScalastyleCodeInspection",
-    "SideEffectsInMonadicTransformationInspection",
-    "SimplifiableFoldOrReduceInspection",
-    "SimplifyBooleanInspection",
-    "SimplifyBooleanMatchInspection",
-    "SingleImportInspection",
-    "SizeToLengthInspection",
-    "SomeToOptionInspection",
-    "SortFilterInspection",
-    "SortedMaxMinInspection",
-    "SourceNotClosedInspection",
-    "ToSetAndBackInspection",
-    "TypeAnnotationInspection",
-    "TypeCheckCanBeMatchInspection",
-    "TypeParameterShadowInspection",
-    "UnitInMapInspection",
-    "UnitMethodInspection$ExplicitAssignment",
-    "UnitMethodInspection$ExplicitType",
-    "UnitMethodInspection$FunctionDefinition",
-    "UnitMethodInspection$Parameterless",
-    "UnitMethodInspection$ProcedureDeclaration",
-    "UnitMethodInspection$ProcedureDefinition",
-    "UnnecessaryPartialFunctionInspection",
-    "UnzipSingleElementInspection",
-    "VarCouldBeValInspection",
-    "VariableNullInitializerInspection",
-    "VariablePatternShadowInspection",
-    "ZeroIndexToHeadInspection",
-    "ZipWithIndexInspection",
-  )
-
-   */
 }

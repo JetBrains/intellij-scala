@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package SAM
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
@@ -18,12 +18,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.SAMUtil
 
-import scala.annotation.nowarn
+import scala.collection.mutable
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName) {
+class ConvertExpressionToSAMInspection extends LocalInspectionTool {
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case definition: ScNewTemplateDefinition
       if definition.isSAMEnabled && containsSingleFunction(definition) && !hasConstructorArgs(definition)  =>
       definition.expectedTypes().flatMap {
@@ -32,6 +31,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName
         case Seq(expectedMethodType) => inspectAccordingToExpectedType(expectedMethodType, definition, holder)
         case _ =>
       }
+    case _ =>
   }
 
   private def containsSingleFunction(newTd: ScNewTemplateDefinition): Boolean = {
@@ -60,7 +60,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName
         fun.body match {
           case Some(funBody) if fun.`type`().getOrAny.conforms(expected) && !containsReturn(funBody) =>
             lazy val replacement: String = {
-              val res = new StringBuilder
+              val res = new mutable.StringBuilder
               val isInfix = definition.parent.exists(_.is[ScInfixExpr])
               if (isInfix) {
                 res.append("(")
@@ -112,5 +112,4 @@ class ReplaceExpressionWithSAMQuickFix(elem: PsiElement, replacement: => String)
 
 object ConvertExpressionToSAMInspection {
   val inspectionName: String = ScalaInspectionBundle.message("convert.expression.to.sam")
-  val inspectionId = "ConvertExpressionToSAM"
 }

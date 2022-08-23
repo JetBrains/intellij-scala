@@ -1,14 +1,13 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
-import com.intellij.psi.PsiElement
 import com.intellij.ui._
 import com.intellij.ui.components.JBList
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsUtil}
@@ -17,7 +16,6 @@ import java.awt.{Component, GridLayout}
 import java.util
 import javax.swing._
 import javax.swing.event.ChangeEvent
-import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
 
 object OperationOnCollectionInspectionBase {
@@ -52,16 +50,16 @@ object OperationOnCollectionInspectionBase {
   }
 }
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-abstract class OperationOnCollectionInspectionBase extends AbstractInspection(inspectionName) {
+abstract class OperationOnCollectionInspectionBase extends LocalInspectionTool {
   private val settings = ScalaApplicationSettings.getInstance()
 
-  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case SimplifiableExpression(expr) => simplifications(expr).foreach {
       case s@Simplification(toReplace, _, hint, rangeInParent) =>
         val quickFix = OperationOnCollectionQuickFix(s)
         holder.registerProblem(toReplace.getElement, hint, highlightType, rangeInParent, quickFix)
     }
+    case _ =>
   }
 
   def highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING

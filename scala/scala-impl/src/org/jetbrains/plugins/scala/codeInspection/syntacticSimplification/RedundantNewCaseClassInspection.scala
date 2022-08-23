@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.PsiElement
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
@@ -13,21 +12,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.annotation.nowarn
+class RedundantNewCaseClassInspection extends LocalInspectionTool {
 
-/**
-  * mattfowler
-  * 5/7/2016
-  */
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class RedundantNewCaseClassInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.new.on.case.class")) {
-
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case newTemplate: ScNewTemplateDefinition if !newTemplate.extendsBlock.isAnonymousClass =>
       if (hasRedundantNew(newTemplate)) {
         holder.registerProblem(newTemplate.getFirstChild, ScalaBundle.message("new.on.case.class.instantiation.redundant"),
           ProblemHighlightType.LIKE_UNUSED_SYMBOL, new RemoveNewQuickFix(newTemplate))
       }
+    case _ =>
   }
 
   private def hasRedundantNew(newTemplate: ScNewTemplateDefinition): Boolean = {

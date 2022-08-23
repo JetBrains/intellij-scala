@@ -1,31 +1,29 @@
 package org.jetbrains.plugins.scala
 package codeInspection.redundantBlock
 
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.codeInspection.parentheses.registerRedundantParensProblem
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection.{InCaseClauseQuickFix, UnwrapExpressionQuickFix}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-import scala.annotation.nowarn
+class RedundantBlockInspection extends LocalInspectionTool {
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class RedundantBlockInspection extends AbstractInspection {
-
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case (block: ScBlock) childOf ((blockOfExpr: ScBlock) childOf (_: ScCaseClause))
       if block.hasRBrace && block.getFirstChild.textMatches("{") &&
         blockOfExpr.getChildren.length == 1 && !block.getChildren.exists(_.is[ScCaseClauses]) =>
-      registerRedundantParensProblem(ScalaInspectionBundle.message("redundant.braces.in.case.clause"), block, new InCaseClauseQuickFix(block))
+      registerRedundantParensProblem(ScalaInspectionBundle.message("redundant.braces.in.case.clause"), block, new InCaseClauseQuickFix(block), holder, isOnTheFly)
     case block: ScBlockExpr if block.statements.length == 1 =>
       if (RedundantBlockInspection.isRedundantBlock(block)) {
-        registerRedundantParensProblem(ScalaInspectionBundle.message("the.enclosing.block.is.redundant"), block, new UnwrapExpressionQuickFix(block))
+        registerRedundantParensProblem(ScalaInspectionBundle.message("the.enclosing.block.is.redundant"), block, new UnwrapExpressionQuickFix(block), holder, isOnTheFly)
       }
+    case _ =>
   }
 }
 
@@ -75,7 +73,7 @@ object RedundantBlockInspection {
   }
 
   def isInterpolatedStringIdentifier(name: String): Boolean =
-    name.length > 0 &&
+    name.nonEmpty &&
       Character.isJavaIdentifierStart(name.head) &&
       name.forall(Character.isJavaIdentifierPart)
 }

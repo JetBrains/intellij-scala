@@ -1,27 +1,22 @@
 package org.jetbrains.plugins.scala.codeInspection.parameters
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
-import scala.annotation.nowarn
+class RedundantDefaultArgumentInspection extends LocalInspectionTool {
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class RedundantDefaultArgumentInspection
-  extends AbstractInspection(ScalaInspectionBundle.message("argument.duplicates.corresponding.parameter.default.value")) {
-
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case ScMethodCall(referenceExpression: ScReferenceExpression, arguments: Seq[ScExpression]) =>
       referenceExpression.resolve() match {
         case function: ScFunction =>
           arguments.indices
             .filter(index => RedundantDefaultArgumentUtil.isRedundantArgumentAt(arguments, index, function.parameters))
-            .foreach(index => registerProblem(arguments(index)))
+            .foreach(index => registerProblem(arguments(index))(holder))
         case _ =>
       }
     case _ =>

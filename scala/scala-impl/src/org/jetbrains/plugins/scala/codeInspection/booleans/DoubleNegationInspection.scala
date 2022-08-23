@@ -1,22 +1,20 @@
 package org.jetbrains.plugins.scala
 package codeInspection.booleans
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScParenthesisedExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.mutable
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class DoubleNegationInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.double.negation")) {
+class DoubleNegationInspection extends LocalInspectionTool {
 
-  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case expr: ScExpression if DoubleNegationUtil.hasDoubleNegation(expr) =>
-      holder.registerProblem(expr, ScalaInspectionBundle.message("display.name.double.negation"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new DoubleNegationQuickFix(expr))
+      holder.registerProblem(expr, ScalaInspectionBundle.message("displayname.double.negation"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new DoubleNegationQuickFix(expr))
     case _ =>
   }
 }
@@ -52,7 +50,7 @@ object DoubleNegationUtil {
   def removeDoubleNegation(expr: ScExpression): ScExpression = {
     val text: String = stripParentheses(expr) match {
       case ScPrefixExpr(_, operand) => invertedNegationText(operand)
-      case infix @ ScInfixExpr(left, _, right) =>
+      case infix@ScInfixExpr(left, _, right) =>
         val hasNegLeft = hasNegation(left)
         val hasNegRight = hasNegation(right)
         val hasNegInfix = hasNegation(infix)
@@ -80,7 +78,7 @@ object DoubleNegationUtil {
     }
   }
 
-   private def invertedNegationText(expr: ScExpression): String = {
+  private def invertedNegationText(expr: ScExpression): String = {
     require(hasNegation(expr))
     val withoutParentheses = stripParentheses(expr)
     withoutParentheses match {

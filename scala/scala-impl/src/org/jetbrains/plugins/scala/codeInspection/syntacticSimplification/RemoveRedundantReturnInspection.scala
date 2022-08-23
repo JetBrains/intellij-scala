@@ -3,18 +3,14 @@ package codeInspection
 package syntacticSimplification
 
 import com.intellij.codeInspection._
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RemoveReturnKeywordQuickFix
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturn
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExpressionExt, ScFunction, ScFunctionDefinition}
 
-import scala.annotation.nowarn
+class RemoveRedundantReturnInspection extends LocalInspectionTool {
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class RemoveRedundantReturnInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.return")) {
-
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case function: ScFunctionDefinition =>
       for (body <- function.body) {
         val returns = body.calculateTailReturns
@@ -33,5 +29,6 @@ class RemoveRedundantReturnInspection extends AbstractInspection(ScalaInspection
           case _ =>
         }
       }
+    case _ =>
   }
 }

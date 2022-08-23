@@ -11,7 +11,7 @@ class KindProjectorSimplifyTypeProjectionTest extends ScalaInspectionTestBase {
     classOf[KindProjectorSimplifyTypeProjectionInspection]
 
   override protected val description: String =
-    ScalaInspectionBundle.message("kind.projector.simplify.type")
+    ScalaInspectionBundle.message("displayname.in.kind.projector.simplify.type")
 
   private def testFix(text: String, res: String): Unit =
     testQuickFix(text, res, description)

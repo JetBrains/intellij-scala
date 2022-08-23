@@ -4,23 +4,17 @@ package controlFlow
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RemoveExpressionQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, SideEffectsUtil}
 
-final class ScalaUnusedExpressionInspection extends AbstractRegisteredInspection {
+final class ScalaUnusedExpressionInspection extends LocalInspectionTool {
 
   import ScalaUnusedExpressionInspection._
   import SideEffectsUtil.{hasNoSideEffects, mayOnlyThrow}
 
-  override protected def problemDescriptor(element: PsiElement,
-                                           maybeQuickFix: Option[LocalQuickFix],
-                                           descriptionTemplate: String,
-                                           highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] =
-    element match {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
       case expression: ScExpression if IntentionAvailabilityChecker.checkInspection(this, expression.getParent) &&
         expressionResultIsNotUsed(expression) =>
 
@@ -28,9 +22,10 @@ final class ScalaUnusedExpressionInspection extends AbstractRegisteredInspection
           descriptionTemplate <- if (hasNoSideEffects(expression)) Some(ScalaInspectionBundle.message("unused.expression.no.side.effects"))
           else if (mayOnlyThrow(expression)) Some(ScalaInspectionBundle.message("unused.expression.throws"))
           else None
-
-        } yield manager.createProblemDescriptor(expression, descriptionTemplate, isOnTheFly, createQuickFixes(expression), ProblemHighlightType.LIKE_UNUSED_SYMBOL)
-      case _ => None
+        } yield {
+          holder.registerProblem(expression, descriptionTemplate, ProblemHighlightType.LIKE_UNUSED_SYMBOL, createQuickFixes(expression): _*)
+        }
+      case _ =>
     }
 }
 

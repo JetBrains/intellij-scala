@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.controlFlow
 
 import com.intellij.codeInspection.ui.InspectionOptionsPanel
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
-import com.intellij.psi.PsiElement
-import com.intellij.psi.tree.IElementType
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFor, ScFunctionExpr, ScMethodCall, ScReferenceExpression, ScReturn}
@@ -15,7 +13,8 @@ import javax.swing.JComponent
 import scala.annotation.tailrec
 import scala.beans.BooleanBeanProperty
 
-final class NonLocalReturnInspection extends AbstractRegisteredInspection {
+final class NonLocalReturnInspection extends LocalInspectionTool {
+
   import NonLocalReturnInspection._
   import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
 
@@ -30,26 +29,12 @@ final class NonLocalReturnInspection extends AbstractRegisteredInspection {
       "checkCompilerOption"
     )
 
-  override protected def problemDescriptor(element: PsiElement,
-                                           maybeQuickFix: Option[LocalQuickFix],
-                                           descriptionTemplate: String,
-                                           highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] =
-    element match {
-      case scReturn: ScReturn if isNonLocal(scReturn) &&
-        isInspectionAllowed(scReturn, checkCompilerOption, "-Xlint:nonlocal-return") =>
-        Some(
-            manager.createProblemDescriptor(
-              scReturn,
-              annotationDescription,
-              isOnTheFly,
-              Array.empty[LocalQuickFix],
-              ProblemHighlightType.GENERIC_ERROR_OR_WARNING
-            )
-        )
-      case _ =>
-        None
-    }
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case scReturn: ScReturn if isNonLocal(scReturn) &&
+      isInspectionAllowed(scReturn, checkCompilerOption, "-Xlint:nonlocal-return") =>
+      holder.registerProblem(scReturn, annotationDescription)
+    case _ =>
+  }
 }
 
 object NonLocalReturnInspection {
@@ -65,10 +50,10 @@ object NonLocalReturnInspection {
   private def isNonLocal(elem: ScalaPsiElement): Boolean =
     elem.getParent match {
       case _: ScFunctionDefinition => false
-      case _: ScFunctionExpr       => true
-      case m: ScMethodCall         => !isSynchronized(m)
-      case _: ScFor                => true
+      case _: ScFunctionExpr => true
+      case m: ScMethodCall => !isSynchronized(m)
+      case _: ScFor => true
       case parent: ScalaPsiElement => isNonLocal(parent)
-      case _                       => false
+      case _ => false
     }
 }

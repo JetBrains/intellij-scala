@@ -51,7 +51,7 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
 
 object KindProjectorSimplifyTypeProjectionInspection {
   private val inspectionId: String   = "KindProjectorSimplifyTypeProjection"
-  private val inspectionName: String = ScalaInspectionBundle.message("kind.projector.simplify.type")
+  private val inspectionName: String = ScalaInspectionBundle.message("displayname.in.kind.projector.simplify.type")
 
   class KindProjectorSimplifyTypeProjectionQuickFix(e: PsiElement, replacement: =>String)
     extends AbstractFixOnPsiElement(KindProjectorSimplifyTypeProjectionInspection.inspectionName, e) {

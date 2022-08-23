@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package delayedInit
 
-import com.intellij.codeInspection.ProblemsHolder
-import com.intellij.psi.PsiElement
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -11,20 +10,21 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.annotation.nowarn
+import scala.annotation.unused
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-final class FieldFromDelayedInitInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.field.from.delayedinit")) {
+@unused("registered in scala-plugin-common.xml")
+final class FieldFromDelayedInitInspection extends LocalInspectionTool {
 
   import FieldFromDelayedInitInspection._
 
-  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case ref: ScReferenceExpression =>
       for {
         FieldInDelayedInit(delayedInitClass) <- ref.bind()
         parents = parentDefinitions(ref)
         if !parents.exists(_.sameOrInheritor(delayedInitClass))
       } holder.registerProblem(ref.nameId, ScalaInspectionBundle.message("field.defined.in.delayedinit.is.likely.to.be.null"))
+    case _ =>
   }
 }
 

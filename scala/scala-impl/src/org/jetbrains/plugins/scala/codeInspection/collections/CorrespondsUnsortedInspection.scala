@@ -12,12 +12,13 @@ import scala.collection.immutable.ArraySeq
 class CorrespondsUnsortedInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq.empty
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case (expr: ScExpression) && (left`.sameElements`(right)) if isUnsorted(left) || isUnsorted(right) =>
       holder.registerProblem(refNameId(expr).getOrElse(expr), ScalaInspectionBundle.message("sameElements.unsorted"), highlightType)
     case (expr: ScExpression) && (left`.corresponds`(right, _)) if isIterator(left) && isUnsorted(right) =>
     //corresponds signature imply that check is needed for iterators only
       holder.registerProblem(refNameId(expr).getOrElse(expr), ScalaInspectionBundle.message("corresponds.unsorted"), highlightType)
+    case _ =>
   }
 
   private def isUnsorted(expr: ScExpression): Boolean =

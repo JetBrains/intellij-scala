@@ -2,22 +2,21 @@ package org.jetbrains.plugins.scala
 package codeInspection.relativeImports
 
 import com.intellij.codeInsight.daemon.QuickFixBundle
-import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.relativeImports.AbsoluteImportInspection.OptimizeImportsQuickFix
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.editor.importOptimizer.{OptimizeImportSettings, ScalaImportOptimizer}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 
-import scala.annotation.nowarn
+import scala.annotation.unused
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class AbsoluteImportInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.absolute.import")) {
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+@unused("registered in scala-plugin-common.xml")
+class AbsoluteImportInspection extends LocalInspectionTool {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case importExpr@ScImportExpr.qualifier(qualifier) =>
 
       importExpr.containingFile.foreach { file =>
@@ -28,6 +27,7 @@ class AbsoluteImportInspection extends AbstractInspection(ScalaInspectionBundle.
           }
         }
       }
+    case _ =>
   }
 }
 

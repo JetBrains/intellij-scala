@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package forwardReferenceInspection
 
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
@@ -11,34 +11,25 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueO
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 
 
-class ForwardReferenceInspection extends AbstractRegisteredInspection {
+class ForwardReferenceInspection extends LocalInspectionTool {
 
   import ForwardReferenceInspection._
 
-  override protected def problemDescriptor(element: PsiElement,
-                                           maybeQuickFix: Option[LocalQuickFix],
-                                           descriptionTemplate: String,
-                                           highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
-    element match {
-      case ref: ScReferenceExpression if isDirectContextRef(ref) =>
-        val maybeResolved = ref.bind()
-          .map(_.getActualElement)
-          .map(nameContext)
-          .collect(asValueOrVariable)
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case ref: ScReferenceExpression if isDirectContextRef(ref) =>
+      val maybeResolved = ref.bind()
+        .map(_.getActualElement)
+        .map(nameContext)
+        .collect(asValueOrVariable)
 
-        val isSuspicious = maybeResolved.exists(resolved =>
-          ref.parents.takeWhile(propagatesControlFlowToChildren).contains(resolved.getParent) &&
-            ref.getTextOffset < resolved.getTextOffset
-        )
+      val isSuspicious = maybeResolved.exists(resolved =>
+        ref.parents.takeWhile(propagatesControlFlowToChildren).contains(resolved.getParent) &&
+          ref.getTextOffset < resolved.getTextOffset
+      )
 
-        if (isSuspicious) {
-          val description = ScalaBundle.message("suspicious.forward.reference.template.body")
-          Some(manager.createProblemDescriptor(ref, description, isOnTheFly, Array.empty[LocalQuickFix], highlightType))
-        } else None
-
-      case _ => None
-    }
+      if (isSuspicious)
+        holder.registerProblem(ref, ScalaBundle.message("suspicious.forward.reference.template.body"))
+    case _ =>
   }
 }
 

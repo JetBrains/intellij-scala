@@ -13,35 +13,25 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 import scala.annotation.tailrec
 
-sealed abstract class ParameterlessAccessInspection extends AbstractRegisteredInspection {
+sealed abstract class ParameterlessAccessInspection extends LocalInspectionTool {
 
   import ParameterlessAccessInspection._
 
-  override protected def problemDescriptor(element: PsiElement,
-                                           maybeQuickFix: Option[LocalQuickFix],
-                                           descriptionTemplate: String,
-                                           highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager,
-                                           isOnTheFly: Boolean): Option[ProblemDescriptor] =
-    element match {
-      case _ if !isValid(element) => None
-      case reference@ScReferenceExpression(method: PsiMethod) if isValid(method) =>
-        val maybeTargetExpression = reference.getParent match {
-          case parent if !isFixable(parent) => None
-          case call: ScGenericCall if !findCall(call) => Some(call)
-          case _: ScGenericCall => None
-          case _ => Some(reference)
-        }
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case element if !isValid(element) =>
+    case reference@ScReferenceExpression(method: PsiMethod) if isValid(method) =>
+      val maybeTargetExpression = reference.getParent match {
+        case parent if !isFixable(parent) => None
+        case call: ScGenericCall if !findCall(call) => Some(call)
+        case _: ScGenericCall => None
+        case _ => Some(reference)
+      }
 
-        for {
-          targetExpression <- maybeTargetExpression
-          e <- collect(targetExpression, reference)
-
-          quickfix = createQuickFix(e)
-          problemDescriptor <- super.problemDescriptor(reference.nameId, Some(quickfix), descriptionTemplate, highlightType)
-        } yield problemDescriptor
-      case _ => None
-    }
+      maybeTargetExpression.flatMap(collect(_, reference)).foreach { expr =>
+        holder.registerProblem(reference.nameId, getDisplayName, createQuickFix(expr))
+      }
+    case _ =>
+  }
 
   protected def isValid(element: PsiElement): Boolean = element.isValid
 
@@ -83,7 +73,7 @@ object ParameterlessAccessInspection {
     override protected def collect(expression: ScExpression,
                                    reference: ScReferenceExpression): Option[ScExpression] = expression match {
       case HasFunctionType(Seq()) => None
-      case _                      => Some(reference)
+      case _ => Some(reference)
     }
 
     override protected def isValid(element: PsiElement): Boolean =

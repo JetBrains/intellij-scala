@@ -8,7 +8,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
     classOf[SideEffectsInMonadicTransformationInspection]
 
   override protected val hint: String =
-    ScalaInspectionBundle.message("side.effects.in.monadic")
+    ScalaInspectionBundle.message("displayname.side.effects.in.a.monadic.transformation")
 
   def testInfixAssignment(): Unit = {
     checkTextHasError(

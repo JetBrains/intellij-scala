@@ -1,41 +1,32 @@
 package org.jetbrains.plugins.scala.codeInspection.deprecation
 
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.unwrap.{ScalaUnwrapContext, ScalaUnwrapper}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection, ScalaInspectionBundle, getActiveEditor}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle, getActiveEditor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
-class Scala3DeprecatedPackageObjectInspection extends AbstractRegisteredInspection {
+class Scala3DeprecatedPackageObjectInspection extends LocalInspectionTool {
+
   import Scala3DeprecatedPackageObjectInspection._
 
-  override protected def problemDescriptor(
-    element:             PsiElement,
-    maybeQuickFix:       Option[LocalQuickFix],
-    descriptionTemplate: String,
-    highlightType:       ProblemHighlightType
-  )(implicit
-    manager:    InspectionManager,
-    isOnTheFly: Boolean
-  ): Option[ProblemDescriptor] =
-    element match {
-      case obj: ScObject if obj.isPackageObject && obj.isInScala3Module =>
-        super.problemDescriptor(
-          obj.nameId,
-          unwrapPackageObjectQuickFix(obj),
-          message,
-          ProblemHighlightType.LIKE_DEPRECATED
-        )
-      case _ => None
-    }
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case obj: ScObject if obj.isPackageObject && obj.isInScala3Module =>
+      holder.registerProblem(obj.nameId,
+        message,
+        ProblemHighlightType.LIKE_DEPRECATED,
+        unwrapPackageObjectQuickFix(obj).toArray[LocalQuickFix]: _*
+      )
+    case _ =>
+  }
 }
 
 object Scala3DeprecatedPackageObjectInspection {
   private[deprecation] val message = ScalaInspectionBundle.message("package.objects.are.deprecated")
-  private[deprecation] val fixId   = ScalaInspectionBundle.message("unwrap.package.object.fix")
-  private val unwrapper            = new PackageObjectUnwrapper
+  private[deprecation] val fixId = ScalaInspectionBundle.message("unwrap.package.object.fix")
+  private val unwrapper = new PackageObjectUnwrapper
 
   private def unwrapPackageObjectQuickFix(obj: ScObject): Option[LocalQuickFix] =
     Option.when(obj.extendsBlock.templateParents.forall(_.typeElements.isEmpty))(

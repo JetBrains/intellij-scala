@@ -4,7 +4,8 @@ package methodSignature
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.psi.PsiMethod
+import org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorEmptyParenCallInspection.{createQuickFix, hasSameType, isNotOverloadedMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -12,30 +13,22 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, result}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CollectMethodsProcessor
 
-final class JavaAccessorEmptyParenCallInspection extends AbstractRegisteredInspection {
+final class JavaAccessorEmptyParenCallInspection extends LocalInspectionTool {
 
-  override protected def problemDescriptor(element: PsiElement,
-                                           maybeQuickFix: Option[LocalQuickFix],
-                                           descriptionTemplate: String,
-                                           highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager,
-                                           isOnTheFly: Boolean): Option[ProblemDescriptor] =
-    element match {
-      case (place: ScReferenceExpression) childOf (call: ScMethodCall) if call.argumentExpressions.isEmpty =>
-        import JavaAccessorEmptyParenCallInspection._
-        val problemExists = place match {
-          case _ if call.getParent.is[ScMethodCall] => false
-          case Resolved(resolveResult@ScalaResolveResult(method: PsiMethod, _))
-            if quickfix.isAccessor(method) &&
-              isNotOverloadedMethod(place, resolveResult.fromType) =>
-            hasSameType(call, place)
-          case _ => false
-        }
-
-        if (problemExists) super.problemDescriptor(place.nameId, createQuickFix(call), descriptionTemplate, highlightType)
-        else None
-      case _ => None
-    }
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case (place: ScReferenceExpression) childOf (call: ScMethodCall) if call.argumentExpressions.isEmpty =>
+      place match {
+        case _ if call.getParent.is[ScMethodCall] =>
+        case Resolved(resolveResult@ScalaResolveResult(method: PsiMethod, _))
+          if quickfix.isAccessor(method) &&
+            isNotOverloadedMethod(place, resolveResult.fromType) =>
+          if (hasSameType(call, place)) {
+            holder.registerProblem(place.nameId, getDisplayName, createQuickFix(call))
+          }
+        case _ =>
+      }
+    case _ =>
+  }
 }
 
 object JavaAccessorEmptyParenCallInspection {
@@ -51,20 +44,14 @@ object JavaAccessorEmptyParenCallInspection {
     case _ => false
   }
 
-  private def createQuickFix(call: ScMethodCall): Option[AbstractFixOnPsiElement[ScMethodCall]] = {
-    val quickFix = new AbstractFixOnPsiElement(
-      ScalaInspectionBundle.message("remove.call.parentheses"),
-      call
-    ) {
+  private def createQuickFix(call: ScMethodCall): AbstractFixOnPsiElement[ScMethodCall] =
+    new AbstractFixOnPsiElement(ScalaInspectionBundle.message("remove.call.parentheses"), call) {
       override protected def doApplyFix(call: ScMethodCall)(implicit project: Project): Unit = {
         val text = call.getInvokedExpr.getText
         val replacement = ScalaPsiElementFactory.createExpressionFromText(text)
         call.replace(replacement)
       }
     }
-
-    Some(quickFix)
-  }
 
   private[this] def processType(`type`: ScType,
                                 place: ScReferenceExpression): Set[ScalaResolveResult] = {

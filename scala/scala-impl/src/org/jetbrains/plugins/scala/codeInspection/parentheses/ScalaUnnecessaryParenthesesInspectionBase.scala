@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package parentheses
 
-import com.intellij.codeInspection.{LocalQuickFix, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -16,17 +15,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker.checkInspection
 
-import scala.annotation.nowarn
+abstract class ScalaUnnecessaryParenthesesInspectionBase extends LocalInspectionTool {
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-abstract class ScalaUnnecessaryParenthesesInspectionBase
-  extends AbstractInspection(ScalaBundle.message("remove.unnecessary.parentheses")) {
-
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case p: ScParenthesizedElement if isProblem(p) =>
-      registerProblem(p)
+      registerProblem(p, holder, isOnTheFly)
     case f: ScFunctionExpr if hasSingleParenthesizedParam(f) && !currentSettings.ignoreAroundFunctionExprParam =>
-      f.params.clauses.headOption.foreach(registerProblem)
+      f.params.clauses.headOption.foreach(clause => registerProblem(clause, holder, isOnTheFly))
+    case _ =>
   }
 
   def currentSettings: UnnecessaryParenthesesSettings
@@ -66,9 +62,9 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
       isParenthesesRedundant(elem)
 
 
-  private def registerProblem(parenthesized: ScParenthesizedElement)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
+  private def registerProblem(parenthesized: ScParenthesizedElement, holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
     val description = ScalaInspectionBundle.message("remove.unnecessary.parentheses.with.text", getShortText(parenthesized))
-    registerProblem(parenthesized, new AbstractFixOnPsiElement(description, parenthesized) {
+    val foo = new AbstractFixOnPsiElement(description, parenthesized) {
       override protected def doApplyFix(element: ScParenthesizedElement)(implicit project: Project): Unit = {
         val keepParentheses = element.isNestingParenthesis
         // remove first the duplicate parentheses
@@ -85,10 +81,11 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
 
         ScalaPsiUtil padWithWhitespaces replaced
       }
-    })
+    }
+    registerProblem(parenthesized, foo, holder, isOnTheFly)
   }
 
-  private def registerProblem(elt: ScParameterClause)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
+  private def registerProblem(elt: ScParameterClause, holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
     val quickFix = new AbstractFixOnPsiElement[ScParameterClause](ScalaInspectionBundle.message("remove.unnecessary.parentheses.with.text", getShortText(elt)), elt) {
       override protected def doApplyFix(element: ScParameterClause)(implicit project: Project): Unit = {
         if (isParenthesised(element)) {
@@ -98,10 +95,10 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
       }
     }
 
-    registerProblem(elt, quickFix)
+    registerProblem(elt, quickFix, holder, isOnTheFly)
   }
 
-  private def registerProblem(elt: ScalaPsiElement, qf: LocalQuickFix)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
-    registerRedundantParensProblem(ScalaInspectionBundle.message("unnecessary.parentheses"), elt, qf)
+  private def registerProblem(elt: ScalaPsiElement, qf: LocalQuickFix, holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
+    registerRedundantParensProblem(ScalaInspectionBundle.message("displayname.unnecessary.parentheses"), elt, qf, holder, isOnTheFly)
   }
 }
