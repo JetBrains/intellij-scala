@@ -21,7 +21,7 @@ trait ScTypeAlias extends ScNamedElement
   with ScDocCommentOwner
   with ScCommentOwner {
 
-  override protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean): Boolean = m match {
+  override protected def isSimilarMemberForNavigation(m: ScMember, isStrictCheck: Boolean): Boolean = m match {
     case t: ScTypeAlias => t.name == name
     case _ => false
   }

@@ -1,30 +1,27 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package toplevel
-package typedef
+package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.openapi.util.Key
-import com.intellij.psi._
-import com.intellij.psi.util._
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiModifier}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.ModTracker
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, StubBasedExt}
+import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, Parent, StubBasedExt}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScExtensionBody, ScFunction, ScTypeAlias, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtensionBody, ScFunction, ScTypeAlias, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScMemberOrLocal
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.util.BaseIconProvider
 
-import scala.collection.mutable.ArrayBuffer
-
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
+
+  import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
 
   override def getContainingClass: PsiClass = containingClass
 
@@ -63,17 +60,20 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     this match {
       case stub: StubBasedPsiElementBase[_] =>
         stub.getGreenStub match {
-          case member: ScMemberOrLocal[_] if member.isLocal => return null
+          case member: ScMemberOrLocal[_] if member.isLocal =>
+            return null
           case _ =>
         }
       case _ =>
     }
 
     val found = getContainingClassLoose
-    if (found == null) return null
+    if (found == null)
+      return null
 
     val clazz = ScMember.containingClass(this, found)
-    if (clazz != null) return clazz
+    if (clazz != null)
+      return clazz
 
     val context = getContext
     val extendsBlock = found.extendsBlock
@@ -107,7 +107,8 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
               case fun: ScFunction if fun.isSynthetic && (fun.isApplyMethod || fun.isUnapplyMethod) =>
                 //this is special case for synthetic apply and unapply methods
                 ScalaPsiUtil.getCompanionModule(c) match {
-                  case Some(td) => return td
+                  case Some(td) =>
+                    return td
                   case _ =>
                 }
               case _ =>
@@ -161,39 +162,42 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     }
   }
 
-  protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean) = false
+  /**
+   * @param isStrictCheck false - Fast option to just check member names<br>
+   *                      true - Slow option which will check all function overloaded alternatives
+   *                      For that it needs to resolve all type paramers and check parameter types equivalence
+   */
+  protected def isSimilarMemberForNavigation(m: ScMember, isStrictCheck: Boolean) = false
 
   override def getNavigationElement: PsiElement = getContainingFile match {
-    case s: ScalaFileImpl if s.isCompiled => getSourceMirrorMember
+    case s: ScalaFileImpl if s.isCompiled =>
+      getSourceMirrorMember
     case _ => this
   }
 
   private def getSourceMirrorMember: ScMember = getParent match {
-    case tdb: ScTemplateBody => tdb.getParent match {
-      case eb: ScExtendsBlock => eb.getParent match {
-        case td: ScTypeDefinition => td.getNavigationElement match {
-          case c: ScTypeDefinition =>
-            val membersIterator = c.members.iterator
-            val buf: ArrayBuffer[ScMember] = new ArrayBuffer[ScMember]
-            while (membersIterator.hasNext) {
-              val member = membersIterator.next()
-              if (isSimilarMemberForNavigation(member, isStrict = false)) buf += member
-            }
-            if (buf.isEmpty) this
-            else if (buf.length == 1) buf(0)
-            else {
-              val filter = buf.filter(isSimilarMemberForNavigation(_, isStrict = true))
-              if (filter.isEmpty) buf(0)
-              else filter(0)
-            }
-          case _ => this
-        }
+    case (_: ScTemplateBody) && Parent((_: ScExtendsBlock) && Parent(td: ScTypeDefinition)) =>
+      val navigationElement = td.getNavigationElement
+      navigationElement match {
+        case typeDefinition: ScTypeDefinition =>
+          val membersIterator = typeDefinition.members.iterator
+
+          //use fast check to find candidates with matching name
+          val similarMembersFast = membersIterator.filter(isSimilarMemberForNavigation(_, isStrictCheck = false)).toSeq
+          if (similarMembersFast.isEmpty)
+            this
+          else if (similarMembersFast.length == 1)
+            similarMembersFast.head
+          else {
+            //multiple candidates (most likely overloaded functions), need to check signatures (slow check)
+            val similarMemberWithStrictCheck = similarMembersFast.find(isSimilarMemberForNavigation(_, isStrictCheck = true))
+            similarMemberWithStrictCheck.getOrElse(similarMembersFast.head)
+          }
         case _ => this
       }
-      case _ => this
-    }
     case c: ScTypeDefinition if this.isInstanceOf[ScPrimaryConstructor] => //primary constructor
-      c.getNavigationElement match {
+      val navigationElement = c.getNavigationElement
+      navigationElement match {
         case td: ScClass =>
           td.constructor match {
             case Some(constr) => constr
@@ -204,8 +208,9 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     case _: ScParameterClause =>
       this match {
         case cp: ScClassParameter =>
-          Option(cp.containingClass)
-            .flatMap(_.getNavigationElement.asOptionOf[ScConstructorOwner])
+          val containingClass = Option(cp.containingClass)
+          val navigationElement = containingClass.flatMap(_.getNavigationElement.asOptionOf[ScConstructorOwner])
+          navigationElement
             .flatMap(_.parameters.find(_.name == cp.name))
             .getOrElse(this)
         case _ => this

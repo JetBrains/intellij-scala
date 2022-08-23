@@ -18,8 +18,8 @@ trait ScVariable extends ScValueOrVariable {
 
   override protected def keywordElementType: IElementType = kVAR
 
-  override protected def isSimilarMemberForNavigation(member: ScMember, isStrict: Boolean): Boolean = member match {
-    case other: ScVariable => super.isSimilarMemberForNavigation(other, isStrict)
+  override protected def isSimilarMemberForNavigation(member: ScMember, isStrictCheck: Boolean): Boolean = member match {
+    case other: ScVariable => super.isSimilarMemberForNavigation(other, isStrictCheck)
     case _ => false
   }
 

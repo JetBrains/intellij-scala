@@ -43,14 +43,14 @@ trait ScValueOrVariable extends ScBlockStatement
 
   final def hasExplicitType: Boolean = typeElement.isDefined
 
-  override protected def isSimilarMemberForNavigation(member: ScMember, isStrict: Boolean): Boolean = member match {
+  override protected def isSimilarMemberForNavigation(member: ScMember, isStrictCheck: Boolean): Boolean = member match {
     case other: ScValueOrVariable =>
       for (thisName <- declaredNames;
            otherName <- other.declaredNames
            if thisName == otherName) {
         return true
       }
-      super.isSimilarMemberForNavigation(member, isStrict)
+      super.isSimilarMemberForNavigation(member, isStrictCheck)
     case _ => false
   }
 }

@@ -366,10 +366,12 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  override protected def isSimilarMemberForNavigation(m: ScMember, strictCheck: Boolean): Boolean = m match {
+  override protected def isSimilarMemberForNavigation(m: ScMember, isStrictCheck: Boolean): Boolean = m match {
     case f: ScFunction => f.name == name && {
-      if (strictCheck) new PhysicalMethodSignature(this, ScSubstitutor.empty).
-        paramTypesEquiv(new PhysicalMethodSignature(f, ScSubstitutor.empty))
+      if (isStrictCheck) {
+        val signature = new PhysicalMethodSignature(this, ScSubstitutor.empty)
+        signature.paramTypesEquiv(new PhysicalMethodSignature(f, ScSubstitutor.empty))
+      }
       else true
     }
     case _ => false
@@ -390,7 +392,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     var buf = List.empty[ScMember]
     while (membersIterator.hasNext) {
       val member = membersIterator.next()
-      if (isSimilarMemberForNavigation(member, strictCheck = false)) {
+      if (isSimilarMemberForNavigation(member, isStrictCheck = false)) {
         buf ::= member
       }
     }
@@ -399,7 +401,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       case one :: Nil => one
       case head :: _ =>
         buf.iterator
-          .filter(isSimilarMemberForNavigation(_, strictCheck = true))
+          .filter(isSimilarMemberForNavigation(_, isStrictCheck = true))
           .nextOption()
           .getOrElse(head)
     }
