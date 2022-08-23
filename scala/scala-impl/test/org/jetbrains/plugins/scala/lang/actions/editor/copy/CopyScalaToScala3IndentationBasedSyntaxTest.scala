@@ -10,57 +10,57 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
   def testWhitespace(): Unit = {
     val from =
       s"""$Start  $empty
-         |$End"""
+         |$End""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
          |    $empty
          |
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testSingleLine(): Unit = {
     val from =
       s"""$Start  ???
-         |$End"""
+         |$End""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |$Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
          |  ???
          |
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testMultiLine(): Unit = {
     val from =
       s"""$Start
          |  ???
-         |$End"""
+         |$End""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |$Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
          |
          |???
          |
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testMultiLine_Infix(): Unit = {
@@ -70,18 +70,18 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    ${Start}if false then 1 else
          |      2
          |      3$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print($Caret)
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(if false then 1 else
          |    2
          |    3)
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   // SCL-20036
@@ -91,19 +91,19 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |
          |extension (c: Circle)
          |  def circumference: Double = c.radius * math.Pi * 2$End
-         |"""
+         |""".stripMargin
     val to =
       s"""object Example {
          |  $Caret
-         |}"""
+         |}""".stripMargin
     val after =
       """object Example {
         |  case class Circle(x: Double, y: Double, radius: Double)
         |
         |  extension (c: Circle)
         |    def circumference: Double = c.radius * math.Pi * 2
-        |}"""
-    doTestWithStripWithAllSelections(from, to, after)
+        |}""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testExtension_1(): Unit = {
@@ -112,19 +112,19 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |
          |extension (c: Circle)
          |  def circumference: Double = c.radius * math.Pi * 2$End
-         |"""
+         |""".stripMargin
     val to =
       s"""object Example:
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       """object Example:
         |  case class Circle(x: Double, y: Double, radius: Double)
         |
         |  extension (c: Circle)
         |    def circumference: Double = c.radius * math.Pi * 2
-        |"""
-    doTestWithStripWithAllSelections(from, to, after)
+        |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testExtension_2(): Unit = {
@@ -133,19 +133,19 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |
          |extension (c: Circle)
          |  def circumference: Double = c.radius * math.Pi * 2$End
-         |"""
+         |""".stripMargin
     val to =
       s"""object Example:
          |$Caret
-         |"""
+         |""".stripMargin
     val after =
       """object Example:
         |case class Circle(x: Double, y: Double, radius: Double)
         |
         |extension (c: Circle)
         |  def circumference: Double = c.radius * math.Pi * 2
-        |"""
-    doTestWithStripWithAllSelections(from, to, after)
+        |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testExtension_3(): Unit = {
@@ -156,11 +156,11 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |extension (c: Circle)
          |  def circumference: Double = c.radius * math.Pi * 2
          |$End
-         |"""
+         |""".stripMargin
     val to =
       s"""object Example:
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       """object Example:
         |
@@ -169,8 +169,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
         |  extension (c: Circle)
         |    def circumference: Double = c.radius * math.Pi * 2
         |
-        |"""
-    doTestWithStripWithAllSelections(from, to, after)
+        |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod(): Unit = {
@@ -179,12 +179,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  def baz() =
          |    print(1)
          |  baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -192,8 +192,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_1(): Unit = {
@@ -202,12 +202,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  def baz() =
          |    print(1)
          |  baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |$Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -215,8 +215,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  def baz() =
          |    print(1)
          |  baz()
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_2(): Unit = {
@@ -227,12 +227,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    print(1)
          |  baz()
          |$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -242,8 +242,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |      print(1)
          |    baz()
          |
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_3(): Unit = {
@@ -254,12 +254,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    print(1)
          |  baz()
          |$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |$Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -269,8 +269,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    print(1)
          |  baz()
          |
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject(): Unit = {
@@ -280,12 +280,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -293,8 +293,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_1(): Unit = {
@@ -304,12 +304,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |$Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -317,8 +317,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  def baz() =
          |    print(1)
          |  baz()
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_2(): Unit = {
@@ -328,12 +328,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -341,8 +341,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_3(): Unit = {
@@ -352,12 +352,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |$Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -365,8 +365,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  def baz() =
          |    print(1)
          |  baz()
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_4(): Unit = {
@@ -378,12 +378,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |      print(1)
          |    baz()
          |$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -393,8 +393,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |      print(1)
          |    baz()
          |
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_5(): Unit = {
@@ -406,12 +406,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |      print(1)
          |    baz()
          |$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |$Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -421,8 +421,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    print(1)
          |  baz()
          |
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_Braces(): Unit = {
@@ -432,12 +432,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    print(1)
          |  baz(1)
          |}$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -446,8 +446,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |      print(1)
          |    baz(1)
          |  }
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_Braces_1(): Unit = {
@@ -459,12 +459,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  baz(1)
          |}
          |$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -475,8 +475,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    baz(1)
          |  }
          |
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_Braces_FromObject(): Unit = {
@@ -488,12 +488,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    baz(1)
          |  }$End
          |}
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -502,8 +502,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |      print(1)
          |    baz(1)
          |  }
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_Braces_FromObject_1(): Unit = {
@@ -516,12 +516,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    baz(1)
          |  }
          |$End}
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -532,8 +532,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    baz(1)
          |  }
          |
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_EOF(): Unit = {
@@ -543,19 +543,19 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
-         |  $Caret"""
+         |  $Caret""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
          |  def foo() =
          |    def baz() =
          |      print(1)
-         |    baz()"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |    baz()""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_EOF_1(): Unit = {
@@ -565,19 +565,19 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
-         |$Caret"""
+         |$Caret""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
          |def foo() =
          |  def baz() =
          |    print(1)
-         |  baz()"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |  baz()""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_Postfix(): Unit = {
@@ -587,12 +587,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret???
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -600,8 +600,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()???
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_InBlock(): Unit = {
@@ -611,14 +611,14 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
          |    ???
          |  ???
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -628,8 +628,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    baz()
          |    ???
          |  ???
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_Comment(): Unit = {
@@ -639,13 +639,13 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
          |  ???
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -654,8 +654,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |      print(1)
          |    baz()
          |  ???
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_Comment_1(): Unit = {
@@ -665,13 +665,13 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
          |  ???
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -680,8 +680,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |      print(1)
          |    baz()
          |  ???
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   // TODO ignored
@@ -692,13 +692,13 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |/* foo */  $Caret
          |  ???
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -707,8 +707,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |      print(1)
          |    baz()
          |  ???
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_Comment_3(): Unit = {
@@ -718,13 +718,13 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  /* foo */$Caret
          |  ???
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -733,8 +733,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |      print(1)
          |    baz()
          |  ???
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   // TODO ignored
@@ -745,13 +745,13 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          | /* foo */   def baz() =
          |      print(1)
          |    baz()$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
          |  ???
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -760,8 +760,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |      print(1)
          |    baz()
          |  ???
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_FromObject_Tabs(): Unit = {
@@ -772,12 +772,12 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |$tab$tab${tab}print(1)
          |$tab${tab}baz()
          |$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
@@ -786,8 +786,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |      print(1)
          |    baz()
          |
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testLesserIndentation(): Unit = {
@@ -796,19 +796,19 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  def foo() =
          |    ${Start}1
          |  2$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
          |  1
          |2
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 
   def testLesserIndentation_Tabs(): Unit = {
@@ -817,18 +817,18 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |${tab}def foo() =
          |$tab$tab${Start}1
          |${tab}2$End
-         |"""
+         |""".stripMargin
     val to =
       s"""def bar() =
          |  print(2)
          |  $Caret
-         |"""
+         |""".stripMargin
     val after =
       s"""def bar() =
          |  print(2)
          |  1
          |2
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
+         |""".stripMargin
+    doTestWithAllSelections(from, to, after)
   }
 }

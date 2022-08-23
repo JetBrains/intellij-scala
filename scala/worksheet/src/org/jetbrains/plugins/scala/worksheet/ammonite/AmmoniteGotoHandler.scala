@@ -40,7 +40,7 @@ class AmmoniteGotoHandler extends GotoDeclarationHandler {
       case _ => scalaPsi
     }
 
-    GotoOriginalHandlerUtil.findPsi(originalElement.getContainingFile).flatMap {
+    GotoOriginalHandlerUtil.getGoToTarget(originalElement.getContainingFile).flatMap {
       case preImage: PsiFile =>
         Option(preImage.findElementAt(originalElement.getTextRange.getStartOffset - AmmoniteScriptWrappersHolder.getOffsetFix(preImage)))
       case _ => None

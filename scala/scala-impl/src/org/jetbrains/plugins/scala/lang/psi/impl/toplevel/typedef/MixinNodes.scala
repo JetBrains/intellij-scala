@@ -43,8 +43,7 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
   def build(clazz: PsiClass, withSupers: Boolean): Map = {
     if (!clazz.isValid) MixinNodes.emptyMap[T]
     else
-      AstLoadingFilter.disallowTreeLoading { () =>
-
+      AstLoadingFilter.disallowTreeLoading(() => {
         val map = new Map
 
         if (withSupers) {
@@ -57,7 +56,7 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
         map.sigsFinished()
 
         map
-      }
+      }, () => "Tree access is disallowd in MixinNodes.build")
   }
 
   def build(cp: ScCompoundType, compoundThisType: Option[ScType] = None): Map = {

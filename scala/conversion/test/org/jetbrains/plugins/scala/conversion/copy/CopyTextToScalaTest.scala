@@ -5,17 +5,21 @@ import org.jetbrains.plugins.scala.lang.actions.editor.copy.CopyPasteTestBase
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class CopyTextToScalaTest extends CopyPasteTestBase {
-  override val fromLangExtension: String = ".txt"
+  override val fromLangExtension: String = "txt"
 
   override protected def setUp(): Unit = {
     super.setUp()
     ScalaProjectSettings.getInstance(getProject).setDontShowConversionDialog(true)
   }
 
-  override protected def doTest(fromText: String, toText: String, expectedText: String): Unit = {
+  override protected def doTest(from: String, to: String, after: String, fromFileName: String, toFileName: String): Unit = {
+    val insideIdeBefore = TextJavaCopyPastePostProcessor.insideIde
     TextJavaCopyPastePostProcessor.insideIde = false
-    super.doTest(fromText, toText, expectedText)
-    TextJavaCopyPastePostProcessor.insideIde = true
+    try {
+      super.doTest(from, to, after, fromFileName, toFileName)
+    } finally {
+      TextJavaCopyPastePostProcessor.insideIde = insideIdeBefore
+    }
   }
 
   def testWrapWithExpression(): Unit = {

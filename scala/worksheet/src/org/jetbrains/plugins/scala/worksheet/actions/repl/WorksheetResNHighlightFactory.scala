@@ -11,7 +11,7 @@ final class WorksheetResNHighlightFactory extends HighlightUsagesHandlerFactory 
 
   override def createHighlightUsagesHandler(editor: Editor, file: PsiFile): HighlightUsagesHandlerBase[PsiElement] =
     file match {
-      case file: WorksheetFile if file.isRepl =>
+      case file: WorksheetFile if ResNUtils.isResNSupportedInFile(file) =>
         doCreateHighlightUsagesHandler(editor, file)
       case _ =>
         null
@@ -19,18 +19,21 @@ final class WorksheetResNHighlightFactory extends HighlightUsagesHandlerFactory 
 
   private def doCreateHighlightUsagesHandler(editor: Editor, file: PsiFile): WorksheetResNHighlightHandler = {
     val offset = TargetElementUtil.adjustOffset(file, editor.getDocument, editor.getCaretModel.getOffset)
-    val psi = file.findElementAt(offset)
+    val elementAtCaret = file.findElementAt(offset)
 
-    if (psi != null && isResNReference(psi)) {
-      val referenced = WorksheetResNGotoHandler.findReferencedPsi(psi.getParent)
-      val highlighter = referenced.map(new WorksheetResNHighlightHandler(editor, file, psi, _))
+    if (elementAtCaret != null && isResNReference(elementAtCaret)) {
+      val referenced = WorksheetResNGotoHandler.findReferencedPsi(elementAtCaret.getParent)
+      val highlighter = referenced.map(new WorksheetResNHighlightHandler(editor, file, elementAtCaret, _))
       highlighter.orNull
     } else {
       null
     }
   }
 
+
   @inline
-  private def isResNReference(psi: PsiElement): Boolean =
-    psi.getText.startsWith("res") && psi.getParent.isInstanceOf[ScReferenceExpression]
+  private def isResNReference(psi: PsiElement): Boolean = {
+    val text = psi.getText
+    ResNUtils.ResNRegex.matches(text) && psi.getParent.isInstanceOf[ScReferenceExpression]
+  }
 }
