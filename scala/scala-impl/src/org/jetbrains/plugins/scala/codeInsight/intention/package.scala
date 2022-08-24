@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
@@ -60,7 +61,7 @@ package object intention {
           case (_ childOf (a: ScAssignment), param) if a.leftExpression.textMatches(param.name) =>
           case (argExpr, param) =>
             if (!onlyBoolean || (onlyBoolean && param.paramType.isBoolean)) {
-              inWriteAction {
+              IntentionPreviewUtils.write { () =>
                 argExpr.replace(createExpressionFromText(param.name + " = " + argExpr.getText)(element.getManager))
               }
             }
