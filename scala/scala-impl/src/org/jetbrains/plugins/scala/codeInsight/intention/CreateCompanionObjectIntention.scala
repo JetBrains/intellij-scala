@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.intention
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
@@ -29,7 +30,9 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction {
       val obj = parent.addAfter(companion, psiElement.getParent)
       if (ScalaCodeStyleSettings.getInstance(project).USE_SCALAFMT_FORMATTER)
         parent.addAfter(ScalaPsiElementFactory.createWhitespace("\n")(project), psiElement.getParent)
-      moveCaret(project, editor, obj)
+
+      if (!IntentionPreviewUtils.isPreviewElement(psiElement))
+        moveCaret(project, editor, obj)
     }
   }
 
