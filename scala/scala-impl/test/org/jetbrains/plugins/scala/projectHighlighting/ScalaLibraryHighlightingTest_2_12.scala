@@ -1,13 +1,13 @@
-package org.jetbrains.plugins.scala
-package projectHighlighting
+package org.jetbrains.plugins.scala.projectHighlighting
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.{HighlightingTests, ScalaVersion, ScalaFileType}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, ScalaSDKLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClsFileViewProvider.ScClsFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
@@ -15,25 +15,45 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndex
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.junit.Assert
 import org.junit.experimental.categories.Category
+import org.jetbrains.plugins.scala.projectHighlighting.ImplicitConversions.tupleToTextRange
+
+class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_2_12
+
+  override protected val filesWithProblems: Map[String, Set[TextRange]] = Map(
+    "scala/reflect/ClassManifestDeprecatedApis.scala" -> Set(
+      (2714, 2721), // Cannot resolve symbol subargs
+      (2947, 2954), //Cannot resolve symbol subtype
+    ),
+  )
+}
+
+class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_2_13
+
+  override protected val filesWithProblems: Map[String, Set[TextRange]] = Map(
+    "scala/reflect/ClassManifestDeprecatedApis.scala" -> Set(
+      (2762, 2769), // Cannot resolve symbol subargs
+      (2995, 3002), //Cannot resolve symbol subtype
+    ),
+  )
+}
 
 @Category(Array(classOf[HighlightingTests]))
-class ScalaLibraryHighlightingTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
-
-  import org.jetbrains.plugins.scala.projectHighlighting.ImplicitConversions.tupleToTextRange
-  
-  private val filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "scala/reflect/ClassManifestDeprecatedApis.scala" -> Set((2714, 2721),(2947, 2954)),
-  )
+abstract class ScalaLibraryHighlightingTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   private val CustomScalaSdkLoader = ScalaSDKLoader()
 
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == ScalaVersion.fromString("2.12.8").get
-
-  override def librariesLoaders = Seq(
+  override def librariesLoaders: Seq[LibraryLoader] = Seq(
     CustomScalaSdkLoader,
     HeavyJDKLoader()
   )
+
+  protected def filesWithProblems: Map[String, Set[TextRange]] = Map()
 
   def testHighlightScalaLibrary(): Unit = {
     val reporter = ProgressReporter.newInstance(
@@ -47,7 +67,7 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLightCodeInsightFixtureTest
       VfsUtilCore.processFilesRecursively(
         sourceRoot,
         (file: VirtualFile) => {
-          annotateFile(file, sourceRoot)(reporter)
+          annotateScalaFile(file, sourceRoot, reporter)
           true
         }
       )
@@ -76,9 +96,11 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLightCodeInsightFixtureTest
     }
   }
 
-  private def annotateFile(file: VirtualFile,
-                           ancestor: VirtualFile)
-                          (implicit reporter: ProgressReporter): Unit =
+  private def annotateScalaFile(
+    file: VirtualFile,
+    ancestor: VirtualFile,
+    reporter: ProgressReporter
+  ): Unit =
     file.getFileType match {
       case ScalaFileType.INSTANCE =>
         val relPath = VfsUtilCore.getRelativePath(file, ancestor)
