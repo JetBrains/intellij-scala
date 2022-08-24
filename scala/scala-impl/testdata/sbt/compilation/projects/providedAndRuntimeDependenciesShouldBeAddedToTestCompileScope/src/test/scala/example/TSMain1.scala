@@ -1,6 +1,6 @@
-package org
+package example
 
-object TSMain2 {
+object TSMain1 {
   def main(args: Array[String]): Unit = {
     System.out.println(classOf[org.apache.commons.compress.MemoryLimitException])
     System.out.println(classOf[org.apache.commons.math.ArgumentOutsideDomainException])
