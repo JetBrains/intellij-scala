@@ -3,14 +3,14 @@ package codeInsight
 package intention
 package stringLiteral
 
-import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.command.undo.UndoUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
@@ -41,7 +41,7 @@ final class StringToMultilineStringIntention extends PsiElementBaseIntentionActi
     val lit = stringLiteralParent(element)
       .getOrElse(return)
 
-    if (!FileModificationService.getInstance.preparePsiElementForWrite(element))
+    if (!IntentionPreviewUtils.prepareElementForWrite(element))
       return
     val containingFile = element.getContainingFile
 
@@ -73,9 +73,7 @@ object StringToMultilineStringIntention {
     // todo (minor) it doesn't restore caret pos for all tests from StringToMultilineStringIntentionTest, especially with escape sequences
     def fixCaretPosition(newOffset: Int): Unit = {
       if (literalRange.contains(caretOffset)) {
-        inWriteAction {
-          caretModel.moveToOffset(newOffset)
-        }
+        IntentionPreviewUtils.write(() => caretModel.moveToOffset(newOffset))
       }
     }
 
@@ -139,7 +137,7 @@ object StringToMultilineStringIntention {
         }
 
         val caretShift = shiftNewLines + shiftQuotes + shiftStrippedMargins
-        inWriteAction {
+        IntentionPreviewUtils.write { () =>
           caretModel.moveToOffset(caretOffset + caretShift)
         }
       }

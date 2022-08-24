@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package util
 
 import com.intellij.application.options.CodeStyle
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.format.WithStrippedMargin
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference, literals}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, literals}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
@@ -189,7 +190,7 @@ object MultilineStringUtil {
     }
     val marginIndent = quotesIndent + interpolatorPrefixLength(literal) + settings.marginIndent
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       def insertIndent(lineNumber: Int, indent: Int, marginChar: Option[Char]): Unit = {
         val lineStart = document.getLineStartOffset(lineNumber)
         val indentStr = settings.getSmartSpaces(indent) + marginChar.getOrElse("")
