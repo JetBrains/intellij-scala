@@ -4,6 +4,7 @@ package intention
 package stringLiteral
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -19,7 +20,7 @@ final class InsertGapIntoStringIntention extends PsiElementBaseIntentionAction {
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
     replacement(element.getNode).foreach {
-      case (text, caretMove) => inWriteAction {
+      case (text, caretMove) => IntentionPreviewUtils.write { () =>
         val caretModel = editor.getCaretModel
         editor.getDocument.insertString(caretModel.getOffset, text)
         caretModel.moveCaretRelatively(caretMove, 0, false, false, false)
