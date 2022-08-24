@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package typeAnnotation
 
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection._
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.project.Project
@@ -82,5 +83,8 @@ object TypeAnnotationInspection {
   private class ModifyCodeStyleQuickFix extends LocalQuickFixBase(ScalaInspectionBundle.message("quickfix.modify.code.style")) {
     override def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit =
       TypeAnnotationUtil.showTypeAnnotationsSettings(project)
+
+    override def generatePreview(project: Project, previewDescriptor: ProblemDescriptor): IntentionPreviewInfo =
+      IntentionPreviewInfo.EMPTY
   }
 }
