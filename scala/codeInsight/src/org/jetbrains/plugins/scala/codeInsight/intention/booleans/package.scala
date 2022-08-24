@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package intention
 
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -19,7 +19,7 @@ package object booleans {
 
     val (anchor, replacement, size) = negateAndValidateExpressionImpl(infix, text)
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       anchor.replaceExpression(replacement, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start + diff + size)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)

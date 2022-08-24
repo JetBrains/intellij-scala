@@ -4,6 +4,7 @@ package intention
 package controlFlow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
@@ -74,7 +75,7 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     val caretModel = editor.getCaretModel
     val oldCaretWasOnElse = isCaretOnElse(thenExpression, elseExpression, caretModel.getOffset)
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       val newIfStmtDummy = createExpressionFromText(newIfElseText)(element.getManager)
       val newIfStmt = ifStmt.replaceExpression(newIfStmtDummy, removeParenthesis = true)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)

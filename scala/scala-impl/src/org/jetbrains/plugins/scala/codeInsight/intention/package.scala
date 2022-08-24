@@ -100,7 +100,7 @@ package object intention {
         case ScParenthesisedExpr(scExpression) => scExpression
         case _ => operand
       }
-      inWriteAction {
+      IntentionPreviewUtils.writeAndCompute { () =>
         expression.replaceExpression(
           createExpressionFromText(target.getText)(expression),
           removeParenthesis = true
