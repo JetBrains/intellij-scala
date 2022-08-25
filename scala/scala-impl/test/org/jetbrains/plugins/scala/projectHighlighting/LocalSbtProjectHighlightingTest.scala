@@ -5,7 +5,6 @@ import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.performance.ImportingProjectTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 abstract class LocalSbtProjectHighlightingTest extends ImportingProjectTestCase with AllProjectHighlightingTest {
@@ -29,7 +28,9 @@ class AkkaSamplesTest extends LocalSbtProjectHighlightingTest {
 }
 
 @Category(Array(classOf[HighlightingTests]))
-@Ignore
 class ScalaPetStoreTest extends LocalSbtProjectHighlightingTest {
+
+  override def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
+
   override def projectName = "scala-pet-store"
 }
