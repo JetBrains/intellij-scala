@@ -1,9 +1,7 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.junit.Assert.assertNotNull
@@ -23,12 +21,6 @@ abstract class ImportingTestCase extends SbtExternalSystemImportingTestCase with
     assertProjectsEqual(expected, myProject)
     assertNoNotificationsShown(myProject)
   }
-
-  override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
-
-  override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile
-
-  override protected def getTestsTempDir: String = "" // Use default temp directory
 
   override protected def setUpInWriteAction(): Unit = {
     super.setUpInWriteAction()

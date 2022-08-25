@@ -4,7 +4,8 @@ package projectHighlighting
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.impl.PsiManagerEx
@@ -15,8 +16,10 @@ import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, Scal
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.projectHighlighting.AllProjectHighlightingTest.relativePathOf
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+import org.junit.Assert.assertTrue
 
 import scala.jdk.CollectionConverters._
 import scala.util.Random
@@ -32,6 +35,10 @@ trait AllProjectHighlightingTest {
   protected val reporter: ProgressReporter
 
   def doAllProjectHighlightingTest(): Unit = {
+    val modules = ModuleManager.getInstance(getProject).getModules
+    val module = modules.find(_.hasScala)
+    assertTrue("Test project doesn't have Scala SDK configured", module.isDefined)
+    assertTrue("Test project must be in smart mode before running highlighting", !DumbService.isDumb(getProject))
 
     val scope = SourceFilterScope(scalaFileTypes :+ JavaFileType.INSTANCE)(getProject)
     val scalaFiles = scalaFileTypes.flatMap(fileType => FileTypeIndex.getFiles(fileType, scope).asScala)

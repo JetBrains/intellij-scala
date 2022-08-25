@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.performance
 
 import com.intellij.openapi.application.ex.ApplicationManagerEx
-import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
@@ -10,10 +9,8 @@ import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixt
 import com.intellij.testFramework.{TestLoggerFactory, VfsTestUtil}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
-import org.jetbrains.plugins.scala.performance.ImportingProjectTestCase.isCachingEnabled
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
-import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.{SbtExternalSystemImportingTestCase, SbtProjectSystem}
+import org.jetbrains.sbt.project.SbtExternalSystemImportingTestCase
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 
@@ -29,51 +26,63 @@ abstract class ImportingProjectTestCase extends SbtExternalSystemImportingTestCa
   private def getProjectFilePath: Path = Paths.get(projectDirPath, s"$projectFileName.ipr")
   private def isProjectAlreadyCached = Files.exists(getProjectFilePath)
 
+  private def isProjectCachingEnabled: Boolean =
+    !ImportingProjectTestCase.isProjectCachingDisabledPropertySet
+
   override def setUpFixtures(): Unit = {
     val factory = IdeaTestFixtureFactory.getFixtureFactory
+
     val projectFixture =
-      if (isProjectAlreadyCached && isCachingEnabled)
+      if (isProjectAlreadyCached && isProjectCachingEnabled)
         new FixtureDelegate(getProjectFilePath)
       else
         factory.createFixtureBuilder(getName).getFixture
+
     codeInsightFixture = factory.createCodeInsightFixture(projectFixture)
     codeInsightFixture.setUp()
     myTestFixture = codeInsightFixture
   }
 
   private def persistProjectConfiguration(): Unit = {
-    Option(myProject.getProjectFile).foreach { projectFile =>
-      Files.copy(projectFile.toNioPath, getProjectFilePath)
+    reporter.notify(s"Saving project configuration")
+
+    val projectFile = myProject.getProjectFile
+    if (projectFile != null) {
+      val from = projectFile.toNioPath
+      val to = getProjectFilePath
+      reporter.notify(s"Copy project file $from to $to")
+      Files.copy(from, to)
     }
-    Option(myProject.getWorkspaceFile).foreach { workspaceFile =>
-      if (workspaceFile.exists())
-        Files.copy(myProject.getWorkspaceFile.toNioPath, Paths.get(projectDirPath, s"$projectFileName.iws"))
+
+    val workspaceFile = myProject.getWorkspaceFile
+    if (workspaceFile != null && workspaceFile.exists()) {
+      val from = workspaceFile.toNioPath
+      val to = Paths.get(projectDirPath, s"$projectFileName.iws")
+      reporter.notify(s"Copy workspace file $from to $to")
+      Files.copy(from, to)
     }
   }
 
   override protected def tearDownFixtures(): Unit = {
-    if (!isProjectAlreadyCached && isCachingEnabled)
+    if (isProjectCachingEnabled && !isProjectAlreadyCached) {
       persistProjectConfiguration()
+    }
+
     codeInsightFixture.tearDown()
     codeInsightFixture = null
     myTestFixture = null
   }
 
-  override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile
-
   def filesWithProblems: Map[String, Set[TextRange]] = Map.empty
 
   protected val reporter = ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems)
 
-  override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
-
-  override protected def getTestsTempDir: String = ""
-
-  def rootDirPath: String
+  //example: `..../testdata/projects`
+  def rootProjectsDirPath: String
 
   def projectName: String
 
-  def projectDirPath: String = s"$rootDirPath/$projectName"
+  def projectDirPath: String = s"$rootProjectsDirPath/$projectName"
 
   def doBeforeImport(): Unit = {}
 
@@ -102,18 +111,41 @@ abstract class ImportingProjectTestCase extends SbtExternalSystemImportingTestCa
   override def setUp(): Unit = dumpLogsOnException {
     super.setUp()
 
+    //patch homes before importing projects
+    patchIvyAndCoursierHomeDirsForSbt()
+
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
 
-    if (isProjectAlreadyCached && isCachingEnabled) {
-      reporter.notify("Project caching enabled, reusing last sbt import")
+    if (isProjectAlreadyCached && isProjectCachingEnabled) {
+      reporter.notify(
+        """!!!
+          |!!! Project caching enabled, reusing last sbt import
+          |!!! """.stripMargin
+      )
     } else {
       importProject(false)
     }
-    if (isCachingEnabled)
+    if (isProjectCachingEnabled) {
       forceSaveProject()
+    }
+  }
 
+  private def patchIvyAndCoursierHomeDirsForSbt(): Unit = {
     val sbtSettings = SbtSettings.getInstance(myProject)
-    sbtSettings.setVmParameters(sbtSettings.vmParameters + s" -Dsbt.ivy.home=$rootDirPath/.ivy_cache")
+    val ivyHome = s"$rootProjectsDirPath/.ivy_cache"
+    val coursierHome = s"$rootProjectsDirPath/.coursier_cache"
+
+    reporter.notify(
+      s"""Patching Ivy and Coursier home directories:
+         |ivy home      : $ivyHome
+         |coursier home : $coursierHome
+         |""".stripMargin)
+
+    val vmOptionsUpdated = sbtSettings.vmParameters +
+      s" -Dsbt.ivy.home=$ivyHome" +
+      s" -Dsbt.coursier.home=$coursierHome"
+
+    sbtSettings.setVmParameters(vmOptionsUpdated)
   }
 
   /**
@@ -164,5 +196,6 @@ abstract class ImportingProjectTestCase extends SbtExternalSystemImportingTestCa
   }
 }
 object ImportingProjectTestCase {
-  private final val isCachingEnabled = !sys.props.get("project.highlighting.disable.cache").contains("true")
+  private val isProjectCachingDisabledPropertySet: Boolean =
+    sys.props.get("project.highlighting.disable.cache").contains("true")
 }

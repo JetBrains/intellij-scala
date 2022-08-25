@@ -11,7 +11,7 @@ import org.junit.experimental.categories.Category
 abstract class LocalSbtProjectHighlightingTest extends ImportingProjectTestCase with AllProjectHighlightingTest {
   override def getProject: Project = myProject
 
-  override def rootDirPath = s"${TestUtils.getTestDataPath}/localProjects"
+  override def rootProjectsDirPath = s"${TestUtils.getTestDataPath}/localProjects"
 
   def testHighlighting(): Unit = doAllProjectHighlightingTest()
 
