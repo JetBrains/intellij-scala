@@ -4,6 +4,7 @@ package intention
 package controlFlow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
@@ -19,7 +20,7 @@ final class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionActi
     for {
       whileStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScWhile], false))
       condition <- whileStmt.condition
-      body <- whileStmt.expression
+      _ <- whileStmt.expression
     } {
       val offset = editor.getCaretModel.getOffset
       if (offset >= whileStmt.getTextRange.getStartOffset && offset <= condition.getTextRange.getStartOffset - 1)
@@ -44,7 +45,7 @@ final class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionActi
 
       val newStmt = createExpressionFromText(newStmtText)(element.getManager)
 
-      inWriteAction {
+      IntentionPreviewUtils.write { () =>
         whileStmt.replaceExpression(newStmt, removeParenthesis = true)
         PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
       }
@@ -55,4 +56,3 @@ final class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionActi
 
   override def getText: String = getFamilyName
 }
-
