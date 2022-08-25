@@ -4,6 +4,7 @@ package intention
 package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -22,7 +23,7 @@ final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntent
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null) return false
-    if (!methodCallExpr.getInvokedExpr.isInstanceOf[ScReferenceExpression]) return false
+    if (!methodCallExpr.getInvokedExpr.is[ScReferenceExpression]) return false
 
     val oper = methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.getText
 
@@ -56,9 +57,9 @@ final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntent
     val start = methodCallExpr.getTextRange.getStartOffset
     val diff = editor.getCaretModel.getOffset - methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].
       nameId.getTextRange.getStartOffset
-    val expr = new StringBuilder
-    val qualBuilder = new StringBuilder
-    val argsBuilder = new StringBuilder
+    val expr = new mutable.StringBuilder
+    val qualBuilder = new mutable.StringBuilder
+    val argsBuilder = new mutable.StringBuilder
     val replaceOper = Map("equals" -> "equals","==" -> "==", "!=" -> "!=", "eq" -> "eq", "ne" -> "ne",
       ">" -> "<", "<" -> ">", ">=" -> "<=", "<=" -> ">=")
 
@@ -91,7 +92,7 @@ final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntent
     val size = newMethodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.
             getTextRange.getStartOffset - newMethodCallExpr.getTextRange.getStartOffset
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       methodCallExpr.replaceExpression(newMethodCallExpr, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start + diff + size)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
