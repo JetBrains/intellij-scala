@@ -80,6 +80,8 @@ abstract class ImportingProjectTestCase extends SbtExternalSystemImportingTestCa
   //example: `..../testdata/projects`
   def rootProjectsDirPath: String
 
+  protected def ivyAndCoursierCachesRootPath: String = rootProjectsDirPath
+
   def projectName: String
 
   def projectDirPath: String = s"$rootProjectsDirPath/$projectName"
@@ -132,8 +134,8 @@ abstract class ImportingProjectTestCase extends SbtExternalSystemImportingTestCa
 
   private def patchIvyAndCoursierHomeDirsForSbt(): Unit = {
     val sbtSettings = SbtSettings.getInstance(myProject)
-    val ivyHome = s"$rootProjectsDirPath/.ivy_cache"
-    val coursierHome = s"$rootProjectsDirPath/.coursier_cache"
+    val ivyHome = s"$ivyAndCoursierCachesRootPath/.ivy_cache"
+    val coursierHome = s"$ivyAndCoursierCachesRootPath/.coursier_cache"
 
     reporter.notify(
       s"""Patching Ivy and Coursier home directories:

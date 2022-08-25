@@ -13,7 +13,7 @@ abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase 
     def seconds: Int = i * 1000
   }
 
-  override def rootProjectsDirPath: String = s"${TestUtils.getTestDataPath}/projects"
+  override def rootProjectsDirPath: String = DownloadingAndImportingTestCase.rootProjectsDirPath
 
   override def projectName: String = githubRepositoryWithRevision.repositoryName
 
@@ -60,6 +60,9 @@ abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase 
   }
 }
 
+object DownloadingAndImportingTestCase {
+  def rootProjectsDirPath: String = s"${TestUtils.getTestDataPath}/projects"
+}
 
 case class GithubRepositoryWithRevision(
   userName: String,

@@ -3,14 +3,17 @@ package org.jetbrains.plugins.scala.projectHighlighting
 import com.intellij.openapi.project.Project
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.HighlightingTests
-import org.jetbrains.plugins.scala.performance.ImportingProjectTestCase
+import org.jetbrains.plugins.scala.performance.{DownloadingAndImportingTestCase, ImportingProjectTestCase}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.experimental.categories.Category
 
 abstract class LocalSbtProjectHighlightingTest extends ImportingProjectTestCase with AllProjectHighlightingTest {
   override def getProject: Project = myProject
 
-  override def rootProjectsDirPath = s"${TestUtils.getTestDataPath}/localProjects"
+  override def rootProjectsDirPath: String = s"${TestUtils.getTestDataPath}/localProjects"
+
+  //reuse same ivy caches used in DownloadingAndImportingTestCase
+  override def ivyAndCoursierCachesRootPath: String = DownloadingAndImportingTestCase.rootProjectsDirPath
 
   override def getProjectFixture = codeInsightFixture
 
