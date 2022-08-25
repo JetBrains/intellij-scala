@@ -4,6 +4,7 @@ package intention
 package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
@@ -44,7 +45,7 @@ final class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIn
     val size = newInfixExpr.operation.nameId.getTextRange.getStartOffset -
       newInfixExpr.getTextRange.getStartOffset
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       infixExpr.replace(newInfixExpr)
       editor.getCaretModel.moveToOffset(start + size)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
