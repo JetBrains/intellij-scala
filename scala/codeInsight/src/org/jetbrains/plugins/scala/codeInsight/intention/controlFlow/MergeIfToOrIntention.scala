@@ -4,9 +4,9 @@ package intention
 package controlFlow
 
 import java.util
-
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+
+import scala.collection.mutable
 
 final class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
 
@@ -28,7 +30,7 @@ final class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     val elseBranch =  ifStmt.elseExpression.orNull
     if (thenBranch == null || elseBranch == null) return false
 
-    if (!elseBranch.isInstanceOf[ScIf]) return false
+    if (!elseBranch.is[ScIf]) return false
     if (ifStmt.condition.orNull == null) return false
 
     if (!(thenBranch.getTextRange.getEndOffset <= offset && offset <= elseBranch.getTextRange.getStartOffset) &&
@@ -58,7 +60,7 @@ final class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     if (ifStmt == null || !ifStmt.isValid) return
 
     val start = ifStmt.getTextRange.getStartOffset
-    val expr = new StringBuilder
+    val expr = new mutable.StringBuilder
     val outerCondition = ifStmt.condition.get.getText
     val innerIfStmt = ifStmt.elseExpression.get.asInstanceOf[ScIf]
     val innerCondition = innerIfStmt.condition.get.getText
@@ -73,7 +75,7 @@ final class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
 
     val newIfStmt: ScExpression = createExpressionFromText(expr.toString())(element.getManager)
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
