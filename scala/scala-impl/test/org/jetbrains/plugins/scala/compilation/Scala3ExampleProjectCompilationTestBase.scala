@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt}
-import org.jetbrains.plugins.scala.{FlakyTests, LatestScalaVersions, ScalaVersion, SlowTests}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SlowTests}
 import org.junit.experimental.categories.Category
 
 import java.net.{URL, URLClassLoader}
@@ -35,7 +35,7 @@ abstract class Scala3ExampleProjectCompilationTestBase(
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
-  override def githubUsername: String = "lampepfl"
+  override def githubUsername: String = "scala"
 
   override def githubRepoName: String = "scala3-example-project"
 
@@ -71,7 +71,12 @@ abstract class Scala3ExampleProjectCompilationTestBase(
 
   def testDownloadCompileLoadClass(): Unit = {
     val compilerMessages = compiler.rebuild()
-    compilerMessages.assertNoProblems()
+
+    //scala3-example-project can itself contain some warnings (e.g. deprecations)
+    //because the project is not perfect
+    //But we at least don't expect any errors during compilation
+    val allowWarningsDuringCompilation = true
+    compilerMessages.assertNoProblems(allowWarningsDuringCompilation)
 
     val urls = (librariesUrls + targetUrl).toArray
     val classLoader = new URLClassLoader(urls, null)
@@ -89,10 +94,8 @@ abstract class Scala3ExampleProjectCompilationTestBase(
     getModule(githubRepoName)
 }
 
-@Category(Array(classOf[FlakyTests]))
 class Scala3ExampleProjectCompilationTest_IdeaIncrementalityType
   extends Scala3ExampleProjectCompilationTestBase(IncrementalityType.IDEA, useCompileServer = false)
 
-@Category(Array(classOf[FlakyTests]))
 class Scala3ExampleProjectCompilationTest_SbtIncrementalityType
   extends Scala3ExampleProjectCompilationTestBase(IncrementalityType.SBT, useCompileServer = false)
