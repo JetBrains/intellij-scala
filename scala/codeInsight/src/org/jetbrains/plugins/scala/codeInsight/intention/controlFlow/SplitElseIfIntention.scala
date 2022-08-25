@@ -4,6 +4,7 @@ package intention
 package controlFlow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
@@ -13,6 +14,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+
+import scala.collection.mutable
 
 final class SplitElseIfIntention extends PsiElementBaseIntentionAction {
 
@@ -29,7 +32,7 @@ final class SplitElseIfIntention extends PsiElementBaseIntentionAction {
       return false
 
     val elseIfExpr = ifStmt.elseExpression.orNull
-    if (elseIfExpr != null && elseIfExpr.isInstanceOf[ScIf]) {
+    if (elseIfExpr.is[ScIf]) {
       return true
     }
 
@@ -48,7 +51,7 @@ final class SplitElseIfIntention extends PsiElementBaseIntentionAction {
     val newlineBeforeElse = ifStmt.children.find(_.getNode.getElementType == ScalaTokenTypes.kELSE).
       exists(_.getPrevSibling.getText.contains("\n"))
 
-    val expr = new StringBuilder
+    val expr = new mutable.StringBuilder
     expr.append("if (").append(ifStmt.condition.get.getText).append(") ").
       append(ifStmt.thenExpression.get.getText).append(if (newlineBeforeElse) "\n" else " ").append("else {\n").
       append(ifStmt.elseExpression.get.getText).append("\n}")
@@ -57,7 +60,7 @@ final class SplitElseIfIntention extends PsiElementBaseIntentionAction {
     val size = newIfStmt.asInstanceOf[ScIf].thenExpression.get.getTextRange.getEndOffset -
       newIfStmt.asInstanceOf[ScIf].getTextRange.getStartOffset
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start + diff + size)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
