@@ -21,7 +21,8 @@ object Main {
   // libraryDependencies += "org.typelevel" %% "cats-core" % "2.7.0",
   // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.8",
   // libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.1.1",
-  // libraryDependencies += "io.getquill" %% "quill-sql" % "3.7.2.Beta1.4",
+  // libraryDependencies += "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
+  // libraryDependencies += "io.getquill" %% "quill-sql" % "3.16.4-Beta2.7",
   // libraryDependencies += "io.getquill" %% "quill-jdbc-zio" % "3.16.4-Beta2.7"
   private val Libraries = Seq(
     "org/scala-lang/scala3-library_3/3.1.1/scala3-library_3-3.1.1.jar",
@@ -30,11 +31,12 @@ object Main {
     "org/scalatest/scalatest-funsuite_3/3.2.11/scalatest-funsuite_3-3.2.11.jar",
     "dev/zio/zio_3/1.0.12/zio_3-1.0.12.jar",
     "dev/zio/zio-streams_3/1.0.12/zio-streams_3-1.0.12.jar",
-    "io/getquill/quill-sql_3/3.7.2.Beta1.4/quill-sql_3-3.7.2.Beta1.4.jar",
+    "io/getquill/quill-sql_3/3.16.4-Beta2.7/quill-sql_3-3.16.4-Beta2.7.jar",
     "io/getquill/quill-jdbc-zio_3/3.16.4-Beta2.7/quill-jdbc-zio_3-3.16.4-Beta2.7.jar",
     "org/typelevel/cats-core_3/2.7.0/cats-core_3-2.7.0.jar",
     "org/typelevel/cats-effect_3/3.3.8/cats-effect_3-3.3.8.jar",
     "org/scala-lang/scala3-compiler_3/3.1.1/scala3-compiler_3-3.1.1.jar",
+    "org/tpolecat/doobie-core_3/1.0.0-RC1/doobie-core_3-1.0.0-RC1.jar",
   )
 
   // check for lexer & parser errors and unresolved references
