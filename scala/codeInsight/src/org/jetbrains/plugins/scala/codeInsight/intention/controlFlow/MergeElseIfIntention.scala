@@ -4,6 +4,7 @@ package intention
 package controlFlow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
@@ -13,6 +14,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+
+import scala.collection.mutable
 
 final class MergeElseIfIntention extends PsiElementBaseIntentionAction {
 
@@ -29,9 +32,9 @@ final class MergeElseIfIntention extends PsiElementBaseIntentionAction {
       return false
 
     val blockExpr = ifStmt.elseExpression.orNull
-    if (blockExpr != null && blockExpr.isInstanceOf[ScBlockExpr]) {
+    if (blockExpr != null && blockExpr.is[ScBlockExpr]) {
       val exprs = blockExpr.asInstanceOf[ScBlockExpr].exprs
-      if (exprs.size == 1 && exprs.head.isInstanceOf[ScIf]) {
+      if (exprs.size == 1 && exprs.head.is[ScIf]) {
         return true
       }
     }
@@ -50,7 +53,7 @@ final class MergeElseIfIntention extends PsiElementBaseIntentionAction {
     val diff = editor.getCaretModel.getOffset - ifStmt.thenExpression.get.getTextRange.getEndOffset - elseIndex
     val newlineBeforeElse = ifStmt.children.find(_.getNode.getElementType == ScalaTokenTypes.kELSE).
       exists(_.getPrevSibling.getText.contains("\n"))
-    val expr = new StringBuilder
+    val expr = new mutable.StringBuilder
     expr.append("if (").append(ifStmt.condition.get.getText).append(") ").
     append(ifStmt.thenExpression.get.getText).append(if (newlineBeforeElse) "\n" else " ").append("else ").
     append(ifStmt.elseExpression.get.getText.trim.drop(1).dropRight(1))
@@ -59,7 +62,7 @@ final class MergeElseIfIntention extends PsiElementBaseIntentionAction {
     val size = newIfStmt.asInstanceOf[ScIf].thenExpression.get.getTextRange.getEndOffset -
     newIfStmt.asInstanceOf[ScIf].getTextRange.getStartOffset
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start + diff + size)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
