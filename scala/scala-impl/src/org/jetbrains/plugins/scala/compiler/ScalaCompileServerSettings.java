@@ -6,6 +6,7 @@ import com.intellij.openapi.components.ReportValue;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -19,14 +20,16 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
   @ReportValue
   public int SHOW_TYPE_TOOLTIP_DELAY = 500;
 
+  //ATTENTION: these field names should be the same as in
+  //org.jetbrains.jps.incremental.scala.model.impl.GlobalSettingsImpl.State (see it's JavaDoc)
   public boolean COMPILE_SERVER_ENABLED = true;
+  public int COMPILE_SERVER_PORT = 3200;
+  public String COMPILE_SERVER_SDK;
 
   //is not accessible from UI, but is serialized and used in jps-plugin
-  public int COMPILE_SERVER_PORT = 3200;
   public String COMPILE_SERVER_ID = UUID.randomUUID().toString();
 
   public boolean USE_DEFAULT_SDK = true;
-  public String COMPILE_SERVER_SDK;
 
   public String COMPILE_SERVER_MAXIMUM_HEAP_SIZE = "2048";
   public String COMPILE_SERVER_JVM_PARAMETERS = "-server -Xss2m -XX:+UseParallelGC -XX:MaxInlineLevel=20";
@@ -46,7 +49,7 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
   }
 
   @Override
-  public void loadState(ScalaCompileServerSettings state) {
+  public void loadState(@NotNull ScalaCompileServerSettings state) {
     XmlSerializerUtil.copyBean(state, this);
   }
 

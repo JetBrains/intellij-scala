@@ -43,6 +43,7 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
 
   private static class GlobalSettingsSerializer extends JpsGlobalExtensionSerializer {
     private GlobalSettingsSerializer() {
+      //see org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
       super("scala.xml", "ScalaSettings");
     }
 
@@ -52,11 +53,11 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
       GlobalSettingsImpl settings = new GlobalSettingsImpl(state);
       SettingsManager.setGlobalSettings(jpsGlobal, settings);
     }
-
   }
 
   private static class CompilerConfigurationSerializer extends JpsProjectExtensionSerializer {
     private CompilerConfigurationSerializer() {
+      //see org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
       super("scala_compiler.xml", "ScalaCompilerConfiguration");
     }
 
