@@ -1,50 +1,24 @@
-package org.jetbrains.plugins.scala.projectHighlighting
+package org.jetbrains.plugins.scala.projectHighlighting.scalaLibrary
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.{HighlightingTests, ScalaVersion, ScalaFileType}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClsFileViewProvider.ScClsFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
+import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+import org.jetbrains.plugins.scala.{HighlightingTests, ScalaFileType}
 import org.junit.Assert
 import org.junit.experimental.categories.Category
-import org.jetbrains.plugins.scala.projectHighlighting.ImplicitConversions.tupleToTextRange
-
-class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == ScalaVersion.Latest.Scala_2_12
-
-  override protected val filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "scala/reflect/ClassManifestDeprecatedApis.scala" -> Set(
-      (2714, 2721), // Cannot resolve symbol subargs
-      (2947, 2954), //Cannot resolve symbol subtype
-    ),
-  )
-}
-
-class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == ScalaVersion.Latest.Scala_2_13
-
-  override protected val filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "scala/reflect/ClassManifestDeprecatedApis.scala" -> Set(
-      (2762, 2769), // Cannot resolve symbol subargs
-      (2995, 3002), //Cannot resolve symbol subtype
-    ),
-  )
-}
 
 @Category(Array(classOf[HighlightingTests]))
-abstract class ScalaLibraryHighlightingTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   private val CustomScalaSdkLoader = ScalaSDKLoader()
 
@@ -81,8 +55,8 @@ abstract class ScalaLibraryHighlightingTestBase extends ScalaLightCodeInsightFix
     implicit val project: Project = getProject
     val classFilesFromScalaLibrary = for {
       className <- ScalaIndexKeys.ALL_CLASS_NAMES.allKeys
-      psiClass  <- ScalaIndexKeys.ALL_CLASS_NAMES.elements(className, GlobalSearchScope.allScope(getProject))
-      file      <- psiClass.getContainingFile.asOptionOf[ScClsFileImpl]
+      psiClass <- ScalaIndexKeys.ALL_CLASS_NAMES.elements(className, GlobalSearchScope.allScope(getProject))
+      file <- psiClass.getContainingFile.asOptionOf[ScClsFileImpl]
       if file.getVirtualFile.getPath.contains("scala-library")
     } yield file
 

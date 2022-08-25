@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.projectHighlighting
+package org.jetbrains.plugins.scala.projectHighlighting.downloaded
 
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.HighlightingTests
-import org.jetbrains.plugins.scala.performance.GithubRepositoryWithRevision
+import org.jetbrains.plugins.scala.projectHighlighting.base.GithubRepositoryWithRevision
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[HighlightingTests]))

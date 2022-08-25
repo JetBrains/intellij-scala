@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.performance
+package org.jetbrains.plugins.scala.projectHighlighting.base
 
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.util.TextRange
@@ -9,6 +9,8 @@ import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixt
 import com.intellij.testFramework.{TestLoggerFactory, VfsTestUtil}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
+import org.jetbrains.plugins.scala.performance.FixtureDelegate
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestCase
 import org.jetbrains.sbt.settings.SbtSettings
@@ -18,7 +20,7 @@ import java.io.File
 import java.nio.file.{Files, Path, Paths}
 import java.util
 
-abstract class ImportingProjectTestCase extends SbtExternalSystemImportingTestCase {
+abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImportingTestCase {
 
   protected var codeInsightFixture: CodeInsightTestFixture = _
 
@@ -27,7 +29,7 @@ abstract class ImportingProjectTestCase extends SbtExternalSystemImportingTestCa
   private def isProjectAlreadyCached = Files.exists(getProjectFilePath)
 
   private def isProjectCachingEnabled: Boolean =
-    !ImportingProjectTestCase.isProjectCachingDisabledPropertySet
+    !SbtProjectHighlightingTestBase.isProjectCachingDisabledPropertySet
 
   override def setUpFixtures(): Unit = {
     val factory = IdeaTestFixtureFactory.getFixtureFactory
@@ -73,22 +75,20 @@ abstract class ImportingProjectTestCase extends SbtExternalSystemImportingTestCa
     myTestFixture = null
   }
 
-  def filesWithProblems: Map[String, Set[TextRange]] = Map.empty
+  protected def filesWithProblems: Map[String, Set[TextRange]] = Map.empty
 
   protected val reporter = ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems)
 
   //example: `..../testdata/projects`
-  def rootProjectsDirPath: String
+  protected def rootProjectsDirPath: String
 
-  protected def ivyAndCoursierCachesRootPath: String = rootProjectsDirPath
+  protected def projectName: String
 
-  def projectName: String
+  protected def projectDirPath: String = s"$rootProjectsDirPath/$projectName"
 
-  def projectDirPath: String = s"$rootProjectsDirPath/$projectName"
+  protected def doBeforeImport(): Unit = {}
 
-  def doBeforeImport(): Unit = {}
-
-  override def setUpInWriteAction(): Unit = {
+  override protected def setUpInWriteAction(): Unit = {
     super.setUpInWriteAction()
 
     doBeforeImport()
@@ -132,7 +132,11 @@ abstract class ImportingProjectTestCase extends SbtExternalSystemImportingTestCa
     }
   }
 
+  private final def ivyAndCoursierCachesRootPath: String =
+    SbtProjectHighlightingTestBase.projectsForHighlightingTestsRootPath
+
   private def patchIvyAndCoursierHomeDirsForSbt(): Unit = {
+    //TODO: ensure ivy caches are reused on the server
     val sbtSettings = SbtSettings.getInstance(myProject)
     val ivyHome = s"$ivyAndCoursierCachesRootPath/.ivy_cache"
     val coursierHome = s"$ivyAndCoursierCachesRootPath/.coursier_cache"
@@ -197,7 +201,10 @@ abstract class ImportingProjectTestCase extends SbtExternalSystemImportingTestCa
     file
   }
 }
-object ImportingProjectTestCase {
+
+object SbtProjectHighlightingTestBase {
   private val isProjectCachingDisabledPropertySet: Boolean =
     sys.props.get("project.highlighting.disable.cache").contains("true")
+
+  def projectsForHighlightingTestsRootPath: String = s"${TestUtils.getTestDataPath}/projectsForHighlightingTests"
 }

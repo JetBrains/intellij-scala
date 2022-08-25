@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.performance
+package org.jetbrains.plugins.scala.projectHighlighting.base
 
 import com.intellij.lang.javascript.boilerplate.GithubDownloadUtil
 import com.intellij.platform.templates.github.ZipUtil
@@ -7,24 +7,20 @@ import org.junit.Assert
 
 import java.io.File
 
-abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase {
+abstract class SbtProjectHighlightingDownloadingFromGithubTestBase extends SbtProjectHighlightingTestBase {
 
-  implicit class IntExt(private val i: Int) {
-    def seconds: Int = i * 1000
-  }
+  override protected def rootProjectsDirPath: String = s"${TestUtils.getTestDataPath}/projectsForHighlightingTests/downloaded"
 
-  override def rootProjectsDirPath: String = DownloadingAndImportingTestCase.rootProjectsDirPath
-
-  override def projectName: String = githubRepositoryWithRevision.repositoryName
+  override protected def projectName: String = githubRepositoryWithRevision.repositoryName
 
   protected def githubRepositoryWithRevision: GithubRepositoryWithRevision
 
-  def outputZipFileName: String = {
+  protected def outputZipFileName: String = {
     val GithubRepositoryWithRevision(userName, repoName, revision) = githubRepositoryWithRevision
     s"$rootProjectsDirPath/zipFiles/$repoName-$userName-$revision"
   }
 
-  override def doBeforeImport(): Unit = downloadAndExtractProject()
+  override protected def doBeforeImport(): Unit = downloadAndExtractProject()
 
   private def downloadAndExtractProject(): Unit = {
     val outputZipFile = new File(outputZipFileName)
@@ -58,26 +54,4 @@ abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase 
     Assert.assertTrue("Project dir does not exist. Download or unpack failed!", projectDir.exists())
     reporter.notify("Finished extracting, starting sbt setup")
   }
-}
-
-object DownloadingAndImportingTestCase {
-  def rootProjectsDirPath: String = s"${TestUtils.getTestDataPath}/projects"
-}
-
-case class GithubRepositoryWithRevision(
-  userName: String,
-  repositoryName: String,
-  revision: String,
-) {
-  def repositoryUrl: String = s"https://github.com/$userName/$repositoryName"
-
-  def revisionDownloadUrl: String = s"$repositoryUrl/archive/$revision.zip"
-}
-
-object GithubRepositoryWithRevision {
-  val ScalaCommunityGithubRepo: GithubRepositoryWithRevision = GithubRepositoryWithRevision(
-    "JetBrains",
-    "intellij-scala",
-    "a9ac902e8930c520b390095d9e9346d9ae546212"
-  )
 }

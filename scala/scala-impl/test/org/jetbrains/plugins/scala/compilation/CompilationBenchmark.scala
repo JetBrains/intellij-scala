@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerL
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.performance.{DownloadingAndImportingTestCase, GithubRepositoryWithRevision}
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.projectHighlighting.base.{GithubRepositoryWithRevision, SbtProjectHighlightingDownloadingFromGithubTestBase}
 import org.jetbrains.plugins.scala.util.Metering._
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Ignore
@@ -26,7 +26,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 abstract class CompilationBenchmark
-  extends DownloadingAndImportingTestCase
+  extends SbtProjectHighlightingDownloadingFromGithubTestBase
     with ScalaSdkOwner {
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq.empty

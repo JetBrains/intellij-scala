@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package projectHighlighting
+package org.jetbrains.plugins.scala.projectHighlighting.base
 
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.HighlightSeverity
@@ -17,8 +16,9 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.plugins.scala.projectHighlighting.AllProjectHighlightingTest.relativePathOf
+import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.relativePathOf
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.junit.Assert.assertTrue
 
 import scala.jdk.CollectionConverters._
@@ -128,12 +128,16 @@ object AllProjectHighlightingTest {
 
     val elements = scalaFile.depthFirst().filter(_.isInstanceOf[ScalaPsiElement]).toSeq
     val elementsShuffled = random.shuffle(elements)
-    for (element <- elementsShuffled) {
+    for ((element, elementIndex) <- elementsShuffled.zipWithIndex) { //zipWIthIndex for easier debugging
       try {
         annotator.annotate(element)(mock)
       } catch {
-        case NonFatal(t) =>
-          reporter.reportError(fileName, element.getTextRange, s"Exception while highlighting: $t$randomSeedDebugSuffix")
+        case ex: Throwable =>
+          val message = s"Exception while highlighting element at index $elementIndex (${element.getText} - ${element.getNode.getTextRange}): $ex$randomSeedDebugSuffix"
+          reporter.reportError(fileName, element.getTextRange, message)
+          if (!NonFatal(ex)) {
+            throw ex
+          }
       }
     }
   }
