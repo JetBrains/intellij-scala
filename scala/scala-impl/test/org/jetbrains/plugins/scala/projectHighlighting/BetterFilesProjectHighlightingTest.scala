@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.projectHighlighting
 
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.HighlightingTests
+import org.jetbrains.plugins.scala.performance.GithubRepositoryWithRevision
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[HighlightingTests]))
@@ -11,10 +12,7 @@ class BetterFilesProjectHighlightingTest extends GithubSbtAllProjectHighlighting
   //see https://github.com/sbt/sbt/issues/1593
   override def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
 
-  override def githubUsername = "pathikrit"
-
-  override def githubRepoName = "better-files"
-
   //v.3.0.0
-  override def revision = "eb7a357713c083534de9eeaee771750582c8ad31"
+  override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
+    GithubRepositoryWithRevision("pathikrit", "better-files", "eb7a357713c083534de9eeaee771750582c8ad31")
 }

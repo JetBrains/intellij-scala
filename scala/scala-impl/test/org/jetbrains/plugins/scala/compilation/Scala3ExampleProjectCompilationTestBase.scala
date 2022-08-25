@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
+import org.jetbrains.plugins.scala.performance.{DownloadingAndImportingTestCase, GithubRepositoryWithRevision}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SlowTests}
@@ -35,11 +35,8 @@ abstract class Scala3ExampleProjectCompilationTestBase(
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
-  override def githubUsername: String = "scala"
-
-  override def githubRepoName: String = "scala3-example-project"
-
-  override def revision: String = "main"
+  override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
+    GithubRepositoryWithRevision("scala", "scala3-example-project", revision = "main")
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq.empty
 
@@ -91,7 +88,7 @@ abstract class Scala3ExampleProjectCompilationTestBase(
     new URL(CompilerModuleExtension.getInstance(module).getCompilerOutputUrl + "/")
 
   private def module: Module =
-    getModule(githubRepoName)
+    getModule(projectName)
 }
 
 class Scala3ExampleProjectCompilationTest_IdeaIncrementalityType

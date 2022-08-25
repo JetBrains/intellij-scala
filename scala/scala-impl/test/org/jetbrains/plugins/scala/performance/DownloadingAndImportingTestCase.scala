@@ -7,7 +7,7 @@ import org.junit.Assert
 
 import java.io.File
 
-abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase with GithubRepo {
+abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase {
 
   implicit class IntExt(private val i: Int) {
     def seconds: Int = i * 1000
@@ -15,13 +15,14 @@ abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase 
 
   override def rootProjectsDirPath: String = s"${TestUtils.getTestDataPath}/projects"
 
-  override def projectName: String = githubRepoName
+  override def projectName: String = githubRepositoryWithRevision.repositoryName
 
-  final protected def githubRepoUrl: String = s"https://github.com/$githubUsername/$githubRepoName"
+  protected def githubRepositoryWithRevision: GithubRepositoryWithRevision
 
-  def downloadURL: String = s"$githubRepoUrl/archive/$revision.zip"
-
-  def outputZipFileName = s"$rootProjectsDirPath/zipFiles/$githubRepoName-$githubUsername-$revision"
+  def outputZipFileName: String = {
+    val GithubRepositoryWithRevision(userName, repoName, revision) = githubRepositoryWithRevision
+    s"$rootProjectsDirPath/zipFiles/$repoName-$userName-$revision"
+  }
 
   override def doBeforeImport(): Unit = downloadAndExtractProject()
 
@@ -37,7 +38,13 @@ abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase 
     } else {
       //don't download if zip file is already there
       reporter.notify(s"Starting download")
-      GithubDownloadUtil.downloadAtomically(reporter.progressIndicator, downloadURL, outputZipFile, githubUsername, githubRepoName)
+      GithubDownloadUtil.downloadAtomically(
+        reporter.progressIndicator,
+        githubRepositoryWithRevision.revisionDownloadUrl,
+        outputZipFile,
+        githubRepositoryWithRevision.userName,
+        githubRepositoryWithRevision.repositoryName
+      )
     }
 
     if (projectDir.exists()) {
@@ -54,19 +61,20 @@ abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase 
 }
 
 
-trait GithubRepo {
-  def githubUsername: String
+case class GithubRepositoryWithRevision(
+  userName: String,
+  repositoryName: String,
+  revision: String,
+) {
+  def repositoryUrl: String = s"https://github.com/$userName/$repositoryName"
 
-  def githubRepoName: String
-
-  def revision: String
+  def revisionDownloadUrl: String = s"$repositoryUrl/archive/$revision.zip"
 }
 
-trait ScalaCommunityGithubRepo extends GithubRepo {
-
-  override def githubUsername: String = "JetBrains"
-
-  override def githubRepoName: String = "intellij-scala"
-
-  override def revision: String = "a9ac902e8930c520b390095d9e9346d9ae546212"
+object GithubRepositoryWithRevision {
+  val ScalaCommunityGithubRepo: GithubRepositoryWithRevision = GithubRepositoryWithRevision(
+    "JetBrains",
+    "intellij-scala",
+    "a9ac902e8930c520b390095d9e9346d9ae546212"
+  )
 }

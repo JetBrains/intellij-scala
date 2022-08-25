@@ -3,18 +3,16 @@ package org.jetbrains.plugins.scala.projectHighlighting
 import com.intellij.openapi.util.TextRange
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.HighlightingTests
+import org.jetbrains.plugins.scala.performance.GithubRepositoryWithRevision
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[HighlightingTests]))
 class MeerkatProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
 
+  override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
+    GithubRepositoryWithRevision("niktrop", "Meerkat", "5013864a9cbcdb43f92d1d57200352743d412235")
+
   override def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
-
-  override def githubUsername = "niktrop"
-
-  override def githubRepoName = "Meerkat"
-
-  override def revision = "5013864a9cbcdb43f92d1d57200352743d412235"
 
   import org.jetbrains.plugins.scala.projectHighlighting.ImplicitConversions.tupleToTextRange
 
