@@ -4,6 +4,7 @@ package intention
 package expression
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -15,6 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
+
+import scala.collection.mutable
 
 class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.convert.to.infix.expression")
@@ -58,8 +61,8 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
     val diff = editor.getCaretModel.getOffset - referenceExpr.nameId.getTextRange.getStartOffset
 
     var putArgsFirst = false
-    val argsBuilder = new StringBuilder
-    val invokedExprBuilder = new StringBuilder
+    val argsBuilder = new mutable.StringBuilder
+    val invokedExprBuilder = new mutable.StringBuilder
 
     val qual = referenceExpr.qualifier.get
     val operText = methodCallExpr.getInvokedExpr match {
@@ -104,7 +107,7 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
 
         val size = operation.nameId.getTextRange.getStartOffset - infix.getTextRange.getStartOffset
 
-        inWriteAction {
+        IntentionPreviewUtils.write { () =>
           methodCallExpr.replaceExpression(infix, removeParenthesis = true)
           editor.getCaretModel.moveToOffset(start + diff + size)
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
@@ -112,5 +115,4 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
       case _ => throw new IllegalStateException(s"$text should be infix expression")
     }
   }
-
 }
