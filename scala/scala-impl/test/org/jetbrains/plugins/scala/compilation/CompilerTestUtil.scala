@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import scala.util.Try
 
 // TODO: move it to `scala` package and rename to some more generic utility class
+// TODO: Revert change automatically using getTEstROotDisposable like in
+//  Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
 object CompilerTestUtil {
 
   trait RevertableChange {
@@ -62,10 +64,13 @@ object CompilerTestUtil {
     override def applyChange(): Unit = {
       settingsBefore = XmlSerializerUtil.createCopy(settings)
       body(settings)
+      com.intellij.compiler.CompilerTestUtil.saveApplicationComponent(settings)
     }
 
-    override def revertChange(): Unit =
+    override def revertChange(): Unit = {
       XmlSerializerUtil.copyBean(settingsBefore, settings)
+      com.intellij.compiler.CompilerTestUtil.saveApplicationComponent(settings)
+    }
   }
 
   def withEnabledCompileServer(enable: Boolean): RevertableChange = withModifiedCompileServerSettings { settings =>
