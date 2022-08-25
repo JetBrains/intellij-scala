@@ -8,7 +8,7 @@ import org.jetbrains.jps.model.ex.JpsElementBase;
 public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> implements GlobalSettings {
   public static final GlobalSettings DEFAULT = new GlobalSettingsImpl(new State());
 
-  private State myState;
+  private final State myState;
 
   public GlobalSettingsImpl(State state) {
     myState = state;
