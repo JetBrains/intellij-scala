@@ -13,13 +13,13 @@ abstract class LocalSbtProjectHighlightingTest extends ImportingProjectTestCase 
 
   override def rootProjectsDirPath = s"${TestUtils.getTestDataPath}/localProjects"
 
-  def testHighlighting(): Unit = doAllProjectHighlightingTest()
-
   override def getProjectFixture = codeInsightFixture
+
+  def testHighlighting(): Unit = doAllProjectHighlightingTest()
 }
 
-// FIXME: the errors come from Java PSI but we may also be the ones to blame
-@Ignore("poly expression evaluation during overload resolution, processing 1 results")
+//TODO: some sources in testData/localProjects folder are commented due to bug in Java highlighting (see IDEA-300681)
+// when it's fixed, please uncomment test data (all commented code has issue id in the beginning)
 @Category(Array(classOf[HighlightingTests]))
 class AkkaSamplesTest extends LocalSbtProjectHighlightingTest {
 
