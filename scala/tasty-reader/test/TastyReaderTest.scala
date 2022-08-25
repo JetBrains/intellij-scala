@@ -6,6 +6,7 @@ import org.junit.Assert.*
 import java.nio.file.{Files, Path}
 import scala.util.control.NonFatal
 
+// path / projection, in term / type, nested / inherited scope
 // test quotes in textOfType, given, extension, package, qualifier (plus format)
 // enum companion: case(), object
 // Target names
@@ -19,33 +20,33 @@ import scala.util.control.NonFatal
 // match types
 // super
 // annotation: parameter, type, string, array
-// TODO Nothing -> Any when for parameter (variance)
-// TODO type trees
-// TODO different name kinds, FQN
-// TODO symbol names `foo`
-// TODO val a, b; val (a, b)
-// TODO transparent inline def quotes in the same file
-// TODO exhaustive matches
-// TODO getOrElse(throw exception)
-// TODO gzip
-// TODO rely on signed name instead of Apply template parent calls?
-// TODO FunctionN, TupleN
-// TODO infix types (not just & and |)
-// TODO self type
-// TODO abstract override (order)
-// TODO = derived ?
-// TODO modifiers order
-// TODO detect anonymous givens more reliably?
-// TODO how to merge object / implicit class / enum members, index?
-// TODO re-elaborate context bounds?
-// TODO package objects as package objects?
-// TODO default argument constants?
-// TODO group enum cases
-// TODO group extension methods
-// TODO combinedUsingClauses?
-// TODO use Unit method result instead of Int
-// TODO use objects instead of traits?
-// TODO correspondence between parametric type definitions and type lambdas - which to use?
+// Nothing -> Any when for parameter (variance)
+// type trees
+// different name kinds, FQN
+// symbol names `foo`
+// val a, b; val (a, b)
+// transparent inline def quotes in the same file
+// exhaustive matches
+// getOrElse(throw exception)
+// gzip
+// rely on signed name instead of Apply template parent calls?
+// FunctionN, TupleN
+// infix types (not just & and |)
+// self type
+// abstract override (order)
+// = derived ?
+// modifiers order
+// detect anonymous givens more reliably?
+// how to merge object / implicit class / enum members, index?
+// re-elaborate context bounds?
+// package objects as package objects?
+// default argument constants?
+// group enum cases
+// group extension methods
+// combinedUsingClauses?
+// use Unit method result instead of Int
+// use objects instead of traits?
+// correspondence between parametric type definitions and type lambdas - which to use?
 class TastyReaderTest extends TestCase {
 
   def testAnnotationMembers(): Unit = doTest("annotation/Members")
@@ -93,7 +94,7 @@ class TastyReaderTest extends TestCase {
   def testParameterRepeated(): Unit = doTest("parameter/Repeated")
   def testParameterTrait(): Unit = doTest("parameter/Trait")
   def testParameterType(): Unit = doTest("parameter/Type")
-  def testParameterVariance(): Unit = doTest("parameter/Variance") // TODO TypeMember
+  def testParameterVariance(): Unit = doTest("parameter/Variance") // TypeMember
   def testTypeDefinitionClass(): Unit = doTest("typeDefinition/Class")
   def testTypeDefinitionCompanions(): Unit = doTest("typeDefinition/Companions")
   def testTypeDefinitionEnum(): Unit = doTest("typeDefinition/Enum")

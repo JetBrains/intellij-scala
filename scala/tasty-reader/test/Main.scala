@@ -37,7 +37,7 @@ object Main {
     "org/scala-lang/scala3-compiler_3/3.1.1/scala3-compiler_3-3.1.1.jar",
   )
 
-  // TODO check for lexer & parser errors and unresolved references
+  // check for lexer & parser errors and unresolved references
   def main(args: Array[String]): Unit = {
     assert(new File(OutputDir).getParentFile.exists)
 
@@ -83,7 +83,7 @@ object Main {
           Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".scala")).foreach { entry =>
             val file = new File(s"$OutputDir/${entry.getName}")
             file.getParentFile.mkdirs()
-            val s = new String(in.readAllBytes) // TODO store pre-compiled regex
+            val s = new String(in.readAllBytes) // store pre-compiled regex
               .replaceAll(raw"(?m)^\s*import.*?$$", "") // Import
               .replaceAll(raw"\s*//.*?\n", "") // Line comment
               .replaceAll(raw"(?s)/\*.*?\*/", "") // Block comment
