@@ -4,6 +4,7 @@ package intention
 package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
@@ -39,7 +40,7 @@ final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
 
     val start = statement.getTextRange.getStartOffset
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       implicit val context: ProjectContext = project
       val replacement = createExpressionFromText(s"if ($expressionText) { return true } else { return false }")
       statement.replaceExpression(replacement, removeParenthesis = true)
