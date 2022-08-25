@@ -120,11 +120,12 @@ object SbtExternalSystemManager {
       if (settings.customVMEnabled && JdkUtil.checkForJre(customPath)) {
         @NonNls val javaExe = if (SystemInfo.isWindows) "java.exe" else "java"
         Some(new File(customPath) / "bin" / javaExe)
-      } else None
+      }
+      else None
 
     val realExe = customVmExecutable.orElse {
-      projectJdkName
-        .flatMap(name => Option(jdkTable.findJdk(name)))
+      val projectJdkFound = projectJdkName.safeMap(jdkTable.findJdk)
+      projectJdkFound
         .map { sdk =>
           sdk.getSdkType match {
             case sdkType: JavaSdkType =>
@@ -137,10 +138,10 @@ object SbtExternalSystemManager {
     }
     .orElse {
       val jdkType = JavaSdk.getInstance()
-      Option(jdkTable.findMostRecentSdkOfType(jdkType))
-        .map { sdk =>
-          new File(jdkType.getVMExecutablePath(sdk))
-        }
+      val mostRecentSdk = Option(jdkTable.findMostRecentSdkOfType(jdkType))
+      mostRecentSdk.map { sdk =>
+        new File(jdkType.getVMExecutablePath(sdk))
+      }
     }
     .getOrElse {
       throw new ExternalSystemException(SbtBundle.message("sbt.import.noCustomJvmFound"))

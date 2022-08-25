@@ -2,27 +2,18 @@ package org.jetbrains.plugins.scala.performance
 
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
-import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
-import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
-import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScopesCore}
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
 import com.intellij.testFramework.{TestLoggerFactory, VfsTestUtil}
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.performance.ImportingProjectTestCase.isCachingEnabled
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.project.{SbtExternalSystemImportingTestCase, SbtProjectSystem}
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 
@@ -30,7 +21,7 @@ import java.io.File
 import java.nio.file.{Files, Path, Paths}
 import java.util
 
-abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase {
+abstract class ImportingProjectTestCase extends SbtExternalSystemImportingTestCase {
 
   protected var codeInsightFixture: CodeInsightTestFixture = _
 
@@ -70,15 +61,6 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile
 
-  override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
-    val sbtSettings = SbtSettings.getInstance(myProject)
-    sbtSettings.setVmParameters(sbtSettings.vmParameters + s"-Dsbt.ivy.home=$rootDirPath/.ivy_cache")
-
-    val settings = new SbtProjectSettings
-    settings.jdk = getJdk.getName
-    settings
-  }
-
   def filesWithProblems: Map[String, Set[TextRange]] = Map.empty
 
   protected val reporter = ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems)
@@ -95,8 +77,6 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   def doBeforeImport(): Unit = {}
 
-  def jdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_11
-
   override def setUpInWriteAction(): Unit = {
     super.setUpInWriteAction()
 
@@ -105,16 +85,8 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     val projectDir = new File(projectDirPath)
 
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectDir)
-    inWriteAction {
-      val jdk = getJdk
 
-      val jdkTable = ProjectJdkTable.getInstance
-      if (jdkTable.findJdk(jdk.getName) == null) {
-        jdkTable.addJdk(jdk, myProject.unloadAwareDisposable)
-      }
-      ProjectRootManager.getInstance(myProject).setProjectSdk(jdk)
-      reporter.notify("Finished sbt setup, starting import")
-    }
+    reporter.notify("Finished sbt setup, starting import")
   }
 
   private def forceSaveProject(): Unit = {
@@ -129,17 +101,23 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   override def setUp(): Unit = dumpLogsOnException {
     super.setUp()
+
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
-    if (!isProjectAlreadyCached || !isCachingEnabled)
-      importProject()
-    else
+
+    if (isProjectAlreadyCached && isCachingEnabled) {
       reporter.notify("Project caching enabled, reusing last sbt import")
+    } else {
+      importProject(false)
+    }
     if (isCachingEnabled)
       forceSaveProject()
+
+    val sbtSettings = SbtSettings.getInstance(myProject)
+    sbtSettings.setVmParameters(sbtSettings.vmParameters + s" -Dsbt.ivy.home=$rootDirPath/.ivy_cache")
   }
 
   /**
-   * This methos basically duplicates log dumping logic from [[com.intellij.testFramework.UsefulTestCase#wrapTestRunnable]].
+   * This methods basically duplicates log dumping logic from [[com.intellij.testFramework.UsefulTestCase#wrapTestRunnable]].
    * By default logs are not dumped in there was a failure in `setUp` method. But wee need them to debug failures
    * during project importing process, which is done in `setUp` method.
    *
@@ -163,13 +141,6 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     }
   }
 
-  override def tearDown(): Unit = {
-    inWriteAction {
-      ProjectJdkTable.getInstance().removeJdk(getJdk)
-    }
-    super.tearDown()
-  }
-
   protected def findFile(filename: String): VirtualFile = {
     import scala.jdk.CollectionConverters._
     val searchScope = SourceFilterScope(GlobalSearchScopesCore.directoryScope(myProject, myProjectRoot, true))(myProject)
@@ -191,9 +162,6 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     LocalFileSystem.getInstance().refreshFiles(files)
     file
   }
-
-  def getJdk: Sdk = SmartJDKLoader.getOrCreateJDK(jdkLanguageLevel)
-
 }
 object ImportingProjectTestCase {
   private final val isCachingEnabled = !sys.props.get("project.highlighting.disable.cache").contains("true")

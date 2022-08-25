@@ -53,11 +53,12 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
 
   private def configureJdk(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction(project) {
     val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
-    val projectJdk: Option[Sdk] =
-      Option(data.jdk)
-        .flatMap(SdkUtils.findProjectSdk)
-        .orElse(existingJdk)
-        .orElse(SdkUtils.mostRecentJdk)
+
+    val jdk1 = Option(data.jdk).flatMap(SdkUtils.findProjectSdk)
+    val jdk2 = jdk1.orElse(existingJdk)
+    val jdk3 = jdk2.orElse(SdkUtils.mostRecentJdk)
+
+    val projectJdk: Option[Sdk] = jdk3
     projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
   }
 

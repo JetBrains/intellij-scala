@@ -23,7 +23,7 @@ abstract class LocalSbtProjectHighlightingTest extends ImportingProjectTestCase 
 @Category(Array(classOf[HighlightingTests]))
 class AkkaSamplesTest extends LocalSbtProjectHighlightingTest {
 
-  override def jdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
+  override def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
 
   override def projectName = "akka-samples"
 }

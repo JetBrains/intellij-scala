@@ -5,7 +5,6 @@ import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelProjectExtension, ModuleRootModificationUtil}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
@@ -17,13 +16,11 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.jetbrains.sbt.RichFile
-import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
 import java.net.URI
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Category(Array(classOf[SlowTests]))
@@ -120,7 +117,7 @@ class SbtProjectImportingTest extends ImportingTestCase
 
       modules += new module("unmanagedDependency") {
         lazy val unmanagedLibrary: library = new library("sbt: unmanaged-jars") {
-          libClasses += (testProjectDir / "lib" / "unmanaged.jar").getAbsolutePath
+          libClasses += (getTestProjectDir / "lib" / "unmanaged.jar").getAbsolutePath
         }
 
         libraries := Seq(unmanagedLibrary)
@@ -192,7 +189,7 @@ class SbtProjectImportingTest extends ImportingTestCase
    */
   def testSCL13600(): Unit = runTest(
     new project("scl13600") {
-      val buildURI: URI = testProjectDir.getCanonicalFile.toURI
+      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
       lazy val root: module = new module("root") {
         sbtBuildURI := buildURI
         sbtProjectId := "root"
@@ -231,7 +228,7 @@ class SbtProjectImportingTest extends ImportingTestCase
 
   def testSCL14635(): Unit = runTest(
     new project("SCL-14635") {
-      private val buildURI: URI = testProjectDir.getCanonicalFile.toURI
+      private val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
       private val buildModulesGroup = Array("sbt-build-modules")
 
       lazy val base: module = new module("SCL-14635") {
@@ -295,27 +292,28 @@ class SbtProjectImportingTest extends ImportingTestCase
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
   def testJavaLanguageLevelAndTargetByteCodeLevel(): Unit = {
-    val projectSdk = IdeaTestUtil.getMockJdk9
+    //overriding project jdk (configured in base test class)
+    val projectSdk9 = IdeaTestUtil.getMockJdk9
     inWriteAction {
-      ProjectJdkTable.getInstance.addJdk(projectSdk)
-      // sbt can't be run with mock project JDK, so use internal JDK as in other tests
-      val internalJdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk: @nowarn
-      val settings = SbtSettings.getInstance(myProject)
-      settings.setCustomVMPath(internalJdk.getHomePath)
-      settings.setCustomVMEnabled(true)
+      ProjectJdkTable.getInstance.addJdk(projectSdk9)
     }
-    try runTestWithSdk(projectSdk,
+    getCurrentSbtProjectSettings.jdk = projectSdk9.getName
+
+    //sbt can't be run with mock project JDK, so ensure it has normal SDK (configured in base test class)
+    setSbtSettingsCustomSdk(getJdkConfiguredForTestCase)
+
+    try runTest(
       new project("java-language-level-and-target-byte-code-level") {
         // we expect no other options except -source -target --release or --enable-preview in this test
         // these options are specially handled and saved in the dedicated settings, so we don't expect any extra javacOptions
         javacOptions := Nil
-        sdk := JdkByName(projectSdk.getName)
+        sdk := JdkByName(projectSdk9.getName)
 
         def moduleX(name: String, source: LanguageLevel, @Nullable target: String): module = new module(name) {
           javaLanguageLevel := source
           javaTargetBytecodeLevel := target
           javacOptions := Nil
-          sdk := JdkByName(projectSdk.getName)
+          sdk := JdkByName(projectSdk9.getName)
         }
 
         val sdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_9
@@ -371,7 +369,7 @@ class SbtProjectImportingTest extends ImportingTestCase
       }
     ) finally {
       inWriteAction {
-        ProjectJdkTable.getInstance.removeJdk(projectSdk)
+        ProjectJdkTable.getInstance.removeJdk(projectSdk9)
       }
     }
   }
@@ -379,10 +377,12 @@ class SbtProjectImportingTest extends ImportingTestCase
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
   def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
+    val projectLangaugeLevel = SbtProjectImportingTest.this.projectJdkLanguageLevel
+
     def doRunTest(): Unit = runTest(
       new project("java-language-level-and-target-byte-code-level-no-options") {
         javacOptions := Nil
-        javaLanguageLevel := LanguageLevel.JDK_17
+        javaLanguageLevel := projectLangaugeLevel
         javaTargetBytecodeLevel := null
 
         def moduleX(name: String, source: LanguageLevel, @Nullable target: String): module = new module(name) {
@@ -391,8 +391,8 @@ class SbtProjectImportingTest extends ImportingTestCase
           javacOptions := Nil
         }
 
-        val root = moduleX("java-language-level-and-target-byte-code-level-no-options", LanguageLevel.JDK_17, null)
-        val module1 = moduleX("module1", LanguageLevel.JDK_17, null)
+        val root = moduleX("java-language-level-and-target-byte-code-level-no-options", projectLangaugeLevel, null)
+        val module1 = moduleX("module1", projectLangaugeLevel, null)
 
         modules := Seq(root, module1)
       }
@@ -470,7 +470,7 @@ class SbtProjectImportingTest extends ImportingTestCase
         // no storing project level options
         javacOptions := Nil
         javaTargetBytecodeLevel := null
-        javaLanguageLevel := LanguageLevel.JDK_17 // from internal sdk
+        javaLanguageLevel := SbtProjectImportingTest.this.projectJdkLanguageLevel
 
         val root: module = new module("javac-special-options-for-root-project") {
           javaLanguageLevel := LanguageLevel.JDK_1_9

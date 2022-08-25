@@ -30,7 +30,7 @@ abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase 
     val projectDir = new File(projectDirPath)
     if (!outputZipFile.exists() && !projectDir.exists()) {
       //don't download if zip file is already there
-      reporter.notify("Starting download")
+      reporter.notify(s"Starting download to $outputZipFile}")
       GithubDownloadUtil.downloadAtomically(reporter.progressIndicator, downloadURL, outputZipFile, githubUsername, githubRepoName)
     } else {
       reporter.notify("Project files already exist, skipping download")

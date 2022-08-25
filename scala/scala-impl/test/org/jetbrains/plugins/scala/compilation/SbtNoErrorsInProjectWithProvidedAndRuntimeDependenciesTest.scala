@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compilation
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.CompilerTester
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
 import org.jetbrains.plugins.scala.HighlightingTests
@@ -19,13 +20,13 @@ import org.junit.experimental.categories.Category
 import java.io.File
 
 @Category(Array(classOf[HighlightingTests]))
-class SbtNoErrrosInProjectWithProvidedAndRuntimeDependenciesTest
+class SbtNoErrorsInProjectWithProvidedAndRuntimeDependenciesTest
   extends ImportingTestCase
     with AllProjectHighlightingTest {
 
   protected var codeInsightFixture: CodeInsightTestFixture = _
 
-  override def testProjectDir: File = {
+  override def getTestProjectDir: File = {
     val testDataPath = TestUtils.getTestDataPath + "/sbt/compilation/projects"
     new File(testDataPath, getTestName(true))
   }
@@ -54,14 +55,13 @@ class SbtNoErrrosInProjectWithProvidedAndRuntimeDependenciesTest
   override protected def defaultAssertMatch: ProjectStructureMatcher.AttributeMatchType = ???
 
   def testProvidedAndRuntimeDependenciesShouldBeAddedToTestCompileScope(): Unit = {
-    importProject()
+    importProject(false)
 
     //ensure that there is no errors when using class from Runtime dependencies from tests
-    //...
     //during code highlighting
     doAllProjectHighlightingTest()
 
-    //during project compilation
+    //... and during project compilation
     val compiler: CompilerTester = new CompilerTester(myTestFixture.getModule)
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = IncrementalityType.IDEA
 

@@ -244,6 +244,11 @@ lazy val scalaImpl: sbt.Project =
       ideExcludedDirectories := Seq(baseDirectory.value / "target", baseDirectory.value / "testdata" / "projects"),
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity,
+
+      //for ExternalSystemTestCase and ExternalSystemImportingTestCase
+      libraryDependencies += "com.jetbrains.intellij.platform" % "external-system-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies % Test notTransitive(),
+      resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
+
       intellijPlugins ++= Seq(
         "org.jetbrains.idea.maven",      // TODO remove after extracting the SBT module (which depends on Maven)
         "JUnit"

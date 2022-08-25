@@ -52,7 +52,7 @@ class TrailingCommaErrorsInSbtFilesTest extends ImportingTestCase {
     hasErrorInBuildSources: Boolean,
     hasErrorInMainSources: Boolean
   ): Unit = {
-    importProject()
+    importProject(false)
 
     // it's enabled by default, but placing it here just to remind about the flag...
     ScalaProjectSettings.getInstance(myProject)

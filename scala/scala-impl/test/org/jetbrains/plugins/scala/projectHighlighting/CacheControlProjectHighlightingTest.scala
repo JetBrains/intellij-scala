@@ -7,7 +7,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[HighlightingTests]))
 class CacheControlProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
 
-  override def jdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
+  override def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
 
   override def githubUsername = "playframework"
 

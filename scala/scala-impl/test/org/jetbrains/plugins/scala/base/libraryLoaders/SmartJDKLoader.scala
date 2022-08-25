@@ -70,14 +70,22 @@ object SmartJDKLoader {
     val jdkName = jdkVersion.getDescription
 
     val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
-    Option(jdkTable.findJdk(jdkName)).getOrElse {
-      val pathOption = SmartJDKLoader.discoverJDK(jdkVersion).map(_.getAbsolutePath)
-      Assert.assertTrue(s"Couldn't find $jdkVersion", pathOption.isDefined)
-      VfsRootAccess.allowRootAccess(ApplicationManager.getApplication, pathOption.get): @nowarn("cat=deprecation")
-      val jdk = JavaSdk.getInstance.createJdk(jdkName, pathOption.get, false)
-      inWriteAction { jdkTable.addJdk(jdk) }
+    val registeredJdkFromTable = Option(jdkTable.findJdk(jdkName))
+    registeredJdkFromTable.getOrElse {
+      val jdk = createNewJdk(jdkVersion, jdkName)
+      inWriteAction {
+        jdkTable.addJdk(jdk)
+      }
       jdk
     }
+  }
+
+  private def createNewJdk(jdkVersion: JavaSdkVersion, jdkName: String): Sdk = {
+    val pathOption = SmartJDKLoader.discoverJDK(jdkVersion).map(_.getAbsolutePath)
+    Assert.assertTrue(s"Couldn't find $jdkVersion", pathOption.isDefined)
+
+    VfsRootAccess.allowRootAccess(ApplicationManager.getApplication, pathOption.get)
+    JavaSdk.getInstance.createJdk(jdkName, pathOption.get, false)
   }
 
   private def discoverJDK(jdkVersion: JavaSdkVersion): Option[File] =

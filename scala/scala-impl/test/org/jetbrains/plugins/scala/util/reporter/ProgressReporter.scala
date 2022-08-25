@@ -65,7 +65,8 @@ trait ProgressReporter {
 
 object ProgressReporter {
   def newInstance(name: String, filesWithProblems: Map[String, Set[TextRange]], reportStatus: Boolean = true): ProgressReporter = {
-    if (sys.env.contains("TEAMCITY_VERSION")) new TeamCityReporter(name, filesWithProblems, reportStatus)
+    val isRunningInTeamcity = sys.env.contains("TEAMCITY_VERSION")
+    if (isRunningInTeamcity) new TeamCityReporter(name, filesWithProblems, reportStatus)
     else new ConsoleReporter(filesWithProblems)
   }
 
