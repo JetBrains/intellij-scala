@@ -26,9 +26,10 @@ import java.net.{URL, URLClassLoader}
  * - and then loads Main class
  */
 @Category(Array(classOf[SlowTests]))
-abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
-                                        useCompileServer: Boolean = false)
-  extends DownloadingAndImportingTestCase
+abstract class Scala3ExampleProjectCompilationTestBase(
+  incrementalityType: IncrementalityType,
+  useCompileServer: Boolean
+)  extends DownloadingAndImportingTestCase
     with ScalaSdkOwner {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
@@ -44,13 +45,13 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
 
   private var compiler: CompilerTester = _
 
-  private var revertable: RevertableChange = NoOpRevertableChange
+  private var revertible: RevertableChange = NoOpRevertableChange
 
   override def setUp(): Unit = {
     super.setUp()
 
-    revertable = CompilerTestUtil.withEnabledCompileServer(useCompileServer)
-    revertable.applyChange()
+    revertible = CompilerTestUtil.withEnabledCompileServer(useCompileServer)
+    revertible.applyChange()
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
     compiler = new CompilerTester(module)
   }
@@ -64,12 +65,13 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
     }
   } finally {
     compiler = null
-    revertable.revertChange()
+    revertible.revertChange()
     super.tearDown()
   }
 
   def testDownloadCompileLoadClass(): Unit = {
-    compiler.rebuild().assertNoProblems()
+    val compilerMessages = compiler.rebuild()
+    compilerMessages.assertNoProblems()
 
     val urls = (librariesUrls + targetUrl).toArray
     val classLoader = new URLClassLoader(urls, null)
@@ -78,7 +80,7 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
   }
 
   private def librariesUrls: Set[URL] =
-    module.libraries.flatMap(_.jarUrls).toSet
+    module.libraries.flatMap(_.jarUrls)
 
   private def targetUrl: URL =
     new URL(CompilerModuleExtension.getInstance(module).getCompilerOutputUrl + "/")
@@ -88,9 +90,9 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
 }
 
 @Category(Array(classOf[FlakyTests]))
-class DottyIdeaCompilationTest
-  extends DottyCompilationTestBase(IncrementalityType.IDEA)
+class Scala3ExampleProjectCompilationTest_IdeaIncrementalityType
+  extends Scala3ExampleProjectCompilationTestBase(IncrementalityType.IDEA, useCompileServer = false)
 
 @Category(Array(classOf[FlakyTests]))
-class DottySbtCompilationTest
-  extends DottyCompilationTestBase(IncrementalityType.SBT)
+class Scala3ExampleProjectCompilationTest_SbtIncrementalityType
+  extends Scala3ExampleProjectCompilationTestBase(IncrementalityType.SBT, useCompileServer = false)
