@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.shadow
 
-import com.intellij.codeInsight.intention.LowPriorityAction
+import com.intellij.codeInsight.intention.{HighPriorityAction, LowPriorityAction}
 import com.intellij.codeInspection.ex.DisableInspectionToolAction
 import com.intellij.codeInspection.ui.InspectionOptionsPanel
 import com.intellij.codeInspection._
@@ -8,8 +8,8 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
-import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
+import org.jetbrains.annotations.{Nls, NonNls}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, createSetInspectionOptionFix}
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RenameElementQuickfix
 import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
 
 import javax.swing.JComponent
 import scala.beans.BooleanBeanProperty
+import scala.collection.mutable
 
 final class PrivateShadowInspection extends LocalInspectionTool {
   import PrivateShadowInspection._
@@ -38,15 +39,21 @@ final class PrivateShadowInspection extends LocalInspectionTool {
   private def createProblemDescriptor(elem: ScNamedElement, @Nls description: String)
                                      (implicit manager: InspectionManager, isOnTheFly: Boolean): ProblemDescriptor = {
     val showAsError =
-      privateShadowCompilerOption &&
         fatalWarningsCompilerOption &&
         (isCompilerOptionPresent(elem, "-Xfatal-warnings") || isCompilerOptionPresent(elem, "-Werror"))
 
+    val fixes = mutable.ArrayBuilder.make[LocalQuickFix]
+    fixes.addOne(new RenameElementQuickfix(elem, renameQuickFixDescription) with HighPriorityAction)
+    fixes.addOne(new DisableInspectionToolAction(this) with LowPriorityAction)
+    if (!privateShadowCompilerOption)
+      fixes.addOne(createSetInspectionOptionFix(this, elem, privateShadowPropertyName, ScalaInspectionBundle.message("fix.private.shadow.compiler.option.label")))
+    if (!fatalWarningsCompilerOption)
+      fixes.addOne(createSetInspectionOptionFix(this, elem, fatalWarningsPropertyName, ScalaInspectionBundle.message("fix.private.shadow.fatal.warnings.label")))
     manager.createProblemDescriptor(
       elem.nameId,
       description,
       isOnTheFly,
-      Array(new RenameElementQuickfix(elem, renameQuickFixDescription), new DisableInspectionToolAction(this) with LowPriorityAction),
+      fixes.result(),
       if (showAsError) ProblemHighlightType.GENERIC_ERROR else ProblemHighlightType.GENERIC_ERROR_OR_WARNING
     )
   }
@@ -91,11 +98,11 @@ final class PrivateShadowInspection extends LocalInspectionTool {
     val panel = new InspectionOptionsPanel(this)
     val compilerOptionCheckbox = panel.addCheckboxEx(
       ScalaInspectionBundle.message("private.shadow.compiler.option.label"),
-      "privateShadowCompilerOption"
+      privateShadowPropertyName
     )
     panel.addDependentCheckBox(
       ScalaInspectionBundle.message("private.shadow.fatal.warnings.label"),
-      "fatalWarningsCompilerOption",
+      fatalWarningsPropertyName,
       compilerOptionCheckbox
     )
     panel
@@ -108,4 +115,10 @@ private[shadow] object PrivateShadowInspection {
 
   @Nls
   private val renameQuickFixDescription: String = ScalaInspectionBundle.message("private.shadow.rename.identifier")
+
+  @NonNls
+  private val privateShadowPropertyName = "privateShadowCompilerOption"
+
+  @NonNls
+  private val fatalWarningsPropertyName = "fatalWarningsCompilerOption"
 }

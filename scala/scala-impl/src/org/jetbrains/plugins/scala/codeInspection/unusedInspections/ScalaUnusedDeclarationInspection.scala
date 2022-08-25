@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.codeInspection.unusedInspections
 
-import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
+import com.intellij.codeInspection.{LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType, SetInspectionOptionFix}
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.TestSourcesFilter
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search._
 import com.intellij.psi.search.searches.ReferencesSearch
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.ui.InspectionOptionsComboboxPanel
@@ -50,7 +52,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     val panel = new InspectionOptionsComboboxPanel(this)
     panel.addCheckbox(
       ScalaInspectionBundle.message("name.unused.declaration.report.public.declarations"),
-      "reportPublicDeclarations"
+      reportPublicDeclarationsPropertyName
     )
     panel.addComboboxForCompilerOption(
       label = ScalaInspectionBundle.message("name.unused.declaration.report.local.declarations"),
@@ -245,10 +247,12 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
         case InspectedElement(original: ScNamedElement, delegate: ScNamedElement) if !isElementUsed(delegate, isOnTheFly) =>
 
           val dontReportPublicDeclarationsQuickFix =
-            if (isOnlyVisibleInLocalFile(original)) None else Some(new DontReportPublicDeclarationsQuickFix(original))
+            if (isOnlyVisibleInLocalFile(original)) None
+            else Some(createDontReportPublicDeclarationsQuickFix(original))
 
-          val addScalaAnnotationUnusedQuickFix = if (delegate.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13)
-            None else Some(new AddScalaAnnotationUnusedQuickFix(original))
+          val addScalaAnnotationUnusedQuickFix =
+            if (delegate.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13) None
+            else Some(new AddScalaAnnotationUnusedQuickFix(original))
 
           val message = if (isOnTheFly) {
             annotationDescription
@@ -297,11 +301,36 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
       }
     case _ => false
   }
+
+  /*
+  * There is already a method `org.jetbrains.plugins.scala.createSetInspectionOptionFix which does almost the same,
+  * but it returns a `LocalQuickFix` and currently the `ProblemInfo` class, which we use to keep fixes for `ScalaUnusedDeclarationInspection`,
+  * accepts only `LocalQuickFixAndIntentionActionOnPsiElement`.
+  * @todo: If we manage to switch to `LocalQuickFix` in `ProblemInfo`, we can get rid of this method.
+  */
+  private def createDontReportPublicDeclarationsQuickFix(elem: ScNamedElement): LocalQuickFixAndIntentionActionOnPsiElement = {
+    val fix = new SetInspectionOptionFix(
+      this,
+      reportPublicDeclarationsPropertyName,
+      ScalaInspectionBundle.message("fix.unused.declaration.report.public.declarations"),
+      false
+    )
+    new LocalQuickFixAndIntentionActionOnPsiElement(elem) {
+      override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit =
+        fix.applyFix(project, elem.getContainingFile)
+
+      override def getText: String = fix.getName
+      override def getFamilyName: String = fix.getFamilyName
+    }
+  }
 }
 
 object ScalaUnusedDeclarationInspection {
   @Nls
   val annotationDescription: String = ScalaInspectionBundle.message("declaration.is.never.used")
+
+  @NonNls
+  private val reportPublicDeclarationsPropertyName: String = "reportPublicDeclarations"
 
   private def hasOverrideModifier(member: ScModifierListOwner): Boolean =
     member.hasModifierPropertyScala(ScalaModifier.OVERRIDE)
