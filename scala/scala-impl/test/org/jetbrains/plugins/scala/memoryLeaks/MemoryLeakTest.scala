@@ -34,6 +34,7 @@ import org.junit.{Ignore, Test}
 
 import java.nio.file.Paths
 import java.util.function.Predicate
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[SlowTests]))
@@ -130,7 +131,7 @@ class MemoryLeakTest extends HeavyPlatformTestCase {
 
   private def allRootsForProject(implicit project: ProjectContext): java.util.Map[AnyRef, String] = {
     val allRoots = LeakHunter.allRoots().get()
-    allRoots.put(project.getPicoContainer, "project.getPicoContainer")
+    allRoots.put(project.getPicoContainer, "project.getPicoContainer"): @nowarn("cat=deprecation")
     allRoots
   }
 }

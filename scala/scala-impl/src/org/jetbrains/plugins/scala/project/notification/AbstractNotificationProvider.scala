@@ -40,7 +40,7 @@ abstract class AbstractNotificationProvider(@Nls kitTitle: String,
       case file: PsiFile if isSourceCode(file) && !hasDeveloperKit(virtualFile) =>
         createPanelProvider(setDeveloperKit(virtualFile, _))
       case _ =>
-        EditorNotificationProvider.CONST_NULL
+        null
     }
   }
 

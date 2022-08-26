@@ -123,8 +123,8 @@ trait FileStructureTest {
     inReadAction {
       val virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(Path.of(filePath))
       val file = PsiManager.getInstance(getProject).findFile(virtualFile)
-      val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
-        override def isEnabled(provider: NodeProvider[_ <: TreeElement]): Boolean = provider.isInstanceOf[TestNodeProvider]
+      val treeViewModel: ScalaStructureViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
+        override def isEnabled(provider: NodeProvider[_]): Boolean = provider.isInstanceOf[TestNodeProvider]
       }
       val wrapper = StructureViewComponent.createWrapper(getProject, treeViewModel.getRoot, treeViewModel)
 

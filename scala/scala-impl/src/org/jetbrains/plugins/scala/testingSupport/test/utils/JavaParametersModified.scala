@@ -51,11 +51,8 @@ private[test] class JavaParametersModified extends JavaParameters {
     var rootsEnumerator = enumerator.classes
 
     if ((classPathType & JDK_ONLY) != 0)
-      rootsEnumerator = rootsEnumerator.usingCustomRootProvider { (e: OrderEntry) =>
-        if (!e.isInstanceOf[JdkOrderEntry])
-          e.getFiles(OrderRootType.CLASSES)
-        else
-          jdkRoots(jdk)
+      rootsEnumerator = rootsEnumerator.usingCustomSdkRootProvider { (_: JdkOrderEntry) =>
+        jdkRoots(jdk)
       }
     rootsEnumerator
   }

@@ -4,7 +4,7 @@ import com.intellij.execution.Location
 import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.roots.{OrderEntry, OrderEnumerator, OrderRootType}
+import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -25,7 +25,6 @@ import java.io.File
 import java.lang.annotation.Annotation
 import java.net.{URL, URLClassLoader}
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
 import scala.util.{Failure, Success, Try}
 
 object ScalaTestAstTransformer {
@@ -112,16 +111,14 @@ object ScalaTestAstTransformer {
   }
 
   private def loadClass(className: String, module: Module) = {
-    val orderEntries = new ArrayBuffer[OrderEntry]
-    OrderEnumerator.orderEntries(module).recursively.runtimeOnly.forEach((orderEntry: OrderEntry) => {
-      orderEntries += orderEntry
-      true
-    })
-    val loaderUrls =
-      for {
-        entry <- orderEntries
-        rawUrl <- entry.getFiles(OrderRootType.CLASSES).map(_.getPresentableUrl)
-      } yield {
+    val loaderUrls = OrderEnumerator
+      .orderEntries(module)
+      .recursively
+      .runtimeOnly
+      .classes
+      .getRoots
+      .map { root =>
+        val rawUrl = root.getPresentableUrl
         val cpFile = new File(rawUrl)
         if (cpFile.exists && cpFile.isDirectory && !rawUrl.endsWith(File.separator)) {
           new URL(s"file:/$rawUrl/")
@@ -130,7 +127,7 @@ object ScalaTestAstTransformer {
         }
       }
 
-    val loader = new URLClassLoader(loaderUrls.toArray, getClass.getClassLoader)
+    val loader = new URLClassLoader(loaderUrls, getClass.getClassLoader)
     loader.loadClass(className)
   }
 
@@ -417,10 +414,10 @@ object ScalaTestAstTransformer {
     extends ToStringTarget(pClassName, null, new Array[AstNode](0), target) {
 
     protected def isIt: Boolean =
-      element.isInstanceOf[ScReferenceExpression] && target == "it" && itWordFqns.contains(pClassName)
+      element.is[ScReferenceExpression] && target == "it" && itWordFqns.contains(pClassName)
 
     protected def isThey: Boolean =
-      element.isInstanceOf[ScReferenceExpression] && target == "they" && theyWordFqns.contains(pClassName)
+      element.is[ScReferenceExpression] && target == "they" && theyWordFqns.contains(pClassName)
 
     override def parent: AstNode = getParentNode(pClassName, element)
 
@@ -440,4 +437,3 @@ object ScalaTestAstTransformer {
     override def hashCode: Int = element.hashCode
   }
 }
-
