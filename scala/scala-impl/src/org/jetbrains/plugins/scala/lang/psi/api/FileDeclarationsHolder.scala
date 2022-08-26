@@ -120,7 +120,7 @@ trait FileDeclarationsHolder
     }
 
     if (checkPredefinedClassesAndPackages) {
-      if (ScalaProjectSettings.in(getProject).aliasExportsEnabled && lastParent.defaultImports.exists(s => s == "scala" || s == "scala.Predef")) {
+      if (ScalaProjectSettings.in(getProject).aliasExportsEnabled && lastParent.defaultImports.exists(s => s == "scala" || s == "scala.Predef") && !isInsidePackage("scala")) {
         if (aliasImports.exists(!_.processDeclarations(processor, state, lastParent, place))) return false;
       }
 
@@ -128,6 +128,13 @@ trait FileDeclarationsHolder
     }
 
     true
+  }
+
+  private def isInsidePackage(name: String): Boolean = this match {
+    case file: ScalaFile =>
+      val packageName = file.getPackageName
+      packageName == name || packageName.startsWith(name + ".")
+    case _ => false
   }
 
   private lazy val aliasImports: Seq[ScImportStmt] = {
