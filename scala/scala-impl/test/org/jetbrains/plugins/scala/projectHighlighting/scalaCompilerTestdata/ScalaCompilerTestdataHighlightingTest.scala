@@ -30,6 +30,8 @@ abstract class ScalaCompilerTestdataHighlightingTest
 
   protected val reporter: HighlightingProgressReporter
 
+  private val randomSeed: Long = System.currentTimeMillis()
+
   protected def doTest(): Unit = {
     val allFiles = filesToHighlight
 
@@ -51,7 +53,7 @@ abstract class ScalaCompilerTestdataHighlightingTest
       annotateFiles(files, reporter)
       idx += 1
     }
-    reporter.reportResults()
+    reporter.reportFinalResults()
   }
 
   private def addFileToProject(file: File, relativeTo: File): PsiFile = {
@@ -104,7 +106,7 @@ abstract class ScalaCompilerTestdataHighlightingTest
       compilerProfile.setSettings(newSettings)
       ScalaCompilerConfiguration.incModificationCount()
 
-      addedFiles.foreach(AllProjectHighlightingTest.annotateScalaFile(_, reporter))
+      addedFiles.foreach(AllProjectHighlightingTest.annotateScalaFile(_, reporter, Some(randomSeed)))
     } finally {
       addedFiles.foreach(removeFile)
       inWriteAction {
@@ -121,6 +123,6 @@ abstract class ScalaCompilerTestdataHighlightingTest
   }
 
   private def isScalaFile(f: File) = f.getName.endsWith(ScalaFileType.INSTANCE.getDefaultExtension)
-  private def isFlagsFile(f: File) = f.getName.endsWith("flags")
 
+  private def isFlagsFile(f: File) = f.getName.endsWith("flags")
 }

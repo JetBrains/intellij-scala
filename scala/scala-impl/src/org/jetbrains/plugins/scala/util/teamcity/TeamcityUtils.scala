@@ -32,7 +32,7 @@ object TeamcityUtils {
   }
 
   // https://www.jetbrains.com/help/teamcity/service-messages.html#Reporting+Messages+for+Build+Log
-  private def escapeTeamcityValue(value: String): String =
+  def escapeTeamcityValue(value: String): String =
     value
       .replace("|", "||")
       .replace("'", "|'")

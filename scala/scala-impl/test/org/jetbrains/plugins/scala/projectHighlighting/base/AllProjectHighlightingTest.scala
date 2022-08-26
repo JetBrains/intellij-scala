@@ -34,6 +34,8 @@ trait AllProjectHighlightingTest {
 
   protected val reporter: HighlightingProgressReporter
 
+  private val randomSeed: Long = System.currentTimeMillis()
+
   def doAllProjectHighlightingTest(): Unit = {
     val modules = ModuleManager.getInstance(getProject).getModules
     val module = modules.find(_.hasScala)
@@ -50,12 +52,19 @@ trait AllProjectHighlightingTest {
 
     val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager
 
-    val size: Int = files.size
+    reporter.notify(
+      s"""###
+         |### Using randomized test with random seed: $randomSeed
+         |### (file elements will be annotated in random order)
+         |###
+         |""".stripMargin
+    )
 
-    for ((file, index) <- files.zipWithIndex) {
+    val filesTotal = files.size
+    for ((file, fileIndex) <- files.zipWithIndex) {
       val psiFile = fileManager.findFile(file)
 
-      reporter.updateHighlightingProgress(percent(index, size), file.getName)
+      reporter.notifyHighlightingProgress(fileIndex, filesTotal, file.getName)
 
       file.getFileType match {
         case JavaFileType.INSTANCE =>
@@ -65,12 +74,10 @@ trait AllProjectHighlightingTest {
       }
     }
 
-    reporter.reportResults()
+    reporter.reportFinalResults()
   }
 
   protected def scalaFileTypes: Seq[FileType] = Seq(ScalaFileType.INSTANCE)
-
-  private def percent(index: Int, size: Int): Int = (index + 1) * 100 / size
 
   private def annotateJava(psiFile: PsiFile, codeInsightFixture: CodeInsightTestFixture): Unit = {
     codeInsightFixture.openFileInEditor(psiFile.getVirtualFile)
@@ -84,8 +91,9 @@ trait AllProjectHighlightingTest {
     }
   }
 
-  private def annotateScala(psiFile: PsiFile): Unit =
-    AllProjectHighlightingTest.annotateScalaFile(psiFile, reporter)
+  private def annotateScala(psiFile: PsiFile): Unit = {
+    AllProjectHighlightingTest.annotateScalaFile(psiFile, reporter, Some(randomSeed))
+  }
 }
 
 object AllProjectHighlightingTest {
@@ -102,26 +110,36 @@ object AllProjectHighlightingTest {
     case path => throw new IllegalArgumentException(s"Unknown test path: $path")
   }
 
-
-  def annotateScalaFile(file: PsiFile, reporter: HighlightingProgressReporter, relPath: Option[String] = None): Unit = {
+  def annotateScalaFile(
+    file: PsiFile,
+    reporter: HighlightingProgressReporter,
+    randomSeed: Option[Long],
+    fileRelativePath: Option[String] = None
+  ): Unit = {
     val scalaFile = file.getViewProvider.getPsi(ScalaLanguage.INSTANCE) match {
       case f: ScalaFile => f
       case _ => return
     }
-    annotateScalaFile(scalaFile, reporter, relPath)
+    annotateScalaFile(scalaFile, reporter, randomSeed, fileRelativePath)
   }
 
-  def annotateScalaFile(scalaFile: ScalaFile, reporter: HighlightingProgressReporter, relPath: Option[String]): Unit = {
+  /**
+   * @param randomSeed pass some value to randomize elements processing order
+   */
+  private def annotateScalaFile(
+    scalaFile: ScalaFile,
+    reporter: HighlightingProgressReporter,
+    randomSeed: Option[Long],
+    fileRelativePath: Option[String],
+  ): Unit = {
     val randomSeed = System.currentTimeMillis()
-    //report random seed on errors to be able to reproduce the issue locally
-    val randomSeedDebugSuffix = s" (random seed: $randomSeed)"
     val random = new Random(randomSeed)
 
-    val fileName = relPath.getOrElse(relativePathOf(scalaFile))
-    val mock = new AnnotatorHolderMock(scalaFile) {
+    val fileName = fileRelativePath.getOrElse(relativePathOf(scalaFile))
+    val annotatorHolder: AnnotatorHolderMock = new AnnotatorHolderMock(scalaFile) {
       override def createMockAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Option[Message] = {
         if (severity == HighlightSeverity.ERROR) {
-          reporter.reportError(fileName, range, message + randomSeedDebugSuffix)
+          reporter.reportError(fileName, range, message)
         }
         super.createMockAnnotation(severity, range, message)
       }
@@ -133,10 +151,10 @@ object AllProjectHighlightingTest {
     val elementsShuffled = random.shuffle(elements)
     for ((element, elementIndex) <- elementsShuffled.zipWithIndex) { //zipWIthIndex for easier debugging
       try {
-        annotator.annotate(element)(mock)
+        annotator.annotate(element)(annotatorHolder)
       } catch {
         case ex: Throwable =>
-          val message = s"Exception while highlighting element at index $elementIndex (${element.getText} - ${element.getNode.getTextRange}): $ex$randomSeedDebugSuffix"
+          val message = s"Exception while highlighting element at index $elementIndex (${element.getText} - ${element.getNode.getTextRange}): $ex (random seed: $randomSeed)"
           reporter.reportError(fileName, element.getTextRange, message)
           if (!NonFatal(ex)) {
             throw ex

@@ -15,15 +15,20 @@ trait HighlightingProgressReporter {
 
   def notify(message: String): Unit
 
-  def updateHighlightingProgress(percent: Int, fileName: String): Unit
+  def notifyHighlightingProgress(percent: Int, fileName: String): Unit
 
-  def reportResults(): Unit
+  def reportFinalResults(): Unit
 
   def progressIndicator: ProgressIndicator
 
   ////////////////////////////////////
 
   private val errorMessages: mutable.Map[String, Seq[ErrorDescriptor]] = mutable.Map.empty
+
+  final def notifyHighlightingProgress(currentIndex: Int, total: Int, fileName: String): Unit = {
+    val percent = (currentIndex + 1) * 100 / total
+    notifyHighlightingProgress(percent, fileName)
+  }
 
   final def foundErrors(fileName: String): Seq[ErrorDescriptor] = errorMessages.getOrElse(fileName, Seq.empty)
 
@@ -75,15 +80,15 @@ trait HighlightingProgressReporter {
 object HighlightingProgressReporter {
 
   def newInstance(
-    name: String,
+    testClassName: String,
     filesWithProblems: Map[String, Set[TextRange]],
     reportStatus: Boolean = true
   ): HighlightingProgressReporter = {
     val isRunningInTeamcity = sys.env.contains("TEAMCITY_VERSION")
     if (isRunningInTeamcity)
-      new TeamCityHighlightingProgressReporter(name, filesWithProblems, reportStatus)
+      new TeamCityHighlightingProgressReporter(testClassName, filesWithProblems, reportStatus)
     else
-      new ConsoleHighlightingProgressReporter(filesWithProblems)
+      new ConsoleHighlightingProgressReporter(testClassName, filesWithProblems)
   }
 
   class TextBasedProgressIndicator extends ProgressIndicatorBase(false) {

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.projectHighlighting.scalaCompilerTestdata.failing
 
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.projectHighlighting.reporter.ConsoleHighlightingProgressReporter
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.{ConsoleHighlightingProgressReporter, HighlightingProgressReporter}
 import org.jetbrains.plugins.scala.projectHighlighting.scalaCompilerTestdata.ScalaCompilerTestdataHighlightingTest
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
@@ -11,7 +11,7 @@ import scala.reflect.NameTransformer
 
 abstract class ScalaCompilerTestdataHighlightingFailingTestBase_2_12 extends ScalaCompilerTestdataHighlightingTest {
 
-  override protected lazy val reporter = new ConsoleHighlightingProgressReporter(filesWithProblems)
+  override protected lazy val reporter = HighlightingProgressReporter.newInstance(this.getClass.getSimpleName, filesWithProblems)
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
