@@ -94,7 +94,7 @@ class InvalidInvocationsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
 
   def testNonExistingInfixOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
-      |2 + 7 $ 3 * 8 dd 9
+      |2 + 7 xx 3 * 8 dd 9
       |""".stripMargin
   }) {
     """
