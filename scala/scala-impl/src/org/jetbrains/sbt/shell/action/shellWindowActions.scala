@@ -37,7 +37,7 @@ class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEnd
   * Starts or restarts sbt shell depending on running state.
   */
 class StartAction(project: Project) extends DumbAwareAction {
-
+  copyShortcutFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_DEFAULT_RUNNER))
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Execute)
   templatePresentation.setText(SbtBundle.message("sbt.shell.start"))
@@ -144,7 +144,7 @@ private object CopyFromHistoryViewerAction {
 }
 
 class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnection]) extends ToggleAction {
-
+  copyShortcutFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_DEFAULT_DEBUGGER))
   private val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.StartDebugger)
   if (remoteConnection.isDefined) {
