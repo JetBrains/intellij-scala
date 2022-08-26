@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.shell.action.CopyFromHistoryViewerAction._
 import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
+import org.jetbrains.sbt.shell.action.SigIntAction._
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellConsoleView, SbtShellToolWindowFactory}
 
 import java.awt.event.{InputEvent, KeyEvent}
@@ -117,9 +118,13 @@ class SigIntAction(project: Project, view: SbtShellConsoleView) extends DumbAwar
   }
 }
 
+object SigIntAction {
+  def `ctrl + C` = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK))
+}
+
 class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbAwareAction {
 
-  setShortcutSet(`ctrl + C`)
+  setShortcutSet(CommonShortcuts.getCopy)
 
   override def update(e: AnActionEvent): Unit = {
     e.getPresentation.setEnabled(CopyFromHistoryViewerAction.isEnabled(view))
@@ -131,8 +136,6 @@ class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbAwareAc
 }
 
 private object CopyFromHistoryViewerAction {
-  def `ctrl + C` = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK))
-
   private def selectionModel(view: SbtShellConsoleView): SelectionModel =
     view.getHistoryViewer.getSelectionModel
 
