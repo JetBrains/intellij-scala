@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.originalDirNameKey
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.PsiFileTestUtil
-import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalacTests}
 import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
@@ -28,7 +28,7 @@ abstract class ScalaCompilerTestdataHighlightingTest
 
   protected def filesToHighlight: Seq[File]
 
-  protected val reporter: ProgressReporter
+  protected val reporter: HighlightingProgressReporter
 
   protected def doTest(): Unit = {
     val allFiles = filesToHighlight
@@ -72,7 +72,7 @@ abstract class ScalaCompilerTestdataHighlightingTest
     }
   }
 
-  private def annotateFiles(files: Seq[File], reporter: ProgressReporter): Unit = {
+  private def annotateFiles(files: Seq[File], reporter: HighlightingProgressReporter): Unit = {
     def allFiles(f: File): Seq[File] =
       if (f.isDirectory) f.listFiles.toIndexedSeq.flatMap(allFiles)
       else               Seq(f)

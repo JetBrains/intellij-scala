@@ -10,8 +10,8 @@ import com.intellij.testFramework.{TestLoggerFactory, VfsTestUtil}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.performance.FixtureDelegate
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestCase
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
@@ -77,7 +77,7 @@ abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImporting
 
   protected def filesWithProblems: Map[String, Set[TextRange]] = Map.empty
 
-  protected val reporter = ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems)
+  protected val reporter = HighlightingProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems)
 
   //example: `..../testdata/projects`
   protected def rootProjectsDirPath: String

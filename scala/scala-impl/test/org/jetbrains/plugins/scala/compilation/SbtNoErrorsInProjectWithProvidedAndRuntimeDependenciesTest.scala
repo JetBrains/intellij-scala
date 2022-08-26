@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMe
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.sbt.project.{ImportingTestCase, ProjectStructureMatcher}
 import org.junit.experimental.categories.Category
 
@@ -49,8 +49,8 @@ class SbtNoErrorsInProjectWithProvidedAndRuntimeDependenciesTest
 
   override def getProjectFixture: CodeInsightTestFixture = codeInsightFixture
 
-  override protected val reporter: ProgressReporter =
-    ProgressReporter.newInstance(getClass.getSimpleName, Map.empty)
+  override protected val reporter: HighlightingProgressReporter =
+    HighlightingProgressReporter.newInstance(getClass.getSimpleName, Map.empty)
 
   override protected def defaultAssertMatch: ProjectStructureMatcher.AttributeMatchType = ???
 

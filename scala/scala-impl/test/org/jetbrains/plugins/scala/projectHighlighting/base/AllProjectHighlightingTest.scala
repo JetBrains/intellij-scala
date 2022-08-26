@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.relativePathOf
-import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.junit.Assert.assertTrue
 
@@ -32,7 +32,7 @@ trait AllProjectHighlightingTest {
 
   def getProjectFixture: CodeInsightTestFixture
 
-  protected val reporter: ProgressReporter
+  protected val reporter: HighlightingProgressReporter
 
   def doAllProjectHighlightingTest(): Unit = {
     val modules = ModuleManager.getInstance(getProject).getModules
@@ -102,13 +102,16 @@ object AllProjectHighlightingTest {
     case path => throw new IllegalArgumentException(s"Unknown test path: $path")
   }
 
-  def annotateScalaFile(file: PsiFile, reporter: ProgressReporter, relPath: Option[String] = None): Unit = {
+
+  def annotateScalaFile(file: PsiFile, reporter: HighlightingProgressReporter, relPath: Option[String] = None): Unit = {
     val scalaFile = file.getViewProvider.getPsi(ScalaLanguage.INSTANCE) match {
       case f: ScalaFile => f
-      case _            => return
+      case _ => return
     }
+    annotateScalaFile(scalaFile, reporter, relPath)
+  }
 
-
+  def annotateScalaFile(scalaFile: ScalaFile, reporter: HighlightingProgressReporter, relPath: Option[String]): Unit = {
     val randomSeed = System.currentTimeMillis()
     //report random seed on errors to be able to reproduce the issue locally
     val randomSeedDebugSuffix = s" (random seed: $randomSeed)"

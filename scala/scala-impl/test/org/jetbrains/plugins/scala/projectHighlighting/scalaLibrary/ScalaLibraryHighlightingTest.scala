@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.compiled.ScClsFileViewProvider.ScCls
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest
-import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.{HighlightingTests, ScalaFileType}
 import org.junit.Assert
 import org.junit.experimental.categories.Category
@@ -30,7 +30,7 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
   protected def filesWithProblems: Map[String, Set[TextRange]] = Map()
 
   def testHighlightScalaLibrary(): Unit = {
-    val reporter = ProgressReporter.newInstance(
+    val reporter = HighlightingProgressReporter.newInstance(
       getClass.getSimpleName,
       filesWithProblems,
       reportStatus = false
@@ -73,7 +73,7 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
   private def annotateScalaFile(
     file: VirtualFile,
     ancestor: VirtualFile,
-    reporter: ProgressReporter
+    reporter: HighlightingProgressReporter
   ): Unit =
     file.getFileType match {
       case ScalaFileType.INSTANCE =>

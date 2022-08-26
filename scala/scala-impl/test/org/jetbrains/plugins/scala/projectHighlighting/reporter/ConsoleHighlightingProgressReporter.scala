@@ -1,13 +1,15 @@
-package org.jetbrains.plugins.scala.util.reporter
+package org.jetbrains.plugins.scala.projectHighlighting.reporter
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter.StringExt
-import org.jetbrains.plugins.scala.util.reporter.ProgressReporter.TextBasedProgressIndicator
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.ConsoleHighlightingProgressReporter.StringExt
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter.TextBasedProgressIndicator
 import org.junit.Assert
 
-class ConsoleReporter(override val filesWithProblems: Map[String, Set[TextRange]]) extends ProgressReporter {
-  private val report = new StringBuilder("\n")
+import scala.collection.mutable
+
+class ConsoleHighlightingProgressReporter(override val filesWithProblems: Map[String, Set[TextRange]]) extends HighlightingProgressReporter {
+  private val report = new mutable.StringBuilder("\n")
 
   private def formatMessage(fileError: FileErrorDescriptor): String = {
     val error = fileError.error
@@ -26,10 +28,9 @@ class ConsoleReporter(override val filesWithProblems: Map[String, Set[TextRange]
 
     val noErrorsButExpected = unexpectedSuccess
     if (noErrorsButExpected.nonEmpty) {
-      val indent = "  "
       val reportSuccess =
         s"""Looks like you've fixed highlighting in files:
-           |$indent${noErrorsButExpected.mkString(s"\n$indent")}
+           |${noErrorsButExpected.mkString(s"\n").indented(2)}
            |Remove them from `filesWithProblems` of a test case.
            |
            |""".stripMargin
@@ -54,7 +55,6 @@ class ConsoleReporter(override val filesWithProblems: Map[String, Set[TextRange]
         if (fileErrors.length > maxErrorsPerTip)
           "<too many errors>" // TODO: print at least some
         else {
-          val indent = "  "
           val fileErrorsTexts = fileErrors.map { err => s"${err.range} - ${err.message}" }
           s"""(
              |${fileErrorsTexts.mkString("\n").indented(2)}
@@ -82,7 +82,7 @@ class ConsoleReporter(override val filesWithProblems: Map[String, Set[TextRange]
   override def notify(message: String): Unit = println(message)
 }
 
-object ConsoleReporter {
+object ConsoleHighlightingProgressReporter {
   implicit class StringExt(private val str: String) extends AnyVal {
     def indented(spaces: Int): String = {
       val indentStr = " " * spaces

@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.projectHighlighting.scalaCompilerTestdata
 
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 import java.io.File
@@ -24,8 +24,8 @@ class ScalaCompilerTestdataHighlightingTest_2_12 extends ScalaCompilerTestdataHi
     "pos/unchecked-a.scala" -> Set((107, 110))
   )
 
-  override protected val reporter: ProgressReporter =
-    ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems, reportStatus = false)
+  override protected val reporter: HighlightingProgressReporter =
+    HighlightingProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems, reportStatus = false)
 
   override protected def filesToHighlight: Seq[File] = {
     val testDataPath = s"${TestUtils.getTestDataPath}/scalacTests/pos/"

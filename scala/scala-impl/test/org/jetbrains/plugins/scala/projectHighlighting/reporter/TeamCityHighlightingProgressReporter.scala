@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala.util.reporter
+package org.jetbrains.plugins.scala.projectHighlighting.reporter
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.util.reporter.ProgressReporter.TextBasedProgressIndicator
+import HighlightingProgressReporter.TextBasedProgressIndicator
 
-class TeamCityReporter(name: String, override val filesWithProblems: Map[String, Set[TextRange]], reportStatus: Boolean) extends ProgressReporter {
-  import TeamCityReporter._
+class TeamCityHighlightingProgressReporter(name: String, override val filesWithProblems: Map[String, Set[TextRange]], reportStatus: Boolean) extends HighlightingProgressReporter {
+  import TeamCityHighlightingProgressReporter._
 
   override def updateHighlightingProgress(percent: Int, fileName: String): Unit =
     progressMessage(s"$percent% highlighted, started $fileName")
@@ -63,7 +63,7 @@ class TeamCityReporter(name: String, override val filesWithProblems: Map[String,
   override def notify(message: String): Unit = progressMessage(message)
 }
 
-object TeamCityReporter {
+object TeamCityHighlightingProgressReporter {
   private var testsWithProblems: Set[String] = Set.empty
 
   private def escapeTC(message: String): String = {

@@ -1,14 +1,29 @@
-package org.jetbrains.plugins.scala.util.reporter
+package org.jetbrains.plugins.scala.projectHighlighting.reporter
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.util.reporter.KnownErrors._
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter.KnownErrors
 
 import scala.collection.mutable
 
-trait ProgressReporter {
-  val errorMessages: mutable.Map[String, Seq[ErrorDescriptor]] = mutable.Map.empty
+trait HighlightingProgressReporter {
+
+  def filesWithProblems: Map[String, Set[TextRange]]
+
+  def showError(error: FileErrorDescriptor): Unit
+
+  def notify(message: String): Unit
+
+  def updateHighlightingProgress(percent: Int, fileName: String): Unit
+
+  def reportResults(): Unit
+
+  def progressIndicator: ProgressIndicator
+
+  ////////////////////////////////////
+
+  private val errorMessages: mutable.Map[String, Seq[ErrorDescriptor]] = mutable.Map.empty
 
   final def foundErrors(fileName: String): Seq[ErrorDescriptor] = errorMessages.getOrElse(fileName, Seq.empty)
 
@@ -36,19 +51,18 @@ trait ProgressReporter {
     }
   }
 
-  def filesWithProblems: Map[String, Set[TextRange]]
-
-  private def knownErrors(fileName: String): KnownErrors =
+  private def knownErrors(fileName: String): KnownErrors = {
+    import KnownErrors._
     filesWithProblems.get(fileName).map {
       case set if set.isEmpty => TooManyErrors
-      case set                => RangeSet(set)
+      case set => RangeSet(set)
     }.getOrElse(NoErrors)
-
-  def showError(error: FileErrorDescriptor): Unit
+  }
 
   final def reportError(fileError: FileErrorDescriptor): Unit = {
     saveError(fileError)
-    if (!knownErrors(fileError.fileName).containsRange(fileError.error.range)) {
+    val isKnownError = knownErrors(fileError.fileName).containsRange(fileError.error.range)
+    if (!isKnownError) {
       showError(fileError)
     }
   }
@@ -56,18 +70,20 @@ trait ProgressReporter {
   final def reportError(fileName: String, range: TextRange, message: String): Unit = {
     reportError(FileErrorDescriptor(fileName, ErrorDescriptor(range, message)))
   }
-
-  def notify(message: String): Unit
-  def updateHighlightingProgress(percent: Int, fileName: String): Unit
-  def reportResults(): Unit
-  def progressIndicator: ProgressIndicator
 }
 
-object ProgressReporter {
-  def newInstance(name: String, filesWithProblems: Map[String, Set[TextRange]], reportStatus: Boolean = true): ProgressReporter = {
+object HighlightingProgressReporter {
+
+  def newInstance(
+    name: String,
+    filesWithProblems: Map[String, Set[TextRange]],
+    reportStatus: Boolean = true
+  ): HighlightingProgressReporter = {
     val isRunningInTeamcity = sys.env.contains("TEAMCITY_VERSION")
-    if (isRunningInTeamcity) new TeamCityReporter(name, filesWithProblems, reportStatus)
-    else new ConsoleReporter(filesWithProblems)
+    if (isRunningInTeamcity)
+      new TeamCityHighlightingProgressReporter(name, filesWithProblems, reportStatus)
+    else
+      new ConsoleHighlightingProgressReporter(filesWithProblems)
   }
 
   class TextBasedProgressIndicator extends ProgressIndicatorBase(false) {
@@ -91,25 +107,22 @@ object ProgressReporter {
       }
     }
   }
-}
 
-private sealed trait KnownErrors {
-  def containsRange(range: TextRange): Boolean
-}
-
-private object KnownErrors {
-  case class RangeSet(errors: Set[TextRange]) extends KnownErrors {
-    override def containsRange(range: TextRange): Boolean = errors.contains(range)
+  private sealed trait KnownErrors {
+    def containsRange(range: TextRange): Boolean
   }
 
-  case object TooManyErrors extends KnownErrors {
-    override def containsRange(range: TextRange): Boolean = true
-  }
+  private object KnownErrors {
+    case class RangeSet(errors: Set[TextRange]) extends KnownErrors {
+      override def containsRange(range: TextRange): Boolean = errors.contains(range)
+    }
 
-  case object NoErrors extends KnownErrors {
-    override def containsRange(range: TextRange): Boolean = false
+    case object TooManyErrors extends KnownErrors {
+      override def containsRange(range: TextRange): Boolean = true
+    }
+
+    case object NoErrors extends KnownErrors {
+      override def containsRange(range: TextRange): Boolean = false
+    }
   }
 }
-
-final case class ErrorDescriptor(range: TextRange, message: String)
-final case class FileErrorDescriptor(fileName: String, error: ErrorDescriptor)
