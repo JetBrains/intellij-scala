@@ -56,16 +56,29 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     maybeAssignment = Some(statement)
   }
 
-  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = TraceLogger.func(
-    maybeAssignment.fold(multiResolveImpl(incomplete)) {
-      _.resolveAssignment.toArray
+  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = TraceLogger.func {
+    //micro-optimization: don't use fold to decrease chance of StackOverflowError
+    // in long method call chains or for-comprehensions
+    // this method is called many many times during resolved
+    val maybeAssignmentResult = maybeAssignment
+    maybeAssignmentResult match {
+      case Some(value) =>
+        value.resolveAssignment.toArray
+      case None =>
+        multiResolveImpl(incomplete)
     }
-  )
+  }
 
   override def shapeResolve: Array[ScalaResolveResult] = {
-    ProgressManager.checkCanceled()
-    maybeAssignment.fold(shapeResolveImpl) {
-      _.shapeResolveAssignment.toArray
+    //micro-optimization: don't use fold to decrease chance of StackOverflowError
+    // in long method call chains or for-comprehensions
+    // this method is called many many times during resolved
+    val maybeAssignmentResult = maybeAssignment
+    maybeAssignmentResult match {
+      case Some(value) =>
+        value.shapeResolveAssignment.toArray
+      case None =>
+        shapeResolveImpl
     }
   }
 
