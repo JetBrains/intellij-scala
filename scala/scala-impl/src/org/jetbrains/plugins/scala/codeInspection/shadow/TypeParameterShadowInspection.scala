@@ -4,7 +4,6 @@ import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RenameElementQuickfix
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
@@ -14,7 +13,6 @@ import scala.annotation.unused
 class TypeParameterShadowInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
-    case e if e.isInScala3File => () // TODO Handle Scala 3 code (type lambdas, etc.), SCL-19723
     case refPat: ScTypeParam => check(refPat, holder)
     case _ =>
   }
