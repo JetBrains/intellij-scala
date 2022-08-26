@@ -8,7 +8,7 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_2_13
 
-  import org.jetbrains.plugins.scala.projectHighlighting.ImplicitConversions.tupleToTextRange
+  import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
 
   override protected val filesWithProblems: Map[String, Set[TextRange]] = Map(
     "scala/reflect/ClassManifestDeprecatedApis.scala" -> Set(

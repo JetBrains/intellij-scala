@@ -11,7 +11,7 @@ class FinchProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
   override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
     GithubRepositoryWithRevision("finagle", "finch", "af94e61104f8e6cd15332227cf184cfe46a37666")
 
-  import org.jetbrains.plugins.scala.projectHighlighting.ImplicitConversions.tupleToTextRange
+  import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
 
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
     "generic/src/test/scala/io/finch/generic/GenericSpec.scala" -> Set((225, 255)),

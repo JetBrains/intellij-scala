@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.projectHighlighting.scalaLibrary
 
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.projectHighlighting.ImplicitConversions.tupleToTextRange
+import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
 
 class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
 

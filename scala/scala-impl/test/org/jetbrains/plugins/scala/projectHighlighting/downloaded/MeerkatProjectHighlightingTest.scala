@@ -14,7 +14,7 @@ class MeerkatProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest
 
   override def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
 
-  import org.jetbrains.plugins.scala.projectHighlighting.ImplicitConversions.tupleToTextRange
+  import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
 
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
     "src/test/scala/org/meerkat/parsers/examples/Example12.scala" -> Set(),
