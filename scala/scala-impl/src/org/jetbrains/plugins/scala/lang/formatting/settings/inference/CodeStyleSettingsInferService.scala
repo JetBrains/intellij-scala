@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatting.settings.inference
 
 import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
 import com.intellij.ide.startup.StartupManagerEx
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components._
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project}
@@ -31,6 +32,12 @@ final class CodeStyleSettingsInferService(private val project: Project)
   override def loadState(state: CodeStyleSettingsInferService.State): Unit = this.state = state
 
   def init(): Unit = {
+    //don't infer settings for unit test projects, otherwise it might lead to some unpredictable behaviour
+    // when the setting is changed for test project which might be shared/reused by some other test
+    // this might lead to exception in com.intellij.testFramework.UsefulTestCase.checkCodeStyleSettingsEqual
+    if (ApplicationManager.getApplication.isUnitTestMode)
+      return
+
     if (state.done) {
       Log.info("settings inference skipped: already done")
     } else {

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 
-class ScalaDocFormatter2Test extends AbstractScalaFormatterTestBase {
+final class ScalaDocFormatter2Test extends AbstractScalaFormatterTestBase {
 
   // SCL-6599
   def testListsMix(): Unit = {
