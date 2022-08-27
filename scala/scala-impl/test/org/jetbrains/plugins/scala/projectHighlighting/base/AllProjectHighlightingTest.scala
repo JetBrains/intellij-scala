@@ -122,8 +122,7 @@ object AllProjectHighlightingTest {
     }
   }
 
-  //TODO: don't run randomized tests in the main tests pipeline
-  // Instead duplicate project highlighting test run configuration and run it Nightly
+
   /**
    * This seed can control the order in which the elements in scala files are annotated.
    * Should be None if we don't need elements order randomization
@@ -131,7 +130,14 @@ object AllProjectHighlightingTest {
    * Note, it should be enough to use the same seed for all tests in single JVM instance, anyway all files will contain different code.
    */
   private val randomSeedForRandomizedElementsProcessingOrder: Option[Long] = {
-    Some(System.currentTimeMillis())
+    //TODO: we don't want to run randomized tests in our main build chain, to have less flaky tests
+    // We need to create a separate TeamCity configuration which would run nightly
+    // and run project highlighting tests with randomization enabled
+    val useRandomization = sys.props.get("project.highlighting.use.randomize.elements.order").contains("true")
+    if (useRandomization)
+      Some(System.currentTimeMillis())
+    else
+      None
   }
 
   def warnIfUsingRandomizedTests(reporter: HighlightingProgressReporter): Unit = {
