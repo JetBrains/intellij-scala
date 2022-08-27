@@ -851,6 +851,13 @@
             <className>org.jetbrains.plugins.scala.codeInspection.notImplementedCode.NotImplementedMembersAction</className>
         </intentionAction>
 
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.ImplementAbstractMethodIntention</className>
+        </intentionAction>
+
         <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
                                  implementationClass="org.jetbrains.plugins.scala.injection.ScalaInjectedStringLiteralManipulator"/>
 

@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions.implementAbstract
 
-import com.intellij.codeInsight.intention.impl.ImplementAbstractMethodAction
+import org.jetbrains.plugins.scala.codeInsight.intention.ImplementAbstractMethodIntention
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
 
-  override def familyName: String = new ImplementAbstractMethodAction().getFamilyName
+  override def familyName: String = new ImplementAbstractMethodIntention().getFamilyName
 
   def testFromTrait(): Unit = {
     val text =

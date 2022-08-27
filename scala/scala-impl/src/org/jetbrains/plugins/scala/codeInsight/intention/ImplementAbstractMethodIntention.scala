@@ -1,0 +1,5 @@
+package org.jetbrains.plugins.scala.codeInsight.intention
+
+import com.intellij.codeInsight.intention.impl.ImplementAbstractMethodAction
+
+class ImplementAbstractMethodIntention extends ImplementAbstractMethodAction
