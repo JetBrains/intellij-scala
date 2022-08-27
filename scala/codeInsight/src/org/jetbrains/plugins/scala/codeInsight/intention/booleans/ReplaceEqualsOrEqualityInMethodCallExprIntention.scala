@@ -4,6 +4,7 @@ package intention
 package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -24,7 +25,7 @@ final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementB
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null) return false
 
-    if (!methodCallExpr.getInvokedExpr.isInstanceOf[ScReferenceExpression]) return false
+    if (!methodCallExpr.getInvokedExpr.is[ScReferenceExpression]) return false
 
     val invokedExpression: ScReferenceExpression = methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression]
 
@@ -53,7 +54,7 @@ final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementB
 
     val newMethodCallExpr = createExpressionFromText(convertedExpr)(element.getManager)
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       val newExpr = methodCallExpr.replaceExpression(newMethodCallExpr, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(findCaretOffset(newExpr))
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)

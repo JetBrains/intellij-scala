@@ -4,6 +4,7 @@ package intention
 package controlFlow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
@@ -12,6 +13,8 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+
+import scala.collection.mutable
 
 final class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
 
@@ -33,7 +36,7 @@ final class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
     thenBranch match {
       case branch: ScBlockExpr =>
         val exprs = branch.exprs
-        if (exprs.size != 1 || !exprs.head.isInstanceOf[ScIf]) return false
+        if (exprs.size != 1 || !exprs.head.is[ScIf]) return false
 
         val innerIfStmt = exprs.head.asInstanceOf[ScIf]
         val innerElseBranch = innerIfStmt.elseExpression.orNull
@@ -53,7 +56,7 @@ final class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
     val ifStmt : ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
-    val expr = new StringBuilder
+    val expr = new mutable.StringBuilder
     val outerCondition = ifStmt.condition.get.getText
     val innerIfStmt = ifStmt.thenExpression.get match {
       case c: ScBlockExpr => c.exprs.head.asInstanceOf[ScIf]
@@ -65,7 +68,7 @@ final class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
     expr.append("if (").append(outerCondition).append(" && ").append(innerCondition).append(") ").
       append(innerThenBranch.getText)
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       ifStmt.replaceExpression(createExpressionFromText(expr.toString())(element.getManager), removeParenthesis = true)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }

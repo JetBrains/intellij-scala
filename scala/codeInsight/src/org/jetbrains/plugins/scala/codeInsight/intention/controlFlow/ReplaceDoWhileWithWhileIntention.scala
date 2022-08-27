@@ -5,6 +5,7 @@ package controlFlow
 
 import com.intellij.CommonBundle
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -62,14 +63,15 @@ final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionActi
     doReplacement()
 
     def showNotification(@Nls text: String): Unit = {
-
-      val popupFactory = JBPopupFactory.getInstance
-      popupFactory.createConfirmation(text, CommonBundle.getContinueButtonText, CommonBundle.getCancelButtonText, () => {
-        //to make action Undoable
-        CommandProcessor.getInstance().executeCommand(project, () => doReplacement(), null, null)
-      }, 0).showInBestPositionFor(editor)
+      if (IntentionPreviewUtils.isPreviewElement(element)) doReplacement()
+      else {
+        val popupFactory = JBPopupFactory.getInstance
+        popupFactory.createConfirmation(text, CommonBundle.getContinueButtonText, CommonBundle.getCancelButtonText, () => {
+          //to make action Undoable
+          CommandProcessor.getInstance().executeCommand(project, () => doReplacement(), null, null)
+        }, 0).showInBestPositionFor(editor)
+      }
     }
-
 
     def doReplacement(): Unit = {
       for {
@@ -94,7 +96,7 @@ final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionActi
           case _ => true
         }
 
-        inWriteAction {
+        IntentionPreviewUtils.write { () =>
           val newDoStmt =
             if (!parentBlockHasBraces && parentBlockNeedBraces) {
               val doStmtInBraces =
@@ -129,8 +131,6 @@ final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionActi
 
 object ReplaceDoWhileWithWhileIntention {
   private def declaredNames(element: PsiElement): Set[String] = {
-    implicit val ctx: ProjectContext = element
-
     val firstChild: PsiElement = element.getFirstChild
     val processor = new CompletionProcessor(StdKinds.refExprLastRef, firstChild, withImplicitConversions = true)
     element.processDeclarations(processor, ScalaResolveState.empty, firstChild, firstChild)

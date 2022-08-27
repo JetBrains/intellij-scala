@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.quickfix
 
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.codeInspection.quickfix.ConvertFromInfixExpressionQuickFix.message
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -31,7 +32,7 @@ object ConvertFromInfixExpressionQuickFix {
     val size = referenceExpr.nameId.getTextRange.getStartOffset -
       methodCallExpr.getTextRange.getStartOffset
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       infixExpr.replaceExpression(methodCallExpr, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start + diff + size)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)

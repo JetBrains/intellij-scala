@@ -29,7 +29,7 @@ final class AddTailRecursionAnnotationIntention extends PsiElementBaseIntentionA
 
   override def getText: String = ScalaCodeInsightBundle.message("no.tailrec.annotation.fix")
 
-  override def getFamilyName = ScalaCodeInsightBundle.message("family.name.recursion")
+  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.recursion")
 }
 
 object AddTailRecursionAnnotationIntention {

@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
+import scala.collection.mutable
+
 package object intention {
 
   def addNameToArgumentsFix(element: PsiElement, onlyBoolean: Boolean): Option[() => Unit] = {
@@ -75,12 +77,12 @@ package object intention {
   /**
     * The usages of this method need to be refactored to remove StringBuilder implementation
     */
-  def analyzeMethodCallArgs(methodCallArgs: ScArgumentExprList, argsBuilder: StringBuilder): Unit = {
+  def analyzeMethodCallArgs(methodCallArgs: ScArgumentExprList, argsBuilder: mutable.StringBuilder): Unit = {
     if (methodCallArgs.exprs.length == 1) {
       methodCallArgs.exprs.head match {
         case _: ScLiteral | _: ScTuple | _: ScReferenceExpression | _: ScGenericCall | _: ScXmlExpr | _: ScMethodCall =>
           argsBuilder.replace(argsBuilder.length - 1, argsBuilder.length, "").replace(0, 1, "")
-        case infix: ScInfixExpr if infix.getBaseExpr.isInstanceOf[ScUnderscoreSection] =>
+        case infix: ScInfixExpr if infix.getBaseExpr.is[ScUnderscoreSection] =>
           argsBuilder.insert(0, "(").append(")")
         case _ =>
       }

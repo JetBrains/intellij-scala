@@ -4,6 +4,7 @@ package intention
 package controlFlow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
@@ -33,12 +34,10 @@ final class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
       case tb: ScBlockExpr =>
         val lastExpr = tb.resultExpression.orNull
         if (lastExpr == null) return false
-        if (lastExpr.isInstanceOf[ScReturn]) return true
-        if (lastExpr.isInstanceOf[ScThrow]) return true
+        if (lastExpr.is[ScReturn, ScThrow]) return true
         false
       case e: ScExpression =>
-        if (e.isInstanceOf[ScReturn]) return true
-        if (e.isInstanceOf[ScThrow]) return true
+        if (e.is[ScReturn, ScThrow]) return true
         false
       case _ => false
     }
@@ -58,7 +57,7 @@ final class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
     if (ScalaTokenTypes.WHITES_SPACES_TOKEN_SET.contains(from.getNode.getElementType)) from = from.getNextSibling
     val to = children.findLast(_.getNode.getElementType != ScalaTokenTypes.tRBRACE).getOrElse(return)
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       elseKeyWord.delete()
       elseBranch.delete()
       ifStmt.getParent.addRangeAfter(from, to, ifStmt)
@@ -71,4 +70,3 @@ final class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
 
   override def getText: String = ScalaCodeInsightBundle.message("remove.redundant.else")
 }
-
