@@ -7,6 +7,7 @@ import com.intellij.lang._
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util._
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.formatter.{FormattingDocumentModelImpl, PsiBasedFormattingModel, FormatterUtil => PsiFormatterUtil}
 import com.intellij.psi.impl.source.tree.TreeUtil
 
@@ -62,9 +63,11 @@ object ScalaFormattingModelBuilder {
       case elementType if !myCanModifyAllWhiteSpaces && WHITES_SPACES_FOR_FORMATTER_TOKEN_SET.contains(elementType) => null
       case _ =>
         val whiteSpaceToken = findWhiteSpaceToken(leafElement).getOrElse(TokenType.WHITE_SPACE)
-        inWriteAction {
-          PsiFormatterUtil.replaceWhiteSpace(whiteSpace, leafElement, whiteSpaceToken, textRange)
-        }
+
+        val replaceWhiteSpaceRunnable: Runnable =
+          () => PsiFormatterUtil.replaceWhiteSpace(whiteSpace, leafElement, whiteSpaceToken, textRange)
+        CodeStyleManager.getInstance(file.getProject).performActionWithFormatterDisabled(replaceWhiteSpaceRunnable)
+
         whiteSpace
     }
 
@@ -74,5 +77,4 @@ object ScalaFormattingModelBuilder {
         .filter(WHITES_SPACES_FOR_FORMATTER_TOKEN_SET.contains)
 
   }
-
 }
