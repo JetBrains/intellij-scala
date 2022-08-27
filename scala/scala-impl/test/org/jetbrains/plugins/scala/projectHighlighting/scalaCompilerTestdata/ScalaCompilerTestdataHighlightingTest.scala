@@ -8,9 +8,8 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest
-import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.originalDirNameKey
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
-import org.jetbrains.plugins.scala.util.PsiFileTestUtil
+import org.jetbrains.plugins.scala.util.{PsiFileTestUtil, TestUtils}
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalacTests}
 import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
@@ -26,6 +25,14 @@ abstract class ScalaCompilerTestdataHighlightingTest
   override protected val includeReflectLibrary = true
   override protected val includeCompilerAsLibrary = true
 
+  protected def getTestDirName: String
+
+  protected final def getScalaCompilerTestDataRoot: String =
+    s"${TestUtils.getTestDataPath}/scalacTests/".replace("\\", "/")
+
+  protected final def getTestDataDir: String =
+    s"${getScalaCompilerTestDataRoot}/$getTestDirName/"
+
   protected def filesToHighlight: Seq[File]
 
   protected val reporter: HighlightingProgressReporter
@@ -35,18 +42,21 @@ abstract class ScalaCompilerTestdataHighlightingTest
 
     val allFilesGrouped: Seq[(String, Seq[File])] = allFiles
       .filter(f => f.isDirectory || isScalaFile(f) || isFlagsFile(f))
-      .groupBy(f => FilenameUtils.removeExtension(f.getPath))
+      .groupBy(f => FilenameUtils.removeExtension(f.getPath.replace("\\", "/")))
       .toSeq
       .sortBy(_._1)
 
+    AllProjectHighlightingTest.warnIfUsingRandomizedTests(reporter)
+
+    val testDataPath = getScalaCompilerTestDataRoot
+
+    val groupsTotal = allFilesGrouped.size
     var idx = 0
-    for ((basePath, files) <- allFilesGrouped) {
-      val total = allFilesGrouped.size
-      if (total > 1) {
-        val current = idx + 1
-        val percentage = current * 100 / total
-        val progressString = s"$percentage% ($current / $total)"
-        reporter.notify(s"$progressString $basePath")
+    for (((basePath, files), groupIndex) <- allFilesGrouped.zipWithIndex) {
+      if (groupsTotal > 1) {
+        //there can be single group in "Failing tests", see e.g. ScalaCompilerTestdataHighlightingFailingTests_2_12 methods
+        val relativeBasePath = basePath.stripPrefix(testDataPath)
+        reporter.notifyHighlightingProgress(groupIndex, groupsTotal, relativeBasePath)
       }
       annotateFiles(files, reporter)
       idx += 1
@@ -59,7 +69,7 @@ abstract class ScalaCompilerTestdataHighlightingTest
     val path = relativeTo.toPath.relativize(file.toPath)
     val originalDirName = relativeTo.getName
     val psiFile = PsiFileTestUtil.addFileToProject(path, text, getProject)
-    psiFile.putUserData(originalDirNameKey, originalDirName)
+    AllProjectHighlightingTest.setOriginalDirName(psiFile, originalDirName)
     psiFile
   }
 
@@ -92,8 +102,6 @@ abstract class ScalaCompilerTestdataHighlightingTest
       s"Expecting no files in source root before annotating files, but got:\n${sourceRootFiles.mkString("\n")}",
       sourceRootFiles.isEmpty
     )
-
-    AllProjectHighlightingTest.warnIfUsingRandomizedTests(reporter)
 
     val addedFiles = sourceFiles.map(addFileToProject(_, relativeTo = root))
 

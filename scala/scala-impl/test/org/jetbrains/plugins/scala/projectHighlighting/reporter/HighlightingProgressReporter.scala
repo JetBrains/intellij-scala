@@ -15,6 +15,9 @@ trait HighlightingProgressReporter {
 
   def notify(message: String): Unit
 
+  /**
+   * @param fileName - it's up to the user to decide whether it should be file name, relative file path, or even abosulute file path
+   */
   def notifyHighlightingProgress(percent: Int, fileName: String): Unit
 
   def reportFinalResults(): Unit

@@ -15,6 +15,8 @@ class ScalaCompilerTestdataHighlightingTest_2_12 extends ScalaCompilerTestdataHi
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
+  override protected def getTestDirName: String = "pos"
+
   import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
 
   //NOTE: there is also one patched file scalacTests/pos/t0674.scala

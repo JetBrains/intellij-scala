@@ -4,7 +4,7 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.impl.PsiManagerEx
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.relativePathOf
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
-import org.junit.Assert.assertTrue
+import org.junit.Assert.{assertNotNull, assertTrue}
 
 import scala.jdk.CollectionConverters._
 import scala.util.Random
@@ -44,25 +44,26 @@ trait AllProjectHighlightingTest {
     val scalaFiles = scalaFileTypes.flatMap(fileType => FileTypeIndex.getFiles(fileType, scope).asScala)
     val javaFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, scope).asScala
 
-    val files = scalaFiles ++ javaFiles
+    val allFilesSorted = (scalaFiles ++ javaFiles).sortBy(_.getPath)
 
-    LocalFileSystem.getInstance().refreshFiles(files.asJava)
+    LocalFileSystem.getInstance().refreshFiles(allFilesSorted.asJava)
 
     val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager
 
     AllProjectHighlightingTest.warnIfUsingRandomizedTests(reporter)
 
-    val filesTotal = files.size
-    for ((file, fileIndex) <- files.zipWithIndex) {
+    val filesTotal = allFilesSorted.size
+    for ((file, fileIndex) <- allFilesSorted.zipWithIndex) {
       val psiFile = fileManager.findFile(file)
 
-      reporter.notifyHighlightingProgress(fileIndex, filesTotal, file.getName)
+      val fileRelativePath = relativePathOf(psiFile)
+      reporter.notifyHighlightingProgress(fileIndex, filesTotal, fileRelativePath)
 
       file.getFileType match {
         case JavaFileType.INSTANCE =>
           annotateJava(psiFile, getProjectFixture)
         case _ =>
-          annotateScala(psiFile)
+          AllProjectHighlightingTest.annotateScalaFile(psiFile, reporter, Some(fileRelativePath))
       }
     }
 
@@ -82,24 +83,43 @@ trait AllProjectHighlightingTest {
         reporter.reportError(relativePathOf(psiFile), range, highlightInfo.getDescription)
     }
   }
-
-  private def annotateScala(psiFile: PsiFile): Unit = {
-    AllProjectHighlightingTest.annotateScalaFile(psiFile, reporter)
-  }
 }
 
 object AllProjectHighlightingTest {
-  private val RemotePath = new Regex(".*/projects/.*?/(.*)")
-  private val LocalPath = new Regex(".*/localProjects/.*?/(.*)")
-  private val ScalacPath = new Regex("temp:///.*?/(.*)")
+  //see com.intellij.openapi.vfs.ex.temp.TempFileSystem
+  private val PathInTemporaryFileSystem = new Regex("temp:///.*?/(.*)")
 
-  private def originalDirName(file: PsiFile): String = Option(file.getUserData(originalDirNameKey)).getOrElse("")
+  private val originalDirNameKey: Key[String] = Key.create("original.dir.name")
 
-  private def relativePathOf(psiFile: PsiFile): String = psiFile.getVirtualFile.getUrl match {
-    case ScalacPath(relative) => originalDirName(psiFile) + "/" + relative
-    case LocalPath(relative) => relative
-    case RemotePath(relative) => relative
-    case path => throw new IllegalArgumentException(s"Unknown test path: $path")
+  private def getOriginalDirName(file: PsiFile): String =
+    Option(file.getUserData(originalDirNameKey)).getOrElse("")
+
+  def setOriginalDirName(file: PsiFile, dirName: String): Unit = {
+    file.putUserData(originalDirNameKey, dirName)
+  }
+
+  //NOTE: looks like there is no clean API which could provide a project root path
+  private def guessProjectRootUrl(project: Project): String = {
+    val projectDir = ProjectUtil.guessProjectDir(project)
+    assertNotNull(s"Cannot guess directory of project ${project.getName}", projectDir)
+    projectDir.getUrl
+  }
+
+  private def relativePathOf(psiFile: PsiFile): String = {
+    val fileUrl = psiFile.getVirtualFile.getUrl
+    fileUrl match {
+      case PathInTemporaryFileSystem(relative) =>
+        val originalDir = getOriginalDirName(psiFile)
+        s"$originalDir/$relative"
+      case _ =>
+        val projectRoot = guessProjectRootUrl(psiFile.getProject)
+        if (fileUrl.startsWith(projectRoot)) {
+          fileUrl.stripPrefix(projectRoot).stripPrefix("/")
+        }
+        else {
+          throw new IllegalArgumentException(s"Unknown test path: $fileUrl (projectRoot: $projectRoot)")
+        }
+    }
   }
 
   //TODO: don't run randomized tests in the main tests pipeline
@@ -141,16 +161,17 @@ object AllProjectHighlightingTest {
     annotateScalaFile(scalaFile, reporter, fileRelativePath)
   }
 
+  //noinspection InstanceOf
   private def annotateScalaFile(
     scalaFile: ScalaFile,
     reporter: HighlightingProgressReporter,
-    fileRelativePath: Option[String],
+    fileRelativePathParam: Option[String],
   ): Unit = {
-    val fileName = fileRelativePath.getOrElse(relativePathOf(scalaFile))
+    val fileRelativePath = fileRelativePathParam.getOrElse(relativePathOf(scalaFile))
     val annotatorHolder: AnnotatorHolderMock = new AnnotatorHolderMock(scalaFile) {
       override def createMockAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Option[Message] = {
         if (severity == HighlightSeverity.ERROR) {
-          reporter.reportError(fileName, range, message)
+          reporter.reportError(fileRelativePath, range, message)
         }
         super.createMockAnnotation(severity, range, message)
       }
@@ -173,13 +194,11 @@ object AllProjectHighlightingTest {
       } catch {
         case ex: Throwable =>
           val message = s"Exception while highlighting element at index $elementIndex (${element.getText} - ${element.getNode.getTextRange}): $ex (random seed: $randomSeed)"
-          reporter.reportError(fileName, element.getTextRange, message)
+          reporter.reportError(fileRelativePath, element.getTextRange, message)
           if (!NonFatal(ex)) {
             throw ex
           }
       }
     }
   }
-
-  val originalDirNameKey: Key[String] = Key.create("original.dir.name")
 }

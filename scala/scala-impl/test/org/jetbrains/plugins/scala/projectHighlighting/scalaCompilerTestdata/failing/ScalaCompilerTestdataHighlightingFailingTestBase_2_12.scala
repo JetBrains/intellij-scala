@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.projectHighlighting.scalaCompilerTestdata.failing
 
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.projectHighlighting.reporter.{ConsoleHighlightingProgressReporter, HighlightingProgressReporter}
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.projectHighlighting.scalaCompilerTestdata.ScalaCompilerTestdataHighlightingTest
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 import java.io.File
@@ -14,10 +13,6 @@ abstract class ScalaCompilerTestdataHighlightingFailingTestBase_2_12 extends Sca
   override protected lazy val reporter = HighlightingProgressReporter.newInstance(this.getClass.getSimpleName, filesWithProblems)
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
-
-  protected def getTestDataDir: String = s"${TestUtils.getTestDataPath}/scalacTests/$getTestDirName/"
-
-  protected def getTestDirName: String
 
   protected def fileName = getTestName(/*lowercaseFirstLetter*/ false).stripPrefix("_")
 
