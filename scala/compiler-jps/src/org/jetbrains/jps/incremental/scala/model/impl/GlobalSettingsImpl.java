@@ -8,7 +8,7 @@ import org.jetbrains.jps.model.ex.JpsElementBase;
 public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> implements GlobalSettings {
   public static final GlobalSettings DEFAULT = new GlobalSettingsImpl(new State());
 
-  private State myState;
+  private final State myState;
 
   public GlobalSettingsImpl(State state) {
     myState = state;
@@ -40,11 +40,15 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
     // do nothing
   }
 
+  /**
+   * ATTENTION: these names should be the same in org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
+   *
+   * @see JpsScalaModelSerializerExtension.GlobalSettingsSerializer
+   */
+  @SuppressWarnings("JavadocReference")
   public static class State {
     public boolean COMPILE_SERVER_ENABLED = true;
-
     public int COMPILE_SERVER_PORT = 3200;
-
     public String COMPILE_SERVER_SDK;
   }
 }

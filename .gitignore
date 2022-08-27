@@ -23,6 +23,7 @@ target/
 compilation-cache/
 
 scala/scala-impl/testdata/debugger
-scala/scala-impl/testdata/projects
+scala/scala-impl/testdata/projectsForHighlightingTests/downloaded
+scala/scala-impl/testdata/projectsForHighlightingTests/.ivy_cache
+scala/scala-impl/testdata/projectsForHighlightingTests/.coursier_cache
 scala/scala-impl/testdata/testingSupport
-scala/scala-impl/testdata/localProjects/.ivy_cache

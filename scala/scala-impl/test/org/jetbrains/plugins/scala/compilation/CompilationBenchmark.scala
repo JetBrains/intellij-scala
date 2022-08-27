@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerL
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.projectHighlighting.base.{GithubRepositoryWithRevision, SbtProjectHighlightingDownloadingFromGithubTestBase}
 import org.jetbrains.plugins.scala.util.Metering._
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Ignore
@@ -26,7 +26,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 abstract class CompilationBenchmark
-  extends DownloadingAndImportingTestCase
+  extends SbtProjectHighlightingDownloadingFromGithubTestBase
     with ScalaSdkOwner {
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq.empty
@@ -143,7 +143,7 @@ abstract class CompilationBenchmark
     println(
       s"""|=====================Info=====================
           |OS:      ${SystemInfo.OS_NAME} (${SystemInfo.OS_VERSION}, ${SystemInfo.OS_ARCH})
-          |Project: $githubRepoUrl
+          |Project: ${githubRepositoryWithRevision.repositoryUrl}
           |Repeats: $Repeats""".stripMargin
     )
 
@@ -172,19 +172,14 @@ abstract class CompilationBenchmark
 class ZioCompilationBenchmark
   extends CompilationBenchmark {
 
-  override def githubUsername: String = "zio"
-
-  override def githubRepoName: String = "zio"
-
-  override def revision: String = "dd21e98ead466bfef5d63e84a77b115122296146"
+  override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
+    GithubRepositoryWithRevision("zio", "zio", "dd21e98ead466bfef5d63e84a77b115122296146")
 }
 
 @Ignore("Benchmark")
 class DoobieCompilationBenchmark
   extends CompilationBenchmark {
-  override def githubUsername: String = "tpolecat"
 
-  override def githubRepoName: String = "doobie"
-
-  override def revision: String = "bec7d361a85fa5026e967159615cd1e3d49c09e2"
+  override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
+    GithubRepositoryWithRevision("tpolecat", "doobie", "bec7d361a85fa5026e967159615cd1e3d49c09e2")
 }

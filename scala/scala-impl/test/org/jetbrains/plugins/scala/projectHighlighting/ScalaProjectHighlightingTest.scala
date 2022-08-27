@@ -8,11 +8,9 @@
 //
 //@Category(Array(classOf[HighlightingTests]))
 //class ScalaProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
-//  override def githubUsername = "scala"
 //
-//  override def githubRepoName = "scala"
-//
-//  override def revision = "8e6964a13035bf83d3050916e988715d23e51b49"
+//  override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
+//    GithubRepositoryWithRevision("scala", "scala:, "8e6964a13035bf83d3050916e988715d23e51b49")
 //
 //  override def filesWithProblems(): Map[String, Set[TextRange]] = Map(
 //  )

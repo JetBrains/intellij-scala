@@ -43,20 +43,21 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
 
   private static class GlobalSettingsSerializer extends JpsGlobalExtensionSerializer {
     private GlobalSettingsSerializer() {
+      //see org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
       super("scala.xml", "ScalaSettings");
     }
 
     @Override
     public void loadExtension(@NotNull JpsGlobal jpsGlobal, @NotNull Element componentTag) {
       GlobalSettingsImpl.State state = XmlSerializer.deserialize(componentTag, GlobalSettingsImpl.State.class);
-      GlobalSettingsImpl settings = new GlobalSettingsImpl(state == null ? new GlobalSettingsImpl.State() : state);
+      GlobalSettingsImpl settings = new GlobalSettingsImpl(state);
       SettingsManager.setGlobalSettings(jpsGlobal, settings);
     }
-
   }
 
   private static class CompilerConfigurationSerializer extends JpsProjectExtensionSerializer {
     private CompilerConfigurationSerializer() {
+      //see org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
       super("scala_compiler.xml", "ScalaCompilerConfiguration");
     }
 
@@ -66,8 +67,8 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
 
       CompilerSettingsImpl defaultSetting = loadSettings(componentTag);
 
-      Map<String, String> moduleToProfile = new HashMap<String, String>();
-      Map<String, CompilerSettingsImpl> profileToSettings = new HashMap<String, CompilerSettingsImpl>();
+      Map<String, String> moduleToProfile = new HashMap<>();
+      Map<String, CompilerSettingsImpl> profileToSettings = new HashMap<>();
 
       for (Element profileElement : componentTag.getChildren("profile")) {
         String profile = profileElement.getAttributeValue("name");

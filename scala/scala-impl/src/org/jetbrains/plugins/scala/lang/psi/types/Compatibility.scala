@@ -1,15 +1,14 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
+package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScPrimaryConstructor}
@@ -316,7 +315,7 @@ object Compatibility {
       return ConformanceExtResult(Seq.empty, constraintAccumulator)
     }
 
-    var k = 0
+    var parameterIndex = 0
     var namedMode = false //todo: optimization, when namedMode enabled, exprs.length <= parameters.length
     val used = new Array[Boolean](parameters.length)
     var problems: List[ApplicabilityProblem] = Nil
@@ -353,8 +352,9 @@ object Compatibility {
       }
     }
 
-    while (k < parameters.length.min(exprs.length)) {
-      exprs(k) match {
+    while (parameterIndex < parameters.length.min(exprs.length)) {
+      val expressionWithSameIndex = exprs(parameterIndex)
+      expressionWithSameIndex match {
         case Expression(expr: ScTypedExpression) if expr.isSequenceArg =>
           seqTypeFor(expr) match {
             case Some(stpe) =>
@@ -406,7 +406,7 @@ object Compatibility {
           } else {
             used(index) = true
             val param: Parameter = parameters(index)
-            if (index != k) {
+            if (index != parameterIndex) {
               namedMode = true
             }
 
@@ -445,12 +445,14 @@ object Compatibility {
         case expr: Expression =>
           problems :::= doNoNamed(expr).reverse
       }
-      k = k + 1
+      parameterIndex = parameterIndex + 1
     }
 
-    if (problems.nonEmpty) return ConformanceExtResult(problems.reverse, constraintAccumulator, defaultParameterUsed, matched)
+    if (problems.nonEmpty)
+      return ConformanceExtResult(problems.reverse, constraintAccumulator, defaultParameterUsed, matched)
 
-    if (exprs.length == parameters.length) return ConformanceExtResult(Seq.empty, constraintAccumulator, defaultParameterUsed, matched)
+    if (exprs.length == parameters.length)
+      return ConformanceExtResult(Seq.empty, constraintAccumulator, defaultParameterUsed, matched)
     else if (exprs.length > parameters.length) {
       if (namedMode) {
         // if we are in nameMode we cannot supply
@@ -461,18 +463,22 @@ object Compatibility {
 
       val paramType: ScType = parameters.last.paramType
       val expectedType: ScType = parameters.last.expectedType
-      while (k < exprs.length) {
-        for (exprType <- exprs(k).getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) {
+      while (parameterIndex < exprs.length) {
+        val expressionWithSameIndex = exprs(parameterIndex)
+        for (exprType <- expressionWithSameIndex.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) {
           val conforms = exprType.weakConforms(paramType)
           if (!conforms) {
-            return ConformanceExtResult(Seq(TypeMismatch(exprs(k).scExpressionOrNull, paramType)),
-              constraintAccumulator, defaultParameterUsed, matched)
+            val result = ConformanceExtResult(
+              Seq(TypeMismatch(expressionWithSameIndex.scExpressionOrNull, paramType)),
+              constraintAccumulator, defaultParameterUsed, matched
+            )
+            return result
           } else {
-            matched ::= (parameters.last, exprs(k).scExpressionOrNull, exprType)
+            matched ::= (parameters.last, expressionWithSameIndex.scExpressionOrNull, exprType)
             constraintAccumulator += exprType.conforms(paramType, ConstraintSystem.empty, checkWeak = true).constraints
           }
         }
-        k = k + 1
+        parameterIndex = parameterIndex + 1
       }
     }
     else {
@@ -482,7 +488,8 @@ object Compatibility {
       val missed = for ((parameter: Parameter, b) <- parameters.zip(used)
                         if !b && !parameter.isDefault) yield MissedValueParameter(parameter)
       defaultParameterUsed = parameters.zip(used).exists { case (param, bool) => !bool && param.isDefault}
-      if (missed.nonEmpty) return ConformanceExtResult(missed, constraintAccumulator, defaultParameterUsed, matched)
+      if (missed.nonEmpty)
+        return ConformanceExtResult(missed, constraintAccumulator, defaultParameterUsed, matched)
       else {
         // inspect types default values
         val pack = parameters.zip(used)
@@ -526,7 +533,7 @@ object Compatibility {
   ): ConformanceExtResult = {
     val named = srr.element
 
-    def checkParameterListConformance(parameters: Seq[Parameter], arguments: Seq[Expression]) =
+    def checkParameterListConformance(parameters: Seq[Parameter], arguments: Seq[Expression]): ConformanceExtResult =
       checkConformanceExt(parameters, arguments, checkWithImplicits, isShapesResolve)
 
     val firstArgumentListArgs: Seq[Expression] = argClauses.headOption.getOrElse(Seq.empty)

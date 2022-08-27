@@ -1,15 +1,10 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
-import org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection
+import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionTestBase}
 
-abstract class BadCodeIsGreenTest extends ScalaInspectionTestBase {
-
+abstract class BadCodeIsGreenTest extends ScalaAnnotatorQuickFixTestBase {
   override protected def shouldPass: Boolean = false
-
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
-    classOf[AnnotatorBasedErrorInspection]
 }
 
 class Test1 extends BadCodeIsGreenTest {

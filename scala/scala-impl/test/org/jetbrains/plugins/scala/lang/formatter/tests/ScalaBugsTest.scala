@@ -4,7 +4,7 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
-class ScalaBugsTest extends AbstractScalaFormatterTestBase {
+final class ScalaBugsTest extends AbstractScalaFormatterTestBase {
 
   import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
 

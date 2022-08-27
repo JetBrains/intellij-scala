@@ -1217,12 +1217,6 @@
                          groupPath="Scala" groupKey="group.general" shortName="UnnecessaryPartialFunction"
                          id="UnnecessaryPartialFunction" level="WARNING" enabledByDefault="true" language="Scala"/>
 
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection"
-                         bundle="messages.ScalaInspectionBundle"
-                         key="displayname.annotator.based.error.inspection"
-
-                         language="Scala" groupPath="Scala" groupKey="group.internal"
-                         isInternal="true" level="ERROR" enabledByDefault="false"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.ScalaWrongPlatformMethodsUsageInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.wrong.platform.method.usage"
