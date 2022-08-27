@@ -34,8 +34,6 @@ trait AllProjectHighlightingTest {
 
   protected val reporter: HighlightingProgressReporter
 
-  private val randomSeed: Long = System.currentTimeMillis()
-
   def doAllProjectHighlightingTest(): Unit = {
     val modules = ModuleManager.getInstance(getProject).getModules
     val module = modules.find(_.hasScala)
@@ -52,13 +50,7 @@ trait AllProjectHighlightingTest {
 
     val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager
 
-    reporter.notify(
-      s"""###
-         |### Using randomized test with random seed: $randomSeed
-         |### (file elements will be annotated in random order)
-         |###
-         |""".stripMargin
-    )
+    AllProjectHighlightingTest.warnIfUsingRandomizedTests(reporter)
 
     val filesTotal = files.size
     for ((file, fileIndex) <- files.zipWithIndex) {
@@ -92,7 +84,7 @@ trait AllProjectHighlightingTest {
   }
 
   private def annotateScala(psiFile: PsiFile): Unit = {
-    AllProjectHighlightingTest.annotateScalaFile(psiFile, reporter, Some(randomSeed))
+    AllProjectHighlightingTest.annotateScalaFile(psiFile, reporter)
   }
 }
 
@@ -110,31 +102,50 @@ object AllProjectHighlightingTest {
     case path => throw new IllegalArgumentException(s"Unknown test path: $path")
   }
 
+  //TODO: don't run randomized tests in the main tests pipeline
+  // Instead duplicate project highlighting test run configuration and run it Nightly
+  /**
+   * This seed can control the order in which the elements in scala files are annotated.
+   * Should be None if we don't need elements order randomization
+   *
+   * Note, it should be enough to use the same seed for all tests in single JVM instance, anyway all files will contain different code.
+   */
+  private val randomSeedForRandomizedElementsProcessingOrder: Option[Long] = {
+    Some(System.currentTimeMillis())
+  }
+
+  def warnIfUsingRandomizedTests(reporter: HighlightingProgressReporter): Unit = {
+    randomSeedForRandomizedElementsProcessingOrder match {
+      case Some(seed) =>
+        reporter.notify(
+          s"""###
+             |### Using randomized test with random seed: $seed
+             |### File elements will be annotated in random order.
+             |### See details in AllProjectHighlightingTest.randomSeedForRandomizedElementsProcessingOrder
+             |###
+             |""".stripMargin
+        )
+      case _ =>
+    }
+  }
+
   def annotateScalaFile(
     file: PsiFile,
     reporter: HighlightingProgressReporter,
-    randomSeed: Option[Long],
     fileRelativePath: Option[String] = None
   ): Unit = {
     val scalaFile = file.getViewProvider.getPsi(ScalaLanguage.INSTANCE) match {
       case f: ScalaFile => f
       case _ => return
     }
-    annotateScalaFile(scalaFile, reporter, randomSeed, fileRelativePath)
+    annotateScalaFile(scalaFile, reporter, fileRelativePath)
   }
 
-  /**
-   * @param randomSeed pass some value to randomize elements processing order
-   */
   private def annotateScalaFile(
     scalaFile: ScalaFile,
     reporter: HighlightingProgressReporter,
-    randomSeed: Option[Long],
     fileRelativePath: Option[String],
   ): Unit = {
-    val randomSeed = System.currentTimeMillis()
-    val random = new Random(randomSeed)
-
     val fileName = fileRelativePath.getOrElse(relativePathOf(scalaFile))
     val annotatorHolder: AnnotatorHolderMock = new AnnotatorHolderMock(scalaFile) {
       override def createMockAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Option[Message] = {
@@ -144,12 +155,19 @@ object AllProjectHighlightingTest {
         super.createMockAnnotation(severity, range, message)
       }
     }
-
     val annotator = new ScalaAnnotator()
 
     val elements = scalaFile.depthFirst().filter(_.isInstanceOf[ScalaPsiElement]).toSeq
-    val elementsShuffled = random.shuffle(elements)
-    for ((element, elementIndex) <- elementsShuffled.zipWithIndex) { //zipWIthIndex for easier debugging
+    val randomSeed = randomSeedForRandomizedElementsProcessingOrder
+    val elementsMaybeShuffled = randomSeed match {
+      case Some(seed) =>
+        val random = new Random(seed)
+        random.shuffle(elements)
+      case None =>
+        elements
+    }
+
+    for ((element, elementIndex) <- elementsMaybeShuffled.zipWithIndex) { //zipWIthIndex for easier debugging
       try {
         annotator.annotate(element)(annotatorHolder)
       } catch {

@@ -32,8 +32,6 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
 
   protected def filesWithProblems: Map[String, Set[TextRange]] = Map()
 
-  private val randomSeed: Long = System.currentTimeMillis()
-
   //NOTE: implementation is very similar to
   //org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.doAllProjectHighlightingTest
   def testHighlightScalaLibrary(): Unit = {
@@ -45,13 +43,7 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
 
       val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager
 
-      reporter.notify(
-        s"""###
-           |### Using randomized test with random seed: $randomSeed
-           |### (file elements will be annotated in random order)
-           |###
-           |""".stripMargin
-      )
+      AllProjectHighlightingTest.warnIfUsingRandomizedTests(reporter)
 
       val filesTotal = scalaFiles.size
       for ((file, fileIndex) <- scalaFiles.zipWithIndex) {
@@ -63,7 +55,6 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
         AllProjectHighlightingTest.annotateScalaFile(
           psiFile,
           reporter,
-          Some(randomSeed),
           Some(fileRelativePath)
         )
       }

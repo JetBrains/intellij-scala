@@ -30,8 +30,6 @@ abstract class ScalaCompilerTestdataHighlightingTest
 
   protected val reporter: HighlightingProgressReporter
 
-  private val randomSeed: Long = System.currentTimeMillis()
-
   protected def doTest(): Unit = {
     val allFiles = filesToHighlight
 
@@ -89,12 +87,13 @@ abstract class ScalaCompilerTestdataHighlightingTest
 
     val (flagFiles, sourceFiles) = files.flatMap(allFiles).partition(isFlagsFile)
 
-    //TODO
     val sourceRootFiles = LightPlatformTestCase.getSourceRoot.getChildren
     assertTrue(
       s"Expecting no files in source root before annotating files, but got:\n${sourceRootFiles.mkString("\n")}",
       sourceRootFiles.isEmpty
     )
+
+    AllProjectHighlightingTest.warnIfUsingRandomizedTests(reporter)
 
     val addedFiles = sourceFiles.map(addFileToProject(_, relativeTo = root))
 
@@ -106,7 +105,7 @@ abstract class ScalaCompilerTestdataHighlightingTest
       compilerProfile.setSettings(newSettings)
       ScalaCompilerConfiguration.incModificationCount()
 
-      addedFiles.foreach(AllProjectHighlightingTest.annotateScalaFile(_, reporter, Some(randomSeed)))
+      addedFiles.foreach(AllProjectHighlightingTest.annotateScalaFile(_, reporter))
     } finally {
       addedFiles.foreach(removeFile)
       inWriteAction {
