@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.structureView
 
 import com.intellij.lang.Language
-import com.intellij.util.PlatformIcons
 import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.icons.Icons._
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
 
 class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
-
-  import com.intellij.util.{PlatformIcons => PI}
 
   override protected def scalaLanguage: Language = Scala3Language.INSTANCE
 
@@ -16,7 +13,6 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
     super.check(code, nodes: _*)
 
   private val EnumCaseIcon = ENUM
-  private val BlockIcon = PlatformIcons.CLASS_INITIALIZER
 
   private val TopLevelDefinitionsText =
     """class MyClass()
@@ -43,7 +39,7 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
       |extension (x: MyClass) def myExtension(y: String) = ???
       |""".stripMargin
 
-  private val TopLevelDefinitionsNodes: Seq[Node] =
+  private lazy val TopLevelDefinitionsNodes: Seq[Node] =
     Seq(
       Node(CLASS, "MyClass()"),
       Node(CASE_CLASS, "MyCaseClass()"),
@@ -116,9 +112,9 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
         |""".stripMargin,
       Node(
         ENUM, "Planet(Double, Double)",
-        Node(layered(FIELD_VAL, FinalMark), PlatformIcons.PRIVATE_ICON, "G"),
-        Node(PI.METHOD_ICON, "surfaceGravity"),
-        Node(PI.METHOD_ICON, "surfaceWeight(Double)"),
+        Node(layered(FIELD_VAL, FinalMark), PrivateIcon, "G"),
+        Node(MethodIcon, "surfaceGravity"),
+        Node(MethodIcon, "surfaceWeight(Double)"),
         Node(EnumCaseIcon, "Mercury"),
         Node(EnumCaseIcon, "Venus"),
         Node(EnumCaseIcon, "Earth"),
@@ -201,7 +197,7 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
         |""".stripMargin,
       Node(OBJECT, "Wrapper",
         Node(EXTENSION, "extension (String)", Node(FUNCTION, "f1: String")),
-        Node(PlatformIcons.METHOD_ICON, "foo1(): Unit",
+        Node(MethodIcon, "foo1(): Unit",
           Node(EXTENSION, "extension (String)", Node(FUNCTION, "f2: String")),
           new Node(BlockIcon, "", // using `new` to avoid "public" modifier icon
             Node(FUNCTION, "foo"),

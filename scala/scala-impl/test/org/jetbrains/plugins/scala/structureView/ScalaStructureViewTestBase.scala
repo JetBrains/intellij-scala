@@ -6,8 +6,7 @@ import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.ElementBase
-import com.intellij.ui.{CoreIconManager, IconManager, LayeredIcon}
-import com.intellij.util.PlatformIcons
+import com.intellij.ui.{CoreIconManager, IconManager, LayeredIcon, PlatformIcons}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
@@ -112,7 +111,7 @@ private object ScalaStructureViewTestBase {
       new Node(ElementBase.buildRowIcon(baseIcon, visibilityIcon), name, children: _*)
 
     def apply(icon: Icon, name: String, children: Node*): Node =
-      Node(icon, PlatformIcons.PUBLIC_ICON, name, children: _*)
+      Node(icon, IconManager.getInstance.getPlatformIcon(PlatformIcons.Public), name, children: _*)
 
     def apply(element: StructureViewTreeElement, sorter: Seq[TreeElement] => Seq[TreeElement]): Node = {
       val presentation = element.getPresentation
@@ -123,4 +122,3 @@ private object ScalaStructureViewTestBase {
     }
   }
 }
-

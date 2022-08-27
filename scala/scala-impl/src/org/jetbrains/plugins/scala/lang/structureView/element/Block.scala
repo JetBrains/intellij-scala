@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.structureView.element
 
 import com.intellij.psi.PsiElement
-import com.intellij.util.PlatformIcons
+import com.intellij.ui.{IconManager, PlatformIcons}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.structureView.element.Block.childrenOf
 import javax.swing.Icon
 
 private class Block(block: ScBlock) extends AbstractTreeElementDelegatingChildrenToPsi(block) {
-  override def getIcon(open: Boolean): Icon = PlatformIcons.CLASS_INITIALIZER
+  override def getIcon(open: Boolean): Icon = IconManager.getInstance.getPlatformIcon(PlatformIcons.ClassInitializer)
 
   override def getPresentableText: String = ""
 

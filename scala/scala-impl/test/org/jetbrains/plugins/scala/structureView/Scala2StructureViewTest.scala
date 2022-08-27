@@ -33,7 +33,7 @@ class Scala2StructureViewTest extends ScalaStructureViewCommonTests {
       |
       |""".stripMargin
 
-  private val TopLevelDefinitionsNodes: Seq[Node] =
+  private lazy val TopLevelDefinitionsNodes: Seq[Node] =
     Seq(
       Node(CLASS, "MyClass()"),
       Node(CASE_CLASS, "MyCaseClass()"),

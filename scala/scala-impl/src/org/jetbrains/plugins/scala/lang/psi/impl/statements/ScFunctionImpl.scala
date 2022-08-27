@@ -13,7 +13,7 @@ import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
-import com.intellij.util.PlatformIcons
+import com.intellij.ui.{IconManager, PlatformIcons}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
@@ -147,7 +147,8 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     while (parent != null) {
       parent match {
         case _: ScExtendsBlock =>
-          return if (isAbstractMember) PlatformIcons.ABSTRACT_METHOD_ICON else PlatformIcons.METHOD_ICON
+          val iconId = if (isAbstractMember) PlatformIcons.AbstractMethod else PlatformIcons.Method
+          return IconManager.getInstance.getPlatformIcon(iconId)
         case _: ScBlock | _: ScalaFile | _: ScExtension  =>
           return Icons.FUNCTION
         case _ =>

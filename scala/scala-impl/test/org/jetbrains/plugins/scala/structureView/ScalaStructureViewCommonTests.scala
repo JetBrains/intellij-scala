@@ -1,12 +1,17 @@
 package org.jetbrains.plugins.scala.structureView
 
 import com.intellij.icons.AllIcons
+import com.intellij.ui.{IconManager, PlatformIcons}
 import org.jetbrains.plugins.scala.icons.Icons._
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase._
 
 abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase {
 
-  import com.intellij.util.{PlatformIcons => PI}
+  protected def getPlatformIcon(id: PlatformIcons) = IconManager.getInstance.getPlatformIcon(id)
+
+  protected lazy val BlockIcon = getPlatformIcon(PlatformIcons.ClassInitializer)
+  protected lazy val MethodIcon = getPlatformIcon(PlatformIcons.Method)
+  protected lazy val PrivateIcon = getPlatformIcon(PlatformIcons.Private)
 
   def testEmptyFile(): Unit = {
     check("")
@@ -77,7 +82,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(TRAIT, "Container",
-        Node(FIELD_VAR, PI.PRIVATE_ICON, "v: Int")))
+        Node(FIELD_VAR, PrivateIcon, "v: Int")))
   }
 
 //  def testVariableTypeInference(): Unit = {
@@ -152,7 +157,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(TRAIT, "Container",
-        Node(FIELD_VAL, PI.PRIVATE_ICON, "v: Int")))
+        Node(FIELD_VAL, PrivateIcon, "v: Int")))
   }
 
 //  def testValueTypeInference(): Unit = {
@@ -206,7 +211,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(TRAIT, "Container",
-        Node(TYPE_ALIAS, PI.PRIVATE_ICON, "A")))
+        Node(TYPE_ALIAS, PrivateIcon, "A")))
   }
 
   def testFunction(): Unit = {
@@ -220,7 +225,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     check("""
           private def m: Int = 1
           """,
-      Node(FUNCTION, PI.PRIVATE_ICON, "m: Int"))
+      Node(FUNCTION, PrivateIcon, "m: Int"))
   }
 
 //  def testFunctionTypeInference(): Unit = {
@@ -237,7 +242,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(CLASS, "Container",
-        Node(PI.METHOD_ICON, "m: Int")))
+        Node(MethodIcon, "m: Int")))
   }
 
   def testAbstractMethod(): Unit = {
@@ -247,7 +252,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(CLASS, "Container",
-        Node(PI.ABSTRACT_METHOD_ICON, "m: Int")))
+        Node(getPlatformIcon(PlatformIcons.AbstractMethod), "m: Int")))
   }
 
   def testFinalMethod(): Unit = {
@@ -257,7 +262,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(CLASS, "Container",
-        Node(layered(PI.METHOD_ICON, FinalMark), "m: Int")))
+        Node(layered(MethodIcon, FinalMark), "m: Int")))
   }
 
   def testTypeParametersInFunction(): Unit = {
@@ -306,7 +311,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     check("""
           private object O
           """,
-      Node(OBJECT, PI.PRIVATE_ICON, "O"))
+      Node(OBJECT, PrivateIcon, "O"))
   }
 
   def testPackageObject(): Unit = {
@@ -341,7 +346,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     check("""
           private class C
           """,
-      Node(CLASS, PI.PRIVATE_ICON, "C"))
+      Node(CLASS, PrivateIcon, "C"))
   }
 
   def testClassTypeParameters(): Unit = {
@@ -362,7 +367,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     check("""
           private trait T
           """,
-      Node(TRAIT, PI.PRIVATE_ICON, "T"))
+      Node(TRAIT, PrivateIcon, "T"))
   }
 
   def testTraitTypeParameters(): Unit = {
@@ -422,7 +427,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           class C(private var p: Int)
           """,
       Node(CLASS, "C(Int)",
-        Node(FIELD_VAR, PI.PRIVATE_ICON, "p: Int")))
+        Node(FIELD_VAR, PrivateIcon, "p: Int")))
   }
 
   def testValuesInPrimaryConstructor(): Unit = {
@@ -450,7 +455,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           class C(private val p: Int)
           """,
       Node(CLASS, "C(Int)",
-        Node(FIELD_VAL, PI.PRIVATE_ICON, "p: Int")))
+        Node(FIELD_VAL, PrivateIcon, "p: Int")))
   }
 
   def testMultipleParameterListsWithMembersInPrimaryConstructor(): Unit = {
@@ -497,7 +502,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           case class C(private val p: Int)
           """,
       Node(CLASS, "C(Int)",
-        Node(FIELD_VAL, PI.PRIVATE_ICON, "p: Int")))
+        Node(FIELD_VAL, PrivateIcon, "p: Int")))
   }
 
   def testVariablesInCaseClass(): Unit = {
@@ -522,7 +527,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           case class C(private var p: Int)
           """,
       Node(CLASS, "C(Int)",
-        Node(FIELD_VAR, PI.PRIVATE_ICON, "p: Int")))
+        Node(FIELD_VAR, PrivateIcon, "p: Int")))
   }
 
   def testAuxiliaryConstructor(): Unit = {
@@ -532,7 +537,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(CLASS, "C",
-        Node(PI.METHOD_ICON, "this()")))
+        Node(MethodIcon, "this()")))
   }
 
   def testParameterInAuxiliaryConstructor(): Unit = {
@@ -542,7 +547,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(CLASS, "C",
-        Node(PI.METHOD_ICON, "this(Int)")))
+        Node(MethodIcon, "this(Int)")))
   }
 
   def testMultipleParametersInAuxiliaryConstructor(): Unit = {
@@ -552,7 +557,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(CLASS, "C",
-        Node(PI.METHOD_ICON, "this(Float, Double)")))
+        Node(MethodIcon, "this(Float, Double)")))
   }
 
   def testMultipleParameterListsInAuxiliaryConstructor(): Unit = {
@@ -562,14 +567,14 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(CLASS, "C",
-        Node(PI.METHOD_ICON, "this(Float)(Double)")))
+        Node(MethodIcon, "this(Float)(Double)")))
   }
 
   def testBlock(): Unit = {
     check("""
           {}
           """,
-      new Node(PI.CLASS_INITIALIZER, ""))
+      new Node(BlockIcon, ""))
   }
 
   def testInsideClass(): Unit = {
@@ -586,11 +591,11 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(CLASS, "Container",
-        new Node(PI.CLASS_INITIALIZER, ""),
+        new Node(BlockIcon, ""),
         Node(FIELD_VAR, "v1: Int"),
         Node(FIELD_VAL, "v2: Int"),
         Node(TYPE_ALIAS, "A"),
-        Node(PI.METHOD_ICON, "m: Int"),
+        Node(MethodIcon, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
         Node(OBJECT, "O")))
@@ -610,11 +615,11 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(TRAIT, "Container",
-        new Node(PI.CLASS_INITIALIZER, ""),
+        new Node(BlockIcon, ""),
         Node(FIELD_VAR, "v1: Int"),
         Node(FIELD_VAL, "v2: Int"),
         Node(TYPE_ALIAS, "A"),
-        Node(PI.METHOD_ICON, "m: Int"),
+        Node(MethodIcon, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
         Node(OBJECT, "O")))
@@ -634,11 +639,11 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(OBJECT, "Container",
-        new Node(PI.CLASS_INITIALIZER, ""),
+        new Node(BlockIcon, ""),
         Node(FIELD_VAR, "v1: Int"),
         Node(FIELD_VAL, "v2: Int"),
         Node(TYPE_ALIAS, "A"),
-        Node(PI.METHOD_ICON, "m: Int"),
+        Node(MethodIcon, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
         Node(OBJECT, "O")))
@@ -657,8 +662,8 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
             object O
           }
           """,
-      new Node(PI.CLASS_INITIALIZER, "",
-        new Node(PI.CLASS_INITIALIZER, ""),
+      new Node(BlockIcon, "",
+        new Node(BlockIcon, ""),
         Node(FUNCTION, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
@@ -679,7 +684,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(VAR, "v: Int",
-        new Node(PI.CLASS_INITIALIZER, ""),
+        new Node(BlockIcon, ""),
         Node(FUNCTION, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
@@ -700,7 +705,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(VAL, "v: Int",
-        new Node(PI.CLASS_INITIALIZER, ""),
+        new Node(BlockIcon, ""),
         Node(FUNCTION, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
@@ -721,7 +726,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           }
           """,
       Node(FUNCTION, "m: Int",
-        new Node(PI.CLASS_INITIALIZER, ""),
+        new Node(BlockIcon, ""),
         Node(FUNCTION, "m: Int"),
         Node(CLASS, "C"),
         Node(TRAIT, "T"),
@@ -757,7 +762,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           var r2: Int = 1;
           {}
           """,
-      new Node(PI.CLASS_INITIALIZER, ""),
+      new Node(BlockIcon, ""),
       Node(VAR, "r1: Int"),
       Node(VAL, "l1: Int"),
       Node(TYPE_ALIAS, "A1"),
@@ -772,6 +777,6 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       Node(TYPE_ALIAS, "A2"),
       Node(VAL, "l2: Int"),
       Node(VAR, "r2: Int"),
-      new Node(PI.CLASS_INITIALIZER, ""))
+      new Node(BlockIcon, ""))
   }
 }
