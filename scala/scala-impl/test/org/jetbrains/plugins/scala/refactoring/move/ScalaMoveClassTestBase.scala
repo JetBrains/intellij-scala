@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.refactoring.move
 
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
@@ -18,6 +19,7 @@ import java.io.File
 import java.nio.file.Path
 import java.util
 import scala.annotation.nowarn
+import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
 
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
@@ -80,6 +82,9 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
         case _ => true
       }
     }
+
+    //keeping hard refs to AST nodes to avoid flaky tests (as a workaround for SCL-20527 (see solution proposals))
+    var myASTHardRefs: Seq[ASTNode] = classes.map(_.getNode)
     val aPackage: PsiPackage = JavaPsiFacade.getInstance(getProjectAdapter).findPackage(newPackageName)
     assertNotNull(s"Can't find package '$newPackageName'", aPackage)
     val dirs: Array[PsiDirectory] = aPackage.getDirectories(GlobalSearchScope.moduleScope(getModuleAdapter))
@@ -89,6 +94,7 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
         new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(dirs(0))), dirs(0)), true, true, null).run()
     }
     PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
+    myASTHardRefs = null
   }
 
   object Kinds extends Enumeration {

@@ -28,6 +28,7 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter
   private var oldSettings: ScalaCodeStyleSettings = _
   private var oldBlankLineSetting: Int = _
 
+  //keeping hard refs to AST nodes to avoid flaky tests (as a workaround for SCL-20527 (see solution proposals))
   private val myASTHardRefs: ArrayBuffer[ASTNode] = ArrayBuffer.empty
 
   override protected def setUp(): Unit = {
