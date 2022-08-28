@@ -13,19 +13,18 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.junit.Assert.assertNotNull
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert.{assertEquals, assertNotNull}
 
 import java.io.File
 import java.nio.file.Path
 import java.util
 import scala.annotation.nowarn
-import scala.collection.Seq
-import scala.collection.mutable.ArrayBuffer
 
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  protected def testDataRoot: String
+  protected def testDataRoot = TestUtils.getTestDataPath + "/refactoring/move/"
 
   private def root: String = testDataRoot + getTestName(true)
 
@@ -47,8 +46,8 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
     rootDirAfter = findAndRefreshVFile(rootAfter)
   }
 
-  def doTest(
-    classNames: Array[String],
+  protected def doTest(
+    classNames: Seq[String],
     newPackageName: String,
     mode: Kinds.Value = Kinds.all,
     moveCompanion: Boolean = true
@@ -72,28 +71,49 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
       throw ex
   }
 
-  private def performAction(classNames: Array[String], newPackageName: String, mode: Kinds.Value): Unit = {
-    val classes = new ArrayBuffer[PsiClass]()
-    for (name <- classNames) {
-      classes ++= ScalaPsiManager.instance(getProjectAdapter).getCachedClasses(GlobalSearchScope.allScope(getProjectAdapter), name).filter {
-        case o: ScObject if o.isSyntheticObject => false
-        case _: ScClass if mode == Kinds.onlyObjects => false
-        case _: ScObject if mode == Kinds.onlyClasses => false
-        case _ => true
-      }
-    }
+  private def performAction(classNames: Seq[String], targetPackageName: String, mode: Kinds.Value): Unit = {
+    val classesToMove: Seq[PsiClass] =
+      for {
+        name <- classNames
+        clazz <- {
+          val projectScope = GlobalSearchScope.allScope(getProjectAdapter)
+          val cachedClasses = ScalaPsiManager.instance(getProjectAdapter).getCachedClasses(projectScope, name)
+          val cachedClassesFiltered = cachedClasses.filter {
+            case o: ScObject if o.isSyntheticObject => false
+            case _: ScClass if mode == Kinds.onlyObjects => false
+            case _: ScObject if mode == Kinds.onlyClasses => false
+            case _ => true
+          }
+          cachedClassesFiltered
+        }
+      } yield clazz
 
     //keeping hard refs to AST nodes to avoid flaky tests (as a workaround for SCL-20527 (see solution proposals))
-    var myASTHardRefs: Seq[ASTNode] = classes.map(_.getNode)
-    val aPackage: PsiPackage = JavaPsiFacade.getInstance(getProjectAdapter).findPackage(newPackageName)
-    assertNotNull(s"Can't find package '$newPackageName'", aPackage)
-    val dirs: Array[PsiDirectory] = aPackage.getDirectories(GlobalSearchScope.moduleScope(getModuleAdapter))
-    assert(dirs.length == 1)
+    var myASTHardRefs: Seq[ASTNode] = classesToMove.map(_.getNode)
+
+    val targetPackage: PsiPackage = JavaPsiFacade.getInstance(getProjectAdapter).findPackage(targetPackageName)
+    assertNotNull(s"Can't find package '$targetPackageName'", targetPackage)
+
+    val dirs: Array[PsiDirectory] = targetPackage.getDirectories(GlobalSearchScope.moduleScope(getModuleAdapter))
+    assertEquals("Expected only single directory in module", 1, dirs.length)
+    val targetDirectory: PsiDirectory = dirs(0)
+
     ScalaFileImpl.performMoveRefactoring {
-      new MoveClassesOrPackagesProcessor(getProjectAdapter, classes.toArray,
-        new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(dirs(0))), dirs(0)), true, true, null).run()
+      val targetPackageWrapper = PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(targetDirectory))
+      val destination = new SingleSourceRootMoveDestination(targetPackageWrapper, targetDirectory)
+      val processor = new MoveClassesOrPackagesProcessor(
+        getProjectAdapter,
+        classesToMove.toArray,
+        destination,
+        true,
+        true,
+        null
+      )
+      processor.run()
     }
+
     PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
+
     myASTHardRefs = null
   }
 
