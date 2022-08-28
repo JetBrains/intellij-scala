@@ -16,14 +16,24 @@ class ConsoleHighlightingProgressReporter(
 
   private val errors = mutable.ArrayBuffer.empty[FileErrorDescriptor]
 
+  private var numberOfErrorsNotifiedForCurrentFile = 0
+  private val MaxNumberOfErrorsToNotifyPerFile = 5
+
   override def showError(fileError: FileErrorDescriptor): Unit = {
     val errorSummary = fileError.summaryString
-    System.err.println(s"Error: $errorSummary")
+    if (numberOfErrorsNotifiedForCurrentFile < MaxNumberOfErrorsToNotifyPerFile) {
+      System.err.println(s"Error: $errorSummary")
+    }
+    else if (numberOfErrorsNotifiedForCurrentFile == MaxNumberOfErrorsToNotifyPerFile) {
+      System.err.println(s"...more errors hidden for current file while highlighting is still in progress")
+    }
+    numberOfErrorsNotifiedForCurrentFile += 1
     errors += fileError
   }
 
   override def notifyHighlightingProgress(percent: Int, fileName: String): Unit = {
     println(s"$percent% highlighted, started $fileName")
+    numberOfErrorsNotifiedForCurrentFile = 0
   }
 
   override def reportFinalResults(): Unit = {
@@ -45,9 +55,10 @@ class ConsoleHighlightingProgressReporter(
       reportText.append("\n")
     }
 
-    val groupedByFileErrorsText = buildGroupedByFileErrorsText(expectedErrors ++ unexpectedErrors)
+    val allErrors = expectedErrors ++ unexpectedErrors
+    val groupedByFileErrorsText = buildGroupedByFileErrorsText(allErrors)
     reportText.append(
-      s"""### Highlighted errors grouped by file:
+      s"""### Highlighted errors grouped by file (${allErrors.size} errors in ${allErrors.map(_.fileName).distinct.size} files):
          |$groupedByFileErrorsText""".stripMargin
     )
 
@@ -73,8 +84,8 @@ class ConsoleHighlightingProgressReporter(
         val fileErrorsFirst = fileErrors.take(maxErrorsPerTip)
         val extraSyntheticMessageLine = if (fileErrors.length > maxErrorsPerTip) Some("...") else None
         val fileErrorsTexts = fileErrorsFirst.map { err => s"${err.range} - ${err.message}" } ++ extraSyntheticMessageLine
-        s"""(
-           |${fileErrorsTexts.mkString("\n").indented(2)}
+        s"""Seq(
+           |${fileErrorsTexts.mkString(",\n").indented(2)}
            |)""".stripMargin
       }
       s""""$fileName" -> $errorsPresentation"""
@@ -90,8 +101,8 @@ class ConsoleHighlightingProgressReporter(
     }
 
     s"""Map(
-      |${errorsPresentations.mkString(s"\n").indented(2)}
-      |)""".stripMargin
+       |${errorsPresentations.mkString(s",\n").indented(2)}
+       |)""".stripMargin
   }
 
 
