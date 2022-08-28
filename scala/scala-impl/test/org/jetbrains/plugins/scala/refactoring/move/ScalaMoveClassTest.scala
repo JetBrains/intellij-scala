@@ -219,9 +219,4 @@ class ScalaMoveClassTestIgnored extends ScalaMoveClassTestBase {
   def testBothJavaAndScala(): Unit = {
     doTest(Array("org.A", "org.J"), "com")
   }
-
-  // wait for fix Scl-6316
-  def testWithoutCompanion(): Unit = {
-    doTest(Array("source.A"), "target", Kinds.onlyObjects, moveCompanion = false)
-  }
 }
