@@ -195,20 +195,22 @@ class ScalaMoveClassScala213Test extends ScalaMoveClassTestBase {
       "org.example.declaration.data"
     )
   }
+
+  //SCL-4613
+  def testScl4613(): Unit = {
+    doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
+  }
+
+  //SCL-4878
+  def testScl4878(): Unit = {
+    doTest(Array("org.B"), "com")
+  }
 }
 
 @Category(Array(classOf[FlakyTests]))
 class ScalaMoveClassTestIgnored extends ScalaMoveClassTestBase {
 
   override protected def testDataRoot = TestUtils.getTestDataPath + "/move/"
-
-  def testScl4613(): Unit = {
-    doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
-  }
-
-  def testScl4878(): Unit = {
-    doTest(Array("org.B"), "com")
-  }
 
   def testWithCompanion(): Unit = {
     doTest(Array("source.A"), "target", Kinds.onlyClasses)
