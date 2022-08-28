@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
+package org.jetbrains.plugins.scala.lang.refactoring
 
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.openapi.progress.util.AbstractProgressIndicatorBase
@@ -10,9 +8,11 @@ import com.intellij.openapi.util.{Key, Segment, TextRange}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.dependency.{Dependency, Path}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters
@@ -27,32 +27,35 @@ final class Associations private(override val associations: Array[Association])
 
   override def canEqual(other: Any): Boolean = other.isInstanceOf[Associations]
 
-  override def toString = s"Associations($associations)"
+  override def toString = s"Associations(${associations.mkString("Array(", ", ", ")")})"
 
   def restore(segment: Segment)
              (filter: Seq[Binding] => Seq[Binding])
-             (implicit project: Project, file: PsiFile): Unit = bindings(segment.getStartOffset) match {
-    case Seq() =>
-    case bindings =>
-      filter(bindings.distinctBy(_.path)) match {
-        case Seq() =>
-        case bindingsToRestore =>
-          val (elements, paths) = bindingsToRestore.unzip { binding =>
-            (binding.element, binding.path)
-          }
+             (implicit project: Project, file: PsiFile): Unit = {
+    val bindings = getBindingsForOffset(segment.getStartOffset)
+    if (bindings.nonEmpty) {
+      val bindingsDistinct = bindings.distinctBy(_.path)
+      val bindingsToRestore = filter(bindingsDistinct)
 
-          import CollectionConverters._
-          val commonParent = PsiTreeUtil.findCommonParent(elements.asJava)
-          val importsHolder = ScImportsHolder(commonParent)(project)
+      if (bindingsToRestore.nonEmpty) {
+        val (elements, paths) = bindingsToRestore.unzip { binding =>
+          (binding.element, binding.path)
+        }
 
-          inWriteAction {
-            importsHolder.addImportsForPaths(paths, commonParent)
-          }
+        import CollectionConverters._
+
+        val commonParent = PsiTreeUtil.findCommonParent(elements.asJava)
+        val importsHolder = ScImportsHolder(commonParent)(project)
+
+        inWriteAction {
+          importsHolder.addImportsForPaths(paths, commonParent)
+        }
       }
+    }
   }
 
-  private def bindings(offset: Int)
-                      (implicit file: PsiFile) = for {
+  private def getBindingsForOffset(offset: Int)
+                                  (implicit file: PsiFile): Seq[Binding] = for {
     association <- associations.toSeq
     element <- elementFor(association, offset)
 
@@ -62,8 +65,6 @@ final class Associations private(override val associations: Array[Association])
 }
 
 object Associations extends AssociationsData.Companion(classOf[Associations], "ScalaReferenceData") {
-
-  import dependency._
 
   private val logger = Logger.getInstance(getClass)
 
@@ -76,9 +77,12 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
 
   object Data {
 
-    private val key = Key.create[Associations]("ASSOCIATIONS")
+    private val key: Key[Associations] = Key.create("ASSOCIATIONS")
 
-    def apply(element: PsiElement): Associations = element.getCopyableUserData(key)
+    def apply(element: PsiElement): Associations = {
+      val associations = element.getCopyableUserData(key)
+      associations
+    }
 
     def update(element: PsiElement, associations: Associations): Unit = {
       element.putCopyableUserData(key, associations)
@@ -93,14 +97,15 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
       }
   }
 
-  def restoreFor(movedElement: PsiElement): Unit = Data(movedElement) match {
-    case null =>
-    case associations =>
+  def restoreFor(movedElement: PsiElement): Unit = {
+    val associations = Data(movedElement)
+    if (associations != null) {
       try {
         associations.restore(movedElement.getTextRange)(identity)(movedElement.getProject, movedElement.getContainingFile)
       } finally {
         Data(movedElement) = null
       }
+    }
   }
 
   def collectAssociations(ranges: TextRange*)

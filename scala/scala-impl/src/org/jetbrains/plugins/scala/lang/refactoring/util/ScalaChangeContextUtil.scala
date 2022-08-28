@@ -23,7 +23,8 @@ object ScalaChangeContextUtil {
   }
 
   def encodeContextInfo(element: PsiElement): Unit = {
-    Associations.Data(element) = collectDataForElement(element)
+    val associations = collectDataForElement(element)
+    Associations.Data(element) = associations
   }
 
   def movedMember(target: PsiElement): PsiElement = {
