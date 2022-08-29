@@ -1,8 +1,6 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
+package org.jetbrains.plugins.scala.lang.refactoring
 
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.lang.dependency.DependencyPath
 
-case class Association(path: dependency.Path,
-                       var range: TextRange)
+case class Association(path: DependencyPath, var range: TextRange)

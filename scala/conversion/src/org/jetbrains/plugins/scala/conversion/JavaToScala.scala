@@ -13,7 +13,7 @@ import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.siyeh.ig.psiutils.{ControlFlowUtils, CountingLoop, ExpressionUtils}
 import org.jetbrains.plugins.scala.conversion.ast.{ModifierType, _}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiMemberExt, PsiMethodExt}
-import org.jetbrains.plugins.scala.lang.dependency.Path
+import org.jetbrains.plugins.scala.lang.dependency.DependencyPath
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation}
@@ -28,7 +28,7 @@ import scala.language.postfixOps
 
 object JavaToScala {
 
-  case class AssociationHelper(node: IntermediateNode, path: Path)
+  case class AssociationHelper(node: IntermediateNode, path: DependencyPath)
 
   private val context: UnloadableThreadLocal[java.util.Stack[(Boolean, String)]] = UnloadableThreadLocal(new java.util.Stack)
 
@@ -527,7 +527,7 @@ object JavaToScala {
         ref.startOffset == range.getStartOffset &&
           ref.endOffset == range.getEndOffset
       }
-    } associations += AssociationHelper(result, Path(reference.qClassName, Option(reference.staticMemberName)))
+    } associations += AssociationHelper(result, DependencyPath(reference.qClassName, Option(reference.staticMemberName)))
 
     val associationMap = result match {
       case parametrizedConstruction: ParametrizedConstruction => parametrizedConstruction.associationMap
@@ -536,7 +536,7 @@ object JavaToScala {
     }
 
     associations ++= associationMap.collect {
-      case (node, Some(entity)) => AssociationHelper(node, Path(entity))
+      case (node, Some(entity)) => AssociationHelper(node, DependencyPath(entity))
     }
   }
 

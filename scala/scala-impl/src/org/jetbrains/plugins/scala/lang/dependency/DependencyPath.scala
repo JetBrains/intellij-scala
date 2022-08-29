@@ -1,9 +1,6 @@
-package org.jetbrains.plugins.scala
-package lang
-package dependency
+package org.jetbrains.plugins.scala.lang.dependency
 
-case class Path(entity: String,
-                maybeMember: Option[String] = None) {
+case class DependencyPath(entity: String, maybeMember: Option[String] = None) {
 
   def asString(wildcardMembers: Boolean = false): String =
     maybeMember.fold(entity) { member =>

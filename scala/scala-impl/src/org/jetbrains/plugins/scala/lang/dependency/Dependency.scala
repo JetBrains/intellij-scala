@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-case class Dependency(target: PsiElement, path: Path)
+case class Dependency(target: PsiElement, path: DependencyPath)
 
 object Dependency {
 
@@ -55,7 +55,7 @@ object Dependency {
     }.toList
 
   def collect(range: TextRange)
-             (implicit file: ScalaFile): Iterable[(Path, Seq[ScReference])] = {
+             (implicit file: ScalaFile): Iterable[(DependencyPath, Seq[ScReference])] = {
     def scopeEstimate(e: PsiElement): Option[PsiElement] =
       e.parentsInFile.flatMap {
         _.prevSiblings
@@ -125,7 +125,7 @@ object Dependency {
 
   private def dependencyFor(reference: ScReference, target: PsiElement, fromType: Option[ScType]): Option[Dependency] = {
 
-    def pathFor(entity: PsiNamedElement, member: Option[String] = None): Option[Path] = {
+    def pathFor(entity: PsiNamedElement, member: Option[String] = None): Option[DependencyPath] = {
       if (!ScalaPsiUtil.hasStablePath(entity)) return None
 
       val qName = entity match {
@@ -134,10 +134,10 @@ object Dependency {
         case _ => return None
       }
 
-      Some(Path(qName, member)).filterNot(shouldSkip)
+      Some(DependencyPath(qName, member)).filterNot(shouldSkip)
     }
 
-    def shouldSkip(path: Path): Boolean = {
+    def shouldSkip(path: DependencyPath): Boolean = {
       val string = path.asString()
       val index = string.lastIndexOf('.')
       index == -1 || Set("scala", "java.lang", "scala.Predef").contains(string.substring(0, index))

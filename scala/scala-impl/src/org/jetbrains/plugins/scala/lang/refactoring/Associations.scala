@@ -8,7 +8,7 @@ import com.intellij.openapi.util.{Key, Segment, TextRange}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.dependency.{Dependency, Path}
+import org.jetbrains.plugins.scala.lang.dependency.{Dependency, DependencyPath}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -190,7 +190,7 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
     } yield parent
   }
 
-  private def isSatisfiedIn(element: PsiElement, path: Path): Boolean = element match {
+  private def isSatisfiedIn(element: PsiElement, path: DependencyPath): Boolean = element match {
     case reference: ScReference =>
       Dependency.dependenciesFor(reference).exists {
         case Dependency(_, `path`) => true
