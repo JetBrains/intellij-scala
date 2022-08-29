@@ -7,7 +7,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
-import org.jetbrains.annotations.{Nls, NonNls}
+import org.jetbrains.annotations.{Nls, NonNls, TestOnly}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
@@ -337,12 +337,19 @@ object SbtStructureDump {
 
   private val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
 
+  @TestOnly
+  var printErrorsAndWarningsToConsoleDuringTests = true
+
   private def reportEvent(messages: BuildMessages,
                           reporter: BuildReporter,
                           text: String): BuildMessages = {
 
-    if (ApplicationManager.getApplication.isUnitTestMode && (text.startsWith("[warn]") || text.startsWith("[error]")))
-      System.err.println(text)
+    if (ApplicationManager.getApplication.isUnitTestMode && printErrorsAndWarningsToConsoleDuringTests) {
+      val isErrorOrWarning = text.startsWith("[warn]") || text.startsWith("[error]")
+      if (isErrorOrWarning){
+        System.err.println(text)
+      }
+    }
 
     if (text.startsWith("[error] Total time")) {
       val msg = SbtBundle.message("sbt.task.failed.see.log.for.details")

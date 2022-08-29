@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.project.structure.SbtStructureDump
 import org.jetbrains.sbt.settings.SbtSettings
 
 abstract class SbtExternalSystemImportingTestCase extends ExternalSystemImportingTestCase {
@@ -28,9 +29,13 @@ abstract class SbtExternalSystemImportingTestCase extends ExternalSystemImportin
     super.setUp()
 
     myProjectJdk = SmartJDKLoader.getOrCreateJDK(projectJdkLanguageLevel)
+    //output from sbt process is already printed (presumably somewhere from ExternalSystemImportingTestCase or internals)
+    SbtStructureDump.printErrorsAndWarningsToConsoleDuringTests = false
   }
 
   override def tearDown(): Unit = {
+    SbtStructureDump.printErrorsAndWarningsToConsoleDuringTests = true
+
     //jdk might be null if it was some exception in super.setup()
     if (myProjectJdk != null) {
       inWriteAction {
