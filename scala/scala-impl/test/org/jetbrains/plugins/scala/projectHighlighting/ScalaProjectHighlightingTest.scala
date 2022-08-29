@@ -1,26 +1,20 @@
-//package org.jetbrains.plugins.scala.projectHighlighting
-//
-//import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
-//import com.intellij.openapi.util.TextRange
-//import org.jetbrains.plugins.scala.HighlightingTests
-//import org.jetbrains.sbt.project.settings.SbtProjectSettings
-//import org.junit.experimental.categories.Category
-//
-//@Category(Array(classOf[HighlightingTests]))
-//class ScalaProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
-//
-//  override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
-//    GithubRepositoryWithRevision("scala", "scala:, "8e6964a13035bf83d3050916e988715d23e51b49")
-//
-//  override def filesWithProblems(): Map[String, Set[TextRange]] = Map(
-//  )
-//
-//  override def getCurrentExternalProjectSettings: ExternalProjectSettings = {
-//    super.getCurrentExternalProjectSettings match {
-//      case sbt: SbtProjectSettings =>
-//        sbt.useSbtShell = true
-//        sbt
-//      case other => other
-//    }
-//  }
-//}
+package org.jetbrains.plugins.scala.projectHighlighting
+
+import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.HighlightingTests
+import org.jetbrains.plugins.scala.projectHighlighting.base.GithubRepositoryWithRevision
+import org.jetbrains.plugins.scala.projectHighlighting.downloaded.GithubSbtAllProjectHighlightingTest
+import org.junit.Ignore
+import org.junit.experimental.categories.Category
+
+//TODO: fix errors in scala project and ignore the test
+@Ignore
+@Category(Array(classOf[HighlightingTests]))
+class ScalaProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
+
+  override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
+    GithubRepositoryWithRevision("scala", "scala", "2.13.x")
+
+  override protected def filesWithProblems: Map[String, Set[TextRange]] = Map(
+  )
+}
