@@ -19,7 +19,7 @@ class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
     element.asInstanceOf[ScMethodLike]
   }
 
-  override def folderPath: String = baseRootPath + "changeSignature/inScala/"
+  override def folderPath: String = super.folderPath + "changeSignature/inScala/"
 
   override def processor(newVisibility: String,
                          newName: String,

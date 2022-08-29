@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChange
 import org.junit.Assert._
 
 class ChangeSignatureFromScalaTest extends ChangeSignatureTestBase {
-  override def folderPath: String = baseRootPath + "changeSignature/fromScala/"
+  override def folderPath: String = super.folderPath + "changeSignature/fromScala/"
 
   override def mainFileName(testName: String) = testName + ".scala"
   override def secondFileName(testName: String) = testName + ".java"

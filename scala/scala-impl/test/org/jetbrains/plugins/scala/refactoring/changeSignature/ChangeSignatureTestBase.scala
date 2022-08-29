@@ -1,5 +1,5 @@
-package org.jetbrains.plugins.scala
-package refactoring.changeSignature
+package org.jetbrains.plugins.scala.refactoring
+package changeSignature
 
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.CharsetToolkit
@@ -24,14 +24,15 @@ import scala.annotation.nowarn
 
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  var targetMethod: PsiMember = null
+
+  protected var targetMethod: PsiMember = null
   protected var isAddDefaultValue = false
 
   implicit def projectContext: ProjectContext = getProject
 
-  override def getTestDataPath = folderPath
+  override def getTestDataPath: String = folderPath
 
-  def folderPath: String
+  def folderPath: String = refactoringCommonTestDataRoot
 
   def mainFileName(testName: String): String
   def mainFileAfterName(testName: String): String
