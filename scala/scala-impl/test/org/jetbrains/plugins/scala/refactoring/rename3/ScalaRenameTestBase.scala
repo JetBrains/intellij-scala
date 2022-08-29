@@ -1,5 +1,5 @@
-package org.jetbrains.plugins.scala
-package refactoring.rename3
+package org.jetbrains.plugins.scala.refactoring
+package rename3
 
 import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.openapi.editor.Editor
@@ -15,7 +15,6 @@ import com.intellij.testFramework.{LightPlatformTestCase, PlatformTestUtil, PsiT
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.util.TestUtils
 
 import java.io.File
 import java.nio.file.Path
@@ -25,12 +24,14 @@ import scala.jdk.CollectionConverters._
 
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  val caretMarker = "/*caret*/"
+
+  protected val caretMarker = "/*caret*/"
+
   private var myEditors: Map[VirtualFile, Editor] = _
   private var myDirectory: VirtualFile = _
   private var filesBefore: Seq[VirtualFile] = _
 
-  protected val folderPath: String = TestUtils.getTestDataPath + "/rename3/"
+  protected val folderPath: String = refactoringCommonTestDataRoot + "rename3/"
 
   private def rootBefore = (folderPath + getTestName(true) + "/before").replace(File.separatorChar, '/')
   private def rootAfter = (folderPath + getTestName(true) + "/after").replace(File.separatorChar, '/')

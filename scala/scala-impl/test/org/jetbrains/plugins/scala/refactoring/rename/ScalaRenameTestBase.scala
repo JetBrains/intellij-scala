@@ -1,5 +1,5 @@
-package org.jetbrains.plugins.scala
-package refactoring.rename
+package org.jetbrains.plugins.scala.refactoring
+package rename
 
 import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.openapi.util.io.FileUtil
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
 
 import java.io.File
 import scala.annotation.nowarn
@@ -20,7 +20,7 @@ import scala.annotation.nowarn
 abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val caretMarker = "/*caret*/"
 
-  protected def folderPath: String = TestUtils.getTestDataPath + "/rename/"
+  protected def folderPath: String = refactoringCommonTestDataRoot + "rename/"
 
   protected def doTest(): Unit = {
     import org.junit.Assert._
