@@ -380,11 +380,9 @@ class TreePrinter(privateMembers: Boolean = false) {
         val name = node.refName.getOrElse("")
         if (name == "package" || name.endsWith("$package")) prefix else (if (prefix.isEmpty) name else prefix + "." + name) // rely on name kind
       case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
-        if (Iterator.unfold(node)(_.children.headOption.map(it => (it, it))).exists(_.tag == THIS)) textOfType(tail) + "#" + name // unify
-        else {
-          val qualifier = textOfType(tail)
-          if (qualifier.nonEmpty) qualifier + "." + name else name
-        }
+        val selector = if (node.tag == SELECTtpt && node.children.headOption.exists(it => isTypeTreeTag(it.tag))) "#" else "."
+        val qualifier = textOfType(tail)
+        if (qualifier.nonEmpty) qualifier + selector + name else name
       case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => name
       case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments: _*)) =>
         val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
