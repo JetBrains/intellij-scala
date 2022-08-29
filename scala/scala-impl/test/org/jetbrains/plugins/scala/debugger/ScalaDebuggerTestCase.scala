@@ -18,12 +18,11 @@ import com.intellij.xdebugger.{XDebuggerManager, XDebuggerUtil}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
 import org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.{RevertableChange, TestUtils}
 import org.junit.Assert.assertTrue
 
 import java.io._

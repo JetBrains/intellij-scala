@@ -14,14 +14,13 @@ import com.intellij.testFramework.common.ThreadLeakTracker
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.{NoOpRevertableChange, RevertableChange}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.{ListCompilerMessageExt, markCompileServerThreadsLongRunning}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
+import org.jetbrains.plugins.scala.util.{RevertableChange, UnloadAwareDisposable}
 import org.junit.Assert
 import org.junit.Assert._
 
@@ -35,7 +34,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   private var compilerTester: CompilerTester = _
 
-  private var revertable: RevertableChange = NoOpRevertableChange
+  private var revertable: RevertableChange = _
 
   /**
    * Called on each project, but before initializing ThreadWatcher.
@@ -53,7 +52,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
       CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
         CompilerTestUtil.withCompileServerJdk(compileServerJdk) |+|
         CompilerTestUtil.withForcedJdkForBuildProcess(buildProcessJdk) |+|
-        CompilerTestUtil.withApplicationSettingsSaving
+        RevertableChange.withApplicationSettingsSaving
     revertable.applyChange()
   }
 

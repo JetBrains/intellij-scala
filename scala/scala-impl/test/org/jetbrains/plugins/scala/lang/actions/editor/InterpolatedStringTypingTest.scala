@@ -4,7 +4,7 @@ package lang.actions.editor
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
+import org.jetbrains.plugins.scala.util.RevertableChange
 
 class InterpolatedStringTypingTest extends EditorActionTestBase {
 

@@ -6,7 +6,6 @@ import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.{NoOpRevertableChange, RevertableChange}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
@@ -14,6 +13,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt}
 import org.jetbrains.plugins.scala.projectHighlighting.base.{GithubRepositoryWithRevision, SbtProjectHighlightingDownloadingFromGithubTestBase}
+import org.jetbrains.plugins.scala.util.RevertableChange
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SlowTests}
 import org.junit.experimental.categories.Category
 
@@ -42,7 +42,7 @@ abstract class Scala3ExampleProjectCompilationTestBase(
 
   private var compiler: CompilerTester = _
 
-  private var revertible: RevertableChange = NoOpRevertableChange
+  private var revertible: RevertableChange = RevertableChange.NoOpRevertableChange
 
   override def setUp(): Unit = {
     super.setUp()

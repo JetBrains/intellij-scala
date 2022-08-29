@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.{assertIsBlank, assertStringMatches}
 import org.jetbrains.plugins.scala.util.runners.{NotSupportedScalaVersions, RunWithScalaVersions, SupportedScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError

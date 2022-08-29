@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.{TestDependencyManager, WorksheetEvaluationTests}
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 import org.jetbrains.plugins.scala.util.runners._
+import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
