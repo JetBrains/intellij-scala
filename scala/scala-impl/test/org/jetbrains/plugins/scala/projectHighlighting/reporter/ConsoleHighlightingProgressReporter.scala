@@ -83,8 +83,8 @@ class ConsoleHighlightingProgressReporter(
       val errorsPresentation: String = {
         val fileErrorsFirst = fileErrors.take(maxErrorsPerTip)
         val extraSyntheticMessageLine = if (fileErrors.length > maxErrorsPerTip) Some("...") else None
-        val fileErrorsTexts = fileErrorsFirst.map { err => s"${err.range} - ${err.message}" } ++ extraSyntheticMessageLine
-        s"""Seq(
+        val fileErrorsTexts = fileErrorsFirst.map { err => s"${err.range}, // ${err.message}" } ++ extraSyntheticMessageLine
+        s"""Set(
            |${fileErrorsTexts.mkString(",\n").indented(2)}
            |)""".stripMargin
       }
