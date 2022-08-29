@@ -1,5 +1,5 @@
-package org.jetbrains.plugins.scala
-package refactoring.extractMethod
+package org.jetbrains.plugins.scala.refactoring
+package extractMethod
 
 import com.intellij.openapi.actionSystem.DataKey
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
@@ -27,7 +27,7 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
   private val endMarker = "/*end*/"
   private val scopeMarker = "/*inThisScope*/"
 
-  def folderPath: String = baseRootPath + "extractMethod/"
+  def folderPath: String = refactoringCommonTestDataRoot + "extractMethod/"
 
   protected def doTest(
     settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))
