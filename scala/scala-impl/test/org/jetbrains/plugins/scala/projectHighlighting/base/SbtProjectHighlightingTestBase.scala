@@ -25,7 +25,7 @@ abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImporting
   protected var codeInsightFixture: CodeInsightTestFixture = _
 
   private val projectFileName = "testHighlighting"
-  private def getProjectFilePath: Path = Paths.get(projectDirPath, s"$projectFileName.ipr")
+  private def getProjectFilePath: Path = Paths.get(getTestProjectPath, s"$projectFileName.ipr")
   private def isProjectAlreadyCached = Files.exists(getProjectFilePath)
 
   private def isProjectCachingEnabled: Boolean =
@@ -59,7 +59,7 @@ abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImporting
     val workspaceFile = myProject.getWorkspaceFile
     if (workspaceFile != null && workspaceFile.exists()) {
       val from = workspaceFile.toNioPath
-      val to = Paths.get(projectDirPath, s"$projectFileName.iws")
+      val to = Paths.get(getTestProjectPath, s"$projectFileName.iws")
       reporter.notify(s"Copy workspace file $from to $to")
       Files.copy(from, to)
     }
@@ -79,26 +79,14 @@ abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImporting
 
   protected val reporter = HighlightingProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems)
 
-  //example: `..../testdata/projects`
+  //examples:
+  // `.../testdata/projectsForHighlightingTests/local`
+  // `.../testdata/projectsForHighlightingTests/downloaded`
   protected def rootProjectsDirPath: String
 
   protected def projectName: String
 
-  protected def projectDirPath: String = s"$rootProjectsDirPath/$projectName"
-
-  protected def doBeforeImport(): Unit = {}
-
-  override protected def setUpInWriteAction(): Unit = {
-    super.setUpInWriteAction()
-
-    doBeforeImport()
-
-    val projectDir = new File(projectDirPath)
-
-    myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectDir)
-
-    reporter.notify("Finished sbt setup, starting import")
-  }
+  override protected def getTestProjectPath: String = s"$rootProjectsDirPath/$projectName"
 
   private def forceSaveProject(): Unit = {
     val app = ApplicationManagerEx.getApplicationEx
@@ -112,6 +100,7 @@ abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImporting
 
   override def setUp(): Unit = dumpLogsOnException {
     super.setUp()
+    reporter.notify("Finished sbt setup, starting import")
 
     //patch homes before importing projects
     patchIvyAndCoursierHomeDirsForSbt()
@@ -121,7 +110,8 @@ abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImporting
     if (isProjectAlreadyCached && isProjectCachingEnabled) {
       reporter.notify(
         """!!!
-          |!!! Project caching enabled, reusing last sbt import
+          |!!! Project caching enabled:
+          |!!! Skipping sbt project import and reusing results of previous import
           |!!! """.stripMargin
       )
     } else {
@@ -187,7 +177,7 @@ abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImporting
     val file = files.asScala.filter(_.getName == filename).toList match {
       case vf :: Nil => vf
       case Nil => // is this a file path?
-        val file = VfsTestUtil.findFileByCaseSensitivePath(s"$projectDirPath/$filename")
+        val file = VfsTestUtil.findFileByCaseSensitivePath(s"$getTestProjectPath/$filename")
         Assert.assertTrue(
           s"Could not find file: $filename. Consider providing relative path from project root",
           file != null && files.contains(file)

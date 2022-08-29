@@ -37,7 +37,12 @@ trait AllProjectHighlightingTest {
   def doAllProjectHighlightingTest(): Unit = {
     val modules = ModuleManager.getInstance(getProject).getModules
     val module = modules.find(_.hasScala)
-    assertTrue("Test project doesn't have Scala SDK configured", module.isDefined)
+    assertTrue(
+      """Test project doesn't have Scala SDK configured.
+        |Probably something went wrong during project import.
+        |Please see build logs for the details.""".stripMargin,
+      module.isDefined
+    )
     assertTrue("Test project must be in smart mode before running highlighting", !DumbService.isDumb(getProject))
 
     val scope = SourceFilterScope(scalaFileTypes :+ JavaFileType.INSTANCE)(getProject)

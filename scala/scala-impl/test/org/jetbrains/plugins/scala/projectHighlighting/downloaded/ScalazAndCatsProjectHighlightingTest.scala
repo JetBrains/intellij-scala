@@ -10,5 +10,6 @@ class ScalazAndCatsProjectHighlightingTest extends GithubSbtAllProjectHighlighti
   override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
     GithubRepositoryWithRevision("fosskers", "scalaz-and-cats", "e35a79297e06fafa7c76dda4bd74862131f2d37b")
 
-  override def projectDirPath = s"$rootProjectsDirPath/$projectName/scala"
+  //"scalaz-and-cats" project has extra "scala" folder which contains the actual project
+  override def getTestProjectPath: String = s"${super.getTestProjectPath}/scala"
 }

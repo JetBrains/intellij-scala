@@ -10,11 +10,13 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
+import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.jetbrains.sbt.RichFile
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -24,12 +26,22 @@ import java.net.URI
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Category(Array(classOf[SlowTests]))
-class SbtProjectImportingTest extends ImportingTestCase
+final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingTestCase
   with ProjectStructureExpectedLibrariesOps
+  with ProjectStructureMatcher
   with ExactMatch {
 
   import ProjectStructureDsl._
-  import ProjectStructureMatcher.ProjectComparisonOptions.Implicit.default
+
+  override protected def getTestProjectPath: String =
+    s"${TestUtils.getTestDataPath}/sbt/projects/${getTestName(true)}"
+
+  protected def runTest(expected: project): Unit = {
+    importProject(false)
+
+    assertProjectsEqual(expected, myProject)(ProjectComparisonOptions.Implicit.default)
+    assertNoNotificationsShown(myProject)
+  }
 
   def testSimple(): Unit = {
     val scalaLibrary = expectedScalaLibrary("2.13.5")
@@ -377,7 +389,7 @@ class SbtProjectImportingTest extends ImportingTestCase
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
   def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
-    val projectLangaugeLevel = SbtProjectImportingTest.this.projectJdkLanguageLevel
+    val projectLangaugeLevel = SbtProjectStructureImportingTest.this.projectJdkLanguageLevel
 
     def doRunTest(): Unit = runTest(
       new project("java-language-level-and-target-byte-code-level-no-options") {
@@ -470,7 +482,7 @@ class SbtProjectImportingTest extends ImportingTestCase
         // no storing project level options
         javacOptions := Nil
         javaTargetBytecodeLevel := null
-        javaLanguageLevel := SbtProjectImportingTest.this.projectJdkLanguageLevel
+        javaLanguageLevel := SbtProjectStructureImportingTest.this.projectJdkLanguageLevel
 
         val root: module = new module("javac-special-options-for-root-project") {
           javaLanguageLevel := LanguageLevel.JDK_1_9

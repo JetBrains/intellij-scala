@@ -2,6 +2,8 @@ package org.jetbrains.sbt.project
 
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
@@ -10,6 +12,9 @@ import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.structure.SbtStructureDump
 import org.jetbrains.sbt.settings.SbtSettings
+import org.junit.Assert.assertNotNull
+
+import java.io.File
 
 abstract class SbtExternalSystemImportingTestCase extends ExternalSystemImportingTestCase {
 
@@ -31,6 +36,26 @@ abstract class SbtExternalSystemImportingTestCase extends ExternalSystemImportin
     myProjectJdk = SmartJDKLoader.getOrCreateJDK(projectJdkLanguageLevel)
     //output from sbt process is already printed (presumably somewhere from ExternalSystemImportingTestCase or internals)
     SbtStructureDump.printErrorsAndWarningsToConsoleDuringTests = false
+  }
+
+  override protected def setUpInWriteAction(): Unit = {
+    //explicitly using default implementation just to remind the existence of this method
+    super.setUpInWriteAction()
+  }
+
+  /**
+   * @return path to the sbt project which will be used during the test
+   * @example `.../testdata/projectsForHighlightingTests/downloaded/scala3-example-project`
+   */
+  protected def getTestProjectPath: String
+
+  /** Same as [[getTestProjectPath]] but as a File */
+  protected final def getTestProjectDir: File = new File(getTestProjectPath)
+
+  override protected def setUpProjectRoot(): Unit = {
+    val projectRoot = new File(getTestProjectPath)
+    myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectRoot)
+    assertNotNull(s"project root was not found: $projectRoot", myProjectRoot)
   }
 
   override def tearDown(): Unit = {

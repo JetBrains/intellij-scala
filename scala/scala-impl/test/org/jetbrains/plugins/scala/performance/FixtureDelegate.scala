@@ -16,7 +16,10 @@ class FixtureDelegate(projectFile: Path) extends IdeaProjectTestFixture {
 
   override def getProject: Project = actualProject
 
-  override def getModule: module.Module = actualProject.modules.head
+  override def getModule: module.Module = {
+    import org.jetbrains.plugins.scala.project.ModuleExt
+    actualProject.modules.filterNot(_.isBuildModule).head
+  }
 
   override def setUp(): Unit = {
     TestApplicationManager.getInstance.setDataProvider(null)

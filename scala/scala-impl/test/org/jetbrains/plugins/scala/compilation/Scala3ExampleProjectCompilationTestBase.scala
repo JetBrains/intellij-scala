@@ -29,7 +29,7 @@ import java.net.{URL, URLClassLoader}
 abstract class Scala3ExampleProjectCompilationTestBase(
   incrementalityType: IncrementalityType,
   useCompileServer: Boolean
-)  extends SbtProjectHighlightingDownloadingFromGithubTestBase
+) extends SbtProjectHighlightingDownloadingFromGithubTestBase
     with ScalaSdkOwner {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
@@ -50,7 +50,7 @@ abstract class Scala3ExampleProjectCompilationTestBase(
     revertible = CompilerTestUtil.withEnabledCompileServer(useCompileServer)
     revertible.applyChange()
     ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
-    compiler = new CompilerTester(module)
+    compiler = new CompilerTester(getMainModule)
   }
 
   override def tearDown(): Unit = try {
@@ -78,16 +78,21 @@ abstract class Scala3ExampleProjectCompilationTestBase(
     val urls = (librariesUrls + targetUrl).toArray
     val classLoader = new URLClassLoader(urls, null)
 
-    classLoader.loadClass("Main")
+    try {
+      classLoader.loadClass("Main")
+    } catch {
+      case ex: ClassNotFoundException =>
+        throw new AssertionError("Couldn't load class `Main`. Looks like test project wasn't successfully compiled. See build output for the details.", ex)
+    }
   }
 
   private def librariesUrls: Set[URL] =
-    module.libraries.flatMap(_.jarUrls)
+    getMainModule.libraries.flatMap(_.jarUrls)
 
   private def targetUrl: URL =
-    new URL(CompilerModuleExtension.getInstance(module).getCompilerOutputUrl + "/")
+    new URL(CompilerModuleExtension.getInstance(getMainModule).getCompilerOutputUrl + "/")
 
-  private def module: Module =
+  private def getMainModule: Module =
     getModule(projectName)
 }
 

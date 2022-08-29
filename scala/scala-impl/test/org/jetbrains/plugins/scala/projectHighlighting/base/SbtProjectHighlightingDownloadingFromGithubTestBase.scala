@@ -15,23 +15,25 @@ abstract class SbtProjectHighlightingDownloadingFromGithubTestBase extends SbtPr
 
   protected def githubRepositoryWithRevision: GithubRepositoryWithRevision
 
-  protected def outputZipFileName: String = {
-    val GithubRepositoryWithRevision(userName, repoName, revision) = githubRepositoryWithRevision
-    s"$rootProjectsDirPath/zipFiles/$repoName-$userName-$revision"
+  override protected def setUpInWriteAction(): Unit = {
+    downloadAndExtractProject()
+    super.setUpInWriteAction()
   }
-
-  override protected def doBeforeImport(): Unit = downloadAndExtractProject()
 
   private def downloadAndExtractProject(): Unit = {
     val outputZipFile = new File(outputZipFileName)
-    val projectDir = new File(projectDirPath)
+    val projectDir = new File(getTestProjectPath)
 
     reporter.notify(s"Project output zip file: $outputZipFile")
     reporter.notify(s"Project directory: $projectDir")
 
-    if (outputZipFile.exists() || projectDir.exists()) {
-      reporter.notify("Project files already exist, skipping download")
-    } else {
+    if (outputZipFile.exists()) {
+      reporter.notify("Skipping download: project zip file already exists")
+    }
+    else if (projectDir.exists() && projectDir.listFiles().nonEmpty) {
+      reporter.notify("Skipping download: project directory already exist")
+    }
+    else {
       //don't download if zip file is already there
       reporter.notify(s"Starting download")
       GithubDownloadUtil.downloadAtomically(
@@ -53,5 +55,10 @@ abstract class SbtProjectHighlightingDownloadingFromGithubTestBase extends SbtPr
 
     Assert.assertTrue("Project dir does not exist. Download or unpack failed!", projectDir.exists())
     reporter.notify("Finished extracting, starting sbt setup")
+  }
+
+  private def outputZipFileName: String = {
+    val GithubRepositoryWithRevision(userName, repoName, revision) = githubRepositoryWithRevision
+    s"$rootProjectsDirPath/zipFiles/$repoName-$userName-$revision"
   }
 }

@@ -10,22 +10,20 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, executeUndoTranspa
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.TrailingCommasMode
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{SlowTests, inWriteAction}
-import org.jetbrains.sbt.project.ProjectStructureMatcher.AttributeMatchType
-import org.jetbrains.sbt.project.TrailingCommaErrorsInSbtFilesTest.{ParserError, withModifiedValue}
+import org.jetbrains.sbt.project.HighlightingOfTrailingCommaErrorsInSbtFilesTest.{ParserError, withModifiedValue}
 import org.junit.Assert
 import org.junit.Assert.{assertNotNull, assertTrue}
 import org.junit.experimental.categories.Category
 
 import java.io.File
 
-// NOTE: using slow ImportingTestCase to emulate a real imported sbt project
-//  in order all module libraries (and SDKs) are imported as close to real projects as possible
 @Category(Array(classOf[SlowTests]))
-class TrailingCommaErrorsInSbtFilesTest extends ImportingTestCase {
+final class HighlightingOfTrailingCommaErrorsInSbtFilesTest extends SbtExternalSystemImportingTestCase {
 
-  //noinspection NotImplementedCode
-  override def defaultAssertMatch: AttributeMatchType = ???
+  override protected def getTestProjectPath: String =
+    s"${TestUtils.getTestDataPath}/sbt/projects/${getTestName(true)}"
 
   // Reminder: trailing commas are supported since 2.12.2
   def testTrailing_comma_sbt_0_13_scala_2_12_1(): Unit = testTrailingCommaErrors(
@@ -126,7 +124,7 @@ class TrailingCommaErrorsInSbtFilesTest extends ImportingTestCase {
   }
 }
 
-object TrailingCommaErrorsInSbtFilesTest {
+object HighlightingOfTrailingCommaErrorsInSbtFilesTest {
 
   private case class ParserError(offset: Int, errorDescription: String)
   private object ParserError {

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.compilation
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.CompilerTester
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
 import org.jetbrains.plugins.scala.HighlightingTests
@@ -14,22 +13,18 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.sbt.project.{ImportingTestCase, ProjectStructureMatcher}
+import org.jetbrains.sbt.project.SbtExternalSystemImportingTestCase
 import org.junit.experimental.categories.Category
 
-import java.io.File
-
 @Category(Array(classOf[HighlightingTests]))
-class SbtNoErrorsInProjectWithProvidedAndRuntimeDependenciesTest
-  extends ImportingTestCase
+final class SbtNoErrorsInProjectWithProvidedAndRuntimeDependenciesTest
+  extends SbtExternalSystemImportingTestCase
     with AllProjectHighlightingTest {
 
   protected var codeInsightFixture: CodeInsightTestFixture = _
 
-  override def getTestProjectDir: File = {
-    val testDataPath = TestUtils.getTestDataPath + "/sbt/compilation/projects"
-    new File(testDataPath, getTestName(true))
-  }
+  override protected def getTestProjectPath: String =
+    s"${TestUtils.getTestDataPath}/sbt/compilation/projects/${getTestName(true)}"
 
   override def setUpFixtures(): Unit = {
     val factory = IdeaTestFixtureFactory.getFixtureFactory
@@ -51,8 +46,6 @@ class SbtNoErrorsInProjectWithProvidedAndRuntimeDependenciesTest
 
   override protected val reporter: HighlightingProgressReporter =
     HighlightingProgressReporter.newInstance(getClass.getSimpleName, Map.empty)
-
-  override protected def defaultAssertMatch: ProjectStructureMatcher.AttributeMatchType = ???
 
   def testProvidedAndRuntimeDependenciesShouldBeAddedToTestCompileScope(): Unit = {
     importProject(false)
