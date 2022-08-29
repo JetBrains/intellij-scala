@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util._
 import org.jetbrains.plugins.scala.util.TestUtils._
 
 abstract class AbstractIntroduceVariableValidatorTestBase(kind: String)
-  extends ActionTestBase("/introduceVariable/validator/" + kind) {
+  extends ActionTestBase("/refactoring/introduceVariable/validator/" + kind) {
+
   protected var myEditor: Editor = _
   protected var fileEditorManager: FileEditorManager = _
   protected var myFile: PsiFile = _

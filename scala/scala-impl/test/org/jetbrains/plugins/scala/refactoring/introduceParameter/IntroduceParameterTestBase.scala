@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.refactoring.introduceParameter
+package org.jetbrains.plugins.scala.refactoring
+package introduceParameter
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
@@ -21,13 +22,14 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaMethodDescriptor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{afterExpressionChoosing, trimSpacesAndComments}
+import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
 
 import java.io.File
 import scala.annotation.nowarn
 
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  protected def folderPath = baseRootPath + "introduceParameter/"
+  protected def folderPath = refactoringCommonTestDataRoot + "introduceParameter/"
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
   private val allMarker = "//all = "

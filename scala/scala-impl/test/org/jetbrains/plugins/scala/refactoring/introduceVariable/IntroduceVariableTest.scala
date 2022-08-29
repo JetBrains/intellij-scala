@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryL
 class IntroduceVariableTest extends TestCase
 
 object IntroduceVariableTest {
-  val DATA_PATH = "/introduceVariable/data"
+  private val DATA_PATH = "/refactoring/introduceVariable/data"
 
   def suite(): Test = new AbstractIntroduceVariableTestBase(IntroduceVariableTest.DATA_PATH) with ScalaSdkOwner {
     override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), ScalaSDKLoader())

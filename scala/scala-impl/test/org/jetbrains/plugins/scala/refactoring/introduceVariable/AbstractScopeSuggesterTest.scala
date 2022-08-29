@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.{ScopeItem, ScopeSuggester}
+import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
 import org.junit.Assert
 
 import java.io.File
@@ -21,7 +22,7 @@ abstract class AbstractScopeSuggesterTest extends ScalaLightPlatformCodeInsightT
   val BEGIN_MARKER: String = "/*begin*/"
   val END_MARKER: String = "/*end*/"
 
-  protected def folderPath = baseRootPath + "introduceVariable/scopeSuggester/"
+  protected def folderPath = refactoringCommonTestDataRoot + "introduceVariable/scopeSuggester/"
 
   protected def doTest(suggestedScopesNames: Seq[String]): Unit = {
     val filePath = folderPath + getTestName(false) + ".scala"

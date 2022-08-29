@@ -1,5 +1,5 @@
-package org.jetbrains.plugins.scala
-package refactoring.introduceField
+package org.jetbrains.plugins.scala.refactoring
+package introduceField
 
 import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.project.Project
@@ -31,9 +31,9 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
   private val initLocallyMarker = "/*initLocally*/"
   private val selectedClassNumberMarker = "/*selectedClassNumber = "
 
-  def folderPath: String = baseRootPath + "introduceField/"
+  protected def folderPath: String = refactoringCommonTestDataRoot + "introduceField/"
 
-  implicit def projectContext: Project = getProject
+  implicit protected def projectContext: Project = getProject
 
   protected def doTest(scType: ScType = Int): Unit = {
     val filePath = folderPath + getTestName(false) + ".scala"
