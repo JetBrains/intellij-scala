@@ -18,12 +18,12 @@ class ScalaDelegateMethodTest extends base.ScalaLightPlatformCodeInsightTestCase
   import ScalaDelegateMethodTestBase._
 
   private def doTest(fileText: String, expectedText: String,
-                     settings: ScalaCodeStyleSettings = defaultSettings(getProjectAdapter)): Unit = {
-    implicit val project: Project = getProjectAdapter
-    configureFromFileTextAdapter("dummy.scala", fileText)
+                     settings: ScalaCodeStyleSettings = defaultSettings(getProject)): Unit = {
+    implicit val project: Project = getProject
+    configureFromFileText("dummy.scala", fileText)
 
-    implicit val editor: Editor = getEditorAdapter
-    doTest(getFileAdapter, settings)
+    implicit val editor: Editor = getEditor
+    doTest(getFile, settings)
     checkResultByText(StringUtil.convertLineSeparators(expectedText))
   }
 
@@ -368,7 +368,7 @@ class ScalaDelegateMethodTest extends base.ScalaLightPlatformCodeInsightTestCase
          |
          |  def foo[S >: AnyRef](x: Int) = d.foo[S](x)
          |}""".stripMargin
-    doTest(text, result, settings = noTypeAnnotationForPublic(getProjectAdapter))
+    doTest(text, result, settings = noTypeAnnotationForPublic(getProject))
   }
 
   def testNoTypeParamWithReturn(): Unit = {

@@ -14,7 +14,7 @@ import org.junit.Assert._
 class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
 
   override def findTargetElement: PsiMember = {
-    val element = new ScalaChangeSignatureHandler().findTargetMember(getFileAdapter, getEditorAdapter)
+    val element = new ScalaChangeSignatureHandler().findTargetMember(getFile, getEditor)
     assertTrue("<caret> is not on method name", element.isInstanceOf[ScMethodLike])
     element.asInstanceOf[ScMethodLike]
   }
@@ -34,7 +34,7 @@ class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
   override def secondFileAfterName(testName: String): String = null
 
   private def parameterInfo(name: String, oldIdx: Int, tpe: ScType, defVal: String = "", isRep: Boolean = false, isByName: Boolean = false) = {
-    new ScalaParameterInfo(name, oldIdx, tpe, getProjectAdapter, isRep, isByName, defVal)
+    new ScalaParameterInfo(name, oldIdx, tpe, getProject, isRep, isByName, defVal)
   }
 
   def testVisibility(): Unit = {
@@ -103,7 +103,7 @@ class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
   def testLocalFunction(): Unit = {
     isAddDefaultValue = true
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("s", -1, Boolean, "true"))
-    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))
     
     doTest(null, "local", null, Seq(params), settings = TypeAnnotationSettings.noTypeAnnotationForLocal(settings))
   }

@@ -36,8 +36,8 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     val offset = fileText.indexOf(refMarker)
     fileText = fileText.replace(refMarker, "")
 
-    configureFromFileTextAdapter(getTestName(false) + "." + fileType.getDefaultExtension, fileText)
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    configureFromFileText(getTestName(false) + "." + fileType.getDefaultExtension, fileText)
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
     assertNotEquals(s"Not specified ref marker in test case. Use $refMarker in scala file for this.", offset, -1)
     val ref = getParentOfType(scalaFile.findElementAt(offset), classOf[ScReference])
     assertNotNull("Not specified reference at marker.", ref)
@@ -47,7 +47,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
       case _ => fail("Reference must be unresolved.")
     }
 
-    implicit val project: Project = getProjectAdapter
+    implicit val project: Project = getProject
     val refPointer = SmartPointerManager.getInstance(project).createSmartPsiElementPointer(ref)
 
     val fix = ScalaImportTypeFix(ref)
@@ -63,7 +63,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     var res: String = null
     val lastPsi = scalaFile.findElementAt(scalaFile.getTextLength - 1)
     try {
-      val action = fix.createAddImportAction(getEditorAdapter)
+      val action = fix.createAddImportAction(getEditor)
       action.addImportTestOnly(classes.head)
 
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")

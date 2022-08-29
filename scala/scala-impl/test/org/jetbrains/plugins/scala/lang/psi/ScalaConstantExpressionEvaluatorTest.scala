@@ -20,8 +20,8 @@ class ScalaConstantExpressionEvaluatorTest extends ScalaLightPlatformCodeInsight
   }
 
   private def check(text: String, expected: Any): Unit = {
-    configureFromFileTextAdapter(getTestName(true) + ".scala", text)
-    val evaluated = evaluate(getFileAdapter)
+    configureFromFileText(getTestName(true) + ".scala", text)
+    val evaluated = evaluate(getFile)
     assert(evaluated == expected)
   }
 

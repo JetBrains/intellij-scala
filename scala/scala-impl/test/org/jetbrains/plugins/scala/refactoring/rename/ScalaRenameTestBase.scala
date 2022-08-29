@@ -28,13 +28,13 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     val ioFile: File = new File(filePath)
     var fileText: String = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
     fileText = StringUtil.convertLineSeparators(fileText)
-    configureFromFileTextAdapter(ioFile.getName, fileText)
-    val scalaFile: ScalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    configureFromFileText(ioFile.getName, fileText)
+    val scalaFile: ScalaFile = getFile.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(caretMarker) + caretMarker.length + 1
     assert(offset != caretMarker.length, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")
-    getEditorAdapter.getCaretModel.moveToOffset(offset)
+    getEditor.getCaretModel.moveToOffset(offset)
     val element = TargetElementUtil.findTargetElement(
-      InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(getEditorAdapter, scalaFile): @nowarn("cat=deprecation"),
+      InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(getEditor, scalaFile): @nowarn("cat=deprecation"),
       TargetElementUtil.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtil.ELEMENT_NAME_ACCEPTED)
     assert(element != null, "Reference is not specified.")
     val searchInComments = element.getText.contains("Comments")
@@ -44,10 +44,10 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
 
     //start to inline
     executeWriteActionCommand("Test") {
-      val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditorAdapter)
+      val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditor)
       if (subst == null) return
-      new RenameProcessor(getProjectAdapter, subst, "NameAfterRename", searchInComments, false).run()
-    }(getProjectAdapter)
+      new RenameProcessor(getProject, subst, "NameAfterRename", searchInComments, false).run()
+    }(getProject)
     res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
 
     val text = lastPsi.getText

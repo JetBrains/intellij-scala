@@ -27,7 +27,7 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
   var targetMethod: PsiMember = null
   protected var isAddDefaultValue = false
 
-  implicit def projectContext: ProjectContext = getProjectAdapter
+  implicit def projectContext: ProjectContext = getProject
 
   override def getTestDataPath = folderPath
 
@@ -49,11 +49,11 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
                        newName: String,
                        newReturnType: String,
                        newParams: => Seq[Seq[ParameterInfo]],
-                       settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))): Unit = {
+                       settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))): Unit = {
     val testName = getTestName(false)
 
-    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone()
-    TypeAnnotationSettings.set(getProjectAdapter, settings)
+    val oldSettings = ScalaCodeStyleSettings.getInstance(getProject).clone()
+    TypeAnnotationSettings.set(getProject, settings)
 
     val secondName = secondFileName(testName)
     val checkSecond = secondName != null
@@ -69,12 +69,12 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
 
     processor(newVisibility, newName, newReturnType, newParams).run()
 
-    PostprocessReformattingAspect.getInstance(getProjectAdapter).doPostponedFormatting()
+    PostprocessReformattingAspect.getInstance(getProject).doPostponedFormatting()
 
     val mainAfterText = getTextFromTestData(mainFileAfterName(testName))
     
-    TypeAnnotationSettings.set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
-    assertEquals(mainAfterText, getFileAdapter.getText)
+    TypeAnnotationSettings.set(getProject, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
+    assertEquals(mainAfterText, getFile.getText)
 
     if (checkSecond) {
       val secondAfterText = getTextFromTestData(secondFileAfterName(testName))
@@ -83,7 +83,7 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
   }
 
   protected def addFileToProject(fileName: String, text: String): PsiFile =
-    PsiFileTestUtil.addFileToProject(fileName, text, getProjectAdapter)
+    PsiFileTestUtil.addFileToProject(fileName, text, getProject)
 
   protected def getTextFromTestData(fileName: String) = {
     val file = new File(getTestDataPath + fileName)
@@ -91,7 +91,7 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
   }
 
   protected def getPsiTypeFromText(typeText: String, context: PsiElement): PsiType = {
-    val factory: JavaCodeFragmentFactory = JavaCodeFragmentFactory.getInstance(getProjectAdapter)
+    val factory: JavaCodeFragmentFactory = JavaCodeFragmentFactory.getInstance(getProject)
     factory.createTypeCodeFragment(typeText, context, false).getType
   }
 
@@ -106,7 +106,7 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
 
     val params = newParams.flatten.map(_.asInstanceOf[ParameterInfoImpl]).toArray
 
-    new ChangeSignatureProcessor(getProjectAdapter, psiMethod, /*generateDelegate = */ false,
+    new ChangeSignatureProcessor(getProject, psiMethod, /*generateDelegate = */ false,
       newVisibility, newName, retType, params, Array.empty)
   }
 
@@ -134,7 +134,7 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
       ScalaChangeInfo(newVisibility, targetMethod.asInstanceOf[ScMethodLike], newName, maybeReturnType.getOrElse(Any), params,
         isAddDefaultValue, Some(annotationNeeded))
 
-    new ScalaChangeSignatureProcessor(changeInfo)(getProjectAdapter)
+    new ScalaChangeSignatureProcessor(changeInfo)(getProject)
   }
 }
 

@@ -8,12 +8,10 @@ import scala.annotation.nowarn
 
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 trait KindProjectorSetUp extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  override def getProjectAdapter: Project = super.getProjectAdapter
-
   override protected def setUp(): Unit = {
     super.setUp()
 
-    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProjectAdapter).defaultProfile
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
       plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
     )

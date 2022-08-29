@@ -15,13 +15,13 @@ class AddModifierTest extends base.ScalaLightPlatformCodeInsightTestCaseAdapter 
   import EditorTestUtil.{CARET_TAG => CARET}
 
   def testAbstractModifier(): Unit = {
-    configureFromFileTextAdapter(
+    configureFromFileText(
       "dummy.scala",
       s"@Deprecated class Foo$CARET extends Runnable"
     )
 
     import extensions._
-    val place = getFileAdapter.findElementAt(getEditorAdapter.getCaretModel.getOffset)
+    val place = getFile.findElementAt(getEditor.getCaretModel.getOffset)
     PsiTreeUtil.getParentOfType(place, classOf[ScModifierListOwner]) match {
       case null =>
       case owner => inWriteAction {

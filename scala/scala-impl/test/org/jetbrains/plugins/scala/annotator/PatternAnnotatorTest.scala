@@ -24,9 +24,9 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     ScalaBundle.message("constructor.cannot.be.instantiated.to.expected.type", found, required)
 
   private def collectAnnotatorMessages(text: String): List[Message] = {
-    configureFromFileTextAdapter("dummy.scala", text)
-    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(getFileAdapter)
-    val patterns = getFileAdapter.depthFirst().filterByType[ScPattern]
+    configureFromFileText("dummy.scala", text)
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(getFile)
+    val patterns = getFile.depthFirst().filterByType[ScPattern]
     patterns.foreach(ScPatternAnnotator.annotate(_))
     mock.annotations
   }

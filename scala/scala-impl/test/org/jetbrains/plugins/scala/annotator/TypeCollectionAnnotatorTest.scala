@@ -13,7 +13,7 @@ import scala.annotation.nowarn
 
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[TypecheckerTests]))
-class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter with TestScalaProjectSettings {
+final class TypeCollectionAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter with TestScalaProjectSettings {
   private val immutableCollectionMessage = ScalaBundle.message("scala.immutable.collection")
   private val mutableCollectionMessage = ScalaBundle.message("scala.mutable.collection")
   private val javaCollectionMessage = ScalaBundle.message("java.collection")
@@ -25,11 +25,11 @@ class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAd
   }
 
   private def annotate(text: String): AnnotatorHolderMock = {
-    configureFromFileTextAdapter("dummy.scala", text.replace("\r", ""))
+    configureFromFileText("dummy.scala", text.replace("\r", ""))
 
-    val holder = new AnnotatorHolderMock(getFileAdapter)
+    val holder = new AnnotatorHolderMock(getFile)
 
-    getFileAdapter.asInstanceOf[ScalaFile].breadthFirst().foreach {
+    getFile.asInstanceOf[ScalaFile].breadthFirst().foreach {
       case refElement: ScReference => ScalaColorSchemeAnnotator.highlightReferenceElement(refElement)(holder)
       case _ =>
     }

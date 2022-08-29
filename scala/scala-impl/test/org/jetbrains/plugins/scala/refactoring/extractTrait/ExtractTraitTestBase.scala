@@ -13,20 +13,20 @@ import scala.annotation.nowarn
 abstract class ExtractTraitTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def checkResult(fileText: String, expectedText: String, onlyDeclarations: Boolean, onlyFirstMember: Boolean = false): Unit = {
-    configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
-    implicit val project: Project = getProjectAdapter
-    implicit val editor: Editor = getEditorAdapter
-    new ScalaExtractTraitHandler().testInvoke(getFileAdapter, onlyDeclarations, onlyFirstMember)
+    configureFromFileText("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
+    implicit val project: Project = getProject
+    implicit val editor: Editor = getEditor
+    new ScalaExtractTraitHandler().testInvoke(getFile, onlyDeclarations, onlyFirstMember)
     UsefulTestCase.doPostponedFormatting(project)
     checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
   }
 
   def checkException(fileText: String, messageText: String, onlyDeclarations: Boolean, onlyFirstMember: Boolean): Unit = {
-    configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
+    configureFromFileText("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
     try {
-      implicit val project: Project = getProjectAdapter
-      implicit val editor: Editor = getEditorAdapter
-      new ScalaExtractTraitHandler().testInvoke(getFileAdapter, onlyDeclarations, onlyFirstMember)
+      implicit val project: Project = getProject
+      implicit val editor: Editor = getEditor
+      new ScalaExtractTraitHandler().testInvoke(getFile, onlyDeclarations, onlyFirstMember)
       assert(assertion = false, "Exception was not thrown")
     } catch {
       case e: Exception => assert(messageText == e.getMessage)

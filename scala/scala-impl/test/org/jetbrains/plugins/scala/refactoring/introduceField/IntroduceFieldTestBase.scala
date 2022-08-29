@@ -33,7 +33,7 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
 
   def folderPath: String = baseRootPath + "introduceField/"
 
-  implicit def projectContext: Project = getProjectAdapter
+  implicit def projectContext: Project = getProject
 
   protected def doTest(scType: ScType = Int): Unit = {
     val filePath = folderPath + getTestName(false) + ".scala"
@@ -49,9 +49,9 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
     fileText = fileText.replace(endMarker, "")
 
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
-    val editor = getEditorAdapter
+    configureFromFileText(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
+    val editor = getEditor
     editor.getSelectionModel.setSelection(startOffset, endOffset)
 
     var res: String = null
@@ -69,9 +69,9 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
     //start to inline
     try {
       val handler = new ScalaIntroduceFieldFromExpressionHandler
-      val Some((expr, types)) = getExpressionWithTypes(scalaFile, startOffset, endOffset)(getProjectAdapter, editor)
+      val Some((expr, types)) = getExpressionWithTypes(scalaFile, startOffset, endOffset)(getProject, editor)
       val aClass = expr.parents.toList.filter(_.isInstanceOf[ScTemplateDefinition])(selectedClassNumber).asInstanceOf[ScTemplateDefinition]
-      val ifc = new IntroduceFieldContext[ScExpression](getProjectAdapter, editor, scalaFile, expr, types, aClass)
+      val ifc = new IntroduceFieldContext[ScExpression](getProject, editor, scalaFile, expr, types, aClass)
       val settings = new IntroduceFieldSettings[ScExpression](ifc)
       settings.replaceAll = replaceAll
       initInDecl.foreach(settings.initInDeclaration = _)
@@ -81,7 +81,7 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
 
       executeWriteActionCommand("Test", UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION) {
         handler.runRefactoring(ifc, settings)
-        UsefulTestCase.doPostponedFormatting(getProjectAdapter)
+        UsefulTestCase.doPostponedFormatting(getProject)
       }
 
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim

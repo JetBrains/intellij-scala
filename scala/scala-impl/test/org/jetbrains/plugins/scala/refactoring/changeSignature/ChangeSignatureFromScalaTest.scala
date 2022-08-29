@@ -19,7 +19,7 @@ class ChangeSignatureFromScalaTest extends ChangeSignatureTestBase {
   override def secondFileAfterName(testName: String) = testName + "_after.java"
 
   override def findTargetElement: PsiMember = {
-    val element = new ScalaChangeSignatureHandler().findTargetMember(getFileAdapter, getEditorAdapter)
+    val element = new ScalaChangeSignatureHandler().findTargetMember(getFile, getEditor)
     assertTrue("<caret> is not on method name", element.isInstanceOf[ScMethodLike])
     element.asInstanceOf[ScMethodLike]
   }
@@ -32,7 +32,7 @@ class ChangeSignatureFromScalaTest extends ChangeSignatureTestBase {
   }
 
   private def parameterInfo(name: String, oldIdx: Int, tpe: ScType, defVal: String = "", isRep: Boolean = false, isByName: Boolean = false) = {
-    new ScalaParameterInfo(name, oldIdx, tpe, getProjectAdapter, isRep, isByName, defVal)
+    new ScalaParameterInfo(name, oldIdx, tpe, getProject, isRep, isByName, defVal)
   }
 
   def testSimpleMethod(): Unit = {

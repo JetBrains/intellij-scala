@@ -55,7 +55,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     for {
       CaretPosition(vFile, offset) <- caretPositions
     } {
-      val file = getPsiManagerAdapter.findFile(vFile)
+      val file = getPsiManager.findFile(vFile)
       val editor = myEditors(vFile)
       editor.getCaretModel.moveToOffset(offset)
 
@@ -114,11 +114,11 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     LightPlatformTestCase.closeAndDeleteProject()
   }
 
-  private def projectAdapter = getProjectAdapter
-  private def moduleAdapter = getModuleAdapter
+  private def projectAdapter = getProject
+  private def moduleAdapter = getModule
 
   private def doRename(editor: Editor, file: PsiFile, newName: String): String = {
-    PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
+    PsiDocumentManager.getInstance(getProject).commitAllDocuments()
     FileDocumentManager.getInstance.saveAllDocuments()
 
     val element = TargetElementUtil.findTargetElement(
@@ -128,14 +128,14 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     val searchInComments = element.getText != null && element.getText.contains("Comments")
     var oldName: String = ""
     inWriteAction {
-      val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditorAdapter)
+      val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditor)
       if (subst != null) {
         oldName = ScalaNamesUtil.scalaName(subst)
         new RenameProcessor(projectAdapter, subst, newName, searchInComments, false).run()
       }
     }
-    val document = PsiDocumentManager.getInstance(getProjectAdapter).getDocument(file)
-    PsiDocumentManager.getInstance(getProjectAdapter).doPostponedOperationsAndUnblockDocument(document)
+    val document = PsiDocumentManager.getInstance(getProject).getDocument(file)
+    PsiDocumentManager.getInstance(getProject).doPostponedOperationsAndUnblockDocument(document)
     oldName
   }
 }

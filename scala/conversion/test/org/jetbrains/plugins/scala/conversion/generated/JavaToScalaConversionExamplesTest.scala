@@ -47,7 +47,7 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
   def testNeedConstructorsSorting(): Unit = doTest()
 
   def testNoOverrideToImplement(): Unit = {
-    val projectSettings = settings.ScalaProjectSettings.getInstance(getProjectAdapter)
+    val projectSettings = settings.ScalaProjectSettings.getInstance(getProject)
     val oldValue = projectSettings.isAddOverrideToImplementInConverter
 
     projectSettings.setAddOverrideToImplementInConverter(false)
@@ -67,12 +67,12 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
 
   def testNoReturnTypeForPublic(): Unit =
     doTest(noTypeAnnotationForPublic(
-      alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
+      alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject)))
     )
 
   def testNoRetunTypeForLocal(): Unit =
     doTest(noTypeAnnotationForLocal(
-      alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+      alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))
     ))
 
   def testImports(): Unit = doTest()

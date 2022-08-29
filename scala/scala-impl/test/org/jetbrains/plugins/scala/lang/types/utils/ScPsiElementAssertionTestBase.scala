@@ -32,8 +32,8 @@ abstract class ScPsiElementAssertionTestBase[T <: PsiElement : ClassTag]
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    configureFromFileText(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(startExprMarker)
     val startOffset = offset + startExprMarker.length
 

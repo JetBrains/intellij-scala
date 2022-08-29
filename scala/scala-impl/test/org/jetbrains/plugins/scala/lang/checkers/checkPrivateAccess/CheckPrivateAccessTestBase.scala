@@ -30,8 +30,8 @@ abstract class CheckPrivateAccessTestBase extends ScalaLightPlatformCodeInsightT
     assertNotNull("file " + filePath + " not found", file)
 
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    configureFromFileText(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(refMarker) + refMarker.length
     assertNotEquals("Not specified caret marker in test case. Use " + refMarker + " in scala file for this.", offset, refMarker.length - 1)
 

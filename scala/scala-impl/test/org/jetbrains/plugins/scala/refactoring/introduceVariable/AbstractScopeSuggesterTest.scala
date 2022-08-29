@@ -29,7 +29,7 @@ abstract class AbstractScopeSuggesterTest extends ScalaLightPlatformCodeInsightT
     assert(file != null, "file " + filePath + " not found")
 
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    configureFromFileText(getTestName(false) + ".scala", fileText)
 
     val startOffset = fileText.indexOf(BEGIN_MARKER) + BEGIN_MARKER.length
     val endOffset = fileText.indexOf(END_MARKER)
@@ -41,7 +41,7 @@ abstract class AbstractScopeSuggesterTest extends ScalaLightPlatformCodeInsightT
 
     editor.getSelectionModel.setSelection(startOffset, endOffset)
 
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
     @nowarn("cat=deprecation")
     var element = CommonDataKeys.PSI_ELEMENT.getData(DataManager.getInstance().getDataContextFromFocus.getResult)
     if (element == null) {

@@ -41,13 +41,13 @@ abstract class AdjustTypesTestBase extends ScalaLightPlatformCodeInsightTestCase
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
     fileText = fileText.replace(endMarker, "")
 
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    configureFromFileText(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
     val element = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset, endOffset, classOf[PsiElement])
 
     inWriteAction {
       ScalaPsiUtil.adjustTypes(element)
-      UsefulTestCase.doPostponedFormatting(getProjectAdapter)
+      UsefulTestCase.doPostponedFormatting(getProject)
     }
 
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)

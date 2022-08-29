@@ -37,15 +37,15 @@ abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTe
     assertNotNull(s"file $filePath not found", file)
 
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    configureFromFileText(getTestName(false) + ".scala", fileText)
 
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(EditorTestUtil.CARET_TAG)
     assertNotEquals(s"Caret marker not found.", offset, -1)
 
-    val project = getProjectAdapter
+    val project = getProject
     val editor = FileEditorManager.getInstance(project)
-      .openTextEditor(new OpenFileDescriptor(project, getVFileAdapter, offset), false)
+      .openTextEditor(new OpenFileDescriptor(project, getVFile, offset), false)
     new CodeCompletionHandlerBase(CompletionType.BASIC, false, false, true)
       .invokeCompletion(project, editor)
 

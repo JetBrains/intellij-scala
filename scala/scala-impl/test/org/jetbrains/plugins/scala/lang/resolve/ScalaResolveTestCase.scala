@@ -42,14 +42,14 @@ abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsightTestCas
     else SharedTestProjectToken.DoNotShare
 
   protected def findReferenceAtCaret(): PsiReference =
-    getFileAdapter.findReferenceAt(getEditorAdapter.getCaretModel.getOffset)
+    getFile.findReferenceAt(getEditor.getCaretModel.getOffset)
 
   protected def findAllReferencesAtCarets: Seq[PsiReference] = {
-    val carets = getEditorAdapter.getCaretModel.getAllCarets.asScala.toSeq
+    val carets = getEditor.getCaretModel.getAllCarets.asScala.toSeq
     assertTrue("no carets found", carets.nonEmpty)
     carets.map { caret =>
       val offset = caret.getOffset
-      getFileAdapter.findReferenceAt(offset)
+      getFile.findReferenceAt(offset)
     }
   }
 
@@ -84,7 +84,7 @@ abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsightTestCas
       offset = fileText.indexOf(RefTag)
     }
 
-    configureFromFileTextAdapter(fileName, fileText)
+    configureFromFileText(fileName, fileText)
 
     val caretModel = getEditor.getCaretModel
     caretOffsets.toSeq match {

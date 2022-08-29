@@ -37,13 +37,13 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
 
   protected def doTest(): Unit = {
     import _root_.org.junit.Assert._
-    implicit val project: Project = getProjectAdapter
+    implicit val project: Project = getProject
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    configureFromFileText(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
     val startOffset = fileText.indexOf(startMarker) + startMarker.length
     assert(startOffset != -1 + startMarker.length,
       "Not specified start marker in test case. Use /*start*/ in scala file for this.")
@@ -52,7 +52,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
 
     val fileEditorManager = FileEditorManager.getInstance(project)
     implicit val editor: Editor = fileEditorManager
-      .openTextEditor(new OpenFileDescriptor(project, getVFileAdapter, startOffset), false)
+      .openTextEditor(new OpenFileDescriptor(project, getVFile, startOffset), false)
 
     var res: String = null
 

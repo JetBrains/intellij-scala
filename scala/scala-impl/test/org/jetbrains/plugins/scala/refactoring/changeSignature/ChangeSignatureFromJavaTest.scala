@@ -25,7 +25,7 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
   }
 
   override def findTargetElement: PsiMember = {
-    val element = new JavaChangeSignatureHandler().findTargetMember(getFileAdapter, getEditorAdapter)
+    val element = new JavaChangeSignatureHandler().findTargetMember(getFile, getEditor)
     assertTrue("<caret> is not on method name", element.isInstanceOf[PsiMethod])
     element.asInstanceOf[PsiMethod]
   }

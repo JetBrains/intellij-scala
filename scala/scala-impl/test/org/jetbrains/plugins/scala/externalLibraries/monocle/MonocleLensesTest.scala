@@ -31,8 +31,8 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   def doTest(text: String, methodName: String, expectedType: String): Unit = {
     val normalized = text.withNormalizedSeparator.trim
     val caretPos = normalized.indexOf("<caret>")
-    configureFromFileTextAdapter("dummy.scala", normalized.replace("<caret>", ""))
-    val exp = PsiTreeUtil.findElementOfClassAtOffset(getFileAdapter, caretPos, classOf[ScalaPsiElement], false).asInstanceOf[ScObject]
+    configureFromFileText("dummy.scala", normalized.replace("<caret>", ""))
+    val exp = PsiTreeUtil.findElementOfClassAtOffset(getFile, caretPos, classOf[ScalaPsiElement], false).asInstanceOf[ScObject]
     exp.allMethods.find(_.name == methodName) match {
       case Some(x) => x.method.asInstanceOf[ScFunctionDefinition].returnType match {
         case Right(t) => assertEquals(s"${t.toString} != $expectedType", expectedType, t.toString)

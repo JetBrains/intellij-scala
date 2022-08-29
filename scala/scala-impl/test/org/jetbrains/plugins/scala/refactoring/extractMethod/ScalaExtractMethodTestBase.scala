@@ -30,8 +30,8 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
   def folderPath: String = baseRootPath + "extractMethod/"
 
   protected def doTest(
-    settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
-  ): Unit = withSettings(settings, getProjectAdapter) {
+    settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))
+  ): Unit = withSettings(settings, getProject) {
     val fileName = s"${getTestName(false)}.scala"
     val filePath = s"$folderPath$fileName".replace(File.separatorChar, '/')
     val vFile = LocalFileSystem.getInstance.findFileByPath(filePath)
@@ -39,10 +39,10 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
 
     val (fileText, scopeOffset, startOffset, endOffset) = extractFileContentText(filePath)
 
-    configureFromFileTextAdapter(fileName, fileText)
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    configureFromFileText(fileName, fileText)
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
 
-    invokeExtractMethodRefactoring(scalaFile, scopeOffset, startOffset, endOffset)(getProjectAdapter)
+    invokeExtractMethodRefactoring(scalaFile, scopeOffset, startOffset, endOffset)(getProject)
 
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
 
@@ -56,12 +56,12 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
   private def invokeExtractMethodRefactoring(scalaFile: ScalaFile, scopeOffset: Int, startOffset: Int, endOffset: Int)
                                             (project: Project): Unit = {
     val editorManager = FileEditorManager.getInstance(project)
-    val editor = editorManager.openTextEditor(new OpenFileDescriptor(project, getVFileAdapter, startOffset), false)
+    val editor = editorManager.openTextEditor(new OpenFileDescriptor(project, getVFile, startOffset), false)
     editor.getSelectionModel.setSelection(startOffset, endOffset)
 
     val context = SimpleDataContext.getSimpleContext(chosenTargetScopeKey, scopeOffset)
     val handler = new ScalaExtractMethodHandler
-    handler.invoke(project, getEditorAdapter, scalaFile, context)
+    handler.invoke(project, getEditor, scalaFile, context)
     UsefulTestCase.doPostponedFormatting(project)
   }
 

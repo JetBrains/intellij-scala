@@ -10,6 +10,6 @@ trait TestScalaProjectSettings {
   self: ScalaLightPlatformCodeInsightTestCaseAdapter =>
 
   def scalaProjectSettings: ScalaProjectSettings =
-    ScalaProjectSettings.getInstance(getProjectAdapter)
+    ScalaProjectSettings.getInstance(getProject)
 
 }

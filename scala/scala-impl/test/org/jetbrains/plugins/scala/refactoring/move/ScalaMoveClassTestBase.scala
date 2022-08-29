@@ -42,7 +42,7 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
     val rootBefore = root + "/before"
     val rootAfter  = root + "/after"
     findAndRefreshVFile(rootBefore)
-    rootDirBefore = PsiTestUtil.createTestProjectStructure(getProjectAdapter, getModuleAdapter, rootBefore, new util.HashSet[Path](), true)
+    rootDirBefore = PsiTestUtil.createTestProjectStructure(getProject, getModule, rootBefore, new util.HashSet[Path](), true)
     rootDirAfter = findAndRefreshVFile(rootAfter)
   }
 
@@ -58,10 +58,10 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
     try {
       performAction(classNames, newPackageName, mode)
     } finally {
-      PsiTestUtil.removeSourceRoot(getModuleAdapter, rootDirBefore)
+      PsiTestUtil.removeSourceRoot(getModule, rootDirBefore)
     }
     settings.MOVE_COMPANION = moveCompanionOld
-    PostprocessReformattingAspect.getInstance(getProjectAdapter).doPostponedFormatting()
+    PostprocessReformattingAspect.getInstance(getProject).doPostponedFormatting()
     PlatformTestUtil.assertDirectoriesEqual(rootDirAfter, rootDirBefore)
   } catch {
     case ex: Throwable =>
@@ -76,8 +76,8 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
       for {
         name <- classNames
         clazz <- {
-          val projectScope = GlobalSearchScope.allScope(getProjectAdapter)
-          val cachedClasses = ScalaPsiManager.instance(getProjectAdapter).getCachedClasses(projectScope, name)
+          val projectScope = GlobalSearchScope.allScope(getProject)
+          val cachedClasses = ScalaPsiManager.instance(getProject).getCachedClasses(projectScope, name)
           val cachedClassesFiltered = cachedClasses.filter {
             case o: ScObject if o.isSyntheticObject => false
             case _: ScClass if mode == Kinds.onlyObjects => false
@@ -91,10 +91,10 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
     //keeping hard refs to AST nodes to avoid flaky tests (as a workaround for SCL-20527 (see solution proposals))
     var myASTHardRefs: Seq[ASTNode] = classesToMove.map(_.getNode)
 
-    val targetPackage: PsiPackage = JavaPsiFacade.getInstance(getProjectAdapter).findPackage(targetPackageName)
+    val targetPackage: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(targetPackageName)
     assertNotNull(s"Can't find package '$targetPackageName'", targetPackage)
 
-    val dirs: Array[PsiDirectory] = targetPackage.getDirectories(GlobalSearchScope.moduleScope(getModuleAdapter))
+    val dirs: Array[PsiDirectory] = targetPackage.getDirectories(GlobalSearchScope.moduleScope(getModule))
     assertEquals("Expected only single directory in module", 1, dirs.length)
     val targetDirectory: PsiDirectory = dirs(0)
 
@@ -102,7 +102,7 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
       val targetPackageWrapper = PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(targetDirectory))
       val destination = new SingleSourceRootMoveDestination(targetPackageWrapper, targetDirectory)
       val processor = new MoveClassesOrPackagesProcessor(
-        getProjectAdapter,
+        getProject,
         classesToMove.toArray,
         destination,
         true,
@@ -112,7 +112,7 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
       processor.run()
     }
 
-    PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
+    PsiDocumentManager.getInstance(getProject).commitAllDocuments()
 
     myASTHardRefs = null
   }
