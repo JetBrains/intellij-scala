@@ -84,12 +84,11 @@ object HighlightingProgressReporter {
 
   def newInstance(
     testClassName: String,
-    filesWithProblems: Map[String, Set[TextRange]],
-    reportStatus: Boolean = true
+    filesWithProblems: Map[String, Set[TextRange]]
   ): HighlightingProgressReporter = {
     val isRunningInTeamcity = sys.env.contains("TEAMCITY_VERSION")
     if (isRunningInTeamcity)
-      new TeamCityHighlightingProgressReporter(testClassName, filesWithProblems, reportStatus)
+      new TeamCityHighlightingProgressReporter(testClassName, filesWithProblems)
     else
       new ConsoleHighlightingProgressReporter(testClassName, filesWithProblems)
   }

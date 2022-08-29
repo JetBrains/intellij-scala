@@ -6,11 +6,11 @@ import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProg
 import org.junit.Assert
 
 import java.io.PrintStream
+import scala.collection.mutable
 
 class TeamCityHighlightingProgressReporter(
   testClassName: String,
   override val filesWithProblems: Map[String, Set[TextRange]],
-  reportStatus: Boolean
 ) extends HighlightingProgressReporter {
 
   import TeamCityHighlightingProgressReporter._
@@ -29,49 +29,29 @@ class TeamCityHighlightingProgressReporter(
     val errors = unexpectedErrors
     val totalErrors = errors.size
 
-    var testShouldFail = false
+    val testFailureMessageBuilder = new mutable.StringBuilder
     if (totalErrors > 0) {
-      testsClassesWithProblems += testClassName
-      tcPrinter.tcPrintBuildProblem(s"Found $totalErrors errors in $testClassName")
-      tcPrinter.tcPrintErrorMessage(
-        s"""Unexpected errors highlighted:
-           |${errors.map(_.summaryString).mkString("\n")}""".stripMargin
-      )
-      testShouldFail = true
+      testFailureMessageBuilder.append(s"Found $totalErrors unexpected errors:\n")
+      errors.map(_.summaryString).foreach { errorSummary =>
+        testFailureMessageBuilder.append(errorSummary).append("\n")
+      }
     }
 
     val noErrorsButExpected = unexpectedSuccess
     if (noErrorsButExpected.nonEmpty) {
-      testsClassesWithProblems += testClassName
-
       val reportSuccess =
         s"""Looks like you've fixed highlighting in files: ${noErrorsButExpected.mkString(", ")}
            |Remove them from `$testClassName.filesWithProblems`
            |""".stripMargin
-      tcPrinter.tcPrintBuildProblem(reportSuccess)
-      testShouldFail = true
-    }
-
-    if (reportStatus) {
-      //NOTE:
-      //build status messages are not collected by TeamCity
-      //Each report of build status overrides any build status reported before.
-      //Also mind that we collect `testsWithProblems` in static field which is shared by all tests
-      //So if we report "Problem found in TestClass1"
-      //and later report "Problem found in TestClass1, TestClass2"
-      //the resulting status will be "Problem found in TestClass1, TestClass2"
-      if (testsClassesWithProblems.isEmpty) {
-        // NOTE: do not set build status, otherwise, even if there were failed tests before current test class,
-        //  that "FAILURE" status will be overwritten by this 'SUCCESS' status.
-        //  It results into "success" builds with failed tests.
-      } else {
-        val testNames = testsClassesWithProblems.mkString(", ")
-        tcPrinter.tcPrintBuildStatus("FAILURE", s"Problems found in $testNames")
+      if (testFailureMessageBuilder.nonEmpty) {
+        testFailureMessageBuilder.append("\n###\n")
       }
+      testFailureMessageBuilder.append(reportSuccess)
     }
 
-    if (testShouldFail) {
-      Assert.fail("Unexpected errors highlighted. Please see build problems overview to see the details")
+    val testFailureMessage = testFailureMessageBuilder.toString()
+    if (testFailureMessage.nonEmpty) {
+      Assert.fail(testFailureMessage)
     }
   }
 
@@ -90,13 +70,13 @@ class TeamCityHighlightingProgressReporter(
 }
 
 object TeamCityHighlightingProgressReporter {
-  private var testsClassesWithProblems: Set[String] = Set.empty
 
   /**
    * See https://www.jetbrains.com/help/teamcity/service-messages.html#Reporting+Messages+to+Build+Log
    *
    * @note we also have org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils, we might unify them to some nice API
    */
+  //noinspection ScalaUnusedSymbol
   private class TeamcityPrinter(output: PrintStream) {
     //noinspection ApiStatus
 
@@ -120,7 +100,7 @@ object TeamCityHighlightingProgressReporter {
       tcPrint(s"progressMessage '${escape(content)}'")
     }
 
-    def tcPrintBuildProblem(description: String): Unit = {
+    def  tcPrintBuildProblem(description: String): Unit = {
       tcPrint(s"buildProblem '${escape(description)}'")
     }
 
