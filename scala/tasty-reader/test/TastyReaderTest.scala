@@ -6,7 +6,7 @@ import org.junit.Assert.*
 import java.nio.file.{Files, Path}
 import scala.util.control.NonFatal
 
-// path / projection, in term / type, nested / inherited scope
+// TODO
 // test quotes in textOfType, given, extension, package, qualifier (plus format)
 // enum companion: case(), object
 // Target names
@@ -94,7 +94,7 @@ class TastyReaderTest extends TestCase {
   def testParameterRepeated(): Unit = doTest("parameter/Repeated")
   def testParameterTrait(): Unit = doTest("parameter/Trait")
   def testParameterType(): Unit = doTest("parameter/Type")
-  def testParameterVariance(): Unit = doTest("parameter/Variance") // TypeMember
+  def testParameterVariance(): Unit = doTest("parameter/Variance") // TODO TypeMember
   def testTypeDefinitionClass(): Unit = doTest("typeDefinition/Class")
   def testTypeDefinitionCompanions(): Unit = doTest("typeDefinition/Companions")
   def testTypeDefinitionEnum(): Unit = doTest("typeDefinition/Enum")
