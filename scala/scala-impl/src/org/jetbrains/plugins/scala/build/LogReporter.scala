@@ -31,18 +31,21 @@ class LogReporter extends BuildReporter {
 
   /** Show warning message. */
   override def warning(message: String, position: Option[FilePosition]): Unit = {
-    logger.warn(s"$message at $position")
+    logger.warn(s"$message${positionText(position)}")
   }
 
   /** Show error message. */
   override def error(message: String, position: Option[FilePosition]): Unit = {
-    logger.error(s"$message at $position")
+    logger.error(s"$message${positionText(position)}")
   }
 
   /** Show message. */
   override def info(message: String, position: Option[FilePosition]): Unit = {
-    logger.info(s"$message at $position")
+    logger.info(s"$message${positionText(position)}")
   }
+
+  private def positionText(position: Option[FilePosition]): String =
+    position.fold("")(pos => s" at $pos")
 
   /** Clear any messages associated with file. */
   override def clear(file: File): Unit = {
