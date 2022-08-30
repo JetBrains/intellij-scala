@@ -41,7 +41,7 @@ abstract class ImportElementFixTestBase[Psi <: PsiElement : ClassTag]
   private def configureAndCreateFix(fileText: String): ScalaImportElementFix[_ <: ElementToImport] = {
     val file = configureFromFileText(fileType, fileText)
     val clazz = implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]]
-    val element = PsiTreeUtil.findElementOfClassAtOffset(file, getEditorOffset, clazz, false)
+    val element = PsiTreeUtil.findElementOfClassAtOffset(file, getEditor.getCaretModel.getOffset, clazz, false)
     createFix(element).getOrElse(throw NoFixException(element))
   }
 

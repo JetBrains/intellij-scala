@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.externalLibraries.monocle
 
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -14,8 +14,7 @@ import org.junit.Assert._
 
 import scala.annotation.nowarn
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+class MonocleLensesTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   protected val (monocleOrg, monocleVer) = ("com.github.julien-truffaut", "1.5.0")
 

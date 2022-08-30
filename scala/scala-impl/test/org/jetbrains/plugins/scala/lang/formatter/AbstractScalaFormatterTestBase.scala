@@ -31,15 +31,17 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 
   protected def language: Language = ScalaLanguage.INSTANCE
 
-  protected def getCommonSettings = getSettings.getCommonSettings(language)
-  protected def getScalaSettings = getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-  protected def getIndentOptions = getCommonSettings.getIndentOptions
-  protected def getSettings = CodeStyle.getSettings(getProject)
+  protected final def getCommonSettings = getSettings.getCommonSettings(language)
+  protected final def getScalaSettings = getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+  protected final def getIndentOptions = getCommonSettings.getIndentOptions
+  protected final def getSettings = CodeStyle.getSettings(getProject)
 
-  protected def scalaSettings = getScalaSettings
-  protected def commonSettings = getCommonSettings
-  protected def ss = getScalaSettings
-  protected def cs = getCommonSettings
+  protected final def getScalaCodeStyleSettings = getScalaSettings
+
+  protected final def scalaSettings = getScalaSettings
+  protected final def commonSettings = getCommonSettings
+  protected final def ss = getScalaSettings
+  protected final def cs = getCommonSettings
 
   implicit protected def project: Project = getProject
 

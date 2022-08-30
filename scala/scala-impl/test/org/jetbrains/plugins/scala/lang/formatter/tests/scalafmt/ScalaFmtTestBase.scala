@@ -39,16 +39,16 @@ trait ScalaFmtSelectionTestBase extends ScalaFmtTestBase {
 
 trait ScalaFmtForTestsSetupOps extends UsefulTestCase {
 
-  protected def getScalaSettings: ScalaCodeStyleSettings
+  protected def getScalaCodeStyleSettings: ScalaCodeStyleSettings
 
   override def setUp(): Unit = {
     super.setUp()
-    val scalaSettings = getScalaSettings
+    val scalaSettings = getScalaCodeStyleSettings
     scalaSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
     scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS = false
 
     scalaSettings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS = true
-    getScalaSettings.SCALAFMT_CONFIG_PATH = ""
+    scalaSettings.SCALAFMT_CONFIG_PATH = ""
     configIsSet = false
   }
 
@@ -61,7 +61,7 @@ trait ScalaFmtForTestsSetupOps extends UsefulTestCase {
   final def setScalafmtConfig(configFile: String): Unit = {
     if (configIsSet)
       throw new AssertionError("scalafmt config should be set only once")
-    getScalaSettings.SCALAFMT_CONFIG_PATH = scalafmtConfigsBasePath + configFile
+    getScalaCodeStyleSettings.SCALAFMT_CONFIG_PATH = scalafmtConfigsBasePath + configFile
     configIsSet = true
   }
 }

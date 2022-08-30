@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.junit.Assert
 
 class MacroBundleTest extends ScalaResolveTestCase {
-  override protected def isIncludeReflectLibrary = true
+  override protected def includeReflectLibrary: Boolean = true
 
   override def folderPath = super.folderPath + "resolve/macroBundle/"
 

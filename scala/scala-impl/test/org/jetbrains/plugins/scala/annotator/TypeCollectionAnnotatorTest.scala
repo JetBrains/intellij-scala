@@ -1,19 +1,18 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, TestScalaProjectSettings}
+import org.jetbrains.plugins.scala.{ScalaBundle, TypecheckerTests}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaCollectionHighlightingLevel
 import org.junit.experimental.categories.Category
 
-import scala.annotation.nowarn
-
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[TypecheckerTests]))
-final class TypeCollectionAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter with TestScalaProjectSettings {
+final class TypeCollectionAnnotatorTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
   private val immutableCollectionMessage = ScalaBundle.message("scala.immutable.collection")
   private val mutableCollectionMessage = ScalaBundle.message("scala.mutable.collection")
   private val javaCollectionMessage = ScalaBundle.message("java.collection")
@@ -21,7 +20,7 @@ final class TypeCollectionAnnotatorTest extends ScalaLightPlatformCodeInsightTes
   protected override def setUp(): Unit = {
     super.setUp()
 
-    scalaProjectSettings.setCollectionTypeHighlightingLevel(ScalaCollectionHighlightingLevel.All)
+    ScalaProjectSettings.getInstance(getProject).setCollectionTypeHighlightingLevel(ScalaCollectionHighlightingLevel.All)
   }
 
   private def annotate(text: String): AnnotatorHolderMock = {

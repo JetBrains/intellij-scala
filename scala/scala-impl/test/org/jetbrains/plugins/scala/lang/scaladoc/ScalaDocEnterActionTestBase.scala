@@ -19,7 +19,7 @@ abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureT
 
   override protected def setUp(): Unit = {
     super.setUp()
-    val scalaSettings = getCurrentCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val scalaSettings = getScalaCodeStyleSettings
     scalaSettings.USE_SCALADOC2_FORMATTING = false // some tests have intentionally broken scaladoc formatting
   }
 

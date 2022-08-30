@@ -8,13 +8,9 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
-import scala.annotation.nowarn
-
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-class ScalaDelegateMethodTest extends base.ScalaLightPlatformCodeInsightTestCaseAdapter
+class ScalaDelegateMethodTest extends base.ScalaLightCodeInsightFixtureTestAdapter
   with ScalaDelegateMethodTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET}
   import ScalaDelegateMethodTestBase._
 
   private def doTest(fileText: String, expectedText: String,
@@ -24,7 +20,7 @@ class ScalaDelegateMethodTest extends base.ScalaLightPlatformCodeInsightTestCase
 
     implicit val editor: Editor = getEditor
     doTest(getFile, settings)
-    checkResultByText(StringUtil.convertLineSeparators(expectedText))
+    myFixture.checkResult(StringUtil.convertLineSeparators(expectedText))
   }
 
   def testVal(): Unit = {

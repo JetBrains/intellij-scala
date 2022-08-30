@@ -22,7 +22,7 @@ class SbtAnnotationInspectionTest extends TypeAnnotationInspectionTest with Mock
   protected override def setUp(): Unit = {
     super.setUp()
 
-    val settings = getScalaSettings
+    val settings = getScalaCodeStyleSettings
     import settings._
 
     excludeWhenTypeIsStable = TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_STABLE
@@ -36,7 +36,7 @@ class SbtAnnotationInspectionTest extends TypeAnnotationInspectionTest with Mock
   }
 
   override def tearDown(): Unit = {
-    val settings = getScalaSettings
+    val settings = getScalaCodeStyleSettings
     import settings._
 
     TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_STABLE = excludeWhenTypeIsStable

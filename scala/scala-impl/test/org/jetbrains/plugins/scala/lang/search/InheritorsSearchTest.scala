@@ -11,8 +11,9 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 class InheritorsSearchTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private def doTest(fileText: String, expectedSubclassNames: String*): Unit = {
     val file = configureFromFileText(fileText)
-    assertTrue("Caret position is missing", getEditorOffset > 0)
-    val clazz = file.findElementAt(getEditorOffset).parentOfType[PsiClass].get
+    val caretOffset = getEditor.getCaretModel.getOffset
+    assertTrue("Caret position is missing", caretOffset > 0)
+    val clazz = file.findElementAt(caretOffset).parentOfType[PsiClass].get
     val inheritors =
       ClassInheritorsSearch.search(clazz, clazz.getUseScope, true)
         .findAll

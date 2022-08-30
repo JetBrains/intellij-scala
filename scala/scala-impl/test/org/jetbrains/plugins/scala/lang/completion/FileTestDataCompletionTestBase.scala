@@ -1,29 +1,26 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
+package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import org.jetbrains.plugins.scala.CompletionTests
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 import java.io.File
-import scala.annotation.nowarn
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[CompletionTests]))
-abstract class FileTestDataCompletionTestBase extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class FileTestDataCompletionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   // Must be lazy so it can be overridden without early initializers
   protected lazy val caretMarker = "/*caret*/"
   protected lazy val extension: String = "scala"
 
-  def folderPath: String = baseRootPath + "completion/"
+  def folderPath: String = getTestDataPath + "completion/"
 
   /**
    * Fetches last PSI element, checks if it is comment or not
@@ -33,7 +30,7 @@ abstract class FileTestDataCompletionTestBase extends base.ScalaLightPlatformCod
    * @return Expected result string
    */
   protected final def getExpectedResult: String = {
-    import lang.lexer.ScalaTokenTypes._
+    import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
     val scalaFile = getFile.asInstanceOf[ScalaFile]
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
@@ -77,9 +74,7 @@ abstract class FileTestDataCompletionTestBase extends base.ScalaLightPlatformCod
       case index => index
     }
 
-    val project = getProject
-    val editor = FileEditorManager.getInstance(project)
-      .openTextEditor(new OpenFileDescriptor(project, getVFile, offset), false)
+    val editor = openEditorAtOffset(offset)
 
     val completionType = if (fileName.startsWith("Smart")) CompletionType.SMART else CompletionType.BASIC
     new CodeCompletionHandlerBase(
@@ -87,7 +82,7 @@ abstract class FileTestDataCompletionTestBase extends base.ScalaLightPlatformCod
       false,
       false,
       true
-    ).invokeCompletion(project, editor)
+    ).invokeCompletion(getProject, editor)
 
     val items = LookupManager.getActiveLookup(editor) match {
       case lookup: LookupImpl =>

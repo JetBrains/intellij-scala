@@ -24,7 +24,7 @@ class CreateScalaDocStubActionTest extends ScalaLightCodeInsightFixtureTestAdapt
 
     myFixture.checkResult(expected, stripTrailingSpaces)
 
-    assertEquals("Wrong caret offset", expectedOffset, getEditorOffset)
+    assertEquals("Wrong caret offset", expectedOffset, getEditor.getCaretModel.getOffset)
   }
 
   def testClass_WithoutParameters(): Unit = {

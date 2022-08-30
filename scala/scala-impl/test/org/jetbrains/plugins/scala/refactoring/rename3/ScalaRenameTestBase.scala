@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.refactoring
 package rename3
 
 import com.intellij.codeInsight.TargetElementUtil
+import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
@@ -12,7 +14,7 @@ import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.refactoring.rename.{RenameProcessor, RenamePsiElementProcessor}
 import com.intellij.testFramework.{LightPlatformTestCase, PlatformTestUtil, PsiTestUtil}
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -22,8 +24,7 @@ import java.util
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   protected val caretMarker = "/*caret*/"
 
@@ -36,21 +37,21 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
   private def rootBefore = (folderPath + getTestName(true) + "/before").replace(File.separatorChar, '/')
   private def rootAfter = (folderPath + getTestName(true) + "/after").replace(File.separatorChar, '/')
 
-  override protected def afterSetUpProject(module: Module): Unit = {
-    super.afterSetUpProject(module)
+  override protected def afterSetUpProject(project: Project, module: Module): Unit = {
+    super.afterSetUpProject(project, module)
     LocalFileSystem.getInstance().refresh(false)
-    myDirectory = PsiTestUtil.createTestProjectStructure(projectAdapter, moduleAdapter, rootBefore, new util.HashSet[Path](), true)
+    myDirectory = PsiTestUtil.createTestProjectStructure(project, module, rootBefore, new util.HashSet[Path](), true)
     filesBefore =
       VfsUtil.collectChildrenRecursively(myDirectory.findChild("tests")).asScala
         .filter(!_.isDirectory)
         .toSeq
     //hack to avoid pointer leak: if pointer is created early enough it is not considered leak
-    filesBefore.foreach(VirtualFilePointerManager.getInstance().create(_, projectAdapter, null))
+    filesBefore.foreach(VirtualFilePointerManager.getInstance().create(_, project, null))
   }
 
   protected def doTest(newName: String = "NameAfterRename"): Unit = {
     val caretPositions = findCaretsAndRemoveMarkers(filesBefore)
-    PsiDocumentManager.getInstance(projectAdapter).commitAllDocuments()
+    PsiDocumentManager.getInstance(getProject).commitAllDocuments()
     myEditors = createEditors(filesBefore)
 
     for {
@@ -78,7 +79,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
   case class CaretPosition(file: VirtualFile, offset: Int)
 
   private def findCaretsAndRemoveMarkers(files: Seq[VirtualFile]): Seq[CaretPosition] = {
-    val caretsInFile: VirtualFile => Seq[CaretPosition] = { file =>
+    def caretsInFile(file: VirtualFile): Seq[CaretPosition] = {
       var text = fileText(file)
       val fileLength = text.length
       val offsets: Seq[Int] = {
@@ -96,14 +97,24 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
 
       val result = offsets.map(offset => CaretPosition(file, offset))
       if (result.nonEmpty) {
-        inWriteAction(FileDocumentManager.getInstance().getDocument(file).replaceString(0, fileLength, text))
+        CommandProcessor.getInstance.executeCommand(getProject, () => {
+          inWriteAction {
+            FileDocumentManager.getInstance().getDocument(file).replaceString(0, fileLength, text)
+          }
+        }, null, null)
       }
       result
     }
+
     files.flatMap(caretsInFile)
   }
 
   private def createEditors(files: Seq[VirtualFile]): Map[VirtualFile, Editor] = {
+    def createEditor(file: VirtualFile): Editor = {
+      myFixture.openFileInEditor(file)
+      myFixture.getEditor
+    }
+
     files.iterator.map(f => f -> createEditor(f)).toMap
   }
 
@@ -115,9 +126,6 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     LightPlatformTestCase.closeAndDeleteProject()
   }
 
-  private def projectAdapter = getProject
-  private def moduleAdapter = getModule
-
   private def doRename(editor: Editor, file: PsiFile, newName: String): String = {
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
     FileDocumentManager.getInstance.saveAllDocuments()
@@ -128,13 +136,17 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     assert(element != null, "Reference is not specified.")
     val searchInComments = element.getText != null && element.getText.contains("Comments")
     var oldName: String = ""
-    inWriteAction {
-      val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditor)
-      if (subst != null) {
-        oldName = ScalaNamesUtil.scalaName(subst)
-        new RenameProcessor(projectAdapter, subst, newName, searchInComments, false).run()
+
+    CommandProcessor.getInstance.executeCommand(getProject, () => {
+      inWriteAction {
+        val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditor)
+        if (subst != null) {
+          oldName = ScalaNamesUtil.scalaName(subst)
+          new RenameProcessor(getProject, subst, newName, searchInComments, false).run()
+        }
       }
-    }
+    }, null, null)
+
     val document = PsiDocumentManager.getInstance(getProject).getDocument(file)
     PsiDocumentManager.getInstance(getProject).doPostponedOperationsAndUnblockDocument(document)
     oldName

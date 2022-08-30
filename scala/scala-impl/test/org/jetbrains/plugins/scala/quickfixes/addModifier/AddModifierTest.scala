@@ -1,18 +1,13 @@
-package org.jetbrains.plugins.scala
-package quickfixes
-package addModifier
+package org.jetbrains.plugins.scala.quickfixes.addModifier
 
+import com.intellij.openapi.command.CommandProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.testFramework.EditorTestUtil
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.junit.Assert
 
-import scala.annotation.nowarn
-
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-class AddModifierTest extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
+class AddModifierTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testAbstractModifier(): Unit = {
     configureFromFileText(
@@ -20,16 +15,17 @@ class AddModifierTest extends base.ScalaLightPlatformCodeInsightTestCaseAdapter 
       s"@Deprecated class Foo$CARET extends Runnable"
     )
 
-    import extensions._
+    import org.jetbrains.plugins.scala.extensions._
     val place = getFile.findElementAt(getEditor.getCaretModel.getOffset)
-    PsiTreeUtil.getParentOfType(place, classOf[ScModifierListOwner]) match {
-      case null =>
-      case owner => inWriteAction {
+    val owner = PsiTreeUtil.getParentOfType(place, classOf[ScModifierListOwner])
+    Assert.assertNotNull(owner)
+
+    CommandProcessor.getInstance.executeCommand(getProject, () => {
+      inWriteAction {
         owner.getModifierList.setModifierProperty(ScalaModifier.ABSTRACT, true)
       }
-    }
+    }, null, null)
 
-    checkResultByText(s"@Deprecated abstract class Foo$CARET extends Runnable")
+    myFixture.checkResult(s"@Deprecated abstract class Foo$CARET extends Runnable")
   }
-
 }

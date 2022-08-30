@@ -1,27 +1,26 @@
-package org.jetbrains.plugins.scala
-package lang.adjustTypes
+package org.jetbrains.plugins.scala.lang.adjustTypes
 
+import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.util.ThrowableRunnable
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import java.io.File
-import scala.annotation.nowarn
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-abstract class AdjustTypesTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class AdjustTypesTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
 
-  protected def folderPath = baseRootPath + "adjustTypes/"
+  protected def folderPath = getTestDataPath + "adjustTypes/"
 
   protected override def sourceRootPath: String = folderPath
 

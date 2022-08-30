@@ -237,7 +237,7 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
       // indirect way of disabling compiler-based highlighting which is triggered on each editor changes
       // see org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.condition
       ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
-      getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
+      getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
     }
 
     override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {

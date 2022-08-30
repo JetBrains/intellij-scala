@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.refactoring.move
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.search.GlobalSearchScope
@@ -9,7 +11,7 @@ import com.intellij.psi.{JavaDirectoryService, JavaPsiFacade, PsiClass, PsiDirec
 import com.intellij.refactoring.PackageWrapper
 import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, SingleSourceRootMoveDestination}
 import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -19,10 +21,8 @@ import org.junit.Assert.{assertEquals, assertNotNull}
 import java.io.File
 import java.nio.file.Path
 import java.util
-import scala.annotation.nowarn
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class ScalaMoveClassTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   protected def testDataRoot = TestUtils.getTestDataPath + "/refactoring/move/"
 
@@ -37,12 +37,12 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
   private var rootDirBefore: VirtualFile = _
   private var rootDirAfter: VirtualFile = _
 
-  override protected def afterSetUpProject(module: Module): Unit = {
-    super.afterSetUpProject(module)
+  override protected def afterSetUpProject(project: Project, module: Module): Unit = {
+    super.afterSetUpProject(project, module)
     val rootBefore = root + "/before"
     val rootAfter  = root + "/after"
     findAndRefreshVFile(rootBefore)
-    rootDirBefore = PsiTestUtil.createTestProjectStructure(getProject, getModule, rootBefore, new util.HashSet[Path](), true)
+    rootDirBefore = PsiTestUtil.createTestProjectStructure(project, module, rootBefore, new util.HashSet[Path](), true)
     rootDirAfter = findAndRefreshVFile(rootAfter)
   }
 
@@ -61,6 +61,7 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
       PsiTestUtil.removeSourceRoot(getModule, rootDirBefore)
     }
     settings.MOVE_COMPANION = moveCompanionOld
+
     PostprocessReformattingAspect.getInstance(getProject).doPostponedFormatting()
     PlatformTestUtil.assertDirectoriesEqual(rootDirAfter, rootDirBefore)
   } catch {
@@ -98,19 +99,21 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
     assertEquals("Expected only single directory in module", 1, dirs.length)
     val targetDirectory: PsiDirectory = dirs(0)
 
-    ScalaFileImpl.performMoveRefactoring {
-      val targetPackageWrapper = PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(targetDirectory))
-      val destination = new SingleSourceRootMoveDestination(targetPackageWrapper, targetDirectory)
-      val processor = new MoveClassesOrPackagesProcessor(
-        getProject,
-        classesToMove.toArray,
-        destination,
-        true,
-        true,
-        null
-      )
-      processor.run()
-    }
+    CommandProcessor.getInstance().executeCommand(getProject, () => {
+      ScalaFileImpl.performMoveRefactoring {
+        val targetPackageWrapper = PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(targetDirectory))
+        val destination = new SingleSourceRootMoveDestination(targetPackageWrapper, targetDirectory)
+        val processor = new MoveClassesOrPackagesProcessor(
+          getProject,
+          classesToMove.toArray,
+          destination,
+          true,
+          true,
+          null
+        )
+        processor.run()
+      }
+    }, null, null)
 
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
 

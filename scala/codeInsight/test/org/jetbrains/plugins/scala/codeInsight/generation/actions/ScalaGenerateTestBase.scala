@@ -26,7 +26,7 @@ abstract class ScalaGenerateTestBase extends base.ScalaLightCodeInsightFixtureTe
 
     val (expected, expectedOffset) = findCaretOffset(expectedText, stripTrailingSpaces)
     if (checkCaretOffset) {
-      assertEquals("Wrong caret offset", expectedOffset, getEditorOffset)
+      assertEquals("Wrong caret offset", expectedOffset, getEditor.getCaretModel.getOffset)
     }
     myFixture.checkResult(expected, stripTrailingSpaces)
   }

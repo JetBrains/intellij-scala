@@ -18,9 +18,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.{assertEquals, fail}
 
 import java.io.File
-import scala.annotation.nowarn
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class OptimizeImportsTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   final protected def baseRootPath: String = TestUtils.getTestDataPath + "/"

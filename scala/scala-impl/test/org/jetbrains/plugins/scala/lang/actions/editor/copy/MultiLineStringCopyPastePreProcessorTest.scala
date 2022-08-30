@@ -546,14 +546,14 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
   //
 
   private def doTestMultilineForAnyInsertMarginSetting(from: String, to: String, after: String): Unit = {
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
     doTestMultiline(from, to, after)
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
     doTestMultiline(from, to, after)
   }
 
   def testToEmptyOneLineMultilineString(): Unit = {
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
     val from =
       s"""${Start}first line
          |    second line$End
@@ -569,7 +569,7 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
   }
 
   def testToEmptyOneLineMultilineString_1(): Unit = {
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
     val from =
       s"""${Start}first line
          |    second line$End
@@ -634,7 +634,7 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
   }
 
   def testToEmptyInterpOneLineMultilineString(): Unit = {
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
     val from =
       s"""${Start}first line
          |    second line$End
@@ -650,7 +650,7 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
   }
 
   def testToEmptyInterpOneLineMultilineString_1(): Unit = {
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
     val from =
       s"""${Start}first line
          |    second line$End
@@ -716,7 +716,7 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
 
   // paste to non-empty multiline string
   def testToNonEmptyOneLineMultilineString(): Unit = {
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
     val from =
       s"""${Start}first line
          |    second line$End
@@ -732,7 +732,7 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
   }
 
   def testToNonEmptyOneLineMultilineString_1(): Unit = {
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
     val from =
       s"""${Start}first line
          |    second line$End
@@ -763,7 +763,7 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
   }
 
   def testToNonEmptyInterpOneLineMultilineString(): Unit = {
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
     val from =
       s"""${Start}first line
          |    second line$End
@@ -779,7 +779,7 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
   }
 
   def testToNonEmptyInterpOneLineMultilineString_1(): Unit = {
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
     val from =
       s"""${Start}first line
          |    second line$End
@@ -820,9 +820,9 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
     val after =
       s"""'''first line$Caret'''
          |""".stripMargin
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
     doTestMultiline(from, to, after)
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
     doTestMultiline(from, to, after)
   }
 
@@ -836,9 +836,9 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
     val after =
       s"""'''abc first line$Caret def'''
          |""".stripMargin
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
     doTestMultiline(from, to, after)
-    getScalaSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
     doTestMultiline(from, to, after)
   }
 }

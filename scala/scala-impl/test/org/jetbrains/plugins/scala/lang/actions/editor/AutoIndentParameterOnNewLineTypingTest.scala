@@ -5,7 +5,7 @@ class AutoIndentParameterOnNewLineTypingTest extends EditorTypeActionTestBase {
   override protected def typedChar: Char = 'b'
 
   def testAlignParameter(): Unit = {
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    getCommonCodeStyleSettings.ALIGN_MULTILINE_PARAMETERS = true
     doTest(
       s"""class Example(a: Int,
          |${|})""".stripMargin,
@@ -15,7 +15,7 @@ class AutoIndentParameterOnNewLineTypingTest extends EditorTypeActionTestBase {
   }
 
   def testAlignParameter_Nested(): Unit = {
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    getCommonCodeStyleSettings.ALIGN_MULTILINE_PARAMETERS = true
     doTest(
       s"""{
          |  class Example(a: Int,
@@ -29,7 +29,7 @@ class AutoIndentParameterOnNewLineTypingTest extends EditorTypeActionTestBase {
   }
 
   def testIndentParameter(): Unit = {
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+    getCommonCodeStyleSettings.ALIGN_MULTILINE_PARAMETERS = false
     doTest(
       s"""class Example(a: Int,
          |${|})""".stripMargin,
@@ -39,7 +39,7 @@ class AutoIndentParameterOnNewLineTypingTest extends EditorTypeActionTestBase {
   }
 
   def testIndentParameter_Nested(): Unit = {
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+    getCommonCodeStyleSettings.ALIGN_MULTILINE_PARAMETERS = false
     doTest(
       s"""{
          |  class Example(a: Int,
@@ -53,7 +53,7 @@ class AutoIndentParameterOnNewLineTypingTest extends EditorTypeActionTestBase {
   }
 
   def testAlignArgument(): Unit = {
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+    getCommonCodeStyleSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
     doTest(
       s"""Example(a,
          |${|})""".stripMargin,
@@ -63,7 +63,7 @@ class AutoIndentParameterOnNewLineTypingTest extends EditorTypeActionTestBase {
   }
 
   def testAlignArgument_Nested(): Unit = {
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+    getCommonCodeStyleSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
     doTest(
       s"""{
          |  Example(a,
@@ -78,7 +78,7 @@ class AutoIndentParameterOnNewLineTypingTest extends EditorTypeActionTestBase {
 
 
   def testIndentArgument(): Unit = {
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = false
+    getCommonCodeStyleSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = false
     doTest(
       s"""Example(a,
          |${|})""".stripMargin,
@@ -88,7 +88,7 @@ class AutoIndentParameterOnNewLineTypingTest extends EditorTypeActionTestBase {
   }
 
   def testIndentArgument_Nested(): Unit = {
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = false
+    getCommonCodeStyleSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = false
     doTest(
       s"""{
          |  Example(a,

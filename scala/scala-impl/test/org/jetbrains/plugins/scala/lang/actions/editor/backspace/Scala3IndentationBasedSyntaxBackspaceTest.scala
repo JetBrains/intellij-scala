@@ -17,7 +17,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
     // indirect way of disabling compiler-based highlighting which is triggered on each editor changes
     // see org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.condition
     ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
-    getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
+    getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
   }
 
   def testMethodBody_Simple_TailPosition(): Unit =

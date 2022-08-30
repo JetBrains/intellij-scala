@@ -15,14 +15,14 @@ class WorksheetAnnotationInspectionTest extends TypeAnnotationInspectionTest {
   protected override def setUp(): Unit = {
     super.setUp()
 
-    val settings = getScalaSettings
+    val settings = getScalaCodeStyleSettings
 
     excludeInDialectSources = settings.TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES
     settings.TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES = false
   }
 
   override def tearDown(): Unit = {
-    getScalaSettings.TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES = excludeInDialectSources
+    getScalaCodeStyleSettings.TYPE_ANNOTATION_EXCLUDE_IN_DIALECT_SOURCES = excludeInDialectSources
 
     super.tearDown()
   }

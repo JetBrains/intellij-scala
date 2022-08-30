@@ -88,7 +88,7 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
   }
 
   def testCommentInjection_Multiline_WithDefaultMargins_NonDefaultMarginInSettings(): Unit = {
-    getScalaSettings.MULTILINE_STRING_MARGIN_CHAR = "%"
+    getScalaCodeStyleSettings.MULTILINE_STRING_MARGIN_CHAR = "%"
     val body =
       s"""//language=JSON
          |$Quotes{

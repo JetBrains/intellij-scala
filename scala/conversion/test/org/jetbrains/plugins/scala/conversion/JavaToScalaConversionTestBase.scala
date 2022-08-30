@@ -1,28 +1,29 @@
-package org.jetbrains.plugins.scala
-package conversion
+package org.jetbrains.plugins.scala.conversion
+
+import com.intellij.openapi.command.CommandProcessor
 
 import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
+import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
-import scala.annotation.nowarn
 import scala.collection.mutable
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-abstract class JavaToScalaConversionTestBase extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import TypeAnnotationSettings._
 
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
 
-  def folderPath: String = baseRootPath + "conversion/"
+  def folderPath: String = getTestDataPath + "conversion/"
 
   protected def doTest(typeAnnotationSettings: ScalaCodeStyleSettings = alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))): Unit = {
     import org.junit.Assert._
@@ -49,10 +50,12 @@ abstract class JavaToScalaConversionTestBase extends base.ScalaLightPlatformCode
     val newFile = PsiFileFactory.getInstance(getProject)
       .createFileFromText("dummyForJavaToScala.scala", ScalaLanguage.INSTANCE, res)
 
-    res = inWriteAction {
-      ConverterUtil.cleanCode(newFile, getProject, 0, newFile.getText.length)
-      CodeStyleManager.getInstance(getProject).reformat(newFile).getText
-    }
+    CommandProcessor.getInstance.executeCommand(getProject, () => {
+      inWriteAction {
+        ConverterUtil.cleanCode(newFile, getProject, 0, newFile.getText.length)
+        res = CodeStyleManager.getInstance(getProject).reformat(newFile).getText
+      }
+    }, null, null)
 
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {

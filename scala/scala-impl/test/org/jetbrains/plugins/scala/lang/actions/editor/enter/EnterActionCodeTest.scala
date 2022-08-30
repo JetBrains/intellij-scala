@@ -6,7 +6,7 @@ class EnterActionCodeTest extends EditorActionTestBase
   with Scala2AndScala3EnterActionCommonTests {
 
   def testInsideEmptyParameterClauses(): Unit = {
-    getScalaSettings.INDENT_FIRST_PARAMETER = false
+    getScalaCodeStyleSettings.INDENT_FIRST_PARAMETER = false
 
     val before =
       s"""def foo($CARET)"""
@@ -15,26 +15,26 @@ class EnterActionCodeTest extends EditorActionTestBase
          |  $CARET
          |)""".stripMargin
 
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    getCommonCodeStyleSettings.ALIGN_MULTILINE_PARAMETERS = true
     checkGeneratedTextAfterEnter(before, after)
 
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+    getCommonCodeStyleSettings.ALIGN_MULTILINE_PARAMETERS = false
     checkGeneratedTextAfterEnter(before, after)
   }
 
   def testInsideEmptyParameterClauses_1(): Unit = {
-    getScalaSettings.INDENT_FIRST_PARAMETER = true
+    getScalaCodeStyleSettings.INDENT_FIRST_PARAMETER = true
 
     val before =
       s"""def foo($CARET)"""
 
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    getCommonCodeStyleSettings.ALIGN_MULTILINE_PARAMETERS = true
     checkGeneratedTextAfterEnter(before,
       s"""def foo(
          |       $CARET
          |       )""".stripMargin)
 
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+    getCommonCodeStyleSettings.ALIGN_MULTILINE_PARAMETERS = false
     checkGeneratedTextAfterEnter(before,
       s"""def foo(
          |  $CARET

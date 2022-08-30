@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.refactoring.changeSignature._
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -20,10 +20,8 @@ import org.jetbrains.plugins.scala.util._
 import org.junit.Assert._
 
 import java.io.File
-import scala.annotation.nowarn
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class ChangeSignatureTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   protected var targetMethod: PsiMember = null
   protected var isAddDefaultValue = false
@@ -65,7 +63,7 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
     } else null
 
     val fileName = mainFileName(testName)
-    configureByFile(fileName)
+    myFixture.configureByFile(fileName)
     targetMethod = findTargetElement
 
     processor(newVisibility, newName, newReturnType, newParams).run()

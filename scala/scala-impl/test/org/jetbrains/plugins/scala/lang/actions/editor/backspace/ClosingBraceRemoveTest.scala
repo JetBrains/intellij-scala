@@ -12,7 +12,7 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     // indirect way of disabling compiler-based highlighting which is triggered on each editor changes
     // see org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.condition
     ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
-    getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
+    getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
   }
 
   private def empty = ""
@@ -435,7 +435,7 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
   }
 
   def testRemove_TryCatchBlock_SingleExpression_1(): Unit = {
-    getCommonSettings.CATCH_ON_NEW_LINE = true
+    getCommonCodeStyleSettings.CATCH_ON_NEW_LINE = true
     val before =
       s"""class A {
          |  try {${|}
@@ -460,7 +460,7 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
   }
 
   def testRemove_TryCatchBlock_SingleExpression_2(): Unit = {
-    getCommonSettings.CATCH_ON_NEW_LINE = true
+    getCommonCodeStyleSettings.CATCH_ON_NEW_LINE = true
     val before =
       s"""class A {
          |  try {${|}
