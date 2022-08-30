@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
-class ScNamedElementAnnotatorTest extends ScalaHighlightingTestBase {
+class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
   def testOverrideParameter(): Unit = {
     val scalaCode =
       """
