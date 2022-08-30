@@ -12,25 +12,22 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 
-private[declarationRedundancy] final class ScalaAccessCanBeTightenedInspection extends LocalInspectionTool {
+private final class ScalaAccessCanBeTightenedInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor =
     new PsiElementVisitor {
       override def visitElement(element: PsiElement): Unit = {
-        (element, element) match {
-          case (namedElement: ScNamedElement, modifierListOwner: ScModifierListOwner)
-            if !modifierListOwner.hasModifierPropertyScala("private") =>
-            namedElement match {
+
+        element match {
+          case n: ScNamedElement with ScModifierListOwner if !n.hasModifierPropertyScala("private") =>
+            n match {
               case _: ScFunctionDefinition | _: ScTypeDefinition =>
-                processElement(namedElement, modifierListOwner, holder, isOnTheFly)
+                processElement(n, n, holder, isOnTheFly)
               case _ =>
             }
-          case (refPat: ScReferencePattern, _) =>
-            val patternList = refPat.getParent.asInstanceOf[ScPatternList]
-            if (patternList.patterns.size == 1) {
-              val modifierListOwner = patternList.getParent.asInstanceOf[ScModifierListOwner]
-              if (!modifierListOwner.hasModifierPropertyScala("private")) {
-                processElement(refPat, modifierListOwner, holder, isOnTheFly)
-              }
+          case patternList@ScPatternList(Seq(pattern: ScReferencePattern)) =>
+            val modifierListOwner = patternList.getParent.asInstanceOf[ScModifierListOwner]
+            if (!modifierListOwner.hasModifierPropertyScala("private")) {
+              processElement(pattern, modifierListOwner, holder, isOnTheFly)
             }
           case _ =>
         }
@@ -57,7 +54,7 @@ private[declarationRedundancy] final class ScalaAccessCanBeTightenedInspection e
      * offers a "Add type annotation" QuickFix at the same time that a declaration can be made private,
      * a QuickFix with the text "Make 'private'" would not appear at the top in such a case.
      *
-     * So, in case a [[org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.MakePrivateQuickFix]] is
+     * So, in case a [[org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix]] is
      * offered to the user, we essentially perform the same check as
      * [[org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection]]. When the result is
      * positive (i.e. a type annotation QuickFix is offered), we go for a fallback text that starts with "Add ...".
@@ -82,19 +79,22 @@ private[declarationRedundancy] final class ScalaAccessCanBeTightenedInspection e
       }
     }
 
-    if (element.getUsages(isOnTheFly, reportPublicDeclarations = true).forall(_.targetCanBePrivate)) {
-      val fix = new MakePrivateQuickFix(modifierListOwner, quickFixText)
+    if (CheapRefSearcher.search(element, isOnTheFly, reportPublicDeclarations = true).forall(_.targetCanBePrivate)) {
+      val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(modifierListOwner, quickFixText)
       problemsHolder.registerProblem(element.nameId, "Access can be private", ProblemHighlightType.WARNING, fix)
     }
   }
 }
 
-class MakePrivateQuickFix(element: ScModifierListOwner, @Nls text: String) extends LocalQuickFixOnPsiElement(element) {
+private object ScalaAccessCanBeTightenedInspection {
 
-  override def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit =
-    element.setModifierProperty("private")
+  private[declarationRedundancy] class MakePrivateQuickFix(element: ScModifierListOwner, @Nls text: String) extends LocalQuickFixOnPsiElement(element) {
+    override def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit =
+      element.setModifierProperty("private")
 
-  override def getText: String = text
+    override def getText: String = text
 
-  override def getFamilyName: String = "Change modifier"
+    override def getFamilyName: String = "Change modifier"
+  }
+
 }

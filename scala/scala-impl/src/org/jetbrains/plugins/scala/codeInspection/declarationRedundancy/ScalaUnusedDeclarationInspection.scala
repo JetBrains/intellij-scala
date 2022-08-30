@@ -69,7 +69,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
       case InspectedElement(_, inNameContext(holder: PsiAnnotationOwner)) if hasUnusedAnnotation(holder) =>
         Seq.empty
       case InspectedElement(original: ScNamedElement, delegate: ScNamedElement)
-        if delegate.getUsages(isOnTheFly, reportPublicDeclarations).isEmpty =>
+        if CheapRefSearcher.search(delegate, isOnTheFly, reportPublicDeclarations).isEmpty =>
 
           val dontReportPublicDeclarationsQuickFix = if (isOnlyVisibleInLocalFile(original)) None
             else Some(createDontReportPublicDeclarationsQuickFix(original))
@@ -124,11 +124,18 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     elem match {
       case n: ScNamedElement =>
         n.nameContext match {
-          case m: ScMember if m.isLocal && reportLocalDeclarations == AlwaysDisabled =>
-            false
-          case m: ScMember if m.isLocal && reportLocalDeclarations == ComplyToCompilerOption =>
-            val compilerOptions = n.module.toSeq.flatMap(_.scalaCompilerSettings.additionalCompilerOptions)
-            compilerOptions.contains("-Wunused:locals") || compilerOptions.contains("-Wunused:linted") || compilerOptions.contains("-Xlint:unused")
+          case m: ScMember if m.isLocal =>
+            if (reportLocalDeclarations == AlwaysDisabled) {
+              false
+            } else if (reportLocalDeclarations == ComplyToCompilerOption) {
+              n.module.toSeq.flatMap(_.scalaCompilerSettings.additionalCompilerOptions).exists { compilerOption =>
+                compilerOption.equals("-Wunused:locals") ||
+                compilerOption.equals("-Wunused:linted") ||
+                compilerOption.equals("-Xlint:unused")
+              }
+            } else {
+              true
+            }
           case _ => true
         }
       case _ => true

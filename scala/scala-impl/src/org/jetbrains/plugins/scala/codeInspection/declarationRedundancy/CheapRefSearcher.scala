@@ -8,7 +8,8 @@ import com.intellij.psi.search.{LocalSearchScope, PsiSearchHelper, TextOccurence
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiIdentifier, PsiNamedElement}
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt}
+import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.extensions.{Parent, PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isOnlyVisibleInLocalFile, superValsSignatures}
@@ -21,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.ImplicitUtil.ImplicitTargetExt
 import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaUsageNamesUtil}
@@ -51,24 +53,23 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 object CheapRefSearcher {
 
-  sealed trait ElementUsage {
-    val targetCanBePrivate: Boolean
+  trait ElementUsage {
+    def targetCanBePrivate: Boolean
   }
 
-  case object UnknownElementUsage extends ElementUsage {
+  private final object UnknownElementUsage extends ElementUsage {
     override val targetCanBePrivate: Boolean = false
   }
 
-  case class KnownElementUsage(reference: PsiElement, target: ScNamedElement) extends ElementUsage {
+  private final class KnownElementUsage(reference: PsiElement, target: ScNamedElement) extends ElementUsage {
     override lazy val targetCanBePrivate: Boolean = {
       val targetContainingClass = PsiTreeUtil.getParentOfType(target, classOf[PsiClass])
       var refContainingClass = PsiTreeUtil.getParentOfType(reference, classOf[PsiClass])
 
-      val MaxSearchDepth = 10
       var counter = 0
 
       if (targetContainingClass == null) false else {
-        while (counter < MaxSearchDepth && refContainingClass != null && refContainingClass != targetContainingClass) {
+        while (counter < KnownElementUsage.MaxSearchDepth &&refContainingClass != null && refContainingClass != targetContainingClass) {
           refContainingClass = PsiTreeUtil.getParentOfType(refContainingClass, classOf[PsiClass])
           counter += 1
         }
@@ -78,6 +79,11 @@ object CheapRefSearcher {
     }
   }
 
+  private object KnownElementUsage {
+    private val MaxSearchDepth = 10
+  }
+
+  @Cached(ModTracker.physicalPsiChange(element.getProject), element)
   def search(element: ScNamedElement, isOnTheFly: Boolean, reportPublicDeclarations: Boolean): Seq[ElementUsage] =
     if (!shouldProcessElement(element)) Seq(UnknownElementUsage) else {
       lazy val refSearch = referencesSearch(element)
@@ -122,7 +128,7 @@ object CheapRefSearcher {
     val scope = new LocalSearchScope(element.getContainingFile)
 
     elementsForSearch.flatMap(ReferencesSearch.search(_, scope).findAll().asScala).map { ref =>
-      KnownElementUsage(ref.getElement, element)
+      new KnownElementUsage(ref.getElement, element)
     }
   }
 
@@ -141,7 +147,7 @@ object CheapRefSearcher {
         if (e2.getContainingFile.isScala2File || e2.getContainingFile.isScala3File) {
           true
         } else {
-          result.addOne(KnownElementUsage(e2, element))
+          result.addOne(new KnownElementUsage(e2, element))
           result.last.targetCanBePrivate
         }
     }
@@ -170,15 +176,14 @@ object CheapRefSearcher {
         if (element.getContainingFile == e2.getContainingFile) {
           true
         } else {
-          (e2, Option(e2.getParent)) match {
-            case (_, Some(_: ScReferencePattern)) =>
-            case (_, Some(_: ScTypeDefinition)) =>
-            case (_: PsiIdentifier, _) => result.addOne(KnownElementUsage(e2, element))
-            case (l: LeafPsiElement, _) if l.isIdentifier => result.addOne(KnownElementUsage(e2, element))
-            case (_: ScStableCodeReference, _) => result.addOne(KnownElementUsage(e2, element))
+          e2 match {
+            case Parent(_: ScReferencePattern) =>
+            case Parent(_: ScTypeDefinition) =>
+            case _: PsiIdentifier => result.addOne(new KnownElementUsage(e2, element))
+            case l: LeafPsiElement if l.isIdentifier => result.addOne(new KnownElementUsage(e2, element))
+            case _: ScStableCodeReference => result.addOne(new KnownElementUsage(e2, element))
             case _ =>
           }
-
           result.isEmpty || result.last.targetCanBePrivate
         }
     }

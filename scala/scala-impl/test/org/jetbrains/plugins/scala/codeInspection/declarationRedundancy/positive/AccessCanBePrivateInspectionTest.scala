@@ -56,6 +56,4 @@ class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestBase {
     val code = s"object ${START}A$END"
     checkTextHasError(code, allowAdditionalHighlights = false)
   }
-
-  def test_that_fails_to_prevent_merge(): Unit = throw new Exception
 }

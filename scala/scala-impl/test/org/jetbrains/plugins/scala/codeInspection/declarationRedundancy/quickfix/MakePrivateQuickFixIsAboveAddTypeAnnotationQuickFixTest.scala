@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.quickfi
 
 import com.intellij.codeInspection.ex.QuickFixWrapper
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.{MakePrivateQuickFix, ScalaAccessCanBeTightenedInspection}
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.junit.Assert.assertTrue
 
@@ -26,7 +26,7 @@ class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnot
 
     assertTrue(fixes.size == 1)
 
-    val quickFixElement = fixes.head.asInstanceOf[QuickFixWrapper].getFix.asInstanceOf[MakePrivateQuickFix].getStartElement.asInstanceOf[ScPatternDefinition]
+    val quickFixElement = fixes.head.asInstanceOf[QuickFixWrapper].getFix.asInstanceOf[ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix].getStartElement.asInstanceOf[ScPatternDefinition]
     assert(quickFixElement.declaredNames.head == "b")
   }
 
@@ -36,7 +36,7 @@ class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnot
 
     assertTrue(fixes.size == 1)
 
-    val quickFixElement = fixes.head.asInstanceOf[QuickFixWrapper].getFix.asInstanceOf[MakePrivateQuickFix].getStartElement.asInstanceOf[ScPatternDefinition]
+    val quickFixElement = fixes.head.asInstanceOf[QuickFixWrapper].getFix.asInstanceOf[ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix].getStartElement.asInstanceOf[ScPatternDefinition]
     assert(quickFixElement.declaredNames.head == "a")
   }
 }

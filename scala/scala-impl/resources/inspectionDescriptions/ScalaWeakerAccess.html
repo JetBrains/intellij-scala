@@ -1,14 +1,12 @@
 <html>
 <body>
-Reports fields, methods, classes, traits and objects that may have their access modifier narrowed down.
+Reports classes, methods, and variables whose access can be weaker.
 <p>Example:</p>
 <pre><code>
-  class Sample {
-    def foo() {
-        bar("foo", "foo")
-    }
-    def bar(x: String, y: String): Unit = {} // can be private
+  def foo() {
+    onlyUsedInFoo("foo", "foo")
   }
+  def onlyUsedInFoo(x: String, y: String): Unit = {} // can be private
 </code></pre>
 <!-- tooltip end -->
 </body>

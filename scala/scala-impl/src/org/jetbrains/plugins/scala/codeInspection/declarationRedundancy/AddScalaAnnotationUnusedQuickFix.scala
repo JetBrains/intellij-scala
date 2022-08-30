@@ -19,8 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
  * only be offered when the declaration is part of a Scala 2.13 or higher
  * project.
  */
-final class AddScalaAnnotationUnusedQuickFix(@SafeFieldForPreview named: ScNamedElement)
+private final class AddScalaAnnotationUnusedQuickFix(@SafeFieldForPreview named: ScNamedElement)
   extends LocalQuickFixAndIntentionActionOnPsiElement(named) {
+  
   override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
     val element =
       if (IntentionPreviewUtils.isIntentionPreviewActive) PsiTreeUtil.findSameElementInCopy(named, file)
