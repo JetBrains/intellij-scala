@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
 package lang.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class OverloadedResolutionWithImplicitParamsTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class OverloadedResolutionWithImplicitParamsTest extends ScalaLightCodeInsightFixtureTestCase {
   override def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   def testSCL17518(): Unit = checkTextHasNoErrors(

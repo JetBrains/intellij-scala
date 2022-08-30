@@ -5,7 +5,7 @@ import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, Completio
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.{CompletionTests, ScalaLanguage}
-import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestAdapter}
+import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.experimental.categories.Category
 
@@ -13,7 +13,7 @@ import java.util
 import scala.collection.mutable
 
 @Category(Array(classOf[CompletionTests]))
-class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAdapter with HelperFixtureEditorOps {
+class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestCase with HelperFixtureEditorOps {
 
   import MLFeatureValue._
 

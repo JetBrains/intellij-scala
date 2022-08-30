@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
-class ReturnTypeSingletonOverridingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ReturnTypeSingletonOverridingTest extends ScalaLightCodeInsightFixtureTestCase {
   override protected def shouldPass: Boolean = false
 
   def testSCL8490(): Unit = {

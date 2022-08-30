@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class ConstructorTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ConstructorTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testScl7255(): Unit = {
     checkHasErrorAroundCaret(

@@ -9,14 +9,14 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 import scala.collection.mutable
 
-abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   import TypeAnnotationSettings._
 

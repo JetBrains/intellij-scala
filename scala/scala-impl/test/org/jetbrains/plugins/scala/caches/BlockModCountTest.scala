@@ -4,11 +4,11 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiElement}
-import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestAdapter}
+import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert
 
-class BlockModCountTest extends ScalaLightCodeInsightFixtureTestAdapter with HelperFixtureEditorOps {
+class BlockModCountTest extends ScalaLightCodeInsightFixtureTestCase with HelperFixtureEditorOps {
 
   //symbolic names are chosen to keep test data readable
   private val | = "/*caret*/"

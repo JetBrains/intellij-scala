@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.refactoring.move.member
 
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
@@ -11,7 +11,7 @@ import org.junit.Assert
 
 import scala.annotation.nowarn
 
-abstract class BaseScalaMoveMemberTest extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class BaseScalaMoveMemberTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def doTest(fromObject: String, toObject: String, memberName: String, fileText: String, expectedText: String): Unit = {
     configureFromFileText("dummy.scala", fileText.withNormalizedSeparator.trim)

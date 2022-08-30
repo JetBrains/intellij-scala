@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClsFileViewProvider.ScClsFileImpl
@@ -21,7 +21,7 @@ import org.junit.experimental.categories.Category
 import scala.collection.mutable
 
 @Category(Array(classOf[HighlightingTests]))
-abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestCase {
 
   private val CustomScalaSdkLoader = ScalaSDKLoader()
 

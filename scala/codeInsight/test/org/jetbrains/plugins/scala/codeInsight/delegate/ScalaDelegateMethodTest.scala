@@ -8,7 +8,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
-class ScalaDelegateMethodTest extends base.ScalaLightCodeInsightFixtureTestAdapter
+class ScalaDelegateMethodTest extends base.ScalaLightCodeInsightFixtureTestCase
   with ScalaDelegateMethodTestBase {
 
   import ScalaDelegateMethodTestBase._

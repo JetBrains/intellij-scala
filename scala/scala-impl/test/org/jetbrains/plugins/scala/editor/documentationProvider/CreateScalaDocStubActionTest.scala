@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.editor.documentationProvider.actions.CreateScalaDocStubAction
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffset
 import org.junit.Assert.assertEquals
 
-class CreateScalaDocStubActionTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class CreateScalaDocStubActionTest extends ScalaLightCodeInsightFixtureTestCase {
 
   private def | = EditorTestUtil.CARET_TAG
   private def action = new CreateScalaDocStubAction

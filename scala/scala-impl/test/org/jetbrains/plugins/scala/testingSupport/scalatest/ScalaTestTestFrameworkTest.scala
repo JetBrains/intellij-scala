@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestFramework
 import org.junit.Assert
 
-class ScalaTestTestFrameworkTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaTestTestFrameworkTest extends ScalaLightCodeInsightFixtureTestCase {
 
   val scalaTestFramework = new ScalaTestTestFramework
 

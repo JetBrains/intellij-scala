@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.codeInspection
 
 import com.intellij.codeInspection.ex.LocalInspectionToolWrapper
 import com.intellij.codeInspection.{InspectionManager, LocalInspectionEP, LocalInspectionTool, ProblemsHolder}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert.assertFalse
 
-class GeneralInspectionSanityTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class GeneralInspectionSanityTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def acquireAllInspectionEPs(): Seq[LocalInspectionEP] =
     LocalInspectionEP.LOCAL_INSPECTION

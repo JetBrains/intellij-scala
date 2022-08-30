@@ -3,9 +3,9 @@ package lang
 package psi
 
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
-class AdjustElementAtOffsetTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class AdjustElementAtOffsetTest extends ScalaLightCodeInsightFixtureTestCase {
   private val space = " "
   private val caret = "<caret>"
   private sealed class SwitchesTriBool

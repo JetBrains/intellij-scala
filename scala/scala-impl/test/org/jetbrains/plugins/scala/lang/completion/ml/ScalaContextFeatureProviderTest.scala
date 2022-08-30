@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.lang.completion.ml
 import com.intellij.codeInsight.completion.ml.{CompletionEnvironment, ContextFeatureProvider, MLFeatureValue}
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import org.jetbrains.plugins.scala.{CompletionTests, ScalaLanguage}
-import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestAdapter}
+import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestCase}
 import org.junit.experimental.categories.Category
 
 import java.util
 
 @Category(Array(classOf[CompletionTests]))
-class ScalaContextFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAdapter with HelperFixtureEditorOps {
+class ScalaContextFeatureProviderTest extends ScalaLightCodeInsightFixtureTestCase with HelperFixtureEditorOps {
   
   import MLFeatureValue._
 

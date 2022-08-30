@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.junit.experimental.categories.Category
 
@@ -291,7 +291,7 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
 
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example
 @Category(Array(classOf[TypecheckerTests]))
-class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureTestCase {
   def testSCL16246(): Unit = checkTextHasNoErrors(
     """
       |trait Info[A] {
@@ -505,7 +505,7 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
   )
 }
 
-class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def shouldPass = false
 

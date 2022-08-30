@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ElementToImport, ScalaImportElementFix}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.junit.Assert.{assertEquals, fail}
 
@@ -13,7 +13,7 @@ import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
 abstract class ImportElementFixTestBase[Psi <: PsiElement : ClassTag]
-  extends ScalaLightCodeInsightFixtureTestAdapter with ScalaFiles {
+  extends ScalaLightCodeInsightFixtureTestCase with ScalaFiles {
 
   def createFix(element: Psi): Option[ScalaImportElementFix[_ <: ElementToImport]]
 

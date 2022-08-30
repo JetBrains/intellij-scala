@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
-abstract class ScalaOverrideImplementTestBase extends base.ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaOverrideImplementTestBase extends base.ScalaLightCodeInsightFixtureTestCase {
 
   protected def runTest(methodName: String,
                         fileText: String,

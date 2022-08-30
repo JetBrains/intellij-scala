@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
@@ -10,7 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
   private final val AnyOps =     "import scala.compiletime.ops.any.*; "
   private final val BooleanOps = "import scala.compiletime.ops.boolean.*; "
   private final val IntOps =     "import scala.compiletime.ops.int.*; "

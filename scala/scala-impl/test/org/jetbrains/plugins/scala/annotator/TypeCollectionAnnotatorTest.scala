@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.{ScalaBundle, TypecheckerTests}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaCollection
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-final class TypeCollectionAnnotatorTest extends ScalaLightCodeInsightFixtureTestAdapter {
+final class TypeCollectionAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase {
 
   private val immutableCollectionMessage = ScalaBundle.message("scala.immutable.collection")
   private val mutableCollectionMessage = ScalaBundle.message("scala.mutable.collection")

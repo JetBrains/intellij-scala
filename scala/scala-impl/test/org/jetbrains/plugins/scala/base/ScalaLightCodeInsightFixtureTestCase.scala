@@ -26,7 +26,7 @@ import org.junit.Assert.assertNotNull
 
 import scala.jdk.CollectionConverters._
 
-abstract class ScalaLightCodeInsightFixtureTestAdapter
+abstract class ScalaLightCodeInsightFixtureTestCase
   extends LightJavaCodeInsightFixtureTestCase
     with ScalaSdkOwner
     with FailableTest {

@@ -7,7 +7,7 @@ import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupElementPresentation, LookupManager}
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
-import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.{StringExt, invokeAndWait}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert._
@@ -23,7 +23,7 @@ import scala.jdk.CollectionConverters._
 ))
 @Category(Array(classOf[CompletionTests]))
 //TODO: rename to completion test (wait, it's probably already done in my other branch, where there is a huge refactoring of the tests)
-abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTestAdapter with HelperFixtureEditorOps {
+abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTestCase with HelperFixtureEditorOps {
 
   import CompletionType.BASIC
   import Lookup.REPLACE_SELECT_CHAR

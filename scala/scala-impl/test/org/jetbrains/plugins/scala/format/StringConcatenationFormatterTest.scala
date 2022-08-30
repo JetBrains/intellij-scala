@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package format
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.junit.Assert._
 
-class StringConcatenationFormatterTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class StringConcatenationFormatterTest extends ScalaLightCodeInsightFixtureTestCase {
   def testEmpty(): Unit = {
     assertEquals("\"\"", format())
   }

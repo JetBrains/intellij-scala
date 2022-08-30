@@ -176,7 +176,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
 
     @SuppressWarnings("UnconstructableJUnitTestCase")
     @Category({FileSetTests.class})
-    private final class ActualTest extends ScalaLightCodeInsightFixtureTestAdapter {
+    private final class ActualTest extends ScalaLightCodeInsightFixtureTestCase {
 
         private final File myTestFile;
 

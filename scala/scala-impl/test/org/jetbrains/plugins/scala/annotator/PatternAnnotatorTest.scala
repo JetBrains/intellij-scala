@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import org.jetbrains.plugins.scala.annotator.element.ScPatternAnnotator
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.junit.Assert
@@ -10,7 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class PatternAnnotatorTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class PatternAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase {
 
   private def fruitless(exprType: String, patType: String) = ScalaBundle.message("fruitless.type.test", exprType, patType)
   private def incompatible(exprType: String, patType: String) = ScalaBundle.message("scrutinee.incompatible.pattern.type", exprType, patType)

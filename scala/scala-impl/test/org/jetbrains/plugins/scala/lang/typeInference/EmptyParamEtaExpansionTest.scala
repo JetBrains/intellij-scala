@@ -4,14 +4,14 @@ package lang.typeInference
 import org.jetbrains.plugins.scala.LatestScalaVersions.{Scala_2_11, Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions.assertMatches
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-abstract class EmptyParamEtaExpansionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class EmptyParamEtaExpansionTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   protected def errorMessages(code: String): List[Message] = {
     val annotator = new ScalaAnnotator()
@@ -83,7 +83,7 @@ abstract class EmptyParamEtaExpansionTest_Since_2_13 extends EmptyParamEtaExpans
 }
 
 @Category(Array(classOf[TypecheckerTests]))
-class EmptyParamEtaExpansion_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
+class EmptyParamEtaExpansion_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala_2_12
 
   def testSCL18172(): Unit = checkHasErrorAroundCaret(

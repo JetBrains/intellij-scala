@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.refactoring.changeSignature._
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -21,7 +21,7 @@ import org.junit.Assert._
 
 import java.io.File
 
-abstract class ChangeSignatureTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ChangeSignatureTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   protected var targetMethod: PsiMember = null
   protected var isAddDefaultValue = false

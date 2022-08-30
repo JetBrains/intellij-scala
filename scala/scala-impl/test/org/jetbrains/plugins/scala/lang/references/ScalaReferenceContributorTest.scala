@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.references
 
 import com.intellij.openapi.paths.WebReference
 import com.intellij.psi.{PsiFile, PsiReference}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -12,7 +12,7 @@ import org.junit.Assert._
 
 import scala.collection.mutable
 
-class ScalaReferenceContributorTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaReferenceContributorTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testUrlReference(): Unit = {
     val testUrl = "https://www.site.com/"

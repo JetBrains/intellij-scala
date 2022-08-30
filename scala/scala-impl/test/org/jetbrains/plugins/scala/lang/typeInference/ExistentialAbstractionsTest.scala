@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
 
-class ExistentialAbstractionsTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ExistentialAbstractionsTest extends ScalaLightCodeInsightFixtureTestCase {
   def testSCL17213(): Unit = checkHasErrorAroundCaret(
     s"""
        |

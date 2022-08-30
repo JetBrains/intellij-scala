@@ -7,7 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.testFramework.fixtures.InjectionTestFixture
 import org.intellij.plugins.intelliLang
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.injection.AbstractLanguageInjectionTestCase._
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
@@ -19,7 +19,7 @@ import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
 /** @see AbstractLanguageInjectionTestCase.kt in main IntelliJ repository */
-abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFixtureTestCase {
   private var injectionTestFixture: InjectionTestFixture = _
   protected var intelliLangConfig: intelliLang.Configuration = _
 

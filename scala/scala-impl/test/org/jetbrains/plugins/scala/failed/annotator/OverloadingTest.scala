@@ -5,7 +5,7 @@ import com.intellij.psi.{PsiErrorElement, PsiReference}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotationHolder}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
@@ -16,7 +16,7 @@ import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-abstract class OverloadingTestBase extends ScalaLightCodeInsightFixtureTestAdapter with MatcherAssertions {
+abstract class OverloadingTestBase extends ScalaLightCodeInsightFixtureTestCase with MatcherAssertions {
 
   //TODO this class contains a fair amount of a copy-paste code, however refactoring isn't practical here as the class is to be removed soon 
 

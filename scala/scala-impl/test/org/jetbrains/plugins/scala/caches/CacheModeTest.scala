@@ -3,11 +3,11 @@ package caches
 
 import com.intellij.mock.MockPsiElement
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, incModCount}
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
-class CacheModeTest extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
+class CacheModeTest extends ScalaLightCodeInsightFixtureTestCase with AssertionMatchers {
   sealed trait TestResult
   case object NotComputed extends TestResult
   case object ComputedOnce extends TestResult

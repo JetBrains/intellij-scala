@@ -6,7 +6,7 @@ import org.junit.Assert.fail
 
 import scala.util.Success
 
-class AmmoniteVersionDownloaderTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
+class AmmoniteVersionDownloaderTest extends base.ScalaLightCodeInsightFixtureTestCase {
 
   import ammonite.ImportAmmoniteDependenciesFix._
 

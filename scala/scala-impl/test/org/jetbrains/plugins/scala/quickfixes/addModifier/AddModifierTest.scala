@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.quickfixes.addModifier
 
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.junit.Assert
 
-class AddModifierTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class AddModifierTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testAbstractModifier(): Unit = {
     configureFromFileText(

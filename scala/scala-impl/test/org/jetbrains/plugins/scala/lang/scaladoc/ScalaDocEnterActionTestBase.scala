@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.scaladoc
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase.MyDataContext
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.util.ShortCaretMarker
 
 // TODO: unify with org.jetbrains.plugins.scala.lang.actions.AbstractActionTestBase ?
-abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter
+abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureTestCase
   with ShortCaretMarker{
 
   protected def editor = getEditor

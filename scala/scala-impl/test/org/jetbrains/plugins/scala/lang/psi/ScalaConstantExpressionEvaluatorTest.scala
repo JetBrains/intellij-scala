@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
 
-class ScalaConstantExpressionEvaluatorTest extends ScalaLightCodeInsightFixtureTestAdapter{
+class ScalaConstantExpressionEvaluatorTest extends ScalaLightCodeInsightFixtureTestCase{
 
   val pattern = "/*fold after this comment*/"
 

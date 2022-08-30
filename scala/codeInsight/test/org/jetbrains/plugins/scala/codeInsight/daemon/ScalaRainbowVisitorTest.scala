@@ -4,7 +4,7 @@ package daemon
 
 import com.intellij.openapi.util.text.StringUtil
 
-class ScalaRainbowVisitorTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaRainbowVisitorTest extends base.ScalaLightCodeInsightFixtureTestCase {
 
   import ScalaRainbowVisitorTest.{END_TAG => E, START_TAG => S, START_TAG_1 => S_1, START_TAG_2 => S_2, START_TAG_3 => S_3, START_TAG_4 => S_4}
 

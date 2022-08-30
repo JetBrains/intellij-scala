@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[CompletionTests]))
 class ScalaPlainTextSymbolCompletionContributorTest
-  extends base.ScalaLightCodeInsightFixtureTestAdapter {
+  extends base.ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_3

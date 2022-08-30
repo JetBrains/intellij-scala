@@ -8,7 +8,7 @@ import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType}
 import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import org.junit.Assert.assertTrue
 
-abstract class ScalaAnnotatorHighlighterVisitorTestBase extends base.ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaAnnotatorHighlighterVisitorTestBase extends base.ScalaLightCodeInsightFixtureTestCase {
 
   /**
    * The appropriate [[LanguageFileTypeBase]] is supposed to be detected automatically by the file extension.

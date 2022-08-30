@@ -7,7 +7,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.{ScopeItem, ScopeSuggester}
@@ -17,7 +17,7 @@ import org.junit.Assert
 import java.io.File
 import scala.annotation.nowarn
 
-abstract class AbstractScopeSuggesterTest extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class AbstractScopeSuggesterTest extends ScalaLightCodeInsightFixtureTestCase {
   val BEGIN_MARKER: String = "/*begin*/"
   val END_MARKER: String = "/*end*/"
 

@@ -11,7 +11,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupItem.KeywordInsertHandler
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -22,7 +22,7 @@ import java.io.File
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompletionTests]))
-abstract class KeywordCompletionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class KeywordCompletionTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   def folderPath: String = getTestDataPath + "keywordCompletion/"
 

@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.externalLibraries.derevo
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class DerevoSimpleTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class DerevoSimpleTest extends ScalaLightCodeInsightFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_13
 
   override protected def setUp(): Unit = {

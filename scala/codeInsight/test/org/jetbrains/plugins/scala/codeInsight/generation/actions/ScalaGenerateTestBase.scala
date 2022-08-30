@@ -7,7 +7,7 @@ import com.intellij.lang.LanguageCodeInsightActionHandler
 import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffset
 import org.junit.Assert._
 
-abstract class ScalaGenerateTestBase extends base.ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaGenerateTestBase extends base.ScalaLightCodeInsightFixtureTestCase {
 
   protected val handler: LanguageCodeInsightActionHandler
 

@@ -7,10 +7,10 @@ import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_COMPLETE_STATE
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 
-abstract class ScalaCompleteStatementTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaCompleteStatementTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   protected val fileType: LanguageFileType = ScalaFileType.INSTANCE
 

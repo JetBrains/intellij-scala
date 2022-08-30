@@ -4,12 +4,12 @@ package refactoring.extractTrait
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitHandler
 
 import scala.annotation.nowarn
 
-abstract class ExtractTraitTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ExtractTraitTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   def checkResult(fileText: String, expectedText: String, onlyDeclarations: Boolean, onlyFirstMember: Boolean = false): Unit = {
     configureFromFileText("dummy.scala", fileText.replace("\r", "").stripMargin.trim)

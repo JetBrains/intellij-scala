@@ -8,7 +8,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiMember
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -17,7 +17,7 @@ import org.junit.Assert._
 
 import java.io.File
 
-abstract class CheckPrivateAccessTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class CheckPrivateAccessTestBase extends ScalaLightCodeInsightFixtureTestCase {
   val refMarker = "/*ref*/"
 
   protected def folderPath = getTestDataPath + "checkers/checkPrivateAccess/"

@@ -5,9 +5,9 @@ import com.intellij.codeInsight.lookup.{Lookup, LookupManager}
 import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import com.intellij.spellchecker.inspections.SpellCheckingInspection
 import com.intellij.spellchecker.quickfixes.RenameTo
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
-abstract class SpellCorrectionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class SpellCorrectionTestBase extends ScalaLightCodeInsightFixtureTestCase {
   val NAME = "/*NAME*/"
 
   override def setUp(): Unit = {

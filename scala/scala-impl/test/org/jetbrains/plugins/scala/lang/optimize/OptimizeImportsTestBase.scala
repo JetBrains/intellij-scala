@@ -7,7 +7,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.{PsiComment, PsiFile}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.editor.importOptimizer.{OptimizeImportSettings, ScalaImportOptimizer}
 import org.jetbrains.plugins.scala.extensions.{&&, ElementText, ElementType, StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -19,7 +19,7 @@ import org.junit.Assert.{assertEquals, fail}
 
 import java.io.File
 
-abstract class OptimizeImportsTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class OptimizeImportsTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   final protected def baseRootPath: String = TestUtils.getTestDataPath + "/"
 

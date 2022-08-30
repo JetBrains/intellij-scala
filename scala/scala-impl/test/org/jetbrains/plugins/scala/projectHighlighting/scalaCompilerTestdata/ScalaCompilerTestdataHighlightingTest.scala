@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.projectHighlighting.scalaCompilerTestdata
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.LightPlatformTestCase
 import org.apache.commons.io.FilenameUtils
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -20,7 +20,7 @@ import scala.util.Using
 
 @Category(Array(classOf[ScalacTests]))
 abstract class ScalaCompilerTestdataHighlightingTest
-  extends ScalaLightCodeInsightFixtureTestAdapter {
+  extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected val includeReflectLibrary = true
   override protected val includeCompilerAsLibrary = true

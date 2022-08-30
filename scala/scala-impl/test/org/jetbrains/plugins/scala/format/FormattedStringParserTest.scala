@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala
 package format
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions._
 import org.junit.Assert.{assertEquals, fail}
 
-class FormattedStringParserTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class FormattedStringParserTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testEmpty(): Unit = {
     assertMatches(parse("")) {

@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestAdapter {
+class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
   def testSCL13786(): Unit = checkTextHasNoErrors(
     s"""
        |trait Builder {

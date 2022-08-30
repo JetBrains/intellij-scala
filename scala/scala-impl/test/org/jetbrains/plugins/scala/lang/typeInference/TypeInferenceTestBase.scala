@@ -7,7 +7,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.util.{PsiFileTestUtil, TestUtils}
@@ -17,7 +17,7 @@ import java.io.File
 import scala.annotation.nowarn
 
 @Category(Array(classOf[TypecheckerTests]))
-abstract class TypeInferenceTestBase extends ScalaLightCodeInsightFixtureTestAdapter with TypeInferenceDoTest {
+abstract class TypeInferenceTestBase extends ScalaLightCodeInsightFixtureTestCase with TypeInferenceDoTest {
 
   override val START = "/*start*/"
   override val END = "/*end*/"

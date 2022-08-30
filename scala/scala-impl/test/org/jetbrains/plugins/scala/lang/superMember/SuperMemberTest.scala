@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.lang.superMember
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
 import java.io.File
 
-class SuperMemberTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class SuperMemberTest extends ScalaLightCodeInsightFixtureTestCase {
   val CARET_MARKER = "<caret>"
 
   override protected def sourceRootPath: String = TestUtils.getTestDataPath + "/supers/"

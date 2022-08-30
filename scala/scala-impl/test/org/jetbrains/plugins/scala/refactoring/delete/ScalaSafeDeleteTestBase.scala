@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.refactoring.delete
 import com.intellij.refactoring.BaseRefactoringProcessor
 import com.intellij.refactoring.listeners.{RefactoringEventData, RefactoringEventListener}
 import com.intellij.refactoring.safeDelete.SafeDeleteHandler
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, StringExt}
 import org.jetbrains.plugins.scala.util.Markers
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-abstract class ScalaSafeDeleteTestBase extends ScalaLightCodeInsightFixtureTestAdapter with Markers with AssertionMatchers {
+abstract class ScalaSafeDeleteTestBase extends ScalaLightCodeInsightFixtureTestCase with Markers with AssertionMatchers {
   protected def | : String = CARET
 
   private def wrapText(content: String): String = {

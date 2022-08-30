@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.refactoring
 package rename3
 
 import com.intellij.codeInsight.TargetElementUtil
-import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
@@ -14,9 +13,9 @@ import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.refactoring.rename.{RenameProcessor, RenamePsiElementProcessor}
 import com.intellij.testFramework.{LightPlatformTestCase, PlatformTestUtil, PsiTestUtil}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.WriteCommandActionEx
 
 import java.io.File
 import java.nio.file.Path
@@ -24,7 +23,7 @@ import java.util
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   protected val caretMarker = "/*caret*/"
 
@@ -97,11 +96,9 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestAdapt
 
       val result = offsets.map(offset => CaretPosition(file, offset))
       if (result.nonEmpty) {
-        CommandProcessor.getInstance.executeCommand(getProject, () => {
-          inWriteAction {
-            FileDocumentManager.getInstance().getDocument(file).replaceString(0, fileLength, text)
-          }
-        }, null, null)
+        WriteCommandActionEx.runWriteCommandAction(getProject, () => {
+          FileDocumentManager.getInstance().getDocument(file).replaceString(0, fileLength, text)
+        })
       }
       result
     }
@@ -137,15 +134,13 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestAdapt
     val searchInComments = element.getText != null && element.getText.contains("Comments")
     var oldName: String = ""
 
-    CommandProcessor.getInstance.executeCommand(getProject, () => {
-      inWriteAction {
-        val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditor)
-        if (subst != null) {
-          oldName = ScalaNamesUtil.scalaName(subst)
-          new RenameProcessor(getProject, subst, newName, searchInComments, false).run()
-        }
+    WriteCommandActionEx.runWriteCommandAction(getProject, () => {
+      val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditor)
+      if (subst != null) {
+        oldName = ScalaNamesUtil.scalaName(subst)
+        new RenameProcessor(getProject, subst, newName, searchInComments, false).run()
       }
-    }, null, null)
+    })
 
     val document = PsiDocumentManager.getInstance(getProject).getDocument(file)
     PsiDocumentManager.getInstance(getProject).doPostponedOperationsAndUnblockDocument(document)

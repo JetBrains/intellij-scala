@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.invocationInfo
 
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, StringExt}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationExtractors.{extractInvocationUnderMarker, forceExtractExpressionFromArgument}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.junit.Assert.assertTrue
 
-abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
+abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestCase with AssertionMatchers {
 
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[InvocationInfoTestBase])
 

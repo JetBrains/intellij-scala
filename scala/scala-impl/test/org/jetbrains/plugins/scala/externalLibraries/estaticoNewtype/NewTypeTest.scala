@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.externalLibraries.estaticoNewtype
 
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.macros.SynteticInjectorsTestUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 
-class NewTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class NewTypeTest extends ScalaLightCodeInsightFixtureTestCase {
 
   override def librariesLoaders: Seq[LibraryLoader] =
     super.librariesLoaders :+ IvyManagedLoader("io.estatico" %% "newtype" % "0.4.3")

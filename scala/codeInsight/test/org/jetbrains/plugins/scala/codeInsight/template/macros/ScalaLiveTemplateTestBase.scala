@@ -5,13 +5,13 @@ import com.intellij.codeInsight.template.impl.{TemplateImpl, TemplateManagerImpl
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.ui.UIUtil
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.junit.Assert._
 
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   override def setUp(): Unit = {
     super.setUp()

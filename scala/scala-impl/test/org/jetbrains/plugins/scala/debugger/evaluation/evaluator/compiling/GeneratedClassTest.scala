@@ -9,7 +9,7 @@ import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.assertj.core.api.Assertions.fail
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -20,7 +20,7 @@ import org.junit.runner.RunWith
 
 import java.io.File
 
-abstract class GeneratedClassTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class GeneratedClassTestBase extends ScalaLightCodeInsightFixtureTestCase {
   import GeneratedClassTestBase.TestData
 
   private val bp = "<breakpoint>"

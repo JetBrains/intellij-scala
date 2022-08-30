@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class SingletonTypesConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class SingletonTypesConformanceTest extends ScalaLightCodeInsightFixtureTestCase {
   def testSCL11192(): Unit = checkTextHasNoErrors(
     """
       |trait HList

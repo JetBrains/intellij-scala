@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.externalLibraries.scalazDeriving
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyManagedLoader
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -16,7 +16,7 @@ import org.junit.Assert._
 /**
  * IntelliJ's equivalent of scalaz-deriving's built-in PresentationCompilerTest
  */
-class ScalazDerivingTest_2_11 extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScalazDerivingTest_2_11 extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_11
 

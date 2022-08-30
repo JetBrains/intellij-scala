@@ -6,7 +6,7 @@ import com.intellij.ide.scratch.ScratchRootType
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase.{ExpectedHighlight, TestPrepareResult, checkOffset}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffset
@@ -18,7 +18,7 @@ import org.junit.experimental.categories.Category
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Category(Array(classOf[EditorTests]))
-abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   import ScalaAnnotatorQuickFixTestBase.quickFixes
 

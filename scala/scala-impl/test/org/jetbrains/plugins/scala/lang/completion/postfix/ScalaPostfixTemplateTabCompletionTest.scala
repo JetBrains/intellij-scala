@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.completion.postfix
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 @Category(Array(classOf[CompletionTests]))
-abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaLightCodeInsightFixtureTestCase {
   override def getTestDataPath = super.getTestDataPath + "postfixTemplate/tabCompletion"
 
   protected def doTest(testName: String = getTestName(true))(textToType: String = "." + testName): Unit = {

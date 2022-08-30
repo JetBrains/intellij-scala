@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWa
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 trait HelperFixtureEditorOps {
-  self: ScalaLightCodeInsightFixtureTestAdapter =>
+  self: ScalaLightCodeInsightFixtureTestCase =>
 
   protected final def commitDocumentInEditor(): Unit = {
     val documentManager = PsiDocumentManager.getInstance(getProject)

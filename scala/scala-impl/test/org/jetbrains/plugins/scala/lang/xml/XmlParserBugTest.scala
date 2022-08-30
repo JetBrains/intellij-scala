@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.xml
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
-class XmlParserBugTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class XmlParserBugTest extends ScalaLightCodeInsightFixtureTestCase {
   def testSCL1699(): Unit = {
     val text =
       """

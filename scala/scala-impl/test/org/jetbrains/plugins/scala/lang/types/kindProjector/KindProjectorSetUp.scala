@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.types.kindProjector
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-trait KindProjectorSetUp extends ScalaLightCodeInsightFixtureTestAdapter {
+trait KindProjectorSetUp extends ScalaLightCodeInsightFixtureTestCase {
   override protected def setUp(): Unit = {
     super.setUp()
 

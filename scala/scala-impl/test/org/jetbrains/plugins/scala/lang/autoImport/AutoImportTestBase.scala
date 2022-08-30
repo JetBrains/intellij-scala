@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.psi.{PsiClass, PsiPackage, SmartPointerManager}
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -18,7 +18,7 @@ import org.junit.Assert._
 
 import java.io.File
 
-abstract class AutoImportTestBase extends ScalaLightCodeInsightFixtureTestAdapter with ScalaFiles {
+abstract class AutoImportTestBase extends ScalaLightCodeInsightFixtureTestCase with ScalaFiles {
   private val refMarker = "/*ref*/" // todo to be replaced with <caret>
 
   protected def folderPath = getTestDataPath + "autoImport/"

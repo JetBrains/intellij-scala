@@ -4,12 +4,12 @@ package usages
 
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandler, HighlightUsagesHandlerBase}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.junit.Assert
 
 import scala.jdk.CollectionConverters._
 
-class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCase {
   val | = CARET
 
   def testReturn(): Unit = {

@@ -23,7 +23,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 @Category(Array(classOf[EditorTests]))
-abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter with ShortCaretMarker {
+abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase with ShortCaretMarker {
 
   protected val q  : String = "\""
   protected val qq : String = "\"\""

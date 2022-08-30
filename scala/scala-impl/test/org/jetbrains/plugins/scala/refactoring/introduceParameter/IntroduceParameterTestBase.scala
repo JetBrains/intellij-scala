@@ -9,7 +9,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
 
 import java.io.File
 
-abstract class IntroduceParameterTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class IntroduceParameterTestBase extends ScalaLightCodeInsightFixtureTestCase {
   protected def folderPath = refactoringCommonTestDataRoot + "introduceParameter/"
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"

@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.cache.TodoCacheManager
 import com.intellij.psi.search.PsiTodoSearchHelper
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.util.Markers
 import org.junit.Assert._
@@ -16,7 +16,7 @@ import scala.jdk.CollectionConverters._
 import scala.math.Ordering.comparatorToOrdering
 
 /** see analogue class from platform: [[com.intellij.editor.TodoItemsTestCase]] */
-abstract class ScalaTodoItemsTestBase extends ScalaLightCodeInsightFixtureTestAdapter with Markers {
+abstract class ScalaTodoItemsTestBase extends ScalaLightCodeInsightFixtureTestCase with Markers {
 
   protected def testTodos(textWithMarkers: String, fileType: String = "scala"): Unit = {
     val (text, ranges) = extractMarker(textWithMarkers.withNormalizedSeparator)

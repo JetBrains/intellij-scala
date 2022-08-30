@@ -5,7 +5,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
@@ -14,7 +14,7 @@ import java.io.File
 import scala.reflect._
 
 abstract class ScPsiElementAssertionTestBase[T <: PsiElement : ClassTag]
-  extends ScalaLightCodeInsightFixtureTestAdapter {
+  extends ScalaLightCodeInsightFixtureTestCase {
 
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"

@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.lang.scaladoc
 import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler
 import com.intellij.lang.surroundWith.SurroundDescriptor
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
 import org.junit.Assert.{assertFalse, assertTrue}
 
-class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestCase {
 
   import SurroundWithWikiSyntaxTest._
 

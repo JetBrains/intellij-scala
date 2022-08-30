@@ -11,7 +11,7 @@ import com.intellij.psi.{JavaDirectoryService, JavaPsiFacade, PsiClass, PsiDirec
 import com.intellij.refactoring.PackageWrapper
 import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, SingleSourceRootMoveDestination}
 import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -22,7 +22,7 @@ import java.io.File
 import java.nio.file.Path
 import java.util
 
-abstract class ScalaMoveClassTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaMoveClassTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   protected def testDataRoot = TestUtils.getTestDataPath + "/refactoring/move/"
 

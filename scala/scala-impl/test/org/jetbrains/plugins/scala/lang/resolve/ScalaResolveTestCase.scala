@@ -21,7 +21,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiReference
 import org.jetbrains.plugins.scala.TypecheckerTests
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -31,7 +31,7 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 @Category(Array(classOf[TypecheckerTests]))
-abstract class ScalaResolveTestCase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaResolveTestCase extends ScalaLightCodeInsightFixtureTestCase {
   def folderPath: String =
     TestUtils.getTestDataPath + "/"
 

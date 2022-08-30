@@ -11,7 +11,7 @@ import com.intellij.refactoring.actions.BaseRefactoringAction
 import com.intellij.refactoring.inline.GenericInlineHandler
 import com.intellij.refactoring.util.CommonRefactoringUtil.RefactoringErrorHintException
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -21,7 +21,7 @@ import org.junit.Assert._
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-abstract class InlineRefactoringTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class InlineRefactoringTestBase extends ScalaLightCodeInsightFixtureTestCase {
   protected val caretMarker = "/*caret*/"
 
   protected def folderPath = refactoringCommonTestDataRoot + "inline/"

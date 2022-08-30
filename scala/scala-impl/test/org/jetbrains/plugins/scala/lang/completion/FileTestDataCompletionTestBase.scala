@@ -7,7 +7,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import org.jetbrains.plugins.scala.CompletionTests
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -15,7 +15,7 @@ import org.junit.experimental.categories.Category
 import java.io.File
 
 @Category(Array(classOf[CompletionTests]))
-abstract class FileTestDataCompletionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class FileTestDataCompletionTestBase extends ScalaLightCodeInsightFixtureTestCase {
   // Must be lazy so it can be overridden without early initializers
   protected lazy val caretMarker = "/*caret*/"
   protected lazy val extension: String = "scala"
