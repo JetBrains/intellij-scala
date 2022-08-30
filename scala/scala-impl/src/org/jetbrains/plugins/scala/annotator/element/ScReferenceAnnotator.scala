@@ -38,9 +38,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
       annotateReference(element)
+      qualifierPart(element, typeAware)
     }
-
-    qualifierPart(element, typeAware)
   }
 
   def qualifierPart(element: ScReference, typeAware: Boolean)
