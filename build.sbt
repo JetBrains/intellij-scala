@@ -272,7 +272,6 @@ lazy val scalaImpl: sbt.Project =
       buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
       buildInfoKeys := Seq(
         sbtVersion,
-        "bloopVersion" -> Versions.bloopVersion,
         "sbtStructureVersion" -> Versions.sbtStructureVersion,
         "sbtIdeaShellVersion" -> Versions.sbtIdeaShellVersion,
         "sbtIdeaCompilerIndicesVersion" -> Versions.compilerIndicesVersion,
@@ -438,6 +437,7 @@ lazy val macroAnnotations =
 
 lazy val bsp =
   newProject("bsp", file("bsp"))
+    .enablePlugins(BuildInfoPlugin)
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       worksheet % "test->test;compile->compile"
@@ -445,7 +445,9 @@ lazy val bsp =
     .settings(
       libraryDependencies ++= DependencyGroups.bsp,
       intellijPlugins += "JUnit".toPlugin,
-//      intellijMainJars := Seq.empty // why was this unset?
+      buildInfoPackage := "org.jetbrains.bsp.buildinfo",
+      buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
+      buildInfoOptions += BuildInfoOption.ConstantValue
     )
 
 // Integration with other IDEA plugins

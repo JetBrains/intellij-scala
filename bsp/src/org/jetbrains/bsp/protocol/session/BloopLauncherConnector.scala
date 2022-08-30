@@ -1,14 +1,15 @@
 package org.jetbrains.bsp.protocol.session
+
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
+import org.jetbrains.bsp.buildinfo.BuildInfo
 import org.jetbrains.bsp.protocol.session.BspServerConnector.BspCapabilities
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.{BspBundle, BspError}
 import org.jetbrains.plugins.scala.DependencyManager
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.build.BuildReporter
-import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 
 import java.io.File
 import scala.jdk.CollectionConverters._

@@ -5,8 +5,8 @@ import java.io.File
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.bsp.BspBundle
+import org.jetbrains.bsp.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
-import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher, sbtVersionParam, upgradedSbtVersion}
