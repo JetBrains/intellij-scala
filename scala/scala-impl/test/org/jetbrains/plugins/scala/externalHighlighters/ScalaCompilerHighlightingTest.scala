@@ -19,7 +19,8 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     expectedResult = expectedResult(
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = new TextRange(50, 58),
+        range = Some(new TextRange(50, 58)),
+        quickFixDescriptions = Seq.empty,
         msgPrefix = s"type mismatch;"
       )
     )
@@ -49,7 +50,8 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.ERROR,
-      range = new TextRange(34, 51),
+      range = Some(new TextRange(34, 51)),
+      quickFixDescriptions = Seq("Import 'java.util.concurrent.ConcurrentHashMap'"),
       msgPrefix = "Not found: type ConcurrentHashMap"
     ))
   )
@@ -62,7 +64,8 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.ERROR,
-      range = new TextRange(9, 16),
+      range = Some(new TextRange(9, 16)),
+      quickFixDescriptions = Seq("Import 'scala.util.Random.nextInt'", "Import as 'Random.nextInt'"),
       msgPrefix = "Not found: nextInt"
     ))
   )
@@ -75,7 +78,8 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
     expectedResult = expectedResult(
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = new TextRange(21, 31),
+        range = Some(new TextRange(21, 31)),
+        quickFixDescriptions = Seq.empty,
         msgPrefix = s"Found:    String"
       )
     )
@@ -98,7 +102,8 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.WARNING,
-      range = new TextRange(70, 76),
+      range = Some(new TextRange(70, 76)),
+      quickFixDescriptions = Nil,
       msgPrefix = "match may not be exhaustive"
     ))
   )
@@ -113,7 +118,8 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.ERROR,
-      range = new TextRange(7, 33),
+      range = Some(new TextRange(7, 33)),
+      quickFixDescriptions = Nil,
       msgPrefix = "class AbstractMethodInClassError needs to be abstract"
     ))
   )
