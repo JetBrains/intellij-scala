@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.refactoring.move
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
@@ -15,7 +14,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.{TestUtils, WriteCommandActionEx}
 import org.junit.Assert.{assertEquals, assertNotNull}
 
 import java.io.File
@@ -99,7 +98,7 @@ abstract class ScalaMoveClassTestBase extends ScalaLightCodeInsightFixtureTestCa
     assertEquals("Expected only single directory in module", 1, dirs.length)
     val targetDirectory: PsiDirectory = dirs(0)
 
-    CommandProcessor.getInstance().executeCommand(getProject, () => {
+    WriteCommandActionEx.runWriteCommandAction(getProject, () => {
       ScalaFileImpl.performMoveRefactoring {
         val targetPackageWrapper = PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(targetDirectory))
         val destination = new SingleSourceRootMoveDestination(targetPackageWrapper, targetDirectory)
@@ -113,7 +112,7 @@ abstract class ScalaMoveClassTestBase extends ScalaLightCodeInsightFixtureTestCa
         )
         processor.run()
       }
-    }, null, null)
+    })
 
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
 

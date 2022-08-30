@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatter
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.Language
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.impl.DocumentImpl
 import com.intellij.openapi.project.Project
@@ -246,11 +245,9 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     doc.getText
   }
 
-  //noinspection ReferencePassedToNls
-  private def runCommandInWriteAction(runnable: Runnable, name: String, groupId: String): Unit =
-    CommandProcessor.getInstance.executeCommand(getProject, () => {
-      ApplicationManager.getApplication.runWriteAction(runnable)
-    }, name, groupId)
+  private def runCommandInWriteAction(runnable: Runnable, name: String, groupId: String): Unit = {
+    WriteCommandAction.runWriteCommandAction(getProject, name, groupId, runnable)
+  }
 }
 
 private object AbstractScalaFormatterTestBase {

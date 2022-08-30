@@ -5,10 +5,8 @@ import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase.MyDataContext
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.ShortCaretMarker
+import org.jetbrains.plugins.scala.util.{ShortCaretMarker, WriteCommandActionEx}
 
 // TODO: unify with org.jetbrains.plugins.scala.lang.actions.AbstractActionTestBase ?
 abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureTestCase
@@ -27,7 +25,7 @@ abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureT
     configureFromFileText(ScalaFileType.INSTANCE, before.withNormalizedSeparator)
 
     val handler = EditorActionManager.getInstance.getActionHandler(IdeActions.ACTION_EDITOR_ENTER)
-    ActionTestBase.performAction(getProject, () => {
+    WriteCommandActionEx.runWriteCommandAction(getProject, () => {
       handler.execute(editor, editor.getCaretModel.getCurrentCaret, new MyDataContext(file))
     })
 

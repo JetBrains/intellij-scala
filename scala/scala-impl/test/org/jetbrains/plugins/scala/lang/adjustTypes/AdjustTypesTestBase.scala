@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.util.WriteCommandActionEx
 
 import java.io.File
 
@@ -44,10 +45,10 @@ abstract class AdjustTypesTestBase extends ScalaLightCodeInsightFixtureTestCase 
     val scalaFile = getFile.asInstanceOf[ScalaFile]
     val element = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset, endOffset, classOf[PsiElement])
 
-    inWriteAction {
+    WriteCommandActionEx.runWriteCommandAction(getProject, () => {
       ScalaPsiUtil.adjustTypes(element)
       UsefulTestCase.doPostponedFormatting(getProject)
-    }
+    })
 
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim

@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.lang.surroundWith;
 
 import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler;
 import com.intellij.lang.surroundWith.Surrounder;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
@@ -43,13 +42,8 @@ public class SurroundWithTest extends TestCase {
                 final PsiFile psiFile = createLightFile(res._1(), project);
                 final Surrounder[] surrounder = ScalaSurroundDescriptors$.MODULE$.getSurroundDescriptors()[0].getSurrounders();
 
-                CommandProcessor.getInstance().executeCommand(
-                        project,
-                        () -> ApplicationManager.getApplication().runWriteAction(
-                                () -> doSurround(project, psiFile, surrounder[res._4()], res._2(), res._3())
-                        ),
-                        null,
-                        null
+                WriteCommandAction.runWriteCommandAction(project, () ->
+                        doSurround(project, psiFile, surrounder[res._4()], res._2(), res._3())
                 );
 
                 return psiFile.getText();
