@@ -6,7 +6,7 @@ class AutoIndentDotOnNewLineTypingTest extends EditorTypeActionTestBase {
 
   override protected def typedChar: Char = '.'
 
-  private def indentOptions = getCommonSettings.getIndentOptions
+  private def indentOptions = getCommonCodeStyleSettings.getIndentOptions
 
   // Original "before" contain spaces even if "use indents" option is enabled.
   // It's a valid state of editor, if user manually typed those spaces.

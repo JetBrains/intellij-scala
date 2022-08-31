@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package format
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions._
 import org.junit.Assert.assertEquals
 
-class InterpolatedStringParserTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class InterpolatedStringParserTest extends ScalaLightCodeInsightFixtureTestCase {
   def testEmpty(): Unit = {
     assertMatches(parseF("")) { case Nil => }
     assertMatches(parseS("")) { case Nil => }

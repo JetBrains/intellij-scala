@@ -34,8 +34,6 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   private var compilerTester: CompilerTester = _
 
-  private var revertable: RevertableChange = _
-
   /**
    * Called on each project, but before initializing ThreadWatcher.
    * Needed to avoid ThreadLeaked exceptions after each test run,
@@ -48,12 +46,12 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
       markCompileServerThreadsLongRunning()
     }
 
-    revertable =
+    val revertable =
       CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
         CompilerTestUtil.withCompileServerJdk(compileServerJdk) |+|
         CompilerTestUtil.withForcedJdkForBuildProcess(buildProcessJdk) |+|
         RevertableChange.withApplicationSettingsSaving
-    revertable.applyChange()
+    revertable.applyChange(getTestRootDisposable)
   }
 
   override protected def setUp(): Unit = {
@@ -93,7 +91,6 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     }
   } finally {
     compilerTester = null
-    revertable.revertChange()
     EdtTestUtil.runInEdtAndWait { () =>
       ScalaCompilerTestBase.super.tearDown()
     }

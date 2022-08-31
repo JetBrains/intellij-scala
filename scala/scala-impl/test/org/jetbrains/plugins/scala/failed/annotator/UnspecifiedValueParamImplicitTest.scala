@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
-class UnspecifiedValueParamImplicitTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class UnspecifiedValueParamImplicitTest extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def shouldPass: Boolean = false
 

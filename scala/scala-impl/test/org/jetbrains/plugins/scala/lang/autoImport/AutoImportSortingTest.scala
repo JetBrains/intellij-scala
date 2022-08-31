@@ -4,11 +4,11 @@ import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.autoImport.ImportOrderings._
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
 
-class AutoImportSortingTest extends ScalaLightCodeInsightFixtureTestAdapter with PsiSelectionUtil {
+class AutoImportSortingTest extends ScalaLightCodeInsightFixtureTestCase with PsiSelectionUtil {
   import org.junit.Assert._
 
   def check(@Language("Scala") code: String, refPath: NamedElementPath, localOrdering: PsiElement => Ordering[String], possibilities: Seq[String]): Unit = {

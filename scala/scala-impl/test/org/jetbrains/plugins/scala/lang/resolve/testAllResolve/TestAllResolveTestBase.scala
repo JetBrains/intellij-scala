@@ -5,17 +5,15 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiv
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.experimental.categories.Category
 
 import java.io.File
-import scala.annotation.nowarn
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[TypecheckerTests]))
-abstract class TestAllResolveTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  def folderPath: String = baseRootPath + "resolve/testAllResolve/"
+abstract class TestAllResolveTestBase extends ScalaLightCodeInsightFixtureTestCase {
+  def folderPath: String = getTestDataPath + "resolve/testAllResolve/"
 
   protected def doTest(): Unit = {
     import _root_.org.junit.Assert._

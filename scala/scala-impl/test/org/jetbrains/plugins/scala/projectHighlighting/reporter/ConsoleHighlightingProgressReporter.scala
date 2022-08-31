@@ -38,29 +38,32 @@ class ConsoleHighlightingProgressReporter(
 
   override def reportFinalResults(): Unit = {
     val reportText = new mutable.StringBuilder
-    reportText.append("Unexpected highlighting errors found:\n")
-    reportText.append(errors.map(_.summaryString).mkString("\n"))
-    reportText.append("\n\n")
+    if (errors.nonEmpty) {
+      reportText.append("Unexpected highlighting errors found:\n")
+      reportText.append(errors.map(_.summaryString).mkString("\n"))
+      reportText.append("\n\n")
+    }
 
     val noErrorsButExpected = unexpectedSuccess
     if (noErrorsButExpected.nonEmpty) {
       val reportSuccess =
-        s"""####
-           |#### Looks like you've fixed highlighting in files:
-           |#### ${noErrorsButExpected.mkString(s"\n").indented(2)}
-           |#### Remove them from `$testClassName.filesWithProblems`
-           |####
+        s"""Looks like you've fixed highlighting in files:
+           |${noErrorsButExpected.mkString(s"\n").indented(2)}
+           |Remove them from `$testClassName.filesWithProblems`
+           |
            |""".stripMargin
       reportText.append(reportSuccess)
       reportText.append("\n")
     }
 
     val allErrors = expectedErrors ++ unexpectedErrors
-    val groupedByFileErrorsText = buildGroupedByFileErrorsText(allErrors)
-    reportText.append(
-      s"""### Highlighted errors grouped by file (${allErrors.size} errors in ${allErrors.map(_.fileName).distinct.size} files):
-         |$groupedByFileErrorsText""".stripMargin
-    )
+    if (allErrors.nonEmpty) {
+      val groupedByFileErrorsText = buildGroupedByFileErrorsText(allErrors)
+      reportText.append(
+        s"""Highlighted errors grouped by file (${allErrors.size} errors in ${allErrors.map(_.fileName).distinct.size} files):
+           |$groupedByFileErrorsText""".stripMargin
+      )
+    }
 
     val expected = expectedErrors.map(_.summaryString)
     if (expected.nonEmpty) {
@@ -85,7 +88,7 @@ class ConsoleHighlightingProgressReporter(
         val extraSyntheticMessageLine = if (fileErrors.length > maxErrorsPerTip) Some("...") else None
         val fileErrorsTexts = fileErrorsFirst.map { err => s"${err.range}, // ${err.message}" } ++ extraSyntheticMessageLine
         s"""Set(
-           |${fileErrorsTexts.mkString(",\n").indented(2)}
+           |${fileErrorsTexts.mkString("\n").indented(2)}
            |)""".stripMargin
       }
       s""""$fileName" -> $errorsPresentation"""

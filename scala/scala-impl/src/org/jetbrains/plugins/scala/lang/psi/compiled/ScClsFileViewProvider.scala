@@ -133,6 +133,7 @@ object ScClsFileViewProvider {
                                              classFileEntries: ju.List[OrderEntry]): Boolean =
       sourceFile.getPath.endsWith(relPath) && haveSameEntry(orderEntries(sourceFile), classFileEntries)
 
+    //noinspection ExistsEquals
     private def haveSameEntry(firstEntries: ju.List[OrderEntry], secondEntries: ju.List[OrderEntry]): Boolean = {
       firstEntries.asScala.exists { e1 =>
         secondEntries.asScala.exists { e2 =>

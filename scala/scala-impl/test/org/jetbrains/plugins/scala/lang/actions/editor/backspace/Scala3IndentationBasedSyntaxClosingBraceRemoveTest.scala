@@ -15,7 +15,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     // indirect way of disabling compiler-based highlighting which is triggered on each editor changes
     // see org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.condition
     ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
-    getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
+    getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
   }
 
   private def empty = ""
@@ -23,16 +23,16 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
   private def withEnabledAndDisabled(before: String, afterWithEnabled: String, afterWithDisabled: String): Unit = {
     val settingBefore = ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE
     try {
-      getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
+      getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
       ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE = true
       doTest(before, afterWithEnabled)
 
       // removing closing brace for single statements should only work with both settings for Scala 3 indentation based syntax
-      getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
+      getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
       ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE = false
       doTest(before, afterWithDisabled)
 
-      getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
+      getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
       ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE = false
       doTest(before, afterWithDisabled)
     }
@@ -2670,7 +2670,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
   }
 
   def testRemove_TryCatchBlock_SingleExpression_1(): Unit = {
-    getCommonSettings.CATCH_ON_NEW_LINE = true
+    getCommonCodeStyleSettings.CATCH_ON_NEW_LINE = true
     val before =
       s"""class A {
          |  try {${|}
@@ -2704,7 +2704,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
   }
 
   def testRemove_TryCatchBlock_SingleExpression_2(): Unit = {
-    getCommonSettings.CATCH_ON_NEW_LINE = true
+    getCommonCodeStyleSettings.CATCH_ON_NEW_LINE = true
     val before =
       s"""class A {
          |  try {${|}

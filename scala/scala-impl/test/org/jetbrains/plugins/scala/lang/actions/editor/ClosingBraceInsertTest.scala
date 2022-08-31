@@ -204,7 +204,7 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
   }
 
   def testNotInsert_FunctionBody_NonIndented_UsingTabs(): Unit = {
-    val indentOptions = getCommonSettings.getIndentOptions
+    val indentOptions = getCommonCodeStyleSettings.getIndentOptions
     indentOptions.USE_TAB_CHARACTER = true
     indentOptions.TAB_SIZE = 4
     val before =
@@ -488,7 +488,7 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
   }
 
   def testWrapInsert_IfElse_ThenBranch_ForceElseOnNewLine(): Unit = {
-    getCommonSettings.ELSE_ON_NEW_LINE = true
+    getCommonCodeStyleSettings.ELSE_ON_NEW_LINE = true
     val before =
       s"""if (true) $CARET
          |  obj.method()
@@ -716,7 +716,7 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
   }
 
   def testWrapInsert_TryCatchBlock_ForceCatchOnNewLine(): Unit = {
-    getCommonSettings.CATCH_ON_NEW_LINE = true
+    getCommonCodeStyleSettings.CATCH_ON_NEW_LINE = true
     val before =
       s"""try $CARET
          |  obj.method()
@@ -896,7 +896,7 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
   }
 
   def testWrapInsert_DoWhile_ForceWhileOnNewLine(): Unit = {
-    getCommonSettings.WHILE_ON_NEW_LINE = true
+    getCommonCodeStyleSettings.WHILE_ON_NEW_LINE = true
     val before =
       s"""do $CARET
          |  42
@@ -915,7 +915,7 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
   }
 
   def testWrapInsert_DoWhile_ForceWhileOnNewLine_1(): Unit = {
-    getCommonSettings.WHILE_ON_NEW_LINE = true
+    getCommonCodeStyleSettings.WHILE_ON_NEW_LINE = true
     val before =
       s"""do $CARET
          |  42

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.intention.lists
 abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinLineIntentionTestBase {
   private def doTestWithMethodParamSettings(newLineAfterLParen: Boolean, newLineBeforeRParen: Boolean)
                                            (singleLineText: String, multiLineText: String): Unit = {
-    val settings = getCommonSettings
+    val settings = getCommonCodeStyleSettings
     val oldLParen = settings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE
     val oldRParen = settings.METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE
 

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.sourcePath
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.assertTrue
@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
 import scala.jdk.StreamConverters._
 
-abstract class ComparisonTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ComparisonTestBase extends ScalaLightCodeInsightFixtureTestCase {
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[ComparisonTestBase])
 
   def doTest(testName: String, succeeds: Boolean): Unit

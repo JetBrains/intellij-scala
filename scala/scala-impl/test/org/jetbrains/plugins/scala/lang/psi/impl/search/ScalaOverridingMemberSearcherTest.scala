@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.search
 
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
 
-class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTestAdapter with PsiSelectionUtil {
+class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTestCase with PsiSelectionUtil {
 
 
   def check(code: String, origin: NamedElementPath, overriding: Seq[NamedElementPath]): Unit = {

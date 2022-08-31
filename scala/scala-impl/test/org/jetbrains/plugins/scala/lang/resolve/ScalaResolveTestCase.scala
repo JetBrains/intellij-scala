@@ -21,19 +21,17 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiReference
 import org.jetbrains.plugins.scala.TypecheckerTests
-import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 import java.io.File
-import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[TypecheckerTests]))
-abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class ScalaResolveTestCase extends ScalaLightCodeInsightFixtureTestCase {
   def folderPath: String =
     TestUtils.getTestDataPath + "/"
 

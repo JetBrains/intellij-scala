@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.uast
 
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 
@@ -14,7 +14,7 @@ import scala.collection.mutable
 import scala.reflect.ClassTag
 
 abstract class AbstractUastFixtureTest
-  extends ScalaLightCodeInsightFixtureTestAdapter {
+  extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_2_13

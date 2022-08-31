@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.externalLibraries.bm4
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-class BetterMonadicForImplicit0SupportTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class BetterMonadicForImplicit0SupportTest extends ScalaLightCodeInsightFixtureTestCase {
   override protected def setUp(): Unit = {
     super.setUp()
 

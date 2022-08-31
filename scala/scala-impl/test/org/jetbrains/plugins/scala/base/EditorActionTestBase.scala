@@ -4,6 +4,7 @@ package base
 import com.intellij.openapi.actionSystem.IdeActions.{ACTION_EDITOR_BACKSPACE, ACTION_EDITOR_ENTER, ACTION_EXPAND_LIVE_TEMPLATE_BY_TAB}
 import com.intellij.openapi.editor.CaretState
 import com.intellij.openapi.editor.ex.util.EditorUtil
+import com.intellij.openapi.editor.impl.{DocumentImpl, TrailingSpacesStripper}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
@@ -22,7 +23,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 @Category(Array(classOf[EditorTests]))
-abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter with ShortCaretMarker {
+abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase with ShortCaretMarker {
 
   protected val q  : String = "\""
   protected val qq : String = "\"\""
@@ -150,4 +151,49 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
     startCommand() {
       myFixture.performEditorAction(action)
     }(getProject)
+
+  protected def checkCaretOffsets(
+    expectedCarets: Seq[Int],
+    expectedText: String,
+    stripTrailingSpaces: Boolean
+  ): Unit = {
+    val document = myFixture.getDocument(myFixture.getFile).asInstanceOf[DocumentImpl]
+    if (stripTrailingSpaces) {
+      TrailingSpacesStripper.strip(document, false, true)
+    }
+
+    val allCaretOffsets =
+      myFixture.getEditor.getCaretModel.getAllCarets.asScala.iterator.map(_.getOffset).toSeq
+
+    checkCaretOffsets(
+      expectedCarets,
+      allCaretOffsets,
+      expectedText,
+      document.getText,
+      stripTrailingSpaces
+    )
+  }
+
+  private def checkCaretOffsets(
+    expectedCarets: Seq[Int],
+    actualCarets: Seq[Int],
+    expectedText: String,
+    actualText: String,
+    stripTrailingSpaces: Boolean
+  ): Unit = {
+    def doStripTrailingSpaces(text: String): String =
+      text.replaceAll(" +\n", "\n")
+
+    def patchTextWithCarets(text: String, caretOffsets: Seq[Int]): String =
+      caretOffsets
+        .sorted(Ordering.Int.reverse)
+        .foldLeft(text)(_.patch(_, "<caret>", 0))
+
+    if (expectedCarets.nonEmpty) {
+      val expected0 = patchTextWithCarets(expectedText, expectedCarets)
+      val expected = if (stripTrailingSpaces) doStripTrailingSpaces(expected0) else expected0
+      val actual = patchTextWithCarets(actualText, actualCarets)
+      assertEquals(expected, actual)
+    }
+  }
 }

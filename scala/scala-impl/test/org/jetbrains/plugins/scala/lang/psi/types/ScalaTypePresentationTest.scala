@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert._
 
-class ScalaTypePresentationTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaTypePresentationTest extends ScalaLightCodeInsightFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
   def testPolymorphicFunction(): Unit = assertPresentationIs(

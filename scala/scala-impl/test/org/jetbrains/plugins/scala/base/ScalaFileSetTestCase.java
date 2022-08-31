@@ -176,7 +176,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
 
     @SuppressWarnings("UnconstructableJUnitTestCase")
     @Category({FileSetTests.class})
-    private final class ActualTest extends ScalaLightCodeInsightFixtureTestAdapter {
+    private final class ActualTest extends ScalaLightCodeInsightFixtureTestCase {
 
         private final File myTestFile;
 
@@ -195,7 +195,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         }
 
         @Override
-        protected void setUp() throws Exception {
+        public void setUp() {
             try {
                 super.setUp();
                 ScalaFileSetTestCase.this.setUp(getProject());
@@ -219,7 +219,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         }
 
         @Override
-        protected void runTestRunnable(@NotNull ThrowableRunnable<Throwable> testRunnable) throws Throwable {
+        public void runTestRunnable(@NotNull ThrowableRunnable<Throwable> testRunnable) throws Throwable {
             String fileText = new String(loadFileText(myTestFile, "UTF-8"));
             try {
                 ScalaFileSetTestCase.this.runTest(

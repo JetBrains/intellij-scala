@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatter
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.Language
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.impl.DocumentImpl
 import com.intellij.openapi.project.Project
@@ -31,15 +30,17 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 
   protected def language: Language = ScalaLanguage.INSTANCE
 
-  protected def getCommonSettings = getSettings.getCommonSettings(language)
-  protected def getScalaSettings = getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-  protected def getIndentOptions = getCommonSettings.getIndentOptions
-  protected def getSettings = CodeStyle.getSettings(getProject)
+  protected final def getCommonSettings = getSettings.getCommonSettings(language)
+  protected final def getScalaSettings = getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+  protected final def getIndentOptions = getCommonSettings.getIndentOptions
+  protected final def getSettings = CodeStyle.getSettings(getProject)
 
-  protected def scalaSettings = getScalaSettings
-  protected def commonSettings = getCommonSettings
-  protected def ss = getScalaSettings
-  protected def cs = getCommonSettings
+  protected final def getScalaCodeStyleSettings = getScalaSettings
+
+  protected final def scalaSettings = getScalaSettings
+  protected final def commonSettings = getCommonSettings
+  protected final def ss = getScalaSettings
+  protected final def cs = getCommonSettings
 
   implicit protected def project: Project = getProject
 
@@ -244,11 +245,9 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     doc.getText
   }
 
-  //noinspection ReferencePassedToNls
-  private def runCommandInWriteAction(runnable: Runnable, name: String, groupId: String): Unit =
-    CommandProcessor.getInstance.executeCommand(getProject, () => {
-      ApplicationManager.getApplication.runWriteAction(runnable)
-    }, name, groupId)
+  private def runCommandInWriteAction(runnable: Runnable, name: String, groupId: String): Unit = {
+    WriteCommandAction.runWriteCommandAction(getProject, name, groupId, runnable)
+  }
 }
 
 private object AbstractScalaFormatterTestBase {

@@ -11,7 +11,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -28,7 +28,7 @@ import java.io.File
   TestScalaVersion.Scala_3_Latest
 ))
 @Category(Array(classOf[CompletionTests]))
-abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestCase {
 
   import PostfixTemplateTest._
 

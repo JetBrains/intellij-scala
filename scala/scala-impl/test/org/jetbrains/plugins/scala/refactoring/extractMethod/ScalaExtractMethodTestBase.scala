@@ -9,7 +9,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -19,10 +19,8 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert._
 
 import java.io.File
-import scala.annotation.nowarn
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class ScalaExtractMethodTestBase extends ScalaLightCodeInsightFixtureTestCase {
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
   private val scopeMarker = "/*inThisScope*/"
@@ -55,8 +53,8 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
 
   private def invokeExtractMethodRefactoring(scalaFile: ScalaFile, scopeOffset: Int, startOffset: Int, endOffset: Int)
                                             (project: Project): Unit = {
-    val editorManager = FileEditorManager.getInstance(project)
-    val editor = editorManager.openTextEditor(new OpenFileDescriptor(project, getVFile, startOffset), false)
+    val editor = openEditorAtOffset(startOffset)
+
     editor.getSelectionModel.setSelection(startOffset, endOffset)
 
     val context = SimpleDataContext.getSimpleContext(chosenTargetScopeKey, scopeOffset)

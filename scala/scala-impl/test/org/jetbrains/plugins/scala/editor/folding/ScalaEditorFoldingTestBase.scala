@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.editor.folding
 import com.intellij.codeInsight.folding.CodeFoldingSettings
 import com.intellij.openapi.util.TextRange
 import com.intellij.util.xmlb.XmlSerializerUtil
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.editor.folding.ScalaEditorFoldingTestBase.FoldingInfo
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder
@@ -15,7 +15,7 @@ import org.junit.Assert.assertFalse
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTestCase {
   private val FOLD_START_MARKER_BEGIN = "<|fold["
   private val FOLD_START_MARKER_END = "]>"
   private val FOLD_END_MARKER = "</fold>"

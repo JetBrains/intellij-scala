@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 import scala.reflect.ClassTag
 
-abstract class GoToTestBase extends base.ScalaLightCodeInsightFixtureTestAdapter {
+abstract class GoToTestBase extends base.ScalaLightCodeInsightFixtureTestCase {
 
   protected final def actualName(actual: Any) = actual match {
     case pack: PsiPackage              => pack.getQualifiedName

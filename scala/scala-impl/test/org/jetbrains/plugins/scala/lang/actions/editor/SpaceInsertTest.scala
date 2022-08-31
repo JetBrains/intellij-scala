@@ -19,7 +19,7 @@ class SpaceInsertTest extends EditorTypeActionTestBase {
     )
 
   def testIfElse_1(): Unit = {
-    getScalaSettings.ALIGN_IF_ELSE = true
+    getScalaCodeStyleSettings.ALIGN_IF_ELSE = true
     doTestWithEmptyLastLine(
       s"""def test = {
          |  val x = if (true) 8

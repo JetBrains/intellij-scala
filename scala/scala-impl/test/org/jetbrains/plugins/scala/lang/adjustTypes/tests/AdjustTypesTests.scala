@@ -47,7 +47,7 @@ class AdjustCatsTypeTest extends AdjustTypesTestBase {
 }
 
 class AdjustTypeScalaReflectTest extends AdjustTypesTestBase {
-  override def isIncludeReflectLibrary: Boolean = true
+  override def includeReflectLibrary: Boolean = true
 
   def testClassTag(): Unit = doTest()
 }

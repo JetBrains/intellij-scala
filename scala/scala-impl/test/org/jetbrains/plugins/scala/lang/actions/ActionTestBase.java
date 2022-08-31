@@ -5,8 +5,6 @@ import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NonNls;
@@ -40,10 +38,6 @@ public abstract class ActionTestBase extends ScalaFileSetTestCase {
   protected String removeMarker(String text) {
     int index = text.indexOf(CARET_MARKER);
     return text.substring(0, index) + text.substring(index + CARET_MARKER.length());
-  }
-
-  public static void performAction(final Project project, final Runnable action) {
-    runAsWriteAction(() -> CommandProcessor.getInstance().executeCommand(project, action, "Execution", null));
   }
 
   public static class MyDataContext implements DataContext, DataProvider {

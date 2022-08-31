@@ -11,7 +11,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupItem.KeywordInsertHandler
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -19,14 +19,12 @@ import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 import java.io.File
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[CompletionTests]))
-abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class KeywordCompletionTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
-  def folderPath: String = baseRootPath + "keywordCompletion/"
+  def folderPath: String = getTestDataPath + "keywordCompletion/"
 
   override protected def sharedProjectToken: SharedTestProjectToken =
     SharedTestProjectToken(this.getClass.getName + "_" + this.version.toString)
@@ -43,11 +41,10 @@ abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTe
     val offset = fileText.indexOf(EditorTestUtil.CARET_TAG)
     assertNotEquals(s"Caret marker not found.", offset, -1)
 
-    val project = getProject
-    val editor = FileEditorManager.getInstance(project)
-      .openTextEditor(new OpenFileDescriptor(project, getVFile, offset), false)
+    val editor = openEditorAtOffset(offset)
+
     new CodeCompletionHandlerBase(CompletionType.BASIC, false, false, true)
-      .invokeCompletion(project, editor)
+      .invokeCompletion(getProject, editor)
 
     val items = LookupManager.getActiveLookup(editor) match {
       case impl: LookupImpl =>

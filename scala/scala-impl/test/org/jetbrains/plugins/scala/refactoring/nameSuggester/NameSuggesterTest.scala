@@ -3,7 +3,7 @@ package refactoring
 package nameSuggester
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider
 import org.junit.Assert.{assertEquals, assertNotNull}
@@ -86,7 +86,7 @@ class NameSuggesterTest extends AbstractNameSuggesterTest {
   }
 }
 
-abstract class AbstractNameSuggesterTest extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class AbstractNameSuggesterTest extends ScalaLightCodeInsightFixtureTestCase {
 
   protected def testNamesByElement(element: PsiElement, expected: Seq[String]): Unit = {
     assertNotNull(element)

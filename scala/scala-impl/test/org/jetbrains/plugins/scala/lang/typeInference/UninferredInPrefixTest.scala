@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class UninferredInPrefixTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class UninferredInPrefixTest extends ScalaLightCodeInsightFixtureTestCase {
   def testSCL18067(): Unit = checkTextHasNoErrors(
     """
       |type Receive = PartialFunction[Any, Unit]

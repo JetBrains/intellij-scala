@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTestCase {
   def testSCL14442(): Unit = checkTextHasNoErrors(
     """
       |import scala.concurrent.ExecutionContext.Implicits.global

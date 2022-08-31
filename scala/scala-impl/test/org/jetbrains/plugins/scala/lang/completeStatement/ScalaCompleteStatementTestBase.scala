@@ -7,10 +7,10 @@ import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_COMPLETE_STATE
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 
-abstract class ScalaCompleteStatementTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaCompleteStatementTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   protected val fileType: LanguageFileType = ScalaFileType.INSTANCE
 
@@ -23,11 +23,11 @@ abstract class ScalaCompleteStatementTestBase extends ScalaLightCodeInsightFixtu
 
     //We should change this setting in order to be sure EnterProcessor works without 'swap-settings-hack'
     //it was in org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor#moveCaretInsideBracesIfAny
-    getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
+    getCommonCodeStyleSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
   }
 
   override def tearDown(): Unit = {
-    getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = false
+    getCommonCodeStyleSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = false
 
     super.tearDown()
   }

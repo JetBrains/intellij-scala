@@ -9,7 +9,7 @@ import com.intellij.psi.impl.ElementBase
 import com.intellij.ui.{CoreIconManager, IconManager, LayeredIcon, PlatformIcons}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
@@ -20,7 +20,7 @@ import java.util.Comparator
 import javax.swing.Icon
 import scala.util.matching.Regex
 
-abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   protected val FinalMark = AllIcons.Nodes.FinalMark
   protected val Private = AllIcons.Nodes.Private

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.performance
 
+import com.intellij.ide.impl.OpenProjectTask
 import com.intellij.openapi.module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ex.ProjectManagerEx
@@ -23,12 +24,10 @@ class FixtureDelegate(projectFile: Path) extends IdeaProjectTestFixture {
 
   override def setUp(): Unit = {
     TestApplicationManager.getInstance.setDataProvider(null)
-    //Wrapping `loadProject` with `withProgressSynchronously` just because `loadProject` now expects non-EDT
-    //Though I am not sure if this code is correct way to reuse a project...
-    actualProject = withProgressSynchronously("invoking ProjectManagerEx.getInstanceEx.loadProject") {
-      ProjectManagerEx.getInstanceEx.loadProject(projectFile)
-    }
-    ProjectManagerEx.getInstanceEx.asInstanceOf[TestProjectManager].openProject(actualProject)
+
+    val projectManager = ProjectManagerEx.getInstanceEx.asInstanceOf[TestProjectManager]
+    actualProject = projectManager.openProject(projectFile, OpenProjectTask.build())
+
     PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
   }
 

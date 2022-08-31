@@ -9,10 +9,12 @@ class ScalaLightProjectDescriptor(private val sharedProjectToken: SharedTestProj
 
   override def setUpProject(project: Project, handler: LightProjectDescriptor.SetupHandler): Unit = {
     super.setUpProject(project, handler)
-    tuneModule(ModuleManager.getInstance(project).getModules.head)
+    val modules = ModuleManager.getInstance(project).getModules
+    tuneModule(modules.head, project)
   }
 
-  def tuneModule(module: Module): Unit = ()
+  /** We also pass project because `getProject` in test classes might still be not-initialized (null) */
+  def tuneModule(module: Module, project: Project): Unit = ()
 
   /** see [[com.intellij.testFramework.LightPlatformTestCase.doSetup]] */
   override def equals(obj: Any): Boolean =

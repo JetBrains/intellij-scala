@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.annotator
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
-class CovarianceAnnotTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class CovarianceAnnotTest extends ScalaLightCodeInsightFixtureTestCase {
   def testSCL10263(): Unit = {
     checkTextHasNoErrors(
       """

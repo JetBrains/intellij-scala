@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
-class GenericsProjectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class GenericsProjectionTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testSCL8969(): Unit = {
     checkTextHasNoErrors(

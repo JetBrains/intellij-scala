@@ -18,7 +18,7 @@ import org.junit.experimental.categories.Category
 import scala.util.Try
 
 @Category(Array(classOf[SlowTests]))
-class ScalaLibraryQuickDocGenerationHealthCheckTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaLibraryQuickDocGenerationHealthCheckTest extends base.ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 

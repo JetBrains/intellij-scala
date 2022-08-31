@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions;
 
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -40,7 +41,7 @@ abstract public class AbstractActionTestBase extends ActionTestBase {
     final EditorActionHandler handler = getMyHandler();
 
     try {
-      performAction(project, () -> {
+      WriteCommandAction.runWriteCommandAction(project, () -> {
         handler.execute(myEditor, myEditor.getCaretModel().getCurrentCaret(), dataContext);
       });
 

@@ -3,12 +3,12 @@ package org.jetbrains.plugins.scala.worksheet.actions.repl
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandler, HighlightUsagesHandlerBase}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 
 import scala.jdk.CollectionConverters._
 
-class WorksheetResNHighlightHandlerTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class WorksheetResNHighlightHandlerTest extends ScalaLightCodeInsightFixtureTestCase {
 
   private def doTest(
     fileText: String,

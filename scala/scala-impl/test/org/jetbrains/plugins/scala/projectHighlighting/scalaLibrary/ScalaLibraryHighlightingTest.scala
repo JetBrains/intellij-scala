@@ -6,7 +6,8 @@ import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.annotator.HighlightingAdvisor
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClsFileViewProvider.ScClsFileImpl
@@ -14,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
+import org.jetbrains.plugins.scala.util.RevertableChange
 import org.jetbrains.plugins.scala.{HighlightingTests, ScalaFileType}
 import org.junit.Assert
 import org.junit.experimental.categories.Category
@@ -21,7 +23,7 @@ import org.junit.experimental.categories.Category
 import scala.collection.mutable
 
 @Category(Array(classOf[HighlightingTests]))
-abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestCase {
 
   private val CustomScalaSdkLoader = ScalaSDKLoader()
 
@@ -32,6 +34,16 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
 
   protected def filesWithProblems: Map[String, Set[TextRange]] = Map()
 
+  override def setUp(): Unit = {
+    super.setUp()
+    val revertible = RevertableChange.withModifiedSetting[Boolean](
+      HighlightingAdvisor.typeAwareHighlightingForScalaLibrarySourcesEnabled,
+      HighlightingAdvisor.typeAwareHighlightingForScalaLibrarySourcesEnabled = _,
+      true
+    )
+    revertible.applyChange(getTestRootDisposable)
+  }
+
   //NOTE: implementation is very similar to
   //org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.doAllProjectHighlightingTest
   def testHighlightScalaLibrary(): Unit = {
@@ -39,7 +51,7 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
     val sourceRoot = CustomScalaSdkLoader.sourceRoot
 
     try {
-      val scalaFiles = ScalaLibraryHighlightingTest.findAllScalaFiles(sourceRoot)
+      val scalaFiles = ScalaLibraryHighlightingTest.findAllScalaFiles(sourceRoot).sortBy(_.getPath)
 
       val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager
 
@@ -65,21 +77,24 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
     }
   }
 
+  protected def scalaLibraryJarName: String = "scala-library"
+
   def testAllSourcesAreFoundByRelativeFile(): Unit = {
     implicit val project: Project = getProject
     val classFilesFromScalaLibrary = for {
       className <- ScalaIndexKeys.ALL_CLASS_NAMES.allKeys
       psiClass <- ScalaIndexKeys.ALL_CLASS_NAMES.elements(className, GlobalSearchScope.allScope(getProject))
       file <- psiClass.getContainingFile.asOptionOf[ScClsFileImpl]
-      if file.getVirtualFile.getPath.contains("scala-library")
+      if file.getVirtualFile.getPath.contains(scalaLibraryJarName)
     } yield file
 
-    Assert.assertTrue("Too few class files found in scala-library", classFilesFromScalaLibrary.size > 1000)
+    Assert.assertTrue(s"Too few class files found in scala-library: ${classFilesFromScalaLibrary.size}", classFilesFromScalaLibrary.size > 100)
 
     classFilesFromScalaLibrary.foreach { file =>
+      val sourceFile = file.findSourceByRelativePath
       Assert.assertTrue(
         s"Source file for ${file.getVirtualFile.getPath} was not found by relative path",
-        file.findSourceByRelativePath.nonEmpty
+        sourceFile.nonEmpty
       )
     }
   }

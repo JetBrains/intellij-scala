@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.resolve
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class TypeVisibilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class TypeVisibilityTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testSCL13138(): Unit = {
     val text =

@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert.{assertEquals, assertTrue, fail}
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 
-class ScMemberTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScMemberTest extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 

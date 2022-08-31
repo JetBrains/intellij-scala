@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dataFlow.impl.reachingDefs
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs._
@@ -12,7 +12,7 @@ import org.junit.Assert
 
 import scala.util.Sorting
 
-class ReachingDefinitionsCollectorTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ReachingDefinitionsCollectorTest extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def getBasePath: String = TestUtils.getTestDataPath + "/dataFlow/reachingDefsCollect/"
 

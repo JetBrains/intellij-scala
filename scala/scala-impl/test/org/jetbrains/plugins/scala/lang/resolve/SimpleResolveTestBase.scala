@@ -6,7 +6,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiReference}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -18,7 +18,7 @@ import java.io.File
 import scala.util.{Failure, Success, Try}
 
 @Category(Array(classOf[TypecheckerTests]))
-abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   import SimpleResolveTestBase._
 

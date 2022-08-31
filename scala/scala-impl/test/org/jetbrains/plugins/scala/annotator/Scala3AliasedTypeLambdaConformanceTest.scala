@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class Scala3AliasedTypeLambdaConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class Scala3AliasedTypeLambdaConformanceTest extends ScalaLightCodeInsightFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 

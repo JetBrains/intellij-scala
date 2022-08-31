@@ -27,7 +27,7 @@ abstract class EnterActionWithScalafmtEnabledTestBase extends DoEditorStateTestO
     ScalafmtDynamicConfigService(getProject).configForFile(getFile)
 
     // resetting IntelliJ indent size to ensure that they do not play role in enter handler logic
-    val indentOptions = getCommonSettings.getIndentOptions
+    val indentOptions = getCommonCodeStyleSettings.getIndentOptions
     indentOptions.INDENT_SIZE = 0
     indentOptions.CONTINUATION_INDENT_SIZE = 0
     indentOptions.LABEL_INDENT_SIZE = 0

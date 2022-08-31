@@ -8,7 +8,7 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.editor._
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert.{assertFalse, assertTrue}
@@ -17,7 +17,7 @@ import org.junit.experimental.categories.Category
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[EditorTests]))
-abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestCase {
 
   def familyName: String
 

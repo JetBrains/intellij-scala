@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.scala3
 
 import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaParserTestOps
 import org.jetbrains.plugins.scala.lang.parser.scala3.Scala3ParserTest_NoIndentCompilerOption_Test.addCompilerOptions
@@ -14,7 +14,7 @@ import org.junit.Assert
 //         (currently `-no-indent` is attached to the module)
 // NOTE 2: expected PSI trees with errors were not carefully-reviewed and were just taken from the parser output as is
 class Scala3ParserTest_NoIndentCompilerOption_Test
-  extends ScalaLightCodeInsightFixtureTestAdapter
+  extends ScalaLightCodeInsightFixtureTestCase
     with ScalaParserTestOps {
 
   override protected def sharedProjectToken: SharedTestProjectToken =

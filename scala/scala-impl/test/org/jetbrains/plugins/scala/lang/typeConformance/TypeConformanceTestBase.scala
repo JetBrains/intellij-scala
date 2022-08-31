@@ -7,7 +7,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement}
-import org.jetbrains.plugins.scala.base.{FailableTest, ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{FailableTest, ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -22,7 +22,7 @@ import org.junit.experimental.categories.Category
 import java.io.File
 
 @Category(Array(classOf[TypecheckerTests]))
-abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestAdapter with FailableTest {
+abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestCase with FailableTest {
   protected val caretMarker = "/*caret*/"
 
   def folderPath: String = TestUtils.getTestDataPath + "/typeConformance/"

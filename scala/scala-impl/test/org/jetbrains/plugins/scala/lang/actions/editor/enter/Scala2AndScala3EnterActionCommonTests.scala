@@ -195,7 +195,7 @@ trait Scala2AndScala3EnterActionCommonTests extends Test {
   }
 
   def testInExtendsList_AfterExtendsAndWith_AlignExtendsAndWithSettingEnabled(): Unit = {
-    withModifiedSetting(getScalaSettings)(ScalaCodeStyleSettings.ALIGN_TO_EXTENDS)(_.ALIGN_EXTENDS_WITH, _.ALIGN_EXTENDS_WITH = _) {
+    withModifiedSetting(getScalaCodeStyleSettings)(ScalaCodeStyleSettings.ALIGN_TO_EXTENDS)(_.ALIGN_EXTENDS_WITH, _.ALIGN_EXTENDS_WITH = _) {
       checkGeneratedTextAfterEnter(
         s"""abstract class A
            |  extends B$CARET

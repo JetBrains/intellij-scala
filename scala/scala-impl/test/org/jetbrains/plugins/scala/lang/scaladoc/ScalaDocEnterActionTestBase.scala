@@ -3,15 +3,13 @@ package org.jetbrains.plugins.scala.lang.scaladoc
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase.MyDataContext
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.ShortCaretMarker
+import org.jetbrains.plugins.scala.util.{ShortCaretMarker, WriteCommandActionEx}
 
 // TODO: unify with org.jetbrains.plugins.scala.lang.actions.AbstractActionTestBase ?
-abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter
+abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureTestCase
   with ShortCaretMarker{
 
   protected def editor = getEditor
@@ -19,7 +17,7 @@ abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureT
 
   override protected def setUp(): Unit = {
     super.setUp()
-    val scalaSettings = getCurrentCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val scalaSettings = getScalaCodeStyleSettings
     scalaSettings.USE_SCALADOC2_FORMATTING = false // some tests have intentionally broken scaladoc formatting
   }
 
@@ -27,7 +25,7 @@ abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureT
     configureFromFileText(ScalaFileType.INSTANCE, before.withNormalizedSeparator)
 
     val handler = EditorActionManager.getInstance.getActionHandler(IdeActions.ACTION_EDITOR_ENTER)
-    ActionTestBase.performAction(getProject, () => {
+    WriteCommandActionEx.runWriteCommandAction(getProject, () => {
       handler.execute(editor, editor.getCaretModel.getCurrentCaret, new MyDataContext(file))
     })
 

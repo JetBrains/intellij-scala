@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
 package lang.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class FunctionLiteralToPartialFunctionTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class FunctionLiteralToPartialFunctionTest extends ScalaLightCodeInsightFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_13
 
   def testPartialFunctionSynthesis(): Unit = checkTextHasNoErrors(
@@ -36,7 +36,7 @@ class FunctionLiteralToPartialFunctionTest extends ScalaLightCodeInsightFixtureT
 }
 
 @Category(Array(classOf[TypecheckerTests]))
-class FunctionLiteralToPartialFunctionTest2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
+class FunctionLiteralToPartialFunctionTest2_12 extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
 

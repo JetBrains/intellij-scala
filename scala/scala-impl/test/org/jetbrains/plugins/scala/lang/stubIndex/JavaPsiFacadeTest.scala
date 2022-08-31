@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.lang.stubIndex
 
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.junit.Assert
 
-class JavaPsiFacadeTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class JavaPsiFacadeTest extends ScalaLightCodeInsightFixtureTestCase {
   def testJavaPsiFacade(): Unit = {
     configureFromFileText(
       """package test

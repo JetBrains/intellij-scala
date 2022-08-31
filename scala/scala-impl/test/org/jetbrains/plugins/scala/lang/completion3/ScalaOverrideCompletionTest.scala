@@ -12,7 +12,7 @@ abstract class ScalaOverrideCompletionTestBase extends ScalaCodeInsightTestBase 
 
   protected override def setUp(): Unit = {
     super.setUp()
-    set(getProject, alwaysAddType(getScalaSettings))
+    set(getProject, alwaysAddType(getScalaCodeStyleSettings))
   }
 
   protected def checkNoOverrideCompletion(fileText: String, lookupString: String): Unit =

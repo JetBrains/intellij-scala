@@ -3,14 +3,14 @@ package org.jetbrains.plugins.scala.lang.actions.editor.copy
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert.assertTrue
 
 import scala.collection.mutable.ArrayBuffer
 
-abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
   protected val Start = EditorTestUtil.SELECTION_START_TAG
   protected val End = EditorTestUtil.SELECTION_END_TAG
   protected val Caret = EditorTestUtil.CARET_TAG

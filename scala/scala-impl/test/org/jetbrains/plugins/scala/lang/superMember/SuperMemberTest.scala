@@ -2,15 +2,13 @@ package org.jetbrains.plugins.scala.lang.superMember
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
 import java.io.File
-import scala.annotation.nowarn
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+class SuperMemberTest extends ScalaLightCodeInsightFixtureTestCase {
   val CARET_MARKER = "<caret>"
 
   override protected def sourceRootPath: String = TestUtils.getTestDataPath + "/supers/"
@@ -54,7 +52,7 @@ class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val fileName = vFile.getName
     val offset = text.indexOf(CARET_MARKER)
     text = removeMarker(text)
-    val file = createFile(fileName, text)
+    val file = configureFromFileText(fileName, text)
     filePath = filePath.replaceFirst("[.][s][c][a][l][a]", ".test")
     val answerFile = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assertNotNull("file " + filePath + " not found", answerFile)

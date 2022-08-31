@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ElementToImport, ScalaImportElementFix}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.junit.Assert.{assertEquals, fail}
 
@@ -13,7 +13,7 @@ import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
 abstract class ImportElementFixTestBase[Psi <: PsiElement : ClassTag]
-  extends ScalaLightCodeInsightFixtureTestAdapter with ScalaFiles {
+  extends ScalaLightCodeInsightFixtureTestCase with ScalaFiles {
 
   def createFix(element: Psi): Option[ScalaImportElementFix[_ <: ElementToImport]]
 
@@ -41,7 +41,7 @@ abstract class ImportElementFixTestBase[Psi <: PsiElement : ClassTag]
   private def configureAndCreateFix(fileText: String): ScalaImportElementFix[_ <: ElementToImport] = {
     val file = configureFromFileText(fileType, fileText)
     val clazz = implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]]
-    val element = PsiTreeUtil.findElementOfClassAtOffset(file, getEditorOffset, clazz, false)
+    val element = PsiTreeUtil.findElementOfClassAtOffset(file, getEditor.getCaretModel.getOffset, clazz, false)
     createFix(element).getOrElse(throw NoFixException(element))
   }
 

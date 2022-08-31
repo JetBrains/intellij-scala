@@ -2,17 +2,18 @@ package org.jetbrains.plugins.scala.lang.search
 
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.junit.Assert.{assertEquals, assertTrue}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class InheritorsSearchTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class InheritorsSearchTest extends ScalaLightCodeInsightFixtureTestCase {
   private def doTest(fileText: String, expectedSubclassNames: String*): Unit = {
     val file = configureFromFileText(fileText)
-    assertTrue("Caret position is missing", getEditorOffset > 0)
-    val clazz = file.findElementAt(getEditorOffset).parentOfType[PsiClass].get
+    val caretOffset = getEditor.getCaretModel.getOffset
+    assertTrue("Caret position is missing", caretOffset > 0)
+    val clazz = file.findElementAt(caretOffset).parentOfType[PsiClass].get
     val inheritors =
       ClassInheritorsSearch.search(clazz, clazz.getUseScope, true)
         .findAll

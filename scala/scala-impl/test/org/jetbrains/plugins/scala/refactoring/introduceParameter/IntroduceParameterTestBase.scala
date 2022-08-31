@@ -9,7 +9,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -25,10 +25,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{a
 import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
 
 import java.io.File
-import scala.annotation.nowarn
 
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class IntroduceParameterTestBase extends ScalaLightCodeInsightFixtureTestCase {
   protected def folderPath = refactoringCommonTestDataRoot + "introduceParameter/"
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
@@ -52,9 +50,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
     val endOffset = fileText.indexOf(endMarker)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
 
-    val fileEditorManager = FileEditorManager.getInstance(project)
-    implicit val editor: Editor = fileEditorManager
-      .openTextEditor(new OpenFileDescriptor(project, getVFile, startOffset), false)
+    implicit val editor = openEditorAtOffset(startOffset)
 
     var res: String = null
 

@@ -1,17 +1,15 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package ml
+package org.jetbrains.plugins.scala.lang.completion.ml
 
 import com.intellij.codeInsight.completion.ml.{CompletionEnvironment, ContextFeatureProvider, MLFeatureValue}
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.{CompletionTests, ScalaLanguage}
+import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestCase}
 import org.junit.experimental.categories.Category
 
 import java.util
 
 @Category(Array(classOf[CompletionTests]))
-class ScalaContextFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaContextFeatureProviderTest extends ScalaLightCodeInsightFixtureTestCase with HelperFixtureEditorOps {
   
   import MLFeatureValue._
 
@@ -323,7 +321,7 @@ class ScalaContextFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
       ContextFeatureProvider.EP_NAME.addExplicitExtension(ScalaLanguage.INSTANCE, provider)
 
       configureFromFileText(fileText)
-      changePsiAt(getEditorOffset)
+      changePsiAt(getEditor.getCaretModel.getOffset)
       myFixture.complete(CompletionType.BASIC, 1)
 
       val handler = new CodeCompletionHandlerBase(CompletionType.BASIC, false, false, true)

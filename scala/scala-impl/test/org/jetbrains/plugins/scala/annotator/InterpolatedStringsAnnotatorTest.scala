@@ -7,7 +7,7 @@ import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
+class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixtureTestCase {
 
   import InterpolatedStringsAnnotatorTest._
 

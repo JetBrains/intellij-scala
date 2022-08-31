@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.base
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[EditorTests]))
-abstract class InlayHintsTestBase extends base.ScalaLightCodeInsightFixtureTestAdapter {
+abstract class InlayHintsTestBase extends base.ScalaLightCodeInsightFixtureTestCase {
 
   override protected final def configureFromFileText(fileText: String) =
     super.configureFromFileText(

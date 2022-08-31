@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
-class AlreadyDefinedTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class AlreadyDefinedTest extends ScalaLightCodeInsightFixtureTestCase {
   def testSCL2101(): Unit =
     checkTextHasNoErrors(
       """

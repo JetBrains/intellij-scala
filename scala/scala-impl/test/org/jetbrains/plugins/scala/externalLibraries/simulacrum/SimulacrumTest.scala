@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.externalLibraries.simulacrum
 
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.macros.SynteticInjectorsTestUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 
-class SimulacrumTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class SimulacrumTest extends ScalaLightCodeInsightFixtureTestCase {
   private val caret = "<caret>"
 
   override def librariesLoaders: Seq[LibraryLoader] =

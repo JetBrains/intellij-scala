@@ -5,8 +5,8 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 abstract class ScalaSplitJoinArgumentsIntentionTestBase extends ScalaSplitJoinLineIntentionTestBase {
   private def doTestWithCallArgsSettings(newLineAfterLParen: Int, newLineBeforeRParen: Boolean)
                                         (singleLineText: String, multiLineText: String): Unit = {
-    val commonSettings = getCommonSettings
-    val scalaSettings = getScalaSettings
+    val commonSettings = getCommonCodeStyleSettings
+    val scalaSettings = getScalaCodeStyleSettings
     val oldLParen = scalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN
     val oldRParen = commonSettings.CALL_PARAMETERS_RPAREN_ON_NEXT_LINE
 
