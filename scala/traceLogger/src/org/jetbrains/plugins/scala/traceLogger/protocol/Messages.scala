@@ -4,7 +4,6 @@ package protocol
 import SerializationApi.{ReadWriter => RW, _}
 import upickle.implicits.key
 
-import scala.annotation.nowarn
 /*
 final case class TraceLoggerMsg(msg: String,
                                 values: Seq[ValueDesc],
@@ -38,12 +37,10 @@ object TraceLoggerEntry {
   }
 
   object Success {
-    @nowarn("msg=match may not be exhaustive")
     implicit val rw: RW[Success] = macroRW
   }
 
   object Fail {
-    @nowarn("msg=match may not be exhaustive")
     implicit val rw: RW[Fail] = macroRW
   }
 }
