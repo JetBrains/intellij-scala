@@ -6,6 +6,7 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.{PsiComment, PsiElement, PsiFile, PsiWhiteSpace}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -36,7 +37,7 @@ object HighlightingAdvisor {
     val isEnabledForFile =
       file match {
         case scalaFile: ScalaFile =>
-          !isLibrarySource(scalaFile) &&
+          (!isLibrarySource(scalaFile) || typeAwareHighlightingForScalaLibrarySourcesEnabled) &&
             !(ScalaHighlightingMode.showCompilerErrorsScala3(scalaFile.getProject) && scalaFile.isInScala3Module)
         case _: DummyHolder => true
         case _ => false
@@ -44,6 +45,10 @@ object HighlightingAdvisor {
 
     isEnabledForFile && !isInIgnoredRange(element, file)
   }
+
+  @TestOnly
+  //yes, i know this is quite ugly solution, but for now I decided to not overcomplicate it and just use static global variable
+  var typeAwareHighlightingForScalaLibrarySourcesEnabled: Boolean = false
 
   private def isLibrarySource(file: ScalaFile): Boolean = {
     val vFile = file.getVirtualFile

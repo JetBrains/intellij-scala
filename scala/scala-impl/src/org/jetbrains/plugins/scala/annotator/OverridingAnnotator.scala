@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -34,10 +34,19 @@ trait OverridingAnnotator {
   }
 
   def checkOverrideMethods(function: ScFunction, isInSources: Boolean = false)
-                          (implicit holder: ScalaAnnotationHolder): Unit = function.getParent match {
-    case _: ScTemplateBody | _: ScExtensionBody =>
+                          (implicit holder: ScalaAnnotationHolder): Unit = {
+    val annotate = function.getParent match {
+      case b: ScTemplateBody =>
+        //needed when browsing sources of scala itself.
+        //scala.AnyVal contains code with impossible override, the code is handled by the compiler in a special way
+        !isInAnyVal(b)
+      case _: ScExtensionBody => true
+      case _ => false
+    }
+
+    if (annotate) {
       val signaturesWithSelfType = function.superSignaturesIncludingSelfType
-      val signatures             = function.superSignatures
+      val signatures = function.superSignatures
 
       checkStructural(function, signatures, isInSources)
 
@@ -50,7 +59,7 @@ trait OverridingAnnotator {
         isExtensionMethodSignature,
         "Method"
       )
-    case _ =>
+    }
   }
 
   def checkOverrideValues(value: ScValue, isInSources: Boolean = false)
@@ -379,4 +388,14 @@ object OverridingAnnotator {
       case t: Typeable          => t.`type`().toOption
       case _                    => None
     }
+
+  private def isInAnyVal(body: ScTemplateBody) = body.getParent match {
+    case e: ScExtendsBlock =>
+      e.getParent match {
+        case c: ScClass =>
+          c.getName == "AnyVal" && c.qualifiedName == "scala.AnyVal"
+        case _ => false
+      }
+    case _ => false
+  }
 }

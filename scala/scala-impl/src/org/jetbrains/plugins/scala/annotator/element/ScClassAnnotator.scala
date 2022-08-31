@@ -73,13 +73,31 @@ object ScClassAnnotator extends ElementAnnotator[ScClass] {
     }
   }
 
+  //primitive-wrappers in standard library don't have constructor parameter and are still compiled
+  //these classes are an exception and scalac handles these them in a special way
+  private val ValueClassesWithoutParameters: Set[String] = Set(
+    "scala.Boolean",
+    "scala.Byte",
+    "scala.Char",
+    "scala.Double",
+    "scala.Float",
+    "scala.Int",
+    "scala.Long",
+    "scala.Short",
+    "scala.Unit",
+  )
+
   private def annotateValueClassConstructor(valueClass: ScClass)
                                            (implicit holder: ScalaAnnotationHolder): Unit = {
     valueClass.constructor match {
-      case Some(c) =>
-        c.parameters match {
-          case Seq(param) if !param.isPrivateThis && (param.isVal || param.isCaseClassVal) =>
-          case Seq(param) => holder.createErrorAnnotation(param, ScalaBundle.message("value.class.can.have.only.val.parameter"))
+      case Some(c) if !ValueClassesWithoutParameters.contains(valueClass.qualifiedName) =>
+        val parameters = c.parameters
+        parameters match {
+          case Seq(param)  =>
+            val ignoreParameter = !param.isPrivateThis && (param.isVal || param.isCaseClassVal)
+            if (!ignoreParameter) {
+              holder.createErrorAnnotation(param, ScalaBundle.message("value.class.can.have.only.val.parameter"))
+            }
           case _ =>
             holder.createErrorAnnotation(valueClass.nameId, ScalaBundle.message("value.class.can.have.only.one.parameter"))
         }
