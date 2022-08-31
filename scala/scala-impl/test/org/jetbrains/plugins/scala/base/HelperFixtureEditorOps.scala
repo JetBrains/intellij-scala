@@ -5,12 +5,11 @@ import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-trait HelperFixtureEditorOps {
-  self: ScalaLightCodeInsightFixtureTestCase =>
+trait HelperFixtureEditorOps extends ScalaLightCodeInsightFixtureTestCase {
 
   protected final def commitDocumentInEditor(): Unit = {
     val documentManager = PsiDocumentManager.getInstance(getProject)
-    documentManager.commitDocument(getEditor.getDocument)
+    documentManager.commitDocument(getFixture.getEditor.getDocument)
   }
 
   protected def changePsiAt(offset: Int): Unit = {
@@ -25,11 +24,10 @@ trait HelperFixtureEditorOps {
   }
 
   protected def typeAndRemoveChar(offset: Int, charToTypeAndRemove: Char): Unit = invokeAndWait {
-    val fixture = getFixture
-    fixture.getEditor.getCaretModel.moveToOffset(offset)
-    fixture.`type`(charToTypeAndRemove)
+    getFixture.getEditor.getCaretModel.moveToOffset(offset)
+    getFixture.`type`(charToTypeAndRemove)
     commitDocumentInEditor()
-    fixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
+    getFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
     commitDocumentInEditor()
   }
 
