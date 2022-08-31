@@ -83,6 +83,7 @@ object Dependencies {
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.3"
+  val directories: ModuleID = "dev.dirs" % "directories" % "26"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
   val commonsLang: ModuleID = "org.apache.commons" % "commons-lang3" % "3.12.0"
@@ -166,7 +167,7 @@ object DependencyGroups {
     //    scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
-    "io.github.soc" % "directories" % "11",
+    directories,
     ivy2,
     scalastyle,
     compilerIndicesProtocol,

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project.sdkdetect.repository;
 
-import io.github.soc.directories.ProjectDirectories;
+import dev.dirs.ProjectDirectories;
 
 import java.io.File;
 import java.io.IOException;
