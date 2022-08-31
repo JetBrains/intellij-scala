@@ -1,16 +1,29 @@
 package org.jetbrains.plugins.scala.util
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.registry.{Registry, RegistryValue}
 import org.jetbrains.plugins.scala.util.RevertableChange.CompositeRevertableChange
 
-//TODO: Revert change automatically using getTEstROotDisposable like in
-//  Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
 trait RevertableChange {
 
   def applyChange(): Unit
 
   def revertChange(): Unit
+
+  /**
+   * Applies the change and automatically reverts it when test disposable is disposed<br>
+   * (it's done in tearDown method of test case)
+   *
+   * @param parentDisposable most commonly UsefulTestCase.getTestRootDisposable
+   */
+  final def applyChange(parentDisposable: Disposable): Unit = {
+    applyChange()
+    Disposer.register(parentDisposable, () => {
+      revertChange()
+    })
+  }
 
   final def apply(body: => Any): Unit =
     run(body)
