@@ -11,22 +11,22 @@ import com.intellij.execution.remote.{RemoteConfiguration, RemoteConfigurationTy
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.ui.{RunContentDescriptor, RunContentManager}
 import com.intellij.execution.{ProgramRunnerUtil, RunManager, RunnerAndConfigurationSettings}
+import com.intellij.find.EditorSearchSession
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.actionSystem.{ActionManager, AnActionEvent, CommonDataKeys, CommonShortcuts, CustomShortcutSet, IdeActions, Presentation, ToggleAction}
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.sbt.SbtBundle
-import org.jetbrains.sbt.shell.action.CopyFromHistoryViewerAction._
-import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
+import org.jetbrains.sbt.shell.action.SbtShellActionUtil.shellAlive
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellConsoleView, SbtShellToolWindowFactory}
 
 import java.awt.event.{InputEvent, KeyEvent}
 import javax.swing.KeyStroke
 import scala.jdk.CollectionConverters._
 
-class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEndToolbarAction(editor) {
+final class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEndToolbarAction(editor) {
 
   private val end = KeyStroke.getKeyStroke(KeyEvent.VK_END, InputEvent.CTRL_DOWN_MASK)
   private val shortcuts = new CustomShortcutSet(end)
@@ -36,8 +36,8 @@ class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEnd
 /**
   * Starts or restarts sbt shell depending on running state.
   */
-class StartAction(project: Project) extends DumbAwareAction {
-
+final class StartAction(project: Project) extends DumbAwareAction {
+  copyShortcutFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_DEFAULT_RUNNER))
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Execute)
   templatePresentation.setText(SbtBundle.message("sbt.shell.start"))
@@ -62,10 +62,9 @@ class StartAction(project: Project) extends DumbAwareAction {
       presentation.setText(SbtBundle.message("sbt.shell.start"))
     }
   }
-
 }
 
-class StopAction(project: Project) extends DumbAwareAction {
+final class StopAction(project: Project) extends DumbAwareAction {
   copyFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_STOP_PROGRAM))
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Suspend)
@@ -87,7 +86,7 @@ class StopAction(project: Project) extends DumbAwareAction {
   private def isEnabled: Boolean = shellAlive(project)
 }
 
-class EOFAction(project: Project) extends DumbAwareAction {
+final class EOFAction(project: Project) extends DumbAwareAction {
 
   private val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.TraceOver) // TODO sensible icon
@@ -104,47 +103,62 @@ class EOFAction(project: Project) extends DumbAwareAction {
   }
 }
 
-class SigIntAction(project: Project, view: SbtShellConsoleView) extends DumbAwareAction {
+final class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbAwareAction {
 
-  setShortcutSet(`ctrl + C`)
+  setShortcutSet(CommonShortcuts.getCopy)
 
   override def update(e: AnActionEvent): Unit = {
-    e.getPresentation.setEnabled(!CopyFromHistoryViewerAction.isEnabled(view))
+    e.getPresentation.setEnabled(CopyFromHistoryViewerAction.isEnabled(e, view))
   }
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    SbtShellCommunication.forProject(project).sendSigInt()
-  }
-}
-
-class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbAwareAction {
-
-  setShortcutSet(`ctrl + C`)
-
-  override def update(e: AnActionEvent): Unit = {
-    e.getPresentation.setEnabled(CopyFromHistoryViewerAction.isEnabled(view))
-  }
-
-  override def actionPerformed(e: AnActionEvent): Unit = {
-    copyFromHistoryToClipboard(view)
+    CopyFromHistoryViewerAction.copyFromHistoryToClipboard(e, view)
   }
 }
 
 private object CopyFromHistoryViewerAction {
-  def `ctrl + C` = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK))
+  def selectionModel(e: AnActionEvent, view: SbtShellConsoleView): SelectionModel = {
+    //we have two editors in sbt-shell: console and history viewer
+    //we try to use selection from the focused editor, if we have any
+    val editorInFocus = e.getDataContext.getData(CommonDataKeys.EDITOR)
+    val editor = if (editorInFocus != null) editorInFocus else view.getHistoryViewer
+    editor.getSelectionModel
+  }
 
-  private def selectionModel(view: SbtShellConsoleView): SelectionModel =
-    view.getHistoryViewer.getSelectionModel
+  def isEnabled(e: AnActionEvent, view: SbtShellConsoleView): Boolean =
+    selectionModel(e, view).hasSelection
 
-  def isEnabled(view: SbtShellConsoleView): Boolean =
-    selectionModel(view).hasSelection
-
-  private def copyFromHistoryToClipboard(view: SbtShellConsoleView): Unit =
-    selectionModel(view).copySelectionToClipboard()
+  private def copyFromHistoryToClipboard(e: AnActionEvent, view: SbtShellConsoleView): Unit =
+    selectionModel(e, view).copySelectionToClipboard()
 }
 
-class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnection]) extends ToggleAction {
+final class FindAction(view: SbtShellConsoleView) extends DumbAwareAction {
+  setShortcutSet(CommonShortcuts.getFind)
 
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    val searchSession = EditorSearchSession.start(view.getEditor, view.getProject)
+    val selectionModel = CopyFromHistoryViewerAction.selectionModel(e, view)
+    val textToSearch = selectionModel.getSelectedText
+    if (textToSearch != null) {
+      searchSession.setTextInField(textToSearch)
+    }
+  }
+}
+
+//needed to be able to close search panel
+final class EscapeAction(view: SbtShellConsoleView) extends DumbAwareAction {
+  setShortcutSet(CommonShortcuts.ESCAPE)
+
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    val searchSession = EditorSearchSession.get(view.getEditor)
+    if (searchSession != null) {
+      searchSession.close()
+    }
+  }
+}
+
+final class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnection]) extends ToggleAction {
+  copyShortcutFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_DEFAULT_DEBUGGER))
   private val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.StartDebugger)
   if (remoteConnection.isDefined) {
