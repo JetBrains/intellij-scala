@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.shell.action.CopyFromHistoryViewerAction._
 import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
-import org.jetbrains.sbt.shell.action.SigIntAction._
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellConsoleView, SbtShellToolWindowFactory}
 
 import java.awt.event.{InputEvent, KeyEvent}
@@ -103,23 +102,6 @@ class EOFAction(project: Project) extends DumbAwareAction {
   override def actionPerformed(e: AnActionEvent): Unit = {
     SbtShellCommunication.forProject(project).send("\u0004")
   }
-}
-
-class SigIntAction(project: Project, view: SbtShellConsoleView) extends DumbAwareAction {
-
-  setShortcutSet(`ctrl + C`)
-
-  override def update(e: AnActionEvent): Unit = {
-    e.getPresentation.setEnabled(!CopyFromHistoryViewerAction.isEnabled(view))
-  }
-
-  override def actionPerformed(e: AnActionEvent): Unit = {
-    SbtShellCommunication.forProject(project).sendSigInt()
-  }
-}
-
-object SigIntAction {
-  def `ctrl + C` = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK))
 }
 
 class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbAwareAction {
