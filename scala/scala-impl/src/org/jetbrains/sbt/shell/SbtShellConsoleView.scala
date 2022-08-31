@@ -39,6 +39,8 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
     val scrollToTheEndToolbarAction = new SbtShellScrollToTheEndToolbarAction(getEditor)
     val eofAction = new EOFAction(project)
     val copyFromHistoryViewerAction = new CopyFromHistoryViewerAction(this)
+    val findAction = new FindAction(this)
+    val escapeAction = new EscapeAction(this)
 
     val allActions: Array[AnAction] = Array(
       startAction,
@@ -48,7 +50,9 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
       toggleSoftWrapsAction,
       clearAllAction,
       eofAction,
-      copyFromHistoryViewerAction
+      copyFromHistoryViewerAction,
+      findAction,
+      escapeAction
     )
 
     allActions.foreach { act =>
