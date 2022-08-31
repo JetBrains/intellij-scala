@@ -82,7 +82,7 @@ object Dependencies {
   //  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
-  val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.2"
+  val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.3"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
   val commonsLang: ModuleID = "org.apache.commons" % "commons-lang3" % "3.12.0"
