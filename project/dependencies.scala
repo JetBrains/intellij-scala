@@ -94,8 +94,7 @@ object Dependencies {
   )
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.0"
 
-  val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.4.0"
-  val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.10"
+  val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.5.1"
 
   val fastparseVersion = "2.3.1"
   val scalaMetaVersion = "4.5.9"
@@ -170,7 +169,6 @@ object DependencyGroups {
     "io.github.soc" % "directories" % "11",
     ivy2,
     scalastyle,
-    scalariform,
     compilerIndicesProtocol,
     scalafmtDynamic
   )
