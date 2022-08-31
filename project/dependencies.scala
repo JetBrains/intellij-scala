@@ -74,7 +74,6 @@ object Dependencies {
   import Versions._
 
   val sbtLaunch: ModuleID = "org.scala-sbt" % "sbt-launch" % sbtVersion intransitive()
-  val jamm: ModuleID = "com.github.jbellis" % "jamm" % "0.3.1"
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
@@ -169,7 +168,6 @@ object DependencyGroups {
     sbtStructureCore,
     evoInflector,
     "io.github.soc" % "directories" % "11",
-    jamm,
     ivy2,
     scalastyle,
     scalariform,
