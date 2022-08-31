@@ -103,9 +103,9 @@ object Dependencies {
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
   val fastparse: ModuleID = "com.lihaoyi" %% "fastparse" % fastparseVersion // transitive dependency of scalaMeta, needs explicit versioning
 
-  val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.0"
-  val scalaTest: ModuleID = scalaTestNotSpecified % "test"
-  val scalaCheck: ModuleID = "org.scalatestplus" %% "scalacheck-1-14" % "3.2.1.0" % "test"
+  val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.13"
+  val scalaTest: ModuleID = scalaTestNotSpecified % Test
+  val scalaCheck: ModuleID = "org.scalatestplus" %% "scalacheck-1-16" % "3.2.13.0" % Test
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.5.0"
 
