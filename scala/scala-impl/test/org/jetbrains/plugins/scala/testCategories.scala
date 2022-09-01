@@ -36,7 +36,7 @@ trait FileSetTests
 trait CompletionTests
 
 /**
- * Applied to [[org.jetbrains.plugins.scala.codeInspection.ScalaHighlightsTestBase]],
+ * Applied to [[org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase]],
  * [[org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase]],
  * [[org.jetbrains.plugins.scala.base.EditorActionTestBase]] and
  * `org.jetbrains.plugins.scala.codeInsight.InlayHintsTestBase`.
