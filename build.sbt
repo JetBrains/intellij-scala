@@ -201,6 +201,8 @@ lazy val worksheetReplInterface =
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .settings(
+    name := "tasty-reader",
+    organization := "JetBrains",
     idePackagePrefix := Some("org.jetbrains.plugins.scala.tasty.reader"),
     intellijMainJars := Seq.empty,
     scalaVersion := "3.1.3",
@@ -209,20 +211,22 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
     (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
     (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
-    libraryDependencies += "com.github.sbt" % "junit-interface" % Versions.junitInterfaceVersion % Test
+    libraryDependencies += "com.github.sbt" % "junit-interface" % Versions.junitInterfaceVersion % Test,
+    compilationCacheSettings
   )
-  .settings(compilationCacheSettings)
 
 lazy val scalacPatches: sbt.Project =
   Project("scalac-patches", file("scalac-patches"))
     .settings(
+      name := "scalac-patches",
+      organization := "JetBrains",
       scalaVersion := Versions.scalaVersion,
       Compile / unmanagedSourceDirectories += baseDirectory.value / "src",
       Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
       libraryDependencies ++= Seq(Dependencies.scalaCompiler),
       packageMethod := PackagingMethod.Skip(),
+      compilationCacheSettings
     )
-    .settings(compilationCacheSettings)
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
@@ -357,16 +361,18 @@ lazy val scalatestFindersRootDir = file("scala/test-integration/scalatest-finder
 
 lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir)
   .settings(
+    name := "scalatest-finders",
+    organization := "JetBrains",
     // NOTE: we might continue NOT using Scala in scalatestFinders just in case
     // in some future we will decide again to extract the library, so as it can be used even without scala jar
     crossPaths := false, // disable using the Scala version in output paths and artifacts
     autoScalaLibrary := false, // removes Scala dependency,
     scalacOptions := Seq(), // scala is disabled anyway, set empty options to move to a separate compiler profile (in IntelliJ model)
-    javacOptions := Seq("--release", "17"), // finders are run in IDEA process, so using JDK 17
+    javacOptions := globalJavacOptions, // finders are run in IDEA process, so using JDK 17
     packageMethod := PackagingMethod.Standalone("lib/scalatest-finders-patched.jar"),
     intellijMainJars := Nil, //without this lineon SDK is still added (as "Provided"), while it shouldn't
+    compilationCacheSettings
   )
-  .settings(compilationCacheSettings)
 
 lazy val scalatestFindersTests: Seq[Project] = Seq(
   scalatestFindersTests_2,
@@ -384,32 +390,38 @@ val scalatestLatest_3_2 = "3.2.12"
 lazy val scalatestFindersTests_2 = Project("scalatest-finders-tests-2", scalatestFindersRootDir / "tests-2")
   .dependsOn(scalatestFinders)
   .settings(
+    name := "scalatest-finders-tests-2",
+    organization := "JetBrains",
     scalatestFindersTestSettings,
     scalaVersion := "2.11.12",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_2 % Test),
-    intellijMainJars := Nil
+    intellijMainJars := Nil,
+    compilationCacheSettings
   )
-  .settings(compilationCacheSettings)
 
 lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scalatestFindersRootDir / "tests-3_0")
   .dependsOn(scalatestFinders)
   .settings(
+    name := "scalatest-finders-tests-3_0",
+    organization := "JetBrains",
     scalatestFindersTestSettings,
     scalaVersion := "2.12.16",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test),
-    intellijMainJars := Nil
+    intellijMainJars := Nil,
+    compilationCacheSettings
   )
-  .settings(compilationCacheSettings)
 
 lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scalatestFindersRootDir / "tests-3_2")
   .dependsOn(scalatestFinders)
   .settings(
+    name := "scalatest-finders-tests-3_2",
+    organization := "JetBrains",
     scalatestFindersTestSettings,
     scalaVersion := "2.13.8",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test),
-    intellijMainJars := Nil
+    intellijMainJars := Nil,
+    compilationCacheSettings
   )
-  .settings(compilationCacheSettings)
 
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
@@ -589,7 +601,6 @@ lazy val runtimeDependencies =
         }
       }
     )
-    .settings(compilationCacheSettings)
 
 // workaround for https://github.com/JetBrains/sbt-idea-plugin/issues/110
 lazy val runtimeDependencies2 =
@@ -610,7 +621,6 @@ lazy val runtimeDependencies2 =
       localRepoDependencies := List(),
       packageFileMappings := Nil
     )
-    .settings(compilationCacheSettings)
 
 //lazy val jmhBenchmarks =
 //  newProject("benchmarks", file("scala/benchmarks"))
