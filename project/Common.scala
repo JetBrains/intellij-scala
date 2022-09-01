@@ -66,7 +66,7 @@ object Common {
       (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
       (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
       (Compile / unmanagedResourceDirectories) += baseDirectory.value / "resources",
-      (Test / unmanagedResourceDirectories) += baseDirectory.value / "testResources",
+      (Test / unmanagedResourceDirectories) ++= Seq(baseDirectory.value / "testResources", baseDirectory.value / "testdata"),
       libraryDependencies ++= Seq(Dependencies.junitInterface),
       updateOptions := updateOptions.value.withCachedResolution(true),
       intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
