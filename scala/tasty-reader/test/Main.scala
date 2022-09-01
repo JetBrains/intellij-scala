@@ -15,27 +15,50 @@ object Main {
   private val Repository = Home + "/.cache/coursier/v1/https/repo1.maven.org/maven2/"
   private val OutputDir = Home + "/IdeaProjects/scala-plugin-for-ultimate/community/scala/tasty-reader/target/comparison"
 
-  // scalaVersion := "3.1.1",
-  // libraryDependencies += "dev.zio" %% "zio" % "1.0.12",
-  // libraryDependencies += "dev.zio" %% "zio-streams" % "1.0.12",
-  // libraryDependencies += "org.typelevel" %% "cats-core" % "2.7.0",
-  // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.8",
-  // libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.1.1",
-  // libraryDependencies += "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
+  // scalaVersion := "3.1.3",
+  // libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.1.3",
+
+  // libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.13",
+
+  // libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.13",
+
+  // libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.15.4",
+
+  // libraryDependencies += "dev.zio" %% "zio" % "2.0.2",
+  // libraryDependencies += "dev.zio" %% "zio-streams" % "2.0.2",
+
+  // libraryDependencies += "org.typelevel" %% "cats-core" % "2.8.0",
+  // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.14",
+
   // libraryDependencies += "io.getquill" %% "quill-sql" % "3.16.4-Beta2.7",
   // libraryDependencies += "io.getquill" %% "quill-jdbc-zio" % "3.16.4-Beta2.7"
+
+  // libraryDependencies += "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
+
   private val Libraries = Seq(
-    "org/scala-lang/scala3-library_3/3.1.1/scala3-library_3-3.1.1.jar",
-    "org/scalatest/scalatest-core_3/3.2.11/scalatest-core_3-3.2.11.jar",
-    "org/scalatest/scalatest-funspec_3/3.2.11/scalatest-funspec_3-3.2.11.jar",
-    "org/scalatest/scalatest-funsuite_3/3.2.11/scalatest-funsuite_3-3.2.11.jar",
-    "dev/zio/zio_3/1.0.12/zio_3-1.0.12.jar",
-    "dev/zio/zio-streams_3/1.0.12/zio-streams_3-1.0.12.jar",
+    "org/scala-lang/scala3-library_3/3.1.3/scala3-library_3-3.1.3.jar",
+    "org/scala-lang/scala3-compiler_3/3.1.3/scala3-compiler_3-3.1.3.jar",
+
+    "org/scalatest/scalatest-core_3/3.2.13/scalatest-core_3-3.2.13.jar",
+    "org/scalatest/scalatest-funspec_3/3.2.13/scalatest-funspec_3-3.2.13.jar",
+    "org/scalatest/scalatest-funsuite_3/3.2.13/scalatest-funsuite_3-3.2.13.jar",
+
+    "org/scalactic/scalactic_3/3.2.13/scalactic_3-3.2.13.jar",
+
+    "org/scalacheck/scalacheck_3/1.15.4/scalacheck_3-1.15.4.jar",
+
+    "dev/zio/zio_3/2.0.2/zio_3-2.0.2.jar",
+    "dev/zio/zio-streams_3/2.0.2/zio-streams_3-2.0.2.jar",
+
+    "org/typelevel/cats-core_3/2.8.0/cats-core_3-2.8.0.jar",
+    "org/typelevel/cats-kernel_3/2.8.0/cats-kernel_3-2.8.0.jar",
+    "org/typelevel/cats-effect_3/3.3.14/cats-effect_3-3.3.14.jar",
+    "org/typelevel/cats-effect-kernel_3/3.3.14/cats-effect-kernel_3-3.3.14.jar",
+    "org/typelevel/cats-effect-std_3/3.3.14/cats-effect-std_3-3.3.14.jar",
+
     "io/getquill/quill-sql_3/3.16.4-Beta2.7/quill-sql_3-3.16.4-Beta2.7.jar",
     "io/getquill/quill-jdbc-zio_3/3.16.4-Beta2.7/quill-jdbc-zio_3-3.16.4-Beta2.7.jar",
-    "org/typelevel/cats-core_3/2.7.0/cats-core_3-2.7.0.jar",
-    "org/typelevel/cats-effect_3/3.3.8/cats-effect_3-3.3.8.jar",
-    "org/scala-lang/scala3-compiler_3/3.1.1/scala3-compiler_3-3.1.1.jar",
+
     "org/tpolecat/doobie-core_3/1.0.0-RC1/doobie-core_3-1.0.0-RC1.jar",
   )
 
@@ -45,7 +68,7 @@ object Main {
 
     val start = System.currentTimeMillis()
 
-    Libraries.sorted.foreach { binaries =>
+    Libraries.sortBy(_.split('/').last).foreach { binaries =>
       println("Parsing TASTy:\t\t" + binaries)
       new JarInputStream(new BufferedInputStream(new FileInputStream(Repository + "/" + binaries))).pipe { in =>
         Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".tasty")).foreach { entry =>
