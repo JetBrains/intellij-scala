@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor.precedence
 
-import gnu.trove.{TObjectHashingStrategy, TObjectIntHashMap}
+import it.unimi.dsi.fastutil.Hash
+import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-
-import scala.annotation.nowarn
 
 sealed trait TopPrecedenceHolder {
 
@@ -23,13 +22,12 @@ sealed trait TopPrecedenceHolder {
     precedence(left) < apply(right)
 }
 
-final class MappedTopPrecedenceHolder(strategy: TObjectHashingStrategy[ScalaResolveResult]) extends TopPrecedenceHolder {
+final class MappedTopPrecedenceHolder(strategy: Hash.Strategy[ScalaResolveResult]) extends TopPrecedenceHolder {
 
-  @nowarn("cat=deprecation")
-  private[this] val precedences = new TObjectIntHashMap[ScalaResolveResult](strategy)
+  private[this] val precedences = new Object2IntOpenCustomHashMap[ScalaResolveResult](strategy)
 
   override def apply(result: ScalaResolveResult): Int =
-    precedences.get(result)
+    precedences(result)
 
   override def update(result: ScalaResolveResult, i: Int): Unit = {
     precedences.put(result, i)

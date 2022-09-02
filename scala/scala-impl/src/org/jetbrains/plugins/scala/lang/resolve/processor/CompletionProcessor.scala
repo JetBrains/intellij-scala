@@ -64,11 +64,14 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
 
   private object CompletionStrategy extends NameUniquenessStrategy {
 
-    override def computeHashCode(result: ScalaResolveResult): Int =
-      31 * result.isNamedParameter.hashCode() + super.computeHashCode(result)
+    override def hashCode(result: ScalaResolveResult): Int =
+      31 * result.isNamedParameter.hashCode() + super.hashCode(result)
 
-    override def equals(left: ScalaResolveResult, right: ScalaResolveResult): Boolean =
-      left.isNamedParameter == right.isNamedParameter && super.equals(left, right)
+    override def equals(left: ScalaResolveResult, right: ScalaResolveResult): Boolean = {
+      if (left == null && right == null) true
+      else if (left == null || right == null) false
+      else left.isNamedParameter == right.isNamedParameter && super.equals(left, right)
+    }
   }
 
   override def nameUniquenessStrategy: NameUniquenessStrategy = CompletionStrategy

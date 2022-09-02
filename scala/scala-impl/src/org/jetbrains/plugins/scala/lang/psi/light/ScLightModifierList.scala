@@ -5,7 +5,6 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.util.PsiUtil
-import gnu.trove.THashSet
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

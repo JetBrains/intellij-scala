@@ -8,7 +8,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
-import gnu.trove.THashMap
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
@@ -48,9 +48,8 @@ abstract class ImplicitProcessor(override protected val getPlace: PsiElement,
 
   override protected val holder: TopPrecedenceHolder = new MappedTopPrecedenceHolder(nameUniquenessStrategy)
 
-  @nowarn("cat=deprecation")
   private[this] val levelMap: ju.Map[ScalaResolveResult, ju.Set[ScalaResolveResult]] =
-    new THashMap[ScalaResolveResult, ju.Set[ScalaResolveResult]](nameUniquenessStrategy)
+    new Object2ObjectOpenCustomHashMap[ScalaResolveResult, ju.Set[ScalaResolveResult]](nameUniquenessStrategy)
 
   override protected def clearLevelQualifiedSet(result: ScalaResolveResult): Unit = {
     //optimisation, do nothing

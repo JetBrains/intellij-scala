@@ -27,13 +27,14 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
     override def isValid(result: ScalaResolveResult): Boolean = result.qualifiedNameId != null
 
-    override def computeHashCode(result: ScalaResolveResult): Int = result.qualifiedNameId match {
+    override def hashCode(result: ScalaResolveResult): Int = result.qualifiedNameId match {
       case null => 0
       case id   => id.hashCode
     }
 
     override def equals(left: ScalaResolveResult, right: ScalaResolveResult): Boolean =
-      left.qualifiedNameId == right.qualifiedNameId
+      if (left == null || right == null) false
+      else left.qualifiedNameId == right.qualifiedNameId
   }
 
   @volatile

@@ -3,7 +3,8 @@ package lang
 package psi
 package types
 
-import gnu.trove.{THashMap, TObjectHashingStrategy}
+import it.unimi.dsi.fastutil.Hash
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 
 final class ScExistentialType private (
   val quantified:         ScType,
@@ -228,13 +229,15 @@ object ScExistentialType {
                         falseUndef: Boolean): ConstraintsResult = {
 
     val rightToLeft: java.util.Map[ScExistentialArgument, ScExistentialArgument] = {
-      val byName: TObjectHashingStrategy[ScExistentialArgument] = new TObjectHashingStrategy[ScExistentialArgument] {
-        override def computeHashCode(t: ScExistentialArgument): Int = t.name.hashCode
-        override def equals(t: ScExistentialArgument, t1: ScExistentialArgument): Boolean = t.name == t1.name
+      val byNameStrategy: Hash.Strategy[ScExistentialArgument] = new Hash.Strategy[ScExistentialArgument] {
+        override def hashCode(t: ScExistentialArgument): Int = t.name.hashCode
+        override def equals(t: ScExistentialArgument, t1: ScExistentialArgument): Boolean = {
+          if (t == null || t1 == null) false
+          else t.name == t1.name
+        }
       }
 
-      @nowarn("cat=deprecation")
-      val map = new THashMap[ScExistentialArgument, ScExistentialArgument](byName)
+      val map = new Object2ObjectOpenCustomHashMap[ScExistentialArgument, ScExistentialArgument](byNameStrategy)
       right.wildcards.zip(left.wildcards).foreach {
         case (x, y) => map.put(x, y)
       }

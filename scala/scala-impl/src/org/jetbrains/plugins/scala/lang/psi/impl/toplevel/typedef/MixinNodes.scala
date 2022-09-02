@@ -11,7 +11,8 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiClassType, PsiNamedElement}
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import com.intellij.util.{AstLoadingFilter, SmartList}
-import gnu.trove.{THashMap, TObjectHashingStrategy}
+import it.unimi.dsi.fastutil.Hash
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -32,7 +33,7 @@ import org.jetbrains.plugins.scala.util.{ScEquivalenceUtil, UnloadableThreadLoca
 import java.util.concurrent.ConcurrentHashMap
 import java.util.{HashMap => JMap, List => JList}
 import java.util
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.immutable.{ArraySeq, SeqMap}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -335,18 +336,15 @@ object MixinNodes {
 
     def findNode(named: PsiNamedElement): Option[Node[T]] = {
       var publicNode: Node[T] = null
-      publics.forEachEntry { (k, v) =>
-        val element = k.namedElement
-        if (named == element) {
+      publics.forEach { (k, v) =>
+        if (publicNode == null && named == k.namedElement) {
           publicNode = v
-          false
         }
-        else true
       }
+
       Option(publicNode).orElse {
         privates.asScala.find(node => node.info.namedElement == named)
       }
-
     }
 
     def isEmpty: Boolean = publics.isEmpty && privates.isEmpty
@@ -373,18 +371,19 @@ object MixinNodes {
     def nodesIterator: Iterator[Node[T]] = list.iterator.asScala
   }
 
-  @nowarn("cat=deprecation")
-  type NodesMap[T <: Signature] = THashMap[T, Node[T]]
+  type NodesMap[T <: Signature] = Object2ObjectOpenCustomHashMap[T, Node[T]]
 
   object NodesMap {
-    private def hashingStrategy[T <: Signature]: TObjectHashingStrategy[T] =
-      new TObjectHashingStrategy[T] {
-        override def computeHashCode(t: T): Int = t.equivHashCode
-        override def equals(t: T, t1: T): Boolean = t.equiv(t1)
+    private def hashingStrategy[T <: Signature]: Hash.Strategy[T] =
+      new Hash.Strategy[T] {
+        override def hashCode(t: T): Int = t.equivHashCode
+        override def equals(t: T, t1: T): Boolean = {
+          if (t == null || t1 == null) false
+          else t.equiv(t1)
+        }
       }
 
-    @nowarn("cat=deprecation")
-    def empty[T <: Signature]: NodesMap[T] = new THashMap[T, Node[T]](2, hashingStrategy[T])
+    def empty[T <: Signature]: NodesMap[T] = new Object2ObjectOpenCustomHashMap[T, Node[T]](2, hashingStrategy[T])
   }
 
   def linearization(clazz: PsiClass): Seq[ScType] = {

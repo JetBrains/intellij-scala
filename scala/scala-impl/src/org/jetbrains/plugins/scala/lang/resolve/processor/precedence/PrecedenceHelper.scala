@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.lang.resolve.processor.precedence
 
 import com.intellij.psi.PsiElement
 import com.intellij.util.containers.SmartHashSet
-import gnu.trove.{THashSet, TObjectHashingStrategy}
+import it.unimi.dsi.fastutil.Hash
+import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import java.util
-import scala.annotation.nowarn
 
 trait PrecedenceHelper {
 
@@ -16,29 +16,30 @@ trait PrecedenceHelper {
   protected val precedenceTypes: PrecedenceTypes = PrecedenceTypes.forElement(getPlace)
   protected lazy val placePackageName: String = Option(ScalaPsiUtil.getPlacePackageName(getPlace)).getOrElse("")
 
-  protected abstract class NameUniquenessStrategy extends TObjectHashingStrategy[ScalaResolveResult] {
-
+  protected abstract class NameUniquenessStrategy extends Hash.Strategy[ScalaResolveResult] {
     def isValid(result: ScalaResolveResult): Boolean = true
 
-    override def computeHashCode(result: ScalaResolveResult): Int = result.nameInScope.hashCode
+    override def hashCode(result: ScalaResolveResult): Int = result.nameInScope.hashCode
 
     override def equals(left: ScalaResolveResult, right: ScalaResolveResult): Boolean =
-      left.nameInScope == right.nameInScope
+      if (left == null && right == null) true
+      else if (left == null || right == null) false
+      else left.nameInScope == right.nameInScope
   }
 
   protected val holder: TopPrecedenceHolder
 
   protected def nameUniquenessStrategy: NameUniquenessStrategy
 
-  @nowarn("cat=deprecation")
-  private class UniqueNamesSet extends THashSet[ScalaResolveResult](nameUniquenessStrategy) {
+  private class UniqueNamesSet extends ObjectOpenCustomHashSet[ScalaResolveResult](nameUniquenessStrategy) {
 
     override def add(result: ScalaResolveResult): Boolean =
       if (nameUniquenessStrategy.isValid(result)) super.add(result)
       else false
 
     override def contains(obj: scala.Any): Boolean = obj match {
-      case result: ScalaResolveResult if nameUniquenessStrategy.isValid(result) => super.contains(result)
+      case result: ScalaResolveResult if nameUniquenessStrategy.isValid(result) =>
+        super.contains(result)
       case _ => false
     }
   }
