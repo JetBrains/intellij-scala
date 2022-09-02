@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 
 final class ScExistentialType private (
   val quantified:         ScType,
@@ -232,6 +232,8 @@ object ScExistentialType {
         override def computeHashCode(t: ScExistentialArgument): Int = t.name.hashCode
         override def equals(t: ScExistentialArgument, t1: ScExistentialArgument): Boolean = t.name == t1.name
       }
+
+      @nowarn("cat=deprecation")
       val map = new THashMap[ScExistentialArgument, ScExistentialArgument](byName)
       right.wildcards.zip(left.wildcards).foreach {
         case (x, y) => map.put(x, y)

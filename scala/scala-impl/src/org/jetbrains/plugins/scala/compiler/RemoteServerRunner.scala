@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import com.intellij.application.options.RegistryManager
+import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.Client

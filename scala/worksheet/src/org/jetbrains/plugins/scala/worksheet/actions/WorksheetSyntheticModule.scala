@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.actions
 
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.extensions.PluginDescriptor
+import com.intellij.openapi.extensions.{ExtensionsArea, PluginDescriptor}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
@@ -87,6 +87,8 @@ final class WorksheetSyntheticModule(
 
   override def instantiateClass[T](className: String, pluginDescriptor: PluginDescriptor): T =
     ReflectionUtil.newInstance(loadClass(className, pluginDescriptor))
+
+  override def getExtensionArea: ExtensionsArea = throw new IllegalStateException("not implemented")
 }
 
 object WorksheetSyntheticModule {

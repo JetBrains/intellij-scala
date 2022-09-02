@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightModifierList._
 
+import java.util
 import scala.annotation.tailrec
 
 private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
@@ -36,7 +37,7 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
   override def hasExplicitModifier(name: String): Boolean = modifiers.contains(name)
 
   private def computeModifiers(): java.util.Set[String] = {
-    val set = new THashSet[String]
+    val set = new util.HashSet[String]
 
     val annotationsHolder = annotHolder(scalaElement)
 

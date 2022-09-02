@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import java.util
+import scala.annotation.nowarn
 
 trait PrecedenceHelper {
 
@@ -29,6 +30,7 @@ trait PrecedenceHelper {
 
   protected def nameUniquenessStrategy: NameUniquenessStrategy
 
+  @nowarn("cat=deprecation")
   private class UniqueNamesSet extends THashSet[ScalaResolveResult](nameUniquenessStrategy) {
 
     override def add(result: ScalaResolveResult): Boolean =

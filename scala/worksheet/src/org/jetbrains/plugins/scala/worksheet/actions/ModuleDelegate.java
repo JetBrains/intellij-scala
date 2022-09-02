@@ -131,13 +131,6 @@ public abstract class ModuleDelegate implements Module {
         return module.getComponent(interfaceClass);
     }
 
-    @NotNull
-    @SuppressWarnings("deprecation")
-    @Override
-    public <T> T[] getComponents(@NotNull Class<T> baseClass) {
-        return module.getComponents(baseClass);
-    }
-
     @Override
     public @NotNull PicoContainer getPicoContainer() {
         return module.getPicoContainer();

@@ -7,7 +7,6 @@ import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore, VirtualFile}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.StorageException
 import com.intellij.util.indexing.ValueContainer.ContainerAction
-import gnu.trove.THashSet
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.UsagesInFile
 
@@ -99,7 +98,7 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
     includeAnonymous:        Boolean,
     interruptNumber:         Int
   ): Array[CompilerRef.CompilerClassHierarchyElementDef] = rethrowStorageExceptionIn {
-    val res   = new THashSet[CompilerRef.CompilerClassHierarchyElementDef]()
+    val res   = new util.HashSet[CompilerRef.CompilerClassHierarchyElementDef]()
     val queue = new util.ArrayDeque[CompilerRef.CompilerClassHierarchyElementDef](10)
 
     @tailrec

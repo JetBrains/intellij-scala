@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala
 
-import com.intellij.application.options.RegistryManager
+import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.openapi.application.ApplicationManager
 import org.apache.ivy.Ivy
 import org.apache.ivy.core.module.id.ModuleRevisionId
