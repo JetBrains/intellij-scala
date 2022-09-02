@@ -222,7 +222,6 @@ lazy val scalacPatches: sbt.Project =
       organization := "JetBrains",
       scalaVersion := Versions.scalaVersion,
       Compile / unmanagedSourceDirectories += baseDirectory.value / "src",
-      Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
       libraryDependencies ++= Seq(Dependencies.scalaCompiler),
       packageMethod := PackagingMethod.Skip(),
       compilationCacheSettings
