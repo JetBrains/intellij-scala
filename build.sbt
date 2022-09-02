@@ -450,7 +450,8 @@ lazy val bsp =
       intellijPlugins += "JUnit".toPlugin,
       buildInfoPackage := "org.jetbrains.bsp.buildinfo",
       buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
-      buildInfoOptions += BuildInfoOption.ConstantValue
+      buildInfoOptions += BuildInfoOption.ConstantValue,
+      ideExcludedDirectories := Seq(baseDirectory.value / "target")
     )
 
 // Integration with other IDEA plugins
