@@ -261,14 +261,9 @@ trait OverridingAnnotator {
         }
 
         def annotateFunFromValOrVar(): Unit = {
-          def annotVal() = {
+          def annotVal(): Unit = {
             holder.createErrorAnnotation(memberNameId,
               ScalaBundle.message("member.cannot.override.val", namedElement.name))
-          }
-
-          def annotVar() = {
-            holder.createErrorAnnotation(memberNameId,
-              ScalaBundle.message("member.cannot.override.var", namedElement.name))
           }
 
           for (signature <- superSignatures) {
@@ -276,9 +271,7 @@ trait OverridingAnnotator {
               case s: TermSignature =>
                 s.namedElement match {
                   case rp: ScBindingPattern if rp.isVal => annotVal()
-                  case rp: ScBindingPattern if rp.isVar => annotVar()
                   case cp: ScClassParameter if cp.isVal => annotVal()
-                  case cp: ScClassParameter if cp.isVar => annotVar()
                   case f: ScFieldId if f.isVal => annotVal()
                   case _ =>
                 }

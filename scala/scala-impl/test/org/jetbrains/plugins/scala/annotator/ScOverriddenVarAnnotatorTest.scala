@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
-  def testOverrideParameter(): Unit = {
+  def testValueParameterOverridesTraitAbstractVariable(): Unit = {
     val scalaCode =
       """
         |trait Animal { var cat: String }
@@ -10,10 +10,11 @@ class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
         |""".stripMargin
 
     val errors = errorsFromScalaCode(scalaCode)
-    assert(errors.exists(err => err.element == "override val cat: String"))
+    println(errors.head.message)
+    assert(errors.exists(err => err.element == "cat" && err.message == "Mutable variable cannot be overridden"))
   }
 
-  def testOverrideVal(): Unit = {
+  def testValueOverridesTraitAbstractVariable(): Unit = {
     val scalaCode =
       """
         |trait Animal { var cat: String }
@@ -24,10 +25,10 @@ class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
         |""".stripMargin
 
     val errors = errorsFromScalaCode(scalaCode)
-    assert(errors.exists(err => err.element == "cat"))
+    assert(errors.exists(err => err.element == "cat" && err.message == "Missing implementation for the setter: cat"))
   }
 
-  def testOverrideParamByVal(): Unit = {
+  def testValueOverridesVariableParameter(): Unit = {
     val scalaCode =
       """
         |class Animal(var cat: String = "")
@@ -38,10 +39,10 @@ class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
         |""".stripMargin
 
     val errors = errorsFromScalaCode(scalaCode)
-    assert(errors.exists(err => err.element == "cat"))
+    assert(errors.exists(err => err.element == "cat" && err.message == "Mutable variable cannot be overridden"))
   }
 
-  def testOverrideParamByParam(): Unit = {
+  def testValueParameterOverridesVariableParameter(): Unit = {
     val scalaCode =
       """
         |class Animal(var cat: String)
@@ -50,10 +51,10 @@ class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
         |""".stripMargin
 
     val errors = errorsFromScalaCode(scalaCode)
-    assert(errors.exists(err => err.element == "override val cat: String"))
+    assert(errors.exists(err => err.element == "cat" && err.message == "Mutable variable cannot be overridden"))
   }
 
-  def testOverrideParamByVar(): Unit = {
+  def testVariableOverridesVariableParameter(): Unit = {
     val scalaCode =
       """
         |class Animal(var cat: String)
@@ -64,10 +65,10 @@ class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
         |""".stripMargin
 
     val errors = errorsFromScalaCode(scalaCode)
-    assert(errors.exists(err => err.element == "cat"))
+    assert(errors.exists(err => err.element == "cat" && err.message == "Mutable variable cannot be overridden"))
   }
 
-  def testOverrideParamByDef(): Unit = {
+  def testMethodOverridesVariableParameter(): Unit = {
     val scalaCode =
       """
         |class Animal(var cat: String)
@@ -78,7 +79,39 @@ class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
         |""".stripMargin
 
     val errors = errorsFromScalaCode(scalaCode)
-    assert(errors.exists(err => err.element == "cat"))
+    assert(errors.exists(err => err.element == "cat" && err.message == "Mutable variable cannot be overridden"))
+  }
+
+  def testValueOverridesAbstractClassVariable(): Unit = {
+    val scalaCode =
+      """
+        |abstract class Animal {
+        |  var cat: String
+        |}
+        |
+        |class Cat extends Animal {
+        |  override val cat: String = ""
+        |}
+        |""".stripMargin
+
+    val errors = errorsFromScalaCode(scalaCode)
+    assert(errors.exists(err => err.element == "cat" && err.message == "Missing implementation for the setter: cat"))
+  }
+
+  def testSetterOverridesAbstractClassVariable(): Unit = {
+    val scalaCode =
+      """
+        |abstract class Animal {
+        |  var cat: String
+        |}
+        |
+        |class Cat extends Animal {
+        |  override def cat_=(x: String): Unit = {}
+        |}
+        |""".stripMargin
+
+    val errors = errorsFromScalaCode(scalaCode)
+    assert(errors.exists(err => err.element == "cat_=" && err.message == "Missing implementation for the getter: cat"))
   }
 
   def testOverrideAbstractVarByVarIsOk(): Unit = {

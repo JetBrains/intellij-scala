@@ -174,28 +174,21 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
     val code =
       """
         |object ppp {
-        |abstract class A(val oof: Int = 42, var rab: Int = 24) {
+        |abstract class A(val oof: Int = 42) {
         |  val foo = 42
-        |  var bar = 24
         |  val afoo: Int
-        |  var abar: Int
         |}
         |
         |class B extends A {
         |  override def foo = 999
-        |  override def bar = 1000
         |  override def oof = 999
-        |  override def rab = 999
         |  override def afoo = 999
-        |  override def abar = 999
         |}
         |}
       """.stripMargin
     assertMatches(messages(code)) {
       case List(Error("foo", "method foo needs to be a stable, immutable value"),
-      Error("bar", "method bar cannot override a mutable variable"),
       Error("oof", "method oof needs to be a stable, immutable value"),
-      Error("rab", "method rab cannot override a mutable variable"),
       Error("afoo", "method afoo needs to be a stable, immutable value")) =>
     }
   }
