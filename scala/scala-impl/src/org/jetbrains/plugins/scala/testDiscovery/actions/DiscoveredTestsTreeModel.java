@@ -14,7 +14,6 @@ import com.intellij.ui.tree.BaseTreeModel;
 import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.SmartList;
-import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -144,7 +143,7 @@ class DiscoveredTestsTreeModel extends BaseTreeModel<Object> {
     }
 
     static class Method extends Node<PsiMethod> {
-      private final Collection<String> myParameters = new THashSet<>();
+      private final Collection<String> myParameters = new HashSet<>();
 
       private Method(@NotNull PsiMethod method) {
         super(method);

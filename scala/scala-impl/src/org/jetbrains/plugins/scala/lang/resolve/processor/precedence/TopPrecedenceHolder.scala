@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.lang.resolve.processor.precedence
 import gnu.trove.{TObjectHashingStrategy, TObjectIntHashMap}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.annotation.nowarn
+
 sealed trait TopPrecedenceHolder {
 
   /**
@@ -23,6 +25,7 @@ sealed trait TopPrecedenceHolder {
 
 final class MappedTopPrecedenceHolder(strategy: TObjectHashingStrategy[ScalaResolveResult]) extends TopPrecedenceHolder {
 
+  @nowarn("cat=deprecation")
   private[this] val precedences = new TObjectIntHashMap[ScalaResolveResult](strategy)
 
   override def apply(result: ScalaResolveResult): Int =

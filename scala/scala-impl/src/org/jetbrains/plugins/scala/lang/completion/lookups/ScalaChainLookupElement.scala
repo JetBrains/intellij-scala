@@ -5,7 +5,6 @@ package lookups
 
 import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup.{LookupElementDecorator, LookupElementPresentation}
-import gnu.trove.THashSet
 
 import java.util
 
@@ -14,7 +13,7 @@ final class ScalaChainLookupElement(override val getDelegate: ScalaLookupItem,
   extends LookupElementDecorator[ScalaLookupItem](getDelegate) {
 
   override def getAllLookupStrings: util.Set[String] = {
-    val result = new THashSet[String](getDelegate.getAllLookupStrings)
+    val result = new util.HashSet[String](getDelegate.getAllLookupStrings)
     result.add(getLookupString)
     result
   }

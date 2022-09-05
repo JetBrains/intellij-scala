@@ -11,7 +11,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiClassType, PsiNamedElement}
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import com.intellij.util.{AstLoadingFilter, SmartList}
-import gnu.trove.{THashMap, THashSet, TObjectHashingStrategy}
+import gnu.trove.{THashMap, TObjectHashingStrategy}
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -31,7 +31,8 @@ import org.jetbrains.plugins.scala.util.{ScEquivalenceUtil, UnloadableThreadLoca
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.{HashMap => JMap, List => JList}
-import scala.annotation.tailrec
+import java.util
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.immutable.{ArraySeq, SeqMap}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -178,11 +179,11 @@ object MixinNodes {
 
   class Map[T <: Signature] extends SignatureSink[T] {
 
-    private val allNames: THashSet[String] = new THashSet[String]
+    private val allNames: util.HashSet[String] = new util.HashSet[String]
     private[Map] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
 
-    private val thisSignaturesByName: THashMap[String, JList[T]] = new THashMap()
-    private val supersSignaturesByName: THashMap[String, JList[T]] = new THashMap()
+    private val thisSignaturesByName: JMap[String, JList[T]] = new JMap()
+    private val supersSignaturesByName: JMap[String, JList[T]] = new JMap()
 
     private val forNameCache = new ConcurrentHashMap[String, AllNodes[T]]()
 
@@ -372,6 +373,7 @@ object MixinNodes {
     def nodesIterator: Iterator[Node[T]] = list.iterator.asScala
   }
 
+  @nowarn("cat=deprecation")
   type NodesMap[T <: Signature] = THashMap[T, Node[T]]
 
   object NodesMap {
@@ -381,6 +383,7 @@ object MixinNodes {
         override def equals(t: T, t1: T): Boolean = t.equiv(t1)
       }
 
+    @nowarn("cat=deprecation")
     def empty[T <: Signature]: NodesMap[T] = new THashMap[T, Node[T]](2, hashingStrategy[T])
   }
 
