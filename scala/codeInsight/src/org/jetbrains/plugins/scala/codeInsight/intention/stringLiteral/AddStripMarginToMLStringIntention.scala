@@ -5,6 +5,7 @@ package stringLiteral
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -26,7 +27,7 @@ final class AddStripMarginToMLStringIntention extends PsiElementBaseIntentionAct
       case marginChar => "(\'" + marginChar + "\')"
     }
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       editor.getDocument.insertString(element.getTextRange.getEndOffset, ".stripMargin" + suffix)
     }
   }
