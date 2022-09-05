@@ -4,6 +4,7 @@ package intention
 package stringLiteral
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -20,7 +21,7 @@ final class AddReplaceSlashRToMLStringIntention extends PsiElementBaseIntentionA
       case _ => false
     }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = inWriteAction {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = IntentionPreviewUtils.write { () =>
     editor.getDocument.insertString(element.getTextRange.getEndOffset, ".replace(\"\\r\", \"\")")
   }
 
@@ -28,4 +29,3 @@ final class AddReplaceSlashRToMLStringIntention extends PsiElementBaseIntentionA
 
   override def getText: String = ScalaCodeInsightBundle.message("add.replace.call")
 }
-
