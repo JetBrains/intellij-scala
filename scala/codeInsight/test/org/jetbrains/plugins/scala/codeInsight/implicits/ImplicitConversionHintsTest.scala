@@ -16,37 +16,56 @@ class ImplicitConversionHintsTest extends ImplicitHintsTestBase {
 
   def testImplicitConversionClassExtendingTarget(): Unit = doTest(
     s"""
-      |class A
-      |class B
-      |implicit class AtoB(a: A) extends B
-      |
-      |val b: B = ${S}AtoB(${E}new A$S)$E
+       |class A
+       |class B
+       |implicit class AtoB(a: A) extends B
+       |
+       |val b: B = ${S}AtoB(${E}new A$S)$E
     """.stripMargin
   )
 
   def testImplicitConversionClassProvidingMethod(): Unit = doTest(
-    """
-      |class A
-      |implicit class AExt(a: A) {
-      |  def test(): Unit = ???
-      |}
-      |
-      |${S}AExt(${E}new A$S)$E.test()
+    s"""
+       |class A
+       |implicit class AExt(a: A) {
+       |  def test(): Unit = ???
+       |}
+       |
+       |${S}AExt(${E}new A()$S)$E.test()
     """.stripMargin
   )
 
-  // TODO: add more tests regarding implicit conversion hints (but not regarding for-comprehensions)
+  //noinspection RedundantBlock
+  //SCL-16335
+  def testImplicitConversionsChain(): Unit = doTest(
+    s"""implicit class StringOps(private val str: String) extends AnyVal {
+      |  def foo(): Long = 1
+      |}
+      |
+      |implicit class LongOps(private val long: Long) extends AnyVal {
+      |  def bar(): Float = 2.0f
+      |}
+      |
+      |implicit class FloatOps(private val float: Float) extends AnyVal {
+      |  def baz(): String = "3"
+      |}
+      |
+      |//code: "42".foo().bar().baz()
+      |${S}FloatOps(${E}${S}LongOps(${E}${S}StringOps(${E}"42"${S})${E}.foo()${S})${E}.bar()${S})${E}.baz()
+      |""".stripMargin
+  )
+
 
   def testImplicitConversionInGenerator(): Unit = doTest(
     s"""
-      |class A[X]
-      |implicit class ProvideForeach[X](a: A[X]) {
-      |  def foreach(f: X => Unit): Unit = ???
-      |}
-      |
-      |for {
-      |  x <- ${S}ProvideForeach(${E}new A[Int]$S)$E
-      |} println(x)
+       |class A[X]
+       |implicit class ProvideForeach[X](a: A[X]) {
+       |  def foreach(f: X => Unit): Unit = ???
+       |}
+       |
+       |for {
+       |  x <- ${S}ProvideForeach(${E}new A[Int]$S)$E
+       |} println(x)
     """.stripMargin
   )
 
@@ -114,15 +133,15 @@ class ImplicitConversionHintsTest extends ImplicitHintsTestBase {
 
   def testImplicitConversionAroundForExpr(): Unit = doTest(
     s"""
-      |class A[X] {
-      |  def map[Y](f: X => Y): A[Y] = ???
-      |}
-      |class B
-      |implicit class AtoB[X](a: A[X]) extends B
-      |
-      |val y: B = ${S}AtoB(${E}for {
-      |  x <- new A[Int]
-      |} yield x$S)$E
+       |class A[X] {
+       |  def map[Y](f: X => Y): A[Y] = ???
+       |}
+       |class B
+       |implicit class AtoB[X](a: A[X]) extends B
+       |
+       |val y: B = ${S}AtoB(${E}for {
+       |  x <- new A[Int]
+       |} yield x$S)$E
     """.stripMargin
   )
 }
