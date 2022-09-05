@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 private sealed trait CompilationRequest {
   val priority: Int
+  val document: Document
   val debugReason: String
 }
 
@@ -16,12 +17,13 @@ private object CompilationRequest {
     override val priority: Int = 0
   }
 
-  final case class IncrementalRequest(module: Module, sourceScope: SourceScope, debugReason: String)
+  final case class IncrementalRequest(module: Module, sourceScope: SourceScope, document: Document, debugReason: String)
     extends CompilationRequest {
     override val priority: Int = 1
   }
 
-  final case class DocumentRequest(document: Document, sourceScope: SourceScope, debugReason: String) extends CompilationRequest {
+  final case class DocumentRequest(document: Document, sourceScope: SourceScope, debugReason: String)
+    extends CompilationRequest {
     override val priority: Int = 2
   }
 

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerEx, FileStatusMap}
 import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.compiler.CompilerWorkspaceConfiguration
@@ -84,6 +85,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     virtualFile: VirtualFile,
     module: Module,
     sourceScope: SourceScope,
+    document: Document,
     debugReason: String
   ): Unit = {
     if (platformAutomakeEnabled(project)) {
@@ -92,7 +94,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       BuildManager.getInstance().scheduleAutoMake()
       // clearOutputDirectories is invoked in AutomakeBuildManagerListener
     } else {
-      schedule(virtualFile, CompilationRequest.IncrementalRequest(module, sourceScope, debugReason))
+      schedule(virtualFile, CompilationRequest.IncrementalRequest(module, sourceScope, document, debugReason))
     }
   }
 
@@ -127,13 +129,17 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     executor.schedule(new DebouncedTask(virtualFile), length, unit)
   }
 
-  private def execute(virtualFile: VirtualFile, request: CompilationRequest): Unit = request match {
-    case wr: CompilationRequest.WorksheetRequest =>
-      executeWorksheetCompilationRequest(wr)
-    case ir: CompilationRequest.IncrementalRequest =>
-      executeIncrementalCompilationRequest(virtualFile, ir)
-    case dr: CompilationRequest.DocumentRequest =>
-      executeDocumentCompilationRequest(dr)
+  private def execute(virtualFile: VirtualFile, request: CompilationRequest): Unit = {
+    if (!hasAnnotatorErrors(project, request.document)) {
+      request match {
+        case wr: CompilationRequest.WorksheetRequest =>
+          executeWorksheetCompilationRequest(wr)
+        case ir: CompilationRequest.IncrementalRequest =>
+          executeIncrementalCompilationRequest(virtualFile, ir)
+        case dr: CompilationRequest.DocumentRequest =>
+          executeDocumentCompilationRequest(dr)
+      }
+    }
   }
 
   private def executeWorksheetCompilationRequest(request: CompilationRequest.WorksheetRequest): Unit = {
@@ -146,7 +152,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     virtualFile: VirtualFile,
     request: CompilationRequest.IncrementalRequest
   ): Unit = {
-    val CompilationRequest.IncrementalRequest(module, sourceScope, debugReason) = request
+    val CompilationRequest.IncrementalRequest(module, sourceScope, _, debugReason) = request
     debug(s"incrementalCompilation: $debugReason")
     performCompilation(delayIndicator = false) { client =>
       val triggerService = TriggerCompilerHighlightingService.get(project)
@@ -198,7 +204,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
 
   private def isReadyForExecution(request: CompilationRequest): Boolean = request match {
     case CompilationRequest.WorksheetRequest(_, document, _) => isDocumentReadyForCompilation(document)
-    case CompilationRequest.IncrementalRequest(_, _, _) => true
+    case CompilationRequest.IncrementalRequest(_, _, _, _) => true
     case CompilationRequest.DocumentRequest(document, _, _) => isDocumentReadyForCompilation(document)
   }
 
@@ -283,4 +289,14 @@ private object CompilerHighlightingService {
 
   def platformAutomakeEnabled(project: Project): Boolean =
     CompilerWorkspaceConfiguration.getInstance(project).MAKE_PROJECT_ON_SAVE
+
+  private def hasAnnotatorErrors(project: Project, document: Document): Boolean = {
+    val fileStatusMap = DaemonCodeAnalyzerEx.getInstanceEx(project).getFileStatusMap
+    wasErrorFoundMethod.invoke(fileStatusMap, document).asInstanceOf[Boolean]
+  }
+
+  private final val wasErrorFoundMethod: java.lang.reflect.Method =
+    classOf[FileStatusMap].getDeclaredMethod("wasErrorFound", classOf[Document])
+
+  wasErrorFoundMethod.setAccessible(true)
 }

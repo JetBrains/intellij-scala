@@ -1,5 +1,7 @@
-package org.jetbrains.plugins.scala.externalHighlighters
+package org.jetbrains.plugins.scala
+package externalHighlighters
 
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.VirtualFile
@@ -94,9 +96,10 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
 
     val module = ScalaUtil.getModuleForFile(virtualFile)(project)
     val sourceScope = SourceScope.Production
+    val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
     module.foreach { m =>
       CompilerHighlightingService.get(project)
-        .triggerIncrementalCompilation(virtualFile, m, sourceScope, "manual trigger from tests")
+        .triggerIncrementalCompilation(virtualFile, m, sourceScope, document, "manual trigger from tests")
     }
     Await.result(promise.future, 60.seconds)
   }

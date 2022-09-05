@@ -6,7 +6,7 @@ import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, F
 import com.intellij.ide.PowerSaveMode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
+import com.intellij.openapi.editor.{Document, EditorFactory}
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager, TestSourcesFilter}
@@ -48,7 +48,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
 
           if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {
             val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
-            triggerIncrementalCompilation(debugReason, virtualFile)
+            triggerIncrementalCompilation(debugReason, virtualFile, document)
           }
         }
       }
@@ -58,19 +58,16 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   private[externalHighlighters] def triggerOnFileChange(psiFile: PsiFile, virtualFile: VirtualFile): Unit = {
     if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
       val debugReason = s"file content changed: ${psiFile.name}"
-      if (psiFile.isScalaWorksheet) {
-        val document = FileDocumentManager.getInstance().getDocument(virtualFile)
-        if (document ne null) {
+      val document = FileDocumentManager.getInstance().getDocument(virtualFile)
+      if (document ne null) {
+        if (psiFile.isScalaWorksheet) {
           triggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
-        }
-      } else {
-        if (documentCompilerAvailable.contains(virtualFile)) {
-          val document = FileDocumentManager.getInstance().getDocument(virtualFile)
-          if (document ne null) {
-            triggerDocumentCompilation(virtualFile, document, debugReason)
-          }
         } else {
-          triggerIncrementalCompilation(debugReason, virtualFile)
+          if (documentCompilerAvailable.contains(virtualFile)) {
+            triggerDocumentCompilation(virtualFile, document, debugReason)
+          } else {
+            triggerIncrementalCompilation(debugReason, virtualFile, document)
+          }
         }
       }
     }
@@ -88,7 +85,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
             if (psiFile.isScalaWorksheet)
               triggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
             else
-              triggerIncrementalCompilation(debugReason, virtualFile)
+              triggerIncrementalCompilation(debugReason, virtualFile, document)
           }
         }
       }
@@ -113,12 +110,12 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
       ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project)
   }
 
-  private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile): Unit = {
+  private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile, document: Document): Unit = {
     val module = ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile)
     if (module ne null) {
       val sourceScope = calculateSourceScope(virtualFile)
       CompilerHighlightingService.get(project)
-        .triggerIncrementalCompilation(virtualFile, module, sourceScope, debugReason)
+        .triggerIncrementalCompilation(virtualFile, module, sourceScope, document, debugReason)
     }
   }
 
