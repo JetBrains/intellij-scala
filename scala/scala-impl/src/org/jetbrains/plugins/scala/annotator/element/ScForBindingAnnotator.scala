@@ -3,10 +3,12 @@ package annotator
 package element
 
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.RemoveValFromForBindingIntentionAction
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -47,9 +49,20 @@ object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
 
     override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
       if (!enumerator.isValid) return
-      enumerator.findChildrenByType(ScalaTokenTypes.kCASE).foreach(_.delete())
+      findCases(enumerator).foreach(_.delete())
     }
 
     override def startInWriteAction(): Boolean = true
+
+    override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+      val cases = findCases(PsiTreeUtil.findSameElementInCopy(enumerator, file))
+      if (cases.isEmpty) IntentionPreviewInfo.EMPTY
+      else {
+        cases.foreach(_.delete())
+        IntentionPreviewInfo.DIFF
+      }
+    }
+
+    private def findCases(enumerator: ScPatternedEnumerator) = enumerator.findChildrenByType(ScalaTokenTypes.kCASE)
   }
 }
