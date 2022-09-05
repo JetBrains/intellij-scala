@@ -222,7 +222,6 @@ lazy val scalacPatches: sbt.Project =
       organization := "JetBrains",
       scalaVersion := Versions.scalaVersion,
       Compile / unmanagedSourceDirectories += baseDirectory.value / "src",
-      Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
       libraryDependencies ++= Seq(Dependencies.scalaCompiler),
       packageMethod := PackagingMethod.Skip(),
       compilationCacheSettings
@@ -241,8 +240,6 @@ lazy val scalaImpl: sbt.Project =
       runners % "test->test;compile->compile",
       testRunners % "test->test;compile->compile",
     )
-    // scala-test-finders use different scala versions, so do not depend on it, just aggregate the tests
-    .aggregate(scalatestFindersTests.map(sbt.Project.projectToLocalProject): _*)
     .enablePlugins(BuildInfoPlugin)
     .settings(
       ideExcludedDirectories := Seq(
@@ -374,12 +371,6 @@ lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir
     compilationCacheSettings
   )
 
-lazy val scalatestFindersTests: Seq[Project] = Seq(
-  scalatestFindersTests_2,
-  scalatestFindersTests_3_0,
-  scalatestFindersTests_3_2
-)
-
 lazy val scalatestFindersTestSettings = Seq(
   scalacOptions := Seq("-deprecation")
 )
@@ -459,7 +450,8 @@ lazy val bsp =
       intellijPlugins += "JUnit".toPlugin,
       buildInfoPackage := "org.jetbrains.bsp.buildinfo",
       buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
-      buildInfoOptions += BuildInfoOption.ConstantValue
+      buildInfoOptions += BuildInfoOption.ConstantValue,
+      ideExcludedDirectories := Seq(baseDirectory.value / "target")
     )
 
 // Integration with other IDEA plugins
