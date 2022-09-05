@@ -13,6 +13,9 @@ import com.intellij.util.ui.GraphicsUtil
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer._
 
+//TODO: why it's in "implicits" package?
+// It's also used in methodChains, rangeHints
+// We should move it to a proper package
 class TextPartsHintRenderer(var parts: Seq[Text], menu: Option[String])
   extends HintRendererProxy(parts.map(_.string).mkString) {
 

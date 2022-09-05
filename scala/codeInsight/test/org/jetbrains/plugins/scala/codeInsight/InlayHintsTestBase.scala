@@ -23,14 +23,13 @@ abstract class InlayHintsTestBase extends base.ScalaLightCodeInsightFixtureTestA
     )
   }
 
-  private val inlayText = (_: Inlay[_]).getRenderer match {
+  private val inlayText: Inlay[_] => Option[String] = (_: Inlay[_]).getRenderer match {
     case renderer: HintRenderer => Some(renderer.getText)
     case _ => None
   }
 
   protected object Hint {
-
-    val Start = "<hint text=\""
-    val End = "\"/>"
+    val Start = """<hint text=""""
+    val End = """"/>"""
   }
 }
