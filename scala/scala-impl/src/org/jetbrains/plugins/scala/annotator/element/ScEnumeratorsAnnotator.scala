@@ -3,8 +3,10 @@ package annotator
 package element
 
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -32,10 +34,19 @@ object ScEnumeratorsAnnotator extends ElementAnnotator[ScEnumerators] {
     override def startInWriteAction(): Boolean = true
 
     override def getFamilyName: String = ScalaBundle.message("remove.all.erroneous.semicolons.from.forexpression")
+
+    override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+      val errors = findErroneousSemicolons(PsiTreeUtil.findSameElementInCopy(enumerators, file))
+      if (errors.isEmpty) IntentionPreviewInfo.EMPTY
+      else {
+        errors.foreach(_.delete())
+        IntentionPreviewInfo.DIFF
+      }
+    }
   }
 
   private def findErroneousSemicolons(enumerators: ScEnumerators): Seq[PsiElement] = {
-    val allChildren = enumerators.children.filter(!_.isInstanceOf[PsiWhiteSpace]).toSeq
+    val allChildren = enumerators.children.filter(!_.is[PsiWhiteSpace]).toSeq
     if (allChildren.isEmpty)
       return Seq.empty
 
