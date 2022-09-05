@@ -2,11 +2,13 @@ package org.jetbrains.plugins.scala
 package annotator.createFromUsage
 
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInsight.template.{TemplateBuilder, TemplateBuilderImpl, TemplateManager}
 import com.intellij.codeInsight.{CodeInsightUtilCore, FileModificationService}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -18,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+
+import scala.util.chaining.scalaUtilChainingOps
 
 abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
         extends IntentionAction {
@@ -54,6 +58,15 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
 
   protected def addElementsToTemplate(method: ScFunction, builder: TemplateBuilder): Unit
 
+  private def createAndAdjustEntity(definition: ScTypeDefinition): ScFunction = {
+    val entity = createEntity(definition.extendsBlock, methodText).asInstanceOf[ScFunction]
+    ScalaPsiUtil.adjustTypes(entity)
+    entity.tap {
+      case scalaPsi: ScalaPsiElement => TypeAnnotationUtil.removeTypeAnnotationIfNeeded(scalaPsi)
+      case _ =>
+    }
+  }
+
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     PsiDocumentManager.getInstance(project).commitAllDocuments()
 
@@ -62,13 +75,7 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
     IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
 
     inWriteAction {
-      val entity = createEntity(td.extendsBlock, methodText).asInstanceOf[ScFunction]
-
-      ScalaPsiUtil.adjustTypes(entity)
-      entity match {
-        case scalaPsi: ScalaPsiElement => TypeAnnotationUtil.removeTypeAnnotationIfNeeded(scalaPsi)
-        case _ =>
-      }
+      val entity = createAndAdjustEntity(td)
 
       val builder = new TemplateBuilderImpl(entity)
 
@@ -85,4 +92,8 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
     }
   }
 
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    createAndAdjustEntity(PsiTreeUtil.findSameElementInCopy(td, file))
+    IntentionPreviewInfo.DIFF
+  }
 }
