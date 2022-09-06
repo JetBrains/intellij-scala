@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.types
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
@@ -70,7 +71,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
       val replacement = createExpressionFromText(s"${expression.getText}.$methodName")(expression.getManager)
       CodeEditUtil.replaceChild(expression.getParent.getNode, expression.getNode, replacement.getNode)
     }
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       addImport()
       appendAsMethod()
     }

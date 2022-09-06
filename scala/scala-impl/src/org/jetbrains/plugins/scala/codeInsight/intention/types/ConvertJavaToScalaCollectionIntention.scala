@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 class ConvertJavaToScalaCollectionIntention extends BaseJavaConvertersIntention("asScala") {
 
-  override val targetCollections = Set(
+  override val targetCollections: Set[String] = Set(
     "java.lang.Iterable",
     "java.util.Iterator",
     "java.util.Collection",

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 class ConvertScalaToJavaCollectionIntention extends BaseJavaConvertersIntention("asJava") {
 
-  override val targetCollections = Set(
+  override val targetCollections: Set[String] = Set(
     "scala.collection.Seq",
     "scala.collection.Set",
     "scala.collection.Map",
