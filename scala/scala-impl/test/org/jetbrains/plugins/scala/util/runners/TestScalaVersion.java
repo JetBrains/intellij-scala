@@ -11,6 +11,7 @@ public enum TestScalaVersion {
     Scala_2_13_0, Scala_2_13,
     Scala_3_0,
     Scala_3_1,
+    Scala_3_2,
     Scala_3_Latest
     ;
 
@@ -42,6 +43,7 @@ public enum TestScalaVersion {
             case Scala_2_13_0: return LatestScalaVersions.Scala_2_13().withMinor(0);
             case Scala_3_0: return LatestScalaVersions.Scala_3_0();
             case Scala_3_1: return LatestScalaVersions.Scala_3_1();
+            case Scala_3_2: return LatestScalaVersions.Scala_3_2();
             case Scala_3_Latest: return LatestScalaVersions.Scala_3();
             default: return null; // unreachable code
         }

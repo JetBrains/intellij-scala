@@ -42,7 +42,7 @@ abstract class SbtScalacOptionsDocumentationProviderCommonTests extends SbtScala
     val langLevel = getVersion.languageLevel
 
     val description = langLevel match {
-      case Scala_2_11 | Scala_3_0 | Scala_3_1 =>
+      case Scala_2_11 | Scala_3_0 | Scala_3_1 | Scala_3_2 =>
         "Emit warning and location for usages of deprecated APIs."
       case Scala_2_12 | Scala_2_13 =>
         "Emit warning and location for usages of deprecated APIs. See also -Wconf. [false]"
