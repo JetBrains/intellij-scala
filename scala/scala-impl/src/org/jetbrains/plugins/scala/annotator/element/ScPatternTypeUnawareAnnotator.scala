@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
@@ -82,9 +84,18 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
 
     override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
       if (!binder.isValid) return
+      replaceBinder(binder, project)
+    }
+
+    override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+      replaceBinder(PsiTreeUtil.findSameElementInCopy(binder, file), project)
+      IntentionPreviewInfo.DIFF
+    }
+
+    private def replaceBinder(binderElement: PsiElement, project: Project): Unit = {
       val pattern = ScalaPsiElementFactory.createPatternFromText(s"List(_ @ _*)")(project)
       val newBinder = pattern.elements.find(_.elementType == ScalaTokenTypes.tAT)
-      newBinder.foreach(binder.replace)
+      newBinder.foreach(binderElement.replace)
     }
   }
 
