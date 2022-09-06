@@ -4,10 +4,12 @@ package quickfix
 
 import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.openapi.command.undo.UndoUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -37,8 +39,17 @@ class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends Intenti
     if (!typeElement.isValid) return
     if (!FileModificationService.getInstance.prepareFileForWrite(typeElement.getContainingFile)) return
     if (typeElement.getParent == null || typeElement.getParent.getNode == null) return
-    val replaced = typeElement.replace(createTypeElementFromText(newType.canonicalText)(typeElement.getManager))
-    ScalaPsiUtil.adjustTypes(replaced)
+    doChangeType(typeElement)
     UndoUtil.markPsiFileForUndo(file)
+  }
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    doChangeType(PsiTreeUtil.findSameElementInCopy(typeElement, file))
+    IntentionPreviewInfo.DIFF
+  }
+
+  private def doChangeType(typeElem: ScTypeElement): Unit = {
+    val replaced = typeElem.replace(createTypeElementFromText(newType.canonicalText)(typeElem.getManager))
+    ScalaPsiUtil.adjustTypes(replaced)
   }
 }
