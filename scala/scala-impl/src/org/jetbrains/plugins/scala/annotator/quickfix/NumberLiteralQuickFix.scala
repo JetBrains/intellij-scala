@@ -3,9 +3,11 @@ package annotator
 package quickfix
 
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
@@ -26,14 +28,21 @@ sealed abstract class NumberLiteralQuickFix[L <: Numeric](private[this] val lite
   override final def invoke(project: Project,
                             editor: Editor,
                             file: PsiFile): Unit =
-    if (literal.isValid) {
-      val newText = transformText(literal.getText)
-      literal.replace {
-        ScalaPsiElementFactory.createExpressionFromText(newText)(literal.getManager)
-      }
-    }
+    if (literal.isValid) replaceLiteral(literal)
 
   override final def startInWriteAction: Boolean = true
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    replaceLiteral(PsiTreeUtil.findSameElementInCopy(literal, file))
+    IntentionPreviewInfo.DIFF
+  }
+
+  private def replaceLiteral(literal: L): Unit = {
+    val newText = transformText(literal.getText)
+    literal.replace {
+      ScalaPsiElementFactory.createExpressionFromText(newText)(literal.getManager)
+    }
+  }
 }
 
 object NumberLiteralQuickFix {
