@@ -349,6 +349,7 @@ class TreePrinter(privateMembers: Boolean = false) {
   // TODO include in textOfType
   // TODO keep prefixes? but those are not "relative" imports, but regular (implicit) imports of each Scala compilation unit
   private def simple(tpe: String): String = {
+    if (tpe.startsWith("this.") && tpe != "this.type") return tpe.substring(5)
     val s1 = tpe.stripPrefix("_root_.")
     val s2 = if (!s1.stripPrefix("scala.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s1.stripPrefix("scala.") else s1
     val s3 = if (!s2.stripPrefix("java.lang.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s2.stripPrefix("java.lang.") else s2
@@ -382,7 +383,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         val qualifier = textOfType(tail)
         qualifier.split('.').last + ".this" // Simplify Foo.this in Foo?
       case Node3(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, tail) =>
-        val prefix = tail.headOption.filter(!_.is(THIS)).map(textOfType(_)).getOrElse("")
+        val prefix = tail.headOption.map(textOfType(_)).getOrElse("")
         val name = node.refName.getOrElse("")
         if (name == "package" || name.endsWith("$package")) prefix else (if (prefix.isEmpty) name else prefix + "." + name) // TODO rely on name kind
       case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
