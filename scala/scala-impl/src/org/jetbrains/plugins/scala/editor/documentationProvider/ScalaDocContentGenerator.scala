@@ -140,28 +140,29 @@ private class ScalaDocContentGenerator(
       case _                           => visitNodes(buffer, element.children)
     }
 
-  private def calcMinIndent(element: PsiElement, tabSize: Int): Option[Int] = {
-    val text = element.getText
-    if (text.forall(_.isWhitespace))
-      None
-    else
-      element.getNode.getElementType match {
-        case ScalaDocTokenType.DOC_INNER_CODE =>
-          Some(IndentUtil.calcIndent(text, tabSize))
-        case _ =>
-          element.children.flatMap(calcMinIndent(_, tabSize)).minOption
-      }
-  }
+  private def calcMinIndent(children: Iterator[PsiElement], tabSize: Int): Option[Int] =
+    children.collect {
+      case el if el.getNode.getElementType == ScalaDocTokenType.DOC_INNER_CODE && el.getText.exists(!_.isWhitespace) =>
+        IndentUtil.calcIndent(el.getText, tabSize)
+    }.minOption
 
   private def visitDocCode(buffer: StringBuilder, code: ScDocInnerCodeElement): Unit = {
-    def visit(element: PsiElement, dropIndent: Int): Unit =
-      if (isLeaf(element))
-        visitLeafNode(buffer, element, dropIndent)
-      else
-        element.children.foreach(visit(_, dropIndent))
-
     val tabSize = CodeStyle.getIndentOptions(code.getContainingFile).TAB_SIZE
-    visit(code, calcMinIndent(code, tabSize).getOrElse(0))
+    val minIndent = calcMinIndent(code.children, tabSize)
+    code.children.foreach { element =>
+      element.getNode.getElementType match {
+        case ScalaDocTokenType.DOC_INNER_CODE_TAG =>
+          buffer.append("""<pre><code>""")
+        case ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG =>
+          buffer.append("""</code></pre>""")
+        case ScalaDocTokenType.DOC_INNER_CODE =>
+          val text = minIndent.fold(element.getText)(element.getText.drop(_))
+          buffer.append(escapeHtml(text))
+        case ScalaDocTokenType.DOC_WHITESPACE if element.textContains('\n') =>
+          buffer.append("\n") // ignore other spaces except line break
+        case _ => //just in case
+      }
+    }
   }
 
   private def visitParagraph(buffer: StringBuilder, paragraph: ScDocParagraph, skipParagraphElement: Boolean): Unit = {
@@ -171,8 +172,6 @@ private class ScalaDocContentGenerator(
       .children
       .dropWhile(_.elementType == ScalaDocTokenType.DOC_WHITESPACE)
       .foreach(visitNode(buffer, _))
-    if (!skipParagraphElement)
-      buffer.append(HtmlEndParagraph).append("\n")
   }
 
   private def visitDocList(buffer: StringBuilder, list: ScDocList): Unit = {
@@ -281,22 +280,16 @@ private class ScalaDocContentGenerator(
     Some(hyperLink(href, label))
   }
 
-  private def visitLeafNode(result: StringBuilder, element: PsiElement, dropIndent: Int = 0): Unit =
+  private def visitLeafNode(result: StringBuilder, element: PsiElement): Unit =
     element.getNode.getElementType match {
       // leading '*' only can come from tags description, filtered for main content description
       case ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS =>
       case ScalaDocTokenType.DOC_TAG_NAME                  =>
       case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN           =>
-      case ScalaDocTokenType.DOC_INNER_CODE_TAG            => result.append("""<pre><code>""")
-      case ScalaDocTokenType.DOC_INNER_CODE                =>
-        val text = if (dropIndent > 0) element.getText.drop(dropIndent) else element.getText
-        result.append(escapeHtml(text))
-      case ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG      => result.append("""</code></pre>""")
       case ScalaDocTokenType.DOC_MACROS                    => appendMacroValue(result, element)
       case _ if isDocLineBreak(element)                    => result.append("\n") // ignore other spaces except line break
       case _                                               =>
-        val text0: String = if (dropIndent > 0) element.getText.drop(dropIndent) else element.getText
-        val text1: String = unescape(text0)
+        val text1: String = unescape(element.getText)
         val text2: String = if (isInWikiSyntaxElement) escapeHtml(text1) else text1
         result.append(text2)
     }
@@ -350,7 +343,6 @@ object ScalaDocContentGenerator {
   private val Log = Logger.getInstance(classOf[ScalaDocContentGenerator])
 
   private val HtmlStartParagraph = "<p>"
-  private val HtmlEndParagraph = "</p>"
 
   private case class PsiElementResolveResult(refText: String, label: String)
 

@@ -1802,14 +1802,14 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
     val expectedContent =
       s"""<pre><code>
-         | code line 1
+         |code line 1
          |
-         | code line 2
+         |code line 2
          |
          |
-         | code line 3
-         | code line 4
-         | </code></pre>
+         |code line 3
+         |code line 4
+         |</code></pre>
          |""".stripMargin
 
     doGenerateDocContentDanglingTest(input, expectedContent)
