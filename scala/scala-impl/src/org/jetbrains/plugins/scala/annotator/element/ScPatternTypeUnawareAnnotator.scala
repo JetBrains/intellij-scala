@@ -110,9 +110,18 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
 
     override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
       if (!namingPattern.isValid) return
-      val pattern = ScalaPsiElementFactory.createPatternFromText(s"List(${namingPattern.name}*)")(project)
-      val newPattern = pattern.elements.find(_.elementType == ScalaElementType.SEQ_WILDCARD_PATTERN)
-      newPattern.foreach(namingPattern.replace)
+      replaceNamingPattern(namingPattern, project)
+    }
+
+    override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+      replaceNamingPattern(PsiTreeUtil.findSameElementInCopy(namingPattern, file), project)
+      IntentionPreviewInfo.DIFF
+    }
+
+    private def replaceNamingPattern(pattern: ScNamingPattern, project: Project): Unit = {
+      val dummyPattern = ScalaPsiElementFactory.createPatternFromText(s"List(${pattern.name}*)")(project)
+      val newPattern = dummyPattern.elements.find(_.elementType == ScalaElementType.SEQ_WILDCARD_PATTERN)
+      newPattern.foreach(pattern.replace)
     }
   }
 
