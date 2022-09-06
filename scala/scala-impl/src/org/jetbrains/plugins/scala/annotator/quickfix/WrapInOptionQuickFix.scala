@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala
 package annotator.quickfix
 
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -22,15 +24,20 @@ class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult, exprTyp
     WrapInOptionQuickFix.isAvailable(expectedType, exprType)
   }
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
-    if (expr.isValid) {
-      val newText = "Option(" + expr.getText + ")"
-      expr.replaceExpression(createExpressionFromText(newText)(expr.getManager), removeParenthesis = true)
-    }
-  }
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
+    if (expr.isValid) doWrapInOption(expr)
 
   override def startInWriteAction(): Boolean = true
 
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    doWrapInOption(PsiTreeUtil.findSameElementInCopy(expr, file))
+    IntentionPreviewInfo.DIFF
+  }
+
+  private def doWrapInOption(expression: ScExpression): Unit = {
+    val newText = "Option(" + expression.getText + ")"
+    expression.replaceExpression(createExpressionFromText(newText)(expression.getManager), removeParenthesis = true)
+  }
 }
 
 object WrapInOptionQuickFix {
