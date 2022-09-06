@@ -65,6 +65,7 @@ final public class ScalaAffectedTestsInChangeListPainter implements ChangeListDe
     MessageBusConnection connection = myProject.getMessageBus().connect(this);
     connection.subscribe(ChangeListListener.TOPIC, changeListListener);
     connection.subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
+      @SuppressWarnings("removal")
       @Override
       public void projectOpened(@NotNull Project project) {
         if (project == myProject) {
