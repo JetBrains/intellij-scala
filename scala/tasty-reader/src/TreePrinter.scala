@@ -378,6 +378,9 @@ class TreePrinter(privateMembers: Boolean = false) {
       case Node3(THIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
         if (qualifier.endsWith("$")) qualifier.substring(0, qualifier.length - 1) else "this" // What is the semantics of "this" when referring to external module classes?
+      case Node3(QUALTHIS, _, Seq(tail)) =>
+        val qualifier = textOfType(tail)
+        qualifier.split('.').last + ".this" // Simplify Foo.this in Foo?
       case Node3(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, tail) =>
         val prefix = tail.headOption.filter(!_.is(THIS)).map(textOfType(_)).getOrElse("")
         val name = node.refName.getOrElse("")
