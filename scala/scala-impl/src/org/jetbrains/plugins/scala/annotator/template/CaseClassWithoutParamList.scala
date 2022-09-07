@@ -3,9 +3,11 @@ package annotator
 package template
 
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.ObjectKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -17,7 +19,7 @@ object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
 
   override def annotate(element: ScClass, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
-    def createAnnotation(nameId: PsiElement, fixes: Iterable[IntentionAction]) = {
+    def createAnnotation(nameId: PsiElement, fixes: Iterable[IntentionAction]): Unit = {
       if (element.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_11)) {
         val message = ScalaBundle.message("case.classes.without.parameter.list.not.allowed")
         holder.createErrorAnnotation(nameId, message, fixes)
@@ -48,9 +50,15 @@ class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAc
     c.isValid
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
-    c.clauses foreach {
-      _.addClause(createClauseFromText()(c.getManager))
-    }
+    addEmptyClauses(c)
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    addEmptyClauses(PsiTreeUtil.findSameElementInCopy(c, file))
+    IntentionPreviewInfo.DIFF
+  }
+
+  private def addEmptyClauses(cls: ScClass): Unit =
+    cls.clauses.foreach(_.addClause(createClauseFromText()(cls.getManager)))
 }
 
 final class ConvertToObjectFix(c: ScClass) extends IntentionAction {
