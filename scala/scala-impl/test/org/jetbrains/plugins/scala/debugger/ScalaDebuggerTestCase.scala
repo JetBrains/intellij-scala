@@ -180,8 +180,8 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
       writeChecksumsToDisk(srcChecksums)
     } else {
       val message = s"Skipping project compilation: checksums are the same ($testAppPath)"
-      Log.warn(message)
-      System.out.println(s"##teamcity[message text='$message' status='INFO']")
+      Log.info(message)
+      System.out.println(s"##teamcity[message text='$message' status='NORMAL']")
     }
   }
 
