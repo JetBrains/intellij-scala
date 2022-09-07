@@ -71,17 +71,24 @@ final class ConvertToObjectFix(c: ScClass) extends IntentionAction {
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
     c.isValid
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
-    val classKeywordTextRange = c.targetToken.getTextRange
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = convertToObject(c)
 
-    val objectText = c.getText.patch(
-      classKeywordTextRange.getStartOffset - c.getTextRange.getStartOffset,
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    convertToObject(PsiTreeUtil.findSameElementInCopy(c, file))
+    IntentionPreviewInfo.DIFF
+  }
+
+  private def convertToObject(cls: ScClass): Unit = {
+    val classKeywordTextRange = cls.targetToken.getTextRange
+
+    val objectText = cls.getText.patch(
+      classKeywordTextRange.getStartOffset - cls.getTextRange.getStartOffset,
       ObjectKeyword.text,
       classKeywordTextRange.getLength
     )
 
-    val objectElement = ScalaPsiElementFactory.createObjectWithContext(objectText, c.getContext, c)
-    c.replace(objectElement)
+    val objectElement = ScalaPsiElementFactory.createObjectWithContext(objectText, cls.getContext, cls)
+    cls.replace(objectElement)
     // TODO update references to class.
     // new X  -> X
     // x: X   -> x: X.type
