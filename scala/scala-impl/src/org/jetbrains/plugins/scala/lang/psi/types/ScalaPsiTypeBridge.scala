@@ -1,17 +1,16 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
+package org.jetbrains.plugins.scala.lang.psi.types
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiClassType.ClassResolveResult
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiImmediateClassType
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.constructTypeForPsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.ScalaPsiTypeBridge.RawTypeParamCollector
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaPsiTypeBridge.{Log, RawTypeParamCollector}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
@@ -21,9 +20,9 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
+//noinspection InstanceOf,SpellCheckingInspection
 trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   typeSystem: api.TypeSystem =>
-
 
   override protected def toScTypeInner(psiType: PsiType,
                                        paramTopLevel: Boolean,
@@ -116,14 +115,41 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     ScExistentialArgument(name, Seq.empty, lower, upper)
   }
 
+  override def toPsiType(`type`: ScType, noPrimitives: Boolean): PsiType =
+    toPsiTypeInner(`type`, noPrimitives)(recursionCallDepth = 0, prevTypeValue = null, prevNoPrimitivesValue = false)
 
-  override def toPsiType(`type`: ScType, noPrimitives: Boolean): PsiType = toPsiTypeInner(`type`, noPrimitives)
+  /**
+   * @param recursionCallDepth    helper parameter required for easier debugging of SOE inside recursion
+   * @param prevTypeValue         should be the previous value of `type` during recursive calls<br>
+   *                              this is a helper parameter to prevent infinite recursion
+   * @param prevNoPrimitivesValue should be the previous value of noPrimitives during recursive calls<br>
+   *                              this is a helper parameter to prevent infinite recusion
+   */
+  private def toPsiTypeInner(
+    `type`: ScType,
+    noPrimitives: Boolean,
+  )(
+    recursionCallDepth: Int,
+    prevTypeValue: ScType,
+    prevNoPrimitivesValue: Boolean,
+  )(implicit
+    visitedAliases: Set[ScTypeAlias] = Set.empty,
+    visitedExistentialArgs: Set[ScExistentialArgument] = Set.empty
+  ): PsiType = {
+    def javaObject: PsiType = createJavaObject
 
-  private def toPsiTypeInner(`type`: ScType,
-                             noPrimitives: Boolean = false)
-                            (implicit
-                             visitedAliases: Set[ScTypeAlias] = Set.empty,
-                             visitedExistentialArgs: Set[ScExistentialArgument] = Set.empty): PsiType = {
+    if ((`type` eq prevTypeValue) && noPrimitives == prevNoPrimitivesValue) {
+      val exception = new IllegalStateException(
+        s"""Infinite recursion detected while calculating ScalaPsiTypeBridge.toPsiTypeInner
+           |recursionCallDepth    : $recursionCallDepth
+           |type presentable text : ${prevTypeValue.presentableText(TypePresentationContext.emptyContext)}
+           |noPrimitives          : $prevNoPrimitivesValue
+           |""".stripMargin.trim
+      )
+      //don't fail the type inference process, just report the error and return dummy PsiType value
+      Log.error(exception)
+      return javaObject
+    }
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
       proj.projected.extractClass match {
@@ -132,42 +158,52 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       }
     }
 
-    val t = expandIfAlias(`type`)
-    if (t.isInstanceOf[NonValueType]) return toPsiTypeInner(t.inferValueType)
+    val typeExpanded = expandIfAlias(`type`)
+    if (typeExpanded.isInstanceOf[NonValueType])
+      return toPsiTypeInner(typeExpanded.inferValueType, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives)
 
-    def javaObject = createJavaObject
     val qualNameToType = projectContext.stdTypes.QualNameToType
 
-    t match {
-      case ScCompoundType(Seq(typez, _*), _, _) => toPsiTypeInner(typez)
+    typeExpanded match {
+      case ScCompoundType(Seq(typez, _*), _, _) =>
+        toPsiTypeInner(typez, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives)
       case ScDesignatorType(c: ScTypeDefinition) if qualNameToType.contains(c.qualifiedName) =>
-        toPsiTypeInner(qualNameToType(c.qualifiedName), noPrimitives)
+        toPsiTypeInner(qualNameToType(c.qualifiedName), noPrimitives)(recursionCallDepth + 1, `type`, noPrimitives)
       case ScDesignatorType(valClass: ScClass) if ValueClassType.isValueClass(valClass) =>
         valClass.parameters.head.getRealParameterType match {
           case Right(tp) if !(noPrimitives && tp.isPrimitive) =>
-            toPsiTypeInner(tp, noPrimitives)
+            toPsiTypeInner(tp, noPrimitives)(recursionCallDepth + 1, `type`, noPrimitives)
           case _ => createType(valClass)
         }
       case ScDesignatorType(c: PsiClass) => createType(c)
-      case arrayType(arg) => new PsiArrayType(toPsiTypeInner(arg))
+      case arrayType(arg) =>
+        new PsiArrayType(toPsiTypeInner(arg, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives))
       case ParameterizedType(ScDesignatorType(c: PsiClass), args) =>
-        val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY) {
-          case (s, (targ, tp)) => s.put(tp, toPsiTypeInner(targ, noPrimitives = true))
+        val argsWithTypeParams = args.zip(c.getTypeParameters)
+        val subst = argsWithTypeParams.foldLeft(PsiSubstitutor.EMPTY) {
+          case (s, (targ, tp)) =>
+            s.put(tp, toPsiTypeInner(targ, noPrimitives = true)(recursionCallDepth + 1, `type`, noPrimitives))
         }
         createType(c, subst)
       case ParameterizedType(proj@ScProjectionType(_, _), args) => proj.actualElement match {
         case c: PsiClass =>
-          if (c.qualifiedName == "scala.Array" && args.length == 1) new PsiArrayType(toPsiTypeInner(args.head))
+          if (c.qualifiedName == "scala.Array" && args.length == 1)
+            new PsiArrayType(toPsiTypeInner(args.head, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives))
           else {
             val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY) {
-              case (s, (targ, tp)) => s.put(tp, toPsiTypeInner(targ))
+              case (s, (targ, tp)) => s.put(tp, toPsiTypeInner(targ, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives))
             }
             createType(c, subst, raw = outerClassHasTypeParameters(proj))
           }
         case typeAlias: ScTypeAlias if !visitedAliases.contains(typeAlias.physical) =>
           typeAlias.upperBound match {
             case Right(c: ScParameterizedType) =>
-              toPsiTypeInner(ScParameterizedType(c.designator, args), noPrimitives)(visitedAliases + typeAlias.physical, visitedExistentialArgs)
+              toPsiTypeInner(
+                ScParameterizedType(c.designator, args),
+                noPrimitives
+              )(
+                recursionCallDepth + 1, `type`, noPrimitives
+              )(visitedAliases + typeAlias.physical, visitedExistentialArgs)
             case _ => javaObject
           }
         case _ => javaObject
@@ -176,18 +212,21 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       case proj@ScProjectionType(_, _) => proj.actualElement match {
         case clazz: PsiClass =>
           clazz match {
-            case syn: ScSyntheticClass => toPsiTypeInner(syn.stdType)
-            case _ => createType(clazz, raw = outerClassHasTypeParameters(proj))
+            case syn: ScSyntheticClass =>
+              toPsiTypeInner(syn.stdType, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives)
+            case _ =>
+              createType(clazz, raw = outerClassHasTypeParameters(proj))
           }
         case typeAlias: ScTypeAlias if !visitedAliases.contains(typeAlias.physical) =>
           typeAlias.upperBound.toOption
-            .map(toPsiTypeInner(_, noPrimitives)(visitedAliases + typeAlias.physical, visitedExistentialArgs))
+            .map(toPsiTypeInner(_, noPrimitives)(recursionCallDepth + 1, `type`, noPrimitives)(visitedAliases + typeAlias.physical, visitedExistentialArgs))
             .getOrElse(javaObject)
         case _ => javaObject
       }
       case ScThisType(clazz) => createType(clazz)
       case TypeParameterType.ofPsi(typeParameter) => psiTypeOf(typeParameter)
-      case ex: ScExistentialType => toPsiTypeInner(ex.quantified, noPrimitives)
+      case ex: ScExistentialType =>
+        toPsiTypeInner(ex.quantified, noPrimitives)(recursionCallDepth + 1, `type`, noPrimitives)
       case argument: ScExistentialArgument if !visitedExistentialArgs(argument) =>
         val upper = argument.upper
         val manager: PsiManager = projectContext
@@ -195,18 +234,18 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           val lower = argument.lower
           if (lower.equiv(Nothing)) PsiWildcardType.createUnbounded(manager)
           else {
-            val sup: PsiType = toPsiTypeInner(lower)(visitedAliases, visitedExistentialArgs + argument)
+            val sup: PsiType = toPsiTypeInner(lower, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives)(visitedAliases, visitedExistentialArgs + argument)
             if (sup.isInstanceOf[PsiWildcardType]) javaObject
             else PsiWildcardType.createSuper(manager, sup)
           }
         } else {
-          val psi = toPsiTypeInner(upper)(visitedAliases, visitedExistentialArgs + argument)
+          val psi = toPsiTypeInner(upper, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives)(visitedAliases, visitedExistentialArgs + argument)
           if (psi.isInstanceOf[PsiWildcardType]) javaObject
           else PsiWildcardType.createExtends(manager, psi)
         }
 
       case std: StdType       => stdToPsiType(std, noPrimitives)
-      case lit: ScLiteralType => toPsiTypeInner(lit.wideType)
+      case lit: ScLiteralType => toPsiTypeInner(lit.wideType, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives)
       case _                  => javaObject
     }
   }
@@ -224,8 +263,8 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     PsiSubstitutor.EMPTY.substitute(typeParameter)
 
   private object RawTypeParamToExistentialMapBuilder {
-    val NoUpperBound = () => api.Any
-    val NoLowerBound = () => api.Nothing
+    val NoUpperBound: () => StdType = () => api.Any
+    val NoLowerBound: () => StdType = () => api.Nothing
   }
   private class RawTypeParamToExistentialMapBuilder(rawClassResult: ClassResolveResult, paramTopLevel: Boolean) {
     import RawTypeParamToExistentialMapBuilder._
@@ -273,6 +312,9 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
 }
 
 object ScalaPsiTypeBridge {
+
+  private val Log =
+    Logger.getInstance(classOf[org.jetbrains.plugins.scala.lang.psi.types.ScalaPsiTypeBridge])
 
   private class RawTypeParamCollector(rawTypeSubstitutor: PsiSubstitutor) extends PsiTypeMapper {
     private var rawTypeParameters: Set[PsiTypeParameter] = Set.empty
