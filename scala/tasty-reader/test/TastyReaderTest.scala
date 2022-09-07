@@ -32,7 +32,6 @@ import scala.util.control.NonFatal
 // rely on signed name instead of Apply template parent calls?
 // FunctionN, TupleN
 // infix types (not just & and |)
-// self type
 // abstract override (order)
 // = derived ?
 // modifiers order
@@ -105,6 +104,7 @@ class TastyReaderTest extends TestCase {
   def testTypeDefinitionObject(): Unit = doTest("typeDefinition/Object")
   def testTypeDefinitionParents(): Unit = doTest("typeDefinition/Parents")
   def testTypeDefinitionQualifier(): Unit = doTest("typeDefinition/Qualifier")
+  def testTypeDefinitionSelfType(): Unit = doTest("typeDefinition/SelfType")
   def testTypeDefinitionTrait(): Unit = doTest("typeDefinition/Trait")
   def testTypesAnd(): Unit = doTest("types/And")
   def testTypesAnnotated(): Unit = doTest("types/Annotated")

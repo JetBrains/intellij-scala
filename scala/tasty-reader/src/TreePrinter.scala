@@ -228,6 +228,13 @@ class TreePrinter(privateMembers: Boolean = false) {
         sb ++= " extends " + parents.mkString(", ")
       }
     }
+    val selfType = children.find(_.is(SELFDEF)) match {
+      // Is there a more reliable way to determine whether self type refers to the same type definition?
+      case Some(Node3(SELFDEF, Seq(name), Seq(tail))) if name != "_" &&
+        definition.forall(it => !tail.refName.contains(it.name) && !tail.children.headOption.exists(_.refName.contains(it.name))) =>
+        " " + name + ": " + simple(textOf(tail)) + " =>"
+      case _ => ""
+    }
     val members = {
       val cases = // TODO check element types
         if (isInEnum) definition.get.nextSibling.get.nextSibling.get.children.head.children.filter(it => it.is(VALDEF) || it.is(TYPEDEF))
@@ -235,8 +242,10 @@ class TreePrinter(privateMembers: Boolean = false) {
 
       children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it)) ++ cases // TODO type member
     }
-    if (members.nonEmpty) {
-      sb ++= " {\n"
+    if (selfType.nonEmpty || members.nonEmpty) {
+      sb ++= " {"
+      sb ++= selfType
+      sb ++= "\n"
       val previousLength = sb.length
       var delimiterRequired = false
       members.foreach { member =>
@@ -244,7 +253,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         textOfMember(sb, indent + Indent, member, definition, if (delimiterRequired) "\n\n" else "")
         delimiterRequired = delimiterRequired || sb.length > previousLength
       }
-      if (sb.length > previousLength) {
+      if (selfType.nonEmpty || sb.length > previousLength) {
         sb ++= "\n"
         sb ++= indent
         sb ++= "}"
