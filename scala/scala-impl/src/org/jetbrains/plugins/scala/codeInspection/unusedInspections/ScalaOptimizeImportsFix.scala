@@ -79,4 +79,11 @@ final class MarkImportAsAlwaysUsed(importText: String) extends IntentionAction w
   }
 
   override def getFamilyName: String = ScalaInspectionBundle.message("mark.import.as.always.used.in.this.project")
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    val settings = ScalaCodeStyleSettings.getInstance(project)
+    val updatedList: java.util.List[String] = (settings.getAlwaysUsedImports ++ Array(importText)).sorted.toList.asJava
+    IntentionPreviewInfo.addListOption(updatedList, importText,
+      ScalaBundle.message("imports.panel.imports.always.marked.as.used"))
+  }
 }
