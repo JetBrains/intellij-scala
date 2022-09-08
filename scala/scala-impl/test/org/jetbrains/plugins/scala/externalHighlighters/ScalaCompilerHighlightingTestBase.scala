@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.matchers.{HamcrestMatchers, ScalaBaseMatcher}
 import org.junit.experimental.categories.Category
 
-import java.util.Collections.emptyList
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
@@ -123,14 +122,19 @@ abstract class ScalaCompilerHighlightingTestBase
       }
 
     private def toExpectedHighlighting(info: HighlightInfo): ExpectedHighlighting =
-      ExpectedHighlighting(info.getSeverity, Some(info.range), quickFixDescriptions(info).toSeq, info.getDescription)
+      ExpectedHighlighting(info.getSeverity, Some(info.range), quickFixDescriptions(info), info.getDescription)
 
     private def quickFixDescriptions(info: HighlightInfo) = {
       inReadAction {
-        Option(info.quickFixActionRanges).getOrElse(emptyList()).asScala
-          .map(_.first.getAction)
-          .filter(fix => fix.isAvailable(getProject, myEditor, myPsiFile))
-          .map(_.getText)
+        val builder = Seq.newBuilder[String]
+        info.findRegisteredQuickFix { (descriptor, _) =>
+          val action = descriptor.getAction
+          if (action.isAvailable(getProject, myEditor, myPsiFile)) {
+            builder += action.getText
+          }
+          null
+        }
+        builder.result()
       }
     }
 

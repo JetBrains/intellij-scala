@@ -210,10 +210,12 @@ object ScalaAnnotatorQuickFixTestBase {
   case class TestPrepareResult(fileText: String, expectedHighlights: Seq[ExpectedHighlight], actualHighlights: Seq[HighlightInfo])
 
   private def quickFixes(info: HighlightInfo): Seq[IntentionAction] = {
-    Option(info.quickFixActionRanges).toSeq
-      .flatMap(_.asScala)
-      .flatMap(pair => Option(pair))
-      .map(_.getFirst.getAction)
+    val builder = Seq.newBuilder[IntentionAction]
+    info.findRegisteredQuickFix { (descriptor, _) =>
+      builder += descriptor.getAction
+      null
+    }
+    builder.result()
   }
 
   private def highlightedRange(info: HighlightInfo): TextRange =

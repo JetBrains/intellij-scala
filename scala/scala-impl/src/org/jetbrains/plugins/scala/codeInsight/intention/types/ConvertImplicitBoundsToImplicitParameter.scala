@@ -35,7 +35,7 @@ class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAc
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val addedParams = doConversion(element)
-    if (!isUnitTestMode && IntentionPreviewUtils.getPreviewEditor == null)
+    if (!isUnitTestMode && !IntentionPreviewUtils.isIntentionPreviewActive)
       runRenamingTemplate(addedParams)
   }
 }

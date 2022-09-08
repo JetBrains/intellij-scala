@@ -144,9 +144,8 @@ class AmmoniteScriptWrappersHolder(project: Project) {
                 0, ammFile.getTextLength, (t: RangeHighlighterEx) => {
                   t.getErrorStripeTooltip match {
                     case hInfo: HighlightInfo if hInfo.`type` == HighlightInfoType.WEAK_WARNING =>
-                      val it = hInfo.quickFixActionRanges.iterator()
-                      while (it.hasNext) {
-                        it.next().first.getAction match {
+                      hInfo.findRegisteredQuickFix { case (descriptor, _) =>
+                        descriptor.getAction match {
                           case wrapper: QuickFixWrapper =>
                             wrapper.getFix match {
                               case ammoniteFix: CreateImportedLibraryQuickFix => acc.append(ammoniteFix)
@@ -154,6 +153,7 @@ class AmmoniteScriptWrappersHolder(project: Project) {
                             }
                           case _ =>
                         }
+                        null
                       }
                     case _ =>
                   }

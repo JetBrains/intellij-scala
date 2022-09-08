@@ -239,7 +239,7 @@ class BspProjectOpenProcessor extends ProjectOpenProcessor {
     BspProjectOpenProcessor.canOpenProject(file)
 
   override def doOpenProject(virtualFile: VirtualFile, projectToClose: Project, forceOpenInNewFrame: Boolean): Project =
-    runUnderModalProgressIfIsEdt { continuation =>
+    runUnderModalProgressIfIsEdt { (_, continuation) =>
       new BspOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame, continuation)
     }
 }

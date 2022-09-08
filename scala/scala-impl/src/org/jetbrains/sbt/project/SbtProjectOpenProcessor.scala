@@ -18,7 +18,7 @@ class SbtProjectOpenProcessor extends ProjectOpenProcessor {
     SbtProjectImportProvider.canImport(file)
 
   override def doOpenProject(virtualFile: VirtualFile, projectToClose: Project, forceOpenInNewFrame: Boolean): Project =
-    runUnderModalProgressIfIsEdt { continuation =>
+    runUnderModalProgressIfIsEdt { (_, continuation) =>
       new SbtOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame, continuation)
     }
 }
