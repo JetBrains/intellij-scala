@@ -3,6 +3,7 @@ package codeInsight.intention.expression
 
 import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -11,7 +12,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertParameterToUnderscoreIntention._
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-
 
 class ConvertParameterToUnderscoreIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.convert.parameter.to.underscore.section")
@@ -54,7 +53,7 @@ class ConvertParameterToUnderscoreIntention extends PsiElementBaseIntentionActio
 
     createExpressionToIntroduce(expr, withoutParameterTypes = false) match {
       case Left(newExpr) =>
-        inWriteAction {
+        IntentionPreviewUtils.write { () =>
           expr.replace(newExpr)
           editor.getCaretModel.moveToOffset(startOffset)
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
@@ -103,7 +102,7 @@ object ConvertParameterToUnderscoreIntention {
 
     val result = expr.result.getOrElse(return Right(ScalaInspectionBundle.message("introduce.implicit.not.allowed.here")))
 
-    val buf = new StringBuilder
+    val buf = new mutable.StringBuilder
     buf.append(result.getText)
 
     val diff = result.getTextRange.getStartOffset
@@ -141,5 +140,4 @@ object ConvertParameterToUnderscoreIntention {
 
     Left(newExpr)
   }
-
 }
