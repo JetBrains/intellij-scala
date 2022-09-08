@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.imports
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.{IntentionPreviewInfo, IntentionPreviewUtils}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -21,16 +22,23 @@ class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction
 
   override def getText: String = ScalaBundle.message("import.additional.identifiers.from.qualifier")
 
-  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     check(project, editor, element).isDefined
-  }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    if (!element.isValid) return
-    check(project, editor, element).foreach(_.apply())
-  }
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
+    if (element.isValid) check(project, editor, element).foreach(_.apply())
 
   override def startInWriteAction(): Boolean = false
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    val element = file.findElementAt(editor.getCaretModel.getOffset)
+    check(project, editor, element) match {
+      case Some(action) =>
+        action()
+        IntentionPreviewInfo.DIFF
+      case None => IntentionPreviewInfo.EMPTY
+    }
+  }
 
   @tailrec
   private def check(project: Project, editor: Editor, element: PsiElement): Option[() => Unit] = {
@@ -46,13 +54,13 @@ class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction
             val doIt = () => {
               val name = s"${qualifier.getText}.{${id.nameId.getText}}"
 
-              val replaced = inWriteAction {
+              IntentionPreviewUtils.write { () =>
                 val replaced = imp.replace(ScalaPsiElementFactory.createImportExprFromText(name, element))
-                PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-                replaced
-              }
-              inWriteAction {
-                editor.getDocument.insertString(replaced.getTextRange.getEndOffset - 1, ", ")
+                val document = editor.getDocument
+                val documentManager = PsiDocumentManager.getInstance(project)
+                documentManager.doPostponedOperationsAndUnblockDocument(document)
+                documentManager.commitDocument(document)
+                document.insertString(replaced.getTextRange.getEndOffset - 1, ", ")
                 editor.getCaretModel.moveToOffset(replaced.getTextRange.getEndOffset + 1)
               }
             }
