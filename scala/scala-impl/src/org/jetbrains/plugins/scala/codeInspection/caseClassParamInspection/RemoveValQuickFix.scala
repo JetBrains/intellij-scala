@@ -57,10 +57,18 @@ class RemoveValFromGeneratorIntentionAction(generator: ScGenerator) extends Inte
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (!generator.isValid) return
-    generator.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
+    removeVal(generator)
   }
 
   override def startInWriteAction() = true
 
   override def getFamilyName: String = ScalaInspectionBundle.message("remove.val.from.definition")
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    removeVal(PsiTreeUtil.findSameElementInCopy(generator, file))
+    IntentionPreviewInfo.DIFF
+  }
+
+  private def removeVal(gen: ScGenerator): Unit =
+    gen.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
 }
