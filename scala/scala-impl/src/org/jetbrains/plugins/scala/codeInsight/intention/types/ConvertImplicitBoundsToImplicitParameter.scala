@@ -4,6 +4,7 @@ package intention
 package types
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.command.undo.UndoUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -34,7 +35,7 @@ class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAc
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val addedParams = doConversion(element)
-    if (!isUnitTestMode)
+    if (!isUnitTestMode && IntentionPreviewUtils.getPreviewEditor == null)
       runRenamingTemplate(addedParams)
   }
 }
@@ -82,7 +83,6 @@ object ConvertImplicitBoundsToImplicitParameter {
       name = if (isUniqueName(primaryName)) primaryName else altName
       suffix = nextNumber.updateWith(name)(old => Some(old.getOrElse(-1) + 1)).filter(_ >= 1).fold("")(_.toString)
     } yield s"$name$suffix: $typeText"
-
 
     // remove old clause
     existingClause.foreach(_.delete())
