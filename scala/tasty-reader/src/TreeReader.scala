@@ -54,7 +54,8 @@ private class TreeReader(nameAtRef: NameTable) {
           names :+= readName(in); children = treeReader()
         case RETURN | HOLE =>
 //          readNat(in); children :++= readTrees()
-        case METHODtype | POLYtype | TYPELAMBDAtype =>
+        case /*METHODtype | POLYtype |*/ TYPELAMBDAtype =>
+          children = { val tree = readTree(in); () => Seq(tree) }
 //          children :+= readTree(in)
 //          while (in.currentAddr.index < end.index && !isModifierTag(in.nextByte)) { children :+= readTree(in); names :+= readName(in); }
 //          children :++= readTrees()

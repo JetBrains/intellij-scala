@@ -14,10 +14,7 @@ import scala.util.control.NonFatal
 // Compare: single dir
 // type MirroredElemTypes = EmptyTuple, type MirroredElemTypes = scala.Tuple$package.EmptyTuple
 // Anonymous Context Parameters?
-// infix types
 // abstract extension
-// hkt as arg, lambda
-// match types
 // super
 // annotation: parameter, type, string, array
 // Nothing -> Any when for parameter (variance)
@@ -30,8 +27,6 @@ import scala.util.control.NonFatal
 // getOrElse(throw exception)
 // gzip
 // rely on signed name instead of Apply template parent calls?
-// FunctionN, TupleN
-// infix types (not just & and |)
 // abstract override (order)
 // = derived ?
 // modifiers order

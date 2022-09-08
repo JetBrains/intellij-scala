@@ -450,6 +450,8 @@ class TreePrinter(privateMembers: Boolean = false) {
         parametersIn(sb1, node)
         sb1.toString + " =>> " + children.lastOption.map(textOfType(_)).getOrElse("") // TODO check tree
 
+      case Node3(TYPELAMBDAtype, _, Seq(Node3(APPLIEDtype, _, Seq(tail, _: _*)), _: _*)) => textOfType(tail)
+
       case Node3(REFINEDtpt, _, Seq(tr @ Node1(TYPEREF), Node3(DEFDEF, Seq(name), children), _ : _*)) if textOfType(tr) == "scala.PolyFunction" && name == "apply" => // TODO check tree
         val (typeParams, tail1) = children.span(_.is(TYPEPARAM))
         val (valueParams, tails2) = tail1.span(_.is(PARAM))
