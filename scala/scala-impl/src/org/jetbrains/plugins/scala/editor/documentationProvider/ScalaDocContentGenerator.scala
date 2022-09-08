@@ -172,6 +172,8 @@ private class ScalaDocContentGenerator(
       .children
       .dropWhile(_.elementType == ScalaDocTokenType.DOC_WHITESPACE)
       .foreach(visitNode(buffer, _))
+    if (!skipParagraphElement)
+      buffer.append(HtmlEndParagraph).append('\n')
   }
 
   private def visitDocList(buffer: StringBuilder, list: ScDocList): Unit = {
@@ -343,6 +345,7 @@ object ScalaDocContentGenerator {
   private val Log = Logger.getInstance(classOf[ScalaDocContentGenerator])
 
   private val HtmlStartParagraph = "<p>"
+  private val HtmlEndParagraph = "</p>"
 
   private case class PsiElementResolveResult(refText: String, label: String)
 

@@ -950,6 +950,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |<sup>blah-blah  </sup>
          |<p>
          |<u>aaaaaaa<sub>bbbbbbb </sub></u>
+         |</p>
          |$ContentEnd""".stripMargin
     )
 
@@ -1409,14 +1410,17 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |Another way to see a sequence is as a<tt>PartialFunction</tt>from<tt>Int</tt>values
         |to the element type of the sequence. The<tt>isDefinedAt</tt>method of a sequence returns<tt>true</tt>for the
         |interval from<tt>0</tt>until<tt>length</tt>.
+        |</p>
         |<p>
         |Sequences can be accessed in reverse order of their elements,
         |using methods<tt>reverse</tt>and<tt>reverseIterator</tt>.
+        |</p>
         |<p>
         |Sequences have two principal subtraits,<tt>IndexedSeq</tt>and<tt>LinearSeq</tt>, which give different
         |guarantees for performance. An<tt>IndexedSeq</tt>provides fast random-access of elements
         |and a fast<tt>length</tt>operation. A<tt>LinearSeq</tt>provides fast access only to the first element
         |via<tt>head</tt>, but also has a fast<tt>tail</tt>operation.
+        |</p>
         |""".stripMargin
     )
 
@@ -1451,15 +1455,15 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
     val expectedContent =
       """short macro value long macro value line 1 long macro value line 2
-        |<p>long macro value line 3
-        |<p>short macro value
+        |<p>long macro value line 3</p>
+        |<p>short macro value</p>
         |<p>long macro value line 1 long macro value line 2
-        |<p>long macro value line 3
+        |<p>long macro value line 3</p></p>
         |<p>Some prefix short macro value Some prefix long macro value line 1 long macro value line 2
-        |<p>long macro value line 3
-        |<p>Some prefix short macro value
+        |<p>long macro value line 3</p></p>
+        |<p>Some prefix short macro value</p>
         |<p>Some prefix long macro value line 1 long macro value line 2
-        |<p>long macro value line 3
+        |<p>long macro value line 3</p></p>
         |""".stripMargin
 
     doGenerateDocContentTest(fileContent, expectedContent)
@@ -1496,7 +1500,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |</ol>
         |</li>
         |</ul>
-        |<p>another text some postfix
+        |<p>another text</p> some postfix
         |<p>some text
         |<ul>
         |<li>item</li>
@@ -1507,7 +1511,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |</ol>
         |</li>
         |</ul>
-        |<p>another text""".stripMargin
+        |<p>another text</p></p>""".stripMargin
 
     doGenerateDocContentTest(fileContent, expectedContent)
   }
@@ -1597,7 +1601,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |*/
         |text 2
         |<p>
-        |<pre><code>/**   text inner   3   */</code></pre> """.stripMargin
+        |<pre><code>/**   text inner   3   */</code></pre></p> """.stripMargin
 
     doGenerateDocContentTest(fileContent, expectedContent)
   }
@@ -1722,17 +1726,21 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |<p>
         |line 3
         |line 4
+        |</p>
         |<p>
         |line 5
         |line 6
+        |</p>
         |<p>
         |line 7
         |line 8
+        |</p>
         |<p>
         |<u>line 9</u>
         |<u>line</u> 10
         |line <u>11</u>
         |line <u>12</u> text
+        |</p>
         |""".stripMargin
 
     doGenerateDocContentDanglingTest(input, expectedContent)
@@ -1855,9 +1863,11 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          | line 1
          |
          | line 2
-         | </pre> after
-         |<p><u>line 1 line 2</u>
-         |<p>before<b>line 1 line 2</b>after
+         | </pre>
+         | after
+         | </p>
+         |<p><u>line 1 line 2</u></p>
+         |<p>before<b>line 1 line 2</b>after</p>
          |""".stripMargin
 
     doGenerateDocContentDanglingTest(input, expectedContent)
