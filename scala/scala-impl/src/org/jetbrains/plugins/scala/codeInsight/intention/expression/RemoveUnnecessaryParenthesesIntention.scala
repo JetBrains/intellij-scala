@@ -3,13 +3,13 @@ package codeInsight.intention.expression
 
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
 
 class RemoveUnnecessaryParenthesesIntention extends PsiElementBaseIntentionAction {
@@ -27,14 +27,13 @@ class RemoveUnnecessaryParenthesesIntention extends PsiElementBaseIntentionActio
     Option(HighlightDisplayKey.find(id)).exists(
       InspectionProjectProfileManager.getInstance(project).getCurrentProfile.isToolEnabled)
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    Option(PsiTreeUtil.getParentOfType(element, classOf[ScParenthesizedElement])) map {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
+    Option(PsiTreeUtil.getParentOfType(element, classOf[ScParenthesizedElement])).foreach {
       case expr if expr.isNestedParenthesis => invoke(project, editor, expr)
       case expr if expr.isParenthesisRedundant =>
-        inWriteAction {
+        IntentionPreviewUtils.write { () =>
           expr.doStripParentheses()
         }
       case _ =>
     }
-  }
 }
