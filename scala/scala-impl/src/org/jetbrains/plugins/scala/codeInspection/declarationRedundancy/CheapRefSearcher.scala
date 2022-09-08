@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
 import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.TestSourcesFilter
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search.searches.ReferencesSearch
@@ -42,46 +43,31 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
  * from which the search algorithm below was extracted, and now shared between these two inspections.
  *
  * Contract:
- * 1. It promises not to miss references, but there may be false positives.
+ * 1. Local scope: It will not miss references in the vast majority of cases, but there may be false negatives
+ *                 and positives.
+ *                 As far as I'm aware these false results for private and similarly scoped elements stem from
+ *                 the fact that ScalaRefCountHolder can't be partially invalidated. See SCL-19970.
+ *    Non-local scope: It promises not to miss references, but there may be false negatives. This is because we
+ *                     rely on text-search and can't afford to perform true reference-checking.
  *
  * 2. Any search approach that can stop before having discovered all potential references,
- * like text-search, will indeed stop after a reference outside the target element's
- * private scope has been found.
+ *    like text-search, will indeed stop after a reference outside the target element's
+ *    private scope has been found.
  *
  * 3. Some references are only registered to exist, with no further information about them.
+ *
+ * 4. Computed results are cached in the scrutinee. If CheapRefSearcher consumer A fetches references to
+ *    element x and so does consumer B, results are computed during the first fetch, and read from
+ *    cache during the second.
+ *    Cached results are invalidated by any PSI change anywhere in the project.
  */
+final class CheapRefSearcher {
 
-object CheapRefSearcher {
-
-  trait ElementUsage {
-    def targetCanBePrivate: Boolean
-  }
-
-  private final object UnknownElementUsage extends ElementUsage {
-    override val targetCanBePrivate: Boolean = false
-  }
-
-  private final class KnownElementUsage(reference: PsiElement, target: ScNamedElement) extends ElementUsage {
-    override lazy val targetCanBePrivate: Boolean = {
-      val targetContainingClass = PsiTreeUtil.getParentOfType(target, classOf[PsiClass])
-      var refContainingClass = PsiTreeUtil.getParentOfType(reference, classOf[PsiClass])
-
-      var counter = 0
-
-      if (targetContainingClass == null) false else {
-        while (counter < KnownElementUsage.MaxSearchDepth &&refContainingClass != null && refContainingClass != targetContainingClass) {
-          refContainingClass = PsiTreeUtil.getParentOfType(refContainingClass, classOf[PsiClass])
-          counter += 1
-        }
-
-        refContainingClass == targetContainingClass
-      }
-    }
-  }
-
-  private object KnownElementUsage {
-    private val MaxSearchDepth = 10
-  }
+  import CheapRefSearcher.shouldProcessElement
+  import CheapRefSearcher.referencesSearch
+  import CheapRefSearcher.textSearch
+  import CheapRefSearcher.getForeignEnumUsages
+  import CheapRefSearcher.isImplicitUsed
 
   @Cached(ModTracker.physicalPsiChange(element.getProject), element)
   def search(element: ScNamedElement, isOnTheFly: Boolean, reportPublicDeclarations: Boolean): Seq[ElementUsage] =
@@ -114,6 +100,12 @@ object CheapRefSearcher {
         textSearch(element)
       }
     }
+}
+
+object CheapRefSearcher {
+
+  def getInstance(project: Project): CheapRefSearcher =
+    project.getService(classOf[CheapRefSearcher])
 
   private def referencesSearch(element: ScNamedElement): Seq[ElementUsage] = {
     val elementsForSearch = element match {
@@ -241,4 +233,34 @@ object CheapRefSearcher {
       case _ => false
     }
   }
+}
+
+trait ElementUsage {
+  def targetCanBePrivate: Boolean
+}
+
+private object UnknownElementUsage extends ElementUsage {
+  override val targetCanBePrivate: Boolean = false
+}
+
+private final class KnownElementUsage(reference: PsiElement, target: ScNamedElement) extends ElementUsage {
+  override lazy val targetCanBePrivate: Boolean = {
+    val targetContainingClass = PsiTreeUtil.getParentOfType(target, classOf[PsiClass])
+    var refContainingClass = PsiTreeUtil.getParentOfType(reference, classOf[PsiClass])
+
+    var counter = 0
+
+    if (targetContainingClass == null) false else {
+      while (counter < KnownElementUsage.MaxSearchDepth && refContainingClass != null && refContainingClass != targetContainingClass) {
+        refContainingClass = PsiTreeUtil.getParentOfType(refContainingClass, classOf[PsiClass])
+        counter += 1
+      }
+
+      refContainingClass == targetContainingClass
+    }
+  }
+}
+
+private object KnownElementUsage {
+  private val MaxSearchDepth = 10
 }

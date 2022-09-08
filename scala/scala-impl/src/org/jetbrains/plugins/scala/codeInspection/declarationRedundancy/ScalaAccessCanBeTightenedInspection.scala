@@ -79,7 +79,7 @@ private final class ScalaAccessCanBeTightenedInspection extends LocalInspectionT
       }
     }
 
-    if (CheapRefSearcher.search(element, isOnTheFly, reportPublicDeclarations = true).forall(_.targetCanBePrivate)) {
+    if (CheapRefSearcher.getInstance(element.getProject).search(element, isOnTheFly, reportPublicDeclarations = true).forall(_.targetCanBePrivate)) {
       val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(modifierListOwner, quickFixText)
       problemsHolder.registerProblem(element.nameId, "Access can be private", ProblemHighlightType.WARNING, fix)
     }
