@@ -5,6 +5,7 @@ package matcher
 
 import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
@@ -49,6 +50,18 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
     }
   }
 
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    val element = file.findElementAt(editor.getCaretModel.getOffset)
+    findReferencePattern(element) match {
+      case Some((origPattern, newPatternText)) =>
+        val newPattern = createPatternFromText(newPatternText)(element.getManager)
+        val replaced = origPattern.replace(newPattern)
+        ScalaPsiUtil.adjustTypes(replaced)
+        IntentionPreviewInfo.DIFF
+      case _ => IntentionPreviewInfo.EMPTY
+    }
+  }
+
   private def findReferencePattern(element: PsiElement): Option[(ScPattern, String)] =
     element.parents
       .takeWhile(_.is[ScPattern, ScTypeElement, ScTypePattern, ScReference])
@@ -69,7 +82,6 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
         case _ => None
       }
       .nextOption()
-
 
   private def nestedPatternText(expectedType: ScType): Option[String] = {
     expectedType match {
