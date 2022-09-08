@@ -4,6 +4,7 @@ package unusedInspections
 
 import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.daemon.QuickFixBundle
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInsight.intention.{HighPriorityAction, IntentionAction, LowPriorityAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -42,6 +43,9 @@ sealed abstract class ScalaOptimizeImportsFixBase extends IntentionAction {
 final class ScalaOptimizeImportsFix extends ScalaOptimizeImportsFixBase with HighPriorityAction {
 
   override def getText: String = QuickFixBundle.message("optimize.imports.fix")
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo =
+    IntentionPreviewInfo.EMPTY
 }
 
 final class ScalaEnableOptimizeImportsOnTheFlyFix extends ScalaOptimizeImportsFixBase {
