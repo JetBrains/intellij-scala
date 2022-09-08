@@ -3,6 +3,7 @@ package codeInsight
 package intention
 package types
 
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
@@ -71,7 +72,7 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       if (types.size == 1) {
         val replaced = te.replace(ScalaPsiElementFactory.createTypeElementFromText(types.head.canonicalText, te.getContext, te))
         TypeAdjuster.markToAdjust(replaced)
-      } else {
+      } else if (!IntentionPreviewUtils.isPreviewElement(te)) {
         implicit val tpc: TypePresentationContext = TypePresentationContext(context)
         val texts = types.map(ScTypeText(_))
         val expr = new ChooseTypeTextExpression(texts, ScTypeText(declaredType))
