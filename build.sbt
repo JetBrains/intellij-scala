@@ -62,6 +62,7 @@ lazy val scalaCommunity: sbt.Project =
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
+      testingSupport % "test->test;compile->compile",
       devKitIntegration % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
@@ -335,6 +336,13 @@ lazy val runners: Project =
       packageAdditionalProjects ++= Seq(testRunners, testRunners_spec2_2x)
     )
 
+lazy val testingSupport =
+  newProject("testing-support", file("scala/testing-support"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .settings(
+      intellijPlugins += "JUnit".toPlugin
+    )
+
 lazy val testRunners: Project =
   newProject("testRunners", file("scala/testRunners"))
     .settings(
@@ -443,6 +451,7 @@ lazy val bsp =
     .enablePlugins(BuildInfoPlugin)
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
+      testingSupport,
       worksheet % "test->test;compile->compile"
     )
     .settings(
@@ -506,7 +515,10 @@ lazy val intelliLangIntegration = newProject(
 
 lazy val mavenIntegration =
   newProject("maven", file("scala/integration/maven"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      testingSupport
+    )
     .settings(
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
       libraryDependencies += "com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies % Test notTransitive(),

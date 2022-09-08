@@ -2,7 +2,6 @@ package org.jetbrains.sbt.shell
 
 import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
 import org.jetbrains.plugins.scala.build.TaskManagerResult
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.SettingEntry
 import org.jetbrains.sbt.shell.SbtShellCommunication.{EventAggregator, ShellEvent, TaskComplete}
 import org.jetbrains.sbt.shell.SettingQueryHandler._
 
@@ -11,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 // TODO replace this when we have sbt server support
-class SettingQueryHandler private (settingName: String, taskName: Option[String], sbtProjectUri: Option[String],
+class SettingQueryHandler private[jetbrains] (settingName: String, taskName: Option[String], sbtProjectUri: Option[String],
                                    sbtProjectName: Option[String], comm: SbtShellCommunication) {
 
   def getSettingValue: Future[String] = {
@@ -67,10 +66,6 @@ object SettingQueryHandler {
   def apply(settingName: String, taskName: Option[String], sbtProjectUri: Option[String],
             sbtProjectName: Option[String], comm: SbtShellCommunication) =
     new SettingQueryHandler(settingName, taskName, sbtProjectUri, sbtProjectName, comm)
-
-  def apply(settingsEntry: SettingEntry, comm: SbtShellCommunication) =
-    new SettingQueryHandler(settingsEntry.settingName, settingsEntry.task, settingsEntry. sbtProjectUri,
-      settingsEntry.sbtProjectId, comm)
 
   private val EmptyListener: EventAggregator[Result] = (v1: Result, _: ShellEvent) => v1
 

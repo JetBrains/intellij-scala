@@ -5,7 +5,6 @@ import com.intellij.ide.IdeBundle
 import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElement, TextEditorBasedStructureViewModel}
 import com.intellij.ide.util.treeView.smartTree._
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -16,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.structureView.element.{Element, Test}
-import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
 import java.util
 import java.util.Comparator
@@ -92,12 +90,8 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
     res
   }
 
-  override def getNodeProviders: util.Collection[NodeProvider[_ <: TreeElement]] = {
-    if (myRootElement.getFileType == ScalaFileType.INSTANCE)
-      util.Arrays.asList(new ScalaInheritedMembersNodeProvider, new TestNodeProvider)
-    else
-      util.Arrays.asList(new ScalaInheritedMembersNodeProvider)
-  }
+  override def getNodeProviders: util.Collection[NodeProvider[_ <: TreeElement]] =
+    util.Arrays.asList(new ScalaInheritedMembersNodeProvider)
 
   override def isSuitable(element: PsiElement): Boolean = element match {
     case t: ScTypeDefinition => t.getParent match {
