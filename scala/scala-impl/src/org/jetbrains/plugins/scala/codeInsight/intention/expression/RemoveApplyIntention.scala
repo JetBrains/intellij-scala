@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.expression
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -18,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 
 class RemoveApplyIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.remove.unnecessary.apply")
@@ -44,7 +46,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
     val expr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (expr != null && expr.isValid) {
       buildReplacement(expr).foreach { case (replacementText, start) =>
-        inWriteAction {
+        IntentionPreviewUtils.write { () =>
           expr.replace(createExpressionFromText(replacementText)(element.getManager))
           editor.getCaretModel.moveToOffset(start)
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
@@ -70,7 +72,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
       }
 
     var start = expr.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.getTextRange.getStartOffset - 1
-    val buf = new StringBuilder
+    val buf = new mutable.StringBuilder
     val qualifier = expr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get
     buf.append(qualifier.getText)
 
