@@ -3,10 +3,12 @@ package codeInspection
 package caseClassParamInspection
 
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -31,12 +33,20 @@ class RemoveValFromForBindingIntentionAction(forBinding: ScForBinding) extends I
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (!forBinding.isValid) return
-    forBinding.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
+    removeVal(forBinding)
   }
 
   override def startInWriteAction(): Boolean = true
 
   override def getFamilyName: String = ScalaInspectionBundle.message("remove.val.from.definition")
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    removeVal(PsiTreeUtil.findSameElementInCopy(forBinding, file))
+    IntentionPreviewInfo.DIFF
+  }
+
+  private def removeVal(binding: ScForBinding): Unit =
+    binding.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
 }
 
 class RemoveValFromGeneratorIntentionAction(generator: ScGenerator) extends IntentionAction {
