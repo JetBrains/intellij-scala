@@ -22,13 +22,13 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotification
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaFmtSettingsPanel}
 import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
-import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig, ScalafmtVersion}
 
 import java.io.File
 import java.nio.charset.Charset
-import scala.collection.mutable
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.concurrent
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
@@ -37,7 +37,8 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
 
   private val Log = Logger.getInstance(classOf[ScalafmtDynamicConfigService])
 
-  private val configsCache: mutable.Map[String, CachedConfig] = ScalaCollectionsUtil.newConcurrentMap
+  private val configsCache: concurrent.Map[String, CachedConfig] =
+    new ConcurrentHashMap[String, CachedConfig]().asScala
 
   override def init(): Unit = {
     val scalaSettings = ScalaCodeStyleSettings.getInstance(project)

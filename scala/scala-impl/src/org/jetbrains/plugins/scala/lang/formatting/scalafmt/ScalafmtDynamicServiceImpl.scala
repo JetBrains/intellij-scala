@@ -18,13 +18,15 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotification
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
-import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtVersion}
 
 import java.io.File
 import java.net.URL
+import java.util.concurrent.ConcurrentHashMap
 import scala.beans.BeanProperty
+import scala.collection.concurrent
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 import scala.util.Try
 
@@ -38,7 +40,8 @@ final class ScalafmtDynamicServiceImpl
 
   private val Log = Logger.getInstance(this.getClass)
 
-  private val formattersCache: mutable.Map[ScalafmtVersion, ResolveStatus] = ScalaCollectionsUtil.newConcurrentMap
+  private val formattersCache: concurrent.Map[ScalafmtVersion, ResolveStatus] =
+    new ConcurrentHashMap[ScalafmtVersion, ResolveStatus]().asScala
 
   private val state: ServiceState = new ServiceState
   override def getState: ServiceState = state

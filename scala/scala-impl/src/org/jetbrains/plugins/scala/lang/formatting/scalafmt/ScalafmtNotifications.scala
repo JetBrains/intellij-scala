@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.notification._
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 
+import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.nowarn
-import scala.collection.mutable
+import scala.collection.concurrent
+import scala.jdk.CollectionConverters._
 import scala.ref.WeakReference
 
 private[formatting]
@@ -20,7 +21,8 @@ object ScalafmtNotifications {
   private def scalafmtFormatErrorBalloonGroup = NotificationGroupManager.getInstance().getNotificationGroup(ScalafmtFormatErrorBalloonGroupId)
 
   // do not display notification with same content several times
-  private val messagesShown: mutable.Map[String, WeakReference[Notification]] = ScalaCollectionsUtil.newConcurrentMap
+  private val messagesShown: concurrent.Map[String, WeakReference[Notification]] =
+    new ConcurrentHashMap[String, WeakReference[Notification]]().asScala
 
   private def displayNotification(
     message: String,
