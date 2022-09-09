@@ -72,6 +72,10 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaMetaBundle.properties"
     ),
     ModuleInfo(
+      rootPath = scalaModDir + "debugger/",
+      bundleMessagesRelativePath = "DebuggerBundle.properties"
+    ),
+    ModuleInfo(
       rootPath = scalaModDir + "testing-support/",
       bundleMessagesRelativePath = "TestingSupportBundle.properties"
     ),

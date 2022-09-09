@@ -10,8 +10,8 @@ import org.jetbrains.jps.incremental.scala.remote.CompileServerMeteringInfo
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher, ScalaCompileServerSettings}
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
+import org.jetbrains.plugins.scala.base.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.base.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.projectHighlighting.base.{GithubRepositoryWithRevision, SbtProjectHighlightingDownloadingFromGithubTestBase}

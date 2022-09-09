@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.base.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings

@@ -9,7 +9,6 @@
         <extensionPoint qualifiedName="org.intellij.scala.memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.scalaElementToRenameContributor" interface="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaElementToRenameContributor" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.scalaSyntheticClassProducer" interface="org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.evaluatorCompileHelper" interface="org.jetbrains.plugins.scala.debugger.evaluation.EvaluatorCompileHelper" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.syntheticMemberInjector" interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.parameterInfoEnhancer" interface="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaParameterInfoEnhancer" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver" dynamic="true"/>
@@ -104,22 +103,6 @@
         <moveLeftRightHandler language="Scala"
                               implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaMoveLeftRightHandler"/>
         <editorTabTitleProvider implementation="org.jetbrains.plugins.scala.editor.PackageObjectEditorTabTitleProvider"/>
-        <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
-        <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
-        <debuggerEditorTextProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEditorTextProvider"/>
-        <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaRuntimeRefRenderer"/>
-        <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRendererProvider"/>
-        <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaClassRendererProvider"/>
-        <debugger.syntheticProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider"/>
-        <debugger.frameExtraVarsProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaFrameExtraVariablesProvider"/>
-        <debugger.extraSteppingFilter implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticSteppingFilter"/>
-        <debugger.simplePropertyGetterProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSimpleGetterProvider"/>
-        <debugger.sourcePositionProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSourcePositionProvider"/>
-        <debugger.javaBreakpointHandlerFactory implementation="org.jetbrains.plugins.scala.debugger.breakpoints.ScalaBreakpointHandlerFactory"/>
-        <debugger.sourcePositionHighlighter implementation="org.jetbrains.plugins.scala.debugger.ScalaSourcePositionHighlighter"/>
-        <debugger.nodeNameAdjuster implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaFieldNameAdjuster"/>
-        <debugger.nodeNameAdjuster implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaParameterNameAdjuster"/>
-        <xdebugger.breakpointType implementation="org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType"/>
         <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
         <iconProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaIconProvider"/>
@@ -326,9 +309,6 @@
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.RecursiveCallLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
-        <debuggerClassFilterProvider implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerClassFilterProvider"/>
-        <xdebugger.settings implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings"/>
-        <debugger.jvmSmartStepIntoHandler implementation="org.jetbrains.plugins.scala.debugger.smartStepInto.ScalaSmartStepIntoHandler"/>
         <lang.documentationProvider id="ScalaDocumentationProvider" language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaMethodProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.PrepareRenameScalaMethodProcessor" order="last"/>
@@ -530,8 +510,6 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceLookupListenerService" preload="true" />
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterService"/>
@@ -1910,8 +1888,6 @@
     <projectListeners>
         <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$DumbModeListener"/>
-        <listener topic="com.intellij.debugger.impl.DebuggerManagerListener"
-                  class="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
 
         <listener topic="com.intellij.compiler.server.CustomBuilderMessageHandler"
                   class="org.jetbrains.plugins.scala.compiler.CompilerEventFromCustomBuilderMessageListener"/>
@@ -1930,9 +1906,6 @@
 
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingOnEditorSelectionChangedListener"/>
-
-        <listener topic="com.intellij.debugger.impl.DebuggerManagerListener"
-                  class="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper$Listener"/>
 
     </projectListeners>
     <actions>

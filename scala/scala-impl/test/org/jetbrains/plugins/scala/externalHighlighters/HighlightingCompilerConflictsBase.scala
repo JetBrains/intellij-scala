@@ -11,7 +11,7 @@ import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.base.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}

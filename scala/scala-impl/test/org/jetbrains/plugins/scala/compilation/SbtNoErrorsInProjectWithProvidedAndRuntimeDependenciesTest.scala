@@ -6,8 +6,8 @@ import com.intellij.testFramework.CompilerTester
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
+import org.jetbrains.plugins.scala.base.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.base.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest

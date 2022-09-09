@@ -1,0 +1,37 @@
+<idea-plugin>
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.intellij.scala.evaluatorCompileHelper" interface="org.jetbrains.plugins.scala.debugger.evaluation.EvaluatorCompileHelper" dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
+        <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
+        <debuggerEditorTextProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEditorTextProvider"/>
+        <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaRuntimeRefRenderer"/>
+        <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRendererProvider"/>
+        <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaClassRendererProvider"/>
+        <debugger.syntheticProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider"/>
+        <debugger.frameExtraVarsProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaFrameExtraVariablesProvider"/>
+        <debugger.extraSteppingFilter implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticSteppingFilter"/>
+        <debugger.simplePropertyGetterProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSimpleGetterProvider"/>
+        <debugger.sourcePositionProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSourcePositionProvider"/>
+        <debugger.javaBreakpointHandlerFactory implementation="org.jetbrains.plugins.scala.debugger.breakpoints.ScalaBreakpointHandlerFactory"/>
+        <debugger.sourcePositionHighlighter implementation="org.jetbrains.plugins.scala.debugger.ScalaSourcePositionHighlighter"/>
+        <debugger.nodeNameAdjuster implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaFieldNameAdjuster"/>
+        <debugger.nodeNameAdjuster implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaParameterNameAdjuster"/>
+        <xdebugger.breakpointType implementation="org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType"/>
+        <debuggerClassFilterProvider implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerClassFilterProvider"/>
+        <xdebugger.settings implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings"/>
+        <debugger.jvmSmartStepIntoHandler implementation="org.jetbrains.plugins.scala.debugger.smartStepInto.ScalaSmartStepIntoHandler"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper"/>
+    </extensions>
+
+    <projectListeners>
+        <listener topic="com.intellij.debugger.impl.DebuggerManagerListener"
+                  class="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
+
+        <listener topic="com.intellij.debugger.impl.DebuggerManagerListener"
+                  class="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper$Listener"/>
+    </projectListeners>
+</idea-plugin>

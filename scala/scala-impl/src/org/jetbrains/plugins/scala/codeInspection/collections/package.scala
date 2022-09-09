@@ -4,7 +4,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -20,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayTy
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.AnonymousFunction
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
@@ -462,7 +462,7 @@ package object collections {
         case (ScFunctionExpr(_, _) | (_: ScCaseClauses)) childOf `expr` => true
         case (e: ScExpression) childOf `expr` if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
         case _: ScFunctionDefinition => false
-        case elem: PsiElement => !ScalaEvaluatorBuilderUtil.isGenerateClass(elem)
+        case elem: PsiElement => !AnonymousFunction.isGenerateClass(elem)
       }
 
       val sameLevelIterator = expr.depthFirst(predicate).filter(predicate)

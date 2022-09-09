@@ -9,7 +9,7 @@ import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.base.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.project._
 import org.junit.Assert.{assertNotSame, fail}
 import org.junit.experimental.categories.Category

@@ -4,17 +4,17 @@ package completion
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionProvider, CompletionResultSet, InsertionContext}
 import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElement, LookupElementDecorator}
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtOffset, getContextOfType, isAncestor}
 import com.intellij.util.ProcessingContext
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{adjustTypes, nameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScInterpolated, ScReference, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScPatterned, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScPatterned, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
@@ -133,7 +133,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
           ) {
 
             private val lookupStrings =
-              mutable.Set(defaultLookupElements.map(_.getLookupString).toSeq: _*)
+              mutable.Set(defaultLookupElements.map(_.getLookupString): _*)
             private val decorator = insertHandlerDecorator(canonicalText)
 
             override protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = for {
@@ -151,6 +151,8 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
 object ScalaBasicCompletionProvider {
 
   import ScalaTokenTypes._
+
+  val KEY: Key[ScExpression => ScType] = Key.create("SCALA_RUNTIME_TYPE_EVALUATOR")
 
   //doesn't search methods from implicit conversions by default, see ExtensionMethodProcessor
   private class DefaultCompletionProcessor(override protected val getPlace: ScReferenceImpl,
@@ -309,7 +311,7 @@ object ScalaBasicCompletionProvider {
                                offset: Int): Option[(Int, Int)] =
     interpolated.getInjections.reverseIterator
       .find(_.getTextRange.getEndOffset <= offset)
-      .filterNot(_.isInstanceOf[ScBlock])
+      .filterNot(_.is[ScBlock])
       .map(_.getTextRange)
       .flatMap { range =>
         val stringText = interpolated.getText
@@ -337,7 +339,7 @@ object ScalaBasicCompletionProvider {
 
   private def qualifierCastType(reference: ScReference): Option[ScType] = reference match {
     case ScReferenceExpression.withQualifier(qualifier) =>
-      reference.getContainingFile.getCopyableUserData(ScalaRuntimeTypeEvaluator.KEY) match {
+      reference.getContainingFile.getCopyableUserData(KEY) match {
         case null => None
         case evaluator => Option(evaluator(qualifier))
       }
@@ -390,7 +392,7 @@ object ScalaBasicCompletionProvider {
             if (td.extendsBlock.templateParents.isEmpty) Nil
             else List(new ScalaLookupItem(td, td.name + ".super"))
           val thisItem =
-            if (notInsideSeveralClasses || td.isInstanceOf[ScObject]) Nil
+            if (notInsideSeveralClasses || td.is[ScObject]) Nil
             else List(new ScalaLookupItem(td, td.name + ".this"))
 
           syntheticItems(element.getContext, superItem ::: thisItem ::: result)
