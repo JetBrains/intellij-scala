@@ -7,7 +7,6 @@ import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.plugins.scala.compiler.data.SbtData
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.util.JvmOptions
 
 import scala.jdk.CollectionConverters._
 
@@ -44,7 +43,7 @@ class ScalaBuildProcessParametersProvider(project: Project)
 
   private def addOpens(): Seq[String] =
     if (CompileServerJdkManager.getBuildProcessJdkVersion(project).isAtLeast(JavaSdkVersion.JDK_1_9))
-      JvmOptions.addOpens("java.base/java.util")
+      createJvmAddOpensParams("java.base/java.util")
     else
       Seq.empty
 
