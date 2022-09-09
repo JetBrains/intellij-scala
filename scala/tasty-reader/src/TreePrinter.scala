@@ -447,7 +447,7 @@ class TreePrinter(privateMembers: Boolean = false) {
 
       case Node3(LAMBDAtpt, _, children) =>
         val sb1 = new StringBuilder() // TODO reuse
-        parametersIn(sb1, node)
+        parametersIn(sb1, node, uniqueNames = true) // We might use the built-in kind projector syntactic sugar, but there's no way to known whether the code has been compiled with -Ykind-projector
         sb1.toString + " =>> " + children.lastOption.map(textOfType(_)).getOrElse("") // TODO check tree
 
       case Node3(TYPELAMBDAtype, _, Seq(Node3(APPLIEDtype, _, Seq(tail, _: _*)), _: _*)) => textOfType(tail)
@@ -531,7 +531,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     buffer.toSeq
   }
 
-  private def parametersIn(sb: StringBuilder, node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: StringBuilder => Unit = _ => ()): Unit = {
+  private def parametersIn(sb: StringBuilder, node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: StringBuilder => Unit = _ => (), uniqueNames: Boolean = false): Unit = {
     val tps = target match {
       case Target.Extension => node.children.takeWhile(!_.is(PARAM))
       case Target.ExtensionMethod => node.children.dropWhile(!_.is(PARAM))
@@ -571,7 +571,7 @@ class TreePrinter(privateMembers: Boolean = false) {
             sb ++= "-"
           }
         }
-        sb ++= (if (name.startsWith("_$")) "_" else id(name)) // TODO detect Unique name
+        sb ++= (if (!uniqueNames && name.startsWith("_$")) "_" else id(name)) // TODO detect Unique name
         node.children match {
           case Seq(lambda @ Node1(LAMBDAtpt), _: _*) =>
             parametersIn(sb, lambda)
