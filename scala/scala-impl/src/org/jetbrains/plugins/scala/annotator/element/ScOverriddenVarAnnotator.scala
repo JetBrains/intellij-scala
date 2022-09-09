@@ -3,9 +3,10 @@ package org.jetbrains.plugins.scala.annotator.element
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{nameContext, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 
 object ScOverriddenVarAnnotator extends ElementAnnotator[ScTypedDefinition] {
@@ -14,38 +15,35 @@ object ScOverriddenVarAnnotator extends ElementAnnotator[ScTypedDefinition] {
     val errorMessage = elem.nameContext match {
       case o: ScModifierListOwner if !o.getModifierList.isOverride =>
         None
-      case v: ScValueOrVariable if v.isAbstract =>
-        None
-      case p: ScClassParameter if p.isAbstractMember =>
-        None
-      case f: ScFunction if f.isAbstractMember =>
+      case IsAbstract(_) =>
         None
       case p: ScClassParameter if p.isVar =>
-        val supers = findSupers(elem.name, p.containingClass)
-        if (supers.nonEmpty && !isOverrideOfAbstract(supers))
+        val supers = superValsSignatures(elem, withSelfType = true).map { s => nameContext(s.namedElement) }
+        if (supers.exists(!isAbstract(_)))
           Some(ScalaBundle.message("var.cannot.be.overridden"))
         else
           None
-      case v: ScVariable =>
-        val supers = findSupers(elem.name, v.containingClass)
-        if (supers.nonEmpty && !isOverrideOfAbstract(supers))
+      case _: ScVariable =>
+        val supers = superValsSignatures(elem, withSelfType = true).map { s => nameContext(s.namedElement) }
+        if (supers.exists(!isAbstract(_)))
           Some(ScalaBundle.message("var.cannot.be.overridden"))
         else
           None
       case f: ScFunction if f.name.endsWith("_=") && isSetter(f) =>
         val elemName = f.name.dropRight(2)
-        val containingClass = f.containingClass
-        val supers = findSupers(elemName, containingClass)
-        if (supers.exists(isVar) && !hasGetter(elemName, containingClass))
+        val supers = f.superSignatures.map { s => nameContext(s.namedElement) }
+        if (supers.exists(isVar) && !hasGetter(elemName, f.containingClass))
           Some(ScalaBundle.message("missing.getter.implementation", elemName))
         else
           None
       case f: ScFunction if isGetter(f) =>
-        checkForNonAbstractVarSuper(elem.name, f.containingClass)
+        val supers = f.superSignatures.map { s => nameContext(s.namedElement) }
+        checkForNonAbstractVarSuper(supers, elem.name, f.containingClass)
       case v: ScValue =>
-        checkForNonAbstractVarSuper(elem.name, v.containingClass)
-      case p: ScClassParameter =>
-        val supers = findSupers(elem.name, p.containingClass)
+        val supers = superValsSignatures(elem, withSelfType = true).map { s => nameContext(s.namedElement) }
+        checkForNonAbstractVarSuper(supers, elem.name, v.containingClass)
+      case _: ScClassParameter =>
+        val supers = superValsSignatures(elem, withSelfType = true).map { s => nameContext(s.namedElement) }
         if (supers.exists(isVar))
           Some(ScalaBundle.message("var.cannot.be.overridden"))
         else
@@ -57,8 +55,8 @@ object ScOverriddenVarAnnotator extends ElementAnnotator[ScTypedDefinition] {
     errorMessage.foreach(holder.createErrorAnnotation(elem.getIdentifyingElement, _))
   }
 
-  private def checkForNonAbstractVarSuper(elemName: String, containingClass: ScTemplateDefinition): Option[String] =
-    findSupers(elemName, containingClass).collectFirst {
+  private def checkForNonAbstractVarSuper(supers: Seq[PsiElement], elemName: String, containingClass: ScTemplateDefinition): Option[String] =
+    supers.collectFirst {
       case p: ScClassParameter if p.isVar =>
         ScalaBundle.message("var.cannot.be.overridden")
       case v: ScVariable if v.isAbstract && !hasSetter(elemName, containingClass) =>
@@ -67,14 +65,6 @@ object ScOverriddenVarAnnotator extends ElementAnnotator[ScTypedDefinition] {
         ScalaBundle.message("var.cannot.be.overridden")
     }
 
-  private def findSupers(elemName: String, containingClass: ScTemplateDefinition): Seq[PsiElement] =
-    containingClass.supers.collect {
-      case t: ScTypeDefinition =>
-        t.allTermsByName(elemName).collect {
-          case term: ScTypedDefinition => term.nameContext
-        }
-    }.flatten
-
   private def isVar(elem: PsiElement): Boolean =
     elem match {
       case p: ScClassParameter => p.isVar
@@ -82,12 +72,16 @@ object ScOverriddenVarAnnotator extends ElementAnnotator[ScTypedDefinition] {
       case _                   => false
     }
 
-  private def isOverrideOfAbstract(supers: Seq[PsiElement]): Boolean =
-    supers.exists {
-      case v: ScVariable       => v.isAbstract
-      case s: ScClassParameter => s.isAbstractMember
-      case _                   => false
+  private def isAbstract(elem: PsiElement): Boolean =
+    elem match {
+      case v: ScValueOrVariable => v.isAbstract
+      case d: ScTypedDefinition => d.isAbstractMember
+      case _                    => false
     }
+
+  private object IsAbstract {
+    def unapply(elem: PsiElement): Option[PsiElement] = Option(elem).find(isAbstract)
+  }
 
   private def hasGetter(elemName: String, containingClass: ScTemplateDefinition): Boolean =
     if (containingClass.allVals.exists(v => !v.isAbstract && v.name == elemName))
