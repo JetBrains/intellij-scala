@@ -440,7 +440,7 @@ class TreePrinter(privateMembers: Boolean = false) {
 
       case Node1(BIND) => if (node.name.startsWith("_$")) "_" else id(node.name)
 
-      case Node1(TYPEBOUNDStpt) =>
+      case Node1(TYPEBOUNDStpt | TYPEBOUNDS) =>
         val sb1 = new StringBuilder() // TODO reuse
         boundsIn(sb1, node)
         "?" + sb1.toString
