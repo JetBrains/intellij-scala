@@ -7,7 +7,7 @@ scalaFiles=$(find . -name '*.scala')
 export PATH=/opt/scala3-3.0.0/bin/:$PATH
 
 echo Compiling .scala files...
-scalac $scalaFiles
+scalac -Ykind-projector $scalaFiles
 
 for scalaFile in $scalaFiles; do
   name="${scalaFile%.*}"
