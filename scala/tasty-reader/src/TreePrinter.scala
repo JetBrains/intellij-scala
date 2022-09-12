@@ -541,6 +541,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     val templateTypeParams = template.map(_.children.filter(_.is(TYPEPARAM)).iterator)
 
     var open = false
+    var isImplicit = false
     var next = false
 
     tps.foreach {
@@ -608,6 +609,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     val templateValueParams = template.map(_.children.filter(_.is(PARAM)).iterator)
 
     open = false
+    isImplicit = false
     next = false
 
     ps.foreach {
@@ -626,6 +628,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           }
           if (node.contains(IMPLICIT)) {
             sb ++= "implicit "
+            isImplicit = true
           }
         }
         if (next) {
@@ -653,7 +656,8 @@ class TreePrinter(privateMembers: Boolean = false) {
             }
           }
         }
-        if (!(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
+        // Re-sugar context bounds to use anonymous "using" parameters?
+        if (isImplicit || !(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
           sb ++= id(name) + ": "
         }
         sb ++= simple(tpe).stripSuffix(" @scala.annotation.internal.InlineParam")

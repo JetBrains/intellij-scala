@@ -47,6 +47,8 @@ trait Modifiers {
 
   def defImplicit(implicit x: Int, y: Long): Unit
 
+  def defContextBoundAndAnonymousUsing/**/[A : Ordering](using Int)/*[A](implicit evidence$1: Ordering[A], x$1: Int)*/: Unit
+
   enum EnumVal(val x: Int) {
     case Case/**/ extends EnumVal(1)/**/
   }
