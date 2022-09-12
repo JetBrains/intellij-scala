@@ -2,11 +2,13 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.quickfix._
-import org.jetbrains.plugins.scala.extensions.{&&, Parent}
+import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, Parent}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -16,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypesExt
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 trait FunctionAnnotator {
   self: ScalaAnnotator =>
@@ -24,7 +27,7 @@ trait FunctionAnnotator {
 
   def annotateFunction(function: ScFunctionDefinition, typeAware: Boolean = true)
                       (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val projectContext = function.projectContext
+    implicit val projectContext: ProjectContext = function.projectContext
 
     if (!function.hasExplicitType && function.definedReturnType.isLeft) {
       val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
@@ -81,7 +84,7 @@ trait FunctionAnnotator {
     for (usage <- returnUsages) {
       val explicitType   = function.hasExplicitType
       val hasAssign      = function.hasAssign
-      val explicitReturn = usage.isInstanceOf[ScReturn]
+      val explicitReturn = usage.is[ScReturn]
 
       if (explicitReturn && hasAssign && !explicitType) needsTypeAnnotation()
 
@@ -107,7 +110,7 @@ object FunctionAnnotator {
 
   def canBeTailRecursive(function: ScFunctionDefinition): Boolean = function.getParent match {
     case (_: ScTemplateBody) && Parent(Parent(owner: ScTypeDefinition)) =>
-      owner.isInstanceOf[ScObject] ||
+      owner.is[ScObject] ||
         owner.getModifierList.isFinal || {
         function.getModifierList match {
           case list => list.isPrivate || list.isFinal
@@ -132,7 +135,11 @@ object FunctionAnnotator {
     override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
       annotation.delete()
 
+    override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+      PsiTreeUtil.findSameElementInCopy(annotation, file).delete()
+      IntentionPreviewInfo.DIFF
+    }
+
     override def startInWriteAction = true
   }
 }
-
