@@ -52,15 +52,6 @@ final class TypeCheckCanBeMatchInspection extends LocalInspectionTool {
     val typeCastsNumber = findAsInstanceOfCalls(ifStmt.condition, isInstOf).size + findAsInstanceOfCalls(ifStmt.thenExpression, isInstOf).size
     chainSize > 1 || typeCastsNumber > 0
   }
-
-  private class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIf)
-    extends AbstractFixOnTwoPsiElements(inspectionName, isInstOfUnderFix, ifStmt) {
-
-    override protected def doApplyFix(isInstOf: ScGenericCall, ifSt: ScIf)
-                                     (implicit project: Project): Unit =
-      replaceTypeCheckWithMatch(isInstOf, ifSt, onlyFirst = true)
-  }
-
 }
 
 object TypeCheckCanBeMatchInspection {
@@ -69,6 +60,14 @@ object TypeCheckCanBeMatchInspection {
   val inspectionName: String = ScalaInspectionBundle.message("type.check.can.be.replaced.by.pattern.matching")
 
   private type RenameData = mutable.ArrayBuffer[(Int, Seq[String])]
+
+  private class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIf)
+    extends AbstractFixOnTwoPsiElements(inspectionName, isInstOfUnderFix, ifStmt) {
+
+    override protected def doApplyFix(isInstOf: ScGenericCall, ifSt: ScIf)
+                                     (implicit project: Project): Unit =
+      replaceTypeCheckWithMatch(isInstOf, ifSt, onlyFirst = true)
+  }
 
   def buildMatchStmt(ifStmt: ScIf, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean)
                     (implicit project: Project): (Option[ScMatch], RenameData) =
