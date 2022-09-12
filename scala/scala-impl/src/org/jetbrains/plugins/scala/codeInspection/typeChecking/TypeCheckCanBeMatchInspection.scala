@@ -3,6 +3,7 @@ package codeInspection
 package typeChecking
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
@@ -56,19 +57,8 @@ final class TypeCheckCanBeMatchInspection extends LocalInspectionTool {
     extends AbstractFixOnTwoPsiElements(inspectionName, isInstOfUnderFix, ifStmt) {
 
     override protected def doApplyFix(isInstOf: ScGenericCall, ifSt: ScIf)
-                                     (implicit project: Project): Unit = {
-      val (matchStmtOption, renameData) = buildMatchStmt(ifSt, isInstOf, onlyFirst = true)
-      for (matchStmt <- matchStmtOption) {
-        val newMatch = inWriteAction {
-          ifSt.replaceExpression(matchStmt, removeParenthesis = true).asInstanceOf[ScMatch]
-        }
-        if (!ApplicationManager.getApplication.isUnitTestMode) {
-          val renameHelper = new InplaceRenameHelper(newMatch)
-          setElementsForRename(newMatch, renameHelper, renameData)
-          renameHelper.startRenaming()
-        }
-      }
-    }
+                                     (implicit project: Project): Unit =
+      replaceTypeCheckWithMatch(isInstOf, ifSt, onlyFirst = true)
   }
 
 }
@@ -91,6 +81,21 @@ object TypeCheckCanBeMatchInspection {
         (Some(matchStmt), renameData)
       case _ => (None, null)
     }
+
+  def replaceTypeCheckWithMatch(isInstOfCall: ScGenericCall, ifStmt: ScIf, onlyFirst: Boolean)
+                               (implicit project: Project): Unit = {
+    val (matchStmtOption, renameData) = buildMatchStmt(ifStmt, isInstOfCall, onlyFirst)
+    for (matchStmt <- matchStmtOption) {
+      val newMatch = IntentionPreviewUtils.writeAndCompute { () =>
+        ifStmt.replaceExpression(matchStmt, removeParenthesis = true).asInstanceOf[ScMatch]
+      }
+      if (!ApplicationManager.getApplication.isUnitTestMode && !IntentionPreviewUtils.isIntentionPreviewActive) {
+        val renameHelper = new InplaceRenameHelper(newMatch)
+        setElementsForRename(newMatch, renameHelper, renameData)
+        renameHelper.startRenaming()
+      }
+    }
+  }
 
   private def buildCaseClauseText(ifStmt: ScIf, isInstOfCall: ScGenericCall, caseClauseIndex: Int, renameData: RenameData): Option[String] = {
     var definedName: Option[String] = None
@@ -152,7 +157,7 @@ object TypeCheckCanBeMatchInspection {
             for {
               expression <- asInstOfEverywhere
               newExpr = createExpressionFromText(text)
-            } inWriteAction {
+            } IntentionPreviewUtils.write { () =>
               expression.replaceExpression(newExpr, removeParenthesis = true)
             }
 
@@ -160,10 +165,10 @@ object TypeCheckCanBeMatchInspection {
             text
         }
       } else {
-        inWriteAction(definition.get.delete())
+        IntentionPreviewUtils.write(() => definition.get.delete())
         val text = definedName.get
         val newExpr = createExpressionFromText(text)
-        inWriteAction {
+        IntentionPreviewUtils.write { () =>
           for {
             expression <- asInstOfEverywhere
           } expression.replaceExpression(newExpr, removeParenthesis = true)
