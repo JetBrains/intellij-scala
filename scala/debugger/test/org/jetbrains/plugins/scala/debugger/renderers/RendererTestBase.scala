@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.debugger
+package org.jetbrains.plugins.scala
+package debugger
 package renderers
 
 import com.intellij.debugger.engine.SuspendContextImpl
@@ -20,7 +21,7 @@ import javax.swing.Icon
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-abstract class RendererTestBase extends ScalaDebuggerTestCase {
+abstract class RendererTestBase extends ScalaDebuggerTestBase {
 
   protected def rendererTest(className: String = getTestName(false))(test: SuspendContextImpl => Unit): Unit = {
     createLocalProcess(className)

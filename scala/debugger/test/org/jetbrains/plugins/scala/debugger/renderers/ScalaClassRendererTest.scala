@@ -3,7 +3,6 @@ package debugger.renderers
 
 import com.intellij.debugger.settings.NodeRendererSettings
 import org.jetbrains.plugins.scala.util.runners._
-import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import java.nio.file.Path
@@ -16,7 +15,6 @@ import java.nio.file.Path
   TestScalaVersion.Scala_3_0,
   TestScalaVersion.Scala_3_1
 ))
-@Category(Array(classOf[DebuggerTests]))
 class ScalaClassRendererTest extends RendererTestBase {
 
   addSourceFile(Path.of("test", "ScalaObject.scala").toString,

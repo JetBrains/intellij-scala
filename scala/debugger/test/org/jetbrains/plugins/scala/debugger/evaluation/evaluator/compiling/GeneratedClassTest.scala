@@ -20,6 +20,7 @@ import org.junit.runner.RunWith
 
 import java.io.File
 
+@Category(Array(classOf[DebuggerTests]))
 abstract class GeneratedClassTestBase extends ScalaLightCodeInsightFixtureTestCase {
   import GeneratedClassTestBase.TestData
 
@@ -77,7 +78,6 @@ object GeneratedClassTestBase {
   TestScalaVersion.Scala_3_0,
   TestScalaVersion.Scala_3_1
 ))
-@Category(Array(classOf[DebuggerTests]))
 final class GeneratedClassTest extends GeneratedClassTestBase {
   def testFromPattern(): Unit = doTest()
 
@@ -95,7 +95,6 @@ final class GeneratedClassTest extends GeneratedClassTestBase {
   TestScalaVersion.Scala_3_0,
   TestScalaVersion.Scala_3_1
 ))
-@Category(Array(classOf[DebuggerTests]))
 final class GeneratedClassTest_Scala_3 extends GeneratedClassTestBase {
   override protected def testDataBasePath: String = super.testDataBasePath + "scala3/"
 

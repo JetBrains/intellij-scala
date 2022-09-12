@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package debugger.renderers
 
 import org.jetbrains.plugins.scala.util.runners._
-import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
@@ -12,7 +11,6 @@ import org.junit.runner.RunWith
   TestScalaVersion.Scala_3_0,
   TestScalaVersion.Scala_3_1
 ))
-@Category(Array(classOf[DebuggerTests]))
 class ScalaRuntimeRefRendererTest extends RendererTestBase {
 
   addSourceFile("IntRef.scala",

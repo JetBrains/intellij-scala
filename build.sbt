@@ -344,10 +344,7 @@ lazy val runners: Project =
 
 lazy val testingSupport =
   newProject("testing-support", file("scala/testing-support"))
-    .dependsOn(
-      scalaImpl % "test->test;compile->compile",
-      debugger % "test->test"
-    )
+    .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
       intellijPlugins += "JUnit".toPlugin
     )
