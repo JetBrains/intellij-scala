@@ -4,6 +4,7 @@ package codeInsight.intention.expression
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInsight.template._
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.openapi.application.ApplicationManager
@@ -34,12 +35,8 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
 
   override def getText: String = getFamilyName
 
-  override def isAvailable(project: Project, editor: Editor, _element: PsiElement): Boolean = {
-    findExpression(_element, editor) match {
-      case Some(_) => true
-      case None => false
-    }
-  }
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
+    findExpression(element, editor).isDefined
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     implicit val ctx: ProjectContext = project
@@ -47,7 +44,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
     val expr = findExpression(element, editor).get
     if (expr == null || !expr.isValid) return
 
-    val buf = new StringBuilder
+    val buf = new mutable.StringBuilder
     val underscores = ScUnderScoreSectionUtil.underscores(expr)
     val parentStartOffset =
       if (ApplicationManager.getApplication.isUnitTestMode) underscores.head.getTextRange.getStartOffset
@@ -115,7 +112,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
       underscoreToParam.put(u, newParam)
     }
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       for (u <- underscores) {
         val param = underscoreToParam.get(u)
         val replaced = u.replace(param.get).asInstanceOf[ScParameter]
@@ -132,17 +129,19 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
 
     val newExpr = createExpressionFromText(buf.toString())
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       val document = editor.getDocument
 
       expr.replace(newExpr)
       PsiDocumentManager.getInstance(project).commitDocument(document)
 
+      if (IntentionPreviewUtils.isIntentionPreviewActive) return
+
       val file = PsiDocumentManager.getInstance(project).getPsiFile(document)
       val parent = PsiTreeUtil.findCommonParent(file.findElementAt(parentStartOffset), file.findElementAt(parentEndOffset - 1))
 
       val builder: TemplateBuilderImpl = TemplateBuilderFactory.getInstance().
-              createTemplateBuilder(parent).asInstanceOf[TemplateBuilderImpl]
+        createTemplateBuilder(parent).asInstanceOf[TemplateBuilderImpl]
       val params = new mutable.HashMap[Int, String]()
       val depends = new mutable.HashMap[Int, String]()
 
@@ -225,7 +224,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
 
         private def clearHighlighters(): Unit = {
           val highlightManager = HighlightManager.getInstance(project)
-          myHighlighters.foreach {a => highlightManager.removeSegmentHighlighter(editor, a)}
+          myHighlighters.foreach { a => highlightManager.removeSegmentHighlighter(editor, a) }
           rangesToHighlight.clear()
           myHighlighters.clear()
         }
@@ -237,7 +236,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
 
   private def findExpression(_element: PsiElement, editor: Editor): Option[ScExpression] = {
     var element: PsiElement = _element
-    if (!element.getParent.isInstanceOf[ScUnderscoreSection]) {
+    if (!element.getParent.is[ScUnderscoreSection]) {
       if (element.getTextRange.getStartOffset == editor.getCaretModel.getOffset) {
         val offset = element.getTextRange.getStartOffset - 1
         if (offset < 0) return None
