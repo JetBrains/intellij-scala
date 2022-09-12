@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
-package debugger
+package base
 
 import com.intellij.debugger.impl.OutputChecker
 import com.intellij.debugger.settings.NodeRendererSettings
-import com.intellij.debugger.ui.breakpoints.BreakpointManager
+import com.intellij.debugger.ui.breakpoints.{BreakpointManager, JavaLineBreakpointType}
 import com.intellij.debugger.{DebuggerInvocationUtil, DebuggerTestCase}
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.application.ModalityState
@@ -15,10 +15,8 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.xdebugger.{XDebuggerManager, XDebuggerUtil}
-import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
-import org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
@@ -39,6 +37,8 @@ import scala.util.{Try, Using}
  * ensure to update org.jetbrains.scalateamcity.common.Caching fields
  */
 abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner {
+
+  import ScalaDebuggerTestCase.ScalaLineBreakpointTypeClassName
 
   private val Log = Logger.getInstance(getClass)
 
@@ -207,7 +207,8 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
 
     val runnable: Runnable = () => {
       val breakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
-      val bpType = XDebuggerUtil.getInstance().findBreakpointType(classOf[ScalaLineBreakpointType])
+      val bpType = XDebuggerUtil.getInstance()
+        .findBreakpointType(Class.forName(ScalaLineBreakpointTypeClassName).asInstanceOf[Class[JavaLineBreakpointType]])
       val document = PsiDocumentManager.getInstance(getProject).getDocument(psiFile)
       val text = document.getText
 
@@ -263,7 +264,8 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
       val methodLine = document.getLineNumber(methodDefLine)
       val lineNumber = methodLine + 1
 
-      val bpType = XDebuggerUtil.getInstance().findBreakpointType(classOf[ScalaLineBreakpointType])
+      val bpType = XDebuggerUtil.getInstance()
+        .findBreakpointType(Class.forName(ScalaLineBreakpointTypeClassName).asInstanceOf[Class[JavaLineBreakpointType]])
       val breakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
 
       if (bpType.canPutAt(vFile, lineNumber, getProject)) {
@@ -290,4 +292,8 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
   protected def assertEquals[A, B](expected: A, actual: B)(implicit ev: A <:< B): Unit = {
     org.junit.Assert.assertEquals(expected, actual)
   }
+}
+
+private object ScalaDebuggerTestCase {
+  final val ScalaLineBreakpointTypeClassName = "org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType"
 }

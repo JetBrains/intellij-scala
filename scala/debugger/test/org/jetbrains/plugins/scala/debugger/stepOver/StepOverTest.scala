@@ -4,18 +4,15 @@ package stepOver
 
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert.{assertTrue, fail}
-import org.junit.experimental.categories.Category
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.stream.Collectors
 import scala.jdk.CollectionConverters._
 
-@Category(Array(classOf[DebuggerTests]))
 class StepOverTest_2_11 extends StepOverTest {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class StepOverTest_2_12 extends StepOverTest {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
@@ -52,7 +49,6 @@ class StepOverTest_2_12 extends StepOverTest {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class StepOverTest_2_13 extends StepOverTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
@@ -81,7 +77,6 @@ class StepOverTest_2_13 extends StepOverTest_2_12 {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class StepOverTest_3_0 extends StepOverTest_2_13 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
@@ -118,7 +113,6 @@ class StepOverTest_3_0 extends StepOverTest_2_13 {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class StepOverTest_3_1 extends StepOverTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 
@@ -127,7 +121,7 @@ class StepOverTest_3_1 extends StepOverTest_3_0 {
   }
 }
 
-abstract class StepOverTest extends ScalaDebuggerTestCase {
+abstract class StepOverTest extends ScalaDebuggerTestBase {
 
   private val expectedLineQueue: ConcurrentLinkedQueue[Int] = new ConcurrentLinkedQueue()
 

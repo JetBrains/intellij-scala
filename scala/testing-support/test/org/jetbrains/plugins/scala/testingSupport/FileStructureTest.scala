@@ -5,7 +5,6 @@ import com.intellij.ide.util.treeView.AbstractTreeNode
 import com.intellij.ide.util.treeView.smartTree.{NodeProvider, TreeElement, TreeElementWrapper}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
@@ -18,7 +17,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.matching.Regex
 
 trait FileStructureTest {
-  self: ScalaDebuggerTestCase =>
+  self: ScalaTestingTestCase =>
 
   trait FileStructureTreeAssert extends Function1[TreeElementWrapper, Unit]
 

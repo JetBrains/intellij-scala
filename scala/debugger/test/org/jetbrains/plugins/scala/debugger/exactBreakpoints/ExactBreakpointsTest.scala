@@ -12,17 +12,14 @@ import org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.junit.Assert
 import org.junit.Assert.{assertTrue, fail}
-import org.junit.experimental.categories.Category
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import scala.jdk.CollectionConverters._
 
-@Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointsTest_2_11 extends ExactBreakpointsTestWithEarlyDefinitions {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointsTest_2_12 extends ExactBreakpointsTestWithEarlyDefinitions {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
@@ -62,12 +59,10 @@ class ExactBreakpointsTest_2_12 extends ExactBreakpointsTestWithEarlyDefinitions
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointsTest_2_13 extends ExactBreakpointsTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointsTest_3_0 extends ExactBreakpointsTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
@@ -122,7 +117,6 @@ class ExactBreakpointsTest_3_0 extends ExactBreakpointsTestBase {
   override def testEither(): Unit = {}
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointsTest_3_1 extends ExactBreakpointsTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
@@ -152,7 +146,7 @@ abstract class ExactBreakpointsTestWithEarlyDefinitions extends ExactBreakpoints
   }
 }
 
-abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
+abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
 
   private val expectedSourcePositionsQueue: ConcurrentLinkedQueue[String] =
     new ConcurrentLinkedQueue()

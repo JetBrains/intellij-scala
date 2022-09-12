@@ -2,16 +2,12 @@ package org.jetbrains.plugins.scala
 package debugger
 package positionManager
 
-import org.junit.experimental.categories.Category
-
 import java.nio.file.Path
 
-@Category(Array(classOf[DebuggerTests]))
 class LocationOfLineTest_2_11 extends LocationsOfLineTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class LocationOfLineTest_2_12 extends LocationsOfLineTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
@@ -37,7 +33,6 @@ class LocationOfLineTest_2_12 extends LocationsOfLineTestBase {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class LocationOfLineTest_2_13 extends LocationsOfLineTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
@@ -84,7 +79,6 @@ class LocationOfLineTest_2_13 extends LocationsOfLineTestBase {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class LocationOfLineTest_3_0 extends LocationOfLineTest_2_13 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
@@ -118,7 +112,6 @@ class LocationOfLineTest_3_0 extends LocationOfLineTest_2_13 {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class LocationOfLineTest_3_1 extends LocationOfLineTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 

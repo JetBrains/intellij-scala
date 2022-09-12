@@ -2,24 +2,18 @@ package org.jetbrains.plugins.scala
 package debugger
 package evaluation
 
-import org.junit.experimental.categories.Category
-
-@Category(Array(classOf[DebuggerTests]))
 class VariablesFromPatternsEvaluationTest_2_11 extends VariablesFromPatternsEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class VariablesFromPatternsEvaluationTest_2_12 extends VariablesFromPatternsEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class VariablesFromPatternsEvaluationTest_2_13 extends VariablesFromPatternsEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class VariablesFromPatternsEvaluationTest_3_0 extends VariablesFromPatternsEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
@@ -34,7 +28,6 @@ class VariablesFromPatternsEvaluationTest_3_0 extends VariablesFromPatternsEvalu
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class VariablesFromPatternsEvaluationTest_3_1 extends VariablesFromPatternsEvaluationTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }

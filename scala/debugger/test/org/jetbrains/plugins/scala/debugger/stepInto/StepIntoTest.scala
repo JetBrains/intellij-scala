@@ -5,13 +5,11 @@ package stepInto
 import com.intellij.debugger.engine.SuspendContextImpl
 import com.intellij.debugger.settings.DebuggerSettings
 import org.junit.Assert.{assertTrue, fail}
-import org.junit.experimental.categories.Category
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.stream.Collectors
 import scala.jdk.CollectionConverters._
 
-@Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_2_11 extends StepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 
@@ -33,7 +31,6 @@ class StepIntoTest_2_11 extends StepIntoTestBase {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_2_12 extends StepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
@@ -63,12 +60,10 @@ class StepIntoTest_2_12 extends StepIntoTestBase {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_2_13 extends StepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_3_0 extends StepIntoTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
@@ -96,12 +91,11 @@ class StepIntoTest_3_0 extends StepIntoTest_2_12 {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_3_1 extends StepIntoTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
+abstract class StepIntoTestBase extends ScalaDebuggerTestBase {
 
   protected case class Breakpoint(file: String, method: String, line: Int)
 

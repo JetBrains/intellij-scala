@@ -5,18 +5,15 @@ package smartStepInto
 import com.intellij.debugger.actions.SmartStepTarget
 import com.intellij.debugger.engine.{ContextUtil, SuspendContextImpl}
 import org.junit.Assert.{assertTrue, fail}
-import org.junit.experimental.categories.Category
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
-@Category(Array(classOf[DebuggerTests]))
 class SmartStepIntoTest_2_11 extends SmartStepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class SmartStepIntoTest_2_12 extends SmartStepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
@@ -53,7 +50,6 @@ class SmartStepIntoTest_2_12 extends SmartStepIntoTestBase {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class SmartStepIntoTest_2_13 extends SmartStepIntoTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
@@ -91,7 +87,6 @@ class SmartStepIntoTest_2_13 extends SmartStepIntoTest_2_12 {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class SmartStepIntoTest_3_0 extends SmartStepIntoTest_2_13 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
@@ -194,12 +189,11 @@ class SmartStepIntoTest_3_0 extends SmartStepIntoTest_2_13 {
   }
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class SmartStepIntoTest_3_1 extends SmartStepIntoTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
+abstract class SmartStepIntoTestBase extends ScalaDebuggerTestBase {
 
   protected case class Target(target: String)
 

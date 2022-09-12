@@ -2,29 +2,22 @@ package org.jetbrains.plugins.scala
 package debugger
 package evaluation
 
-import org.junit.experimental.categories.Category
-
-@Category(Array(classOf[DebuggerTests]))
 class FieldEvaluationTest_2_11 extends FieldEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class FieldEvaluationTest_2_12 extends FieldEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class FieldEvaluationTest_2_13 extends FieldEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class FieldEvaluationTest_3_0 extends FieldEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 }
 
-@Category(Array(classOf[DebuggerTests]))
 class FieldEvaluationTest_3_1 extends FieldEvaluationTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
