@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight.intention
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection._
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -43,4 +44,8 @@ class InspectionBasedIntention(@Nls family: String, inspection: LocalInspectionT
     } while (holder.getResultCount == 0 && e != null && !e.is[ScBlockExpr])
     if (holder.getResultCount > 0) Some(holder.getResults.get(0)) else None
   }
+
+  // TODO: Would be great to have previews
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo =
+    IntentionPreviewInfo.EMPTY
 }
