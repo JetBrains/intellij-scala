@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
@@ -10,6 +6,7 @@ import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutp
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements._
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScPropertyStub, classNames}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPropertyStubImpl
 
 sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: String)
@@ -59,7 +56,7 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
     )
 
   override final def indexStub(stub: ScPropertyStub[P], sink: IndexSink): Unit = {
-    import index.ScalaIndexKeys._
+    import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
     sink.occurrences(PROPERTY_NAME_KEY, stub.names.toSeq: _*)
     sink.occurrences(PROPERTY_CLASS_NAME_KEY, stub.classNames.toSeq: _*)
 

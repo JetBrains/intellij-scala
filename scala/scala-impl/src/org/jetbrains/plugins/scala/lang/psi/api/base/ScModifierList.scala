@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package base
+package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.psi.PsiModifierList
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.util.EnumSet._
 
 trait ScModifierList extends ScalaPsiElement with PsiModifierList {

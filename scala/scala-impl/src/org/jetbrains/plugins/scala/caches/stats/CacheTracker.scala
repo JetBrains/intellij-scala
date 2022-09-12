@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package caches
-package stats
+package org.jetbrains.plugins.scala.caches.stats
 
 import com.intellij.util.containers.WeakList
 

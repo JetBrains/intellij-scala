@@ -1,11 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
+package org.jetbrains.plugins.scala.lang.parser.parsing
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Export, Extension, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateStat
 
@@ -20,8 +16,8 @@ import scala.annotation.tailrec
  */
 object TopStat {
 
-  import lexer.ScalaTokenType._
-  import lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
   @tailrec
   final def parse()(implicit builder: ScalaPsiBuilder): Boolean =

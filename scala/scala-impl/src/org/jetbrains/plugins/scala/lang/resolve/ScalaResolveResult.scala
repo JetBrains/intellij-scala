@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package resolve
+package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil

@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package findUsages
+package org.jetbrains.plugins.scala.lang.findUsages
 
 import com.intellij.usages.rules.{ImportFilteringRule, PsiElementUsage}
 import com.intellij.usages.{Usage, UsageTarget}

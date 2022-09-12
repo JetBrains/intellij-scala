@@ -1,14 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationsImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationsStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationsStubImpl
 
 class ScAnnotationsElementType extends ScStubElementType[ScAnnotationsStub, ScAnnotations]("annotations") {

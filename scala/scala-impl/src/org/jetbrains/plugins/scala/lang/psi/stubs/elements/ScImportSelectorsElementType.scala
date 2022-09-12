@@ -1,14 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportSelectorsImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorsStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportSelectorsStubImpl
 
 class ScImportSelectorsElementType extends ScStubElementType[ScImportSelectorsStub, ScImportSelectors]("import selectors") {

@@ -1,11 +1,12 @@
-package org.jetbrains.plugins.scala
-package project
+package org.jetbrains.plugins.scala.project
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries._
 import com.intellij.openapi.roots.ui.configuration._
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.icons.Icons
 
 import java.io.File
 import java.{util => ju}
@@ -13,7 +14,7 @@ import javax.swing.{Icon, JComponent}
 
 final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLibraryType.Kind) {
 
-  override def getIcon(properties: ScalaLibraryProperties): Icon = icons.Icons.SCALA_SDK
+  override def getIcon(properties: ScalaLibraryProperties): Icon = Icons.SCALA_SDK
 
   override def getCreateActionName: String = ScalaBundle.message("library.type.scala.sdk")
 

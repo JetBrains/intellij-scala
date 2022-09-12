@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package notImplementedCode
+package org.jetbrains.plugins.scala.codeInspection.notImplementedCode
 
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.template.{TemplateBuilderImpl, TemplateManager}
@@ -9,6 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 
 import scala.annotation.unused

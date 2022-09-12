@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package lexer
+package org.jetbrains.plugins.scala.lang.lexer
 
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.plugins.scala.ScalaLanguage
 
 class ScalaTokenType(debugName: String) extends IElementType(debugName, ScalaLanguage.INSTANCE) {
 

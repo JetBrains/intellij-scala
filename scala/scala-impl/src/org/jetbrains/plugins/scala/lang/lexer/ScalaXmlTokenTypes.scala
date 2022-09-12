@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package lexer
+package org.jetbrains.plugins.scala.lang.lexer
 
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.runner
-package view
+package org.jetbrains.plugins.scala.runner.view
 
 import com.intellij.execution.util.StringWithNewLinesCellEditor
 import com.intellij.ui.components.JBScrollPane

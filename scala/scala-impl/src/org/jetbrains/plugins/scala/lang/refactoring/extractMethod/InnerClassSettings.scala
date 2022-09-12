@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.extractMethod
+package org.jetbrains.plugins.scala.lang.refactoring.extractMethod
 
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.refactoring._

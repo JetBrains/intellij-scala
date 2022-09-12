@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package project
-package template
+package org.jetbrains.plugins.scala.project.template
 
 import java.io.{BufferedInputStream, File, IOException}
 import java.net.URL

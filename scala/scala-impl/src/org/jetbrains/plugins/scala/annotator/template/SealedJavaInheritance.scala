@@ -1,10 +1,9 @@
-package org.jetbrains.plugins.scala
-package annotator
-package template
+package org.jetbrains.plugins.scala.annotator.template
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.{PsiAnonymousClass, PsiElement, PsiJavaCodeReferenceElement, PsiReferenceList}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.extensions._
 

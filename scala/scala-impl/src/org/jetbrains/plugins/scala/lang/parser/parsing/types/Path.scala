@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package types
+package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._

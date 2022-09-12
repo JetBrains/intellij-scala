@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package internal
+package org.jetbrains.plugins.scala.codeInspection.internal
 
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.{OperationOnCollectionInspection, Qualified, Simplification, SimplificationType, invocation, invocationText}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.project.ProjectExt
 

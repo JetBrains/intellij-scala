@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.rename.inplace
+package org.jetbrains.plugins.scala.lang.refactoring.rename.inplace
 
 import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.lang.{Language, LanguageNamesValidation}
@@ -13,6 +12,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.refactoring.rename.inplace.{MemberInplaceRenamer, VariableInplaceRenamer}
 import com.intellij.refactoring.{RefactoringActionHandler, RefactoringBundle}
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaRefactoringUtil}
 
@@ -75,7 +76,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
       val revertInfo = editor.getUserData(ScalaMemberInplaceRenamer.REVERT_INFO)
       val document = myEditor.getDocument
       if (revertInfo != null) {
-        extensions.inWriteAction {
+        inWriteAction {
           document.replaceString(0, document.getTextLength, revertInfo.fileText)
           PsiDocumentManager.getInstance(myProject).commitDocument(document)
         }

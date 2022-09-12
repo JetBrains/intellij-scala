@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package project.template
+package org.jetbrains.plugins.scala.project.template
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.ui.ValidationInfo

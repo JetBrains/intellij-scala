@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package expr
+package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.extensions._
@@ -11,14 +7,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScStringLiteralImpl, lite
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
+import org.jetbrains.plugins.scala.lang.psi.util.LiteralEvaluationUtil
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
 
 class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScInfixExpr {
 
   import ScInfixExprImpl._
-  import resolve.ScalaResolveResult
-  import result._
 
   override def argumentExpressions: Seq[ScExpression] = argsElement match {
     case right if right == left => Seq(right)
@@ -31,7 +28,7 @@ class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScI
   protected override def innerType: TypeResult = {
     val ScInfixExpr(ElementText(baseText), operation, ElementText(argumentText)) = this
 
-    import ScalaPsiElementFactory.createExpressionWithContextFromText
+    import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
     operation.bind().collect {
       //this is assignment statement: x += 1 equals to x = x + 1
       case ScalaResolveResult(element, _) if element.name + "=" == operation.refName =>
@@ -64,7 +61,7 @@ object ScInfixExprImpl {
   import literals._
 
   private def evaluateConstInfix(left: Any, right: Any, name: String) =
-    util.LiteralEvaluationUtil.evaluateConstInfix(left, right, name) match {
+    LiteralEvaluationUtil.evaluateConstInfix(left, right, name) match {
       case value: Int => ScIntegerLiteralImpl.Value(value)
       case value: Long => ScLongLiteralImpl.Value(value)
       case value: Float => ScFloatLiteralImpl.Value(value)

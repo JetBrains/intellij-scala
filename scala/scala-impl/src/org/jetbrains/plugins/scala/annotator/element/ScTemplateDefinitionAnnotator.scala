@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala
-package annotator
-package element
+package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiClass, PsiMethod, PsiModifier, PsiModifierList}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, overrideImplement}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMembersQuickFix, ModifierQuickFix}
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.extensions._

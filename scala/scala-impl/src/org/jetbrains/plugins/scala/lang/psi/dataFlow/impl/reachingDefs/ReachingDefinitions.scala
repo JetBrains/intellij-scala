@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.dataFlow
-package impl.reachingDefs
+package org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs
 
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{DefinitionInstruction, DefinitionType, ReadWriteVariableInstruction}
+import org.jetbrains.plugins.scala.lang.psi.dataFlow.{DfaInstance, Semilattice}
 
 object ReachingDefinitions {
 

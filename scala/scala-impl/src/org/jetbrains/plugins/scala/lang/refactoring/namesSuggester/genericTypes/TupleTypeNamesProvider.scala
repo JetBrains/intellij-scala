@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package namesSuggester
-package genericTypes
+package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TupleType

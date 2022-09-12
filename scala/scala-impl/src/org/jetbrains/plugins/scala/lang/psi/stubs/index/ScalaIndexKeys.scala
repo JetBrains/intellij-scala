@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package index
+package org.jetbrains.plugins.scala.lang.psi.stubs.index
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope

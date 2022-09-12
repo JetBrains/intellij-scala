@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package lookups
+package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation, LookupElementRenderer}
+import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
 
 final class ScalaChainLookupElement(delegate: ScalaLookupItem, prefix: ScalaLookupItem)
   extends LookupElementDecorator[ScalaLookupItem](delegate) {
@@ -56,7 +54,7 @@ final class ScalaChainLookupElement(delegate: ScalaLookupItem, prefix: ScalaLook
     element.handleInsert(context)
 
     val document = context.getDocument
-    val (count, isAccessor) = handlers.ScalaInsertHandler.getItemParametersAndAccessorStatus(prefix.getPsiElement)
+    val (count, isAccessor) = ScalaInsertHandler.getItemParametersAndAccessorStatus(prefix.getPsiElement)
     val addParams = count >= 0 && !(count == 0 && isAccessor)
     if (addParams) {
       document.insertString(offsetForPrefix, "()")

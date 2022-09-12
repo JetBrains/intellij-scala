@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection.relativeImports
+package org.jetbrains.plugins.scala.codeInspection.relativeImports
 
 import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo

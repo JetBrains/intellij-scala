@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package caches
+package org.jetbrains.plugins.scala.caches
 
 
 import com.intellij.openapi.project.Project

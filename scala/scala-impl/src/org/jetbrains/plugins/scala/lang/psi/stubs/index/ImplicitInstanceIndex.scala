@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package index
+package org.jetbrains.plugins.scala.lang.psi.stubs.index
 
 import com.intellij.psi.stubs.IndexSink
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember

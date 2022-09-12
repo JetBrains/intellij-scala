@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
+package org.jetbrains.plugins.scala.codeInspection
 
 import org.jetbrains.annotations.Nls
 

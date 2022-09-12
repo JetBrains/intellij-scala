@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package formatting
+package org.jetbrains.plugins.scala.lang.formatting
 
 import com.intellij.formatting._
 import com.intellij.lang.ASTNode
@@ -8,6 +6,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions.{&&, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.{isConstructorArgOrMemberFunctionParameter, shouldIndentAfterCaseClause}
 import org.jetbrains.plugins.scala.lang.formatting.processors._
@@ -343,7 +342,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
 
   //noinspection HardCodedStringLiteral
   private def debugText: String = {
-    import extensions._
+    import org.jetbrains.plugins.scala.extensions._
     val text = node.getPsi.getContainingFile.getText.substring(getTextRange)
     if (text.trim.length != text.length) s"`$text`"
     else text

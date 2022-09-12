@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala
-package project
+package org.jetbrains.plugins.scala.project
 
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.plugins.scala.LatestScalaVersions._
+import org.jetbrains.plugins.scala.{ScalaBundle, isInternalMode}
 import org.jetbrains.plugins.scala.extensions.withProgressSynchronously
 import org.jetbrains.sbt.buildinfo.BuildInfo
 

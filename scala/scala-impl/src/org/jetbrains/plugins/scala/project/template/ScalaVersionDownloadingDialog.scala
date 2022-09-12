@@ -1,12 +1,12 @@
-package org.jetbrains.plugins.scala
-package project
-package template
+package org.jetbrains.plugins.scala.project.template
 
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.ui.Messages
 import org.apache.ivy.util.MessageLogger
+import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaBundle, ScalaVersion}
 import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLogger
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, withProgressSynchronouslyTry}
+import org.jetbrains.plugins.scala.project.{Version, Versions}
 import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog.{ScalaVersionResolveResult, preselectLatestScala2Version}
 import org.jetbrains.sbt.project.template.SComboBox
 
@@ -49,7 +49,7 @@ final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDia
       }
 
       val tri: Try[ScalaVersionResolveResult] = withProgressSynchronouslyTry(ScalaBundle.message("downloading.scala.version", scalaVersionStr), canBeCanceled = true) { manager =>
-        import DependencyManagerBase._
+        import org.jetbrains.plugins.scala.DependencyManagerBase._
         val dependencyManager = new DependencyManagerBase {
           override def createLogger: MessageLogger = new ProgressIndicatorLogger(manager.getProgressIndicator)
         }

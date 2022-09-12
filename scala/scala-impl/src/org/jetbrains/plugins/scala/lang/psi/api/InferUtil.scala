@@ -1,18 +1,17 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
+package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScInfixExpr, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
@@ -237,7 +236,7 @@ object InferUtil {
               else AmbiguousImplicitParameters(results)
 
             val psiParam = param.paramInCode.getOrElse {
-              impl.ScalaPsiElementFactory.createParameterFromText {
+              ScalaPsiElementFactory.createParameterFromText {
                 param.name + " : Int"
               }(place.getManager)
             }
@@ -417,7 +416,7 @@ object InferUtil {
                 }
 
                 import literals.ScNullLiteral
-                val nullLiteral = impl.ScalaPsiElementFactory.createExpressionWithContextFromText(
+                val nullLiteral = ScalaPsiElementFactory.createExpressionWithContextFromText(
                   "null",
                   expr.getContext,
                   expr

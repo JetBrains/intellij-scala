@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.references
-package compilation
+package org.jetbrains.plugins.scala.compiler.references.compilation
 
 import com.intellij.ProjectTopics
 import com.intellij.openapi.diagnostic.Logger
@@ -8,6 +7,7 @@ import com.intellij.openapi.project.{ModuleListener, Project}
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService.CompilerIndicesState
+import org.jetbrains.plugins.scala.compiler.references.{TransactionGuard, upToDateCompilerIndexExists}
 import org.jetbrains.plugins.scala.compiler.references.compilation.SbtCompilationListener.ProjectIdentifier
 import org.jetbrains.plugins.scala.compiler.references.compilation.SbtCompilationListener.ProjectIdentifier._
 import org.jetbrains.plugins.scala.indices.protocol.IdeaIndicesJsonProtocol._

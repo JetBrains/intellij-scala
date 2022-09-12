@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
-package gutter
+package org.jetbrains.plugins.scala.annotator.gutter
 
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.EditSourceUtil
@@ -9,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaCodeInsightActionHandler}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._

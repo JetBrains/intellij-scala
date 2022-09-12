@@ -1,12 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package global
+package org.jetbrains.plugins.scala.lang.completion.global
 
 import com.intellij.codeInsight.completion.PrefixMatcher
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.completion
+import org.jetbrains.plugins.scala.lang.completion.{global, regardlessAccessibility}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isStatic}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}

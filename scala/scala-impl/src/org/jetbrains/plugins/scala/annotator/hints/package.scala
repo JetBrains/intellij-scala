@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.markup.TextAttributes

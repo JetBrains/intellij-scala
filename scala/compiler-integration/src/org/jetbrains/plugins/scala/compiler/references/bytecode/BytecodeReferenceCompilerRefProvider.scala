@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.references
-package bytecode
+package org.jetbrains.plugins.scala.compiler.references.bytecode
 
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.CompilerRef.{JavaCompilerFieldRef, JavaCompilerMethodRef}

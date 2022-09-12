@@ -1,14 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateBodyStubImpl
 
 class ScTemplateBodyElementType extends ScStubElementType[ScTemplateBodyStub, ScTemplateBody]("template body") {

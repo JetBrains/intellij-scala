@@ -1,9 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package top
+package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations

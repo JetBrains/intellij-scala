@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.dependency
+package org.jetbrains.plugins.scala.lang.dependency
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.{Key, TextRange}

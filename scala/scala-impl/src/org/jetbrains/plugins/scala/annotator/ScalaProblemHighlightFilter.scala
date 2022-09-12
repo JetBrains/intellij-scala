@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.daemon.ProblemHighlightFilter
 import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager}
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 

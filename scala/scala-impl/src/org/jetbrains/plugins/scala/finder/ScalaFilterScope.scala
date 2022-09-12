@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package finder
+package org.jetbrains.plugins.scala.finder
 
 import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
 import com.intellij.ide.scratch.ScratchUtil
@@ -11,6 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.searches.{MethodReferencesSearch, ReferencesSearch}
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.SigFileType
 import org.jetbrains.plugins.scala.tasty.TastyFileType

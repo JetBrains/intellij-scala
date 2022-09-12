@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.lang.transformation
-package calls
+package org.jetbrains.plugins.scala.lang.transformation.calls
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScInfixExpr, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
+import org.jetbrains.plugins.scala.lang.transformation.AbstractTransformer
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class CanonizeBlockArgument extends AbstractTransformer {

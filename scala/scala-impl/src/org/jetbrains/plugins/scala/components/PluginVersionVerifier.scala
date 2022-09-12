@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package components
+package org.jetbrains.plugins.scala.components
 
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.ide.plugins.{org => _, _}
@@ -9,6 +8,7 @@ import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.PathUtil
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.{ExtensionPointDeclaration, ScalaBundle}
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 

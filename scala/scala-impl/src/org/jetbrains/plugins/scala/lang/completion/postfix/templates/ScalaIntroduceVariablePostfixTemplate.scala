@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala.lang
-package completion
-package postfix
-package templates
+package org.jetbrains.plugins.scala.lang.completion.postfix.templates
 
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplateWithExpressionSelector
 import com.intellij.openapi.actionSystem.DataContext

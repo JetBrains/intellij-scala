@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package project
-package external
+package org.jetbrains.plugins.scala.project.external
 
 import com.intellij.notification.NotificationGroup
 import com.intellij.openapi.application.ApplicationManager
@@ -11,7 +9,9 @@ import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsPr
 import com.intellij.openapi.externalSystem.service.project.manage.AbstractProjectDataService
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 abstract class ScalaAbstractProjectDataService[E, I](key: Key[E]) extends AbstractProjectDataService[E, I] {
 

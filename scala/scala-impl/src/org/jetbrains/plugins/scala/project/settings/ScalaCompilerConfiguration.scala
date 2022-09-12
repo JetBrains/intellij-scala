@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package project
-package settings
+package org.jetbrains.plugins.scala.project.settings
 
 import com.intellij.openapi.components._
 import com.intellij.openapi.module.{Module, ModuleManager}

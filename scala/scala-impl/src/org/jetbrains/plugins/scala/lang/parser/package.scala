@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
+package org.jetbrains.plugins.scala.lang
 
 import com.intellij.lang.{PsiBuilder, WhitespacesAndCommentsBinder}
 import com.intellij.psi.tree.IElementType

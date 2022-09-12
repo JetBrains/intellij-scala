@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.rearranger
+package org.jetbrains.plugins.scala.lang.rearranger
 
 import org.jetbrains.annotations.Nullable
 

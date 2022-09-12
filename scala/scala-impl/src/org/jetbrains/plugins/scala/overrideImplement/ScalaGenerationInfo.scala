@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package overrideImplement
+package org.jetbrains.plugins.scala.overrideImplement
 
 import com.intellij.codeInsight.generation.GenerationInfoBase
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager}

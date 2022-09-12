@@ -1,12 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package formatting
-package settings
+package org.jetbrains.plugins.scala.lang.formatting.settings
 
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.IdeBorderFactory
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
+import org.jetbrains.plugins.scala.ScalaBundle
 
 import java.awt.Insets
 import java.lang.reflect.Field

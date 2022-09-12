@@ -1,7 +1,6 @@
-package org.jetbrains.plugins.scala.lang
-package resolve
-package processor
-package precedence
+package org.jetbrains.plugins.scala.lang.resolve.processor.precedence
+
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 trait SubstitutablePrecedenceHelper extends PrecedenceHelper {
 

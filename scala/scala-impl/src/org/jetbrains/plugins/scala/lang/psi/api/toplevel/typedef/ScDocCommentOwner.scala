@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.psi.api.toplevel.typedef
+package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
 import com.intellij.psi.PsiWhiteSpace
 import org.jetbrains.plugins.scala.caches.ModTracker

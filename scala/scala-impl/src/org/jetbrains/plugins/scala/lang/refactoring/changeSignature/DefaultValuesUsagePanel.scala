@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.changeSignature
+package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
 import org.jetbrains.plugins.scala.ScalaBundle
 

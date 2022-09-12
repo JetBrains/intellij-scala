@@ -1,13 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package global
+package org.jetbrains.plugins.scala.lang.completion.global
 
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.completion.{InsertHandler, JavaCompletionUtil}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.lang.completion.LookupElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult

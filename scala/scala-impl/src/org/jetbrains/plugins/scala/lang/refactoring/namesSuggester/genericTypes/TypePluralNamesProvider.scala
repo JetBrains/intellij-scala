@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package namesSuggester
-package genericTypes
+package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes
 
 import org.atteo.evo.inflector.English
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType

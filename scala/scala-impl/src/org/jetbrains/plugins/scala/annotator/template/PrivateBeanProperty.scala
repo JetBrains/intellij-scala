@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala
-package annotator
-package template
+package org.jetbrains.plugins.scala.annotator.template
 
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.{AnnotatorPart, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.annotator.quickfix.ModifierQuickFix.{MakeProtected, MakePublic}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable

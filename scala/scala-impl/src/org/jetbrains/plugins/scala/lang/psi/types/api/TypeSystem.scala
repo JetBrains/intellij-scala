@@ -1,7 +1,6 @@
-package org.jetbrains.plugins.scala.lang.psi
-package types
-package api
+package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
 trait TypeSystem extends ProjectContextOwner

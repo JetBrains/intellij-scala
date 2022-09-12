@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package delete
+package org.jetbrains.plugins.scala.lang.refactoring.delete
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Condition

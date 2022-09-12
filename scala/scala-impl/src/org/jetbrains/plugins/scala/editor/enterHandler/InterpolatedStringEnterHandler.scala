@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor
-package enterHandler
+package org.jetbrains.plugins.scala.editor.enterHandler
 
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
@@ -11,6 +9,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.{PsiElement, PsiFile, StringEscapesTokenTypes}
+import org.jetbrains.plugins.scala.editor.EditorExt
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -60,7 +60,7 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
             }
 
 
-            extensions.inWriteAction {
+            inWriteAction {
               if (isMLString(a.getParent)) return Result.Continue
 
               caretOffset.set(caretOffset.get + 3)

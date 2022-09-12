@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang.psi.impl.base.types
+package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes

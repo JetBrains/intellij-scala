@@ -6,7 +6,6 @@ import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}

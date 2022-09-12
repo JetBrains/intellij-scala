@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package project.template
+package org.jetbrains.plugins.scala.project.template
 
 import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.platform.ProjectTemplate

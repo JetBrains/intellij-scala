@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package statements
+package org.jetbrains.plugins.scala.lang.psi.api.statements
 package params
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 trait ScParameters extends ScalaPsiElement with PsiParameterList {
 

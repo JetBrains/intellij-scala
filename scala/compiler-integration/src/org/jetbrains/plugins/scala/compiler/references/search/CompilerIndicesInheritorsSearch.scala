@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.references
-package search
+package org.jetbrains.plugins.scala.compiler.references.search
 
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.{PsiClass, PsiElement}

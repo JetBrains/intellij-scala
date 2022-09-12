@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package runner
+package org.jetbrains.plugins.scala.runner
 
 import com.intellij.execution.impl.RunConfigurationRefactoringElementListenerProvider
 import com.intellij.psi.PsiElement

@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package namesSuggester
+package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester
 
 import com.intellij.psi.codeStyle.SuggestedNameInfo
 import com.intellij.psi.{PsiElement, PsiNamedElement}

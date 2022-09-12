@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.lang.transformation
-package functions
+package org.jetbrains.plugins.scala.lang.transformation.functions
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{&&, FirstChild, ReferenceTarget}
@@ -9,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
+import org.jetbrains.plugins.scala.lang.transformation.AbstractTransformer
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.Function._

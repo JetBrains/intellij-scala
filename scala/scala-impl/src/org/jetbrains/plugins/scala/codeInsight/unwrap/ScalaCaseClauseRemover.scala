@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala
-package codeInsight.unwrap
+package org.jetbrains.plugins.scala.codeInsight.unwrap
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 

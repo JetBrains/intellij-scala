@@ -1,14 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScAccessModifierImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScAccessModifierStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAccessModifierStubImpl
 
 class ScAccessModifierElementType extends ScStubElementType[ScAccessModifierStub, ScAccessModifier]("access modifier") {

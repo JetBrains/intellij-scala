@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package util
+package org.jetbrains.plugins.scala.util
 
 import com.intellij.psi.CommonClassNames.JAVA_LANG_OBJECT
 

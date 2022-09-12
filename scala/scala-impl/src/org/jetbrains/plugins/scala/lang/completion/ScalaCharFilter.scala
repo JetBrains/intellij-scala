@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
+package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.lookup.{CharFilter, Lookup}
 import com.intellij.psi.PsiElement

@@ -1,12 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package lookups
+package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import com.intellij.codeInsight.lookup.{Lookup, LookupActionProvider, LookupElement, LookupElementAction}
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.{Consumer, PlatformIcons}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 

@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package move
+package org.jetbrains.plugins.scala.lang.refactoring.move
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._

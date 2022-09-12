@@ -1,14 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 package signatures
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScImplicitStub, ScParameterStub}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParameterStubImpl
 
 abstract class ScParamElementType[P <: ScParameter](debugName: String) extends ScStubElementType[ScParameterStub, ScParameter](debugName) {

@@ -1,13 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package formatting
-package settings
+package org.jetbrains.plugins.scala.lang.formatting.settings
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.util.execution.ParametersListUtil
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.extensions.Binding
 
 import java.util

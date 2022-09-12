@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.resolve.processor
+package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._

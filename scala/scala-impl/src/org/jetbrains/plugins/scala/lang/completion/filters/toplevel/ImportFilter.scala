@@ -5,7 +5,6 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 
 class ImportFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {

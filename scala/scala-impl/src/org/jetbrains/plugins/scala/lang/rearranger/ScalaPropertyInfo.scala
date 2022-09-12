@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.rearranger
+package org.jetbrains.plugins.scala.lang.rearranger
 
 private class ScalaPropertyInfo(val getter: ScalaArrangementEntry,
                                 val setter: ScalaArrangementEntry) {

@@ -1,18 +1,15 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
+package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion.CompletionConfidence
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 
 final class ScalaCompletionConfidence extends CompletionConfidence {
-
-  import lexer.ScalaTokenTypes._
 
   override def shouldSkipAutopopup(contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState = {
     def typedChar(c: Char): Boolean = psiFile.charSequence.charAt(offset - 1) == c
@@ -20,11 +17,11 @@ final class ScalaCompletionConfidence extends CompletionConfidence {
     if (offset != 0) {
       val node = psiFile.findElementAt(offset - 1).getNode
       node.getElementType match {
-        case elementType if NUMBER_TOKEN_SET.contains(elementType) =>
+        case elementType if ScalaTokenTypes.NUMBER_TOKEN_SET.contains(elementType) =>
           return ThreeState.YES
-        case `tSTRING` | `tMULTILINE_STRING` if typedChar('$') =>
+        case ScalaTokenTypes.`tSTRING` | ScalaTokenTypes.`tMULTILINE_STRING` if typedChar('$') =>
           return ThreeState.NO
-        case `tINTERPOLATED_STRING` | `tINTERPOLATED_MULTILINE_STRING` if typedChar('.') =>
+        case ScalaTokenTypes.`tINTERPOLATED_STRING` | ScalaTokenTypes.`tINTERPOLATED_MULTILINE_STRING` if typedChar('.') =>
           if (isDotTypedAfterStringInjectedReference(psiFile, offset))
             return ThreeState.NO
         case _  =>

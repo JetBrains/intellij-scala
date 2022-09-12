@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package extensions
+package org.jetbrains.plugins.scala.extensions
 
 /** This type is handy for working with possible null values.
   * It has no overhead of converting to Option, and allows to chain several nullable functions in a safe way

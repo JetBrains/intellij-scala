@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package compiler
+package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.openapi.diagnostic.Logger

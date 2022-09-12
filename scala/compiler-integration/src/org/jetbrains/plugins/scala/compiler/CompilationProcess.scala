@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package compiler
+package org.jetbrains.plugins.scala.compiler
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise}

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring
+package org.jetbrains.plugins.scala.lang.refactoring
 
 import com.intellij.codeInsight.editorActions.moveUpDown.StatementUpDownMover.MoveInfo
 import com.intellij.codeInsight.editorActions.moveUpDown.{LineMover, LineRange}

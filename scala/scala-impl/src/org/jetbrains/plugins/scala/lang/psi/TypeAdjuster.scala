@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
+package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.openapi.application.{ApplicationListener, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger

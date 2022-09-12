@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package parameters
+package org.jetbrains.plugins.scala.codeInspection.parameters
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInsight.intention.addNameToArgumentsFix
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
@@ -31,7 +31,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
         for (expr <- argList.exprs) {
           expr match {
             case literal: ScBooleanLiteral if isArgForBooleanParam(expr, argList) &&
-              addNameToArgumentsFix(literal).isDefined =>
+              myAddNameToArgumentsFix(literal).isDefined =>
               val message = ScalaInspectionBundle.message("displayname.name.boolean.parameters")
               val quickFix = new NameBooleanParametersQuickFix(message, literal)
               val descriptor = holder.getManager.createProblemDescriptor(
@@ -83,15 +83,15 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
 
 object NameBooleanParametersInspectionBase {
 
-  private def addNameToArgumentsFix(literal: ScBooleanLiteral) =
-    codeInsight.intention.addNameToArgumentsFix(literal, onlyBoolean = true)
+  private def myAddNameToArgumentsFix(literal: ScBooleanLiteral) =
+    addNameToArgumentsFix(literal, onlyBoolean = true)
 
   private class NameBooleanParametersQuickFix(@Nls name: String, literal: ScBooleanLiteral)
     extends AbstractFixOnPsiElement(name, literal) {
 
     override protected def doApplyFix(literal: ScBooleanLiteral)
                                      (implicit project: Project): Unit = {
-      addNameToArgumentsFix(literal).foreach(_.apply())
+      myAddNameToArgumentsFix(literal).foreach(_.apply())
     }
   }
 

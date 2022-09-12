@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala.lang
-package transformation
-package annotations
+package org.jetbrains.plugins.scala.lang.transformation.annotations
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{&&, Parent, PsiElementExt}
@@ -8,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScP
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenerator
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromText
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.transformation.AbstractTransformer
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class AddTypeToReferencePattern extends AbstractTransformer {

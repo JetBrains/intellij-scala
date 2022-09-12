@@ -1,10 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package top
+package org.jetbrains.plugins.scala.lang.parser.parsing.top
 package template
 
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.ExportKeyword
+import org.jetbrains.plugins.scala.lang.parser.ErrMsg
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Export, Extension, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotation, Expr}
@@ -12,8 +11,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
 
 sealed abstract class Stat extends ParsingRule {
 
-  import lexer.ScalaTokenType.ExportKeyword
-  import lexer.ScalaTokenTypes.kIMPORT
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kIMPORT
 
   override final def parse(implicit builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {

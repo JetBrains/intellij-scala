@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package format
+package org.jetbrains.plugins.scala.format
 
 trait StringFormatter {
   def format(parts: Seq[StringPart]): String

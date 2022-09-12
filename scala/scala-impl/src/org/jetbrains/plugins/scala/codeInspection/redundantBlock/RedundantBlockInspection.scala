@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection.redundantBlock
+package org.jetbrains.plugins.scala.codeInspection.redundantBlock
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project

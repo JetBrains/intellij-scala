@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.psi.api
+package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.surroundWith.surrounders.scaladoc
+package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc
 
 import com.intellij.lang.surroundWith.Surrounder
 import com.intellij.openapi.editor.Editor

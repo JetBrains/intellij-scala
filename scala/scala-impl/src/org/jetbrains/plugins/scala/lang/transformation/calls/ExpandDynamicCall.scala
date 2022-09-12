@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala.lang.transformation
-package calls
+package org.jetbrains.plugins.scala.lang.transformation.calls
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
+import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, RenamedReference, quote}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class ExpandDynamicCall extends AbstractTransformer {

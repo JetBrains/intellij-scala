@@ -1,11 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package move
+package org.jetbrains.plugins.scala.lang.refactoring.move
 
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveAllClassesInFileHandler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import java.lang.{Boolean => JBoolean}
 import java.{util => ju}
@@ -16,7 +14,7 @@ final class MoveScalaClassesInFileHandler extends MoveAllClassesInFileHandler {
                                            psiClass: PsiClass,
                                            elementsToMove: PsiElement*): Unit = {
     psiClass.getContainingFile match {
-      case file: ScalaFile if settings.ScalaApplicationSettings.getInstance.MOVE_COMPANION =>
+      case file: ScalaFile if ScalaApplicationSettings.getInstance.MOVE_COMPANION =>
         for {
           companion <- companionModule(psiClass, withCompanion = true)
           if !elementsToMove.contains(companion) && file.typeDefinitions.toSet == Set(psiClass, companion)

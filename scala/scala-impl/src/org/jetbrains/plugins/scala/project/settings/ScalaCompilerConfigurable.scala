@@ -25,7 +25,7 @@ class ScalaCompilerConfigurable(project: Project)
   private val form = new ScalaCompilerConfigurationPanel(project)
 
   private def configuration = ScalaCompilerConfiguration.instanceIn(project)
-  
+
   private val profilesPanel: ScalaCompilerProfilesPanel = form.getProfilesPanel
 
   override def createComponent(): JPanel = form.getContentPanel

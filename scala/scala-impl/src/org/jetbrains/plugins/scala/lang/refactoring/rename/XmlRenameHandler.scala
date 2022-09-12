@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package rename
+package org.jetbrains.plugins.scala.lang.refactoring.rename
 
 import com.intellij.codeInsight.daemon.impl.quickfix.EmptyExpression
 import com.intellij.codeInsight.highlighting.HighlightManager
@@ -15,7 +12,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.rename.RenameHandler
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPairedTag
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
 
 import java.util
 
@@ -75,7 +74,7 @@ class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler 
 
     def rename(): Unit = {
       CommandProcessor.getInstance().executeCommand(project, () => {
-        extensions.inWriteAction {
+        inWriteAction {
           val offset = editor.getCaretModel.getOffset
           val template = buildTemplate()
           editor.getCaretModel.moveToOffset(element.getParent.getTextOffset)

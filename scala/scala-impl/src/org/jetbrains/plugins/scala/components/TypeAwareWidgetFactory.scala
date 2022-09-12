@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala
-package components
+package org.jetbrains.plugins.scala.components
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, StatusBarWidgetFactory}
 import com.intellij.util.messages.Topic
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 private final class TypeAwareWidgetFactory extends StatusBarWidgetFactory {

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.psi.api.expr
+package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 trait ScInfixArgumentExpression extends ScExpression {
   /**

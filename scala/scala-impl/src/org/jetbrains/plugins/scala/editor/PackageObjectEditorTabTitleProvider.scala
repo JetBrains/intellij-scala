@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor
+package org.jetbrains.plugins.scala.editor
 
 import com.intellij.openapi.fileEditor.impl.EditorTabTitleProvider
 import com.intellij.openapi.project.Project

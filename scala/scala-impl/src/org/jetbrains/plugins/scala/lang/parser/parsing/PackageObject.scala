@@ -1,17 +1,15 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
+package org.jetbrains.plugins.scala.lang.parser.parsing
 
 
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaTokenBinders}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ObjectDef
 
 object PackageObject extends ParsingRule {
 
-  import lexer.ScalaTokenType.ObjectKeyword
-  import lexer.ScalaTokenTypes.kPACKAGE
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.ObjectKeyword
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kPACKAGE
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()

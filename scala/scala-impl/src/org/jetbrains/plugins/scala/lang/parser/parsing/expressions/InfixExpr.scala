@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package expressions
+package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.TypeArgs
 import org.jetbrains.plugins.scala.lang.parser.util.PrecedenceClimbingInfixParsingRule

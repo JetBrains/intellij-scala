@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.rename.inplace
+package org.jetbrains.plugins.scala.lang.refactoring.rename.inplace
 
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor

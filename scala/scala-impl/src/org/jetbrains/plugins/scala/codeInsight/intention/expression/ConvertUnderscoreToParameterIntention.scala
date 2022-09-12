@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight.intention.expression
+package org.jetbrains.plugins.scala.codeInsight.intention.expression
 
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.highlighting.HighlightManager
@@ -16,6 +15,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.refactoring.rename.inplace.MyLookupExpression
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

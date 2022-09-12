@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.psi.api.base.types
+package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement

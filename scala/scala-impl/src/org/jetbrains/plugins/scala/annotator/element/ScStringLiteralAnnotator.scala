@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
-package element
+package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.lang.ASTNode
 import com.intellij.lexer.StringLiteralLexer
@@ -8,7 +6,9 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.StringEscapesTokenTypes
 import com.intellij.psi.tree.TokenSet
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.highlighter.lexer.{ScalaInterpolatedStringLiteralLexer, ScalaMultilineStringLiteralLexer, ScalaStringLiteralLexer}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tINTERPOLATED_MULTILINE_STRING, tINTERPOLATED_STRING, tMULTILINE_STRING, tSTRING}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
@@ -95,7 +95,6 @@ object ScStringLiteralAnnotator extends ElementAnnotator[ScStringLiteral] {
   }
 
   private def isTooLongLiteral(literal: ScStringLiteral, strings: String*): Boolean = {
-    import extensions.PsiElementExt
     implicit val virtualFile: Option[VirtualFile] = literal.containingVirtualFile
     strings.exists(exceedsLimit)
   }

@@ -1,9 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package expressions
+package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
+import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ScCodeBlockElementType}
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -14,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  */
 object BlockExpr extends ParsingRule {
 
-  import lexer.ScalaTokenType._
-  import lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.skipExternalToken()) return true

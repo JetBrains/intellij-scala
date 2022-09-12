@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.changeSignature.changeInfo
+package org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterInfo

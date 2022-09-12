@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package expr
+package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 
 trait ScWhile extends ScExpression {
   def condition: Option[ScExpression]

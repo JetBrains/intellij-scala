@@ -1,10 +1,9 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package scaladoc
+package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.tree.TokenSet
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocMissingParameterDescriptionInspection._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor

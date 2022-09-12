@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package findUsages.vals
+package org.jetbrains.plugins.scala.findUsages.vals
 
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}

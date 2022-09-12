@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package syntacticSimplification
+package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection._
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RemoveReturnKeywordQuickFix
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturn

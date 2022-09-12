@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor.backspaceHandler
+package org.jetbrains.plugins.scala.editor.backspaceHandler
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.CodeInsightSettings
@@ -12,6 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang3.StringUtils
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils._
 import org.jetbrains.plugins.scala.editor._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler

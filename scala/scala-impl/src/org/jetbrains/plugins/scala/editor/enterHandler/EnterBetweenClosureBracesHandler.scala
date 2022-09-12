@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.editor
-package enterHandler
+package org.jetbrains.plugins.scala.editor.enterHandler
 
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
@@ -14,6 +13,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiFile, PsiWhiteSpace}
 import com.intellij.util.IncorrectOperationException
 import com.intellij.util.text.CharArrayUtil
+import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile

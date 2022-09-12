@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package findUsages
+package org.jetbrains.plugins.scala.lang.findUsages
 
 import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
 import com.intellij.psi.{PsiClass, PsiElement}

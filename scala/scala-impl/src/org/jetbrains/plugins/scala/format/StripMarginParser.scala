@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package format
+package org.jetbrains.plugins.scala.format
 
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions.Parent

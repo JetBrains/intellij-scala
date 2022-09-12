@@ -1,12 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package expressions
+package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.annotations.{Nls, Nullable}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.CommonUtils.remapRawStringTokens
+import org.jetbrains.plugins.scala.lang.parser.parsing.{CommonUtils, ParsingRule}
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
  * Literal ::= ['-']integerLiteral
@@ -22,11 +21,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.CommonUtils.remapRawStrin
  */
 object Literal extends ParsingRule {
 
-  import ScalaElementType._
-  import builder.ScalaPsiBuilder
-  import lang.lexer._
-  import ScalaTokenType._
-  import ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()

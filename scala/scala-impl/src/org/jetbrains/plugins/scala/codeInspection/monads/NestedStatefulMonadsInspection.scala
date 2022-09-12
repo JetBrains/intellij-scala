@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package monads
+package org.jetbrains.plugins.scala.codeInspection.monads
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle, conformsToTypeFromClass}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType

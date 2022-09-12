@@ -1,11 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package util
+package org.jetbrains.plugins.scala.lang.parser.util
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.ErrMsg
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.{Associativity, ParsingRule}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr1

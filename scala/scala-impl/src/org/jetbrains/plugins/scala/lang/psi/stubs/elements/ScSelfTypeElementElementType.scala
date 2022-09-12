@@ -1,15 +1,13 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSelfTypeElementImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScSelfTypeElementStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScSelfTypeElementStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementStub, ScSelfTypeElement]("self type element") {
 
@@ -42,7 +40,7 @@ class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementSt
   }
 
   override def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit = {
-    sink.occurrences(index.ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY, stub.classNames.toSeq: _*)
+    sink.occurrences(ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY, stub.classNames.toSeq: _*)
   }
 
   override def createElement(node: ASTNode) = new ScSelfTypeElementImpl(node)

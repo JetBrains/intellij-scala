@@ -1,10 +1,9 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package modifiers
+package org.jetbrains.plugins.scala.codeInspection.modifiers
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.modifiers.SetModifierQuickfix.makeName
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner

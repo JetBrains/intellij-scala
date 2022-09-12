@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package rename
+package org.jetbrains.plugins.scala.lang.refactoring.rename
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.search.SearchScope

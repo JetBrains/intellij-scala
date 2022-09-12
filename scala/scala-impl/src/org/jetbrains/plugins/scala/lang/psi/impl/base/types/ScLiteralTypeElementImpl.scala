@@ -1,12 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package base
+package org.jetbrains.plugins.scala.lang.psi.impl.base
 package types
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, types}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, result}
 
 final class ScLiteralTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)

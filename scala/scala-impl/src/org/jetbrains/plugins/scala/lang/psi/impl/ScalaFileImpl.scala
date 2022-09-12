@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
+package org.jetbrains.plugins.scala.lang.psi.impl
 
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.lang.Language
@@ -11,21 +8,24 @@ import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi._
+import com.intellij.psi.{FileResolveScopeProvider, FileViewProvider, PsiClass, PsiComment, PsiDocumentManager, PsiElement, PsiReference, PsiWhiteSpace, ResolveState}
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, codeStyle}
 import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.indexing.FileBasedIndex
+import org.jetbrains.plugins.scala.{JavaArrayFactoryUtil, ScalaFileType}
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.{ResolveFilterScope, WorksheetResolveFilterScope}
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScFileViewProvider}
 import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
@@ -49,8 +49,7 @@ class ScalaFileImpl(
     this(viewProvider, fileType, fileType.getLanguage)
 
   import ScalaFileImpl._
-  import psi.stubs.ScFileStub
-  import settings.ScalaProjectSettings
+  import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitFile(this)

@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package methodSignature
+package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 abstract class AbstractMethodSignatureInspection extends LocalInspectionTool {

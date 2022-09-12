@@ -1,17 +1,14 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.{RawStubElement, ScPackagingStub}
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPackagingStubImpl
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 object ScPackagingElementType extends ScStubElementType[ScPackagingStub, ScPackaging]("packaging") {
-
-  import impl.ScPackagingStubImpl
 
   override def serialize(stub: ScPackagingStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.packageName)
@@ -38,13 +35,13 @@ object ScPackagingElementType extends ScStubElementType[ScPackagingStub, ScPacka
     )
 
   override def indexStub(stub: ScPackagingStub, sink: IndexSink): Unit = {
-    import index.ScalaIndexKeys.PACKAGE_FQN_KEY
+    import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.PACKAGE_FQN_KEY
 
     val prefix = stub.parentPackageName
     var ownNamePart = stub.packageName
 
     def append(postfix: String) =
-      refactoring.util.ScalaNamesUtil.cleanFqn(if (prefix.length > 0) prefix + "." + postfix else postfix)
+      ScalaNamesUtil.cleanFqn(if (prefix.length > 0) prefix + "." + postfix else postfix)
 
     var i = 0
     do {

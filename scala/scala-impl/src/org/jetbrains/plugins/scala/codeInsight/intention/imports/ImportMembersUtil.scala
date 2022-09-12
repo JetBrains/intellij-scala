@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight.intention.imports
+package org.jetbrains.plugins.scala.codeInsight.intention.imports
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil

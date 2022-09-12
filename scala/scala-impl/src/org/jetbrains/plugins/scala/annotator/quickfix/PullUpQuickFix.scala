@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
-package quickfix
+package org.jetbrains.plugins.scala.annotator.quickfix
 
 import com.intellij.codeInsight.intention.AbstractIntentionAction
 import com.intellij.codeInsight.navigation.NavigationUtil.getPsiElementPopup
@@ -10,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.psi.search.PsiElementProcessor
+import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier.{ABSTRACT, OVERRIDE}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}

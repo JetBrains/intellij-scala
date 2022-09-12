@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.changeSignature
+package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightLevelUtil}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.refactoring.changeSignature._
 import com.intellij.util.ui.ColumnInfo
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterTableModel._
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaCodeFragmentTableCellEditor

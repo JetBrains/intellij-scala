@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package formatting
-package settings
+package org.jetbrains.plugins.scala.lang.formatting.settings
 
 import com.intellij.icons.AllIcons
 import com.intellij.lang.Language

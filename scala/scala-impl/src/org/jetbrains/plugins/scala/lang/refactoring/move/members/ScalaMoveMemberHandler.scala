@@ -1,18 +1,16 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package move
-package members
+package org.jetbrains.plugins.scala.lang.refactoring.move.members
 
 import com.intellij.psi._
 import com.intellij.refactoring.move.moveMembers.MoveMembersProcessor.MoveMembersUsageInfo
 import com.intellij.refactoring.move.moveMembers.{MoveJavaMemberHandler, MoveMembersOptions}
 import com.intellij.util.containers.MultiMap
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText, createReferenceFromText}
+import org.jetbrains.plugins.scala.lang.refactoring.Associations
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 
 import java.{util => ju}

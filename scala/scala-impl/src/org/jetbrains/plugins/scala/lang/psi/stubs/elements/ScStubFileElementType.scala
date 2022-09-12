@@ -1,13 +1,13 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.Language
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.psi.stubs._
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, tree}
+import org.jetbrains.plugins.scala.lang.TokenSets
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 
 //noinspection TypeAnnotation
 class ScStubFileElementType(override val getExternalId: String,
@@ -15,7 +15,7 @@ class ScStubFileElementType(override val getExternalId: String,
   extends tree.IStubFileElementType[ScFileStub](getExternalId, language) {
 
   override final def getStubVersion: Int =
-    super.getStubVersion + compiled.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
+    super.getStubVersion + ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
 
   override def shouldBuildStubFor(file: VirtualFile): Boolean =
     file.getFileSystem.getProtocol != StandardFileSystems.JAR_PROTOCOL
@@ -31,8 +31,6 @@ class ScStubFileElementType(override val getExternalId: String,
 
   override final def indexStub(stub: ScFileStub,
                                sink: IndexSink): Unit = {}
-
-  import api.ScalaFile
 
   protected class ScFileStubBuilderImpl extends DefaultStubBuilder {
 

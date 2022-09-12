@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package projectView
+package org.jetbrains.plugins.scala.projectView
 
 import com.intellij.ide.projectView.impl.nodes.ClassTreeNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}

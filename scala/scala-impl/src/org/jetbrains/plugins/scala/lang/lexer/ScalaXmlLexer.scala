@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package lexer
+package org.jetbrains.plugins.scala.lang.lexer
 
 import com.intellij.lexer.{MergingLexerAdapter, XmlLexer}
 import com.intellij.psi.tree.{IElementType, TokenSet}

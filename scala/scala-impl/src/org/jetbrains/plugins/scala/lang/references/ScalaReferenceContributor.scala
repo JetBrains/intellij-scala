@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package references
+package org.jetbrains.plugins.scala.lang.references
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PsiJavaPatterns.psiElement

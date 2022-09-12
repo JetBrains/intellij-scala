@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package parameterInfo
+package org.jetbrains.plugins.scala.lang.parameterInfo
 
 import com.intellij.codeInsight.hint.ShowParameterInfoHandler
 import com.intellij.codeInsight.{CodeInsightBundle, TargetElementUtil}

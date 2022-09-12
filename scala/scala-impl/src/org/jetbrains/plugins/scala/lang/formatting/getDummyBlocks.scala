@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package formatting
+package org.jetbrains.plugins.scala.lang.formatting
 
 import com.intellij.formatting._
 import com.intellij.lang.ASTNode
@@ -12,6 +10,7 @@ import java.util
 import com.intellij.psi.tree._
 import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang3.StringUtils
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.getDummyBlocks._

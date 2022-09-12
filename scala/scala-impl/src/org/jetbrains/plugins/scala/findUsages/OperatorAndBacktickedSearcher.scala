@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package findUsages
+package org.jetbrains.plugins.scala.findUsages
 
 import com.intellij.openapi.application.ReadActionProcessor
 import com.intellij.openapi.project.{IndexNotReadyException, Project}

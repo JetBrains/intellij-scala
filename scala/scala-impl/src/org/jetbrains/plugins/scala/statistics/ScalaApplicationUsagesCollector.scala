@@ -1,6 +1,5 @@
 /*
-package org.jetbrains.plugins.scala
-package statistics
+package org.jetbrains.plugins.scala.statistics
 
 import java.util
 

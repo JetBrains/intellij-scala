@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package statements
+package org.jetbrains.plugins.scala.lang.psi.api.statements
 package params
 
 import com.intellij.psi.{PsiTypeParameter, PsiTypeParameterList}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 
 trait ScTypeParamClause extends ScalaPsiElement with PsiTypeParameterList {
   def typeParameters : Seq[ScTypeParam]

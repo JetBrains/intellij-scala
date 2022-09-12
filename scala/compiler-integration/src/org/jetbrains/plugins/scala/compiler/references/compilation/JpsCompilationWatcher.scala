@@ -1,12 +1,11 @@
-package org.jetbrains.plugins.scala.compiler.references
-package compilation
+package org.jetbrains.plugins.scala.compiler.references.compilation
 
 import com.intellij.compiler.impl.{CompileDriver, ExitStatus}
 import com.intellij.compiler.server.{BuildManagerListener, CustomBuilderMessageHandler}
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerTopics}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
-import org.jetbrains.plugins.scala.compiler.references.{Builder, Messages}
+import org.jetbrains.plugins.scala.compiler.references.{Builder, Messages, TransactionGuard}
 import org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService.CompilerIndicesState
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}

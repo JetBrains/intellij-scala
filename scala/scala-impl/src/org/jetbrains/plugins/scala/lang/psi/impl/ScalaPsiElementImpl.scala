@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
+package org.jetbrains.plugins.scala.lang.psi.impl
 
 import com.intellij.extapi.psi.{ASTWrapperPsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.{ASTNode, Language}
@@ -16,8 +13,10 @@ import com.intellij.util.ArrayFactory
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{stubOrPsiNextSibling, stubOrPsiPrevSibling}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node)
   with ScalaPsiElement {
@@ -70,7 +69,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@Nullable stub: S,
-                                                                               nodeType: stubs.elements.ScStubElementType[S, T],
+                                                                               nodeType: ScStubElementType[S, T],
                                                                                node: ASTNode)
   extends StubBasedPsiElementBase[S](stub, if (stub == null) null else nodeType, node)
     with StubBasedPsiElement[S]

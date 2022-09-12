@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package implicits
+package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt

@@ -1,11 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
+package org.jetbrains.plugins.scala.lang.refactoring
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiClass, PsiDirectory, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 package object move {
 
@@ -56,5 +55,5 @@ package object move {
       _.baseCompanion
     }
 
-  def moveCompanion: Boolean = settings.ScalaApplicationSettings.getInstance.MOVE_COMPANION
+  def moveCompanion: Boolean = ScalaApplicationSettings.getInstance.MOVE_COMPANION
 }

@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package scaladoc
-package parser
-package parsing
+package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lexer.HtmlLexer
@@ -10,6 +6,7 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.PsiBuilderExt
@@ -18,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes._
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing._
 import org.jetbrains.plugins.scala.util.IndentUtil

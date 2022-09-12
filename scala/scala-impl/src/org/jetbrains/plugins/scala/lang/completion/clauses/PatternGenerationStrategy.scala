@@ -1,10 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package clauses
+package org.jetbrains.plugins.scala.lang.completion.clauses
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiEnumConstant}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiClassExt}
+import org.jetbrains.plugins.scala.lang.completion.{ScalaKeyword, toValueType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject}
@@ -19,8 +18,6 @@ sealed trait PatternGenerationStrategy {
 }
 
 object PatternGenerationStrategy {
-
-  import extensions._
 
   implicit class StrategyExt(private val strategy: PatternGenerationStrategy) extends AnyVal {
 

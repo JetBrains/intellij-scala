@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package compiled
+package org.jetbrains.plugins.scala.lang.psi.compiled
 
 import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.lang.{Language, LanguageParserDefinitions}
@@ -10,6 +7,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{FileViewProvider, PsiFile, PsiFileFactory, PsiManager, SingleRootFileViewProvider, compiled, stubs}
 import com.intellij.util.indexing.FileContent
+import org.jetbrains.plugins.scala.lang.parser.{Scala3ParserDefinition, ScalaParserDefinition}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 import org.jetbrains.plugins.scala.tasty.TastyFileType
 
 final class ScClassFileDecompiler extends compiled.ClassFileDecompilers.Full {
@@ -50,14 +49,14 @@ object ScClassFileDecompiler {
     private def stub2Builder =
       LanguageParserDefinitions.INSTANCE
         .forLanguage(ScalaLanguage.INSTANCE)
-        .asInstanceOf[parser.ScalaParserDefinition]
+        .asInstanceOf[ScalaParserDefinition]
         .getFileNodeType
         .getBuilder
 
     private def stub3Builder =
       LanguageParserDefinitions.INSTANCE
         .forLanguage(Scala3Language.INSTANCE)
-        .asInstanceOf[parser.Scala3ParserDefinition]
+        .asInstanceOf[Scala3ParserDefinition]
         .getFileNodeType
         .getBuilder
   }

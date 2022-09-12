@@ -1,7 +1,6 @@
-package org.jetbrains.plugins.scala
-package annotator
-package element
+package org.jetbrains.plugins.scala.annotator.element
 
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, ScopeAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 abstract class ElementAnnotator[T: reflect.ClassTag] {

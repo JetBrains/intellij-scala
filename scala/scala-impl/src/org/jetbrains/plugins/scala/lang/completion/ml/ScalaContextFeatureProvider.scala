@@ -1,9 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package ml
+package org.jetbrains.plugins.scala.lang.completion.ml
 
 import com.intellij.codeInsight.completion.ml.{CompletionEnvironment, ContextFeatureProvider, MLFeatureValue}
+import org.jetbrains.plugins.scala.ScalaLowerCase
 
 import java.util
 

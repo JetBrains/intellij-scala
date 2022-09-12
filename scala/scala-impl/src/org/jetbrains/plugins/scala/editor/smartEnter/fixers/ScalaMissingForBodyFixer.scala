@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor.smartEnter.fixers
+package org.jetbrains.plugins.scala.editor.smartEnter.fixers
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi._

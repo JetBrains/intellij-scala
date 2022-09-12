@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.lang.transformation
-package implicits
+package org.jetbrains.plugins.scala.lang.transformation.implicits
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{FirstChild, ImplicitConversion}
@@ -7,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
+import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, bindTo, qualifiedNameOf}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class ExpandImplicitConversion extends AbstractTransformer {

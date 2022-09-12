@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.rename
+package org.jetbrains.plugins.scala.lang.refactoring.rename
 
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.{PsiElement, PsiPackage, PsiReference}

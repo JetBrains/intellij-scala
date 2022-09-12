@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
+package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementRenderer}
@@ -11,6 +9,7 @@ import com.intellij.psi.search.searches.DirectClassInheritorsSearch
 import com.intellij.psi.{util => _, _}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScCaseClause, ScPattern, ScTypedPattern}
@@ -20,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromTextWithContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType}
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames.{AnyFqn, AnyRefFqn, NothingFqn}
 
 package object clauses {
 
@@ -122,7 +122,6 @@ package object clauses {
   object DirectInheritors {
 
     import CommonClassNames._
-    import util.CommonQualifiedNames._
 
     val FqnBlockList = Set(
       JAVA_LANG_OBJECT,

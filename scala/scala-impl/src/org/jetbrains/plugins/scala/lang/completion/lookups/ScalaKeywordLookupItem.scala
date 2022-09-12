@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package lookups
+package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion.{CompletionResultSet, InsertHandler, InsertionContext}
@@ -12,7 +9,9 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.{CodeStyleManager, CommonCodeStyleSettings}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.util.ui.EmptyIcon
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions.{BooleanExt, PsiFileExt}
+import org.jetbrains.plugins.scala.lang.completion.InsertionContextExt
 
 object ScalaKeywordLookupItem {
 
@@ -31,7 +30,7 @@ object ScalaKeywordLookupItem {
   final class KeywordInsertHandler(val keyword: String) extends InsertHandler[LookupElement] {
 
     import KeywordInsertHandler._
-    import ScalaKeyword._
+    import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword._
 
     override def handleInsert(context: InsertionContext,
                               lookupElement: LookupElement): Unit = keyword match {

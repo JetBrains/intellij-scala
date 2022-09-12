@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi
-package stubs
-package index
+package org.jetbrains.plugins.scala.lang.psi.stubs.index
 
 import com.intellij.psi.stubs.StubIndexKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging

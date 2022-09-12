@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.ui
+package org.jetbrains.plugins.scala.lang.refactoring.ui
 
 import com.intellij.icons.AllIcons
 import com.intellij.psi.{PsiElement, PsiModifierList, PsiModifierListOwner}

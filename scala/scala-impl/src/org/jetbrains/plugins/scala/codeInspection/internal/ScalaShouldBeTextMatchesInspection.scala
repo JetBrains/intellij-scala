@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package internal
+package org.jetbrains.plugins.scala.codeInspection.internal
 
 import org.jetbrains.plugins.scala.codeInspection.collections.{OperationOnCollectionInspection, Qualified, Simplification, SimplificationType, `!=`, `==`, invocation, invocationText}
+import org.jetbrains.plugins.scala.codeInspection.{ExpressionOfTypeMatcher, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 import scala.collection.immutable.ArraySeq

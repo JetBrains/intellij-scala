@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package scaladoc
-package completion
+package org.jetbrains.plugins.scala.lang.scaladoc.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElement

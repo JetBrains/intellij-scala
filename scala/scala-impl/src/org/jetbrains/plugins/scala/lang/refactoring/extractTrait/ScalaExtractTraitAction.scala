@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.extractTrait
+package org.jetbrains.plugins.scala.lang.refactoring.extractTrait
 
 import com.intellij.lang.refactoring.RefactoringSupportProvider
 import com.intellij.refactoring.actions.ExtractSuperActionBase

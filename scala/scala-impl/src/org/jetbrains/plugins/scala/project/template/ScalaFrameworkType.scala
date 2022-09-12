@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package project
-package template
+package org.jetbrains.plugins.scala.project.template
 
 import com.intellij.framework.FrameworkTypeEx
 import com.intellij.framework.addSupport.{FrameworkSupportInModuleConfigurable, FrameworkSupportInModuleProvider}
@@ -9,11 +7,14 @@ import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.module.{Module, ModuleType, ModuleTypeId}
 import com.intellij.openapi.roots.ui.configuration.FacetsProvider
 import com.intellij.openapi.roots.{ModifiableModelsProvider, ModifiableRootModel}
+import org.jetbrains.plugins.scala.{NlsString, ScalaLanguage}
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryType}
 
 //noinspection TypeAnnotation
 final class ScalaFrameworkType extends FrameworkTypeEx(ScalaLanguage.INSTANCE.getID) {
 
-  override def getIcon = icons.Icons.SCALA_SMALL_LOGO
+  override def getIcon = Icons.SCALA_SMALL_LOGO
 
   override def getPresentableName = NlsString.force(getId)
 

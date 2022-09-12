@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package packageNameInspection
+package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
 
 import com.intellij.CommonBundle
 import com.intellij.openapi.module.Module
@@ -10,6 +8,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.refactoring.util.{CommonMoveClassesOrPackagesUtil, RefactoringMessageUtil}
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ScalaMoveToPackageQuickFix._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile

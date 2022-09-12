@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.Language
 import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
@@ -10,11 +6,14 @@ import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutp
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScGivenStub, ScImplicitStub, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](debugName: String,
@@ -141,7 +140,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
   }
 
   override final def indexStub(stub: ScTemplateDefinitionStub[TypeDef], sink: IndexSink): Unit = {
-    import index.ScalaIndexKeys._
 
     val scalaName = stub.getName
     val javaName = stub.javaName
@@ -150,20 +148,20 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       if (stub.isVisibleInJava) {
         sink.occurrence(JavaStubIndexKeys.CLASS_SHORT_NAMES, javaName)
       }
-      sink.occurrence(ALL_CLASS_NAMES, javaName)
+      sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, javaName)
     }
 
     if (scalaName != null) {
-      sink.occurrence(SHORT_NAME_KEY, scalaName)
+      sink.occurrence(ScalaIndexKeys.SHORT_NAME_KEY, scalaName)
 
       if (scalaName != javaName || !stub.isVisibleInJava) {
-        sink.occurrence(NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, scalaName)
+        sink.occurrence(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, scalaName)
       }
     }
 
     val additionalNames = stub.additionalJavaName
     for (name <- additionalNames) {
-      sink.occurrence(ALL_CLASS_NAMES, name)
+      sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, name)
     }
     val javaFqn = stub.javaQualifiedName
     if (javaFqn != null && !stub.isLocal && stub.isVisibleInJava) {
@@ -172,21 +170,21 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       val pack =
         if (i == -1) ""
         else javaFqn.substring(0, i)
-      sink.occurrence(JAVA_CLASS_NAME_IN_PACKAGE_KEY, pack)
+      sink.occurrence(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, pack)
     }
 
     val fqn = ScalaNamesUtil.cleanFqn(stub.getQualifiedName)
     if (fqn != null && !stub.isLocal) {
-      sink.occurrence[PsiClass, java.lang.Integer](FQN_KEY, fqn.hashCode)
+      sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
       val i = fqn.lastIndexOf(".")
       val pack =
         if (i == -1) ""
         else fqn.substring(0, i)
-      sink.occurrence(CLASS_NAME_IN_PACKAGE_KEY, pack)
-      if (stub.isImplicitObject) sink.occurrence(IMPLICIT_OBJECT_KEY, pack)
+      sink.occurrence(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, pack)
+      if (stub.isImplicitObject) sink.occurrence(ScalaIndexKeys.IMPLICIT_OBJECT_KEY, pack)
 
       if (stub.isTopLevel && stub.implicitConversionParameterClass.nonEmpty)
-        sink.occurrence(TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY, pack)
+        sink.occurrence(ScalaIndexKeys.TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY, pack)
 
       stub.indexImplicits(sink)
       stub.indexGivens(sink)
@@ -197,8 +195,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
         val index = packageName.lastIndexOf('.')
         if (index < 0) packageName else packageName.substring(index + 1, packageName.length)
       }
-      sink.occurrence[PsiClass, java.lang.Integer](PACKAGE_OBJECT_KEY, packageName.hashCode)
-      sink.occurrence[PsiClass, String](PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)
+      sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.PACKAGE_OBJECT_KEY, packageName.hashCode)
+      sink.occurrence[PsiClass, String](ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)
     }
   }
 }

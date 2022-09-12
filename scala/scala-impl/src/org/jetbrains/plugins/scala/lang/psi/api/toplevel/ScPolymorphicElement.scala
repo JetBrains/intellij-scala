@@ -1,7 +1,3 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package toplevel
+package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 
 trait ScPolymorphicElement extends ScTypeParametersOwner with ScTypeBoundsOwner

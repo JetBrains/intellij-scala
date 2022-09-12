@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
+package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import com.intellij.psi.stubs.StubElement
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY

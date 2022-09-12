@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala.lang
-package parser
-package parsing
-package builder
+package org.jetbrains.plugins.scala.lang.parser.parsing.builder
 
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
 
 trait ScalaPsiBuilder extends PsiBuilder {
 

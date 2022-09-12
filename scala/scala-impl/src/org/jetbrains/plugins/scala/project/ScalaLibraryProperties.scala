@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package project
+package org.jetbrains.plugins.scala.project
 
 import com.intellij.openapi.roots.libraries.LibraryProperties
 import com.intellij.openapi.util.io.FileUtil

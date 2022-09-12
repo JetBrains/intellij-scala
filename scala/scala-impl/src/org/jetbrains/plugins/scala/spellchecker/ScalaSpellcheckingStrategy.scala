@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package spellchecker
+package org.jetbrains.plugins.scala.spellchecker
 
 import com.intellij.psi.PsiElement
 import com.intellij.spellchecker.tokenizer.{SpellcheckingStrategy, Tokenizer}

@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package xml.pattern
+package org.jetbrains.plugins.scala.lang.parser.parsing.xml.pattern
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml._
 

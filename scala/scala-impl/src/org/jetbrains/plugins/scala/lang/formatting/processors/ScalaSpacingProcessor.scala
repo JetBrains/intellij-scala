@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package formatting
-package processors
+package org.jetbrains.plugins.scala.lang.formatting.processors
 
 import com.intellij.formatting.Spacing
 import com.intellij.lang.ASTNode
@@ -13,7 +10,9 @@ import com.intellij.psi.impl.source.tree.{LeafPsiElement, PsiWhiteSpaceImpl}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes, ScalaTokenTypesEx, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}

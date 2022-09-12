@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package xml
+package org.jetbrains.plugins.scala.lang.parser.parsing.xml
 
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypesEx, ScalaXmlTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 object CDSect extends ParsingRule {

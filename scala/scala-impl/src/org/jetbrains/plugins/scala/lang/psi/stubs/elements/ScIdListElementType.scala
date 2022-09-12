@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 
 import com.intellij.lang.ASTNode
@@ -10,6 +6,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScIdListImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScIdListStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScIdListStubImpl
 
 class ScIdListElementType

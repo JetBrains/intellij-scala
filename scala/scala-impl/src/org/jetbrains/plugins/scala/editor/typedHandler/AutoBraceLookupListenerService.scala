@@ -1,12 +1,11 @@
-package org.jetbrains.plugins.scala
-package editor
-package typedHandler
+package org.jetbrains.plugins.scala.editor.typedHandler
 
 import com.intellij.codeInsight.lookup.{Lookup, LookupEvent, LookupListener, LookupManagerListener}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.editor.AutoBraceUtils._
+import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
 import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools._
 import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceLookupListenerService.AutoBraceLookupListener
 import org.jetbrains.plugins.scala.extensions._

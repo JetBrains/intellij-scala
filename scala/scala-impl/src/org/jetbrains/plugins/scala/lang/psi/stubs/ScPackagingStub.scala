@@ -1,11 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
+package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 
-trait ScPackagingStub extends StubElement[api.toplevel.ScPackaging] {
+trait ScPackagingStub extends StubElement[ScPackaging] {
 
   def packageName: String
 

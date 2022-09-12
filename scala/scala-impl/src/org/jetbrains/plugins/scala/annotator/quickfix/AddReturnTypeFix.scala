@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator.quickfix
+package org.jetbrains.plugins.scala.annotator.quickfix
 
 import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.openapi.editor.Editor

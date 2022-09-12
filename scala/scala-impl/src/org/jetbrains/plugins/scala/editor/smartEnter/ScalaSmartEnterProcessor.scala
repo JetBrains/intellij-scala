@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor.smartEnter
+package org.jetbrains.plugins.scala.editor.smartEnter
 
 import java.lang.Long
 

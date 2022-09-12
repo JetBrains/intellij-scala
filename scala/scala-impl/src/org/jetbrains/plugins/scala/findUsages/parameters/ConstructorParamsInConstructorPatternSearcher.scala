@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package findUsages
-package parameters
+package org.jetbrains.plugins.scala.findUsages.parameters
 
 import com.intellij.find.findUsages.{CustomUsageSearcher, FindUsagesOptions}
 import com.intellij.psi._

@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor
-package typedHandler
+package org.jetbrains.plugins.scala.editor.typedHandler
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.editor.Editor
@@ -9,7 +7,9 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.editor.AutoBraceUtils.{continuesConstructAfterIndentationContext, isBeforeIndentationContext, nextExpressionInIndentationContext}
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.editor.AutoBraceUtils.{canBeContinuedWith, continuesConstructAfterIndentationContext, couldBeContinuationAfterIndentationContext, indentationContextContinuation, isBeforeIndentationContext, nextExpressionInIndentationContext, previousExpressionInIndentationContext}
+import org.jetbrains.plugins.scala.editor.{AutoBraceAdvertiser, DocumentExt}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScPostfixExpr}
@@ -34,7 +34,6 @@ object AutoBraceInsertionTools {
 
   def findAutoBraceInsertionOpportunity(c: Option[Char], caretOffset: Int, element: PsiElement)
                                        (implicit project: Project, file: PsiFile, editor: Editor): Option[AutoBraceInsertionInfo] = {
-    import AutoBraceUtils._
 
     if (file.useIndentationBasedSyntax)
       return None

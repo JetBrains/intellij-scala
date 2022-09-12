@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package typeChecking
+package org.jetbrains.plugins.scala.codeInspection.typeChecking
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
@@ -10,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil

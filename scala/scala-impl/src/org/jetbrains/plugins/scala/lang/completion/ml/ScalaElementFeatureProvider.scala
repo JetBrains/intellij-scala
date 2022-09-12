@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package ml
+package org.jetbrains.plugins.scala.lang.completion.ml
 
 import com.intellij.codeInsight.completion.CompletionLocation
 import com.intellij.codeInsight.completion.ml.{ContextFeatures, ElementFeatureProvider, MLFeatureValue}
@@ -11,6 +8,8 @@ import com.intellij.openapi.util.NotNullLazyKey
 import com.intellij.patterns.{ElementPattern, PlatformPatterns}
 import com.intellij.psi.PsiElement
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
+import org.jetbrains.plugins.scala.ScalaLowerCase
+import org.jetbrains.plugins.scala.lang.completion.{ScalaKeyword, afterNewKeywordPattern, definitionByPosition, identifierWithParentsPattern, insideTypePattern}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.ml.ScalaElementFeatureProvider._
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher.computeType

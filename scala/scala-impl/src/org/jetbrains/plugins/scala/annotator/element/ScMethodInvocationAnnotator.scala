@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala
-package annotator
-package element
+package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{registerTypeMismatchError, withoutNonHighlightables}
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFix, InstanceOfClass}
 import org.jetbrains.plugins.scala.annotator.element.ScReferenceAnnotator.{createFixesByUsages, nameWithSignature}
 import org.jetbrains.plugins.scala.extensions._

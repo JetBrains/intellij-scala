@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.lang.transformation
-package implicits
+package org.jetbrains.plugins.scala.lang.transformation.implicits
 
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{&&, BooleanExt, ObjectExt, PsiClassExt}
@@ -8,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, bindTo, simpleNameOf, targetFor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class InscribeImplicitParameters extends AbstractTransformer {

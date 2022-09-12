@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package compiler
+package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
@@ -21,6 +20,7 @@ import com.intellij.util.messages.{MessageBusConnection, Topic}
 import com.intellij.util.ui.PositionTracker
 import com.intellij.util.ui.update.{MergingUpdateQueue, Update}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.compiler.CompileServerManager._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._

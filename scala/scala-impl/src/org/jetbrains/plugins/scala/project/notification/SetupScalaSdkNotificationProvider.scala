@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package project
-package notification
+package org.jetbrains.plugins.scala.project.notification
 
 import com.intellij.framework.FrameworkTypeEx
 import com.intellij.framework.addSupport.impl.AddSupportForSingleFrameworkDialog.createDialog
@@ -9,6 +7,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.EditorNotificationPanel
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.template.ScalaFrameworkType
 
 final class SetupScalaSdkNotificationProvider(project: Project)
   extends AbstractNotificationProvider(ScalaBundle.message("sdk.title"), project) {
@@ -26,7 +26,7 @@ final class SetupScalaSdkNotificationProvider(project: Project)
     findModule(file).foreach { module =>
       createDialog(
         module,
-        FrameworkTypeEx.EP_NAME.findExtension(classOf[template.ScalaFrameworkType]).createProvider
+        FrameworkTypeEx.EP_NAME.findExtension(classOf[ScalaFrameworkType]).createProvider
       ).showAndGet
     }
 

@@ -1,10 +1,9 @@
-package org.jetbrains.plugins.scala
-package editor
-package joinLines
+package org.jetbrains.plugins.scala.editor.joinLines
 
 import com.intellij.codeInsight.editorActions.{JoinLinesHandlerDelegate, JoinRawLinesHandlerDelegate}
 import com.intellij.openapi.editor.Document
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 
 /** `package a\npackageb` => `package a.b` */

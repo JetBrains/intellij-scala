@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package project.notification.source
+package org.jetbrains.plugins.scala.project.notification.source
 
 import com.intellij.openapi.fileEditor.impl.{EditorComposite, EditorFileSwapper}
 import com.intellij.openapi.project.Project

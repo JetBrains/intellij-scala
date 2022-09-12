@@ -1,13 +1,12 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
+package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.progress.ProgressManager
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
 import scala.language.implicitConversions
 
-trait ScType extends project.ProjectContextOwner {
+trait ScType extends ProjectContextOwner {
 
   def typeSystem: api.TypeSystem = projectContext.typeSystem
 
@@ -37,7 +36,7 @@ trait ScType extends project.ProjectContextOwner {
 
   // TODO: we must not override toString which does such a complex stuff (resolve, tree traversal etc...)
   //  for such things we should always use explicit methods oText/mkString/presentableText/etc...
-  override final def toString: String = extensions.ifReadAllowed {
+  override final def toString: String = ifReadAllowed {
     presentableText(TypePresentationContext.emptyContext)
   }(getClass.getSimpleName)
 

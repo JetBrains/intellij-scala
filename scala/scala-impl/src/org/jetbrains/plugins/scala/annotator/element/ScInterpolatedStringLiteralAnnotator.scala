@@ -1,10 +1,11 @@
-package org.jetbrains.plugins.scala
-package annotator
-package element
+package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationSession
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFixes
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
@@ -47,7 +48,7 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
                                 syntheticToReal: Map[TextRange, TextRange],
                                 session: AnnotationSession)
                                (implicit holder: ScalaAnnotationHolder): Unit = {
-    val delegateHolder = new annotationHolder.DelegateAnnotationHolder(session) {
+    val delegateHolder = new DelegateAnnotationHolder(session) {
 
       override protected def transformRange(range: TextRange): TextRange =
         syntheticToReal(range)

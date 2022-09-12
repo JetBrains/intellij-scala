@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package search
+package org.jetbrains.plugins.scala.lang.psi.impl.search
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
@@ -12,6 +8,7 @@ import com.intellij.psi.search.searches.{ClassInheritorsSearch, OverridingMethod
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody

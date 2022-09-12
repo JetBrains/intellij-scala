@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
+package org.jetbrains.plugins.scala.lang.psi.impl
 
 import com.intellij.lang.{ASTNode, LanguageParserDefinitions, PsiBuilder, PsiBuilderFactory}
 import com.intellij.openapi.diagnostic.ControlFlowException
@@ -20,11 +17,15 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.{NonNls, Nullable}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClauses
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -139,10 +140,10 @@ final class ScalaPsiElementFactoryImpl(project: Project) extends JVMElementFacto
 
 object ScalaPsiElementFactory {
 
-  import ScalaPsiUtil._
-  import lang.parser.parsing.{base => parsingBase, statements => parsingStat, _}
-  import lexer.ScalaTokenTypes._
-  import refactoring.util.ScalaNamesUtil._
+  import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+  import org.jetbrains.plugins.scala.lang.parser.parsing.{base => parsingBase, statements => parsingStat, _}
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 
   def safe[T](createBody: ScalaPsiElementFactory.type => T): Option[T] =
     try Some(createBody(ScalaPsiElementFactory)) catch {
@@ -625,11 +626,10 @@ object ScalaPsiElementFactory {
   private def addModifiersFromSignature(function: ScFunction, sign: PhysicalMethodSignature, addOverride: Boolean): ScFunction = {
     sign.method match {
       case fun: ScFunction =>
-        import lexer.ScalaModifier._
         val res = function.getModifierList.replace(fun.getModifierList)
         if (res.getText.nonEmpty) res.getParent.addAfter(createWhitespace(fun.getManager), res)
-        function.setModifierProperty(ABSTRACT, value = false)
-        if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty(OVERRIDE)
+        function.setModifierProperty(ScalaModifier.ABSTRACT, value = false)
+        if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty(ScalaModifier.OVERRIDE)
       case m: PsiMethod =>
         var hasOverride = false
         if (m.getModifierList.getNode != null)
@@ -827,12 +827,12 @@ object ScalaPsiElementFactory {
 
   def createReferenceFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScStableCodeReference =
     createElementWithContext[ScStableCodeReference](text, context, child) {
-      types.StableId(parser.ScalaElementType.REFERENCE)(_)
+      types.StableId(ScalaElementType.REFERENCE)(_)
     }
 
   def createDocReferenceFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScStableCodeReference =
     createElementWithContext[ScDocResolvableCodeReference](text, context, child) {
-      types.StableId(parser.ScalaElementType.DOC_REFERENCE)(_)
+      types.StableId(ScalaElementType.DOC_REFERENCE)(_)
     }
 
   // TODO method should be eliminated eventually
@@ -877,7 +877,7 @@ object ScalaPsiElementFactory {
 
   def createEmptyModifierList(context: PsiElement): ScModifierList =
     createElementWithContext[ScModifierList]("", context, context.getFirstChild) {
-      _.mark().done(parser.ScalaElementType.MODIFIERS)
+      _.mark().done(ScalaElementType.MODIFIERS)
     }
 
   private def createElement[T <: AnyVal](@NonNls text: String, context: PsiElement,

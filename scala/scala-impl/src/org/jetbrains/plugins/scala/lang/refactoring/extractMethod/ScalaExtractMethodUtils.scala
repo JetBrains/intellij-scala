@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.extractMethod
+package org.jetbrains.plugins.scala.lang.refactoring.extractMethod
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil

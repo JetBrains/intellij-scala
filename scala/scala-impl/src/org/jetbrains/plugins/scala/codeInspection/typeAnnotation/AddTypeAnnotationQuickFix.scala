@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package typeAnnotation
+package org.jetbrains.plugins.scala.codeInspection.typeAnnotation
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.application.ex.ApplicationManagerEx
@@ -9,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AbstractTypeAnnotationIntention.complete
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle, getActiveEditor}
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.AddTypeAnnotationQuickFix._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster

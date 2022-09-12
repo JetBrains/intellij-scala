@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.scaladoc.generate
+package org.jetbrains.plugins.scala.lang.scaladoc.generate
 
 import com.intellij.analysis.AnalysisScope
 import com.intellij.execution.ExecutionException

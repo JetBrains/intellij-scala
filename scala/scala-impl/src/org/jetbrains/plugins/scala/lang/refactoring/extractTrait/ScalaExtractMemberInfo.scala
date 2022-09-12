@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.extractTrait
+package org.jetbrains.plugins.scala.lang.refactoring.extractTrait
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaMemberInfoBase

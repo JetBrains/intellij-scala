@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package caseClassParamInspection
+package org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection
 
 import com.intellij.codeInspection._
 import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass

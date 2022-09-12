@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala.lang
-package surroundWith
-package descriptors
+package org.jetbrains.plugins.scala.lang.surroundWith.descriptors
 
 import com.intellij.lang.surroundWith.{SurroundDescriptor, Surrounder}
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}

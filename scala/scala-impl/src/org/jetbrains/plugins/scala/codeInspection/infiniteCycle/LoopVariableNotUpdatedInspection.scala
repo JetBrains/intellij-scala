@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection.infiniteCycle
+package org.jetbrains.plugins.scala.codeInspection.infiniteCycle
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiElement, PsiReference}
