@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections
 
+import com.intellij.codeInsight.intention.FileModifier.SafeFieldForPreview
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
@@ -93,11 +94,10 @@ object AppliedTypeLambdaCanBeSimplifiedInspection {
     substituted.presentableText
   }
 
-  class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, replacement: => String)
+  final class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, @SafeFieldForPreview replacement: => String)
     extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("simplify.type"), paramType) {
 
     override protected def doApplyFix(element: ScParameterizedTypeElement)(implicit project: Project): Unit =
       element.replace(createTypeElementFromText(replacement))
   }
 }
-
