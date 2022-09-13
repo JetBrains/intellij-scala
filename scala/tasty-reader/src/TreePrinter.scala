@@ -736,13 +736,13 @@ class TreePrinter(privateMembers: Boolean = false) {
 
   private def boundsIn(sb: StringBuilder, node: Node): Unit = node match {
     case Node3(TYPEBOUNDStpt, _, Seq(lower, upper)) =>
-      val l = simple(textOfType(lower))
-      if (l.nonEmpty && l != "Nothing") { // TODO use FQNs
-        sb ++= " >: " + l
+      val l = textOfType(lower)
+      if (l.nonEmpty && l != "scala.Nothing") {
+        sb ++= " >: " + simple(l)
       }
-      val u = simple(textOfType(upper))
-      if (u.nonEmpty && u != "Any") {
-        sb ++= " <: " + u
+      val u = textOfType(upper)
+      if (u.nonEmpty && u != "scala.Any") {
+        sb ++= " <: " + simple(u)
       }
     case _ => // TODO exhaustive match
   }
