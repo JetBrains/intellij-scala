@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
+import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
@@ -22,7 +21,7 @@ object ScEnumeratorsAnnotator extends ElementAnnotator[ScEnumerators] {
     }
   }
 
-  private class RemoveErrorSemicolonIntentionAction(enumerators: ScEnumerators) extends IntentionAction {
+  private final class RemoveErrorSemicolonIntentionAction(enumerators: ScEnumerators) extends IntentionAction {
 
     override def getText: String = ScalaBundle.message("remove.all.erroneous.semicolons.from.forexpression")
 
@@ -35,14 +34,8 @@ object ScEnumeratorsAnnotator extends ElementAnnotator[ScEnumerators] {
 
     override def getFamilyName: String = ScalaBundle.message("remove.all.erroneous.semicolons.from.forexpression")
 
-    override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
-      val errors = findErroneousSemicolons(PsiTreeUtil.findSameElementInCopy(enumerators, file))
-      if (errors.isEmpty) IntentionPreviewInfo.EMPTY
-      else {
-        errors.foreach(_.delete())
-        IntentionPreviewInfo.DIFF
-      }
-    }
+    override def getFileModifierForPreview(target: PsiFile): FileModifier =
+      new RemoveErrorSemicolonIntentionAction(PsiTreeUtil.findSameElementInCopy(enumerators, target))
   }
 
   private def findErroneousSemicolons(enumerators: ScEnumerators): Seq[PsiElement] = {

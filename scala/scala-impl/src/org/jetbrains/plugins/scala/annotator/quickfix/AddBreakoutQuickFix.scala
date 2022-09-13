@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.quickfix
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
+import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -14,41 +13,35 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-class AddBreakoutQuickFix(expr: ScExpression) extends IntentionAction {
+final class AddBreakoutQuickFix(expr: ScExpression) extends IntentionAction {
   override def getText: String = ScalaBundle.message("add.collection.breakout.argument")
 
   override def getFamilyName: String = ScalaBundle.message("family.name.add.collection.breakout")
 
-  override def invoke(project: Project, editor: Editor, psiFile: PsiFile): Unit = addBreakoutArgument(expr)
+  override def invoke(project: Project, editor: Editor, psiFile: PsiFile): Unit = {
+    def createWithClauses(text: String) =
+      ScalaPsiElementFactory.createExpressionWithContextFromText(text + "(collection.breakOut)", expr.getContext, expr)
+
+    expr match {
+      case mc: ScMethodCall =>
+        mc.replaceExpression(createWithClauses(mc.getText), removeParenthesis = true)
+      case inf: ScInfixExpr =>
+        val equivCall = ScalaPsiElementFactory.createEquivMethodCall(inf)
+        inf.replaceExpression(createWithClauses(equivCall.getText), removeParenthesis = true)
+      case forStmt: ScFor =>
+        val withClauses = createWithClauses(s"(${forStmt.getText})")
+        forStmt.replaceExpression(withClauses, removeParenthesis = true)
+      case _ =>
+    }
+  }
 
   override def startInWriteAction(): Boolean = true
 
   override def isAvailable(project: Project, editor: Editor, psiFile: PsiFile): Boolean =
     AddBreakoutQuickFix.isAvailable(expr)
 
-  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo =
-    if (addBreakoutArgument(PsiTreeUtil.findSameElementInCopy(expr, file))) IntentionPreviewInfo.DIFF
-    else IntentionPreviewInfo.EMPTY
-
-  private def addBreakoutArgument(expression: ScExpression): Boolean = {
-    def createWithClauses(text: String) =
-      ScalaPsiElementFactory.createExpressionWithContextFromText(text + "(collection.breakOut)", expression.getContext, expression)
-
-    expression match {
-      case mc: ScMethodCall =>
-        mc.replaceExpression(createWithClauses(mc.getText), removeParenthesis = true)
-        true
-      case inf: ScInfixExpr =>
-        val equivCall = ScalaPsiElementFactory.createEquivMethodCall(inf)
-        inf.replaceExpression(createWithClauses(equivCall.getText), removeParenthesis = true)
-        true
-      case forStmt: ScFor =>
-        val withClauses = createWithClauses(s"(${forStmt.getText})")
-        forStmt.replaceExpression(withClauses, removeParenthesis = true)
-        true
-      case _ => false
-    }
-  }
+  override def getFileModifierForPreview(target: PsiFile): FileModifier =
+    new AddBreakoutQuickFix(PsiTreeUtil.findSameElementInCopy(expr, target))
 }
 
 object AddBreakoutQuickFix {

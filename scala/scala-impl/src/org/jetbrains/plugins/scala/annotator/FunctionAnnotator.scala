@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
+import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -135,10 +134,8 @@ object FunctionAnnotator {
     override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
       annotation.delete()
 
-    override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
-      PsiTreeUtil.findSameElementInCopy(annotation, file).delete()
-      IntentionPreviewInfo.DIFF
-    }
+    override def getFileModifierForPreview(target: PsiFile): FileModifier =
+      new RemoveAnnotationQuickFix(PsiTreeUtil.findSameElementInCopy(annotation, target))
 
     override def startInWriteAction = true
   }

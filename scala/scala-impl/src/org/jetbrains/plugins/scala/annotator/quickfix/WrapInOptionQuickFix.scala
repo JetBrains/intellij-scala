@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala
 package annotator.quickfix
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
+import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -14,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult, exprType: TypeResult) extends IntentionAction {
+final class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult, exprType: TypeResult) extends IntentionAction {
 
   override def getText: String = ScalaBundle.message("wrap.in.option.hint")
 
@@ -25,19 +24,15 @@ class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult, exprTyp
   }
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
-    if (expr.isValid) doWrapInOption(expr)
+    if (expr.isValid) {
+      val newText = "Option(" + expr.getText + ")"
+      expr.replaceExpression(createExpressionFromText(newText)(expr.getManager), removeParenthesis = true)
+    }
 
   override def startInWriteAction(): Boolean = true
 
-  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
-    doWrapInOption(PsiTreeUtil.findSameElementInCopy(expr, file))
-    IntentionPreviewInfo.DIFF
-  }
-
-  private def doWrapInOption(expression: ScExpression): Unit = {
-    val newText = "Option(" + expression.getText + ")"
-    expression.replaceExpression(createExpressionFromText(newText)(expression.getManager), removeParenthesis = true)
-  }
+  override def getFileModifierForPreview(target: PsiFile): FileModifier =
+    new WrapInOptionQuickFix(PsiTreeUtil.findSameElementInCopy(expr, target), expectedType, exprType)
 }
 
 object WrapInOptionQuickFix {

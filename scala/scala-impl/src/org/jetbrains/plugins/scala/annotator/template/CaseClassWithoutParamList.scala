@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
+import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -38,7 +37,7 @@ object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
   }
 }
 
-class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAction {
+final class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAction {
 
   override def getFamilyName: String = ScalaBundle.message("family.name.add.empty.parentheses")
 
@@ -50,15 +49,10 @@ class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAc
     c.isValid
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
-    addEmptyClauses(c)
+    c.clauses.foreach(_.addClause(createClauseFromText()(c.getManager)))
 
-  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
-    addEmptyClauses(PsiTreeUtil.findSameElementInCopy(c, file))
-    IntentionPreviewInfo.DIFF
-  }
-
-  private def addEmptyClauses(cls: ScClass): Unit =
-    cls.clauses.foreach(_.addClause(createClauseFromText()(cls.getManager)))
+  override def getFileModifierForPreview(target: PsiFile): FileModifier =
+    new AddEmptyParenthesesToPrimaryConstructorFix(PsiTreeUtil.findSameElementInCopy(c, target))
 }
 
 final class ConvertToObjectFix(c: ScClass) extends IntentionAction {
@@ -71,26 +65,22 @@ final class ConvertToObjectFix(c: ScClass) extends IntentionAction {
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
     c.isValid
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = convertToObject(c)
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+    val classKeywordTextRange = c.targetToken.getTextRange
 
-  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
-    convertToObject(PsiTreeUtil.findSameElementInCopy(c, file))
-    IntentionPreviewInfo.DIFF
-  }
-
-  private def convertToObject(cls: ScClass): Unit = {
-    val classKeywordTextRange = cls.targetToken.getTextRange
-
-    val objectText = cls.getText.patch(
-      classKeywordTextRange.getStartOffset - cls.getTextRange.getStartOffset,
+    val objectText = c.getText.patch(
+      classKeywordTextRange.getStartOffset - c.getTextRange.getStartOffset,
       ObjectKeyword.text,
       classKeywordTextRange.getLength
     )
 
-    val objectElement = ScalaPsiElementFactory.createObjectWithContext(objectText, cls.getContext, cls)
-    cls.replace(objectElement)
+    val objectElement = ScalaPsiElementFactory.createObjectWithContext(objectText, c.getContext, c)
+    c.replace(objectElement)
     // TODO update references to class.
     // new X  -> X
     // x: X   -> x: X.type
   }
+
+  override def getFileModifierForPreview(target: PsiFile): FileModifier =
+    new ConvertToObjectFix(PsiTreeUtil.findSameElementInCopy(c, target))
 }

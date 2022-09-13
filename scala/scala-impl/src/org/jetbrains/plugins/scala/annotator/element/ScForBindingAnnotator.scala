@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
+import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -39,7 +38,7 @@ object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
     }
   }
 
-  class RemoveCaseFromPatternedEnumeratorFix(enumerator: ScPatternedEnumerator) extends IntentionAction {
+  final class RemoveCaseFromPatternedEnumeratorFix(enumerator: ScPatternedEnumerator) extends IntentionAction {
 
     override def getFamilyName: String = ScalaBundle.message("family.name.remove.case.from.enumerator")
 
@@ -49,20 +48,12 @@ object ScForBindingAnnotator extends ElementAnnotator[ScForBinding] {
 
     override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
       if (!enumerator.isValid) return
-      findCases(enumerator).foreach(_.delete())
+      enumerator.findChildrenByType(ScalaTokenTypes.kCASE).foreach(_.delete())
     }
 
     override def startInWriteAction(): Boolean = true
 
-    override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
-      val cases = findCases(PsiTreeUtil.findSameElementInCopy(enumerator, file))
-      if (cases.isEmpty) IntentionPreviewInfo.EMPTY
-      else {
-        cases.foreach(_.delete())
-        IntentionPreviewInfo.DIFF
-      }
-    }
-
-    private def findCases(enumerator: ScPatternedEnumerator) = enumerator.findChildrenByType(ScalaTokenTypes.kCASE)
+    override def getFileModifierForPreview(target: PsiFile): FileModifier =
+      new RemoveCaseFromPatternedEnumeratorFix(PsiTreeUtil.findSameElementInCopy(enumerator, target))
   }
 }
