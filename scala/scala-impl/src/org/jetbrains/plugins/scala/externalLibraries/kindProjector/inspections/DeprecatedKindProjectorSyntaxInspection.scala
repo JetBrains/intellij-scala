@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections
 
+import com.intellij.codeInsight.intention.FileModifier.SafeFieldForPreview
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -12,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.project._
+
+import scala.annotation.meta.field
 
 class DeprecatedKindProjectorSyntaxInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
@@ -54,7 +57,7 @@ object DeprecatedKindProjectorSyntaxInspection {
     (msg, fix)
   }
 
-  private final case class ReplaceWithAsteriskSyntax(e: PsiElement)
+  private final case class ReplaceWithAsteriskSyntax(@(SafeFieldForPreview @field) e: PsiElement)
       extends AbstractFixOnPsiElement(quickFixId, e) {
 
     override protected def doApplyFix(element: PsiElement)(implicit project: Project): Unit =
