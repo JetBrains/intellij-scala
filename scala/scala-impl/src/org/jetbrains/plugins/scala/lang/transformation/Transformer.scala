@@ -33,6 +33,7 @@ object Transformer {
     val project = file.getProject
     val documentManager = PsiDocumentManager.getInstance(project)
     documentManager.doPostponedOperationsAndUnblockDocument(document)
+    documentManager.commitDocument(document)
     CodeStyleManager.getInstance(project).reformatText(file, ranges.asJavaCollection)
   }
 
