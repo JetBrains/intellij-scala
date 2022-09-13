@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections
 
+import com.intellij.codeInsight.intention.FileModifier.SafeFieldForPreview
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
@@ -41,7 +42,7 @@ class KindProjectorUseCorrectLambdaKeywordInspection extends LocalInspectionTool
   }
 }
 
-class KindProjectorUseCorrectLambdaKeywordQuickFix(e: PsiElement, replacement: String) extends AbstractFixOnPsiElement(inspectionName, e) {
+final class KindProjectorUseCorrectLambdaKeywordQuickFix(e: PsiElement, @SafeFieldForPreview replacement: String) extends AbstractFixOnPsiElement(inspectionName, e) {
 
   override protected def doApplyFix(elem: PsiElement)
                                    (implicit project: Project): Unit = {
