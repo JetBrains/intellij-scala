@@ -73,16 +73,22 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   )
 
   private class ExistentialAbstractionBuilder(tparams: Seq[TypeParameter]) {
+    private val typeParamIds                                 = tparams.map(_.typeParamId).toSet
+    private def doesNotReferenceTparams(tp: ScType): Boolean = !tp.hasRecursiveTypeParameters(typeParamIds)
+
     private lazy val existentialArgumentSubst: ScSubstitutor = {
       ScSubstitutor.bind(tparams)(
         tp =>
-          ScExistentialArgument.deferred(
-            tp.name,
-            tp.typeParameters,
-            None,
-            () => existentialArgumentSubst(tp.lowerType),
-            () => existentialArgumentSubst(tp.upperType)
-          )
+          if (doesNotReferenceTparams(tp.upperType) && doesNotReferenceTparams(tp.lowerType)) {
+            ScExistentialArgument(tp.name, tp.typeParameters, tp.lowerType, tp.upperType)
+          } else
+            ScExistentialArgument.deferred(
+              tp.name,
+              tp.typeParameters,
+              None,
+              () => existentialArgumentSubst(tp.lowerType),
+              () => existentialArgumentSubst(tp.upperType)
+            )
       )
     }
 
