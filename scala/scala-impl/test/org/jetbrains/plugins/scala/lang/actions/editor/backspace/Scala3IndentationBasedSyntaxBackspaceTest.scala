@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.editorActions.SmartBackspaceMode
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode.WrapperCodeContexts
+import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
 class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBaseTest {
 
@@ -14,8 +14,6 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
   // copied from Scala3BracelessSyntaxEnterExhaustiveTest
   override def setUp(): Unit = {
     super.setUp()
-    // indirect way of disabling compiler-based highlighting which is triggered on each editor changes
-    // see org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.condition
     ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
     getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
   }

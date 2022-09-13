@@ -63,10 +63,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.actions.ScalaExpressionTypeProvider;
-import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
+import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable;
 import scala.Option;
 

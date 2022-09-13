@@ -24,11 +24,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier;
 import org.jetbrains.plugins.scala.components.libextensions.ui.LibExtensionsSettingsPanelWrapper;
+import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
 
 import javax.swing.*;

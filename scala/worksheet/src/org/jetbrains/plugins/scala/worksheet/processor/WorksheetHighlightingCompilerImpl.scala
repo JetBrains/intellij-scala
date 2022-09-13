@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import scala.concurrent.duration.DurationInt
 
 final class WorksheetHighlightingCompilerImpl
-  extends org.jetbrains.plugins.scala.externalHighlighters.compiler.WorksheetHighlightingCompiler {
+  extends org.jetbrains.plugins.scala.compiler.highlighting.WorksheetHighlightingCompiler {
 
   override def compile(file: ScalaFile, document: Document, client: Client): Unit = {
     if (!file.isWorksheetFile)

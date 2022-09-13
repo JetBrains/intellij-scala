@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages
 
 import com.intellij.psi.{PsiElement, SmartPointerManager, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.TokenTexts
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 // TODO 1: choose better naming, import used sounds like the import is actually used in the file
 //  but in practice it's just a pointer to a import psi element, it can be practically unused in the file

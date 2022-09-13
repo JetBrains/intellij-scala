@@ -62,6 +62,7 @@ lazy val scalaCommunity: sbt.Project =
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
+      compilerIntegration % "test->test;compile->compile",
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
       devKitIntegration % "test->test;compile->compile",
@@ -189,7 +190,7 @@ lazy val uast = newProject(
 lazy val worksheet =
   newProject("worksheet", file("scala/worksheet"))
     .dependsOn(
-      scalaImpl % "test->test;compile->compile",
+      compilerIntegration % "test->test;compile->compile",
       worksheetReplInterface % "test->test;compile->compile"
     )
 
@@ -291,9 +292,17 @@ lazy val scalaImpl: sbt.Project =
     )
     .withCompilerPluginIn(scalacPatches) // TODO Add to other modules
 
+lazy val compilerIntegration =
+  newProject("compiler-integration", file("scala/compiler-integration"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .withCompilerPluginIn(scalacPatches)
+
 lazy val debugger =
   newProject("debugger", file("scala/debugger"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      compilerIntegration
+    )
     .withCompilerPluginIn(scalacPatches)
 
 lazy val compilerJps =

@@ -1,0 +1,83 @@
+<idea-plugin>
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.intellij.scala.worksheetHighlightingCompiler" interface="org.jetbrains.plugins.scala.compiler.highlighting.WorksheetHighlightingCompiler" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.compileServerClasspathProvider" beanClass="org.jetbrains.plugins.scala.compiler.CompileServerClasspathProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.compileServerVmOptionsProvider" interface="org.jetbrains.plugins.scala.compiler.CompileServerVmOptionsProvider" dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.charts.CompilationChartsBuildManagerListener"/>
+
+        <trafficLightRendererContributor implementation="org.jetbrains.plugins.scala.compiler.highlighting.CustomTrafficLightRendererContributor"/>
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.highlighting.EraseCompilerProcessJdkOnce"/>
+
+        <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.highlighting.CompilerLock"
+                        serviceImplementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerLockImpl"/>
+
+        <compileServer.plugin classpath="scala-library.jar;compiler-shared.jar;jps/nailgun.jar;jps/compiler-jps.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/scala-parallel-collections.jar;spray-json_2.13-1.3.5.jar;scala-compiler-indices-protocol_2.13-1.0.13.jar"/>
+        <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.ScalaBuildProcessParametersProvider"/>
+
+        <projectConfigurable bundle="messages.CompilerIntegrationBundle"
+                             key="displayname.scala.compile.server"
+                             parentId="Scala Compiler"
+                             instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
+
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.EnsureModulesHaveDifferentProdAndTestOutputsTask"/>
+
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerManager"/>
+
+        <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
+                        serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerClientImpl"/>
+
+        <registryKey key="scala.erase.compiler.process.jdk.once" defaultValue="true" restartRequired="false"
+                     description="Erase compiler.process.jdk value before compilation. A dirty hack needed because of removal of SetSameJdkToBuildProcessAsInCompileServer #SCL-17676"/>
+    </extensions>
+
+    <applicationListeners>
+        <listener topic="com.intellij.compiler.server.BuildManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.charts.CompilationChartsBuildManagerListener"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.charts.ui.CompilationChartsBuildToolWindowNodeFactory"/>
+
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.ToggleHighlightingModeListener"/>
+        <listener topic="com.intellij.compiler.server.BuildManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.CompilerLockBuildManagerListener"/>
+        <listener topic="com.intellij.compiler.server.BuildManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.DropProjectDataChangesBuildManagerListener"/>
+        <listener topic="com.intellij.compiler.server.BuildManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.AutomakeBuildManagerListener"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.TriggerCompilerHighlightingOnPsiChangeListener"/>
+
+        <listener topic="com.intellij.compiler.server.BuildManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.CompileServerLauncher$Listener"/>
+    </applicationListeners>
+
+    <projectListeners>
+        <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
+                  class="org.jetbrains.plugins.scala.compiler.charts.UpdateCompilationProgressListener"/>
+
+        <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.UpdateCompilerGeneratedStateListener"/>
+        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.TriggerCompilerHighlightingOnEditorSelectionChangedListener"/>
+
+        <listener topic="com.intellij.compiler.server.CustomBuilderMessageHandler"
+                  class="org.jetbrains.plugins.scala.compiler.CompilerEventFromCustomBuilderMessageListener"/>
+    </projectListeners>
+
+    <actions>
+        <action id="Scala.CompilerHighlightingScala2"
+                class="org.jetbrains.plugins.scala.compiler.highlighting.ToggleCompilerHighlightingScala2Action"/>
+        <action id="Scala.CompilerHighlightingScala3"
+                class="org.jetbrains.plugins.scala.compiler.highlighting.ToggleCompilerHighlightingScala3Action"/>
+
+        <action id="Scala.CollectShortTroubleshootingInfo"
+                internal="true"
+                class="org.jetbrains.plugins.scala.compiler.actions.internal.ScalaCollectShortTroubleshootingInfoAction">
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
+        </action>
+    </actions>
+</idea-plugin>

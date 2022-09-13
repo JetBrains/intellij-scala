@@ -14,11 +14,11 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, JDK, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle, JDK}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaSdkNotConfiguredException}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaProjectSettings}
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{CompileServerIsNotRunningError, Precondition, PreconditionError}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest
@@ -116,7 +116,7 @@ class WorksheetCompiler(
     }
     val compilerTask = new CompilerTask(
       project,
-      ScalaBundle.message("highlighting.compilation"),
+      CompilerIntegrationBundle.message("highlighting.compilation"),
       headlessMode,
       /*forceAsync=*/ false,
       /*waitForPreviousSession=*/ true,

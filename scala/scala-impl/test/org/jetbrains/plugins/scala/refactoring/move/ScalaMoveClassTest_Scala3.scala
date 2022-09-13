@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.refactoring.move
 
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.runWithErrorsFromCompiler
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class ScalaMoveClassTest_Scala3 extends ScalaMoveClassTestBase {

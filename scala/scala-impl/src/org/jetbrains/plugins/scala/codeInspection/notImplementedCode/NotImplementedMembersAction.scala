@@ -5,9 +5,9 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 final class NotImplementedMembersAction extends BaseElementAtCaretIntentionAction {
   override def getText: String = ScalaBundle.message("implement.members.fix")

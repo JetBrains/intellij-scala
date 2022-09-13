@@ -6,9 +6,9 @@ import com.intellij.testFramework.EditorTestUtil
 import com.intellij.util.ThrowableRunnable
 import junit.framework.{Test, TestCase, TestSuite}
 import org.jetbrains.plugins.scala.base.SharedTestProjectToken
-import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode._
+import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.junit.experimental.categories.Category
 
 // TODO: add tests for parameter default value after it's fixed in parser:
@@ -234,8 +234,6 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
 
     override def setUp(): Unit = {
       super.setUp()
-      // indirect way of disabling compiler-based highlighting which is triggered on each editor changes
-      // see org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.condition
       ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
       getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
     }

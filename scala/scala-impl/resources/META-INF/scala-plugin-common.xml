@@ -13,8 +13,6 @@
         <extensionPoint qualifiedName="org.intellij.scala.parameterInfoEnhancer" interface="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaParameterInfoEnhancer" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.genericTypeNamesProvider" interface="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.GenericTypeNamesProvider" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.compileServerClasspathProvider" beanClass="org.jetbrains.plugins.scala.compiler.CompileServerClasspathProvider" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.compileServerVmOptionsProvider" interface="org.jetbrains.plugins.scala.compiler.CompileServerVmOptionsProvider" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.sdkResolver" interface="org.jetbrains.plugins.scala.project.external.SdkResolver" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.unresolvedReferenceFixProvider" interface="org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider" dynamic="true"/>
@@ -24,7 +22,6 @@
         <extensionPoint qualifiedName="org.intellij.scala.importUsedProvider" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.importOptimizerHelper" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizerHelper" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.referenceExtraResolver" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceExtraResolver" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.worksheetHighlightingCompiler" interface="org.jetbrains.plugins.scala.externalHighlighters.compiler.WorksheetHighlightingCompiler" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.codeInspection.feature.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
 
         <extensionPoint qualifiedName="com.intellij.newProjectWizard.scala.buildSystem" interface="org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard" dynamic="true"/>
@@ -73,8 +70,6 @@
                    implementationClass="org.jetbrains.plugins.scala.annotator.ScalaAnnotator"/>
         <statusBarWidgetFactory implementation="org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory"/>
 
-        <trafficLightRendererContributor implementation="org.jetbrains.plugins.scala.externalHighlighters.CustomTrafficLightRendererContributor"/>
-
         <defaultHighlightingSettingProvider implementation="org.jetbrains.plugins.scala.annotator.ScalaDefaultHighlightingSettingProvider"/>
 
         <breadcrumbsInfoProvider
@@ -86,8 +81,6 @@
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <exceptionFilter implementation="org.jetbrains.plugins.scala.stacktrace.ScalaPackageObjectFilterFactory" order="first"/>
         <consoleFilterProvider implementation="org.jetbrains.plugins.scala.stacktrace.ScalaPackageObjectConsoleFilterProvider" order="first"/>
-        <compileServer.plugin classpath="scala-library.jar;compiler-shared.jar;jps/nailgun.jar;jps/compiler-jps.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/scala-parallel-collections.jar;spray-json_2.13-1.3.5.jar;scala-compiler-indices-protocol_2.13-1.0.13.jar"/>
-        <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.ScalaBuildProcessParametersProvider"/>
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesBuildProcessParametersProvider"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>
 
@@ -115,10 +108,6 @@
                              bundle="messages.ScalaInspectionBundle"
                              key="displayname.scala"
                              instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
-        <projectConfigurable bundle="messages.ScalaInspectionBundle"
-                             key="displayname.scala.compile.server"
-                             parentId="Scala Compiler"
-                             instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings"/>
         <projectConfigurable id="Bytecode Indices" parentId="Scala Compiler"
                              instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesConfigurable"/>
@@ -498,17 +487,13 @@
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.autoImport.ImportOrderingIndexer"/>
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask"/>
-        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.EnsureModulesHaveDifferentProdAndTestOutputsTask"/>
-        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.externalHighlighters.EraseCompilerProcessJdkOnce"/>
-        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compilationCharts.CompilationChartsBuildManagerListener"/>
 
-        <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
-                            serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings"
+                            serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings"/>
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceLookupListenerService" preload="true" />
@@ -527,12 +512,8 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.bm4.BetterMonadicForSupport"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil"/>
-        <projectService serviceInterface="org.jetbrains.plugins.scala.externalHighlighters.CompilerLock"
-                        serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerLockImpl"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
-        <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
-                        serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerClientImpl"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.CheapRefSearcher"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
@@ -580,8 +561,6 @@
                      description="Delay between runs of the compilation for highlighting, millis"/>
         <registryKey key="scala.highlighting.compilation.timeout.to.show.progress.millis" defaultValue="7000" restartRequired="false"
                      description="The progress of compilation for highlighting will be shown after this timeout"/>
-        <registryKey key="scala.erase.compiler.process.jdk.once" defaultValue="true" restartRequired="false"
-                     description="Erase compiler.process.jdk value before compilation. A dirty hack needed because of removal of SetSameJdkToBuildProcessAsInCompileServer #SCL-17676"/>
         <registryKey key="scala.test.framework.runner.log.raw.process.output" defaultValue="false" restartRequired="false"
                      description="Prints raw output of process that executes test framework runner, including unprocessed TeamCity service messages"/>
         <registryKey key="scala.compile.server.socket.connect.timeout.milliseconds" defaultValue="10000" restartRequired="false"
@@ -1861,26 +1840,9 @@
                   class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.DeregisterSyntheticClassesListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"/>
-        <listener topic="com.intellij.compiler.server.BuildManagerListener"
-                  class="org.jetbrains.plugins.scala.compiler.CompileServerLauncher$Listener"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.ToggleHighlightingModeListener"/>
+
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>
-
-        <listener topic="com.intellij.compiler.server.BuildManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.CompilerLockBuildManagerListener"/>
-        <listener topic="com.intellij.compiler.server.BuildManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.DropProjectDataChangesBuildManagerListener"/>
-        <listener topic="com.intellij.compiler.server.BuildManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.AutomakeBuildManagerListener"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingOnPsiChangeListener"/>
-
-        <listener topic="com.intellij.compiler.server.BuildManagerListener"
-                  class="org.jetbrains.plugins.scala.compilationCharts.CompilationChartsBuildManagerListener"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.compilationCharts.ui.CompilationChartsBuildToolWindowNodeFactory"/>
 
         <!-- Formatter listeners -->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
@@ -1895,24 +1857,11 @@
         <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$DumbModeListener"/>
 
-        <listener topic="com.intellij.compiler.server.CustomBuilderMessageHandler"
-                  class="org.jetbrains.plugins.scala.compiler.CompilerEventFromCustomBuilderMessageListener"/>
-
-        <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.UpdateCompilerGeneratedStateListener"/>
-
         <listener topic="com.intellij.execution.ExecutionListener"
                   class="org.jetbrains.plugins.scala.runner.SyncOutputExecutionListener"/>
 
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="org.jetbrains.plugins.scala.editor.documentationProvider.listeners.ScalaDocRenderInEditorAdvertiser"/>
-
-        <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
-                  class="org.jetbrains.plugins.scala.compilationCharts.UpdateCompilationProgressListener"/>
-
-        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingOnEditorSelectionChangedListener"/>
-
     </projectListeners>
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaFileAction">
@@ -1994,12 +1943,6 @@
             <add-to-group group-id="RunMenu" anchor="before" relative-to-action="DebugMainMenu"/>
             <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
         </action>
-        <action id="Scala.CollectShortTroubleshootingInfo"
-                internal="true"
-                class="org.jetbrains.plugins.scala.actions.internal.ScalaCollectShortTroubleshootingInfoAction">
-            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
-        </action>
         <action id="Scala.RunActionOnPsiElementWithTraceLogger"
                 internal="true"
                 class="org.jetbrains.plugins.scala.actions.internal.RunActionOnPsiElementWithTraceLoggerAction">
@@ -2007,10 +1950,5 @@
         <action id="Scala.EditPackagePrefix" class="org.jetbrains.plugins.scala.actions.EditPackagePrefixAction">
             <add-to-group group-id="ProjectViewPopupMenuSettingsGroup" relative-to-action="MarkRootGroup" anchor="after"/>
         </action>
-        <action id="Scala.CompilerHighlightingScala2"
-                class="org.jetbrains.plugins.scala.externalHighlighters.ToggleCompilerHighlightingScala2Action" />
-        <action id="Scala.CompilerHighlightingScala3"
-                class="org.jetbrains.plugins.scala.externalHighlighters.ToggleCompilerHighlightingScala3Action" />
-
     </actions>
 </idea-plugin>

@@ -48,6 +48,10 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaCompileServerSharedBundle.properties",
     ),
     ModuleInfo(
+      rootPath = scalaModDir + "compiler-shared/",
+      bundleMessagesRelativePath = "CompilerSharedBuildBundle.properties"
+    ),
+    ModuleInfo(
       rootPath = scalaModDir + "macros/",
       bundleMessagesRelativePath = "ScalaMacrosBundle.properties",
     ),
@@ -70,6 +74,10 @@ object ScalaBundleSorting {
     ModuleInfo(
       rootPath = scalaImplDir,
       bundleMessagesRelativePath = "ScalaMetaBundle.properties"
+    ),
+    ModuleInfo(
+      rootPath = scalaModDir + "compiler-integration/",
+      bundleMessagesRelativePath = "CompilerIntegrationBundle.properties"
     ),
     ModuleInfo(
       rootPath = scalaModDir + "debugger/",

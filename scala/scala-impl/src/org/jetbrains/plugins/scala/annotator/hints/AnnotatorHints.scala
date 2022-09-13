@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints.AnnotatorHintsKey
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 // Annotator hints, SCL-15593
 case class AnnotatorHints(hints: Seq[Hint], modificationCount: Long) {

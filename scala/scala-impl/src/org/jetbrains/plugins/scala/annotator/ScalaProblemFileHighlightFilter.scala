@@ -9,8 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter._
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}
 
 class ScalaProblemFileHighlightFilter(project: Project) extends Condition[VirtualFile] {
   /**

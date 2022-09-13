@@ -270,7 +270,7 @@ object Main {
    * @see [[org.jetbrains.jps.model.serialization.JpsProjectLoader.resolveExternalProjectConfig]]
    * @see [[org.jetbrains.jps.api.GlobalOptions.EXTERNAL_PROJECT_CONFIG]]
    * @see `com.intellij.compiler.server.BuildManager.launchBuildProcess`
-   * @see `org.jetbrains.plugins.scala.externalHighlighters.compiler.IncrementalCompiler.compile`
+   * @see `org.jetbrains.plugins.scala.compiler.highlighting.IncrementalCompiler.compile`
    */
   private def withModifiedExternalProjectPath[T](externalProjectConfig: Option[String])(body: => T): T = {
     externalProjectConfig match {

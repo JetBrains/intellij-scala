@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.annotations.Definition
 import org.jetbrains.plugins.scala.settings.annotations.Definition.{FunctionDefinition, ValueDefinition, VariableDefinition}
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import ScalaTypeHintsPass._
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
 private[codeInsight] trait ScalaTypeHintsPass {
   protected implicit def settings: ScalaHintsSettings

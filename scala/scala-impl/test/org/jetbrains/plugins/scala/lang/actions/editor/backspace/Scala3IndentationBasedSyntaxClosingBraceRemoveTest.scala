@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaCompileServerSettings}
 
 class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
 
@@ -12,8 +11,6 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
 
   override def setUp(): Unit = {
     super.setUp()
-    // indirect way of disabling compiler-based highlighting which is triggered on each editor changes
-    // see org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.condition
     ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
     getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
   }

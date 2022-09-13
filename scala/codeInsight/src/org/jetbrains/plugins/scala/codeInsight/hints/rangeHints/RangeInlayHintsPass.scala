@@ -11,11 +11,11 @@ import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.RangeInlayHintsP
 import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, typeHintsMenu}
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
