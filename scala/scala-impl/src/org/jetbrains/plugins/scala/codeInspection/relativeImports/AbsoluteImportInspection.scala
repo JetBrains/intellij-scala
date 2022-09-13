@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.relativeImports
 
 import com.intellij.codeInsight.daemon.QuickFixBundle
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -42,5 +43,8 @@ private object AbsoluteImportInspection {
         }
       }
     }
+
+    override def generatePreview(project: Project, previewDescriptor: ProblemDescriptor): IntentionPreviewInfo =
+      IntentionPreviewInfo.EMPTY
   }
 }
