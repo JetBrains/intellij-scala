@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala
 package annotator.createFromUsage
 
+import com.intellij.codeInsight.CodeInsightUtilCore
+import com.intellij.codeInsight.intention.preview.{IntentionPreviewInfo, IntentionPreviewUtils}
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.codeInsight.template.{TemplateBuilder, TemplateBuilderImpl, TemplateManager}
-import com.intellij.codeInsight.{CodeInsightUtilCore, FileModificationService}
 import com.intellij.ide.util.PsiElementListCellRenderer
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
@@ -21,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
 
@@ -30,7 +32,6 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
         extends CreateFromUsageQuickFixBase(ref) {
   private final val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.annotator.createFromUsage.CreateTemplateDefinitionQuickFix")
   private val name = ref.refName
-
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     def goodQualifier = ref.qualifier match {
@@ -48,17 +49,49 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
         case Some(InstanceOfClass(typeDef: ScTypeDefinition)) => createInnerClassIn(typeDef)
         case Some(ResolvesTo(pack: PsiPackage)) => createClassInPackage(pack)
         case None =>
-          val inThisFile = ref.withParentsInFile.collect {
-            case inner childOf (_: ScTemplateBody) => inner
-            case td: ScTypeDefinition if td.isTopLevel => td
-          }
           val fileOption = if (file == null || file.getContainingDirectory == null) None else Some(file)
-          val possibleSiblings = fileOption ++: inThisFile.toSeq.reverse
+          val possibleSiblings = fileOption ++: getPossibleSiblingsInThisFile(ref)
           createClassWithLevelChoosing(editor, possibleSiblings)
         case _ =>
       }
     }
   }
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    val refCopy = inCopy(ref, file)
+    refCopy.qualifier match {
+      case Some(InstanceOfClass(typeDef: ScTypeDefinition)) =>
+        createInnerClassIn(inCopy(typeDef, file))
+        IntentionPreviewInfo.DIFF
+      case Some(ResolvesTo(_: PsiPackage)) =>
+        createSyntheticDefinitionForPreview
+      case None =>
+        val possibleSiblings = getPossibleSiblingsInThisFile(refCopy)
+        if (possibleSiblings.exists(!_.is[PsiFile])) {
+          createClassWithLevelChoosing(editor, possibleSiblings)
+          IntentionPreviewInfo.DIFF
+        } else createSyntheticDefinitionForPreview
+      case _ => IntentionPreviewInfo.EMPTY
+    }
+  }
+
+  private def getPossibleSiblingsInThisFile(reference: ScReference): Seq[PsiElement] =
+    reference.withParentsInFile.collect {
+      case inner childOf (_: ScTemplateBody) => inner
+      case td: ScTypeDefinition if td.isTopLevel => td
+    }.toSeq.reverse
+
+  private def createSyntheticDefinitionForPreview = {
+    val text = s"${kind.keyword} $name"
+    val file = ScalaPsiElementFactory.createScalaFileFromText(text)
+    val definition = PsiTreeUtil.findChildOfType(file, classOf[ScTypeDefinition])
+    afterCreationWork(definition)
+    val fileType = ScalaFileType.INSTANCE
+    new IntentionPreviewInfo.CustomDiff(fileType, name + fileType.getExtensionWithDot, "", file.getText)
+  }
+
+  @inline private def inCopy[E <: PsiElement](element: E, file: PsiFile): E =
+    PsiTreeUtil.findSameElementInCopy(element, file)
 
   private def createClassInPackage(psiPackage: PsiPackage): Unit = {
     val directory = psiPackage.getDirectories.filter(_.isWritable) match {
@@ -81,7 +114,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
 
   private def createClassIn(parent: PsiElement, anchorAfter: Option[PsiElement]): Unit = {
     try {
-      if (!FileModificationService.getInstance.preparePsiElementForWrite(parent)) return
+      if (!IntentionPreviewUtils.prepareElementForWrite(parent)) return
 
       val text = s"${kind.keyword} $name"
       val newTd = createTemplateDefinitionFromText(text, parent, parent.getFirstChild)
@@ -125,7 +158,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
             false
           }
         }
-        if (isUnitTestMode) {
+        if (isUnitTestMode || IntentionPreviewUtils.isIntentionPreviewActive) {
           val sibling = siblings.find(!_.is[PsiFile])
             .getOrElse(siblings.head)
           createClassAtLevel(sibling)
@@ -155,7 +188,8 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
     addGenericParams(clazz)
     addClassParams(clazz)
     ScalaPsiUtil.adjustTypes(clazz)
-    runTemplate(clazz)
+    if (!IntentionPreviewUtils.isIntentionPreviewActive)
+      runTemplate(clazz)
   }
   
   protected def addMoreElementsToTemplate(builder: TemplateBuilder, clazz: ScTypeDefinition): Unit = {}
