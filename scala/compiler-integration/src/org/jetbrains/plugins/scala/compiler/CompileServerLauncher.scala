@@ -133,10 +133,11 @@ object CompileServerLauncher {
         val nailgunClasspath = nailgunCpFiles
           .map(_.canonicalPath).mkString(File.pathSeparator)
         val buildProcessClasspath = {
+          //noinspection ApiStatus
           // in worksheet tests we reuse compile server between projects
           // we initialize it before the first test starts, so the project is `null`
           // TODO: make project "Option"
-          val pluginsClasspath = if (isUnitTestMode && project == null) Seq() else
+          val pluginsClasspath = if (isUnitTestMode && (project eq null) || project.isDisposed) Seq() else
             new BuildProcessClasspathManager(project.unloadAwareDisposable).getBuildProcessPluginsClasspath(project).asScala
           val applicationClasspath = ClasspathBootstrap.getBuildProcessApplicationClasspath.asScala
           pluginsClasspath ++ applicationClasspath
