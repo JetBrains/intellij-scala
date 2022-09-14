@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public class ScalaConversionBundle extends DynamicBundle {
+public final class ScalaConversionBundle extends DynamicBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaConversionBundle";
 

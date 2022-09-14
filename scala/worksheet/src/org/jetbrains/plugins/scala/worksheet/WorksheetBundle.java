@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public class WorksheetBundle extends DynamicBundle {
+public final class WorksheetBundle extends DynamicBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaWorksheetBundle";
 
