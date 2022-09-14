@@ -9,7 +9,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.{Navigatable, NavigatableAdapter}
-import com.jetbrains.packagesearch.intellij.plugin.extensibility.{AsyncModuleTransformer, ProjectModule}
+import com.jetbrains.packagesearch.intellij.plugin.extensibility.{AsyncModuleTransformer, BuildSystemType, ProjectModule}
 import com.jetbrains.packagesearch.intellij.plugin.ui.toolwindow.models.PackageVersion
 import org.jetbrains.plugins.scala.packagesearch.utils.{SbtProjectModuleType, ScalaKotlinHelper}
 import org.jetbrains.sbt.SbtUtil
@@ -67,7 +67,7 @@ class SbtModuleTransformer(private val project: Project) extends AsyncModuleTran
             null,
             buildFile,
             buildFile.getParent.toNioPath.toFile,
-            PackageSearchSbtBundle.buildSystemType,
+            SbtModuleTransformer.buildSystemType,
             SbtProjectModuleType
         )
         Some {
@@ -103,4 +103,10 @@ class SbtModuleTransformer(private val project: Project) extends AsyncModuleTran
     CompletableFuture.allOf(futures: _*)
       .thenApply[util.List[ProjectModule]](_ => futures.flatMap(_.join()).distinct.asJava)
   }
+}
+
+private object SbtModuleTransformer {
+  //noinspection UnstableApiUsage
+  private val buildSystemType: BuildSystemType =
+    new BuildSystemType("SBT", "scala", "sbt-scala")
 }
