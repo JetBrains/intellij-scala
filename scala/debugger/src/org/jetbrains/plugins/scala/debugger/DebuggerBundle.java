@@ -21,9 +21,4 @@ public final class DebuggerBundle extends DynamicBundle {
     public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, @NotNull Object... params) {
         return INSTANCE.getMessage(key, params);
     }
-
-    @Nls
-    public static NlsString nls(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, @NotNull Object... params) {
-        return new NlsString(INSTANCE.getMessage(key, params));
-    }
 }

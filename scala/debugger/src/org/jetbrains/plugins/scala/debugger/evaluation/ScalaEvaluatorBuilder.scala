@@ -168,27 +168,27 @@ private object needsCompilation {
     case m: ScMember => m match {
       case td: ScTemplateDefinition =>
         td match {
-          case _: ScObject => Some(DebuggerBundle.nls("evaluation.of.object.needs.compilation"))
-          case _: ScClass => Some(DebuggerBundle.nls("evaluation.of.class.needs.compilation"))
-          case _: ScTrait => Some(DebuggerBundle.nls("evaluation.of.trait.needs.compilation"))
+          case _: ScObject => Some(NlsString(DebuggerBundle.message("evaluation.of.object.needs.compilation")))
+          case _: ScClass => Some(NlsString(DebuggerBundle.message("evaluation.of.class.needs.compilation")))
+          case _: ScTrait => Some(NlsString(DebuggerBundle.message("evaluation.of.trait.needs.compilation")))
           case newTd: ScNewTemplateDefinition if AnonymousFunction.generatesAnonClass(newTd) =>
-            Some(DebuggerBundle.nls("evaluation.of.anonymous.class.needs.compilation"))
+            Some(NlsString(DebuggerBundle.message("evaluation.of.anonymous.class.needs.compilation")))
           case _ => None
         }
-      case _: ScTypeAlias => Some(DebuggerBundle.nls("evaluation.of.type.alias.needs.compilation"))
-      case _: ScFunction => Some(DebuggerBundle.nls("evaluation.of.function.definition.needs.compilation"))
-      case _: ScVariableDeclaration | _: ScValueDeclaration => Some(DebuggerBundle.nls("evaluation.of.variable.declaration.needs.compilation"))
-      case LazyVal(_) => Some(DebuggerBundle.nls("evaluation.of.lazy.val.definition.needs.compilation"))
+      case _: ScTypeAlias => Some(NlsString(DebuggerBundle.message("evaluation.of.type.alias.needs.compilation")))
+      case _: ScFunction => Some(NlsString(DebuggerBundle.message("evaluation.of.function.definition.needs.compilation")))
+      case _: ScVariableDeclaration | _: ScValueDeclaration => Some(NlsString(DebuggerBundle.message("evaluation.of.variable.declaration.needs.compilation")))
+      case LazyVal(_) => Some(NlsString(DebuggerBundle.message("evaluation.of.lazy.val.definition.needs.compilation")))
       case _ => None
     }
-    case expr if AnonymousFunction.isGenerateAnonfun211(expr) => Some(DebuggerBundle.nls("evaluation.of.anonymous.function.needs.compilation"))
-    case _: ScFor => Some(DebuggerBundle.nls("evaluation.of.for.expression.needs.compilation"))
-    case _: ScTry => Some(DebuggerBundle.nls("evaluation.of.try.statement.needs.compilation"))
-    case _: ScReturn => Some(DebuggerBundle.nls("evaluation.of.return.statement.needs.compilation"))
-    case _: ScMatch => Some(DebuggerBundle.nls("evaluation.of.match.statement.needs.compilation"))
-    case _: ScThrow => Some(DebuggerBundle.nls("evaluation.of.throw.statement.needs.compilation"))
-    case _: ScXmlExpr => Some(DebuggerBundle.nls("evaluation.of.xml.expression.needs.compilation"))
-    case _: ScInterpolatedStringLiteral => Some(DebuggerBundle.nls("evaluation.of.interpolated.string.needs.compilation"))
+    case expr if AnonymousFunction.isGenerateAnonfun211(expr) => Some(NlsString(DebuggerBundle.message("evaluation.of.anonymous.function.needs.compilation")))
+    case _: ScFor => Some(NlsString(DebuggerBundle.message("evaluation.of.for.expression.needs.compilation")))
+    case _: ScTry => Some(NlsString(DebuggerBundle.message("evaluation.of.try.statement.needs.compilation")))
+    case _: ScReturn => Some(NlsString(DebuggerBundle.message("evaluation.of.return.statement.needs.compilation")))
+    case _: ScMatch => Some(NlsString(DebuggerBundle.message("evaluation.of.match.statement.needs.compilation")))
+    case _: ScThrow => Some(NlsString(DebuggerBundle.message("evaluation.of.throw.statement.needs.compilation")))
+    case _: ScXmlExpr => Some(NlsString(DebuggerBundle.message("evaluation.of.xml.expression.needs.compilation")))
+    case _: ScInterpolatedStringLiteral => Some(NlsString(DebuggerBundle.message("evaluation.of.interpolated.string.needs.compilation")))
     case _ => None
   }
 }

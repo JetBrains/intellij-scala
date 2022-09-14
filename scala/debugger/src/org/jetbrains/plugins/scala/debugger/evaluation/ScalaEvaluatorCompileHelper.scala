@@ -108,7 +108,7 @@ private class ServerConnector(module: Module, filesToCompile: Seq[File], outputD
     val project = module.getProject
 
     val compilationProcess = new RemoteServerRunner(project).buildProcess(CommandIds.Compile, arguments.asStrings, client)
-    var result: CompileResult = Left(Seq(DebuggerBundle.nls("compilation.failed")))
+    var result: CompileResult = Left(Seq(NlsString(DebuggerBundle.message("compilation.failed"))))
     compilationProcess.addTerminationCallback { _ => // TODO: do not ignore possible exception
       val foundErrors = errors.result()
       result = if (foundErrors.nonEmpty) Left(foundErrors) else Right(classfiles(outputDir))
