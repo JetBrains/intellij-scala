@@ -88,10 +88,6 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "TestingSupportBundle.properties"
     ),
     ModuleInfo(
-      rootPath = scalaModDir + "uast/",
-      bundleMessagesRelativePath = "ScalaUastBundle.properties",
-    ),
-    ModuleInfo(
       rootPath = scalaModDir + "worksheet/",
       bundleMessagesRelativePath = "ScalaWorksheetBundle.properties",
     ),
