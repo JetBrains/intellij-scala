@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public class BspBundle extends DynamicBundle {
+public final class BspBundle extends DynamicBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaBspBundle";
 

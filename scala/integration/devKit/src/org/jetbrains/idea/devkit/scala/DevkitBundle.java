@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public class DevkitBundle extends DynamicBundle {
+public final class DevkitBundle extends DynamicBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaDevkitBundle";
 

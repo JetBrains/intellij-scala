@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 import org.jetbrains.jps.api.JpsDynamicBundle;
 
-public class JpsBundle extends JpsDynamicBundle {
+public final class JpsBundle extends JpsDynamicBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaJpsBundle";
 

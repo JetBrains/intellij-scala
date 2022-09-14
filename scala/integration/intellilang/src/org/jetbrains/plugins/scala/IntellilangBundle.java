@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public class IntellilangBundle extends DynamicBundle {
+public final class IntellilangBundle extends DynamicBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaIntellilangBundle";
 
