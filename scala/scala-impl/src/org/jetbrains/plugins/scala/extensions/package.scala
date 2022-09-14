@@ -1706,4 +1706,15 @@ package object extensions {
     private val appExecutorService = AppExecutorUtil.getAppExecutorService
     implicit val appExecutionContext: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(appExecutorService)
   }
+
+  implicit class LockExtensions(private val lock: java.util.concurrent.locks.Lock) extends AnyVal {
+    def withLock[A](body: => A): A = {
+      try {
+        lock.lock()
+        body
+      } finally {
+        lock.unlock()
+      }
+    }
+  }
 }

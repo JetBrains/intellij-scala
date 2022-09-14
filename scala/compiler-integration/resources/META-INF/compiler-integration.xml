@@ -3,6 +3,10 @@
         <extensionPoint qualifiedName="org.intellij.scala.worksheetHighlightingCompiler" interface="org.jetbrains.plugins.scala.compiler.highlighting.WorksheetHighlightingCompiler" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.compileServerClasspathProvider" beanClass="org.jetbrains.plugins.scala.compiler.CompileServerClasspathProvider" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.compileServerVmOptionsProvider" interface="org.jetbrains.plugins.scala.compiler.CompileServerVmOptionsProvider" dynamic="true"/>
+
+        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalReferenceSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalReferenceSearcher"/>
+        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalInheritorsSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher"/>
+        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalSearchScopeChecker" interface="org.jetbrains.plugins.scala.findUsages.ExternalSearchScopeChecker"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -31,6 +35,24 @@
 
         <registryKey key="scala.erase.compiler.process.jdk.once" defaultValue="true" restartRequired="false"
                      description="Erase compiler.process.jdk value before compilation. A dirty hack needed because of removal of SetSameJdkToBuildProcessAsInCompileServer #SCL-17676"/>
+
+        <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.references.CompilerIndicesBuildProcessParametersProvider"/>
+
+        <projectConfigurable id="Bytecode Indices" parentId="Scala Compiler"
+                             instance="org.jetbrains.plugins.scala.compiler.references.settings.CompilerIndicesConfigurable"/>
+        <codeUsageScopeOptimizer implementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceScopeOptimizer"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService"/>
+
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.compiler.references.compilation.SbtCompilationSupervisor"/>
+
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService$Startup"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.references.compilation.SbtCompilationSupervisor$Activity"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <findUsages.externalReferenceSearcher implementation="org.jetbrains.plugins.scala.compiler.references.search.CompilerIndicesReferencesSearch$"/>
+        <findUsages.externalInheritorsSearcher implementation="org.jetbrains.plugins.scala.compiler.references.search.CompilerIndicesInheritorsSearch$"/>
+        <findUsages.externalSearchScopeChecker implementation="org.jetbrains.plugins.scala.compiler.references.search.CompilerIndicesReferencesSearcher$"/>
     </extensions>
 
     <applicationListeners>

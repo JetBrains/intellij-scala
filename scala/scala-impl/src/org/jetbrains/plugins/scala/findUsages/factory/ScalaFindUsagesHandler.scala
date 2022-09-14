@@ -8,7 +8,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesInheritorsSearch
+import org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -89,7 +89,8 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
                                                      options: ScalaTypeDefinitionFindUsagesOptions): Boolean = {
     element match {
       case definition: ScTypeDefinition if factory.compilerIndicesOptions.isEnabledForSAMTypes && inReadAction(definition.isSAMable) =>
-        CompilerIndicesInheritorsSearch.search(definition, options.searchScope)
+        //noinspection ApiStatus
+        ExternalInheritorsSearcher.searchExternally(definition, options.searchScope, false)
           .forEach((e: PsiElement) => processor.process(new UsageInfo(e)))
       case _ => true
     }

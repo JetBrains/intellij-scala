@@ -8,6 +8,7 @@ import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.openapi.util.Condition
+import com.intellij.util.messages.Topic
 import org.jetbrains.annotations.NotNull
 
 import java.awt.FlowLayout
@@ -93,21 +94,13 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       settings.useSbtShellForBuild != extraControls.useSbtShellForBuildCheckBox.isSelected
 
     if (useSbtShellForBuildSettingChanged) {
-      import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService
-      import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.CompilerMode
-      settings.useSbtShellForBuild = extraControls.useSbtShellForBuildCheckBox.isSelected
+      val newSetting = extraControls.useSbtShellForBuildCheckBox.isSelected
+      settings.useSbtShellForBuild = newSetting
       val project = getProject
 
-      // locking here is hardly ideal, but we assume that transactions are very short
-      // and hope for the best
       if (project != null) {
-        ScalaCompilerReferenceService(project).inTransaction { case (_, publisher) =>
-          val newMode =
-            if (settings.useSbtShellForBuild) CompilerMode.SBT
-            else                              CompilerMode.JPS
-
-          publisher.onCompilerModeChange(newMode)
-        }
+        val newMode = if (newSetting) CompilerMode.SBT else CompilerMode.JPS
+        project.getMessageBus.syncPublisher(SbtProjectSettingsControl.CompilerModeChangeTopic).onCompilerModeChange(newMode)
       }
     }
   }
@@ -117,3 +110,11 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   override def validate(sbtProjectSettings: SbtProjectSettings): Boolean = selectedJdkName.isDefined
 }
 
+private[jetbrains] object SbtProjectSettingsControl {
+  private[jetbrains] trait CompilerModeChangeListener {
+    def onCompilerModeChange(mode: CompilerMode): Unit
+  }
+
+  private[jetbrains] val CompilerModeChangeTopic: Topic[CompilerModeChangeListener] =
+    new Topic("Compiler references search compiler mode change topic", classOf[CompilerModeChangeListener])
+}

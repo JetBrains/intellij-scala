@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiNamedElement}
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesReferencesSearch
+import org.jetbrains.plugins.scala.findUsages.ExternalReferenceSearcher
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 import java.util
@@ -17,7 +17,7 @@ import java.util.Collections
 /**
   * Find usages handler, which relies solely on compiler indices.
   *
-  * See also: [[org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService]]
+  * See also: `org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService`
   */
 class CompilerIndicesFindUsagesHandler(
   e:       PsiElement,
@@ -34,10 +34,12 @@ class CompilerIndicesFindUsagesHandler(
   private[this] def searchInCompilerIndices(
     e:         PsiNamedElement,
     processor: Processor[_ >: UsageInfo]
-  ): Boolean =
-    CompilerIndicesReferencesSearch
-      .search(e)
+  ): Boolean = {
+    //noinspection ApiStatus
+    ExternalReferenceSearcher
+      .searchExternally(e)
       .forEach(ref => processor.process(new UsageInfo(ref)))
+  }
 
   override def processElementUsages(
     element:   PsiElement,

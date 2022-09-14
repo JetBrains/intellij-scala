@@ -9,8 +9,8 @@ import org.jetbrains.jps.builders.{BuildTarget, DirtyFilesHolder}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.{hasScala, isScalaProject}
 import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, ModuleBuildTarget, ModuleLevelBuilder}
-import org.jetbrains.plugins.scala.compilerReferences.Builder.rebuildPropertyKey
-import org.jetbrains.plugins.scala.compilerReferences.Messages._
+import org.jetbrains.plugins.scala.compiler.references.Builder.rebuildPropertyKey
+import org.jetbrains.plugins.scala.compiler.references.Messages._
 import org.jetbrains.plugins.scala.indices.protocol.CompiledClass
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 

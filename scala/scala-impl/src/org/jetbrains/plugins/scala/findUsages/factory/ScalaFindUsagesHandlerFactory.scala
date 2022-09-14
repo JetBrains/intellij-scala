@@ -7,9 +7,8 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.{ShouldBeSearchedInBytecode, UsageType}
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesReferencesSearcher._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
+import org.jetbrains.plugins.scala.findUsages.SearchTargetExtractors.ShouldBeSearchedInBytecode
+import org.jetbrains.plugins.scala.findUsages.{ExternalSearchScopeChecker, UsageType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScEnd, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -20,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScEndImpl.Target
 import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.refactoring.rename.RenameSuperMembersUtil
+import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 
 class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerFactory { self =>
@@ -72,7 +72,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
   }
 
   private[this] def doBeforeIndicesSearchAction(target: PsiNamedElement, usageType: UsageType): Boolean =
-    assertSearchScopeIsSufficient(target, usageType).forall(_.runAction())
+    ExternalSearchScopeChecker.checkSearchScopeIsSufficientExternally(target, usageType)
 
   private[this] def suggestChooseSuper(e: PsiElement): Option[PsiNamedElement] = {
     def needToAsk(named: PsiNamedElement): Boolean = named match {

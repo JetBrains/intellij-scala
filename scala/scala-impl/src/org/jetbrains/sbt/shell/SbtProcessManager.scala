@@ -27,18 +27,17 @@ import com.pty4j.{PtyProcess, WinSize}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings._
 import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
+import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.settings.{SbtExecutionSettings, SbtProjectSettings}
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 import org.jetbrains.sbt.shell.SbtProcessManager._
-import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil}
+import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtCompilationSupervisorPort, SbtUtil}
 
 import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
 import scala.jdk.CollectionConverters._
@@ -174,8 +173,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
       }
 
       val compilerIndicesPluginLoaded = plugins.exists(_.contains("sbt-idea-compiler-indices"))
-      val ideaPort                    = SbtCompilationSupervisor().actualPort
-      val ideaPortSetting             = ideaPort.fold("")(port => s"; set ideaPort in Global := $port ;")
+      val ideaPort = SbtCompilationSupervisorPort.port
+      val ideaPortSetting = if (ideaPort == -1) "" else s"; set Global / ideaPort := $ideaPort ;"
 
       // we have our plugins in there, load custom shell
       val commands =

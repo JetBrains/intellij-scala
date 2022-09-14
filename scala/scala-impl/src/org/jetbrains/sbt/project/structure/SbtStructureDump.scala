@@ -11,9 +11,8 @@ import org.jetbrains.annotations.{Nls, NonNls, TestOnly}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
-import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
+import org.jetbrains.sbt.{SbtBundle, SbtCompilationSupervisorPort}
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
@@ -60,8 +59,8 @@ class SbtStructureDump {
 
     val ideaPortSetting =
       if (CompilerIndicesSettings(project).isBytecodeIndexingActive) {
-        val ideaPort                    = SbtCompilationSupervisor().actualPort
-        ideaPort.fold("")(port => s"; set ideaPort in Global := $port")
+        val ideaPort = SbtCompilationSupervisorPort.port
+        if (ideaPort == -1) "" else s"; set Global / ideaPort := $ideaPort"
       } else ""
 
     val cmd = s";reload; $setCmd ;${if (preferScala2) "preferScala2;" else ""}*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"

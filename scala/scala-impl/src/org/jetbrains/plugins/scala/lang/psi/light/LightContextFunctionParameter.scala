@@ -5,7 +5,7 @@ import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.impl.source.DummyHolderFactory
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager, PsiTypeElement}
 import org.jetbrains.plugins.scala.Scala3Language
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.LockExt
+import org.jetbrains.plugins.scala.extensions.LockExtensions
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -44,7 +44,7 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
 
   private val lock = new ReentrantLock()
 
-  override def `type`(): TypeResult = lock.locked {
+  override def `type`(): TypeResult = lock.withLock {
     Right(rawType.updateRecursively {
       case abs: ScAbstractType => invariantTypeParameters.getOrElse(abs, UndefinedType(abs.typeParameter))
     })
@@ -80,7 +80,7 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
    */
   private val constraints: mutable.ArrayBuffer[ScType] = mutable.ArrayBuffer.empty
 
-  def updateWithSubst(subst: ScSubstitutor): Unit = lock.locked {
+  def updateWithSubst(subst: ScSubstitutor): Unit = lock.withLock {
     if (constraints.isEmpty)
       invariantTypeParameters.mapValuesInPlace { case (tpt, _) => subst(tpt) }
 
@@ -90,7 +90,7 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
       constraints += newInstantiation
   }
 
-  def contextFunctionParameterType: TypeResult = lock.locked {
+  def contextFunctionParameterType: TypeResult = lock.withLock {
     val result =
       if (constraints.isEmpty) `type`().map(_.inferValueType)
       else                     Right(constraints.reduceLeft(_ glb _))
