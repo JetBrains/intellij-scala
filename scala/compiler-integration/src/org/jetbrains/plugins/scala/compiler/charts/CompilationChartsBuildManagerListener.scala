@@ -36,8 +36,11 @@ class CompilationChartsBuildManagerListener
   override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
   }
 
-  override def buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean): Unit =
-    CompilationChartsUpdater.get(project).stopScheduling()
+  override def buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
+    if (!project.isDisposed) {
+      CompilationChartsUpdater.get(project).stopScheduling()
+    }
+  }
 }
 
 @Service
