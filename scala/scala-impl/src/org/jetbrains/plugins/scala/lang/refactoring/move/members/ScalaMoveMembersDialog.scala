@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, ScalaFileType}
 
 import java.awt.BorderLayout
 import javax.swing._
@@ -31,11 +31,11 @@ class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObjec
   override def doAction(): Unit = {
     val reference =
       PsiTreeUtil.getChildOfType(targetObjectFragment, classOf[ScReference])
-        .toOption.toRight(ScalaBundle.nls("move.members.object.name.or.qualified.name.expected"))
+        .toOption.toRight(NlsString(ScalaBundle.message("move.members.object.name.or.qualified.name.expected")))
 
     val maybeObj = reference.flatMap(
       _.resolve().asOptionOf[ScObject]
-        .toRight(ScalaBundle.nls("move.members.cannot.find.object"))
+        .toRight(NlsString(ScalaBundle.message("move.members.cannot.find.object")))
     )
 
     maybeObj match {

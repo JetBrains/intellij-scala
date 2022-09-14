@@ -37,13 +37,13 @@ class ScalaMoveMembersHandler extends MoveHandlerDelegate {
   private object NotSupportedMember {
     def unapply(member: ScMember): Option[NlsString] = {
       if (ScalaPsiUtil.hasImplicitModifier(member))
-        Some(ScalaBundle.nls("move.members.not.supported.implicits"))
+        Some(NlsString(ScalaBundle.message("move.members.not.supported.implicits")))
 
       else if (!hasStablePath(member))
-        Some(ScalaBundle.nls("move.members.supported.only.stable.objects"))
+        Some(NlsString(ScalaBundle.message("move.members.supported.only.stable.objects")))
 
       else if (member.hasModifierProperty("override"))
-        Some(ScalaBundle.nls("move.members.not.supported.overridden"))
+        Some(NlsString(ScalaBundle.message("move.members.not.supported.overridden")))
 
       else None
     }

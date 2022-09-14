@@ -14,10 +14,4 @@ object ScalaBundle {
   @varargs
   def message(@PropertyKey(resourceBundle = BUNDLE) key: String, params: Any*): String =
     INSTANCE.getMessage(key, params.map(_.toString): _*)
-
-  //noinspection ReferencePassedToNls
-  @Nls
-  @varargs
-  def nls(@PropertyKey(resourceBundle = BUNDLE) key: String, params: Any*): NlsString =
-    NlsString(INSTANCE.getMessage(key, params.map(_.toString): _*))
 }

@@ -293,7 +293,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 }
 
 object MethodInvocationImpl {
-  private val noSuitableMethodFoundError: NlsString = ScalaBundle.nls("suitable.method.not.found")
+  private val noSuitableMethodFoundError: NlsString = NlsString(ScalaBundle.message("suitable.method.not.found"))
 
   private object FunctionTypeParameters {
 
