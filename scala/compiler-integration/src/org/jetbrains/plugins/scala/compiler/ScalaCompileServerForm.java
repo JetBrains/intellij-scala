@@ -255,7 +255,7 @@ public class ScalaCompileServerForm implements Configurable {
         this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "jvm.options"));
         myJvmSettingsPanel.add(label3, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myCompilationServerJvmParameters = new RawCommandLineEditor();
-        myCompilationServerJvmParameters.setDialogCaption(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "compile.server.jvm.command.line.parameters"));
+        myCompilationServerJvmParameters.setDialogCaption(this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "compile.server.jvm.command.line.parameters"));
         myCompilationServerJvmParameters.setEnabled(true);
         myJvmSettingsPanel.add(myCompilationServerJvmParameters, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(250, -1), new Dimension(544, 27), null, 0, false));
         final JLabel label4 = new JLabel();

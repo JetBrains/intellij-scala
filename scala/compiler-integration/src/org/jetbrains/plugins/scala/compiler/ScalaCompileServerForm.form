@@ -150,7 +150,7 @@
               </grid>
             </constraints>
             <properties>
-              <dialogCaption resource-bundle="messages/ScalaBundle" key="compile.server.jvm.command.line.parameters"/>
+              <dialogCaption resource-bundle="messages/CompilerIntegrationBundle" key="compile.server.jvm.command.line.parameters"/>
               <enabled value="true"/>
             </properties>
           </component>
