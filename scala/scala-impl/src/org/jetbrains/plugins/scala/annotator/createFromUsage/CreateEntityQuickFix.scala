@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.annotator.createFromUsage
 
+import com.intellij.codeInsight.CodeInsightUtilCore
+import com.intellij.codeInsight.intention.preview.{IntentionPreviewInfo, IntentionPreviewUtils}
 import com.intellij.codeInsight.template.{TemplateBuilderImpl, TemplateManager}
-import com.intellij.codeInsight.{CodeInsightUtilCore, FileModificationService}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
@@ -57,8 +58,10 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
       blockFor(expr) match {
         case Success(bl) => Some(bl)
         case Failure(e) =>
-          //noinspection ReferencePassedToNls
-          CommonRefactoringUtil.showErrorHint(project, editor, e.getMessage, ScalaBundle.message("error.message.title.create.entity.quickfix"), null)
+          if (!IntentionPreviewUtils.isIntentionPreviewActive) {
+            //noinspection ReferencePassedToNls
+            CommonRefactoringUtil.showErrorHint(project, editor, e.getMessage, ScalaBundle.message("error.message.title.create.entity.quickfix"), null)
+          }
           None
       }
     }
@@ -79,15 +82,15 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
       case _                          => None
     }
 
-    val catWriteToFile = FileModificationService.getInstance.prepareFileForWrite(block.map(_.getContainingFile).getOrElse(file))
-    if (!catWriteToFile) return
+    val canWriteToFile = IntentionPreviewUtils.prepareElementForWrite(block.map(_.getContainingFile).getOrElse(file))
+    if (!canWriteToFile) return
 
-    inWriteAction {
+    IntentionPreviewUtils.write { () =>
       val maybeEntity = block match {
         case Some(_ childOf (obj: ScObject)) if obj.isSyntheticObject =>
           val bl = materializeSyntheticObject(obj).extendsBlock
-          createEntity(bl, ref, text)
-        case Some(it) => createEntity(it, ref, text)
+          createEntity(bl, text)
+        case Some(it) => createEntity(it, text)
         case None => createEntity(ref, text)
       }
 
@@ -98,29 +101,43 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
           case _ =>
         }
 
-        val builder = new TemplateBuilderImpl(entity)
-
-        for (aType <- entityType;
-             typeElement <- entity.children.findByType[ScSimpleTypeElement]) {
-          builder.replaceElement(typeElement, aType)
-        }
-
-        addTypeParametersToTemplate(entity, builder)
-        addParametersToTemplate(entity, builder)
-        addQmarksToTemplate(entity, builder)
-
-        CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(entity)
-
-        val template = builder.buildTemplate()
-
-        val isScalaConsole = ScalaLanguageConsole.isScalaConsoleFile(file)
-        if (!isScalaConsole) {
-          val newEditor = positionCursor(entity.getLastChild)
-          val range = entity.getTextRange
-          newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
-          TemplateManager.getInstance(project).startTemplate(newEditor, template)
-        }
+        if (!IntentionPreviewUtils.isIntentionPreviewActive)
+          buildAndRunTemplate(entity, entityType)(project, file)
       }
+    }
+  }
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
+    withRef(PsiTreeUtil.findSameElementInCopy(ref, file))
+      .invokeInner(project, editor, file)
+    IntentionPreviewInfo.DIFF
+  }
+
+  protected def withRef(newRef: ScReferenceExpression): CreateEntityQuickFix
+
+  private def buildAndRunTemplate(entity: PsiElement, entityType: Option[String])
+                                 (project: Project, file: PsiFile): Unit = {
+    val builder = new TemplateBuilderImpl(entity)
+
+    for (aType <- entityType;
+         typeElement <- entity.children.findByType[ScSimpleTypeElement]) {
+      builder.replaceElement(typeElement, aType)
+    }
+
+    addTypeParametersToTemplate(entity, builder)
+    addParametersToTemplate(entity, builder)
+    addQmarksToTemplate(entity, builder)
+
+    CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(entity)
+
+    val template = builder.buildTemplate()
+
+    val isScalaConsole = ScalaLanguageConsole.isScalaConsoleFile(file)
+    if (!isScalaConsole) {
+      val newEditor = positionCursor(entity.getLastChild)
+      val range = entity.getTextRange
+      newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
+      TemplateManager.getInstance(project).startTemplate(newEditor, template)
     }
   }
 
@@ -157,12 +174,12 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
     }
   }
 
-  private def createEntity(block: ScExtendsBlock, ref: ScReferenceExpression, text: String): Option[PsiElement] = {
+  private def createEntity(block: ScExtendsBlock, text: String): Option[PsiElement] = {
     if (block.templateBody.isEmpty)
       block.add(createTemplateBody(block.getManager))
 
     val children = block.templateBody.get.children.toSeq
-    for (anchor <- children.find(_.isInstanceOf[ScSelfTypeElement]).orElse(children.headOption)) yield {
+    for (anchor <- children.find(_.is[ScSelfTypeElement]).orElse(children.headOption)) yield {
       val holder = anchor.getParent
 
       val hasMembers = holder.children.containsInstanceOf[ScMember]
@@ -199,7 +216,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
   private def parametersFor(ref: ScReferenceExpression): Option[String] = {
     ref.parent.collect {
       case MethodRepr(_, _, Some(`ref`), args) => paramsText(args)
-      case (_: ScGenericCall) childOf (MethodRepr(_, _, Some(`ref`), args)) => paramsText(args)
+      case (_: ScGenericCall) childOf MethodRepr(_, _, Some(`ref`), args) => paramsText(args)
     }
   }
 
@@ -238,5 +255,4 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
         }
     }
   }
-
 }
