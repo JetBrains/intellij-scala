@@ -1037,8 +1037,7 @@ object ScalaPsiElementFactory {
 
   def createScalaDocLinkValue(@NonNls text: String)
                              (implicit ctx: ProjectContext): ScDocResolvableCodeReference =
-    createScalaDocComment(s"/**[[$text]]*/")
-      .getNode.getChildren(null)(1).getChildren(null)(1).getPsi.asInstanceOf[ScDocResolvableCodeReference]
+    PsiTreeUtil.findChildOfType(createScalaDocComment(s"/**[[$text]]*/"), classOf[ScDocResolvableCodeReference])
 
   def createXmlEndTag(@NonNls tagName: String)
                      (implicit ctx: ProjectContext): ScXmlEndTag =

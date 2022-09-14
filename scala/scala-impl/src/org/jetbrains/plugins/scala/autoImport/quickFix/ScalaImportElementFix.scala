@@ -3,7 +3,9 @@ package org.jetbrains.plugins.scala.autoImport.quickFix
 import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.hint.HintManagerImpl
 import com.intellij.codeInsight.intention.PriorityAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection.HintAction
+import com.intellij.model.SideEffectGuard.SideEffectNotAllowedException
 import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
@@ -54,7 +56,19 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
                            editor: Editor,
                            file: PsiFile): Boolean = {
     if (editor != null) {
-      scheduleComputationOnce(editor)
+      try {
+        scheduleComputationOnce(editor)
+      } catch {
+        /**
+         * Do not invoke inside a preview. Availability check is performed before the preview session is initiated
+         * so [[com.intellij.codeInsight.intention.preview.IntentionPreviewUtils.isIntentionPreviewActive]] or
+         * [[com.intellij.codeInsight.intention.preview.IntentionPreviewUtils.isPreviewElement(file)]] will return
+         * false. However, this check is performed under [[com.intellij.model.SideEffectGuard.computeWithoutSideEffects]]
+         *
+         * @see [[com.intellij.codeInsight.intention.impl.preview.IntentionPreviewComputable]]
+         */
+        case _: SideEffectNotAllowedException => return false
+      }
     }
 
     isAvailable && file.hasScalaPsi
@@ -95,6 +109,9 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
   }
 
   override def startInWriteAction: Boolean = true
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo =
+    IntentionPreviewInfo.EMPTY
 
   protected def getHintRange: (Int, Int) = hintRange(place)
 

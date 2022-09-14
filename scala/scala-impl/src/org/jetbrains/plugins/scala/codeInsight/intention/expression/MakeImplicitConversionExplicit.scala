@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil.getNonStrictParentOfType
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.MakeExplicitAction
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
@@ -38,7 +39,7 @@ object MakeImplicitConversionExplicit {
     if parent.isValid
 
     function <- parent.implicitElement(fromUnderscore = true)
-    if function.isInstanceOf[ScFunction]
+    if function.is[ScFunction]
   } yield (parent, function.asInstanceOf[ScFunction])
 
 }

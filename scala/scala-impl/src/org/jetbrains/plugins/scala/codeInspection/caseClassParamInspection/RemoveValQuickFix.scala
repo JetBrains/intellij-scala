@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package caseClassParamInspection
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
+import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -25,7 +24,7 @@ class RemoveValQuickFix(param: ScClassParameter)
   }
 }
 
-class RemoveValFromForBindingIntentionAction(forBinding: ScForBinding) extends IntentionAction {
+final class RemoveValFromForBindingIntentionAction(forBinding: ScForBinding) extends IntentionAction {
 
   override def getText: String = ScalaInspectionBundle.message("remove.unnecessary.val")
 
@@ -33,23 +32,18 @@ class RemoveValFromForBindingIntentionAction(forBinding: ScForBinding) extends I
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (!forBinding.isValid) return
-    removeVal(forBinding)
+    forBinding.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
   }
 
   override def startInWriteAction(): Boolean = true
 
   override def getFamilyName: String = ScalaInspectionBundle.message("remove.val.from.definition")
 
-  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
-    removeVal(PsiTreeUtil.findSameElementInCopy(forBinding, file))
-    IntentionPreviewInfo.DIFF
-  }
-
-  private def removeVal(binding: ScForBinding): Unit =
-    binding.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
+  override def getFileModifierForPreview(target: PsiFile): FileModifier =
+    new RemoveValFromForBindingIntentionAction(PsiTreeUtil.findSameElementInCopy(forBinding, target))
 }
 
-class RemoveValFromGeneratorIntentionAction(generator: ScGenerator) extends IntentionAction {
+final class RemoveValFromGeneratorIntentionAction(generator: ScGenerator) extends IntentionAction {
 
   override def getText: String = ScalaInspectionBundle.message("remove.unnecessary.val")
 
@@ -57,18 +51,13 @@ class RemoveValFromGeneratorIntentionAction(generator: ScGenerator) extends Inte
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (!generator.isValid) return
-    removeVal(generator)
+    generator.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
   }
 
   override def startInWriteAction() = true
 
   override def getFamilyName: String = ScalaInspectionBundle.message("remove.val.from.definition")
 
-  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
-    removeVal(PsiTreeUtil.findSameElementInCopy(generator, file))
-    IntentionPreviewInfo.DIFF
-  }
-
-  private def removeVal(gen: ScGenerator): Unit =
-    gen.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
+  override def getFileModifierForPreview(target: PsiFile): FileModifier =
+    new RemoveValFromGeneratorIntentionAction(PsiTreeUtil.findSameElementInCopy(generator, target))
 }

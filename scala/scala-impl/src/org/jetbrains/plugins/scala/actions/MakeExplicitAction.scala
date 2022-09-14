@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package actions
 
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -161,16 +162,21 @@ object MakeExplicitAction {
 
   private[this] def runReplace(expression: ScExpression, replacementText: String)
                               (findTarget: => Option[PsiElement])
-                              (onExpresion: PartialFunction[(ScExpression, PsiElement), Unit])
-                              (implicit project: Project, editor: Editor): Unit = startCommand() {
-    val replacement = createExpressionFromText(replacementText)
-    inWriteAction {
-      val methodCall = expression.replace(replacement).asInstanceOf[ScMethodCall]
-      for {
-        target <- findTarget
-      } onExpresion(methodCall.deepestInvokedExpr, target)
+                              (onExpression: PartialFunction[(ScExpression, PsiElement), Unit])
+                              (implicit project: Project, editor: Editor): Unit = {
+    def doReplace(): Unit = {
+      val replacement = createExpressionFromText(replacementText)
+      IntentionPreviewUtils.write { () =>
+        val methodCall = expression.replace(replacement).asInstanceOf[ScMethodCall]
+        for {
+          target <- findTarget
+        } onExpression(methodCall.deepestInvokedExpr, target)
 
-      PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+        PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+      }
     }
+
+    if (IntentionPreviewUtils.isIntentionPreviewActive) doReplace()
+    else startCommand() { doReplace() }
   }
 }

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.element
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
+import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.{DumbAware, Project}
@@ -73,7 +72,7 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
       case _                          => None
     }
 
-  private class ReplaceNamingPatternBindingElementInScala2Fix(binder: PsiElement) extends IntentionAction with DumbAware {
+  private final class ReplaceNamingPatternBindingElementInScala2Fix(binder: PsiElement) extends IntentionAction with DumbAware {
     override def getText: String = ScalaBundle.message("replace.with.type", "@")
 
     override def getFamilyName: String = ScalaBundle.message("family.name.replace.type.with.type.in.vararg.pattern")
@@ -84,22 +83,16 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
 
     override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
       if (!binder.isValid) return
-      replaceBinder(binder, project)
-    }
-
-    override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
-      replaceBinder(PsiTreeUtil.findSameElementInCopy(binder, file), project)
-      IntentionPreviewInfo.DIFF
-    }
-
-    private def replaceBinder(binderElement: PsiElement, project: Project): Unit = {
       val pattern = ScalaPsiElementFactory.createPatternFromText(s"List(_ @ _*)")(project)
       val newBinder = pattern.elements.find(_.elementType == ScalaTokenTypes.tAT)
-      newBinder.foreach(binderElement.replace)
+      newBinder.foreach(binder.replace)
     }
+
+    override def getFileModifierForPreview(target: PsiFile): FileModifier =
+      new ReplaceNamingPatternBindingElementInScala2Fix(PsiTreeUtil.findSameElementInCopy(binder, target))
   }
 
-  private class ReplaceNamingPatternBindingElementInScala3Fix(namingPattern: ScNamingPattern) extends IntentionAction with DumbAware {
+  private final class ReplaceNamingPatternBindingElementInScala3Fix(namingPattern: ScNamingPattern) extends IntentionAction with DumbAware {
     override def getText: String = ScalaBundle.message("replace.with.type", namingPattern.name + "*")
 
     override def getFamilyName: String = ScalaBundle.message("family.name.replace.with.scala3.vararg.pattern")
@@ -110,19 +103,13 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
 
     override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
       if (!namingPattern.isValid) return
-      replaceNamingPattern(namingPattern, project)
+      val pattern = ScalaPsiElementFactory.createPatternFromText(s"List(${namingPattern.name}*)")(project)
+      val newPattern = pattern.elements.find(_.elementType == ScalaElementType.SEQ_WILDCARD_PATTERN)
+      newPattern.foreach(namingPattern.replace)
     }
 
-    override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
-      replaceNamingPattern(PsiTreeUtil.findSameElementInCopy(namingPattern, file), project)
-      IntentionPreviewInfo.DIFF
-    }
-
-    private def replaceNamingPattern(pattern: ScNamingPattern, project: Project): Unit = {
-      val dummyPattern = ScalaPsiElementFactory.createPatternFromText(s"List(${pattern.name}*)")(project)
-      val newPattern = dummyPattern.elements.find(_.elementType == ScalaElementType.SEQ_WILDCARD_PATTERN)
-      newPattern.foreach(pattern.replace)
-    }
+    override def getFileModifierForPreview(target: PsiFile): FileModifier =
+      new ReplaceNamingPatternBindingElementInScala3Fix(PsiTreeUtil.findSameElementInCopy(namingPattern, target))
   }
 
   /*private class ReplaceWithScala3WildcardVarargFix(varargShort: ScSeqWildcard) extends IntentionAction with DumbAware {

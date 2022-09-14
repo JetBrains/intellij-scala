@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInspection.relativeImports
 
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiPackage
@@ -51,7 +52,7 @@ object RelativeImportInspection {
   }
 }
 
-private class EnableFullQualifiedImports extends LocalQuickFix {
+private final class EnableFullQualifiedImports extends LocalQuickFix {
   override def getName: String = getFamilyName
 
   override def getFamilyName: String = ScalaInspectionBundle.message("family.name.enable.full.qualified.imports")
@@ -59,6 +60,9 @@ private class EnableFullQualifiedImports extends LocalQuickFix {
   override def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
     ScalaCodeStyleSettings.getInstance(project).setAddFullQualifiedImports(true)
   }
+
+  override def generatePreview(project: Project, previewDescriptor: ProblemDescriptor): IntentionPreviewInfo =
+    IntentionPreviewInfo.EMPTY
 }
 
 private class MakeFullQualifiedImportFix(q: ScStableCodeReference, fqn: String)

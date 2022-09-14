@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections
 
+import com.intellij.codeInsight.intention.FileModifier.SafeFieldForPreview
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -40,7 +42,7 @@ class KindProjectorUseCorrectLambdaKeywordInspection extends LocalInspectionTool
   }
 }
 
-class KindProjectorUseCorrectLambdaKeywordQuickFix(e: PsiElement, replacement: String) extends AbstractFixOnPsiElement(inspectionName, e) {
+final class KindProjectorUseCorrectLambdaKeywordQuickFix(e: PsiElement, @SafeFieldForPreview replacement: String) extends AbstractFixOnPsiElement(inspectionName, e) {
 
   override protected def doApplyFix(elem: PsiElement)
                                    (implicit project: Project): Unit = {
@@ -48,7 +50,7 @@ class KindProjectorUseCorrectLambdaKeywordQuickFix(e: PsiElement, replacement: S
   }
 }
 
-class ChangeLambdaCodeStyleSetting(useGreekLambda: Boolean) extends LocalQuickFix {
+final class ChangeLambdaCodeStyleSetting(useGreekLambda: Boolean) extends LocalQuickFix {
   override def getFamilyName: String = getName
 
   override def getName: String =
@@ -58,6 +60,9 @@ class ChangeLambdaCodeStyleSetting(useGreekLambda: Boolean) extends LocalQuickFi
   override def applyFix(project: Project, d: ProblemDescriptor): Unit = {
     ScalaCodeStyleSettings.getInstance(project).REPLACE_LAMBDA_WITH_GREEK_LETTER = useGreekLambda
   }
+
+  override def generatePreview(project: Project, previewDescriptor: ProblemDescriptor): IntentionPreviewInfo =
+    IntentionPreviewInfo.EMPTY
 }
 
 object KindProjectorUseCorrectLambdaKeywordInspection {

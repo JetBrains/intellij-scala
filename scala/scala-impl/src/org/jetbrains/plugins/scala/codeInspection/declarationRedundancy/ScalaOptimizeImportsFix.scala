@@ -60,6 +60,9 @@ final class ScalaEnableOptimizeImportsOnTheFlyFix extends ScalaOptimizeImportsFi
     ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY = true
     super.invoke(project, editor, file)
   }
+
+  override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo =
+    IntentionPreviewInfo.EMPTY
 }
 
 final class MarkImportAsAlwaysUsed(importText: String) extends IntentionAction with LowPriorityAction {

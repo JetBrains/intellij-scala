@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections
 
+import com.intellij.codeInsight.intention.FileModifier
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.{KindProjectorUtil, TypeLambda}
@@ -15,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, TypePresentationContext}
+
+import scala.collection.mutable
 /**
  * Simplifies types, so that they use Kind Projector plugin (if Kind Projector is enabled)
  * @see https://github.com/non/kind-projector
@@ -34,7 +38,7 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
                   //should be handled by AppliedTypeLambdaCanBeSimplifiedInspection
                   case Some(p: ScParameterizedTypeElement) if p.typeArgList.typeArgs.size == aliasParam.size => ()
                   case _ if aliasParam.nonEmpty && aliasParam.forall(canConvertBounds) =>
-                    val fix = new KindProjectorSimplifyTypeProjectionQuickFix(projection, convertToKindProjIectorSyntax(alias))
+                    val fix = new KindProjectorSimplifyTypeProjectionQuickFix(projection, convertToKindProjectorSyntax(alias))
                     holder.registerProblem(projection, inspectionName, fix)
                   case _ => ()
                 }
@@ -53,11 +57,14 @@ object KindProjectorSimplifyTypeProjectionInspection {
   private val inspectionId: String   = "KindProjectorSimplifyTypeProjection"
   private val inspectionName: String = ScalaInspectionBundle.message("displayname.in.kind.projector.simplify.type")
 
-  class KindProjectorSimplifyTypeProjectionQuickFix(e: PsiElement, replacement: =>String)
+  final class KindProjectorSimplifyTypeProjectionQuickFix(e: PsiElement, replacement: => String)
     extends AbstractFixOnPsiElement(KindProjectorSimplifyTypeProjectionInspection.inspectionName, e) {
 
     override protected def doApplyFix(elem: PsiElement)(implicit project: Project): Unit =
       elem.replace(createTypeElementFromText(replacement, e, null))
+
+    override def getFileModifierForPreview(target: PsiFile): FileModifier =
+      new KindProjectorSimplifyTypeProjectionQuickFix(PsiTreeUtil.findSameElementInCopy(e, target), replacement)
   }
 
 
@@ -82,7 +89,7 @@ object KindProjectorSimplifyTypeProjectionInspection {
   }
 
   private[this] def tryConvertToInlineSyntax(alias: ScTypeAliasDefinition): Option[String] = {
-    def simpleTypeArgumentOccurences(tpe: ScParameterizedType): Map[String, Int] =
+    def simpleTypeArgumentOccurrences(tpe: ScParameterizedType): Map[String, Int] =
       tpe.typeArguments.collect { case tpt: TypeParameterType => tpt.name }
         .groupBy(identity)
         .view
@@ -91,10 +98,10 @@ object KindProjectorSimplifyTypeProjectionInspection {
 
     alias.aliasedType match {
       case Right(paramType: ScParameterizedType) =>
-        val typeParams           = alias.typeParameters
-        val validTypeParams      = typeParams.nonEmpty && typeParams.forall(hasNoBounds)
-        val typeArgOccurences    = simpleTypeArgumentOccurences(paramType)
-        val typeParamsAppearOnce = typeParams.map(p => typeArgOccurences.getOrElse(p.name, 0)).forall(_ == 1)
+        val typeParams            = alias.typeParameters
+        val validTypeParams       = typeParams.nonEmpty && typeParams.forall(hasNoBounds)
+        val typeArgOccurrences    = simpleTypeArgumentOccurrences(paramType)
+        val typeParamsAppearOnce  = typeParams.map(p => typeArgOccurrences.getOrElse(p.name, 0)).forall(_ == 1)
 
         if (validTypeParams && typeParamsAppearOnce) {
           val typeParamIt      = typeParams.iterator
@@ -120,7 +127,7 @@ object KindProjectorSimplifyTypeProjectionInspection {
   }
 
   private[this] def convertToFunctionSyntax(alias: ScTypeAliasDefinition): String = {
-    val builder = new StringBuilder()
+    val builder = new mutable.StringBuilder()
     val styleSettings = ScalaCodeStyleSettings.getInstance(alias.getProject)
 
     if (styleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER) builder ++= "λ"
@@ -142,6 +149,6 @@ object KindProjectorSimplifyTypeProjectionInspection {
     builder.toString()
   }
 
-  def convertToKindProjIectorSyntax(alias: ScTypeAliasDefinition): String =
+  def convertToKindProjectorSyntax(alias: ScTypeAliasDefinition): String =
     tryConvertToInlineSyntax(alias).getOrElse(convertToFunctionSyntax(alias))
 }

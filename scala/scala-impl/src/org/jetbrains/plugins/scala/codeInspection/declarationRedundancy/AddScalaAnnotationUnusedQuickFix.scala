@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
-import com.intellij.codeInsight.intention.FileModifier.SafeFieldForPreview
-import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
+import com.intellij.codeInsight.intention.FileModifier
 import com.intellij.codeInspection.LocalQuickFixAndIntentionActionOnPsiElement
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -19,23 +18,22 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
  * only be offered when the declaration is part of a Scala 2.13 or higher
  * project.
  */
-private final class AddScalaAnnotationUnusedQuickFix(@SafeFieldForPreview named: ScNamedElement)
+private final class AddScalaAnnotationUnusedQuickFix(named: ScNamedElement)
   extends LocalQuickFixAndIntentionActionOnPsiElement(named) {
   
-  override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
-    val element =
-      if (IntentionPreviewUtils.isIntentionPreviewActive) PsiTreeUtil.findSameElementInCopy(named, file)
-      else named
-    element.nameContext match {
+  override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit =
+    named.nameContext match {
       case p: ScParameter =>
         p.addAnnotation("scala.annotation.unused", addNewLine = false)
       case a: ScAnnotationsHolder =>
         a.addAnnotation("scala.annotation.unused")
       case _ => ()
     }
-  }
 
   override def getText: String = ScalaInspectionBundle.message("annotate.declaration.with.unused")
 
   override def getFamilyName: String = getText
+
+  override def getFileModifierForPreview(target: PsiFile): FileModifier =
+    new AddScalaAnnotationUnusedQuickFix(PsiTreeUtil.findSameElementInCopy(named, target))
 }
