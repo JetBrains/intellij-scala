@@ -106,8 +106,10 @@ object ExternalHighlighters {
         .create()
 
       executeOnPooledThread {
-        val fixes = inReadAction(findQuickFixes(psiFile, highlightRange, highlighting.highlightType))
-        fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
+        inReadAction {
+          val fixes = findQuickFixes(psiFile, highlightRange, highlighting.highlightType)
+          fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
+        }
       }
       highlightInfo
     }

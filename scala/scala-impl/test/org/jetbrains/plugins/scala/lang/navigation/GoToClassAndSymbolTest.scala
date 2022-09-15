@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.junit.Assert._
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 class GoToClassAndSymbolTest extends GoToTestBase {
@@ -37,6 +38,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
 
   private def gotoClassElements(text: String): Set[Any] = getPopupElements(new GotoClassModel2(getProject), text)
 
+  @nowarn("cat=deprecation")
   private def gotoSymbolElements(text: String): Set[Any] = getPopupElements(new GotoSymbolModel2(getProject), text)
 
   private def getPopupElements(model: ChooseByNameModel, text: String): Set[Any] = {

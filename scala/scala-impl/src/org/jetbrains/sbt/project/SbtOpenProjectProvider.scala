@@ -26,9 +26,10 @@ class SbtOpenProjectProvider extends AbstractOpenProjectProvider {
   override def isProjectFile(file: VirtualFile): Boolean =
     SbtProjectImportProvider.canImport(file)
 
-  override def linkAndRefreshProject(projectDirectory: Path, project: Project): Unit = {
+  override def linkToExistingProject(projectFile: VirtualFile, project: Project): Unit = {
     val sbtProjectSettings = SbtProjectSettings.forProject(project).getOrElse(SbtProjectSettings.default)
-    sbtProjectSettings.setExternalProjectPath(projectDirectory.toString)
+    val projectDirectory = getProjectDirectory(projectFile)
+    sbtProjectSettings.setExternalProjectPath(projectDirectory.toNioPath.toString)
     attachSbtProjectAndRefresh(sbtProjectSettings, project)
   }
 

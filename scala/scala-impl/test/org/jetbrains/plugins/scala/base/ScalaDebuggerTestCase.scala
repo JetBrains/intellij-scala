@@ -97,7 +97,6 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
     super.setUpModule()
     EdtTestUtil.runInEdtAndWait { () =>
       setUpLibraries(getModule)
-      compilerConfig.applyChange()
     }
   }
 
@@ -116,6 +115,11 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
     }
 
     super.setUp()
+
+    EdtTestUtil.runInEdtAndWait { () =>
+      compilerConfig.applyChange()
+    }
+
     LocalFileSystem.getInstance().refreshIoFiles(srcPath.toFile.listFiles().toList.asJava)
     compileProject()
   }
