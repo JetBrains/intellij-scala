@@ -86,198 +86,231 @@
                 enabledByDefault="true"/>
 
         <intentionAction>
+            <language>Scala</language>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.declarations.ChangeAccessModifierIntention</className>
             <categoryKey>intention.category.scala</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.argument.conversion</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.AddNameToArgumentIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.argument.conversion</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.ArgumentToBlockExpressionIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.argument.conversion</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.BlockExpressionToArgumentIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.argument.conversion</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.PermuteArgumentsIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.boolean</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.DeMorganLawIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.boolean</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ExpandBooleanIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.boolean</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.FlipComparisonInInfixExprIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.boolean</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.FlipComparisonInMethodCallExprIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.boolean</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.NegateComparisonIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.boolean</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ReplaceEqualsOrEqualityInInfixExprIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.boolean</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ReplaceEqualsOrEqualityInMethodCallExprIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.boolean</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.SimplifyBooleanExprWithLiteralIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.control.flow</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.InvertIfConditionIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.control.flow</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.MergeElseIfIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.control.flow</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.MergeIfToAndIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.control.flow</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.MergeIfToOrIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.control.flow</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.RemoveRedundantElseIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.control.flow</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.ReplaceDoWhileWithWhileIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.control.flow</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.ReplaceWhileWithDoWhileIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.control.flow</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.SplitElseIfIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.control.flow</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.controlFlow.SplitIfIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.strings.formatted.strings</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$FormattedToStringConcatenation</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.strings.formatted.strings</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$FormattedToInterpolated</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.strings.interpolated.strings</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$InterpolatedToStringConcatenation</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.strings.interpolated.strings</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$InterpolatedToFormatted</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.string.string.concatenations</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$StringConcatenationToFormatted</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.string.string.concatenations</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$StringConcatenationToInterpolated</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.strings</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.AddReplaceSlashRToMLStringIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.strings</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.AddStripMarginToMLStringIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.strings</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.InsertGapIntoStringIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.strings</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.StringToMultilineStringIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.recursion</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.recursion.AddTailRecursionAnnotationIntention</className>
