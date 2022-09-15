@@ -28,6 +28,7 @@
                          isInternal="true" level="WARNING" enabledByDefault="true" />
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.internal</categoryKey>
             <bundleName>messages.ScalaInspectionBundle</bundleName>
             <className>org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.JavaExtractStringToBundleInspection</className>

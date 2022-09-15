@@ -570,210 +570,245 @@
         <nameSuggestionProvider id="ScalaDictionarySuggestionProvider" implementation="org.jetbrains.plugins.scala.spellchecker.ScalaDictionarySuggestionProvider" order="first, before DictionarySuggestionProvider"/>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.type</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertJavaToScalaCollectionIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.type</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertScalaToJavaCollectionIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.type</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeAnnotation</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.type</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.AddUnitTypeAnnotationIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.type</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.RegenerateTypeAnnotation</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.type</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.MakeTypeMoreSpecificIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.type</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertToInfixIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.type</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertFromInfixIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.type</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.AdjustTypesIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.pattern.matching</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.ConvertToTypedPatternIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.pattern.matching</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.ExpandPatternIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertImplicitBoundsToImplicitParameter</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.expressions</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.AddBracesIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.expressions</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.CreateCompanionObjectIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.for.comprehension</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.comprehension.ConvertToCurlyBracesIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.for.comprehension</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.comprehension.ConvertToParenthesesIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.for.comprehension</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.comprehension.DesugarForIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.import</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAdditionalIdentifiersIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.import</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportStableMemberIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.import</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAllMembersIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.expressions</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertFromInfixExpressionIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.expressions</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertToInfixExpressionIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.expressions</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.RemoveApplyIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.expressions</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertUnderscoreToParameterIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.expressions</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertParameterToUnderscoreIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.expressions</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.RemoveUnnecessaryParenthesesIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.expressions</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ReplaceTypeCheckWithMatchIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.collections</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.OptionWithLiteralToSomeIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.expressions</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.MakeImplicitConversionExplicit</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.collections</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.collections.ComparingLengthIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.collections</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.collections.SomeToOptionIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala.collections</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.collections.FilterSetContainsIntention</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.editor.documentationProvider.actions.CreateScalaDocStubIntentionAction</className>
         </intentionAction>
 
         <intentionAction>
+            <language>Scala</language>
             <categoryKey>intention.category.scala</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInspection.notImplementedCode.NotImplementedMembersAction</className>
