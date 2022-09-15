@@ -98,11 +98,6 @@ package object codeInspection {
     }
   }
 
-  val charExpr = new ExpressionOfTypeMatcher("scala.Char")
-  val stringExpr = new ExpressionOfTypeMatcher("java.lang.String")
-
-  // TODO -- Move to AbstractInspection or AbstractRegisteredInspection, whichever will be left over after
-  //  cleaning up as per #SCL-20396
   abstract class PsiElementVisitorSimple extends PsiElementVisitor {
     override final def visitElement(element: PsiElement): Unit = visitPsiElement(element)
 

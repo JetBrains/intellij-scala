@@ -17,6 +17,8 @@ object ScalaShouldBeTextMatchesInspection extends SimplificationType() {
 
   private val `.getText`: Qualified = invocation("getText").from(ArraySeq(psiElementFqn))
 
+  private val stringExpr = new ExpressionOfTypeMatcher("java.lang.String")
+
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     // TODO infix notation?
     case `.getText`(base) `==` (stringExpr(str)) =>

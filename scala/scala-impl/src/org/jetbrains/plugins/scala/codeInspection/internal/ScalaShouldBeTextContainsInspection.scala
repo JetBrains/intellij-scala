@@ -18,6 +18,8 @@ object ScalaShouldBeTextContainsInspection extends SimplificationType() {
   private val `.getText`: Qualified = invocation("getText").from(ArraySeq(psiElementFqn, psiASTNodeFqn))
   private val `.contains`: Qualified = invocation("contains")
 
+  private val charExpr = new ExpressionOfTypeMatcher("scala.Char")
+
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     // TODO infix notation?
     case `.getText`(base)`.contains`(charExpr(arg)) =>
