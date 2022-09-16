@@ -1,29 +1,56 @@
 package parameter
 
 trait ContextBounds {
-  class ClassLowerBound[A/**/ : Ordering/**/]/**//*(implicit evidence$1: Ordering[A])*/
+  class Class[A: Ordering]
 
-  trait TraitLowerBound[A/**/ : Ordering/**/]/**//*(implicit evidence$2: Ordering[A])*/
+  trait Trait[A: Ordering]
 
-  def defLowerBound[A/**/ : Ordering/**/]/**//*(implicit evidence$3: Ordering[A])*/: Unit
+  def method[A: Ordering]: Unit
 
-  enum EnumLowerBound[A/**/ : Ordering/**/]/**//*(implicit evidence$4: Ordering[A])*/ {
-    case Case extends EnumLowerBound[Int]
+  enum Enum[A: Ordering] {
+    case Case extends Enum[Int]
   }
 
-  enum EnumCaseClassLowerBound {
-    case CaseClass[A/**/ : Ordering/**/]()/**//*(implicit evidence$9: Ordering[A])*/
+  enum EnumCaseClass {
+    case CaseClass[A: Ordering]()
   }
 
-  extension [A/**/ : Ordering/**/](i: Int)
-    def extensionLowerBound/**//*(implicit evidence$5: Ordering[A])*/: Unit = ???
+  extension [A: Ordering](i: Int)
+    def method: Unit = ???
 
   extension (i: Int)
-    def extensionMethodLowerBound[A/**/ : Ordering/**/]/**//*(implicit evidence$6: Ordering[A])*/: Unit = ???
+    def extenstionMethod[A: Ordering]: Unit = ???
+
+  extension [A: Ordering](i: Int)
+    def method[B: PartialOrdering]: Unit = ???
 
   trait T
 
-  given givenAliasLowerBound[A/**/ : Ordering/**/]/**//*(implicit evidence$7: Ordering[A])*/: T = ???
+  given givenAlias[A: Ordering]: T = ???
 
-  given givenInstanceLowerBound[A/**/ : Ordering/**/]/**//*(implicit evidence$8: Ordering[A])*/: T with {}
+  given givenInstance[A: Ordering]: T with {}
+
+  def multipleParameters[A: Ordering, B: PartialOrdering]: Unit = ???
+
+  def multipleBounds[A: Ordering: PartialOrdering]: Unit = ???
+
+  def typeAndContext[A <: Int: Ordering]: Unit = ???
+
+  def typeParameter1[A, B: Ordering]: Unit = ???
+
+  def typeParameter2[A: Ordering, B]: Unit = ???
+
+  def valueParameter[A: Ordering](x: Int): Unit = ???
+
+  def implicitParameter[A: Ordering](implicit x: Int): Unit = ???
+
+  def notImplicit[A](evidence$1: Ordering[A]): Unit = ???
+
+  def using[A](using evidence$1: Ordering[A]): Unit = ???
+
+  class HKT[A[_]]
+
+  def wildcard[A[_]: HKT]: Unit = ???
+
+  def parameter[A[X]: HKT]: Unit = ???
 }

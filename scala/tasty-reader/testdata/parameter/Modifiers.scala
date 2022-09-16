@@ -3,11 +3,15 @@ package parameter
 trait Modifiers {
   class ClassUsing(using x: Int, y: Long)
 
+  class ClassUsingMultiple(using x: Int)(using y: Long)
+
   class ClassAnonymousUsing(using Int, Long)
 
   class ClassContextParameter(using val x: Int, val y: Int)
 
   class ClassImplicit(implicit x: Int, y: Long)
+
+  class ClassUsingAndImplicit(using x: Int)(implicit y: Long)
 
   class ClassVal(val x: Int)
 
@@ -23,11 +27,15 @@ trait Modifiers {
 
   trait TraitUsing(using x: Int, y: Long)
 
+  trait TraitUsingMultiple(using x: Int)(using y: Long)
+
   trait TraitAnonymousUsing(using Int, Long)
 
   trait TraitContextParameter(using val x: Int, val y: Long)
 
   trait TraitImplicit(implicit x: Int, y: Long)
+
+  trait TraitUsingAndImplicit(using x: Int)(implicit y: Long)
 
   class TraitVal(val x: Int)
 
@@ -43,9 +51,15 @@ trait Modifiers {
 
   def defUsing(using x: Int, y: Long): Unit
 
+  def defUsingMultiple(using x: Int)(using y: Long): Unit
+
   def defAnonymousUsing(using Int, Long): Unit
 
   def defImplicit(implicit x: Int, y: Long): Unit
+
+  def defUsingAndImplicit(using x: Int)(implicit y: Long): Unit
+
+  def defContextBoundAndAnonymousUsing[A: Ordering](using Int): Unit
 
   enum EnumVal(val x: Int) {
     case Case/**/ extends EnumVal(1)/**/
