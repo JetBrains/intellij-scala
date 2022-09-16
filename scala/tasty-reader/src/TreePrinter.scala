@@ -540,8 +540,14 @@ class TreePrinter(privateMembers: Boolean = false) {
 
     val templateTypeParams = template.map(_.children.filter(_.is(TYPEPARAM)).iterator)
 
+    lazy val contextBounds = node.children.collect {
+      case param @ Node3(PARAM, Seq(name), Seq(tail, _: _*)) if name.startsWith("evidence$") && param.contains(IMPLICIT) =>
+        val tpe = textOfType(tail)
+        val i = tpe.indexOf("[")
+        (tpe.substring(i + 1, tpe.length - 1), tpe.substring(0, i))
+    }
+
     var open = false
-    var isImplicit = false
     var next = false
 
     tps.foreach {
@@ -585,6 +591,12 @@ class TreePrinter(privateMembers: Boolean = false) {
             boundsIn(sb, bounds)
           case _ =>
         }
+        contextBounds.foreach { case (id, tpe) =>
+          if (id == name) {
+            sb ++= ": "
+            sb ++= tpe
+          }
+        }
         next = true
       case _ =>
     }
@@ -609,7 +621,6 @@ class TreePrinter(privateMembers: Boolean = false) {
     val templateValueParams = template.map(_.children.filter(_.is(PARAM)).iterator)
 
     open = false
-    isImplicit = false
     next = false
 
     ps.foreach {
@@ -618,7 +629,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       case Node1(SPLITCLAUSE) =>
         sb ++= ")"
         open = false
-      case node @ Node3(PARAM, Seq(name), children) =>
+      case node @ Node3(PARAM, Seq(name), children) if !(name.startsWith("evidence$") && node.contains(IMPLICIT)) =>
         if (!open) {
           sb ++= "("
           open = true
@@ -628,7 +639,6 @@ class TreePrinter(privateMembers: Boolean = false) {
           }
           if (node.contains(IMPLICIT)) {
             sb ++= "implicit "
-            isImplicit = true
           }
         }
         if (next) {
@@ -656,8 +666,7 @@ class TreePrinter(privateMembers: Boolean = false) {
             }
           }
         }
-        // Re-sugar context bounds to use anonymous "using" parameters?
-        if (isImplicit || !(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
+        if (!(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
           sb ++= id(name) + ": "
         }
         sb ++= simple(tpe).stripSuffix(" @scala.annotation.internal.InlineParam")

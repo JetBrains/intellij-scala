@@ -32,12 +32,13 @@ import scala.util.control.NonFatal
 // modifiers order
 // detect anonymous givens more reliably?
 // how to merge object / implicit class / enum members, index?
-// re-elaborate context bounds?
 // package objects as package objects?
 // default argument constants?
 // group enum cases
 // group extension methods
 // combinedUsingClauses?
+// ContextBounds: extension[A : Foo] { def method[A : Bar] }
+// ContextBounds: [A](implicit evidence$1: Ordering[Int])
 // use Unit method result instead of Int
 // use objects instead of traits?
 // correspondence between parametric type definitions and type lambdas - which to use?
