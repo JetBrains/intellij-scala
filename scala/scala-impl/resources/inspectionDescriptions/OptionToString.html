@@ -1,0 +1,17 @@
+<html>
+<body>
+<p>Reports and replaces <code>toString</code> with <code>getOrElse(throw new NoSuchElementException())</code>.</p>
+
+<p><code>getOrElse</code> will prevent from getting string <code>"Some(a)"</code> instead of expected string <code>"a"</code>.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  Option(a).toString
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  Option(a).getOrElse(throw new NoSuchElementException())
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>
