@@ -36,10 +36,12 @@ trait Markers {
     val hasNormalStartMarker = hasMarker(startMarker, endMarker)
     val numberedMarkers = LazyList.from(0).takeWhile(i => hasMarker(startMarker(i), endMarker(i)))
 
+    val markers1 = if (hasNormalStartMarker) Seq((startMarker, endMarker)) else Seq.empty
+    val markers2 = numberedMarkers.map(i => (startMarker(i), endMarker(i)))
+    val markers = markers1 ++ markers2
     val (resultText, ranges) = extractMarkers(
       normalizedInput,
-      hasNormalStartMarker.fold(Seq((startMarker, endMarker)), Seq.empty) ++
-        numberedMarkers.map(i => (startMarker(i), endMarker(i))),
+      markers,
       caretMarker = Some(EditorTestUtil.CARET_TAG)
     )
     (resultText, ranges.map(_._1))
@@ -169,7 +171,7 @@ trait Markers {
     val adjustmentsBeforeMarker =
     allIndices.foldLeft(List(0)) {
       case (prevs, (_, isStart)) =>
-        prevs.head + isStart.fold(startMarker.length, endMarker.length) :: prevs
+        prevs.head + (if (isStart) startMarker.length else endMarker.length) :: prevs
     }.reverse
 
     val adjustments =

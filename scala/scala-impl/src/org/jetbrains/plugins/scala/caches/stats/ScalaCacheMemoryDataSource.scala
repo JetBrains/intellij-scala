@@ -22,7 +22,7 @@ object ScalaCacheMemoryDataSource extends DataSource[MemoryData] {
         val capabilities = tracker.capabilities
         val data = MemoryData(
           tracker.id,
-          tracker.name + tracker.alwaysTrack.fold(ifTrue = " (always tracked)", ifFalse = ""),
+          tracker.name + (if (tracker.alwaysTrack) " (always tracked)" else ""),
           tracked.length,
           tracked.foldLeft(0) { _ + capabilities.cachedEntitiesCount(_)}
         )

@@ -108,7 +108,7 @@ private[evaluator] object GeneratedClass {
     }
 
     val tabSize = CodeStyle.getIndentOptions(fragment).TAB_SIZE
-    val indentLevel = IndentUtil.calcRegionIndent(prevParent, tabSize) + needBraces.fold(tabSize, 0)
+    val indentLevel = IndentUtil.calcRegionIndent(prevParent, tabSize) + (if (needBraces) tabSize else 0)
     val indent = indentStr(indentLevel)
 
     val anchor =

@@ -16,7 +16,7 @@ class CompilerIndicesSbtSettings extends PersistentStateComponent[CompilerIndice
   @BeanProperty var useManualConfiguration: Boolean = false
   @BeanProperty var sbtConnectionPort: Int          = 65337
 
-  def sbtPort: Int = useManualConfiguration.fold(sbtConnectionPort, 0)
+  def sbtPort: Int = if (useManualConfiguration) sbtConnectionPort else 0
 
   override def getState: CompilerIndicesSbtSettings               = this
   override def loadState(state: CompilerIndicesSbtSettings): Unit = XmlSerializerUtil.copyBean(state, this)

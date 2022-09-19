@@ -20,7 +20,7 @@ class InscribeImplicitParameters extends AbstractTransformer {
       val result = {
         val enclose = e.is[ScInfixExpr, ScPostfixExpr]
         val arguments = targets.map(simpleNameOf).mkString(", ")
-        e.replace(enclose.fold(code"($e)($arguments)", code"$e($arguments)"))
+        e.replace(if (enclose) code"($e)($arguments)" else code"$e($arguments)")
       }
 
       val references = result.getLastChild.asInstanceOf[ScArgumentExprList].exprs
