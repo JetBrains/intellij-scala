@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.compiler.references
 
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry}
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.{ModificationTracker, UserDataHolderBase}
@@ -48,7 +48,7 @@ abstract class DirtyScopeHolder[Scope](
 
   private[references] def markScopeUpToDate(scope: Scope): Unit = compilationAffectedScopes.add(scope)
 
-  private[references] def markProjectAsOutdated(): Unit = lock.withLock(project.sourceModules.foreach(markModuleAsDirty))
+  private[references] def markProjectAsOutdated(): Unit = lock.withLock(sourceModules.foreach(markModuleAsDirty))
 
   private[references] def reset(): Unit = lock.withLock {
     markProjectAsOutdated()
@@ -157,4 +157,7 @@ abstract class DirtyScopeHolder[Scope](
 
     dirty.result()
   }
+
+  private def sourceModules: Seq[Module] =
+    ModuleManager.getInstance(project).getModules.filter(_.isSourceModule).toSeq
 }

@@ -243,10 +243,6 @@ private object ScalaMavenImporter {
     }
   }
 
-  implicit class RichFile(private val file: File) extends AnyVal {
-    def /(child: String): File = new File(file, child)
-  }
-
   //rename to `private val mavenProject`
   private class ScalaConfiguration(project: MavenProject) {
 

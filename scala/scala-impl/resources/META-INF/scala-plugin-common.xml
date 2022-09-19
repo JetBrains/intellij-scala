@@ -24,9 +24,9 @@
         <extensionPoint qualifiedName="org.intellij.scala.referenceExtraResolver" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceExtraResolver" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.codeInspection.feature.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
 
-        <extensionPoint qualifiedName="com.intellij.newProjectWizard.scala.buildSystem" interface="org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard" dynamic="true"/>
-
-        <extensionPoint qualifiedName="org.intellij.scala.sbtUnlinkedProjectAwareHelper" interface="org.jetbrains.sbt.project.SbtUnlinkedProjectAwareHelper"/>
+        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalReferenceSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalReferenceSearcher"/>
+        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalInheritorsSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher"/>
+        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalSearchScopeChecker" interface="org.jetbrains.plugins.scala.findUsages.ExternalSearchScopeChecker"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -82,10 +82,6 @@
         <exceptionFilter implementation="org.jetbrains.plugins.scala.stacktrace.ScalaPackageObjectFilterFactory" order="first"/>
         <consoleFilterProvider implementation="org.jetbrains.plugins.scala.stacktrace.ScalaPackageObjectConsoleFilterProvider" order="first"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>
-
-        <newProjectWizard.language implementation="org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard"/>
-        <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.SbtScalaNewProjectWizard" />
-        <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.IntelliJScalaNewProjectWizard" />
 
         <refactoring.moveMemberHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMemberHandler"/>
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMembersHandler" order="first" id="scalaMoveMembersHandler"/>
@@ -437,8 +433,6 @@
 
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer" order="first"/>
         <runConfigurationExtension implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationExtension"/>
-
-        <orderEnumerationHandlerFactory implementation="org.jetbrains.sbt.execution.SbtOrderEnumeratorHandlerFactory"/>
 
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementType$"/>
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition$"/>

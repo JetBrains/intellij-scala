@@ -12,7 +12,7 @@ import com.typesafe.config._
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{inWriteAction, _}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.OpenFileNotificationActon
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.ConfigCyclicDependencyException
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService._
@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotification
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaFmtSettingsPanel}
 import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
-import org.jetbrains.sbt.language.SbtFileImpl
 import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig, ScalafmtVersion}
 
 import java.io.File
@@ -86,12 +85,14 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
         }
         None
     }
-    val configWithDialect =
-      if (psiFile.isInstanceOf[SbtFileImpl]) {
+    val configWithDialect = {
+      //noinspection ApiStatus
+      if (org.jetbrains.sbt.internal.InternalDynamicLinker.checkIsSbtFile(psiFile)) {
         config.map(x => x.withSbtDialect.getOrElse(x))
       } else {
         config
       }
+    }
 
     val timestamp = configFile.map(_.getPath).flatMap(configsCache.get).map(_.vFileModificationTimestamp)
     configWithDialect.map((_, timestamp))

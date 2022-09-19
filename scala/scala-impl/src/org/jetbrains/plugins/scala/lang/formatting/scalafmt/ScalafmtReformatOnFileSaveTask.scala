@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtP
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.sbt.language.SbtFileImpl
 
 final class ScalafmtReformatOnFileSaveTask extends ProjectManagerListener {
 
@@ -50,10 +49,9 @@ final class ScalafmtReformatOnFileSaveTask extends ProjectManagerListener {
 
   private def isInProjectSources(psiFile: PsiFile, vFile: VirtualFile)(implicit project: Project): Boolean = {
     val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
-    psiFile match {
-      case _: SbtFileImpl => fileIndex.isInContent(vFile)
-      case _              => fileIndex.isInSourceContent(vFile)
-    }
+    //noinspection ApiStatus
+    if (org.jetbrains.sbt.internal.InternalDynamicLinker.checkIsSbtFile(psiFile)) fileIndex.isInContent(vFile)
+    else fileIndex.isInSourceContent(vFile)
   }
 
   private def isFileSupported(file: PsiFile): Boolean = {

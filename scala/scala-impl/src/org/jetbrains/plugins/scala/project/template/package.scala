@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala
 package project
 
+import com.intellij.openapi.application.Experiments
 import com.intellij.openapi.util.io
 import com.intellij.openapi.util.text.Strings
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile, VirtualFileManager}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions.IterableOnceExt
 
 import java.awt.Container
@@ -106,4 +108,11 @@ package object template {
         label.setText(newText)
     }
   }
+
+  def isNewWizardEnabled: Boolean =
+    Experiments.getInstance.isFeatureEnabled("new.project.wizard")
+
+  @TestOnly
+  private[jetbrains] def setNewWizardEnabled(enabled: Boolean): Unit =
+    Experiments.getInstance.setFeatureEnabled("new.project.wizard", enabled)
 }

@@ -88,14 +88,4 @@ public interface Icons {
     Icon UNTYPED = getIcon("/org/jetbrains/plugins/scala/images/untyped.svg", Icons.class);
 
     Icon LIGHTBEND_LOGO = getIcon("/org/jetbrains/plugins/scala/images/lightbendLogo.svg", Icons.class);
-
-    // sbt
-    Icon SBT = getIcon("/org/jetbrains/plugins/scala/images/sbtIcon.svg", Icons.class);
-    // used from SBT.xml
-    Icon SBT_TOOLWINDOW = getIcon("/org/jetbrains/plugins/scala/images/sbtToolwin.svg", Icons.class);
-    Icon SBT_FOLDER = getIcon("/org/jetbrains/plugins/scala/images/sbtFolder.svg", Icons.class);
-    Icon SBT_SHELL = getIcon("/org/jetbrains/plugins/scala/images/sbtShell.svg", Icons.class);
-    // used from SBT.xml
-    Icon SBT_SHELL_TOOLWINDOW = getIcon("/org/jetbrains/plugins/scala/images/sbtShellToolwin.svg", Icons.class);
-    Icon SBT_LOAD_CHANGES = getIcon("/org/jetbrains/plugins/scala/images/sbtLoadChanges.svg", Icons.class);
 }

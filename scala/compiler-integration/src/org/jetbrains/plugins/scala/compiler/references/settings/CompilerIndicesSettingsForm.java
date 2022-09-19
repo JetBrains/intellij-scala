@@ -12,13 +12,13 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.UIUtil;
-import org.jetbrains.plugins.scala.buildinfo.BuildInfo;
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle;
 import org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService$;
 import org.jetbrains.plugins.scala.compiler.references.indices.ScalaCompilerIndices;
 import org.jetbrains.plugins.scala.compiler.references.package$;
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSbtSettings;
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings;
+import org.jetbrains.sbt.buildinfo.BuildInfo;
 
 import javax.swing.*;
 import java.awt.*;

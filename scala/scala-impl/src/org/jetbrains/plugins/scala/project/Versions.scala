@@ -3,8 +3,8 @@ package project
 
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.plugins.scala.LatestScalaVersions._
-import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.extensions.withProgressSynchronously
+import org.jetbrains.sbt.buildinfo.BuildInfo
 
 import scala.io.Source
 import scala.util.Try
