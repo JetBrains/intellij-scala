@@ -12,7 +12,6 @@ import scala.collection.mutable
 
 trait Markers {
 
-  val caret = EditorTestUtil.CARET_TAG
   def startMarker(i: Int) = s"/*start$i*/"
   def endMarker(i: Int) = s"/*end$i*/"
   val startMarker = "/*start*/"
@@ -41,7 +40,7 @@ trait Markers {
       normalizedInput,
       hasNormalStartMarker.fold(Seq((startMarker, endMarker)), Seq.empty) ++
         numberedMarkers.map(i => (startMarker(i), endMarker(i))),
-      considerCaret = true
+      caretMarker = Some(EditorTestUtil.CARET_TAG)
     )
     (resultText, ranges.map(_._1))
   }
@@ -54,34 +53,40 @@ trait Markers {
    * line /start/ 1 content /end/
    * line /start/ /start/ 1 /end/ content /start/ 2 /end/ /end/
    */
-  def extractMarker(inputText: String,
-                    startMarker: String = this.startMarker,
-                    endMarker: String = this.endMarker,
-                    considerCaret: Boolean = false,
-                    caretText: String = this.caret): (String, Seq[TextRange]) = {
-    val (resultText, ranges) = extractMarkers(inputText, Seq(startMarker -> endMarker), considerCaret, caretText)
+  def extractMarker(
+    inputText: String,
+    startMarker: String = this.startMarker,
+    endMarker: String = this.endMarker,
+    caretMarker: Option[String] = None
+  ): (String, Seq[TextRange]) = {
+    val (resultText, ranges) = extractMarkers(inputText, Seq(startMarker -> endMarker), caretMarker)
     (resultText, ranges.map(_._1))
   }
 
   /**
-   * Uuuuuuultimate function to extract ranges from an input sequence.
+   * Ultimate function to extract ranges from an input sequence.
    * Multiple marker-kinds are supported and markers of different kinds
    * do not interfere with one another.
    * Markers of the same kind may be nested, but may not be interleaved.
    * (In fact they cannot be interleaved, now that I think about it).
    *
-   * @param inputText       example: {{{
+   * @param inputText   example: {{{
    *   line /start/ some content /start/ inner content /end/ some more content /end/
    *   line <foldStart> 2 </foldEnd> [[ content ]]
    * }}}
-   * @param startEndMarkers example: {{{
+   * @param markers     example: {{{
    *   Seq(("/start/", "/end/"), ("<foldStart>", "<foldEnd>"), ("[[", "]]"))
    * }}}
+   * @param caretMarker example {{{<caret>}}}<br>
+   *                    None if text is assumed to have no caret marker
+   * @return pair: 1. text without markers 2. markers ranges (range + index of the marker)
+   * @example see [[org.jetbrains.plugins.scala.util.MarkerUtilsTest.test_super_multi_nested]] for example
    */
-  def extractMarkers(inputText: String,
-                     markers: Seq[(String, String)],
-                     considerCaret: Boolean = false,
-                     caretText: String = this.caret): (String, Seq[(TextRange, Int)]) = {
+  def extractMarkers(
+    inputText: String,
+    markers: Seq[(String, String)],
+    caretMarker: Option[String] = None
+  ): (String, Seq[(TextRange, Int)]) = {
     val normalizedInput = inputText.withNormalizedSeparator
 
     val (ranges, idxAdjust) = markers.zipWithIndex
@@ -91,9 +96,13 @@ trait Markers {
           (prevRanges ++ ranges.map(_ -> markerIdx), i => prevIdxAdjust(i) + idxAdjust(i))
       }
 
-    val caret = considerCaret.option(normalizedInput.indexOf(caretText)).filter(_ >= 0)
-    def adjustIndexForMarkersAndCaret(i: Int): Int =
-      i - idxAdjust(i) - caret.exists(i > _).fold(caretText.length, 0)
+    val caretIndexOpt: Option[Int] =
+      caretMarker.map(normalizedInput.indexOf).filter(_ >= 0)
+
+    def adjustIndexForMarkersAndCaret(idx: Int): Int = {
+      val caretAdjust = if (caretIndexOpt.exists(idx > _)) caretMarker.get.length else 0
+      idx - idxAdjust(idx) - caretAdjust
+    }
 
     val rangesFixed = ranges
       .sortBy{ case (TextRangeExt(s, e), _) => (s, -e) }
@@ -156,12 +165,12 @@ trait Markers {
     // for all positions in the input text between the start offsets
     // of allIndices(i-1) and allIndices(i)
     // note that this list has one more element than allIndices,
-    // because the last entry corresponds to the end of the inputtext
+    // because the last entry corresponds to the end of the input text
     val adjustmentsBeforeMarker =
-      allIndices.foldLeft(List(0)) {
-        case (prevs, (_, isStart)) =>
-          prevs.head + isStart.fold(startMarker.length, endMarker.length) :: prevs
-      }.reverse
+    allIndices.foldLeft(List(0)) {
+      case (prevs, (_, isStart)) =>
+        prevs.head + isStart.fold(startMarker.length, endMarker.length) :: prevs
+    }.reverse
 
     val adjustments =
       (allIndices.map(_._1) :+ inputText.length)
@@ -185,7 +194,6 @@ trait Markers {
 
 object MarkersUtils extends Markers
 
-
 class MarkerUtilsTest extends TestCase with Markers with AssertionMatchers {
   def test_super_multi_nested(): Unit = {
     val code =
@@ -198,8 +206,12 @@ class MarkerUtilsTest extends TestCase with Markers with AssertionMatchers {
 
     val (result, ranges) = extractMarkers(
       code,
-      Seq("a", "b", "c").map(c => (s"<$c>", s"</$c>")),
-      considerCaret = true
+      Seq(
+        ("<a>", "</a>"),
+        ("<b>", "</b>"),
+        ("<c>", "</c>")
+      ),
+      caretMarker = Some("<caret>")
     )
 
     result shouldBe

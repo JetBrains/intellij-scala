@@ -118,7 +118,7 @@ class FindUsagesTest extends ScalaFixtureTestCase with Markers {
 
   def testUnaryOperator(): Unit = doTest(
     s"""class B {
-      |  def ${caret}unary_! : B = this
+      |  def ${CARET}unary_! : B = this
       |}
       |
       |object Test {
