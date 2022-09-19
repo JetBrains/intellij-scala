@@ -30,6 +30,14 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
     )
   }
 
+  def testOptionValInObject(): Unit = {
+    doTest(
+      s"""object Test { val i = Option("hello"); ${START}i.toString$END }""",
+      """object Test { val i = Option("hello"); i.toString }""",
+      """object Test { val i = Option("hello"); i.getOrElse(throw new NoSuchElementException()) }"""
+    )
+  }
+
   def testFunctionExpression(): Unit = {
     doTest(
       s"""${START}sys.env.get("VARIABLE").toString$END""",
