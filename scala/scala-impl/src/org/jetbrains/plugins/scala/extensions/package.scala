@@ -31,6 +31,7 @@ import com.intellij.util.CommonProcessors.CollectUniquesProcessor
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, ExceptionUtil, Processor}
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.annotations.{Nls, NonNls, Nullable}
 import org.jetbrains.plugins.scala.caches.UserDataHolderDelegator
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
@@ -430,9 +431,11 @@ package object extensions {
 
     def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
 
-    def seq[A](a: => A): Seq[A] = if (b) Seq(a) else Seq.empty
+    def seq[A](a: => A): Seq[A] = if (b) Seq(a) else Seq.empty // looks better withing expressions than { if (???) ??? else ??? } block
 
-    // looks better withing expressions than { if (???) ??? else ??? } block
+    @deprecated
+    @Deprecated
+    @ScheduledForRemoval(inVersion = "2023.2")
     def fold[T](ifTrue: => T, ifFalse: => T): T = if (b) ifTrue else ifFalse
 
     def toInt: Int = if (b) 1 else 0
