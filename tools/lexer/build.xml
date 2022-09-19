@@ -4,6 +4,7 @@
 
   <property name="community.project.root" value="${basedir}/../.."/>
   <property name="scala-impl.src.root" value="${community.project.root}/scala/scala-impl/src"/>
+  <property name="sbt-impl.src.root" value="${community.project.root}/sbt/sbt-impl/src"/>
 
   <property name="out.dir" value="${basedir}/out"/>
 
@@ -32,7 +33,7 @@
   </target>
 
   <target name="generate.lexer.sbt.shell">
-    <flex flexFileName="_SbtShellLexer.flex" flexFileDir="${scala-impl.src.root}/org/jetbrains/sbt/shell/grammar/"/>
+    <flex flexFileName="_SbtShellLexer.flex" flexFileDir="${sbt-impl.src.root}/org/jetbrains/sbt/shell/grammar/"/>
   </target>
 
   <macrodef name="flex">

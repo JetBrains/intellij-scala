@@ -3,10 +3,6 @@
         <extensionPoint qualifiedName="org.intellij.scala.worksheetHighlightingCompiler" interface="org.jetbrains.plugins.scala.compiler.highlighting.WorksheetHighlightingCompiler" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.compileServerClasspathProvider" beanClass="org.jetbrains.plugins.scala.compiler.CompileServerClasspathProvider" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.compileServerVmOptionsProvider" interface="org.jetbrains.plugins.scala.compiler.CompileServerVmOptionsProvider" dynamic="true"/>
-
-        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalReferenceSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalReferenceSearcher"/>
-        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalInheritorsSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher"/>
-        <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalSearchScopeChecker" interface="org.jetbrains.plugins.scala.findUsages.ExternalSearchScopeChecker"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">

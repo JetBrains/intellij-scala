@@ -20,6 +20,7 @@ object ScalaBundleSorting {
   }
 
   val scalaModDir: String = TestUtils.findCommunityRoot() + "scala/"
+  val sbtModDir: String = TestUtils.findCommunityRoot() + "sbt/"
   val scalaImplDir: String = scalaModDir + "scala-impl/"
 
   val allModuleInfos: Seq[ModuleInfo] = Seq(
@@ -56,6 +57,14 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaMacrosBundle.properties",
     ),
     ModuleInfo(
+      rootPath = sbtModDir + "sbt-api/",
+      bundleMessagesRelativePath = "SbtApiBundle.properties"
+    ),
+    ModuleInfo(
+      rootPath = sbtModDir + "sbt-impl/",
+      bundleMessagesRelativePath = "SbtBundle.properties"
+    ),
+    ModuleInfo(
       rootPath = scalaImplDir,
       bundleMessagesRelativePath = "ScalaBundle.properties",
     ),
@@ -66,10 +75,6 @@ object ScalaBundleSorting {
     ModuleInfo(
       rootPath = scalaImplDir,
       bundleMessagesRelativePath = "ScalaInspectionBundle.properties",
-    ),
-    ModuleInfo(
-      rootPath = scalaImplDir,
-      bundleMessagesRelativePath = "ScalaSbtBundle.properties"
     ),
     ModuleInfo(
       rootPath = scalaImplDir,

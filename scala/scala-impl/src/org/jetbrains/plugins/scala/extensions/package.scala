@@ -10,12 +10,14 @@ import com.intellij.openapi.application.{ApplicationManager, ModalityState, Tran
 import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy, WriteCommandAction}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, RangeMarker}
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util._
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiImplUtil
 import com.intellij.psi.impl.light.LightMethod
@@ -59,6 +61,7 @@ import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
 import java.lang.ref.Reference
 import java.lang.reflect.InvocationTargetException
+import java.io.File
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
@@ -1716,5 +1719,61 @@ package object extensions {
         lock.unlock()
       }
     }
+  }
+
+  implicit class RichFile(private val file: File) extends AnyVal {
+
+    def /(@NonNls path: String): File = new File(file, path)
+
+    def `<<`: File = <<(1)
+
+    def `<<`(level: Int): File = parent(file, level)
+
+    @NonNls def name: String = file.getName
+
+    @NonNls def path: String = file.getPath
+
+    @NonNls def absolutePath: String = file.getAbsolutePath
+
+    @NonNls def canonicalPath: String = ExternalSystemApiUtil.toCanonicalPath(file.getAbsolutePath)
+
+    def canonicalFile: File = new File(canonicalPath)
+
+    def parent: Option[File] = Option(file.getParentFile)
+
+    def parent(level: Int): Option[File] = Option(parent(file, level))
+
+    def maybeFile: Option[File] = Option(file).filter(_.isFile)
+
+    def maybeDir: Option[File] = Option(file).filter(_.isDirectory)
+
+    def endsWith(parts: String*): Boolean = endsWith0(file, parts.reverse)
+
+    private def endsWith0(file: File, parts: Seq[String]): Boolean = if (parts.isEmpty) true else
+      parts.head == file.getName && Option(file.getParentFile).exists(endsWith0(_, parts.tail))
+
+    def url: String = VfsUtil.getUrlForLibraryRoot(file)
+
+    def isAncestorOf(aFile: File): Boolean = FileUtil.isAncestor(file, aFile, true)
+
+    def isUnder(root: File): Boolean = FileUtil.isAncestor(root, file, true)
+
+    def isIn(root: File): Boolean = file.getParentFile == root
+
+    def isOutsideOf(root: File): Boolean = !FileUtil.isAncestor(root, file, false)
+
+    def copyTo(destination: File): Unit = {
+      FileUtil.copyContent(file, destination)
+    }
+
+    def ls(filter: String => Boolean): Seq[File] =
+      if (file.isDirectory) file.listFiles().filter(file => filter(file.getName)).toSeq
+      else Seq.empty
+
+    @Nullable
+    @tailrec
+    private def parent(@Nullable file: File, level: Int): File =
+      if (level > 0 && file != null) parent(file.getParentFile, level - 1)
+      else file
   }
 }

@@ -22,10 +22,6 @@ package object compiler {
       Left(CompileServerProblem.Error(CompilerIntegrationBundle.message("unexpected.sdk.type.for.sdk", unexpected, sdk)))
   }
 
-  implicit class RichFile(private val file: File) extends AnyVal {
-    def canonicalPath: String = FileUtil.toCanonicalPath(file.getPath)
-  }
-
   class OpenScalaCompileServerSettingsAction(project: Project, filter: String) extends NotificationAction(CompilerIntegrationBundle.message("wrong.jdk.action.open.compile.server.settings")) {
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
       notification.expire()

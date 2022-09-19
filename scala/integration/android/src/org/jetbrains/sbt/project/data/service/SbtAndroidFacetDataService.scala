@@ -8,6 +8,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.android.facet.{AndroidFacet, AndroidFacetType, AndroidRootUtil}
+import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.external.ScalaAbstractProjectDataService
 import org.jetbrains.sbt.project.data.SbtAndroidFacetData
 

@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration,
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.{ScalaPluginJars, UnloadAwareDisposable}
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.project.module.SbtModuleType
 
 import java.io.File
@@ -103,9 +102,7 @@ package object project {
       ScalaModuleSettings(module)
 
     def isBuildModule: Boolean =
-      module.getName.endsWith(org.jetbrains.sbt.Sbt.BuildModuleSuffix)
-
-    def isSourceModule: Boolean = SbtModuleType.unapply(module).isEmpty
+      module.getName.endsWith(Sbt.BuildModuleSuffix)
 
     def hasScala: Boolean =
       scalaModuleSettings.isDefined
@@ -318,8 +315,6 @@ package object project {
     def modules: Seq[Module] =
       manager.getModules.toSeq
 
-    def sourceModules: Seq[Module] = manager.getModules.filter(_.isSourceModule).toSeq
-
     def modifiableModel: ModifiableModuleModel =
       manager.getModifiableModel
 
@@ -406,7 +401,8 @@ package object project {
       inReadAction { // assuming that most of the time it will be read from cache
         val module = ModuleUtilCore.findModuleForPsiElement(file)
         // for build.sbt files the appropriate module is the one with `-build` suffix
-        if (module != null && file.is[SbtFileImpl])
+        //noinspection ApiStatus
+        if (module != null && org.jetbrains.sbt.internal.InternalDynamicLinker.checkIsSbtFile(file))
           findBuildModule(module)
         else
           Option(module)
@@ -446,10 +442,9 @@ package object project {
     var enableFeaturesCheckInTests = false
   }
 
-
   private def findBuildModule(m: Module): Option[Module] = m match {
     case SbtModuleType(_) => Some(m)
-    case _ =>                moduleByName(m.getProject, s"${m.getName}${Sbt.BuildModuleSuffix}")
+    case _ => moduleByName(m.getProject, s"${m.getName}${Sbt.BuildModuleSuffix}")
   }
 
   //noinspection SameParameterValue

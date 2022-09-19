@@ -4,10 +4,10 @@ import com.intellij.maven.testFramework.MavenImportingTestCase
 import com.intellij.openapi.module.{ModuleTypeManager, StdModuleTypes}
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import org.jetbrains.idea.maven.utils.MavenUtil
+import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
-import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter.RichFile
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher}
 import org.junit.Assert.{assertNotNull, assertTrue}

@@ -62,6 +62,7 @@ lazy val scalaCommunity: sbt.Project =
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
+      sbtImpl % "test->test;compile->compile",
       compilerIntegration % "test->test;compile->compile",
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
@@ -107,6 +108,30 @@ lazy val scalaApi = newProject(
 ).settings(
   idePackagePrefix := Some("org.jetbrains.plugins.scala"),
 )
+
+lazy val sbtApi =
+  newProject("sbt-api", file("sbt/sbt-api"))
+    .dependsOn(scalaApi, compilerShared)
+    .enablePlugins(BuildInfoPlugin)
+    .settings(
+      ideExcludedDirectories := Seq(baseDirectory.value / "target"),
+      buildInfoPackage := "org.jetbrains.sbt.buildinfo",
+      buildInfoKeys := Seq(
+        "sbtStructureVersion" -> Versions.sbtStructureVersion,
+        "sbtIdeaShellVersion" -> Versions.sbtIdeaShellVersion,
+        "sbtIdeaCompilerIndicesVersion" -> Versions.compilerIndicesVersion,
+        "sbtLatest_0_12" -> Versions.Sbt.latest_0_12,
+        "sbtLatest_0_13" -> Versions.Sbt.latest_0_13,
+        "sbtLatest_1_0" -> Versions.Sbt.latest_1_0,
+        "sbtLatestVersion" -> Versions.sbtVersion,
+        "sbtStructurePath_0_13" ->
+          relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "0.13")),
+        "sbtStructurePath_1_0" ->
+          relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.0"))
+      ),
+      buildInfoOptions += BuildInfoOption.ConstantValue
+    )
+    .withCompilerPluginIn(scalacPatches)
 
 lazy val codeInsight = newProject(
   "codeInsight",
@@ -235,6 +260,7 @@ lazy val scalaImpl: sbt.Project =
     .dependsOn(
       compilerShared % "test->test;compile->compile",
       scalaApi,
+      sbtApi,
       macroAnnotations,
       traceLogger,
       decompiler % "test->test;compile->compile",
@@ -243,7 +269,6 @@ lazy val scalaImpl: sbt.Project =
       runners % "test->test;compile->compile",
       testRunners % "test->test;compile->compile",
     )
-    .enablePlugins(BuildInfoPlugin)
     .settings(
       ideExcludedDirectories := Seq(
         baseDirectory.value / "target",
@@ -257,7 +282,6 @@ lazy val scalaImpl: sbt.Project =
       //for ExternalSystemTestCase and ExternalSystemImportingTestCase
       libraryDependencies += "com.jetbrains.intellij.platform" % "external-system-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies % Test notTransitive(),
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
-
       intellijPlugins ++= Seq(
         "org.jetbrains.idea.maven",      // TODO remove after extracting the SBT module (which depends on Maven)
         "JUnit"
@@ -272,29 +296,24 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.scalaReflect                          -> Some("lib/scala-reflect.jar"),
         Dependencies.scalaLibrary                          -> None,
         Dependencies.scalaCompiler                         -> None,
-      ),
-      buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
-      buildInfoKeys := Seq(
-        sbtVersion,
-        "sbtStructureVersion" -> Versions.sbtStructureVersion,
-        "sbtIdeaShellVersion" -> Versions.sbtIdeaShellVersion,
-        "sbtIdeaCompilerIndicesVersion" -> Versions.compilerIndicesVersion,
-        "sbtLatest_0_12" -> Versions.Sbt.latest_0_12,
-        "sbtLatest_0_13" -> Versions.Sbt.latest_0_13,
-        "sbtLatest_1_0" -> Versions.Sbt.latest_1_0,
-        "sbtLatestVersion" -> Versions.sbtVersion,
-        "sbtStructurePath_0_13" ->
-          relativeJarPath(sbtDep("org.jetbrains.scala","sbt-structure-extractor", Versions.sbtStructureVersion, "0.13")),
-        "sbtStructurePath_1_0" ->
-          relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.0"))
-      ),
-      buildInfoOptions += BuildInfoOption.ConstantValue
+      )
     )
     .withCompilerPluginIn(scalacPatches) // TODO Add to other modules
 
+lazy val sbtImpl =
+  newProject("sbt-impl", file("sbt/sbt-impl"))
+    .dependsOn(sbtApi, scalaImpl % "test->test;compile->compile")
+    .settings(
+      intellijPlugins += "org.jetbrains.idea.maven".toPlugin
+    )
+    .withCompilerPluginIn(scalacPatches)
+
 lazy val compilerIntegration =
   newProject("compiler-integration", file("scala/compiler-integration"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      sbtImpl % "test->test;compile->compile"
+    )
     .withCompilerPluginIn(scalacPatches)
 
 lazy val debugger =
@@ -353,7 +372,10 @@ lazy val runners: Project =
 
 lazy val testingSupport =
   newProject("testing-support", file("scala/testing-support"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      sbtImpl % "test->test;compile->compile"
+    )
     .settings(
       intellijPlugins += "JUnit".toPlugin
     )
@@ -483,14 +505,17 @@ lazy val bsp =
 
 lazy val devKitIntegration =
   newProject("devKit", file("scala/integration/devKit"))
-    .dependsOn(scalaImpl)
+    .dependsOn(scalaImpl, sbtImpl)
     .settings(
       intellijPlugins += "DevKit".toPlugin
     )
 
 lazy val androidIntegration =
   newProject("android", file("scala/integration/android"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      sbtImpl % "test->test;compile->compile"
+    )
     .settings(
       intellijPlugins ++= Seq(
         "org.jetbrains.android",
@@ -511,7 +536,7 @@ lazy val copyrightIntegration =
 
 lazy val gradleIntegration =
   newProject("gradle", file("scala/integration/gradle"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(scalaImpl % "test->test;compile->compile", sbtImpl % "test->test")
     .settings(
       intellijPlugins ++= Seq(
         "com.intellij.gradle",     // required by Android
@@ -533,7 +558,8 @@ lazy val mavenIntegration =
   newProject("maven", file("scala/integration/maven"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      testingSupport
+      testingSupport,
+      sbtImpl % "test->test"
     )
     .settings(
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
@@ -543,7 +569,7 @@ lazy val mavenIntegration =
 
 lazy val propertiesIntegration =
   newProject("properties", file("scala/integration/properties"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(scalaImpl % "test->test;compile->compile", sbtImpl)
     .settings(
       intellijPlugins ++= Seq(
         "com.intellij.properties".toPlugin,
@@ -561,7 +587,7 @@ lazy val javaDecompilerIntegration =
 
 lazy val mlCompletionIntegration =
   newProject("ml-completion", file("scala/integration/ml-completion"))
-    .dependsOn(scalaImpl)
+    .dependsOn(scalaImpl, sbtImpl)
     .settings(
       intellijPlugins += "com.intellij.completion.ml.ranking".toPlugin,
       resolvers += "intellij-dependencies" at "https://packages.jetbrains.team/maven/p/ij/intellij-dependencies/",
@@ -570,7 +596,7 @@ lazy val mlCompletionIntegration =
     
 lazy val packageSearchIntegration =
   newProject("packagesearch", file("scala/integration/packagesearch"))
-    .dependsOn(scalaImpl)
+    .dependsOn(scalaImpl, sbtImpl)
     .settings(
       // should be same plugins as in .../packagesearch/resources/META-INF/packagesearch.xml
       intellijPlugins += "com.jetbrains.packagesearch.intellij-plugin".toPlugin,

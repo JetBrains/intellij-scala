@@ -4,7 +4,6 @@ import com.intellij.openapi.components.{PersistentStateComponent, State, Storage
 import com.intellij.openapi.project.Project
 import com.intellij.task.impl.{JpsProjectTaskRunner, ProjectTaskList}
 import com.intellij.task.{ProjectTaskManager, ProjectTaskRunner}
-import org.jetbrains.sbt.shell.SbtProjectTaskRunner
 
 import scala.beans.BooleanBeanProperty
 import scala.jdk.CollectionConverters._
@@ -41,6 +40,7 @@ class CompilerIndicesSettings(project: Project) extends PersistentStateComponent
     state.indexingEnabled = v
   }
 
+  //noinspection ApiStatus
   private[this] def hasCompatibleRunner: Boolean =
     runners.find { runner =>
       val task = taskManager.createAllModulesBuildTask(true, project)
@@ -52,8 +52,9 @@ class CompilerIndicesSettings(project: Project) extends PersistentStateComponent
       try moduleBuildTasks.forall(runner.canRun(project, _))
       catch { case NonFatal(_) => false }
     }.exists {
-      case _: SbtProjectTaskRunner | _: JpsProjectTaskRunner => true
-      case _                                                 => false
+      case _: JpsProjectTaskRunner => true
+      case runner if org.jetbrains.sbt.internal.InternalDynamicLinker.checkIsSbtProjectTaskRunner(runner) => true
+      case _ => false
     }
 
   def isBytecodeIndexingActive: Boolean = isIndexingEnabled && hasCompatibleRunner

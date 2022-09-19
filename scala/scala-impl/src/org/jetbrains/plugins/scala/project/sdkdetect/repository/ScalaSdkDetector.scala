@@ -6,7 +6,6 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.project.template._
-import org.jetbrains.sbt.RichBoolean
 
 trait ScalaSdkDetector {
 
@@ -24,9 +23,7 @@ object ScalaSdkDetector {
       BrewDetector,
       IvyDetector
     ) ++
-    isIdeaPluginEnabled("org.jetbrains.idea.maven").seq(
-      MavenDetector
-    ) ++
+      (if (isIdeaPluginEnabled("org.jetbrains.idea.maven")) Seq(MavenDetector) else Seq.empty) ++
     Seq(
       SdkmanDetector,
       CoursierDetector

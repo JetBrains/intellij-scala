@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.{JlineResolveResult, showJLineMissingNotification}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
-import org.jetbrains.sbt.RichOption
 
 import java.io.File
 import scala.beans.BeanProperty
@@ -187,9 +186,13 @@ class ScalaConsoleRunConfiguration(
   private def getShortenCommandLineMethod(jdk: Option[Sdk]): ShortenCommandLine =
     if(!JdkUtil.useDynamicClasspath(getProject)){
       ShortenCommandLine.NONE
-    } else if(jdk.safeMap(_.getHomePath).exists(JdkUtil.isModularRuntime)) {
+    } else if(safeMap(jdk)(_.getHomePath).exists(JdkUtil.isModularRuntime)) {
       ShortenCommandLine.ARGS_FILE
     } else {
       ShortenCommandLine.CLASSPATH_FILE
     }
+
+  @inline
+  private def safeMap[A, B](oa: Option[A])(f: A => B): Option[B] =
+    oa.flatMap(a => Option(f(a)))
 }
