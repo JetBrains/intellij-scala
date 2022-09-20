@@ -13,7 +13,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
   def testNone(): Unit = {
     try {
       doTest(
-        s"""${START}None.toString$END""",
+        s"""None.${START}toString$END""",
         """None.toString""",
         """None.toString"""
       )
@@ -24,7 +24,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
 
   def testOptionVal(): Unit = {
     doTest(
-      s"""val i = Option("hello"); ${START}i.toString$END""",
+      s"""val i = Option("hello"); i.${START}toString$END""",
       """val i = Option("hello"); i.toString""",
       """val i = Option("hello"); i.getOrElse(throw new NoSuchElementException())"""
     )
@@ -32,7 +32,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
 
   def testOptionValInObject(): Unit = {
     doTest(
-      s"""object Test { val i = Option("hello"); ${START}i.toString$END }""",
+      s"""object Test { val i = Option("hello"); i.${START}toString$END }""",
       """object Test { val i = Option("hello"); i.toString }""",
       """object Test { val i = Option("hello"); i.getOrElse(throw new NoSuchElementException()) }"""
     )
@@ -40,7 +40,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
 
   def testFunctionExpression(): Unit = {
     doTest(
-      s"""${START}sys.env.get("VARIABLE").toString$END""",
+      s"""sys.env.get("VARIABLE").${START}toString$END""",
       """sys.env.get("VARIABLE").toString""",
       """sys.env.get("VARIABLE").getOrElse(throw new NoSuchElementException())"""
     )
@@ -48,7 +48,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
 
   def testSomeConstant(): Unit = {
     doTest(
-      s"""${START}Some("constant").toString$END""",
+      s"""Some("constant").${START}toString$END""",
       """Some("constant").toString""",
       """Some("constant").getOrElse(throw new NoSuchElementException())"""
     )
@@ -56,7 +56,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
 
   def testOptionConstant(): Unit = {
     doTest(
-      s"""${START}Option("constant").toString$END""",
+      s"""Option("constant").${START}toString$END""",
       """Option("constant").toString""",
       """Option("constant").getOrElse(throw new NoSuchElementException())"""
     )
@@ -64,7 +64,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
 
   def testOptionValNotString(): Unit = {
     doTest(
-      s"""val i = Option(1); ${START}i.toString$END""",
+      s"""val i = Option(1); i.${START}toString$END""",
       """val i = Option(1); i.toString""",
       """val i = Option(1); i.map(_.toString).getOrElse(throw new NoSuchElementException())"""
     )
@@ -72,7 +72,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
 
   def testFunctionExpressionNotString(): Unit = {
     doTest(
-      s"""def getSomeOne():Option[Int] = Some(1); ${START}getSomeOne().toString$END""",
+      s"""def getSomeOne():Option[Int] = Some(1); getSomeOne().${START}toString$END""",
       """def getSomeOne():Option[Int] = Some(1); getSomeOne().toString""",
       """def getSomeOne():Option[Int] = Some(1); getSomeOne().map(_.toString).getOrElse(throw new NoSuchElementException())"""
     )
@@ -80,7 +80,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
 
   def testSomeConstantNotString(): Unit = {
     doTest(
-      s"""${START}Some(1).toString$END""",
+      s"""Some(1).${START}toString$END""",
       """Some(1).toString""",
       """Some(1).map(_.toString).getOrElse(throw new NoSuchElementException())"""
     )
@@ -88,7 +88,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
 
   def testOptionConstantNotString(): Unit = {
     doTest(
-      s"""${START}Option(1).toString$END""",
+      s"""Option(1).${START}toString$END""",
       """Option(1).toString""",
       """Option(1).map(_.toString).getOrElse(throw new NoSuchElementException())"""
     )

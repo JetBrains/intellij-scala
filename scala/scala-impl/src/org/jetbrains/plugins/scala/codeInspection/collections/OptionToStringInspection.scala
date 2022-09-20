@@ -43,8 +43,8 @@ object OptionToStringInspection extends SimplificationType {
   }
 
   private def onString(opt: ScExpression, expr: ScExpression): Option[Simplification] =
-    Some(replace(expr).withText(invocationText(opt, "getOrElse(throw new NoSuchElementException())")).highlightFrom(expr))
+    Some(replace(expr).withText(invocationText(opt, "getOrElse(throw new NoSuchElementException())")).highlightFrom(opt))
 
   private def onNotString(opt: ScExpression, expr: ScExpression): Option[Simplification] =
-    Some(replace(expr).withText(invocationText(opt, "map(_.toString).getOrElse(throw new NoSuchElementException())")).highlightFrom(expr))
+    Some(replace(expr).withText(invocationText(opt, "map(_.toString).getOrElse(throw new NoSuchElementException())")).highlightFrom(opt))
 }
