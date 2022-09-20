@@ -113,4 +113,17 @@ class ScNamedElementAnnotatorTest extends ScalaHighlightingTestBase {
     val errors = errorsFromScalaCode(scalaCode)
     assert(errors.isEmpty)
   }
+
+  def testOverrideModifierNotAllowedAtTopLevelDefinitions(): Unit = {
+    assertErrorsText(
+      """override def foo1: String = ???
+        |override val foo2: String = ???
+        |override var foo3: String = ???
+        |""".stripMargin,
+      """Error(override,'override' modifier is not allowed here)
+        |Error(override,'override' modifier is not allowed here)
+        |Error(override,'override' modifier is not allowed here)
+        |""".stripMargin
+    )
+  }
 }
