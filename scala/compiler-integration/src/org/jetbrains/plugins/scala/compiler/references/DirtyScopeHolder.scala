@@ -28,27 +28,32 @@ import scala.jdk.CollectionConverters._
  * See also [[ScalaDirtyScopeHolder]].
  */
 abstract class DirtyScopeHolder[Scope](
-  project:             Project,
-  fileTypes:           Array[FileType],
-  fileIndex:           ProjectFileIndex,
-  fileDocManager:      FileDocumentManager,
-  psiDocManager:       PsiDocumentManager,
+  project: Project,
+  fileTypes: Array[FileType],
+  fileIndex: ProjectFileIndex,
+  fileDocManager: FileDocumentManager,
+  psiDocManager: PsiDocumentManager,
   modificationTracker: ModificationTracker
 ) extends UserDataHolderBase with BulkFileListener {
-  protected val lock: Lock                                       = new ReentrantLock()
-  protected val fileTypeRegistry: FileTypeRegistry               = FileTypeRegistry.getInstance()
-  protected val vfsChangedScopes: util.Set[Scope]                = ContainerUtil.set[Scope]()
-  protected val modifiedDuringIndexing: util.HashMap[Scope, Int] = new util.HashMap[Scope, Int]()
-  protected val compilationAffectedScopes: util.Set[Scope]       = ContainerUtil.newConcurrentSet[Scope]()
-  protected var indexingPhases: Int                              = 0
 
-  protected def scopeForSourceContentFile(vfile: VirtualFile): Set[Scope]
-  protected def moduleScopes(m: Module): Set[Scope]
+  protected val lock: Lock = new ReentrantLock()
+  protected val fileTypeRegistry: FileTypeRegistry = FileTypeRegistry.getInstance()
+  protected val vfsChangedScopes: util.Set[Scope] = ContainerUtil.set[Scope]()
+  protected val modifiedDuringIndexing: util.HashMap[Scope, Int] = new util.HashMap[Scope, Int]()
+  protected val compilationAffectedScopes: util.Set[Scope] = ContainerUtil.newConcurrentSet[Scope]()
+  protected var indexingPhases: Int = 0
+
+  protected def scopeForSourceContentFile(vFile: VirtualFile): Set[Scope]
+  protected def moduleScopes(module: Module): Set[Scope]
   protected def scopeToSearchScope(scope: Scope): GlobalSearchScope
 
-  private[references] def markScopeUpToDate(scope: Scope): Unit = compilationAffectedScopes.add(scope)
+  private[references] def markScopeUpToDate(scope: Scope): Unit = {
+    compilationAffectedScopes.add(scope)
+  }
 
-  private[references] def markProjectAsOutdated(): Unit = lock.withLock(sourceModules.foreach(markModuleAsDirty))
+  private[references] def markProjectAsOutdated(): Unit = lock.withLock {
+    sourceModules.foreach(markModuleAsDirty)
+  }
 
   private[references] def reset(): Unit = lock.withLock {
     markProjectAsOutdated()
@@ -58,45 +63,60 @@ abstract class DirtyScopeHolder[Scope](
   }
 
   override def after(events: util.List[_ <: VFileEvent]): Unit = events.forEach {
-    case e @ (_: VFileCreateEvent | _: VFileMoveEvent | _: VFileCopyEvent) => onFileChange(e.getFile)
-    case pce: VFilePropertyChangeEvent =>
-      val propertyName = pce.getPropertyName
-      if (propertyName == VirtualFile.PROP_NAME || propertyName == VirtualFile.PROP_SYMLINK_TARGET)
-        onFileChange(pce.getFile)
-    case _ => ()
-  }
-
-  override def before(events: util.List[_ <: VFileEvent]): Unit = events.forEach {
-    case e @ (_: VFileDeleteEvent | _: VFileMoveEvent | _: VFileContentChangeEvent) => onFileChange(e.getFile)
-    case pce: VFilePropertyChangeEvent =>
-      val propertyName = pce.getPropertyName
-      if (propertyName == VirtualFile.PROP_NAME || propertyName == VirtualFile.PROP_SYMLINK_TARGET) {
-        val file = pce.getFile
-        val module =
-          ProjectFileIndex.getInstance(project).getModuleForFile(file)
-            .toOption
-            .filter(_.isSourceModule)
-
-        module.foreach(markModuleAsDirty)
+    case event @ (_: VFileCreateEvent | _: VFileMoveEvent | _: VFileCopyEvent) =>
+      onFileChange(event.getFile)
+    case event: VFilePropertyChangeEvent =>
+      if (isRenameEvent(event)) {
+        onFileChange(event.getFile)
       }
     case _ => ()
   }
 
-  private[this] def onFileChange(@Nullable vfile: VirtualFile): Unit =
-    vfile.toOption.foreach(f => addToDirtyScopes(scopeForSourceContentFile(f)))
+  override def before(events: util.List[_ <: VFileEvent]): Unit = events.forEach {
+    case event @ (_: VFileDeleteEvent | _: VFileMoveEvent | _: VFileContentChangeEvent) =>
+      onFileChange(event.getFile)
+    case event: VFilePropertyChangeEvent =>
+      if (isRenameEvent(event)) {
+        val file = event.getFile
+        val module = fileIndex.getModuleForFile(file)
+        if (module != null && module.isSourceModule) {
+          markModuleAsDirty(module)
+        }
+      }
+    case _ => ()
+  }
 
-  protected def markModuleAsDirty(m: Module): Unit = lock.withLock(addToDirtyScopes(moduleScopes(m)))
+  private def isRenameEvent(event: VFilePropertyChangeEvent) = {
+    val propertyName = event.getPropertyName
+    propertyName == VirtualFile.PROP_NAME || propertyName == VirtualFile.PROP_SYMLINK_TARGET
+  }
+
+  private def onFileChange(@Nullable vFile: VirtualFile): Unit = {
+    if (vFile != null) {
+      val scope = scopeForSourceContentFile(vFile)
+      addToDirtyScopes(scope)
+    }
+  }
+
+  protected def markModuleAsDirty(module: Module): Unit = lock.withLock {
+    val scopes = moduleScopes(module)
+    addToDirtyScopes(scopes)
+  }
 
   protected def addToDirtyScopes(scopes: Set[Scope]): Unit = lock.withLock {
     if (indexingPhases != 0) {
-      scopes.foreach(scope =>
+      scopes.foreach { scope =>
         modifiedDuringIndexing.merge(scope, indexingPhases, Math.max(_, _))
-      )
+      }
     }
-    else vfsChangedScopes.addAll(scopes.asJava)
+    else {
+      vfsChangedScopes.addAll(scopes.asJava)
+    }
   }
 
-  private[references] def indexingStarted(): Unit = lock.withLock(indexingPhases += 1)
+  private[references] def indexingStarted(): Unit = lock.withLock {
+    indexingPhases += 1
+  }
 
   private[references] def indexingFinished(): Unit = lock.withLock {
     indexingPhases -= 1
@@ -108,27 +128,37 @@ abstract class DirtyScopeHolder[Scope](
       val entry = iter.next()
       entry.setValue(entry.getValue - indexingPhases)
 
-      if (entry.getValue == 0) iter.remove()
-      else                     addToDirtyScopes(Set(entry.getKey))
+      if (entry.getValue == 0) {
+        iter.remove()
+      }
+      else {
+        addToDirtyScopes(Set(entry.getKey))
+      }
     }
   }
 
-  private[references] def installVFSListener(): Unit =
+  private[references] def installVFSListener(): Unit = {
     project.getMessageBus.connect(project.unloadAwareDisposable).subscribe(VirtualFileManager.VFS_CHANGES, this)
+  }
 
   def dirtyScope: GlobalSearchScope = inReadAction {
     lock.withLock {
-      if (indexingPhases != 0) GlobalSearchScope.allScope(project)
+      if (indexingPhases != 0)
+        GlobalSearchScope.allScope(project)
       else if (!project.isDisposed) {
-        CachedValuesManager
-          .getManager(project)
-          .getCachedValue(
-            this,
-            () =>
-              CachedValueProvider.Result
-                .create(calcDirtyScope(), PsiModificationTracker.MODIFICATION_COUNT, VirtualFileManager.getInstance(), modificationTracker)
-          )
-      } else GlobalSearchScope.EMPTY_SCOPE
+        val cachedManager = CachedValuesManager.getManager(project)
+        cachedManager.getCachedValue(
+          this,
+          () =>
+            CachedValueProvider.Result.create(
+              calcDirtyScope(),
+              PsiModificationTracker.MODIFICATION_COUNT,
+              VirtualFileManager.getInstance(),
+              modificationTracker
+            )
+        )
+      }
+      else GlobalSearchScope.EMPTY_SCOPE
     }
   }
 
@@ -140,19 +170,25 @@ abstract class DirtyScopeHolder[Scope](
     val dirty = Set.newBuilder[Scope]
     dirty ++= vfsChangedScopes.asScala
 
-    fileDocManager.getUnsavedDocuments.foreach { doc =>
+    val unsavedDocuments = fileDocManager.getUnsavedDocuments
+    unsavedDocuments.foreach { doc =>
       for {
         file  <- fileDocManager.getFile(doc).toOption
         scope <- scopeForSourceContentFile(file)
-      } dirty += scope
+      } {
+        dirty += scope
+      }
     }
 
-    psiDocManager.getUncommittedDocuments.foreach { doc =>
+    val uncommittedDocuments = psiDocManager.getUncommittedDocuments
+    uncommittedDocuments.foreach { doc =>
       for {
-        pfile <- psiDocManager.getPsiFile(doc).toOption
-        vfile <- pfile.getVirtualFile.toOption
-        scope <- scopeForSourceContentFile(vfile)
-      } dirty += scope
+        pFile <- psiDocManager.getPsiFile(doc).toOption
+        vFile <- pFile.getVirtualFile.toOption
+        scope <- scopeForSourceContentFile(vFile)
+      } {
+        dirty += scope
+      }
     }
 
     dirty.result()
