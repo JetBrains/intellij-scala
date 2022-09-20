@@ -9,5 +9,5 @@ import javax.swing.Icon
 object SbtFileType extends LanguageFileTypeBase(SbtLanguage.INSTANCE) {
 
   override def getIcon: Icon =
-    IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbtFile.svg", this.getClass)
+    IconLoader.getIcon("/org/jetbrains/sbt/images/sbtFile.svg", this.getClass)
 }

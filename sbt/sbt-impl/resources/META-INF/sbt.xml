@@ -61,11 +61,11 @@
                              instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable"/>
 
         <toolWindow id="sbt" anchor="right"
-                    icon="/org/jetbrains/plugins/scala/images/sbtToolwin.svg"
+                    icon="/org/jetbrains/sbt/images/sbtToolwin.svg"
                     factoryClass="org.jetbrains.sbt.project.SbtToolWindowFactory"/>
 
         <toolWindow id="sbt-shell-toolwindow" anchor="bottom" canCloseContents="false"
-                    icon="/org/jetbrains/plugins/scala/images/sbtShellToolwin.svg"
+                    icon="/org/jetbrains/sbt/images/sbtShellToolwin.svg"
                     factoryClass="org.jetbrains.sbt.shell.SbtShellToolWindowFactory"
                     doNotActivateOnStart="true"/>
         <externalSystemSettingsListener implementation="org.jetbrains.sbt.project.ShowSbtShellAfterCreatingNewProject"/>
