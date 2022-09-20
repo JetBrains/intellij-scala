@@ -13,6 +13,10 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiModificationTracker}
 import com.intellij.util.containers.ContainerUtil
+import com.intellij.workspaceModel.ide.impl.legacyBridge.module.ModuleEntityUtils
+import com.intellij.workspaceModel.ide.{WorkspaceModelChangeListener, WorkspaceModelTopics}
+import com.intellij.workspaceModel.storage.VersionedStorageChange
+import com.intellij.workspaceModel.storage.bridgeEntities.api.{ContentRootEntity, ModuleEntity}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
@@ -24,7 +28,7 @@ import scala.jdk.CollectionConverters._
 /**
  * Mostly copy-pasted from [[com.intellij.compiler.backwardRefs.DirtyScopeHolder]], but modified to be able
  * to work with abstract [[Scope]]s (e.g. sbt project scoped to a particular configuration foo / Compile) instead of just IDEA modules.
-  *
+ *
  * See also [[ScalaDirtyScopeHolder]].
  */
 abstract class DirtyScopeHolder[Scope](
@@ -75,14 +79,6 @@ abstract class DirtyScopeHolder[Scope](
   override def before(events: util.List[_ <: VFileEvent]): Unit = events.forEach {
     case event @ (_: VFileDeleteEvent | _: VFileMoveEvent | _: VFileContentChangeEvent) =>
       onFileChange(event.getFile)
-    case event: VFilePropertyChangeEvent =>
-      if (isRenameEvent(event)) {
-        val file = event.getFile
-        val module = fileIndex.getModuleForFile(file)
-        if (module != null && module.isSourceModule) {
-          markModuleAsDirty(module)
-        }
-      }
     case _ => ()
   }
 
@@ -138,7 +134,8 @@ abstract class DirtyScopeHolder[Scope](
   }
 
   private[references] def installVFSListener(): Unit = {
-    project.getMessageBus.connect(project.unloadAwareDisposable).subscribe(VirtualFileManager.VFS_CHANGES, this)
+    val connection = project.getMessageBus.connect(project.unloadAwareDisposable)
+    connection.subscribe(VirtualFileManager.VFS_CHANGES, this)
   }
 
   def dirtyScope: GlobalSearchScope = inReadAction {
@@ -196,4 +193,45 @@ abstract class DirtyScopeHolder[Scope](
 
   private def sourceModules: Seq[Module] =
     ModuleManager.getInstance(project).getModules.filter(_.isSourceModule).toSeq
+
+  //copied from com.intellij.compiler.backwardRefs.DirtyScopeHolder
+  //noinspection UnstableApiUsage
+  locally {
+    val moduleChangeListener = new WorkspaceModelChangeListener() {
+      override def beforeChanged(event: VersionedStorageChange): Unit = {
+        event.getChanges(classOf[ModuleEntity]).forEach { change =>
+          for {
+            entity <- change.getOldEntity.toOption
+            module <- ModuleEntityUtils.findModule(entity, event.getStorageBefore).toOption
+          } markModuleAsDirty(module)
+        }
+
+        event.getChanges(classOf[ContentRootEntity]).forEach { change =>
+          for {
+            entity <- change.getOldEntity.toOption
+            module <- ModuleEntityUtils.findModule(entity.getModule, event.getStorageBefore).toOption
+          } markModuleAsDirty(module)
+        }
+      }
+
+      override def changed(event: VersionedStorageChange): Unit = {
+        event.getChanges(classOf[ModuleEntity]).forEach { change =>
+          for {
+            entity <- change.getNewEntity.toOption
+            module <- ModuleEntityUtils.findModule(entity, event.getStorageBefore).toOption
+          } markModuleAsDirty(module)
+        }
+
+        event.getChanges(classOf[ContentRootEntity]).forEach { change =>
+          for {
+            entity <- change.getNewEntity.toOption
+            module <- ModuleEntityUtils.findModule(entity.getModule, event.getStorageBefore).toOption
+          } markModuleAsDirty(module)
+        }
+      }
+    }
+
+    val connection = project.getMessageBus.connect(project.unloadAwareDisposable)
+    WorkspaceModelTopics.getInstance(project).subscribeAfterModuleLoading(connection, moduleChangeListener)
+  }
 }

@@ -35,12 +35,16 @@ class DirtyScopeHolderTest extends ScalaCompilerReferenceServiceFixture {
 
   private def moduleScopes(m: Module): Set[ScopedModule] = Set(ScopedModule.compile(m), ScopedModule.test(m))
 
+  private def assertEmptyScopes(scopes: Set[ScopedModule]): Unit = {
+    assertEquals("Dirty scopes are not empty", Set.empty, scopes)
+  }
+
   def testNoChanges(): Unit = {
     myFixture.addFileToProject("Foo.scala", "trait Foo")
     myFixture.addFileToProject("A/Bar.scala", "trait Bar extends Foo")
     myFixture.addFileToProject("B/Baz.scala", "trait Baz extends Foo")
     buildProject()
-    assert(dirtyScopes.isEmpty)
+    assertEmptyScopes(dirtyScopes)
   }
 
   def testRootModuleChange(): Unit = {
@@ -48,7 +52,7 @@ class DirtyScopeHolderTest extends ScalaCompilerReferenceServiceFixture {
     myFixture.addFileToProject("A/Bar.scala", "trait Bar extends Foo")
     myFixture.addFileToProject("B/test/Baz.scala", "trait Baz extends Foo")
     buildProject()
-    assertTrue(dirtyScopes.isEmpty)
+    assertEmptyScopes(dirtyScopes)
     myFixture.openFileInEditor(rootFile.getVirtualFile)
     myFixture.`type`("/*bla bla bla*/")
     val scopes = Set(getModule, moduleA, moduleB).flatMap(moduleScopes) - ScopedModule.test(getModule)
@@ -64,21 +68,21 @@ class DirtyScopeHolderTest extends ScalaCompilerReferenceServiceFixture {
     val aFile = myFixture.addFileToProject("A/test/Bar.scala", "trait Bar extends Foo")
     myFixture.addFileToProject("B/Baz.scala", "trait Baz extends Foo")
     buildProject()
-    assertTrue(dirtyScopes.isEmpty)
+    assertEmptyScopes(dirtyScopes)
     myFixture.openFileInEditor(aFile.getVirtualFile)
     myFixture.`type`("/*bla bla bla*/")
     assertEquals(Set(ScopedModule.test(moduleA)), dirtyScopes)
     FileDocumentManager.getInstance().saveAllDocuments()
     assertEquals(Set(ScopedModule.test(moduleA)), dirtyScopes)
     compiler.compileModule(moduleA)
-    assert(dirtyScopes.isEmpty)
+    assertEmptyScopes(dirtyScopes)
   }
 
   @Ignore
   def testModulePathRename(): Unit = {
     myFixture.addFileToProject("A/Foo.scala", "trait Foo")
     buildProject()
-    assertTrue(dirtyScopes.isEmpty)
+    assertEmptyScopes(dirtyScopes)
     myFixture.renameElement(PsiManager.getInstance(getProject).findDirectory(myFixture.findFileInTempDir("A")), "XXX")
     assertEquals(moduleScopes(moduleA), dirtyScopes)
   }
