@@ -174,6 +174,3 @@ abstract class OperationOnCollectionInspectionBase extends LocalInspectionTool {
     panel
   }
 }
-
-
-
