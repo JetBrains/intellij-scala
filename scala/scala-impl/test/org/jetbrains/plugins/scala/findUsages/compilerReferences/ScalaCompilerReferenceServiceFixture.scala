@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package findUsages
 package compilerReferences
 
-import com.intellij.openapi.compiler.CompilerMessageCategory
+import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.module.Module
 import com.intellij.psi.PsiClass
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
@@ -80,23 +80,35 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
   }
 
   protected def buildProject(): Unit = {
-    getProject.getMessageBus
-      .connect(getProject.unloadAwareDisposable)
-      .subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
+    val messageBus = getProject.getMessageBus
+    val messageBusConnection = messageBus.connect(getProject.unloadAwareDisposable)
+    messageBusConnection.subscribe(
+      CompilerReferenceServiceStatusListener.topic,
+      new CompilerReferenceServiceStatusListener {
         override def onIndexingPhaseFinished(success: Boolean): Unit = compilerIndexLock.locked {
           indexReadyPredicate = true
-          indexReady.signal()
+          indexReady.signalAll()
         }
       })
 
-    compiler
-      .rebuild
-      .asScala
-      .foreach(m => assertNotSame(m.getMessage, CompilerMessageCategory.ERROR, m.getCategory))
+    val compilerMessages: mutable.Seq[CompilerMessage] = compiler.rebuild.asScala
+    compilerMessages.foreach { message =>
+      assertNotSame(message.getMessage, CompilerMessageCategory.ERROR, message.getCategory)
+    }
 
     compilerIndexLock.locked {
-      indexReady.await(30, TimeUnit.SECONDS)
-      if (!indexReadyPredicate) fail("Failed to updated compiler index.")
+      //onIndexingPhaseFinished can be called in the same thread in com.intellij.testFramework.CompilerTester.rebuild
+      if (!indexReadyPredicate) {
+        val timeout = !indexReady.await(30, TimeUnit.SECONDS)
+        if (timeout) {
+          fail("Failed to updated compiler index: timeout reached")
+        }
+      }
+
+      if (!indexReadyPredicate) {
+        fail("Failed to updated compiler index: indexReadyPredicate is still false")
+      }
+
       indexReadyPredicate = false
     }
   }
