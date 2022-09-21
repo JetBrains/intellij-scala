@@ -517,6 +517,7 @@ package object collections {
   private val `.print` = invocation(Set("print", "println")).from(ArraySeq("scala.Predef", "java.io.PrintStream"))
   private val `.format` = invocation("format").from(ArraySeq("java.lang.String"))
   private val `.formatStringOps` = invocation("format").from(ArraySeq("scala.collection.StringOps"))
+  private val `.appendOnStringBuilder` = invocation("append").from(ArraySeq("java.lang.StringBuilder", "scala.collection.mutable.StringBuilder"))
 
   private[collections] def getToStringToMkStringSimplification(expr: ScExpression, isThing: ScExpression => Boolean, mkString: String, replace: ScExpression => SimplificationBuilder): Option[Simplification] = {
     expr match {
@@ -551,6 +552,10 @@ package object collections {
                 Some(result)
               case `.formatStringOps`(_, args@_*) if args.contains(expr) =>
                 // "%s".format(thing)
+                Some(result)
+              case `.appendOnStringBuilder`(_, args@_*) if args.contains(expr) =>
+                // new java.lang.StringBuilder.append(thing)
+                // new scala.collection.mutable.StringBuilder.append(thing)
                 Some(result)
               case _: ScInterpolatedStringLiteral =>
                 // s"start ${thing} end"

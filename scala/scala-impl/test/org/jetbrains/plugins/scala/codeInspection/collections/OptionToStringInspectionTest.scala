@@ -205,4 +205,35 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
       """.stripMargin)
   }
 
+  def testAppendOnJavaStringBuilder(): Unit = {
+    doTest(
+      s"""
+         |val b = new java.lang.StringBuilder
+         |b.append(${START}Option(1)$END)
+       """.stripMargin,
+      """
+        |val b = new java.lang.StringBuilder
+        |b.append(Option(1))
+      """.stripMargin,
+      """
+        |val b = new java.lang.StringBuilder
+        |b.append(Option(1).mkString)
+      """.stripMargin)
+  }
+
+  def testAppendOnScalaStringBuilder(): Unit = {
+    doTest(
+      s"""
+         |val b = new scala.collection.mutable.StringBuilder
+         |b.append(${START}Option(1)$END)
+       """.stripMargin,
+      """
+        |val b = new scala.collection.mutable.StringBuilder
+        |b.append(Option(1))
+      """.stripMargin,
+      """
+        |val b = new scala.collection.mutable.StringBuilder
+        |b.append(Option(1).mkString)
+      """.stripMargin)
+  }
 }

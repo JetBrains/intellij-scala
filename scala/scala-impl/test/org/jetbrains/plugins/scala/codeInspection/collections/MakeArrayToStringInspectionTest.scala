@@ -140,4 +140,36 @@ class MakeArrayToStringInspectionTest extends OperationsOnCollectionInspectionTe
         |"formatted: %s".format(Array(1).mkString("Array(", ", ", ")"))
       """.stripMargin)
   }
+
+  def testAppendOnJavaStringBuilder(): Unit = {
+    doTest(
+      s"""
+         |val b = new java.lang.StringBuilder
+         |b.append(${START}Array(1)$END)
+       """.stripMargin,
+      """
+        |val b = new java.lang.StringBuilder
+        |b.append(Array(1))
+      """.stripMargin,
+      """
+        |val b = new java.lang.StringBuilder
+        |b.append(Array(1).mkString("Array(", ", ", ")"))
+      """.stripMargin)
+  }
+
+  def testAppendOnScalaStringBuilder(): Unit = {
+    doTest(
+      s"""
+         |val b = new scala.collection.mutable.StringBuilder
+         |b.append(${START}Array(1)$END)
+       """.stripMargin,
+      """
+        |val b = new scala.collection.mutable.StringBuilder
+        |b.append(Array(1))
+      """.stripMargin,
+      """
+        |val b = new scala.collection.mutable.StringBuilder
+        |b.append(Array(1).mkString("Array(", ", ", ")"))
+      """.stripMargin)
+  }
 }
