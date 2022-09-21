@@ -7,7 +7,8 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{LocalSearchScope, PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement, PsiIdentifier, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiIdentifier, PsiNamedElement, PsiReference}
+import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions.{Parent, PsiElementExt, PsiFileExt}
@@ -71,6 +72,12 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
  *    consumer A fetches references to element x and so does consumer B, results are computed during the first fetch,
  *    and read from cache during the second.
  *    Cached results are invalidated by any PSI change anywhere in the project.
+ *
+ *  Open issues:
+ *  - For the case where the user enables UnusedDeclarationInspection and disables AccessCanBeTightened, there is some
+ *  opportunity to further optimize, namely by breaking out of Processor loops earlier by not paying attention to
+ *  `targetCanBePrivate`.
+ *
  */
 final class CheapRefSearcher private() {
 
@@ -82,7 +89,7 @@ final class CheapRefSearcher private() {
 
   @Cached(ModTracker.physicalPsiChange(element.getProject), element)
   def search(element: ScNamedElement, isOnTheFly: Boolean, reportPublicDeclarations: Boolean): ElementUsages =
-    if (!shouldProcessElement(element)) ElementUsages(Seq(UnknownElementUsage), globalSearchWasPerformed = false) else {
+    if (!shouldProcessElement(element)) ElementUsages(UnknownElementUsage, globalSearchWasPerformed = false) else {
 
       lazy val refSearch = referencesSearch(element)
 
@@ -95,29 +102,34 @@ final class CheapRefSearcher private() {
           val success = refCounter.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
             used = refCounter.isValueReadUsed(element) || refCounter.isValueWriteUsed(element)
           }
-          ElementUsages(if (!success || used) Seq(UnknownElementUsage) else Seq.empty, globalSearchWasPerformed = false)
+          if (!success || used) {
+            ElementUsages(UnknownElementUsage, globalSearchWasPerformed = false)
+          } else {
+            ElementUsages(Seq.empty, globalSearchWasPerformed = false)
+          }
         } else {
           ElementUsages(refSearch, globalSearchWasPerformed = false)
         }
       } else if (refSearch.nonEmpty) {
         ElementUsages(refSearch, globalSearchWasPerformed = false)
       } else if (!reportPublicDeclarations) {
-        ElementUsages(Seq(UnknownElementUsage), globalSearchWasPerformed = false)
+        ElementUsages(UnknownElementUsage, globalSearchWasPerformed = false)
       } else globalSearch(element)
     }
 
   @Cached(ModTracker.physicalPsiChange(element.getProject), element)
   def globalSearch(element: ScNamedElement): ElementUsages = {
+
     val enumSearch = getForeignEnumUsages(element)
+
     if (enumSearch.nonEmpty) {
       ElementUsages(enumSearch, globalSearchWasPerformed = true)
     } else if (ScalaPsiUtil.isImplicit(element)) {
-      ElementUsages(Seq(UnknownElementUsage), globalSearchWasPerformed = true)
+      ElementUsages(UnknownElementUsage, globalSearchWasPerformed = true)
     } else {
       ElementUsages(textSearch(element), globalSearchWasPerformed = true)
     }
   }
-
 }
 
 object CheapRefSearcher {
@@ -135,11 +147,31 @@ object CheapRefSearcher {
       case e: ScNamedElement => Seq(e)
     }
 
+    val results = new mutable.ListBuffer[ElementUsage]
+    var shouldStop: Boolean = false
+
+    val refProcessor = new Processor[PsiReference] {
+      override def process(ref: PsiReference): Boolean = {
+
+        results.addOne(new KnownElementUsage(ref.getElement, element))
+
+        if (!results.head.targetCanBePrivate) {
+          shouldStop = true
+        }
+
+        shouldStop
+      }
+    }
+
     val scope = new LocalSearchScope(element.getContainingFile)
 
-    elementsForSearch.flatMap(ReferencesSearch.search(_, scope).findAll().asScala).map { ref =>
-      new KnownElementUsage(ref.getElement, element)
+    elementsForSearch.foreach { elementForSearch =>
+      if (!shouldStop) {
+        ReferencesSearch.search(elementForSearch, scope).forEach(refProcessor)
+      }
     }
+
+    results.toSeq
   }
 
   private def getForeignEnumUsages(element: ScNamedElement): Seq[ElementUsage] = {
@@ -253,7 +285,15 @@ object CheapRefSearcher {
   }
 }
 
-case class ElementUsages(usages: Seq[ElementUsage], globalSearchWasPerformed: Boolean)
+class ElementUsages(val usages: Seq[ElementUsage], val globalSearchWasPerformed: Boolean)
+
+object ElementUsages {
+  def apply(usage: ElementUsage, globalSearchWasPerformed: Boolean): ElementUsages =
+    new ElementUsages(Seq(usage), globalSearchWasPerformed)
+
+  def apply(usages: Seq[ElementUsage], globalSearchWasPerformed: Boolean): ElementUsages =
+    new ElementUsages(usages, globalSearchWasPerformed)
+}
 
 trait ElementUsage {
   def targetCanBePrivate: Boolean
