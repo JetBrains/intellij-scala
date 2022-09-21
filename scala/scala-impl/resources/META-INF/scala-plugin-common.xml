@@ -1771,7 +1771,7 @@
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OptionToStringInspection"
                          bundle="messages.ScalaInspectionBundle"
-                         key="displayname.change.tostring.to.getorelse.on.option"
+                         key="displayname.change.tostring.to.mkstring.on.option"
                          groupPathKey="grouppath.scala.collections" groupKey="group.options"
                          shortName="OptionToString" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
