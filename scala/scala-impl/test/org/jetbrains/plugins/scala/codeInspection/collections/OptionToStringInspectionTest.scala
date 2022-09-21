@@ -180,7 +180,6 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
   }
 
   def testStringFormat(): Unit = {
-    String.format("formatted: %s", Option(1))
     doTest(
       s"""
          |String.format("formatted: %s", ${START}Option(1)$END)
@@ -194,7 +193,6 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
   }
 
   def testFormatOnString(): Unit = {
-    "formatted: %s".format(Option(1))
     doTest(
       s"""
          |"formatted: %s".format(${START}Option(1)$END)

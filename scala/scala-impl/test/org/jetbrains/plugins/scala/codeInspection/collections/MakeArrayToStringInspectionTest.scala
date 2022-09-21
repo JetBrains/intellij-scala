@@ -116,7 +116,6 @@ class MakeArrayToStringInspectionTest extends OperationsOnCollectionInspectionTe
   }
 
   def testStringFormat(): Unit = {
-    String.format("formatted: %s", Option(1))
     doTest(
       s"""
          |String.format("formatted: %s", ${START}Array(1)$END)
