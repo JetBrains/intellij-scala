@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package implicits
+package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.openapi.editor.Editor
@@ -16,9 +14,10 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ImportImplicitInstanceFix, PopupPosition}
-import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsPass}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.RangeInlayHintsPass
+import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsPass}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInfoGenerator
 import org.jetbrains.plugins.scala.extensions._
@@ -31,19 +30,30 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private val rootElement: ScalaFile, override val settings: ScalaHintsSettings)
-  extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, /*runIntentionPassAfter*/ false)
-    with ScalaTypeHintsPass with ScalaMethodChainInlayHintsPass with RangeInlayHintsPass {
+import scala.collection.mutable
 
-  import annotator.hints._
+private[codeInsight]
+class ImplicitHintsPass(
+  private val editor: Editor,
+  private val rootElement: ScalaFile,
+  override val settings: ScalaHintsSettings
+) extends EditorBoundHighlightingPass(
+  editor,
+  rootElement.getContainingFile,
+  /*runIntentionPassAfter*/ false
+) with ScalaTypeHintsPass
+  with ScalaMethodChainInlayHintsPass
+  with RangeInlayHintsPass {
 
-  private var hints: Seq[Hint] = Seq.empty
+  import org.jetbrains.plugins.scala.annotator.hints._
+
+  private val hints: mutable.Buffer[Hint] = mutable.ArrayBuffer.empty
 
   override def doCollectInformation(indicator: ProgressIndicator): Unit = {
     if (!ScalaAnnotator.isSuitableForFile(rootElement))
       return
 
-    hints = Seq.empty
+    hints.clear()
 
     if (myDocument != null && rootElement.containingVirtualFile.isDefined) {
       // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
@@ -97,33 +107,36 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
         .flatMap(explicitImplicitArgumentsHint)
     }
 
-    def implicitConversionHints(e: ScExpression): Seq[Hint] = {
+    def implicitConversionHints(expression: ScExpression): Seq[Hint] = {
       if (!ImplicitHints.enabled) return Seq.empty
 
-      e.implicitConversion().toSeq.flatMap { conversion =>
-        implicitConversionHint(e, conversion)(editor.getColorsScheme, e)
+      val implicitConversion = expression.implicitConversion()
+      implicitConversion.toSeq.flatMap { conversion =>
+        implicitConversionHint(expression, conversion)(editor.getColorsScheme, expression)
       }
     }
 
     rootElement.depthFirst().foreach {
-      case enum@ScEnumerator.withDesugaredAndEnumeratorToken(desugaredEnum, token) =>
+      case enumerator@ScEnumerator.withDesugaredAndEnumeratorToken(desugaredEnum, token) =>
         val analogCall = desugaredEnum.analogMethodCall
         def mapBackTo(e: PsiElement)(hint: Hint): Hint = hint.copy(element = e)
-        enum match {
+        enumerator match {
           case _: ScForBinding | _: ScGuard =>
-            hints ++:= implicitConversionHints(analogCall).map(mapBackTo(enum))
+            hints ++= implicitConversionHints(analogCall).map(mapBackTo(enumerator))
           case _ =>
         }
-        hints ++:= implicitArgumentsOrErrorHints(analogCall).map(mapBackTo(token))
+        hints ++= implicitArgumentsOrErrorHints(analogCall).map(mapBackTo(token))
       case e: ScExpression =>
-        hints ++:= implicitConversionHints(e)
-        hints ++:= explicitArgumentHint(e)
-        hints ++:= implicitArgumentsOrErrorHints(e)
+        hints ++= implicitConversionHints(e)
+        hints ++= explicitArgumentHint(e)
+        hints ++= implicitArgumentsOrErrorHints(e)
       case c: ScConstructorInvocation =>
-        hints ++:= explicitArgumentHint(c)
-        hints ++:= implicitArgumentsOrErrorHints(c)
+        hints ++= explicitArgumentHint(c)
+        hints ++= implicitArgumentsOrErrorHints(c)
       case _ =>
     }
+
+    ()
   }
 
   override def doApplyInformationToEditor(): Unit = {
@@ -157,17 +170,22 @@ private object ImplicitHintsPass {
   private final val BulkChangeThreshold = 1000
 
   private def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult)
-                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Hint] =
-    Seq(Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = Some(menu.ImplicitConversion)),
-      Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true, menu = Some(menu.ImplicitArguments)))
+                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Hint] = {
+    val hintPrefix = Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = Some(menu.ImplicitConversion))
+    val hintSuffix = Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true, menu = Some(menu.ImplicitArguments))
+    Seq(hintPrefix, hintSuffix)
+  }
 
   private def implicitArgumentsHint(e: ImplicitArgumentsOwner, arguments: Seq[ScalaResolveResult])
                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Hint] = {
-    Seq(Hint(presentationOf(arguments), e, suffix = true, menu = Some(menu.ImplicitArguments)))
+    val hint = Hint(presentationOf(arguments), e, suffix = true, menu = Some(menu.ImplicitArguments))
+    Seq(hint)
   }
 
-  private def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
-    Seq(Hint(Seq(Text(".explicitly")), args, suffix = false, menu = Some(menu.ExplicitArguments)))
+  private def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] = {
+    val hint = Hint(Seq(Text(".explicitly")), args, suffix = false, menu = Some(menu.ExplicitArguments))
+    Seq(hint)
+  }
 
   private def presentationOf(arguments: Seq[ScalaResolveResult])
                             (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] = {

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.element
 
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
@@ -28,7 +29,8 @@ object ScNamedElementAnnotator extends ElementAnnotator[ScNamedElement] {
 
   private def isOverrideOfVar(elem: ScNamedElement) : Boolean = elem.nameContext match {
     case m: ScMember =>
-      m.containingClass.supers.exists {
+      val clazz = m.containingClass
+      clazz != null && clazz.supers.exists {
         case t: ScTypeDefinition =>
           t.allTermsByName(elem.name).exists {
             case term: ScNamedElement => isVar(term)
@@ -41,7 +43,8 @@ object ScNamedElementAnnotator extends ElementAnnotator[ScNamedElement] {
 
   private def isOverrideOfAbstract(elem: ScNamedElement) : Boolean = elem.nameContext match {
     case m: ScMember =>
-      m.containingClass.supers.exists {
+      val clazz = m.containingClass
+      clazz != null && clazz.supers.exists {
         case t: ScTypeDefinition =>
           t.allTermsByName(elem.name).exists {
             case term: ScNamedElement => term.nameContext match {
@@ -69,8 +72,8 @@ object ScNamedElementAnnotator extends ElementAnnotator[ScNamedElement] {
     case _ => false
   }
 
-  private def hasSetter(elemName: String, elemType: String, containingClass: ScTemplateDefinition): Boolean =
-    containingClass.allFunctionsByName(elemName + "_=").exists {
+  private def hasSetter(elemName: String, elemType: String, @Nullable containingClass: ScTemplateDefinition): Boolean =
+    containingClass != null && containingClass.allFunctionsByName(elemName + "_=").exists {
       case m: ScFunction =>
         m.hasUnitResultType && m.parameters.size == 1 && m.parameters.head.typeElement.exists(_.textMatches(elemType))
     }
