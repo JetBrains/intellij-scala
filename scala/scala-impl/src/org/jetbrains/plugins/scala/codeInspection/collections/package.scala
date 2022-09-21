@@ -551,8 +551,9 @@ package object collections {
                 // String.format("%s", thing)
                 // "%s".format(thing)
                 Some(result)
-              case `.formatted`(_, args@_*) if args.contains(expr) =>
+              case `.formatted`(obj, args@_*) if args.contains(expr) || isThing(obj) =>
                 // "%s".formatted(thing)
+                // thing.formatted("%s")
                 Some(result)
               case `.appendOnStringBuilder`(_, args@_*) if args.contains(expr) =>
                 // new java.lang.StringBuilder.append(thing)
