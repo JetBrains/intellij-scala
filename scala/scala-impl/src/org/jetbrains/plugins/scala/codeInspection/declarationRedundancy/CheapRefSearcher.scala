@@ -43,25 +43,36 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
  * from which the search algorithm below was extracted, and now shared between these two inspections.
  *
  * Contract:
- * 1. Local scope: It will not miss references in the vast majority of cases, but there may be false negatives
- *                 and positives.
- *                 As far as I'm aware these false results for private and similarly scoped elements stem from
- *                 the fact that ScalaRefCountHolder can't be partially invalidated. See SCL-19970.
+ *
+ * 1. This class is currently NOT intended for exhaustive collection of all references! First and foremost, this class
+ *    is tailored to the only 2 inspections that currently make use of it. Searches exit as early as possible.
+ *    See our usage of TextOccurenceProcessor in this class for more information. Pay attention to the return
+ *    values provided in the `execute` implementations, as those indicate whether to continue looking for more
+ *    (textual) references or not.
+ *    That said, the design can probably be adapted to cover more usecases, such as exhaustive collection.
+ *
+ * 2. Local scope: It will not miss references in the vast majority of cases, but there may be false negatives
+ *    and positives.
+ *    As far as I'm aware these false results for private and similarly scoped elements stem from
+ *    the fact that ScalaRefCountHolder can't be partially invalidated. See SCL-19970.
+ *
  *    Non-local scope: It promises not to miss references, but there may be false negatives. This is because we
- *                     rely on text-search and can't afford to perform true reference-checking.
+ *    rely on text-search and can't afford to perform true reference-checking.
  *
- * 2. Any search approach that can stop before having discovered all potential references,
- *    like text-search, will indeed stop after a reference outside the target element's
- *    private scope has been found.
+ * 3. If the consumer of this class only needs to establish whether an element is used or not, a single
+ *    CheapRefSearcher#search call will suffice in all cases.
+ *    If the consumer of this class wants to be sure that global (non-local) references are included in the result,
+ *    it can check the ElementUsages.globalSearchWasPerformed field of CheapRefSearcher#search's return value.
+ *    If globalSearchWasPerformed is false, the consumer can explicitly call CheapRefSearcher#globalSearch.
  *
- * 3. Some references are only registered to exist, with no further information about them.
+ * 4. Some references are only registered to exist, with no further information about them.
  *
- * 4. Computed results are cached in the scrutinee. If CheapRefSearcher consumer A fetches references to
- *    element x and so does consumer B, results are computed during the first fetch, and read from
- *    cache during the second.
+ * 5. Computed results are cached in the scrutinee (i.e. `element: ScNamedElement`). If CheapRefSearcher
+ *    consumer A fetches references to element x and so does consumer B, results are computed during the first fetch,
+ *    and read from cache during the second.
  *    Cached results are invalidated by any PSI change anywhere in the project.
  */
-final class CheapRefSearcher {
+final class CheapRefSearcher private() {
 
   import CheapRefSearcher.shouldProcessElement
   import CheapRefSearcher.referencesSearch
@@ -70,36 +81,43 @@ final class CheapRefSearcher {
   import CheapRefSearcher.isImplicitUsed
 
   @Cached(ModTracker.physicalPsiChange(element.getProject), element)
-  def search(element: ScNamedElement, isOnTheFly: Boolean, reportPublicDeclarations: Boolean): Seq[ElementUsage] =
-    if (!shouldProcessElement(element)) Seq(UnknownElementUsage) else {
+  def search(element: ScNamedElement, isOnTheFly: Boolean, reportPublicDeclarations: Boolean): ElementUsages =
+    if (!shouldProcessElement(element)) ElementUsages(Seq(UnknownElementUsage), globalSearchWasPerformed = false) else {
+
       lazy val refSearch = referencesSearch(element)
-      lazy val enumSearch = getForeignEnumUsages(element)
 
       if (isOnlyVisibleInLocalFile(element)) {
         if (isImplicit(element)) {
-          isImplicitUsed(element)
+          ElementUsages(isImplicitUsed(element), globalSearchWasPerformed = false)
         } else if (isOnTheFly) {
           val refCounter = ScalaRefCountHolder(element)
           var used = false
           val success = refCounter.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
             used = refCounter.isValueReadUsed(element) || refCounter.isValueWriteUsed(element)
           }
-          if (!success || used) Seq(UnknownElementUsage) else Seq.empty
+          ElementUsages(if (!success || used) Seq(UnknownElementUsage) else Seq.empty, globalSearchWasPerformed = false)
         } else {
-          refSearch
+          ElementUsages(refSearch, globalSearchWasPerformed = false)
         }
       } else if (refSearch.nonEmpty) {
-        refSearch
+        ElementUsages(refSearch, globalSearchWasPerformed = false)
       } else if (!reportPublicDeclarations) {
-        Seq(UnknownElementUsage)
-      } else if (enumSearch.nonEmpty) {
-        enumSearch
-      } else if (ScalaPsiUtil.isImplicit(element)) {
-        Seq(UnknownElementUsage)
-      } else {
-        textSearch(element)
-      }
+        ElementUsages(Seq(UnknownElementUsage), globalSearchWasPerformed = false)
+      } else globalSearch(element)
     }
+
+  @Cached(ModTracker.physicalPsiChange(element.getProject), element)
+  def globalSearch(element: ScNamedElement): ElementUsages = {
+    val enumSearch = getForeignEnumUsages(element)
+    if (enumSearch.nonEmpty) {
+      ElementUsages(enumSearch, globalSearchWasPerformed = true)
+    } else if (ScalaPsiUtil.isImplicit(element)) {
+      ElementUsages(Seq(UnknownElementUsage), globalSearchWasPerformed = true)
+    } else {
+      ElementUsages(textSearch(element), globalSearchWasPerformed = true)
+    }
+  }
+
 }
 
 object CheapRefSearcher {
@@ -234,6 +252,8 @@ object CheapRefSearcher {
     }
   }
 }
+
+case class ElementUsages(usages: Seq[ElementUsage], globalSearchWasPerformed: Boolean)
 
 trait ElementUsage {
   def targetCanBePrivate: Boolean

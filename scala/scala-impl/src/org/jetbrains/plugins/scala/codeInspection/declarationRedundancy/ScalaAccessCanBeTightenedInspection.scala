@@ -4,6 +4,7 @@ import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFixOnPsiEleme
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
@@ -73,15 +74,21 @@ private final class ScalaAccessCanBeTightenedInspection extends LocalInspectionT
       }
 
       if (TypeAnnotationInspection.getReasonForTypeAnnotationOn(modifierListOwner, expression).isEmpty) {
-        "Make 'private'"
+        ScalaInspectionBundle.message("make.private")
       } else {
-        "Add 'private' modifier"
+        ScalaInspectionBundle.message("add.private.modifier")
       }
     }
+    val firstSearchResults =
+      CheapRefSearcher.getInstance(element.getProject).search(element, isOnTheFly, reportPublicDeclarations = true)
+    val firstResultsAllowTargetToBePrivate = firstSearchResults.usages.forall(_.targetCanBePrivate)
 
-    if (CheapRefSearcher.getInstance(element.getProject).search(element, isOnTheFly, reportPublicDeclarations = true).forall(_.targetCanBePrivate)) {
+    lazy val globalSearchResults = CheapRefSearcher.getInstance(element.getProject).globalSearch(element)
+
+    if (firstResultsAllowTargetToBePrivate &&
+      (firstSearchResults.globalSearchWasPerformed || globalSearchResults.usages.forall(_.targetCanBePrivate))) {
       val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(modifierListOwner, quickFixText)
-      problemsHolder.registerProblem(element.nameId, "Access can be private", ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
+      problemsHolder.registerProblem(element.nameId, ScalaInspectionBundle.message("access.can.be.private"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
     }
   }
 }
@@ -94,7 +101,7 @@ private object ScalaAccessCanBeTightenedInspection {
 
     override def getText: String = text
 
-    override def getFamilyName: String = "Change modifier"
+    override def getFamilyName: String = ScalaInspectionBundle.message("change.modifier")
   }
 
 }

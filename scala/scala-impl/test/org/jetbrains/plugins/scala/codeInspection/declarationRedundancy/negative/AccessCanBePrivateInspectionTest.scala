@@ -46,4 +46,11 @@ final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestB
     val code = "object A"
     checkTextHasNoErrors(code)
   }
+
+  def test_declaration_that_is_used_both_in_local_and_nonlocal_scope(): Unit = {
+    val file = myFixture.addFileToProject("B.scala", "class B extends A { foo() }")
+    myFixture.openFileInEditor(file.getVirtualFile)
+    val code = "class A { def foo(): Unit = { foo() } }"
+    checkTextHasNoErrors(code)
+  }
 }
