@@ -515,6 +515,7 @@ package object collections {
 
   private val `print` = unqualifed(Set("print", "println")).from(ArraySeq("scala.Predef", "java.io.PrintStream"))
   private val `.print` = invocation(Set("print", "println")).from(ArraySeq("scala.Predef", "java.io.PrintStream"))
+  private val `.formatted` = invocation("formatted").from(ArraySeq("scala.Predef.StringFormat"))
   private val `.format` = invocation("format").from(ArraySeq("java.lang.String"))
   private val `.formatStringOps` = invocation("format").from(ArraySeq("scala.collection.StringOps"))
   private val `.appendOnStringBuilder` = invocation("append").from(ArraySeq("java.lang.StringBuilder", "scala.collection.mutable.StringBuilder"))
@@ -552,6 +553,9 @@ package object collections {
                 Some(result)
               case `.formatStringOps`(_, args@_*) if args.contains(expr) =>
                 // "%s".format(thing)
+                Some(result)
+              case `.formatted`(_, args@_*) if args.contains(expr) =>
+                // "%s".formatted(thing)
                 Some(result)
               case `.appendOnStringBuilder`(_, args@_*) if args.contains(expr) =>
                 // new java.lang.StringBuilder.append(thing)

@@ -141,6 +141,19 @@ class MakeArrayToStringInspectionTest extends OperationsOnCollectionInspectionTe
       """.stripMargin)
   }
 
+  def testFormattedOnString(): Unit = {
+    doTest(
+      s"""
+         |"formatted: %s".formatted(${START}Array(1)$END)
+       """.stripMargin,
+      """
+        |"formatted: %s".formatted(Array(1))
+      """.stripMargin,
+      """
+        |"formatted: %s".formatted(Array(1).mkString("Array(", ", ", ")"))
+      """.stripMargin)
+  }
+
   def testAppendOnJavaStringBuilder(): Unit = {
     doTest(
       s"""
