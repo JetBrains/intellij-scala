@@ -516,36 +516,36 @@ package object collections {
   private val `print` = unqualifed(Set("print", "println")).from(ArraySeq("scala.Predef", "java.io.PrintStream"))
   private val `.print` = invocation(Set("print", "println")).from(ArraySeq("scala.Predef", "java.io.PrintStream"))
 
-  private[collections] def getToStringToMkStringSimplification(expr: ScExpression, isFound: ScExpression => Boolean, mkString: String, replace: ScExpression => SimplificationBuilder): Option[Simplification] = {
+  private[collections] def getToStringToMkStringSimplification(expr: ScExpression, isThing: ScExpression => Boolean, mkString: String, replace: ScExpression => SimplificationBuilder): Option[Simplification] = {
     expr match {
       // TODO infix notation?
-      case `.toString`(array) if isFound(array) =>
-        // array.toString
-        Some(replace(expr).withText(invocationText(array, mkString)).highlightFrom(array))
-      case someString `+` array if isString(someString) && isFound(array) =>
-        // "string" + array
-        Some(replace(array).withText(invocationText(array, mkString)).highlightFrom(array))
-      case array `+` someString if isString(someString) && isFound(array) =>
-        // array + "string"
-        Some(replace(array).withText(invocationText(array, mkString)).highlightFrom(array))
-      case _ if isFound(expr) =>
+      case `.toString`(thing) if isThing(thing) =>
+        // thing.toString
+        Some(replace(expr).withText(invocationText(thing, mkString)).highlightFrom(thing))
+      case someString `+` thing if isString(someString) && isThing(thing) =>
+        // "string" + thing
+        Some(replace(thing).withText(invocationText(thing, mkString)).highlightFrom(thing))
+      case thing `+` someString if isString(someString) && isThing(thing) =>
+        // thing + "string"
+        Some(replace(thing).withText(invocationText(thing, mkString)).highlightFrom(thing))
+      case _ if isThing(expr) =>
         def result: SimplificationBuilder = replace(expr).withText(invocationText(expr, mkString)).highlightFrom(expr)
 
         expr.getParent match {
           case _: ScInterpolatedStringLiteral =>
-            // s"start $array end"
+            // s"start $thing end"
             Some(result.wrapInBlock())
           case null => None
           case parent =>
             parent.getParent match {
               case `.print`(_, args@_*) if args.contains(expr) =>
-                // System.out.println(array)
+                // System.out.println(thing)
                 Some(result)
               case `print`(args@_*) if args.contains(expr) =>
-                // println(array)
+                // println(thing)
                 Some(result)
               case _: ScInterpolatedStringLiteral =>
-                // s"start ${array} end"
+                // s"start ${thing} end"
                 Some(result)
               case _ => None
             }
