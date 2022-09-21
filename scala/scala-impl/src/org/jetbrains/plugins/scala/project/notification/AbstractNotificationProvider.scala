@@ -22,9 +22,11 @@ abstract class AbstractNotificationProvider(@Nls kitTitle: String,
 
 
   {
-    val notifications = EditorNotifications.getInstance(project)
-    project.subscribeToModuleRootChanged() { _ =>
-      notifications.updateAllNotifications()
+    if (!project.isDisposed) {
+      val notifications = EditorNotifications.getInstance(project)
+      project.subscribeToModuleRootChanged() { _ =>
+        notifications.updateAllNotifications()
+      }
     }
   }
 
