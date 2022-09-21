@@ -128,4 +128,17 @@ class MakeArrayToStringInspectionTest extends OperationsOnCollectionInspectionTe
         |String.format("formatted: %s", Array(1).mkString("Array(", ", ", ")"))
       """.stripMargin)
   }
+
+  def testFormatOnString(): Unit = {
+    doTest(
+      s"""
+         |"formatted: %s".format(${START}Array(1)$END)
+       """.stripMargin,
+      """
+        |"formatted: %s".format(Array(1))
+      """.stripMargin,
+      """
+        |"formatted: %s".format(Array(1).mkString("Array(", ", ", ")"))
+      """.stripMargin)
+  }
 }

@@ -193,4 +193,18 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
       """.stripMargin)
   }
 
+  def testFormatOnString(): Unit = {
+    "formatted: %s".format(Option(1))
+    doTest(
+      s"""
+         |"formatted: %s".format(${START}Option(1)$END)
+       """.stripMargin,
+      """
+        |"formatted: %s".format(Option(1))
+      """.stripMargin,
+      """
+        |"formatted: %s".format(Option(1).mkString)
+      """.stripMargin)
+  }
+
 }
