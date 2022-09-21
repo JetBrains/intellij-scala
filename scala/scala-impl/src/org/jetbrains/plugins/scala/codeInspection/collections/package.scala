@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScVariable}
@@ -511,6 +511,48 @@ package object collections {
   implicit class PsiElementRange(private val elem: PsiElement) extends AnyVal {
     def start: Int = elem.getTextRange.getStartOffset
     def end: Int = elem.getTextRange.getEndOffset
+  }
+
+  private val `print` = unqualifed(Set("print", "println")).from(ArraySeq("scala.Predef", "java.io.PrintStream"))
+  private val `.print` = invocation(Set("print", "println")).from(ArraySeq("scala.Predef", "java.io.PrintStream"))
+
+  private[collections] def getToStringToMkStringSimplification(expr: ScExpression, isFound: ScExpression => Boolean, mkString: String, replace: ScExpression => SimplificationBuilder): Option[Simplification] = {
+    expr match {
+      // TODO infix notation?
+      case `.toString`(array) if isFound(array) =>
+        // array.toString
+        Some(replace(expr).withText(invocationText(array, mkString)).highlightFrom(array))
+      case someString `+` array if isString(someString) && isFound(array) =>
+        // "string" + array
+        Some(replace(array).withText(invocationText(array, mkString)).highlightFrom(array))
+      case array `+` someString if isString(someString) && isFound(array) =>
+        // array + "string"
+        Some(replace(array).withText(invocationText(array, mkString)).highlightFrom(array))
+      case _ if isFound(expr) =>
+        def result: SimplificationBuilder = replace(expr).withText(invocationText(expr, mkString)).highlightFrom(expr)
+
+        expr.getParent match {
+          case _: ScInterpolatedStringLiteral =>
+            // s"start $array end"
+            Some(result.wrapInBlock())
+          case null => None
+          case parent =>
+            parent.getParent match {
+              case `.print`(_, args@_*) if args.contains(expr) =>
+                // System.out.println(array)
+                Some(result)
+              case `print`(args@_*) if args.contains(expr) =>
+                // println(array)
+                Some(result)
+              case _: ScInterpolatedStringLiteral =>
+                // s"start ${array} end"
+                Some(result)
+              case _ => None
+            }
+        }
+      case _ =>
+        None
+    }
   }
 }
 
