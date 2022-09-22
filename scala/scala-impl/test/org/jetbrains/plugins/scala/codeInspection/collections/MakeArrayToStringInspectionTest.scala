@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
+import org.junit.Assert.assertEquals
+
 class MakeArrayToStringInspectionTest extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
@@ -167,7 +169,27 @@ class MakeArrayToStringInspectionTest extends OperationsOnCollectionInspectionTe
       """.stripMargin)
   }
 
-  def testAppendOnJavaStringBuilder(): Unit = {
+  def testAppendNotAnyOnJavaStringBuilder(): Unit = {
+    try {
+      doTest(
+        s"""
+           |val b = new java.lang.StringBuilder
+           |b.append(${START}Array('1')$END)
+       """.stripMargin,
+        """
+          |val b = new java.lang.StringBuilder
+          |b.append(Array('1'))
+      """.stripMargin,
+        """
+          |val b = new java.lang.StringBuilder
+          |b.append(Array('1'))
+      """.stripMargin)
+    } catch {
+      case e: AssertionError => assertEquals(e.getMessage, """Highlights not found: Format with .mkString("Array(", ", ", ")")""")
+    }
+  }
+
+  def testAppendAnyOnJavaStringBuilder(): Unit = {
     doTest(
       s"""
          |val b = new java.lang.StringBuilder
