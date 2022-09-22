@@ -17,11 +17,11 @@ package object prop extends scala.AnyRef {
     @scala.inline
     def apply(a : A) : nyaya.prop.Eval = { /* compiled code */ }
     @scala.inline
-    def forall[B, F[_]](f : scala.Function1[B, F[A]])(implicit evidence$1 : scalaz.Foldable[F]) : nyaya.prop.Prop[B] = { /* compiled code */ }
+    def forall[B, F[_] : scalaz.Foldable](f : scala.Function1[B, F[A]]) : nyaya.prop.Prop[B] = { /* compiled code */ }
     @scala.inline
-    def forallS[B, F[_], C](f : scala.Function1[B, F[C]])(implicit evidence$2 : scalaz.Foldable[F], ev : scala.Predef.<:<[C, A]) : nyaya.prop.Prop[B] = { /* compiled code */ }
+    def forallS[B, F[_] : scalaz.Foldable, C](f : scala.Function1[B, F[C]])(implicit ev : scala.Predef.<:<[C, A]) : nyaya.prop.Prop[B] = { /* compiled code */ }
     @scala.inline
-    def forallF[F[_]](implicit evidence$3 : scalaz.Foldable[F]) : nyaya.prop.Prop[F[A]] = { /* compiled code */ }
+    def forallF[F[_] : scalaz.Foldable] : nyaya.prop.Prop[F[A]] = { /* compiled code */ }
     @scala.inline
     @scala.annotation.elidable(2000)
     def assert(a : A) : scala.Unit = { /* compiled code */ }

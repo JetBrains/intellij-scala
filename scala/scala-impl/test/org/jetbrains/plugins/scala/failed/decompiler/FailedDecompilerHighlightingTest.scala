@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.failed.decompiler
 
 import org.jetbrains.plugins.scala.lang.highlighting.decompiler.DecompilerHighlightingTestBase
 
+// TODO Check only parser errors, not annotator errors.
 class FailedDecompilerHighlightingTest extends DecompilerHighlightingTestBase {
 
   override protected def shouldPass: Boolean = false

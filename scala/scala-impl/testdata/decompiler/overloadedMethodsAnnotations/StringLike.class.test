@@ -31,7 +31,7 @@ trait StringLike[+Repr] extends scala.Any with scala.collection.IndexedSeqOptimi
   def toLong : scala.Long = { /* compiled code */ }
   def toFloat : scala.Float = { /* compiled code */ }
   def toDouble : scala.Double = { /* compiled code */ }
-  override def toArray[B >: scala.Char](implicit evidence$1 : scala.reflect.ClassTag[B]) : scala.Array[B] = { /* compiled code */ }
+  override def toArray[B >: scala.Char : scala.reflect.ClassTag] : scala.Array[B] = { /* compiled code */ }
   def format(args : scala.Any*) : scala.Predef.String = { /* compiled code */ }
   def formatLocal(l : java.util.Locale, args : scala.Any*) : scala.Predef.String = { /* compiled code */ }
 }

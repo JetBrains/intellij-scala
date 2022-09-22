@@ -322,19 +322,27 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
     def _pmt(mt: FunctionType): Unit = {
 
-      val paramEntries = mt.paramSymbols.map({
+      val isImplicitClause = isImplicit(mt)
+
+      val paramSymbolsWithoutContextBounds =
+        if (isImplicitClause) mt.paramSymbols.filter(!_.name.startsWith("evidence$"))
+        else mt.paramSymbols
+
+      val paramEntries = paramSymbolsWithoutContextBounds.map({
         case ms: MethodSymbol => pe(ms)
         case _ => "^___^"
       })
 
-      // Print parameter clauses
-      print(paramEntries.mkString(
-        "(" + (mt match {
-          case _: ImplicitMethodType => "implicit "
-          //for Scala 2.9
-          case mt: MethodType if mt.paramSymbols.nonEmpty && mt.paramSymbols.head.isImplicit => "implicit "
-          case _ => ""
-        }), ", ", ")"))
+      if (!isImplicitClause || paramSymbolsWithoutContextBounds.nonEmpty) {
+        // Print parameter clauses
+        print(paramEntries.mkString(
+          "(" + (mt match {
+            case _: ImplicitMethodType => "implicit "
+            //for Scala 2.9
+            case mt: MethodType if mt.paramSymbols.nonEmpty && mt.paramSymbols.head.isImplicit => "implicit "
+            case _ => ""
+          }), ", ", ")"))
+      }
 
       // Print result type
       mt.resultType.get match {
@@ -353,7 +361,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case pt: PolyType =>
         val typeParams = pt.paramSymbols
         for (param <- typeParams) addTypeParameter(param)
-        print(typeParamString(typeParams))
+        print(typeParamString(typeParams, contextBoundsIn(pt)))
         try {
           printMethodType(pt.typeRef.get, printResult)({})
         }
@@ -367,6 +375,28 @@ class ScalaSigPrinter(builder: StringBuilder) {
     // Print rest of the symbol output
     cont
   }
+
+  private def contextBoundsIn(pt: PolyType): Seq[(String, String)] = pt.typeRef.get match {
+    case mt: FunctionType => // TODO Unnecessary if NullaryMethodType is FunctionType
+      val implicitClause = implicitClauseIn(mt)
+      val contextBoundParams = implicitClause.map(_.paramSymbols.filter(_.name.startsWith("evidence$"))).getOrElse(Seq.empty)
+      contextBoundParams.collect { case ms: MethodSymbol =>
+        val tpe = toString(ms.infoType)(TypeFlags(true))
+        val i = tpe.indexOf("[")
+        (tpe.substring(i + 1, tpe.length - 1), tpe.substring(0, i))
+      }
+    case _ => Seq.empty
+  }
+
+  @tailrec
+  private def implicitClauseIn(mt: FunctionType): Option[FunctionType] =
+    if (isImplicit(mt)) Some(mt) else mt.resultType.get match {
+      case mt: FunctionType => implicitClauseIn(mt)
+      case _ => None
+    }
+
+  private def isImplicit(mt: FunctionType): Boolean =
+    mt.isInstanceOf[ImplicitMethodType] || mt.paramSymbols.headOption.exists(_.isImplicit)
 
   def printMethod(level: Int, m: MethodSymbol, indent: () => Unit): Unit = {
     val n = m.name
@@ -658,9 +688,15 @@ class ScalaSigPrinter(builder: StringBuilder) {
     if (typeArgs.isEmpty) ""
     else typeArgs.map(toString(_, level)).map(_.stripPrefix("=> ")).mkString("[", ", ", "]")
 
-  def typeParamString(params: Seq[Symbol]): String =
+  def typeParamString(params: Seq[Symbol], bounds: Seq[(String, String)] = Seq.empty): String =
     if (params.isEmpty) ""
-    else params.map(toString).mkString("[", ", ", "]")
+    else params.map { param =>
+      val contextBounds = bounds.map { case (id, tpe) =>
+        val paramName = processName(currentTypeParameters.getOrElse(param, param.name))
+        if (id == paramName) " : " + tpe else ""
+      }
+      toString(param) + contextBounds.mkString
+    }.mkString("[", ", ", "]")
 
   private object isConstantType {
     @tailrec

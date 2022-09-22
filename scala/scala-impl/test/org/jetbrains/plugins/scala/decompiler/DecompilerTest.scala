@@ -8,6 +8,7 @@ import java.io.{File => jFile}
 import scala.io.Codec
 import scala.tools.nsc.io.File
 
+// TODO Use .sig files rather than .class files.
 trait DecompilerTestBase extends TestCase {
   def basePath: String = s"${TestUtils.getTestDataPath}/decompiler"
 
@@ -171,5 +172,9 @@ class DecompilerTest extends DecompilerTestBase {
 
   def testDistageTestConfig(): Unit = {
     doTest("TestConfig.class")
+  }
+
+  def testContextBounds(): Unit = {
+    doTest("ContextBounds.class")
   }
 }

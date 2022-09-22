@@ -27,7 +27,7 @@ abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase with 
   def getMessages(fileName: String, scalaFileText: String): List[Message] = {
     myFixture.configureByText(
       fileName.substring(0, fileName.lastIndexOf('.')) + ".scala",
-      scalaFileText.replace("{ /* compiled code */ }", "???")
+      scalaFileText.replace("{ /* compiled code */ }", "???") // TODO Parameter in Decompiler
     )
 
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()

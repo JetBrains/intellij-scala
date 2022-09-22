@@ -167,7 +167,7 @@ case class ClassInfoTypeWithCons(symbol: Ref[Symbol], typeRefs: Seq[Ref[Type]], 
 
 case class MethodType(override val resultType: Ref[Type], override val paramRefs: Seq[Ref[Symbol]]) extends FunctionType
 
-case class NullaryMethodType(resultType: Ref[Type]) extends Type
+case class NullaryMethodType(resultType: Ref[Type]) extends Type // TODO extends FunctionType
 
 case class PolyType(typeRef: Ref[Type], override val paramRefs: Seq[Ref[Symbol]]) extends TypeWithParams
 
