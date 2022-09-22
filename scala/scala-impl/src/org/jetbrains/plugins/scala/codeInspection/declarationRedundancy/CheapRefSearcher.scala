@@ -152,10 +152,11 @@ object CheapRefSearcher {
 
     val refProcessor = new Processor[PsiReference] {
       override def process(ref: PsiReference): Boolean = {
+        val usage = new KnownElementUsage(ref.getElement, element)
 
-        results.addOne(new KnownElementUsage(ref.getElement, element))
+        results.addOne(usage)
 
-        if (!results.head.targetCanBePrivate) {
+        if (!usage.targetCanBePrivate) {
           shouldStop = true
         }
 
@@ -189,8 +190,9 @@ object CheapRefSearcher {
         if (e2.getContainingFile.isScala2File || e2.getContainingFile.isScala3File) {
           true
         } else {
-          result.addOne(new KnownElementUsage(e2, element))
-          result.last.targetCanBePrivate
+          val usage = new KnownElementUsage(e2, element)
+          result.addOne(usage)
+          usage.targetCanBePrivate
         }
     }
 
