@@ -22,7 +22,7 @@ object ReportHighlightingErrorQuickFix extends IntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
-    BrowserUtil.browse("https://youtrack.jetbrains.net/issues/SCL#newissue=yes")
+    BrowserUtil.browse("https://youtrack.jetbrains.com/newIssue?project=SCL")
 
   override def getFamilyName: String = ScalaBundle.message("report.highlighting.error.fix")
 }
