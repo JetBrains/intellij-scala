@@ -289,7 +289,7 @@ final class WorksheetEditorPrinterRepl private[printers](
 
     val showErrorInViewer = WorksheetUtils.showReplErrorsInEditor && replMessageInfo.messageCategory == CompilerMessageCategory.ERROR
     if (showErrorInViewer) {
-      val line = cleanReplErrorMessage(buildMessageText(replMessageInfo))
+      val line = cleanReplErrorMessage(buildMessageText(replMessageInfo, includeErrorLineContent = false))
       chunkOutputBuffer.append(line + "\n")
     }
     else {
@@ -304,10 +304,11 @@ final class WorksheetEditorPrinterRepl private[printers](
   private def cleanReplErrorMessage(errorMessage: String): String =
     errorMessage.replaceAll("""^<console>:\d+:\serror:\s""", "")
 
-  private def buildMessageText(replMessageInfo: ReplMessageInfo): String = {
+  private def buildMessageText(replMessageInfo: ReplMessageInfo, includeErrorLineContent: Boolean): String = {
     val ReplMessageInfo(message, lineContent, _, _, _) = replMessageInfo
-    val messageLines = (message.split('\n'):+ lineContent).map(_.trim).filter(_.nonEmpty)
-    messageLines.mkString("\n")
+    val messageLines = message.split('\n') ++ (if (includeErrorLineContent) Seq(lineContent) else Nil)
+    val messageLinesClean = messageLines.map(_.trim).filter(_.nonEmpty)
+    messageLinesClean.mkString("\n")
   }
 
   private def buildCompilerMessage(replMessageInfo: ReplMessageInfo, chunk: QueuedPsi): CompilerMessage = {
@@ -331,7 +332,7 @@ final class WorksheetEditorPrinterRepl private[printers](
       new LogicalPosition(line.max(0), column.max(0))
     }
 
-    val messageText = buildMessageText(replMessageInfo)
+    val messageText = buildMessageText(replMessageInfo, includeErrorLineContent = true)
     new CompilerMessageImpl(
       project,
       severity,
