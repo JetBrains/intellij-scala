@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.{Pos, PosRange}
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.{Pos, PosRange}
 import org.jetbrains.plugins.scala.project.template.FileExt
 
 import scala.annotation.unused
@@ -22,7 +23,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
   override def eventReceived(event: CompilerEvent): Unit = {
     val oldState = CompilerGeneratedStateManager.get(project)
 
-    val handleEventResult = event match {
+    val handleEventResult: Option[HandleEventResult] = event match {
       case CompilerEvent.CompilationStarted(_, _) =>
         val newHighlightOnCompilationFinished = oldState.toHighlightingState.filesWithHighlightings
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
@@ -115,7 +116,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     oldState.copy(files = newFileStates)
   }
 
-  private def updateHighlightings(virtualFiles: Set[VirtualFile], state: HighlightingState): Unit = {
+  private def updateHighlightings(virtualFiles: Set[VirtualFile], state: HighlightingState): Unit = try {
     val filteredVirtualFiles = ExternalHighlighters.filterFilesToHighlightBasedOnFileLevel(virtualFiles, project)
     for {
       editor <- EditorFactory.getInstance.getAllEditors
@@ -124,6 +125,11 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
       vFile <- editor.getDocument.virtualFile
       if filteredVirtualFiles contains vFile
     } ExternalHighlighters.applyHighlighting(project, editor, state)
+  } catch {
+    //don't know what else we can do if compilation was cancelled at this stage
+    //probably just don't show updated highlightings
+    case _: ProcessCanceledException =>
+      //ignore
   }
 }
 

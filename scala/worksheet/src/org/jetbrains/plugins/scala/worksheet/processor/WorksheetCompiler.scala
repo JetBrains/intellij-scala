@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package worksheet.processor
 
-import java.io.{File, FileWriter}
-
 import com.intellij.compiler.impl.ExitStatus
 import com.intellij.compiler.progress.CompilerTask
 import com.intellij.openapi.application.ApplicationManager
@@ -14,7 +12,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle, JDK}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, JDK}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaSdkNotConfiguredException}
@@ -31,6 +29,7 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.W
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetFileSettings, _}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
 
+import java.io.{File, FileWriter}
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise, TimeoutException}
@@ -110,46 +109,29 @@ class WorksheetCompiler(
       return
     }
 
-    val headlessMode = {
-      val application = ApplicationManager.getApplication
-      !application.isInternal || application.isUnitTestMode
-    }
-    val compilerTask = new CompilerTask(
-      project,
-      CompilerIntegrationBundle.message("highlighting.compilation"),
-      headlessMode,
-      /*forceAsync=*/ false,
-      /*waitForPreviousSession=*/ true,
-      /*compilationStartedAutomatically=*/ true
-    )
-
     if (!CompileServerLauncher.ensureServerRunning(project)) {
       originalCallback(WorksheetCompilerResult.CompileServerIsNotRunningError)
       return
     }
 
-    compilerTask.startWork {
-      val callback: RemoteServerConnectorResult => Unit = result => {
-        Log.traceWithDebugInDev(s"compileOnly remote server connection result: $result")
-        originalCallback(WorksheetCompilerResult.Compiled)
-      }
-      try {
-        val originalFilePath = virtualFile.getCanonicalPath
-        val (_, tempFile, outputDir) = WorksheetCache.getInstance(project).updateOrCreateCompilationInfo(
-          filePath = originalFilePath,
-          fileName = worksheetFile.getName,
-          tempDirName = Some("worksheet-compilation")
-        )
-        WorksheetWrapper.writeWrappedToFile(document.getText, tempFile)
-        val connector = new RemoteServerConnector(module, worksheetFile, CompileOnly(tempFile, outputDir), InProcessServer)
-        val delegatingClient = new WrappedWorksheetCompilerMessagesFixer(new File(originalFilePath), client)
-        connector.compileAndRun(virtualFile, delegatingClient)(callback)
-      } catch {
-        case NonFatal(ex) =>
-          callback(toError(ex))
-      } finally {
-        compilerTask.setEndCompilationStamp(ExitStatus.SUCCESS, System.currentTimeMillis)
-      }
+    val callback: RemoteServerConnectorResult => Unit = result => {
+      Log.traceWithDebugInDev(s"compileOnly remote server connection result: $result")
+      originalCallback(WorksheetCompilerResult.Compiled)
+    }
+    try {
+      val originalFilePath = virtualFile.getCanonicalPath
+      val (_, tempFile, outputDir) = WorksheetCache.getInstance(project).updateOrCreateCompilationInfo(
+        filePath = originalFilePath,
+        fileName = worksheetFile.getName,
+        tempDirName = Some("worksheet-compilation")
+      )
+      WorksheetWrapper.writeWrappedToFile(document.getText, tempFile)
+      val connector = new RemoteServerConnector(module, worksheetFile, CompileOnly(tempFile, outputDir), InProcessServer)
+      val delegatingClient = new WrappedWorksheetCompilerMessagesFixer(new File(originalFilePath), client)
+      connector.compileAndRun(virtualFile, delegatingClient)(callback)
+    } catch {
+      case NonFatal(ex) =>
+        callback(toError(ex))
     }
   } catch {
     case NonFatal(ex) =>
@@ -395,9 +377,9 @@ object WorksheetCompiler {
       NonServer
     }
 
-  implicit class CompilerTaskOps(private val task: CompilerTask) extends AnyVal {
+  private implicit class CompilerTaskOps(private val task: CompilerTask) extends AnyVal {
 
-    def startWork[T](compilerWork: => Unit): Unit =
+    def startWork(compilerWork: => Unit): Unit =
       task.start(() => compilerWork, EmptyRunnable)
   }
 
