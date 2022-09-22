@@ -163,7 +163,7 @@ class MakeArrayToStringInspectionTest extends OperationsOnCollectionInspectionTe
         |Array(1).formatted("formatted: %s")
       """.stripMargin,
       """
-        |Array(1).mkString("Array(", ", ", ")").formatted("formatted: %s")
+        |"formatted: %s".format(Array(1).mkString("Array(", ", ", ")"))
       """.stripMargin)
   }
 

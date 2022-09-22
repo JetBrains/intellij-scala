@@ -227,7 +227,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
         |Option(1).formatted("formatted: %s")
       """.stripMargin,
       """
-        |Option(1).mkString.formatted("formatted: %s")
+        |"formatted: %s".format(Option(1).mkString)
       """.stripMargin)
   }
 

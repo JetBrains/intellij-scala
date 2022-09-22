@@ -531,6 +531,10 @@ package object collections {
       case thing `+` someString if isString(someString) && isThing(thing) =>
         // thing + "string"
         Some(replace(thing).withText(invocationText(thing, mkString)).highlightFrom(thing))
+      case thing `.formatted` someString if isString(someString) && isThing(thing) =>
+        // thing.formatted("%s")
+        val thingText = thing.getText
+        Some(replace(expr).withText(invocationText(someString, s"format($thingText.$mkString)")).highlightElem(thing))
       case _ if isThing(expr) =>
         def result: SimplificationBuilder = replace(expr).withText(invocationText(expr, mkString)).highlightFrom(expr)
 
@@ -551,9 +555,8 @@ package object collections {
                 // String.format("%s", thing)
                 // "%s".format(thing)
                 Some(result)
-              case `.formatted`(obj, args@_*) if args.contains(expr) || isThing(obj) =>
+              case `.formatted`(_, args@_*) if args.contains(expr) =>
                 // "%s".formatted(thing)
-                // thing.formatted("%s")
                 Some(result)
               case `.appendOnStringBuilder`(_, args@_*) if args.contains(expr) =>
                 // new java.lang.StringBuilder.append(thing)
