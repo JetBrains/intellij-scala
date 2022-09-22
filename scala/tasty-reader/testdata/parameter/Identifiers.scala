@@ -13,4 +13,11 @@ trait Identifiers {
 
   extension (`extension`: Int)
     def method: Unit = ???
+
+  class ClassValueParameterSymbolic(& : Int)
+
+  def methodValueParameterSymbolic(& : Int): Unit
+
+  extension (& : Long)
+    def method: Unit = ???
 }

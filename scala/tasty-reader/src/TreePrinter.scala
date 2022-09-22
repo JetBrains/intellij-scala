@@ -296,7 +296,11 @@ class TreePrinter(privateMembers: Boolean = false) {
       if (!isAnonymousGiven) {
         sb ++= id(name)
       }
+      val previousLength = sb.length
       parametersIn(sb, node, target = if (node.contains(EXTENSION)) Target.ExtensionMethod else Target.Definition)
+      if (sb.length == previousLength && name.forall(!_.isLetterOrDigit)) {
+        sb ++= " "
+      }
       sb ++= ": "
       val remainder = node.children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE))
       val tpe = remainder.headOption
@@ -339,7 +343,11 @@ class TreePrinter(privateMembers: Boolean = false) {
       }
       val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
       if (!isAnonymousGiven) {
-        sb ++= id(name) + ": "
+        sb ++= id(name)
+        if (name.forall(!_.isLetterOrDigit)) {
+          sb ++= " "
+        }
+        sb ++= ": "
       }
       val tpe = children.headOption
       tpe match {
@@ -593,6 +601,9 @@ class TreePrinter(privateMembers: Boolean = false) {
         }
         contextBounds.foreach { case (id, tpe) =>
           if (id == name) {
+            if (name.forall(!_.isLetterOrDigit)) {
+              sb ++= " "
+            }
             sb ++= ": "
             sb ++= tpe
           }
@@ -667,7 +678,11 @@ class TreePrinter(privateMembers: Boolean = false) {
           }
         }
         if (!(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
-          sb ++= id(name) + ": "
+          sb ++= id(name)
+          if (name.forall(!_.isLetterOrDigit)) {
+            sb ++= " "
+          }
+          sb ++= ": "
         }
         sb ++= simple(tpe).stripSuffix(" @scala.annotation.internal.InlineParam")
         if (node.contains(HASDEFAULT)) {

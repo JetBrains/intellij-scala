@@ -5,10 +5,25 @@ trait Identifiers {
 
   val `val`: Int = ???
 
-  val `var`: Int = ???
+  var `var`: Int = ???
 
   type `type` = Int
 
   extension (i: Int)
     def `def`: Int = ???
+
+  def & : Int = ???
+
+  def &(x: Long): Int = ???
+
+  val && : Int = ???
+
+  var &&& : Int = ???
+
+  type & = Int
+
+  extension (i: Int)
+    def & : Int = ???
+
+  def contextBound[& : Ordering]: Unit = ???
 }

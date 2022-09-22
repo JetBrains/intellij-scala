@@ -20,7 +20,6 @@ import scala.util.control.NonFatal
 // Nothing -> Any when for parameter (variance)
 // type trees
 // different name kinds, FQN
-// symbol names `foo`
 // val a, b; val (a, b)
 // transparent inline def quotes in the same file
 // exhaustive matches
