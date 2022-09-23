@@ -549,7 +549,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     val templateTypeParams = template.map(_.children.filter(_.is(TYPEPARAM)).iterator)
 
     lazy val contextBounds = node.children.collect {
-      case param @ Node3(PARAM, Seq(name), Seq(tail, _: _*)) if name.startsWith("evidence$") && param.contains(IMPLICIT) =>
+      case param @ Node3(PARAM, Seq(name), Seq(tail, _: _*)) if name.startsWith("evidence$") && param.contains(IMPLICIT) && hasSingleArgument(tail) =>
         val tpe = textOfType(tail)
         val i = tpe.indexOf("[")
         (tpe.substring(i + 1, tpe.length - 1), tpe.substring(0, i))
@@ -640,7 +640,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       case Node1(SPLITCLAUSE) =>
         sb ++= ")"
         open = false
-      case node @ Node3(PARAM, Seq(name), children) if !(name.startsWith("evidence$") && node.contains(IMPLICIT)) =>
+      case node @ Node3(PARAM, Seq(name), children) if !(name.startsWith("evidence$") && node.contains(IMPLICIT) && hasSingleArgument(children.head)) =>
         if (!open) {
           sb ++= "("
           open = true
@@ -699,6 +699,11 @@ class TreePrinter(privateMembers: Boolean = false) {
         sb.delete(sb.length - 2, sb.length())
       }
     }
+  }
+
+  private def hasSingleArgument(tpe: Node): Boolean = tpe match {
+    case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(_, _)) => true
+    case _ => false
   }
 
   private def modifiersIn(sb: StringBuilder, node: Node, excluding: Set[Int] = Set.empty, isParameter: Boolean = true): Unit = { // TODO Optimize

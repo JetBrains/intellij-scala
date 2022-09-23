@@ -325,7 +325,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       val isImplicitClause = isImplicit(mt)
 
       val paramSymbolsWithoutContextBounds =
-        if (isImplicitClause) mt.paramSymbols.filter(!_.name.startsWith("evidence$"))
+        if (isImplicitClause) mt.paramSymbols.filter(ps => !(ps.name.startsWith("evidence$") && hasSingleArgument(ps)))
         else mt.paramSymbols
 
       val paramEntries = paramSymbolsWithoutContextBounds.map({
@@ -379,7 +379,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
   private def contextBoundsIn(pt: PolyType): Seq[(String, String)] = pt.typeRef.get match {
     case mt: FunctionType => // TODO Unnecessary if NullaryMethodType is FunctionType
       val implicitClause = implicitClauseIn(mt)
-      val contextBoundParams = implicitClause.map(_.paramSymbols.filter(_.name.startsWith("evidence$"))).getOrElse(Seq.empty)
+      val contextBoundParams = implicitClause.map(_.paramSymbols.filter(ps => ps.name.startsWith("evidence$") && hasSingleArgument(ps))).getOrElse(Seq.empty)
       contextBoundParams.collect { case ms: MethodSymbol =>
         val tpe = toString(ms.infoType)(TypeFlags(true))
         val i = tpe.indexOf("[")
@@ -397,6 +397,14 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   private def isImplicit(mt: FunctionType): Boolean =
     mt.isInstanceOf[ImplicitMethodType] || mt.paramSymbols.headOption.exists(_.isImplicit)
+
+  private def hasSingleArgument(ps: Symbol): Boolean = ps match {
+    case ms: MethodSymbol => ms.infoType match {
+      case TypeRefType(_, _, Seq(_)) => true
+      case _ => false
+    }
+    case _ => false
+  }
 
   def printMethod(level: Int, m: MethodSymbol, indent: () => Unit): Unit = {
     val n = m.name

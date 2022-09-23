@@ -48,6 +48,12 @@ trait ContextBounds {
 
   def using[A](using evidence$1: Ordering[A]): Unit = ???
 
+  class IsSubtypeOf[A, B]
+
+  def multiParameter[A, B](implicit evidence$1: IsSubtypeOf[A, B]): Unit = ???
+
+  def multiParameterInfix[A, B](implicit evidence$1: A <:< B): Unit = ???
+
   class HKT[A[_]]
 
   def wildcard[A[_]: HKT]: Unit = ???
