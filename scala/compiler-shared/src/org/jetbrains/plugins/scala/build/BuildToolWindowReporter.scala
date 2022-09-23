@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 
 import java.io.File
 import javax.swing.JComponent
-import scala.annotation.nowarn
 import scala.concurrent.Promise
 
 class BuildToolWindowReporter(project: Project,
@@ -32,17 +31,16 @@ class BuildToolWindowReporter(project: Project,
     )
 
   override def start(): Unit = {
-    val buildDescriptor = new DefaultBuildDescriptor(buildId, title, project.getBasePath, System.currentTimeMillis())
-    @nowarn("cat=deprecation")
+    val buildDescriptor =
+      new DefaultBuildDescriptor(buildId, title, project.getBasePath, System.currentTimeMillis())
+        .withContentDescriptor { () => // dummy runContentDescriptor to set autofocus of build toolwindow off
+          val descriptor = new RunContentDescriptor(null, null, new JComponent {}, title)
+          descriptor.setActivateToolWindowWhenAdded(false)
+          descriptor.setAutoFocusContent(false)
+          descriptor
+        }
+        .withRestartActions(cancelAction)
     val startEvent = new StartBuildEventImpl(buildDescriptor, CompilerSharedBuildBundle.message("report.build.toolwindow.running"))
-      .withContentDescriptorSupplier { () => // dummy runContentDescriptor to set autofocus of build toolwindow off
-        val descriptor = new RunContentDescriptor(null, null, new JComponent {}, title)
-        descriptor.setActivateToolWindowWhenAdded(false)
-        descriptor.setAutoFocusContent(false)
-        descriptor
-      }
-      .withRestartActions(cancelAction)
-
     viewManager.onEvent(buildId, startEvent)
   }
 
