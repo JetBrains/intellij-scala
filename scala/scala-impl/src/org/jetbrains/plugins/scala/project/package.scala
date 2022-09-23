@@ -56,6 +56,7 @@ package object project {
     def libraryVersion: Option[String] = name.flatMap(LibraryVersion.findFirstIn)
 
     @ScheduledForRemoval(inVersion = "2022.3")
+    @Deprecated
     @deprecated("use libraryVersion")
     @unused
     def compilerVersion: Option[String] = libraryVersion
