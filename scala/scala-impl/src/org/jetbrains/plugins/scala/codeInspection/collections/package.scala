@@ -519,24 +519,25 @@ package object collections {
   private val `.format` = invocation("format").from(ArraySeq("java.lang.String", "scala.collection.StringOps"))
   private val `.appendOnStringBuilder` = invocation("append").from(ArraySeq("java.lang.StringBuilder", "scala.collection.mutable.StringBuilder"))
 
-  private[collections] def getToStringToMkStringSimplification(expr: ScExpression, isThing: ScExpression => Boolean, mkString: String, replace: ScExpression => SimplificationBuilder): Option[Simplification] = {
+  private[collections] def getToStringSimplification(expr: ScExpression, isThing: ScExpression => Boolean, thingToString: ScExpression => String, replace: ScExpression => SimplificationBuilder): Option[Simplification] = {
     expr match {
       // TODO infix notation?
       case `.toString`(thing) if isThing(thing) =>
         // thing.toString
-        Some(replace(expr).withText(invocationText(thing, mkString)).highlightFrom(thing))
+        Some(replace(expr).withText(invocationText(thing, thingToString(thing))).highlightFrom(thing))
       case someString `+` thing if isString(someString) && isThing(thing) =>
         // "string" + thing
-        Some(replace(thing).withText(invocationText(thing, mkString)).highlightFrom(thing))
+        Some(replace(thing).withText(invocationText(thing, thingToString(thing))).highlightFrom(thing))
       case thing `+` someString if isString(someString) && isThing(thing) =>
         // thing + "string"
-        Some(replace(thing).withText(invocationText(thing, mkString)).highlightFrom(thing))
+        Some(replace(thing).withText(invocationText(thing, thingToString(thing))).highlightFrom(thing))
       case thing `.formatted` someString if isString(someString) && isThing(thing) =>
         // thing.formatted("%s")
         val thingText = thing.getText
-        Some(replace(expr).withText(invocationText(someString, s"format($thingText.$mkString)")).highlightElem(thing))
+        val toStringThing = thingToString(thing)
+        Some(replace(expr).withText(invocationText(someString, s"format($thingText.$toStringThing)")).highlightElem(thing))
       case _ if isThing(expr) =>
-        def result: SimplificationBuilder = replace(expr).withText(invocationText(expr, mkString)).highlightFrom(expr)
+        def result: SimplificationBuilder = replace(expr).withText(invocationText(expr, thingToString(expr))).highlightFrom(expr)
 
         expr.getParent match {
           case _: ScInterpolatedStringLiteral =>

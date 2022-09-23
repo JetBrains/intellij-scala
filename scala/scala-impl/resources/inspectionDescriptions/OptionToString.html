@@ -1,8 +1,8 @@
 <html>
 <body>
-<p>Reports and replaces <code>toString</code> with <code>mkString</code>.</p>
+<p>Reports and replaces <code>toString</code> with <code>map(_.toString).getOrElse("")</code>.</p>
 
-<p><code>mkString</code> will prevent from getting string <code>"Some(a)"</code> instead of expected string <code>"a"</code>.</p>
+<p><code>map(_.toString).getOrElse("")</code> will prevent from getting string <code>"Some(a)"</code> instead of expected string <code>"a"</code>.</p>
 
 <p><b>Example:</b></p>
 <pre><code>
@@ -10,7 +10,7 @@
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-  Option(a).mkString
+  Option(a).map(_.toString).getOrElse("")
 </code></pre>
 <!-- tooltip end -->
 </body>

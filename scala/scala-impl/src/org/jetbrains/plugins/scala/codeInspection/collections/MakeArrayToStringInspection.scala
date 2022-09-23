@@ -13,8 +13,8 @@ class MakeArrayToStringInspection extends OperationOnCollectionInspection {
 object MakeArrayToStringInspection extends SimplificationType {
   override def hint: String = ScalaInspectionBundle.message("format.with.mkstring")
 
-  private val mkString = """mkString("Array(", ", ", ")")"""
+  private def mkString(arr: ScExpression): String = """mkString("Array(", ", ", ")")"""
 
   override def getSimplification(expr: ScExpression): Option[Simplification] =
-    getToStringToMkStringSimplification(expr, isArray, mkString, replace)
+    getToStringSimplification(expr, isArray, mkString, replace)
 }

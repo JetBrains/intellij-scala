@@ -7,13 +7,13 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[OptionToStringInspection]
 
-  override protected val hint: String = ScalaInspectionBundle.message("option.mkString.hint")
+  override protected val hint: String = ScalaInspectionBundle.message("option.toString.hint")
 
   def testNone(): Unit = {
     doTest(
       s"""None.${START}toString$END""",
       """None.toString""",
-      """None.mkString"""
+      """None.getOrElse("null")"""
     )
   }
 
@@ -21,7 +21,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
     doTest(
       s"""val i = Option("hello"); i.${START}toString$END""",
       """val i = Option("hello"); i.toString""",
-      """val i = Option("hello"); i.mkString"""
+      """val i = Option("hello"); i.getOrElse("")"""
     )
   }
 
@@ -29,7 +29,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
     doTest(
       s"""object Test { val i = Option("hello"); i.${START}toString$END }""",
       """object Test { val i = Option("hello"); i.toString }""",
-      """object Test { val i = Option("hello"); i.mkString }"""
+      """object Test { val i = Option("hello"); i.getOrElse("") }"""
     )
   }
 
@@ -37,7 +37,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
     doTest(
       s"""sys.env.get("VARIABLE").${START}toString$END""",
       """sys.env.get("VARIABLE").toString""",
-      """sys.env.get("VARIABLE").mkString"""
+      """sys.env.get("VARIABLE").getOrElse("")"""
     )
   }
 
@@ -45,7 +45,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
     doTest(
       s"""Some("constant").${START}toString$END""",
       """Some("constant").toString""",
-      """Some("constant").mkString"""
+      """Some("constant").getOrElse("")"""
     )
   }
 
@@ -53,7 +53,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
     doTest(
       s"""Option("constant").${START}toString$END""",
       """Option("constant").toString""",
-      """Option("constant").mkString"""
+      """Option("constant").getOrElse("")"""
     )
   }
 
@@ -61,7 +61,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
     doTest(
       s"""val i = Option(1); i.${START}toString$END""",
       """val i = Option(1); i.toString""",
-      """val i = Option(1); i.mkString"""
+      """val i = Option(1); i.map(_.toString).getOrElse("")"""
     )
   }
 
@@ -69,7 +69,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
     doTest(
       s"""def getSomeOne():Option[Int] = Some(1); getSomeOne().${START}toString$END""",
       """def getSomeOne():Option[Int] = Some(1); getSomeOne().toString""",
-      """def getSomeOne():Option[Int] = Some(1); getSomeOne().mkString"""
+      """def getSomeOne():Option[Int] = Some(1); getSomeOne().map(_.toString).getOrElse("")"""
     )
   }
 
@@ -77,7 +77,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
     doTest(
       s"""Some(1).${START}toString$END""",
       """Some(1).toString""",
-      """Some(1).mkString"""
+      """Some(1).map(_.toString).getOrElse("")"""
     )
   }
 
@@ -85,7 +85,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
     doTest(
       s"""Option(1).${START}toString$END""",
       """Option(1).toString""",
-      """Option(1).mkString"""
+      """Option(1).map(_.toString).getOrElse("")"""
     )
   }
 
@@ -98,7 +98,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
         |println(Option(3))
       """.stripMargin,
       """
-        |println(Option(3).mkString)
+        |println(Option(3).map(_.toString).getOrElse(""))
       """.stripMargin)
   }
 
@@ -111,7 +111,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
         |System.out.println(Option(3))
       """.stripMargin,
       """
-        |System.out.println(Option(3).mkString)
+        |System.out.println(Option(3).map(_.toString).getOrElse(""))
       """.stripMargin)
   }
 
@@ -127,7 +127,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
       """.stripMargin,
       """
         |val a = Option(3)
-        |s"before ${a.mkString} after"
+        |s"before ${a.map(_.toString).getOrElse("")} after"
       """.stripMargin)
   }
 
@@ -143,7 +143,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
       """.stripMargin,
       """
         |val a = Option(3)
-        |s"before ${a.mkString} after"
+        |s"before ${a.map(_.toString).getOrElse("")} after"
       """.stripMargin)
   }
 
@@ -159,7 +159,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
       """.stripMargin,
       """
         |val a = Option(3)
-        |a.mkString + "test"
+        |a.map(_.toString).getOrElse("") + "test"
       """.stripMargin)
   }
 
@@ -175,7 +175,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
       """.stripMargin,
       """
         |val a = Option(3)
-        |"test" + a.mkString
+        |"test" + a.map(_.toString).getOrElse("")
       """.stripMargin)
   }
 
@@ -188,7 +188,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
         |String.format("formatted: %s", Option(1))
       """.stripMargin,
       """
-        |String.format("formatted: %s", Option(1).mkString)
+        |String.format("formatted: %s", Option(1).map(_.toString).getOrElse(""))
       """.stripMargin)
   }
 
@@ -201,7 +201,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
         |"formatted: %s".format(Option(1))
       """.stripMargin,
       """
-        |"formatted: %s".format(Option(1).mkString)
+        |"formatted: %s".format(Option(1).map(_.toString).getOrElse(""))
       """.stripMargin)
   }
 
@@ -214,7 +214,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
         |"formatted: %s".formatted(Option(1))
       """.stripMargin,
       """
-        |"formatted: %s".formatted(Option(1).mkString)
+        |"formatted: %s".formatted(Option(1).map(_.toString).getOrElse(""))
       """.stripMargin)
   }
 
@@ -227,7 +227,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
         |Option(1).formatted("formatted: %s")
       """.stripMargin,
       """
-        |"formatted: %s".format(Option(1).mkString)
+        |"formatted: %s".format(Option(1).map(_.toString).getOrElse(""))
       """.stripMargin)
   }
 
@@ -243,7 +243,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
       """.stripMargin,
       """
         |val b = new java.lang.StringBuilder
-        |b.append(Option(1).mkString)
+        |b.append(Option(1).map(_.toString).getOrElse(""))
       """.stripMargin)
   }
 
@@ -259,7 +259,7 @@ class OptionToStringInspectionTest extends OperationsOnCollectionInspectionTest 
       """.stripMargin,
       """
         |val b = new scala.collection.mutable.StringBuilder
-        |b.append(Option(1).mkString)
+        |b.append(Option(1).map(_.toString).getOrElse(""))
       """.stripMargin)
   }
 }
