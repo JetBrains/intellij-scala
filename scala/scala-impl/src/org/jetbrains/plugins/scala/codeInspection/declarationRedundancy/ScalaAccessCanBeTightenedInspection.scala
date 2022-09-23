@@ -80,13 +80,14 @@ private final class ScalaAccessCanBeTightenedInspection extends LocalInspectionT
       }
     }
     val firstSearchResults =
-      CheapRefSearcher.getInstance(element.getProject).search(element, isOnTheFly, reportPublicDeclarations = true)
-    val firstResultsAllowTargetToBePrivate = firstSearchResults.usages.forall(_.targetCanBePrivate)
+      CheapRefSearcher.getInstance(element.getProject)
+        .localSearch(element, isOnTheFly, reportPublicDeclarations = true)
+
+    val firstResultsAllowTargetToBePrivate = firstSearchResults.forall(_.usages.forall(_.targetCanBePrivate))
 
     lazy val globalSearchResults = CheapRefSearcher.getInstance(element.getProject).globalSearch(element)
 
-    if (firstResultsAllowTargetToBePrivate &&
-      (firstSearchResults.globalSearchWasPerformed || globalSearchResults.usages.forall(_.targetCanBePrivate))) {
+    if (firstResultsAllowTargetToBePrivate && globalSearchResults.usages.forall(_.targetCanBePrivate)) {
       val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(modifierListOwner, quickFixText)
       problemsHolder.registerProblem(element.nameId, ScalaInspectionBundle.message("access.can.be.private"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
     }

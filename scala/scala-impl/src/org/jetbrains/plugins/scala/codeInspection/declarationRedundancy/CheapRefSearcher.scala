@@ -87,15 +87,18 @@ final class CheapRefSearcher private() {
   import CheapRefSearcher.getForeignEnumUsages
   import CheapRefSearcher.isImplicitUsed
 
-  @Cached(ModTracker.physicalPsiChange(element.getProject), element)
   def search(element: ScNamedElement, isOnTheFly: Boolean, reportPublicDeclarations: Boolean): ElementUsages =
-    if (!shouldProcessElement(element)) ElementUsages(UnknownElementUsage, globalSearchWasPerformed = false) else {
+    localSearch(element, isOnTheFly, reportPublicDeclarations).getOrElse(globalSearch(element))
+
+  @Cached(ModTracker.physicalPsiChange(element.getProject), element)
+  def localSearch(element: ScNamedElement, isOnTheFly: Boolean, reportPublicDeclarations: Boolean): Option[ElementUsages] =
+    if (!shouldProcessElement(element)) Some(ElementUsages(UnknownElementUsage)) else {
 
       lazy val refSearch = referencesSearch(element)
 
       if (isOnlyVisibleInLocalFile(element)) {
         if (isImplicit(element)) {
-          ElementUsages(isImplicitUsed(element), globalSearchWasPerformed = false)
+          Some(ElementUsages(isImplicitUsed(element)))
         } else if (isOnTheFly) {
           val refCounter = ScalaRefCountHolder(element)
           var used = false
@@ -103,18 +106,18 @@ final class CheapRefSearcher private() {
             used = refCounter.isValueReadUsed(element) || refCounter.isValueWriteUsed(element)
           }
           if (!success || used) {
-            ElementUsages(UnknownElementUsage, globalSearchWasPerformed = false)
+            Some(ElementUsages(UnknownElementUsage))
           } else {
-            ElementUsages(Seq.empty, globalSearchWasPerformed = false)
+            Some(ElementUsages(Seq.empty))
           }
         } else {
-          ElementUsages(refSearch, globalSearchWasPerformed = false)
+          Some(ElementUsages(refSearch))
         }
       } else if (refSearch.nonEmpty) {
-        ElementUsages(refSearch, globalSearchWasPerformed = false)
+        Some(ElementUsages(refSearch))
       } else if (!reportPublicDeclarations) {
-        ElementUsages(UnknownElementUsage, globalSearchWasPerformed = false)
-      } else globalSearch(element)
+        Some(ElementUsages(UnknownElementUsage))
+      } else None
     }
 
   @Cached(ModTracker.physicalPsiChange(element.getProject), element)
@@ -123,11 +126,11 @@ final class CheapRefSearcher private() {
     val enumSearch = getForeignEnumUsages(element)
 
     if (enumSearch.nonEmpty) {
-      ElementUsages(enumSearch, globalSearchWasPerformed = true)
+      ElementUsages(enumSearch)
     } else if (ScalaPsiUtil.isImplicit(element)) {
-      ElementUsages(UnknownElementUsage, globalSearchWasPerformed = true)
+      ElementUsages(UnknownElementUsage)
     } else {
-      ElementUsages(textSearch(element), globalSearchWasPerformed = true)
+      ElementUsages(textSearch(element))
     }
   }
 }
@@ -287,14 +290,14 @@ object CheapRefSearcher {
   }
 }
 
-class ElementUsages(val usages: Seq[ElementUsage], val globalSearchWasPerformed: Boolean)
+class ElementUsages(val usages: Seq[ElementUsage])
 
 object ElementUsages {
-  def apply(usage: ElementUsage, globalSearchWasPerformed: Boolean): ElementUsages =
-    new ElementUsages(Seq(usage), globalSearchWasPerformed)
+  def apply(usage: ElementUsage): ElementUsages =
+    new ElementUsages(Seq(usage))
 
-  def apply(usages: Seq[ElementUsage], globalSearchWasPerformed: Boolean): ElementUsages =
-    new ElementUsages(usages, globalSearchWasPerformed)
+  def apply(usages: Seq[ElementUsage]): ElementUsages =
+    new ElementUsages(usages)
 }
 
 trait ElementUsage {

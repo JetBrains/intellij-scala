@@ -69,7 +69,9 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
       case InspectedElement(_, inNameContext(holder: PsiAnnotationOwner)) if hasUnusedAnnotation(holder) =>
         Seq.empty
       case InspectedElement(original: ScNamedElement, delegate: ScNamedElement)
-        if CheapRefSearcher.getInstance(original.getProject).search(delegate, isOnTheFly, reportPublicDeclarations).usages.isEmpty =>
+        if CheapRefSearcher.getInstance(original.getProject)
+          .search(delegate, isOnTheFly, reportPublicDeclarations)
+          .usages.isEmpty =>
 
           val dontReportPublicDeclarationsQuickFix = if (isOnlyVisibleInLocalFile(original)) None
             else Some(createDontReportPublicDeclarationsQuickFix(original))
