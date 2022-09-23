@@ -200,7 +200,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
   }
 
   private def getEnclosingMethods(expr: PsiElement): Seq[ScMethodLike] = {
-    var enclosingMethodsBuilder = ArraySeq.newBuilder[ScMethodLike]
+    val enclosingMethodsBuilder = ArraySeq.newBuilder[ScMethodLike]
     var elem: PsiElement = expr
     while (elem != null) {
       val newFun = PsiTreeUtil.getContextOfType(elem, true, classOf[ScFunctionDefinition], classOf[ScClass])
