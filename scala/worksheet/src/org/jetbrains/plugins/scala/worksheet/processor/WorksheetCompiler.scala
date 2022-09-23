@@ -384,10 +384,12 @@ object WorksheetCompiler {
   }
 
   private object WorksheetWrapper {
-    val className = "WorksheetWrapper"
-    val header = "object " + className + " {\n"
+    val className: String = "WorksheetWrapper"
+    val header: String = s"object $className {\n"
     private val footer = "\n}"
-    val headerLines: Int = header.linesIterator.size
+
+    val headerLinesCount: Int = header.linesIterator.size
+
     def writeWrappedToFile(worksheetCode: String, file: File): Unit =
       Using.resource(new FileWriter(file)) { writer =>
         writer.write(header)
@@ -424,7 +426,7 @@ object WorksheetCompiler {
 
     // note that messages text will contain positions from the wrapped code
     private def fixMessage(msg: Client.ClientMsg): Client.ClientMsg = {
-      val fixedFromLine = msg.from.line.map(line => (line - WorksheetWrapper.headerLines).max(0))
+      val fixedFromLine = msg.from.line.map(line => (line - WorksheetWrapper.headerLinesCount).max(0))
       val fixedFromOffset = msg.from.offset.map(offset => (offset - WorksheetWrapper.header.length).max(0))
       val fixedFrom = msg.from.copy(line = fixedFromLine, offset = fixedFromOffset)
       msg.copy(
