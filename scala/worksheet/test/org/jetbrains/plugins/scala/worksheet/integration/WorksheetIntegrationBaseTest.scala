@@ -61,7 +61,8 @@ abstract class WorksheetIntegrationBaseTest
 
   protected def worksheetFileName: String = s"worksheet_${getTestName(false)}.sc"
 
-  override protected def reuseCompileServerProcessBetweenTests: Boolean = true
+  override protected def reuseCompileServerProcessBetweenTests: Boolean =
+    !System.getProperty("os.name").startsWith("Mac") || System.getProperty("os.arch") != "aarch64"
 
   protected def setupWorksheetSettings(settings: WorksheetFilePersistentSettings): Unit = {
     settings.setRunType(self.runType)
