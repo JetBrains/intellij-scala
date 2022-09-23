@@ -75,7 +75,7 @@ object SafeDeleteProcessorUtil {
               val results = ref.multiResolveScala(false)
               def isSyntheticObject(e: PsiElement) = e.asOptionOf[ScObject].exists(_.isSyntheticObject)
               val nonSyntheticTargets = results.map(_.getElement).filterNot(isSyntheticObject)
-              nonSyntheticTargets.toSet subsetOf allElementsToDelete.toSet
+              nonSyntheticTargets.toSet[PsiElement] subsetOf allElementsToDelete.toSet
             case _ => true
           }
 
@@ -385,7 +385,7 @@ object SafeDeleteProcessorUtil {
                     override def deleteElement(): Unit = {
                       val javadocMethodReference = element.getReference.asInstanceOf[PsiDocMethodOrFieldRef#MyReference]
                       if (javadocMethodReference != null) {
-                        javadocMethodReference.bindToText(method.containingClass, newText)
+                        javadocMethodReference.bindToText(newText)
                       }
                     }
                   })
