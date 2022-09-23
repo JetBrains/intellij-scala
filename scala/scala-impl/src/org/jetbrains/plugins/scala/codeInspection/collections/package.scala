@@ -559,7 +559,7 @@ package object collections {
                 // "%s".formatted(thing)
                 Some(result)
               case `.appendOnStringBuilder`(_, args@_*) if args.contains(expr)
-                && args.exists(_.smartExpectedType().exists(_.canonicalText == "Any")) =>
+                && args.exists(_.smartExpectedType().exists(_.isAny)) =>
                 // new java.lang.StringBuilder.append(thing)
                 // new scala.collection.mutable.StringBuilder.append(thing)
                 Some(result)
