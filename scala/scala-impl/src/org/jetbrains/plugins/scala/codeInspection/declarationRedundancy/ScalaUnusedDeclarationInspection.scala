@@ -45,6 +45,18 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     panel
   }
 
+  private def isElementUnused(element: ScNamedElement, isOnTheFly: Boolean, reportPublicDeclarations: Boolean): Boolean = {
+    val cheapRefSearcher = CheapRefSearcher.getInstance(element.getProject)
+    val localSearchRes = cheapRefSearcher.localSearch(element, isOnTheFly).map(_.usages.isEmpty)
+    localSearchRes.getOrElse {
+      if (reportPublicDeclarations) {
+        cheapRefSearcher.globalSearch(element).usages.isEmpty
+      } else {
+        true
+      }
+    }
+  }
+
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = {
     // Structure to encapsulate the possibility to check a delegate element to determine
     // usedness of the original PsiElement passed into `invoke`.
@@ -69,9 +81,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
       case InspectedElement(_, inNameContext(holder: PsiAnnotationOwner)) if hasUnusedAnnotation(holder) =>
         Seq.empty
       case InspectedElement(original: ScNamedElement, delegate: ScNamedElement)
-        if CheapRefSearcher.getInstance(original.getProject)
-          .search(delegate, isOnTheFly, reportPublicDeclarations)
-          .usages.isEmpty =>
+        if isElementUnused(delegate, isOnTheFly, reportPublicDeclarations) =>
 
           val dontReportPublicDeclarationsQuickFix = if (isOnlyVisibleInLocalFile(original)) None
             else Some(createDontReportPublicDeclarationsQuickFix(original))

@@ -79,9 +79,8 @@ private final class ScalaAccessCanBeTightenedInspection extends LocalInspectionT
         ScalaInspectionBundle.message("add.private.modifier")
       }
     }
-    val firstSearchResults =
-      CheapRefSearcher.getInstance(element.getProject)
-        .localSearch(element, isOnTheFly, reportPublicDeclarations = true)
+    val firstSearchResults = CheapRefSearcher.getInstance(element.getProject)
+        .localSearch(element, isOnTheFly)
 
     val firstResultsAllowTargetToBePrivate = firstSearchResults.forall(_.usages.forall(_.targetCanBePrivate))
 

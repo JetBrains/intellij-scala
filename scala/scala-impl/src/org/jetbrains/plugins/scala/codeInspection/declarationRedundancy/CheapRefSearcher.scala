@@ -66,11 +66,9 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
  *    it can check the ElementUsages.globalSearchWasPerformed field of CheapRefSearcher#search's return value.
  *    If globalSearchWasPerformed is false, the consumer can explicitly call CheapRefSearcher#globalSearch.
  *
- * 4. Some references are only registered to exist, with no further information about them.
+ * 4. Some references are only registered to exist, with no further information about them (see UnknownElementUsage).
  *
- * 5. Computed results are cached in the scrutinee (i.e. `element: ScNamedElement`). If CheapRefSearcher
- *    consumer A fetches references to element x and so does consumer B, results are computed during the first fetch,
- *    and read from cache during the second.
+ * 5. Computed results are cached a project-specific instance of CheapRefSearcher.
  *    Cached results are invalidated by any PSI change anywhere in the project.
  *
  *  Open issues:
@@ -85,20 +83,17 @@ final class CheapRefSearcher private() {
   import CheapRefSearcher.referencesSearch
   import CheapRefSearcher.textSearch
   import CheapRefSearcher.getForeignEnumUsages
-  import CheapRefSearcher.isImplicitUsed
-
-  def search(element: ScNamedElement, isOnTheFly: Boolean, reportPublicDeclarations: Boolean): ElementUsages =
-    localSearch(element, isOnTheFly, reportPublicDeclarations).getOrElse(globalSearch(element))
+  import CheapRefSearcher.implicitReferencesSearch
 
   @Cached(ModTracker.physicalPsiChange(element.getProject), element)
-  def localSearch(element: ScNamedElement, isOnTheFly: Boolean, reportPublicDeclarations: Boolean): Option[ElementUsages] =
+  def localSearch(element: ScNamedElement, isOnTheFly: Boolean): Option[ElementUsages] =
     if (!shouldProcessElement(element)) Some(ElementUsages(UnknownElementUsage)) else {
 
       lazy val refSearch = referencesSearch(element)
 
       if (isOnlyVisibleInLocalFile(element)) {
         if (isImplicit(element)) {
-          Some(ElementUsages(isImplicitUsed(element)))
+          Some(ElementUsages(implicitReferencesSearch(element)))
         } else if (isOnTheFly) {
           val refCounter = ScalaRefCountHolder(element)
           var used = false
@@ -115,8 +110,6 @@ final class CheapRefSearcher private() {
         }
       } else if (refSearch.nonEmpty) {
         Some(ElementUsages(refSearch))
-      } else if (!reportPublicDeclarations) {
-        Some(ElementUsages(UnknownElementUsage))
       } else None
     }
 
@@ -245,7 +238,7 @@ object CheapRefSearcher {
     result.toSeq
   }
 
-  private def isImplicitUsed(target: PsiElement): Seq[ElementUsage] =
+  private def implicitReferencesSearch(target: PsiElement): Seq[ElementUsage] =
     target.getContainingFile.depthFirst().find(target.refOrImplicitRefIn(_).nonEmpty).toSeq.map(_ => UnknownElementUsage)
 
   private def shouldProcessElement(element: PsiElement): Boolean = {
@@ -300,7 +293,7 @@ object ElementUsages {
     new ElementUsages(usages)
 }
 
-trait ElementUsage {
+sealed trait ElementUsage {
   def targetCanBePrivate: Boolean
 }
 
