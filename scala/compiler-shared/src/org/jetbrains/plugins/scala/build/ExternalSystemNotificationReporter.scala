@@ -21,7 +21,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
 
   private val descriptors: mutable.Map[EventId, TaskDescriptor] = mutable.Map.empty
 
-  private val viewManager =
+  private val viewManager: Option[SyncViewManager] =
     Option(taskId.findProject()).map(_.getService(classOf[SyncViewManager]))
 
   override def start(): Unit = {
@@ -64,14 +64,17 @@ class ExternalSystemNotificationReporter(workingDir: String,
   }
 
   override def warning(message: String, position: Option[FilePosition]): Unit =
-    viewManager
-        .foreach(_.onEvent(taskId, event(message, Kind.WARNING, position)))
+    onEvent(message, Kind.WARNING, position)
 
   override def error(message: String, position: Option[FilePosition]): Unit =
-    viewManager.foreach(_.onEvent(taskId, event(message, Kind.ERROR, position)))
+    onEvent(message, Kind.ERROR, position)
 
   override def info(message: String, position: Option[FilePosition]): Unit =
-    viewManager.foreach(_.onEvent(taskId, event(message, Kind.INFO, position)))
+    onEvent(message, Kind.INFO, position)
+
+  private def onEvent(@Nls message: String, kind: Kind, position: Option[FilePosition]): Unit = {
+    viewManager.foreach(_.onEvent(taskId, event(message, kind, position)))
+  }
 
   override def log(message: String): Unit =
     log(message, isStdOut = true)
