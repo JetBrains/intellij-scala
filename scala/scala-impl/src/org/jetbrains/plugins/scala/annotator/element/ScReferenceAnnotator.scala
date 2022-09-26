@@ -417,7 +417,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       case _: ScGenericCall =>
         new CreateParameterlessMethodQuickFix(reference) :: Nil
       case _ =>
-        new CreateParameterlessMethodQuickFix(reference) ::
+        new CreateParameterQuickFix(reference) ::
+          new CreateParameterlessMethodQuickFix(reference) ::
           new CreateValueQuickFix(reference) ::
           new CreateVariableQuickFix(reference) ::
           new CreateObjectQuickFix(reference) ::
