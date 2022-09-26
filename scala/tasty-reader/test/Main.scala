@@ -15,8 +15,8 @@ object Main {
   private val Repository = Home + "/.cache/coursier/v1/https/repo1.maven.org/maven2/"
   private val OutputDir = Home + "/IdeaProjects/scala-plugin-for-ultimate/community/scala/tasty-reader/target/comparison"
 
-  // scalaVersion := "3.1.3",
-  // libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.1.3",
+  // scalaVersion := "3.2.0",
+  // libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.2.0",
 
   // libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.13",
 
@@ -36,8 +36,8 @@ object Main {
   // libraryDependencies += "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
 
   private val Libraries = Seq(
-    "org/scala-lang/scala3-library_3/3.1.3/scala3-library_3-3.1.3.jar",
-    "org/scala-lang/scala3-compiler_3/3.1.3/scala3-compiler_3-3.1.3.jar",
+    "org/scala-lang/scala3-library_3/3.2.0/scala3-library_3-3.2.0.jar",
+    "org/scala-lang/scala3-compiler_3/3.2.0/scala3-compiler_3-3.2.0.jar",
 
     "org/scalatest/scalatest-core_3/3.2.13/scalatest-core_3-3.2.13.jar",
     "org/scalatest/scalatest-funspec_3/3.2.13/scalatest-funspec_3-3.2.13.jar",

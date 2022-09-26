@@ -23,27 +23,14 @@ object Common {
   )
 
   // options for modules which classes can only be used in IDEA process (uses JRE 11)
-  val globalJavacOptions : Seq[String] = globalJavacOptionsCommon ++ Seq(
-    "--release", "17"
-  )
-  val globalScalacOptions: Seq[String] = globalScalacOptionsCommon ++ Seq(
-    // there is a bug in scalac 2.13.4 https://github.com/scala/bug/issues/12340
-    // it stops us from using -target:11
-    // (it's reproduced in some places in Scala Plugin, e.g. in org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance.LeftConformanceVisitor.visitTypeParameterType
-    // After the fix we would require to update to a newer 2.13.x version
-    "-target:8"
-  )
+  val globalJavacOptions : Seq[String] = globalJavacOptionsCommon ++ Seq("--release", "17")
+  val globalScalacOptions: Seq[String] = globalScalacOptionsCommon ++ Seq("--release", "17")
 
   // options for modules which classes can be used outside IDEA process with arbitrary JVM version, e.g.:
   //  - in JPS process (JDK is calculated based on project & module JDK)
   //  - in Compile server (by default used project JDK version, can be explicitly changed by user)
-  val outOfIDEAProcessJavacOptions : Seq[String] = globalJavacOptionsCommon ++ Seq(
-    "--release", "8"
-  )
-  val outOfIDEAProcessScalacOptions: Seq[String] = globalScalacOptionsCommon ++ Seq(
-    "-target:8",
-    "--release", "8"
-  )
+  val outOfIDEAProcessJavacOptions : Seq[String] = globalJavacOptionsCommon ++ Seq("--release", "8")
+  val outOfIDEAProcessScalacOptions: Seq[String] = globalScalacOptionsCommon ++ Seq("--release", "8")
 
   val headCommitSum: String =
     scala.sys.process.Process("git rev-parse HEAD").!!.trim.take(7)
@@ -60,7 +47,7 @@ object Common {
       name := projectName,
       organization := "JetBrains",
       scalaVersion := Versions.scalaVersion,
-      dependencyOverrides += "org.scala-lang" % "scala3-library_3" % "3.1.1", // TODO Workaround for SCL-18866
+      dependencyOverrides += "org.scala-lang" % "scala3-library_3" % "3.2.1-RC2", // TODO Workaround for SCL-18866
       (Compile / javacOptions) := globalJavacOptions,
       (Compile / scalacOptions) := globalScalacOptions,
       (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
