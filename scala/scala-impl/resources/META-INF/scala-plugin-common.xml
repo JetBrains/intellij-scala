@@ -1848,6 +1848,8 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.RegisterSyntheticClassesStartupActivity"/>
 
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleStartupActivity"/>
+
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
         
         <iconMapper mappingFile="ScalaIconMappings.json" />
@@ -1870,8 +1872,6 @@
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtReformatOnFileSaveTask"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleProjectListener"/>
     </applicationListeners>
 
     <projectListeners>
