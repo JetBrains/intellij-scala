@@ -1,11 +1,15 @@
 package org.jetbrains.plugins.scala.codeInspection.types
 
 import com.intellij.codeInspection.LocalInspectionTool
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorSimplifyTypeProjectionInspection
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 class KindProjectorSimplifyTypeProjectionTest extends ScalaInspectionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version < new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "9")
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[KindProjectorSimplifyTypeProjectionInspection]
