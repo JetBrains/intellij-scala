@@ -1849,6 +1849,7 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.RegisterSyntheticClassesStartupActivity"/>
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleStartupActivity"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
 
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
         
