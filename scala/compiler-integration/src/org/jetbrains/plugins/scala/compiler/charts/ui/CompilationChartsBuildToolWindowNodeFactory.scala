@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import javax.swing.{Icon, JComponent}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
+//noinspection ApiStatus,UnstableApiUsage
 class CompilationChartsBuildToolWindowNodeFactory
   extends ProjectManagerListener {
 
@@ -23,13 +24,13 @@ class CompilationChartsBuildToolWindowNodeFactory
   override def projectOpened(project: Project): Unit = {
     def isJpsBuild(event: BuildEvent): Boolean = {
       val jpsActionClass = "com.intellij.compiler.impl.CompilerPropertiesAction"
-      event.asOptionOf[StartBuildEvent]
-        .flatMap(_.getBuildDescriptor.asOptionOf[DefaultBuildDescriptor])
-        .exists { buildDescriptor =>
-          val isJpsAction = buildDescriptor.getActions.asScala.exists(_.getClass.getName == jpsActionClass)
-          val isUpToDateAction = buildDescriptor.getTitle.startsWith("Classes up-to-date check")
-          isJpsAction && !isUpToDateAction
-        }
+      val buildDescriptor = event.asOptionOf[StartBuildEvent].flatMap(_.getBuildDescriptor.asOptionOf[DefaultBuildDescriptor])
+      buildDescriptor.exists { buildDescriptor =>
+        val isJpsAction = buildDescriptor.getActions.asScala.exists(_.getClass.getName == jpsActionClass)
+        val title = buildDescriptor.getTitle.toLowerCase
+        val ignoreEvent = title.startsWith("classes up-to-date check") || title.startsWith("worksheet")
+        isJpsAction && !ignoreEvent
+      }
     }
 
     def compileServerEnabled: Boolean =
@@ -46,6 +47,7 @@ class CompilationChartsBuildToolWindowNodeFactory
   }
 }
 
+//noinspection ApiStatus,UnstableApiUsage
 object CompilationChartsBuildToolWindowNodeFactory {
 
   private class CompilationChartsBuildEvent(buildId: AnyRef, component: JComponent)
