@@ -85,6 +85,7 @@ lazy val scalaCommunity: sbt.Project =
         javaDecompilerIntegration,
         runtimeDependencies,
         runtimeDependencies2,
+        runtimeDependencies3
       ),
       packageLibraryMappings := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       packageMethod := PackagingMethod.Standalone(),
@@ -607,17 +608,9 @@ lazy val packageSearchIntegration =
 // Utility projects
 
 lazy val runtimeDependencies =
-  (project in file("target/tools/runtime-dependencies"))
-    .enablePlugins(LocalRepoPackager)
+  runtimeDependenciesProject("runtimeDependencies", file("target/tools/runtime-dependencies"))
     .settings(
-      scalaVersion := Versions.scalaVersion,
       libraryDependencies := DependencyGroups.runtime,
-      managedScalaInstance := true,
-      conflictManager := ConflictManager.all,
-      conflictWarning := ConflictWarning.disable,
-      resolvers += sbt.Classpaths.sbtPluginReleases,
-      ideSkipProject := true,
-      packageMethod := PackagingMethod.DepsOnly(),
       packageLibraryMappings := Seq(
         "org.scala-lang.modules" % "scala-.*" % ".*" -> None,
         Dependencies.sbtLaunch -> Some("launcher/sbt-launch.jar"),
@@ -650,22 +643,21 @@ lazy val runtimeDependencies =
 
 // workaround for https://github.com/JetBrains/sbt-idea-plugin/issues/110
 lazy val runtimeDependencies2 =
-  (project in file("target/tools/runtime-dependencies2"))
-    .enablePlugins(LocalRepoPackager)
+  runtimeDependenciesProject("runtimeDependencies2", file("target/tools/runtime-dependencies2"))
     .settings(
-      scalaVersion := Versions.scalaVersion,
       libraryDependencies := DependencyGroups.runtime2,
-      managedScalaInstance := true,
-      conflictManager := ConflictManager.all,
-      conflictWarning := ConflictWarning.disable,
-      resolvers += sbt.Classpaths.sbtPluginReleases,
-      ideSkipProject := true,
-      packageMethod := PackagingMethod.DepsOnly(),
       packageLibraryMappings := Seq(
         Dependencies.sbtBridge_Scala_3_1 -> Some("lib/jps/scala3-sbt-bridge_3.1.jar")
-      ),
-      localRepoDependencies := List(),
-      packageFileMappings := Nil
+      )
+    )
+
+lazy val runtimeDependencies3 =
+  runtimeDependenciesProject("runtimeDependencies3", file("target/tools/runtime-dependencies3"))
+    .settings(
+      libraryDependencies := DependencyGroups.runtime3,
+      packageLibraryMappings := Seq(
+        Dependencies.sbtBridge_Scala_3_2 -> Some("lib/jps/scala3-sbt-bridge_3.2.jar")
+      )
     )
 
 //lazy val jmhBenchmarks =

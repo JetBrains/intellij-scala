@@ -129,6 +129,7 @@ object Dependencies {
   val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13" % zincVersion classifier "sources"
   val sbtBridge_Scala_3_0 = "org.scala-lang" % "scala3-sbt-bridge" % "3.0.2"
   val sbtBridge_Scala_3_1 = "org.scala-lang" % "scala3-sbt-bridge" % "3.1.3"
+  val sbtBridge_Scala_3_2 = "org.scala-lang" % "scala3-sbt-bridge" % "3.2.0"
 
   // "provided" danger: we statically depend on a single version, but need to support all the version
   // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
@@ -220,6 +221,10 @@ object DependencyGroups {
   // workaround for https://github.com/JetBrains/sbt-idea-plugin/issues/110
   val runtime2: Seq[ModuleID] = Seq(
     sbtBridge_Scala_3_1,
+  )
+
+  val runtime3: Seq[ModuleID] = Seq(
+    sbtBridge_Scala_3_2
   )
 }
 

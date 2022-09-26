@@ -1,10 +1,9 @@
 import sbt.{Def, _}
+import LocalRepoPackager.localRepoDependencies
 import Keys._
 import org.jetbrains.sbtidea.Keys._
 import org.jetbrains.sbtidea.packaging.PackagingKeys._
-
-import scala.language.implicitConversions
-import scala.language.postfixOps
+import sbtide.Keys.ideSkipProject
 
 object Common {
   private val globalJavacOptionsCommon = Seq(
@@ -63,6 +62,21 @@ object Common {
       (Test / scalacOptions) += "-Xmacro-settings:enable-expression-tracers",
       compilationCacheSettings
     )
+
+  def runtimeDependenciesProject(projectName: String, path: File): Project =
+    Project(projectName, path)
+      .enablePlugins(LocalRepoPackager)
+      .settings(
+        scalaVersion := Versions.scalaVersion,
+        managedScalaInstance := true,
+        conflictManager := ConflictManager.all,
+        conflictWarning := ConflictWarning.disable,
+        resolvers += Classpaths.sbtPluginReleases,
+        ideSkipProject := true,
+        packageMethod := PackagingMethod.DepsOnly(),
+        localRepoDependencies := Seq.empty,
+        packageFileMappings := Seq.empty
+      )
 
   implicit class ProjectOps(private val project: Project) extends AnyVal {
     def withCompilerPluginIn(plugin: Project): Project = project
