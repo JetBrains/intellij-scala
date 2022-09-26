@@ -172,15 +172,15 @@ class WorksheetCompiler(
       case WorksheetExternalRunType.ReplRunType =>
         WorksheetEditorPrinterFactory.getIncrementalUiFor(editor, worksheetFile, showReplErrorsInEditor = showErrorsInViewerEditor)
     }
-    val consumer: CompilerInterfaceBase =
+    val worksheetEvaluation: WorksheetEvaluationBase =
       if (showErrorsInViewerEditor && runType == WorksheetExternalRunType.ReplRunType)
-        new CompilerInterfaceIgnoringErrors(project, progressTitle, logUnexpectedException, printer)
+        new WorksheetEvaluationIgnoringErrors(project, progressTitle, logUnexpectedException, printer)
       else
-        new CompilerInterfaceCompilerTaskBased(project, progressTitle, logUnexpectedException, printer)
+        new WorksheetEvaluationCompilerTaskBased(project, progressTitle, logUnexpectedException, printer)
 
     // this is needed to close the timer of printer in one place
     val callback: EvaluationCallback = result => {
-      if (!consumer.isCompiledWithErrors) {
+      if (!worksheetEvaluation.isCompiledWithErrors) {
         printer.flushBuffer()
       }
       printer.close()
@@ -189,13 +189,13 @@ class WorksheetCompiler(
 
     val cache = WorksheetCache.getInstance(project)
     if (ApplicationManager.getApplication.isUnitTestMode) {
-      cache.addCompilerMessagesCollector(editor, consumer)
+      cache.addCompilerMessagesCollector(editor, worksheetEvaluation)
     }
 
     val args = request match {
       case RunRepl(code, evaluatedElements) =>
         val replPrinter = printer.asInstanceOf[WorksheetEditorPrinterRepl]
-        replPrinter.updateMessagesConsumer(consumer)
+        replPrinter.updateMessagesConsumer(worksheetEvaluation)
         replPrinter.updateEvaluatedElements(evaluatedElements)
 
         val lastProcessedLine = WorksheetCache.getInstance(project).getLastProcessedIncremental(editor)
@@ -208,7 +208,7 @@ class WorksheetCompiler(
     }
     val afterCompileCallback: RemoteServerConnectorResult => Unit = {
       case RemoteServerConnectorResult.Done =>
-        if (consumer.isCompiledWithErrors) {
+        if (worksheetEvaluation.isCompiledWithErrors) {
           callback(WorksheetCompilerResult.CompilationError)
         } else {
           makeType match {
@@ -222,10 +222,10 @@ class WorksheetCompiler(
       case error: RemoteServerConnectorResult.UnhandledError          =>
         callback(WorksheetCompilerResult.RemoteServerConnectorError(error))
     }
-    consumer.start(() => {
+    worksheetEvaluation.start(() => {
       try {
         val connector = new RemoteServerConnector(module, worksheetFile, args, makeType)
-        connector.compileAndRun(virtualFile, consumer)(afterCompileCallback)
+        connector.compileAndRun(virtualFile, worksheetEvaluation)(afterCompileCallback)
       } catch {
         case NonFatal(ex) =>
           afterCompileCallback(toError(ex))
@@ -291,10 +291,10 @@ object WorksheetCompiler {
     def collectedMessages: Seq[CompilerMessage]
   }
 
-  private abstract class CompilerInterfaceBase(
+  private abstract class WorksheetEvaluationBase(
     logUnexpectedException: Throwable => Unit,
     worksheetPrinter: WorksheetEditorPrinter
-  ) extends CompilerInterface
+  ) extends WorksheetEvaluation
     with CompilerMessagesConsumer
     with CompilerMessagesCollector {
 
@@ -326,12 +326,12 @@ object WorksheetCompiler {
     }
   }
 
-  private class CompilerInterfaceCompilerTaskBased(
+  private class WorksheetEvaluationCompilerTaskBased(
     project: Project,
     @Nls progressTitle: String,
     logUnexpectedException: Throwable => Unit,
     worksheetPrinter: WorksheetEditorPrinter,
-  ) extends CompilerInterfaceBase(logUnexpectedException, worksheetPrinter) {
+  ) extends WorksheetEvaluationBase(logUnexpectedException, worksheetPrinter) {
 
     private val compilerTask = new CompilerTask(
       project,
@@ -370,12 +370,12 @@ object WorksheetCompiler {
     }
   }
 
-  private class CompilerInterfaceIgnoringErrors(
+  private class WorksheetEvaluationIgnoringErrors(
     project: Project,
     @Nls progressTitle: String,
     logUnexpectedException: Throwable => Unit,
     worksheetPrinter: WorksheetEditorPrinter,
-  ) extends CompilerInterfaceBase(logUnexpectedException, worksheetPrinter) {
+  ) extends WorksheetEvaluationBase(logUnexpectedException, worksheetPrinter) {
 
     private var _progressIndicator: ProgressIndicator = _
     override protected def progressIndicator: ProgressIndicator = _progressIndicator

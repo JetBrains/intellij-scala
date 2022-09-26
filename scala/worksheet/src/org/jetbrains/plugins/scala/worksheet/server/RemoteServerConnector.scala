@@ -84,7 +84,7 @@ final class RemoteServerConnector(
 
   def compileAndRun(
     originalFile: VirtualFile,
-    consumer: RemoteServerConnector.CompilerInterface
+    consumer: RemoteServerConnector.WorksheetEvaluation
   )(callback: RemoteServerConnectorResult => Unit): Unit = {
     val client = new MyTranslatingClient(project, originalFile, consumer)
     compileAndRun(originalFile, client)(callback)
@@ -199,8 +199,7 @@ object RemoteServerConnector {
     def message(message: CompilerMessage): Unit
   }
 
-  //TODO: come up with a better name, there are name collisions with this one and it's not descriptive enough
-  trait CompilerInterface extends CompilerMessagesConsumer {
+  trait WorksheetEvaluation extends CompilerMessagesConsumer {
     def progress(text: String, done: Option[Float]): Unit
 
     def worksheetOutput(text: String): Unit

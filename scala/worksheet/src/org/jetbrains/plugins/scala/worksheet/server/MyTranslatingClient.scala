@@ -14,14 +14,14 @@ import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
 import org.jetbrains.plugins.scala.worksheet.server.MyTranslatingClient.Log
-import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerInterface
+import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.WorksheetEvaluation
 
 import scala.collection.mutable
 
 private class MyTranslatingClient(
   project: Project,
   worksheet: VirtualFile,
-  consumer: CompilerInterface
+  worksheetEvaluation: WorksheetEvaluation
 ) extends DummyClient {
   private val endMarker = WorksheetDefaultSourcePreprocessor.ServiceMarkers.END_GENERATED_MARKER
 
@@ -29,10 +29,10 @@ private class MyTranslatingClient(
     e.printStackTrace()
 
   override def progress(text: String, done: Option[Float]): Unit =
-    consumer.progress(text, done)
+    worksheetEvaluation.progress(text, done)
 
   override def trace(exception: Throwable): Unit =
-    consumer.trace(exception)
+    worksheetEvaluation.trace(exception)
 
   override def internalDebug(text: String): Unit = {
     Log.debugSafe(text)
@@ -81,7 +81,7 @@ private class MyTranslatingClient(
     val category = toCompilerMessageCategory(kind)
 
     val message = new CompilerMessageImpl(project, category, finalText, worksheet, line1, column1, null)
-    consumer.message(message)
+    worksheetEvaluation.message(message)
   }
 
   private def toCompilerMessageCategory(kind: Kind): CompilerMessageCategory = {
@@ -95,7 +95,7 @@ private class MyTranslatingClient(
   }
 
   override def worksheetOutput(text: String): Unit =
-    consumer.worksheetOutput(text)
+    worksheetEvaluation.worksheetOutput(text)
 }
 
 object MyTranslatingClient {
