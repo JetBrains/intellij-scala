@@ -30,15 +30,11 @@ public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettin
   @Override
   public Collection<? extends Configurable> createConfigurables(@NotNull DebuggerSettingsCategory category) {
     //todo: split settings configurables somehow
-    switch (category) {
-      case GENERAL:
-        return singletonList(new ScalaDebuggerSettingsConfigurable(this));
-      case STEPPING:
-        final var displayName = DebuggerBundle.message("scala.debug.caption");
-        return singletonList(SimpleConfigurable.create("scala.debugger.stepping", displayName, ScalaSteppingConfigurable.class, this));
-      default:
-        return Collections.emptyList();
-    }
+    return switch (category) {
+      case GENERAL -> singletonList(new ScalaDebuggerSettingsConfigurable(this));
+      case STEPPING -> singletonList(SimpleConfigurable.create("scala.debugger.stepping", DebuggerBundle.message("scala.debug.caption"), ScalaSteppingConfigurable.class, this));
+      default -> Collections.emptyList();
+    };
   }
 
   @Override

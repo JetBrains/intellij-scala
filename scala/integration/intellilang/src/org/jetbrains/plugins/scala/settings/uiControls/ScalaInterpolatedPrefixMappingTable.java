@@ -174,14 +174,11 @@ public class ScalaInterpolatedPrefixMappingTable extends JBTable implements Depe
 
     @Override
     public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-          return IntellilangBundle.message("scala.project.settings.form.interpolated.string.prefix");
-        case 1:
-          return IntellilangBundle.message("scala.project.settings.form.language.id");
-        default:
-          return null;
-      }
+      return switch (column) {
+        case 0 -> IntellilangBundle.message("scala.project.settings.form.interpolated.string.prefix");
+        case 1 -> IntellilangBundle.message("scala.project.settings.form.language.id");
+        default -> null;
+      };
     }
 
     @Override

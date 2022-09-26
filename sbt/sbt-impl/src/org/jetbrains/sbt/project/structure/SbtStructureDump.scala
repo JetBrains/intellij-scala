@@ -60,7 +60,7 @@ class SbtStructureDump {
     val ideaPortSetting =
       if (CompilerIndicesSettings(project).isBytecodeIndexingActive) {
         val ideaPort = SbtCompilationSupervisorPort.port
-        if (ideaPort == -1) "" else s"; set Global / ideaPort := $ideaPort"
+        if (ideaPort == -1) "" else s"; set ideaPort in Global := $ideaPort"
       } else ""
 
     val cmd = s";reload; $setCmd ;${if (preferScala2) "preferScala2;" else ""}*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"

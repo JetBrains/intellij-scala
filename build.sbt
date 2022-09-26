@@ -449,7 +449,7 @@ lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scal
     name := "scalatest-finders-tests-3_0",
     organization := "JetBrains",
     scalatestFindersTestSettings,
-    scalaVersion := "2.12.16",
+    scalaVersion := "2.12.17",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test),
     intellijMainJars := Nil,
     compilationCacheSettings
