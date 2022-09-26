@@ -81,7 +81,7 @@ private object MultipleScalaVersionsRunner {
       myTests.add(test)
     }
 
-    override def addTestSuite(testClass: Class[_]): Unit = {
+    override def addTestSuite(testClass: Class[_ <: TestCase]): Unit = {
       super.addTestSuite(testClass)
     }
 

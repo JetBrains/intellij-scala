@@ -52,7 +52,10 @@ object Common {
       (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
       (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
       (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
-      libraryDependencies ++= Seq(Dependencies.junitInterface),
+      libraryDependencies ++= Seq(
+        Dependencies.junit % Test,
+        Dependencies.junitInterface % Test,
+      ),
       updateOptions := updateOptions.value.withCachedResolution(true),
       intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
       intellijPlugins += "com.intellij.java".toPlugin,

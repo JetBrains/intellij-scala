@@ -19,6 +19,7 @@ object Versions {
     intellijRepository_ForManagedIntellijDependencies
   ) = Utils.getDataForManagedIntellijDependencies(intellijVersion)
 
+  val junitVersion: String = "4.13.2"
   val junitInterfaceVersion: String = "0.13.3"
 
   val bspVersion = "2.0.0"
@@ -88,12 +89,12 @@ object Dependencies {
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
   val commonsLang: ModuleID = "org.apache.commons" % "commons-lang3" % "3.12.0"
-  val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion % Test excludeAll(
-    // to avoid multiple junit jars in the classpath SCL-18768
-    ExclusionRule(organization = "junit"),
-    ExclusionRule(organization = "org.junit"),
-    ExclusionRule(organization = "org.hamcrest"),
-  )
+
+  //note: junit is a transitive dependency of junitInterface adn it would be enough to just add junitInterface as dependency
+  //but we would like to make junit an explicit dependency to be more transparent
+  val junit: ModuleID = "junit" % "junit" % junitVersion
+  val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion
+
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.0"
 
   val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.5.1"
