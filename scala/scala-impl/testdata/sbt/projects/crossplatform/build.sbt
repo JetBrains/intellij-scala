@@ -2,7 +2,7 @@ lazy val cross =
   crossProject(JSPlatform, JVMPlatform, NativePlatform)
     .settings(
       // %%% now include Scala Native. It applies to all selected platforms
-      scalaVersion := "2.12.16",
+      scalaVersion := "2.12.17",
       libraryDependencies += "com.lihaoyi" %%% "utest" % "0.8.0" % Test,
       testFrameworks += new TestFramework("utest.runner.Framework")
     )
