@@ -174,7 +174,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
       val compilerIndicesPluginLoaded = plugins.exists(_.contains("sbt-idea-compiler-indices"))
       val ideaPort = SbtCompilationSupervisorPort.port
-      val ideaPortSetting = if (ideaPort == -1) "" else s"; set Global / ideaPort := $ideaPort ;"
+      val ideaPortSetting = if (ideaPort == -1) "" else s"; set ideaPort in Global := $ideaPort ;"
 
       // we have our plugins in there, load custom shell
       val commands =
