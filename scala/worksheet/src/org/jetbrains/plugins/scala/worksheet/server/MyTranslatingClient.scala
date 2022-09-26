@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.Worksh
 
 import scala.collection.mutable
 
+import scala.collection.mutable
+
 private class MyTranslatingClient(
   project: Project,
   worksheet: VirtualFile,

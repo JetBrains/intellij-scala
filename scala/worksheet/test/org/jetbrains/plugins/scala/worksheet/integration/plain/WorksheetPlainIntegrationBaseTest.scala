@@ -357,8 +357,8 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
 
     assertCompilerMessages(editor)(
-      """Error:(4, 13) not found: type A
-        |val x = new A()
+      """Error:(4, 18) not found: type A
+        |lazy val x = new A()
         |""".stripMargin
     )
   }
@@ -457,7 +457,10 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     assertViewerEditorText(editor,
       """res0: Int = 42""".stripMargin
     )
-    assertNoErrorMessages(editor)
+    assertCompilerMessages(editor)(
+      """Error:(2, 5) not found: value unknownRef
+        |2 + unknownRef + 4""".stripMargin
+    )
   }
 
   private val TestProfileName = "TestProfileName"

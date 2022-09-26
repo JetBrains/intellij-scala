@@ -101,7 +101,7 @@ trait WorksheetItAssertions {
       .filterNot(isCompilerMessageAllowed)
     if (messages.nonEmpty) {
       val messagesRenders = messages.map { err =>
-        s"${err.getCategory} (${err.getLine}, ${err.getColumn}) ${err.getMessage}}"
+        s"${err.getCategory} (${err.getLine}, ${err.getColumn}) ${err.getMessage}"
       }
       val typ = category match {
         case CompilerMessageCategory.ERROR       => "errors"
