@@ -111,7 +111,7 @@ class BuildToolWindowReporter(project: Project,
 
   private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])= {
     //noinspection ReferencePassedToNls
-    BuildMessages.message(buildId, message, kind, position)
+    BuildMessages.message(buildId, message, kind, position, eventTime = System.currentTimeMillis)
   }
 }
 

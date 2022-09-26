@@ -143,7 +143,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
   override def clear(file: File): Unit = ()
 
   private def event(@Nls message: String, kind: MessageEvent.Kind, position: Option[FilePosition])=
-    BuildMessages.message(taskId, message, kind, position)
+    BuildMessages.message(taskId, message, kind, position, eventTime = System.currentTimeMillis)
 }
 
 object ExternalSystemNotificationReporter {
