@@ -12,16 +12,23 @@ import org.jetbrains.plugins.scala.build.BuildMessages.{BuildStatus, Canceled, E
 import java.util.UUID
 import java.util.function.BiPredicate
 
-case class BuildMessages(warnings: Seq[events.Warning],
-                         errors: Seq[events.Failure],
-                         exceptions: Seq[Exception],
-                         messages: Seq[String],
-                         status: BuildStatus) {
+case class BuildMessages(
+  warnings: Seq[events.Warning],
+  errors: Seq[events.Failure],
+  exceptions: Seq[Exception],
+  messages: Seq[String],
+  status: BuildStatus
+) {
   def addError(msg: String): BuildMessages = copy(errors = errors :+ BuildFailure(msg.trim))
+
   def addWarning(msg: String): BuildMessages = copy(warnings = warnings :+ BuildWarning(msg.trim))
+
   def status(buildStatus: BuildStatus): BuildMessages = copy(status = buildStatus)
+
   def exception(exception: Exception): BuildMessages = copy(exceptions = exceptions :+ exception, status = Error)
+
   def message(msg: String): BuildMessages = copy(messages = messages :+ msg)
+
   def combine(other: BuildMessages): BuildMessages = BuildMessages(
     this.warnings ++ other.warnings,
     this.errors ++ other.errors,
@@ -41,7 +48,7 @@ case class BuildMessages(warnings: Seq[events.Warning],
 case object BuildMessages {
 
   sealed abstract class BuildStatus {
-    def combine(other: BuildStatus): BuildStatus = (this,other) match {
+    def combine(other: BuildStatus): BuildStatus = (this, other) match {
       case (Indeterminate, s) => s
       case (s, Indeterminate) => s
       case (Error, _) | (_, Error) => Error
@@ -72,8 +79,18 @@ case object BuildMessages {
   }
 }
 
-class BuildEventMessage(parentId: Any, kind: MessageEvent.Kind, @Nls group: String, @Nls message: String)
-  extends AbstractBuildEvent(new Object, parentId, System.currentTimeMillis(), message) with MessageEvent {
+//TODO: `System.currentTimeMillis` shouldn't be used here, we should pass `eventTime` via parameters
+class BuildEventMessage(
+  parentId: Any,
+  kind: MessageEvent.Kind,
+  @Nls group: String,
+  @Nls message: String
+) extends AbstractBuildEvent(
+  new Object,
+  parentId,
+  System.currentTimeMillis(),
+  message
+) with MessageEvent {
 
   override def getKind: MessageEvent.Kind = kind
 
@@ -87,12 +104,16 @@ class BuildEventMessage(parentId: Any, kind: MessageEvent.Kind, @Nls group: Stri
   override def getNavigatable(project: Project): Navigatable = null // TODO sensible default navigation?
 }
 
-case class TaskRunnerResult(override val isAborted: Boolean,
-                            override val hasErrors: Boolean) extends ProjectTaskRunner.Result
+case class TaskRunnerResult(
+  override val isAborted: Boolean,
+  override val hasErrors: Boolean
+) extends ProjectTaskRunner.Result
 
-case class TaskManagerResult(context: ProjectTaskContext,
-                             override val isAborted: Boolean,
-                             override val hasErrors: Boolean) extends ProjectTaskManager.Result {
+case class TaskManagerResult(
+  context: ProjectTaskContext,
+  override val isAborted: Boolean,
+  override val hasErrors: Boolean
+) extends ProjectTaskManager.Result {
 
   override def getContext: ProjectTaskContext = context
 
@@ -104,5 +125,6 @@ case class BuildFailure(@Nls message: String) extends events.impl.FailureImpl(me
 
 case class BuildWarning(@Nls message: String) extends Warning {
   override def getMessage: String = message
+
   override def getDescription: String = null
 }
