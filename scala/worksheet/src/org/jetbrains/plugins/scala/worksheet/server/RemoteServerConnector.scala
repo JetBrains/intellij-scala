@@ -199,12 +199,16 @@ object RemoteServerConnector {
     def message(message: CompilerMessage): Unit
   }
 
+  //TODO: come up with a better name, there are name collisions with this one and it's not descriptive enough
   trait CompilerInterface extends CompilerMessagesConsumer {
     def progress(text: String, done: Option[Float]): Unit
 
     def worksheetOutput(text: String): Unit
+
     def trace(thr: Throwable): Unit
 
     def isCompiledWithErrors: Boolean
+
+    def start(runnable: Runnable): Unit
   }
 }

@@ -161,15 +161,16 @@ object WorksheetEditorPrinterFactory {
     printer
   }
 
-  def getIncrementalUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinter = {
+  def getIncrementalUiFor(editor: Editor, scalaFile: ScalaFile, showReplErrorsInEditor: Boolean): WorksheetEditorPrinter = {
     val cache = WorksheetCache.getInstance(editor.getProject)
 
     cache.getPrinter(editor) match {
       case Some(printer: WorksheetEditorPrinterRepl) =>
-        printer.updateScalaFile(scalaFile)
+        printer.scalaFile = scalaFile
+        printer.showReplErrorsInEditor = showReplErrorsInEditor
         printer
       case _                                         =>
-        val printer = newIncrementalUiFor(editor, scalaFile)
+        val printer = newIncrementalUiFor(editor, scalaFile, showReplErrorsInEditor)
         cache.addPrinter(editor, printer)
         printer.scheduleWorksheetUpdate()
         printer
@@ -182,10 +183,15 @@ object WorksheetEditorPrinterFactory {
     new WorksheetEditorPrinterPlain(editor, sideViewer, scalaFile)
   }
 
-  private def newIncrementalUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinterRepl = {
+  private def newIncrementalUiFor(editor: Editor, scalaFile: ScalaFile, showReplErrorsInEditor: Boolean): WorksheetEditorPrinterRepl = {
     val viewerEditor = getOrCreateViewerEditorFor(editor)
     val sideViewer = setupRightSideViewer(editor, viewerEditor)
-    new WorksheetEditorPrinterRepl(editor, sideViewer, scalaFile)
+    new WorksheetEditorPrinterRepl(
+      editor,
+      sideViewer,
+      scalaFile,
+      showReplErrorsInEditor
+    )
   }
 
   private def setupRightSideViewer(editor: Editor, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {

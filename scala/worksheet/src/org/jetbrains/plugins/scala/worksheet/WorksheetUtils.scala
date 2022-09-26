@@ -18,9 +18,11 @@ object WorksheetUtils {
   // to test restoring of compiler messages positions in original worksheet file in one test method
   @TestOnly val ContinueOnFirstFailure = "scala.worksheet.continue.repl.evaluation.on.first.expression.failure"
   @TestOnly val ShowReplErrorsInEditor = "scala.worksheet.show.repl.errors.in.editor"
+  @TestOnly val ShowReplErrorsInEditorInInteractiveMode = "scala.worksheet.show.repl.errors.in.editor.in.interactive.mode"
 
   @TestOnly def continueWorksheetEvaluationOnExpressionFailure: Boolean = Registry.is(ContinueOnFirstFailure)
   @TestOnly def showReplErrorsInEditor: Boolean = Registry.is(ShowReplErrorsInEditor)
+  @TestOnly def showReplErrorsInEditorInInteractiveMode: Boolean = Registry.is(ShowReplErrorsInEditorInInteractiveMode)
 
   def isWorksheetFile(project: Project, file: VirtualFile): Boolean = {
     val isExplicitWorksheet = WorksheetFileType.isMyFileType(file) && !isAmmoniteEnabled(project, file)

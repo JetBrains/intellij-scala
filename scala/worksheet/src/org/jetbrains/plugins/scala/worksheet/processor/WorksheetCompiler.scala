@@ -8,8 +8,10 @@ import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, JDK}
@@ -17,7 +19,7 @@ import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaSdkNotConfiguredException}
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaProjectSettings}
-import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
+import org.jetbrains.plugins.scala.worksheet.{WorksheetBundle, WorksheetUtils}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{CompileServerIsNotRunningError, Precondition, PreconditionError}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest._
@@ -26,8 +28,8 @@ import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.Args.{
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.server._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.WorksheetPreprocessError
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetFileSettings, _}
-import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
+import org.jetbrains.plugins.scala.worksheet.settings._
+import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterFactory, WorksheetEditorPrinterRepl}
 
 import java.io.{File, FileWriter}
 import scala.collection.mutable
@@ -49,8 +51,8 @@ class WorksheetCompiler(
 
   private implicit val project: Project = worksheetFile.getProject
 
-  private val runType : WorksheetExternalRunType = WorksheetFileSettings(worksheetFile).getRunType
-  private val makeType: WorksheetMakeType        = WorksheetCompiler.getMakeType(project, runType)
+  private val runType: WorksheetExternalRunType = WorksheetFileSettings(worksheetFile).getRunType
+  private val makeType: WorksheetMakeType = WorksheetCompiler.getMakeType(project, runType)
 
   private val virtualFile = worksheetFile.getVirtualFile
 
@@ -84,8 +86,8 @@ class WorksheetCompiler(
   }
 
   private def logCompileOnlyError(error: WorksheetCompilerResult.WorksheetCompilerError): Unit = {
-    import WorksheetCompiler.{WorksheetCompilerResult => WCR}
     import RemoteServerConnector.{RemoteServerConnectorResult => RSCR}
+    import WorksheetCompiler.{WorksheetCompilerResult => WCR}
     val exception = error match {
       case WCR.UnknownError(cause)                                     => Some(cause)
       case WCR.RemoteServerConnectorError(RSCR.UnexpectedError(cause)) => Some(cause)
@@ -138,17 +140,6 @@ class WorksheetCompiler(
       originalCallback(WorksheetCompilerResult.UnknownError(ex))
   }
 
-  private def createCompilerTask: CompilerTask = {
-    val waitForPreviousSession = true
-    new CompilerTask(
-      project, WorksheetBundle.message("worksheet.compilation", worksheetFile.getName),
-      false,
-      false,
-      waitForPreviousSession,
-      false
-    )
-  }
-
   private def toError(ex: Throwable): RemoteServerConnectorResult.UnhandledError = ex match {
     case ex: ScalaSdkNotConfiguredException => RemoteServerConnectorResult.ExpectedError(ex)
     case ex                                 => RemoteServerConnectorResult.UnexpectedError(ex)
@@ -166,18 +157,26 @@ class WorksheetCompiler(
       case NonServer =>
     }
 
-    val compilerTask = createCompilerTask
-    val printer = runType.createPrinter(editor, worksheetFile)
-    // do not show error messages in Plain mode on auto-run
-    val ignoreCompilerMessages = request match {
-      case _: RunRepl    => false
-      case _: RunCompile => autoTriggered
-    }
+
     val logUnexpectedException: Throwable => Unit = ex => {
       val message = s"Unexpected exception occurred during worksheet execution, ${errorDetails(module).mkString(", ")}, ${runType.getName}, $makeType"
       Log.error(new RuntimeException(message, ex)) // wrap into extra exception to conveniently track the logging place
     }
-    val consumer = new CompilerInterfaceImpl(logUnexpectedException, compilerTask, printer, ignoreCompilerMessages)
+    val progressTitle = WorksheetBundle.message("worksheet.compilation", worksheetFile.getName)
+    //on auto-run (interactive mode) do not show error messages in build tool window (via CompilerTask)
+
+    val showErrorsInViewerEditor = autoTriggered && WorksheetUtils.showReplErrorsInEditorInInteractiveMode || WorksheetUtils.showReplErrorsInEditor
+    val printer = runType match {
+      case WorksheetExternalRunType.PlainRunType =>
+        WorksheetEditorPrinterFactory.getDefaultUiFor(editor, worksheetFile)
+      case WorksheetExternalRunType.ReplRunType =>
+        WorksheetEditorPrinterFactory.getIncrementalUiFor(editor, worksheetFile, showReplErrorsInEditor = showErrorsInViewerEditor)
+    }
+    val consumer: CompilerInterfaceBase =
+      if (showErrorsInViewerEditor && runType == WorksheetExternalRunType.ReplRunType)
+        new CompilerInterfaceIgnoringErrors(project, progressTitle, logUnexpectedException, printer)
+      else
+        new CompilerInterfaceCompilerTaskBased(project, progressTitle, logUnexpectedException, printer)
 
     // this is needed to close the timer of printer in one place
     val callback: EvaluationCallback = result => {
@@ -223,18 +222,15 @@ class WorksheetCompiler(
       case error: RemoteServerConnectorResult.UnhandledError          =>
         callback(WorksheetCompilerResult.RemoteServerConnectorError(error))
     }
-    compilerTask.startWork {
+    consumer.start(() => {
       try {
         val connector = new RemoteServerConnector(module, worksheetFile, args, makeType)
         connector.compileAndRun(virtualFile, consumer)(afterCompileCallback)
       } catch {
         case NonFatal(ex) =>
           afterCompileCallback(toError(ex))
-      } finally {
-        val exitStatus = if (consumer.isCompiledWithErrors) ExitStatus.ERRORS else ExitStatus.SUCCESS
-        compilerTask.setEndCompilationStamp(exitStatus, System.currentTimeMillis)
       }
-    }
+    })
   }
 
   def compileAndRun(autoTriggered: Boolean, editor: Editor)
@@ -295,53 +291,107 @@ object WorksheetCompiler {
     def collectedMessages: Seq[CompilerMessage]
   }
 
-  private class CompilerInterfaceImpl(
+  private abstract class CompilerInterfaceBase(
     logUnexpectedException: Throwable => Unit,
-    compilerTask: CompilerTask,
-    worksheetPrinter: WorksheetEditorPrinter,
-    ignoreCompilerMessages: Boolean
+    worksheetPrinter: WorksheetEditorPrinter
   ) extends CompilerInterface
     with CompilerMessagesConsumer
     with CompilerMessagesCollector {
 
-    private val messages = mutable.ArrayBuffer[CompilerMessage]()
-    private var hasCompilationErrors = false
+    protected val messages: mutable.ArrayBuffer[CompilerMessage] = mutable.ArrayBuffer()
 
-    private val isUnitTestMode = ApplicationManager.getApplication.isUnitTestMode
+    protected var hasCompilationErrors = false
 
     override def isCompiledWithErrors: Boolean = hasCompilationErrors
 
     override def collectedMessages: Seq[CompilerMessage] = messages.toSeq
 
-    override def message(message: CompilerMessage): Unit = {
-      // for now we only need the compiler messages in unit tests
-      if (message.getCategory == CompilerMessageCategory.ERROR) {
-        hasCompilationErrors = true
-      }
-      if (!ignoreCompilerMessages) {
-        compilerTask.addMessage(message)
-        if (isUnitTestMode) {
-          messages += message
-        }
-      }
-    }
+    protected def progressIndicator: ProgressIndicator
 
     override def progress(text: String, done: Option[Float]): Unit = {
-      if (ignoreCompilerMessages) return
-
-      val taskIndicator = compilerTask.getIndicator
+      val taskIndicator = progressIndicator
       if (taskIndicator != null) {
         taskIndicator.setText(text)
         done.foreach(d => taskIndicator.setFraction(d.toDouble))
       }
     }
 
-    override def worksheetOutput(text: String): Unit =
+    override def worksheetOutput(text: String): Unit = {
       worksheetPrinter.processLine(text)
+    }
 
     override def trace(ex: Throwable): Unit = {
       logUnexpectedException(ex)
       worksheetPrinter.internalError(ex)
+    }
+  }
+
+  private class CompilerInterfaceCompilerTaskBased(
+    project: Project,
+    @Nls progressTitle: String,
+    logUnexpectedException: Throwable => Unit,
+    worksheetPrinter: WorksheetEditorPrinter,
+  ) extends CompilerInterfaceBase(logUnexpectedException, worksheetPrinter) {
+
+    private val compilerTask = new CompilerTask(
+      project,
+      progressTitle,
+      false,
+      false,
+      true,
+      false
+    )
+
+    override protected def progressIndicator: ProgressIndicator = compilerTask.getIndicator
+
+    private val isUnitTestMode = ApplicationManager.getApplication.isUnitTestMode
+
+    // for now we only need the compiler messages in unit tests
+    override def message(message: CompilerMessage): Unit = {
+      if (message.getCategory == CompilerMessageCategory.ERROR) {
+        hasCompilationErrors = true
+      }
+
+      compilerTask.addMessage(message)
+      if (isUnitTestMode) {
+        messages += message
+      }
+    }
+
+    override def start(runnable: Runnable): Unit = {
+      compilerTask.start(() => {
+        try {
+          runnable.run()
+        } finally {
+          val exitStatus = if (isCompiledWithErrors) ExitStatus.ERRORS else ExitStatus.SUCCESS
+          compilerTask.setEndCompilationStamp(exitStatus, System.currentTimeMillis)
+        }
+      }, EmptyRunnable)
+    }
+  }
+
+  private class CompilerInterfaceIgnoringErrors(
+    project: Project,
+    @Nls progressTitle: String,
+    logUnexpectedException: Throwable => Unit,
+    worksheetPrinter: WorksheetEditorPrinter,
+  ) extends CompilerInterfaceBase(logUnexpectedException, worksheetPrinter) {
+
+    private var _progressIndicator: ProgressIndicator = _
+    override protected def progressIndicator: ProgressIndicator = _progressIndicator
+
+    override def message(message: CompilerMessage): Unit = {
+      //do nothing
+    }
+
+    override def start(runnable: Runnable): Unit = {
+      val backgroundTask = new Task.Backgroundable(project, progressTitle, false) {
+        override def run(indicator: ProgressIndicator): Unit = {
+          _progressIndicator = indicator
+          runnable.run()
+        }
+      }
+      ProgressManager.getInstance.run(backgroundTask)
     }
   }
 
@@ -376,12 +426,6 @@ object WorksheetCompiler {
     } else {
       NonServer
     }
-
-  private implicit class CompilerTaskOps(private val task: CompilerTask) extends AnyVal {
-
-    def startWork(compilerWork: => Unit): Unit =
-      task.start(() => compilerWork, EmptyRunnable)
-  }
 
   private object WorksheetWrapper {
     val className: String = "WorksheetWrapper"

@@ -33,7 +33,8 @@ import scala.util.matching.Regex
 final class WorksheetEditorPrinterRepl private[printers](
   editor: Editor,
   viewer: Editor,
-  file: ScalaFile
+  var scalaFile: ScalaFile,
+  var showReplErrorsInEditor: Boolean
 ) extends WorksheetEditorPrinterBase(editor, viewer) {
 
   import ReplMessages._
@@ -47,9 +48,7 @@ final class WorksheetEditorPrinterRepl private[printers](
   private def lastProcessedOutputLine: Option[Int] = inputToOutputMapping.lastOption.map(_.outputLinesInfo.outputEndLine)
   def resetLastProcessedLine(): Unit = inputToOutputMapping.clear()
 
-  private var currentFile: ScalaFile = file
-  override def getScalaFile: ScalaFile = currentFile
-  def updateScalaFile(file: ScalaFile): Unit = currentFile = file
+  override def getScalaFile: ScalaFile = scalaFile
 
   /* we have to inject this interface because we have to restore the original error positions in worksheet editor
    * and for now this can only be done in this printer  */
@@ -62,7 +61,7 @@ final class WorksheetEditorPrinterRepl private[printers](
     psiToProcess ++= evaluatedElements
   }
 
-  private val chunkOutputBuffer = new StringBuilder()
+  private val chunkOutputBuffer = new mutable.StringBuilder()
   private var chunkIsBeingProcessed = false
 
   // FIXME: now all return boolean values are not processed anywhere and do not mean anything, remove or handle
@@ -71,7 +70,7 @@ final class WorksheetEditorPrinterRepl private[printers](
   //  we already WorksheetEditorPrinterRepl.ReplMessage.unapply, could generalize over all type of output
   override def processLine(line: String): Boolean = chunkOutputBuffer.synchronized {
     if (!isInited) init()
-    //debug(s"line: '" + line.replaceAll("[\n\r]", "\\\\n ") + "'")
+    //debug(s"line: '" + line.replaceAll("[\n\r]", "\\\\n") + "'")
 
     val command = line.trim
     command match {
@@ -287,9 +286,10 @@ final class WorksheetEditorPrinterRepl private[printers](
       return
     }
 
-    val showErrorInViewer = WorksheetUtils.showReplErrorsInEditor && replMessageInfo.messageCategory == CompilerMessageCategory.ERROR
+    val showErrorInViewer = replMessageInfo.messageCategory == CompilerMessageCategory.ERROR && showReplErrorsInEditor
     if (showErrorInViewer) {
-      val line = cleanReplErrorMessage(buildMessageText(replMessageInfo, includeErrorLineContent = false))
+      val messageText = buildMessageText(replMessageInfo, includeErrorLineContent = false)
+      val line = cleanReplErrorMessage(messageText)
       chunkOutputBuffer.append(line + "\n")
     }
     else {
@@ -304,6 +304,11 @@ final class WorksheetEditorPrinterRepl private[printers](
   private def cleanReplErrorMessage(errorMessage: String): String =
     errorMessage.replaceAll("""^<console>:\d+:\serror:\s""", "")
 
+  /**
+   * @param includeErrorLineContent true - will add the line with error to the error message. It's regular for Build tool window output)<br>
+   *                                false - will omit the line with error. Useful when showing the error in the
+   *                                worksheet viewer editor because error line is already present in the main editor, no need to duplicate it
+   */
   private def buildMessageText(replMessageInfo: ReplMessageInfo, includeErrorLineContent: Boolean): String = {
     val ReplMessageInfo(message, lineContent, _, _, _) = replMessageInfo
     val messageLines = message.split('\n') ++ (if (includeErrorLineContent) Seq(lineContent) else Nil)
@@ -337,7 +342,7 @@ final class WorksheetEditorPrinterRepl private[printers](
       project,
       severity,
       messageText,
-      file.getVirtualFile,
+      scalaFile.getVirtualFile,
       // compiler messages positions are 1-based
       // (NOTE: Scala 3 doesn't report errors at this moment, it prints them to stdout/err)
       messagePosition.line + 1,

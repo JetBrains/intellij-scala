@@ -6,9 +6,8 @@ import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.concurrency.annotations.RequiresEdt
-import javax.swing.Timer
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.{CalledInAwt, TestOnly}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
@@ -16,7 +15,9 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePre
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain._
 
+import javax.swing.Timer
 import scala.collection.immutable.ArraySeq
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 final class WorksheetEditorPrinterPlain private[printers](
@@ -32,7 +33,7 @@ final class WorksheetEditorPrinterPlain private[printers](
 
   private val evaluatedChunks = ArrayBuffer[EvaluationChunk]()
 
-  private val currentOutputBuffer = new StringBuilder()
+  private val currentOutputBuffer = new mutable.StringBuilder()
   private var currentOutputNewLinesCount = 0
   private var currentResultStartLine: Option[String] = None
 
@@ -283,7 +284,7 @@ object WorksheetEditorPrinterPlain {
 
   // TODO: unify with REPL printer, reuse concepts
   private def renderText(chunks: collection.Seq[EvaluationChunk]): (CharSequence, Seq[InputOutputFoldingInfo]) = {
-    val resultText = new StringBuilder()
+    val resultText = new mutable.StringBuilder()
     val resultFoldingsBuilder = ArraySeq.newBuilder[InputOutputFoldingInfo]
     var foldedLines = 0
 
