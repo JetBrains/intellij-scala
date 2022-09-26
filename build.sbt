@@ -233,8 +233,8 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     organization := "JetBrains",
     idePackagePrefix := Some("org.jetbrains.plugins.scala.tasty.reader"),
     intellijMainJars := Seq.empty,
-    scalaVersion := "3.1.3",
-    libraryDependencies += "org.scala-lang" % "tasty-core_3" % "3.1.3",
+    scalaVersion := Versions.scala3Version,
+    libraryDependencies += "org.scala-lang" % "tasty-core_3" % Versions.scala3Version,
     (Compile / scalacOptions) := Seq("-color", "always", "-deprecation"), // NOTE: Setting dummy "color" options because if there are no unique options, sbt import adds the module to a profile with macros enabled
     (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
     (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
@@ -454,7 +454,7 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
     name := "scalatest-finders-tests-3_2",
     organization := "JetBrains",
     scalatestFindersTestSettings,
-    scalaVersion := "2.13.8",
+    scalaVersion := Versions.scalaVersion,
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test),
     intellijMainJars := Nil,
     compilationCacheSettings
