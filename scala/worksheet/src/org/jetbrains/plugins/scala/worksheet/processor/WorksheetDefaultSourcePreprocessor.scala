@@ -58,7 +58,9 @@ object WorksheetDefaultSourcePreprocessor {
   case class PreprocessResult(code: String, mainClassName: String)
 
   def preprocess(srcFile: ScalaFile, document: Document): Either[PsiErrorElement, PreprocessResult] = {
-    if (!srcFile.isWorksheetFile) return Left(null)
+    if (!srcFile.isWorksheetFile) {
+      return Left(null)
+    }
 
     implicit val languageLevel: ScalaLanguageLevel = languageLevelForFile(srcFile)
 
@@ -154,6 +156,9 @@ object WorksheetDefaultSourcePreprocessor {
   private def calcContentLines(document: Document, range: TextRange): Int =
     document.getLineNumber(range.getEndOffset) - document.getLineNumber(range.getStartOffset) + 1
 
+  //ATTENTION: when patching ScalaSourceBuilderBase don't forget to patch this
+  val LinesOffsetToFixErrorPositionInFile = 7
+
   //noinspection HardCodedStringLiteral
   private abstract class ScalaSourceBuilderBase(iterNumber: Int,
                                                 srcFile: ScalaFile,
@@ -175,8 +180,8 @@ object WorksheetDefaultSourcePreprocessor {
 
     private val debugLogEnabled = false
 
-    private val classBuilder = new StringBuilder
-    private val mainMethodBuilder = new StringBuilder
+    private val classBuilder = new mutable.StringBuilder
+    private val mainMethodBuilder = new mutable.StringBuilder
 
     protected def printMethodName: String = GenericPrintMethodName
 
@@ -215,6 +220,14 @@ object WorksheetDefaultSourcePreprocessor {
 
       mainMethodBuilder.append(mainMethodStart)
 
+      mainMethodBuilder.append("\n")
+
+      srcFile.getFirstChild match {
+        case ws: PsiWhiteSpace =>
+          val headerNewLines = countNewLines(ws.getText)
+          classBuilder.append("\n" * headerNewLines)
+        case _ =>
+      }
       for (e <- elements) e match {
         case tpe: ScTypeAlias             => processTypeAlias(tpe)
         case fun: ScFunction              => processFunDef(fun)
@@ -478,7 +491,7 @@ object WorksheetDefaultSourcePreprocessor {
       resCount += 1
     }
 
-    protected def insertUntouched(builder: StringBuilder, exprs: Iterable[PsiElement]): Unit =
+    protected def insertUntouched(builder: mutable.StringBuilder, exprs: Iterable[PsiElement]): Unit =
       exprs.foreach { expr =>
         builder.append(expr.getText).append(insertNlsFromWs(expr))
       }

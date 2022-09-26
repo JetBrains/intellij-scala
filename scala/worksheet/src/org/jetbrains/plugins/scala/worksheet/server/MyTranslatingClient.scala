@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePre
 import org.jetbrains.plugins.scala.worksheet.server.MyTranslatingClient.Log
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerInterface
 
+import scala.collection.mutable
+
 private class MyTranslatingClient(
   project: Project,
   worksheet: VirtualFile,
@@ -43,32 +45,38 @@ private class MyTranslatingClient(
     val lines = (if (text == null) "" else text).split("\n")
     val linesLength = lines.length
 
-    val differ = if (linesLength > 2) {
-      val endLineIdx = lines(linesLength - 2).indexOf(endMarker)
-      if (endLineIdx != -1) {
-        endLineIdx + endMarker.length
-      } else 0
-    } else 0
+    //usually last line of error message represents the code for which error is produced
+    val lastLine = lines.last
 
-    val finalText = if (differ == 0) text else {
-      val buffer = new StringBuilder
+    val columnOffset: Int =
+      if (linesLength >= 2) {
+        //example error text:
+        //Not found: unresolved1
+        //def get$$instance$$res0 = /* ###worksheet### generated $$end$$ */ 111 + unresolved1
 
-      for (j <- 0 until (linesLength - 2)) {
-        buffer.append(lines(j)).append("\n")
+        val endLineIdx = lastLine.indexOf(endMarker)
+        if (endLineIdx != -1)
+          endLineIdx + endMarker.length
+        else 0
+      }
+      else 0
+
+    val finalText =
+      if (columnOffset == 0)
+        text
+      else {
+        val buffer = new mutable.StringBuilder
+        for (lineIndex <- 0 until (linesLength - 1)) {
+          buffer.append(lines(lineIndex)).append("\n")
+        }
+        buffer.append(lastLine.substring(columnOffset))
+        buffer.toString
       }
 
-      val lines1 = lines(linesLength - 1)
+    val lineOffset = WorksheetDefaultSourcePreprocessor.LinesOffsetToFixErrorPositionInFile
 
-      buffer
-        .append(lines(linesLength - 2).substring(differ)).append("\n")
-        .append(if (lines1.length > differ) lines1.substring(differ) else lines1).append("\n")
-
-      buffer.toString()
-    }
-
-    // TODO: current line & column calculation are broken
-    val line1 = line.map(i => i - 4).map(_.toInt).getOrElse(-1)
-    val column1 = column.map(_ - differ).map(_.toInt).getOrElse(-1)
+    val line1 = line.map(_ - lineOffset).map(_.toInt).getOrElse(-1)
+    val column1 = column.map(_ - columnOffset).map(_.toInt).getOrElse(-1)
 
     val category = toCompilerMessageCategory(kind)
 

@@ -77,7 +77,7 @@ trait WorksheetItAssertions {
       val level = message.getCategory.toString.toLowerCase.capitalize
       s"$level:(${message.getLine}, ${message.getColumn}) ${message.getMessage}"
     }
-    val actualAllMessagesText = messagesRendered.mkString("\n")
+    val actualAllMessagesText = messagesRendered.mkString("\n").trim
     val expectedWithoutBlankLines = expectedAllMessagesText.withNormalizedSeparator.replaceAll("\n\n+", "\n").trim
     assertEquals(
       expectedWithoutBlankLines,

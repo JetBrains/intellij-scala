@@ -298,34 +298,89 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
   def testCompilationError(): Unit = {
     val before =
       """val x = new A()
+        |
+        |lazy val y = new B()
         |""".stripMargin
 
     val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
-
-    // TODO: fix SCL-16497
-    return
+    //ATTENTION: note that even though we had simple `val` it's `lazy val` under the good
+    // The logic is here: org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor.ScalaSourceBuilderBase.appendDeclaration
+    // I don't 100% understand why it was introduced, but it was introduced withing changes for SCL-6752
+    // Maybe we can drop this behaviour?
     assertCompilerMessages(editor)(
-      """Error:(1, 13) not found: type A
-        |val x = new A()
-        |""".stripMargin.trim
+      """Error:(1, 18) not found: type A
+        |lazy val x = new A()
+        |Error:(3, 18) not found: type B
+        |lazy val y = new B()""".stripMargin
     )
   }
 
-  def testCompilationError_ContentLines(): Unit = {
+  def testCompilationError_SomeCodeBeforeError(): Unit = {
+    val before =
+      """111
+        |222
+        |333
+        |
+        |val x = new A()
+        |""".stripMargin
+
+    val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
+    assertCompilerMessages(editor)(
+      """Error:(5, 18) not found: type A
+        |lazy val x = new A()""".stripMargin
+    )
+  }
+
+  def testCompilationError_NewLinesBeforeCode(): Unit = {
     val before =
       """
         |
-        |  val x = new A()
+        |val x = new A()
         |""".stripMargin
 
     val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
 
-    // TODO: fix SCL-16497
-    return
     assertCompilerMessages(editor)(
-      """Error:(3, 15) not found: type A
+      """Error:(3, 18) not found: type A
+        |lazy val x = new A()""".stripMargin
+    )
+  }
+
+  def testCompilationError_NewLinesAndCommentBeforeCode(): Unit = {
+    val before =
+      """//line comment1
+        |//line comment2
+        |
         |val x = new A()
-        |""".stripMargin.trim
+        |""".stripMargin
+
+    val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
+
+    assertCompilerMessages(editor)(
+      """Error:(4, 13) not found: type A
+        |val x = new A()
+        |""".stripMargin
+    )
+  }
+
+  def testCompilationError_MultipleUnresolvedErrors(): Unit = {
+    val before =
+      """1
+        |
+        |
+        |unresolved1
+        |
+        |
+        |unresolved2
+        |""".stripMargin
+
+    val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
+
+    assertCompilerMessages(editor)(
+      """Error:(4, 1) not found: value unresolved1
+        |unresolved1
+        |Error:(7, 1) not found: value unresolved2
+        |unresolved2""".stripMargin
     )
   }
 
@@ -342,12 +397,10 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
     val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
 
-    // TODO: fix SCL-16497
-    return
     assertCompilerMessages(editor)(
       """Error:(5, 17) not found: type A
-        |val x = new A()
-        |""".stripMargin.trim
+        |    val x = new A()
+        |""".stripMargin
     )
   }
 
