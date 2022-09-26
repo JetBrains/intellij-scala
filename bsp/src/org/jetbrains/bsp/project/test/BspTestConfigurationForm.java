@@ -95,14 +95,12 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
 
     private void onSelectModeChanged(TestMode current) {
         switch (current) {
-            case ALL_IN_PROJECT:
-                testClassFormWrapper.setVisible(false);
-                break;
-            case CLASS:
+            case ALL_IN_PROJECT -> testClassFormWrapper.setVisible(false);
+            case CLASS -> {
                 if (lastRequestResult.isEmpty())
                     fetchAndRefreshClasses();
                 testClassFormWrapper.setVisible(true);
-                break;
+            }
         }
     }
 

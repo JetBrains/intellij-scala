@@ -30,22 +30,21 @@ public enum TestScalaVersion {
     }
 
     public org.jetbrains.plugins.scala.ScalaVersion toProductionVersion() {
-        switch (this) {
-            case Scala_2_10: return LatestScalaVersions.Scala_2_10();
-            case Scala_2_11: return LatestScalaVersions.Scala_2_11();
-            case Scala_2_12: return LatestScalaVersions.Scala_2_12();
-            case Scala_2_12_6: return LatestScalaVersions.Scala_2_12().withMinor(6);
-            case Scala_2_12_12: return LatestScalaVersions.Scala_2_12().withMinor(12);
-            case Scala_2_13: return LatestScalaVersions.Scala_2_13();
-            case Scala_2_10_0: return LatestScalaVersions.Scala_2_10().withMinor(0);
-            case Scala_2_11_0: return LatestScalaVersions.Scala_2_11().withMinor(0);
-            case Scala_2_12_0: return LatestScalaVersions.Scala_2_12().withMinor(0);
-            case Scala_2_13_0: return LatestScalaVersions.Scala_2_13().withMinor(0);
-            case Scala_3_0: return LatestScalaVersions.Scala_3_0();
-            case Scala_3_1: return LatestScalaVersions.Scala_3_1();
-            case Scala_3_2: return LatestScalaVersions.Scala_3_2();
-            case Scala_3_Latest: return LatestScalaVersions.Scala_3();
-            default: return null; // unreachable code
-        }
+        return switch (this) {
+            case Scala_2_10 -> LatestScalaVersions.Scala_2_10();
+            case Scala_2_11 -> LatestScalaVersions.Scala_2_11();
+            case Scala_2_12 -> LatestScalaVersions.Scala_2_12();
+            case Scala_2_12_6 -> LatestScalaVersions.Scala_2_12().withMinor(6);
+            case Scala_2_12_12 -> LatestScalaVersions.Scala_2_12().withMinor(12);
+            case Scala_2_13 -> LatestScalaVersions.Scala_2_13();
+            case Scala_2_10_0 -> LatestScalaVersions.Scala_2_10().withMinor(0);
+            case Scala_2_11_0 -> LatestScalaVersions.Scala_2_11().withMinor(0);
+            case Scala_2_12_0 -> LatestScalaVersions.Scala_2_12().withMinor(0);
+            case Scala_2_13_0 -> LatestScalaVersions.Scala_2_13().withMinor(0);
+            case Scala_3_0 -> LatestScalaVersions.Scala_3_0();
+            case Scala_3_1 -> LatestScalaVersions.Scala_3_1();
+            case Scala_3_2 -> LatestScalaVersions.Scala_3_2();
+            case Scala_3_Latest -> LatestScalaVersions.Scala_3();
+        };
     }
 }

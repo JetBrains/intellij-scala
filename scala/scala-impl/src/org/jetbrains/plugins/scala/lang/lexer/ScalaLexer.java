@@ -142,15 +142,10 @@ public final class ScalaLexer extends Lexer {
     final boolean handled;
     if (isXmlToken || isInsideXmlInjection || isLineBreakInsideXml) {
       LocateXmlTokenResult res = doLocateTokenInsideXml(start, type, tokenText);
-      switch (res) {
-        case STARTED_SCALA_PLAIN_LEXER:
-          handled = true;
-          break;
-        case ADVANCE:
-        default:
-          handled = false;
-          break;
-      }
+      handled = switch (res) {
+        case STARTED_SCALA_PLAIN_LEXER -> true;
+        case ADVANCE -> false;
+      };
     }
     else handled = false;
 

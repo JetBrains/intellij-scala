@@ -11,20 +11,18 @@ public enum BuildFileModifiedStatus {
   }
 
   public String getOriginText() {
-    switch (this) {
-      case DETECTED: return SbtBundle.message("sbt.build.modified.detected");
-      case MODIFIED_AUTOMATICALLY: return SbtBundle.message("sbt.build.modified.automatically");
-      case MODIFIED_MANUALLY: return SbtBundle.message("sbt.build.modified.manually");
-      case MODIFIED_BOTH: return SbtBundle.message("sbt.build.modified.automatically.and.fixed.manually");
-      default: throw new RuntimeException(SbtBundle.message("sbt.build.modified.unexpected.file.status", this));
-    }
+    return switch (this) {
+      case DETECTED -> SbtBundle.message("sbt.build.modified.detected");
+      case MODIFIED_AUTOMATICALLY -> SbtBundle.message("sbt.build.modified.automatically");
+      case MODIFIED_MANUALLY -> SbtBundle.message("sbt.build.modified.manually");
+      case MODIFIED_BOTH -> SbtBundle.message("sbt.build.modified.automatically.and.fixed.manually");
+    };
   }
 
   public BuildFileModifiedStatus changeAfterManualModification() {
-    switch (this) {
-      case MODIFIED_AUTOMATICALLY:
-      case MODIFIED_BOTH: return MODIFIED_BOTH;
-      default: return MODIFIED_MANUALLY;
-    }
+    return switch (this) {
+      case MODIFIED_AUTOMATICALLY, MODIFIED_BOTH -> MODIFIED_BOTH;
+      default -> MODIFIED_MANUALLY;
+    };
   }
 }
