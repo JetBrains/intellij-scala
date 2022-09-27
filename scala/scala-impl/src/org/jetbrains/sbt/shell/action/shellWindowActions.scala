@@ -11,9 +11,9 @@ import com.intellij.execution.remote.{RemoteConfiguration, RemoteConfigurationTy
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.ui.{RunContentDescriptor, RunContentManager}
 import com.intellij.execution.{ProgramRunnerUtil, RunManager, RunnerAndConfigurationSettings}
-import com.intellij.find.EditorSearchSession
+import com.intellij.find.{EditorSearchSession, FindManager, FindModel, FindUtil}
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionManager, AnActionEvent, CommonDataKeys, CommonShortcuts, CustomShortcutSet, IdeActions, Presentation, ToggleAction}
+import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
@@ -135,12 +135,36 @@ private object CopyFromHistoryViewerAction {
 final class FindAction(view: SbtShellConsoleView) extends DumbAwareAction {
   setShortcutSet(CommonShortcuts.getFind)
 
+  /**
+   * The implementation was inspired by original "Find" action logic from
+   * [[com.intellij.openapi.editor.actions.IncrementalFindAction.Handler]]
+   */
   override def actionPerformed(e: AnActionEvent): Unit = {
-    val searchSession = EditorSearchSession.start(view.getEditor, view.getProject)
-    val selectionModel = CopyFromHistoryViewerAction.selectionModel(e, view)
-    val textToSearch = selectionModel.getSelectedText
-    if (textToSearch != null) {
-      searchSession.setTextInField(textToSearch)
+    val project = view.getProject
+    val historyViewer = view.getHistoryViewer
+
+    val editorInContext = e.getDataContext.getData(CommonDataKeys.EDITOR)
+    val editorInFocus = if (editorInContext != null) editorInContext else view.getHistoryViewer
+
+    //we don't need "replace" feature for history viewer because it's not modifiable
+    //note: it's still possible to replace the content when you invoke "replace" in "find" widget, due to this bug: IDEA-302629
+    val replace = false
+
+    val search = EditorSearchSession.get(historyViewer)
+    if (search != null) {
+      val model = search.getFindModel
+      FindUtil.configureFindModel(replace, editorInFocus, model, false)
+      search.getComponent.requestFocusInTheSearchFieldAndSelectContent(project)
+    }
+    else {
+      val findManager = FindManager.getInstance(project)
+      val model = new FindModel
+      model.copyFrom(findManager.getFindInFileModel)
+
+      val search = EditorSearchSession.start(historyViewer, model, project)
+
+      FindUtil.configureFindModel(replace, editorInFocus, model, true)
+      search.getComponent.requestFocusInTheSearchFieldAndSelectContent(project)
     }
   }
 }
