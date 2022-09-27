@@ -3,17 +3,18 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 import java.awt.event._
 import java.awt.Cursor
 import java.awt.Point
-
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.event._
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
+import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.AncestorListenerAdapter
 import com.intellij.util.ui.UIUtil
+
 import javax.swing.event.AncestorEvent
 import javax.swing.SwingUtilities
 import org.jetbrains.plugins.scala.annotator.hints.ErrorTooltip
@@ -26,7 +27,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.jdk.CollectionConverters._
 
-class MouseHandler extends ProjectManagerListener {
+private final class MouseHandler extends StartupActivity.DumbAware with ProjectManagerListener {
 
   private var activeHyperlink = Option.empty[(Inlay, Text)]
   private var highlightedMatches = Set.empty[(Inlay, Text)]
@@ -118,7 +119,7 @@ class MouseHandler extends ProjectManagerListener {
     }
   }
 
-  override def projectOpened(project: Project): Unit = {
+  override def runActivity(project: Project): Unit = {
     val multicaster = EditorFactory.getInstance().getEventMulticaster
     multicaster.addEditorMouseListener(mousePressListener, project.unloadAwareDisposable)
     multicaster.addEditorMouseMotionListener(mouseMovedListener, project.unloadAwareDisposable)
