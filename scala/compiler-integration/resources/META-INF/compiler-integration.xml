@@ -45,6 +45,7 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.references.compilation.SbtCompilationSupervisor$Activity"/>
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.charts.ui.CompilationChartsBuildToolWindowNodeFactory"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.highlighting.ToggleHighlightingModeListener"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -57,8 +58,6 @@
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.charts.CompilationChartsBuildManagerListener"/>
 
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.compiler.highlighting.ToggleHighlightingModeListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.CompilerLockBuildManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
