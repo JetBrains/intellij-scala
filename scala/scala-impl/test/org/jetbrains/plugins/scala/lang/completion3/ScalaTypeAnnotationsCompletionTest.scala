@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 abstract class ScalaTypeAnnotationsCompletionTestBase extends ScalaCompletionTestBase {
@@ -228,6 +229,9 @@ class ScalaTypeAnnotationsCompletionTest_with_2_13 extends ScalaTypeAnnotationsC
 }
 
 class ScalaTypeAnnotationsCompletionTest_with_kind_projector extends ScalaTypeAnnotationsCompletionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version < new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "9")
+
   override def setUp(): Unit = {
     super.setUp()
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
