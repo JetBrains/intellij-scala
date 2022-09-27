@@ -57,7 +57,7 @@ import com.intellij.ui.components.JBLayeredPane;
 import com.intellij.util.Alarm;
 import com.intellij.util.Consumer;
 import com.intellij.util.ui.UIUtil;
-import gnu.trove.TIntArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.intellij.lang.annotations.JdkConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -468,7 +468,7 @@ public class MouseHoverHandler implements StartupActivity.DumbAware {
      */
     private static int calculateWidthIncrease(int buttonWidth, String updatedText) {
       int maxLineWidth = 0;
-      TIntArrayList lineWidths = new TIntArrayList();
+      final var lineWidths = new IntArrayList();
       for (String lineText : StringUtil.split(updatedText, "<br/>")) {
         String html = HintUtil.prepareHintText(lineText, HintUtil.getInformationHint());
         int width = new JLabel(html).getPreferredSize().width;
@@ -477,7 +477,7 @@ public class MouseHoverHandler implements StartupActivity.DumbAware {
       }
 
       if (!lineWidths.isEmpty()) {
-        int firstLineAvailableTrailingWidth = maxLineWidth - lineWidths.get(0);
+        int firstLineAvailableTrailingWidth = maxLineWidth - lineWidths.getInt(0);
         if (firstLineAvailableTrailingWidth >= buttonWidth) {
           return 0;
         }
