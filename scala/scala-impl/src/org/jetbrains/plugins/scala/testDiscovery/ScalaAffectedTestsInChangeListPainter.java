@@ -6,8 +6,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vcs.changes.*;
@@ -64,15 +63,8 @@ final public class ScalaAffectedTestsInChangeListPainter implements ChangeListDe
 
     MessageBusConnection connection = myProject.getMessageBus().connect(this);
     connection.subscribe(ChangeListListener.TOPIC, changeListListener);
-    connection.subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
-      @SuppressWarnings("removal")
-      @Override
-      public void projectOpened(@NotNull Project project) {
-        if (project == myProject) {
-          DumbService.getInstance(myProject).runWhenSmart(() -> scheduleUpdate());
-        }
-      }
-    });
+    StartupManager.getInstance(myProject)
+            .runAfterOpened(() -> DumbService.getInstance(myProject).runWhenSmart(this::scheduleUpdate));
   }
 
   @Override
