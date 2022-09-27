@@ -6,6 +6,7 @@ package impl
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
@@ -168,7 +169,7 @@ class ScalaPsiManager(implicit val project: Project) {
       inJavaPsiFacade.set(true)
       try {
         val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, scope)
-        if (clazz == null || clazz.isInstanceOf[ScTemplateDefinition] || clazz.isInstanceOf[PsiClassWrapper]) None
+        if (clazz == null || clazz.is[ScTemplateDefinition] || clazz.is[PsiClassWrapper]) None
         else Option(clazz)
       } finally {
         inJavaPsiFacade.set(false)
@@ -266,7 +267,7 @@ class ScalaPsiManager(implicit val project: Project) {
           .findClasses(fqn, new DelegatingGlobalSearchScope(scope) {
             override def compare(file1: VirtualFile, file2: VirtualFile): Int = 0
           })
-          .filterNot(p => p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper])
+          .filterNot(p => p.is[ScTemplateDefinition] || p.is[PsiClassWrapper])
 
         classes ++ SyntheticClassProducer.getAllClasses(fqn, scope)
       } finally {
@@ -522,9 +523,9 @@ private class ScalaPsiManagerHolder(implicit project: Project) {
 }
 
 @unused("registered in scala-plugin-common.xml")
-private class ScalaPsiManagerListener extends ProjectManagerListener {
+private class ScalaPsiManagerListener extends StartupActivity with ProjectManagerListener {
 
-  override def projectOpened(project: Project): Unit = {
+  override def runActivity(project: Project): Unit = {
     val holder = managerHolder(project)
     holder.get.projectOpened()
   }

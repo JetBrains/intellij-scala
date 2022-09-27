@@ -1856,6 +1856,8 @@
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
 
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"/>
+
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
         
         <iconMapper mappingFile="ScalaIconMappings.json" />
