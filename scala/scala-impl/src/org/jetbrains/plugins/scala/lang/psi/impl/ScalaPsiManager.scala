@@ -523,7 +523,7 @@ private class ScalaPsiManagerHolder(implicit project: Project) {
 }
 
 @unused("registered in scala-plugin-common.xml")
-private class ScalaPsiManagerListener extends StartupActivity with ProjectManagerListener {
+private final class ScalaPsiManagerListener extends StartupActivity with ProjectManagerListener {
 
   override def runActivity(project: Project): Unit = {
     val holder = managerHolder(project)
