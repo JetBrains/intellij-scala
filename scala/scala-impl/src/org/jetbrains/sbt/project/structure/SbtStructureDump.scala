@@ -64,7 +64,7 @@ class SbtStructureDump {
         ideaPort.fold("")(port => s"; set ideaPort in Global := $port")
       } else ""
 
-    val cmd = s";reload; $setCmd ;${if (preferScala2) "preferScala2;" else ""}*/*/dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
+    val cmd = s";reload; $setCmd ;${if (preferScala2) "preferScala2;" else ""}*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
     val aggregator = shellMessageAggregator(EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
 
     shell.command(cmd, BuildMessages.empty, aggregator)
