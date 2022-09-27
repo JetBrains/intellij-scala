@@ -1,6 +1,6 @@
 //NOTE: KEEP VERSIONS IN SYNC WITH ultimate/project/plugins.sbt
 addSbtPlugin("org.jetbrains" % "sbt-ide-settings" % "1.1.0")
-addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "3.17.1")
+addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "3.17.2")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.11.0")
 
 // Only used for local development purposes, not in CI/CD.
