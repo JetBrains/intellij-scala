@@ -8,9 +8,11 @@ import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
 import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, DefaultActionGroup}
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
+import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseListener}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.sbt.shell.action._
 
@@ -71,6 +73,7 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
     SbtShellConsoleView.removeConsoleView(project)
     EditorFactory.getInstance().releaseEditor(getConsoleEditor)
   }
+
 }
 
 object SbtShellConsoleView {
@@ -87,6 +90,8 @@ object SbtShellConsoleView {
     cv.addMessageFilter(filePatternFilters(project))
     // url links
     new UrlFilterProvider().getDefaultFilters(project).foreach(cv.addMessageFilter)
+
+    cv.getHistoryViewer.addEditorMouseListener(new HistoryMouseListener(cv))
 
     //in 2020.1 `updateUi` is invoked on toolwindow reopen, it reapplies LookAndFeel and adds default border to console editors
     forbidBorderFor(cv.getHistoryViewer)
@@ -131,6 +136,16 @@ object SbtShellConsoleView {
     editor.getScrollPane.addPropertyChangeListener(new ResetBorderListener(editor))
   }
 
+  private class HistoryMouseListener(cv: SbtShellConsoleView) extends EditorMouseListener {
+    override def mouseClicked(e: EditorMouseEvent): Unit = {
+      val focusManager = IdeFocusManager.getInstance(cv.getProject)
+      val focusComponent = cv.getConsoleEditor.getContentComponent
+      focusManager.doWhenFocusSettlesDown { () =>
+        focusManager.requestFocus(focusComponent, false)
+      }
+    }
+  }
+
   private class ResetBorderListener(editor: Editor) extends PropertyChangeListener {
     override def propertyChange(evt: PropertyChangeEvent): Unit = {
       if (evt.getPropertyName == "border" && evt.getNewValue != null) {
@@ -138,4 +153,5 @@ object SbtShellConsoleView {
       }
     }
   }
+
 }
