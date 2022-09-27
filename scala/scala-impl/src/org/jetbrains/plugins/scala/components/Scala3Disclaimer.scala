@@ -4,7 +4,8 @@ import com.intellij.notification._
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.options.ShowSettingsUtil
-import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener}
+import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.startup.StartupActivity
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ScalaProjectSettingsConfigurable}
@@ -13,11 +14,13 @@ import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import java.util.function.Consumer
 
 object Scala3Disclaimer {
-  class ProjectListener extends ProjectManagerListener {
-    override def projectOpened(project: Project): Unit = {
+
+  private final class ShowDisclaimerStartupActivity extends StartupActivity {
+    override def runActivity(project: Project): Unit = {
       onProjectLoaded(project) // for IDEA-based projects
     }
   }
+
   class DumbModeListener extends com.intellij.openapi.project.DumbService.DumbModeListener {
     override def exitDumbMode(): Unit = {
       ProjectManager.getInstance().getOpenProjects.foreach(onProjectLoaded) // for external system projects
