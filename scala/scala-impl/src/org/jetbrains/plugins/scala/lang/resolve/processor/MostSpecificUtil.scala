@@ -131,7 +131,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 case _ => ()
               }
 
-              Right(ScExistentialType(substedInternal, Option(argumentsBuilder.result())))
+              Right(ScExistentialType(substedInternal, Option(argumentsBuilder.result()), doNotSimplify = true))
             case _ => Right(tp)
           }
         }

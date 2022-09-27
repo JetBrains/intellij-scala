@@ -141,7 +141,8 @@ object ScExistentialType {
   @tailrec
   final def apply(
     quantified:        ScType,
-    precalculatedArgs: Option[List[ScExistentialArgument]] = None
+    precalculatedArgs: Option[List[ScExistentialArgument]] = None,
+    doNotSimplify:     Boolean = false
   ): ScExistentialType = quantified match {
       case e: ScExistentialType =>
         //first rule
@@ -149,7 +150,10 @@ object ScExistentialType {
       case _ =>
         //second rule
         val args = precalculatedArgs.getOrElse(notBoundArgs(quantified).toList)
-        new ScExistentialType(quantified, args, simplify(quantified, args))
+        val simplified =
+          if (doNotSimplify) None
+          else               simplify(quantified, args)
+        new ScExistentialType(quantified, args, simplified)
     }
 
   private def simplify(quantified: ScType, wildcards: List[ScExistentialArgument], visitedQ: Set[ScType] = Set.empty): Option[ScType] = {
