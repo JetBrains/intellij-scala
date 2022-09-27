@@ -3,12 +3,14 @@ package org.jetbrains.sbt.project
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
-import com.intellij.openapi.project.{Project, ProjectManagerListener}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.startup.StartupActivity
+import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
-class SbtProjectManagerListener extends ProjectManagerListener {
-  override def projectOpened(project: Project): Unit = {
+private final class SbtStartupActivity extends StartupActivity.DumbAware {
+  override def runActivity(project: Project): Unit = invokeLater {
     SbtProjectSettings.forProject(project).foreach { settings =>
       if (settings.converterVersion < SbtProjectSettings.ConverterVersion) {
         if (project.hasScala3 && settings.preferScala2) { // TODO Remove (don't trigger the refresh unnecessarily)
