@@ -23,7 +23,7 @@ import com.intellij.psi.tree.xml.IXmlLeafElementType;
 import com.intellij.psi.xml.XmlTokenType;
 import com.intellij.util.containers.Stack;
 import com.intellij.util.text.CharArrayUtil;
-import gnu.trove.TIntStack;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
@@ -45,7 +45,7 @@ public final class ScalaLexer extends Lexer {
 
   private Lexer myCurrentLexer;
 
-  private TIntStack myBraceStack = new TIntStack();
+  private IntArrayList myBraceStack = new IntArrayList();
   private Stack<Stack<MyOpenXmlTag>> myLayeredTagStack = new Stack<>();
 
   private int myBufferEnd;
@@ -205,7 +205,7 @@ public final class ScalaLexer extends Lexer {
       myTokenType = ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START;
     }
     else if (type == ScalaTokenTypes.tRBRACE) {
-      int currentLayer = myBraceStack.pop();
+      int currentLayer = myBraceStack.popInt();
       if (currentLayer == 1) {
         locateTextRange();
         myCurrentLexer = myXmlLexer;
@@ -216,7 +216,7 @@ public final class ScalaLexer extends Lexer {
       }
     }
     else if (type == ScalaTokenTypes.tLBRACE) {
-      int currentLayer = myBraceStack.pop();
+      int currentLayer = myBraceStack.popInt();
       myBraceStack.push(++currentLayer);
     }
     else if ((ScalaXmlTokenTypes.XML_START_TAG_START() == type ||
@@ -440,14 +440,14 @@ public final class ScalaLexer extends Lexer {
 
   private static class MyState {
 
-    public TIntStack braceStack;
+    public IntArrayList braceStack;
     public Stack<Stack<MyOpenXmlTag>> tagStack;
     public Lexer currentLexer;
     public int xmlState;
     public int scalaState;
 
 
-    public MyState(final int xmlState, final int scalaState, TIntStack braceStack, Lexer lexer, Stack<Stack<MyOpenXmlTag>> tagStack) {
+    public MyState(final int xmlState, final int scalaState, IntArrayList braceStack, Lexer lexer, Stack<Stack<MyOpenXmlTag>> tagStack) {
       this.braceStack = braceStack;
       this.tagStack = tagStack;
       this.currentLexer = lexer;
