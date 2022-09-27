@@ -5,8 +5,9 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor.{getInstance => CommandProcessor}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileDocumentManagerListener}
-import com.intellij.openapi.project.{Project, ProjectManagerListener}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
@@ -15,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectExt
 
-final class ScalafmtReformatOnFileSaveTask extends ProjectManagerListener {
+private final class ScalafmtReformatOnFileSaveStartupActivity extends StartupActivity.DumbAware {
 
-  override def projectOpened(project: Project): Unit = {
+  override def runActivity(project: Project): Unit = {
     val bus = ApplicationManager.getApplication.getMessageBus
     bus.connect(project.unloadAwareDisposable).subscribe(AppTopics.FILE_DOCUMENT_SYNC, new FileDocumentManagerListener {
       override def beforeAllDocumentsSaving(): Unit = project.selectedDocument match {
