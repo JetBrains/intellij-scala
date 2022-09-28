@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 
 import java.util
+import scala.annotation.unused
 
 object ScalaConsoleInfo {
   private val SCALA_LANGUAGE_CONSOLE_KEY = new com.intellij.openapi.util.Key[String]("ScalaLanguageConsoleKey")
@@ -39,6 +40,20 @@ object ScalaConsoleInfo {
           allConsoles.put(project, (console, model, processHandler) :: Nil)
         case list: List[(ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler)] =>
           allConsoles.put(project, (console, model, processHandler) :: list)
+      }
+    }
+  }
+
+  @unused("Used externally by https://github.com/microsoft/azure-tools-for-java")
+  def disposeConsole(console: ScalaLanguageConsole): Unit = {
+    val project = console.getProject
+    synchronized {
+      allConsoles.get(project) match {
+        case null =>
+        case list: List[(ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler)] =>
+          allConsoles.put(project, list.filter {
+            case (sConsole, _, _) => sConsole != console
+          })
       }
     }
   }
