@@ -278,6 +278,7 @@ lazy val scalaImpl: sbt.Project =
         baseDirectory.value / "target",
         baseDirectory.value / "testdata" / "projectsForHighlightingTests" / ".ivy_cache",
         baseDirectory.value / "testdata" / "projectsForHighlightingTests" / ".coursier_cache",
+        //NOTE: when updating, please also update `org.jetbrains.scalateamcity.common.Caching.highlightingPatterns`
         baseDirectory.value / "testdata" / "projectsForHighlightingTests" / "downloaded",
       ),
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
