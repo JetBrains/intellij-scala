@@ -4,6 +4,7 @@ package psi
 package impl
 package search
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.search.searches.OverridingMethodsSearch.SearchParameters
@@ -71,12 +72,14 @@ object ScalaOverridingMemberSearcher {
              scopeOption: Option[SearchScope] = None,
              deep: Boolean = true,
              withSelfType: Boolean = false): Array[PsiNamedElement] = {
-    val scope = scopeOption.getOrElse(member.getUseScope)
+    val scope = scopeOption.getOrElse(inReadAction(member.getUseScope))
 
-    def inTemplateBodyOrEarlyDef(element: PsiElement) = element.getParent match {
+    def inTemplateBodyOrEarlyDef(element: PsiElement) = inReadAction(element.getParent) match {
       case _: ScTemplateBody | _: ScEarlyDefinitions => true
       case _                                         => false
     }
+
+    ProgressManager.checkCanceled()
 
     member match {
       case _: ScFunction | _: ScTypeAlias           => if (!inTemplateBodyOrEarlyDef(member)) return Array.empty
@@ -93,10 +96,12 @@ object ScalaOverridingMemberSearcher {
       case x: PsiNamedElement => PsiTreeUtil.getParentOfType(x, classOf[ScTemplateDefinition])
     }
 
+    ProgressManager.checkCanceled()
+
     // e.g. if `member` is function inside Scala3 `given`
     if (parentClass == null) return Array.empty
 
-    if (parentClass.isEffectivelyFinal) return Array.empty
+    if (inReadAction(parentClass.isEffectivelyFinal)) return Array.empty
 
     val buffer = mutable.Set.empty[PsiNamedElement]
 
@@ -152,7 +157,9 @@ object ScalaOverridingMemberSearcher {
     val inheritors = inReadAction {
       ClassInheritorsSearch.search(parentClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
     }
+
     for (clazz <- inheritors if !break) {
+      ProgressManager.checkCanceled()
       break = !process(clazz)
     }
 
@@ -160,6 +167,7 @@ object ScalaOverridingMemberSearcher {
       val inheritors = ScalaInheritors.getSelfTypeInheritors(parentClass)
       break = false
       for (clazz <- inheritors if !break) {
+        ProgressManager.checkCanceled()
         break = !process(clazz)
       }
     }

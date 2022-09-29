@@ -197,8 +197,10 @@ object ScalaInheritors {
       inheritorsBuilder.result()
     }
 
-    if (clazz.isEffectivelyFinal) Seq.empty
-    else selfTypeInheritorsInner()
+    inReadAction {
+      if (clazz.isEffectivelyFinal) Seq.empty
+      else selfTypeInheritorsInner()
+    }
   }
 
   private def withInheritors[T <: PsiClass : ClassTag](clazz: PsiClass)

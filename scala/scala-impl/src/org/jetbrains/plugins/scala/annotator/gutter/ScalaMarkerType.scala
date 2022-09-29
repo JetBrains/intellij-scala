@@ -6,6 +6,8 @@ import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.impl.{GutterTooltipHelper, PsiElementListNavigator}
 import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
 import com.intellij.openapi.actionSystem.IdeActions
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.presentation.java.ClassPresentationUtil
 import com.intellij.psi.search.searches.ClassInheritorsSearch
@@ -24,7 +26,7 @@ import org.jetbrains.plugins.scala.util.SAMUtil
 import java.awt.event.MouseEvent
 import java.util
 import java.util.Collections.emptyList
-import javax.swing.{Icon, ListCellRenderer}
+import javax.swing.{Icon, JComponent, ListCellRenderer}
 import scala.jdk.CollectionConverters._
 
 object ScalaMarkerType {
@@ -144,30 +146,39 @@ object ScalaMarkerType {
     (event, element) =>
       namedParent(element).collect {
         case member: ScMember =>
+          val project = member.getProject
+          if (DumbService.isDumb(project)) {
+            DumbService.getInstance(project)
+              .showDumbModeNotification(ScalaBundle.message("notification.navigation.to.overriding.members"))
+          } else {
+            var overrides: Seq[PsiNamedElement] = Seq.empty
+            if (ProgressManager.getInstance().runProcessWithProgressSynchronously(() => {
+              overrides = findOverrides(member, deep = true)
+            }, ScalaBundle.message("searching.for.overriding.members"), true,
+              project, event.getComponent.asInstanceOf[JComponent])) {
+              if (overrides.nonEmpty) {
+                val name = overrides.headOption.fold("")(_.name)
 
-          val overrides = findOverrides(member, deep = true)
+                val (title, findUsagesTitle) =
+                  if (GutterUtil.isAbstract(member)) {
+                    ScalaBundle.message("navigation.title.implementing.member", name, overrides.length.toString) ->
+                      ScalaBundle.message("navigation.findUsages.title.implementing.member", name)
+                  } else {
+                    ScalaBundle.message("navigation.title.overriding.member", name, overrides.length.toString) ->
+                      ScalaBundle.message("navigation.findUsages.title.overriding.member", name)
+                  }
 
-          if (overrides.nonEmpty) {
-            val name = overrides.headOption.fold("")(_.name)
-
-            val (title, findUsagesTitle) =
-              if (GutterUtil.isAbstract(member)) {
-                ScalaBundle.message("navigation.title.implementing.member", name, overrides.length.toString) ->
-                  ScalaBundle.message("navigation.findUsages.title.implementing.member", name)
-              } else {
-                ScalaBundle.message("navigation.title.overriding.member", name, overrides.length.toString) ->
-                  ScalaBundle.message("navigation.findUsages.title.overriding.member", name)
+                val renderer = newCellRenderer
+                util.Arrays.sort(overrides.map(e => e: PsiElement).toArray, renderer.getComparator)
+                PsiElementListNavigator.openTargets(
+                  event,
+                  overrides.map(_.asInstanceOf[NavigatablePsiElement]).toArray,
+                  title,
+                  findUsagesTitle,
+                  renderer.asInstanceOf[ListCellRenderer[NavigatablePsiElement]]
+                )
               }
-
-            val renderer = newCellRenderer
-            util.Arrays.sort(overrides.map(e => e: PsiElement).toArray, renderer.getComparator)
-            PsiElementListNavigator.openTargets(
-              event,
-              overrides.map(_.asInstanceOf[NavigatablePsiElement]).toArray,
-              title,
-              findUsagesTitle,
-              renderer.asInstanceOf[ListCellRenderer[NavigatablePsiElement]]
-            )
+            }
           }
     }
   )
