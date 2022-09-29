@@ -511,7 +511,8 @@
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettingsImpl"/>
 
-        <projectConfigurable id="Scala Compiler" bundle="messages.ScalaInspectionBundle"
+        <projectConfigurable id="scala.compiler"
+                             bundle="messages.ScalaBundle"
                              key="displayname.scala.compiler"
                              parentId="project.propCompiler" dynamic="true"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable"/>

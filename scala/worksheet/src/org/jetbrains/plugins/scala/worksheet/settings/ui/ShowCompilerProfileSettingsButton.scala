@@ -5,6 +5,7 @@ import com.intellij.ide.actions.ShowSettingsUtilImpl
 import com.intellij.ide.ui.search.SearchUtil
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.actionSystem.{ActionPlaces, ActionToolbar, AnAction, AnActionEvent}
+import com.intellij.openapi.options.ConfigurableWithId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfigurable, ScalaCompilerProfilesPanel}
@@ -36,7 +37,11 @@ private final class ShowCompilerProfileSettingsButton(
     ScalaCompilerProfilesPanel.withTemporarySelectedProfile(project, selectedProfile) {
       val dialogOpt: Option[DialogWrapper] = {
         val groups = ShowSettingsUtilImpl.getConfigurableGroups(project, true)
-        val compilerConf = SearchUtil.expand(groups).asScala.find(_.getDisplayName == ScalaCompilerConfigurable.Name)
+        val configurableCandidates = SearchUtil.expand(groups).asScala
+        val compilerConf = configurableCandidates.find {
+          case config: ConfigurableWithId => config.getId == ScalaCompilerConfigurable.Id
+          case _ => false
+        }
         compilerConf.map { conf =>
           ShowSettingsUtilImpl.getDialog(project, groups.toList.asJava, conf)
         }

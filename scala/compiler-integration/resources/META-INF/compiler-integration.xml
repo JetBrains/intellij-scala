@@ -19,7 +19,7 @@
 
         <projectConfigurable bundle="messages.CompilerIntegrationBundle"
                              key="displayname.scala.compile.server"
-                             parentId="Scala Compiler"
+                             parentId="scala.compiler"
                              instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.EnsureModulesHaveDifferentProdAndTestOutputsTask"/>
@@ -34,7 +34,8 @@
 
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.references.CompilerIndicesBuildProcessParametersProvider"/>
 
-        <projectConfigurable id="Bytecode Indices" parentId="Scala Compiler"
+        <projectConfigurable id="Bytecode Indices"
+                             parentId="scala.compiler"
                              instance="org.jetbrains.plugins.scala.compiler.references.settings.CompilerIndicesConfigurable"/>
         <codeUsageScopeOptimizer implementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceScopeOptimizer"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService"/>
