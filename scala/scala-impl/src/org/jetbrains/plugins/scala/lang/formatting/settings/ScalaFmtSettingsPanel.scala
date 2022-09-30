@@ -5,6 +5,7 @@ package settings
 
 import com.intellij.icons.AllIcons
 import com.intellij.lang.Language
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme
@@ -305,7 +306,19 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       w.add(useIntellijWarning, constraint(0, 1, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
       w
     }
-    reformatOnFileSaveCheckBox = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save", KeymapUtil.getShortcutText("SaveAll")))
+
+    def saveActionsShortcutsText: String = {
+      val actionManager = ActionManager.getInstance
+
+      val saveAllShortcut = Option(actionManager.getKeyboardShortcut("SaveAll"))
+      val saveDocumentShortcut = Option(actionManager.getKeyboardShortcut("SaveDocument"))
+
+      val shortcuts = saveAllShortcut.toSeq ++ saveDocumentShortcut
+      val shortcutTexts = shortcuts.map(KeymapUtil.getShortcutText)
+      shortcutTexts.mkString(", ")
+    }
+
+    reformatOnFileSaveCheckBox = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save", saveActionsShortcutsText))
     reformatOnFileSaveComment = ComponentPanelBuilder.createCommentComponent(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save.tooltip", KeymapUtil.getShortcutText("ReformatCode")), false)
     fallBackToDefaultSettings = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.fallback.to.default.settings"))
 
@@ -454,7 +467,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private var useIntellijFormatterForRangeFormat: JBCheckBox = _
   private var useIntellijWarning: JLabel = _
   private var reformatOnFileSaveCheckBox: JBCheckBox = _
-  private var reformatOnFileSaveComment: JLabel = _
+  private var reformatOnFileSaveComment: JComponent = _
   private var fallBackToDefaultSettings: JBCheckBox = _
   private val customSettingsTitle = ScalaBundle.message("scalafmt.settings.panel.select.custom.scalafmt.configuration.file")
   //noinspection HardCodedStringLiteral
