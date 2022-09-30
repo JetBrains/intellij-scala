@@ -132,7 +132,8 @@ final class ResolveFilterScope(delegate: GlobalSearchScope)
   extends ResolveFilterScopeBase(delegate) {
 
   override def mayContain(file: VirtualFile): Boolean =
-    super.mayContain(file) && !file.getFileType.is[FileTypeWithIsolatedDeclarations]
+    isInLibraryClasses(file) ||
+      ((isInSourceContent(file) || ScratchUtil.isScratch(file)) && !file.getFileType.is[FileTypeWithIsolatedDeclarations])
 }
 
 object ResolveFilterScope {
