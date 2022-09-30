@@ -636,6 +636,9 @@
         <registryKey key="scala.dependency.manager.use.file.system.resolvers.only" defaultValue="false" restartRequired="false"
                      description="When true then built-in scala plugin dependency manager will not try to resolve artifacts in internet (see org.jetbrains.plugins.scala.DependencyManagerBase)"/>
 
+        <registryKey key="scalafmt.min.time.between.format.on.save.action.ms" defaultValue="300" restartRequired="false"
+                     description="Minimum allowed time between 'Format on Save' triggers (when Scalafmt formatter is enabled)"/>
+
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
         <nameSuggestionProvider id="ScalaDictionarySuggestionProvider" implementation="org.jetbrains.plugins.scala.spellchecker.ScalaDictionarySuggestionProvider" order="first, before DictionarySuggestionProvider"/>
@@ -1917,7 +1920,7 @@
         <!-- Formatter listeners -->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+        <listener topic="com.intellij.openapi.actionSystem.ex.AnActionListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtReformatOnFileSaveTask"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleProjectListener"/>
