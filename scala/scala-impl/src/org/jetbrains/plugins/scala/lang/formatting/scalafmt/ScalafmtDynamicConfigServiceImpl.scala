@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig, ScalafmtVersion}
 
 import java.io.File
-import java.nio.charset.StandardCharsets
+import java.nio.charset.Charset
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.concurrent
 import scala.jdk.CollectionConverters._
@@ -271,7 +271,7 @@ object ScalafmtDynamicConfigServiceImpl {
         val tri = Try {
           val file = new File(path)
           // TODO: implement detecting of the latest version from the Internet
-          FileUtils.writeStringToFile(file, "version = 3.5.9", StandardCharsets.UTF_8)
+          FileUtils.writeStringToFile(file, "version = 2.7.5", Charset.forName("UTF-8"))
           val vFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file)
           if (openInEditor)
             invokeLater {
