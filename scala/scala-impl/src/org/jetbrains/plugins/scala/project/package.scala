@@ -348,6 +348,8 @@ package object project {
     // TODO: SCL-18097: it should be per-module, like for all other compiler flags (e.g. for isSAMEnabled)
     def isPartialUnificationEnabled: Boolean = modulesWithScala.exists(_.isPartialUnificationEnabled)
 
+    @deprecated("Use FileEditorManager directly")
+    @unused("Can't delete the method right now because can't ensure it's not used externally (Find external usages is broken for extension methods)")
     def selectedDocument: Option[Document] =
       Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
         .map(_.getDocument)
