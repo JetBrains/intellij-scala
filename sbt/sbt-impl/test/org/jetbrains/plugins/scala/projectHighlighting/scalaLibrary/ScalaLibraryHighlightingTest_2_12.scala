@@ -90,9 +90,6 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
     "scala/collection/immutable/HashMap.scala" -> Set(
       (5538, 5546), // Overriding type Int does not conform to base type () => Int
     ),
-    "scala/collection/immutable/Map.scala" -> Set(
-      (2497, 2504), // Method 'updated' overrides nothing
-    ),
     "scala/collection/immutable/NumericRange.scala" -> Set(
       (5831, 5871), // No implicit arguments of type: Integral[A]
       (5885, 5915), // No implicit arguments of type: Integral[A]

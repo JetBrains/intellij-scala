@@ -80,9 +80,6 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
     "scala/collection/immutable/SortedMap.scala" -> Set(
       (7345, 7439), // Expression of type mutable.Builder[(K, Nothing), WithDefault[K, V]] doesn't conform to expected type mutable.Builder[(K, V), WithDefault[K, V]]
     ),
-    "scala/collection/mutable/ArraySeq.scala" -> Set(
-      (2505, 2512), // Method 'stepper' overrides nothing
-    ),
     "scala/collection/mutable/HashMap.scala" -> Set(
       (17273, 17299), // No constructor accessible from here
       (17245, 17267), // Cannot resolve symbol DeserializationFactory
