@@ -256,7 +256,8 @@ lazy val scalacPatches: sbt.Project =
       Compile / unmanagedSourceDirectories += baseDirectory.value / "src",
       libraryDependencies ++= Seq(Dependencies.scalaCompiler),
       packageMethod := PackagingMethod.Skip(),
-      compilationCacheSettings
+      compilationCacheSettings,
+      intellijMainJars := Nil
     )
 
 lazy val scalaImpl: sbt.Project =
