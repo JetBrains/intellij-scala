@@ -11,8 +11,6 @@ import java.util
 import javax.swing.Icon
 import scala.jdk.CollectionConverters._
 
-// TODO: create tests for project view!
-
 private[projectView] class TypeDefinitionNode(definition: ScTypeDefinition)
                                              (implicit project: Project, settings: ViewSettings)
   extends CustomDefinitionNode(definition) {
