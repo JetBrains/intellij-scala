@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
@@ -36,9 +37,11 @@ trait FileDeclarationsHolder
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    if (isProcessLocalClasses(lastParent) &&
-      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place))
-      return false
+    if (isProcessLocalClasses(lastParent)) {
+      if (!super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) {
+        return false
+      }
+    }
 
     if (!processDeclarationsFromImports(processor, state, lastParent, place))
       return false
@@ -62,6 +65,7 @@ trait FileDeclarationsHolder
     implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
 
     val defaultPackage = ScPackageImpl.findPackage("")
+    //TODO: extract common check `defaultPackage != null`
     place match {
       case ref: ScReference if ref.refName == "_root_" && ref.qualifier.isEmpty =>
         if (defaultPackage != null && !processor.execute(defaultPackage, state.withRename("_root_")))
@@ -71,10 +75,19 @@ trait FileDeclarationsHolder
           if (defaultPackage != null &&
             !packageProcessDeclarations(defaultPackage)(processor, state, null, place))
             return false
-          if (defaultPackage != null &&
-            this.isInScala3Module &&
-            !defaultPackage.processTopLevelDeclarations(processor, state, place))
-            return false
+          if (defaultPackage != null) {
+            //NOTE: a lot of unit tests were written with top-level code in `.scala` files (not only definitions, but also expressions).
+            //Scala files which contained not only definitions were implicitly treated as scala scripts.
+            //It worked fine when we had scala scripts, but after after we dropped scala scripts,
+            //a lot of test start failing because some code os not resolved when placed at top level
+            //This is a hack not to patch hundreds of tests
+            //See SCL-20481
+            val processTopLevelDeclarations = this.isInScala3Module || isUnitTestMode
+            if (processTopLevelDeclarations) {
+              if (!defaultPackage.processTopLevelDeclarations(processor, state, place))
+                return false
+            }
+          }
 
         }
         else if (defaultPackage != null && !BaseProcessor.isImplicitProcessor(processor)) {
@@ -251,6 +264,8 @@ object FileDeclarationsHolder {
       case _                                                   => body
     }
 
+  private val isUnitTestMode = ApplicationManager.getApplication.isUnitTestMode
+
   /**
     * @param _place actual place, can be null, if null => false
     * @return true, if place is out of source content root, or in Scala Worksheet.
@@ -267,14 +282,16 @@ object FileDeclarationsHolder {
       case scalaFile: ScalaFile if scalaFile.isWorksheetFile =>
         true
       case scalaFile: ScalaFile =>
-        val file = Option(scalaFile.getOriginalFile.getVirtualFile).getOrElse(scalaFile.getViewProvider.getVirtualFile)
-        if (file == null)
-          return false
-
-        val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
-        val belongsToProject =
-          index.isInSourceContent(file) || index.isInLibraryClasses(file)
-        !belongsToProject
+        val vFile = Option(scalaFile.getOriginalFile.getVirtualFile).getOrElse(scalaFile.getViewProvider.getVirtualFile)
+        if (vFile == null)
+          false
+        else {
+          val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
+          val isInSources = index.isInSourceContent(vFile)
+          val isInLibraries = index.isInLibraryClasses(vFile)
+          val belongsToProject = isInSources || isInLibraries
+          !belongsToProject
+        }
       case _ =>
         false
     }
