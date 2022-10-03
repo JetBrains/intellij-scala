@@ -144,7 +144,7 @@ object Dependencies {
   /** The filtering function returns true for jars to be removed.
    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
   val excludeJarsFromPlatformDependencies: File => Boolean = { file =>
-    file.getName.contains("lsp4j") // version conflict with lsp4j in ultimate platform
+    true
   }
 
   private def sbtPluginDependency(module: ModuleID, sbtVersion: String): ModuleID =
