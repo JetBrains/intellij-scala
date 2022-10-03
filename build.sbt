@@ -376,7 +376,7 @@ lazy val runners: Project =
     )
 
 lazy val testingSupport =
-  newProject("testing-support", file("scala/testing-support"))
+  newProject("testing-support", file("scala/test-integration/testing-support"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile"
@@ -387,7 +387,7 @@ lazy val testingSupport =
     .withCompilerPluginIn(scalacPatches)
 
 lazy val testRunners: Project =
-  newProject("testRunners", file("scala/testRunners"))
+  newProject("test-runners", file("scala/test-integration/test-runners"))
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
@@ -396,7 +396,7 @@ lazy val testRunners: Project =
     )
 
 lazy val testRunners_spec2_2x: Project =
-  newProject("testRunners_spec2_2x", file("scala/testRunners_spec2_2x"))
+  newProject("test-runners-spec2_2x", file("scala/test-integration/test-runners-spec2_2x"))
     .dependsOn(testRunners)
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
