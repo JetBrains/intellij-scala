@@ -18,8 +18,6 @@ trait ScalaFile extends ScalaPsiElement
 
   def members: Seq[ScMember]
 
-  def typeDefinitionsAndOthers: (Seq[ScTypeDefinition], Seq[ScMember])
-
   def packagingRanges: Seq[TextRange]
 
   def isMultipleDeclarationsAllowed: Boolean

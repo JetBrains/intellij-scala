@@ -23,7 +23,12 @@ object FileKind {
   import extensions._
   import icons.Icons._
 
-  def unapply(file: ScalaFile): Option[FileKind] = {
+  @deprecated("Use FileKind.getForFile directly")
+  @Deprecated
+  @ScheduledForRemoval(inVersion = "2023.2")
+  def unapply(file: ScalaFile): Option[FileKind] = getForFile(file)
+
+  def getForFile(file: ScalaFile): Option[FileKind] = {
     val fileName = clean(getNameWithoutExtension(file.name))
 
     def matchesFileName(definition: ScTypeDefinition): Boolean =
@@ -32,8 +37,10 @@ object FileKind {
     def bothMatchFileName(first: ScTypeDefinition, second: ScTypeDefinition): Boolean =
       first.name == second.name && clean(first.name) == fileName
 
-    val (typeDefinitions, others) = file.typeDefinitionsAndOthers
-    if (others.nonEmpty)
+    val members = file.members
+    val typeDefinitions = members.filterByType[ScTypeDefinition]
+    val hasTopLevelNonTypeDefinitions = typeDefinitions.size != members.size
+    if (hasTopLevelNonTypeDefinitions)
       None
     else
       typeDefinitions.toList match {

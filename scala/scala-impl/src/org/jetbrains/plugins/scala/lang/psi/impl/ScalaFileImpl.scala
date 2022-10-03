@@ -14,7 +14,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, codeStyle}
 import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
-import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.indexing.FileBasedIndex
@@ -22,7 +21,6 @@ import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.{ResolveFilterScope, WorksheetResolveFilterScope}
 import org.jetbrains.plugins.scala.lang.TokenSets._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -199,24 +197,29 @@ class ScalaFileImpl(
     inner(packagings, new StringBuilder())
   }
 
+  //Among other use places, this method is used to determine icon for a file in Project View
   override def getClasses: Array[PsiClass] =
     if (isWorksheetFile)
       PsiClass.EMPTY_ARRAY
     else {
-      val (definitions, others) = typeDefinitionsAndOthers
-      if (others.nonEmpty)
+      val myMembers = members
+      val myTypeDefinitions = myMembers.filterByType[ScTypeDefinition]
+      /*if (myMembers.size != myTypeDefinitions.size)
         PsiClass.EMPTY_ARRAY
-      else if (isDuringMoveRefactoring)
-        definitions.toArray
-      else
-        definitions.flatMap { definition =>
-          definition :: (definition match {
+      else */if (isDuringMoveRefactoring)
+        myTypeDefinitions.toArray
+      else {
+        val result = myTypeDefinitions.flatMap { definition =>
+          val companions = definition match {
             case o: ScObject => o.fakeCompanionClass.toList
             case t: ScTrait  => t.fakeCompanionClass :: t.fakeCompanionModule.toList
             case c: ScClass  => c.fakeCompanionModule.toList
             case _ => Nil
-          })
-        }.toArray
+          }
+          definition :: companions
+        }
+        result.toArray
+      }
     }
 
   override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)
@@ -291,11 +294,6 @@ class ScalaFileImpl(
 
     members ++ packagings.flatMap(_.members)
   }
-
-  override def typeDefinitionsAndOthers: (Seq[ScTypeDefinition], Seq[ScMember]) =
-    members.partition(_.is[ScTypeDefinition]) match {
-      case (tps, ots) => (tps.asInstanceOf[Seq[ScTypeDefinition]], ots)
-    }
 
   private def foldStub[R](byPsi: => R)(byStub: ScFileStub => R): R = getStub match {
     case null => byPsi

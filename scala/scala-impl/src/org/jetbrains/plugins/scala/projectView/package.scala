@@ -21,9 +21,9 @@ package object projectView {
       val fileType = file.getFileType
       fileType match {
         case ScalaFileType.INSTANCE =>
-          FileKind.unapply(file)
-            .flatMap(_.node)
-            .getOrElse(new ScalaFileNode(file))
+          val fileKind = FileKind.getForFile(file)
+          val node = fileKind.flatMap(_.node)
+          node.getOrElse(new ScalaFileNode(file))
         case fileType               =>
           new DialectFileNode(file, fileType)
       }
