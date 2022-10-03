@@ -9,7 +9,9 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.testFramework.utils.parameterInfo.MockUpdateParameterInfoContext
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.junit.Assert._
+import org.junit.ComparisonFailure
 
 import java.awt.Color
 import scala.collection.mutable
@@ -30,16 +32,18 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
 
   protected final def doTest(testUpdate: Boolean = true): Unit = {
     val file = configureFile()
-    val offset = myFixture.getCaretOffset
+    val caretOffset = myFixture.getCaretOffset
 
-    val context = new ShowParameterInfoContext(getEditor, getProject, file, offset, -1)
+    val context = new ShowParameterInfoContext(getEditor, getProject, file, caretOffset, -1)
     val handler = createHandler
 
     val actual: Seq[String] = handleUI(handler, context)
     val expected: Seq[Seq[String]] = expectedSignatures(lastElement())
 
     assertNotNull(expected)
-    assertTrue(s"expected signatures: ${expected.mkString(",")}, actual: ${actual.mkString(",")}", expected.contains(actual))
+    if (!expected.contains(actual)) {
+      throw new ComparisonFailure("signatures don't match", expected.mkString("\n"), actual.mkString("\n"))
+    }
 
     if (testUpdate && actual.nonEmpty) {
       //todo test correct parameter index after moving caret
@@ -134,10 +138,10 @@ object ParameterInfoTestBase {
     }
 
     val text = lastElement.getText
-    text.substring(2, text.length - dropRight)
-      .split("<--->")
-      .map(normalize)
-      .toIndexedSeq
+    val commentText = text.substring(2, text.length - dropRight)
+    val values = commentText.split("<--->")
+    val valuesNormalized = values.map(normalize)
+    valuesNormalized.toIndexedSeq
   }
 
   private[this] def normalize(string: String) =

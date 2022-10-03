@@ -104,7 +104,9 @@ class KindProjectorHighlightingTest extends KindProjectorHighlightingTestBase {
         |  def apply[A](fa: F[A]): G[A]
         |}
         |
-        |val a: List To Option = λ[List To Option](_.headOption)
+        |class A {
+        |  val a: List To Option = λ[List To Option](_.headOption)
+        |}
       """.stripMargin
     )
 
@@ -115,7 +117,9 @@ class KindProjectorHighlightingTest extends KindProjectorHighlightingTestBase {
         |  def run[A](fa: F[A]): G[A]
         |}
         |
-        |val f: PF[List, Option] = Lambda[PF[List, Option]].run(_.headOption)
+        |class A {
+        |  val f: PF[List, Option] = Lambda[PF[List, Option]].run(_.headOption)
+        |}
       """.stripMargin
     )
 
@@ -126,7 +130,9 @@ class KindProjectorHighlightingTest extends KindProjectorHighlightingTestBase {
         |  def apply[A](fa: F[A]): G[A]
         |}
         |
-        |val h: Convert[Either[Unit, ?], Option] = λ[Either[Unit, ?] Convert Option](_.fold(_ => None, a => Some(a)))
+        |class A {
+        |  val h: Convert[Either[Unit, ?], Option] = λ[Either[Unit, ?] Convert Option](_.fold(_ => None, a => Some(a)))
+        |}
       """.stripMargin
     )
 
@@ -166,33 +172,37 @@ class KindProjectorHighlightingTest extends KindProjectorHighlightingTestBase {
         |  def run[A](fa: F[A]): G[A]
         |}
         |
-        |type ~>[F[_], G[_]] = NaturalTransformation[F, G]
+        |object A {
+        |  type ~>[F[_], G[_]] = NaturalTransformation[F, G]
         |
-        |type Id[A] = A
-        |val g: Id ~> Option = λ[Id ~> Option].run(x => Some(x))
+        |  type Id[A] = A
+        |  val g: Id ~> Option = λ[Id ~> Option].run(x => Some(x))
+        |}
       """.stripMargin
     )
 
   def testFreeInterpreter(): Unit =
     checkTextHasNoErrors(
-      """
-        |sealed abstract class Free[S[_], A] {
-        |  final def mapK[T[_]](f: S ~> T): Free[T, A] = ???
-        |}
+      """object Example {
+        |  sealed abstract class Free[S[_], A] {
+        |    final def mapK[T[_]](f: S ~> T): Free[T, A] = ???
+        |  }
         |
-        |sealed abstract class Coyoneda[F[_], A] {
-        |  final def mapK[T[_]](f: F ~> T): Coyoneda[T, A] = ???
-        |}
-        |type FreeC[S[_], A] = Free[Coyoneda[S, ?], A]
-        |trait ~>[-F[_], +G[_]] {
-        |  def apply[A](fa: F[A]): G[A]
-        |}
+        |  sealed abstract class Coyoneda[F[_], A] {
+        |    final def mapK[T[_]](f: F ~> T): Coyoneda[T, A] = ???
+        |  }
         |
-        |def injectFC[F[_], G[_]](implicit fk: F ~> G): FreeC[F, ?] ~> FreeC[G, ?]
-        |  = λ[FreeC[F, ?] ~> FreeC[G, ?]](
-        |    _.mapK(λ[Coyoneda[F, ?] ~> Coyoneda[G, ?]](_.mapK(fk)))
-        |  )
+        |  type FreeC[S[_], A] = Free[Coyoneda[S, ?], A]
         |
+        |  trait ~>[-F[_], +G[_]] {
+        |    def apply[A](fa: F[A]): G[A]
+        |  }
+        |
+        |  def injectFC[F[_], G[_]](implicit fk: F ~> G): FreeC[F, ?] ~> FreeC[G, ?]
+        |    = λ[FreeC[F, ?] ~> FreeC[G, ?]](
+        |      _.mapK(λ[Coyoneda[F, ?] ~> Coyoneda[G, ?]](_.mapK(fk)))
+        |    )
+        |}
       """.stripMargin
     )
 

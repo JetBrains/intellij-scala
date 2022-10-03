@@ -37,13 +37,15 @@ class ExistentialAbstractionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin
   )
 
+  //SCL-17733
   def testSCL17733(): Unit = checkTextHasNoErrors(
-    """
-      |trait ZIO[-R, +E, A]
-      |trait Foo[F[_]]
+    """object A {
+      |  trait ZIO[-R, +E, A]
+      |  trait Foo[F[_]]
       |
-      |val b: Foo[({ type L[A] = ZIO[R, Throwable, A] })#L] forSome { type R } = null
-      |val a: Foo[({ type L[A] = ZIO[R, E, A] })#L]         forSome { type R; type E } = b
+      |  val b: Foo[({ type L[A] = ZIO[R, Throwable, A] })#L] forSome { type R } = null
+      |  val a: Foo[({ type L[A] = ZIO[R, E, A] })#L]         forSome { type R; type E } = b
+      |}
       |""".stripMargin
   )
 }

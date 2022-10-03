@@ -2,15 +2,19 @@ class T {
   def fadfa = 1
 }
 
-implicit def str2T(x: String): T = new T
+object A {
+  implicit def str2T(x: String): T = new T
 
-""./*caret*/fadfa
+  ""./*caret*/fadfa
+}
 /*
 class T {
   def NameAfterRename = 1
 }
 
-implicit def str2T(x: String): T = new T
+object A {
+  implicit def str2T(x: String): T = new T
 
-""./*caret*/NameAfterRename
+  ""./*caret*/NameAfterRename
+}
 */
