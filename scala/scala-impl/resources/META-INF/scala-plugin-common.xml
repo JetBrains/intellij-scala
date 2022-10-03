@@ -74,9 +74,6 @@
 
         <breadcrumbsInfoProvider
                 implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider"/>
-        <project.converterProvider
-                implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"
-                id="scala-facets-to-sdks"/>
         <codeStyle.ReferenceAdjuster language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.template.ScalaReferenceAdjuster"/>
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <exceptionFilter implementation="org.jetbrains.plugins.scala.stacktrace.ScalaPackageObjectFilterFactory" order="first"/>
@@ -1859,7 +1856,7 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"/>
 
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
-        
+
         <iconMapper mappingFile="ScalaIconMappings.json" />
 
     </extensions>
