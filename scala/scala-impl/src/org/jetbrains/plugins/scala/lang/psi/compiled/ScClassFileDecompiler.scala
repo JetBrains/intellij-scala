@@ -40,7 +40,7 @@ object ScClassFileDecompiler {
 
   object ScClsStubBuilder extends compiled.ClsStubBuilder {
 
-    override val getStubVersion = 385
+    override val getStubVersion = 386
 
     override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[_ <: PsiFile] =
       decompiledScalaFile(content)
