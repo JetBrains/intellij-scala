@@ -53,6 +53,7 @@ object Common {
       (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
       (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
       libraryDependencies ++= Seq(
+        Dependencies.jetbrainsAnnotations % Provided,
         Dependencies.junit % Test,
         Dependencies.junitInterface % Test,
       ),

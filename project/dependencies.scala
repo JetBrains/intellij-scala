@@ -90,6 +90,8 @@ object Dependencies {
 
   val commonsLang: ModuleID = "org.apache.commons" % "commons-lang3" % "3.12.0"
 
+  val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "23.0.0"
+
   //note: junit is a transitive dependency of junitInterface adn it would be enough to just add junitInterface as dependency
   //but we would like to make junit an explicit dependency to be more transparent
   val junit: ModuleID = "junit" % "junit" % junitVersion
@@ -144,7 +146,8 @@ object Dependencies {
   /** The filtering function returns true for jars to be removed.
    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
   val excludeJarsFromPlatformDependencies: File => Boolean = { file =>
-    true
+    val fileName = file.getName
+    fileName == "annotations.jar" // we explicitly specify dependency on jetbrains annotations library, see SCL-20557
   }
 
   private def sbtPluginDependency(module: ModuleID, sbtVersion: String): ModuleID =
