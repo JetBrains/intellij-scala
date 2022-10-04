@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiPackage}
 import org.jdom.Element
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
@@ -68,7 +68,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
       acc
     }
 
-    val classesAll = collectClasses(pack)
+    val classesAll = inReadAction(collectClasses(pack))
     val classesUnique = classesAll.iterator.distinct.toSeq
     val classes = classesUnique.filter(c => config.isValidSuite(c) && config.canBeDiscovered(c))
     if (classes.isEmpty)

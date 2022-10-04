@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.test
 
 import com.intellij.psi.{PsiClass, PsiMethod, PsiModifier, PsiModifierList}
 import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -16,7 +17,7 @@ trait SuiteValidityChecker {
 @ApiStatus.Internal
 class SuiteValidityCheckerBase extends SuiteValidityChecker {
 
-  override def isValidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean = {
+  override def isValidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean = inReadAction {
     isValidClass(clazz) &&
       !isAbstract(clazz) &&
       hasSuitableConstructor(clazz) &&
@@ -24,7 +25,7 @@ class SuiteValidityCheckerBase extends SuiteValidityChecker {
   }
 
   protected def isValidClass(clazz: PsiClass): Boolean =
-    clazz.isInstanceOf[ScClass]
+    clazz.is[ScClass]
 
   private def isAbstract(clazz: PsiClass): Boolean = {
     val list: PsiModifierList = clazz.getModifierList

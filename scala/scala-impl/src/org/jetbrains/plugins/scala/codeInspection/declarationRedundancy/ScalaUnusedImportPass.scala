@@ -111,7 +111,7 @@ object ScalaUnusedImportPass {
       val codeAnalyzer = DaemonCodeAnalyzerEx.getInstanceEx(file.getProject)
       file match {
         case _: ScalaFile if codeAnalyzer.isHighlightingAvailable(file) && codeAnalyzer.isErrorAnalyzingFinished(file) =>
-          !containsErrorsPreventingOptimize(file) && DaemonListeners.canChangeFileSilently(file)
+          !containsErrorsPreventingOptimize(file) && DaemonListeners.canChangeFileSilently(file, true)
         case _ => false
       }
     }

@@ -5,10 +5,11 @@ import java.{util => ju}
 import com.intellij.lang.Language
 import com.intellij.lang.injection.{MultiHostInjector, MultiHostRegistrar}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.util.{Key, TextRange, Trinity}
+import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import org.apache.commons.lang3.StringUtils
 import org.intellij.plugins.intelliLang.Configuration
+import org.intellij.plugins.intelliLang.inject.InjectorUtils.InjectionInfo
 import org.intellij.plugins.intelliLang.inject._
 import org.intellij.plugins.intelliLang.inject.config.BaseInjection
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
@@ -86,16 +87,16 @@ final class ScalaLanguageInjector extends MultiHostInjector {
       Seq.empty
     case _ =>
       val expressions = host.depthFirst {
-        case expression: ScExpression => !expression.getParent.isInstanceOf[ScInterpolatedStringLiteral]
+        case expression: ScExpression => !expression.getParent.is[ScInterpolatedStringLiteral]
         case _ => true
-      }.toList.filter(_.isInstanceOf[ScExpression])
+      }.toList.filter(_.is[ScExpression])
 
       val suitable = expressions.forall {
         case l: ScLiteral if l.isString => true
         case _: ScInterpolatedPatternPrefix |
              _: ScInfixExpr => true
         case r: ScReferenceExpression if r.textMatches("+") => true
-        case expression => expression.getParent.isInstanceOf[ScInterpolatedStringLiteral]
+        case expression => expression.getParent.is[ScInterpolatedStringLiteral]
       }
 
       if (suitable) {
@@ -383,7 +384,7 @@ object ScalaLanguageInjector {
     if (language == null)
       return
 
-    val trinities = for {
+    val injectionInfos = for {
       literal <- literals
       range <- literal match {
         case multiLineString: ScLiteral if multiLineString.isMultiLineString =>
@@ -391,13 +392,13 @@ object ScalaLanguageInjector {
         case _ =>
           injection.getInjectedArea(literal).asScala
       }
-    } yield Trinity.create(
+    } yield new InjectionInfo(
       literal: PsiLanguageInjectionHost,
       injectedLanguage,
       range
     )
 
-    InjectorUtils.registerInjection(language, trinities.asJava, host.getContainingFile, registrar)
+    InjectorUtils.registerInjection(language, host.getContainingFile, injectionInfos.asJava, registrar)
     InjectorUtils.registerSupport(support, true, host, language)
   }
 
