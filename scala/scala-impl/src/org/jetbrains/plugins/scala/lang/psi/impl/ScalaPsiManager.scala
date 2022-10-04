@@ -153,15 +153,15 @@ class ScalaPsiManager(implicit val project: Project) {
     PACKAGE_FQN_KEY.hasIntegerElements(fqn, scope, classOf[ScPackaging]) ||
       PACKAGE_OBJECT_KEY.hasIntegerElements(fqn, scope, classOf[PsiClass])
 
-  def getCachedPackageInScope(fqn: String)
-                             (implicit scope: GlobalSearchScope): Option[PsiPackage] =
+  def getCachedPackageInScope(fqn: String)(implicit scope: GlobalSearchScope): Option[PsiPackage] =
     if (DumbService.getInstance(project).isDumb)
       None
     else
-      getCachedPackage(fqn).filter { `package` =>
-        isScalaPackageInScope(fqn) ||
-          !isPackageOutOfScope(`package`)
-      }
+      computeCachedPackageInScope(fqn)
+
+  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
+  private def computeCachedPackageInScope(fqn: String)(implicit scope: GlobalSearchScope): Option[PsiPackage] =
+    getCachedPackage(fqn).filter { `package` => isScalaPackageInScope(fqn) || !isPackageOutOfScope(`package`) }
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
