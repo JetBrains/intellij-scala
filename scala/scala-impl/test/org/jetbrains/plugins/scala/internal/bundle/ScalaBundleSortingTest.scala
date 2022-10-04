@@ -30,10 +30,10 @@ object ScalaBundleSortingTest {
     }
 
     private def checkDirectory(info: ModuleWithBundleInfo): Unit = {
-      val findings = findKeysInModule(info)
-      val I18nBundleContent(entries) = read(info.bundleAbsolutePath)
+      val keyToFindings: Map[String, List[Finding]] =
+        ScalaBundleSorting.findKeyUsages(info)
 
-      val keyToFinding = findings.groupBy(_.key)
+      val I18nBundleContent(entries) = read(info.bundleAbsolutePath)
 
       val usedEntries = entries.filterNot(_.path == unusedPath)
 
@@ -45,10 +45,10 @@ object ScalaBundleSortingTest {
       val noPathEntries = entries.filter(_.path == noPath)
       assert(noPathEntries.isEmpty, "Entries outside of path header: " + noPathEntries.map(_.key).mkString(", ") + tryToRerunSorting_HintSuffix)
 
-      val unusedEntries = usedEntries.filterNot(e => keyToFinding.contains(e.key))
+      val unusedEntries = usedEntries.filterNot(e => keyToFindings.contains(e.key))
       assert(unusedEntries.isEmpty, "Unused bundle keys: " + unusedEntries.map(_.key).mkString(", ") + tryToRerunSorting_HintSuffix)
 
-      val notInPathUsed = usedEntries.filterNot(e => keyToFinding(e.key).exists(_.relativeFilepath == e.path))
+      val notInPathUsed = usedEntries.filterNot(e => keyToFindings(e.key).exists(_.relativeFilepath == e.path))
       assert(notInPathUsed.isEmpty, "Not used in its path: " + notInPathUsed.map(_.key).mkString(", ") + tryToRerunSorting_HintSuffix)
     }
   }

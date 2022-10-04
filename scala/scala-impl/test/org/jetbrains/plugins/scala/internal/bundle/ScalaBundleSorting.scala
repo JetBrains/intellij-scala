@@ -105,10 +105,6 @@ object ScalaBundleSorting {
     ),
     ModuleWithBundleInfo(
       rootPath = scalaImplDir,
-      bundleMessagesRelativePath = "ScalaSbtBundle.properties"
-    ),
-    ModuleWithBundleInfo(
-      rootPath = scalaImplDir,
       bundleMessagesRelativePath = "ScalaMetaBundle.properties"
     ),
     ModuleWithBundleInfo(
@@ -120,12 +116,8 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "DebuggerBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "testing-support/",
+      rootPath = scalaModDir + "test-integration/testing-support/",
       bundleMessagesRelativePath = "TestingSupportBundle.properties"
-    ),
-    ModuleWithBundleInfo(
-      rootPath = scalaModDir + "uast/",
-      bundleMessagesRelativePath = "ScalaUastBundle.properties"
     ),
     ModuleWithBundleInfo(
       rootPath = scalaModDir + "worksheet/",
@@ -148,33 +140,23 @@ object ScalaBundleSorting {
   def main(args: Array[String]): Unit = sortAll(allModuleInfos)
 
   def sortAll(moduleInfos: Seq[ModuleWithBundleInfo]): Unit = for (moduleInfo <- moduleInfos) {
-    val ModuleWithBundleInfo(rootPath, _, extraUsageModules, _) = moduleInfo
+    val keyToFindings: Map[String, List[Finding]] =
+      findKeyUsages(moduleInfo)
+
     val bundlePath = moduleInfo.bundleAbsolutePath
-
-    println(s"Find keys in $rootPath")
-    val findings = findKeysInModule(moduleInfo)
-
-    val findingsExtra = extraUsageModules.flatMap { extraModuleInfo =>
-      println(s"Find keys in extra module ${extraModuleInfo.rootPath}")
-      findKeysInModule(extraModuleInfo)
-    }
-
-    val findingsAll = findings ++ findingsExtra
-    val keyToFinding = findingsAll.groupBy(_.key)
-
     println(s"Read bundle $bundlePath")
     val I18nBundleContent(entries) = read(bundlePath)
     val keyToAmountOfEntries = entries.groupBy(_.key).view.mapValues(_.size)
 
     def isEntryInInvalidPath(entry: Entry): Boolean =
-      !keyToFinding.getOrElse(entry.key, Nil).exists(_.relativeFilepath == entry.path)
+      !keyToFindings.getOrElse(entry.key, Nil).exists(_.relativeFilepath == entry.path)
 
     println(s"Process unused and invalid entries...")
     var changed = 0
     val entriesWithPath =
       entries.map {
         case entry if entry.isUnused || isEntryInInvalidPath(entry) =>
-          val newPath = keyToFinding
+          val newPath = keyToFindings
             .get(entry.key)
             .map(_.maxBy(f => keyToAmountOfEntries(f.key)))
             .fold(unusedPath)(_.relativeFilepath)
@@ -191,6 +173,19 @@ object ScalaBundleSorting {
         .writeTo(bundlePath)
     println("Done.")
     println()
+  }
+
+  def findKeyUsages(moduleInfo: ModuleWithBundleInfo): Map[String, List[Finding]] = {
+    println(s"Find keys in ${moduleInfo.rootPath}")
+    val findings = findKeysInModule(moduleInfo)
+
+    val findingsExtra = moduleInfo.extraUsageModules.flatMap { extraModuleInfo =>
+      println(s"Find keys in extra module ${extraModuleInfo.rootPath}")
+      findKeysInModule(extraModuleInfo)
+    }
+
+    val findingsAll = findings ++ findingsExtra
+    findingsAll.groupBy(_.key)
   }
 
   class Searcher {
