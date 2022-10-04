@@ -263,7 +263,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     var found = false
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitSimpleTypeElement(simple: ScSimpleTypeElement): Unit = {
-        if (simple.singleton) {
+        if (simple.isSingleton) {
           simple.reference match {
             case Some(ref) if ref.refName == p.name && ref.resolve() == p => found = true
             case _                                                        => ()

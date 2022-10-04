@@ -5,6 +5,7 @@ package api
 package base
 package types
 
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -24,7 +25,12 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
 
   override def `type`(): TypeResult = getType
 
-  def singleton: Boolean = false
+  @ScheduledForRemoval(inVersion = "2023.2")
+  @Deprecated
+  @deprecated("use isSingleton")
+  final def singleton: Boolean = isSingleton
+
+  def isSingleton: Boolean = false
 
   @CachedWithRecursionGuard(this, Failure(ScalaBundle.message("recursive.type.of.type.element")),
     BlockModificationTracker(this))

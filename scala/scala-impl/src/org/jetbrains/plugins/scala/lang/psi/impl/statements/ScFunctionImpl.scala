@@ -62,7 +62,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     if (effectiveParameterClauses.nonEmpty)
       false
     else
-      this.isInScala3File && returnTypeElement.exists(_.singleton)
+      this.isInScala3File && returnTypeElement.exists(_.isSingleton)
 
   override def nameId: PsiElement = {
     val n = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {

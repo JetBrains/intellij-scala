@@ -39,7 +39,7 @@ trait ScVariable extends ScValueOrVariable {
   override def isStable: Boolean = {
     //SCL-19477
     if (this.isInScala3File)
-      typeElement.exists(_.singleton)
+      typeElement.exists(_.isSingleton)
     else
       false
   }

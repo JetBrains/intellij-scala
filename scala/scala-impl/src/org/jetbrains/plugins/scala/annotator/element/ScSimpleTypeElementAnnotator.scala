@@ -30,7 +30,7 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
         return
     }
 
-    if (typeElement.singleton) {
+    if (typeElement.isSingleton) {
       //this branch is tested via
       //org.jetbrains.plugins.scala.annotator.element.ReferenceToStableAndNonStableTypeTest_Scala3
       typeElementResolved match {

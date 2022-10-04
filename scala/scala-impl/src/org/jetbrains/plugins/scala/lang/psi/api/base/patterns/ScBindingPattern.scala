@@ -32,7 +32,7 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
       case Some(typeElement) =>
         //for the case when type belongs to the pattern and not to the name context, example:
         // var (v1: String, v2: 42) = ???
-        typeElement.typeElement.singleton
+        typeElement.typeElement.isSingleton
       case None =>
         nameContext match {
           case v: ScValueOrVariable => v.isStable
