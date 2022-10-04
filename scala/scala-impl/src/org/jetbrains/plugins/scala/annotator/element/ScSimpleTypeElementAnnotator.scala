@@ -4,13 +4,14 @@ package element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeArgs}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 
 object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement] {
 
@@ -23,6 +24,29 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
 
   private def checkAbsentTypeArgs(typeElement: ScSimpleTypeElement)
                                  (implicit holder: ScalaAnnotationHolder): Unit = {
+    val typeElementResolved = typeElement.reference.map(_.resolve()) match {
+      case Some(r) => r
+      case _ =>
+        return
+    }
+
+    if (typeElement.singleton) {
+      //this branch is tested via
+      //org.jetbrains.plugins.scala.annotator.element.ReferenceToStableAndNonStableTypeTest_Scala3
+      typeElementResolved match {
+        case typed: ScTypedDefinition =>
+          if (!typed.isStable) {
+            holder.createErrorAnnotation(
+              typeElement,
+              ScalaBundle.message("stable.identifier.required", typeElement.getText),
+              ProblemHighlightType.GENERIC_ERROR
+            )
+            return
+          }
+        case _ =>
+      }
+    }
+
     // Dirty hack(see SCL-12582): we shouldn't complain about missing type args since they will be added by a macro after expansion
     def isFreestyleAnnotated(ah: ScAnnotationsHolder): Boolean = {
       (ah.findAnnotationNoAliases("freestyle.free") != null) ||
@@ -31,12 +55,6 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
 
     def needTypeArgs: Boolean = {
       def noHigherKinds(owner: ScTypeParametersOwner) = !owner.typeParameters.exists(_.typeParameters.nonEmpty)
-
-      val typeElementResolved = typeElement.reference.map(_.resolve()) match {
-        case Some(r) => r
-        case _ =>
-          return false
-      }
 
       val canHaveTypeArgs = typeElementResolved match {
         case ah: ScAnnotationsHolder if isFreestyleAnnotated(ah) => false

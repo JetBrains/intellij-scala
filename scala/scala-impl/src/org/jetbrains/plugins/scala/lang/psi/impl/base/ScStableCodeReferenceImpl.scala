@@ -73,12 +73,14 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       else stableImportSelector
 
       case ste: ScSimpleTypeElement =>
-        if (incomplete) noPackagesClassCompletion // todo use the settings to include packages
-        else if (ste.getLastChild.is[PsiErrorElement]) stableQualRef
-
+        if (incomplete)
+          noPackagesClassCompletion // todo use the settings to include packages
+        else if (ste.getLastChild.is[PsiErrorElement])
+          stableQualRef
         else if (ste.singleton) {
-          val stableQual = if (this.isInScala3File) stableQualRef_Scala3 else stableQualRef
-          stableQual + ResolveTargets.HAS_STABLE_TYPE_MARKER
+          //NOTE: if the "candidate" is not actually stable, we show an error "Type is not a valid singleton type" in
+          //org.jetbrains.plugins.scala.annotator.element.ScSimpleTypeElementAnnotator
+          stableQualRefCandidates
         }
         else if (ste.annotation) annotCtor
         else stableClass

@@ -22,9 +22,23 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
 
   def isWildcard: Boolean = name == "_"
 
-  override def isStable: Boolean = nameContext match {
-    case v: ScValueOrVariable => v.isStable
-    case _                    => true
+  override def isStable: Boolean = {
+    val typedPattern = this.getParent match {
+      case typedPattern: ScTypedPatternLike =>
+        typedPattern.typePattern
+      case _ => None
+    }
+    typedPattern match {
+      case Some(typeElement) =>
+        //for the case when type belongs to the pattern and not to the name context, example:
+        // var (v1: String, v2: 42) = ???
+        typeElement.typeElement.singleton
+      case None =>
+        nameContext match {
+          case v: ScValueOrVariable => v.isStable
+          case _                    => true
+        }
+    }
   }
 
   override def isVar: Boolean = nameContext.is[ScVariable]

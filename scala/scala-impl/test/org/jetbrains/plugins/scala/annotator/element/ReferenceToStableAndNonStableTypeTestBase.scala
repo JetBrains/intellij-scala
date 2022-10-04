@@ -112,7 +112,8 @@ abstract class ReferenceToStableAndNonStableTypeTestBase extends ScalaHighlighti
         |  val a1 : v1.type = ???
         |}
         |""".stripMargin,
-      """Error(v1,Cannot resolve symbol v1)"""
+      """Error(v1.type,Stable identifier required but v1.type found)
+        |""".stripMargin
     )
 
   protected val ReferenceToFunctionType_ParameterlessFunctionWithSingletonReturnType_Code =
@@ -170,13 +171,13 @@ class ReferenceToStableAndNonStableTypeTest_Scala2 extends ReferenceToStableAndN
   override def testParameterlessFunction_WithSingletonReturnType(): Unit = {
     assertErrorsText(
       ReferenceToFunctionType_ParameterlessFunctionWithSingletonReturnType_Code,
-      """Error(f1,Cannot resolve symbol f1)
-        |Error(f2,Cannot resolve symbol f2)
-        |Error(f3_Abstract,Cannot resolve symbol f3_Abstract)
+      """Error(f1.type,Stable identifier required but f1.type found)
+        |Error(f2.type,Stable identifier required but f2.type found)
+        |Error(f3_Abstract.type,Stable identifier required but f3_Abstract.type found)
         |
-        |Error(f1,Cannot resolve symbol f1)
-        |Error(f2,Cannot resolve symbol f2)
-        |Error(f3_Abstract,Cannot resolve symbol f3_Abstract)""".stripMargin
+        |Error(Example1.this.f1.type,Stable identifier required but Example1.this.f1.type found)
+        |Error(Example1.this.f2.type,Stable identifier required but Example1.this.f2.type found)
+        |Error(Example1.this.f3_Abstract.type,Stable identifier required but Example1.this.f3_Abstract.type found)""".stripMargin
     )
   }
 
@@ -186,24 +187,24 @@ class ReferenceToStableAndNonStableTypeTest_Scala2 extends ReferenceToStableAndN
   override def testVarWithSingletonType(): Unit =
     assertErrorsText(
       VarWithSingletonType_Code,
-      """Error(v1,Cannot resolve symbol v1)
-        |Error(v2,Cannot resolve symbol v2)
-        |Error(v3_Abstract,Cannot resolve symbol v3_Abstract)
+      """Error(v1.type,Stable identifier required but v1.type found)
+        |Error(v2.type,Stable identifier required but v2.type found)
+        |Error(v3_Abstract.type,Stable identifier required but v3_Abstract.type found)
         |
-        |Error(v1,Cannot resolve symbol v1)
-        |Error(v2,Cannot resolve symbol v2)
-        |Error(v3_Abstract,Cannot resolve symbol v3_Abstract)""".stripMargin
+        |Error(Example1.this.v1.type,Stable identifier required but Example1.this.v1.type found)
+        |Error(Example1.this.v2.type,Stable identifier required but Example1.this.v2.type found)
+        |Error(Example1.this.v3_Abstract.type,Stable identifier required but Example1.this.v3_Abstract.type found)""".stripMargin
     )
 
   override def testVarWithSingletonType_ReferencedFromDifferentContexts(): Unit =
     assertErrorsText(
       VarWithSingletonType_ReferencedFromDifferentContexts_Code,
-      """Error(v1,Cannot resolve symbol v1)
-        |Error(v1,Cannot resolve symbol v1)
-        |Error(v1,Cannot resolve symbol v1)
-        |Error(v1,Cannot resolve symbol v1)
-        |Error(v1,Cannot resolve symbol v1)
-        |Error(v1,Cannot resolve symbol v1)
+      """Error(v1.type,Stable identifier required but v1.type found)
+        |Error(Parent.this.v1.type,Stable identifier required but Parent.this.v1.type found)
+        |Error(Child.super.v1.type,Stable identifier required but Child.super.v1.type found)
+        |Error(AnotherObject.super.v1.type,Stable identifier required but AnotherObject.super.v1.type found)
+        |Error(AnotherObject.v1.type,Stable identifier required but AnotherObject.v1.type found)
+        |Error(Child.v1.type,Stable identifier required but Child.v1.type found)
         |""".stripMargin
     )
 }
@@ -267,6 +268,24 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
         |//referenced
         |var v1: "literal type" = ???
         |var v2: field.type = ???
+        |var (v3: "literal type", v4: String) = ???
+        |
+        |//annotations
+        |val a1 : v1.type = ???
+        |val a2 : v2.type = ???
+        |val a3 : v3.type = ???
+        |""".stripMargin
+    )
+
+  def testVarWithSingletonType_Code_TopLevel_InPackage(): Unit =
+    assertNoErrors(
+      """package aaa.bbb.ccc
+        |
+        |val field: String = ???
+        |
+        |//referenced
+        |var v1: "literal type" = ???
+        |var v2: field.type = ???
         |
         |//annotations
         |val a1 : v1.type = ???
@@ -278,11 +297,30 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
     assertErrorsText(
       """//referenced
         |var v1: String = ???
+        |var (v2: "literal type", v3: String) = ???
+        |
+        |//annotations
+        |val a1 : v1.type = ???
+        |val a3 : v3.type = ???
+        |""".stripMargin,
+      """Error(v1.type,Stable identifier required but v1.type found)
+        |Error(v3.type,Stable identifier required but v3.type found)
+        |""".stripMargin
+    )
+
+
+  def testVarWithNonSingletonType_TopLevel_InPackage(): Unit =
+    assertErrorsText(
+      """package aaa.bbb.ccc
+        |
+        |//referenced
+        |var v1: String = ???
         |
         |//annotations
         |val a1 : v1.type = ???
         |""".stripMargin,
-      """Error(v1,Cannot resolve symbol v1)"""
+      """Error(v1.type,Stable identifier required but v1.type found)
+        |""".stripMargin
     )
 
   override def testParameterlessFunction_WithSingletonReturnType(): Unit =
@@ -419,10 +457,10 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
         |Error(s"interpolated ${1 + 2}",An identifier expected, but string interpolator found)
         |Error('Symbol,An identifier expected, but quoted identifier found)
         |
-        |Error(g1,Cannot resolve symbol g1)
-        |Error(g2,Cannot resolve symbol g2)
-        |Error(g3,Cannot resolve symbol g3)
-        |Error(g4,Cannot resolve symbol g4)
+        |Error(g1.type,Stable identifier required but g1.type found)
+        |Error(g2.type,Stable identifier required but g2.type found)
+        |Error(g3.type,Stable identifier required but g3.type found)
+        |Error(g4.type,Stable identifier required but g4.type found)
         |""".stripMargin
     )
 
@@ -444,11 +482,10 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
         |Error(s"interpolated",An identifier expected, but string interpolator found)
         |Error(s"interpolated ${1 + 2}",An identifier expected, but string interpolator found)
         |Error('Symbol,An identifier expected, but quoted identifier found)
-        |
-        |Error(g1,Cannot resolve symbol g1)
-        |Error(g2,Cannot resolve symbol g2)
-        |Error(g3,Cannot resolve symbol g3)
-        |Error(g4,Cannot resolve symbol g4)
+        |Error(g1.type,Stable identifier required but g1.type found)
+        |Error(g2.type,Stable identifier required but g2.type found)
+        |Error(g3.type,Stable identifier required but g3.type found)
+        |Error(g4.type,Stable identifier required but g4.type found)
         |""".stripMargin
     )
 
@@ -465,8 +502,8 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
         |  val a2 : g2.type = ???
         |}
         |""".stripMargin,
-      """Error(g1,Cannot resolve symbol g1)
-        |Error(g2,Cannot resolve symbol g2)
+      """Error(g1.type,Stable identifier required but g1.type found)
+        |Error(g2.type,Stable identifier required but g2.type found)
         |""".stripMargin
     )
 
@@ -480,8 +517,8 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
         |val a1 : g1.type = ???
         |val a2 : g2.type = ???
         |""".stripMargin,
-      """Error(g1,Cannot resolve symbol g1)
-        |Error(g2,Cannot resolve symbol g2)
+      """Error(g1.type,Stable identifier required but g1.type found)
+        |Error(g2.type,Stable identifier required but g2.type found)
         |""".stripMargin
     )
 
@@ -501,10 +538,10 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
         |  val a3 : g3.type = ???
         |  val a4 : g4.type = ???
         |}""".stripMargin,
-      """Error(g1,Cannot resolve symbol g1)
-        |Error(g2,Cannot resolve symbol g2)
-        |Error(g3,Cannot resolve symbol g3)
-        |Error(g4,Cannot resolve symbol g4)
+      """Error(g1.type,Stable identifier required but g1.type found)
+        |Error(g2.type,Stable identifier required but g2.type found)
+        |Error(g3.type,Stable identifier required but g3.type found)
+        |Error(g4.type,Stable identifier required but g4.type found)
         |""".stripMargin
     )
 
@@ -522,17 +559,18 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
         |val a3 : g3.type = ???
         |val a4 : g4.type = ???
         |""".stripMargin,
-      """Error(g1,Cannot resolve symbol g1)
-        |Error(g2,Cannot resolve symbol g2)
-        |Error(g3,Cannot resolve symbol g3)
-        |Error(g4,Cannot resolve symbol g4)
+      """Error(g1.type,Stable identifier required but g1.type found)
+        |Error(g2.type,Stable identifier required but g2.type found)
+        |Error(g3.type,Stable identifier required but g3.type found)
+        |Error(g4.type,Stable identifier required but g4.type found)
         |""".stripMargin
     )
 
   override def testReferenceToLazyVal(): Unit =
     assertErrorsText(
       LazyVal_Code,
-      """Error(v2_WithoutExplicitType,Cannot resolve symbol v2_WithoutExplicitType)""".stripMargin
+      """Error(v2_WithoutExplicitType.type,Stable identifier required but v2_WithoutExplicitType.type found)
+        |""".stripMargin
     )
 
   def testReferenceToLazyVal_TopLevel(): Unit =
