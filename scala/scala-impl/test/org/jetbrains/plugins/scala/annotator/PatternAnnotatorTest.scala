@@ -681,4 +681,24 @@ class PatternAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase {
       |def f3(a: A[Int]) = a match { case b: B[t] => 3 }
       |""".stripMargin
   )
+
+  def testStableIdentifierRequiredInPattern(): Unit = {
+    val text =
+      """class A {
+        |  val ARROW1: String = ???
+        |  var ARROW2: String = ???
+        |
+        |  (null: AnyRef) match {
+        |    case code@(ARROW1) =>
+        |    case code@(ARROW2) =>
+        |  }
+        |}
+        |""".stripMargin
+    assertEquals(
+      List(
+        Error("ARROW2", "Stable identifier required but ARROW2 found")
+      ),
+      collectAnnotatorMessages(text),
+    )
+  }
 }

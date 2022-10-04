@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala
-package annotator
-package element
+package org.jetbrains.plugins.scala.annotator.element
 
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Pattern
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
@@ -31,8 +31,6 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
 
   private def checkPattern(pattern: ScPattern)
                           (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val ctx: ProjectContext = pattern
-
     for {
       pType <- patternType(pattern)
       eType <- pattern.expectedType
@@ -47,7 +45,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     *
     */
   private def checkPatternType(_patType: ScType, exprType: ScType, pattern: ScPattern)
-                              (implicit holder: ScalaAnnotationHolder) = {
+                              (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = pattern
     implicit val tpc: TypePresentationContext = TypePresentationContext(pattern)
 
