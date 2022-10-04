@@ -40,7 +40,7 @@ public class LibrarySettingsImpl extends JpsElementBase<LibrarySettingsImpl> imp
   }
 
   @Override
-  public void applyChanges(@NotNull LibrarySettingsImpl facetSettings) {
+  public void applyChanges(@NotNull LibrarySettingsImpl settings) {
     // do nothing
   }
 

@@ -417,7 +417,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.addAll(createTaskData(project))
       moduleNode.addAll(createSettingData(project))
       moduleNode.addAll(createCommandData(project))
-      moduleNode.addAll(project.android.map(createFacet).toSeq)
+      moduleNode.addAll(project.android.map(createAndroidFacet).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
       unmanagedSourcesAndDocsLibrary foreach { lib =>
         val dependency = new LibraryDependencyNode(moduleNode, lib, LibraryLevel.MODULE)
@@ -488,10 +488,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  private def createFacet(android: sbtStructure.AndroidData): AndroidFacetNode = {
-    new AndroidFacetNode(SbtAndroidFacetData(android.targetVersion, android.manifest, android.apk,
-                         android.res, android.assets, android.gen, android.libs,
-                         android.isLibrary, android.proguardConfig))
+  private def createAndroidFacet(android: sbtStructure.AndroidData): AndroidFacetNode = {
+    val data = SbtAndroidFacetData(
+      android.targetVersion, android.manifest, android.apk,
+      android.res, android.assets, android.gen, android.libs,
+      android.isLibrary, android.proguardConfig
+    )
+    new AndroidFacetNode(data)
   }
 
   private def createUnresolvedLibrary(moduleId: sbtStructure.ModuleIdentifier): LibraryNode = {

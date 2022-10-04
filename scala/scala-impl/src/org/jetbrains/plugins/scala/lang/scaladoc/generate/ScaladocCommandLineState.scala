@@ -227,8 +227,8 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
         }
     }
 
-    val classpathWithFacet = mutable.ListBuffer.empty[String]
-    val sourcepathWithFacet = mutable.ListBuffer.empty[String]
+    val classpath = mutable.ListBuffer.empty[String]
+    val sourcepath = mutable.ListBuffer.empty[String]
 
     def filterNeededModuleSources(): Unit = {
       val allEntries = mutable.HashSet[String]()
@@ -249,8 +249,8 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
           allSourceEntries
         )
       }
-      allEntries.foreach(classpathWithFacet.append)
-      allSourceEntries.foreach(sourcepathWithFacet.append)
+      allEntries.foreach(classpath.append)
+      allSourceEntries.foreach(sourcepath.append)
     }
 
     var needFilter = false
@@ -289,10 +289,10 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     paramListSimple += outputDir
 
     paramListSimple += "-classpath"
-    paramListSimple += classpathWithFacet.mkString(classpathDelimeter)
+    paramListSimple += classpath.mkString(classpathDelimeter)
 
     paramListSimple += "-sourcepath"
-    paramListSimple += sourcepathWithFacet.mkString(classpathDelimeter)
+    paramListSimple += sourcepath.mkString(classpathDelimeter)
 
     if (verbose) {
       paramListSimple += "-verbose"
