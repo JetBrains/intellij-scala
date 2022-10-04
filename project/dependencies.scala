@@ -92,8 +92,13 @@ object Dependencies {
 
   val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "23.0.0"
 
-  //note: junit is a transitive dependency of junitInterface adn it would be enough to just add junitInterface as dependency
-  //but we would like to make junit an explicit dependency to be more transparent
+  //NOTE: JUnit 4 dependency is already available via intellij main jars.
+  // It's bundled together with it's transitive dependencies in single junit4.jar (in <sdk_root>/lib folder)
+  // HOWEVER junit4.jar it is excluded via excludeJarsFromPlatformDependencies
+  // We explicitly include junit dependency in all modules.
+  // This is done because some modules are not intellij-based and they explicitly define junit dependency anyway.
+  // Due to imperfection of classpath construction in the end there might be multiple junit4 jrs in classpath.
+  // (Both runtime and compilation time)
   val junit: ModuleID = "junit" % "junit" % junitVersion
   val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion
 
@@ -147,7 +152,8 @@ object Dependencies {
    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
   val excludeJarsFromPlatformDependencies: File => Boolean = { file =>
     val fileName = file.getName
-    fileName == "annotations.jar" // we explicitly specify dependency on jetbrains annotations library, see SCL-20557
+    fileName == "annotations.jar" || // we explicitly specify dependency on jetbrains annotations library, see SCL-20557
+      fileName == "junit4.jar" // we explicitly specify dependency on junit 4 library
   }
 
   private def sbtPluginDependency(module: ModuleID, sbtVersion: String): ModuleID =
