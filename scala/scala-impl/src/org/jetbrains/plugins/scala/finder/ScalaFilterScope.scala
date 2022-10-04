@@ -16,8 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.compiled.SigFileType
 import org.jetbrains.plugins.scala.tasty.TastyFileType
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
-sealed abstract class FilterScope(val delegate: GlobalSearchScope)
-                                 (implicit project: Project)
+sealed abstract class FilterScope(private val delegate: GlobalSearchScope)(implicit project: Project)
   extends GlobalSearchScope(project) {
 
   private val fileIndex =
@@ -30,18 +29,18 @@ sealed abstract class FilterScope(val delegate: GlobalSearchScope)
     fileIndex.isInLibraryClasses(file)
 
   override final def contains(file: VirtualFile): Boolean =
-    (null == delegate || delegate.contains(file)) && mayContain(file)
+    delegate.contains(file) && mayContain(file)
 
   protected def mayContain(file: VirtualFile): Boolean
 
   override def compare(file1: VirtualFile, file2: VirtualFile): Int =
-    if (delegate != null) delegate.compare(file1, file2) else 0
+    delegate.compare(file1, file2)
 
   override def isSearchInModuleContent(aModule: Module): Boolean =
-    delegate == null || delegate.isSearchInModuleContent(aModule)
+    delegate.isSearchInModuleContent(aModule)
 
   override def isSearchInLibraries: Boolean =
-    delegate == null || delegate.isSearchInLibraries
+    delegate.isSearchInLibraries
 
   override def calcHashCode(): Int =
     this.getClass.hashCode() #+ delegate.hashCode()
