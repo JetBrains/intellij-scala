@@ -83,7 +83,7 @@ class ScalaInlineHandler extends InlineHandler {
     def getSettings(psiNamedElement: PsiNamedElement, inlineTitleSuffix: String, inlineDescriptionSuffix: String): InlineHandler.Settings = {
       val refs = ReferencesSearch.search(psiNamedElement, psiNamedElement.getUseScope).findAll.asScala.toSeq
       val inlineTitle = title(inlineTitleSuffix)
-      val occurrenceHighlighters = highlightOccurrences(refs.map(_.getElement))(element.getProject, editor)
+      val occurrenceHighlighters = highlightOccurrences(element.getProject, refs.map(_.getElement), editor)
       val settings = new InlineHandler.Settings {
         override def isOnlyOneReferenceToInline: Boolean = false
       }

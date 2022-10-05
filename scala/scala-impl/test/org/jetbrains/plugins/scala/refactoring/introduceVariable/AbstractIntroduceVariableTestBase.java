@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
@@ -144,9 +145,10 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
       Assert.assertTrue(myFile instanceof ScalaFile);
 
+      Document document = myEditor.getDocument();
       if (justCaret) {
         introduceVariableHandler.invoke(myFile, project, myEditor, null); // dataContext it isn't currently used inside
-        result =  myEditor.getDocument().getText();
+        result =  document.getText();
       } else {
         PsiElement element = PsiTreeUtil.getParentOfType(myFile.findElementAt(startOffset), ScExpression.class, ScTypeElement.class);
         if (element instanceof ScExpression){
@@ -154,7 +156,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
           ArraySeq<ScType> types = null;
 
           Option<Tuple2<ScExpression, ArraySeq<ScType>>> maybeExpression =
-              ScalaRefactoringUtil.getExpressionWithTypes(myFile, startOffset, endOffset, project, myEditor);
+              ScalaRefactoringUtil.getExpressionWithTypes(myFile, document, startOffset, endOffset, project);
           if (maybeExpression.isDefined()) {
             Tuple2<ScExpression, ArraySeq<ScType>> tuple2 = maybeExpression.get();
             selectedExpr = tuple2._1();
@@ -165,7 +167,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
           OccurrencesInFile occurrencesInFile = new OccurrencesInFile(myFile, new TextRange(startOffset, endOffset), ScalaRefactoringUtil.getOccurrenceRanges(selectedExpr, myFile));
           introduceVariableHandler.runRefactoring(occurrencesInFile, selectedExpr, "value", types.head(), replaceAllOccurences, false, myEditor.getProject(), myEditor);
 
-          result = myEditor.getDocument().getText();
+          result = document.getText();
         } else if (element instanceof ScTypeElement){
           Option<ScTypeElement> optionType = ScalaRefactoringUtil.getTypeElement(myFile, startOffset, endOffset);
           if (optionType.isEmpty()){
@@ -193,7 +195,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
             introduceVariableHandler.runRefactoringForTypes(myFile, typeElement, typeName, occurrences, scopes[0], myEditor.getProject(), myEditor);
 
-            result = removeTypenameComment(myEditor.getDocument().getText());
+            result = removeTypenameComment(document.getText());
           }
         } else {
           Assert.fail("Element should be typeElement or Expression");

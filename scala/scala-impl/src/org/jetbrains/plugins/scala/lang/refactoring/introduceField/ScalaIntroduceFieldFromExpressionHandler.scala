@@ -38,7 +38,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       writableScalaFile(file, REFACTORING_NAME)
 
-      val (expr, types) = getExpressionWithTypes(file, startOffset, endOffset).getOrElse {
+      val (expr, types) = getExpressionWithTypes(file, editor.getDocument, startOffset, endOffset).getOrElse {
         showErrorHint(ScalaBundle.message("cannot.refactor.not.expression"))
         return
       }

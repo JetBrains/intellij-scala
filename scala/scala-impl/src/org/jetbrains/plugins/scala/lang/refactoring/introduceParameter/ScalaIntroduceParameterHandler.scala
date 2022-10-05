@@ -121,7 +121,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
 
       val scalaFile = writableScalaFile(file, REFACTORING_NAME)
 
-      val exprWithTypes = getExpressionWithTypes(scalaFile)
+      val exprWithTypes = getSelectedExpressionWithTypes(scalaFile)
       val elems = exprWithTypes match {
         case Some((e, _)) => Seq(e)
         case None => selectedElements(editor, scalaFile, trimComments = false)

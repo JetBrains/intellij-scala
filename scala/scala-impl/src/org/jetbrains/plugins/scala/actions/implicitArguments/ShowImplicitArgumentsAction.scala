@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getSelectedExpression
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
@@ -86,7 +86,7 @@ class ShowImplicitArgumentsAction extends AnAction(
 
   private def findAllTargets(file: PsiFile)(implicit editor: Editor, project: Project): Seq[ImplicitArgumentsTarget] = {
     if (editor.getSelectionModel.hasSelection)
-      getExpression(file).toSeq.flatMap(allTargets)
+      getSelectedExpression(file).toSeq.flatMap(allTargets)
     else {
       val offset = editor.getCaretModel.getOffset
       val element: PsiElement = file.findElementAt(offset) match {

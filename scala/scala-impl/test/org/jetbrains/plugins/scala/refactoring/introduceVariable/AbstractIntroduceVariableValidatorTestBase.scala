@@ -81,8 +81,8 @@ object AbstractIntroduceVariableValidatorTestBase {
     implicit val selectionModel: SelectionModel = editor.getSelectionModel
 
     getParentOfType(file.findElementAt(selectionModel.getSelectionStart), classOf[ScExpression], classOf[ScTypeElement]) match {
-      case _: ScExpression => ScalaRefactoringUtil.getExpression(file).map(getVariableValidator(_, file))
-      case _: ScTypeElement => ScalaRefactoringUtil.getTypeElement(file).map(getTypeValidator(_, file))
+      case _: ScExpression => ScalaRefactoringUtil.getSelectedExpression(file).map(getVariableValidator(_, file))
+      case _: ScTypeElement => ScalaRefactoringUtil.getSelectedTypeElement(file).map(getTypeValidator(_, file))
       case _ => None
     }
   }

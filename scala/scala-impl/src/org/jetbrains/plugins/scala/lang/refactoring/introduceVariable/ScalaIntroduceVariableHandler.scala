@@ -32,7 +32,7 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
     trimSpacesAndComments(editor, scalaFile)
 
     implicit val selectionModel: SelectionModel = editor.getSelectionModel
-    val maybeSelectedElement = getTypeElement(scalaFile).orElse(getExpression(scalaFile))
+    val maybeSelectedElement = getSelectedTypeElement(scalaFile).orElse(getSelectedTypeElement(scalaFile))
 
     def getTypeElementAtOffset: Option[ScTypeElement] = {
       val offset = editor.getCaretModel.getOffset
