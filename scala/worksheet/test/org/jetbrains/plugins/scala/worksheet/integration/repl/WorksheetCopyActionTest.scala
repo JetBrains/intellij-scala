@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.testFramework.PlatformTestUtil
 import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.editor.DocumentExt
@@ -69,6 +70,7 @@ class WorksheetCopyActionTest extends WorksheetReplIntegrationBaseTest {
     executeWriteActionCommand() {
       val document = editor.getDocument
       document.deleteString(document.getLineStartOffset(1), document.getLineEndOffset(2) + 1)
+      FileDocumentManager.getInstance().saveDocumentAsIs(document)
       document.commit(project)
     }
 

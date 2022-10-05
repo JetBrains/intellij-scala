@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration.util
 
-
 import com.intellij.openapi.editor.{Caret, Editor}
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
@@ -23,6 +23,7 @@ class EditorRobot(editor: Editor) {
   def typeString(string: String): Unit =
     inWriteCommandAction {
       document.insertString(currentCaret.getOffset, string)
+      FileDocumentManager.getInstance().saveDocumentAsIs(document)
       document.commit(project)
     }
 }
