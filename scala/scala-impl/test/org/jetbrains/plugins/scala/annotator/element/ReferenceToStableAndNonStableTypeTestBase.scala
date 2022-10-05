@@ -771,4 +771,20 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
         |}
         |""".stripMargin
     )
+
+  //originally imported from imported `realizable-mut.scala` scalac repository tests
+  def testRealizableMut(): Unit = {
+    assertNoErrors(
+      """object Foo {
+        |  val x = new Object
+        |
+        |  class A(var y: x.type)
+        |
+        |  val a = new A(x)
+        |
+        |  val y: a.y.type = x
+        |}
+        |""".stripMargin
+    )
+  }
 }

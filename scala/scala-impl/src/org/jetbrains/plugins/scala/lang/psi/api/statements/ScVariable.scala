@@ -36,6 +36,7 @@ trait ScVariable extends ScValueOrVariable {
     null
   }
 
+  /** @see [[org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParameterImpl.isStable]] */
   override def isStable: Boolean = {
     //SCL-19477
     if (this.isInScala3File)
