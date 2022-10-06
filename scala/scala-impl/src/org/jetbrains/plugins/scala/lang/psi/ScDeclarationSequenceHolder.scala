@@ -15,10 +15,12 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 trait ScDeclarationSequenceHolder extends ScalaPsiElement {
-  override def processDeclarations(processor: PsiScopeProcessor,
-      state : ResolveState,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
+  override def processDeclarations(
+    processor: PsiScopeProcessor,
+    state : ResolveState,
+    lastParent: PsiElement,
+    place: PsiElement
+  ): Boolean = {
     def processElement(e: PsiElement, state: ResolveState): Boolean = {
       def isOkCompanionModule = {
         processor match {
