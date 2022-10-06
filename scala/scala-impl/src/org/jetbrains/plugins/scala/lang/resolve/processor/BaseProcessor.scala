@@ -68,8 +68,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     element match {
       case namedElement: PsiNamedElement =>
         val kindMatches = ResolveUtils.kindMatches(namedElement, kinds)
+        val onlyProcessElementsWithStableType = kinds.contains(ResolveTargets.HAS_STABLE_TYPE)
+        val stateNew = if (onlyProcessElementsWithStableType) state.withStableTypeExpected else state
         if (kindMatches)
-          execute(namedElement)(state)
+          execute(namedElement)(stateNew)
         else
           true
       case _ =>

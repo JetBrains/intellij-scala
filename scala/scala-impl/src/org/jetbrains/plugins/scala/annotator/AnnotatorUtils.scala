@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{AmbiguousImplicitParameters, ApplicabilityProblem, DefaultTypeParameterMismatch, DoesNotTakeParameters, DoesNotTakeTypeParameters, ExcessArgument, ExcessTypeArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, IncompleteCallSyntax, InternalApplicabilityProblem, MalformedDefinition, MissedParametersClause, MissedTypeParameter, MissedValueParameter, NotFoundImplicitParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, ScType, ScTypeExt, TypeMismatch, UnresolvedParameter, WrongTypeParameterInferred}
+import org.jetbrains.plugins.scala.lang.psi.types.{AmbiguousImplicitParameters, ApplicabilityProblem, DefaultTypeParameterMismatch, DoesNotTakeParameters, DoesNotTakeTypeParameters, ExcessArgument, ExcessTypeArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, IncompleteCallSyntax, InternalApplicabilityProblem, MalformedDefinition, MissedParametersClause, MissedTypeParameter, MissedValueParameter, NotFoundImplicitParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, ScType, ScTypeExt, TypeIsNotStable, TypeMismatch, UnresolvedParameter, WrongTypeParameterInferred}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -166,7 +166,11 @@ object AnnotatorUtils {
   }
 
   def inSameFile(elem: PsiElement, file: PsiFile): Boolean = {
-    elem != null && elem.getContainingFile.getViewProvider.getVirtualFile == file.getViewProvider.getVirtualFile
+    elem != null && {
+      val vFile1 = elem.getContainingFile.getViewProvider.getVirtualFile
+      val vFile2 = file.getViewProvider.getVirtualFile
+      vFile1 == vFile2
+    }
   }
 
   // some properties cannot be shown because they are synthetic for example.
@@ -195,5 +199,6 @@ object AnnotatorUtils {
     case AmbiguousImplicitParameters(_)              => true
     case IncompleteCallSyntax(_)                     => true
     case InternalApplicabilityProblem(_)             => true
+    case TypeIsNotStable                             => true
   }
 }

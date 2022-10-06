@@ -73,6 +73,9 @@ trait ResolveStateOps extends Any {
   def withExtensionContext(ext: ScExtension): ResolveState =
     resolveState.put(EXTENSION_CONTEXT, ext)
 
+  def withStableTypeExpected: ResolveState =
+    resolveState.put(STABLE_TYPE_EXPECTED, TRUE)
+
   //
   // Getters
   //
@@ -121,6 +124,9 @@ trait ResolveStateOps extends Any {
 
   def extensionContext: Option[ScExtension] =
     option(EXTENSION_CONTEXT)
+
+  def stableTypeExpected: Boolean =
+    boolean(STABLE_TYPE_EXPECTED)
 }
 
 private object ResolveStateOps {
@@ -155,4 +161,6 @@ private object ResolveStateOps {
   private val EXTENSION_METHOD: Key[TRUE.type] = Key.create("scala.extension.method.marker")
 
   private val EXTENSION_CONTEXT: Key[ScExtension] = Key.create("scala.extension.context")
+
+  private val STABLE_TYPE_EXPECTED: Key[TRUE.type] = Key.create("scala.stable.type.expected")
 }

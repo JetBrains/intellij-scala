@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.TypeIsNotStable
 
 object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement] {
 
@@ -24,26 +25,24 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
 
   private def checkAbsentTypeArgs(typeElement: ScSimpleTypeElement)
                                  (implicit holder: ScalaAnnotationHolder): Unit = {
-    val typeElementResolved = typeElement.reference.map(_.resolve()) match {
-      case Some(r) => r
+    val typeElementResolveResult = typeElement.reference.flatMap(_.bind()) match {
+      case Some(rr) => rr
       case _ =>
         return
     }
+    val typeElementResolved = typeElementResolveResult.element
 
+    //this branch is tested via
+    //org.jetbrains.plugins.scala.annotator.element.ReferenceToStableAndNonStableTypeTest_Scala3
     if (typeElement.isSingleton) {
-      //this branch is tested via
-      //org.jetbrains.plugins.scala.annotator.element.ReferenceToStableAndNonStableTypeTest_Scala3
-      typeElementResolved match {
-        case typed: ScTypedDefinition =>
-          if (!typed.isStable) {
-            holder.createErrorAnnotation(
-              typeElement,
-              ScalaBundle.message("stable.identifier.required", typeElement.getText),
-              ProblemHighlightType.GENERIC_ERROR
-            )
-            return
-          }
-        case _ =>
+      val showStableIdentifierRequiredError = typeElementResolveResult.problems.contains(TypeIsNotStable)
+      if (showStableIdentifierRequiredError) {
+        holder.createErrorAnnotation(
+          typeElement,
+          ScalaBundle.message("stable.identifier.required", typeElement.getText),
+          ProblemHighlightType.GENERIC_ERROR
+        )
+        return
       }
     }
 

@@ -1962,7 +1962,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest {
     )
   }
 
-  override def testLocalValueName(): Unit = failing(super.testLocalValueName())
+  override def testLocalValueName(): Unit = super.testLocalValueName()
 
-  override def testLocalValueName2(): Unit = failing(super.testLocalValueName2())
+  override def testLocalValueName2(): Unit = super.testLocalValueName2()
 }

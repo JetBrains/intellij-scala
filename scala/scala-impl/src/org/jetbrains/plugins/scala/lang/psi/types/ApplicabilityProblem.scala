@@ -41,3 +41,6 @@ case class AmbiguousImplicitParameters(results: Seq[ScalaResolveResult]) extends
 
 case class IncompleteCallSyntax(description: String)         extends ApplicabilityProblem
 case class InternalApplicabilityProblem(description: String) extends ApplicabilityProblem
+
+
+case object TypeIsNotStable extends ApplicabilityProblem

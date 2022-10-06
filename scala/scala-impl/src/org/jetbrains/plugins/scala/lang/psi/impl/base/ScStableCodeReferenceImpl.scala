@@ -78,9 +78,8 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         else if (ste.getLastChild.is[PsiErrorElement])
           stableQualRef
         else if (ste.isSingleton) {
-          //NOTE: if the "candidate" is not actually stable, we show an error "Type is not a valid singleton type" in
-          //org.jetbrains.plugins.scala.annotator.element.ScSimpleTypeElementAnnotator
-          stableQualRefCandidates
+          val candidates = stableQualRefCandidates
+          candidates + ResolveTargets.HAS_STABLE_TYPE
         }
         else if (ste.annotation) annotCtor
         else stableClass

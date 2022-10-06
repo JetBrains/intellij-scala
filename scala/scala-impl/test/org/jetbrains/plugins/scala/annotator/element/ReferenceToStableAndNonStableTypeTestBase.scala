@@ -261,6 +261,77 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
   override def testVarWithSingletonType_ReferencedFromDifferentContexts(): Unit =
     assertNoErrors(VarWithSingletonType_ReferencedFromDifferentContexts_Code)
 
+  def testVarWithNonSingletonType_ReferencedFromDifferentContexts(): Unit = {
+    val code =
+      """import Example.fieldV1
+        |
+        |val topLevelV0: String = ???
+        |var topLevelV1: 42 = ???
+        |var topLevelV2: String = ???
+        |
+        |abstract class BaseClass {
+        |  val baseFieldV0: String = ???
+        |  var baseFieldV1: 42 = ???
+        |  var baseFieldV2: String = ???
+        |}
+        |
+        |object OtherObject {
+        |  val otherV0: String = ???
+        |  var otherV1: 42 = ???
+        |  var otherV2: String = ???
+        |}
+        |
+        |object Example extends BaseClass {
+        |  val fieldV0: String = ???
+        |  var fieldV1: 42 = ???
+        |  var fieldV2: String = ???
+        |
+        |  def foo(): Unit = {
+        |    val localV0: String = ???
+        |    var localV1: 42 = ???
+        |    var localV2: String = ???
+        |
+        |    //
+        |
+        |    val topLevelRef0: topLevelV0.type = ???
+        |    val topLevelRef1: topLevelV1.type = ???
+        |    val topLevelRef2: topLevelV2.type = ???
+        |
+        |    val localRef0: localV0.type = ???
+        |    val localRef1: localV1.type = ???
+        |    val localRef2: localV2.type = ???
+        |
+        |    val fieldRef0: fieldV0.type = ???
+        |    val fieldRef1: fieldV1.type = ???
+        |    val fieldRef2: fieldV2.type = ???
+        |
+        |    val baseFieldRef0: baseFieldV0.type = ???
+        |    val baseFieldRef1: baseFieldV1.type = ???
+        |    val baseFieldRef2: baseFieldV2.type = ???
+        |
+        |    val otherRef0: OtherObject.otherV0.type = ???
+        |    val otherRef1: OtherObject.otherV1.type = ???
+        |    val otherRef2: OtherObject.otherV2.type = ???
+        |
+        |    import OtherObject._
+        |
+        |    val otherViaImportRef0: otherV0.type = ???
+        |    val otherViaImportRef1: otherV1.type = ???
+        |    val otherViaImportRef2: otherV2.type = ???
+        |  }
+        |}""".stripMargin
+    assertErrorsText(
+      code,
+      """Error(topLevelV2.type,Stable identifier required but topLevelV2.type found)
+        |Error(localV2.type,Stable identifier required but localV2.type found)
+        |Error(fieldV2.type,Stable identifier required but fieldV2.type found)
+        |Error(baseFieldV2.type,Stable identifier required but baseFieldV2.type found)
+        |Error(OtherObject.otherV2.type,Stable identifier required but OtherObject.otherV2.type found)
+        |Error(otherV2.type,Stable identifier required but otherV2.type found)
+        |""".stripMargin
+    )
+  }
+
   def testVarWithSingletonType_Code_TopLevel(): Unit =
     assertNoErrors(
       """val field: String = ???
@@ -561,8 +632,8 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
       """Error(g1.type,Stable identifier required but g1.type found)
         |Error(g2.type,Stable identifier required but g2.type found)
         |
-        |Error(g7.type,Stable identifier required but g3.type found)
-        |Error(g8.type,Stable identifier required but g4.type found)
+        |Error(g7.type,Stable identifier required but g7.type found)
+        |Error(g8.type,Stable identifier required but g8.type found)
         |""".stripMargin
     )
 
@@ -605,8 +676,8 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
       """Error(g1.type,Stable identifier required but g1.type found)
         |Error(g2.type,Stable identifier required but g2.type found)
         |
-        |Error(g7.type,Stable identifier required but g3.type found)
-        |Error(g8.type,Stable identifier required but g4.type found)
+        |Error(g7.type,Stable identifier required but g7.type found)
+        |Error(g8.type,Stable identifier required but g8.type found)
         |""".stripMargin
     )
 
@@ -646,8 +717,9 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
         |""".stripMargin,
       """Error(g1.type,Stable identifier required but g1.type found)
         |Error(g2.type,Stable identifier required but g2.type found)
-        |Error(g3.type,Stable identifier required but g3.type found)
-        |Error(g4.type,Stable identifier required but g4.type found)
+        |
+        |Error(g7.type,Stable identifier required but g7.type found)
+        |Error(g8.type,Stable identifier required but g8.type found)
         |""".stripMargin
     )
 
