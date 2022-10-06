@@ -27,8 +27,10 @@ sealed trait SignatureProcessor[T <: Signature] {
   protected def shouldSkip(t: T): Boolean
 
   def process(t: T, sink: Sink): Unit = {
-    if (!shouldSkip(t))
+    val skip = shouldSkip(t)
+    if (!skip) {
       sink.put(t)
+    }
   }
 
   def getExportClauseProcessor(cls: PsiClass, subst: ScSubstitutor, place: PsiElement, sink: Sink): PsiScopeProcessor
@@ -314,10 +316,12 @@ object StableTermsCollector extends TermsCollector {
 
   override protected def shouldSkip(t: TermSignature): Boolean = !isStable(t.namedElement) || super.shouldSkip(t)
 
-  private def isStable(named: PsiNamedElement): Boolean = named match {
-    case _: ScObject          => true
-    case t: ScTypedDefinition => t.isStable
-    case _                    => false
+  private def isStable(named: PsiNamedElement): Boolean = {
+    named match {
+      case typed: ScTypedDefinition =>
+        typed.isStable
+      case _ => false
+    }
   }
 
   private def mayContainStable(m: ScMember): Boolean = m match {
