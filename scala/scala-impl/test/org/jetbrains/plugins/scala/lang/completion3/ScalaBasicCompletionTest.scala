@@ -1560,6 +1560,37 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "foo"
   )
 
+  def testLocalValue_ClassField(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class A {
+         |  val (foo, bar) = f$CARET
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testLocalLazyValueName(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo
+         |
+         |class A {
+         |  def function(): Unit = {
+         |    lazy val foo = f$CARET
+         |  }
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo
+         |
+         |class A {
+         |  def function(): Unit = {
+         |    lazy val foo = foo
+         |  }
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
   def testLocalValueName3(): Unit = checkNoBasicCompletion(
     fileText = s"val foo: f$CARET",
     item = "foo"
