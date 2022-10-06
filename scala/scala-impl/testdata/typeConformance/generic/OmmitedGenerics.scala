@@ -1,4 +1,6 @@
 class ListBuffer[A]
 
-val a: ListBuffer[Int] = new ListBuffer
+object Wrapper {
+  val a: ListBuffer[Int] = new ListBuffer
+}
 //True

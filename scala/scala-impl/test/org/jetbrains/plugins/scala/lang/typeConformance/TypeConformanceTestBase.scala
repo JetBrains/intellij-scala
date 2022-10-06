@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement}
 import org.jetbrains.plugins.scala.base.{FailableTest, ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -95,7 +96,10 @@ abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestC
       if (caretIndex > 0) {
         PsiTreeUtil.findElementOfClassAtOffset(scalaFile, caretIndex, classOf[ScPatternDefinition], false)
       }
-      else scalaFile.findLastChildByTypeScala[PsiElement](ScalaElementType.PATTERN_DEFINITION).orNull
+      else {
+        val patternDefinitions = scalaFile.depthFirst().filter(_.getNode.getElementType == ScalaElementType.PATTERN_DEFINITION).toSeq
+        patternDefinitions .lastOption.orNull
+      }
     assert(patternDef != null, "Not specified expression in range to check conformance.")
     val valueDecl = patternDef.asInstanceOf[ScPatternDefinition]
     val declaredType = valueDecl.declaredType.getOrElse(sys.error("Must provide type annotation for LHS"))

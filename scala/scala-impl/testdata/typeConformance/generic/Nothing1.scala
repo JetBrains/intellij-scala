@@ -3,5 +3,7 @@
 object A {
   lazy val a: Nothing = a
 }
-val B: Int = A.a
+object Wrapper {
+  val B: Int = A.a
+}
 // True
