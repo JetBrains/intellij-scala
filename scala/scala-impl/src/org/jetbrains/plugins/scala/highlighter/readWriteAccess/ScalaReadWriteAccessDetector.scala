@@ -4,6 +4,7 @@ package highlighter.readWriteAccess
 import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector
 import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector.Access
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
@@ -19,7 +20,7 @@ class ScalaReadWriteAccessDetector extends ReadWriteAccessDetector {
   override def isReadWriteAccessible(element: PsiElement): Boolean = {
     element match {
       case x: PsiNamedElement =>
-        x.isInstanceOf[ScalaPsiElement] && ScalaPsiUtil.nameContext(x) != null
+        x.isInstanceOf[ScalaPsiElement] && x.nameContext != null
       case _ => false
     }
   }
@@ -29,7 +30,7 @@ class ScalaReadWriteAccessDetector extends ReadWriteAccessDetector {
   override def isDeclarationWriteAccess(element: PsiElement): Boolean = {
     element match {
       case x: PsiNamedElement =>
-        ScalaPsiUtil.nameContext(x) match {
+        x.nameContext match {
          case _: ScVariableDefinition | _: ScPatternDefinition => true
          case _ => false
        }

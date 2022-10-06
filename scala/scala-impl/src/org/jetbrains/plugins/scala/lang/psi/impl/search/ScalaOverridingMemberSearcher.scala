@@ -86,7 +86,7 @@ object ScalaOverridingMemberSearcher {
       case td: ScTypeDefinition if !td.isObject     => if (!inTemplateBodyOrEarlyDef(member)) return Array.empty
       case cp: ScClassParameter if cp.isClassMember =>
       case x: PsiNamedElement =>
-        val nameContext = ScalaPsiUtil.nameContext(x)
+        val nameContext = x.nameContext
         if (nameContext == null || !inTemplateBodyOrEarlyDef(nameContext)) return Array.empty
       case _ => return Array.empty
     }

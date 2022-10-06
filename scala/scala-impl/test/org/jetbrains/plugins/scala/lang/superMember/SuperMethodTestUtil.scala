@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
+import scala.collection.mutable
+
 object SuperMethodTestUtil {
   def transform(myFile: PsiFile, offset: Int): String = {
     var resa = ""
@@ -17,9 +19,9 @@ object SuperMethodTestUtil {
     member match {
       case method: ScFunction =>
         val signs = method.superSignaturesIncludingSelfType
-        val res: StringBuilder = new StringBuilder("")
+        val res = new mutable.StringBuilder("")
         for (sign <- signs) {
-          val s = ScalaPsiUtil.nameContext(sign.namedElement) match {
+          val s = sign.namedElement.nameContext match {
             case member: PsiMember =>
               val clazz = member.containingClass
               if (clazz != null)
@@ -29,7 +31,7 @@ object SuperMethodTestUtil {
           }
           res.append(s + sign.namedElement.name + "\n")
         }
-        resa = if (res.toString == "") "" else res.substring(0, res.length - 1).toString
+        resa = if (res.toString == "") "" else res.substring(0, res.length - 1)
       case _ => resa = "Not implemented test"
     }
     resa

@@ -4,7 +4,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
@@ -360,7 +360,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
                   ScUnderScoreSectionUtil.isUnderscore(expr) /* See SCL-3512, SCL-3525, SCL-4809, SCL-6785 */ =>
             ref.bind() match {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) =>
-                ScalaPsiUtil.nameContext(named) match {
+                named.nameContext match {
                   case v: ScValue =>
                     Array((subst(named.asInstanceOf[ScTypedDefinition].
                       `type`().getOrAny), v.typeElement))

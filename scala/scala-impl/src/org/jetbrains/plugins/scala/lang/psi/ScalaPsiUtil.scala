@@ -20,7 +20,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.annotations.Nullable
+import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
 import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Binding
@@ -649,6 +649,9 @@ object ScalaPsiUtil {
     case _ => false
   }
 
+  @ApiStatus.ScheduledForRemoval(inVersion = "2023.2")
+  @Deprecated
+  @deprecated("Use org.jetbrains.plugins.scala.extensions.PsiNamedElementExt.nameContext")
   def nameContext(x: PsiNamedElement): PsiElement = x.nameContext
 
   object inNameContext {
@@ -1243,7 +1246,7 @@ object ScalaPsiUtil {
   }
 
   def isConcreteTermSignature(signature: TermSignature): Boolean = {
-    val element = nameContext(signature.namedElement)
+    val element = signature.namedElement.nameContext
     isConcreteElement(element)
   }
 

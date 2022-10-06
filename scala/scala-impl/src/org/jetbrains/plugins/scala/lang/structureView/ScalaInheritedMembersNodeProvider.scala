@@ -47,7 +47,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
                 sign.namedElement match {
                   case parameter: ScClassParameter if parameter.isClassMember && parameter.containingClass != clazz && !sign.name.endsWith("_=") =>
                     children.addAll(Element.forPsi(parameter, inherited = true).asJava)
-                  case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
+                  case named: ScNamedElement => named.nameContext match {
                     case x: ScValue if x.containingClass != clazz => children.addAll(Element.forPsi(named, inherited = true).asJava)
                     case x: ScVariable if x.containingClass != clazz => children.addAll(Element.forPsi(named, inherited = true).asJava)
                     case _ =>

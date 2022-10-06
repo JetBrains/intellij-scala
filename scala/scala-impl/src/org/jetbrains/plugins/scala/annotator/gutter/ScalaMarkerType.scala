@@ -283,8 +283,8 @@ object ScalaMarkerType {
         case xlass: PsiClass =>
           val presentation = xlass.getPresentation
           presentation.getPresentableText + " " + presentation.getLocationString
-        case x: PsiNamedElement if ScalaPsiUtil.nameContext(x).isInstanceOf[ScMember] =>
-          val containing = ScalaPsiUtil.nameContext(x).asInstanceOf[ScMember].containingClass
+        case x: PsiNamedElement if x.nameContext.isInstanceOf[ScMember] =>
+          val containing = x.nameContext.asInstanceOf[ScMember].containingClass
           if (containing == null) defaultPresentation
           else {
             val presentation = containing.getPresentation
@@ -305,8 +305,8 @@ object ScalaMarkerType {
     override def getIcon(element: PsiElement): Icon =
       element match {
         case _: PsiMethod => super.getIcon(element)
-        case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null =>
-          ScalaPsiUtil.nameContext(x).getIcon(getIconFlags)
+        case x: PsiNamedElement if x.nameContext != null =>
+          x.nameContext.getIcon(getIconFlags)
         case _ => super.getIcon(element)
       }
   }

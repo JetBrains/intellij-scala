@@ -141,7 +141,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     val memb: PsiMember = {
       named match {
         case memb: PsiMember => memb
-        case _ => ScalaPsiUtil.nameContext(named) match {
+        case _ => named.nameContext match {
           case memb: PsiMember => memb
           case _ => return true //something strange
         }

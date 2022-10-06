@@ -207,7 +207,7 @@ class ScalaInlineHandler extends InlineHandler {
   }
 
   private def usedInSameClassOnly(named: ScNamedElement): Boolean = {
-    ScalaPsiUtil.nameContext(named) match {
+    named.nameContext match {
       case member: ScMember =>
         val allReferences = ReferencesSearch.search(named, named.getUseScope)
         val notInSameClass: Condition[PsiReference] =

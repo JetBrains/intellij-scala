@@ -85,7 +85,7 @@ trait TypePresentation {
           case p: PsiPackage =>
             "_root_." + p.getQualifiedName
           case _ =>
-            ScalaPsiUtil.nameContext(e) match {
+            e.nameContext match {
               case m: ScMember =>
                 m.containingClass match {
                   case o: ScObject => nameFun(o, withPoint = true) + e.name

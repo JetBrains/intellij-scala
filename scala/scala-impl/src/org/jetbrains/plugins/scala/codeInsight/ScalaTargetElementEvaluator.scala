@@ -5,7 +5,6 @@ import com.intellij.codeInsight.{TargetElementEvaluatorEx, TargetElementEvaluato
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -53,7 +52,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
     def unapply(ref: ScReference): Option[ScReferencePattern] = {
       ref.resolve() match {
         case fake @ FakePsiMethod(refPattern: ScReferencePattern)
-          if setterSuffixes.exists(fake.getName.endsWith) && nameContext(refPattern).is[ScVariable] => Some(refPattern)
+          if setterSuffixes.exists(fake.getName.endsWith) && refPattern.nameContext.is[ScVariable] => Some(refPattern)
         case _ => None
       }
     }
@@ -64,7 +63,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
     def unapply(ref: PsiReferenceExpression): Option[ScReferencePattern] = {
       ref.resolve() match {
         case PsiTypedDefinitionWrapper(refPattern: ScReferencePattern)
-          if refPattern.name.endsWith(setterSuffix) && nameContext(refPattern).is[ScVariable] => Some(refPattern)
+          if refPattern.name.endsWith(setterSuffix) && refPattern.nameContext.is[ScVariable] => Some(refPattern)
         case _ => None
       }
     }

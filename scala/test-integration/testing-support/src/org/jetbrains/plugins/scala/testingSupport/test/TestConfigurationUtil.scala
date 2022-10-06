@@ -176,7 +176,7 @@ object TestConfigurationUtil {
       case refExpr: ScReferenceExpression =>
         refExpr.bind().map(_.getActualElement) match {
           case Some(refPattern: ScReferencePattern) =>
-            ScalaPsiUtil.nameContext(refPattern) match {
+            refPattern.nameContext match {
               case patternDef: ScPatternDefinition =>
                 patternDef.expr.flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))
               case _ => None

@@ -77,7 +77,7 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
 
   private object scalaValue {
     def unapply(td: ScTypedDefinition): Option[(ScTypedDefinition, String)] = inReadAction {
-      ScalaPsiUtil.nameContext(td) match {
+      td.nameContext match {
         case _: ScValue | _: ScVariable | _: ScClassParameter if td.getName != "" => Some(td, td.getName)
         case _ => None
       }

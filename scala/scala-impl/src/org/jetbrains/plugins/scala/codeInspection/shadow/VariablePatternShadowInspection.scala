@@ -34,7 +34,7 @@ object VariablePatternShadowInspection {
   def description: String = ScalaInspectionBundle.message("displayname.suspicious.shadowing.by.a.variable.pattern")
 
   def isInCaseClause(ref: ScReferencePattern): Boolean =
-    ScalaPsiUtil.nameContext(ref).is[ScCaseClause]
+    ref.nameContext.is[ScCaseClause]
 
   def doesShadowOtherPattern(ref: ScReferencePattern): Boolean = (
     for {

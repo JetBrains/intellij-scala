@@ -28,7 +28,7 @@ import java.util
 
 class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = element match {
-    case c: ScNamedElement => ScalaPsiUtil.nameContext(c) match {
+    case c: ScNamedElement => c.nameContext match {
       case _: ScVariable | _: ScValue | _: ScParameter => true
       case _: FakePsiMethod => true
       case _ => false

@@ -12,7 +12,7 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{adjustTypes, nameContext}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.adjustTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScInterpolated, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScPatterned, ScReferenceExpression}
@@ -219,7 +219,7 @@ object ScalaBasicCompletionProvider {
         isValidLocalDefinition(parameter, isLocal = true)
       case pattern@(_: ScBindingPattern |
                     _: ScFieldId) =>
-        val context = nameContext(pattern) match {
+        val context =  pattern.nameContext match {
           case valueOrVariable: ScValueOrVariable if !valueOrVariable.isDefinedInClass => valueOrVariable
           case ScCaseClause(Some(pattern), _, _) => pattern
           case patterned: ScPatterned => patterned

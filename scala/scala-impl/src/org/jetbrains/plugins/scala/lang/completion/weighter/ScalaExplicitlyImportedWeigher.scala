@@ -156,7 +156,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
           }
         }
       case b: ScBindingPattern =>
-        ScalaPsiUtil.nameContext(b) match {
+        b.nameContext match {
           case v: ScValue =>
             applyToMember(v, position) match {
               case Some(x) => return x

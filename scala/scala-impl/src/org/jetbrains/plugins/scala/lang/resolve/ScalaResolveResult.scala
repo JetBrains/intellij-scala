@@ -243,7 +243,7 @@ class ScalaResolveResult(
     def getPrecedenceInner: Int = {
       val actualElement = getActualElement
       if (importsUsed.isEmpty) {
-        val nameContext = ScalaPsiUtil.nameContext(actualElement)
+        val nameContext = actualElement.nameContext
         nameContext match {
           case obj: ScObject if obj.isPackageObject =>
             val qualifier = obj.qualifiedName
@@ -378,7 +378,7 @@ object ScalaResolveResult {
         }
 
         extractedType.orElse(containingClass).exists { expectedClass =>
-          ScalaPsiUtil.nameContext(element) match {
+          element.nameContext match {
             case m: PsiMember =>
               m.containingClass match {
                 //allow boldness only if current class is package object, not element availiable from package object

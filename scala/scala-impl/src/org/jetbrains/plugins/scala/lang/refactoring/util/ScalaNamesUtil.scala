@@ -36,7 +36,7 @@ object ScalaNamesUtil {
   }
 
   def qualifiedName(named: PsiNamedElement): Option[String] =
-    ScalaPsiUtil.nameContext(named) match {
+    named.nameContext match {
       case pack: PsiPackage => Some(pack.getQualifiedName)
       case ClassQualifiedName(qualifiedName) => Some(qualifiedName)
       case member: PsiMember if !member.hasModifierProperty(PsiModifier.STATIC) => None

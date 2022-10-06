@@ -225,7 +225,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     private def collectConflicts(ref: ScReference, resolve: PsiElement): Unit = {
       resolve match {
         case named: PsiNamedElement =>
-          ScalaPsiUtil.nameContext(named) match {
+          named.nameContext match {
             case m: ScMember if m.containingClass == clazz && m.isPrivate=>
               val message = ScalaBundle.message("private.member.cannot.be.used.in.extracted.member", named.name, currentMemberName)
               conflicts.putValue(m, message)

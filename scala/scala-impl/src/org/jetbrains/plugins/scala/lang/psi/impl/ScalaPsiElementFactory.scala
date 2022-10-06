@@ -751,7 +751,7 @@ object ScalaPsiElementFactory {
   private def getOverrideImplementVariableSign(variable: ScTypedDefinition, substitutor: ScSubstitutor,
                                                body: Option[String], needsOverride: Boolean,
                                                isVal: Boolean, needsInferType: Boolean): String = {
-    val modOwner: ScModifierListOwner = nameContext(variable) match {
+    val modOwner: ScModifierListOwner = variable.nameContext match {
       case m: ScModifierListOwner => m
       case _ => null
     }

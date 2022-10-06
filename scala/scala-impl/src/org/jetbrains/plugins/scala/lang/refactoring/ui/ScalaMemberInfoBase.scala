@@ -74,7 +74,7 @@ object ScalaMemberInfoBase {
       case typed: Typeable => ": " + typed.`type`().getOrAny.presentableText(typed)
       case _ => ""
     }
-    val keyword = ScalaPsiUtil.nameContext(elem) match {
+    val keyword = elem.nameContext match {
       case _: ScVariable                          => ScalaKeyword.VAR
       case _: ScValue                             => ScalaKeyword.VAL
       case param: ScClassParameter if param.isVar => ScalaKeyword.VAR

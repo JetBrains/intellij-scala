@@ -12,7 +12,6 @@ import com.intellij.refactoring.rename.ResolveSnapshotProvider.ResolveSnapshot
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, ScConstructorInvocation, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -104,7 +103,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     def updateNamedElements(): Unit = {
       usages.foreach {
         case namedInfo: ScalaNamedElementUsageInfo =>
-          val element = ScalaPsiUtil.nameContext(namedInfo.namedElement)
+          val element = namedInfo.namedElement.nameContext
           val text = element.getText
           element match {
             case _: ScVariableDefinition | _: ScPatternDefinition =>

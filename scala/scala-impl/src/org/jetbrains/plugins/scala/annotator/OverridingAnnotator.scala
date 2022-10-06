@@ -189,7 +189,7 @@ trait OverridingAnnotator {
             } else false
         }
 
-      if (isConcreteElement(nameContext(namedElement))) {
+      if (isConcreteElement(namedElement.nameContext)) {
         val hasConcreteSuper = superSignatures.exists(isConcrete)
 
         if (hasConcreteSuper && !member.hasModifierProperty(OVERRIDE)) {
@@ -199,7 +199,7 @@ trait OverridingAnnotator {
                 case signature: TermSignature => signature.namedElement
               }.flatMap { element =>
                 import ScalaTokenTypes.{kVAL, kVAR}
-                nameContext(element) match {
+                element.nameContext match {
                   case parameter: ScClassParameter =>
                     val keywordElementType =
                       if (parameter.isVal || (parameter.isCaseClassVal && !parameter.isVar)) kVAL

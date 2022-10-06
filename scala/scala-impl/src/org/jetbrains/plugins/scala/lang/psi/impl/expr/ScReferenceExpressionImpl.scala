@@ -135,7 +135,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case elem: PsiNamedElement =>
         if (!ScalaNamesUtil.equivalent(refName, elem.name))
           throw new IncorrectOperationException(s"named element $elem does not match expected name $refName")
-        ScalaPsiUtil.nameContext(elem) match {
+        elem.nameContext match {
           case memb: PsiMember =>
             val cClass = containingClass.getOrElse(memb.containingClass)
             if (cClass != null && cClass.qualifiedName != null) {
@@ -291,7 +291,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case failure => return failure
         }
       case r@ScalaResolveResult(refPatt: ScBindingPattern, s) =>
-        ScalaPsiUtil.nameContext(refPatt) match {
+        refPatt.nameContext match {
           case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, this, true) => pd.declaredType match {
             case Some(t) => t
             case None => return Failure(ScalaBundle.message("no.declared.type.found"))

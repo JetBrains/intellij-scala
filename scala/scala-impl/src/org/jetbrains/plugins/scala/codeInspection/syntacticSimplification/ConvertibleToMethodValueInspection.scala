@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
-import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, PsiModifierListOwnerExt, ResolvesTo, childOf}
+import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, PsiModifierListOwnerExt, PsiNamedElementExt, ResolvesTo, childOf}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike}
@@ -93,7 +93,7 @@ class ConvertibleToMethodValueInspection extends LocalInspectionTool {
   }
 
   private def onlyStableValuesUsed(qual: ScExpression): Boolean = {
-    def isStable(named: PsiNamedElement) = ScalaPsiUtil.nameContext(named) match {
+    def isStable(named: PsiNamedElement) = named.nameContext match {
       case cp: ScClassParameter => !cp.isVar
       case f: PsiField => f.hasFinalModifier
       case o: ScObject => o.isLocal || ScalaPsiUtil.hasStablePath(o)

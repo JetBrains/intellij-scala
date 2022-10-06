@@ -16,7 +16,7 @@ class ScalaQualifiedNameProvider extends QualifiedNameProvider {
     element match {
       case clazz: ScTypeDefinition => clazz.qualifiedName
       case named: ScNamedElement =>
-        val clazz = ScalaPsiUtil.nameContext(named) match {
+        val clazz = named.nameContext match {
           case member: ScMember => member.containingClass
           case _ => null
         }
