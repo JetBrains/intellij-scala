@@ -307,8 +307,7 @@ object TermsCollector extends TermsCollector {
 
 object StableTermsCollector extends TermsCollector {
   override protected def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = {
-    // syntheticMethods added for SCL-19477
-    val members = td.members ++ td.syntheticMembers ++ td.syntheticMethods ++ td.syntheticTypeDefinitions
+    val members = td.membersWithSynthetic
     val filtered = members.filter(mayContainStable)
     filtered
   }
