@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
+import org.jetbrains.plugins.scala.util.RichThreadLocal
 
 final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
 
@@ -150,5 +150,5 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
 }
 
 object ScalaHighlightUsagesHandlerFactory {
-  val implicitHighlightingEnabled: UnloadableThreadLocal[Boolean] = new UnloadableThreadLocal(true)
+  val implicitHighlightingEnabled: RichThreadLocal[Boolean] = new RichThreadLocal(true)
 }
