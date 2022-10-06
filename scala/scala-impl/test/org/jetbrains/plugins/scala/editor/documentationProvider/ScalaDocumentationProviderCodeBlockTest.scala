@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
-import org.junit.Assert.assertEquals
+import org.junit.Assert.{assertEquals, assertTrue}
 
 class ScalaDocumentationProviderCodeBlockTest extends ScalaDocumentationProviderTestBase {
 
-  private def extractCodeBlockSection(actualDoc: String, offset: Int = 0): (String, Int) = {
-    val codeStart = actualDoc.indexOf("<code>", offset)
-    if (codeStart >= 0) {
-      val codeEnd = actualDoc.indexOf("</code>", codeStart + 7)
-      (actualDoc.substring(codeStart + 7, codeEnd).trim, codeEnd + 7)
-    } else ("", 0)
+  private def extractCodeBlockSection(actualDoc: String, startSearchFromIndex: Int = 0): (String, Int) = {
+    val codeStart = actualDoc.indexOf("<code>", startSearchFromIndex)
+    assertTrue(s"Can't find code block in tag doc text: $actualDoc", codeStart >= 0)
+    val codeEnd = actualDoc.indexOf("</code>", codeStart + 7)
+    val codeBlockSection = actualDoc.substring(codeStart + 7, codeEnd).trim
+    (codeBlockSection, codeEnd)
   }
 
   def testNoAdditionalIndent(): Unit = {
