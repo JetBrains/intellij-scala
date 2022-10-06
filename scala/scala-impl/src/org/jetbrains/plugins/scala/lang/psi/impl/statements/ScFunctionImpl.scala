@@ -58,11 +58,13 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     with ScTypeParametersOwner
     with ContextApplied.SyntheticElementsOwner {
 
-  override final def isStable: Boolean =
-    if (effectiveParameterClauses.nonEmpty)
+  override final def isStable: Boolean = {
+    val clauses = effectiveParameterClauses
+    if (clauses.exists(c => !c.isImplicit && !c.isUsing))
       false
     else
       this.isInScala3File && returnTypeElement.exists(_.isSingleton)
+  }
 
   override def nameId: PsiElement = {
     val n = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {

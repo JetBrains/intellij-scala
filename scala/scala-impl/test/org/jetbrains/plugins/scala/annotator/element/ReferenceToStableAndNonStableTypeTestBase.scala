@@ -526,38 +526,123 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
     assertErrorsText(
       """//noinspection NotImplementedCode
         |abstract class Example1 {
+        |  implicit val x: Int = ???
+        |  implicit val s: String = ???
+        |
         |  //referenced
         |  def g1(): 42 = ???
         |  def g2(x: Int): 42 = ???
+        |
+        |  //OK: only using/implicit clause
         |  def g3(using x: Int): 42 = ???
-        |  def g4(implicit x: Int): 42 = ???
+        |  def g4(using x: Int, y: String): 42 = ???
+        |  def g5(implicit x: Int): 42 = ???
+        |  def g6(implicit x: Int, y: String): 42 = ???
+        |
+        |  //BAD: has non-using/implicit clause
+        |  def g7()(using x: Int): 42 = ???
+        |  def g8(u: Int)(using x: Int): 42 = ???
         |
         |  //annotations
         |  val a1 : g1.type = ???
         |  val a2 : g2.type = ???
+        |
+        |  //OK: only using/implicit parameters
         |  val a3 : g3.type = ???
         |  val a4 : g4.type = ???
-        |}""".stripMargin,
+        |  val a5 : g5.type = ???
+        |  val a6 : g6.type = ???
+        |
+        |  //BAD: has non-using/implicit clause
+        |  val a7 : g7.type = ???
+        |  val a8 : g8.type = ???
+        |}
+        |""".stripMargin,
       """Error(g1.type,Stable identifier required but g1.type found)
         |Error(g2.type,Stable identifier required but g2.type found)
-        |Error(g3.type,Stable identifier required but g3.type found)
-        |Error(g4.type,Stable identifier required but g4.type found)
+        |
+        |Error(g7.type,Stable identifier required but g3.type found)
+        |Error(g8.type,Stable identifier required but g4.type found)
+        |""".stripMargin
+    )
+
+  def testFunctionWithValueParameters_LocalScope(): Unit =
+    assertErrorsText(
+      """//noinspection NotImplementedCode
+        |def function(): Unit = {
+        |  implicit val x: Int = ???
+        |  implicit val s: String = ???
+        |
+        |  //referenced
+        |  def g1(): 42 = ???
+        |  def g2(x: Int): 42 = ???
+        |
+        |  //OK: only using/implicit clause
+        |  def g3(using x: Int): 42 = ???
+        |  def g4(using x: Int, y: String): 42 = ???
+        |  def g5(implicit x: Int): 42 = ???
+        |  def g6(implicit x: Int, y: String): 42 = ???
+        |
+        |  //BAD: has non-using/implicit clause
+        |  def g7()(using x: Int): 42 = ???
+        |  def g8(u: Int)(using x: Int): 42 = ???
+        |
+        |  //annotations
+        |  val a1 : g1.type = ???
+        |  val a2 : g2.type = ???
+        |
+        |  //OK: only using/implicit parameters
+        |  val a3 : g3.type = ???
+        |  val a4 : g4.type = ???
+        |  val a5 : g5.type = ???
+        |  val a6 : g6.type = ???
+        |
+        |  //BAD: has non-using/implicit clause
+        |  val a7 : g7.type = ???
+        |  val a8 : g8.type = ???
+        |}
+        |""".stripMargin,
+      """Error(g1.type,Stable identifier required but g1.type found)
+        |Error(g2.type,Stable identifier required but g2.type found)
+        |
+        |Error(g7.type,Stable identifier required but g3.type found)
+        |Error(g8.type,Stable identifier required but g4.type found)
         |""".stripMargin
     )
 
   def testFunctionWithValueParameters_TopLevel(): Unit =
     assertErrorsText(
-      """//referenced
+      """//noinspection NotImplementedCode
+        |implicit val x: Int = ???
+        |implicit val s: String = ???
+        |
+        |//referenced
         |def g1(): 42 = ???
         |def g2(x: Int): 42 = ???
+        |
+        |//OK: only using/implicit clause
         |def g3(using x: Int): 42 = ???
-        |def g4(implicit x: Int): 42 = ???
+        |def g4(using x: Int, y: String): 42 = ???
+        |def g5(implicit x: Int): 42 = ???
+        |def g6(implicit x: Int, y: String): 42 = ???
+        |
+        |//BAD: has non-using/implicit clause
+        |def g7()(using x: Int): 42 = ???
+        |def g8(u: Int)(using x: Int): 42 = ???
         |
         |//annotations
         |val a1 : g1.type = ???
         |val a2 : g2.type = ???
+        |
+        |//OK: only using/implicit parameters
         |val a3 : g3.type = ???
         |val a4 : g4.type = ???
+        |val a5 : g5.type = ???
+        |val a6 : g6.type = ???
+        |
+        |//BAD: has non-using/implicit clause
+        |val a7 : g7.type = ???
+        |val a8 : g8.type = ???
         |""".stripMargin,
       """Error(g1.type,Stable identifier required but g1.type found)
         |Error(g2.type,Stable identifier required but g2.type found)
