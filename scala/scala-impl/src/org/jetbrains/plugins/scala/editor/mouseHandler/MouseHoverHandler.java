@@ -58,7 +58,6 @@ import com.intellij.util.Alarm;
 import com.intellij.util.Consumer;
 import com.intellij.util.ui.UIUtil;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import org.intellij.lang.annotations.JdkConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLanguage;
@@ -244,7 +243,7 @@ public class MouseHoverHandler implements StartupActivity.DumbAware {
       return bounds;
     }
 
-    private static BrowseMode getBrowseMode(@JdkConstants.InputEventMask int modifiers) {
+    private static BrowseMode getBrowseMode(int modifiers) {
       if (modifiers == 0) {
         return BrowseMode.Hover;
       }
