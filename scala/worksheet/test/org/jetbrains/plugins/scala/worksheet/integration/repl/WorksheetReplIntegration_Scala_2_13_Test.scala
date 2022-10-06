@@ -24,9 +24,8 @@ import scala.language.postfixOps
 class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegration_Scala_2_12_Test {
 
   // with some health check runs
-  @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_13_0,
-  ))
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13_0))
+  @RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
   def testSimpleDeclaration_2_13_0(): Unit = {
     /**
      * pre-download jline to avoid flaky tests on machines without locally-available jline (requires internet)
@@ -784,6 +783,9 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegration_
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
       assertCompilerMessages(editor)(expectedCompilerOutput)
     }
+
+  override def testRestoreErrorPositionsInOriginalFile_ExtraScalaVersions(): Unit =
+    testRestoreErrorPositionsInOriginalFile()
 
   /** TODO: add tests for cases
    * 4. (minor) several evaluations of this isn't evaluated multiple times, it's broken now, if last statement has semicolon-separated expressions

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertIsBlank
-import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
@@ -15,11 +15,6 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplIntegration_Scala_2_12_Test extends WorksheetReplIntegration_Scala_2_11_Test {
 
-  // TODO: why is there this strange error
-  //  Error:(10, 14) not found: value unknownVar
-  //  val $ires0 = unknownVar
-  //  ?
-  @RunWithScalaVersions(extra = Array(TestScalaVersion.Scala_2_12_12, TestScalaVersion.Scala_2_12_6))
   override def testRestoreErrorPositionsInOriginalFile(): Unit =
     withModifiedRegistryValue(WorksheetUtils.ContinueOnFirstFailure, newValue = true).run {
       val expectedCompilerOutput =
@@ -60,4 +55,12 @@ class WorksheetReplIntegration_Scala_2_12_Test extends WorksheetReplIntegration_
       assertCompilerMessages(editor)(expectedCompilerOutput)
     }
 
+  // TODO: why is there this strange error
+  //  Error:(10, 14) not found: value unknownVar
+  //  val $ires0 = unknownVar
+  //  ?
+  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12_12, TestScalaVersion.Scala_2_12_6))
+  @RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
+  def testRestoreErrorPositionsInOriginalFile_ExtraScalaVersions(): Unit =
+    testRestoreErrorPositionsInOriginalFile()
 }

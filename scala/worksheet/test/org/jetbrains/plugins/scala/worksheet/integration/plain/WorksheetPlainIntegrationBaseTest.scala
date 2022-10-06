@@ -28,12 +28,6 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
   override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType
 
-  // with some health check runs
-  @RunWithScalaVersions(extra = Array(
-    TestScalaVersion.Scala_2_11_0,
-    TestScalaVersion.Scala_2_12_0,
-    TestScalaVersion.Scala_2_13_0,
-  ))
   def testSimple_1(): Unit = {
     val left =
       """val a = 1
@@ -46,6 +40,16 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
     doRenderTest(left, right)
   }
+
+  // Some health check runs
+  @RunWithScalaVersions(Array(
+    TestScalaVersion.Scala_2_11_0,
+    TestScalaVersion.Scala_2_12_0,
+    TestScalaVersion.Scala_2_13_0
+  ))
+  @RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
+  def testSimple_1_OldScalaVersions(): Unit =
+    testSimple_1()
 
   def testSimple_2(): Unit = {
     val left =

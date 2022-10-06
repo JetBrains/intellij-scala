@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.integration.repl
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.{assertIsBlank, assertStringMatches}
-import org.jetbrains.plugins.scala.util.runners.{NotSupportedScalaVersions, RunWithScalaVersions, SupportedScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{NotSupportedScalaVersions, RunWithJdkVersions, RunWithScalaVersions, SupportedScalaVersions, TestJdkVersion, TestScalaVersion}
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
@@ -31,12 +31,6 @@ class WorksheetReplIntegration_Scala_2_11_Test
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_2_11
 
-  // with some health check runs
-  @RunWithScalaVersions(extra = Array(
-    //TestScalaVersion.Scala_2_10_0
-    TestScalaVersion.Scala_2_11_0,
-    TestScalaVersion.Scala_2_12_0,
-  ))
   def testSimpleDeclaration(): Unit = {
     val left =
       """val a = 1
@@ -49,6 +43,15 @@ class WorksheetReplIntegration_Scala_2_11_Test
 
     doRenderTest(left, right)
   }
+
+  // Some health check runs
+  @RunWithScalaVersions(Array(
+    TestScalaVersion.Scala_2_11_0,
+    TestScalaVersion.Scala_2_12_0
+  ))
+  @RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
+  def testSimpleDeclaration_OldScalaVersions(): Unit =
+    testSimpleDeclaration()
 
   def testSimpleFolding(): Unit = {
     val left =
