@@ -6,6 +6,7 @@ import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElement, L
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtOffset, getContextOfType, isAncestor}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
@@ -184,7 +185,8 @@ object ScalaBasicCompletionProvider {
 
     override protected final def postProcess(resolveResult: ScalaResolveResult): Unit = {
       ProgressManager.checkCanceled()
-      _lookupElementsBuilder ++= validLookupElement(resolveResult)
+      val newElements = validLookupElement(resolveResult)
+      _lookupElementsBuilder ++= newElements
     }
 
     protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = {
@@ -205,14 +207,16 @@ object ScalaBasicCompletionProvider {
       )
     }
 
-    private def isApplicable(element: PsiNamedElement,
-                             isNamedParameter: Boolean): Option[Boolean] = element match {
+    private def isApplicable(
+      element: PsiNamedElement,
+      isNamedParameter: Boolean
+    ): Option[Boolean] = element match {
       case clazz: PsiClass if isExcluded(clazz) => None
       case definition: ScTypeDefinition if filterDuplications(definition) => None
       case parameter: ScClassParameter =>
         isValidLocalDefinition(parameter, isLocal = false)
       case parameter: ScParameter if !isNamedParameter =>
-        isValidLocalDefinition(parameter)
+        isValidLocalDefinition(parameter, isLocal = true)
       case pattern@(_: ScBindingPattern |
                     _: ScFieldId) =>
         val context = nameContext(pattern) match {
@@ -224,7 +228,7 @@ object ScalaBasicCompletionProvider {
 
         context match {
           case null => Some(false)
-          case _ => isValidLocalDefinition(context)
+          case _ => isValidLocalDefinition(context, isLocal = true)
         }
       case _ => Some(false)
     }
@@ -236,12 +240,14 @@ object ScalaBasicCompletionProvider {
           case _ => isInImport
         })
 
-    private def isValidLocalDefinition(element: PsiElement,
-                                       isLocal: Boolean = true): Option[Boolean] =
-      if (isAncestor(element, getPlace, true))
+    private def isValidLocalDefinition(element: PsiElement, isLocal: Boolean): Option[Boolean] = {
+      val place = getPlace
+      val isAncestor = PsiTreeUtil.isAncestor(element, place.getContext, false)
+      if (isAncestor)
         None
       else
         Some(isLocal)
+    }
 
     private def isAccessible(element: PsiNamedElement,
                              isNamedParameter: Boolean): Boolean =

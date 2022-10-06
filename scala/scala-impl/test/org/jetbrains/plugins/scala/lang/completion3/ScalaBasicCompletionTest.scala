@@ -1515,13 +1515,48 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     fileText =
       s"""class Foo
          |
-         |val foo = new f$CARET
+         |class A {
+         |  def function(): Unit = {
+         |    val foo = new f$CARET
+         |  }
+         |}
          |""".stripMargin,
     item = "foo"
   )
 
   def testLocalValueName2(): Unit = checkNoBasicCompletion(
-    fileText = s"val (foo, bar) = f$CARET",
+    fileText =
+      s"""class A {
+         |  def function(): Unit = {
+         |    val (foo, bar) = f$CARET
+         |  }
+         |}""".stripMargin,
+    item = "foo"
+  )
+
+  def testLocalValueName_WithTypeDefinition(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class Foo
+         |
+         |class A {
+         |  def function(): Unit = {
+         |    val foo: String = f$CARET
+         |  }
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testLocalValueName_InTypeAnnotation(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class Foo
+         |
+         |class A {
+         |  def function(): Unit = {
+         |    val foo: f$CARET
+         |  }
+         |}
+         |""".stripMargin,
     item = "foo"
   )
 
