@@ -208,7 +208,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     else if (TestConfigurationUtil.isPackageConfiguration(location.getPsiElement, configuration))
       true
     else
-      isClassOfTestConfigurationFromLocation(configuration, location)
+      sameModules(configuration, context) && isClassOfTestConfigurationFromLocation(configuration, location)
   }
 
   protected def isClassOfTestConfigurationFromLocation(configuration: T, location: PsiElementLocation): Boolean = {
