@@ -20,6 +20,11 @@ public class FailedRearrangerTest extends TestCase {
     public static Test suite() {
         return new ScalaFileSetTestCase("/rearranger/failedData") {
             @Override
+            protected boolean needsSdk() {
+                return true;
+            }
+
+            @Override
             protected boolean shouldPass() {
                 return false;
             }

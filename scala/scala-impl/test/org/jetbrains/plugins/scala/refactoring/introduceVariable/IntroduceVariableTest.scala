@@ -11,7 +11,7 @@ class IntroduceVariableTest extends TestCase
 object IntroduceVariableTest {
   private val DATA_PATH = "/refactoring/introduceVariable/data"
 
-  def suite(): Test = new AbstractIntroduceVariableTestBase(IntroduceVariableTest.DATA_PATH) with ScalaSdkOwner {
-    override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), ScalaSDKLoader())
+  def suite(): Test = new AbstractIntroduceVariableTestBase(IntroduceVariableTest.DATA_PATH) {
+    override protected def needsSdk: Boolean = true
   }
 }
