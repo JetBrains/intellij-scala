@@ -6,6 +6,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiAnnotationOwner, PsiElement, PsiFile}
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{SearchMethodsWithProjectBoundCache, ElementUsage, Search}
 import org.jetbrains.plugins.scala.codeInspection.ui.InspectionOptionsComboboxPanel
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
@@ -45,18 +47,6 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     panel
   }
 
-  private def isElementUnused(element: ScNamedElement, isOnTheFly: Boolean, reportPublicDeclarations: Boolean): Boolean = {
-    val cheapRefSearcher = CheapRefSearcher.getInstance(element.getProject)
-    val localSearchRes = cheapRefSearcher.localSearch(element, isOnTheFly).map(_.usages.isEmpty)
-    localSearchRes.getOrElse {
-      if (reportPublicDeclarations) {
-        cheapRefSearcher.globalSearch(element).usages.isEmpty
-      } else {
-        true
-      }
-    }
-  }
-
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = {
     // Structure to encapsulate the possibility to check a delegate element to determine
     // usedness of the original PsiElement passed into `invoke`.
@@ -80,31 +70,35 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
       case InspectedElement(_, typeParam: ScTypeParam) if typeParam.hasBounds || typeParam.hasImplicitBounds => Seq.empty
       case InspectedElement(_, inNameContext(holder: PsiAnnotationOwner)) if hasUnusedAnnotation(holder) =>
         Seq.empty
-      case InspectedElement(original: ScNamedElement, delegate: ScNamedElement)
-        if isElementUnused(delegate, isOnTheFly, reportPublicDeclarations) =>
+      case InspectedElement(original: ScNamedElement, delegate: ScNamedElement) =>
+
+        val usages = getPipeline(element.getProject, reportPublicDeclarations).runSearchPipeline(delegate, isOnTheFly)
+
+        if (usages.isEmpty) {
 
           val dontReportPublicDeclarationsQuickFix = if (isOnlyVisibleInLocalFile(original)) None
-            else Some(createDontReportPublicDeclarationsQuickFix(original))
+          else Some(createDontReportPublicDeclarationsQuickFix(original))
 
           val addScalaAnnotationUnusedQuickFix = if (delegate.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13) None
-            else Some(new AddScalaAnnotationUnusedQuickFix(original))
+          else Some(new AddScalaAnnotationUnusedQuickFix(original))
 
-        val message = if (isOnTheFly) {
-          ScalaUnusedDeclarationInspection.annotationDescription
-        } else {
-          UnusedDeclarationVerboseProblemInfoMessage(original)
-        }
+          val message = if (isOnTheFly) {
+            ScalaUnusedDeclarationInspection.annotationDescription
+          } else {
+            UnusedDeclarationVerboseProblemInfoMessage(original)
+          }
 
-        Seq(
-          ProblemInfo(
-            original.nameId,
-            message,
-            ProblemHighlightType.LIKE_UNUSED_SYMBOL,
-            DeleteUnusedElementFix.quickfixesFor(original) ++
-              dontReportPublicDeclarationsQuickFix ++
-              addScalaAnnotationUnusedQuickFix
+          Seq(
+            ProblemInfo(
+              original.nameId,
+              message,
+              ProblemHighlightType.LIKE_UNUSED_SYMBOL,
+              DeleteUnusedElementFix.quickfixesFor(original) ++
+                dontReportPublicDeclarationsQuickFix ++
+                addScalaAnnotationUnusedQuickFix
+            )
           )
-        )
+        } else Seq.empty
       case _ => Seq.empty
     }
   }
@@ -132,25 +126,27 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     }
   }
 
-  override def shouldProcessElement(elem: PsiElement): Boolean =
-    elem match {
-      case n: ScNamedElement =>
-        n.nameContext match {
-          case m: ScMember if m.isLocal =>
-            if (reportLocalDeclarations == AlwaysDisabled) {
-              false
-            } else if (reportLocalDeclarations == ComplyToCompilerOption) {
-              n.module.toSeq.flatMap(_.scalaCompilerSettings.additionalCompilerOptions).exists { compilerOption =>
-                compilerOption.equals("-Wunused:locals") ||
-                compilerOption.equals("-Wunused:linted") ||
-                compilerOption.equals("-Xlint:unused")
+  override def shouldProcessElement(element: PsiElement): Boolean =
+    Search.Util.shouldProcessElement(element) && {
+      element match {
+        case n: ScNamedElement =>
+          n.nameContext match {
+            case m: ScMember if m.isLocal =>
+              if (reportLocalDeclarations == AlwaysDisabled) {
+                false
+              } else if (reportLocalDeclarations == ComplyToCompilerOption) {
+                n.module.toSeq.flatMap(_.scalaCompilerSettings.additionalCompilerOptions).exists { compilerOption =>
+                  compilerOption.equals("-Wunused:locals") ||
+                    compilerOption.equals("-Wunused:linted") ||
+                    compilerOption.equals("-Xlint:unused")
+                }
+              } else {
+                true
               }
-            } else {
-              true
-            }
-          case _ => true
-        }
-      case _ => true
+            case _ => true
+          }
+        case _ => true
+      }
     }
 }
 
@@ -167,4 +163,18 @@ object ScalaUnusedDeclarationInspection {
       // we can assume that it is directed at the unusedness of the symbol
       holder.hasAnnotation("scala.annotation.nowarn")
 
+  private def getPipeline(project: Project, reportPublicDeclarations: Boolean): Pipeline = {
+
+    val canExit = (_: ElementUsage) => true
+
+    val searcher = SearchMethodsWithProjectBoundCache(project)
+
+    val localSearch = searcher.LocalSearchMethods
+
+    val globalSearch = if (reportPublicDeclarations) {
+      searcher.GlobalSearchMethods
+    } else Seq.empty
+
+    new Pipeline(localSearch ++ globalSearch, canExit)
+  }
 }

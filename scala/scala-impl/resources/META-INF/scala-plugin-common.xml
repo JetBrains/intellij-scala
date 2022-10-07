@@ -503,7 +503,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.CheapRefSearcher"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.SearchMethodsWithProjectBoundCache"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>

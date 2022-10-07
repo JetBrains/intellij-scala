@@ -5,6 +5,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.getPipeline
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{SearchMethodsWithProjectBoundCache, ElementUsage, Search}
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
@@ -16,8 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 private final class ScalaAccessCanBeTightenedInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor =
     new PsiElementVisitor {
-      override def visitElement(element: PsiElement): Unit = {
-
+      override def visitElement(element: PsiElement): Unit =
         element match {
           case n: ScNamedElement with ScModifierListOwner if !n.hasModifierPropertyScala("private") =>
             n match {
@@ -32,7 +34,6 @@ private final class ScalaAccessCanBeTightenedInspection extends LocalInspectionT
             }
           case _ =>
         }
-      }
     }
 
   private def processElement(
@@ -79,16 +80,14 @@ private final class ScalaAccessCanBeTightenedInspection extends LocalInspectionT
         ScalaInspectionBundle.message("add.private.modifier")
       }
     }
-    val firstSearchResults = CheapRefSearcher.getInstance(element.getProject)
-        .localSearch(element, isOnTheFly)
 
-    val firstResultsAllowTargetToBePrivate = firstSearchResults.forall(_.usages.forall(_.targetCanBePrivate))
+    if (Search.Util.shouldProcessElement(element)) {
+      val usages = getPipeline(element.getProject).runSearchPipeline(element, isOnTheFly)
 
-    lazy val globalSearchResults = CheapRefSearcher.getInstance(element.getProject).globalSearch(element)
-
-    if (firstResultsAllowTargetToBePrivate && globalSearchResults.usages.forall(_.targetCanBePrivate)) {
-      val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(modifierListOwner, quickFixText)
-      problemsHolder.registerProblem(element.nameId, ScalaInspectionBundle.message("access.can.be.private"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
+      if (usages.forall(_.targetCanBePrivate)) {
+        val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(modifierListOwner, quickFixText)
+        problemsHolder.registerProblem(element.nameId, ScalaInspectionBundle.message("access.can.be.private"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
+      }
     }
   }
 }
@@ -104,4 +103,15 @@ private object ScalaAccessCanBeTightenedInspection {
     override def getFamilyName: String = ScalaInspectionBundle.message("change.modifier")
   }
 
+  private def getPipeline(project: Project): Pipeline = {
+
+    val canExit = (usage: ElementUsage) => !usage.targetCanBePrivate
+
+    val searcher = SearchMethodsWithProjectBoundCache(project)
+
+    val localSearch = searcher.LocalSearchMethods
+    val globalSearch = searcher.GlobalSearchMethods
+
+    new Pipeline(localSearch ++ globalSearch, canExit)
+  }
 }
