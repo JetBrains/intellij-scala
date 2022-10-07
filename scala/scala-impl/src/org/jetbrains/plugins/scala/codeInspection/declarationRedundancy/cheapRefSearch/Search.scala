@@ -74,8 +74,8 @@ private[declarationRedundancy] object Search {
    * <b>Example 3</b> -- Stop searching when encountering a reference of type `T`
    * <pre><code>
    * val canExit: CanExit = (usage: ElementUsage) => usage match {
-   * case u: ElementUsageWithReference => u.reference.isInstanceOf[T]
-   * case _ => false
+   *   case u: ElementUsageWithReference => u.reference.isInstanceOf[T]
+   *   case _ => false
    * }
    * </code></pre>
    */
@@ -226,7 +226,7 @@ private[declarationRedundancy] object Search {
         val cachedComputeResult = cache.get(ctx.element)
         val canExit = cachedComputeResult.usages.exists(ctx.canExit)
 
-        if (!canExit && !cachedComputeResult.didExitBeforeExhaustion) {
+        if (!canExit && cachedComputeResult.didExitBeforeExhaustion) {
           searchForAndCacheUsages()
         } else {
           cachedComputeResult.usages
@@ -276,8 +276,8 @@ private[declarationRedundancy] object Search {
      *
      * As you may guess, the below is the result of quite a bit of fine-tuning and tweaking over the years, so tread
      * with care when making changes, and regularly run the full `declarationRedundancy` test suite locally to catch
-     * failures early on. Add negative and positive tests to cover your changes, or chances are they will
-     * not survive the next ones.
+     * failures early on. Add negative and positive tests to cover your changes, or chances are that your shiny new
+     * feature or bugfix will be broken the next time someone makes changes here.
      */
     def shouldProcessElement(element: PsiElement): Boolean = {
 
