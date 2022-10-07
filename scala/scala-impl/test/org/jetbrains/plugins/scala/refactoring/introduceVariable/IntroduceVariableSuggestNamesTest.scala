@@ -10,6 +10,8 @@ class IntroduceVariableSuggestNamesTest extends TestCase
 
 object IntroduceVariableSuggestNamesTest {
   def suite(): Test = new AbstractIntroduceVariableValidatorTestBase("suggestNames") {
+    override protected def needsSdk: Boolean = true
+
     override protected def doTest(replaceAllOccurrences: Boolean, fileText: String,
                                   project: Project): String = {
       val startOffset = myEditor.getSelectionModel.getSelectionStart

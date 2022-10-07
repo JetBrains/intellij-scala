@@ -18,11 +18,14 @@ package org.jetbrains.plugins.scala.base;
 import com.intellij.application.options.CodeStyle;
 import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import com.intellij.util.ThrowableRunnable;
+import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +37,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,8 +52,6 @@ import static org.junit.Assert.*;
 public abstract class ScalaFileSetTestCase extends TestSuite {
 
     protected ScalaFileSetTestCase(@NotNull @NonNls String path, String... testFileExtensions) {
-        super();
-
         String pathProperty = System.getProperty("path");
         String customOrPropertyPath = pathProperty != null ?
                 pathProperty :
@@ -57,10 +59,20 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
 
         findFiles(new File(customOrPropertyPath))
                 .filter(file -> isTestFile(file, testFileExtensions))
-                .map(ActualTest::new)
+                .map(this::constructTestCase)
                 .forEach(this::addTest);
 
         assertTrue("No tests found", testCount() > 0);
+    }
+
+    protected boolean needsSdk() {
+        return false;
+    }
+
+    private Test constructTestCase(File file) {
+        if (needsSdk())
+            return new ActualTest(file);
+        return new NoSdkTestCase(file);
     }
 
     protected SharedTestProjectToken sharedTestProjectToken() {
@@ -172,6 +184,65 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
 
     protected boolean shouldPass() {
         return true;
+    }
+
+    @SuppressWarnings("UnconstructableJUnitTestCase")
+    @Category({FileSetTests.class})
+    private final class NoSdkTestCase extends LightJavaCodeInsightFixtureTestCase {
+        private final File testFile;
+
+        private NoSdkTestCase(@NotNull File testFile) {
+            this.testFile = testFile;
+        }
+
+        @Override
+        protected void setUp() throws Exception {
+            super.setUp();
+            ScalaFileSetTestCase.this.setUp(getProject());
+        }
+
+        @Override
+        protected void tearDown() throws Exception {
+            try {
+                ScalaFileSetTestCase.this.tearDown(getProject());
+            } finally {
+                super.tearDown();
+            }
+        }
+
+        @Override
+        public void runTestRunnable(@NotNull ThrowableRunnable<Throwable> testRunnable) throws Throwable {
+            final var fileText = FileUtil.loadFile(testFile, StandardCharsets.UTF_8);
+            try {
+                ScalaFileSetTestCase.this.runTest(
+                        testFile.getName(),
+                        convertLineSeparators(fileText),
+                        getProject()
+                );
+            } catch(Throwable error) {
+                // to be able to Ctrl + Click in console to nabigate to test file on failure
+                // (note, can not work with Android plugin disabled, see IDEA-257969)
+                System.err.println("### Test file: " + testFile.getAbsolutePath());
+                throw error;
+            }
+        }
+
+        @NotNull
+        @Override
+        public String toString() {
+            return getName();
+        }
+
+        @NotNull
+        @Override
+        public String getName() {
+            final var name = testFile.getName();
+            final var dotIndex = name.lastIndexOf('.');
+            if (dotIndex == -1) {
+                return name;
+            }
+            return name.substring(0, dotIndex);
+        }
     }
 
     @SuppressWarnings("UnconstructableJUnitTestCase")

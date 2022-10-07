@@ -18,6 +18,8 @@ class ScStringLiteralAnnotatorTest extends TestCase
 object ScStringLiteralAnnotatorTest {
 
   def suite: Test = new ScalaFileSetTestCase("/annotator/string_literals/") {
+    override protected def needsSdk: Boolean = true
+
     override protected def transform(testName: String, fileText: String, project: Project): String = {
       val lightFile = createLightFile(fileText, project)
 
