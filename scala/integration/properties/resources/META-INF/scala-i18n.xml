@@ -12,19 +12,25 @@
                          enabledByDefault="true" level="ERROR"
                          implementationClass="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaInvalidPropertyKeyInspection"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ScalaExtractStringToBundleInspection"
-                         bundle="messages.ScalaInspectionBundle"
+                         bundle="messages.ScalaI18nBundle"
                          key="internal.string.should.be.in.bundle"
-                         language="Scala" groupPath="Scala" groupKey="group.internal"
+                         language="Scala" groupPath="Scala"
+                         groupBundle="messages.ScalaInspectionBundle"
+                         groupKey="group.internal"
                          isInternal="true" level="WARNING" enabledByDefault="true" />
         <localInspection implementationClass="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.DynamicPropertyKeyInspection"
-                         bundle="messages.ScalaInspectionBundle"
+                         bundle="messages.ScalaI18nBundle"
                          key="internal.only.pass.hardcoded.strings.as.property.keys"
-                         language="Scala" groupPath="Scala" groupKey="group.internal"
+                         language="Scala" groupPath="Scala"
+                         groupBundle="messages.ScalaInspectionBundle"
+                         groupKey="group.internal"
                          isInternal="true" level="ERROR" enabledByDefault="true" />
         <localInspection implementationClass="org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ReferencePassedToNlsInspection"
-                         bundle="messages.ScalaInspectionBundle"
+                         bundle="messages.ScalaI18nBundle"
                          key="internal.expression.without.nls.passed.to.nls"
-                         language="Scala" groupPath="Scala" groupKey="group.internal"
+                         language="Scala" groupPath="Scala"
+                         groupBundle="messages.ScalaInspectionBundle"
+                         groupKey="group.internal"
                          isInternal="true" level="WARNING" enabledByDefault="true" />
 
         <intentionAction>

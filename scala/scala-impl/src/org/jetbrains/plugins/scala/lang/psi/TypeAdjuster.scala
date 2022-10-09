@@ -436,7 +436,7 @@ object TypeAdjuster extends ApplicationListener {
             val prefixed = words.takeRight(prefixLength + 1).mkString(".")
 
             val suffix = place match {
-              case s: ScSimpleTypeElement if s.singleton => ScalaTypePresentation.ObjectTypeSuffix
+              case s: ScSimpleTypeElement if s.isSingleton => ScalaTypePresentation.ObjectTypeSuffix
               case _ => ""
             }
             Some((prefixed + suffix, Some(packageName)))

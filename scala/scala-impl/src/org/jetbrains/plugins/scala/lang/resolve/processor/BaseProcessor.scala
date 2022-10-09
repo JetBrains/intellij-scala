@@ -68,8 +68,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     element match {
       case namedElement: PsiNamedElement =>
         val kindMatches = ResolveUtils.kindMatches(namedElement, kinds)
+        val onlyProcessElementsWithStableType = kinds.contains(ResolveTargets.HAS_STABLE_TYPE)
+        val stateNew = if (onlyProcessElementsWithStableType) state.withStableTypeExpected else state
         if (kindMatches)
-          execute(namedElement)(state)
+          execute(namedElement)(stateNew)
         else
           true
       case _ =>
@@ -139,7 +141,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     val memb: PsiMember = {
       named match {
         case memb: PsiMember => memb
-        case _ => ScalaPsiUtil.nameContext(named) match {
+        case _ => named.nameContext match {
           case memb: PsiMember => memb
           case _ => return true //something strange
         }

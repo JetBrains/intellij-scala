@@ -81,7 +81,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |  } yield "blah"
       """.stripMargin
 
-    assertNothing(errorsFromScalaCode(code))
+    assertNoErrors(code)
   }
 
   def test_monadic_context_option_seq(): Unit = {
@@ -162,7 +162,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |for (node <- cfg) buf += node
       """.stripMargin
 
-    assertNothing(errorsFromScalaCode(code))
+    assertNoErrors(code)
   }
 
   def test_SCL14184(): Unit = {
@@ -246,12 +246,12 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |}
       """.stripMargin
 
-    assertNothing(errorsFromScalaCode(code))
+    assertNoErrors(code)
   }
 
   def test_implicitWithFilter_before_filter(): Unit = {
     val code =
-      """
+      """object Wrapper {
         |class S[X] {
         |  def filter(f: X => Boolean): Unit = ???
         |  def foreach(f: X => Unit): Unit = ???
@@ -268,9 +268,10 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
         |
         |s.filter(x => x > 0)
         |s.withFilter(x => x > 0)
+        |}
       """.stripMargin
 
-    assertNothing(errorsFromScalaCode(code))
+    assertNoErrors(code)
   }
 }
 
@@ -368,7 +369,7 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
 
   def test_implicitWithFilter_before_filter(): Unit = {
     val code =
-      """
+      """object Wrapper {
         |class S[X] {
         |  def filter(f: X => Boolean): Unit = ???
         |  def foreach(f: X => Unit): Unit = ???
@@ -385,9 +386,10 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
         |
         |s.filter(x => x > 0)
         |s.withFilter(x => x > 0)
+        |}
       """.stripMargin
 
-    assertNothing(errorsFromScalaCode(code))
+    assertNoErrors(code)
   }
 
   def test_wrong_withFilter_before_filter(): Unit = {
@@ -474,7 +476,7 @@ class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehe
         |} yield x + y
       """.stripMargin
 
-    assertNothing(errorsFromScalaCode(code))
+    assertNoErrors(code)
   }
 }
 

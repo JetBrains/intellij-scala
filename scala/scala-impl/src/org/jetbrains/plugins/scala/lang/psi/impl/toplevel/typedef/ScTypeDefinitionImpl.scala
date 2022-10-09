@@ -328,9 +328,21 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     }
   }
 
-  override def delete(): Unit = getContainingFile match {
-    case file@FileKind(_) if isTopLevel => file.delete()
-    case _ => getParent.getNode.removeChild(getNode)
+  override def delete(): Unit = {
+    val containingFile = getContainingFile
+    val deleteWholeFile = isTopLevel && (containingFile match {
+      case scalaFile: ScalaFile =>
+        val fileKind = FileKind.getForFile(scalaFile)
+        fileKind.isDefined
+      case _ =>
+        false
+    })
+    if (deleteWholeFile) {
+      containingFile.delete()
+    }
+    else {
+      getParent.getNode.removeChild(getNode)
+    }
   }
 
   override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.makeArray(PsiTypeParameter.ARRAY_FACTORY)

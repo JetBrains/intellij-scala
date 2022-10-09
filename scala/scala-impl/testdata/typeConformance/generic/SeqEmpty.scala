@@ -1,2 +1,4 @@
-val a: Seq[Int] = Seq.empty
+object Wrapper {
+  val a: Seq[Int] = Seq.empty
+}
 //True

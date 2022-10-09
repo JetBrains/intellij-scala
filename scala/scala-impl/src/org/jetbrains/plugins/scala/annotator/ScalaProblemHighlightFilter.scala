@@ -29,7 +29,6 @@ final class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
       // so file.getFileType != ScalaFileType.INSTANCE should be true in this case
       //AmmoniteUtil.isAmmoniteFile(file) ||
       ScratchUtil.isScratch(file.getVirtualFile) ||
-      file.isScriptFile ||
       ScalaConsoleInfo.isConsole(file)
   }
 

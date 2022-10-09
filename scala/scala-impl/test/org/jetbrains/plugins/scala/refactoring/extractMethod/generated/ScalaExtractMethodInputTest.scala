@@ -43,7 +43,7 @@ class ScalaExtractMethodInputTest extends ScalaExtractMethodTestBase {
 
   def testInBlockAnonymousFunction(): Unit = doTest()
 
-  def testTopLevelFunction(): Unit = doTest()
+  def testTopLevelFunctionInWorksheet(): Unit = doTest()
 
   //TODO
 //  def testTypeAliasInput = doTest

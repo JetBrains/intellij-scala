@@ -45,7 +45,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
             registerDeprecationProblem(ScalaInspectionBundle.message("parameter.name.is.deprecated", deprecatedName), elementToHighlight)
           }
         case named: PsiNamedElement =>
-          val context = ScalaPsiUtil.nameContext(named)
+          val context = named.nameContext
 
           val deprecatedElement = context.asOptionOf[PsiDocCommentOwner].flatMap {
             case Constructor(constr) if constr.isDeprecated => Some(constr)

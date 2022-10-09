@@ -1074,7 +1074,7 @@ package object extensions {
         }
 
         signature.exportedIn.orElse(
-          ScalaPsiUtil.nameContext(typedDef) match {
+          typedDef.nameContext match {
             case m: ScMember =>
               m.containingClass match {
                 case _: ScTrait if isStatic =>

@@ -226,8 +226,6 @@ object ResolveUtils {
                 enclosing match {
                   case td: ScTemplateDefinition =>
                     smartContextAncestor(td, place, checkCompanion = true)
-                  case file: ScalaFile if file.isScriptFile =>
-                    PsiTreeUtil.isContextAncestor(file, place, false)
                   case _ =>
                     place.contexts.find {
                       case _: ScPackaging | _: ScalaFile => true

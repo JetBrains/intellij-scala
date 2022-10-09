@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.{Timer, TimerTask}
+import scala.annotation.unused
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
@@ -55,11 +56,13 @@ object Main {
   private var scalaCompileServerSystemDir: Path = _
 
   // NOTE: we can't merge all setup methods, because in MainLightRunner (NonServerRunner) nailgun classes are not available
+  @unused("used via reflection in org.jetbrains.plugins.scala.nailgun.Utils.setupScalaCompileServerSystemDir")
   def setupScalaCompileServerSystemDir(scalaCompileServerSystemDir: Path): Unit = {
     this.scalaCompileServerSystemDir = scalaCompileServerSystemDir
     Utils.setSystemRoot(scalaCompileServerSystemDir.toFile)
   }
 
+  @unused("used via reflection from org.jetbrains.plugins.scala.nailgun.Utils.setupServerShutdownTimer")
   def setupServerShutdownTimer(server: NGServer): Unit = {
     originalStdOut = System.out
     originalStdErr = System.err

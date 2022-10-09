@@ -54,7 +54,7 @@ object ScEnumCase {
     @tailrec
     def unapply(e: ScNamedElement): Option[ScEnum] = {
 
-      ScalaPsiUtil.nameContext(e) match {
+      e.nameContext match {
 
         // When calling a parameterized enum case's synthetic apply constructor. For example:
         // enum Foo { case Bar(i: Int) }

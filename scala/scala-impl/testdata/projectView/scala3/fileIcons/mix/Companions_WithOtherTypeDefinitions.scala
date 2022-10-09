@@ -1,0 +1,7 @@
+package mix
+
+class Companions_WithOtherTypeDefinitions
+
+object Companions_WithOtherTypeDefinitions
+
+class OtherClass

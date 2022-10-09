@@ -173,7 +173,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
 
   private def generatorNotFromBody(named: PsiNamedElement, place: PsiElement): Boolean = {
     inReadAction {
-      val forStmt = ScalaPsiUtil.nameContext(named) match {
+      val forStmt = named.nameContext match {
         case nc@(_: ScForBinding | _: ScGenerator) =>
           Option(PsiTreeUtil.getParentOfType(nc, classOf[ScFor]))
         case _ => None
@@ -206,7 +206,7 @@ private class CollectingProcessor(element: PsiElement)
 
   private def shouldShow(candidate: ScalaResolveResult): Boolean = {
     val candElem = candidate.getElement
-    val candElemContext = ScalaPsiUtil.nameContext(candElem) match {
+    val candElemContext = candElem.nameContext match {
       case cc: ScCaseClause => cc.pattern.getOrElse(cc)
       case other => other
     }

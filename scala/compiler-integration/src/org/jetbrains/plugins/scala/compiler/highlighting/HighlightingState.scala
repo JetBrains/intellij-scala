@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.vfs.VirtualFile
 
-trait HighlightingState {
+sealed trait HighlightingState {
   def externalHighlightings(file: VirtualFile): Set[ExternalHighlighting]
 
   def filesWithHighlightings: Set[VirtualFile]
@@ -12,7 +12,11 @@ trait HighlightingState {
 }
 
 object HighlightingState {
-  def apply(filesToState: Map[VirtualFile, FileCompilerGeneratedState]): HighlightingState = HighlightingStateImpl(filesToState)
+  def apply(filesToState: Map[VirtualFile, FileCompilerGeneratedState]): HighlightingState = {
+    //without this filtering files might contain some old deleted files
+    val validFiles = filesToState.filter(_._1.isValid)
+    HighlightingStateImpl(validFiles)
+  }
 
   private case class HighlightingStateImpl(private val filesToState: Map[VirtualFile, FileCompilerGeneratedState]) extends HighlightingState {
 

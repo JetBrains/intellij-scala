@@ -27,13 +27,8 @@ object CompilationUnit {
       while (builder.getTokenType != null) {
         TopStatSeq(waitBrace = false, hasPackage) match {
           case EMPTY_STATE =>
-          case SCRIPT_STATE =>
-            Stats.trigger(FeatureKey.parserScalaScript)
-            parseState = SCRIPT_STATE
-          case FILE_STATE if parseState != SCRIPT_STATE => parseState = FILE_STATE
-          case _ =>
-            //that means code in the file is probably invalid, so we won't call usage trigger here
-            parseState = SCRIPT_STATE
+          case FILE_STATE =>
+            parseState = FILE_STATE
         }
         builder.advanceLexer()
       }

@@ -30,10 +30,10 @@ trait ScPackageLike extends PsiElement {
     val processOnlyStable = ProcessorUtils.shouldProcessOnlyStable(processor)
 
     def processWithStableFilter(psiElement: PsiElement): Boolean = {
-      val ignore = psiElement match {
-        case typed: ScTypedDefinition => processOnlyStable && !typed.isStable
+      val ignore = processOnlyStable && (psiElement match {
+        case typed: ScTypedDefinition => !typed.isStable
         case _                        => false
-      }
+      })
       if (!ignore)
         processor.execute(psiElement, state)
       else

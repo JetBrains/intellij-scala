@@ -174,7 +174,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         case file: ScalaFile if !file.allowsForwardReferences =>
           resolve(0) match {
             case r if r.isForwardReference =>
-              ScalaPsiUtil.nameContext(r.getActualElement) match {
+              r.getActualElement.nameContext match {
                 case v: ScValue if !v.hasModifierProperty("lazy") => showError()
                 case _: ScVariable => showError()
                 case nameContext if nameContext.isValid =>
@@ -427,7 +427,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   private[this] def createFixesByUsages(reference: ScStableCodeReference): List[CreateTypeDefinitionQuickFix] =
     reference.getParent match {
-      case st: ScSimpleTypeElement if st.singleton => Nil
+      case st: ScSimpleTypeElement if st.isSingleton => Nil
       case pattern@(_: ScConstructorPattern | _: ScInfixPattern) =>
         new CreateCaseClassQuickFix(reference) ::
           new CreateExtractorObjectQuickFix(reference, pattern.asInstanceOf[ScPattern]) ::

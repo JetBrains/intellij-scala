@@ -11,7 +11,7 @@ class DynamicPropertyKeyInspectionTest extends ScalaInspectionTestBase {
     classOf[DynamicPropertyKeyInspection]
 
   override protected val description =
-    ScalaInspectionBundle.message("internal.only.pass.hardcoded.strings.as.property.keys")
+    ScalaI18nBundle.message("internal.only.pass.hardcoded.strings.as.property.keys")
 
   override protected def librariesLoaders: Seq[LibraryLoader] = super.librariesLoaders ++ Seq(
     IvyManagedLoader("org.jetbrains" % "annotations" % "22.0.0")

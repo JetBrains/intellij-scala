@@ -128,12 +128,12 @@ object ScalaBuilder {
   }
 
   private def scalaLibraryWarning(modules: Set[JpsModule], compilationData: CompilationData, client: Client): Unit = {
-    val hasScalaFacet = modules.exists(SettingsManager.getScalaSdk(_).isDefined)
+    val hasScalaSdk = modules.exists(SettingsManager.getScalaSdk(_).isDefined)
     val hasScalaLibrary = compilationData.classpath.exists(_.getName.startsWith("scala-library"))
 
     val hasScalaSources = compilationData.sources.exists(_.getName.endsWith(".scala"))
 
-    if (hasScalaFacet && !hasScalaLibrary && hasScalaSources) {
+    if (hasScalaSdk && !hasScalaLibrary && hasScalaSources) {
       val names = modules.map(_.getName).mkString(", ")
       client.warning(JpsBundle.message("no.scala.library.jar.in.module.dependencies", names))
     }

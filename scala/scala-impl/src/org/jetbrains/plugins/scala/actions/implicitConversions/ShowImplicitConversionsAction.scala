@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getSelectedExpression
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import java.awt.Color
@@ -111,7 +111,7 @@ final class ShowImplicitConversionsAction extends AnAction(
     Stats.trigger(FeatureKey.goToImplicitConversion)
 
     if (editor.getSelectionModel.hasSelection) {
-      getExpression(file).foreach(forExpr)
+      getSelectedExpression(file).foreach(forExpr)
     } else {
       val offset = editor.getCaretModel.getOffset
       val element: PsiElement = file.findElementAt(offset) match {

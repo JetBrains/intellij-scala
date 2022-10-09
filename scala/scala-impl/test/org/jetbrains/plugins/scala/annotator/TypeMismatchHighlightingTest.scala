@@ -291,7 +291,7 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     "def f[T](t: T): Int = 1; val v: Int = f[Int]") // TODO missing arguments?
 
   def testTypeMismatchUnappliedExtensionMethod(): Unit = assertErrors(
-    "implicit class AnyOps(val that: Any) { def f(x: Any): Unit = () }; val v: Int = 1.f",
+    "object Wrapper { implicit class AnyOps(val that: Any) { def f(x: Any): Unit = () }; val v: Int = 1.f }",
     Error("1.f", "Missing arguments for method f(Any)")) // TODO Exclude qualifier
 
   // TODO Highlight "& ", missing argument
@@ -301,7 +301,8 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   // TODO Highlight "-> ", missing argument
   def testTypeMismatchUnappliedExtensionMethodInfix(): Unit = assertErrors(
-    "implicit class AnyOps(val that: Any) { def -> (x: Any): Unit = () }; val v: Int = 1 ->")
+    "object Wrapper { implicit class AnyOps(val that: Any) { def -> (x: Any): Unit = () }; val v: Int = 1 -> }"
+  )
 
   def testTypeMismatchUnappliedCurrying(): Unit = assertErrors(
     "def f(i: Int)(s: String): Unit = (); val v: Int = f(1)",

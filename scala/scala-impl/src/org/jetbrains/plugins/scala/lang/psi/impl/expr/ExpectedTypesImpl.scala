@@ -4,7 +4,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
@@ -360,7 +360,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
                   ScUnderScoreSectionUtil.isUnderscore(expr) /* See SCL-3512, SCL-3525, SCL-4809, SCL-6785 */ =>
             ref.bind() match {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) =>
-                ScalaPsiUtil.nameContext(named) match {
+                named.nameContext match {
                   case v: ScValue =>
                     Array((subst(named.asInstanceOf[ScTypedDefinition].
                       `type`().getOrAny), v.typeElement))
@@ -468,13 +468,21 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case Some(content) => content.expectedTypesEx(fromUnderscore = fromUnderscore)
           case _ => Array.empty
         }
-      case b: ScBlock if b.getContext.isInstanceOf[ScTry]
-              || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock]
-              || b.getContext.isInstanceOf[ScCaseClause]
-              || b.getContext.isInstanceOf[ScFunctionExpr] => b.resultExpression match {
-        case Some(e) if sameInContext == e => b.expectedTypesEx(fromUnderscore = true)
-        case _ => Array.empty
-      }
+      case b: ScBlock if {
+        val context = b.getContext
+        context.isInstanceOf[ScTry] ||
+          context.isInstanceOf[ScCaseClause] ||
+          context.isInstanceOf[ScFunctionExpr] ||
+          //extra null checks are needed for some broken code, in order not to throw NPEs
+          context != null && {
+            val context2 = context.getContext
+            context2 != null && context2.getContext.isInstanceOf[ScCatchBlock]
+          }
+      } =>
+        b.resultExpression match {
+          case Some(e) if sameInContext == e => b.expectedTypesEx(fromUnderscore = true)
+          case _ => Array.empty
+        }
       case _ => Array.empty
     }
 

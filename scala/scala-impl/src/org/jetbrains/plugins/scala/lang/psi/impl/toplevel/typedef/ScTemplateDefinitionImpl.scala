@@ -375,12 +375,6 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     extendsBlock.selfTypeElement
   }
 
-
-  override def isScriptFileClass: Boolean = getContainingFile match {
-    case file: ScalaFile => file.isScriptFile
-    case _ => false
-  }
-
   override def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
     implicit val projectContext: ProjectContext = member.projectContext
     extendsBlock.templateBody.map {

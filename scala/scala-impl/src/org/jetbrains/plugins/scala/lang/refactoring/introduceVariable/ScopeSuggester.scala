@@ -28,18 +28,15 @@ import scala.jdk.CollectionConverters._
 
 object ScopeSuggester {
 
-  import PsiTreeUtil._
-  
   def suggestScopes(currentElement: ScTypeElement): Array[ScopeItem] = {
 
-    def getParent(element: PsiElement, isScriptFile: Boolean): PsiElement =
-      if (isScriptFile) getParentOfType(element, classOf[ScTemplateBody], classOf[ScalaFile])
-      else getParentOfType(element, classOf[ScTemplateBody])
+    def getParent(element: PsiElement): PsiElement =
+      PsiTreeUtil.getParentOfType(element, classOf[ScTemplateBody])
 
     def isSuitableParent(owners: Seq[ScTypeParametersOwner], parent: PsiElement): Boolean = {
       var result = true
       for (elementOwner <- owners) {
-        val pparent = getParentOfType(parent, classOf[ScTemplateDefinition])
+        val pparent = PsiTreeUtil.getParentOfType(parent, classOf[ScTemplateDefinition])
         if (pparent != null && (!elementOwner.isAncestorOf(pparent) || !elementOwner.isInstanceOf[ScTemplateDefinition])) {
           result = false
         }
@@ -47,10 +44,8 @@ object ScopeSuggester {
       result
     }
 
-    val isScriptFile = currentElement.getContainingFile.asInstanceOf[ScalaFile].isScriptFile
-
     val owners = ScalaRefactoringUtil.getTypeParameterOwnerList(currentElement) ++ ScalaRefactoringUtil.getTypeAliasOwnersList(currentElement)
-    var parent = getParent(currentElement, isScriptFile)
+    var parent = getParent(currentElement)
 
     //forbid to work with no template definition level
     var noContinue = owners.exists(!_.isInstanceOf[ScTemplateDefinition])
@@ -60,7 +55,7 @@ object ScopeSuggester {
       val containerName = parent match {
         case fileType: ScalaFile => Some("file " + fileType.getName)
         case _ =>
-          getParentOfType(parent, classOf[ScTemplateDefinition]) match {
+          PsiTreeUtil.getParentOfType(parent, classOf[ScTemplateDefinition]) match {
             case classType: ScClass =>
               Some("class " + classType.name)
             case objectType: ScObject =>
@@ -93,10 +88,10 @@ object ScopeSuggester {
       containerName.foreach { name =>
         result += SimpleScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toSet.asJava)
       }
-      parent = getParent(parent, isScriptFile)
+      parent = getParent(parent)
     }
 
-    val scPackage = getParentOfType(currentElement, classOf[ScPackaging])
+    val scPackage = PsiTreeUtil.getParentOfType(currentElement, classOf[ScPackaging])
 
     //forbid to use typeParameter type outside the class
     if ((scPackage != null) && owners.isEmpty && !noContinue) {
@@ -223,7 +218,7 @@ object ScopeSuggester {
     val maybePackageObject = inPackage.findPackageObject(projectSearchScope)
 
     val fileEncloser = maybePackageObject.fold(containingDirectory: PsiElement) { packageObject =>
-      getChildOfType(getChildOfType(packageObject, classOf[ScExtendsBlock]), classOf[ScTemplateBody])
+      PsiTreeUtil.getChildOfType(PsiTreeUtil.getChildOfType(packageObject, classOf[ScExtendsBlock]), classOf[ScTemplateBody])
     }
 
     val allOccurrences = mutable.ListBuffer.empty[Array[ScTypeElement]]
@@ -233,10 +228,7 @@ object ScopeSuggester {
       if (!maybePackageObject.exists(_.getContainingFile == file)) {
         val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, file)
         allOccurrences += occurrences
-        val parent = file match {
-          case scalaFile: ScalaFile if scalaFile.isScriptFile => file
-          case _ => findChildOfType(file, classOf[ScTemplateBody])
-        }
+        val parent = PsiTreeUtil.findChildOfType(file, classOf[ScTemplateBody])
         if (parent != null) {
           allValidators += ScalaTypeValidator(typeElement, parent, occurrences.isEmpty)
         }
@@ -252,7 +244,7 @@ object ScopeSuggester {
         val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, clazz)
         allOccurrences += occurrences
 
-        val parent = findChildOfType(clazz, classOf[ScTemplateBody])
+        val parent = PsiTreeUtil.findChildOfType(clazz, classOf[ScTemplateBody])
 
         allValidators += ScalaTypeValidator(typeElement, parent, occurrences.isEmpty)
       }

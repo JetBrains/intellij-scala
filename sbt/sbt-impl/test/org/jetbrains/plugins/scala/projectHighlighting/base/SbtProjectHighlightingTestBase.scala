@@ -196,5 +196,6 @@ object SbtProjectHighlightingTestBase {
   private val isProjectCachingDisabledPropertySet: Boolean =
     sys.props.get("project.highlighting.disable.cache").contains("true")
 
+  //NOTE: when updating, please also update `org.jetbrains.scalateamcity.common.Caching.highlightingPatterns`
   def projectsForHighlightingTestsRootPath: String = s"${TestUtils.getTestDataPath}/projectsForHighlightingTests"
 }

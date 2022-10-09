@@ -13,8 +13,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, TypeIsNotStable}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
@@ -99,27 +101,65 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
     if (nameMatches(namedElement)) {
       val accessible = isAccessible(namedElement, ref)
-      if (accessibility && !accessible) return true
+      if (accessibility && !accessible)
+        return true
+
+      //NOTE: for now this is the only resolver where `state.stableTypeExpected` is handled
+      //It was enough to properly highlight resolved references with non-stable types
+      //But I am not entirely sure where else it might be important
+      val problems: Seq[ApplicabilityProblem] =
+        if (state.stableTypeExpected && !hasStableTypeOrNotApplicable(namedElement))
+          TypeIsNotStable :: Nil
+        else Nil
+
       namedElement match {
         case o: ScObject if o.isPackageObject && JavaPsiFacade.getInstance(namedElement.getProject).
           findPackage(o.qualifiedName) != null =>
         case pack: PsiPackage =>
-          val resolveResult: ScalaResolveResult =
-            new ScalaResolveResult(ScPackageImpl(pack), state.substitutor, state.importsUsed, renamed, isAccessible = accessible)
-          addResult(resolveResult)
+          val result = new ScalaResolveResult(
+            ScPackageImpl(pack),
+            state.substitutor,
+            state.importsUsed,
+            renamed,
+            problems = problems,
+            isAccessible = accessible
+          )
+          addResult(result)
         case clazz: PsiClass if !isThisOrSuperResolve || PsiTreeUtil.isContextAncestor(clazz, ref, true) =>
-          addResult(new ScalaResolveResult(namedElement, state.substitutor,
-            state.importsUsed, renamed, fromType = state.fromType, isAccessible = accessible))
+          val result = new ScalaResolveResult(
+            namedElement,
+            state.substitutor,
+            state.importsUsed,
+            renamed,
+            problems = problems,
+            fromType = state.fromType,
+            isAccessible = accessible
+          )
+          addResult(result)
         case _: PsiClass => //do nothing, it's wrong class or object
         case _ if isThisOrSuperResolve => //do nothing for type alias
         case _ =>
-          addResult(new ScalaResolveResult(namedElement, state.substitutor,
-            state.importsUsed, renamed, fromType = state.fromType, isAccessible = accessible))
+          val result = new ScalaResolveResult(
+            namedElement,
+            state.substitutor,
+            state.importsUsed,
+            renamed,
+            problems = problems,
+            fromType = state.fromType,
+            isAccessible = accessible
+          )
+          addResult(result)
       }
     }
 
     true
   }
+
+  private def hasStableTypeOrNotApplicable(namedElement: PsiNamedElement): Boolean =
+    namedElement match {
+      case typed: ScTypedDefinition => typed.isStable
+      case _ => true
+    }
 
   protected final def nameMatches(namedElement: PsiNamedElement)
                                  (implicit state: ResolveState): Boolean = {

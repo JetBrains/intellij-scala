@@ -6,18 +6,19 @@ import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElement, L
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtOffset, getContextOfType, isAncestor}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{adjustTypes, nameContext}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaModifier, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.adjustTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScInterpolated, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScPatterned, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScReferenceExpressionImpl, ScReferenceImpl}
@@ -184,7 +185,8 @@ object ScalaBasicCompletionProvider {
 
     override protected final def postProcess(resolveResult: ScalaResolveResult): Unit = {
       ProgressManager.checkCanceled()
-      _lookupElementsBuilder ++= validLookupElement(resolveResult)
+      val newElements = validLookupElement(resolveResult)
+      _lookupElementsBuilder ++= newElements
     }
 
     protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = {
@@ -205,26 +207,36 @@ object ScalaBasicCompletionProvider {
       )
     }
 
-    private def isApplicable(element: PsiNamedElement,
-                             isNamedParameter: Boolean): Option[Boolean] = element match {
-      case clazz: PsiClass if isExcluded(clazz) => None
-      case definition: ScTypeDefinition if filterDuplications(definition) => None
+    private def isApplicable(
+      element: PsiNamedElement,
+      isNamedParameter: Boolean
+    ): Option[Boolean] = element match {
+      case clazz: PsiClass if isExcluded(clazz) =>
+        None
+      case definition: ScTypeDefinition if filterDuplications(definition) =>
+        None
       case parameter: ScClassParameter =>
         isValidLocalDefinition(parameter, isLocal = false)
       case parameter: ScParameter if !isNamedParameter =>
-        isValidLocalDefinition(parameter)
+        isValidLocalDefinition(parameter, isLocal = true)
       case pattern@(_: ScBindingPattern |
                     _: ScFieldId) =>
-        val context = nameContext(pattern) match {
-          case valueOrVariable: ScValueOrVariable if !valueOrVariable.isDefinedInClass => valueOrVariable
+        val nameContext = pattern.nameContext
+        val context = nameContext match {
+          // recursive ref is supported for `lazy val foo: String = foo`
+          case value: ScValue if value.hasModifierPropertyScala(ScalaModifier.LAZY) => null
+          case valueOrVariable: ScValueOrVariable => valueOrVariable
           case ScCaseClause(Some(pattern), _, _) => pattern
           case patterned: ScPatterned => patterned
           case _ => null
         }
-
+        val isLocal = nameContext match {
+          case member: ScMember => !member.isDefinedInClass
+          case _ => true
+        }
         context match {
           case null => Some(false)
-          case _ => isValidLocalDefinition(context)
+          case _ => isValidLocalDefinition(context, isLocal)
         }
       case _ => Some(false)
     }
@@ -236,12 +248,19 @@ object ScalaBasicCompletionProvider {
           case _ => isInImport
         })
 
-    private def isValidLocalDefinition(element: PsiElement,
-                                       isLocal: Boolean = true): Option[Boolean] =
-      if (isAncestor(element, getPlace, true))
+    private def isValidLocalDefinition(element: PsiElement, isLocal: Boolean): Option[Boolean] = {
+      val placeContext = getPlace.getContext
+      val placeParent = getPlace.getParent
+      //We need to check both context and parent, because sometimes `element` is resolved to an element in
+      //temporary synthetic file, created for completion, and sometimes it's resolved to real element in the original file
+      //I am not sure why is so. You might try removing one of the checks and run ScalaBasicCompletionTest to see the error
+      val isAncestor = placeContext != null && PsiTreeUtil.isAncestor(element, placeContext, false) ||
+        placeParent != null && PsiTreeUtil.isContextAncestor(element, placeParent, false)
+      if (isAncestor)
         None
       else
         Some(isLocal)
+    }
 
     private def isAccessible(element: PsiNamedElement,
                              isNamedParameter: Boolean): Boolean =

@@ -36,7 +36,7 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
     if (this.hasModifierPropertyScala(ScalaModifier.LAZY))
       this.hasFinalModifier || this.isTopLevel || // top level `lazy val x = 1` is effectively final
         !this.isInScala3File || // in scala2 lazy val can be referenced with `.type` even without explicit type
-        typeElement.exists(_.singleton)
+        typeElement.exists(_.isSingleton)
     else
       true
 

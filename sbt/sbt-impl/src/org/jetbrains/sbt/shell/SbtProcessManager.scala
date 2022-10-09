@@ -26,7 +26,6 @@ import com.pty4j.unix.UnixPtyProcess
 import com.pty4j.{PtyProcess, WinSize}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
@@ -94,8 +93,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
-  @TraceWithLogger
   private def createShellProcessHandler(): (ColoredProcessHandler, Option[RemoteConnection]) = {
+    log.debug("createShellProcessHandler")
     val workingDirPath =
       Option(ProjectUtil.guessProjectDir(project))
         .getOrElse(throw new IllegalStateException(s"no project directory found for project ${project.getName}"))
@@ -356,15 +355,16 @@ final class SbtProcessManager(project: Project) extends Disposable {
   }
 
   /** asynchronously initializes SbtShellRunner with sbt process, console ui and opens sbt shell window */
-  @TraceWithLogger
-  def initAndRunAsync(): Unit =
+  def initAndRunAsync(): Unit = {
+    log.debug("initAndRunAsync")
     executeOnPooledThread {
       val runner = acquireShellRunner()
       runner.openShell(true)
     }
+  }
 
-  @TraceWithLogger
   private def updateProcessData(): ProcessData = {
+    log.trace("updateProcessData")
     val pd = createProcessData()
     processData.synchronized {
       processData = Some(pd)
@@ -373,7 +373,6 @@ final class SbtProcessManager(project: Project) extends Disposable {
     pd
   }
 
-  @TraceWithLogger
   private def createProcessData(): ProcessData = {
     val (handler, debugConnection) = createShellProcessHandler()
     val title = project.getName
@@ -392,8 +391,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * The process handler should only be used to access the running process!
    * SbtProcessManager is solely responsible for handling the running state.
    */
-  @TraceWithLogger
   private[shell] def acquireShellProcessHandler(): ColoredProcessHandler = processData.synchronized {
+    log.trace("acquireShellProcessHandler")
     processData match {
       case Some(data@ProcessData(handler, _)) if isAlive(data) =>
         handler
@@ -403,8 +402,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
   }
 
   /** Creates the SbtShellRunner view if necessary. */
-  @TraceWithLogger
   def acquireShellRunner(): SbtShellRunner = processData.synchronized {
+    log.trace("processData")
     processData match {
       case Some(data@ProcessData(_, runner)) if isAlive(data) =>
         runner
@@ -415,14 +414,14 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   def shellRunner: Option[SbtShellRunner] = processData.map(_.runner)
 
-  @TraceWithLogger
   def restartProcess(): Unit = processData.synchronized {
+    log.debug("restartProcess")
     destroyProcess()
     updateProcessData()
   }
 
-  @TraceWithLogger
   def destroyProcess(): Unit = processData.synchronized {
+    log.debug("destroyProcess")
     processData match {
       case Some(ProcessData(handler, _)) =>
         handler.destroyProcess()

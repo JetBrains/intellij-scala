@@ -17,7 +17,7 @@ class ScalaRunLineMarkerContributor extends RunLineMarkerContributor {
   override def getInfo(element: PsiElement): Info = {
     element.getContainingFile match {
       case scriptLikeFile: ScalaFile
-        if scriptLikeFile.isWorksheetFile || scriptLikeFile.isScriptFile || scriptLikeFile.isMultipleDeclarationsAllowed =>
+        if scriptLikeFile.isWorksheetFile || scriptLikeFile.isMultipleDeclarationsAllowed =>
         return null
       case _ =>
     }

@@ -30,10 +30,23 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightCodeInsightFixtureTe
   protected def doTest(
     settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))
   ): Unit = withSettings(settings, getProject) {
-    val fileName = s"${getTestName(false)}.scala"
-    val filePath = s"$folderPath$fileName".replace(File.separatorChar, '/')
-    val vFile = LocalFileSystem.getInstance.findFileByPath(filePath)
-    assert(vFile != null, s"file $filePath not found")
+    val testName = getTestName(false)
+
+    val (fileName, filePath) = {
+      //support ordinary scala files and scala worksheets
+      val name1 = s"$testName.scala"
+      val path1 = s"$folderPath$name1".replace(File.separatorChar, '/')
+
+      val name2 = s"$testName.sc"
+      val path2 = s"$folderPath$name2".replace(File.separatorChar, '/')
+
+      val vFile1 = LocalFileSystem.getInstance.findFileByPath(path1)
+      val vFile2 = LocalFileSystem.getInstance.findFileByPath(path2)
+      assertTrue(s"file for $testName not found in $folderPath", vFile1 != null || vFile2 != null)
+
+      if (vFile1 != null) (name1, path1)
+      else (name2, path2)
+    }
 
     val (fileText, scopeOffset, startOffset, endOffset) = extractFileContentText(filePath)
 

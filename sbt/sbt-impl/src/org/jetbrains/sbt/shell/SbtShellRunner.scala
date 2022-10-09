@@ -11,10 +11,11 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.ToolWindow
 import com.intellij.ui.content.impl.ContentImpl
 import com.intellij.ui.content.{Content, ContentFactory}
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLater}
-import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.sbt.SbtBundle
@@ -52,33 +53,32 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
 
   //called manually by Scala Plugin, underlying initialization can be done asynchronously, so
   //right after the method execution `getConsoleView` can still return `null` and `isRunning` return false
-  @TraceWithLogger
   override def initAndRun(): Unit = {
+    log.debug("initAndRun")
     showInitializingPlaceholder()
     super.initAndRun()
   }
 
-  @TraceWithLogger
   private def showInitializingPlaceholder(): Unit = {
     SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
       invokeLater {
         val label = new JLabel(SbtBundle.message("initializing.sbt.shell.message"), SwingConstants.CENTER)
         label.setOpaque(true)
         //noinspection ScalaExtractStringToBundle
-        toolWindow.setContent(new ContentImpl(label, "", false))
+        setContent(toolWindow, new ContentImpl(label, "", false))
       }
     }
   }
 
   // is called from AbstractConsoleRunnerWithHistory.initAndRun from EDT, can be invoked asynchronously
-  @TraceWithLogger
   override def createConsoleView: SbtShellConsoleView = {
+    log.debug("createConsoleView")
     SbtShellConsoleView(project, debugConnection)
   }
 
   // is called from AbstractConsoleRunnerWithHistory.initAndRun from EDT, can be invoked asynchronously
-  @TraceWithLogger
-  override def createContentDescriptorAndActions(): Unit = if(notInTest) {
+  override def createContentDescriptorAndActions(): Unit = if(!isUnitTestMode) {
+    log.debug("createContentDescriptorAndActions")
     super.createContentDescriptorAndActions()
 
     executeOnPooledThread {
@@ -86,8 +86,9 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     }
   }
 
-  @TraceWithLogger
   private def initSbtShell(): Unit = {
+    log.debug("initSbtShell")
+
     val consoleView = getConsoleView
     if (consoleView == null) {
       log.error("console view should be created in initAndRun by this moment")
@@ -113,11 +114,11 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     }
 
     new SbtShellReadyListener(
-      whenReady = if (notInTest) {
+      whenReady = if (!isUnitTestMode) {
         consoleView.setPrompt(">")
         scrollToEnd()
       },
-      whenWorking = if (notInTest) {
+      whenWorking = if (!isUnitTestMode) {
         val status = SbtBundle.message("sbt.shell.status.busy")
         consoleView.setPrompt(s"($status) >")
         scrollToEnd()
@@ -125,17 +126,18 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     )
   }
 
-  private def initSbtShellUi(consoleView: SbtShellConsoleView): Unit = if (notInTest) {
+  private def initSbtShellUi(consoleView: SbtShellConsoleView): Unit = if (!isUnitTestMode) {
     SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
       invokeLater {
         val content = createToolWindowContent(consoleView)
-        toolWindow.setContent(content)
+        setContent(toolWindow, content)
       }
     }
   }
 
-  @TraceWithLogger
   private def createToolWindowContent(consoleView: SbtShellConsoleView): Content = {
+    log.debug("createToolWindowContent")
+
     val actionGroup = consoleView.createActionGroup()
     val actionToolBar = ActionManager.getInstance().createActionToolbar("sbt-shell-toolbar", actionGroup, false)
 
@@ -212,9 +214,16 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
       trimmed == "test" || trimmed.startsWith("testOnly") || trimmed.startsWith("testQuick")
     }
   }
+
+  private def setContent(toolWindow: ToolWindow, @NotNull content: Content): Unit = {
+    log.trace("setContent")
+    val twContentManager = toolWindow.getContentManager
+    twContentManager.removeAllContents(true)
+    twContentManager.addContent(content)
+  }
 }
 
 object SbtShellRunner {
 
-  private def notInTest: Boolean = !ApplicationManager.getApplication.isUnitTestMode
+  private val isUnitTestMode: Boolean = ApplicationManager.getApplication.isUnitTestMode
 }

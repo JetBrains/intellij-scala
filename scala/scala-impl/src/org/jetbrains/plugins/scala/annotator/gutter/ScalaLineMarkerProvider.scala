@@ -340,7 +340,7 @@ private object GutterUtil {
         val iter = supers.iterator
         while (iter.hasNext) {
           val named = iter.next()
-          ScalaPsiUtil.nameContext(named) match {
+          named.nameContext match {
             case _: ScFunctionDefinition                          => return true
             case _: ScFunction                                    =>
             case method: PsiMethod if !method.hasAbstractModifier => return true

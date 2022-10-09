@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getSelectedExpression
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 class ShowTypeInfoAction extends AnAction(
@@ -49,7 +49,7 @@ class ShowTypeInfoAction extends AnAction(
       implicit val project: Project = file.getProject
 
       def hintForExpression: Option[String] = {
-        getExpression(file).map {
+        getSelectedExpression(file).map {
           case expr@Typeable(tpe) =>
             implicit val context: TypePresentationContext = expr
             val tpeText = tpe.presentableText

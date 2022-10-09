@@ -13,7 +13,7 @@ case class ExtractMethodParameter(oldName: String, newName: String, fromElement:
     case fun: ScFunction => fun.parameters.length == 0
     case _ => false
   }
-  val isCallByNameParameter: Boolean = ScalaPsiUtil.nameContext(fromElement) match {
+  val isCallByNameParameter: Boolean = fromElement.nameContext match {
     case v: ScValue if v.hasModifierProperty("lazy") => true
     case p: ScParameter if p.isCallByNameParameter => true
     case _ => false

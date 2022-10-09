@@ -19,7 +19,7 @@ class ChainedPackageInspection extends LocalInspectionTool {
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] =
     file match {
-      case file: ScalaFile if !file.isScriptFile =>
+      case file: ScalaFile =>
         val maybeProblemDescriptor = for {
           firstPackaging <- file.firstPackaging
           module <- file.module

@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import org.jetbrains.annotations.{Nls, NotNull}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -117,7 +117,7 @@ object RenameSuperMembersUtil {
       if (oneSuperClass) {
         val qualName = classes.head.qualifiedName
 
-        ScalaPsiUtil.nameContext(superMembers.head) match {
+        superMembers.head.nameContext match {
           case _: ScDeclaration => ScalaBundle.message("name.implements.member.of.qualname", name, qualName)
           case _ => ScalaBundle.message("name.overrides.member.of.qualname", name, qualName)
         }
@@ -154,7 +154,7 @@ object RenameSuperMembersUtil {
 
   @NotNull
   def allSuperMembers(named: ScNamedElement, withSelfType: Boolean): Seq[PsiNamedElement] = {
-    val member = ScalaPsiUtil.nameContext(named) match {
+    val member = named.nameContext match {
       case m: ScMember => m
       case _ => return Seq.empty
     }
@@ -172,7 +172,7 @@ object RenameSuperMembersUtil {
 
   @NotNull
   def allSuperTypes(named: ScNamedElement, withSelfType: Boolean): Seq[PsiNamedElement] = {
-    val typeAlias = ScalaPsiUtil.nameContext(named) match {
+    val typeAlias = named.nameContext match {
       case t: ScTypeAlias => t
       case _ => return Seq()
     }
@@ -191,7 +191,7 @@ object RenameSuperMembersUtil {
   @NotNull
   private def findMaxSuperMembers(elements: Seq[PsiNamedElement]): Seq[PsiNamedElement] = {
     def elementWithContainingClass(elem: PsiNamedElement) = {
-      ScalaPsiUtil.nameContext(elem) match {
+      elem.nameContext match {
         case sm: ScMember => Option(sm.containingClass, elem)
         case m: PsiMember => Option((m.getContainingClass, elem))
         case _ => None

@@ -47,7 +47,7 @@ trait IntroduceExpressions {
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       writableScalaFile(file, INTRODUCE_VARIABLE_REFACTORING_NAME)
 
-      val (expr, types) = getExpressionWithTypes(file, startOffset, endOffset).getOrElse {
+      val (expr, types) = getExpressionWithTypes(file, editor.getDocument, startOffset, endOffset).getOrElse {
         showErrorHint(ScalaBundle.message("cannot.refactor.not.expression"), INTRODUCE_VARIABLE_REFACTORING_NAME)
         return
       }
@@ -85,7 +85,7 @@ trait IntroduceExpressions {
   @TestOnly
   def suggestedNamesForExpression(file: PsiFile, startOffset: Int, endOffset: Int)
                                  (implicit project: Project, editor: Editor): ArraySeq[String] = {
-    val Some((expr, types)) = getExpressionWithTypes(file, startOffset, endOffset)
+    val Some((expr, types)) = getExpressionWithTypes(file, editor.getDocument, startOffset, endOffset)
     val occurrences = fileEncloser(file, startOffset).toSeq.flatMap {
       getOccurrenceRanges(expr, _)
     }

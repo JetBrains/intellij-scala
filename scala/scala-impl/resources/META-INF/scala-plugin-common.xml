@@ -74,9 +74,6 @@
 
         <breadcrumbsInfoProvider
                 implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider"/>
-        <project.converterProvider
-                implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"
-                id="scala-facets-to-sdks"/>
         <codeStyle.ReferenceAdjuster language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.template.ScalaReferenceAdjuster"/>
         <lang.rearranger language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.rearranger.ScalaRearranger"/>
         <exceptionFilter implementation="org.jetbrains.plugins.scala.stacktrace.ScalaPackageObjectFilterFactory" order="first"/>
@@ -273,7 +270,6 @@
         <internalFileTemplate name="Scala CaseObject"/>
         <internalFileTemplate name="Scala Trait"/>
         <internalFileTemplate name="Scala Object"/>
-        <internalFileTemplate name="Scala Script"/>
         <internalFileTemplate name="Package Object"/>
         <internalFileTemplate name="Scala File"/>
         <internalFileTemplate name="Scala Enum"/>
@@ -512,7 +508,8 @@
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettingsImpl"/>
 
-        <projectConfigurable id="Scala Compiler" bundle="messages.ScalaInspectionBundle"
+        <projectConfigurable id="scala.compiler"
+                             bundle="messages.ScalaBundle"
                              key="displayname.scala.compiler"
                              parentId="project.propCompiler" dynamic="true"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable"/>
@@ -1859,7 +1856,7 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"/>
 
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
-        
+
         <iconMapper mappingFile="ScalaIconMappings.json" />
 
     </extensions>
@@ -1959,11 +1956,6 @@
         </action>
         <action id="Scala.ExtractTrait" class="org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitAction">
             <add-to-group group-id="IntroduceActionsGroup"/>
-        </action>
-        <action id="Scala.ShowDiscoveredTests"
-                class="org.jetbrains.plugins.scala.testDiscovery.actions.ScalaShowAffectedTestsAction">
-            <add-to-group group-id="RunMenu" anchor="before" relative-to-action="DebugMainMenu"/>
-            <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
         </action>
         <action id="Scala.RunActionOnPsiElementWithTraceLogger"
                 internal="true"

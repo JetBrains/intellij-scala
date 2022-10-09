@@ -30,13 +30,13 @@ abstract class ReferenceComparisonTestBase_Scala3 extends ReferenceComparisonTes
 abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
 
   override def doTest(testName: String, shouldSucceed: Boolean): Unit = {
-    val Result(problems, _, _, _, _, _, _) = runTestToResult(testName)
+    val Result(actualProblems, _, _, _, _, _, _) = runTestToResult(testName)
 
     if (shouldSucceed) {
-      assert(problems.isEmpty, problems.mkString("\n"))
+      assert(actualProblems.isEmpty, actualProblems.mkString("\n"))
     } else {
-      println(problems.mkString("\n"))
-      assert(problems.nonEmpty, "Expected some problems, but found none")
+      println(actualProblems.mkString("\n"))
+      assert(actualProblems.nonEmpty, "Expected some problems, but found none")
     }
   }
 
@@ -56,13 +56,17 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
       val references = file
         .depthFirst(!_.is[ScImportStmt]) // don't look into ScImportStmt, some weird stuff is going on in semanticdb
         .filterByType[ScReference]
-        .map(RefInfo.fromRef)
         .toSeq
-      val implicitArgs = file
+
+      val implicitParameterOwners = file
         .depthFirst()
         .filterByType[ImplicitArgumentsOwner]
-        .flatMap(RefInfo.forImplicitArguments)
-      for (ref <- references ++ implicitArgs) {
+        .toSeq
+
+      val referencesInfo = references.map(RefInfo.fromRef)
+      val implicitArgs = implicitParameterOwners.flatMap(RefInfo.forImplicitArguments)
+
+      for (ref <- referencesInfo ++ implicitArgs) {
         refCount += 1
 
         if (ref.failedToResolve) {
@@ -292,30 +296,34 @@ object ReferenceComparisonTestBase {
   }
 
   object RefInfo {
-    def fromRef(ref: ScReference): RefInfo =
+    def fromRef(ref: ScReference): RefInfo = {
+      val resolveResult = ref.multiResolveScala(false).toSeq
+      val problems = None
       RefInfo(
         ref.refName,
         TextPos.of(ref.nameId),
-        ref.multiResolveScala(false).toSeq,
+        resolveResult,
         ref.getContainingFile.name,
-        None,
+        problems,
         isImplicit = false
       )
+    }
 
     def forImplicitArguments(iao: ImplicitArgumentsOwner): Seq[RefInfo] = {
       iao.findImplicitArguments match {
         case Some(iargs) =>
           iargs.zipWithIndex.flatMap { case (rr, i) =>
             val file = iao.getContainingFile
+            val problems = rr.problems match {
+              case Seq() => None
+              case problems => Some(problems.mkString(", "))
+            }
             Some(RefInfo(
               s"implicit-param:$i",
               TextPos.at(iao.endOffset, file),
               Seq(rr),
               file.name,
-              rr.problems match {
-                case Seq() => None
-                case problems => Some(problems.mkString(", "))
-              },
+              problems,
               isImplicit = true
             ))
           }

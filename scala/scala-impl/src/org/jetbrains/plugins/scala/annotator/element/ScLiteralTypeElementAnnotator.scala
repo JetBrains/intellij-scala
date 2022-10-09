@@ -14,7 +14,7 @@ object ScLiteralTypeElementAnnotator extends ElementAnnotator[ScLiteralTypeEleme
     if (!holder.getCurrentAnnotationSession.getFile.literalTypesEnabled) {
       holder.createErrorAnnotation(element, ScalaBundle.message("wrong.type.no.literal.types", element.getText))
     }
-    else if (!element.singleton) {
+    else if (!element.isSingleton) {
       val literalName = element.getLiteral match {
         case _: ScInterpolatedStringLiteral => "string interpolator"
         case _: ScNullLiteral               => "'null'"

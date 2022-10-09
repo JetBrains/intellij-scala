@@ -1515,13 +1515,79 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     fileText =
       s"""class Foo
          |
-         |val foo = new f$CARET
+         |class A {
+         |  def function(): Unit = {
+         |    val foo = new f$CARET
+         |  }
+         |}
          |""".stripMargin,
     item = "foo"
   )
 
   def testLocalValueName2(): Unit = checkNoBasicCompletion(
-    fileText = s"val (foo, bar) = f$CARET",
+    fileText =
+      s"""class A {
+         |  def function(): Unit = {
+         |    val (foo, bar) = f$CARET
+         |  }
+         |}""".stripMargin,
+    item = "foo"
+  )
+
+  def testLocalValueName_WithTypeDefinition(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class Foo
+         |
+         |class A {
+         |  def function(): Unit = {
+         |    val foo: String = f$CARET
+         |  }
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testLocalValueName_InTypeAnnotation(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class Foo
+         |
+         |class A {
+         |  def function(): Unit = {
+         |    val foo: f$CARET
+         |  }
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testLocalValue_ClassField(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""class A {
+         |  val (foo, bar) = f$CARET
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testLocalLazyValueName(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo
+         |
+         |class A {
+         |  def function(): Unit = {
+         |    lazy val foo = f$CARET
+         |  }
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class Foo
+         |
+         |class A {
+         |  def function(): Unit = {
+         |    lazy val foo = foo
+         |  }
+         |}
+         |""".stripMargin,
     item = "foo"
   )
 
@@ -1962,7 +2028,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest {
     )
   }
 
-  override def testLocalValueName(): Unit = failing(super.testLocalValueName())
+  override def testLocalValueName(): Unit = super.testLocalValueName()
 
-  override def testLocalValueName2(): Unit = failing(super.testLocalValueName2())
+  override def testLocalValueName2(): Unit = super.testLocalValueName2()
 }

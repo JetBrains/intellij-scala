@@ -23,7 +23,7 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
       parameters.getElementToSearch match {
         case named: PsiNamedElement =>
           val name = named.name
-          ScalaPsiUtil.nameContext(named) match {
+          named.nameContext match {
             case _: PsiNamedElement | _: PsiMember | _: ScTypeAlias if name != null && !StringUtil.isEmptyOrSpaces(name) =>
               val scope = ScalaFilterScope(parameters)
               Some((named, name, scope))

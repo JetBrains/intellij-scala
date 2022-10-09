@@ -40,7 +40,7 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
                 }
               }
             }
-            ScalaPsiUtil.nameContext(r.element) match {
+            r.element.nameContext match {
               case _: ScVariable =>
                 if (!typeAware) return
                 checkVariable()

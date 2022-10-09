@@ -1,3 +1,5 @@
-val x: (T => Int) forSome {type T} = null
-/*start*/x/*end*/
+object Wrapper {
+  val x: (T => Int) forSome {type T} = ???
+  /*start*/x/*end*/
+}
 //Nothing => Int

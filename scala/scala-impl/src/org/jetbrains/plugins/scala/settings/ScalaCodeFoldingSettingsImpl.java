@@ -22,7 +22,6 @@ public class ScalaCodeFoldingSettingsImpl extends ScalaCodeFoldingSettings imple
   private boolean FOLD_ARGUMENT_BLOCK = false;
   private boolean FOLD_TEMPLATE_BODIES = false;
   private boolean FOLD_DEFINITION_BODIES = false;
-  private boolean FOLD_SHELL_COMMENTS = true;
   private boolean FOLD_BLOCK_COMMENTS = false;
   private boolean FOLD_PACKAGINGS = false;
   private boolean FOLD_TYPE_LAMBDA = false;
@@ -63,16 +62,6 @@ public class ScalaCodeFoldingSettingsImpl extends ScalaCodeFoldingSettings imple
   @Override
   public void setCollapseCustomRegions(boolean value) {
     FOLD_CUSTOM_REGION = value;
-  }
-
-  @Override
-  public boolean isCollapseShellComments() {
-    return FOLD_SHELL_COMMENTS;
-  }
-
-  @Override
-  public void setCollapseShellComments(boolean value) {
-    FOLD_SHELL_COMMENTS = value;
   }
 
   @Override

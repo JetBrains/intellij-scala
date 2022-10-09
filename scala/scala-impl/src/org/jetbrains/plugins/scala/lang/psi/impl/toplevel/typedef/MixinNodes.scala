@@ -219,9 +219,9 @@ object MixinNodes {
 
       allNames.add(name)
 
-      if (signature.isImplicit || signature.isExtensionMethod)
+      if (signature.isImplicit || signature.isExtensionMethod) {
         implicitNames.add(name)
-
+      }
     }
 
     def nodesIterator(decodedName: String,

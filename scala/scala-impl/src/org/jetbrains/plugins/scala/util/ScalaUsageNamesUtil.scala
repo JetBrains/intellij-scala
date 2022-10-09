@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.util
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{isBeanProperty, isBooleanBeanProperty}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -84,7 +83,7 @@ object ScalaUsageNamesUtil {
       case named: PsiNamedElement =>
         val name = named.name
         result.add(name)
-        nameContext(named) match {
+        named.nameContext match {
           case v: ScValue if isBeanProperty(v) =>
             result.add("get" + StringUtil.capitalize(name))
           case v: ScVariable if isBeanProperty(v) =>

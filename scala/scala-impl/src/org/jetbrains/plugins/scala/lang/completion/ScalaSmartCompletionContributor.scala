@@ -535,7 +535,7 @@ object ScalaSmartCompletionContributor {
   }
 
   private[this] def isAccessible(item: ScalaLookupItem)
-                                (implicit place: PsiElement): Boolean = ScalaPsiUtil.nameContext(item.getPsiElement) match {
+                                (implicit place: PsiElement): Boolean = item.getPsiElement.nameContext match {
     case member: ScMember => isAccessible(member)
     case _ => true
   }

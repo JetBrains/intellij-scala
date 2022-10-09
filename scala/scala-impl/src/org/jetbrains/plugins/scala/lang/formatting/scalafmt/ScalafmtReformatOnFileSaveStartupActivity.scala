@@ -55,14 +55,6 @@ private final class ScalafmtReformatOnFileSaveStartupActivity extends StartupAct
     else fileIndex.isInSourceContent(vFile)
   }
 
-  private def isFileSupported(file: PsiFile): Boolean = {
-    file match {
-      case sf: ScalaFile =>
-        // script file formatting can only be done explicitly by calling reformat action on worksheet file
-        // this is because it involves some hacks with file tree modification, that is prohibited in file save hook
-        !sf.isScriptFile
-      case _ =>
-        false
-    }
-  }
+  private def isFileSupported(file: PsiFile): Boolean =
+    file.isInstanceOf[ScalaFile]
 }

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.util.matching.Regex
 
-trait Declaration {
+sealed trait Declaration {
   def entity: Entity
 
   def visibility: Visibility

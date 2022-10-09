@@ -1,3 +1,5 @@
-val x: T forSome {type T} = 1
-/*start*/x/*end*/
+object Wrapper {
+  val x: T forSome {type T} = ???
+  /*start*/x/*end*/
+}
 //Any

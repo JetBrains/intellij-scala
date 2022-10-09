@@ -156,7 +156,7 @@ class ScalaInliner extends InlineHandler.Inliner {
   private def postProcess(newValue: PsiElement) = {
     val project = newValue.getProject
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
-    highlightOccurrences(Seq(newValue))(project, editor)
+    highlightOccurrences(project, Seq(newValue), editor)
     CodeStyleManager.getInstance(project).reformatRange(newValue.getContainingFile, newValue.getTextRange.getStartOffset - 1,
       newValue.getTextRange.getEndOffset + 1) //to prevent situations like this 2 ++2 (+2 was inlined)
   }

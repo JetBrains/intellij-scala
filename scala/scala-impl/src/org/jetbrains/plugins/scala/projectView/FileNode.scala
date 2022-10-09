@@ -51,14 +51,4 @@ private[projectView] object FileNode {
 
     override def getIcon(flags: Int): Icon = fileType.getIcon
   }
-
-  final class ScriptFileNode(override protected val file: ScalaFile)
-                            (implicit project: Project, settings: ViewSettings)
-    extends FileNode(file) {
-
-    override def getIcon(flags: Int): Icon = icons.Icons.SCRIPT_FILE_LOGO
-
-    //noinspection TypeAnnotation
-    override def getChildrenImpl = ju.Collections.emptyList[Node]()
-  }
 }

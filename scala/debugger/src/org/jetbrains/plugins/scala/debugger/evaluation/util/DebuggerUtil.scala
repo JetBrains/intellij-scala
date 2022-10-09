@@ -424,7 +424,7 @@ object DebuggerUtil {
       case _: ScClassParameter => false
       case _: PsiParameter => true
       case b: ScBindingPattern =>
-        ScalaPsiUtil.nameContext(b) match {
+        b.nameContext match {
           case v @ (_: ScValue | _: ScVariable) =>
             val context = v.getContext
             !context.is[ScTemplateBody, ScEarlyDefinitions, ScalaFile]
@@ -454,7 +454,6 @@ object DebuggerUtil {
       case m: PsiMethod => m
       case tb: ScTemplateBody => tb
       case ed: ScEarlyDefinitions => ed
-      case ChildOf(f: ScalaFile) if f.isScriptFile => f
       case c: ScClass => c
     }
   }

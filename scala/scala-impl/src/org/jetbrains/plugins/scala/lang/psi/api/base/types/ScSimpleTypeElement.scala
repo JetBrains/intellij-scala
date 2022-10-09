@@ -12,7 +12,14 @@ trait ScSimpleTypeElement extends ScTypeElement {
 
   def pathElement: ScPathElement = findChild[ScPathElement].get
 
-  override def singleton: Boolean = getNode.findChildByType(lang.lexer.ScalaTokenTypes.kTYPE) != null
+  /**
+   *  @return true for `val x: SomIdentifier.type`<br>
+   *          false for `val y: String`
+   */
+  override def isSingleton: Boolean = {
+    val typeToken = getNode.findChildByType(lang.lexer.ScalaTokenTypes.kTYPE)
+    typeToken != null
+  }
 
   def annotation: Boolean = ScalaPsiUtil.getContext(this, 2).exists(_.isInstanceOf[ScAnnotationExpr])
 

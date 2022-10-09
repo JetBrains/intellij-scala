@@ -7,7 +7,7 @@ package params
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -62,7 +62,19 @@ final class ScClassParameterImpl private(stub: ScParameterStub, node: ASTNode)
     case _ => false
   }
 
-  override def isStable: Boolean = byStubOrPsi(_.isStable)(findChildByType(ScalaTokenTypes.kVAR) == null)
+  /** @see [[org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable.isStable]] */
+  override def isStable: Boolean = {
+    byStubOrPsi(_.isStable) {
+      val isVarParam = findChildByType(ScalaTokenTypes.kVAR) != null
+      !isVarParam || {
+        //SCL-19477
+        if (this.isInScala3File)
+          typeElement.exists(_.isSingleton)
+        else
+          false
+      }
+    }
+  }
 
   override def getOriginalElement: PsiElement = {
     val ccontainingClass = containingClass

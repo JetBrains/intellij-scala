@@ -1526,7 +1526,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_rangepos_anonapply(): Unit = doTest("rangepos-anonapply", true)
   def test_rangepos_patmat(): Unit = doTest("rangepos-patmat", true)
   def test_raw_map(): Unit = doTest("raw-map", true)
-  def test_realizable_mut(): Unit = doTest("realizable-mut", false)
+  def test_realizable_mut(): Unit = doTest("realizable-mut", true)
   def test_rebind(): Unit = doTest("rebind", true)
   def test_reference(): Unit = doTest("reference", false) // #enum, #transparentInline, #extension, #typeLambda, #opaque, #export, #byNameImplicit, #unionType, #traitParameters, #intersectionType
   def test_refinedSubtyping(): Unit = doTest("refinedSubtyping", false)

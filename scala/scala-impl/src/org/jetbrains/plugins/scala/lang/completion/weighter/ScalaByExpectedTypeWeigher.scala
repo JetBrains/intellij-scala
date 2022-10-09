@@ -5,7 +5,7 @@ package weighter
 
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher, WeighingContext}
 import com.intellij.psi.{PsiElement, PsiField, PsiMethod, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -98,7 +98,7 @@ object ScalaByExpectedTypeWeigher {
   }
 
   private def isAccessible(element: PsiNamedElement)
-                          (implicit place: PsiElement): Boolean = ScalaPsiUtil.nameContext(element) match {
+                          (implicit place: PsiElement): Boolean = element.nameContext match {
     case member: ScMember => ResolveUtils.isAccessible(member, place, forCompletion = true)
     case _ => true
   }

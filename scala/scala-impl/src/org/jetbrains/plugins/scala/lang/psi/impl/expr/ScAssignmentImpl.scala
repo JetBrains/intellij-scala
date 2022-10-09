@@ -7,6 +7,7 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElement, PsiField}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
@@ -87,7 +88,7 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
       case ref: ScReferenceExpression =>
         ref.bind() match {
           case Some(r) =>
-            ScalaPsiUtil.nameContext(r.element) match {
+            r.element.nameContext match {
               case _: ScVariable => None
               case c: ScClassParameter if c.isVar => None
               case _: PsiField => None

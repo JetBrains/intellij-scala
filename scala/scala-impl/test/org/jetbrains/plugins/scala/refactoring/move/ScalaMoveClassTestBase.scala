@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.refactoring.move
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.search.GlobalSearchScope
@@ -11,11 +12,12 @@ import com.intellij.refactoring.PackageWrapper
 import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, SingleSourceRootMoveDestination}
 import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.{TestUtils, WriteCommandActionEx}
-import org.junit.Assert.{assertEquals, assertNotNull}
+import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
 
 import java.io.File
 import java.nio.file.Path
@@ -41,6 +43,17 @@ abstract class ScalaMoveClassTestBase extends ScalaLightCodeInsightFixtureTestCa
     val rootBefore = root + "/before"
     val rootAfter  = root + "/after"
     findAndRefreshVFile(rootBefore)
+
+    //remove existing content entries (default source folders),
+    //otherwise default package (empty one, "") will be detected in this content entry during move refactoring
+    inWriteAction {
+      ModuleRootModificationUtil.modifyModel(module, model => {
+        val contentEntries = model.getContentEntries
+        contentEntries.foreach(model.removeContentEntry)
+        true
+      })
+    }
+
     rootDirBefore = PsiTestUtil.createTestProjectStructure(project, module, rootBefore, new util.HashSet[Path](), true)
     rootDirAfter = findAndRefreshVFile(rootAfter)
   }
@@ -95,8 +108,12 @@ abstract class ScalaMoveClassTestBase extends ScalaLightCodeInsightFixtureTestCa
     assertNotNull(s"Can't find package '$targetPackageName'", targetPackage)
 
     val dirs: Array[PsiDirectory] = targetPackage.getDirectories(GlobalSearchScope.moduleScope(getModule))
-    assertEquals("Expected only single directory in module", 1, dirs.length)
-    val targetDirectory: PsiDirectory = dirs(0)
+    assertTrue(
+      s"""Expected only single directory in module, but got ${dirs.length}:
+         |${dirs.mkString("\n")}""".stripMargin,
+      dirs.length == 1
+    )
+    val targetDirectory: PsiDirectory = dirs.head
 
     WriteCommandActionEx.runWriteCommandAction(getProject, () => {
       ScalaFileImpl.performMoveRefactoring {

@@ -57,7 +57,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case j: JavaChangeInfo => j.getNewVisibility
       case _ => return
     }
-    val member = ScalaPsiUtil.nameContext(usage.namedElement) match {
+    val member = usage.namedElement.nameContext match {
       case cl: ScClass => cl.constructor.getOrElse(return)
       case m: ScModifierListOwner => m
       case _ => return
@@ -74,7 +74,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           val replaced = te.replace(createTypeElementFromText(substType.canonicalCodeText)(element.getManager))
           TypeAdjuster.markToAdjust(replaced)
         case None =>
-          val (context, anchor) = ScalaPsiUtil.nameContext(element) match {
+          val (context, anchor) = element.nameContext match {
             case f: ScFunction => (f, f.paramClauses)
             case p: ScPatternDefinition => (p, p.pList)
             case v: ScVariableDefinition => (v, v.pList)

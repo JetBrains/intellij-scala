@@ -13,4 +13,8 @@ class ScalaMoveClassTest_Scala3 extends ScalaMoveClassTestBase {
   def testKeepImports(): Unit = {
     runWithErrorsFromCompiler(getProject)(doTest(Seq("com.A"), "org"))
   }
+
+  def testWithTopLevelDefsInFile_MoveClass(): Unit = {
+    doTest(Seq("MyClass"), "")
+  }
 }

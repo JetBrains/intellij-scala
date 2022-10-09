@@ -10,9 +10,8 @@ import com.intellij.openapi.wm._
 import com.intellij.openapi.wm.impl.ToolWindowImpl
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{invokeLater, schedulePeriodicTask}
-import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.sbt.icons.Icons
-import org.jetbrains.sbt.shell.SbtShellToolWindowFactory.scheduleIconUpdate
+import org.jetbrains.sbt.shell.SbtShellToolWindowFactory.{Log, scheduleIconUpdate}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, shell}
 
 import java.awt.event.{InputEvent, KeyEvent}
@@ -35,8 +34,8 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
     SbtUtil.isSbtProject(project)
 
   // called once per project open
-  @TraceWithLogger
   override def init(toolWindow: ToolWindow): Unit = {
+    Log.debug("init")
     toolWindow.setStripeTitle(SbtShellToolWindowFactory.Title)
     toolWindow.setIcon(Icons.SBT_SHELL_TOOLWINDOW)
 
@@ -47,8 +46,8 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
   }
 
   // called once per project open, is not called during sbt shell restart OR close/open etc...
-  @TraceWithLogger
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
+    Log.debug("createToolWindowContent")
     // focus sbt shell input when opening toolWindow with shortcut. #SCL-13225
     val defaultFocusPolicy = toolWindow.getComponent.getFocusTraversalPolicy
     val focusPolicy = new shell.SbtShellToolWindowFactory.TraversalPolicy(project, defaultFocusPolicy)

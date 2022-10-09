@@ -50,8 +50,6 @@ object FeatureKey {
   final val annotatorTypeAware                : FeatureKey = "scala.file.with.type.aware.annotated"
   final val annotatorNotTypeAware             : FeatureKey = "scala.file.without.type.aware.annotated"
   final val collectionPackHighlighting        : FeatureKey = "scala.collection.pack.highlighting"
-  final val parserScalaScript                 : FeatureKey = "scala.file.script.parsed"
-  final val parserSsp                         : FeatureKey = "scala.ssp.parsing"
 
   final val scalaJsDynamicResolve             : FeatureKey = "scalajs.dynamic.resolve"
   final val scalaJsDynamicCompletion          : FeatureKey = "scalajs.dynamic.completion"

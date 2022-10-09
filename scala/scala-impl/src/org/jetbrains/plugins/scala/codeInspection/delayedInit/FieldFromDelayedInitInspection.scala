@@ -34,7 +34,7 @@ object FieldFromDelayedInitInspection {
 
     def unapply(result: ScalaResolveResult): Option[ScTemplateDefinition] =
       result.fromType.flatMap { scType =>
-        ScalaPsiUtil.nameContext(result.getElement) match {
+        result.getElement.nameContext match {
           case LazyVal(_) => None
           case definition@(_: ScPatternDefinition | _: ScVariableDefinition) =>
             Option(definition.asInstanceOf[ScValueOrVariable].containingClass).collect {

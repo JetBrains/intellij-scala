@@ -1,10 +1,11 @@
-package org.jetbrains.plugins.scala
-package codeInsight.template
+package org.jetbrains.plugins.scala.codeInsight.template
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.{JavaCodeStyleSettings, ReferenceAdjuster}
+import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.extensions.withProgressSynchronously
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 
@@ -16,34 +17,72 @@ class ScalaReferenceAdjuster extends ReferenceAdjuster {
   //todo: support useFqInJavadoc
   //todo: support useFqInCode
 
-  override def process(element: ASTNode, addImports: Boolean, incompleteCode: Boolean, useFqInJavadoc: Boolean,
-                       useFqInCode: Boolean): ASTNode = {
-    processRange(element, element.getTextRange.getStartOffset, element.getTextRange.getEndOffset, addImports,
-      incompleteCode, useFqInJavadoc, useFqInCode)
+  override def process(
+    element: ASTNode,
+    addImports: Boolean,
+    incompleteCode: Boolean,
+    useFqInJavadoc: Boolean,
+    useFqInCode: Boolean
+  ): ASTNode = {
+    processRange(
+      element,
+      element.getTextRange.getStartOffset,
+      element.getTextRange.getEndOffset,
+      addImports,
+      incompleteCode,
+      useFqInJavadoc,
+      useFqInCode
+    )
     element
   }
 
-  override def processRange(element: ASTNode, startOffset: Int, endOffset: Int,
-                            useFqInJavadoc: Boolean, useFqInCode: Boolean): Unit = {
-    processRange(element, startOffset, endOffset, addImports = true, incompleteCode = false,
-      useFqInJavadoc = useFqInJavadoc, useFqInCode = useFqInCode)
+  override def processRange(
+    element: ASTNode,
+    startOffset: Int,
+    endOffset: Int,
+    useFqInJavadoc: Boolean,
+    useFqInCode: Boolean
+  ): Unit = {
+    processRange(
+      element,
+      startOffset,
+      endOffset,
+      addImports = true,
+      incompleteCode = false,
+      useFqInJavadoc = useFqInJavadoc,
+      useFqInCode = useFqInCode
+    )
   }
 
-  def processRange(element: ASTNode, startOffset: Int, endOffset: Int, addImports: Boolean,
-                            incompleteCode: Boolean, useFqInJavadoc: Boolean, useFqInCode: Boolean): Unit = {
+  def processRange(
+    element: ASTNode,
+    startOffset: Int,
+    endOffset: Int,
+    addImports: Boolean,
+    incompleteCode: Boolean,
+    useFqInJavadoc: Boolean,
+    useFqInCode: Boolean
+  ): Unit = {
     val psi = element.getPsi
-    if (!psi.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
-    //do not process other languages
-    val builder = ArraySeq.newBuilder[ScalaPsiElement]
+    if (!psi.getLanguage.isKindOf(ScalaLanguage.INSTANCE))
+      return
+
+    val elementsToProcess = ArraySeq.newBuilder[ScalaPsiElement]
     val visitor = new ScalaRecursiveElementVisitor {
-        override def visitScalaElement(element: ScalaPsiElement): Unit = {
-          if (element.getTextRange.getStartOffset >= startOffset && element.getTextRange.getEndOffset <= endOffset) {
-            builder += element
-          } else super.visitScalaElement(element)
+      override def visitScalaElement(el: ScalaPsiElement): Unit = {
+        val range = el.getTextRange
+        val isInRange = startOffset <= range.getStartOffset && range.getEndOffset <= endOffset
+        if (isInRange) {
+          elementsToProcess += el
+        }
+        else {
+          super.visitScalaElement(el)
         }
       }
+    }
     psi.accept(visitor)
-    TypeAdjuster.adjustFor(builder.result(), addImports)
+
+    TypeAdjuster.adjustFor(elementsToProcess.result(), addImports)
   }
 
   override def processRange(element: ASTNode, startOffset: Int, endOffset: Int, project: Project): Unit = {

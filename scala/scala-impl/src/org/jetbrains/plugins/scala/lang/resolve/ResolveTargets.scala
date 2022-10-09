@@ -7,14 +7,13 @@ object ResolveTargets extends Enumeration {
   val METHOD, VAR, VAL, OBJECT, CLASS, PACKAGE, ANNOTATION = Value
 
   /**
-   * Marker target, which tells the resolver that we are interested (the processor) only in definitions with a stable type.<r>
-   * It's better then infer this information based on the set of other normal resolve targets,
-   * because it's different in different scala versions:
-   *  - In Scala 2 it's PACKAGE, OBJECT, VAL
-   *  - In Scala 3 it's PACKAGE, OBJECT, VAL, VAR, METHOD (see SCL-19477)
+   * Marker resolve target, which tells the resolver that a particular processor is only interested in definitions with a stable type.
+   * Not that definition type is not enough to determine whether definition has stable type or not
    *
-   *  NOTE: we could make it a separate parameter of [[lang.resolve.processor.BaseProcessor]] instead<br>
-   *  For now I stick to this solution for the simplicity of the change.
+   * In Scala 2 only PACKAGE, OBJECT, VAL are considered to be stable<br>
+   * However in Scala 3 VAR and METHOD can also be stable if they have some stable type element
+   *
+   * @see SCL-19477 for the details
    */
-  val HAS_STABLE_TYPE_MARKER: ResolveTargets.Value = Value
+  val HAS_STABLE_TYPE: ResolveTargets.Value = Value
 }

@@ -325,7 +325,7 @@ object ImportInfo {
         val parts = c.qualifiedName.split('.')
         if (parts.length > 1) parts.map(fixName).mkString(".") else refName
       case Some(ScalaResolveResult(td: ScTypedDefinition, _)) =>
-        ScalaPsiUtil.nameContext(td) match {
+        td.nameContext match {
           case m: ScMember =>
             m.containingClass match {
               case o: ScObject if isRelativeObject(o, res = true) =>

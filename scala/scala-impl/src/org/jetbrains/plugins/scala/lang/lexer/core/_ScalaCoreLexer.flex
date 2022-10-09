@@ -240,7 +240,6 @@ octalDigit = [0-7]
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 END_OF_LINE_COMMENT="/""/"[^\r\n]*
-SH_COMMENT="#!" [^]* "!#" | "::#!" [^]* "::!#"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// String & chars //////////////////////////////////////////////////////////////////////////////////////////////
@@ -338,9 +337,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   }
 }
 
-{END_OF_LINE_COMMENT}                   { return process(tLINE_COMMENT); }
-
-{SH_COMMENT}                            { return process(tSH_COMMENT); }
+{END_OF_LINE_COMMENT} { return process(tLINE_COMMENT); }
 
 
 {INTERPOLATED_STRING_ID} / ({INTERPOLATED_STRING_BEGIN} | {INTERPOLATED_MULTI_LINE_STRING_BEGIN}) {

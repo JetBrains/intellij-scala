@@ -4,8 +4,8 @@ package settings
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.compiler.server.BuildManager
-import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.options.Configurable.Composite
+import com.intellij.openapi.options.{Configurable, SearchableConfigurable}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
@@ -13,8 +13,14 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import javax.swing.JPanel
 
 class ScalaCompilerConfigurable(project: Project)
-  extends AbstractConfigurable(ScalaCompilerConfigurable.Name)
+  extends SearchableConfigurable
+    with Configurable.NoScroll
     with Composite {
+
+  override def getId: String = ScalaCompilerConfigurable.Id
+
+  //NOTE: duplicated in XML file
+  override def getDisplayName: String = ScalaBundle.message("displayname.scala.compiler")
 
   private val form = new ScalaCompilerConfigurationPanel(project)
 
@@ -65,5 +71,6 @@ class ScalaCompilerConfigurable(project: Project)
 }
 
 object ScalaCompilerConfigurable {
-  def Name: String = ScalaBundle.message("scala.compiler")
+  //NOTE: duplicated in XML file
+  val Id = "scala.compiler"
 }

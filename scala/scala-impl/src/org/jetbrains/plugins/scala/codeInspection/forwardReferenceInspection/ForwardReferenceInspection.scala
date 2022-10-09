@@ -4,8 +4,7 @@ package forwardReferenceInspection
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
@@ -19,7 +18,7 @@ class ForwardReferenceInspection extends LocalInspectionTool {
     case ref: ScReferenceExpression if isDirectContextRef(ref) =>
       val maybeResolved = ref.bind()
         .map(_.getActualElement)
-        .map(nameContext)
+        .map(_.nameContext)
         .collect(asValueOrVariable)
 
       val isSuspicious = maybeResolved.exists(resolved =>

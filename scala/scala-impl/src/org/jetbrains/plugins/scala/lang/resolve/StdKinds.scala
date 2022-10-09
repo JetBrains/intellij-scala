@@ -15,7 +15,8 @@ object StdKinds {
    *  - [[lang.psi.impl.toplevel.typedef.StableTermsCollector.mayContainStable]]
    */
   val stableQualRef: ResolveTargets.ValueSet             = ValueSet(PACKAGE, OBJECT, VAL)
-  val stableQualRef_Scala3: ResolveTargets.ValueSet      = ValueSet(PACKAGE, OBJECT, VAL, METHOD, VAR) // SCL-19477
+  // (also see SCL-19477)
+  val stableQualRefCandidates: ResolveTargets.ValueSet   = ValueSet(PACKAGE, OBJECT, VAL, METHOD, VAR)
   val stableQualOrClass: ResolveTargets.ValueSet         = stableQualRef + CLASS
 
   val noPackagesClassCompletion: ResolveTargets.ValueSet = ValueSet(OBJECT, VAL, CLASS)

@@ -491,7 +491,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                 throw EvaluationException(cannotFindMessage)
             }
           case ScalaResolveResult(elem, _) =>
-            val context = ScalaPsiUtil.nameContext(elem)
+            val context = elem.nameContext
             val clazz = context.getContext match {
               case _: ScTemplateBody | _: ScEarlyDefinitions =>
                 PsiTreeUtil.getContextOfType(context, true, classOf[PsiClass])
@@ -756,7 +756,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val name = NameTransformer.encode(named.name)
     val containingClass = getContextClass(named)
 
-    val localVariableEvaluator: Evaluator = ScalaPsiUtil.nameContext(named) match {
+    val localVariableEvaluator: Evaluator = named.nameContext match {
       case param: ScParameter =>
         param.owner match {
           case fun@(_: ScFunction | _: ScFunctionExpr) => parameterEvaluator(fun, param)
@@ -846,7 +846,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         getContextClass(named) match {
           //in some cases compiler uses full qualified names for fields and methods
           case clazz: ScTemplateDefinition if ScalaPsiUtil.hasStablePath(clazz)
-                  && clazz.members.contains(ScalaPsiUtil.nameContext(named)) =>
+                  && clazz.members.contains(named.nameContext) =>
             val qualName = clazz.qualifiedName
             val newName = qualName.split('.').map(NameTransformer.encode).mkString("$") + "$$" + name
             val reserveEval = ScalaMethodEvaluator(qualEval, newName, null /* todo */ , Seq.empty,
