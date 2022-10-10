@@ -71,33 +71,36 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
       case InspectedElement(_, inNameContext(holder: PsiAnnotationOwner)) if hasUnusedAnnotation(holder) =>
         Seq.empty
       case InspectedElement(original: ScNamedElement, delegate: ScNamedElement) =>
+        val isLocal = isOnlyVisibleInLocalFile(original)
+        if (isLocal || reportPublicDeclarations) {
 
-        val usages = getPipeline(element.getProject, reportPublicDeclarations).runSearchPipeline(delegate, isOnTheFly)
+          val usages = getPipeline(element.getProject, reportPublicDeclarations).runSearchPipeline(delegate, isOnTheFly)
 
-        if (usages.isEmpty) {
+          if (usages.isEmpty) {
 
-          val dontReportPublicDeclarationsQuickFix = if (isOnlyVisibleInLocalFile(original)) None
-          else Some(createDontReportPublicDeclarationsQuickFix(original))
+            val dontReportPublicDeclarationsQuickFix = if (isLocal) None
+            else Some(createDontReportPublicDeclarationsQuickFix(original))
 
-          val addScalaAnnotationUnusedQuickFix = if (delegate.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13) None
-          else Some(new AddScalaAnnotationUnusedQuickFix(original))
+            val addScalaAnnotationUnusedQuickFix = if (delegate.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13) None
+            else Some(new AddScalaAnnotationUnusedQuickFix(original))
 
-          val message = if (isOnTheFly) {
-            ScalaUnusedDeclarationInspection.annotationDescription
-          } else {
-            UnusedDeclarationVerboseProblemInfoMessage(original)
-          }
+            val message = if (isOnTheFly) {
+              ScalaUnusedDeclarationInspection.annotationDescription
+            } else {
+              UnusedDeclarationVerboseProblemInfoMessage(original)
+            }
 
-          Seq(
-            ProblemInfo(
-              original.nameId,
-              message,
-              ProblemHighlightType.LIKE_UNUSED_SYMBOL,
-              DeleteUnusedElementFix.quickfixesFor(original) ++
-                dontReportPublicDeclarationsQuickFix ++
-                addScalaAnnotationUnusedQuickFix
+            Seq(
+              ProblemInfo(
+                original.nameId,
+                message,
+                ProblemHighlightType.LIKE_UNUSED_SYMBOL,
+                DeleteUnusedElementFix.quickfixesFor(original) ++
+                  dontReportPublicDeclarationsQuickFix ++
+                  addScalaAnnotationUnusedQuickFix
+              )
             )
-          )
+          } else Seq.empty
         } else Seq.empty
       case _ => Seq.empty
     }

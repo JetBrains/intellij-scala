@@ -15,14 +15,14 @@ abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaInspectionT
 
   protected override def setUp(): Unit = {
     super.setUp()
-    enableReportUnusedPublicDeclarations()
+    setReportUnusedPublicDeclarations(true)
   }
 
-  private def enableReportUnusedPublicDeclarations(): Unit = {
+  def setReportUnusedPublicDeclarations(enabled: Boolean): Unit = {
     val inspectionProfile = InspectionProjectProfileManager.getInstance(getProject).getCurrentProfile
     val inspectionToolWrapper = inspectionProfile.getInspectionTool("ScalaUnusedSymbol", getProject)
     val inspection = inspectionToolWrapper.getTool.asInstanceOf[ScalaUnusedDeclarationInspection]
-    inspection.setReportPublicDeclarations(true)
+    inspection.setReportPublicDeclarations(enabled)
   }
 
   val removeUnusedElementHint = ScalaInspectionBundle.message("remove.unused.element")

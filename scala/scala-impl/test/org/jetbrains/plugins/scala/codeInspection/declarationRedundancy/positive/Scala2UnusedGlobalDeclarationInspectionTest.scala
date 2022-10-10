@@ -81,4 +81,10 @@ class Scala2UnusedGlobalDeclarationInspectionTest extends ScalaUnusedDeclaration
     addFile("object Ctx1 { trait Abc }")
     checkTextHasError(s"@scala.annotation.unused object Ctx2 { trait ${START}Abc$END }")
   }
+
+  def test_disable_report_unused_public_declarations(): Unit = {
+    setReportUnusedPublicDeclarations(false)
+    checkTextHasNoErrors(s"@scala.annotation.unused class Foo { val ${START}foo${END}: Int = 0 }")
+    setReportUnusedPublicDeclarations(true)
+  }
 }
