@@ -1653,6 +1653,11 @@ object ScalaPsiUtil {
   def parentImportExpression(element: PsiElement): Option[ScImportExpr] =
     Option(getParentImportExpression(element))
 
+  def isInsideImportExpression(element: PsiElement): Boolean = {
+    val parentImport = getParentImportExpression(element)
+    parentImport != null
+  }
+
   @Nullable
   def getParentImportStatement(element: PsiElement): ScImportStmt =
     getParentOfTypeInsideImport(element, classOf[ScImportStmt], strict = true)

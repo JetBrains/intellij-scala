@@ -6,6 +6,7 @@ import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.psi.{PsiDocCommentOwner, PsiElement}
 import org.jetbrains.plugins.scala.codeInspection.internal.ApiStatusInspection._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
@@ -17,10 +18,17 @@ class ApiStatusInspection extends LocalInspectionTool {
           val name = fun.name
           holder.registerProblem(fun.nameId, ScalaInspectionBundle.message("super.method.name.is.marked.as.status", name, status))
       }
-    case (ref: ScReference) && ResolvesTo(target@WithApiStatus(status)) if !ref.containingFile.exists(target.containingFile.contains) =>
-      ref.nameId.toOption.map { elementToHighlight =>
-        val name = ref.refName
-        holder.registerProblem(elementToHighlight, ScalaInspectionBundle.message("symbol.name.is.marked.as.status", name, status))
+    case ref: ScReference if !ScalaPsiUtil.isInsideImportExpression(ref) =>
+      ref match {
+        case ResolvesTo(target@WithApiStatus(status))  =>
+          val isFromTheSameFile = ref.containingFile.exists(target.containingFile.contains)
+          if (!isFromTheSameFile) {
+            ref.nameId.toOption.map { elementToHighlight =>
+              val name = ref.refName
+              holder.registerProblem(elementToHighlight, ScalaInspectionBundle.message("symbol.name.is.marked.as.status", name, status))
+            }
+          }
+        case _ =>
       }
     case _ =>
   }

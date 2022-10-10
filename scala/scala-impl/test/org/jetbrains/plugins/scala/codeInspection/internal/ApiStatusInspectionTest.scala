@@ -96,4 +96,23 @@ class ApiStatusInspectionTest extends ScalaInspectionTestBase {
        |""".stripMargin,
     fileType = "java"
   )
+
+  def testNoInspectionInImportReference(): Unit = {
+    myFixture.addFileToProject(s"aaa/bbb/InternalClass.java",
+      s"""package aaa.bbb;
+         |
+         |import org.jetbrains.annotations.ApiStatus;
+         |
+         |@ApiStatus.Internal
+         |public class InternalClass {
+         |}
+         |""".stripMargin
+    )
+
+    checkTextHasNoErrors(
+      s"""import aaa.bbb.InternalClass
+         |
+         |class ScalaUsage1""".stripMargin,
+    )
+  }
 }
