@@ -58,10 +58,7 @@ abstract class ScalaBasicCompletionTestBase extends ScalaCompletionTestBase {
     "{([<\"\'".exists(text.contains(_))
 }
 
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_13
-))
-class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
+abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletionTestBase {
 
   import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
 
@@ -1917,18 +1914,19 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "foo2")
 }
 
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_13
-))
-class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicCompletionTestBase {
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
+class ScalaBasicCompletionTest_with_2_12 extends ScalaBasicCompletionTest_CommonTests
 
-  def test2_13_extensionMethod1(): Unit = doCompletionTest(
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
+class ScalaBasicCompletionTest_with_2_13 extends ScalaBasicCompletionTest_CommonTests {
+
+  def testExtensionMethodFromStandardLibrary_Scala213_1(): Unit = doCompletionTest(
     fileText = s""""".toInt$CARET""",
     resultText = s""""".toIntOption$CARET""",
     item = "toIntOption"
   )
 
-  def test2_13_extensionMethod2(): Unit = doCompletionTest(
+  def testExtensionMethodFromStandardLibrary_Scala213_2(): Unit = doCompletionTest(
     fileText = s"Nil.length$CARET",
     resultText = s"Nil.lengthIs$CARET",
     item = "lengthIs"
@@ -1941,10 +1939,8 @@ class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicComp
   )
 }
 
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_3_Latest
-))
-class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest {
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
+class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonTests {
 
   def testEnumFileName(): Unit = doCompletionTest(
     fileText =
@@ -1970,62 +1966,6 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest {
     """def test(): Unit = 1.until()""".stripMargin,
     item = "until"
   )
-
-  //todo why there is a difference in "boldness"?
-  override def testStringTrim(): Unit = doRawCompletionTest(
-    fileText =
-      s"""class Foo {
-         |  "".tri$CARET
-         |}
-      """.stripMargin,
-    resultText =
-      s"""class Foo {
-         |  "".trim$CARET
-         |}
-      """.stripMargin
-  ) {
-    hasItemText(_, "trim")(
-      itemTextBold = false,
-      typeText = "String",
-    )
-  }
-
-  override def testStringLength(): Unit = doRawCompletionTest(
-    fileText =
-      s"""class Foo {
-         |  "".len$CARET
-         |}
-      """.stripMargin,
-    resultText =
-      s"""class Foo {
-         |  "".length$CARET
-         |}
-      """.stripMargin
-  ) {
-    hasItemText(_, "length")(
-      itemTextBold = false,
-      typeText = "Int",
-    )
-  }
-
-
-  override def testStringHashCode(): Unit = doRawCompletionTest(
-    fileText =
-      s"""class Foo {
-         |  "".hash$CARET
-         |}
-      """.stripMargin,
-    resultText =
-      s"""class Foo {
-         |  "".hashCode$CARET
-         |}
-      """.stripMargin
-  ) {
-    hasItemText(_, "hashCode")(
-      itemTextBold = false,
-      typeText = "Int",
-    )
-  }
 
   override def testLocalValueName(): Unit = super.testLocalValueName()
 

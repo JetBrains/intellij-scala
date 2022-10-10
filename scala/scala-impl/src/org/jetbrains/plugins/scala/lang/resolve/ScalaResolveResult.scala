@@ -360,13 +360,14 @@ object ScalaResolveResult {
       }
 
       val isCurrentClassMember: Boolean = {
-        val extractedType: Option[PsiClass] = {
+        val classExtractedFromType: Option[PsiClass] = {
           val fromType = resolveResult.fromType
 
           def isPredef = fromType.exists(_.presentableText(TypePresentationContext.emptyContext) == "Predef.type")
 
           import resolveResult.projectContext
-          qualifierType.orElse(fromType).getOrElse(api.Nothing) match {
+          val maybeType = qualifierType.orElse(fromType).map(_.widen)
+          maybeType.getOrElse(api.Nothing) match {
             case qualType if !isPredef && resolveResult.importsUsed.isEmpty =>
               qualType.extractDesignated(expandAliases = false).flatMap {
                 case clazz: PsiClass => Some(clazz)
@@ -377,11 +378,12 @@ object ScalaResolveResult {
           }
         }
 
-        extractedType.orElse(containingClass).exists { expectedClass =>
+        val clazz = classExtractedFromType.orElse(containingClass)
+        clazz.exists { expectedClass =>
           element.nameContext match {
             case m: PsiMember =>
               m.containingClass match {
-                //allow boldness only if current class is package object, not element availiable from package object
+                //allow boldness only if current class is package object, not element available from package object
                 case packageObject: ScObject if packageObject.isPackageObject && packageObject == expectedClass =>
                   containingClass.contains(packageObject)
                 case clazz => clazz == expectedClass
