@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "SameParameterValue"})
 public final class ImportsPanel extends ScalaCodeStylePanelBase {
 
     private JPanel contentPanel;
@@ -36,7 +36,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     private JPanel myAlwaysUsedImportsPanel;
     private JCheckBox myImportRetativeToBasePackageCheckBox;
     private JPanel myImportRetativeToBasePackagePanel;
-    private JComboBox importSyntaxInSource3;
+    private JComboBox<java.lang.Boolean> importSyntaxInSource3;
     private final DefaultListModel<String> myReferencesWithPrefixModel;
     private final DefaultListModel<String> alwaysUsedImportsModel;
     private final DefaultListModel<String> myImportLayoutModel;
@@ -115,7 +115,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     }
 
     @Override
-    public void apply(CodeStyleSettings settings) {
+    public void apply(@NotNull CodeStyleSettings settings) {
         if (!isModified(settings)) return;
 
         ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
