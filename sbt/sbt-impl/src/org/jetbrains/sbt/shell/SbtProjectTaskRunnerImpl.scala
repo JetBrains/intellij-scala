@@ -1,6 +1,5 @@
 package org.jetbrains.sbt.shell
 
-import com.intellij.build.events.{SuccessResult, Warning}
 import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.settings.DebuggerSettings
@@ -24,7 +23,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildWarning, IndicatorReporter, TaskRunnerResult}
+import org.jetbrains.plugins.scala.build.{BuildMessages, IndicatorReporter, TaskRunnerResult}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -34,13 +33,14 @@ import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
 import java.io.File
-import java.util
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success}
 
-class SbtProjectTaskRunner extends ProjectTaskRunner {
+final class SbtProjectTaskRunnerImpl
+  extends ProjectTaskRunner
+    with SbtProjectTaskRunner {
 
   // will override the usual jps build thingies
   override def canRun(projectTask: ProjectTask): Boolean = projectTask match {

@@ -20,6 +20,7 @@ import scala.jdk.CollectionConverters._
 
 final class SbtFileImpl private[language](provider: FileViewProvider)
   extends ScalaFileImpl(provider, SbtFileType)
+    with SbtFile
     with ScDeclarationSequenceHolder {
 
   import SbtFileImpl._

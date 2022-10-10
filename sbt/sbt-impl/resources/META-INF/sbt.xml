@@ -125,7 +125,7 @@
         <programRunner implementation="org.jetbrains.sbt.runner.SbtProgramRunner" order="first"/>
         <programRunner implementation="org.jetbrains.sbt.runner.SbtDebugProgramRunner" order="first"/>
 
-        <projectTaskRunner implementation="org.jetbrains.sbt.shell.SbtProjectTaskRunner"/>
+        <projectTaskRunner implementation="org.jetbrains.sbt.shell.SbtProjectTaskRunnerImpl"/>
 
         <runAnything.executionProvider implementation="org.jetbrains.sbt.SbtRunAnythingProvider"/>
 

@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotification
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaFmtSettingsPanel}
 import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
+import org.jetbrains.sbt.language.SbtFile
 import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig, ScalafmtVersion}
 
 import java.io.File
@@ -87,7 +88,8 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
     }
     val configWithDialect = {
       //noinspection ApiStatus
-      if (org.jetbrains.sbt.internal.InternalDynamicLinker.checkIsSbtFile(psiFile)) {
+
+      if (psiFile.isInstanceOf[SbtFile]) {
         config.map(x => x.withSbtDialect.getOrElse(x))
       } else {
         config

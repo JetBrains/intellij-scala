@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration,
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.{ScalaPluginJars, UnloadAwareDisposable}
 import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.language.SbtFile
 import org.jetbrains.sbt.project.module.SbtModuleType
 
 import java.io.File
@@ -405,7 +406,7 @@ package object project {
         val module = ModuleUtilCore.findModuleForPsiElement(file)
         // for build.sbt files the appropriate module is the one with `-build` suffix
         //noinspection ApiStatus
-        if (module != null && org.jetbrains.sbt.internal.InternalDynamicLinker.checkIsSbtFile(file))
+        if (module != null && file.isInstanceOf[SbtFile])
           findBuildModule(module)
         else
           Option(module)

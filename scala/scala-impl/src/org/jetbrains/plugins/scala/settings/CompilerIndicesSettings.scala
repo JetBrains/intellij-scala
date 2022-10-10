@@ -4,6 +4,7 @@ import com.intellij.openapi.components.{PersistentStateComponent, State, Storage
 import com.intellij.openapi.project.Project
 import com.intellij.task.impl.{JpsProjectTaskRunner, ProjectTaskList}
 import com.intellij.task.{ProjectTaskManager, ProjectTaskRunner}
+import org.jetbrains.sbt.shell.SbtProjectTaskRunner
 
 import scala.beans.BooleanBeanProperty
 import scala.jdk.CollectionConverters._
@@ -53,7 +54,7 @@ class CompilerIndicesSettings(project: Project) extends PersistentStateComponent
       catch { case NonFatal(_) => false }
     }.exists {
       case _: JpsProjectTaskRunner => true
-      case runner if org.jetbrains.sbt.internal.InternalDynamicLinker.checkIsSbtProjectTaskRunner(runner) => true
+      case _: SbtProjectTaskRunner => true
       case _ => false
     }
 
