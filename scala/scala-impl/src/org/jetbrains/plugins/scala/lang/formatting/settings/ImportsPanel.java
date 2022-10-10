@@ -157,7 +157,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
                 importTheShortestPathCheckBox.isSelected()) return true;
         if (scalaCodeStyleSettings.isSortAsScalastyle() !=
                 sortScalastyleRb.isSelected()) return true;
-        if (scalaCodeStyleSettings.forceScala2ImportSyntaxInSource3() != isForceScala2ImportSyntaxInSource())
+        if (scalaCodeStyleSettings.isForceScala2ImportSyntaxInSource3() != isForceScala2ImportSyntaxInSource())
             return true;
         if (!Arrays.deepEquals(scalaCodeStyleSettings.getImportsWithPrefix(), getPrefixPackages())) return true;
         if (!Arrays.deepEquals(scalaCodeStyleSettings.getAlwaysUsedImports(), getAlwaysUsedImports())) return true;
@@ -199,7 +199,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
             myImportLayoutModel.add(myImportLayoutModel.size(), layoutElement);
         }
 
-        importSyntaxInSource3.setSelectedIndex(scalaCodeStyleSettings.forceScala2ImportSyntaxInSource3() ? 1 : 0);
+        importSyntaxInSource3.setSelectedIndex(scalaCodeStyleSettings.isForceScala2ImportSyntaxInSource3() ? 1 : 0);
     }
 
     private static void setValue(JSpinner spinner, int value) {

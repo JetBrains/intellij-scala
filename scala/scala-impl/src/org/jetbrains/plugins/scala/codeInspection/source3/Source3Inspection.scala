@@ -35,7 +35,7 @@ class Source3Inspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = { element =>
     if (element.getContainingFile.isSource3Enabled) {
 
-      lazy val scala3ImportsAllowed = !ScalaCodeStyleSettings.getInstance(element.getProject).forceScala2ImportSyntaxInSource3()
+      lazy val scala3ImportsAllowed = !ScalaCodeStyleSettings.getInstance(element.getProject).isForceScala2ImportSyntaxInSource3()
 
       val features = element.features
 

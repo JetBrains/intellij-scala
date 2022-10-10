@@ -434,7 +434,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     COLLECT_IMPORTS_TOGETHER = value;
   }
 
-  public boolean forceScala2ImportSyntaxInSource3() {
+  public boolean isForceScala2ImportSyntaxInSource3() {
     return FORCE_SCALA2_IMPORT_SYNTAX_IN_SOURCE3;
   }
 
