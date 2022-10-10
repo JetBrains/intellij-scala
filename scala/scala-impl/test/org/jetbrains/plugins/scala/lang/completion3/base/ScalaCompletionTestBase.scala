@@ -6,6 +6,7 @@ import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupElementPres
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import com.intellij.testFramework.fixtures.TestLookupElementPresentation
+import org.jetbrains.plugins.scala.CompletionTests
 import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.{StringExt, invokeAndWait}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
@@ -21,7 +22,7 @@ import scala.jdk.CollectionConverters._
   TestScalaVersion.Scala_3_Latest
 ))
 @Category(Array(classOf[CompletionTests]))
-abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTest {
+abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTestCase with HelperFixtureEditorOps {
 
   import CompletionType.BASIC
   import Lookup.REPLACE_SELECT_CHAR

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.completion.postfix
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
