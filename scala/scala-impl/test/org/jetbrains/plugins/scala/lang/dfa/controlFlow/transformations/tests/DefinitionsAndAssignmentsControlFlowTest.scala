@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuild
 
 class DefinitionsAndAssignmentsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
-  def testDefiningSimpleValuesAndVariables(): Unit = test(codeFromMethodBody(returnType = "Int") {
+  def testDefiningSimpleValuesAndVariables(): Unit = doTest(codeFromMethodBody(returnType = "Int") {
     """
       |val booleanVal = 3 > 2
       |var x = 3 * 8 + 15
@@ -50,7 +50,7 @@ class DefinitionsAndAssignmentsControlFlowTest extends ScalaDfaControlFlowBuilde
       |""".stripMargin
   }
 
-  def testReassigningVars(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+  def testReassigningVars(): Unit = doTest(codeFromMethodBody(returnType = "Boolean") {
     """
       |var y = 5 * 2
       |var x = 9

@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuild
 
 class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
-  def testReferencesToMethodArgs(): Unit = test(codeFromMethodBody(returnType = "Int") {
+  def testReferencesToMethodArgs(): Unit = doTest(codeFromMethodBody(returnType = "Int") {
     """
       |val x = 15
       |val y = 2193 + 2
@@ -42,7 +42,7 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |""".stripMargin
   }
 
-  def testUnknownReferences(): Unit = test(codeFromMethodBody(returnType = "Int") {
+  def testUnknownReferences(): Unit = doTest(codeFromMethodBody(returnType = "Int") {
     """
       |val x = 15
       |val y = x + `k` * anotherUnknown
@@ -76,7 +76,7 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |""".stripMargin
   }
 
-  def testLiteralIdentifierReferences(): Unit = test(codeFromMethodBody(returnType = "Int") {
+  def testLiteralIdentifierReferences(): Unit = doTest(codeFromMethodBody(returnType = "Int") {
     """
       |val `some strange name` = if (3 > 2) 5 else 9
       |val `another strange name!` = 3 == 3
@@ -119,7 +119,7 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |""".stripMargin
   }
 
-  def testCreatingAndAccessingCaseClasses(): Unit = test(codeFromMethodBody(returnType = "Int") {
+  def testCreatingAndAccessingCaseClasses(): Unit = doTest(codeFromMethodBody(returnType = "Int") {
     """
       |val grades = Nil
       |val s1 = Student(22, grades)
@@ -163,7 +163,7 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |""".stripMargin
   }
 
-  def testCreatingAndAccessingRegularClasses(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+  def testCreatingAndAccessingRegularClasses(): Unit = doTest(codeFromMethodBody(returnType = "Boolean") {
     """
       |val p1 = new Person(33)
       |p1.id < 20

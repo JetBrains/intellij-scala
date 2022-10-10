@@ -17,7 +17,7 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
 
   protected def codeFromMethodBody(returnType: String)(body: String): String = commonCodeTemplate(returnType)(body)
 
-  def test(code: String)(expectedResult: String): Unit = {
+  protected def doTest(code: String)(expectedResult: String): Unit = {
     val actualFile = configureFromFileText(code)
     var functionVisited = false
 

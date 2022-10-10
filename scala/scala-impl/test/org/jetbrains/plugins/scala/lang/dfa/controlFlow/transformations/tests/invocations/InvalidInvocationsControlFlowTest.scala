@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuild
 
 class InvalidInvocationsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
-  def testInvalidSimpleCallsWithWrongNumberOfArguments(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+  def testInvalidSimpleCallsWithWrongNumberOfArguments(): Unit = doTest(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x = 15
       |anotherMethod(1000 * 3 - 9, x, 5 > 3)
@@ -62,7 +62,7 @@ class InvalidInvocationsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
       |""".stripMargin
   }
 
-  def testNonExistingMethods(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+  def testNonExistingMethods(): Unit = doTest(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x = 333
       |anotherMetod(1000 * 3 - 9, x, 5 > 3, "???")
@@ -92,7 +92,7 @@ class InvalidInvocationsControlFlowTest extends ScalaDfaControlFlowBuilderTestBa
       |""".stripMargin
   }
 
-  def testNonExistingInfixOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+  def testNonExistingInfixOperators(): Unit = doTest(codeFromMethodBody(returnType = "Boolean") {
     """
       |2 + 7 xx 3 * 8 dd 9
       |""".stripMargin

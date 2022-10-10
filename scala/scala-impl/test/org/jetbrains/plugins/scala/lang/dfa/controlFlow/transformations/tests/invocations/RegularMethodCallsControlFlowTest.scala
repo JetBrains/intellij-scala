@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuild
 
 class RegularMethodCallsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
-  def testSimpleMethodCalls(): Unit = test(codeFromMethodBody(returnType = "Int") {
+  def testSimpleMethodCalls(): Unit = doTest(codeFromMethodBody(returnType = "Int") {
     """
       |val x = 15
       |anotherMethod(1000 * 3 - 9, x, 5 > 3, "Something")

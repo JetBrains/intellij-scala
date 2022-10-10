@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuild
 
 class UnaryPrefixExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
-  def testNumericUnaryOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+  def testNumericUnaryOperators(): Unit = doTest(codeFromMethodBody(returnType = "Boolean") {
     """
       |(-3) + 5 == 2
       |5 - -3 == 9
@@ -42,7 +42,7 @@ class UnaryPrefixExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTe
       |""".stripMargin
   }
 
-  def testLogicalUnaryOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+  def testLogicalUnaryOperators(): Unit = doTest(codeFromMethodBody(returnType = "Boolean") {
     """
       |val y = 200
       |val x = if (!(y < 100 || y <= 150)) -9 else -3

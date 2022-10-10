@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuild
 
 class IfStatementsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
-  def testRegularIfs(): Unit = test(codeFromMethodBody(returnType = "Int") {
+  def testRegularIfs(): Unit = doTest(codeFromMethodBody(returnType = "Int") {
     """
       |if (3 < 2 && 5 <= 7) {
       |  5 + 2 - 20
@@ -79,7 +79,7 @@ class IfStatementsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
       |""".stripMargin
   }
 
-  def testIfsWithoutElseBranch(): Unit = test(codeFromMethodBody(returnType = "Any") {
+  def testIfsWithoutElseBranch(): Unit = doTest(codeFromMethodBody(returnType = "Any") {
     """
       |if (3 < 2 && 5 <= 7) {
       |  5 + 2 - 20
@@ -117,7 +117,7 @@ class IfStatementsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
       |""".stripMargin
   }
 
-  def testIfWithExplicitUnitElseBranch(): Unit = test(codeFromMethodBody(returnType = "Any") {
+  def testIfWithExplicitUnitElseBranch(): Unit = doTest(codeFromMethodBody(returnType = "Any") {
     """
       |if (3 < 2 && 5 <= 7) 5 + 2 - 20
       |else ()
@@ -153,7 +153,7 @@ class IfStatementsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
       |""".stripMargin
   }
 
-  def testIfsWithBothBranchesEmpty(): Unit = test(codeFromMethodBody(returnType = "Any") {
+  def testIfsWithBothBranchesEmpty(): Unit = doTest(codeFromMethodBody(returnType = "Any") {
     """
       |if (3 < 2 && 5 <= 7) {
       |} else {

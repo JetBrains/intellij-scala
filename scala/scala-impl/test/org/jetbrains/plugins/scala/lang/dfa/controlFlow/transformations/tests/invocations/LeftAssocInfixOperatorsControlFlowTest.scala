@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuild
 
 class LeftAssocInfixOperatorsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
-  def testArithmeticOperators(): Unit = test(codeFromMethodBody(returnType = "Int") {
+  def testArithmeticOperators(): Unit = doTest(codeFromMethodBody(returnType = "Int") {
     """
       |((((((3214 + 85901 + 77)))))) + 5
       |((3 + 2) * 7 / 5 - 1) % 2
@@ -37,7 +37,7 @@ class LeftAssocInfixOperatorsControlFlowTest extends ScalaDfaControlFlowBuilderT
       |""".stripMargin
   }
 
-  def testRelationalOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+  def testRelationalOperators(): Unit = doTest(codeFromMethodBody(returnType = "Boolean") {
     """
       |2 < 2
       |2 <= 2
@@ -93,7 +93,7 @@ class LeftAssocInfixOperatorsControlFlowTest extends ScalaDfaControlFlowBuilderT
       |""".stripMargin
   }
 
-  def testLogicalOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+  def testLogicalOperators(): Unit = doTest(codeFromMethodBody(returnType = "Boolean") {
     """
       |2 <= 2 && 2 <= 3 && 2 == 2 && 3 == 5 - 2
       |3 == 3 && 5 > 10

@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuild
 
 class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
-  def testNullLiteral(): Unit = test(codeFromMethodBody(returnType = "Any") {
+  def testNullLiteral(): Unit = doTest(codeFromMethodBody(returnType = "Any") {
     """
       |null
       |""".stripMargin
@@ -18,7 +18,7 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |""".stripMargin
   }
 
-  def testIntegerLiterals(): Unit = test(codeFromMethodBody(returnType = "Int") {
+  def testIntegerLiterals(): Unit = doTest(codeFromMethodBody(returnType = "Int") {
     """
       |3
       |0
@@ -35,7 +35,7 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |""".stripMargin
   }
 
-  def testLongLiterals(): Unit = test(codeFromMethodBody(returnType = "Long") {
+  def testLongLiterals(): Unit = doTest(codeFromMethodBody(returnType = "Long") {
     """
       |33L
       |48294904928493L
@@ -55,7 +55,7 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |""".stripMargin
   }
 
-  def testFloatLiterals(): Unit = test(codeFromMethodBody(returnType = "Float") {
+  def testFloatLiterals(): Unit = doTest(codeFromMethodBody(returnType = "Float") {
     """
       |3.14159f
       |1e30F
@@ -78,7 +78,7 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |""".stripMargin
   }
 
-  def testDoubleLiterals(): Unit = test(codeFromMethodBody(returnType = "Double") {
+  def testDoubleLiterals(): Unit = doTest(codeFromMethodBody(returnType = "Double") {
     """
       |3.14159
       |1e30
@@ -101,7 +101,7 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |""".stripMargin
   }
 
-  def testBooleanLiterals(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+  def testBooleanLiterals(): Unit = doTest(codeFromMethodBody(returnType = "Boolean") {
     """
       |true
       |false
@@ -118,7 +118,7 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |""".stripMargin
   }
 
-  def testCharLiterals(): Unit = test(codeFromMethodBody(returnType = "Char") {
+  def testCharLiterals(): Unit = doTest(codeFromMethodBody(returnType = "Char") {
     """
       |'k'
       |'⇒'
@@ -138,7 +138,7 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |""".stripMargin
   }
 
-  def testStringLiterals(): Unit = test(codeFromMethodBody(returnType = "String") {
+  def testStringLiterals(): Unit = doTest(codeFromMethodBody(returnType = "String") {
     """
       |"Привет, \nScala ԹԿՃ"
       |""".stripMargin
@@ -152,7 +152,7 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |""".stripMargin
   }
 
-  def testUnitExpression(): Unit = test(codeFromMethodBody(returnType = "Unit") {
+  def testUnitExpression(): Unit = doTest(codeFromMethodBody(returnType = "Unit") {
     """
       |()
       |""".stripMargin
@@ -166,7 +166,7 @@ class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuil
       |""".stripMargin
   }
 
-  def testParenthesisedExpression(): Unit = test(codeFromMethodBody(returnType = "Char") {
+  def testParenthesisedExpression(): Unit = doTest(codeFromMethodBody(returnType = "Char") {
     """
       |(3)
       |(((((('c'))))))
