@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
-import com.intellij.application.options.RegistryManager
 import com.intellij.ide.actions.{SaveAllAction, SaveDocumentAction}
 import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, AnActionResult, CommonDataKeys}
@@ -9,13 +8,13 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, TextEditor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.extensions.IterableOnceExt
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.sbt.language.SbtFileImpl
 
 final class ScalafmtReformatOnFileSaveTask extends AnActionListener {
 
@@ -87,22 +86,13 @@ final class ScalafmtReformatOnFileSaveTask extends AnActionListener {
 
   private def isInProjectSources(psiFile: PsiFile, vFile: VirtualFile)(implicit project: Project): Boolean = {
     val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
-    psiFile match {
-      case _: SbtFileImpl => fileIndex.isInContent(vFile)
-      case _              => fileIndex.isInSourceContent(vFile)
-    }
+    //noinspection ApiStatus
+    if (org.jetbrains.sbt.internal.InternalDynamicLinker.checkIsSbtFile(psiFile)) fileIndex.isInContent(vFile)
+    else fileIndex.isInSourceContent(vFile)
   }
 
-  private def isFileSupported(file: PsiFile): Boolean = {
-    file match {
-      case sf: ScalaFile =>
-        // script file formatting can only be done explicitly by calling reformat action on worksheet file
-        // this is because it involves some hacks with file tree modification, that is prohibited in file save hook
-        !sf.isScriptFile
-      case _ =>
-        false
-    }
-  }
+  private def isFileSupported(file: PsiFile): Boolean =
+    file.isInstanceOf[ScalaFile]
 }
 
 object ScalafmtReformatOnFileSaveTask {
