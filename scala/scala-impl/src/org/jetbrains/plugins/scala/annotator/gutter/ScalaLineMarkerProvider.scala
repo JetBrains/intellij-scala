@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
-package gutter
+package org.jetbrains.plugins.scala.annotator.gutter
 
 import com.intellij.codeInsight.daemon._
 import com.intellij.codeInsight.daemon.impl.GutterTooltipHelper
@@ -17,6 +15,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Function => IJFunction}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -36,7 +35,7 @@ import java.util.Collections.singletonList
 import java.{util => ju}
 import javax.swing.Icon
 
-final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor with ScalaSeparatorProvider {
+final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
 
   import Gutter._
   import GutterIconRenderer.Alignment
@@ -53,14 +52,14 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor with Sc
 
       //Method separators can be enabled in
       //File | Settings | Editor | General | Appearance | Show method separators
-      if (DaemonCodeAnalyzerSettings.getInstance().SHOW_METHOD_SEPARATORS && isSeparatorNeeded(element)) {
-        if (lineMarkerInfo == null) {
-          addSeparatorInfo(createMarkerInfo(element))
-        } else {
-          addSeparatorInfo(lineMarkerInfo)
-        }
-      } else lineMarkerInfo
-    } else null
+      if (DaemonCodeAnalyzerSettings.getInstance().SHOW_METHOD_SEPARATORS && ScalaMethodSeparatorUtils.isMethodSeparatorNeeded(element)) {
+        val info = if (lineMarkerInfo == null) createMarkerInfo(element) else lineMarkerInfo
+        addSeparatorInfo(info)
+        info
+      }
+      else lineMarkerInfo
+    }
+    else null
 
   private[this] def createMarkerInfo(element: PsiElement): LineMarkerInfo[PsiElement] = {
     val leaf = PsiTreeUtil.firstChild(element).toOption.getOrElse(element)
@@ -70,30 +69,34 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor with Sc
     )
   }
 
-  private[this] def addSeparatorInfo(info: LineMarkerInfo[_ <: PsiElement]): LineMarkerInfo[_ <: PsiElement] = {
-    info.separatorColor =
-      EditorColorsManager.getInstance().getGlobalScheme.getColor(CodeInsightColors.METHOD_SEPARATORS_COLOR)
+  private[this] def addSeparatorInfo(info: LineMarkerInfo[_ <: PsiElement]): Unit = {
+    val colorScheme = EditorColorsManager.getInstance.getGlobalScheme
+    info.separatorColor = colorScheme.getColor(CodeInsightColors.METHOD_SEPARATORS_COLOR)
     info.separatorPlacement = SeparatorPlacement.TOP
-    info
   }
 
-  private[this] def arrowUpLineMarker(element: PsiElement,
-                                      icon: Icon,
-                                      markerType: ScalaMarkerType,
-                                      presentationParent: Option[PsiElement] = None): LineMarkerInfo[PsiElement] = {
-
+  private[this] def arrowUpLineMarker(
+    element: PsiElement,
+    icon: Icon,
+    markerType: ScalaMarkerType,
+    presentationParent: Option[PsiElement] = None
+  ): LineMarkerInfo[PsiElement] = {
     val info = ArrowUpOrDownLineMarkerInfo(element, icon, markerType, Alignment.LEFT, presentationParent)
     NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.super.method"), IdeActions.ACTION_GOTO_SUPER)
   }
 
   /* Validates that this psi element can be the first one in a lambda */
-  private[this] def canBeFunctionalExpressionAnchor(e: PsiElement): Boolean =
-    e.getNode.getElementType match {
-      case ScalaTokenTypes.tLBRACE => e.getNextSiblingNotWhitespace.isInstanceOf[ScCaseClauses]
+  private[this] def canBeFunctionalExpressionAnchor(e: PsiElement): Boolean = {
+    val elementType = e.getNode.getElementType
+    elementType match {
+      case ScalaTokenTypes.tLBRACE =>
+        e.getNextSiblingNotWhitespace.isInstanceOf[ScCaseClauses]
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER | ScalaTokenTypes.tLPARENTHESIS =>
         true
-      case _ => false
+      case _ =>
+        false
     }
+  }
 
   private[this] def funExprParent(element: PsiElement): Option[(ScExpression, PsiClass)] =
     element.parentsInFile.collectFirst {
@@ -243,20 +246,20 @@ private object GutterUtil {
   import ScalaMarkerType._
 
   private[gutter] final case class ArrowUpOrDownLineMarkerInfo(
-                                                                element:            PsiElement,
-                                                                icon:               Icon,
-                                                                markerType:         ScalaMarkerType,
-                                                                alignment: Alignment,
-                                                                presentationParent: Option[PsiElement] = None
+    element:            PsiElement,
+    icon:               Icon,
+    markerType:         ScalaMarkerType,
+    alignment: Alignment,
+    presentationParent: Option[PsiElement] = None
   ) extends MergeableLineMarkerInfo[PsiElement](
-        element,
-        element.getTextRange,
-        icon,
-        markerType.tooltipProvider,
-        markerType.navigationHandler,
-        alignment,
-        () => markerType.tooltipProvider.fun(element)
-      ) {
+    element,
+    element.getTextRange,
+    icon,
+    markerType.tooltipProvider,
+    markerType.navigationHandler,
+    alignment,
+    () => markerType.tooltipProvider.fun(element)
+  ) {
     override def canMergeWith(other: MergeableLineMarkerInfo[_]): Boolean = other match {
       case that: ArrowUpOrDownLineMarkerInfo => icon == that.icon
       case _                                 => false
@@ -264,12 +267,12 @@ private object GutterUtil {
 
     override def getCommonIcon(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): Icon = icon
 
-    override def getCommonTooltip(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): IJFunction[_ >: PsiElement, String] =
-      _ =>
-        markerType match {
-          case ScalaMarkerType.overriddenMember => ScalaBundle.message("multiple.overriden.tooltip")
-          case _                                => ScalaBundle.message("multiple.overriding.tooltip")
+    override def getCommonTooltip(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): IJFunction[_ >: PsiElement, String] = _ => {
+      markerType match {
+        case ScalaMarkerType.overriddenMember => ScalaBundle.message("multiple.overriden.tooltip")
+        case _                                => ScalaBundle.message("multiple.overriding.tooltip")
       }
+    }
 
     override def getElementPresentation(element: PsiElement): String =
       presentationParent.fold(super.getElementPresentation(element))(
@@ -278,7 +281,8 @@ private object GutterUtil {
   }
 
   def getOverridesOrImplementsIcon(element: PsiElement, signatures: Seq[TermSignature]): Icon =
-    if (isOverrides(element, signatures.map(_.namedElement))) OverridingMethod else ImplementingMethod
+    if (isOverrides(element, signatures.map(_.namedElement))) OverridingMethod
+    else ImplementingMethod
 
   def namedParent(e: PsiElement): Option[PsiElement] =
     e.withParentsInFile.find(ScalaPsiUtil.isNameContext)
@@ -314,21 +318,21 @@ private object GutterUtil {
     member match {
       case Constructor(_) => None
       case _ =>
-
         val icon = if (isAbstract(member)) ImplementedMethod else OverridenMethod
 
         if (!isEnabled(icon)) {
           return None
         }
 
-        ScalaMarkerType.findOverrides(member, deep = false).nonEmpty.option {
+        val overrides = ScalaMarkerType.findOverrides(member, deep = false)
+        if (overrides.isEmpty) None else {
           val info = ArrowUpOrDownLineMarkerInfo(
             anchor,
             icon,
             overriddenMember,
             Alignment.RIGHT
           )
-          NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.super.method"), IdeActions.ACTION_GOTO_SUPER)
+          Some(NavigateAction.setNavigateAction(info, ScalaBundle.message("go.to.super.method"), IdeActions.ACTION_GOTO_SUPER))
         }
     }
 
@@ -375,7 +379,8 @@ private object GutterUtil {
     }
 
     // TODO Enable in tests when GutterMarkersTest will be able to separate different maker providers
-    if (ApplicationManager.getApplication.isUnitTestMode) None else element match {
+    if (ApplicationManager.getApplication.isUnitTestMode) None
+    else element match {
       case identifier @ ElementType(ScalaTokenTypes.tIDENTIFIER) && Parent(_: ScClass | _: ScTrait | _: ScObject | _: ScEnum) =>
         val typeDefinition = identifier.getParent.asInstanceOf[ScTypeDefinition]
 
