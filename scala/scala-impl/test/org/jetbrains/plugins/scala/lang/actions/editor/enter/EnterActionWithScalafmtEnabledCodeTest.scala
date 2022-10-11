@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.actions.editor.enter
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.{DoEditorStateTestOps, TypeText}
-import org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt.ScalaFmtForTestsSetupOps
+import org.jetbrains.plugins.scala.lang.formatter.scalafmt.ScalaFmtForTestsSetupOps
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.scalafmt.dynamic.ScalafmtVersion
