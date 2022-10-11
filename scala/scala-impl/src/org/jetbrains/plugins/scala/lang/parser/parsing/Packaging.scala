@@ -35,13 +35,6 @@ object Packaging extends ParsingRule {
             }
             BlockIndentation.create -> None
           case InScala3(ScalaTokenTypes.tCOLON) =>
-            // TODO: looks like this check is not required, `:` can go with arbitrary new lines before it
-            //  cover with tests and remove the check
-            if (builder.twoNewlinesBeforeCurrentToken) {
-              builder error ScalaBundle.message("lbrace.or.colon.expected")
-              packMarker.done(ScalaElementType.PACKAGING)
-              return true
-            }
             if (!builder.isScala3IndentationBasedSyntaxEnabled) {
               // we add the error but continue to parse
               builder.error(ScalaBundle.message("lbrace.expected"))
