@@ -58,10 +58,22 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     fileText.substring(node.getTextRange)
   }
 
-  // TODO: minimize getText usages
-  @deprecated("do not access block text directly, this potentially can be a heavyweight operation, use AST nodes")
-  private def getText(psi: PsiElement, fileText: CharSequence): String = {
-    getText(psi.getNode, fileText)
+  private def nodeTextStartsWith(node: ASTNode, fileText: CharSequence, char: Char): Boolean = {
+    val range = node.getTextRange
+    val offset = range.getStartOffset
+    offset < fileText.length && fileText.charAt(offset) == char
+  }
+
+  private def nodeTextContainsNewLine(node: ASTNode, fileText: CharSequence): Boolean = {
+    val range = node.getTextRange
+    var index = range.getStartOffset
+    val end = range.getEndOffset.min(fileText.length())
+    while (index < end) {
+      if (fileText.charAt(index) == '\n')
+        return true
+      index += 1
+    }
+    false
   }
 
   private def spacesToPreventNewIds(left: ScalaBlock, right: ScalaBlock, fileText: CharSequence, textRange: TextRange): Integer = {
@@ -315,8 +327,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaDocTokenType.DOC_LIST_ITEM_HEAD, _, _, _) if scalaSettings.SD_ALIGN_LIST_ITEM_CONTENT =>
         WITH_SPACING
       case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _)                                                   =>
-        val rightText = getText(rightNode, fileText) //rightString is not semantically equal for PsiError nodes
-        if (rightText.nonEmpty && rightText.apply(0) == ' ') WITH_SPACING
+        if (nodeTextStartsWith(rightNode, fileText, ' ')) WITH_SPACING
         else tagSpacing
       case (ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, _, ScalaDocElementTypes.DOC_TAG, _) => tagSpacing
       case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => Spacing.getReadOnlySpacing
@@ -514,7 +525,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else WITHOUT_SPACING
     }
     if (leftElementType == tIDENTIFIER &&
-      rightPsi.isInstanceOf[ScArgumentExprList] && !getText(rightNode, fileText).trim.startsWith("{")) {
+      rightPsi.isInstanceOf[ScArgumentExprList] && !nodeTextStartsWith(rightNode, fileText, '{')) {
       return if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) WITH_SPACING
       else WITHOUT_SPACING
     }
@@ -560,8 +571,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else WITHOUT_SPACING
     }
 
-    //todo: spacing for early definitions
-    if (getText(rightNode, fileText).trim.startsWith("{")) {
+    if (nodeTextStartsWith(rightNode, fileText, '{')) {
+      //todo: spacing for early definitions
       val result =
         if (rightPsi.isInstanceOf[ScImportSelectors]) WITHOUT_SPACING
         else if (leftPsiParent.isInstanceOf[ScParenthesisedTypeElement]) WITHOUT_SPACING
@@ -726,7 +737,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                 scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST &&
                   (leftPsi.is[ScFunctionExpr, ScCaseClauses] || block.isInstanceOf[ScBlockExpr] && !insideInterpString)
             })
-            val isOneLineEmpty = leftBlockString == "{" || getText(block.getNode, fileText).contains('\n')
+            val isOneLineEmpty = leftBlockString == "{" || nodeTextContainsNewLine(block.getNode, fileText)
             !isOneLineEmpty && (scalaSettings.SPACES_IN_ONE_LINE_BLOCKS || inMethod || inSelfTypeBraces || inClosure)
           }
 
@@ -762,7 +773,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (leftElementType == ScalaTokenTypes.tLBRACE || leftElementType == tCOLON && leftNodeParentElementType == TEMPLATE_BODY) {
       if (!scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE) {
         val b = leftNode.getTreeParent.getPsi
-        val spaceInsideOneLineBlock = scalaSettings.SPACES_IN_ONE_LINE_BLOCKS && !getText(b.getNode, fileText).contains('\n')
+        val spaceInsideOneLineBlock = scalaSettings.SPACES_IN_ONE_LINE_BLOCKS && !nodeTextContainsNewLine(b.getNode, fileText)
         val spacing = if (scalaSettings.SPACE_INSIDE_CLOSURE_BRACES || spaceInsideOneLineBlock) WITH_SPACING else WITHOUT_SPACING
         rightElementType match {
           case ScalaElementType.FUNCTION_EXPR => return spacing
@@ -778,7 +789,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           else if (scalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES) WITH_SPACING_NO_KEEP
           else WITHOUT_SPACING_NO_KEEP
         case b@(_: ScEarlyDefinitions | _: ScTemplateBody) =>
-          if (settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE && !getText(b.getNode, fileText).contains('\n')) {
+          if (settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE && !nodeTextContainsNewLine(b.getNode, fileText)) {
             Spacing.createDependentLFSpacing(0, 0, b.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
           } else {
             val c = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
@@ -787,17 +798,17 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             Spacing.createSpacing(0, 0, minLineFeeds + 1, keepLineBreaks, keepBlankLinesInDeclarations)
           }
         case b: ScBlockExpr if b.getParent.isInstanceOf[ScFunction] =>
-          if (settings.KEEP_SIMPLE_METHODS_IN_ONE_LINE && !getText(b.getNode, fileText).contains('\n')) {
+          if (settings.KEEP_SIMPLE_METHODS_IN_ONE_LINE && !nodeTextContainsNewLine(b.getNode, fileText)) {
             val spaces = if (scalaSettings.SPACES_IN_ONE_LINE_BLOCKS) 1 else 0
             Spacing.createDependentLFSpacing(spaces, spaces, b.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
           } else {
             Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_METHOD_BODY + 1, keepLineBreaks, keepBlankLinesInDeclarations)
           }
         case b: ScBlockExpr if scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST &&
-          !getText(b.getNode, fileText).contains('\n') && (rightPsi.isInstanceOf[ScCaseClauses] && b.getParent != null &&
+          !nodeTextContainsNewLine(b.getNode, fileText) && (rightPsi.isInstanceOf[ScCaseClauses] && b.getParent != null &&
           b.getParent.isInstanceOf[ScArgumentExprList] || rightPsi.isInstanceOf[ScFunctionExpr]) =>
           Spacing.createDependentLFSpacing(1, 1, b.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
-        case b: ScBlockExpr if scalaSettings.SPACE_INSIDE_CLOSURE_BRACES && !getText(b.getNode, fileText).contains('\n') &&
+        case b: ScBlockExpr if scalaSettings.SPACE_INSIDE_CLOSURE_BRACES && !nodeTextContainsNewLine(b.getNode, fileText) &&
           scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST && b.getParent.is[ScArgumentExprList, ScInfixExpr] =>
           WITH_SPACING
         case block@(_: ScPackaging | _: ScBlockExpr | _: ScMatch | _: ScCatchBlock) =>
