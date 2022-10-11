@@ -4,10 +4,10 @@ import org.jetbrains.plugins.scala.ScalaVersion
 abstract class SAMGutterMarkersTestBase extends GutterMarkersTestBase
 
 // SCL-13925
-class SAMGutterMarkersTest_2_12 extends SAMGutterMarkersTestBase {
+class SAMGutterMarkersTest_2_13 extends SAMGutterMarkersTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == ScalaVersion.Latest.Scala_2_12
+    version == ScalaVersion.Latest.Scala_2_13
 
   import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => caret}
 
@@ -236,13 +236,15 @@ class SAMGutterMarkersTest_2_12 extends SAMGutterMarkersTestBase {
   }
 }
 
+class SAMGutterMarkersTest_2_12 extends SAMGutterMarkersTest_2_13
+
 // SCL-13968: Do not show SAM implementation gutter markers for Scala < 2.12
 // (note: SAM would work for 2.11 with -Xexperimental compiler flag)
 // Extending 2_12 to reuse all examples from it.
 class SAMGutterMarkersTest_2_11 extends SAMGutterMarkersTest_2_12 {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version <= ScalaVersion.Latest.Scala_2_11
+    version == ScalaVersion.Latest.Scala_2_11
 
   override protected def doTestSingleTooltipAtCaret(fileText: String, expectedTooltipParts: String*): Unit =
     doTestNoLineMarkers(fileText)
