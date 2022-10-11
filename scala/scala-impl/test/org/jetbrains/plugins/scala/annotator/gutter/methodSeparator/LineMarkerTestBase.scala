@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
-package gutter
+package org.jetbrains.plugins.scala.annotator.gutter.methodSeparator
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
@@ -10,6 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.fixtures.impl.JavaCodeInsightTestFixtureImpl
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.{ScalaFileType, TypecheckerTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 

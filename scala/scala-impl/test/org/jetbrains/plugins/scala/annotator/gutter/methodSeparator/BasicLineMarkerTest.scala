@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator.gutter
+package org.jetbrains.plugins.scala.annotator.gutter.methodSeparator
 
 class BasicLineMarkerTest extends LineMarkerTestBase {
 

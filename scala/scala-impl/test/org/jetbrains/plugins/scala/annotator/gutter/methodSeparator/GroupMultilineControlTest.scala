@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.annotator.gutter
+package org.jetbrains.plugins.scala.annotator.gutter.methodSeparator
 
-class ContainerControlTest extends LineMarkerTestBase {
-  protected override def getBasePath = super.getBasePath + "/container/control/"
+class GroupMultilineControlTest extends LineMarkerTestBase {
+  protected override def getBasePath = super.getBasePath + "/group/multiline/control/"
 
   def testDo(): Unit = doTest()
   def testFor(): Unit = doTest()
