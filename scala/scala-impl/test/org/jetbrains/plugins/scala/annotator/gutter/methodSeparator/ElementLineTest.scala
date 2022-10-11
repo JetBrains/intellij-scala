@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.gutter.methodSeparator
 
-class ElementLineTest extends LineMarkerTestBase {
+class ElementLineTest extends MethodSeparatorLineMarkerTestBase {
   protected override def getBasePath = super.getBasePath + "/element/line/"
 
   def testAnonymousClass(): Unit = doTest()

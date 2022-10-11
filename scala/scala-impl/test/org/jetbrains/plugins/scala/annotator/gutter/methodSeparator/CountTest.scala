@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.gutter.methodSeparator
 
-class CountTest extends LineMarkerTestBase {
+class CountTest extends MethodSeparatorLineMarkerTestBase {
   protected override def getBasePath = super.getBasePath + "/count/"
 
   def testCount0(): Unit = doTest()

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.gutter.methodSeparator
 
-class PrefacePackageTest extends LineMarkerTestBase {
+class PrefacePackageTest extends MethodSeparatorLineMarkerTestBase {
   protected override def getBasePath = super.getBasePath + "/preface/package/"
 
   def testBlock(): Unit = doTest()

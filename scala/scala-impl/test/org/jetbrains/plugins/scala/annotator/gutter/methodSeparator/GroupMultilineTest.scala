@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.gutter.methodSeparator
 
-class GroupMultilineTest extends LineMarkerTestBase {
+class GroupMultilineTest extends MethodSeparatorLineMarkerTestBase {
   protected override def getBasePath = super.getBasePath + "/group/multiline/"
 
   def testAnonymousClasses(): Unit = doTest()

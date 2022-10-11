@@ -4,6 +4,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.registry.{Registry, RegistryValue}
+import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.util.RevertableChange.CompositeRevertableChange
 
 trait RevertableChange {
@@ -23,6 +24,10 @@ trait RevertableChange {
     Disposer.register(parentDisposable, () => {
       revertChange()
     })
+  }
+
+  final def applyChange(testCase: UsefulTestCase): Unit = {
+    applyChange(testCase.getTestRootDisposable)
   }
 
   final def apply(body: => Any): Unit =

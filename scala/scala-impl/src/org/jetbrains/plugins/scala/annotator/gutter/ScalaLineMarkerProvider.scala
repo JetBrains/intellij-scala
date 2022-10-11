@@ -51,6 +51,8 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor with Sc
           .orElse(companionMarker(element))
           .orNull
 
+      //Method separators can be enabled in
+      //File | Settings | Editor | General | Appearance | Show method separators
       if (DaemonCodeAnalyzerSettings.getInstance().SHOW_METHOD_SEPARATORS && isSeparatorNeeded(element)) {
         if (lineMarkerInfo == null) {
           addSeparatorInfo(createMarkerInfo(element))

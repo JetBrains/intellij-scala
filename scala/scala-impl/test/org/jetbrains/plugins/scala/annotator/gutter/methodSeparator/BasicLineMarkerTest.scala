@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.gutter.methodSeparator
 
-class BasicLineMarkerTest extends LineMarkerTestBase {
+class BasicLineMarkerTest extends MethodSeparatorLineMarkerTestBase {
 
   // TODO enable annotations test
 //  def testAnnotations = doTest

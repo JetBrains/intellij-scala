@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.gutter.methodSeparator
 
-class NewlineTest extends LineMarkerTestBase {
+class NewlineTest extends MethodSeparatorLineMarkerTestBase {
   protected override def getBasePath = super.getBasePath + "/newline/"
 
   def testCollision(): Unit = doTest()

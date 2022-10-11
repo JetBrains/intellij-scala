@@ -12,8 +12,6 @@ import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 
-// TODO: we already have some LineMarkerTestBase
-//  could unify the tests maybe?
 @Category(Array(classOf[TypecheckerTests]))
 abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
 
