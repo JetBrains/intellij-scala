@@ -7,6 +7,7 @@ import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupElementPresentation, LookupManager}
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
+import com.intellij.testFramework.fixtures.TestLookupElementPresentation
 import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.{StringExt, invokeAndWait}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
@@ -165,11 +166,8 @@ object ScalaCodeInsightTestBase {
   def hasLookupString(lookup: LookupElement, lookupString: String): Boolean =
     lookup.getLookupString == lookupString
 
-  def createPresentation(lookup: LookupElement): LookupElementPresentation = {
-    val presentation = new LookupElementPresentation
-    lookup.renderElement(presentation)
-    presentation
-  }
+  def createPresentation(lookup: LookupElement): LookupElementPresentation =
+    TestLookupElementPresentation.renderReal(lookup)
 
   def hasItemText(lookup: LookupElement,
                   lookupString: String)

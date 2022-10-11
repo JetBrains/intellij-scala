@@ -4,7 +4,7 @@ package completion
 package global
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation, LookupElementRenderer}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementRenderer}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScReferenceExpression}
@@ -65,7 +65,8 @@ private object HoogleFinder {
       LookupElementBuilder
         .create(elementToImport)
         .withInsertHandler(createInsertHandler)
-        .withRenderer(createRenderer(lookupItem))
+        .withRenderer((_, presentation) => lookupItem.renderElement(presentation))
+        .withExpensiveRenderer(createExpensiveRenderer(lookupItem))
 
     override protected def createInsertHandler: InsertHandler[LookupElement] =
       (context: InsertionContext, _: LookupElement) => {
@@ -90,11 +91,9 @@ private object HoogleFinder {
         }
       }
 
-    private def createRenderer(lookupItem: ScalaLookupItem): LookupElementRenderer[LookupElement] =
-      (_: LookupElement, presentation: LookupElementPresentation) => {
-        val delegate = new LookupElementPresentation
-        lookupItem.renderElement(delegate)
-        presentation.copyFrom(delegate)
+    private def createExpensiveRenderer(lookupItem: ScalaLookupItem): LookupElementRenderer[LookupElement] =
+      (_, presentation) => {
+        lookupItem.getExpensiveRenderer.asInstanceOf[LookupElementRenderer[LookupElement]].renderElement(lookupItem, presentation)
 
         // todo could be improved, requires ScalaLookupItem.tailText being decomposed
         //  see com.intellij.codeInsight.lookup.LookupElementPresentation#getTailFragments

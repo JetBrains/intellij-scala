@@ -3,7 +3,7 @@ package completion
 package aot
 
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionResult, CompletionResultSet}
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation, LookupElementRenderer}
 import com.intellij.openapi.util.text.StringUtil.{capitalize, decapitalize}
 import com.intellij.util.{Consumer => IJConsumer}
 
@@ -29,16 +29,27 @@ private[completion] sealed abstract class Consumer(originalResultSet: Completion
   }
 
   protected def consume(lookupElement: LookupElement, itemText: String): Unit = {
-    import LookupElementDecorator._
+    val rendererDecorator = new LookupElementDecorator[LookupElement](lookupElement) {
+      override def renderElement(presentation: LookupElementPresentation): Unit = {
+        super.renderElement(presentation)
+        augmentPresentation(itemText)(presentation)
+      }
 
-    val decoratedLookupElement = withInsertHandler(
-      withRenderer(lookupElement, createRenderer(itemText)),
-      createInsertHandler(itemText)
-    )
+      override def getExpensiveRenderer: LookupElementRenderer[_ <: LookupElement] = {
+        val renderer = getDelegate.getExpensiveRenderer.asInstanceOf[LookupElementRenderer[LookupElement]]
+        if (renderer eq null) null
+        else (element: LookupElementDecorator[_], presentation) => {
+          renderer.renderElement(element.getDelegate.asInstanceOf[LookupElement], presentation)
+          augmentPresentation(itemText)(presentation)
+        }
+      }
+    }
+
+    val decoratedLookupElement = LookupElementDecorator.withInsertHandler(rendererDecorator, createInsertHandler(itemText))
     resultSet.consume(decoratedLookupElement)
   }
 
-  protected def createRenderer(itemText: String): LookupElementRenderer
+  protected def augmentPresentation(itemText: String): LookupElementPresentation => Unit
 
   protected def createInsertHandler(itemText: String) = new InsertHandler(itemText)
 
@@ -55,8 +66,10 @@ private[completion] class TypedConsumer(originalResultSet: CompletionResultSet) 
   override final protected def suggestItemText(lookupString: String): String =
     super.suggestItemText(lookupString) + Delimiter + lookupString
 
-  override final protected def createRenderer(itemText: String) =
-    new LookupElementRenderer(itemText)
+  override final protected def augmentPresentation(itemText: String): LookupElementPresentation => Unit = { presentation =>
+    presentation.setItemText(itemText)
+    presentation.setTypeText(null)
+  }
 }
 
 private[completion] final class UntypedConsumer(originalResultSet: CompletionResultSet) extends Consumer(originalResultSet) {
@@ -68,15 +81,11 @@ private[completion] final class UntypedConsumer(originalResultSet: CompletionRes
       super.consume(lookupElement, itemText)
     }
 
-  //noinspection TypeAnnotation
-  override protected def createRenderer(itemText: String) = new LookupElementRenderer(itemText) {
-
-    override def renderElement(decorator: Decorator, presentation: LookupElementPresentation): Unit = {
-      super.renderElement(decorator, presentation)
-
-      presentation.setIcon(null)
-      presentation.setTailText(null)
-      presentation.setStrikeout(false)
-    }
+  override protected def augmentPresentation(itemText: String): LookupElementPresentation => Unit = { presentation =>
+    presentation.setItemText(itemText)
+    presentation.setTypeText(null)
+    presentation.setIcon(null)
+    presentation.setTailText(null)
+    presentation.setStrikeout(false)
   }
 }

@@ -131,8 +131,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
         |}
         |
       """.stripMargin,
-    item = "importedDef",
-    time = 2
+    item = "importedDef"
   )
 
   def testGlobalMember7(): Unit = checkNoCompletion(

@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.overrideImplement._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
+import javax.swing.Icon
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
@@ -178,11 +179,14 @@ object ScalaOverrideContributor {
         member.element
       case _ => member.getElement
     }
-    val lookupItem = LookupElementBuilder.create(lookupObject, lookupString)
-      .withIcon(lookupObject.getIcon(ICON_FLAG_VISIBILITY | ICON_FLAG_READ_STATUS))
-      .withInsertHandler(new MyInsertHandler(hasOverride))
 
-    LookupElementDecorator.withRenderer(lookupItem, new MyElementRenderer(member))
+    val icon = lookupObject.getIcon(ICON_FLAG_VISIBILITY | ICON_FLAG_READ_STATUS)
+
+    LookupElementBuilder.create(lookupObject, lookupString)
+      .withIcon(icon)
+      .withInsertHandler(new MyInsertHandler(hasOverride))
+      .withRenderer(quickRenderer(member))
+      .withExpensiveRenderer(expensiveRenderer(member, icon))
   }
 
   private[this] class MyInsertHandler(hasOverride: Boolean) extends InsertHandler[LookupElement] {
@@ -207,20 +211,17 @@ object ScalaOverrideContributor {
     }
   }
 
-  private[this] class MyElementRenderer(member: ClassMember) extends LookupElementRenderer[LookupElementDecorator[LookupElement]] {
-
-    override def renderElement(decorator: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation): Unit = {
-      decorator.getDelegate.renderElement(presentation)
-      presentation.setTypeText(typeText)
-      presentation.setItemText(itemText)
-    }
-
-    private def itemText = "override " + (member match {
+  private def quickRenderer(member: ClassMember): LookupElementRenderer[LookupElement] = { (_, presentation) =>
+    def itemText: String = "override " + (member match {
       case methodMember: ScMethodMember => methodMember.getText + " = {...}"
       case _ => member.name
     })
 
-    private def typeText = {
+    presentation.setItemText(itemText)
+  }
+
+  private def expensiveRenderer(member: ClassMember, icon: Icon): LookupElementRenderer[LookupElement] = { (element, presentation) =>
+    def typeText: String = {
       val maybeType = member match {
         case member: ScalaTypedMember if !member.is[JavaFieldMember] => Some(member.scType)
         case ScAliasMember(definition: ScTypeAliasDefinition, _, _) => definition.aliasedTypeElement.map(_.calcType)
@@ -229,5 +230,9 @@ object ScalaOverrideContributor {
 
       maybeType.map(_.presentableText(member.getPsiElement)).getOrElse("")
     }
+
+    element.renderElement(presentation)
+    presentation.setIcon(icon)
+    presentation.setTypeText(typeText)
   }
 }

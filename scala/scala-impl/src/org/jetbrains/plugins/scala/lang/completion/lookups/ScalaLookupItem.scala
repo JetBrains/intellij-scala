@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKe
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.HashBuilder._
-import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
 import scala.annotation.{nowarn, tailrec}
 
@@ -90,16 +89,6 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   }
 
   override def renderElement(presentation: LookupElementPresentation): Unit = {
-    val grayed = getPsiElement match {
-      case _: PsiPackage | _: PsiClass => true
-      case _ => false
-    }
-
-    presentation.setTailText(
-      if (isNamedParameter) AssignmentText else tailText,
-      grayed
-    )
-    presentation.setTypeText(typeText)
     presentation.setIcon(getPsiElement)
 
     val itemText =
@@ -120,6 +109,19 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     }
   }
 
+  override def getExpensiveRenderer: LookupElementRenderer[_ <: LookupElement] = (element: LookupElement, presentation) => {
+    element.renderElement(presentation)
+
+    val grayed = getPsiElement match {
+      case _: PsiPackage | _: PsiClass => true
+      case _ => false
+    }
+
+    val tail = if (isNamedParameter) AssignmentText else tailText
+    presentation.setTailText(tail, grayed)
+    presentation.setTypeText(typeText)
+  }
+
   private[lookups] def wrapOptionIfNeeded(presentation: LookupElementPresentation): Unit =
     if (someSmartCompletion) {
       presentation.setItemText("Some(" + presentation.getItemText + ")")
@@ -129,74 +131,70 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     if (someSmartCompletion) 5 else 0
 
   private lazy val typeText: String = {
-    UIFreezingGuard.withDefaultValue("") {
-      implicit val pc: Project = getPsiElement.getProject
-      implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
-      import LookupItemPresentationUtil.{presentationStringForJavaType, presentationStringForScalaType}
-      getPsiElement match {
-        case fun: ScFunction =>
-          val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.`type`().getOrAny
-          presentationStringForScalaType(scType, substitutor)
-        case fun: ScFun =>
-          presentationStringForScalaType(fun.retType, substitutor)
-        case alias: ScTypeAliasDefinition =>
-          presentationStringForScalaType(alias.aliasedType.getOrAny, substitutor)
-        case param: ScParameter =>
-          presentationStringForScalaType(param.getRealParameterType.getOrAny, substitutor)
-        case t: ScTemplateDefinition if getLookupString == "this" || getLookupString.endsWith(".this") =>
-          t.getTypeWithProjections(thisProjections = true) match {
-            case Right(tp) =>
-              tp.presentableText(t)
-            case _ => ""
-          }
-        case f: PsiField =>
-          presentationStringForJavaType(f.getType, substitutor)
-        case m: PsiMethod =>
-          presentationStringForJavaType(m.getReturnType, substitutor)
-        case t: Typeable =>
-          presentationStringForScalaType(t.`type`().getOrAny, substitutor)
-        case _ => ""
-      }
+    implicit val pc: Project = getPsiElement.getProject
+    implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+    import LookupItemPresentationUtil.{presentationStringForJavaType, presentationStringForScalaType}
+    getPsiElement match {
+      case fun: ScFunction =>
+        val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.`type`().getOrAny
+        presentationStringForScalaType(scType, substitutor)
+      case fun: ScFun =>
+        presentationStringForScalaType(fun.retType, substitutor)
+      case alias: ScTypeAliasDefinition =>
+        presentationStringForScalaType(alias.aliasedType.getOrAny, substitutor)
+      case param: ScParameter =>
+        presentationStringForScalaType(param.getRealParameterType.getOrAny, substitutor)
+      case t: ScTemplateDefinition if getLookupString == "this" || getLookupString.endsWith(".this") =>
+        t.getTypeWithProjections(thisProjections = true) match {
+          case Right(tp) =>
+            tp.presentableText(t)
+          case _ => ""
+        }
+      case f: PsiField =>
+        presentationStringForJavaType(f.getType, substitutor)
+      case m: PsiMethod =>
+        presentationStringForJavaType(m.getReturnType, substitutor)
+      case t: Typeable =>
+        presentationStringForScalaType(t.`type`().getOrAny, substitutor)
+      case _ => ""
     }
   }
 
   private lazy val tailText: String = {
-    UIFreezingGuard.withDefaultValue("") {
-      implicit val pc: Project = getPsiElement.getProject
-      implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
-      getPsiElement match {
-        //scala
-        case _: ScReferencePattern => // todo should be a ScValueOrVariable instance
-          locationText
-        case fun: ScFunction =>
-          if (etaExpanded)
-            " _"
-          else if (isAssignment)
-            AssignmentText +
-              LookupItemPresentationUtil.presentationStringForPsiElement(fun.parameterList, substitutor)
-          else
-            typeParametersText(fun) +
-              parametersText(fun.parameterList) +
-              locationText
-        case fun: ScFun =>
-          val paramClausesText = fun.paramClauses.map { clause =>
-            clause.map {
-              LookupItemPresentationUtil.presentationStringForParameter(_, substitutor)
-            }.commaSeparated(Model.Parentheses)
-          }.mkString
-
-          typeParametersText(fun.typeParameters) + paramClausesText
-        case clazz: PsiClass =>
-          typeParametersText(clazz) +
-            classLocationSuffix(clazz)
-        case method: PsiMethod =>
-          typeParametersText(method) +
-            (if (isParameterless(method)) "" else parametersText(method.getParameterList)) +
+    implicit val pc: Project = getPsiElement.getProject
+    implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+    getPsiElement match {
+      //scala
+      case _: ScReferencePattern => // todo should be a ScValueOrVariable instance
+        locationText
+      case fun: ScFunction =>
+        if (etaExpanded)
+          " _"
+        else if (isAssignment)
+          AssignmentText +
+            LookupItemPresentationUtil.presentationStringForPsiElement(fun.parameterList, substitutor)
+        else
+          typeParametersText(fun) +
+            parametersText(fun.parameterList) +
             locationText
-        case p: PsiPackage =>
-          s"    (${p.getQualifiedName})"
-        case _ => ""
-      }
+      case fun: ScFun =>
+        val paramClausesText = fun.paramClauses.map { clause =>
+          clause.map {
+            LookupItemPresentationUtil.presentationStringForParameter(_, substitutor)
+          }.commaSeparated(Model.Parentheses)
+        }.mkString
+
+        typeParametersText(fun.typeParameters) + paramClausesText
+      case clazz: PsiClass =>
+        typeParametersText(clazz) +
+          classLocationSuffix(clazz)
+      case method: PsiMethod =>
+        typeParametersText(method) +
+          (if (isParameterless(method)) "" else parametersText(method.getParameterList)) +
+          locationText
+      case p: PsiPackage =>
+        s"    (${p.getQualifiedName})"
+      case _ => ""
     }
   }
 
