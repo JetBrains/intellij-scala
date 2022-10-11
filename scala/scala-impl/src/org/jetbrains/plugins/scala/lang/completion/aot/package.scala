@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang
 package completion
 
 import com.intellij.codeInsight.completion.{InsertionContext, InsertHandler => IJInsertHandler}
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation, LookupElementRenderer => IJLookupElementRenderer}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator}
 
 package object aot {
 
@@ -30,16 +30,4 @@ package object aot {
       context.commitDocument()
     }
   }
-
-  private[aot] class LookupElementRenderer(itemText: String) extends IJLookupElementRenderer[Decorator] {
-
-    override def renderElement(decorator: Decorator,
-                               presentation: LookupElementPresentation): Unit = {
-      decorator.getDelegate.renderElement(presentation)
-
-      presentation.setItemText(itemText)
-      presentation.setTypeText(null)
-    }
-  }
-
 }

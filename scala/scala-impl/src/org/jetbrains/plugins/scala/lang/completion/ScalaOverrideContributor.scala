@@ -178,11 +178,10 @@ object ScalaOverrideContributor {
         member.element
       case _ => member.getElement
     }
-    val lookupItem = LookupElementBuilder.create(lookupObject, lookupString)
+    LookupElementBuilder.create(lookupObject, lookupString)
       .withIcon(lookupObject.getIcon(ICON_FLAG_VISIBILITY | ICON_FLAG_READ_STATUS))
       .withInsertHandler(new MyInsertHandler(hasOverride))
-
-    LookupElementDecorator.withRenderer(lookupItem, new MyElementRenderer(member))
+      .withRenderer(new MyElementRenderer(member))
   }
 
   private[this] class MyInsertHandler(hasOverride: Boolean) extends InsertHandler[LookupElement] {
@@ -207,10 +206,9 @@ object ScalaOverrideContributor {
     }
   }
 
-  private[this] class MyElementRenderer(member: ClassMember) extends LookupElementRenderer[LookupElementDecorator[LookupElement]] {
+  private[this] class MyElementRenderer(member: ClassMember) extends LookupElementRenderer[LookupElement] {
 
-    override def renderElement(decorator: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation): Unit = {
-      decorator.getDelegate.renderElement(presentation)
+    override def renderElement(element: LookupElement, presentation: LookupElementPresentation): Unit = {
       presentation.setTypeText(typeText)
       presentation.setItemText(itemText)
     }

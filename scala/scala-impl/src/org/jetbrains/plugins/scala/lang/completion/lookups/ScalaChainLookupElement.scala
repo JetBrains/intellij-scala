@@ -4,16 +4,13 @@ package completion
 package lookups
 
 import com.intellij.codeInsight.completion.InsertionContext
-import com.intellij.codeInsight.lookup.{LookupElementDecorator, LookupElementPresentation}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation, LookupElementRenderer}
 
-import java.util
+final class ScalaChainLookupElement(delegate: ScalaLookupItem, prefix: ScalaLookupItem)
+  extends LookupElementDecorator[ScalaLookupItem](delegate) {
 
-final class ScalaChainLookupElement(override val getDelegate: ScalaLookupItem,
-                                    private val prefix: ScalaLookupItem)
-  extends LookupElementDecorator[ScalaLookupItem](getDelegate) {
-
-  override def getAllLookupStrings: util.Set[String] = {
-    val result = new util.HashSet[String](getDelegate.getAllLookupStrings)
+  override def getAllLookupStrings: java.util.Set[String] = {
+    val result = new java.util.HashSet[String](super.getAllLookupStrings)
     result.add(getLookupString)
     result
   }
@@ -34,6 +31,22 @@ final class ScalaChainLookupElement(override val getDelegate: ScalaLookupItem,
 
     presentation.setItemText(prefixPresentation.getItemText + "." + presentation.getItemText)
     element.wrapOptionIfNeeded(prefixPresentation)
+  }
+
+  override def getExpensiveRenderer: LookupElementRenderer[_ <: LookupElement] = {
+    (_: LookupElementDecorator[_], presentation) => {
+      val prefixPresentation = new LookupElementPresentation()
+      prefix.renderElement(prefixPresentation)
+
+      val element = getDelegate
+      val old = element.someSmartCompletion
+      element.someSmartCompletion = false
+      element.getExpensiveRenderer.asInstanceOf[LookupElementRenderer[LookupElement]].renderElement(element, presentation)
+      element.someSmartCompletion = old
+
+      presentation.setItemText(prefixPresentation.getItemText + "." + presentation.getItemText)
+      element.wrapOptionIfNeeded(prefixPresentation)
+    }
   }
 
   override def handleInsert(context: InsertionContext): Unit = {
