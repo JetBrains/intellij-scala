@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.SettingsCategory;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.util.Getter;
@@ -12,7 +13,8 @@ import org.jetbrains.annotations.NotNull;
 @State(
         name = "ScalaCodeInsightSettings",
         storages = {@Storage("scala_code_insight_settings.xml")},
-        reportStatistic = true
+        reportStatistic = true,
+        category = SettingsCategory.CODE
 )
 public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaCodeInsightSettings> {
 

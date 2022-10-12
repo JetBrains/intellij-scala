@@ -236,7 +236,8 @@ object BspSettings {
 @State(
   name = "BspSystemSettings",
   storages = Array(new Storage("bsp.settings.xml")),
-  reportStatistic = true
+  reportStatistic = true,
+  category = SettingsCategory.TOOLS
 )
 class BspSystemSettings extends PersistentStateComponent[BspSystemSettings.State] {
 

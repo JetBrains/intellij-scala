@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ReportValue;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +10,8 @@ import java.util.UUID;
 @State(
         name = "ScalaSettings",
         storages = {@Storage("scala.xml")},
-        reportStatistic = true
+        reportStatistic = true,
+        category = SettingsCategory.TOOLS
 )
 public class ScalaCompileServerSettings implements PersistentStateComponent<ScalaCompileServerSettings> {
   public boolean SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = false;
