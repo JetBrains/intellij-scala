@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.quickfix
 
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedDeclarationInspectionTestBase
 import org.junit.Assert.assertFalse
 
 class Scala2DontReportPublicDeclarationsQuickFixTest extends ScalaUnusedDeclarationInspectionTestBase {
+
+  private val disablePublicDeclarationReporting = ScalaInspectionBundle.message("fix.unused.declaration.report.public.declarations")
 
   def test_private_field(): Unit = {
     val code =

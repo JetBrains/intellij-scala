@@ -130,22 +130,26 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     Search.Util.shouldProcessElement(element) && {
       element match {
         case n: ScNamedElement =>
-          n.nameContext match {
-            case m: ScMember if m.isLocal =>
-              if (reportLocalDeclarations == AlwaysDisabled) {
-                false
-              } else if (reportLocalDeclarations == ComplyToCompilerOption) {
-                n.module.toSeq.flatMap(_.scalaCompilerSettings.additionalCompilerOptions).exists { compilerOption =>
-                  compilerOption.equals("-Wunused:locals") ||
-                    compilerOption.equals("-Wunused:linted") ||
-                    compilerOption.equals("-Xlint:unused")
+          if (isOnlyVisibleInLocalFile(n)) {
+            n.nameContext match {
+              case m: ScMember if m.isLocal =>
+                if (reportLocalDeclarations == AlwaysDisabled) {
+                  false
+                } else if (reportLocalDeclarations == ComplyToCompilerOption) {
+                  n.module.toSeq.flatMap(_.scalaCompilerSettings.additionalCompilerOptions).exists { compilerOption =>
+                    compilerOption.equals("-Wunused:locals") ||
+                      compilerOption.equals("-Wunused:linted") ||
+                      compilerOption.equals("-Xlint:unused")
+                  }
+                } else {
+                  true
                 }
-              } else {
-                true
-              }
-            case _ => true
+              case _ => true
+            }
+          } else {
+            reportPublicDeclarations
           }
-        case _ => true
+        case _ => false
       }
     }
 }
