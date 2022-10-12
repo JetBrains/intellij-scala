@@ -16,13 +16,14 @@ object Main {
   private val OutputDir = Home + "/IdeaProjects/scala-plugin-for-ultimate/community/scala/tasty-reader/target/comparison"
 
   // scalaVersion := "3.2.0",
+
   // libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.2.0",
 
-  // libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.13",
+  // libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14",
 
-  // libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.13",
+  // libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.14",
 
-  // libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.15.4",
+  // libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.17.0",
 
   // libraryDependencies += "dev.zio" %% "zio" % "2.0.2",
   // libraryDependencies += "dev.zio" %% "zio-streams" % "2.0.2",
@@ -30,8 +31,8 @@ object Main {
   // libraryDependencies += "org.typelevel" %% "cats-core" % "2.8.0",
   // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.14",
 
-  // libraryDependencies += "io.getquill" %% "quill-sql" % "3.16.4-Beta2.7",
-  // libraryDependencies += "io.getquill" %% "quill-jdbc-zio" % "3.16.4-Beta2.7"
+  // libraryDependencies += "io.getquill" %% "quill-sql" % "4.6.0",
+  // libraryDependencies += "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
 
   // libraryDependencies += "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
 
@@ -39,13 +40,13 @@ object Main {
     "org/scala-lang/scala3-library_3/3.2.0/scala3-library_3-3.2.0.jar",
     "org/scala-lang/scala3-compiler_3/3.2.0/scala3-compiler_3-3.2.0.jar",
 
-    "org/scalatest/scalatest-core_3/3.2.13/scalatest-core_3-3.2.13.jar",
-    "org/scalatest/scalatest-funspec_3/3.2.13/scalatest-funspec_3-3.2.13.jar",
-    "org/scalatest/scalatest-funsuite_3/3.2.13/scalatest-funsuite_3-3.2.13.jar",
+    "org/scalatest/scalatest-core_3/3.2.14/scalatest-core_3-3.2.14.jar",
+    "org/scalatest/scalatest-funspec_3/3.2.14/scalatest-funspec_3-3.2.14.jar",
+    "org/scalatest/scalatest-funsuite_3/3.2.14/scalatest-funsuite_3-3.2.14.jar",
 
-    "org/scalactic/scalactic_3/3.2.13/scalactic_3-3.2.13.jar",
+    "org/scalactic/scalactic_3/3.2.14/scalactic_3-3.2.14.jar",
 
-    "org/scalacheck/scalacheck_3/1.15.4/scalacheck_3-1.15.4.jar",
+    "org/scalacheck/scalacheck_3/1.17.0/scalacheck_3-1.17.0.jar",
 
     "dev/zio/zio_3/2.0.2/zio_3-2.0.2.jar",
     "dev/zio/zio-streams_3/2.0.2/zio-streams_3-2.0.2.jar",
@@ -56,8 +57,8 @@ object Main {
     "org/typelevel/cats-effect-kernel_3/3.3.14/cats-effect-kernel_3-3.3.14.jar",
     "org/typelevel/cats-effect-std_3/3.3.14/cats-effect-std_3-3.3.14.jar",
 
-    "io/getquill/quill-sql_3/3.16.4-Beta2.7/quill-sql_3-3.16.4-Beta2.7.jar",
-    "io/getquill/quill-jdbc-zio_3/3.16.4-Beta2.7/quill-jdbc-zio_3-3.16.4-Beta2.7.jar",
+    "io/getquill/quill-sql_3/4.6.0/quill-sql_3-4.6.0.jar",
+    "io/getquill/quill-jdbc-zio_3/4.6.0/quill-jdbc-zio_3-4.6.0.jar",
 
     "org/tpolecat/doobie-core_3/1.0.0-RC1/doobie-core_3-1.0.0-RC1.jar",
   )
