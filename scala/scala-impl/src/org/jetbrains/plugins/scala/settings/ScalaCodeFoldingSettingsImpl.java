@@ -4,6 +4,7 @@ import com.intellij.codeInsight.folding.CodeFoldingSettings;
 import com.intellij.codeInsight.folding.JavaCodeFoldingSettings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.SettingsCategory;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
@@ -15,7 +16,8 @@ import org.jetbrains.annotations.NotNull;
                 @Storage("editor.xml"),
                 @Storage(value = "scala_folding_settings.xml", deprecated = true)
         },
-        reportStatistic = true
+        reportStatistic = true,
+        category = SettingsCategory.CODE
 )
 public class ScalaCodeFoldingSettingsImpl extends ScalaCodeFoldingSettings implements PersistentStateComponent<ScalaCodeFoldingSettingsImpl> {
 
