@@ -381,9 +381,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
       val implicitClause = implicitClauseIn(mt)
       val contextBoundParams = implicitClause.map(_.paramSymbols.filter(ps => ps.name.startsWith("evidence$") && hasSingleArgument(ps))).getOrElse(Seq.empty)
       contextBoundParams.collect { case ms: MethodSymbol =>
-        val tpe = toString(ms.infoType)(TypeFlags(true))
-        val i = tpe.indexOf("[")
-        (tpe.substring(i + 1, tpe.length - 1), tpe.substring(0, i))
+        val TypeRefType(prefix, symbol, Seq(argument)) = ms.infoType
+        (toString(argument)(TypeFlags(true)), toString(TypeRefType(prefix, symbol, Seq()))(TypeFlags(true)))
       }
     case _ => Seq.empty
   }

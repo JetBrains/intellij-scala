@@ -59,4 +59,8 @@ trait ContextBounds {
   def wildcard[A[_]: HKT]: Unit = ???
 
   def parameter[A[X]: HKT]: Unit = ???
+
+  type Argument[A] = [X] =>> Ordering[X]
+
+  def argument[A: Argument[Int]]: Unit = ???
 }

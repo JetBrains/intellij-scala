@@ -550,9 +550,8 @@ class TreePrinter(privateMembers: Boolean = false) {
 
     lazy val contextBounds = node.children.collect {
       case param @ Node3(PARAM, Seq(name), Seq(tail, _: _*)) if name.startsWith("evidence$") && param.contains(IMPLICIT) && hasSingleArgument(tail) =>
-        val tpe = textOfType(tail)
-        val i = tpe.indexOf("[")
-        (tpe.substring(i + 1, tpe.length - 1), tpe.substring(0, i))
+        val Seq(designator, argument) = tail.children
+        (simple(textOfType(argument)), simple(textOfType(designator)))
     }
 
     var open = false
