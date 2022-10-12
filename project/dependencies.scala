@@ -1,7 +1,7 @@
 import sbt._
 
 object Versions {
-  val scalaVersion: String = "2.13.9"
+  val scalaVersion: String = "2.13.10"
   val scala3Version: String = "3.2.0"
 
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
@@ -26,7 +26,6 @@ object Versions {
   val sbtStructureVersion: String = "2021.3.0"
   val sbtIdeaShellVersion: String = "2021.1.0"
   val compilerIndicesVersion = "1.0.13"
-  val paradiseVersion = "3.0.0-M11"
 
   object Scala {
     val binary_2_9 = "2.9.2"
