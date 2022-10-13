@@ -6,8 +6,10 @@ import com.intellij.codeInsight.daemon.impl.{DefaultHighlightInfoProcessor, File
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 
+import scala.annotation.unused
+
+@unused("registered in scala-plugin-common.xml")
 final class ScalaUnusedImportsPassFactory
   extends TextEditorHighlightingPassFactory
     with TextEditorHighlightingPassFactoryRegistrar

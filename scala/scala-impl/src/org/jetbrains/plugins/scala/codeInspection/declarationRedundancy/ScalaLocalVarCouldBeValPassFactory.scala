@@ -7,6 +7,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
+import scala.annotation.unused
+
+@unused("registered in scala-plugin-common.xml")
 final class ScalaLocalVarCouldBeValPassFactory
   extends TextEditorHighlightingPassFactory
     with TextEditorHighlightingPassFactoryRegistrar {

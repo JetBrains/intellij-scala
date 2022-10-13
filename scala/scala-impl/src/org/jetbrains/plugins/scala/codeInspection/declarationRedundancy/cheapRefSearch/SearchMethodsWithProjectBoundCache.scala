@@ -4,9 +4,8 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isOnlyVisibleInLocalFile}
 
 /**
- * A cheap reference searcher, suitable for on-the-fly inspections.
- *
- * TODO -- Rewrite this doc if we end up merging this
+ * Each [[Search.Method]] has its own cache, and one [[Search.Method]] instance is bound to a project
+ * by virtue of this class being registered as a project service in scala-plugin-common.xml.
  */
 
 private[declarationRedundancy] final class SearchMethodsWithProjectBoundCache private() {
