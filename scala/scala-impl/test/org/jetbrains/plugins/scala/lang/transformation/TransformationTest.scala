@@ -1,21 +1,21 @@
-package org.jetbrains.plugins.scala
-package lang
-package transformation
+package org.jetbrains.plugins.scala.lang.transformation
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.DebugUtil
-import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert.assertEquals
 
-abstract class TransformationTest extends base.ScalaLightCodeInsightFixtureTestCase with util.Markers {
+abstract class TransformationTest extends ScalaLightCodeInsightFixtureTestCase {
   @Language("Scala")
   protected val header: String = ""
 
   import TransformationTest._
 
-  protected def transform(element: PsiElement, file: PsiFile, reformat: Transformer.ReformatAction): Unit
+  protected def transform(element: PsiElement, file : PsiFile, reformat: Transformer.ReformatAction): Unit
 
   protected final def check(@Language("Scala") before: String,
                             @Language("Scala") after: String)
@@ -42,20 +42,28 @@ abstract class TransformationTest extends base.ScalaLightCodeInsightFixtureTestC
     var actualRewriteTextRanges = List.empty[TextRange]
     val reformat: Transformer.ReformatAction = (textRanges, _, _) => actualRewriteTextRanges :::= textRanges
 
-    actualFile.depthFirst()
-      .foreach(transform(_, actualFile, reformat))
+    inWriteAction {
+      implicit val p: Project = getProject
+      startCommand("test command") {
+        //NOTE: currently we apply transformation to all elements in the file
+        //Ideally we should do it only for the tested code, without header and footer
+        actualFile
+          .depthFirst()
+          .filter(_.isValid) //some elements can become invalid after transform was performed on it's parents
+          .foreach { element =>
+            transform(element, actualFile, reformat)
+          }
 
-    val (afterCode, expectedReformatRanges) = extractNumberedMarkers(after)
-    val expectedReformatRangesWithHeader = expectedReformatRanges.map(adjustMarkerRanges)
-    assertEquals(afterCode.trim, slice(actualFile).trim)
+        if (actualRewriteTextRanges.nonEmpty) {
+          Transformer.defaultReformat(actualRewriteTextRanges, getFile, getEditor.getDocument)
+        }
+      }
+    }
 
-    val expectedFile = configureByText(afterCode)
+    assertEquals(after.trim, slice(actualFile).trim)
+
+    val expectedFile = configureByText(after)
     assertEquals(psiToString(expectedFile), psiToString(actualFile))
-
-    assertEquals(
-      sortRanges(expectedReformatRangesWithHeader),
-      sortRanges(actualRewriteTextRanges)
-    )
   }
 
   private def createHeader(header: String) =
@@ -71,16 +79,9 @@ abstract class TransformationTest extends base.ScalaLightCodeInsightFixtureTestC
          |$text
          |$footer""".stripMargin.withNormalizedSeparator
 
-    PsiFileFactory.getInstance(getProject).createFileFromText(
-      "foo.scala",
-      ScalaFileType.INSTANCE,
-      fileText
-    )
+    myFixture.configureByText("foo.scala", fileText)
+    myFixture.getFile
   }
-
-  private def sortRanges(ranges: Seq[TextRange]) =
-    ranges.sorted(Ordering.by((range: TextRange) => (range.getStartOffset, range.getEndOffset))).toList
-
 }
 
 object TransformationTest {
@@ -102,12 +103,6 @@ object TransformationTest {
     val (header, footer) = headerAndFooter
     val text = file.getText
     text.substring(header.length + 1, text.length - (footer.length + 1))
-  }
-
-  private def adjustMarkerRanges(range: TextRange)
-                          (implicit headerAndFooter: (String, String)): TextRange = {
-    val (header, _) = headerAndFooter
-    range.shiftRight(header.length + 1)
   }
 }
 

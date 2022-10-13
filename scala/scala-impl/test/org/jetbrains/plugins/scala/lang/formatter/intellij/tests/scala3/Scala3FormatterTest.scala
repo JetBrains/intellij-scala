@@ -366,4 +366,17 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |}
       |""".stripMargin
   )
+
+  //SCL-19811
+  def testPatternMatchInForGuard(): Unit = {
+    doTextTest(
+      """for {
+        |  n <- 1 to 8 if n match {
+        |    case x if x > 5 => true
+        |    case _ => false
+        |  }
+        |} yield n
+        |""".stripMargin
+    )
+  }
 }

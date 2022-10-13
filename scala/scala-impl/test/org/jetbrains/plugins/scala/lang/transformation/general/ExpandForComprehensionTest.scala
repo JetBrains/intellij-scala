@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package transformation
-package general
+package org.jetbrains.plugins.scala.lang.transformation.general
 
+import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 abstract class ExpandForComprehensionTestBase extends TransformerTest(new ExpandForComprehension())
@@ -109,12 +109,10 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
     after = "Seq(A).map(a => a + _)"
   )()
 
-  // TODO: scalaLanguageLevel is not set for the test file, so the desugaring can not check the language lvl
-  //       and will always assume the newest version, in which filter will not be generated
-  /*def testWithoutFilterWith(): Unit = check(
+  def testWithoutFilterWith(): Unit = check(
     before = "for (v <- new W if p(v)) v.p()",
     after = "(new W).filter(v => p(v)).foreach(v => v.p())"
-  )(header = "class W { def filter(f: (A) => Boolean): W = ???\n def foreach(f: (A) => Unit) = ??? }")*/
+  )(header = "class W { def filter(f: (A) => Boolean): W = ???\n def foreach(f: (A) => Unit) = ??? }")
 
   def test_SCL14584(): Unit = check(
     before = "for { x <- Option(1) } yield { val y = 2; val z = 3; x + y + z }",
@@ -137,24 +135,25 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
           |  println(x + xx + xxx)
           |  println(y + yy + yyy)
           |}
-        """.stripMargin,
+          |""".stripMargin,
       after =
         s"""
-          |${startMarker}Seq(1, 2, 3)
-          |.map { x => val xx = x; (x, xx) }
-          |.withFilter { case (x, xx) => x == xx }
-          |.map { case (x, xx) => val xxx = xx; (x, xx, xxx) }
-          |.flatMap { case (x, xx, xxx) =>$space
-          |Seq("a", "b")
-          |.map { y => val yy = y; (y, yy) }
-          |.withFilter { case (y, yy) => y == yy }
-          |.map { case (y, yy) => val yyy = yy; (y, yy, yyy) }
-          |.map { case (y, yy, yyy) => {
-          |  println(x + xx + xxx)
-          |  println(y + yy + yyy)
-          |} }
-          | }$endMarker
-        """.stripMargin
+           |Seq(1, 2, 3)
+           |  .map { x => val xx = x; (x, xx) }
+           |  .withFilter { case (x, xx) => x == xx }
+           |  .map { case (x, xx) => val xxx = xx; (x, xx, xxx) }
+           |  .flatMap { case (x, xx, xxx) =>
+           |    Seq("a", "b")
+           |      .map { y => val yy = y; (y, yy) }
+           |      .withFilter { case (y, yy) => y == yy }
+           |      .map { case (y, yy) => val yyy = yy; (y, yy, yyy) }
+           |      .map { case (y, yy, yyy) => {
+           |        println(x + xx + xxx)
+           |        println(y + yy + yyy)
+           |      }
+           |      }
+           |  }
+           |""".stripMargin
     )()
   }
 
@@ -187,39 +186,39 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
         """.stripMargin,
       after =
         s"""
-          |$startMarker{
-          |    println("1")
-          |    Seq(1)
-          |  }
-          |.map { x =>$space
-          |val y = {
-          |    println("2")
-          |    2
-          |  }
-          |
-          |(x, y)
-          | }
-          |.withFilter { case (x, y) => {
-          |    println("3")
-          |    true
-          |  } }
-          |.map { case (x, y) =>$space
-          |val z = {
-          |    println("4")
-          |    4
-          |  }
-          |
-          |(x, y, z)
-          | }
-          |.foreach { case (x, y, z) =>$space
-          |{
-          |    println("5")
-          |    Seq(5)
-          |  }
-          |.foreach(zz => println("6"))
-          | }$endMarker
-        """
-        .stripMargin
+           |{
+           |  println("1")
+           |  Seq(1)
+           |}
+           |  .map { x =>
+           |    val y = {
+           |      println("2")
+           |      2
+           |    }
+           |
+           |    (x, y)
+           |  }
+           |  .withFilter { case (x, y) => {
+           |    println("3")
+           |    true
+           |  }
+           |  }
+           |  .map { case (x, y) =>
+           |    val z = {
+           |      println("4")
+           |      4
+           |    }
+           |
+           |    (x, y, z)
+           |  }
+           |  .foreach { case (x, y, z) => {
+           |    println("5")
+           |    Seq(5)
+           |  }
+           |    .foreach(zz => println("6"))
+           |  }
+           |"""
+          .stripMargin
     )()
   }
 
@@ -238,11 +237,11 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
         |""".stripMargin,
     after=
       s"""
-        |val xs = Array(1, 0, 0)
-        |$startMarker(1 until xs.length)
-        |.map { i => val previous = xs(i - 1); (i, previous) }
-        |.foreach { case (i, previous) => xs(i) = previous }$endMarker
-        |""".stripMargin
+         |val xs = Array(1, 0, 0)
+         |(1 until xs.length)
+         |  .map { i => val previous = xs(i - 1); (i, previous) }
+         |  .foreach { case (i, previous) => xs(i) = previous }
+         |""".stripMargin
   )()
 }
 
@@ -272,4 +271,39 @@ class ExpandForComprehensionTest_WithBetterMonadicFor extends ExpandForComprehen
     before = "for((a: A, b) <- Seq((A, B), 4)) yield a.a()",
     after = "Seq((A, B), 4).map { case (a: A, b) => a.a() }"
   )()
+}
+
+class ExpandForComprehensionTest_Scala3 extends ExpandForComprehensionTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_3
+
+  private def check3(
+    @Language("Scala3") before: String,
+    @Language("Scala3") after: String
+  ): Unit = {
+    super.check(before, after)("", "")
+  }
+
+  //SCL-19811
+  def testPatternMatchInForGuard(): Unit = {
+    check3(
+      before =
+        """for {
+          |  n <- 1 to 8 if n match {
+          |    case x if x > 5 => true
+          |    case _ => false
+          |  }
+          |} yield n
+          |""".stripMargin,
+      after =
+        """(1 to 8)
+          |  .withFilter(n => n match {
+          |    case x if x > 5 => true
+          |    case _ => false
+          |  })
+          |  .map(n => n)
+          |""".stripMargin
+    )
+  }
 }
