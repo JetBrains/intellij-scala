@@ -171,7 +171,7 @@ case class NullaryMethodType(resultType: Ref[Type]) extends Type // TODO extends
 
 case class PolyType(typeRef: Ref[Type], override val paramRefs: Seq[Ref[Symbol]]) extends TypeWithParams
 
-case class PolyTypeWithCons(typeRef: Ref[Type], override val paramRefs: Seq[Ref[Symbol]], cons: String) extends TypeWithParams
+case class PolyTypeWithCons(typeRef: Ref[Type], override val paramRefs: Seq[Ref[Symbol]], cons: String, contextBounds: Seq[(String, String)] = Seq.empty) extends TypeWithParams
 
 case class ImplicitMethodType(override val resultType: Ref[Type], override val paramRefs: Seq[Ref[Symbol]]) extends FunctionType
 

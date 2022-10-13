@@ -208,12 +208,12 @@ class ScalaSigPrinter(builder: StringBuilder) {
       printWithIndent(level, "}")
     } else {
       printModifiers(c)
-      val defaultConstructor = if (!c.isTrait) getPrinterByConstructor(c) else ""
+      val (contextBounds, defaultConstructor) = if (!c.isTrait) getPrinterByConstructor(c) else (Seq.empty, "")
       if (c.isTrait) print("trait ") else print("class ")
       print(processName(c.name))
       val it = c.infoType
       val (classType, typeParams) = it match {
-        case PolyType(typeRef, symbols) => (PolyTypeWithCons(typeRef, symbols, defaultConstructor), symbols)
+        case PolyType(typeRef, symbols) => (PolyTypeWithCons(typeRef, symbols, defaultConstructor, contextBounds), symbols)
         case ClassInfoType(a, b) if !c.isTrait => (ClassInfoTypeWithCons(a, b, defaultConstructor), Seq.empty)
         case _ => (it, Seq.empty)
       }
@@ -242,7 +242,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
     printer.result
   }
 
-  def getPrinterByConstructor(c: ClassSymbol): String = {
+  def getPrinterByConstructor(c: ClassSymbol): (Seq[(String, String)], String) = {
     c.children.find {
       case m: MethodSymbol if m.name == CONSTRUCTOR_NAME => true
       case _ => false
@@ -251,9 +251,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
         val printer = new ScalaSigPrinter(new StringBuilder())
         printer.printPrimaryConstructor(m, c)
         val res = printer.result
-        if (res.length() > 0 && res.charAt(0) != '(') " " + res
-        else res
-      case _ => ""
+        (contextBoundsIn(m.infoType), if (res.length() > 0 && res.charAt(0) != '(') " " + res else res)
+      case _ => (Seq.empty, "")
     }
   }
 
@@ -361,7 +360,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case pt: PolyType =>
         val typeParams = pt.paramSymbols
         for (param <- typeParams) addTypeParameter(param)
-        print(typeParamString(typeParams, contextBoundsIn(pt)))
+        print(typeParamString(typeParams, contextBoundsIn(pt.typeRef.get)))
         try {
           printMethodType(pt.typeRef.get, printResult)({})
         }
@@ -376,7 +375,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
     cont
   }
 
-  private def contextBoundsIn(pt: PolyType): Seq[(String, String)] = pt.typeRef.get match {
+  private def contextBoundsIn(t: Type): Seq[(String, String)] = t match {
     case mt: FunctionType => // TODO Unnecessary if NullaryMethodType is FunctionType
       val implicitClause = implicitClauseIn(mt)
       val contextBoundParams = implicitClause.map(_.paramSymbols.filter(ps => ps.name.startsWith("evidence$") && hasSingleArgument(ps))).getOrElse(Seq.empty)
@@ -580,7 +579,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
                   case NullaryMethodType(_) => false
                   case PolyType(typeRef, symbols) =>
                     checkContainsSelf(Some(typeRef), parent) || symbols.exists(_.get == parent)
-                  case PolyTypeWithCons(typeRef, symbols, _) =>
+                  case PolyTypeWithCons(typeRef, symbols, _, _) =>
                     checkContainsSelf(Some(typeRef), parent) || symbols.exists(_.get == parent)
                   case AnnotatedType(typeRef) => checkContainsSelf(Some(typeRef), parent)
                   case AnnotatedWithSelfType(typeRef, Ref(sym), _) =>
@@ -662,9 +661,9 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case NullaryMethodType(resultType) => toString(resultType, sep, level)
 
       case PolyType(typeRef, symbols) =>
-        "({ type λ" + typeParamString(symbols) + " = " + toString(typeRef, sep, level) + " })#λ"
-      case PolyTypeWithCons(typeRef, symbols, cons) =>
-        typeParamString(symbols) + cons + toString(typeRef, sep, level)
+        "({ type λ" + typeParamString(symbols, contextBoundsIn(typeRef.get)) + " = " + toString(typeRef, sep, level) + " })#λ"
+      case PolyTypeWithCons(typeRef, symbols, cons, contextBounds) =>
+        typeParamString(symbols, contextBounds) + cons + toString(typeRef, sep, level)
       case AnnotatedType(typeRef) =>
         toString(typeRef, sep, level)
       case AnnotatedWithSelfType(typeRef, _, _) => toString(typeRef, sep, level)
