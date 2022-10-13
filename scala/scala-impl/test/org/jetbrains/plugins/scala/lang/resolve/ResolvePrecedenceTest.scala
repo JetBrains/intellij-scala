@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
@@ -9,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+
+import scala.collection.mutable
 
 abstract class ResolvePrecedenceTest extends SimpleResolveTestBase {
 
@@ -1227,8 +1230,10 @@ class ResolvePrecedenceTest_2_12 extends ResolvePrecedenceTest {
 
 
   override def testNameClashBetweenDefinitionsFromTopWildcardImportAndSamePackage(): Unit = {
-    myFixture.addFileToProject(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent)
-    myFixture.addFileToProject(PackageObjectInSamePackageFileName, PackageObjectInSamePackageFileContent)
+    //keeping hard refs to AST nodes to avoid flaky tests (as a workaround for SCL-20527 (see solution proposals))
+    val myASTHardRefs = new mutable.ArrayBuffer[ASTNode]
+    myASTHardRefs += myFixture.addFileToProject(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent).getNode
+    myASTHardRefs += myFixture.addFileToProject(PackageObjectInSamePackageFileName, PackageObjectInSamePackageFileContent).getNode
 
     doTestResolvesToFqn(MainFileContent, "MyClass", "org.example.MyClass")
     doTestResolvesToFqn(MainFileContent, "MyTrait", "org.example.MyTrait")
