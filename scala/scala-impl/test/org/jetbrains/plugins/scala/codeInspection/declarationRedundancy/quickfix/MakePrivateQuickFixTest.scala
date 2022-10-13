@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.quickfix
 
-import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection
 
 class MakePrivateQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
 
-  override protected val description = "Access can be private"
+  override protected val description = ScalaInspectionBundle.message("access.can.be.private")
 
   /**
    * For the reason behind this plurality of hints see
    * [[org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection#processElement]]
    */
-  private val hintWhenAddTypeAnnotationQuickFixIsNotOffered = "Make 'private'"
-  private val hintWhenAddTypeAnnotationQuickFixIsOffered = "Add 'private' modifier"
+  private val hintWhenAddTypeAnnotationQuickFixIsNotOffered = ScalaInspectionBundle.message("make.private")
+  private val hintWhenAddTypeAnnotationQuickFixIsOffered = ScalaInspectionBundle.message("add.private.modifier")
 
   override def setUp(): Unit = {
     super.setUp()
