@@ -8,10 +8,10 @@ import org.junit.Assert.assertTrue
 
 /**
  * For the motivation behind this test, see
- * [[org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection#processElement]]
+ * [[org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.quickFixText]]
  */
 
-class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
+class PrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
 
   override protected val description = "Access can be private"
 
@@ -26,7 +26,8 @@ class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnot
 
     assertTrue(fixes.size == 1)
 
-    val quickFixElement = fixes.head.asInstanceOf[QuickFixWrapper].getFix.asInstanceOf[ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix].getStartElement.asInstanceOf[ScPatternDefinition]
+    val quickFixElement = fixes.head.asInstanceOf[ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix]
+      .getStartElement.asInstanceOf[ScPatternDefinition]
     assert(quickFixElement.declaredNames.head == "b")
   }
 
@@ -36,7 +37,8 @@ class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnot
 
     assertTrue(fixes.size == 1)
 
-    val quickFixElement = fixes.head.asInstanceOf[QuickFixWrapper].getFix.asInstanceOf[ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix].getStartElement.asInstanceOf[ScPatternDefinition]
+    val quickFixElement = fixes.head.asInstanceOf[ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix]
+      .getStartElement.asInstanceOf[ScPatternDefinition]
     assert(quickFixElement.declaredNames.head == "a")
   }
 }

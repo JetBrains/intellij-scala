@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import scala.annotation.unused
 
 @unused("registered in scala-plugin-common.xml")
-final class ScalaUnusedDeclarationPassFactory
+final class ScalaAccessCanBeTightenedPassFactory
   extends TextEditorHighlightingPassFactory
     with TextEditorHighlightingPassFactoryRegistrar {
 
@@ -22,7 +22,7 @@ final class ScalaUnusedDeclarationPassFactory
       null
     else file match {
       case scalaFile: ScalaFile =>
-        new ScalaUnusedDeclarationPass(scalaFile, Option(editor.getDocument))
+        new ScalaAccessCanBeTightenedPass(scalaFile, Option(editor.getDocument))
       case _ =>
         null
     }
