@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
+package org.jetbrains.plugins.scala.lang.parser
 
 import com.intellij.lang.Language
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
@@ -9,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.LanguageSubstitutor
 import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType}
 import org.jetbrains.plugins.scala.lang.parser.ScalaLanguageSubstitutor.looksLikeScala3LibSourcesJar
 import org.jetbrains.plugins.scala.project.ModuleExt
 
@@ -17,7 +16,7 @@ import scala.util.matching.Regex
 final class ScalaLanguageSubstitutor extends LanguageSubstitutor {
 
   /** @note for worksheet language substitutions see<br>
-   *        [[org.jetbrains.plugins.scala.worksheet.WorksheetLanguageSubstitutor]] */
+   *        org.jetbrains.plugins.scala.worksheet.WorksheetLanguageSubstitutor */
   override def getLanguage(file: VirtualFile, project: Project): Language = {
     val assignedLanguage = file match {
       // primary case: language injected into the Scala REPL file,
@@ -27,14 +26,17 @@ final class ScalaLanguageSubstitutor extends LanguageSubstitutor {
     }
     val substituted = if (assignedLanguage != null)
       assignedLanguage
-    else if (ScalaFileType.INSTANCE.isMyFileType(file))
-      ModuleUtilCore.findModuleForFile(file, project) match {
-        case module: Module if module.hasScala3 => Scala3Language.INSTANCE
-        // TODO For library sources, determine whether a .scala file (possibly in a JAR) is associated with a .tasty file (possibly in a JAR)
-        case _ => if (looksLikeScala3LibSourcesJar(file.getPath)) Scala3Language.INSTANCE else null
-      }
-    else
-      null
+    else if (ScalaFileType.INSTANCE.isMyFileType(file)) {
+      val module = ModuleUtilCore.findModuleForFile(file, project)
+      if (module != null && module.hasScala3)
+        Scala3Language.INSTANCE
+      else if (looksLikeScala3LibSourcesJar(file.getPath))
+      // TODO For library sources, determine whether a .scala file (possibly in a JAR) is associated with a .tasty file (possibly in a JAR)
+        Scala3Language.INSTANCE
+      else null
+    }
+    else null
+
     substituted
   }
 }
