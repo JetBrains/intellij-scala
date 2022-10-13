@@ -7,7 +7,7 @@ import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.daemon.impl.HighlightInfo.convertSeverity
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
-import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.codeInspection.{LocalQuickFixAsIntentionAdapter, ProblemDescriptorUtil, ProblemHighlightType}
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.ProgressIndicator
@@ -77,7 +77,8 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
           .range(range)
           .descriptionAndTooltip(info.message)
           .create()
-        info.fixes.foreach { action =>
+        info.fixes.foreach { fix =>
+          val action = new LocalQuickFixAsIntentionAdapter(fix, ProblemDescriptorUtil.toProblemDescriptor(file, highlightInfo))
           highlightInfo.registerFix(action, null, info.message, range, highlightKey)
         }
 

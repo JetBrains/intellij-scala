@@ -9,7 +9,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.{Nls, NonNls}
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, createSetInspectionOptionFix}
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RenameElementQuickfix
 import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
@@ -46,9 +46,9 @@ final class PrivateShadowInspection extends LocalInspectionTool {
     fixes.addOne(new RenameElementQuickfix(elem, renameQuickFixDescription) with HighPriorityAction)
     fixes.addOne(new DisableInspectionToolAction(this) with LowPriorityAction)
     if (!privateShadowCompilerOption)
-      fixes.addOne(createSetInspectionOptionFix(this, elem, privateShadowPropertyName, ScalaInspectionBundle.message("fix.private.shadow.compiler.option.label")))
+      fixes.addOne(new SetInspectionOptionFix(this, privateShadowPropertyName, ScalaInspectionBundle.message("fix.private.shadow.compiler.option.label"), true))
     if (!fatalWarningsCompilerOption)
-      fixes.addOne(createSetInspectionOptionFix(this, elem, fatalWarningsPropertyName, ScalaInspectionBundle.message("fix.private.shadow.fatal.warnings.label")))
+      fixes.addOne(new SetInspectionOptionFix(this, fatalWarningsPropertyName, ScalaInspectionBundle.message("fix.private.shadow.fatal.warnings.label"), true))
     manager.createProblemDescriptor(
       elem.nameId,
       description,

@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
-import com.intellij.codeInspection.{LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType, SetInspectionOptionFix}
-import com.intellij.openapi.editor.Editor
+import com.intellij.codeInspection.{ProblemHighlightType, SetInspectionOptionFix}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiAnnotationOwner, PsiElement, PsiFile}
+import com.intellij.psi.{PsiAnnotationOwner, PsiElement}
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{SearchMethodsWithProjectBoundCache, ElementUsage, Search}
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
 import org.jetbrains.plugins.scala.codeInspection.ui.InspectionOptionsComboboxPanel
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
@@ -77,7 +76,14 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
         if (usages.isEmpty) {
 
           val dontReportPublicDeclarationsQuickFix = if (isOnlyVisibleInLocalFile(original)) None
-          else Some(createDontReportPublicDeclarationsQuickFix(original))
+          else Some(
+            new SetInspectionOptionFix(
+              this,
+              reportPublicDeclarationsPropertyName,
+              ScalaInspectionBundle.message("fix.unused.declaration.report.public.declarations"),
+              false
+            )
+          )
 
           val addScalaAnnotationUnusedQuickFix = if (delegate.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13) None
           else Some(new AddScalaAnnotationUnusedQuickFix(original))
@@ -100,29 +106,6 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
           )
         } else Seq.empty
       case _ => Seq.empty
-    }
-  }
-
-  /*
-  * There is already a method `org.jetbrains.plugins.scala.createSetInspectionOptionFix which does almost the same,
-  * but it returns a `LocalQuickFix` and currently the `ProblemInfo` class, which we use to keep fixes for `ScalaUnusedDeclarationInspection`,
-  * accepts only `LocalQuickFixAndIntentionActionOnPsiElement`.
-  * @todo: If we manage to switch to `LocalQuickFix` in `ProblemInfo`, we can get rid of this method.
-  */
-  private def createDontReportPublicDeclarationsQuickFix(elem: ScNamedElement): LocalQuickFixAndIntentionActionOnPsiElement = {
-    val fix = new SetInspectionOptionFix(
-      this,
-      reportPublicDeclarationsPropertyName,
-      ScalaInspectionBundle.message("fix.unused.declaration.report.public.declarations"),
-      false
-    )
-    new LocalQuickFixAndIntentionActionOnPsiElement(elem) {
-      override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit =
-        fix.applyFix(project, elem.getContainingFile)
-
-      override def getText: String = fix.getName
-
-      override def getFamilyName: String = fix.getFamilyName
     }
   }
 
