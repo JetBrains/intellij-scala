@@ -1,6 +1,6 @@
-//Ints
+//name=Ints
 object My {
   val t: <begin>List[Int] = List(4)<end>
 }
 -------------
-Selected block should be presented as type element
+Expression or type element should be selected

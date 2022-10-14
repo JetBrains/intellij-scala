@@ -4,6 +4,7 @@ package postfix
 package templates
 
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplateWithExpressionSelector
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.SelectAllAncestors
@@ -24,6 +25,6 @@ final class ScalaIntroduceVariablePostfixTemplate extends PostfixTemplateWithExp
 
     editor.getSelectionModel.setSelection(startOffset, endOffset)
     new ScalaIntroduceVariableHandler()
-      .invokeExpression(expression.getContainingFile, startOffset, endOffset)(expression.getProject, editor)
+      .invokeExpression(expression.getContainingFile, startOffset, endOffset)(expression.getProject, editor, DataContext.EMPTY_CONTEXT)
   }
 }

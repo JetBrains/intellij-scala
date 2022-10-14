@@ -1,4 +1,4 @@
-//D
+//name=D
 object My {
   val t: <companion>Double<end> = 45.0
 }

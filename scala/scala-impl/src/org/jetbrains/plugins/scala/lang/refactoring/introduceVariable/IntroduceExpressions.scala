@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
@@ -39,8 +40,15 @@ trait IntroduceExpressions {
 
   import IntroduceExpressions._
 
-  def invokeExpression(file: PsiFile, startOffset: Int, endOffset: Int)
-                      (implicit project: Project, editor: Editor): Unit = {
+  def invokeExpression(
+    file: PsiFile,
+    startOffset: Int,
+    endOffset: Int,
+  )(implicit
+    project: Project,
+    editor: Editor,
+    dataContext: DataContext
+  ): Unit = {
     try {
       Stats.trigger(FeatureKey.introduceVariable)
 
@@ -94,9 +102,14 @@ trait IntroduceExpressions {
     SuggestedNames(expr, types, validator).names
   }
 
-  def runRefactoring(occurrences: OccurrencesInFile, expression: ScExpression, varName: String, varType: ScType,
-                     replaceAllOccurrences: Boolean, isVariable: Boolean)
-                    (implicit project: Project, editor: Editor): Unit = {
+  def runRefactoring(
+    occurrences: OccurrencesInFile,
+    expression: ScExpression,
+    varName: String,
+    varType: ScType,
+    replaceAllOccurrences: Boolean,
+    isVariable: Boolean
+  )(implicit project: Project, editor: Editor): Unit = {
     executeWriteActionCommand(INTRODUCE_VARIABLE_REFACTORING_NAME) {
       runRefactoringInside(occurrences, expression, varName, varType, replaceAllOccurrences, isVariable, fromDialogMode = true) // this for better debug
     }
@@ -152,17 +165,26 @@ trait IntroduceExpressions {
 
   @TestOnly
   private def runWithoutDialog(suggestedNames: SuggestedNames, occurrences: OccurrencesInFile)
-                              (implicit project: Project, editor: Editor): Unit = {
+                              (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     val SuggestedNames(_, types, names) = suggestedNames
-    runRefactoring(occurrences, suggestedNames.expression,
-      varName = names.head,
+
+    val varName =
+      Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedDefinitionNameDataKey)).getOrElse(names.head)
+    val replaceAllOccurrences =
+      Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedReplaceAllOccurrencesKey)).getOrElse(java.lang.Boolean.FALSE)
+
+    runRefactoring(
+      occurrences = occurrences,
+      expression = suggestedNames.expression,
+      varName = varName,
       varType = types.head,
-      replaceAllOccurrences = false,
+      replaceAllOccurrences = replaceAllOccurrences,
       isVariable = false
     )
   }
 }
 
+//noinspection InstanceOf
 object IntroduceExpressions {
 
   private class SuggestedNames(val expression: ScExpression, val types: ArraySeq[ScType], val validator: ScalaVariableValidator) {
@@ -232,7 +254,7 @@ object IntroduceExpressions {
     val OccurrencesInFile(file, mainRange, occurrences_) = occurrencesInFile
 
     val occurrences = if (replaceAllOccurrences) occurrences_ else Seq(mainRange)
-    val mainOccurence = occurrences.indexWhere(range => range.contains(mainRange) || mainRange.contains(range))
+    val mainOccurrence = occurrences.indexWhere(range => range.contains(mainRange) || mainRange.contains(range))
 
     val copy = expressionToIntroduce(expression)
     val forceType = forceInferType(copy)
@@ -242,7 +264,7 @@ object IntroduceExpressions {
 
     val maybeTypeText = Option(varType).map(_.canonicalCodeText)
 
-    runRefactoringInside(file, unparExpr(copy), occurrences, mainOccurence, varName, isVariable, forceType) { element =>
+    runRefactoringInside(file, unparExpr(copy), occurrences, mainOccurrence, varName, isVariable, forceType) { element =>
       maybeTypeText
         .filter(_ => needsTypeAnnotation(element))
         .getOrElse("")
@@ -301,7 +323,7 @@ object IntroduceExpressions {
       } else {
         replacedOccurrences.map(findParentExpr(file, _))
       }
-    val commonParent: PsiElement = PsiTreeUtil.findCommonParent(parentExprs.toSeq: _*)
+    val commonParent: PsiElement = PsiTreeUtil.findCommonParent(parentExprs: _*)
 
     val nextParentInFile = nextParent(commonParent, file)
 

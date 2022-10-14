@@ -1,4 +1,4 @@
-//Tuple
+//name=Tuple
 object My {
   val t1: String Pair (<begin>List[Int] Pair Seq[Int]<end>) = ("abc", (List(5), Seq(123)))
 }

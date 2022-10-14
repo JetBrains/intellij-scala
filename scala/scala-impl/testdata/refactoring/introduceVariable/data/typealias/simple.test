@@ -1,4 +1,4 @@
-//I
+//name=I
 object My {
   val t: <begin>Int<end> = 23
 }

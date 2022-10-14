@@ -1,4 +1,4 @@
-//D
+//name=D
 object My {
   class A {
     def foo(i: Double): Double = 6.0

@@ -3,7 +3,7 @@ package lang
 package refactoring
 package introduceVariable
 
-import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.{DataContext, DataKey}
 import com.intellij.openapi.command.impl.StartMarkAction
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, SelectionModel}
@@ -14,10 +14,10 @@ import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.findElementOfClassAtOffset
 import com.intellij.refactoring.HelpID
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO
-import org.jetbrains.plugins.scala.lang.refactoring.util.DialogConflictsReporter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 
 class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with DialogConflictsReporter with IntroduceExpressions with IntroduceTypeAlias {
@@ -103,4 +103,8 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
 
 object ScalaIntroduceVariableHandler {
   val REVERT_INFO: Key[RevertInfo] = new Key("RevertInfo")
+
+  @TestOnly val ForcedDefinitionNameDataKey: DataKey[String] = DataKey.create("ForcedDefinitionNameDataKey")
+  @TestOnly val ForcedReplaceAllOccurrencesKey: DataKey[java.lang.Boolean] = DataKey.create("ForcedReplaceAllOccurrencesKey")
+  @TestOnly val ForcedReplaceCompanionObjOccurrencesKey: DataKey[java.lang.Boolean] = DataKey.create("ForcedReplaceCompanionObjOccurrencesKey")
 }

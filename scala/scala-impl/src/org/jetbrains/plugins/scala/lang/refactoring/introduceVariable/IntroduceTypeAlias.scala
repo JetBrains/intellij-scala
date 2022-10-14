@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
+import com.intellij.openapi.actionSystem.{DataContext, DataKey}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.impl.StartMarkAction
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.markup._
@@ -13,7 +15,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfType, getParentOfType}
 import com.intellij.ui.components.JBList
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, executeWriteActionCommand, inWriteAction, invokeLaterInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -24,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.IntroduceTypeAlias.ForcedReplaceOccurrenceInInheritors
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaRefactoringUtil}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
@@ -39,7 +42,7 @@ trait IntroduceTypeAlias {
   val INTRODUCE_TYPEALIAS_REFACTORING_NAME: String = ScalaBundle.message("introduce.type.alias.title")
 
   def invokeTypeElement(file: PsiFile, inTypeElement: ScTypeElement)
-                       (implicit project: Project, editor: Editor): Unit = {
+                       (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     try {
       Stats.trigger(FeatureKey.introduceTypeAlias)
 
@@ -79,7 +82,11 @@ trait IntroduceTypeAlias {
           case _ => (possibleScopes(0), inTypeElement)
         }
 
-        runWithDialogImpl(updatedTypeElement, possibleScopes, file, updatedMainScope)
+        if (!ApplicationManager.getApplication.isUnitTestMode) {
+          runWithDialogImpl(updatedTypeElement, possibleScopes, file, updatedMainScope)
+        } else {
+          runWithoutDialogImpl(updatedTypeElement, file, updatedMainScope)
+        }
       }
 
       // replace all occurrences, don't replace occurences available from companion object or inheritors
@@ -90,7 +97,7 @@ trait IntroduceTypeAlias {
 
           val allOccurrences = OccurrenceData(inTypeElement,
             isReplaceAllUsual = true,
-            isReplaceOccurrenceIncompanionObject = false,
+            isReplaceOccurrenceInCompanionObject = false,
             isReplaceOccurrenceInInheritors = false,
             scopeItem
           )
@@ -157,8 +164,10 @@ trait IntroduceTypeAlias {
         }
       }
 
-      if (isInplaceAvailable(editor)) runInplace()
-      else runWithDialog(fromInplace = false, null)
+      if (isInplaceAvailable(editor))
+        runInplace()
+      else
+        runWithDialog(fromInplace = false, null)
     }
 
     catch {
@@ -368,20 +377,22 @@ trait IntroduceTypeAlias {
     getChildOfType(getChildOfType(packageObject, classOf[ScExtendsBlock]), classOf[ScTemplateBody])
   }
 
-  private def runWithDialogImpl(typeElement: ScTypeElement,
-                                possibleScopes: Array[ScopeItem],
-                                file: PsiFile,
-                                mainScope: ScopeItem)
-                               (implicit project: Project, editor: Editor): Unit = {
-    val occurrences = mainScope match {
+  private def runWithDialogImpl(
+    typeElement: ScTypeElement,
+    possibleScopes: Array[ScopeItem],
+    file: PsiFile,
+    mainScope: ScopeItem
+  )(implicit project: Project, editor: Editor): Unit = {
+    val occurrencesRanges = mainScope match {
       case simpleScope: SimpleScopeItem => simpleScope.usualOccurrences.toSeq.map(_.getTextRange)
       case _: PackageScopeItem => Seq.empty[TextRange]
     }
 
     val dialog = new ScalaIntroduceTypeAliasDialog(project, typeElement, possibleScopes, mainScope, this)
 
-    this.runWithDialogImpl(dialog, occurrences) { dialog =>
-      val occurrences = OccurrenceData(typeElement,
+    this.runWithDialogImpl(dialog, occurrencesRanges) { dialog =>
+      val occurrences = OccurrenceData(
+        typeElement,
         dialog.isReplaceAllOccurrences,
         dialog.isReplaceOccurrenceIncompanionObject,
         dialog.isReplaceOccurrenceInInheritors,
@@ -394,10 +405,47 @@ trait IntroduceTypeAlias {
         occurrences,
         dialog.getSelectedScope
       )
-    }
+  }
+  }
+
+  @TestOnly
+  private def runWithoutDialogImpl(
+    typeElement: ScTypeElement,
+    file: PsiFile,
+    mainScope: ScopeItem
+  )(implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
+    val scopeItem = mainScope
+
+    val typeName =
+      Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedDefinitionNameDataKey)).getOrElse(scopeItem.name)
+    val isReplaceOccurrenceInInheritors =
+      Option(dataContext.getData(ForcedReplaceOccurrenceInInheritors)).getOrElse(java.lang.Boolean.FALSE)
+    val isReplaceOccurrenceInCompanionObject =
+      Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedReplaceCompanionObjOccurrencesKey)).getOrElse(java.lang.Boolean.FALSE)
+    val isReplaceAllUsual =
+      Option(dataContext.getData(ScalaIntroduceVariableHandler.ForcedReplaceAllOccurrencesKey)).getOrElse(java.lang.Boolean.FALSE)
+
+    val occurrences = OccurrenceData(
+      typeElement = typeElement,
+      isReplaceAllUsual = isReplaceAllUsual,
+      isReplaceOccurrenceInCompanionObject = isReplaceOccurrenceInCompanionObject,
+      isReplaceOccurrenceInInheritors = isReplaceOccurrenceInInheritors,
+      scopeItem = scopeItem,
+    )
+    runRefactoringForTypes(
+      file,
+      typeElement,
+      typeName = typeName,
+      occurrences,
+      scopeItem
+    )
   }
 }
 
 object IntroduceTypeAlias {
   val REVERT_TYPE_ALIAS_INFO: Key[IntroduceTypeAliasData] = new Key("RevertTypeAliasInfo")
+
+  @TestOnly
+  val ForcedReplaceOccurrenceInInheritors: DataKey[java.lang.Boolean] =
+    DataKey.create[java.lang.Boolean]("ForcedReplaceOccurrenceInInheritors")
 }
