@@ -23,7 +23,7 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtur
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
 
-  def folderPath: String = getTestDataPath + "conversion/"
+  def folderPath: String = s"$getTestDataPath../../conversion/testdata/conversion/"
 
   protected def doTest(typeAnnotationSettings: ScalaCodeStyleSettings = alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))): Unit = {
     import org.junit.Assert._
