@@ -4,7 +4,7 @@ package parsing
 package builder
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.project.{ScalaFeatures, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 trait ScalaPsiBuilder extends PsiBuilder {
 
@@ -39,8 +39,6 @@ trait ScalaPsiBuilder extends PsiBuilder {
   def features: ScalaFeatures
 
   def underscoreWildcardsDisabled: Boolean
-
-  def scalaLanguageLevel: Option[ScalaLanguageLevel]
 
   def isScala3IndentationBasedSyntaxEnabled: Boolean
 

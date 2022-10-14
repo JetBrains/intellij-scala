@@ -185,7 +185,7 @@ object ScalaRefactoringUtil {
                     case inf: ScInfixExpr =>
                       val op2 = inf.operation
                       import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
-                      if (priority(op1) == priority(op2)) {
+                      if (priority(op1.getText) == priority(op2.getText)) {
                         res = Some((expression.copy.asInstanceOf[ScExpression], typez))
                       }
                     case _ =>

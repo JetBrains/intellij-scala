@@ -62,9 +62,6 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
 
   override final lazy val underscoreWildcardsDisabled: Boolean =
     containingFile.exists(_.underscoreWidlcardsDisabled)
-    
-  override final lazy val scalaLanguageLevel: Option[ScalaLanguageLevel] =
-    containingFile.flatMap(_.scalaLanguageLevel)
 
   private lazy val _isTrailingCommasEnabled =
     containingFile.exists(_.isTrailingCommasEnabled)
