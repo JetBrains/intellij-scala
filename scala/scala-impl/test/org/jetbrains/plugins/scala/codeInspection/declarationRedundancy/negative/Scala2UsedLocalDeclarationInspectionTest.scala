@@ -346,4 +346,13 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
       |}
       |""".stripMargin
   )
+
+  def test_DummyImplicit(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.annotation.unused
+      |@unused class A {
+      |  @unused def foo(implicit bar: DummyImplicit): Unit = {}
+      |}
+      |""".stripMargin
+  )
 }
