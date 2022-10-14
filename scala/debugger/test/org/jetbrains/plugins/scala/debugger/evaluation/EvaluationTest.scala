@@ -6,11 +6,45 @@ class EvaluationTest_2_11 extends EvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
-class EvaluationTest_2_12 extends EvaluationTestBase {
+trait LocalLazyValEvaluationTests { self: EvaluationTestBase =>
+
+  addSourceFile("LocalLazyVal.scala",
+    s"""
+       |trait MyLazyValTrait {
+       |  def foo(): Unit = {
+       |    lazy val number = 123
+       |    println(number) $breakpoint
+       |  }
+       |}
+       |
+       |object LocalLazyVal extends MyLazyValTrait {
+       |  def main(args: Array[String]): Unit = {
+       |    foo()
+       |    lazy val string = "abc"
+       |    lazy val float = 456.7f
+       |    lazy val unit = ()
+       |    println(string)
+       |    println(float) $breakpoint
+       |  }
+       |}
+       |""".stripMargin)
+  def testLocalLazyVal(): Unit = {
+    expressionEvaluationTest()(
+      implicit ctx => evalEquals("number", "123"),
+      implicit ctx => {
+        evalEquals("string", "abc")
+        evalEquals("float", "456.7")
+        evalEquals("unit", "undefined")
+      }
+    )
+  }
+}
+
+class EvaluationTest_2_12 extends EvaluationTestBase with LocalLazyValEvaluationTests {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
 
-class EvaluationTest_2_13 extends EvaluationTestBase {
+abstract class EvaluationTests_2_13_And_Later extends EvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
   override def testSymbolLiteral(): Unit = {
@@ -91,7 +125,9 @@ class EvaluationTest_2_13 extends EvaluationTestBase {
   }
 }
 
-class EvaluationTest_3_0 extends EvaluationTest_2_13 {
+class EvaluationTest_2_13 extends EvaluationTests_2_13_And_Later with LocalLazyValEvaluationTests
+
+class EvaluationTest_3_0 extends EvaluationTests_2_13_And_Later {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   override def testPrefixedThis(): Unit = {

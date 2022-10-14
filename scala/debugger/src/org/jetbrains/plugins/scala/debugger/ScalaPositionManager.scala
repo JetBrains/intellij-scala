@@ -3,20 +3,24 @@ package debugger
 
 import com.intellij.concurrency.ConcurrentCollectionFactory
 import com.intellij.debugger.engine._
+import com.intellij.debugger.engine.evaluation.EvaluationContext
 import com.intellij.debugger.impl.DebuggerUtilsEx
-import com.intellij.debugger.jdi.VirtualMachineProxyImpl
+import com.intellij.debugger.jdi.{StackFrameProxyImpl, VirtualMachineProxyImpl}
 import com.intellij.debugger.requests.ClassPrepareRequestor
-import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
+import com.intellij.debugger.ui.impl.watch.StackFrameDescriptorImpl
+import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, SourcePosition}
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry, LanguageFileType}
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
+import com.intellij.util.ThreeState
 import com.intellij.util.containers.ConcurrentIntObjectMap
+import com.intellij.xdebugger.frame.XStackFrame
 import com.sun.jdi._
 import com.sun.jdi.request.ClassPrepareRequest
 import org.jetbrains.annotations.{NotNull, Nullable}
@@ -50,7 +54,7 @@ import scala.jdk.CollectionConverters._
 import scala.reflect.NameTransformer
 import scala.util.Try
 
-class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager with LocationLineManager {
+class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManagerEx with MultiRequestPositionManager with LocationLineManager {
 
   protected[debugger] val caches = new ScalaPositionManagerCaches(debugProcess)
   private val outerAndNestedTypePartsPattern = """([^\$]*)(\$.*)?""".r
@@ -166,6 +170,28 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     }
     catch {
       case _: AbsentInformationException => ju.Collections.emptyList()
+    }
+  }
+
+  override def evaluateCondition(context: EvaluationContext, frame: StackFrameProxyImpl, location: Location, expression: String): ThreeState =
+    ThreeState.UNSURE
+
+  override def createStackFrame(descriptor: StackFrameDescriptorImpl): XStackFrame =
+    Option(descriptor.getLocation)
+      .filter(isInScalaFile)
+      .map(_ => new ScalaStackFrame(descriptor, true))
+      .orNull
+
+  private def isInScalaFile(location: Location): Boolean = {
+    val refType = location.declaringType()
+    try {
+      val safeName = refType.sourceName()
+      FileTypeRegistry.getInstance().getFileTypeByFileName(safeName) match {
+        case lft: LanguageFileType if lft.getLanguage == ScalaLanguage.INSTANCE => true
+        case _ => false
+      }
+    } catch {
+      case _: AbsentInformationException => false
     }
   }
 

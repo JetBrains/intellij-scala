@@ -767,7 +767,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case caseCl: ScCaseClause => patternEvaluator(caseCl, named)
       case _: ScGenerator | _: ScForBinding if position != null && isNotUsedEnumerator(named, position.getElementAt) =>
         throw EvaluationException(DebuggerBundle.message("not.used.from.for.statement", name))
-      case LazyVal(_) => localLazyValEvaluator(named)
+      case LazyVal(_) =>
+        ScalaDuplexEvaluator(modernStyleLocalLazyValEvaluator(named), oldStyleLocalLazyValEvaluator(named))
       case InsideAsync(_) =>
         val simpleLocal = new ScalaLocalVariableEvaluator(name, fileName)
         val fieldMacro = ScalaFieldEvaluator(new ScalaThisEvaluator(), name + "$macro")
@@ -1149,7 +1150,16 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     evaluatorFor(expr)
   }
 
-  def localLazyValEvaluator(named: PsiNamedElement): Evaluator = {
+  private def modernStyleLocalLazyValEvaluator(named: PsiNamedElement): Evaluator = {
+    val name = named.name
+    val lazyRefName = s"$name$$lzy"
+    val lazyRefEval = new ScalaLocalVariableEvaluator(lazyRefName, fileName)
+    val localFunIndex = localFunctionIndex(named)
+    val getterName = s"$name$$$localFunIndex"
+    ScalaMethodEvaluator(new ScalaThisEvaluator(), getterName, null, Seq(lazyRefEval))
+  }
+
+  private def oldStyleLocalLazyValEvaluator(named: PsiNamedElement): Evaluator = {
     val name = named.name
     val localRefName = s"$name$$lzy"
     val localRefEval = new ScalaLocalVariableEvaluator(localRefName, fileName)

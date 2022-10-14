@@ -23,7 +23,8 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
                                 argumentEvaluators: Seq[Evaluator],
                                 traitImplementation: Option[JVMName] = None,
                                 methodPosition: Set[SourcePosition] = Set.empty,
-                                localMethodIndex: Int = -1) extends Evaluator {
+                                localMethodIndex: Int = -1,
+                                methodOnRuntimeRef: Boolean = false) extends Evaluator {
 
   val methodName: String = DebuggerUtil.withoutBackticks(_methodName)
   private val localMethod = localMethodIndex > 0
@@ -50,7 +51,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
         DisableGC.unwrap(objectEvaluator).isInstanceOf[ScSuperEvaluator])
     val evaluated: AnyRef = {
       val res = objectEvaluator.evaluate(context)
-      DebuggerUtil.unwrapScalaRuntimeRef(res)
+      if (methodOnRuntimeRef) res else DebuggerUtil.unwrapScalaRuntimeRef(res)
     }
     val obj = evaluated match {
       case p: PrimitiveValue => ScalaBoxingEvaluator.box(p, context)
@@ -138,7 +139,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
         jdiMethodsCache.getOrElseUpdate(referenceType, doFind())
       }
 
-      def invokeStaticMethod(referenceType: ReferenceType, jdiMethod: Method): AnyRef = {
+      def invokeStaticMethod(jdiMethod: Method): AnyRef = {
         def fixArguments(): Seq[Value] = {
           def correctArgType(arg: AnyRef, typeName: String) = arg match {
             case objRef: ObjectReference => DebuggerUtilsEx.isAssignableFrom(typeName, objRef.referenceType())
@@ -154,7 +155,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
           }
         }
 
-        referenceType match {
+        jdiMethod.declaringType() match {
           case ct: ClassType =>
             debugProcess.invokeMethod(context, ct, jdiMethod, fixArguments().asJava)
           case it: InterfaceType =>
@@ -251,8 +252,8 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
       typeAndMethod match {
         case Some((tp, m)) if m.isConstructor =>
           invokeConstructor(tp, m)
-        case Some((tp, m)) if m.isStatic =>
-          invokeStaticMethod(tp, m)
+        case Some((_, m)) if m.isStatic =>
+          invokeStaticMethod(m)
         case Some((_, m)) =>
           obj match {
             case objRef: ObjectReference if m.declaringType().is[InterfaceType] =>
