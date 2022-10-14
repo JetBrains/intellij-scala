@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package util
+package org.jetbrains.plugins.scala.util
 
 import com.intellij.application.options.CodeStyleSchemesConfigurable
 import com.intellij.application.options.codeStyle.CodeStyleMainPanel
@@ -10,8 +9,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.ui.HyperlinkLabel
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOrRemoveStrategy
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaTabbedCodeStylePanel
 import org.jetbrains.plugins.scala.lang.formatting.settings.TypeAnnotationsPanelBase.TAB_TITLE
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -37,17 +37,24 @@ object TypeAnnotationUtil {
     case _ => None
   }
 
-  def removeTypeAnnotationIfNeeded(element: ScalaPsiElement,
-                                   state: ScalaApplicationSettings.ReturnTypeLevel = ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE): Unit = {
+  def removeTypeAnnotationIfNeeded(
+    element: ScalaPsiElement,
+    state: ScalaApplicationSettings.ReturnTypeLevel = ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
+  ): Unit = {
     state match {
       case ADD => //nothing
-      case REMOVE | BY_CODE_STYLE =>
-        getTypeElement(element) match {
-          case Some(typeElement)
-            if (state == REMOVE) ||
-              ((state == BY_CODE_STYLE) &&
-                !ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(Declaration(element), Location(element), Some(Definition(element)))) =>
-            AddOrRemoveStrategy.removeTypeAnnotation(typeElement)
+      case REMOVE =>
+        val typeElementOpt = getTypeElement(element)
+        typeElementOpt.foreach(AddOrRemoveStrategy.removeTypeAnnotation)
+      case BY_CODE_STYLE =>
+        val typeElementOpt = getTypeElement(element)
+        typeElementOpt match {
+          case Some(typeElement) =>
+            val settings = ScalaTypeAnnotationSettings(element.getProject)
+            val isTypeAnnotationRequired = settings.isTypeAnnotationRequiredFor(Declaration(element), Location(element), Some(Definition(element)))
+            if (!isTypeAnnotationRequired) {
+              AddOrRemoveStrategy.removeTypeAnnotation(typeElement)
+            }
           case _ =>
         }
     }
@@ -70,7 +77,7 @@ object TypeAnnotationUtil {
   }
 
   private def showWindowInvokeLater(project: Project): Unit = {
-    extensions.invokeLater {
+    invokeLater {
       val groups: Array[ConfigurableGroup] = ShowSettingsUtilImpl.getConfigurableGroups(project, true)
       val configurable: Configurable = ConfigurableVisitor.findById("preferences.sourceCode.Scala", groups.toList.asJava)
 

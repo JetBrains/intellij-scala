@@ -20,7 +20,7 @@ sealed trait Location {
   def isInTestSources: Boolean
   def isInsideAnonymousClass: Boolean
   def isInsidePrivateClass: Boolean
-  def isInsideOf(classesFqn: Set[String]): Boolean
+  def isInsideOf(classesFqn: collection.Set[String]): Boolean
 }
 
 object Location {
@@ -67,7 +67,7 @@ object Location {
 
     override def isInsidePrivateClass: Boolean = false
 
-    override def isInsideOf(classesFqn: Set[String]): Boolean = false
+    override def isInsideOf(classesFqn: collection.Set[String]): Boolean = false
 
     private def containingFile = element.getContainingFile
 
@@ -85,7 +85,7 @@ object Location {
 
     override def isInsidePrivateClass: Boolean = delegate.isInsidePrivateClass
 
-    override def isInsideOf(classesFqn: Set[String]): Boolean = delegate.isInsideOf(classesFqn)
+    override def isInsideOf(classesFqn: collection.Set[String]): Boolean = delegate.isInsideOf(classesFqn)
   }
 
   final class InsideClassLocation(
@@ -101,7 +101,7 @@ object Location {
       case _ => false
     }
 
-    override def isInsideOf(classesFqn: Set[String]): Boolean =
+    override def isInsideOf(classesFqn: collection.Set[String]): Boolean =
       Option(getModule(element))
         .map(moduleWithDependenciesAndLibrariesScope)
         .map(ElementScope(element.getProject, _))

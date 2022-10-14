@@ -25,9 +25,9 @@ sealed trait Declaration {
   
   def hasAccidentalStructuralType: Boolean
 
-  def typeMatches(patterns: Set[String]): Boolean
+  def typeMatches(patterns: collection.Set[String]): Boolean
 
-  def isAnnotatedWith(annotations: Set[String]): Boolean
+  def isAnnotatedWith(annotations: collection.Set[String]): Boolean
 }
 
 object Declaration {
@@ -83,12 +83,12 @@ object Declaration {
       case _ => false
     }
 
-    override def typeMatches(patterns: Set[String]): Boolean = element match {
+    override def typeMatches(patterns: collection.Set[String]): Boolean = element match {
       case v: Typeable => v.`type`().exists(t => patterns.exists(matches(t, _)))
       case _ => false
     }
 
-    override def isAnnotatedWith(annotations: Set[String]): Boolean = element match {
+    override def isAnnotatedWith(annotations: collection.Set[String]): Boolean = element match {
       case holder: ScAnnotationsHolder => annotations.exists(holder.hasAnnotation)
       case _ => false
     }
@@ -126,8 +126,8 @@ object Declaration {
 
     override def entity: Entity = Entity.Method
 
-    override def typeMatches(patterns: Set[String]): Boolean = false
+    override def typeMatches(patterns: collection.Set[String]): Boolean = false
 
-    override def isAnnotatedWith(annotations: Set[String]): Boolean = false
+    override def isAnnotatedWith(annotations: collection.Set[String]): Boolean = false
   }
 }
