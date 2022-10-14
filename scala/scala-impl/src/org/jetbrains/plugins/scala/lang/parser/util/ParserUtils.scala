@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.Letter
 
 object ParserUtils {
   //Associations of operator
@@ -43,17 +44,21 @@ object ParserUtils {
       return 10
     }
     id.charAt(0) match {
-      case '~' | '#' | '@' | '?' | '\\' => 0 //todo: other special characters?
-      case '*' | '/' | '%' => 1
-      case '+' | '-' => 2
-      case ':' => 3
-      case '<' | '>' => 4
-      case '=' | '!' => 5
-      case '&' => 6
-      case '^' => 7
-      case '|' => 8
-      case _ => 9
+      case '*' | '/' | '%'           => 1
+      case '+' | '-'                 => 2
+      case ':'                       => 3
+      case '<' | '>'                 => 4
+      case '=' | '!'                 => 5
+      case '&'                       => 6
+      case '^'                       => 7
+      case '|'                       => 8
+      case Letter() | '$' | '_'      => 9
+      case _                         => 0
     }
+  }
+
+  object Letter {
+    def unapply(c: Char): Boolean = c.isLetter
   }
 
   def parseLoopUntilRBrace(braceReported: Boolean = false)(body: => Unit)(implicit builder: ScalaPsiBuilder): Unit = {
