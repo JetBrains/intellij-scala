@@ -301,7 +301,6 @@ private[declarationRedundancy] object Search {
         case e: ScalaPsiElement if e.module.exists(_.isBuildModule) => false
         case e: PsiElement if UnusedDeclarationInspectionBase.isDeclaredAsEntryPoint(e) => false
         case obj: ScObject if ScalaMainMethodUtil.hasScala2MainMethod(obj) => false
-        case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) => onlyVisibleInLocalFile
         case n: ScNamedElement if n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false
         case n: ScNamedElement =>
           n match {
@@ -314,9 +313,9 @@ private[declarationRedundancy] object Search {
                 case Some(_: ScFunctionDeclaration) => false
                 case Some(f: ScFunctionDefinition) if ScalaOverridingMemberSearcher.search(f).nonEmpty ||
                   isOverridingFunction(f) || ScalaMainMethodUtil.isMainMethod(f) => false
-                case _ => true
+                case _ => !ScalaPsiUtil.isImplicit(n) || onlyVisibleInLocalFile
               }
-            case _ => true
+            case _ => !ScalaPsiUtil.isImplicit(n) || onlyVisibleInLocalFile
           }
         case _ => false
       }
