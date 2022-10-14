@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.controlFlow
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder, SetInspectionOptionFix}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.codeInspection.ui.InspectionOptionsPanel
 import org.jetbrains.annotations.{Nls, NonNls}
-import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle, createSetInspectionOptionFix}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -32,7 +32,7 @@ final class NonLocalReturnInspection extends LocalInspectionTool {
     case scReturn: ScReturn if isNonLocal(scReturn) &&
       isInspectionAllowed(scReturn, checkCompilerOption, "-Xlint:nonlocal-return") =>
       if (!checkCompilerOption) {
-        val fix = new SetInspectionOptionFix(this, propertyName, ScalaInspectionBundle.message("fix.nonlocal.return.check.compiler.option"), true)
+        val fix = createSetInspectionOptionFix(this, scReturn, propertyName, ScalaInspectionBundle.message("fix.nonlocal.return.check.compiler.option"))
         holder.registerProblem(scReturn, annotationDescription, fix)
       } else {
         holder.registerProblem(scReturn, annotationDescription)

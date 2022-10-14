@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala
 
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, SetInspectionOptionFix}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
+import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
@@ -101,4 +103,18 @@ package object codeInspection {
 
     def visitPsiElement(element: PsiElement): Unit
   }
+
+  def createSetInspectionOptionFix(
+    inspection: LocalInspectionTool,
+    elem: PsiElement,
+    @NonNls property: String,
+    @Nls name: String,
+    switchOptionTo: Boolean = true
+  ): LocalQuickFix =
+    new AbstractFixOnPsiElement[PsiElement](name, elem) {
+      private val fix = new SetInspectionOptionFix(inspection, property, name, switchOptionTo)
+
+      override protected def doApplyFix(element: PsiElement)(implicit project: Project): Unit =
+        fix.applyFix(project, element.getContainingFile)
+    }
 }

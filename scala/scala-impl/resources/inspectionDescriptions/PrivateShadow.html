@@ -12,7 +12,7 @@ class Animal {
   var name: String = ""
 }
 
-class Cat(name: String = "") extends Animal {
+class Cat(name: String) extends Animal {
   // Makes `name` a private[this] val, which shadows the var
   def usage = name
 }
