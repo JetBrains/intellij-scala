@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
+import com.intellij.codeInsight.intention.FileModifier
 import com.intellij.codeInspection.{LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
@@ -77,6 +79,9 @@ private object ScalaAccessCanBeTightenedInspection {
 
     override def invoke(project: Project, psiFile: PsiFile, editor: Editor, psiElement: PsiElement, psiElement1: PsiElement): Unit =
       element.setModifierProperty("private")
+
+    override def getFileModifierForPreview(target: PsiFile): FileModifier =
+      new MakePrivateQuickFix(PsiTreeUtil.findSameElementInCopy(element, target))
   }
 
   private def getPipeline(project: Project): Pipeline = {
