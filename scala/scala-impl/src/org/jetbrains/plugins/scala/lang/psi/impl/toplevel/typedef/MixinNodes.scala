@@ -57,7 +57,7 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
         map.sigsFinished()
 
         map
-      }, () => "Tree access is disallowd in MixinNodes.build")
+      }, () => "Tree access is disallowed in MixinNodes.build")
   }
 
   def build(cp: ScCompoundType, compoundThisType: Option[ScType] = None): Map = {
