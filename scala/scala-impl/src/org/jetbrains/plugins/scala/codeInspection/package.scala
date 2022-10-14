@@ -103,18 +103,4 @@ package object codeInspection {
 
     def visitPsiElement(element: PsiElement): Unit
   }
-
-  def createSetInspectionOptionFix(
-    inspection: LocalInspectionTool,
-    elem: PsiElement,
-    @NonNls property: String,
-    @Nls name: String,
-    switchOptionTo: Boolean = true
-  ): LocalQuickFix =
-    new AbstractFixOnPsiElement[PsiElement](name, elem) {
-      private val fix = new SetInspectionOptionFix(inspection, property, name, switchOptionTo)
-
-      override protected def doApplyFix(element: PsiElement)(implicit project: Project): Unit =
-        fix.applyFix(project, element.getContainingFile)
-    }
 }
