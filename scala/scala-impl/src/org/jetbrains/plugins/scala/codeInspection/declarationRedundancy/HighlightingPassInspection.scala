@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
-import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.Nls
 
@@ -26,4 +26,4 @@ trait HighlightingPassInspection extends LocalInspectionTool {
 case class ProblemInfo(element: PsiElement,
                        @Nls message: String,
                        highlightingType: ProblemHighlightType,
-                       fixes: Seq[LocalQuickFixAndIntentionActionOnPsiElement])
+                       fixes: Seq[LocalQuickFix])
