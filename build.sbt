@@ -33,21 +33,11 @@ val intellijPluginsScopeFilter: ScopeFilter =
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
 
-// Projects which are not classpath dependencies of `scalaCommunity`
-val additionalProjects: Seq[ProjectReference] =
-  Seq(compilerJps, nailgunRunners, copyrightIntegration, packageSearchIntegration, javaDecompilerIntegration, testRunners_spec2_2x)
-
 val remoteCacheCompileScopeFilter: ScopeFilter =
-  ScopeFilter(
-    inDependencies(scalaCommunity, transitive = true, includeRoot = false) || inProjects(additionalProjects: _*),
-    inConfigurations(Compile)
-  )
+  ScopeFilter(inAnyProject -- inProjects(scalaCommunity), inConfigurations(Compile))
 
 val remoteCacheTestScopeFilter: ScopeFilter =
-  ScopeFilter(
-    inDependencies(scalaCommunity, transitive = true, includeRoot = false) || inProjects(additionalProjects: _*),
-    inConfigurations(Test)
-  )
+  ScopeFilter(inAnyProject -- inProjects(scalaCommunity), inConfigurations(Test))
 
 // Main projects
 lazy val scalaCommunity: sbt.Project =
