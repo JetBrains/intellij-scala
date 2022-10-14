@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isOnlyVisibleInLocalFile, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScRefinement, ScSelfTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.project.ModuleExt
@@ -308,12 +308,14 @@ private[declarationRedundancy] object Search {
             case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
             case f: ScFunction if f.isSpecial || isOverridingFunction(f) || f.isConstructor => false
             case p: ScClassParameter if p.isCaseClassVal || p.isEnumVal || p.isEnumCaseVal || isImplicit(p.containingClass) => false
+            case m: ScMember if m.getContext.isInstanceOf[ScRefinement] => false
             case p: ScParameter =>
               p.parent.flatMap(_.parent.flatMap(_.parent)) match {
                 case Some(_: ScFunctionDeclaration) => false
                 case Some(f: ScFunctionDefinition) if ScalaOverridingMemberSearcher.search(f).nonEmpty ||
                   isOverridingFunction(f) || ScalaMainMethodUtil.isMainMethod(f) => false
-                case _ => !ScalaPsiUtil.isImplicit(n) || (onlyVisibleInLocalFile && p.typeElement.forall(!_.getText.contains("DummyImplicit")))
+                case _ => !ScalaPsiUtil.isImplicit(n) || (onlyVisibleInLocalFile &&
+                  p.typeElement.forall(!_.getText.contains("DummyImplicit")))
               }
             case _ => !ScalaPsiUtil.isImplicit(n) || onlyVisibleInLocalFile
           }
