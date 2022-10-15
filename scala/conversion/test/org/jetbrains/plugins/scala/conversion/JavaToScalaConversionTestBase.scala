@@ -25,17 +25,53 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtur
 
   def folderPath: String = s"$getTestDataPath../../conversion/testdata/conversion/"
 
-  protected def doTest(typeAnnotationSettings: ScalaCodeStyleSettings = alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))): Unit = {
-    import org.junit.Assert._
-    val oldSettings: Any = ScalaCodeStyleSettings.getInstance(getProject).clone
+  protected def getDefaultSettings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(getProject)
 
+  protected def getRemoveTypeAnnotationsForAllMembersSettings: ScalaCodeStyleSettings = {
+    val settings = getDefaultSettings
+    settings.TYPE_ANNOTATION_PUBLIC_MEMBER = false
+    settings.TYPE_ANNOTATION_PROTECTED_MEMBER = false
+    settings.TYPE_ANNOTATION_PRIVATE_MEMBER = false
+    settings.TYPE_ANNOTATION_LOCAL_DEFINITION = false
+    settings
+  }
+
+  protected def doTest(
+    typeAnnotationSettings: ScalaCodeStyleSettings = alwaysAddType(getDefaultSettings)
+  ): Unit = {
+    val testFileName = getTestName(false) + ".java"
+    doTest(typeAnnotationSettings, testFileName)
+  }
+
+  protected def doTest(
+    typeAnnotationSettings: ScalaCodeStyleSettings,
+    testFileName: String
+  ): Unit = {
+    val oldSettings: Any = getDefaultSettings.clone
     set(getProject, typeAnnotationSettings)
+    val filePath = folderPath + testFileName
 
-    val filePath = folderPath + getTestName(false) + ".java"
+    try {
+      doTestForFilePath(typeAnnotationSettings, testFileName, filePath)
+    } catch {
+      case ex: Throwable =>
+        System.err.println(s"Test file path: $filePath")
+        throw ex
+    } finally {
+      set(getProject, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
+    }
+  }
+
+  protected def doTestForFilePath(
+    typeAnnotationSettings: ScalaCodeStyleSettings,
+    testFileName: String,
+    filePath: String
+  ): Unit = {
+    import org.junit.Assert._
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileText(getTestName(false) + ".java", fileText)
+    configureFromFileText(testFileName, fileText)
     val javaFile = getFile
     val offset = fileText.indexOf(startMarker)
 
@@ -65,7 +101,6 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtur
       case _ => assertTrue("Test result must be in last comment statement.", false)
     }
 
-    set(getProject, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     assertEquals(output, res.trim)
   }
 

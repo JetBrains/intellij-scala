@@ -43,7 +43,11 @@ object ScalaTypeAnnotationSettings {
 
   private class TypeAnnotationSettingsImpl(style: ScalaCodeStyleSettings) extends ScalaTypeAnnotationSettings {
 
-    override def reasonForTypeAnnotationOnImpl(declaration: Declaration, location: Location, implementation: Option[Implementation]): Option[TypeAnnotationReasons] = {
+    override def reasonForTypeAnnotationOnImpl(
+      declaration: Declaration,
+      location: Location,
+      implementation: Option[Implementation]
+    ): Option[TypeAnnotationReasons] = {
       val entity = declaration.entity
       val isLocal = location.isInLocalScope
 
@@ -54,6 +58,7 @@ object ScalaTypeAnnotationSettings {
           .orElse((TYPE_ANNOTATION_UNIT_TYPE && !entity.isParameter && declaration.hasUnitType).option("Unit definition"))
           .orElse((entity == Entity.Method && implementation.exists(_.containsReturn)).option("method with 'return'"))
           .orElse((TYPE_ANNOTATION_STRUCTURAL_TYPE && !entity.isParameter && declaration.hasAccidentalStructuralType).option("structural type definition"))
+          .orElse((!entity.isParameter && declaration.isAbstractOrReturnsNull).option("abstract or returns null"))
 
       def reasonToUse: Option[String] = entity match {
         case Entity.Parameter => TYPE_ANNOTATION_FUNCTION_PARAMETER.option("function literal parameter")

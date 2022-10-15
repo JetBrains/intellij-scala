@@ -1,41 +1,45 @@
 package org.jetbrains.plugins.scala.settings.annotations
 
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiModifierListOwner}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScNullLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScBlockStatement, ScExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import scala.annotation.tailrec
 import scala.util.matching.Regex
 
 sealed trait Declaration {
   def entity: Entity
-
   def visibility: Visibility
-
   def isImplicit: Boolean
-
   def isConstant: Boolean
-
   def hasUnitType: Boolean
-  
   def hasAccidentalStructuralType: Boolean
-
   def typeMatches(patterns: collection.Set[String]): Boolean
-
   def isAnnotatedWith(annotations: collection.Set[String]): Boolean
+
+  /**
+   * @return true - for abstract methods or if RHS of definition is `null`
+   *         false - otherwise
+   */
+  def isAbstractOrReturnsNull: Boolean
 }
 
 object Declaration {
   private val AsteriskPattern = new Regex("(.*)\\*(.*)")
 
-  def apply(element: PsiElement): Declaration = new PhysycalDeclaration(element)
+  def apply(element: PsiElement): Declaration = new PhysicalDeclaration(element)
 
-  def apply(element: PsiElement, newVisibility: Visibility): Declaration = new PhysycalDeclaration(element) {
+  def apply(element: PsiElement, newVisibility: Visibility): Declaration = new PhysicalDeclaration(element) {
     override def visibility: Visibility = newVisibility
   }
 
@@ -46,7 +50,7 @@ object Declaration {
             hasStructuralType: Boolean = false): Declaration =
     SyntheticDeclaration(visibility, isImplicit, isConstant, hasUnitType, hasStructuralType)
 
-  private class PhysycalDeclaration(element: PsiElement) extends Declaration {
+  private class PhysicalDeclaration(element: PsiElement) extends Declaration {
     override def entity: Entity = element match {
       case _: ScValue => Entity.Value
       case _: ScVariable => Entity.Variable
@@ -105,6 +109,36 @@ object Declaration {
         case _ => false
       }
     }
+
+    override def isAbstractOrReturnsNull: Boolean = {
+      element match {
+        case member: ScMember =>
+          //NOTE: Unfortunately there is no general API to get body of val/var/def for us here it's enough to use this AST-based approach
+          val body = PsiTreeUtil.findChildOfType(member, classOf[ScExpression], false)
+          body == null || getStatementAtReturnPosition(body).exists(_.is[ScNullLiteral])
+        case _ => false
+      }
+    }
+
+    /**
+     * Examples for various definition bodies
+     *  - def f ---> None (abstract method)
+     *  - def f = 42 ---> 42
+     *  - def f = { 42 } ---> 42
+     *  - def f = { println(); 42 } ---> 42
+     *  - def f = { println(); 42; println() } ---> println()
+     */
+    @tailrec
+    private def getStatementAtReturnPosition(stmt: ScBlockStatement): Option[ScBlockStatement] = {
+      stmt match {
+        case block: ScBlockExpr =>
+          block.lastStatement match {
+            case Some(lastExpr) => getStatementAtReturnPosition(lastExpr)
+            case _ => None
+          }
+        case other => Some(other)
+      }
+    }
   }
 
   private def matches(t: ScType, pattern: String): Boolean = {
@@ -129,5 +163,8 @@ object Declaration {
     override def typeMatches(patterns: collection.Set[String]): Boolean = false
 
     override def isAnnotatedWith(annotations: collection.Set[String]): Boolean = false
+
+    //always returning false just because in all usages where SyntheticDeclaration this value seems to be irrelevant
+    override def isAbstractOrReturnsNull: Boolean = false
   }
 }

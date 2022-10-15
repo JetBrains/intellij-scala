@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.dependency.DependencyPath
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation}
-import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.RichThreadLocal
 
@@ -1011,9 +1011,9 @@ object JavaToScala {
 
   def convertPsiToText(element: PsiElement)
                       (implicit project: Project = element.getProject): String = {
-    val PrintWithComments(text) = convertPsiToIntermediate(element, null)(textMode = true)
-
-    val file = ScalaCodeFragment(text)
+    val resultNode = convertPsiToIntermediate(element, null)(textMode = true)
+    val text = PrintWithComments(resultNode)()
+    val file = ScalaPsiElementFactory.createScalaFileFromText(text)
     ConverterUtil.cleanCode(file, project, 0, file.getTextLength)
     file.getText
   }
