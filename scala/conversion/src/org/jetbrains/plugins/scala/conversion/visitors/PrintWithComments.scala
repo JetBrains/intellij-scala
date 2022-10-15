@@ -1,14 +1,10 @@
-package org.jetbrains.plugins.scala
-package conversion
-package visitors
+package org.jetbrains.plugins.scala.conversion.visitors
 
-import org.jetbrains.plugins.scala.conversion.ast.IntermediateNode
+import org.jetbrains.plugins.scala.conversion.ast.{IntermediateNode, LiteralExpression}
 
 import scala.collection.mutable
 
 final class PrintWithComments private() extends SimplePrintVisitor {
-
-  import ast._
 
   private val printedComments = mutable.HashSet.empty[LiteralExpression]
 
@@ -39,7 +35,4 @@ object PrintWithComments {
     visitor.visit(node)
     visitor
   }
-
-  def unapply(node: ast.IntermediateNode): Some[String] =
-    Some(PrintWithComments(node)())
 }
