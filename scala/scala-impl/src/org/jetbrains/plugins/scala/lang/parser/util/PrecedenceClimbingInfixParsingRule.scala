@@ -6,10 +6,10 @@ package util
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.{Associativity, ParsingRule}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr1
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.{compareOperators, isAssignmentOperator, isSymbolicIdentifier}
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.{isAssignmentOperator, isSymbolicIdentifier, operatorAssociativity, priority}
 
 abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
   protected def parseFirstOperator()(implicit builder: ScalaPsiBuilder): Boolean = parseOperator()
@@ -46,7 +46,7 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
           markerStack = newMarker :: markerStack
           exit = true
         }
-        else if (!compareOperators(s, opStack.head, assignements = true)) {
+        else if (!compar(s, opStack.head, builder)) {
           opStack = opStack.tail
           backupMarker.drop()
           backupMarker = markerStack.head.precede
@@ -158,4 +158,18 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
 
       } else false
     }
+
+  //compares two operators a id2 b id1 c
+  private def compar(id1: String, id2: String, builder: PsiBuilder): Boolean = {
+    if (priority(id1, assignments = true) < priority(id2, assignments = true)) true //  a * b + c  =((a * b) + c)
+    else if (priority(id1, assignments = true) > priority(id2, assignments = true)) false //  a + b * c = (a + (b * c))
+    else if (operatorAssociativity(id1) == operatorAssociativity(id2))
+      if (operatorAssociativity(id1) == Associativity.Right) true
+      else false
+    else {
+      builder error ErrMsg("wrong.type.associativity")
+      false
+    }
+  }
+
 }

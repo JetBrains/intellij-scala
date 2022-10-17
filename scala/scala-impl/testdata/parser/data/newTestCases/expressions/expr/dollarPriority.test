@@ -2,18 +2,18 @@
 -----
 ScalaFile
   InfixExpression
-    IntegerLiteral
-      PsiElement(integer)('1')
-    PsiWhiteSpace(' ')
-    ReferenceExpression: infix
-      PsiElement(identifier)('infix')
-    PsiWhiteSpace(' ')
     InfixExpression
       IntegerLiteral
-        PsiElement(integer)('2')
+        PsiElement(integer)('1')
       PsiWhiteSpace(' ')
-      ReferenceExpression: $
-        PsiElement(identifier)('$')
+      ReferenceExpression: infix
+        PsiElement(identifier)('infix')
       PsiWhiteSpace(' ')
       IntegerLiteral
-        PsiElement(integer)('3')
+        PsiElement(integer)('2')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: $
+      PsiElement(identifier)('$')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('3')

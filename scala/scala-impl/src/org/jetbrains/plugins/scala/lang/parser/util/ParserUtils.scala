@@ -5,32 +5,15 @@ package util
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
-import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.Letter
 
 object ParserUtils {
-
-  def compareOperators(op1: String, op2: String, assignements: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
-    val isScala213OrNewer = builder.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13)
-    def opPrecedence(opText: String): Int = priority(opText, isScala213OrNewer, assignements)
-
-    if (opPrecedence(op1) < opPrecedence(op2)) true //  a * b + c  =((a * b) + c)
-    else if (opPrecedence(op1) > opPrecedence(op2)) false //  a + b * c = (a + (b * c))
-    else if (operatorAssociativity(op1) == operatorAssociativity(op2))
-      if (operatorAssociativity(op1) == Associativity.Right) true
-      else false
-    else {
-      builder error ErrMsg("wrong.type.associativity")
-      false
-    }
-  }
-
   //Associations of operator
   def operatorAssociativity(id: String): Associativity.LeftOrRight = {
     id.last match {
@@ -56,7 +39,7 @@ object ParserUtils {
     * @param assignments Consider assignment operators have lower priority than other non-special characters
     * @return An integer value. Lower value means higher precedence
     */
-  def priority(id: String, is213orNewer: Boolean, assignments: Boolean): Int = {
+  def priority(id: String, assignments: Boolean = false): Int = {
     if (assignments && isAssignmentOperator(id)) {
       return 10
     }
@@ -69,14 +52,10 @@ object ParserUtils {
       case '&'                       => 6
       case '^'                       => 7
       case '|'                       => 8
-      case Letter()                  => 9
-      case '$' | '_' if is213orNewer => 9
+      case Letter() | '$' | '_'      => 9
       case _                         => 0
     }
   }
-
-  def priority(op: PsiElement, assignments: Boolean = false): Int =
-    priority(op.getText, op.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13, assignments)
 
   object Letter {
     def unapply(c: Char): Boolean = c.isLetter

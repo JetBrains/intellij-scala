@@ -140,8 +140,8 @@ object ParenthesizedElement {
 
   // varies from 1 to 10
   private def infixOperationPriority(element: PsiElement) = element match {
-    case infix: ScInfixElement => ParserUtils.priority(infix.operation)
-    case _                     => 0
+    case infix: ScInfixElement => ParserUtils.priority(infix.operation.getText)
+    case _ => 0
   }
 
   private def infixOperation(element: PsiElement): Option[String] =

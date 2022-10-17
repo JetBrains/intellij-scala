@@ -876,23 +876,21 @@ object ScalaPsiUtil {
       import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
 
       if (parent.left == from) {
-        val l = parent.operation
-        val r = child.operation
-
-        if (priority(l) < priority(r))      true
-        else if (priority(r) < priority(l)) false
-        else if (operatorAssociativity(l.getText) != operatorAssociativity(r.getText)) true
-        else if (operatorAssociativity(l.getText) == Associativity.Right)              true
+        val lid = parent.operation.getText
+        val rid = child.operation.getText
+        if (priority(lid) < priority(rid)) true
+        else if (priority(rid) < priority(lid)) false
+        else if (operatorAssociativity(lid) != operatorAssociativity(rid)) true
+        else if (operatorAssociativity(lid) == Associativity.Right) true
         else false
       }
       else {
-        val l = child.operation
-        val r = parent.operation
-
-        if (priority(l) < priority(r)) false
-        else if (priority(l) < priority(r)) true
-        else if (operatorAssociativity(l.getText) != operatorAssociativity(r.getText)) true
-        else if (operatorAssociativity(l.getText) == Associativity.Right) false
+        val lid = child.operation.getText
+        val rid = parent.operation.getText
+        if (priority(lid) < priority(rid)) false
+        else if (priority(rid) < priority(lid)) true
+        else if (operatorAssociativity(lid) != operatorAssociativity(rid)) true
+        else if (operatorAssociativity(lid) == Associativity.Right) false
         else true
       }
     }

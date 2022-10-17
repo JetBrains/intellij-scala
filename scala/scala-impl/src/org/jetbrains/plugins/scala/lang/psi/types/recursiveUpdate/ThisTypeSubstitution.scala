@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
-import com.intellij.psi.{PsiClass, PsiTypeParameter}
+import com.intellij.psi.{PsiClass, PsiElement, PsiTypeParameter}
 import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -69,9 +69,11 @@ private case class ThisTypeSubstitution(target: ScType) extends LeafSubstitution
   }
 
   @tailrec
-  private def isMoreNarrow(target: ScType, thisTp: ScThisType, visited: Set[PsiClass]): Boolean = {
+  private def isMoreNarrow(target: ScType, thisTp: ScThisType, visited: Set[PsiElement]): Boolean = {
     target.extractDesignated(expandAliases = true) match {
-      case Some(pat: ScBindingPattern) => isMoreNarrow(pat.`type`().getOrAny, thisTp, visited)
+      case Some(pat: ScBindingPattern) =>
+        if (visited.contains(pat)) false
+        else isMoreNarrow(pat.`type`().getOrAny, thisTp, visited + pat)
       case Some(param: ScParameter)    => isMoreNarrow(param.`type`().getOrAny, thisTp, visited)
       case Some(typeParam: PsiTypeParameter) =>
         if (visited.contains(typeParam)) false
