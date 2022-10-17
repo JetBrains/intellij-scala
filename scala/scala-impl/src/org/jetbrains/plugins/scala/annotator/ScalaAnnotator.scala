@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation._
+import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
@@ -38,6 +39,9 @@ class ScalaAnnotator extends Annotator
 
   override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
     val file = element.getContainingFile
+
+    if (InjectedLanguageManager.getInstance(element.getProject).isInjectedFragment(file))
+      return
 
     val typeAware =
       if ((file ne null) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)) false
