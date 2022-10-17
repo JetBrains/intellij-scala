@@ -134,7 +134,7 @@ class BspOpenProjectProvider() extends AbstractOpenProjectProvider {
   override def linkToExistingProject(projectFile: VirtualFile, project: Project): Unit = {
     val bspProjectSettings = new BspProjectSettings()
     val projectDirectory = getProjectDirectory(projectFile)
-    bspProjectSettings.setExternalProjectPath(projectDirectory.toString)
+    bspProjectSettings.setExternalProjectPath(projectDirectory.toNioPath.toString)
     attachBspProjectAndRefresh(bspProjectSettings, project)
   }
 
