@@ -1243,7 +1243,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
          |foo(emptyList, currentThread, defaultUncaughtExceptionHandler)$CARET
          |""".stripMargin,
     item = "emptyList, currentThread, defaultUncaughtExceptionHandler",
-    time = 2
+    invocationCount = 2
   )
 
   def testPositionInClause(): Unit = doCompletionTest(

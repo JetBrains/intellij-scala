@@ -33,7 +33,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
         |}
       """.stripMargin,
     item = "rawObject",
-    time = 2
+    invocationCount = 2
   )
 
   def testGlobalMember2(): Unit = doCompletionTest(
@@ -52,7 +52,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
         |}
       """.stripMargin,
     item = "globalValue",
-    time = 2
+    invocationCount = 2
   )
 
   def testGlobalMember3(): Unit = doCompletionTest(
@@ -71,7 +71,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
         |}
       """.stripMargin,
     item = "globalVariable",
-    time = 2
+    invocationCount = 2
   )
 
   def testGlobalMember4(): Unit = doCompletionTest(
@@ -90,7 +90,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
         |}
       """.stripMargin,
     item = "patValue",
-    time = 2
+    invocationCount = 2
   )
 
   def testGlobalMember5(): Unit = doCompletionTest(
@@ -109,7 +109,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
         |}
       """.stripMargin,
     item = "patternVariable",
-    time = 2
+    invocationCount = 2
   )
 
   def testGlobalMember6(): Unit = doCompletionTest(
@@ -157,7 +157,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
       """.stripMargin,
     item = "activeCount",
-    time = 2
+    invocationCount = 2
   )
 
   def testGlobalMemberJava2(): Unit = checkNoBasicCompletion(
@@ -182,7 +182,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
       """.stripMargin,
     item = "defaultUncaughtExceptionHandler",
-    time = 3
+    invocationCount = 3
   )
 
   def testGlobalMemberJava3(): Unit = {
@@ -244,7 +244,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |  }
          |}""".stripMargin,
     item = "doSmthPrivate",
-    time = 3
+    invocationCount = 3
   )
 
   def testGlobalMember10(): Unit = doCompletionTest(
@@ -275,7 +275,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
          |""".stripMargin,
     item = "foo",
-    time = 2
+    invocationCount = 2
   )
 
   def testGlobalMember11(): Unit = checkNoBasicCompletion(
@@ -380,7 +380,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
          |""".stripMargin,
     item = "foo",
-    time = 2
+    invocationCount = 2
   )
 
   def testCompanionObjectValue(): Unit = doRawCompletionTest(
@@ -646,7 +646,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
          |""".stripMargin,
     item = "foo",
-    time = 2
+    invocationCount = 2
   )
 
   def testCompanionObjectExtensionLikeMethodAccessAll_postfix(): Unit = doCompletionTest(
@@ -675,7 +675,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
          |""".stripMargin,
     item = "foo",
-    time = 2
+    invocationCount = 2
   )
 
   def testCompanionObjectExtensionLikeMethod3(): Unit = doCompletionTest(
@@ -934,7 +934,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |foo.bar()$CARET
        """.stripMargin,
     item = "bar",
-    time = 2
+    invocationCount = 2
   )
 
   def testImportObjectConversion(): Unit = doCompletionTest(
@@ -991,7 +991,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |foo.bar()$CARET
        """.stripMargin,
     item = "bar",
-    time = 2
+    invocationCount = 2
   )
 
   def testImportObjectConversion2(): Unit = doCompletionTest(
@@ -1048,7 +1048,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |foo.bar()$CARET
        """.stripMargin,
     item = "bar",
-    time = 2
+    invocationCount = 2
   )
 
   def testImportStringInterpolator(): Unit = doCompletionTest(
@@ -1079,7 +1079,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
         """.stripMargin,
     item = "xy",
-    time = 2
+    invocationCount = 2
   )
 
   def testImportableMethod(): Unit = doRawCompletionTest(
@@ -1120,7 +1120,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |}
          |""".stripMargin,
     item = "defaultUncaughtExceptionHandler",
-    time = 2
+    invocationCount = 2
   )
 
   def testImportableFunction(): Unit = doCompletionTest(

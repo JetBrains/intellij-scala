@@ -162,7 +162,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
         |}
       """.stripMargin,
     item = "foo",
-    time = 2
+    invocationCount = 2
   )
 
   def testSpaceInClassParents(): Unit = doCompletionTest(
@@ -324,7 +324,7 @@ class FullQualifiedImportsCompletionTest extends ScalaClassNameCompletionTest {
         |}
       """.stripMargin,
     item = "XXXX",
-    time = 2
+    invocationCount = 2
   )
 
   def testSCL4087_2(): Unit = doCompletionTest(
@@ -358,7 +358,7 @@ class FullQualifiedImportsCompletionTest extends ScalaClassNameCompletionTest {
         |}
       """.stripMargin,
     item = "XXXX",
-    time = 2
+    invocationCount = 2
   )
 }
 
@@ -397,7 +397,7 @@ class FullQualifiedImportsCompletionTest_Scala_3 extends FullQualifiedImportsCom
         |}
       """.stripMargin,
     item = "XXXX",
-    time = 2
+    invocationCount = 2
   )
 
   override def testSCL4087_2(): Unit = doCompletionTest(
@@ -431,7 +431,7 @@ class FullQualifiedImportsCompletionTest_Scala_3 extends FullQualifiedImportsCom
         |}
       """.stripMargin,
     item = "XXXX",
-    time = 2
+    invocationCount = 2
   )
 
   private val ScalaFileTextInSamePackage =

@@ -480,7 +480,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
          |class OP
       """.stripMargin,
     item = "foo.goo",
-    time = 2,
+    invocationCount = 2,
     completionType = SMART
   )
 

@@ -27,7 +27,7 @@ class ScalaConversionCompletionTest extends AbstractConversionCompletionTest {
          |ja.asScala$CARET
       """.stripMargin,
     item = "asScala",
-    time = 2
+    invocationCount = 2
   )
 
   override protected def convertersNames: Seq[String] = {

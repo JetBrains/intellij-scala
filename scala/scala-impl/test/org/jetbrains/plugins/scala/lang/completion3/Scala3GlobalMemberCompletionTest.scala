@@ -23,7 +23,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
         |"foobar".firstThreeChars
         |""".stripMargin,
     item = "firstThreeChars",
-    time = 2
+    invocationCount = 2
   )
 
   def testNoCompletionForPrivateExtensionMethod(): Unit = checkNoCompletion(
@@ -75,7 +75,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
         |end tests
         |""".stripMargin,
     item = "toChar",
-    time = 2
+    invocationCount = 2
   )
 
   def testTopLevelExtensionMethod(): Unit = doCompletionTest(
@@ -110,7 +110,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
         |end tests
         |""".stripMargin,
     item = "toChar",
-    time = 2
+    invocationCount = 2
   )
 
   def testExtensionMethodInsideGiven(): Unit = doCompletionTest(
@@ -150,7 +150,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
         |end tests
         |""".stripMargin,
     item = "toChar",
-    time = 2
+    invocationCount = 2
   )
 
   def testExtensionMethodInsideTopLevelGiven(): Unit = doCompletionTest(
@@ -187,7 +187,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
         |end tests
         |""".stripMargin,
     item = "toChar",
-    time = 2
+    invocationCount = 2
   )
 
 }

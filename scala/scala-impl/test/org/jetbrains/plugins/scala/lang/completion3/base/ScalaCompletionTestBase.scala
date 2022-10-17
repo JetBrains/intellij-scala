@@ -43,7 +43,7 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTestC
   protected final def activeLookupWithItems(
     fileText: String,
     completionType: CompletionType = BASIC,
-    invocationCount: Int = DEFAULT_TIME,
+    invocationCount: Int = DefaultInvocationCount,
     itemsExtractor: LookupImpl => Iterable[LookupElement] = allItems,
   ): (LookupImpl, Iterable[LookupElement]) = {
     configureFromFileText(fileText)
@@ -77,16 +77,16 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTestC
                                        resultText: String,
                                        item: String,
                                        char: Char = REPLACE_SELECT_CHAR,
-                                       time: Int = DEFAULT_TIME,
+                                       invocationCount: Int = DefaultInvocationCount,
                                        completionType: CompletionType = BASIC): Unit =
-    doRawCompletionTest(fileText, resultText, char, time, completionType) {
+    doRawCompletionTest(fileText, resultText, char, invocationCount, completionType) {
       hasLookupString(_, item)
     }
 
   protected final def doRawCompletionTest(fileText: String,
                                           resultText: String,
                                           char: Char = REPLACE_SELECT_CHAR,
-                                          invocationCount: Int = DEFAULT_TIME,
+                                          invocationCount: Int = DefaultInvocationCount,
                                           completionType: CompletionType = BASIC)
                                          (predicate: LookupElement => Boolean = Function.const(true)): Unit = {
     val (lookup, items) = activeLookupWithItems(fileText, completionType, invocationCount)
@@ -106,14 +106,14 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTestC
 
   protected final def checkNoBasicCompletion(fileText: String,
                                              item: String,
-                                             invocationCount: Int = DEFAULT_TIME): Unit =
+                                             invocationCount: Int = DefaultInvocationCount): Unit =
     checkNoCompletion(fileText, invocationCount = invocationCount) {
       hasLookupString(_, item)
     }
 
   protected final def checkNoCompletion(fileText: String,
                                         `type`: CompletionType = BASIC,
-                                        invocationCount: Int = DEFAULT_TIME)
+                                        invocationCount: Int = DefaultInvocationCount)
                                        (predicate: LookupElement => Boolean = Function.const(true)): Unit = {
     configureFromFileText(fileText)
 
@@ -131,7 +131,7 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTestC
   protected final def checkNonEmptyCompletionWithKeyAbortion(fileText: String,
                                                              resultText: String,
                                                              char: Char,
-                                                             invocationCount: Int = DEFAULT_TIME,
+                                                             invocationCount: Int = DefaultInvocationCount,
                                                              completionType: CompletionType = BASIC): Unit = {
     val (_, items) = activeLookupWithItems(fileText, completionType, invocationCount)
     assertTrue(items.nonEmpty)
@@ -143,7 +143,7 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTestC
   protected final def checkEmptyCompletionAbortion(fileText: String,
                                                    resultText: String,
                                                    char: Char = REPLACE_SELECT_CHAR,
-                                                   invocationCount: Int = DEFAULT_TIME,
+                                                   invocationCount: Int = DefaultInvocationCount,
                                                    completionType: CompletionType = BASIC): Unit = {
     val (lookup, items) = activeLookupWithItems(fileText, completionType, invocationCount)
     assertTrue(items.nonEmpty)
@@ -165,7 +165,7 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTestC
 
 object ScalaCompletionTestBase {
 
-  val DEFAULT_TIME: Int = 1
+  val DefaultInvocationCount: Int = 1
 
   object LookupString {
 

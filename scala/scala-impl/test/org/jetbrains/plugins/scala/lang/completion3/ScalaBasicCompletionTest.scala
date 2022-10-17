@@ -145,7 +145,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |}
       """.stripMargin,
     item = "xxxxx_=",
-    time = 2
+    invocationCount = 2
   )
 
   def testNewInnerClass(): Unit = doCompletionTest(
@@ -604,7 +604,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |  }
          |}""".stripMargin,
     item = "foo",
-    time = 0
+    invocationCount = 0
   )
 
   def testHiding2(): Unit = {
@@ -641,7 +641,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |  }
          |}""".stripMargin,
     item = "foo",
-    time = 0
+    invocationCount = 0
   )
 
   def testBasicRenamed(): Unit = doCompletionTest(

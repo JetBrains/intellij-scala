@@ -166,5 +166,5 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase 
   )
 
   private def doCompletionTest(fileText: String, resultText: String): Unit =
-    doCompletionTest(fileText, resultText, item = "", time = 2, completionType = SMART)
+    doCompletionTest(fileText, resultText, item = "", invocationCount = 2, completionType = SMART)
 }

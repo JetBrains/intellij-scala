@@ -25,7 +25,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
          |}
       """.stripMargin,
     item = "z",
-    time = 2,
+    invocationCount = 2,
     completionType = SMART
   )
 
@@ -50,7 +50,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
          """.stripMargin,
     item = "z",
     char = ',',
-    time = 2,
+    invocationCount = 2,
     completionType = SMART
   )
 
@@ -74,7 +74,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
          |}
         """.stripMargin,
     item = "z",
-    time = 2,
+    invocationCount = 2,
     completionType = SMART
   )
 
@@ -98,7 +98,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
          |}
         """.stripMargin,
     item = "z",
-    time = 2,
+    invocationCount = 2,
     completionType = SMART
   )
 
@@ -122,7 +122,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
          |}
         """.stripMargin,
     item = "z",
-    time = 2,
+    invocationCount = 2,
     completionType = SMART
   )
 
@@ -144,7 +144,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
          |}
       """.stripMargin,
     item = "TT.this",
-    time = 2,
+    invocationCount = 2,
     completionType = SMART
   )
 
@@ -164,7 +164,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
          |}
       """.stripMargin,
     item = "aaa",
-    time = 2,
+    invocationCount = 2,
     completionType = SMART
   )
 }

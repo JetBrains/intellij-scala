@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.completion
 abstract class ScalaClausesCompletionTestBase extends ScalaCompletionTestBase {
 
   import completion.ScalaKeyword.{CASE, MATCH}
-  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.{DEFAULT_TIME, hasItemText}
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.{DefaultInvocationCount, hasItemText}
 
   protected def doPatternCompletionTest(fileText: String, resultText: String, itemText: String): Unit =
     doRawCompletionTest(fileText, resultText) {
@@ -15,13 +15,13 @@ abstract class ScalaClausesCompletionTestBase extends ScalaCompletionTestBase {
 
   protected def doClauseCompletionTest(fileText: String, resultText: String,
                                        itemText: String,
-                                       invocationCount: Int = DEFAULT_TIME): Unit =
+                                       invocationCount: Int = DefaultInvocationCount): Unit =
     doRawCompletionTest(fileText, resultText, invocationCount = invocationCount) {
       isCaseClause(_, itemText)
     }
 
   protected def doMatchCompletionTest(fileText: String, resultText: String,
-                                      invocationCount: Int = DEFAULT_TIME): Unit =
+                                      invocationCount: Int = DefaultInvocationCount): Unit =
     doRawCompletionTest(fileText, resultText, invocationCount = invocationCount)(isExhaustiveMatch)
 
   protected def doCaseCompletionTest(fileText: String, resultText: String): Unit =

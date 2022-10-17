@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 
 class ScalaDocCompletionTest extends ScalaCompletionTestBase {
 
-  import ScalaDocCompletionTest.DEFAULT_TIME
+  import ScalaDocCompletionTest.DefaultInvocationCount
 
   def testTagNameCompletion(): Unit = doCompletionTest(
     fileText =
@@ -24,7 +24,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
         | def f(i: Int) { }
       """.stripMargin,
     item = "param",
-    time = DEFAULT_TIME
+    invocationCount = DefaultInvocationCount
   )
 
   def testTagValueCompletion(): Unit = doCompletionTest(
@@ -43,7 +43,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
         | def f(param: String) {}
       """.stripMargin,
     item = "param",
-    time = DEFAULT_TIME
+    invocationCount = DefaultInvocationCount
   )
 
   def testLinkCodeCompletion(): Unit = doRawCompletionTest(
@@ -61,7 +61,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
         |  * [[java.util.HashMap
         |  */
       """.stripMargin,
-    invocationCount = DEFAULT_TIME,
+    invocationCount = DefaultInvocationCount,
   ) { lookup =>
     lookup.getObject match {
       case clazz: PsiClass => clazz.qualifiedName == "java.util.HashMap"
@@ -87,11 +87,11 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
         | def f(iii: Int, ikk: Int) {}
       """.stripMargin,
     item = "ikk",
-    time = DEFAULT_TIME
+    invocationCount = DefaultInvocationCount
   )
 }
 
 object ScalaDocCompletionTest {
 
-  private val DEFAULT_TIME: Int = 2
+  private val DefaultInvocationCount: Int = 2
 }
