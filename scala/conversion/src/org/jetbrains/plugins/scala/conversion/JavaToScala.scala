@@ -426,7 +426,7 @@ object JavaToScala {
         val inAnnotation = PsiTreeUtil.getParentOfType(annot, classOf[PsiAnnotation]) != null
 
         val name = Option(annot.getNameReferenceElement).map(convertPsiToIntermediate(_, externalProperties))
-        AnnotaionConstruction(inAnnotation, attrResult.toSeq, name)
+        AnnotationConstruction(inAnnotation, attrResult.toSeq, name)
       case p: PsiParameter =>
         val modifiers = handleModifierList(p)
         val name = convertPsiToIntermediate(p.getNameIdentifier, externalProperties)
@@ -848,19 +848,26 @@ object JavaToScala {
         val updatedParams = mutable.ArrayBuffer[IntermediateNode]()
         val dropStatements = mutable.ArrayBuffer[PsiExpressionStatement]()
         for (param <- params) {
-          val fieldInfo = getCorrespondedFieldInfo(param)
+          val fieldInfo: collection.Seq[(PsiField, PsiExpressionStatement)] = getCorrespondedFieldInfo(param)
           val updatedField = if (fieldInfo.isEmpty) {
-            val p = convertPsiToIntermediate(param, null).asInstanceOf[ParameterConstruction]
-            p.isVar = Some(false)
-            p
+            convertPsiToIntermediate(param, null).asInstanceOf[ParameterConstruction]
           } else {
             fieldInfo.foreach {
               case (field, statement) =>
                 dropFieldsBuilder += field
                 dropStatements += statement
             }
-            val fieldConverted = convertPsiToIntermediate(fieldInfo.head._1, WithReferenceExpression(true)).asInstanceOf[FieldConstruction]
-            val param = ParameterConstruction(EmptyConstruction(), fieldConverted.name, fieldConverted.ftype, Some(fieldConverted.isVar), isArray = false)
+            val fieldInfoFirst = fieldInfo.head
+            val modifiers = handleModifierList(fieldInfoFirst._1)
+              .without(ModifierType.FINAL) // final will be expressed in `val`, so we don't need еру modifier
+            val fieldConverted = convertPsiToIntermediate(fieldInfoFirst._1, WithReferenceExpression(true)).asInstanceOf[FieldConstruction]
+            val param = ParameterConstruction(
+              modifiers,
+              fieldConverted.name,
+              fieldConverted.ftype,
+              Some(fieldConverted.isVar),
+              isArray = false
+            )
             param.setComments(fieldConverted.comments)
             param
           }
@@ -937,9 +944,9 @@ object JavaToScala {
     implicit associations: mutable.ListBuffer[AssociationHelper] = mutable.ListBuffer(),
     refs: Seq[ReferenceData] = Seq.empty,
     usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()
-  ): IntermediateNode = {
+  ): ModifiersConstruction = {
 
-    def handleAnnotations: Seq[IntermediateNode] = owner.getModifierList match {
+    def handleAnnotations: Seq[AnnotationConstruction] = owner.getModifierList match {
       case null => Seq.empty
       case list =>
         for {
@@ -952,12 +959,12 @@ object JavaToScala {
                  "org.jetbrains.annotations.NonNls" => false
             case _ => true
           })
-        } yield convertPsiToIntermediate(annotation, null)
+        } yield convertPsiToIntermediate(annotation, null).asInstanceOf[AnnotationConstruction]
     }
 
-    def handleModifiers: Seq[IntermediateNode] = {
+    def handleModifiers: Seq[Modifier] = {
       val context = this.context.value
-      val modifiersBuilder = ArraySeq.newBuilder[IntermediateNode]
+      val modifiersBuilder = ArraySeq.newBuilder[Modifier]
 
       val simpleList = SIMPLE_MODIFIERS_MAP.filter {
         case (psiType, _) => owner.hasModifierProperty(psiType)

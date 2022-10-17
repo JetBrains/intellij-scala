@@ -3,9 +3,11 @@ package conversion
 package visitors
 
 import com.intellij.openapi.util._
+import org.jetbrains.plugins.scala.conversion.ast.ModifierType
 
 import scala.collection.mutable
 
+//noinspection ScalaWeakerAccess,InstanceOf
 class SimplePrintVisitor protected() {
 
   import SimplePrintVisitor._
@@ -35,7 +37,8 @@ class SimplePrintVisitor protected() {
     case ArrayConstruction(inType) => visitArrayType(inType)
     case TypeParameters(data) => visitTypeParameters(data)
     case TypeParameterConstruction(name, types) => visitTypeParameterConstruction(name, types)
-    case AnnotaionConstruction(inAnnotation, attributes, name) => visitAnnotation(inAnnotation, attributes, name)
+    case AnnotationConstruction(inAnnotation, attributes, name) =>
+      visitAnnotation(inAnnotation, attributes, name)
     case b@BlockConstruction(statements) => visitBlock(b, statements)
     case c@ClassConstruction(name, primaryConstructor, bodyElements, modifiers, typeParams, initializers, classType,
     companion, extendsList) => visitClass(c, name, primaryConstructor, bodyElements,
@@ -76,7 +79,8 @@ class SimplePrintVisitor protected() {
       visitPrimaryConstructor(params, superCall, body, modifiers)
     case MethodConstruction(modifiers, name, typeParams, params, body, retType) =>
       visitMethod(modifiers, name, typeParams, params, body, retType)
-    case m@ModifiersConstruction(annotations, modifiers) => visitModifiers(m, annotations, modifiers)
+    case m@ModifiersConstruction(annotations, modifiers) =>
+      visitModifiers(m, annotations, modifiers)
     case SimpleModifier(mtype: ModifierType) => visitSimpleModifier(mtype)
     case ModifierWithExpression(mtype, value) => visitModifierWithExpr(mtype, value)
     case ParameterConstruction(modifiers, name, scCompType, isVar, isArray) =>
@@ -107,8 +111,11 @@ class SimplePrintVisitor protected() {
     case EmptyConstruction() =>
   }
 
-  protected def visitAnnotation(inAnnotation: Boolean, attributes: Seq[(Option[IntermediateNode], Option[IntermediateNode])],
-                                name: Option[IntermediateNode]): Unit = {
+  protected def visitAnnotation(
+    inAnnotation: Boolean,
+    attributes: Seq[(Option[IntermediateNode], Option[IntermediateNode])],
+    name: Option[IntermediateNode]
+  ): Unit = {
     if (inAnnotation) {
       printer.append("new ")
     } else {
@@ -119,7 +126,8 @@ class SimplePrintVisitor protected() {
       name.get match {
         case JavaCodeReferenceStatement(_, _, Some(name@"Deprecated")) =>
           printer.append(name.toLowerCase)
-        case otherName => visit(otherName)
+        case otherName =>
+          visit(otherName)
       }
     }
 
@@ -509,18 +517,36 @@ class SimplePrintVisitor protected() {
       .appendRightParenthesis()
   }
 
-  protected def visitModifiers(modifiersConstruction: ModifiersConstruction, annotations: Seq[IntermediateNode], modifiers: Seq[IntermediateNode]): Unit = {
-    for (a <- annotations) {
+  protected def visitModifiers(
+    modifiersConstruction: ModifiersConstruction,
+    annotations: Seq[IntermediateNode],
+    modifiers: Seq[Modifier]
+  ): Unit = {
+    //some modifiers in Java are annotations in Scala, e.g. `transient` -> `@transient`
+    val (scalaExtraAnnotations, scalaModifiers) =
+      modifiers.foldLeft((Seq.empty[String], Seq.empty[Modifier])) { case ((scalaAnnotations, scalaModifiers), javaModifier) =>
+        JavaModifierToScalaAnnotation.get(javaModifier.modificator) match {
+          case Some(a) => ((scalaAnnotations :+ a), scalaModifiers)
+          case None => (scalaAnnotations, (scalaModifiers :+ javaModifier))
+        }
+      }
+
+    val scalaExtraAnnotationConstructions: Seq[AnnotationConstruction] =
+      scalaExtraAnnotations.map { name =>
+        AnnotationConstruction(inAnnotation = false, Nil, Some(JavaCodeReferenceStatement(None, None, Some(name))))
+      }
+
+    for (a <- annotations ++ scalaExtraAnnotationConstructions) {
       visit(a)
       printer.appendSpace()
     }
 
     //to prevent situation where access modifiers print earlier then throw
-    val sortModifiers = modifiers.collect { case m: Modifier if !modifiersConstruction.accessModifiers.contains(m.modificator) => m } ++
-      modifiers.collect { case m: Modifier if modifiersConstruction.accessModifiers.contains(m.modificator) => m }
+    val (accessModifiers, otherModifiers) = scalaModifiers.partition(m => ModifierType.AccessModifiers.contains(m.modificator))
+    val modifiersSorted = otherModifiers ++ accessModifiers
 
-    for (m <- sortModifiers) {
-      if (!modifiersConstruction.withoutList.contains(m.asInstanceOf[Modifier].modificator)) {
+    for (m <- modifiersSorted) {
+      if (!modifiersConstruction.withoutList.contains(m.modificator)) {
         visit(m)
         printer.appendSpace()
       }
@@ -927,6 +953,12 @@ class SimplePrintVisitor protected() {
 }
 
 object SimplePrintVisitor {
+
+  private val JavaModifierToScalaAnnotation: Map[ModifierType.Value, String] = Map(
+    ModifierType.VOLATILE -> "volatile",
+    ModifierType.TRANSIENT -> "transient",
+    ModifierType.NATIVE -> "native",
+  )
 
   //noinspection TypeAnnotation
   private implicit class StringBuilderExt(private val builder: mutable.StringBuilder) extends AnyVal {

@@ -5,6 +5,6 @@ class C {
   }
 }
 /*
-class C(val s: String) {
+class C(private val s: String) {
 }
  */

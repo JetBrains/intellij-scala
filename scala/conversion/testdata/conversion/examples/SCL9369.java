@@ -24,6 +24,6 @@ class Foo(val b: Int) {
   }
 }
 
-class T(val str: String, val a: Int) extends Foo(str, a) {
+class T(str: String, a: Int) extends Foo(str, a) {
 }
  */
