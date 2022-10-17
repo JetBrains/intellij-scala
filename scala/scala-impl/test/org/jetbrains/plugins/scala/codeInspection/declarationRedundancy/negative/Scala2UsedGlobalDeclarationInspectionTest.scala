@@ -240,14 +240,16 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
 
   def test_single_abstract_method(): Unit = {
     addJavaFile(
-      s"""import scala.annotation.unused
-         |@unused class SamConsumer { @unused val samContainer: SamContainer = (i: Int) => println(i) }
-         |""".stripMargin
+      """import scala.annotation.unused
+        |@unused class SamConsumer { @unused val samContainer: SamContainer = (i: Int) => println(i) }
+        |""".stripMargin
     )
-    checkTextHasNoErrors(
-      s"""import scala.annotation.unused
-         |abstract class SamContainer { def iAmSam(foobar: Int): Unit }
-         |""".stripMargin
-    )
+    checkTextHasNoErrors("abstract class SamContainer { def iAmSam(foobar: Int): Unit }")
   }
+
+  def test_structural_type_members(): Unit = checkTextHasNoErrors(
+    """import scala.annotation.unused
+      |@unused object A { @unused val v: { def foo: Int } = ??? }
+      |""".stripMargin
+  )
 }

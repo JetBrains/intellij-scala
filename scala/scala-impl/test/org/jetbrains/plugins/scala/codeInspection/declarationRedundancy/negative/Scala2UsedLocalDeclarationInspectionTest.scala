@@ -334,7 +334,24 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
     """import scala.annotation.unused
       |@unused trait Context {
       |  @unused def someAbstractMethod1(unusedParam: Int): Unit
-      |  @unused def someAbstractMethod2(unusedParam: Int): Unit
+      |}
+      |""".stripMargin
+  )
+
+  def test_implicit_parameter_of_abstract_method(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.annotation.unused
+      |@unused trait A {
+      |  @unused def foo(implicit bar: Int): Unit
+      |}
+      |""".stripMargin
+  )
+
+  def test_DummyImplicit(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.annotation.unused
+      |@unused class A {
+      |  @unused def foo(implicit bar: DummyImplicit): Unit = {}
       |}
       |""".stripMargin
   )
