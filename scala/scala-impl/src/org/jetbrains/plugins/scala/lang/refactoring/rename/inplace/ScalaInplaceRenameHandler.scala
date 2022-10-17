@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScEndImpl.Target
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiMethodWrapper}
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.nowarn
 
@@ -52,7 +53,7 @@ trait ScalaInplaceRenameHandler {
     def showSubstitutePopup(@Nls title: String, positive: String, subst: => PsiNamedElement): Unit = {
       val cancel = ScalaBundle.message("rename.cancel")
       val list = new JBList[String](positive, cancel)
-      val callback: Runnable = () => invokeLaterInTransaction(editor.getProject) {
+      val callback: Runnable = () => invokeLaterInTransaction(editor.getProject.unloadAwareDisposable) {
         list.getSelectedValue match {
           case s: String if s == positive =>
             val file = subst.getContainingFile.getVirtualFile

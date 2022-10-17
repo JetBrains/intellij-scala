@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.IntroduceTypeAlias.ForcedReplaceOccurrenceInInheritors
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaRefactoringUtil}
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import java.awt.Component
@@ -338,7 +339,7 @@ trait IntroduceTypeAlias {
       }
     }
 
-    val callback: Runnable = () => invokeLaterInTransaction(editor.getProject) {
+    val callback: Runnable = () => invokeLaterInTransaction(editor.getProject.unloadAwareDisposable) {
       pass(list.getSelectedValue)
     }
 

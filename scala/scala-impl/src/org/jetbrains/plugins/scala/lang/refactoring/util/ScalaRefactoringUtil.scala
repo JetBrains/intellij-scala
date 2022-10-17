@@ -41,6 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import java.awt.Component
 import java.util.Collections
@@ -514,8 +515,7 @@ object ScalaRefactoringUtil {
       }
     })
 
-    //TODO: replace with project.unloadAwareDisposable
-    val callback: Runnable = () => invokeLaterInTransaction(editor.getProject) {
+    val callback: Runnable = () => invokeLaterInTransaction(editor.getProject.unloadAwareDisposable) {
       onChosen(list.getSelectedValue)
     }
 
