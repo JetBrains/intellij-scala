@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.annotation.nowarn
 
@@ -20,9 +21,10 @@ private[scala] object TopLevelMembers {
   def topLevelMemberClassName(file: PsiFile, packaging: Option[ScPackaging]): String = {
     val vf = file.getVirtualFile
     val packageName = packaging.fold("")(_.fullPackageName)
+    val fileName = ScalaNamesUtil.toJavaName(vf.getNameWithoutExtension)
     val path =
-      if (packageName.isEmpty) vf.getNameWithoutExtension
-      else packageName + "." + vf.getNameWithoutExtension
+      if (packageName.isEmpty) fileName
+      else packageName + "." + fileName
     path + classSuffix
   }
 
