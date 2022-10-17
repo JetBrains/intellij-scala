@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala.conversion.copy.plainText
 
-import com.intellij.ide.{IdeView, PasteProvider}
+import com.intellij.core.CoreBundle
+import com.intellij.ide.{IdeBundle, IdeView, PasteProvider}
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys, PlatformCoreDataKeys}
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages.showErrorDialog
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.conversion.ScalaConversionBundle
@@ -43,22 +46,51 @@ final class ScalaFilePasteProvider extends PasteProvider {
         PlainTextCopyUtil.createScalaFile(text)(_)
       )
       directory <- context.maybeIdeView.flatMap(_.getOrChooseDirectory.toOption)
-    } createFileInDirectory(fileName(scalaFile), text, directory)(
+    } createFileInDirectory(fileNameAndExtension(scalaFile), text, directory)(
       scalaFile.getProject
     )
 
-  private def createFileInDirectory(fileName: String, fileText: String, directory: PsiDirectory)
-                                   (implicit project: Project) =
+  private def createFileInDirectory(fileNameAndExtension: (String, String), fileText: String, targetPsiDir: PsiDirectory)
+                                   (implicit project: Project): Unit =
     Try {
       inWriteCommandAction {
-        val file = directory.createFile(fileName).asInstanceOf[ScalaFile]
+        val (name, extension) = fileNameAndExtension
+        val isWorksheet = extension == "sc"
+        //allow creating multiple worksheets in same directory
+        val fileName: String =
+          if (isWorksheet) VfsUtil.getNextAvailableName(targetPsiDir.getVirtualFile, name, extension)
+          else s"$name.$extension"
+
+        val existingFile = targetPsiDir.findFile(fileName)
+        if (existingFile != null) {
+          val dialog = MessageDialogBuilder.yesNo(
+            IdeBundle.message("title.file.already.exists"),
+            CoreBundle.message("prompt.overwrite.project.file", fileName, "")
+          )
+          val replaceExistingFile = dialog.ask(project)
+          if (!replaceExistingFile) {
+            return
+          }
+        }
+
+        val psiFile =
+          if (existingFile != null)
+            existingFile.asInstanceOf[ScalaFile] //we are sure it's scala file because of `.scala` extension
+          else {
+            try targetPsiDir.createFile(fileName).asInstanceOf[ScalaFile]
+            catch {
+              case _: IncorrectOperationException =>
+                return
+            }
+          }
+
         val documentManager = PsiDocumentManager.getInstance(project)
 
-        Option(documentManager.getDocument(file)).foreach { document =>
+        Option(documentManager.getDocument(psiFile)).foreach { document =>
           document.setText(fileText)
           documentManager.commitDocument(document)
-          updatePackageStatement(file, directory)
-          new OpenFileDescriptor(project, file.getVirtualFile).navigate(true)
+          updatePackageStatement(psiFile, targetPsiDir)
+          new OpenFileDescriptor(project, psiFile.getVirtualFile).navigate(true)
         }
       }
     }.recover { case e: IncorrectOperationException =>
@@ -70,11 +102,11 @@ final class ScalaFilePasteProvider extends PasteProvider {
       )
     }
 
-  private def fileName(scalaFile: ScalaFile): String = {
+  private def fileNameAndExtension(scalaFile: ScalaFile): (String, String) = {
     val firstMemberName = scalaFile.members.headOption.flatMap(_.names.headOption)
     firstMemberName
-      .map(_ + ".scala")
-      .getOrElse("worksheet.sc")
+      .map((_, "scala"))
+      .getOrElse(("worksheet", "sc"))
   }
 
   private def updatePackageStatement(file: ScalaFile, targetDir: PsiDirectory)
