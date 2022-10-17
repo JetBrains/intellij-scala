@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeW
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScExpression, ScNewTemplateDefinition, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
@@ -278,8 +278,18 @@ package object completion {
   }
 
   private[completion] def definitionByPosition(place: PsiElement) = place match {
-    case ScalaSmartCompletionContributor.Reference(reference) => Some(reference)
-    case _ => Option(getContextOfType(place, classOf[ScNewTemplateDefinition]))
+    case ScalaSmartCompletionContributor.Reference(reference) =>
+      //When we have a reference in postfix expression, select postfix expression itself
+      //This is in order these two examples behave the same during completion:
+      //val x: MyType = 42.method<caret>
+      //val x: MyType = 42 method<caret>
+      val result = reference.getContext match {
+        case postfix: ScPostfixExpr => postfix
+        case _ => reference
+      }
+      Some(result)
+    case _ =>
+      Option(getContextOfType(place, classOf[ScNewTemplateDefinition]))
   }
 
   private[this] def requiresSuffix(element: PsiElement) =
