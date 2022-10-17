@@ -19,9 +19,11 @@ abstract class IntermediateNode {
 
 object IntermediateNode {
 
-  case class Comments(beforeComments: mutable.ArrayBuffer[LiteralExpression] = mutable.ArrayBuffer.empty[LiteralExpression],
-                      afterComments: mutable.ArrayBuffer[LiteralExpression] = mutable.ArrayBuffer.empty[LiteralExpression],
-                      latestComments: mutable.ArrayBuffer[LiteralExpression] = mutable.ArrayBuffer.empty[LiteralExpression])
+  case class Comments(
+    beforeComments: mutable.ArrayBuffer[LiteralExpression] = mutable.ArrayBuffer.empty[LiteralExpression],
+    afterComments: mutable.ArrayBuffer[LiteralExpression] = mutable.ArrayBuffer.empty[LiteralExpression],
+    latestComments: mutable.ArrayBuffer[LiteralExpression] = mutable.ArrayBuffer.empty[LiteralExpression]
+  )
 
 }
 

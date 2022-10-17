@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package conversion
-package ast
+package org.jetbrains.plugins.scala.conversion.ast
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiType
@@ -45,9 +43,9 @@ object TypeConstruction {
   }
 
   // get simple parts of type if type is array or parametrized
-  def getParts(scType: ScType, buffer: mutable.ArrayBuffer[(IntermediateNode, Option[String])])
-              (implicit ctx: ProjectContext,
-               textMode: Boolean = false): IntermediateNode = {
+  private def getParts(scType: ScType, buffer: mutable.ArrayBuffer[(IntermediateNode, Option[String])])(
+    implicit ctx: ProjectContext, textMode: Boolean = false
+  ): IntermediateNode = {
     implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContext
     scType match {
       case p@ParameterizedType(des, args) =>
