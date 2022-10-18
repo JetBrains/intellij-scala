@@ -62,7 +62,9 @@ object ExternalHighlighters {
         )
       }
     }
-    ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
+    executeOnPooledThread {
+      ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
+    }
   }
 
   def informWolf(project: Project, state: HighlightingState): Unit =

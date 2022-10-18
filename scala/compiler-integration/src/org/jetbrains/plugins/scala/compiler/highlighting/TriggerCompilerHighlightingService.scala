@@ -43,7 +43,9 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
               0, document.getTextLength, Seq.empty.asJava,
               editor.getColorsScheme, ExternalHighlighters.ScalaCompilerPassId)
           }
-          WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(virtualFile, ExternalHighlighters)
+          executeOnPooledThread {
+            WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(virtualFile, ExternalHighlighters)
+          }
 
           if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {
             val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
