@@ -310,7 +310,7 @@ object DebuggerUtil {
       case objRef: ObjectReference =>
         val refType = objRef.referenceType()
         if (isScalaRuntimeRef(refType.name))
-          runtimeRefField(refType).map(objRef.getValue).getOrElse(objRef)
+          runtimeRefField(refType).flatMap(f => Option(objRef.getValue(f))).getOrElse(objRef)
         else objRef
       case _ => value
     }

@@ -81,7 +81,7 @@ class ScalaRuntimeRefRenderer extends ScalaClassRenderer {
 private object ScalaRuntimeRefRenderer {
   def isRuntimeRef(ct: ClassType): Boolean = {
     val name = ct.name()
-    name.startsWith("scala.runtime") && name.endsWith("Ref")
+    name.startsWith("scala.runtime") && name.endsWith("Ref") && name != "scala.runtime.LazyRef"
   }
 
   object RefType {
