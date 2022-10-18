@@ -3,19 +3,11 @@ package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiType}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{
-  ScGenericCall,
-  ScMethodCall,
-  ScReferenceExpression
-}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement, ScUMultiResolvable}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
-  ScUAnnotated,
-  ScUElement,
-  ScUMultiResolvable
-}
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast._
 
@@ -140,7 +132,8 @@ final class ScUTypeReferenceExpression(
   @Nullable sourcePsi: PsiElement,
   override protected val parent: LazyUElement
 ) extends UTypeReferenceExpressionAdapter
-    with ScUCommonReferenceExpression {
+    with ScUCommonReferenceExpression
+    with UReferenceExpression {
 
   @Nullable
   override def getSourcePsi: PsiElement = sourcePsi

@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.uast
 
-import java.io.File
-
 import com.intellij.psi.PsiElement
 import com.intellij.testFramework.EqualsToFile
+
+import java.io.File
 import org.jetbrains.uast._
 import org.jetbrains.uast.test.common.RenderLogTestBase
 import org.jetbrains.uast.visitor.AbstractUastVisitor
@@ -69,9 +69,6 @@ class SimpleScalaRenderingLogTest
     new File(getTestDataPath(), substringBeforeLast(testName, '.') + '.' + ext)
   }
 
-  override def check(testName: String, uFile: UFile): Unit =
-    RenderLogTestBase.DefaultImpls.check(this, testName, uFile)
-
   override def check(testName: String,
                      file: UFile,
                      doParentConsistencyCheck: Boolean): Unit = {
@@ -95,9 +92,6 @@ class SimpleScalaRenderingLogTest
 
     checkContainingFileForAllElements(file)
   }
-
-  override def checkParentConsistency(uFile: UFile): Unit =
-    RenderLogTestBase.DefaultImpls.checkParentConsistency(this, uFile)
 
   override def checkContainingFileForAllElements(uFile: UFile): Unit =
     uFile.accept(new AbstractUastVisitor {

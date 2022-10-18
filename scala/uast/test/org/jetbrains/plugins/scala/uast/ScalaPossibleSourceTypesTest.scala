@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.uast
 
 import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFile
 import junit.framework.{Test, TestCase}
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.lang.psi.uast.withPossibleSourceTypesCheck
@@ -38,8 +37,5 @@ object ScalaPossibleSourceTypesTest {
         classOf[UCallableReferenceExpression]
       )
     }
-
-    override def checkConsistencyWithRequiredTypes(psiFile: PsiFile, classes: Class[_ <: UElement]*): Unit =
-      PossibleSourceTypesTestBase.DefaultImpls.checkConsistencyWithRequiredTypes(this, psiFile, classes: _*)
   }
 }
