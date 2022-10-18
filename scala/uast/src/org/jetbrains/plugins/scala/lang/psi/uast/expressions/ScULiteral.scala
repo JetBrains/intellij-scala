@@ -38,6 +38,8 @@ object ScULiteral {
                                  override protected val parent: LazyUElement)
     extends ScULiteral(scExpression, parent) with UInjectionHost {
 
+    override lazy val isString: Boolean = super[UInjectionHost].isString
+
     override def getPsiLanguageInjectionHost: PsiLanguageInjectionHost = scExpression
 
     override def evaluateToString(): String = scExpression.getValue

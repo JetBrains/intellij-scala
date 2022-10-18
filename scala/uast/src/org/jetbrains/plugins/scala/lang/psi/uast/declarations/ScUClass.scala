@@ -25,6 +25,9 @@ import scala.jdk.CollectionConverters._
 
 trait ScUClassCommon extends UClass with ScUAnnotated {
 
+  @Nullable
+  override def getJavaPsi: PsiClass = null
+
   protected val scTemplate: ScTemplateDefinition
 
   override def getUastDeclarations: ju.List[UDeclaration] =
@@ -113,6 +116,7 @@ final class ScUClass(override protected val scElement: ScTypeDefinition,
                      override protected val parent: LazyUElement)
     extends UClassAdapter(scElement)
     with ScUClassCommon
+    with UClass
     with ScUElement
     with ScUAnchorOwner {
 
@@ -140,6 +144,7 @@ final class ScUAnonymousClass(
   override protected val parent: LazyUElement
 ) extends UClassAdapter(newTemplateDefinition)
   with ScUClassCommon
+  with UClass
   with ScUElement
   with UAnonymousClass {
 
@@ -210,7 +215,7 @@ final class ScUAnonymousClass(
       .orNull
 }
 
-private final class ScTemplateToPsiAnonymousClassAdapter(scTemplate: ScNewTemplateDefinition) extends PsiClassAnonimousWrapper{
+private final class ScTemplateToPsiAnonymousClassAdapter(scTemplate: ScNewTemplateDefinition) extends PsiClassAnonimousWrapper {
   override protected def getDelegate: PsiClass = scTemplate
 
   override def getBaseClassReference: PsiJavaCodeReferenceElement =

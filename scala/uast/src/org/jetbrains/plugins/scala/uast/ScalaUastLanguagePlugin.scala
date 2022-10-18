@@ -4,8 +4,9 @@ package uast
 import com.intellij.lang.{DependentLanguage, Language}
 import com.intellij.openapi.application.{ApplicationManager, Experiments}
 import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher
-import com.intellij.psi.{PsiClassInitializer, PsiElement, PsiMethod, PsiVariable}
+import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
@@ -81,17 +82,6 @@ final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
       case _ => null
     }
 
-  override def getInitializerBody(psiClassInitializer: PsiClassInitializer): UExpression =
-    DefaultImpls.getInitializerBody(this, psiClassInitializer)
-
-  @Nullable
-  override def getInitializerBody(psiVariable: PsiVariable): UExpression =
-    DefaultImpls.getInitializerBody(this, psiVariable)
-
-  @Nullable
-  override def getMethodBody(psiMethod: PsiMethod): UExpression =
-    DefaultImpls.getMethodBody(this, psiMethod)
-
   @Nullable
   override def getMethodCallExpression(element: PsiElement,
                                        containingClassFqName: String,
@@ -105,7 +95,7 @@ final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
         val callExpression = convertElementWithParent(methodCall, null) match {
           case callExpr: UCallExpression => callExpr
           case qualifiedRef: UQualifiedReferenceExpression
-            if qualifiedRef.getSelector.isInstanceOf[UCallExpression] =>
+            if qualifiedRef.getSelector.is[UCallExpression] =>
             qualifiedRef.getSelector.asInstanceOf[UCallExpression]
           case otherwise => sys.error(s"Invalid element type: $otherwise")
         }
