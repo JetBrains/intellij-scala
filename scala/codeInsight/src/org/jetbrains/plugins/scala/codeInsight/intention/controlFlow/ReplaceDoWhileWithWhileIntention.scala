@@ -82,8 +82,8 @@ final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionActi
       } {
         val bodyText = body.getText
 
-        val newWhileStmt = createExpressionFromText(s"while (${condition.getText}) $bodyText")
-        val newBody = createExpressionFromText(bodyText)
+        val newWhileStmt = createExpressionFromText(s"while (${condition.getText}) $bodyText", element)
+        val newBody = createExpressionFromText(bodyText, element)
 
         val parentBlockHasBraces: Boolean = doStmt.getParent.children.map(_.getNode.getElementType).contains(ScalaTokenTypes.tLBRACE)
 
@@ -100,7 +100,7 @@ final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionActi
           val newDoStmt =
             if (!parentBlockHasBraces && parentBlockNeedBraces) {
               val doStmtInBraces =
-                doStmt.replaceExpression(createBlockFromExpr(doStmt), removeParenthesis = true)
+                doStmt.replaceExpression(createBlockFromExpr(doStmt, element), removeParenthesis = true)
               PsiTreeUtil.findChildOfType(doStmtInBraces, classOf[ScDo], true)
             } else doStmt
           val newExpression: ScExpression = newDoStmt.replaceExpression(newWhileStmt, removeParenthesis = true)

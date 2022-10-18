@@ -121,7 +121,7 @@ object SbtScalacOptionsCompletionContributor {
               context.getDocument.replaceString(startOffset, startOffset + option.getText.length, s"Seq(${option.getText})")
               context.commitDocument()
               val op = expr.operation.refName
-              expr.operation.replace(ScalaPsiElementFactory.createElementFromText(op.prepended(op.head))(expr.projectContext))
+              expr.operation.replace(ScalaPsiElementFactory.createElementFromText(op.prepended(op.head), expr)(expr.projectContext))
               PsiDocumentManager.getInstance(context.getProject).doPostponedOperationsAndUnblockDocument(context.getDocument)
               startOffset + 5 // '+' or '-' in operation + 'Seq('
             case _ =>

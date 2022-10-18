@@ -213,7 +213,7 @@ object SimulacrumInjector {
   private def definitionsToBeInjected(source: ScTypeDefinition): Seq[String] = {
     val tCons            = source.typeParameters.head
     val liftedTypeParams = tCons.typeParameters.zipWithIndex.map {
-      case (_, idx) => createTypeParameterFromText(s"LP$idx")(source)
+      case (_, idx) => createTypeParameterFromText(s"LP$idx", source)(source)
     }
 
     val className      = source.name

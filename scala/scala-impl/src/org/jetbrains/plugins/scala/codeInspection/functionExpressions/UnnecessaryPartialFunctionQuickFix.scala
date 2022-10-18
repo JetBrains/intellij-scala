@@ -29,8 +29,8 @@ class UnnecessaryPartialFunctionQuickFix(expression: ScBlockExpr)
           deleteLeadingWhitespace(expressionCopy)
           deleteTrailingWhitespace(expressionCopy)
         }
-        expr.replace(createExpressionFromText(expressionCopy.getText))
-      case _ => 
+        expr.replace(createExpressionFromText(expressionCopy.getText, expr))
+      case _ =>
     }
   }
 

@@ -7,11 +7,16 @@ import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt, ProjectPsiFileExt, ScalaFeaturePusher, ScalaFeatures, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 // TODO: now isScala3 is properly set only in org.jetbrains.plugins.scala.lang.parser.ScalaParser
 //  update all ScalaPsiBuilderImpl instantiations passing proper isScala3 value
-class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) extends PsiBuilderAdapter(delegate)
-  with ScalaPsiBuilder {
+class ScalaPsiBuilderImpl(
+  delegate:              PsiBuilder,
+  override val isScala3: Boolean,
+  presetFeatures:        Option[ScalaFeatures] = None
+) extends PsiBuilderAdapter(delegate)
+    with ScalaPsiBuilder {
 
   import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
   import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
@@ -29,12 +34,12 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
   override def skipExternalToken(): Boolean = false
 
   override final lazy val isMetaEnabled: Boolean =
-    containingFile.exists(_.isMetaEnabled)
+    isUnitTestMode || features.hasMetaEnabled
 
   override final lazy val isStrictMode: Boolean =
     containingFile.exists(_.isCompilerStrictMode)
 
-  override final lazy val features: ScalaFeatures = {
+  override final lazy val features: ScalaFeatures = presetFeatures.getOrElse {
     def featuresByVersion(features: ScalaFeatures): ScalaFeatures =
       features.copy(if (isScala3) ScalaVersion.Latest.Scala_3_0 else ScalaVersion.Latest.Scala_2_13)
 
@@ -60,22 +65,17 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
     }
   }
 
-  override final lazy val underscoreWildcardsDisabled: Boolean =
-    containingFile.exists(_.underscoreWidlcardsDisabled)
+  override final lazy val underscoreWildcardsDisabled: Boolean = features.hasUnderscoreWildcardsDisabled
 
-  private lazy val _isTrailingCommasEnabled =
-    containingFile.exists(_.isTrailingCommasEnabled)
-
-  private lazy val _isIdBindingEnabled =
-    containingFile.exists(_.isIdBindingEnabled)
+  final lazy val scalaLanguageLevel: Option[ScalaLanguageLevel] = Option(features.languageLevel)
 
   override final def isTrailingComma: Boolean = getTokenType match {
-    case `tCOMMA` => _isTrailingCommasEnabled
-    case _ => false
+    case `tCOMMA` => features.hasTrailingCommasEnabled
+    case _        => false
   }
 
   override final def isIdBinding: Boolean =
-    this.invalidVarId || _isIdBindingEnabled
+    this.invalidVarId || scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_12)
 
   override def newlineBeforeCurrentToken: Boolean =
     findPreviousNewLineSafe.isDefined
@@ -87,13 +87,11 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
       }
     }
 
-  override final def disableNewlines(): Unit = {
+  override final def disableNewlines(): Unit =
     newlinesEnabled = false :: newlinesEnabled
-  }
 
-  override final def enableNewlines(): Unit = {
+  override final def enableNewlines(): Unit =
     newlinesEnabled = true :: newlinesEnabled
-  }
 
   override final def enterBracedRegion(): Unit =
     inBracedRegion += 1
@@ -105,9 +103,8 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
 
   override final def isInsideBracedRegion: Boolean = inBracedRegion > 0
 
-  override final def enterQuotedPattern(): Unit = {
+  override final def enterQuotedPattern(): Unit =
     inQuotedPattern += 1
-  }
 
   override final def exitQuotedPattern(): Unit = {
     assert(inQuotedPattern > 0)

@@ -76,7 +76,7 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     val oldCaretWasOnElse = isCaretOnElse(thenExpression, elseExpression, caretModel.getOffset)
 
     IntentionPreviewUtils.write { () =>
-      val newIfStmtDummy = createExpressionFromText(newIfElseText)(element.getManager)
+      val newIfStmtDummy = createExpressionFromText(newIfElseText, element)(element.getManager)
       val newIfStmt = ifStmt.replaceExpression(newIfStmtDummy, removeParenthesis = true)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
 

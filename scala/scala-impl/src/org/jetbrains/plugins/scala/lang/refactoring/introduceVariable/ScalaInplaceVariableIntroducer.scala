@@ -194,7 +194,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
         case declaration@(_: ScDeclaredElementsHolder | _: ScForBinding) =>
           implicit val tpc: TypePresentationContext = TypePresentationContext(declaration)
           val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
-          val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
+          val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", declaration)
 
           val first  = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON).get
           val last   = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN).get
@@ -216,8 +216,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
           val colon  = holder.findFirstChildByType(ScalaTokenTypes.tCOLON).get
           val assign = holder.findFirstChildByType(ScalaTokenTypes.tASSIGN).get
           implicit val manager: PsiManager = myFile.getManager
-          val whiteSpace    = createExpressionFromText("1 + 1").findElementAt(1)
-          val newWhiteSpace = holder.addBefore(whiteSpace, assign)
+          val newWhiteSpace = holder.addBefore(createWhitespace, assign)
           holder.getNode.removeRange(colon.getNode, newWhiteSpace.getNode)
           setDeclaration(holder)
           commitDocument()

@@ -69,7 +69,7 @@ final class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
       append(innerThenBranch.getText)
 
     IntentionPreviewUtils.write { () =>
-      ifStmt.replaceExpression(createExpressionFromText(expr.toString())(element.getManager), removeParenthesis = true)
+      ifStmt.replaceExpression(createExpressionFromText(expr.toString(), element)(element.getManager), removeParenthesis = true)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }

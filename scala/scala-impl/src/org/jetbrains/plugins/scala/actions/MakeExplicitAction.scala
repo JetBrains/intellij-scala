@@ -9,13 +9,13 @@ import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, PopupChooserBuild
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{NavigatablePsiElement, PsiDocumentManager, PsiElement, PsiNamedElement}
 import com.intellij.ui.awt.RelativePoint
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 import java.awt.Point
 import javax.swing.JList
@@ -164,7 +164,8 @@ object MakeExplicitAction {
                               (onExpression: PartialFunction[(ScExpression, PsiElement), Unit])
                               (implicit project: Project, editor: Editor): Unit = {
     def doReplace(): Unit = {
-      val replacement = createExpressionFromText(replacementText)
+      val replacement = createExpressionFromText(replacementText, expression)
+
       IntentionPreviewUtils.write { () =>
         val methodCall = expression.replace(replacement).asInstanceOf[ScMethodCall]
         for {

@@ -37,7 +37,7 @@ private class DeleteUnusedElementFix(e: ScNamedElement, override val getText: St
   }
 
   private def removeInWriteAction(startElement: PsiElement, project: Project): Unit = inWriteAction {
-    def wildcard = createWildcardNode(project).getPsi
+    def wildcard = createWildcardNode(startElement)(project).getPsi
     startElement match {
       case ref: ScReferencePattern => ref.getContext match {
         case pList: ScPatternList if pList.patterns == Seq(ref) =>

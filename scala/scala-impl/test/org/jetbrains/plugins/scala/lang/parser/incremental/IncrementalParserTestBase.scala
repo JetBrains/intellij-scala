@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.base.{EditorActionTestBase, SharedTestProject
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.jetbrains.plugins.scala.util.extensions.ComparisonFailureOps
@@ -43,8 +44,9 @@ abstract class IncrementalParserTestBase extends EditorActionTestBase with Asser
 
     val codeAfter = code.patch(range.getStartOffset, replaceWith, range.getLength)
 
-    val expectedPsiText = psiToString(ScalaPsiElementFactory.createScalaFileFromText(codeAfter), true)
-      .replace("dummy.scala", "test.scala")
+    val expectedPsiText =
+      psiToString(ScalaPsiElementFactory.createScalaFileFromText(codeAfter, ScalaFeatures.onlyByVersion(version)), true)
+        .replace("dummy.scala", "test.scala")
     val actualPsiText = psiToString(getFile, true)
 
     try actualPsiText shouldBe expectedPsiText catch {

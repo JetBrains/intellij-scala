@@ -58,10 +58,10 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
         val generatedMethods = for (member <- candidates) yield {
           val ScMethodMember(signature, isOverride) = member
           val prototype: ScFunctionDefinition =
-            createMethodFromSignature(signature, body = "???")(aClass.getManager).asInstanceOf[ScFunctionDefinition]
+            createMethodFromSignature(signature, body = "???", aClass)(aClass.getManager).asInstanceOf[ScFunctionDefinition]
           TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype, ScalaGenerationInfo.typeAnnotationsPolicy)
           prototype.setModifierProperty("override", value = isOverride)
-          val body = methodBody(target, prototype)
+          val body = methodBody(target, prototype, target.getPsiElement)
           prototype.body.foreach(_.replace(body))
           val genInfo = new ScalaGenerationInfo(member)
           val added = aClass.addMember(prototype, Option(genInfo.findInsertionAnchor(aClass, elementAtOffset)))
@@ -85,7 +85,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     }(project)
   }
 
-  private def methodBody(delegate: ClassMember, prototype: ScFunction): ScExpression = {
+  private def methodBody(delegate: ClassMember, prototype: ScFunction, context: PsiElement): ScExpression = {
     def typeParameterUsedIn(parameter: ScTypeParam, elements: Seq[PsiElement]) = {
       elements.exists(elem =>
         !ReferencesSearch
@@ -108,7 +108,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       paramClause.parameters.map(_.name).mkString("(", ", ", ")")
     }
     val params = prototype.effectiveParameterClauses.map(paramClauseApplicationText).mkString
-    createExpressionFromText(s"$dText.$methodName$typeParamsForCall$params")(prototype.getManager)
+    createExpressionFromText(s"$dText.$methodName$typeParamsForCall$params", context)(prototype.getManager)
   }
 
 

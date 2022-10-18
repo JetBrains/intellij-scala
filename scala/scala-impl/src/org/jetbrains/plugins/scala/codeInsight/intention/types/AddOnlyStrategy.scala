@@ -92,7 +92,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
   def addTypeAnnotation(tyOpt: Option[ScType], context: PsiElement, anchor: PsiElement): Unit = {
     val ty = tyOpt.getOrElse(StdTypes.instance(context).Any)
-    addTypeAnnotation(Seq(TypeForAnnotation(ty)), context, anchor)
+    addTypeAnnotation(Seq(TypeForAnnotation(ty, anchor)), context, anchor)
   }
 
   def addTypeAnnotation(types: Seq[TypeForAnnotation], context: PsiElement, anchor: PsiElement): Unit = {
@@ -117,7 +117,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
         maybeExpression.foreach {
           case call@Implementation.EmptyCollectionFactoryCall(ref) =>
-            val replacement = createElementFromText(ref.getText)(ref.projectContext)
+            val replacement = createElementFromText(ref.getText, ref)(ref.projectContext)
             call.replace(replacement)
           case _ =>
         }
@@ -126,10 +126,10 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 }
 
 object AddOnlyStrategy {
-  case class TypeForAnnotation(ty: ScType, addSuperTypes: Boolean = true) {
+  case class TypeForAnnotation(ty: ScType, ctx: PsiElement, addSuperTypes: Boolean = true) {
     def typeWithSuperTypes: Seq[ScTypeElement] =
-      if (addSuperTypes) AddOnlyStrategy.annotationsFor(ty)
-      else Seq(createTypeElementFromText(ty.canonicalCodeText)(ty.projectContext))
+      if (addSuperTypes) AddOnlyStrategy.annotationsFor(ty, ctx)
+      else Seq(createTypeElementFromText(ty.canonicalCodeText, ctx)(ctx))
   }
 
   case class TypeAnnotationWithVariants(annotation: ScTypeElement, validVariants: Seq[ScTypeText])
@@ -193,7 +193,7 @@ object AddOnlyStrategy {
         case _ =>
           None
       }
-      computedType.map(TypeForAnnotation(_))
+      computedType.map(TypeForAnnotation(_, element))
     }
 
     val typeFromSuper = superSignatures(element)
@@ -201,7 +201,7 @@ object AddOnlyStrategy {
       .map(signatureType)
       .find(_.nonEmpty)
       .flatten
-      .map(TypeForAnnotation(_, addSuperTypes = false))
+      .map(TypeForAnnotation(_, element, addSuperTypes = false))
 
     typeFromSuper.toSeq ++ computedType match {
       case Seq(st, t) if t.ty.isNothing || t.ty.isAny =>
@@ -213,7 +213,7 @@ object AddOnlyStrategy {
         Seq(st)
       case Seq() =>
         implicit val projectContext: ProjectContext = element.getProject
-        Seq(TypeForAnnotation(StdTypes.instance.Any))
+        Seq(TypeForAnnotation(StdTypes.instance.Any, element))
       case oneOrBoth => oneOrBoth
     }
   }
@@ -227,12 +227,18 @@ object AddOnlyStrategy {
           case Parent(Parent(Parent(_: ScBlockExpr))) => p
           // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
           case clause: ScParameterClause if clause.parameters.length == 1 =>
-            clause.replace(createClauseForFunctionExprFromText(p.getText.parenthesize()))
+            clause.replace(createClauseForFunctionExprFromText(p.getText.parenthesize(), clause))
               .asInstanceOf[ScParameterClause].parameters.head
           case _ => p
         }
 
-        parameter.nameId.appendSiblings(createColon, createWhitespace, createParameterTypeFromText(annotation.getText)).last
+        parameter
+          .nameId
+          .appendSiblings(
+            createColon,
+            createWhitespace,
+            createParameterTypeFromText(annotation.getText, parameter)
+          ).last
 
       case underscore: ScUnderscoreSection =>
         val needsParentheses = underscore.getParent match {
@@ -240,7 +246,7 @@ object AddOnlyStrategy {
           case _: ScArgumentExprList => false
           case _ => true
         }
-        val e = createScalaFileFromText(s"(_: ${annotation.getText})").getFirstChild.asInstanceOf[ScParenthesisedExpr]
+        val e = createScalaFileFromText(s"(_: ${annotation.getText})", underscore).getFirstChild.asInstanceOf[ScParenthesisedExpr]
         underscore.replace(if (needsParentheses) e else e.innerElement.get)
 
       case _ =>
@@ -248,9 +254,9 @@ object AddOnlyStrategy {
     }
   }
 
-  def annotationsFor(`type`: ScType): Seq[ScTypeElement] =
+  def annotationsFor(`type`: ScType, ctx: PsiElement): Seq[ScTypeElement] =
     canonicalTypes(`type`)
-      .map(createTypeElementFromText(_)(`type`.projectContext))
+      .map(createTypeElementFromText(_, ctx)(ctx))
 
   private[this] def canonicalTypes(tpe: ScType): Seq[String] = {
     import BaseTypes.get

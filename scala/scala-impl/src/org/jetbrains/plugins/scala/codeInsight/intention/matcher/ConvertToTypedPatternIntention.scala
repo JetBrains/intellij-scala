@@ -25,7 +25,7 @@ class ConvertToTypedPatternIntention extends PsiElementBaseIntentionAction {
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
       case Parent((_: ScStableCodeReference) && Parent(_: ScConstructorPattern)) => true
-        
+
       case _ => false
     }
   }
@@ -50,6 +50,6 @@ class ConvertToTypedPatternIntention extends PsiElementBaseIntentionAction {
       case _ => "value"
     }
     val typeText = constrPattern.`type`().toOption.fold(codeRef.getText)(_.presentableText(element))
-    constrPattern.replace(createPatternFromText(s"$name: $typeText")(codeRef.getManager))
+    constrPattern.replace(createPatternFromText(s"$name: $typeText", element)(codeRef.getManager))
   }
 }

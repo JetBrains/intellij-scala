@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithUnaryNotSurrounder
@@ -19,7 +20,7 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
   override def getNegatedExpression(element: PsiElement): ScExpression = NotSurrounder(element)
 
   override def createExpression(context: PsiElement, prefix: String, suffix: String): PsiElement =
-    createExpressionFromText(prefix + context.getText + suffix, context)
+    createExpressionWithContextFromText(prefix + context.getText + suffix, context)
 
   private object NotSurrounder extends ScalaWithUnaryNotSurrounder {
 
@@ -32,7 +33,7 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
       simplify(super.surroundPsi(elements), isTopLevel = false) match {
         case parenthesized: ScParenthesisedExpr if parenthesized.isParenthesisRedundant =>
           implicit val context: ProjectContext = parenthesized
-          createExpressionFromText(parenthesized.getTextOfStripped())
+          createExpressionFromText(parenthesized.getTextOfStripped(), element)
         case expression => expression
       }
     }

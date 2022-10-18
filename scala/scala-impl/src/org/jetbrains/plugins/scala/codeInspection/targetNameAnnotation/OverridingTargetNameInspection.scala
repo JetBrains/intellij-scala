@@ -137,7 +137,7 @@ class OverridingWithDifferentTargetNameInspection extends OverridingTargetNameIn
       superExtName <- targetNameAnnotationExternalName(superElement)
     } yield new AbstractFixOnPsiElement(ScalaInspectionBundle.message("fix.targetname.annotation"), listOwner) {
       override protected def doApplyFix(element: ScModifierListOwner)(implicit project: Project): Unit = {
-        val newAnnotationParam = ScalaPsiElementFactory.createExpressionFromText(s""""$superExtName"""")
+        val newAnnotationParam = ScalaPsiElementFactory.createExpressionFromText(s""""$superExtName"""", element)
         firstAnnotationParam.replace(newAnnotationParam)
       }
     }

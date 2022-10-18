@@ -288,7 +288,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
     val modifierList = member.getModifierList
     if (modifierList == null || modifierList.hasModifierProperty(PsiModifier.PRIVATE)) return Some(conflicts)
     val newModifierList = ScalaPsiElementFactory
-      .createScalaFileFromText(s"$modifier class a").typeDefinitions.head.getModifierList
+      .createScalaFileFromText(s"$modifier class a", member).typeDefinitions.head.getModifierList
     val useScope = member.getUseScope
 
     def getElementsToSearch(member: ScMember): Seq[PsiElement] = member match {

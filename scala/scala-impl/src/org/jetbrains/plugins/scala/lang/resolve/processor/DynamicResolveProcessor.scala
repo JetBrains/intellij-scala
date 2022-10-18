@@ -68,7 +68,7 @@ object DynamicResolveProcessor {
         }
     }
 
-    val emptyStringExpression = createExpressionFromText("\"\"")(qualifier.projectContext)
+    val emptyStringExpression = createExpressionFromText("\"\"", ref)(qualifier.projectContext)
 
     fromProcessor match {
       case processor: MethodResolveProcessor =>

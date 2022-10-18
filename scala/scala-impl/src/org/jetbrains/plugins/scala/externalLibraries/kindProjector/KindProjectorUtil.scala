@@ -43,7 +43,7 @@ class KindProjectorUtil(project: Project) {
     // used in value-level lambdas
     val syntheticObjects =
       Seq(Lambda, LambdaSymbolic)
-        .map(createPolyLambdaSyntheticObject)
+        .map(createPolyLambdaSyntheticObject(_, place))
 
     syntheticClasses ++ syntheticObjects
   }
@@ -101,7 +101,7 @@ object KindProjectorUtil {
    * Apply method return type is computed in an ad-hoc manner in [[org.jetbrains.plugins.scala.lang.psi.impl.expr.ScGenericCallImpl]]
    * See usages of [[PolymorphicLambda]] extractor.
    */
-  private def createPolyLambdaSyntheticObject(objectName: String)(implicit cxt: ProjectContext) = {
+  private def createPolyLambdaSyntheticObject(objectName: String, ctx: PsiElement) = {
     val text =
       s"""
          |object $objectName {
@@ -109,7 +109,7 @@ object KindProjectorUtil {
          |}
        """.stripMargin
 
-    ScalaPsiElementFactory.createElement(text)(TmplDef()(_))
+    ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)(ctx).getFirstChild
   }
 
   /**

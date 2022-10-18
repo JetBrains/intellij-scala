@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText, createReferenceExpressionFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -92,7 +93,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         case (qual, true) =>
           createExpressionWithContextFromText(qual, getContext, this).asInstanceOf[ScReferenceExpression]
         case (qual, false) =>
-          createExpressionFromText(qual).asInstanceOf[ScReferenceExpression]
+          createReferenceExpressionFromText(qual)
       })(simpleImport)
     }
 
@@ -116,7 +117,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             ScImportsHolder(this).addImportForClass(c, ref = this)
             //need to use unqualified reference with new import
             if (!this.isQualified) this
-            else this.replace(createExpressionFromText(this.refName).asInstanceOf[ScReferenceExpression])
+            else this.replace(createReferenceExpressionFromText(this.refName))
             //todo: conflicts with other classes with same name?
           }
         }

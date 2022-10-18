@@ -166,7 +166,7 @@ object ScalaRefactoringUtil {
     val (rangeText, startOffset, endOffset) = trimRangeText(file.charSequence, start, end)
 
     def selectedInfixExpr(): Option[(ScExpression, ArraySeq[ScType])] = {
-      val expr = createOptionExpressionFromText(rangeText)(file.getManager)
+      val expr = createOptionExpressionFromText(rangeText, file)(file.getManager)
       expr match {
         case Some(expression: ScInfixExpr) =>
           val op1 = expression.operation
@@ -253,7 +253,7 @@ object ScalaRefactoringUtil {
 
   def expressionToIntroduce(expr: ScExpression): ScExpression = {
     def copyExpr = expr.copy.asInstanceOf[ScExpression]
-    def liftMethod = createExpressionFromText(expr.getText + " _")(expr.getManager)
+    def liftMethod = createExpressionFromText(expr.getText + " _", expr)(expr.getManager)
     expr match {
       case ref: ScReferenceExpression =>
         ref.resolve() match {
@@ -1085,7 +1085,7 @@ object ScalaRefactoringUtil {
           case ScPostfixExpr(_, `ref`) =>
           case ScPrefixExpr(`ref`, _) =>
           case _ =>
-            val newRef = createExpressionFromText(ref.getText, position).asInstanceOf[ScReferenceExpression]
+            val newRef = createExpressionWithContextFromText(ref.getText, position).asInstanceOf[ScReferenceExpression]
             result &= ref.resolve() == newRef.resolve()
         }
         super.visitReferenceExpression(ref)

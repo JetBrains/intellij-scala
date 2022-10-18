@@ -360,7 +360,7 @@ object IntroduceExpressions {
 
     def createVariableDefinition(): PsiElement = {
       if (fastDefinition) {
-        val declaration = createDeclaration(varName, typeTextIfNeeded(firstElement), isVariable, expression)
+        val declaration = createDeclaration(varName, typeTextIfNeeded(firstElement), isVariable, expression, expression)
         replaceRangeByDeclaration(declaration.getText, firstRange)(declaration.getProject, editor)
 
         val start = firstRange.getStartOffset
@@ -384,7 +384,7 @@ object IntroduceExpressions {
             val needBraces = !commonParent.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(commonParent, nextParentInFile)
             if (needBraces) {
               firstRange = firstRange.shiftRight(1)
-              val replaced = commonParent.replace(createExpressionFromText("{" + commonParent.getText + "}"))
+              val replaced = commonParent.replace(createExpressionFromText("{" + commonParent.getText + "}", expression))
               replaced.getPrevSibling match {
                 case ws: PsiWhiteSpace if ws.getText.contains("\n") =>
                   firstRange = firstRange.shiftLeft(ws.getTextLength)
@@ -398,7 +398,7 @@ object IntroduceExpressions {
         }
         val anchor = parent.getChildren.find(_.getTextRange.contains(firstRange)).getOrElse(parent.getLastChild)
         if (anchor != null) {
-          val created = createDeclaration(varName, typeTextIfNeeded(anchor), isVariable, expression)
+          val created = createDeclaration(varName, typeTextIfNeeded(anchor), isVariable, expression, expression)
           val result = ScalaPsiUtil.addStatementBefore(created.asInstanceOf[ScBlockStatement], parent, Some(anchor))
           CodeEditUtil.markToReformat(parent.getNode, needFormatting)
           result

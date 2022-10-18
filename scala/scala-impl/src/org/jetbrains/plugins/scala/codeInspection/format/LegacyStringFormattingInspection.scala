@@ -29,7 +29,7 @@ object LegacyStringFormattingInspection {
   private class FormattingQuickFix(e: PsiElement) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("convert.to.interpolated.string"), e) {
     override protected def doApplyFix(elem: PsiElement)(implicit project: Project): Unit = {
       AnyStringParser.parse(elem).foreach { parts =>
-        val expression = createExpressionFromText(InterpolatedStringFormatter.format(parts))
+        val expression = createExpressionFromText(InterpolatedStringFormatter.format(parts), e)
         elem.replace(expression)
       }
     }

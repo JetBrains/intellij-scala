@@ -136,6 +136,9 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
       hasOldSyntaxFlag = hasOldSyntaxFlag,
       hasDeprecationFlag = hasDeprecationFlag,
       hasSourceFutureFlag = hasSourceFutureFlag,
+      hasMetaEnabled = isMetaEnabled,
+      hasTrailingCommasEnabled = isTrailingCommasEnabled,
+      hasUnderscoreWildcardsDisabled = kindProjectorUnderscorePlaceholdersEnabled || YKindProjectorUnderscoresOptionEnabled,
     )
 }
 

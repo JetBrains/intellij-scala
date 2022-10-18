@@ -490,7 +490,7 @@ object SbtDependencyUtils {
       case settings: ScMethodCall =>
         settings.getEffectiveInvokedExpr match {
           case expr: ScReferenceExpression if expr.refName == SETTINGS =>
-            Option(addDependencyToSettings(settings, info)(project))
+            Option(addDependencyToSettings(settings, info))
           case _ => None
         }
       case file: PsiFile =>
@@ -514,12 +514,12 @@ object SbtDependencyUtils {
     infix.operation.refName match {
       case "+=" =>
         val dependency: ScExpression = infix.right
-        val seqCall: ScMethodCall = generateSeqPsiMethodCall
+        val seqCall: ScMethodCall = generateSeqPsiMethodCall(infix)
 
         doInSbtWriteCommandAction({
           seqCall.args.addExpr(dependency.copy().asInstanceOf[ScExpression])
-          seqCall.args.addExpr(generateArtifactPsiExpression(info)(project))
-          infix.operation.replace(ScalaPsiElementFactory.createElementFromText("++=")(project))
+          seqCall.args.addExpr(generateArtifactPsiExpression(info, infix))
+          infix.operation.replace(ScalaPsiElementFactory.createElementFromText("++=", infix)(project))
           dependency.replace(seqCall)
         }, psiFile)
 
@@ -529,13 +529,18 @@ object SbtDependencyUtils {
         val dependencies: ScExpression = infix.right
         dependencies match {
           case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) =>
-            val addedExpr = generateArtifactPsiExpression(info)(project)
+            val addedExpr = generateArtifactPsiExpression(info, call)
             doInSbtWriteCommandAction(call.args.addExpr(addedExpr), psiFile)
             Option(addedExpr)
           case subInfix: ScInfixExpr if subInfix.operation.refName == "++" =>
-            doInSbtWriteCommandAction({
-              subInfix.replace(ScalaPsiElementFactory.createExpressionFromText(s"${subInfix.getText} ++ Seq(${generateArtifactText(info)})")(project))
-            }, psiFile)
+            doInSbtWriteCommandAction(
+              subInfix.replace(
+                ScalaPsiElementFactory.createExpressionFromText(
+                  s"${subInfix.getText} ++ Seq(${generateArtifactText(info)})",
+                  infix
+                )(project)),
+              psiFile
+            )
             Option(infix.right)
           case _ => None
         }
@@ -545,16 +550,18 @@ object SbtDependencyUtils {
   }
 
   def addDependencyToSeq(seqCall: ScMethodCall, info: SbtArtifactInfo)(implicit project: Project): Option[PsiElement] = {
-    val addedExpr = if (!seqCall.`type`().getOrAny.canonicalText.contains(SBT_SETTING_TYPE))
-      generateArtifactPsiExpression(info) else generateLibraryDependency(info)
+    val addedExpr =
+      if (!seqCall.`type`().getOrAny.canonicalText.contains(SBT_SETTING_TYPE))
+        generateArtifactPsiExpression(info, seqCall)
+      else generateLibraryDependency(info, seqCall)
     doInSbtWriteCommandAction(seqCall.args.addExpr(addedExpr), seqCall.getContainingFile)
     Some(addedExpr)
   }
 
-  def addDependencyToTypedSeq(typedSeq: ScTypedExpression, info: SbtArtifactInfo)(implicit project: Project): Option[PsiElement] =
+  def addDependencyToTypedSeq(typedSeq: ScTypedExpression, info: SbtArtifactInfo): Option[PsiElement] =
     typedSeq.expr match {
       case seqCall: ScMethodCall =>
-        val addedExpr = generateLibraryDependency(info)(project)
+        val addedExpr = generateLibraryDependency(info, typedSeq)
         doInSbtWriteCommandAction({
           seqCall.args.addExpr(addedExpr)
         }, seqCall.getContainingFile)
@@ -566,13 +573,13 @@ object SbtDependencyUtils {
     var addedExpr: PsiElement = null
     doInSbtWriteCommandAction({
       file.addAfter(generateNewLine(project), file.getLastChild)
-      addedExpr = file.addAfter(generateLibraryDependency(info), file.getLastChild)
+      addedExpr = file.addAfter(generateLibraryDependency(info, file), file.getLastChild)
     }, file)
     addedExpr
   }
 
-  def addDependencyToSettings(settings: ScMethodCall, info: SbtArtifactInfo)(implicit project: Project): PsiElement = {
-    val addedExpr = generateLibraryDependency(info)(project)
+  def addDependencyToSettings(settings: ScMethodCall, info: SbtArtifactInfo): PsiElement = {
+    val addedExpr = generateLibraryDependency(info, settings)
     doInSbtWriteCommandAction({
       settings.args.addExpr(addedExpr)
     }, settings.getContainingFile)
@@ -583,7 +590,7 @@ object SbtDependencyUtils {
     var addedExpr: PsiElement = null
     doInSbtWriteCommandAction({
       file.addAfter(generateNewLine(project), file.getLastChild)
-      addedExpr = file.addAfter(generateResolverPsiExpression(unifiedDependencyRepository), file.getLastChild)
+      addedExpr = file.addAfter(generateResolverPsiExpression(unifiedDependencyRepository, file), file.getLastChild)
     }, file)
     addedExpr
   }
@@ -599,16 +606,23 @@ object SbtDependencyUtils {
       .writeCommandAction(psiSbtFile)
       .compute(() => f)
 
-  private def generateSeqPsiMethodCall(implicit ctx: ProjectContext): ScMethodCall =
-    ScalaPsiElementFactory.createElementFromText(s"$SEQ()").asInstanceOf[ScMethodCall]
+  private def generateSeqPsiMethodCall(ctx: PsiElement): ScMethodCall =
+    ScalaPsiElementFactory.createElementFromText[ScMethodCall](s"$SEQ()", ctx)(ctx)
 
-  private def generateLibraryDependency(info: SbtArtifactInfo)(implicit ctx: ProjectContext): ScInfixExpr =
-    ScalaPsiElementFactory.createElementFromText(s"$LIBRARY_DEPENDENCIES += ${generateArtifactText(info)}").asInstanceOf[ScInfixExpr]
+  private def generateLibraryDependency(info: SbtArtifactInfo, ctx: PsiElement): ScInfixExpr =
+    ScalaPsiElementFactory.createElementFromText[ScInfixExpr](
+      s"$LIBRARY_DEPENDENCIES += ${generateArtifactText(info)}",
+      ctx
+    )(ctx)
 
-   def generateArtifactPsiExpression(info: SbtArtifactInfo)(implicit ctx: ProjectContext): ScExpression =
-    ScalaPsiElementFactory.createElementFromText(generateArtifactText(info))(ctx).asInstanceOf[ScExpression]
+   def generateArtifactPsiExpression(info: SbtArtifactInfo, ctx: PsiElement): ScExpression =
+    ScalaPsiElementFactory.createElementFromText[ScExpression](
+      generateArtifactText(info),
+      ctx
+    )(ctx)
 
-  private def generateNewLine(implicit ctx: ProjectContext): PsiElement = ScalaPsiElementFactory.createElementFromText("\n")
+  private def generateNewLine(implicit ctx: ProjectContext): PsiElement =
+    ScalaPsiElementFactory.createNewLine()
 
   def generateArtifactText(info: SbtArtifactInfo): String =
     generateArtifactTextVerbose(info.groupId, info.artifactId, info.version, info.configuration)
@@ -629,8 +643,8 @@ object SbtDependencyUtils {
   def generateResolverText(unifiedDependencyRepository: UnifiedDependencyRepository): String =
     s"""resolvers += Resolver.url("${unifiedDependencyRepository.getId}", url("${unifiedDependencyRepository.getUrl}"))"""
 
-  def generateResolverPsiExpression(unifiedDependencyRepository: UnifiedDependencyRepository)(implicit ctx: ProjectContext): ScExpression =
-    ScalaPsiElementFactory.createElementFromText(generateResolverText(unifiedDependencyRepository))(ctx).asInstanceOf[ScExpression]
+  def generateResolverPsiExpression(unifiedDependencyRepository: UnifiedDependencyRepository, ctx: PsiElement): ScExpression =
+    ScalaPsiElementFactory.createExpressionFromText(generateResolverText(unifiedDependencyRepository), ctx)(ctx)
 
   def getRelativePath(elem: PsiElement)(implicit project: ProjectContext): Option[String] = {
     for {

@@ -46,7 +46,7 @@ final class KindProjectorUseCorrectLambdaKeywordQuickFix(e: PsiElement, @SafeFie
 
   override protected def doApplyFix(elem: PsiElement)
                                    (implicit project: Project): Unit = {
-    elem.replace(createTypeElementFromText(replacement))
+    elem.replace(createTypeElementFromText(replacement, elem))
   }
 }
 

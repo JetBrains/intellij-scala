@@ -98,6 +98,6 @@ object AppliedTypeLambdaCanBeSimplifiedInspection {
     extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("simplify.type"), paramType) {
 
     override protected def doApplyFix(element: ScParameterizedTypeElement)(implicit project: Project): Unit =
-      element.replace(createTypeElementFromText(replacement))
+      element.replace(createTypeElementFromText(replacement, element))
   }
 }

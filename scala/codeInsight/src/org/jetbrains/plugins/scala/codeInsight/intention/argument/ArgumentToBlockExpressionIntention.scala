@@ -33,8 +33,8 @@ final class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAc
         val exp = list.exprs.head
         implicit val projectContext: ProjectContext = list.projectContext
         val block = exp match {
-          case funExpr: ScFunctionExpr => createAnonFunBlockFromFunExpr(funExpr)
-          case _ => createBlockFromExpr(exp)
+          case funExpr: ScFunctionExpr => createAnonFunBlockFromFunExpr(funExpr, element)
+          case _ => createBlockFromExpr(exp, element)
         }
         exp.replace(block)
         list.getFirstChild.delete()

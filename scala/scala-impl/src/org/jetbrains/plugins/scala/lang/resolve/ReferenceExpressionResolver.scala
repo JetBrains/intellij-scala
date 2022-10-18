@@ -386,7 +386,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         case _: CompletionProcessor =>
         case _ =>
           processor.execute(
-            createParameterFromText(refName + ": Any"),
+            createParameterFromText(refName + ": Any", ref),
             ScalaResolveState.withNamedParam
           )
       }

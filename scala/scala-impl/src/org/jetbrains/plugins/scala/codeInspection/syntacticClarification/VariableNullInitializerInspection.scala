@@ -44,13 +44,13 @@ private object VariableNullInitializerInspection {
 
   private class UseUnderscoreInitializerQuickFix(definition: ScVariableDefinition) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("use.underscore.initializer"), definition) {
     override protected def doApplyFix(element: ScVariableDefinition)(implicit project: Project): Unit =
-      element.expr.filter(isNull).foreach(_.replace(createExpressionFromText("_")))
+      element.expr.filter(isNull).foreach(_.replace(createExpressionFromText("_", element)))
   }
 
   private class UseOptionTypeQuickFix(definition: ScVariableDefinition) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("use.option.type"), definition) {
     override protected def doApplyFix(element: ScVariableDefinition)(implicit project: Project): Unit = {
-      element.expr.filter(isNull).foreach(_.replace(createExpressionFromText("None")))
-      element.typeElement.foreach(typeElement => typeElement.replace(createTypeElementFromText(s"Option[${typeElement.getText}]")))
+      element.expr.filter(isNull).foreach(_.replace(createExpressionFromText("None", element)))
+      element.typeElement.foreach(typeElement => typeElement.replace(createTypeElementFromText(s"Option[${typeElement.getText}]", definition)))
     }
   }
 }

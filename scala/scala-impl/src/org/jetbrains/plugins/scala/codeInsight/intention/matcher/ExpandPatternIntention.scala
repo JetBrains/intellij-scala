@@ -41,7 +41,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
         PsiDocumentManager.getInstance(project).commitAllDocuments()
         if (!FileModificationService.getInstance.prepareFileForWrite(element.getContainingFile)) return
         IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
-        val newPattern = createPatternFromText(newPatternText)(element.getManager)
+        val newPattern = createPatternFromText(newPatternText, element)(element.getManager)
         val replaced = origPattern.replace(newPattern)
         ScalaPsiUtil.adjustTypes(replaced)
       case None =>
@@ -52,7 +52,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
     val element = file.findElementAt(editor.getCaretModel.getOffset)
     findReferencePattern(element) match {
       case Some((origPattern, newPatternText)) =>
-        val newPattern = createPatternFromText(newPatternText)(element.getManager)
+        val newPattern = createPatternFromText(newPatternText, element)(element.getManager)
         val replaced = origPattern.replace(newPattern)
         ScalaPsiUtil.adjustTypes(replaced)
         IntentionPreviewInfo.DIFF

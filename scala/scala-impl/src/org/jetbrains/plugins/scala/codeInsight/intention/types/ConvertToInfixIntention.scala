@@ -35,7 +35,7 @@ class ConvertToInfixIntention extends PsiElementBaseIntentionAction {
       case _ => true
     }
     val newTypeText = Seq(targ1, paramTypeElement.typeElement, targ2).map(_.getText).mkString(" ").parenthesize(needParens)
-    val newTypeElement = createTypeElementFromText(newTypeText)(element.getManager)
+    val newTypeElement = createTypeElementFromText(newTypeText, element)(element)
     if (paramTypeElement.isValid) {
       val replaced = try {
         paramTypeElement.replace(newTypeElement)

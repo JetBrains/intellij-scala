@@ -63,8 +63,8 @@ object ScalaInsertHandler {
     import reference.projectContext
 
     val newReference = reference match {
-      case _: ScReferenceExpression => createExpressionFromText(text).asInstanceOf[ScReferenceExpression]
-      case _ => createReferenceFromText(text)
+      case _: ScReferenceExpression => createExpressionFromText(text, reference).asInstanceOf[ScReferenceExpression]
+      case _                        => createReferenceFromText(text)
     }
 
     val node = reference.getNode
@@ -186,7 +186,7 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
           case ref: ScReferenceExpression =>
             ref.getParent match {
               case parentRef: ScReferenceExpression =>
-                val newRef = createExpressionFromText(ref.getText)(ref)
+                val newRef = createExpressionFromText(ref.getText, ref)(ref)
                 Some(parentRef.replace(newRef).getFirstChild)
               case _ => None
             }

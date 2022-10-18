@@ -14,9 +14,9 @@ class AddTypeToReferencePattern extends AbstractTransformer {
     case (e: ScReferencePattern) && Parent(_: ScCaseClause | _: ScGenerator | _: ScPattern | _: ScPatternArgumentList) && Typeable(t)
       if !e.nextSibling.exists(_.textMatches(":")) =>
 
-      appendTypeAnnotation(t) { annotation =>
-        val typedPattern = createPatternFromText(e.getText + ": " + annotation.getText)
+      appendTypeAnnotation(t, e, { annotation =>
+        val typedPattern = createPatternFromText(e.getText + ": " + annotation.getText, e)
         e.replace(typedPattern).getLastChild.getFirstChild
-      }
+      })
   }
 }

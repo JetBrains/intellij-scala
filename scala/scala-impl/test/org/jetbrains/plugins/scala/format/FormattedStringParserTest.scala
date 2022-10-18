@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions._
 import org.junit.Assert.{assertEquals, fail}
 
@@ -248,7 +249,7 @@ class FormattedStringParserTest extends ScalaLightCodeInsightFixtureTestCase {
 
   private def parseFullOpt(stringWithFormatCall: String): Option[List[StringPart]] = {
     implicit val project: Project = this.getProject
-    val file = createScalaFileFromText(stringWithFormatCall)
+    val file = createScalaFileFromText(stringWithFormatCall, ScalaFeatures.onlyByVersion(version))
     val call = file.getFirstChild.asInstanceOf[ScMethodCall]
     FormattedStringParser.parse(call).map(_.toList)
   }

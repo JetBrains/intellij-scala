@@ -102,7 +102,7 @@ object StringToMultilineStringIntention {
     val prefix = interpolatorPrefix(literal)
     val content = InterpolatedStringFormatter.formatContent(parts, prefix, toMultiline = true)
     val newLiteralText = s"$prefix$Quotes$content$Quotes"
-    val newLiteral = createExpressionFromText(newLiteralText)
+    val newLiteral = createExpressionFromText(newLiteralText, literal)
     val replaced = literal.replace(newLiteral)
     addMargins(replaced, interpolatorLength = prefix.length, extraCaretOffset = 0)
   }
@@ -161,7 +161,7 @@ object StringToMultilineStringIntention {
     }
     val content = InterpolatedStringFormatter.formatContent(parts, prefix, toMultiline = false)
     val newLiteralText = s"$prefix$Quote$content$Quote"
-    val newLiteral = createExpressionFromText(newLiteralText)
+    val newLiteral = createExpressionFromText(newLiteralText, literal)
     elementToReplace.replace(newLiteral)
     fixCaretPosition(prefix.length)
   }

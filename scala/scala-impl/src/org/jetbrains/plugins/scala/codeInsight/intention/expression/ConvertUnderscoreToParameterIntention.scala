@@ -108,7 +108,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
         case _ =>
       }
 
-      val newParam = createParameterFromText(un)
+      val newParam = createParameterFromText(un, element)
       underscoreToParam.put(u, newParam)
     }
 
@@ -127,7 +127,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
     val diff = buf.length
     buf.append(expr.getText)
 
-    val newExpr = createExpressionFromText(buf.toString())
+    val newExpr = createExpressionFromText(buf.toString(), element)
 
     IntentionPreviewUtils.write { () =>
       val document = editor.getDocument

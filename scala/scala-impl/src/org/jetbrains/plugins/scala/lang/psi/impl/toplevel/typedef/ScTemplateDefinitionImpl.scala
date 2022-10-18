@@ -414,7 +414,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
           extendsBlockNode.addChild(whitespace)
         }
       }
-      val bodyElement = createBodyFromMember(member.getText, useIndentationBasedSyntax)
+      val bodyElement = createBodyFromMember(member.getText, extendsBlockNode.getPsi, useIndentationBasedSyntax)
       extendsBlockNode.addChild(bodyElement.getNode)
       members.head
     }

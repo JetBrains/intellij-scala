@@ -303,7 +303,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
         case stRef: ScStableCodeReference =>
           stRef.replace(createReferenceFromText(refText))
         case ref: ScReferenceExpression =>
-          ref.replace(createExpressionFromText(refText))
+          ref.replace(createExpressionFromText(refText, ref))
         case _ => null
       }
     }

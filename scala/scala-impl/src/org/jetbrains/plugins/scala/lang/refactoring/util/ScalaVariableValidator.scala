@@ -69,7 +69,7 @@ class ScalaVariableValidator(selectedElement: PsiElement, noOccurrences: Boolean
   }
 
   private def validateReference(context: PsiElement, name: String): Seq[(PsiNamedElement, String)] = {
-    ScalaPsiElementFactory.createExpressionFromText(name, context) match {
+    ScalaPsiElementFactory.createExpressionWithContextFromText(name, context) match {
       case ResolvesTo(elem@ScalaPsiUtil.inNameContext(nameCtx)) =>
         val message = nameCtx match {
           case _: ScClassParameter => messageForClassParameter(name)
