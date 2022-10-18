@@ -60,7 +60,7 @@ final class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     if (innerElseBranch != null) expr.append(if (newlineBeforeElse) "\n" else " ").append("else ").
       append(innerElseBranch.getText)
 
-    val newIfStmt: ScExpression = createExpressionFromText(expr.toString())(element.getManager)
+    val newIfStmt: ScExpression = createExpressionFromText(expr.toString(), element)(element.getManager)
 
     IntentionPreviewUtils.write { () =>
       ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)

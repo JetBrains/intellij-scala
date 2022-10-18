@@ -995,7 +995,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                     new NewValueClassInstanceEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText("scala.Array$UnapplySeqWrapper")), extractEval)
                   )
                 )
-              val indexExpr = createExpressionFromText("" + nextPatternIndex)(pattern.getManager)
+              val indexExpr = createExpressionFromText("" + nextPatternIndex, pattern)(pattern.getManager)
               val indexEval = evaluatorFor(indexExpr)
               ScalaMethodEvaluator(getEval, "apply", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(indexEval))
             } else throw EvaluationException(DebuggerBundle.message("pattern.doesnot.resolves.to.unapply", ref.refName))

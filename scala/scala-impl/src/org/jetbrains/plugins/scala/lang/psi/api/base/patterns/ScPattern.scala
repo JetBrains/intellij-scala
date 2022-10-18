@@ -204,11 +204,11 @@ object ScPattern {
                 .findChildrenByType(ScalaTokenTypes.tINTERPOLATED_STRING)
                 .map(_.getText)
               if (argIndex < parts.length && parts(argIndex).endsWith("..."))
-                ScalaPsiElementFactory.createTypeElementFromText("Seq[Seq[scala.reflect.api.Trees#Tree]]")
+                ScalaPsiElementFactory.createTypeElementFromText("Seq[Seq[scala.reflect.api.Trees#Tree]]", fun)
               if (argIndex < parts.length && parts(argIndex).endsWith(".."))
-                ScalaPsiElementFactory.createTypeElementFromText("Seq[scala.reflect.api.Trees#Tree]")
+                ScalaPsiElementFactory.createTypeElementFromText("Seq[scala.reflect.api.Trees#Tree]", fun)
               else
-                ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree")
+                ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree", fun)
           }
           tpe.`type`().toOption
         case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && QuasiquoteInferUtil.isMetaQQ(fun) =>
@@ -217,7 +217,7 @@ object ScPattern {
             val patterns = QuasiquoteInferUtil.getMetaQQPatternTypes(interpolationPattern)
             if (argIndex < patterns.size) {
               val clazz = patterns(argIndex)
-              val tpe = ScalaPsiElementFactory.createTypeElementFromText(clazz)
+              val tpe = ScalaPsiElementFactory.createTypeElementFromText(clazz, fun)
               tpe.`type`().toOption
             } else { None }
           } catch {

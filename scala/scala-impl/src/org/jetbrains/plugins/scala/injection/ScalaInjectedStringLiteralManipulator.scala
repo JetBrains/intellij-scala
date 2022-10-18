@@ -30,7 +30,7 @@ final class ScalaInjectedStringLiteralManipulator extends AbstractElementManipul
     else super.getRangeInElement(element)
 
   private def replaceWith(literal: ScLiteral, newText: String) =
-    (ScalaPsiElementFactory.createExpressionFromText(newText)(literal), literal) match {
+    (ScalaPsiElementFactory.createExpressionFromText(newText, literal)(literal), literal) match {
       case (newInterpolatedLiteral: ScInterpolatedStringLiteral, _: ScInterpolatedStringLiteral) =>
         literal.replace(newInterpolatedLiteral)
       case (newLiteral: ScLiteral, _) =>

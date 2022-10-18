@@ -74,7 +74,7 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
       .parenthesize(needParenthesis = elements.length == 1 && this.needParenthesis(element))
 
     implicit val context: ProjectContext = element.projectContext
-    ScalaPsiElementFactory.createExpressionFromText(text)
+    ScalaPsiElementFactory.createExpressionFromText(text, element)
   }
 
   def getTemplateAsString(elements: Array[PsiElement]): String =

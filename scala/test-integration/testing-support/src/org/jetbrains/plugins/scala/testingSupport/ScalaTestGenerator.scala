@@ -10,7 +10,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi._
 import com.intellij.refactoring.util.classMembers.MemberInfo
-import com.intellij.testIntegration.TestFramework
 import com.intellij.testIntegration.createTest.{CreateTestDialog, TestGenerator}
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
@@ -108,7 +107,7 @@ class ScalaTestGenerator extends TestGenerator {
     val extendsBlock = typeDefinition.extendsBlock
 
     def addExtendsRef(refName: String) = {
-      val (extendsToken, classParents) = createClassTemplateParents(refName)(typeDefinition.getManager)
+      val (extendsToken, classParents) = createClassTemplateParents(refName, typeDefinition)(typeDefinition.getManager)
       val extendsAdded = extendsBlock.addBefore(extendsToken, extendsBlock.getFirstChild)
       val res = extendsBlock.addAfter(classParents, extendsAdded)
       extendsBlock.addBefore(createWhitespace(extendsAdded.getProject), res)
@@ -198,11 +197,11 @@ object ScalaTestGenerator {
 
     withAnnotation("org.scalatest.BeforeAndAfterEach", typeDef, body) { closingBrace =>
       if (generateBefore) {
-        body.addBefore(createMethodFromText("override def beforeEach() {\n\n}"), closingBrace)
+        body.addBefore(createMethodFromText("override def beforeEach() {\n\n}", typeDef), closingBrace)
         body.addBefore(createNewLine(), closingBrace)
       }
       if (generateAfter) {
-        body.addBefore(createMethodFromText("override def afterEach() {\n\n}"), closingBrace)
+        body.addBefore(createMethodFromText("override def afterEach() {\n\n}", typeDef), closingBrace)
         body.addBefore(createNewLine(), closingBrace)
       }
     }
@@ -214,13 +213,13 @@ object ScalaTestGenerator {
 
     if (generateBefore) {
       withAnnotation("org.specs2.specification.BeforeEach", typeDef, body) { last =>
-        body.addBefore(createMethodFromText("override protected def before: Any = {\n\n}"), last)
+        body.addBefore(createMethodFromText("override protected def before: Any = {\n\n}", typeDef), last)
         body.addBefore(createNewLine(), last)
       }
     }
     if (generateAfter) {
       withAnnotation("org.specs2.specification.AfterEach", typeDef, body) { last =>
-        body.addBefore(createMethodFromText("override protected def after: Any = {\n\n}"), last)
+        body.addBefore(createMethodFromText("override protected def after: Any = {\n\n}", typeDef), last)
         body.addBefore(createNewLine(), last)
       }
     }
@@ -237,10 +236,10 @@ object ScalaTestGenerator {
     if (methods.nonEmpty) {
       val methodStrings = methods.map(m => s"$scenario (${m.nameQuoted}){\n\n}\n")
       val methodsConcat = methodStrings.mkString("\n")
-      val result = 
+      val result =
         s"""$feature("Methods tests") {
            |$methodsConcat}""".stripMargin
-      templateBody.addBefore(createExpressionFromText(result), templateBody.getLastChild)
+      templateBody.addBefore(createExpressionFromText(result, templateBody), templateBody.getLastChild)
       templateBody.addBefore(createNewLine(), templateBody.getLastChild)
     }
   }
@@ -250,10 +249,10 @@ object ScalaTestGenerator {
 
     if (methods.nonEmpty) {
       val closingBrace = templateBody.getLastChild
-      templateBody.addBefore(createExpressionFromText(s"behavior of ${className.quoted}"), closingBrace)
+      templateBody.addBefore(createExpressionFromText(s"behavior of ${className.quoted}", templateBody), closingBrace)
       templateBody.addBefore(createNewLine("\n\n"), closingBrace)
       val results = methods.map(m => s"it should ${m.nameQuoted} in {\n\n}")
-      results.map(createExpressionFromText).foreach(expr => {
+      results.map(createExpressionFromText(_, templateBody)).foreach(expr => {
         templateBody.addBefore(expr, closingBrace)
         templateBody.addBefore(createNewLine("\n\n"), closingBrace)
       })
@@ -266,10 +265,10 @@ object ScalaTestGenerator {
     if (methods.nonEmpty) {
       val methodStrings = methods.map(m => s"${m.nameQuoted} in {\n\n}\n")
       val methodsConcat = methodStrings.mkString("\n")
-      val result = 
+      val result =
         s""""Methods tests" - {
            |$methodsConcat}""".stripMargin
-      templateBody.addBefore(createExpressionFromText(result), templateBody.getLastChild)
+      templateBody.addBefore(createExpressionFromText(result, templateBody), templateBody.getLastChild)
       templateBody.addBefore(createNewLine(), templateBody.getLastChild)
     }
   }
@@ -281,7 +280,7 @@ object ScalaTestGenerator {
       val methodStrings = methods.map(m => s"it(${("should " + m.name).quoted}) {\n\n}\n")
       val methodsConcat  = methodStrings.mkString("\n")
       val result = s"describe(${className.quoted}) {\n$methodsConcat}"
-      templateBody.addBefore(createExpressionFromText(result), templateBody.getLastChild)
+      templateBody.addBefore(createExpressionFromText(result, templateBody), templateBody.getLastChild)
       templateBody.addBefore(createNewLine(), templateBody.getLastChild)
     }
   }
@@ -292,7 +291,7 @@ object ScalaTestGenerator {
     if (methods.nonEmpty) {
       val closingBrace = templateBody.getLastChild
       val results = methods.map(m => s"test(${("test" + m.name.capitalize).quoted}) {\n\n}")
-      results.map(createExpressionFromText).foreach(expr => {
+      results.map(createExpressionFromText(_, templateBody)).foreach(expr => {
         templateBody.addBefore(expr, closingBrace)
         templateBody.addBefore(createNewLine("\n\n"), closingBrace)
       })
@@ -305,7 +304,7 @@ object ScalaTestGenerator {
     if (methods.nonEmpty) {
       val closingBrace = templateBody.getLastChild
       val results = methods.map(m => s"property(${(m.name + " property").quoted}){\n\n}")
-      results.map(createExpressionFromText).foreach(expr => {
+      results.map(createExpressionFromText(_, templateBody)).foreach(expr => {
         templateBody.addBefore(expr, closingBrace)
         templateBody.addBefore(createNewLine("\n\n"), closingBrace)
       })
@@ -319,7 +318,7 @@ object ScalaTestGenerator {
       val methodsStrings = methods.map(m => s"${m.nameQuoted} in {\n\n}\n")
       val methodsConcat = methodsStrings.mkString("\n")
       val result = s"${className.quoted} should {\n$methodsConcat}"
-      templateBody.addBefore(createExpressionFromText(result), templateBody.getLastChild)
+      templateBody.addBefore(createExpressionFromText(result, templateBody), templateBody.getLastChild)
       templateBody.addBefore(createNewLine(), templateBody.getLastChild)
     }
   }
@@ -339,10 +338,10 @@ object ScalaTestGenerator {
       else ""
     val closingBrace = templateBody.getLastChild
     val qqq = MultilineStringUtil.MultilineQuotes
-    templateBody.addBefore(createMethodFromText(s"def is = s2$qqq$checkMethodsString\n$normalIndent$qqq"), closingBrace)
+    templateBody.addBefore(createMethodFromText(s"def is = s2$qqq$checkMethodsString\n$normalIndent$qqq", templateBody), closingBrace)
     templateBody.addBefore(createNewLine(), closingBrace)
     testNames.map { testName =>
-      templateBody.addBefore(createMethodFromText(s"def $testName = ok"), closingBrace)
+      templateBody.addBefore(createMethodFromText(s"def $testName = ok", templateBody), closingBrace)
       templateBody.addBefore(createNewLine(), closingBrace)
     }
   }
@@ -362,12 +361,12 @@ object ScalaTestGenerator {
         else ""
 
       val qqq = MultilineStringUtil.MultilineQuotes
-      templateBody.addBefore(createMethodFromText(s"def is = s2$qqq$checkMethodsString\n$doubleIndent$qqq"), closingBrace)
+      templateBody.addBefore(createMethodFromText(s"def is = s2$qqq$checkMethodsString\n$doubleIndent$qqq", templateBody), closingBrace)
       templateBody.addBefore(createNewLine(), closingBrace)
       if (methods.nonEmpty) {
         val testNamesConcat = testNames.map("eg := ok //" + _).mkString("\n")
         val result = s"${className.quoted} - new group {\n$testNamesConcat\n}"
-        templateBody.addBefore(createExpressionFromText(result), closingBrace)
+        templateBody.addBefore(createExpressionFromText(result, templateBody), closingBrace)
         templateBody.addBefore(createNewLine(), closingBrace)
       }
     }
@@ -380,7 +379,7 @@ object ScalaTestGenerator {
       val methodStrings = methods.map(m => s"${m.nameQuoted} in {\nok\n}\n")
       val methodsConcat = methodStrings.mkString("\n")
       val result = s"${className.quoted} should {\n$methodsConcat}"
-      templateBody.addBefore(createExpressionFromText(result), templateBody.getLastChild)
+      templateBody.addBefore(createExpressionFromText(result, templateBody), templateBody.getLastChild)
       templateBody.addBefore(createNewLine(), templateBody.getLastChild)
     }
   }
@@ -388,15 +387,15 @@ object ScalaTestGenerator {
   private def generateUTestMethods(methods: Seq[MemberInfo], templateBody: ScTemplateBody): Unit = {
     import templateBody.projectContext
     val normalIndent = FormatterUtil.getNormalIndentString(projectContext)
-    templateBody.addBefore(createElement("val tests = TestSuite{}")(Def.parse(_)), templateBody.getLastChild)
+    templateBody.addBefore(createElementWithContext("val tests = TestSuite{}", templateBody, null)(Def.parse(_)), templateBody.getLastChild)
     if (methods.nonEmpty) {
       val methodStrings = methods.map(m => s"$normalIndent${m.nameQuoted} - {}\n")
       val methodsConcat = methodStrings.mkString("\n")
       val result = s"val methodsTests = TestSuite{\n$methodsConcat}"
-      templateBody.addBefore(createElement(result)(Def.parse(_)), templateBody.getLastChild)
+      templateBody.addBefore(createElementWithContext(result, templateBody, null)(Def.parse(_)), templateBody.getLastChild)
     }
   }
-  
+
   private implicit class StringOps(private val str: String) extends AnyVal {
     def quoted: String = "\"" + str + "\""
   }

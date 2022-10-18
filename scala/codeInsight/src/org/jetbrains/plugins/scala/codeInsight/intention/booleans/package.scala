@@ -35,7 +35,7 @@ package object booleans {
 
     parent match {
       case prefix: ScPrefixExpr if prefix.operation.textMatches("!") =>
-        val newExpr = createExpressionFromText(text)
+        val newExpr = createExpressionFromText(text, infix)
 
         val size = newExpr match {
           case infix: ScInfixExpr => infix.operation.nameId.getTextRange.getStartOffset -
@@ -45,7 +45,7 @@ package object booleans {
 
         (parent.asInstanceOf[ScPrefixExpr], newExpr, size)
       case _ =>
-        val newExpr = createExpressionFromText("!(" + text + ")")
+        val newExpr = createExpressionFromText("!(" + text + ")", infix)
 
         val children = newExpr.asInstanceOf[ScPrefixExpr].getLastChild.asInstanceOf[ScParenthesisedExpr].getChildren
         val size = children(0) match {

@@ -32,7 +32,7 @@ object RenameSuperMembersUtil {
   private def renameAllMarker(element: PsiElement): ScObject = {
     val project = element.getProject
     project.getOrUpdateUserData(renameAllKey,
-      ScalaPsiElementFactory.createScalaFileFromText("object RenameAll")(project).typeDefinitions.head.asInstanceOf[ScObject]
+      ScalaPsiElementFactory.createScalaFileFromText("object RenameAll", element)(project).typeDefinitions.head.asInstanceOf[ScObject]
     )
   }
 

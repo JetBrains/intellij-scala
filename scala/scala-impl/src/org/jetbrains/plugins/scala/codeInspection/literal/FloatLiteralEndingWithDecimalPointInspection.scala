@@ -21,7 +21,7 @@ class MakeDoubleFix(lit: ScLiteral) extends AbstractFixOnPsiElement(ScalaInspect
 
   override protected def doApplyFix(l: ScLiteral)
                                    (implicit project: Project): Unit = {
-    l.replace(createExpressionFromText(l.getText.dropRight(1) + "d"))
+    l.replace(createExpressionFromText(l.getText.dropRight(1) + "d", l))
   }
 }
 
@@ -29,7 +29,7 @@ class MakeFloatFix(lit: ScLiteral) extends AbstractFixOnPsiElement(ScalaInspecti
 
   override protected def doApplyFix(l: ScLiteral)
                                    (implicit project: Project): Unit = {
-    l.replace(createExpressionFromText(l.getText.dropRight(1) + "f"))
+    l.replace(createExpressionFromText(l.getText.dropRight(1) + "f", l))
   }
 }
 
@@ -37,6 +37,6 @@ class AddZeroAfterDecimalPoint(lit: ScLiteral) extends AbstractFixOnPsiElement(S
 
   override protected def doApplyFix(l: ScLiteral)
                                    (implicit project: Project): Unit = {
-    l.replace(createExpressionFromText(l.getText + "0"))
+    l.replace(createExpressionFromText(l.getText + "0", l))
   }
 }

@@ -47,7 +47,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
     if (expr != null && expr.isValid) {
       buildReplacement(expr).foreach { case (replacementText, start) =>
         IntentionPreviewUtils.write { () =>
-          expr.replace(createExpressionFromText(replacementText)(element.getManager))
+          expr.replace(createExpressionFromText(replacementText, element)(element.getManager))
           editor.getCaretModel.moveToOffset(start)
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
         }

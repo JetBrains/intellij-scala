@@ -94,7 +94,7 @@ object SimplifyBooleanUtil {
       else {
         booleanConst(operand) match {
           case Some(bool: Boolean) =>
-            createExpressionFromText((!bool).toString)(expr.getManager)
+            createExpressionFromText((!bool).toString, expr)(expr.getManager)
           case None => expr
         }
       }
@@ -127,7 +127,7 @@ object SimplifyBooleanUtil {
       case _ => (value, operation) match {
         case (true, "==") | (false, "!=") | (false, "^") | (true, "&&") | (true, "&") | (false, "||") | (false, "|")  => expr.getText
         case (false, "==") | (true, "!=") | (true, "^") =>
-          val negated: ScPrefixExpr = createExpressionFromText("!a").asInstanceOf[ScPrefixExpr]
+          val negated: ScPrefixExpr = createExpressionFromText("!a", expr).asInstanceOf[ScPrefixExpr]
           val copyExpr = expr.copy.asInstanceOf[ScExpression]
           negated.operand.replaceExpression(copyExpr, removeParenthesis = true)
           negated.getText
@@ -138,6 +138,6 @@ object SimplifyBooleanUtil {
         case _ => throw new IllegalArgumentException("Wrong operation")
       }
     }
-    createExpressionFromText(text)
+    createExpressionFromText(text, expr)
   }
 }

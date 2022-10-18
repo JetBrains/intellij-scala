@@ -38,7 +38,7 @@ class Qualified(nameCondition: String => Boolean) extends InvocationTemplate(nam
           case _: ScReferenceExpression | _: ScMethodCall | _: ScGenericCall => s"${qual.getText}.apply"
           case _ => s"(${qual.getText}).apply"
         }
-        val ref = Try(ScalaPsiElementFactory.createExpressionFromText(text, call).asInstanceOf[ScReferenceExpression]).toOption
+        val ref = Try(ScalaPsiElementFactory.createExpressionWithContextFromText(text, call).asInstanceOf[ScReferenceExpression]).toOption
         if (ref.isDefined && refCondition(ref.get)) Some(qual, args)
         else None
       case MethodRepr(_, Some(MethodRepr(_, Some(qual), Some(ref), firstArgs)), None, secondArgs) if nameCondition(ref.refName) && refCondition(ref) =>

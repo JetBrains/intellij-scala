@@ -67,7 +67,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
     }
     def appendAsMethod(): Unit = {
       val expression: ScExpression = getTargetExpression(element)
-      val replacement = createExpressionFromText(s"${expression.getText}.$methodName")(expression.getManager)
+      val replacement = createExpressionFromText(s"${expression.getText}.$methodName", expression)(expression.getManager)
       CodeEditUtil.replaceChild(expression.getParent.getNode, expression.getNode, replacement.getNode)
     }
     IntentionPreviewUtils.write { () =>

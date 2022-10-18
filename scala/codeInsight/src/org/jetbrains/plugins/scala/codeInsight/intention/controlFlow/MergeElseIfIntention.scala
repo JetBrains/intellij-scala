@@ -58,7 +58,7 @@ final class MergeElseIfIntention extends PsiElementBaseIntentionAction {
     append(ifStmt.thenExpression.get.getText).append(if (newlineBeforeElse) "\n" else " ").append("else ").
     append(ifStmt.elseExpression.get.getText.trim.drop(1).dropRight(1))
 
-    val newIfStmt = createExpressionFromText(expr.toString())(element.getManager)
+    val newIfStmt = createExpressionFromText(expr.toString(), element)(element.getManager)
     val size = newIfStmt.asInstanceOf[ScIf].thenExpression.get.getTextRange.getEndOffset -
     newIfStmt.asInstanceOf[ScIf].getTextRange.getStartOffset
 

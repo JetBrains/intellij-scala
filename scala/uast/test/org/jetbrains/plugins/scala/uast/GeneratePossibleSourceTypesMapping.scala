@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.uast
 
 import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import junit.framework.TestResult
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions._
@@ -119,9 +120,9 @@ object GeneratePossibleSourceTypesMapping {
 
       override protected def getLanguage: Language = lang
 
-      override protected def runTest(testName0: String, content: String, project: Project): Unit = withPossibleSourceTypesCheck {
+      override protected def runTest(testName0: String, content: String, fixture: CodeInsightTestFixture): Unit = withPossibleSourceTypesCheck {
         println(s"Gathering from $testName0")
-        val file = createLightFile(content, project)
+        val file = createLightFile(content, fixture.getProject)
 
         val plugin = new ScalaUastLanguagePlugin
         for (element <- file.depthFirst()) {

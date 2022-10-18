@@ -31,7 +31,7 @@ class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd with
 
   // Enable Rename and Find Usages, but don't highlight the reference as usage, SCL-19675
   override def resolve(): PsiElement = if (!tag.isIdentifier) null else {
-    val target = ScalaPsiElementFactory.createScalaFileFromText(s"class ${Name}")(this).typeDefinitions.head
+    val target = ScalaPsiElementFactory.createScalaFileFromText(s"class $Name", this)(this).typeDefinitions.head
     target.context = this
     target
   }

@@ -12,7 +12,7 @@ class OperationOnCollectionQuickFix(@Nls hint: String,
 
   override protected def doApplyFix(expression: ScExpression)
                                    (implicit project: Project): Unit = {
-    val replacement = createExpressionFromText(replacementText)
+    val replacement = createExpressionFromText(replacementText, expression)
     expression.replaceExpression(replacement, removeParenthesis = true)
   }
 }

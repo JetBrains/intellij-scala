@@ -33,8 +33,9 @@ import scala.collection.mutable.ArrayBuffer
 
 object ScalaExtractMethodUtils {
   def createMethodFromSettings(settings: ScalaExtractMethodSettings): ScFunction = {
-    val accessMod = settings.visibility
+    val accessMod  = settings.visibility
     val methodName = settings.methodName
+    val target     = settings.elements(0)
 
     val typeParamsText = typeParametersText(settings)
 
@@ -46,7 +47,7 @@ object ScalaExtractMethodUtils {
     val parameters = settings.parameters.filter(_.passAsParameter).map(paramText)
     val paramsText = if (parameters.nonEmpty || settings.calcReturnTypeIsUnit) parameters.mkString("(", ", ", ")") else ""
 
-    val project = settings.elements(0).getProject
+    val project = target.getProject
     val codeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
 
     val retType = {
@@ -60,7 +61,7 @@ object ScalaExtractMethodUtils {
       val appendEqualSign = appendType || // if we append type, we cannot use procedure syntax
         !settings.calcReturnTypeIsUnit ||
         codeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT ||
-        settings.elements(0).isInScala3File // since 3.0 procedure syntax is not supported
+        target.isInScala3File // since 3.0 procedure syntax is not supported
 
       if (appendType) typeBuilder.append(": ").append(settings.calcReturnTypeText)
       if (appendEqualSign) typeBuilder.append(" = ")
@@ -119,7 +120,7 @@ object ScalaExtractMethodUtils {
     val firstPart = s"${accessMod}def $methodName$typeParamsText$paramsText$retType {\n$notPassedParamsText"
     val offset = firstPart.length
     val secondPart = s"$elementsText$returnText\n}"
-    val method = createMethodFromText(firstPart + secondPart)(settings.elements.apply(0).getManager)
+    val method = createMethodFromText(firstPart + secondPart, target)(target)
 
     if (!settings.lastReturn) {
       val returnVisitor = new ScalaRecursiveElementVisitor {
@@ -139,7 +140,7 @@ object ScalaExtractMethodUtils {
             )
             case None => "" //should not occur
           }
-          val retElem = createExpressionFromText(s"return $newText")(ret.getManager)
+          val retElem = createExpressionFromText(s"return $newText", ret)(ret.getManager)
           ret.replace(retElem)
         }
       }
@@ -159,13 +160,13 @@ object ScalaExtractMethodUtils {
                   implicit val projectContext: ProjectContext = method.projectContext
                   def tail(): Unit = {
                     if (param.oldName != param.newName) {
-                      val newRef = createExpressionFromText(param.newName)
+                      val newRef = createExpressionFromText(param.newName, ref)
                       ref.getParent.getNode.replaceChild(ref.getNode, newRef.getNode)
                     }
                   }
                   ref.getParent match {
                     case sect: ScUnderscoreSection if param.isFunction =>
-                      val newRef = createExpressionFromText(param.newName)
+                      val newRef = createExpressionFromText(param.newName, ref)
                       sect.getParent.getNode.replaceChild(sect.getNode, newRef.getNode)
                     case _ if param.isEmptyParamFunction =>
                       ref.getParent match {
@@ -176,7 +177,7 @@ object ScalaExtractMethodUtils {
                             case Some(FunctionType(_, params)) if params.isEmpty => tail()
                             case _ =>
                               //we need to replace by method call
-                              val newRef = createExpressionFromText(s"${param.newName}()")
+                              val newRef = createExpressionFromText(s"${param.newName}()", ref)
                               ref.getParent.getNode.replaceChild(ref.getNode, newRef.getNode)
                           }
                       }
@@ -370,6 +371,7 @@ object ScalaExtractMethodUtils {
                             outputName: ExtractMethodOutput => String): Unit = {
     implicit val projectContext: ProjectContext = settings.projectContext
 
+    val target = elements.head
     val element = elements.findByType[ScalaPsiElement].getOrElse(return)
     val processor = new CompletionProcessor(StdKinds.refExprLastRef, element) {
       override val includePrefixImports: Boolean = false
@@ -409,8 +411,8 @@ object ScalaExtractMethodUtils {
 
     def insertCallStmt(): PsiElement = {
       def insertExpression(text: String): PsiElement = {
-        val expr = createExpressionFromText(text)
-        elements.head.replace(expr)
+        val expr = createExpressionFromText(text, target)
+        target.replace(expr)
       }
       if (settings.lastReturn) insertExpression(s"return $methodCallText")
       else if (settings.outputs.length == 0) {
@@ -454,9 +456,9 @@ object ScalaExtractMethodUtils {
                |  case Right(result) $arrow result
                |}""".stripMargin.replace("\r", "")
         }
-        val expr = createExpressionFromText(exprText)
-        val declaration = createDeclaration(pattern, "", isVariable = !isVal, expr)
-        val result = elements.head.replace(declaration)
+        val expr = createExpressionFromText(exprText, target)
+        val declaration = createDeclaration(pattern, "", isVariable = !isVal, expr, target)
+        val result = target.replace(declaration)
         TypeAdjuster.markToAdjust(result)
         result
       }
@@ -475,8 +477,8 @@ object ScalaExtractMethodUtils {
 
       def addAssignment(ret: ExtractMethodOutput, exprText: String): Unit = {
         val stmt =
-          if (ret.needNewDefinition) createDeclaration(ret.returnType, ret.paramName, !ret.isVal, exprText)
-          else createExpressionFromText(ret.paramName + " = " + exprText)
+          if (ret.needNewDefinition) createDeclaration(ret.returnType, ret.paramName, !ret.isVal, exprText, target)
+          else createExpressionFromText(ret.paramName + " = " + exprText, target)
 
         addElement(stmt)
       }
@@ -488,8 +490,8 @@ object ScalaExtractMethodUtils {
         if (allVals || allVars) {
           val patternArgsText = outputTypedNames.mkString("(", ", ", ")")
           val patternText = ics.className + patternArgsText
-          val expr = createExpressionFromText(mFreshName)
-          val stmt = createDeclaration(patternText, "", isVariable = allVars, expr)
+          val expr = createExpressionFromText(mFreshName, target)
+          val stmt = createDeclaration(patternText, "", isVariable = allVars, expr, target)
           addElement(stmt)
         } else {
           addExtractorsFromClass()

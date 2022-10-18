@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 import scala.annotation.unused
 
@@ -53,7 +54,7 @@ class SbtReplaceProjectWithProjectInQuickFix(call: ScMethodCall)
                                    (implicit project: Project): Unit = {
     element match {
       case ScMethodCall(_, Seq(_, pathElt)) =>
-        element.replace(createExpressionFromText("project.in(" + pathElt.getText + ")"))
+        element.replace(createExpressionFromText("project.in(" + pathElt.getText + ")", ScalaFeatures.default))
       case _ => // do nothing
     }
   }

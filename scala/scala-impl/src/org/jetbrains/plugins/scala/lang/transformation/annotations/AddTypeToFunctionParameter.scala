@@ -12,12 +12,12 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class AddTypeToFunctionParameter extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (p: ScParameter) && Parent(e @ Parent(Parent(_: ScFunctionExpr))) if p.paramType.isEmpty =>
-      appendTypeAnnotation(p.getRealParameterType.get) { annotation =>
+      appendTypeAnnotation(p.getRealParameterType.get, p, { annotation =>
         val replacement = code"(${p.getText}: ${annotation.getText}) => ()"
           .getFirstChild.getFirstChild
 
         val result = e.replace(replacement).asInstanceOf[ScParameterClause]
         result.parameters.head.typeElement.get
-      }
+      })
   }
 }

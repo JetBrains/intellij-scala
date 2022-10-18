@@ -33,7 +33,7 @@ package object quickfix {
     for {
       expression <- definition.body
       if !expression.is[ScBlockExpr]
-      block = createBlockFromExpr(expression)
+      block = createBlockFromExpr(expression, expression)
     } expression.replace(block)
 
     for {
@@ -43,7 +43,7 @@ package object quickfix {
 
   def addUnitTypeElement(definition: ScFunctionDefinition)
                         (implicit context: ProjectContext): Unit = {
-    val declaration = createDeclaration("x", "Unit", isVariable = false, null)
+    val declaration = createDeclaration("x", "Unit", isVariable = false, null, definition)
     for {
       colon <- findChild(declaration)
       assignment <- findChild(declaration, tASSIGN)

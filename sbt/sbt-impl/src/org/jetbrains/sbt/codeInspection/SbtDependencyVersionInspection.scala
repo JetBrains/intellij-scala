@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.language.completion.SBT_ORG_ARTIFACT
 import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, SbtDependencyUtils, SbtExtendedArtifactInfo}
@@ -91,14 +92,15 @@ class SbtUpdateDependencyVersionQuickFix(elem: PsiElement, newVer: String)
 
   override protected def doApplyFix(element: PsiElement)
                                    (implicit project: Project): Unit = {
+    val features = ScalaFeatures.default
     element match {
       case str: ScStringLiteral =>
-        str.replace(createExpressionFromText("\"" + StringUtil.escapeStringCharacters(newVer) + "\""))
+        str.replace(createExpressionFromText("\"" + StringUtil.escapeStringCharacters(newVer) + "\"", features))
       case ref: ScReferenceExpression =>
         ref.resolve() match {
           case (_: ScReferencePattern) && inNameContext(ScPatternDefinition.expr(expr)) => expr match {
             case str: ScStringLiteral =>
-              str.replace(createExpressionFromText("\"" + StringUtil.escapeStringCharacters(newVer) + "\""))
+              str.replace(createExpressionFromText("\"" + StringUtil.escapeStringCharacters(newVer) + "\"", features))
             case _ =>
           }
         }

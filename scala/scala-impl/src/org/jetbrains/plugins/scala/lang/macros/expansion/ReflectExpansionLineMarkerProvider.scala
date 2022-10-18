@@ -41,9 +41,9 @@ class ReflectExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvide
       case Some(e) =>
         val fixed = ensugarExpansion(expansion.body)
         val psi = if (expansion.tree.startsWith("Block"))
-          ScalaPsiElementFactory.createExpressionFromText(fixed)
+          ScalaPsiElementFactory.createExpressionFromText(fixed, e)
         else
-          ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(fixed)
+          ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(fixed, element)
         reformatCode(psi)
         extensions.inWriteAction(e.replace(psi))
     }

@@ -105,7 +105,7 @@ class ReplaceExpressionWithSAMQuickFix(elem: PsiElement, replacement: => String)
 
   override protected def doApplyFix(element: PsiElement)
                                    (implicit project: Project): Unit = {
-    element.replace(createExpressionFromText(replacement))
+    element.replace(createExpressionFromText(replacement, element))
   }
 }
 

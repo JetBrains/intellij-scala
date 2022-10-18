@@ -66,10 +66,13 @@ class AddBracesIntention extends PsiElementBaseIntentionAction {
         }
         startLine == endLine && !isBlock
     }
-    oneLinerExpr.map {
-      expr => () => {
-        CodeEditUtil.replaceChild(expr.getParent.getNode, expr.getNode,
-          createExpressionFromText("{\n%s}".format(expr.getText))(expr.getManager).getNode)
+    oneLinerExpr.map { expr => () =>
+      {
+        CodeEditUtil.replaceChild(
+          expr.getParent.getNode,
+          expr.getNode,
+          createExpressionFromText("{\n%s}".format(expr.getText), expr)(expr.getManager).getNode
+        )
 
         AutoBraceAdvertiser.advertiseAutoBraces(project)
       }

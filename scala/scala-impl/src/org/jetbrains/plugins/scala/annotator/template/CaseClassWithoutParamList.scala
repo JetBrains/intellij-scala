@@ -49,7 +49,7 @@ final class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends Inten
     c.isValid
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
-    c.clauses.foreach(_.addClause(createClauseFromText()(c.getManager)))
+    c.clauses.foreach(_.addClause(createClauseFromText(features = c)(c.getManager)))
 
   override def getFileModifierForPreview(target: PsiFile): FileModifier =
     new AddEmptyParenthesesToPrimaryConstructorFix(PsiTreeUtil.findSameElementInCopy(c, target))

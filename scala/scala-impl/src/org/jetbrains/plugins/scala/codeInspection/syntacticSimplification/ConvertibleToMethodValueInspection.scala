@@ -171,7 +171,7 @@ class ConvertibleToMethodValueQuickFix(expr: ScExpression, replacement: String, 
 
   override protected def doApplyFix(scExpr: ScExpression)
                                    (implicit project: Project): Unit = {
-    val newExpr = createExpressionFromText(replacement)
+    val newExpr = createExpressionFromText(replacement, expr)
     scExpr.replaceExpression(newExpr, removeParenthesis = true)
   }
 }

@@ -68,8 +68,12 @@ object PostfixUnaryOperationInspection {
     extends AbstractFixOnTwoPsiElements(name, target, operand) {
 
     override protected def doApplyFix(target: ScExpression, operand: ScExpression)(implicit project: Project): Unit = {
-      val unaryExpr = ScalaPsiElementFactory.createExpressionFromText(
-        s"${unaryOperators(operator)}${operand.getText}")
+      val unaryExpr =
+        ScalaPsiElementFactory.createExpressionFromText(
+          s"${unaryOperators(operator)}${operand.getText}",
+          target
+        )
+
       target.replaceExpression(unaryExpr, removeParenthesis = true)
     }
   }

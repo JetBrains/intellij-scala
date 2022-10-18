@@ -125,7 +125,7 @@ private[changeSignature] case class ConstructorUsageInfo(override val ref: ScRef
   val substitutor: Option[ScSubstitutor] = resolveResult.map(_.substitutor)
   override val expr: ScExpression = {
     val newText = s"new ${constrInvocation.getText}"
-    createExpressionFromText(newText)(constrInvocation.getManager)
+    createExpressionFromText(newText, constrInvocation)(constrInvocation.getManager)
   }
   override val argsInfo: OldArgsInfo = OldArgsInfo(constrInvocation.arguments.flatMap(_.exprs), method)
 }

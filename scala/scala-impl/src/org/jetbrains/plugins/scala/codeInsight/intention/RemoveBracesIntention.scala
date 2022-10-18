@@ -109,7 +109,7 @@ object RemoveBracesIntention {
               val Regex = """(?ms)\{(.+)\}""".r
               x.getText match {
                 case Regex(code) =>
-                  val replacement = createBlockExpressionWithoutBracesFromText(code)(element.getManager)
+                  val replacement = createBlockExpressionWithoutBracesFromText(code, element)(element)
                   CodeEditUtil.replaceChild(x.getParent.getNode, x.getNode, replacement.getNode)
                   CodeEditUtil.markToReformat(caseClause.getNode, true)
                 case _ =>

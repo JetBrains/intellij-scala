@@ -40,7 +40,7 @@ package object transformation {
       paths match {
         case Seq(path, alternatives @ _*)  =>
           implicit val projectContext: ProjectContext = r1.projectContext
-          val r2 = r1.replace(createReferenceElement(path)).asInstanceOf[ScReference]
+          val r2 = r1.replace(createReferenceElement(path, r1)).asInstanceOf[ScReference]
           if (!isResolvedTo(r2, target)) {
             bindTo0(r2, alternatives)
           }
@@ -66,10 +66,9 @@ package object transformation {
     reference.bind().exists(result =>
       qualifiedNameOf(result.element) == relative(target))
 
-  private def createReferenceElement(reference: String)
-                                    (implicit ctx: ProjectContext, isExpression: Boolean): ScReference =
-    if (isExpression) createReferenceExpressionFromText(reference)
-    else createTypeElementFromText(reference).getFirstChild.asInstanceOf[ScReference]
+  private def createReferenceElement(reference: String, ctx: PsiElement)(implicit isExpression: Boolean): ScReference =
+    if (isExpression) createReferenceExpressionFromText(reference)(ctx.getProject)
+    else createTypeElementFromText(reference, ctx)(ctx).getFirstChild.asInstanceOf[ScReference]
 
   // TODO define PsiMember.qualifiedName
   def qualifiedNameOf(e: PsiNamedElement): String = e match {

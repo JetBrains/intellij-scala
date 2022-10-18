@@ -105,15 +105,15 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val initInDecl = settings.initInDeclaration
     var createdDeclaration: PsiElement = null
     if (initInDecl) {
-      createdDeclaration = createDeclaration(name, typeName, settings.defineVar, expression)
+      createdDeclaration = createDeclaration(name, typeName, settings.defineVar, expression, aClass)
     } else {
-      val underscore = createExpressionFromText("_")
-      createdDeclaration = createDeclaration(name, typeName, settings.defineVar, underscore)
+      val underscore = createExpressionFromText("_", aClass)
+      createdDeclaration = createDeclaration(name, typeName, settings.defineVar, underscore, aClass)
 
       anchorForInitializer(replacedOccurences, ifc.file) match {
         case Some(anchorForInit) =>
           val parent = anchorForInit.getParent
-          val assignStmt = createExpressionFromText(s"$name = ${expression.getText}")
+          val assignStmt = createExpressionFromText(s"$name = ${expression.getText}", aClass)
           parent.addBefore(assignStmt, anchorForInit)
           parent.addBefore(createNewLine(), anchorForInit)
         case None => throw new IntroduceException

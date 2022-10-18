@@ -83,7 +83,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
 
   private def createSyntheticDefinitionForPreview = {
     val text = s"${kind.keyword} $name"
-    val file = ScalaPsiElementFactory.createScalaFileFromText(text)
+    val file = ScalaPsiElementFactory.createScalaFileFromText(text, ref)
     val definition = PsiTreeUtil.findChildOfType(file, classOf[ScTypeDefinition])
     afterCreationWork(definition)
     val fileType = ScalaFileType.INSTANCE
@@ -97,7 +97,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
     val directory = psiPackage.getDirectories.filter(_.isWritable) match {
       case Array(dir) => dir
       case Array() => throw new IllegalStateException(s"Cannot find directory for the package `${psiPackage.name}`")
-      case dirs => 
+      case dirs =>
         val currentDir = dirs.find(PsiTreeUtil.isAncestor(_, ref, true))
                 .orElse(dirs.find(ScalaPsiUtil.getModule(_) == ScalaPsiUtil.getModule(ref)))
         currentDir.getOrElse(dirs(0))
@@ -168,7 +168,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
             .showInBestPositionFor(editor)
     }
   }
-  
+
   private def createClassAtLevel(sibling: PsiElement): Unit = {
     sibling match {
       case file: PsiFile => createClassInDirectory(file.getContainingDirectory)
@@ -178,7 +178,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
       case _ =>
     }
   }
-  
+
   private def createClassInDirectory(directory: PsiDirectory): Unit = {
     val clazz = ScalaDirectoryService.createClassFromTemplate(directory, name, kind.templateName, askToDefineVariables = false)
     afterCreationWork(clazz.asInstanceOf[ScTypeDefinition])
@@ -191,7 +191,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
     if (!IntentionPreviewUtils.isIntentionPreviewActive)
       runTemplate(clazz)
   }
-  
+
   protected def addMoreElementsToTemplate(builder: TemplateBuilder, clazz: ScTypeDefinition): Unit = {}
 
   private def runTemplate(clazz: ScTypeDefinition): Unit = {
@@ -222,7 +222,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
   }
 
   private def addGenericParams(clazz: ScTypeDefinition): Unit = ref.getParent.getParent match {
-    case pt: ScParameterizedTypeElement => 
+    case pt: ScParameterizedTypeElement =>
       val paramsText = pt.typeArgList.typeArgs match {
         case args if args.size == 1 => "[T]"
         case args => args.indices.map(i => s"T${i + 1}").mkString("[",", ", "]")
@@ -258,7 +258,7 @@ class CreateTraitQuickFix(ref: ScReference)
 
   override val getText: String = ScalaBundle.message("create.trait.named", ref.nameId.getText)
   override val getFamilyName: String = ScalaBundle.message("family.name.create.trait")
-  
+
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     super.isAvailable(project, editor, file) && parametersText(ref).isEmpty
   }

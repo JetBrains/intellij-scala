@@ -57,11 +57,11 @@ object ImportMembersUtil {
         val ref = replacedCall.getInvokedExpr.asInstanceOf[ScReferenceExpression]
         replaceWithName(ref, name)
       case _ childOf (postfix @ ScPostfixExpr(qual: ScReferenceExpression, `oldRef`)) =>
-        val withDot = postfix.replace(createExpressionFromText(s"${qual.getText}.$name"))
+        val withDot = postfix.replace(createExpressionFromText(s"${qual.getText}.$name", oldRef))
                 .asInstanceOf[ScReferenceExpression]
         replaceWithName(withDot, name)
       case _: ScReferenceExpression =>
-        oldRef.replace(createExpressionFromText(name)).asInstanceOf[ScReference]
+        oldRef.replace(createExpressionFromText(name, oldRef)).asInstanceOf[ScReference]
       case _: ScStableCodeReference =>
         oldRef.replace(createReferenceFromText(name)).asInstanceOf[ScReference]
       case _ => null
@@ -93,7 +93,7 @@ object ImportMembersUtil {
               case m: PsiMember => Option(m.getContainingClass)
               case _ => None
             }
-            val refExpr = createExpressionFromText(name)
+            val refExpr = createExpressionFromText(name, expr)
             val replaced = expr.replaceExpression(refExpr, removeParenthesis = true)
             replaced.asInstanceOf[ScReferenceExpression].bindToElement(toBind, clazz)
           case _: ScStableCodeReference =>

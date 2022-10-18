@@ -16,7 +16,7 @@ object ConvertFromInfixPatternQuickFix {
   val message: String = ScalaInspectionBundle.message("convert.from.infix.pattern")
 
   def applyFix(infixPattern: ScInfixPattern)(implicit project: Project): Unit = {
-    val replacement = ScalaPsiElementFactory.createPatternFromText(computeReplacementText(infixPattern))
+    val replacement = ScalaPsiElementFactory.createPatternFromText(computeReplacementText(infixPattern), infixPattern)
 
     val elementToReplace = infixPattern.getContext match {
       case x: ScParenthesisedPattern => x

@@ -28,7 +28,7 @@ class ScalaMethodImplementor extends MethodImplementor {
       }
     } yield {
       val body = ScalaGenerationInfo.defaultValue
-      val prototype = createOverrideImplementMethod(member.signature, needsOverrideModifier = true, body)(inClass.getManager)
+      val prototype = createOverrideImplementMethod(member.signature, needsOverrideModifier = true, body, inClass)(inClass.getManager)
       TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype)
       prototypeToBaseMethod += (prototype -> method)
       prototype

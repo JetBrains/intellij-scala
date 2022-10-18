@@ -113,7 +113,8 @@ object ScalaExtractStringToBundleInspection {
             if (arguments.isEmpty) ""
             else arguments.mkString(", ", ", ", "")
           element.replace(ScalaPsiElementFactory.createExpressionFromText(
-            s"""$bundleClassName.message("$key"$argString)"""
+            s"""$bundleClassName.message("$key"$argString)""",
+            element
           ))
       }
     }
