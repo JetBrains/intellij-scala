@@ -60,7 +60,8 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
   protected def doTest(from: String, to: String, after: String, fromFileName: String, toFileName: String): Unit = {
     def normalize(s: String): String = s.replace("\r", "")
 
-    assertTrue("Content of target file doesn't contain caret marker", to.contains(Caret))
+    val containsCaretOrSelection = to.contains(Caret) || to.contains(Start) && to.contains(End)
+    assertTrue("Content of target file doesn't contain caret marker or selection markers", containsCaretOrSelection)
 
     val fileFrom = myFixture.configureByText(fromFileName, normalize(from))
     myASTHardRefs += fileFrom.getNode

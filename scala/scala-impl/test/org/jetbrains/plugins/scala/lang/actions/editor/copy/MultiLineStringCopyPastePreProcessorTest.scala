@@ -1,14 +1,19 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.copy
 
 import com.intellij.codeInsight.CodeInsightSettings
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettings}
 
 // TODO: maybe, taking into account that there is too much escaping, we should move these tests to files?
 class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
+
   override protected def setUp(): Unit = {
     super.setUp()
-    ScalaProjectSettings.getInstance(getProject).setDontShowConversionDialog(true)
-    ScalaProjectSettings.getInstance(getProject).setEnableJavaToScalaConversion(false)
+
+    val projectSettings = ScalaProjectSettings.getInstance(getProject)
+    projectSettings.setDontShowConversionDialog(true)
+    projectSettings.setEnableJavaToScalaConversion(false)
+
     ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE = CodeInsightSettings.NO
   }
 
@@ -839,6 +844,54 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
     getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = false
     doTestMultiline(from, to, after)
     getScalaCodeStyleSettings.MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = true
+    doTestMultiline(from, to, after)
+  }
+
+  //SCL-20646
+  def testCopyMultilineStringAndPasteAfterAssign(): Unit = {
+    val from =
+      s"""val a = 1
+         |
+         |val testSource =
+         |  $Start${Caret}s'''Test
+         |    |  a = $${a}
+         |    |  b = $${b}
+         |    |  c = $${c}
+         |    |'''.stripMargin$End
+         |""".stripMargin
+
+    val to =
+      s"""val testTarget = $Start$Caret"This string will be replaced with 'testSource'"$End
+         |""".stripMargin
+
+    val after =
+      """val testTarget =
+        |  s'''Test
+        |     |  a = ${a}
+        |     |  b = ${b}
+        |     |  c = ${c}
+        |     |'''.stripMargin
+        |""".stripMargin
+    doTestMultiline(from, to, after)
+  }
+
+  //SCL-20646
+  def testCopyMultilineStringAndPasteAfterAssign_SmallerExample(): Unit = {
+    val from =
+      s"""val s =
+         |  ${Start}s'''$$println
+         |     |'''$End
+         |""".stripMargin
+
+    val to =
+      s"""val t = $Caret
+         |""".stripMargin
+
+    val after =
+      """val t =
+        |  s'''$println
+        |     |'''
+        |""".stripMargin
     doTestMultiline(from, to, after)
   }
 }
