@@ -60,7 +60,7 @@ trait ScExpression extends ScBlockStatement
       return oldParent.asInstanceOf[ScExpression].replaceExpression(expr, removeParenthesis = true)
     }
     val newExpr = if (ScalaPsiUtil.needParentheses(this, expr)) {
-      ScalaPsiElementFactory.createExpressionFromText(expr.getText.parenthesize())
+      ScalaPsiElementFactory.createExpressionFromText(expr.getText.parenthesize(), expr)
     } else expr
     val parentNode = oldParent.getNode
     val newNode = newExpr.copy.getNode

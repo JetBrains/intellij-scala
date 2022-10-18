@@ -95,7 +95,7 @@ final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
     val textWithQualifier = s"${targetClass.name}.${reference.refName}"
     val qualified = reference match {
       case _: ScReferenceExpression =>
-        createExpressionFromText(textWithQualifier)
+        createExpressionFromText(textWithQualifier, reference)
       case _: ScStableCodeReference =>
         createReferenceFromText(textWithQualifier)
       case _ => return false

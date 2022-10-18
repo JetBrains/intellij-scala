@@ -70,7 +70,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     def addType(element: ScNamedElement, oldTypeElem: Option[ScTypeElement], substType: ScType): Unit = {
       oldTypeElem match {
         case Some(te) =>
-          val replaced = te.replace(createTypeElementFromText(substType.canonicalCodeText)(element.getManager))
+          val replaced = te.replace(createTypeElementFromText(substType.canonicalCodeText, element)(element))
           TypeAdjuster.markToAdjust(replaced)
         case None =>
           val (context, anchor) = element.nameContext match {
@@ -151,7 +151,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
               case None => NameSuggester.suggestNamesByType(param.paramType).head
             }
           paramsBuf = paramsBuf :+ paramName
-          arg.replaceExpression(createExpressionFromText(paramName)(arg.getManager), removeParenthesis = true)
+          arg.replaceExpression(createExpressionFromText(paramName, arg)(arg.getManager), removeParenthesis = true)
         }
         (paramsBuf, inv.getText)
       case _ =>
@@ -170,11 +170,16 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       else names
     val clause = params.mkString("(", ", ", ")")
     val newFunExprText = s"$clause => $exprText"
-    val replaced = expr.replaceExpression(createExpressionFromText(newFunExprText)(expr.getManager), removeParenthesis = true) match {
-      case fn: ScFunctionExpr => fn
+
+    val replaced = expr.replaceExpression(
+      createExpressionFromText(newFunExprText, expr)(expr.getManager),
+      removeParenthesis = true
+    ) match {
+      case fn: ScFunctionExpr                      => fn
       case ScParenthesisedExpr(fn: ScFunctionExpr) => fn
-      case _ => return
+      case _                                       => return
     }
+
     TypeAdjuster.markToAdjust(replaced)
     replaced.result match {
       case Some(infix: ScInfixExpr) =>
@@ -197,7 +202,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case _ => return
     }
     keywordToChange.foreach { kw =>
-      val defKeyword = createMethodFromText("def foo {}")(named.getManager).children.find(_.textMatches("def")).get
+      val defKeyword = createMethodFromText("def foo {}", named)(named.getManager).children.find(_.textMatches("def")).get
       if (change.getNewParameters.nonEmpty) kw.replace(defKeyword)
     }
 

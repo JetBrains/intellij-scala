@@ -905,7 +905,7 @@ object ScalaPsiUtil {
             val endInParent: Int = startInParent + from.getTextLength
             val parentText = parent.getText
             val modifiedParentText = parentText.substring(0, startInParent) + from.getText + parentText.substring(endInParent)
-            val modifiedParent = createExpressionFromText(modifiedParentText, parent.getContext)
+            val modifiedParent = createExpressionWithContextFromText(modifiedParentText, parent.getContext)
             modifiedParent match {
               case ScInfixExpr(_, newOper, _: ScTuple) =>
                 newOper.bind() match {
@@ -925,7 +925,7 @@ object ScalaPsiUtil {
         expr.getParent match {
           case ScParenthesisedExpr(_) =>
             val text = expr.getText
-            val dummyFile = createScalaFileFromText(text)(expr.getManager)
+            val dummyFile = createScalaFileFromText(text, expr)(expr.getManager)
             dummyFile.firstChild match {
               case Some(newExpr: ScExpression) => !newExpr.textMatches(text)
               case _ => true
@@ -1541,7 +1541,7 @@ object ScalaPsiUtil {
   def replaceBracesWithParentheses(element: ScalaPsiElement): Unit = {
     import element.projectContext
 
-    val block = createElementFromText("(_)")
+    val block = createElementFromText[PsiElement]("(_)", element)
 
     for (lBrace <- element.findFirstChildByType(ScalaTokenTypes.tLBRACE)) {
       lBrace.replace(block.getFirstChild)

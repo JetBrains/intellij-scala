@@ -30,7 +30,7 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
 
   override def getRoot: StructureViewTreeElement = {
     def file = console.map(_.getHistory)
-      .map(history => createScalaFileFromText(s"$history${myRootElement.getText}")(myRootElement.getManager))
+      .map(history => createScalaFileFromText(s"$history${myRootElement.getText}", myRootElement)(myRootElement.getManager))
       .getOrElse(myRootElement)
 
     Element(() => file)

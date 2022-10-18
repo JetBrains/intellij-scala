@@ -83,7 +83,13 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     val newCoordinates = newDependency.getCoordinates
 
     if (SbtDependencyUtils.cleanUpDependencyPart(oldLibDep(2).asInstanceOf[ScStringLiteral].getText) != newCoordinates.getVersion) {
-      inWriteCommandAction(oldLibDep(2).asInstanceOf[ScStringLiteral].replace(ScalaPsiElementFactory.createElementFromText(s""""${newCoordinates.getVersion}"""")))
+      inWriteCommandAction {
+        val literal = oldLibDep(2).asInstanceOf[ScStringLiteral]
+        literal
+          .replace(
+            ScalaPsiElementFactory.createElementFromText(s""""${newCoordinates.getVersion}"""", literal)
+          )
+      }
       return
     }
     var oldConfiguration = ""

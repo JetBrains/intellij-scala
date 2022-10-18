@@ -248,7 +248,7 @@ class ScalaLanguageConsole(module: Module, language: Language)
       content + dummyContent
     }
 
-    val file = ScalaPsiElementFactory.createScalaFileFromText(textFinal)(getProject)
+    val file = ScalaPsiElementFactory.createScalaFileFromText(textFinal, module.features)(getProject)
     file.putUserData(ModuleUtilCore.KEY_MODULE, module)
     file
   }

@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModule.{Build, Imports}
 
@@ -54,7 +55,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
     }
 
     if (imports.isEmpty) None
-    else Some(ScalaPsiElementFactory.createScalaFileFromText(imports.mkString("import ", ", ", ";")))
+    else Some(ScalaPsiElementFactory.createScalaFileFromText(imports.mkString("import ", ", ", ";"), ScalaFeatures.default))
   }
 
   override def getFileResolveScope: GlobalSearchScope = {

@@ -46,7 +46,7 @@ final class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAc
     val diff = editor.getCaretModel.getOffset - operation.nameId.getTextRange.getStartOffset
 
     import infixExpr.projectContext
-    val newInfixExpr = createExpressionFromText(s"$argumentText ${Replacement(operation.refName)} $baseText")
+    val newInfixExpr = createExpressionFromText(s"$argumentText ${Replacement(operation.refName)} $baseText", element)
 
     val size = newInfixExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
       newInfixExpr.getTextRange.getStartOffset

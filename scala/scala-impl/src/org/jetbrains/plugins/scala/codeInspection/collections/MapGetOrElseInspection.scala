@@ -40,7 +40,7 @@ object MapGetOrElse extends SimplificationType() {
       case Typeable(FunctionType(retType, _)) => retType
       case _ => return false
     }
-    ScalaPsiElementFactory.createExpressionFromText(replacementText, qual.getContext) match {
+    ScalaPsiElementFactory.createExpressionWithContextFromText(replacementText, qual.getContext) match {
       case ScMethodCall(ScMethodCall(_, Seq(firstArg)), _) =>
         mapArgRetType.conforms(firstArg.`type`().getOrNothing.widenIfLiteral)
       case _ => false

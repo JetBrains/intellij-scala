@@ -21,7 +21,7 @@ package object bm4 {
 
   /**
    * Checks that given expression is a binding inside a valid `implicit0` call (i.e. it resolves to
-   * the correct synthetic method, has exaclty one argument, which is type ascripted
+   * the correct synthetic method, has exactly one argument, which is type ascripted
    * term name). Returns synthetic implicit value definition to be used for implicit resolution.
    */
   object Implicit0Binding {

@@ -22,7 +22,7 @@ object TypedParameterWithoutParenthesisInspection {
   private def createQuickFix(pc: ScParameterClause): LocalQuickFix = new AbstractFixOnPsiElement(ScalaInspectionBundle.message("surround.with.parenthesis"), pc) with HighPriorityAction {
     override protected def doApplyFix(pclause: ScParameterClause)
                                      (implicit project: Project): Unit = {
-      val replacement = ScalaPsiElementFactory.createExpressionFromText("(" + pclause.getText + ")")
+      val replacement = ScalaPsiElementFactory.createExpressionFromText("(" + pclause.getText + ")", pclause)
       pclause.replace(replacement)
     }
   }

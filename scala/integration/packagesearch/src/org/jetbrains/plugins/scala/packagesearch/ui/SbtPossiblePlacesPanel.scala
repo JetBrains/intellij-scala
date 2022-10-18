@@ -64,7 +64,7 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: AddDependencyPrev
 
   private def updateEditor(myCurFileLine: DependencyOrRepositoryPlaceInfo): Unit = {
     val document    = FileDocumentManager.getInstance.getDocument(project.baseDir.findFileByRelativePath(myCurFileLine.path))
-    val tmpFile     = ScalaPsiElementFactory.createScalaFileFromText(document.getText)(project)
+    val tmpFile     = ScalaPsiElementFactory.createScalaFileFromText(document.getText, myCurFileLine.element)(project)
     var tmpElement  = tmpFile.findElementAt(myCurFileLine.element.getTextOffset)
     while (tmpElement.getTextRange != myCurFileLine.element.getTextRange) {
       tmpElement = tmpElement.getParent

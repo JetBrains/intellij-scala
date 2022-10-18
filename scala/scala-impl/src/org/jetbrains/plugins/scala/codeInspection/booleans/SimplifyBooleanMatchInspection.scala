@@ -59,7 +59,7 @@ object SimpleBooleanMatchUtil {
       case None => stmt
       case Some((clause, value)) =>
         val exprText = if (value) stmt.expression.get.getText else "!" + getParenthesisedText(stmt.expression.get)
-        createExpressionFromText(s"if ($exprText){ ${getTextWithoutBraces(clause)} }")(stmt.projectContext)
+        createExpressionFromText(s"if ($exprText){ ${getTextWithoutBraces(clause)} }", stmt)(stmt.projectContext)
     }
   }
 
@@ -74,7 +74,7 @@ object SimpleBooleanMatchUtil {
              |} else {
              |${getTextWithoutBraces(falseClause)}
              |}
-           """.stripMargin)(stmt.projectContext)
+           """.stripMargin, stmt)(stmt.projectContext)
       case _ => stmt
     }
   }

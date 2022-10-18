@@ -4,7 +4,7 @@ package template
 
 import com.intellij.codeInsight.template.{Expression, ExpressionContext, Result}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -33,7 +33,7 @@ package object macros {
   private[macros] def resultToScExpr(result: Result)(implicit context: ExpressionContext): Option[ScType] =
     for {
       element <- findElementAtOffset
-      expression <- ScalaPsiElementFactory.safe(_.createExpressionFromText(result.toString, element))
+      expression <- ScalaPsiElementFactory.safe(_.createExpressionWithContextFromText(result.toString, element))
       typ <- expression.`type`().toOption
     } yield typ
 
@@ -54,7 +54,8 @@ package object macros {
   }
 
   private[macros] def scTypeElement(typeText: String)(implicit project: Project): Option[ScTypeElement] =
-    ScalaPsiElementFactory.safe(_.createTypeElementFromText(typeText))
+    None
+//    ScalaPsiElementFactory.safe(_.createTypeElementFromText(typeText))
 
   private[macros] def arrayComponent(scType: ScType): Option[ScType] = scType match {
     case JavaArrayType(argument)                                         => Some(argument)

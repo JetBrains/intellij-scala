@@ -24,7 +24,7 @@ private object UnzipSingleElementInspection {
       case `._2`(`.unzip3`(q)) => (q, 2)
       case `._3`(`.unzip3`(q)) => (q, 3)
     }.map { case (q, index) =>
-      val args = createExpressionFromText(s"_._$index")(q.getContext)
+      val args = createExpressionFromText(s"_._$index", e)(q.getContext)
       val text = invocationText(q, "map", args)
       replace(e).withText(text).highlightFrom(q)
     }

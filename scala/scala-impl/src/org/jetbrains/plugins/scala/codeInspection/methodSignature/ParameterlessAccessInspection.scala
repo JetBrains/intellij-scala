@@ -109,7 +109,7 @@ object ParameterlessAccessInspection {
         case _ => expression
       }
 
-      val replacement = ScalaPsiElementFactory.createExpressionFromText(s"${target.getText}()")
+      val replacement = ScalaPsiElementFactory.createExpressionFromText(s"${target.getText}()", expression)
       target.replace(replacement)
     }
   }

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.caches
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
 
 /**
@@ -38,7 +38,11 @@ import org.jetbrains.plugins.scala.util.PsiSelectionUtil
 case class CachedRecursiveFunction(name: String)(implicit projectContext: ProjectContext) {
   assert(Seq("#", "@", "+").forall(!name.contains(_)))
 
-  private[this] val psi = PsiSelectionUtil.selectElement[PsiElement](ScalaPsiElementFactory.createScalaFileFromText("class Test")(projectContext), PsiSelectionUtil.path("Test"))
+  private[this] val psi =
+    PsiSelectionUtil.selectElement[PsiElement](
+      ScalaPsiElementFactory.createScalaFileFromText("class Test", ScalaFeatures.default)(projectContext),
+      PsiSelectionUtil.path("Test")
+    )
   private[this] var innerCalls = Seq.empty[CachedRecursiveFunction]
   private[this] var calcCounter = 0
 

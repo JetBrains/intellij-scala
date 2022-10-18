@@ -184,7 +184,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
 
       val hasMembers = holder.children.containsInstanceOf[ScMember]
 
-      val entity = holder.addAfter(createElementFromText(text), anchor)
+      val entity = holder.addAfter(createElementFromText(text, block), anchor)
       if (hasMembers) holder.addAfter(createNewLine(), entity)
 
       entity
@@ -199,7 +199,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
         case _: ScalaFile => anchor.getPrevSiblingNotWhitespace == null
         case _            => false
       }
-      val entity = holder.addBefore(createElementFromText(text), anchor)
+      val entity = holder.addBefore(createElementFromText(text, ref), anchor)
 
       if (!isUsageFirstElementInFile)
         holder.addBefore(createNewLine("\n\n"), entity)

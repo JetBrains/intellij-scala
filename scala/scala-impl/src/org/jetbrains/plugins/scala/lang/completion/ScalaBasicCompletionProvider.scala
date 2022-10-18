@@ -58,7 +58,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
 
     val position = maybePosition.fold(dummyPosition) {
       case (text, offsetContext) =>
-        val copy = createExpressionFromText(text, offsetContext.getContext)
+        val copy = createExpressionWithContextFromText(text, offsetContext.getContext)
         copy.findElementAt(dummyOffset - offsetContext.getTextRange.getStartOffset + 1)
     }
 

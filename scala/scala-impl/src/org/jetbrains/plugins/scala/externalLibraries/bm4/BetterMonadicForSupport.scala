@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.externalLibraries.bm4
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 /**
   * See: https://github.com/oleg-py/better-monadic-for
@@ -17,7 +17,9 @@ class BetterMonadicForSupport(project: Project) {
       |}
     """.stripMargin
 
-    ScalaPsiElementFactory.createElement(text)(TmplDef()(_))(project)
+
+    val file = ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)(project)
+    file.typeDefinitions.head
   }
 
   val syntheticDeclarations: Seq[PsiElement] = Seq(

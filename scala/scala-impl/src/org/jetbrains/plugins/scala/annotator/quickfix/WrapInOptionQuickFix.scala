@@ -26,7 +26,7 @@ final class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult, e
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
     if (expr.isValid) {
       val newText = "Option(" + expr.getText + ")"
-      expr.replaceExpression(createExpressionFromText(newText)(expr.getManager), removeParenthesis = true)
+      expr.replaceExpression(createExpressionFromText(newText, expr)(expr.getManager), removeParenthesis = true)
     }
 
   override def startInWriteAction(): Boolean = true

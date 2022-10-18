@@ -67,7 +67,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 object FunctionTupleSyntacticSugarInspection {
   val FunctionN: Regex = raw"${FunctionType.TypeName}(\d)".r
   val TupleN: Regex = raw"${TupleType.TypeName}(\d)".r
-  
+
   import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
   class TupleTypeSyntacticSugarQuickFix(te: ScParameterizedTypeElement)
@@ -82,7 +82,7 @@ object FunctionTupleSyntacticSugarInspection {
         }
         ("(" + typeElement.typeArgList.getText.drop(1).dropRight(1) + ")").parenthesize(needParens)
       }
-      typeElement.replace(createTypeElementFromText(typeTextWithParens))
+      typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement))
     }
   }
 
@@ -113,7 +113,7 @@ object FunctionTupleSyntacticSugarInspection {
         val arrow = ScalaPsiUtil.functionArrow(project)
         s"(${elemsInParamTypes.map(_.getText).mkString}) $arrow $returnTypeTextWithParens".parenthesize(needParens)
       }
-      typeElement.replace(createTypeElementFromText(typeTextWithParens))
+      typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement))
     }
   }
 }

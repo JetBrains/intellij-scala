@@ -81,7 +81,7 @@ object QuasiquoteInferUtil {
       (parsed match {
         case Parsed.Success(qq) =>
           ScalaPsiElementFactory
-            .createTypeElementFromText(s"scala.meta.${qq.productPrefix}")(PsiManager.getInstance(pat.getProject))
+            .createTypeElementFromText(s"scala.meta.${qq.productPrefix}", pat)
             .`type`()
         case Parsed.Error(_, message, _) =>
           Failure(NlsString.force(message))

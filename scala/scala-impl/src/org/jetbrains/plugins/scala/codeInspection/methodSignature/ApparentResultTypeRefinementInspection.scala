@@ -28,7 +28,7 @@ final class ApparentResultTypeRefinementInspection extends AbstractMethodSignatu
         endIndex = lastType.getTextRange.getEndOffset - function.getTextRange.getStartOffset
 
         text = s"${function.getText.substring(0, endIndex)} = ${refinement.getText}"
-        method = ScalaPsiElementFactory.createMethodFromText(text)
+        method = ScalaPsiElementFactory.createMethodFromText(text, function)
       } function.replace(method)
     }
 

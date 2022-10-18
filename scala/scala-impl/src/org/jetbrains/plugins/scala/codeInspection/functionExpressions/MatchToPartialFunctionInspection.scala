@@ -107,13 +107,13 @@ object MatchToPartialFunctionInspection {
 
       addNamingPatterns(matchStmtCopy, needNamingPattern(statement))
       matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
-      val newBlock = createExpressionFromText(matchStmtCopy.getText)
+      val newBlock = createExpressionFromText(matchStmtCopy.getText, expression)
       CodeEditUtil.setOldIndentation(newBlock.getNode.asInstanceOf[TreeElement], CodeEditUtil.getOldIndentation(matchStmtCopy.getNode))
 
       inWriteAction {
         expression.getParent match {
           case (argList: ScArgumentExprList) childOf (call@ScMethodCall(ElementText(invoked), _)) if argList.exprs.size == 1 =>
-            val replacement = createExpressionFromText(invoked + " " + newBlock.getText)
+            val replacement = createExpressionFromText(invoked + " " + newBlock.getText, call)
             call.replace(replacement)
           case block@ScBlock(`expression`) =>
             block.replace(newBlock)
@@ -149,7 +149,7 @@ object MatchToPartialFunctionInspection {
           (p, name + " @ " + text)
       }.foreach {
         case (pattern, text) =>
-          val replacement = createPatternFromText(text)
+          val replacement = createPatternFromText(text, pattern)
           pattern.replace(replacement)
       }
     }

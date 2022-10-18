@@ -58,7 +58,7 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
           case Some(clause) =>
             clause.addParameter(param).parameters.last
           case _ =>
-            val clause = createClauseFromText()
+            val clause = createClauseFromText(features = this)
             val newClause = clause.addParameter(param)
             super.add(clause)
             newClause.parameters.last

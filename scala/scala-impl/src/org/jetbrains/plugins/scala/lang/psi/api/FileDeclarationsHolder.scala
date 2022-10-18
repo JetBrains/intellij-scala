@@ -164,7 +164,7 @@ trait FileDeclarationsHolder
   }
 
   private lazy val aliasImports: Seq[ScImportStmt] = {
-    val file = ScalaPsiElementFactory.createScalaFileFromText(aliasImportsFor(this.scalaLanguageLevelOrDefault))
+    val file = ScalaPsiElementFactory.createScalaFileFromText(aliasImportsFor(this.scalaLanguageLevelOrDefault), this)
     file.context = this
     file.children.filterByType[ScImportStmt].toSeq.reverse
   }

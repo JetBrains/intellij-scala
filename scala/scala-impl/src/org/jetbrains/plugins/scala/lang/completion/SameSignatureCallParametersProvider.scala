@@ -297,7 +297,7 @@ object SameSignatureCallParametersProvider {
       foreachArgument(list) { argument =>
         val replacementText = argument.getText + AssignmentText + NotImplementedError
         argument.replaceExpression(
-          createExpressionFromText(replacementText)(argument),
+          createExpressionFromText(replacementText, list)(argument),
           removeParenthesis = false
         )
       }

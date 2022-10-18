@@ -12,13 +12,12 @@ package object annotations {
   import AddOnlyStrategy._
 
   def appendTypeAnnotation(`type`: ScType, anchor: PsiElement): Unit =
-    appendTypeAnnotation(`type`) {
+    appendTypeAnnotation(`type`, anchor, {
       addActualType(_, anchor)
-    }
+    })
 
-  def appendTypeAnnotation(`type`: ScType)
-                          (function: ScTypeElement => PsiElement): Unit =
-    annotationsFor(`type`).headOption
+  def appendTypeAnnotation(`type`: ScType, ctx: PsiElement, function: ScTypeElement => PsiElement): Unit =
+    annotationsFor(`type`, ctx).headOption
       .map(function)
       .foreach {
         case (t: ScSimpleTypeElement) && FirstChild(reference: ScReference) =>

@@ -79,13 +79,13 @@ final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntent
       newQual = argsBuilder.toString().drop(1).dropRight(1)
     }
 
-    val newQualExpr = createExpressionFromText(newQual)
+    val newQualExpr = createExpressionFromText(newQual, element)
 
     expr.append(methodCallExpr.args.getText).append(".").
             append(replaceOper(methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.getText)).
             append(newArgs)
 
-    val newMethodCallExpr = createExpressionFromText(expr.toString())
+    val newMethodCallExpr = createExpressionFromText(expr.toString(), element)
 
     newMethodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get.replaceExpression(newQualExpr, removeParenthesis = true)
 

@@ -20,14 +20,15 @@ final class AmmoniteFileDeclarationsContributor extends FileDeclarationsContribu
       case ammoniteFile: ScalaFile =>
         AmmoniteFileDeclarationsContributor.DEFAULT_BUILTINS.foreach {
           case (name, txt) =>
-            ScalaPsiElementFactory.createElementFromText(
-              s"class A { val $name: $txt = ??? }"
+            ScalaPsiElementFactory.createElementFromText[PsiElement](
+              s"class A { val $name: $txt = ??? }",
+              holder
             )(ammoniteFile.projectContext).processDeclarations(processor, state, null, ammoniteFile)
         }
 
         DEFAULT_IMPORTS.foreach {
           imp =>
-            val importStmt = ScalaPsiElementFactory.createScalaElementFromText[ScImportStmt](s"import $imp")(ammoniteFile.projectContext)
+            val importStmt = ScalaPsiElementFactory.createElementFromText[ScImportStmt](s"import $imp", holder)(ammoniteFile.projectContext)
             importStmt.processDeclarations(processor, state, null, ammoniteFile)
         }
       case _ =>

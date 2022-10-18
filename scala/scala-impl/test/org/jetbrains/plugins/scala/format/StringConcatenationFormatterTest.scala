@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.junit.Assert._
 
 class StringConcatenationFormatterTest extends ScalaLightCodeInsightFixtureTestCase {
@@ -213,11 +214,12 @@ class StringConcatenationFormatterTest extends ScalaLightCodeInsightFixtureTestC
       |  def long: Long    = 23L
       |  def bool: Boolean = true
       |}
-      |""".stripMargin
+      |""".stripMargin,
+    ScalaFeatures.onlyByVersion(version)
   )(getProject)
 
   private def exp(s: String): ScExpression = {
     val context = contextFile.depthFirst().findByType[ScTemplateBody].get
-    ScalaPsiElementFactory.createExpressionFromText(s, context)
+    ScalaPsiElementFactory.createExpressionWithContextFromText(s, context)
   }
 }

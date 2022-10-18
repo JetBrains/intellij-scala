@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.junit.Assert.{assertEquals, assertNotNull}
 
 import scala.jdk.CollectionConverters._
@@ -81,7 +82,7 @@ class NameSuggesterTest extends AbstractNameSuggesterTest {
   }
 
   private def testNamesByType(typeElementText: String, expected: String*): Unit = {
-    val typeElement = createTypeElementFromText(typeElementText)(getProject)
+    val typeElement = createTypeElementFromText(typeElementText, ScalaFeatures.onlyByVersion(version))(getProject)
     testNamesByElement(typeElement, expected)
   }
 }
