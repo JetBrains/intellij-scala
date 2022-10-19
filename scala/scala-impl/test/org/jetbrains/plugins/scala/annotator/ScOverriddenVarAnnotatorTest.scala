@@ -138,8 +138,25 @@ class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
         |}
         |
         |class Cat extends Animal {
-        |  override val cat: String = ""
+        |  val cat: String = ""
         |  def cat_=(x: String): Unit = {}
+        |}
+        |""".stripMargin
+
+    val errors = errorsFromScalaCode(scalaCode)
+    assert(errors.isEmpty)
+  }
+
+  def testOverrideVarByValRequiresSetter_1(): Unit = {
+    val scalaCode =
+      """
+        |trait Animal {
+        |  var cat: String
+        |}
+        |
+        |class Cat extends Animal {
+        |  override val cat: String = ""
+        |  override def cat_=(x: String): Unit = {}
         |}
         |""".stripMargin
 
