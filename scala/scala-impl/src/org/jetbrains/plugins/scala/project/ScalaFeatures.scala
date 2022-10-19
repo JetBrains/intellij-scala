@@ -1,92 +1,138 @@
 package org.jetbrains.plugins.scala.project
 
-import com.intellij.openapi.util.Ref
-import com.intellij.psi.PsiElement
+import com.intellij.openapi.util.{Key, Ref}
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.project.ScalaFeatures.Bits
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.util.BitMaskStorage
 
 import scala.language.implicitConversions
 
-// TODO: this will be refactored in 213.x
-final class ScalaFeatures private(private val bits: Int) extends AnyVal {
-  @inline
-  private def `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`: Boolean =
-    Bits.`in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`.read(bits)
+trait ScalaFeatures extends Any {
+  def psiContext: Option[PsiElement]
 
-  @inline
-  private def `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`: Boolean =
-    Bits.`in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`.read(bits)
-
-  @inline
-  private def `in >= 2.12.15 or 2.13.7 or 3`: Boolean =
-    Bits.`in >= 2.12.15 or 2.13.7 or 3`.read(bits)
-
-  @inline
-  private def `in >= 2.12.16 or 2.13.9 or 3`: Boolean =
-    Bits.`in >= 2.12.16 or 2.13.9 or 3`.read(bits)
-
-  def languageLevel: ScalaLanguageLevel = Bits.languageLevel.read(bits)
+  def languageLevel: ScalaLanguageLevel
   def isScala3: Boolean = languageLevel.isScala3
 
-  private def hasSource3Flag: Boolean = Bits.hasSource3Flag.read(bits)
-  private def hasNoIndentFlag: Boolean = Bits.hasNoIndentFlag.read(bits)
-  private def hasOldSyntaxFlag: Boolean = Bits.hasOldSyntaxFlag.read(bits)
-  private def hasDeprecationFlag: Boolean = Bits.hasDeprecationFlag.read(bits)
-  private def hasSourceFutureFlag: Boolean = Bits.hasSourceFutureFlag.read(bits)
-  def hasMetaEnabled: Boolean = Bits.hasMetaEnabled.read(bits)
-  def hasTrailingCommasEnabled: Boolean = Bits.hasTrailingCommasEnabled.read(bits)
-  def hasUnderscoreWildcardsDisabled: Boolean = Bits.hasUnderscoreWildcardsDisabled.read(bits)
+  def hasMetaEnabled: Boolean
+  def hasTrailingCommasEnabled: Boolean
+  def hasUnderscoreWildcardsDisabled: Boolean
 
-  def indentationBasedSyntaxEnabled: Boolean = Bits.indentationBasedSyntaxEnabled.read(bits)
-  def warnAboutDeprecatedInfixCallsEnabled: Boolean = Bits.warnAboutDeprecatedInfixCallsEnabled.read(bits)
+  def indentationBasedSyntaxEnabled: Boolean
+  def warnAboutDeprecatedInfixCallsEnabled: Boolean
 
-  def `& instead of with`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
-  def `Scala 3 vararg splice syntax`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
-  // wildcards import are bugged in 2.12.14 and 2.13.6
-  def `Scala 3 wildcard imports`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
-  def `Scala 3 wildcard imports in selector`: Boolean = `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`
-  def `Scala 3 renaming imports`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
-  def `soft keywords open and infix`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
-  def `leading infix operator`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
-  def `? as wildcard marker`: Boolean =
-     `in >= 2.12.16 or 2.13.9 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
-  def `case in pattern bindings`: Boolean =
-    `in >= 2.12.15 or 2.13.7 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
-
-  def copy(
-    version:                        ScalaVersion,
-    hasSource3Flag:                 Boolean = this.hasSource3Flag,
-    hasNoIndentFlag:                Boolean = this.hasNoIndentFlag,
-    hasOldSyntaxFlag:               Boolean = this.hasOldSyntaxFlag,
-    hasDeprecationFlag:             Boolean = this.hasDeprecationFlag,
-    hasSourceFutureFlag:            Boolean = this.hasSourceFutureFlag,
-    hasMetaEnabled:                 Boolean = this.hasMetaEnabled,
-    hasTrailingCommasEnabled:       Boolean = this.hasTrailingCommasEnabled,
-    hasUnderscoreWildcardsDisabled: Boolean = this.hasUnderscoreWildcardsDisabled
-  ): ScalaFeatures =
-    ScalaFeatures(
-      version = version,
-      hasSource3Flag = hasSource3Flag,
-      hasNoIndentFlag = hasNoIndentFlag,
-      hasOldSyntaxFlag = hasOldSyntaxFlag,
-      hasDeprecationFlag = hasDeprecationFlag,
-      hasSourceFutureFlag = hasSourceFutureFlag,
-      hasMetaEnabled = hasMetaEnabled,
-      hasTrailingCommasEnabled = hasTrailingCommasEnabled,
-      hasUnderscoreWildcardsDisabled = hasUnderscoreWildcardsDisabled
-    )
-
-  def serializeToInt: Int = bits
+  def `& instead of with`: Boolean
+  def `Scala 3 vararg splice syntax`: Boolean
+//   wildcards import are bugged in 2.12.14 and 2.13.6
+  def `Scala 3 wildcard imports`: Boolean
+  def `Scala 3 wildcard imports in selector`: Boolean
+  def `Scala 3 renaming imports`: Boolean
+  def `soft keywords open and infix`: Boolean
+  def `leading infix operator`: Boolean
+  def `? as wildcard marker`: Boolean
+  def `case in pattern bindings`: Boolean
 }
 
 object ScalaFeatures {
+  // TODO: this will be refactored in 213.x
+  final class SerializableScalaFeatures private[ScalaFeatures](private val bits: Int) extends AnyVal with ScalaFeatures {
+    override def psiContext: Option[PsiElement] = None
+
+    @inline
+    private def `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`: Boolean =
+      Bits.`in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`.read(bits)
+
+    @inline
+    private def `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`: Boolean =
+      Bits.`in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`.read(bits)
+
+    @inline
+    private def `in >= 2.12.15 or 2.13.7 or 3`: Boolean =
+      Bits.`in >= 2.12.15 or 2.13.7 or 3`.read(bits)
+
+    @inline
+    private def `in >= 2.12.16 or 2.13.9 or 3`: Boolean =
+      Bits.`in >= 2.12.16 or 2.13.9 or 3`.read(bits)
+
+    def languageLevel: ScalaLanguageLevel = Bits.languageLevel.read(bits)
+
+    private def hasSource3Flag: Boolean = Bits.hasSource3Flag.read(bits)
+    private def hasNoIndentFlag: Boolean = Bits.hasNoIndentFlag.read(bits)
+    private def hasOldSyntaxFlag: Boolean = Bits.hasOldSyntaxFlag.read(bits)
+    private def hasDeprecationFlag: Boolean = Bits.hasDeprecationFlag.read(bits)
+    private def hasSourceFutureFlag: Boolean = Bits.hasSourceFutureFlag.read(bits)
+    def hasMetaEnabled: Boolean = Bits.hasMetaEnabled.read(bits)
+    def hasTrailingCommasEnabled: Boolean = Bits.hasTrailingCommasEnabled.read(bits)
+    def hasUnderscoreWildcardsDisabled: Boolean = Bits.hasUnderscoreWildcardsDisabled.read(bits)
+
+    def indentationBasedSyntaxEnabled: Boolean = Bits.indentationBasedSyntaxEnabled.read(bits)
+    def warnAboutDeprecatedInfixCallsEnabled: Boolean = Bits.warnAboutDeprecatedInfixCallsEnabled.read(bits)
+
+    def `& instead of with`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
+    def `Scala 3 vararg splice syntax`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
+    // wildcards import are bugged in 2.12.14 and 2.13.6
+    def `Scala 3 wildcard imports`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
+    def `Scala 3 wildcard imports in selector`: Boolean = `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`
+    def `Scala 3 renaming imports`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
+    def `soft keywords open and infix`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
+    def `leading infix operator`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
+    def `? as wildcard marker`: Boolean =
+      `in >= 2.12.16 or 2.13.9 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
+    def `case in pattern bindings`: Boolean =
+      `in >= 2.12.15 or 2.13.7 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
+
+    def copy(
+      version:                        ScalaVersion,
+      hasSource3Flag:                 Boolean = this.hasSource3Flag,
+      hasNoIndentFlag:                Boolean = this.hasNoIndentFlag,
+      hasOldSyntaxFlag:               Boolean = this.hasOldSyntaxFlag,
+      hasDeprecationFlag:             Boolean = this.hasDeprecationFlag,
+      hasSourceFutureFlag:            Boolean = this.hasSourceFutureFlag,
+      hasMetaEnabled:                 Boolean = this.hasMetaEnabled,
+      hasTrailingCommasEnabled:       Boolean = this.hasTrailingCommasEnabled,
+      hasUnderscoreWildcardsDisabled: Boolean = this.hasUnderscoreWildcardsDisabled
+    ): SerializableScalaFeatures =
+      ScalaFeatures(
+        version = version,
+        hasSource3Flag = hasSource3Flag,
+        hasNoIndentFlag = hasNoIndentFlag,
+        hasOldSyntaxFlag = hasOldSyntaxFlag,
+        hasDeprecationFlag = hasDeprecationFlag,
+        hasSourceFutureFlag = hasSourceFutureFlag,
+        hasMetaEnabled = hasMetaEnabled,
+        hasTrailingCommasEnabled = hasTrailingCommasEnabled,
+        hasUnderscoreWildcardsDisabled = hasUnderscoreWildcardsDisabled
+      )
+
+    def serializeToInt: Int = bits
+  }
+
+  final case class PsiContextFeatures(psi: PsiElement, delegate: ScalaFeatures) extends ScalaFeatures {
+    override val psiContext: Option[PsiElement] = Option(psi)
+
+    override def languageLevel: ScalaLanguageLevel               = delegate.languageLevel
+    override def hasMetaEnabled: Boolean                         = delegate.hasMetaEnabled
+    override def hasTrailingCommasEnabled: Boolean               = delegate.hasTrailingCommasEnabled
+    override def hasUnderscoreWildcardsDisabled: Boolean         = delegate.hasUnderscoreWildcardsDisabled
+    override def indentationBasedSyntaxEnabled: Boolean          = delegate.indentationBasedSyntaxEnabled
+    override def warnAboutDeprecatedInfixCallsEnabled: Boolean   = delegate.warnAboutDeprecatedInfixCallsEnabled
+    override def `& instead of with`: Boolean                    = delegate.`& instead of with`
+    override def `Scala 3 vararg splice syntax`: Boolean         = delegate.`Scala 3 vararg splice syntax`
+    override def `Scala 3 wildcard imports`: Boolean             = delegate.`Scala 3 wildcard imports`
+    override def `Scala 3 wildcard imports in selector`: Boolean = delegate.`Scala 3 wildcard imports in selector`
+    override def `Scala 3 renaming imports`: Boolean             = delegate.`Scala 3 renaming imports`
+    override def `soft keywords open and infix`: Boolean         = delegate.`soft keywords open and infix`
+    override def `leading infix operator`: Boolean               = delegate.`leading infix operator`
+    override def `? as wildcard marker`: Boolean                 = delegate.`? as wildcard marker`
+    override def `case in pattern bindings`: Boolean             = delegate.`case in pattern bindings`
+  }
+
   private val minorVersion6  = Version("6")
   private val minorVersion9  = Version("9")
   private val minorVersion14 = Version("14")
   private val minorVersion16 = Version("16")
 
-  def deserializeFromInt(bits: Int): ScalaFeatures = new ScalaFeatures(bits)
+  def deserializeFromInt(bits: Int): SerializableScalaFeatures = new SerializableScalaFeatures(bits)
 
   def apply(version: ScalaVersion,
             hasSource3Flag: Boolean,
@@ -96,7 +142,7 @@ object ScalaFeatures {
             hasSourceFutureFlag: Boolean,
             hasMetaEnabled: Boolean,
             hasTrailingCommasEnabled: Boolean,
-            hasUnderscoreWildcardsDisabled: Boolean): ScalaFeatures = {
+            hasUnderscoreWildcardsDisabled: Boolean): SerializableScalaFeatures = {
     val languageLevel = version.languageLevel
     val isScala3 = languageLevel.isScala3
 
@@ -114,7 +160,7 @@ object ScalaFeatures {
     // It can be turned off by giving any of the options -no-indent, -old-syntax and -language:Scala2
     // (NOTE: looks like -language:Scala2 doesn't affect anything in the compiler)
     val indentationBasedSyntaxEnabled: Boolean =
-      isScala3 && !(hasNoIndentFlag || hasOldSyntaxFlag)
+    isScala3 && !(hasNoIndentFlag || hasOldSyntaxFlag)
 
     val warnAboutDeprecatedInfixCallsEnabled: Boolean =
       isScala3 && hasDeprecationFlag && hasSourceFutureFlag
@@ -138,28 +184,63 @@ object ScalaFeatures {
     )
   }
 
-  val default: ScalaFeatures = onlyByVersion(ScalaVersion.Latest.Scala_2_13)
+  val default: SerializableScalaFeatures = onlyByVersion(ScalaVersion.Latest.Scala_2_13)
 
-  val `-Xsource:3 in 2.12.14 or 2.13.6`: ScalaFeatures = default.copy(
+  val `-Xsource:3 in 2.12.14 or 2.13.6`: SerializableScalaFeatures = default.copy(
     version = ScalaVersion.Latest.Scala_2_13.withMinor(6),
     hasSource3Flag = true
   )
 
-  val `-Xsource:3 in 2.12.15 or 2.13.7`: ScalaFeatures = `-Xsource:3 in 2.12.14 or 2.13.6`
+  val `-Xsource:3 in 2.12.15 or 2.13.7`: SerializableScalaFeatures = `-Xsource:3 in 2.12.14 or 2.13.6`
     .copy(ScalaVersion.Latest.Scala_2_13.withMinor(7))
 
-  def onlyByVersion(version: ScalaVersion): ScalaFeatures =
+  def onlyByVersion(version: ScalaVersion): SerializableScalaFeatures =
     ScalaFeatures(version, hasSource3Flag = false, hasNoIndentFlag = false, hasOldSyntaxFlag = false,
       hasDeprecationFlag = false, hasSourceFutureFlag = false, hasMetaEnabled = false, hasTrailingCommasEnabled = false,
       hasUnderscoreWildcardsDisabled = false)
 
-  def forPsi(psi: PsiElement): Option[ScalaFeatures] =
-    for {
-      file   <- Option(psi.getContainingFile)
-      module <- file.module
-    } yield module.features
+  val CreatedWithScalaFeatures: Key[ScalaFeatures] =
+    Key.create[ScalaFeatures]("created.with.scala.features")
 
-  implicit def forPsiOrDefault(psi: PsiElement): ScalaFeatures = forPsi(psi).getOrElse(default)
+  def getAttachedScalaFeatures(file: PsiFile): Option[ScalaFeatures] =
+    Option(file.getUserData(CreatedWithScalaFeatures))
+
+  def setAttachedScalaFeatures(file: PsiFile, features: ScalaFeatures): Unit =
+    file.putUserData(CreatedWithScalaFeatures, features)
+
+  private def forPsi(psi: PsiElement): Option[ScalaFeatures] = {
+    val containingFile = Option(psi.getContainingFile)
+
+    containingFile.map { file =>
+      //It may happen that `psi`, that is being passed as a context to some
+      //ScalaPsiElementFactory method is already synthetic, in this case just use
+      //ScalaFeatures stored in containing file userdata.
+      if (!file.isPhysical) getAttachedScalaFeatures(file).getOrElse(default)
+      else {
+        val module = file.module
+
+        module.fold {
+          if (file.isScala3File) ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3)
+          else                   default
+        }(_.features)
+      }
+    }
+  }
+
+  implicit def forPsiOrDefault(psi: PsiElement): ScalaFeatures = {
+    val delegate =
+      if (psi eq null) ScalaFeatures.default
+      else             forPsi(psi).getOrElse(default)
+
+    PsiContextFeatures(psi, delegate)
+  }
+
+  def forParserTests(version: ScalaVersion): ScalaFeatures =
+    default.copy(
+      version = version,
+      hasTrailingCommasEnabled = true,
+      hasMetaEnabled = true
+    )
 
   def version: Int = Bits.version
 
@@ -186,7 +267,7 @@ object ScalaFeatures {
     `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`: Boolean,
     `in >= 2.12.15 or 2.13.7 or 3`:                 Boolean,
     `in >= 2.12.16 or 2.13.9 or 3`:                 Boolean
-  ): ScalaFeatures = {
+  ): SerializableScalaFeatures = {
     val bits = Ref.create[Int]
 
     Bits.languageLevel.write(bits, languageLevel)
@@ -205,9 +286,8 @@ object ScalaFeatures {
     Bits.`in >= 2.12.15 or 2.13.7 or 3`.write(bits, `in >= 2.12.15 or 2.13.7 or 3`)
     Bits.`in >= 2.12.16 or 2.13.9 or 3`.write(bits, `in >= 2.12.16 or 2.13.9 or 3`)
 
-    new ScalaFeatures(bits.get())
+    new SerializableScalaFeatures(bits.get())
   }
-
 
   //noinspection TypeAnnotation
   private object Bits extends BitMaskStorage {
@@ -220,7 +300,7 @@ object ScalaFeatures {
     val indentationBasedSyntaxEnabled        = bool("indentationBasedSyntaxEnabled")
     val hasMetaEnabled                       = bool("hasMetaEnabled")
     val hasTrailingCommasEnabled             = bool("hasTrailingCommaEnabled")
-    val hasUnderscoreWildcardsDisabled       = bool("hasTrailingCommaEnabled")
+    val hasUnderscoreWildcardsDisabled       = bool("hasUnderscoreWildcardsDisabled")
     val warnAboutDeprecatedInfixCallsEnabled = bool("warnAboutDeprecatedInfixCallsEnabled")
 
     val `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3` = bool("in >= 2.12.14 or 2.13.6 with -XSource:3 or 3")

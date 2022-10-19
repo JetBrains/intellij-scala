@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.formatter.intellij.tests.scala3
 
-import com.intellij.lang.Language
-import org.jetbrains.plugins.scala.Scala3Language
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 
 abstract class Scala3FormatterBaseTest extends AbstractScalaFormatterTestBase {
-  override protected def language: Language = Scala3Language.INSTANCE
+  override protected def version: ScalaVersion = LatestScalaVersions.Scala_3
 
   protected def doTextTestWithExtraSpaces(before0: String): Unit =
     doTextTestWithExtraSpaces(before0, before0)

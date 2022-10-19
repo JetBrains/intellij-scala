@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.{ScalaPluginJars, UnloadAwareDisposable}
@@ -284,7 +285,7 @@ package object project {
     def isSource3Enabled: Boolean =
       scalaModuleSettings.exists(_.hasSource3Flag)
 
-    def features: ScalaFeatures =
+    def features: SerializableScalaFeatures =
       scalaModuleSettings.fold(ScalaFeatures.default)(_.features)
 
     def isPartialUnificationEnabled: Boolean =
@@ -502,7 +503,7 @@ package object project {
 
     def isScala3OrSource3Enabled: Boolean = isDefinedInModuleOrProject(m => m.hasScala3 || m.isSource3Enabled)
 
-    def features: ScalaFeatures =
+    def features: SerializableScalaFeatures =
       inThisModuleOrProject(_.features).getOrElse(ScalaFeatures.default)
 
     def literalTypesEnabled: Boolean = {

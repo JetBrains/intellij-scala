@@ -32,7 +32,7 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String)
   protected override def transform(testName: String,
                                    fileText: String,
                                    project: Project): String = {
-     var replaceAllOccurrences = false
+    var replaceAllOccurrences = false
     var testFileText = fileText
     var startOffset = testFileText.indexOf(BEGIN_MARKER)
     if (startOffset < 0) {

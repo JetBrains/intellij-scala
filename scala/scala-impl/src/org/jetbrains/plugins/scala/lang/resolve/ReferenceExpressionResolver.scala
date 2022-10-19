@@ -706,7 +706,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   }
 
   private def createRef(ref: ScReferenceExpression, text: String): ScReferenceExpression =
-    ScalaPsiElementFactory.createExpressionFromText(text, ref.getContext)
+    ScalaPsiElementFactory.createExpressionWithContextFromText(text, ref.getContext)
       .asInstanceOf[ScReferenceExpression]
 
   /**

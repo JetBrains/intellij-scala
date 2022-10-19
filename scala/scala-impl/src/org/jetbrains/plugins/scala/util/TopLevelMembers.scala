@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
+import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
@@ -19,12 +20,13 @@ private[scala] object TopLevelMembers {
   def isSyntheticClassForTopLevelMembers(refType: ReferenceType): Boolean = refType.name.endsWith(classSuffix)
 
   def topLevelMemberClassName(file: PsiFile, packaging: Option[ScPackaging]): String = {
-    val vf = file.getVirtualFile
+    val fileName    = ScalaNamesUtil.toJavaName(FileUtilRt.getNameWithoutExtension(file.getName))
     val packageName = packaging.fold("")(_.fullPackageName)
-    val fileName = ScalaNamesUtil.toJavaName(vf.getNameWithoutExtension)
+
     val path =
       if (packageName.isEmpty) fileName
       else packageName + "." + fileName
+
     path + classSuffix
   }
 

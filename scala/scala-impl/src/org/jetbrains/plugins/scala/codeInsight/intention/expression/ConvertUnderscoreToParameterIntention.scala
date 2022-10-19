@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createParameterFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createParameterFromText, createReferenceExpressionFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
@@ -55,8 +55,8 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
         else underscores.head.getTextRange.getEndOffset
       } else expr.getTextRange.getEndOffset
 
-    val underscoreToParam: mutable.HashMap[ScUnderscoreSection, ScParameter] =
-      new mutable.HashMap[ScUnderscoreSection, ScParameter]
+    val underscoreToParam: mutable.HashMap[ScUnderscoreSection, ScReferenceExpression] =
+      new mutable.HashMap[ScUnderscoreSection, ScReferenceExpression]
     val offsets: mutable.HashMap[String, Int] = new mutable.HashMap[String, Int]
     val usedNames: mutable.HashSet[String] = new mutable.HashSet[String]
     val macros: mutable.HashSet[String] = new mutable.HashSet[String]
@@ -108,16 +108,16 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
         case _ =>
       }
 
-      val newParam = createParameterFromText(un, element)
+      val newParam = createReferenceExpressionFromText(un)
       underscoreToParam.put(u, newParam)
     }
 
     IntentionPreviewUtils.write { () =>
       for (u <- underscores) {
         val param = underscoreToParam.get(u)
-        val replaced = u.replace(param.get).asInstanceOf[ScParameter]
+        val replaced = u.replace(param.get).asInstanceOf[ScReferenceExpression]
         underscoreToParam.put(u, replaced)
-        offsets.put(param.get.name, replaced.getTextRange.getStartOffset)
+        offsets.put(param.get.refName, replaced.getTextRange.getStartOffset)
       }
     }
 
@@ -127,7 +127,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
     val diff = buf.length
     buf.append(expr.getText)
 
-    val newExpr = createExpressionFromText(buf.toString(), element)
+    val newExpr = createExpressionFromText(buf.toString(), expr)
 
     IntentionPreviewUtils.write { () =>
       val document = editor.getDocument

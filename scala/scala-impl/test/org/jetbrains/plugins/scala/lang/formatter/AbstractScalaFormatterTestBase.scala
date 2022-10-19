@@ -12,12 +12,12 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiFileFactory}
 import com.intellij.testFramework.LightIdeaTestCase
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, IteratorExt, PsiElementExt, StringExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.{MarkersUtils, TestUtils}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, Scala3Language, ScalaLanguage, ScalaVersion}
 import org.junit.Assert._
 
 import java.io.File
@@ -28,7 +28,11 @@ import java.io.File
 // NOTE: initially was almost duplicate from Java
 abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 
-  protected def language: Language = ScalaLanguage.INSTANCE
+  protected def version: ScalaVersion = LatestScalaVersions.Scala_2_13
+
+  private def language: Language =
+    if (version.isScala3) Scala3Language.INSTANCE
+    else                  ScalaLanguage.INSTANCE
 
   protected final def getCommonSettings = getSettings.getCommonSettings(language)
   protected final def getScalaSettings = getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
@@ -111,10 +115,9 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   private def doTextTest(action: Action, text: String, textAfter: String): Unit =
     doTextTest(TestData(text, textAfter, tempFileName, action, 1, checkAfterEachIteration = false))
 
-  private def initFile(fileName: String, text: String): PsiFile = {
+  private def initFile(fileName: String, text: String): PsiFile =
     PsiFileFactory.getInstance(project)
       .createFileFromText(fileName, language, text, true, false)
-  }
 
   /**
    * For a given selection create all possible selections text ranges with borders leaf elements ranges borders.

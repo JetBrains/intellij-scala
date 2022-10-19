@@ -18,18 +18,10 @@ package org.jetbrains.plugins.scala.lang.parser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.ScalaVersion;
-import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel;
 
 public class ScalaParserTest extends TestCase {
     @NotNull
     public static Test suite() {
-        return new ScalaFileSetTestCase("/parser/data") {
-            @Override
-            protected boolean supportedInScalaVersion(ScalaVersion version) {
-                return version.$less(new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "9"));
-            }
-        };
+        return ScalaParserTestCase$.MODULE$;
     }
 }

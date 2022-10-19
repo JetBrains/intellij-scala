@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.CommonProcessors.{CollectProcessor, FindProcessor}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
+import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
 import org.jetbrains.plugins.scala.project.ScalaModuleSettings._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
@@ -128,7 +129,7 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
       case YnoPredefOrNoImports(imports)                         => imports
     }
 
-  val features: ScalaFeatures =
+  val features: SerializableScalaFeatures =
     ScalaFeatures(
       scalaMinorVersion.getOrElse(ScalaVersion.default),
       hasSource3Flag = hasSource3Flag,
