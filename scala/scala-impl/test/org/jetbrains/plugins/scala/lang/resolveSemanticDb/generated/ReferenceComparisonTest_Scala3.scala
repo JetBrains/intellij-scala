@@ -84,7 +84,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_arrays3(): Unit = doTest("arrays3", false)
   def test_assignments(): Unit = doTest("assignments", true)
   def test_attributes(): Unit = doTest("attributes", true)
-  def test_automatic_tupling_of_function_parameters(): Unit = doTest("automatic-tupling-of-function-parameters", false)
+  def test_automatic_tupling_of_function_parameters(): Unit = doTest("automatic-tupling-of-function-parameters", true)
   def test_autoTuplingTest(): Unit = doTest("autoTuplingTest", false)
   def test_avoid(): Unit = doTest("avoid", false)
   def test_B(): Unit = doTest("B", true)
@@ -245,7 +245,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_Foo(): Unit = doTest("Foo", true)
   def test_forwardCompat_excludedExport(): Unit = doTest("forwardCompat-excludedExport", false) // #export, #givenImport
   def test_freezeBounds(): Unit = doTest("freezeBounds", true)
-  def test_function_arity(): Unit = doTest("function-arity", false)
+  def test_function_arity(): Unit = doTest("function-arity", true)
   def test_functions1(): Unit = doTest("functions1", true)
   def test_gadt_accumulatable(): Unit = doTest("gadt-accumulatable", true)
   def test_gadt_all_params(): Unit = doTest("gadt-all-params", true) // #enum
@@ -1058,7 +1058,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i11184b(): Unit = doTest("i11184b", true)
   def test_i11184c(): Unit = doTest("i11184c", true)
   def test_i11184d(): Unit = doTest("i11184d", true) // #transparentInline
-  def test_i11185(): Unit = doTest("i11185", false)
+  def test_i11185(): Unit = doTest("i11185", true)
   def test_i11220(): Unit = doTest("i11220", true)
   def test_i11225(): Unit = doTest("i11225", true)
   def test_i11230(): Unit = doTest("i11230", true)
@@ -1388,12 +1388,12 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_macro(): Unit = doTest("macro", true)
   def test_macro_deprecate_dont_touch_backquotedidents(): Unit = doTest("macro-deprecate-dont-touch-backquotedidents", true)
   def test_main(): Unit = doTest("main", true)
-  def test_main_method_scheme(): Unit = doTest("main-method-scheme", false)
-  def test_main_method_scheme_class_based(): Unit = doTest("main-method-scheme-class-based", false)
+  def test_main_method_scheme(): Unit = doTest("main-method-scheme", true)
+  def test_main_method_scheme_class_based(): Unit = doTest("main-method-scheme-class-based", true)
   def test_manifest_summoning(): Unit = doTest("manifest-summoning", true) // #opaque
   def test_match(): Unit = doTest("match", true)
   def test_matches(): Unit = doTest("matches", true)
-  def test_matrixOps(): Unit = doTest("matrixOps", false) // #extension
+  def test_matrixOps(): Unit = doTest("matrixOps", true) // #extension
   def test_matthias3(): Unit = doTest("matthias3", true)
   def test_matthias4(): Unit = doTest("matthias4", true)
   def test_matthias5(): Unit = doTest("matthias5", true)

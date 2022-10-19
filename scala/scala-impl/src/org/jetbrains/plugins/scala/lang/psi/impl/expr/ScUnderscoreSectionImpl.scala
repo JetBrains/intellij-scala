@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ParameterExpectedTypesUtil._
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TupleType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -76,9 +77,15 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
             idx match {
               case -1 => Failure(ScalaBundle.message("failed.to.found.corresponding.underscore.section"))
               case i =>
+                val untuplingEnabled = this.isInScala3Module
+
                 expr.expectedType(fromUnderscore = false) match {
                   case Some(functionLikeType(_, _, params)) =>
-                    val param               = params.lift(i)
+                    val param = params match {
+                      case Seq(TupleType(comps)) if untuplingEnabled && comps.size == unders.size =>
+                        comps.lift(i)
+                      case _ => params.lift(i)
+                    }
                     val failure: TypeResult = Failure(ScalaBundle.message("could.not.infer.type.of.underscore.section"))
 
                     param.fold(failure)(tpe =>
