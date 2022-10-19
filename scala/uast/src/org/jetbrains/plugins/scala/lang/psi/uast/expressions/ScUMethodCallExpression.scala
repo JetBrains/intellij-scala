@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 
-import java.{util => ju}
-
 import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -13,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.uast.ReferenceExt
 import org.jetbrains.uast.{UCallExpression, UCallExpressionAdapter, UExpression, UIdentifier, UReferenceExpression, UastCallKind}
 
+import java.{util => ju}
 import scala.jdk.CollectionConverters._
 
 trait ScUMethodCallCommon
@@ -46,7 +45,10 @@ trait ScUMethodCallCommon
     val receiverOpt = for {
       e <- getReferencedExpr
       qualifiedRef <- e.convertTo[UReferenceExpression](this)
-    } yield qualifiedRef
+    } yield qualifiedRef match {
+      case q: ScUQualifiedReferenceExpression => q.getReceiver
+      case r => r
+    }
 
     receiverOpt.orNull
   }
@@ -161,6 +163,55 @@ final class ScUGenericCallExpression(
 
   override protected def scReference: Option[ScReference] =
     Option(scExpression.referencedExpr).collect { case ref: ScReference => ref }
+}
+
+final class ScUPostfixExpressionCall(
+  override protected val scExpression: ScPostfixExpr,
+  override protected val parent: LazyUElement,
+) extends UCallExpressionAdapter
+  with ScUMethodCallCommon {
+  override def getSourcePsi: PsiElement = scExpression
+
+  override protected def scReference: Option[ScReference] = Some(scExpression.operation)
+
+  override protected def getReferencedExpr: Option[ScExpression] = Some(scExpression.operation)
+
+  override protected def getTypeArgs: Option[ScTypeArgs] = getReferencedExpr
+    .collect { case c: ScGenericCall => c.typeArgs }
+
+  override def getValueArgumentCount: Int = 0
+
+  override def getValueArguments: ju.List[UExpression] = ju.Collections.emptyList()
+
+  override def getReceiver: UExpression =
+    scExpression.operand.convertTo[UExpression](this).orNull
+}
+
+final class ScUBinaryExpressionCall(
+  override protected val scExpression: ScInfixExpr,
+  override protected val parent: LazyUElement,
+) extends UCallExpressionAdapter
+  with ScUMethodCallCommon {
+  private lazy val args: ju.List[UExpression] = (scExpression.right match {
+    case tuple: ScTuple => tuple.exprs.toList
+    case null | _: ScUnitExpr => Nil
+    case expr => expr :: Nil
+  }).flatMap(_.convertTo[UExpression](this)).asJava
+
+  override def getSourcePsi: PsiElement = scExpression
+
+  override protected def scReference: Option[ScReference] = Some(scExpression.operation)
+
+  override protected def getReferencedExpr: Option[ScExpression] = Some(scExpression.operation)
+
+  override protected def getTypeArgs: Option[ScTypeArgs] = getReferencedExpr
+    .collect { case c: ScGenericCall => c.typeArgs }
+
+  override def getValueArgumentCount: Int = args.size()
+
+  override def getValueArguments: ju.List[UExpression] = args
+
+  override def getReceiver: UExpression = scExpression.left.convertTo[UExpression](this).get
 }
 
 /**

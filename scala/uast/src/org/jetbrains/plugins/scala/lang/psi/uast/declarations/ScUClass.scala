@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnchorOwner, ScUAnnotated, ScUElement}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
@@ -80,11 +80,13 @@ trait ScUClassCommon extends UClass with ScUAnnotated {
   def getUInitializers: Array[UClassInitializer] =
     Array.empty // TODO: not implemented
 
-  def getUMethods: Array[UMethod] =
-    scTemplate.functions // .getMethods
-      .filterNot(_.isConstructor)
+  def getUMethods: Array[UMethod] = {
+    val primaryConstructor = scTemplate.asOptionOf[ScConstructorOwner].flatMap(_.constructor)
+
+    (primaryConstructor ++ scTemplate.functions)
       .flatMap(_.convertTo[UMethod](this))
       .toArray
+  }
 
   def getUInnerClasses: Array[UClass] =
     scTemplate.typeDefinitions
@@ -107,14 +109,14 @@ trait ScUClassCommon extends UClass with ScUAnnotated {
 }
 
 /**
-  * [[ScTypeDefinition]] adapter for the [[UClass]]
-  *
-  * @param scElement Scala PSI element representing type definition
-  *                  (e.g. class, object, trait)
-  */
+ * [[ScTypeDefinition]] adapter for the [[UClass]]
+ *
+ * @param scElement Scala PSI element representing type definition
+ *                  (e.g. class, object, trait)
+ */
 final class ScUClass(override protected val scElement: ScTypeDefinition,
                      override protected val parent: LazyUElement)
-    extends UClassAdapter(scElement)
+  extends UClassAdapter(scElement)
     with ScUClassCommon
     with UClass
     with ScUElement
@@ -133,11 +135,11 @@ final class ScUClass(override protected val scElement: ScTypeDefinition,
 }
 
 /**
-  * [[ScNewTemplateDefinition]] adapter for the [[UClass]]
-  *
-  * @param newTemplateDefinition Scala PSI expression representing anonymous class
-  *                         definition
-  */
+ * [[ScNewTemplateDefinition]] adapter for the [[UClass]]
+ *
+ * @param newTemplateDefinition Scala PSI expression representing anonymous class
+ *                              definition
+ */
 final class ScUAnonymousClass(
   newTemplateDefinition: ScNewTemplateDefinition,
   extendsBlock: ScExtendsBlock,
@@ -186,7 +188,7 @@ final class ScUAnonymousClass(
                   scType.canonicalText,
                   newTemplateDefinition.getProject,
                   newTemplateDefinition.getResolveScope
-              )
+                )
             )
           )
           .headOption
@@ -244,13 +246,13 @@ private final class ScTemplateToPsiAnonymousClassAdapter(scTemplate: ScNewTempla
 
 
 /**
-  * Mock of the [[UClass]] when conversion failed
-  *
-  * @param scElement Scala PSI element implementing [[PsiClass]]
-  */
+ * Mock of the [[UClass]] when conversion failed
+ *
+ * @param scElement Scala PSI element implementing [[PsiClass]]
+ */
 final class ScUErrorClass(override protected val scElement: PsiClass,
                           override protected val parent: LazyUElement)
-    extends UClassAdapter(scElement)
+  extends UClassAdapter(scElement)
     with ScUElement with ScUAnnotated {
 
   override type PsiFacade = PsiClass

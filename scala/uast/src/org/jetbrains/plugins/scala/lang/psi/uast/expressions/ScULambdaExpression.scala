@@ -4,8 +4,6 @@ package psi
 package uast
 package expressions
 
-import java.{util => ju}
-
 import com.intellij.psi.{PsiElement, PsiType}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
@@ -20,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.uast.{UExpression, ULambdaExpression, ULambdaExpressionAdapter, UParameter}
 
+import java.{util => ju}
 import scala.jdk.CollectionConverters._
 
 trait ScUGenLambda
@@ -41,10 +40,7 @@ trait ScUGenLambda
             convertLambdas = isExplicitLambda
           )
       }
-      .getOrElse(
-        Scala2UastConverter
-          .createUEmptyExpression(element = null, parent = this)
-      )
+      .getOrElse(Scala2UastConverter.createUEmptyExpression(parent = this))
 
   // TODO: remove
   override def asLogString: String = toString

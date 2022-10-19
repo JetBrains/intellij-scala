@@ -39,7 +39,7 @@ trait ConverterExtension { converter: UastFabrics =>
                                   @Nullable parent: UElement,
                                   convertLambdas: Boolean = true): UExpression =
     convertTo[UExpression](element, parent, convertLambdas)
-      .getOrElse(createUEmptyExpression(element, parent))
+      .getOrElse(createUEmptyExpression(parent))
   //endregion
 
   //region Extensions for PSI elements
@@ -84,14 +84,14 @@ trait ConverterExtension { converter: UastFabrics =>
     ): UExpression =
       psiElementOpt
         .map(_.convertToUExpressionOrEmpty(parent, convertLambdas))
-        .getOrElse(createUEmptyExpression(element = null, parent))
+        .getOrElse(createUEmptyExpression(parent))
 
     def convertWithParentToUExpressionOrEmpty(
       convertLambdas: Boolean = true
     ): UExpression =
       psiElementOpt
         .map(_.convertWithParentToUExpressionOrEmpty(convertLambdas))
-        .getOrElse(createUEmptyExpression(element = null, parent = null))
+        .getOrElse(createUEmptyExpression(parent = null))
   }
   //endregion
 }

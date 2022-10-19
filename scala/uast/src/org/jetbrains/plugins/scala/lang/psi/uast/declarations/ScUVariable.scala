@@ -1,26 +1,29 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.declarations
 
-import _root_.java.util
-
+import com.intellij.lang.Language
+import com.intellij.psi.impl.light.{LightFieldBuilder, LightModifierList, LightTypeElement, LightVariableBuilder}
 import com.intellij.psi.util.PsiTreeUtil._
-import com.intellij.psi.{PsiAnnotation, PsiClass, PsiElement, PsiField, PsiLocalVariable, PsiModifier, PsiType, PsiVariable}
+import com.intellij.psi.{PsiAnnotation, PsiElement, PsiField, PsiFile, PsiLocalVariable, PsiManager, PsiModifier, PsiModifierList, PsiType, PsiTypeElement, PsiVariable}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScModifierList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValue, ScValueOrVariable, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.plugins.scala.lang.psi.uast.psi.LightVariableWithGivenAnnotationsBuilder
 import org.jetbrains.uast._
 
-import scala.jdk.CollectionConverters._
+import _root_.java.util
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 trait ScUVariableCommon extends ScUElement with UAnchorOwner with UAnnotated {
 
@@ -96,137 +99,225 @@ final class ScULocalVariable(
 }
 
 object ScUVariable {
-
-  private[uast] def createLightVariable(
-    isField: Boolean,
-    name: String,
-    isVal: Boolean,
-    containingTypeDef: ScTemplateDefinition,
-    modifiersList: Option[ScModifierList],
-    typeable: Typeable with PsiElement
-  ): PsiField with PsiLocalVariable = {
-
-    val javaModifiers = mutable.ArrayBuffer.empty[String]
-
-    // process annotations
-    // modifiers ++= modifiersList.getAnnotations.map(a => s"@${a.getQualifiedName}")
-    /**
-      * Because parsing of annotations is unsupported currently in IDEA 2019.3
-      * annotations will be given to the custom wrapper [[LightVariableWithGivenAnnotationsBuilder]]
-      */
-    // process access modifier
-    // very rude mapping from flexible Scala access modifiers
-    if (isField && modifiersList.isDefined) {
-      javaModifiers += modifiersList.get.accessModifier
-        .map {
-          case e if e.isPrivate || e.isThis => PsiModifier.PRIVATE
-          case e if e.isProtected           => PsiModifier.PROTECTED
-          case _                            => PsiModifier.PUBLIC
-        }
-        .getOrElse(PsiModifier.PUBLIC)
-    }
-
-    // process immutability modifier
-    if (isVal) javaModifiers += PsiModifier.FINAL
-
-    new LightVariableWithLazyType(
-      name,
-      containingTypeDef,
-      modifiersList
-        .map(_.getAnnotations)
-        .getOrElse(Array.empty),
-      javaModifiers.toArray,
-      typeable
-    )
+  trait Parent2ScUVariable {
+    def apply(parent: LazyUElement): ScUVariableCommon
   }
 
-  /**
-    * Tries to convert to [[UField]] from
-    *  - [[ScReferencePattern]] representing "field" name id inside [[ScPatternDefinition]] declaration
-    *  - [[ScClassParameter]] if it is class member
-    *
-    * @return functional trait which takes one lazy __nullable__ param representing
-    *         optional parent of the field in the UAST
-    */
-  def unapply(arg: PsiElement): Option[Parent2ScUVariable] = {
+  type TypeableScPsiElement = ScalaPsiElement with Typeable
 
-    def buildUVariable(isField: Boolean) =
-      if (isField) new ScUField(_, _, _, _, _, _)
-      else new ScULocalVariable(_, _, _, _, _, _)
-
+  def unapply(arg: ScalaPsiElement): Option[Parent2ScUVariable] = {
     arg match {
-      case namePattern: ScReferencePattern =>
-        for {
-          declarationExpr   <- Option(getParentOfType(namePattern, classOf[ScValueOrVariable]))
-          containingTypeDef <- Option(getParentOfType(namePattern, classOf[ScTemplateDefinition]))
-        } yield {
-          val isField = !declarationExpr.isLocal
-          val lightVariable = createLightVariable(
-            isField,
-            namePattern.name,
-            namePattern.isVal,
-            containingTypeDef,
-            Some(declarationExpr.getModifierList),
-            namePattern
-          )
-
-          val initializer = declarationExpr match {
-            case value: ScPatternDefinition     => value.expr
-            case variable: ScVariableDefinition => variable.expr
-            case _                              => None
-          }
-
-          buildUVariable(isField)(
-            lightVariable,
-            namePattern,
-            namePattern.nameId,
-            declarationExpr.typeElement,
-            initializer,
-            _
-          )
-        }
-
       case classParam: ScClassParameter if classParam.isClassMember =>
-        val lightField = createLightVariable(
-          isField = true,
-          classParam.name,
-          isVal = classParam.isVal,
-          classParam.containingClass,
-          Some(classParam.getModifierList),
-          classParam
-        )
-        Some {
-          buildUVariable(isField = true)(
-            lightField,
-            classParam,
-            classParam.nameId,
-            classParam.typeElement,
-            classParam.getDefaultExpression,
-            _
-          )
+        field(classParam)
+      case fieldId: ScFieldId =>
+        Option(getParentOfType(fieldId, classOf[ScValueOrVariable])).flatMap { declarationExpr =>
+          field(fieldId,
+            declarationExpr,
+            fieldId,
+            declarationExpr.typeElement,
+            getVariableInitializer(declarationExpr),
+            declarationExpr.is[ScValue])
+        }
+      case namePattern: ScReferencePattern =>
+        Option(getParentOfType(namePattern, classOf[ScValueOrVariable])).flatMap { declarationExpr =>
+          fieldOrLocalVariable(namePattern,
+            declarationExpr,
+            namePattern,
+            declarationExpr.typeElement,
+            getVariableInitializer(declarationExpr),
+            declarationExpr.is[ScValue])
         }
       case _ => None
     }
   }
 
-  private class LightVariableWithLazyType(name: String,
-                                          containingClass: PsiClass,
-                                          annotations: Array[PsiAnnotation],
-                                          modifiers: Array[String],
-                                          typeable: Typeable with PsiElement)
-    extends LightVariableWithGivenAnnotationsBuilder(name, UastErrorType.INSTANCE, containingClass, annotations, modifiers) {
+  private def getVariableInitializer(declarationExpr: ScValueOrVariable): Option[ScExpression] = declarationExpr match {
+    case value: ScPatternDefinition => value.expr
+    case variable: ScVariableDefinition => variable.expr
+    case _ => None
+  }
 
-    override lazy val getType: PsiType = {
-      if (typeable.isValid)
-        typeable.`type`().toOption.map(_.toPsiType).getOrElse(super.getType)
-      else
-        super.getType
+  private def fieldOrLocalVariable(sourcePsi: ScalaPsiElement,
+                                   member: ScMember with Typeable,
+                                   nameHolder: ScNamedElement,
+                                   typeElement: Option[ScTypeElement],
+                                   initializer: Option[ScExpression],
+                                   isFinal: Boolean): Option[Parent2ScUVariable] = {
+    val containingTypeDef = getParentOfType(member, classOf[ScTemplateDefinition])
+    val isField = !member.isLocal && containingTypeDef != null
+
+    if (isField) field(sourcePsi, member, nameHolder, typeElement, initializer, isFinal)
+    else localVariable(sourcePsi, member, nameHolder, typeElement, initializer, isFinal)
+  }
+
+  private[uast] def createLightLocalVariable(name: String,
+                                             containingFile: PsiFile,
+                                             typeable: TypeableScPsiElement,
+                                             modifierList: Option[ScModifierList],
+                                             isFinal: Boolean,
+                                             isField: Boolean): PsiLocalVariable =
+    new ScAnnotatedLightLocalVariable(name, containingFile, typeable, modifierList, isFinal, isField)
+
+  private def localVariable(sourcePsi: ScalaPsiElement,
+                            element: ScMember with Typeable,
+                            named: ScNamedElement,
+                            typeElement: Option[ScTypeElement],
+                            initializer: Option[ScExpression],
+                            isFinal: Boolean): Option[Parent2ScUVariable] = {
+    Option(element.getContainingFile).map { containingFile =>
+      val lightLocalVariable = createLightLocalVariable(
+        named.name,
+        containingFile,
+        element,
+        modifierList = Some(element.getModifierList),
+        isField = false,
+        isFinal = isFinal
+      )
+
+      new ScULocalVariable(
+        lightLocalVariable,
+        sourcePsi,
+        named.nameId,
+        typeElement,
+        initializer,
+        _
+      )
+    }
+  }
+
+  private def field(classParam: ScClassParameter): Option[Parent2ScUVariable] =
+    field(classParam, classParam, classParam, classParam.typeElement, classParam.getDefaultExpression, classParam.isVal)
+
+  private def field(sourcePsi: ScalaPsiElement,
+                    member: ScMember with Typeable,
+                    nameHolder: ScNamedElement,
+                    typeElement: Option[ScTypeElement],
+                    initializer: Option[ScExpression],
+                    isFinal: Boolean): Option[Parent2ScUVariable] = {
+    Option(member.containingClass).collect { case containingClass: ScTypeDefinition =>
+      val lightField: PsiField = new ScAnnotatedLightField(
+        nameHolder.name,
+        containingClass,
+        member,
+        Some(member.getModifierList),
+        isFinal
+      )
+
+      new ScUField(
+        lightField,
+        sourcePsi,
+        nameHolder.nameId,
+        typeElement,
+        initializer,
+        _
+      )
+    }
+  }
+
+  private def getJavaModifiers(modifierList: Option[ScModifierList], isVal: Boolean, isField: Boolean): Seq[String] = {
+    val javaModifiers = mutable.ArrayBuffer.empty[String]
+
+    if (isField) modifierList.foreach { modifierList =>
+      // access modifier
+      // very rude mapping from flexible Scala access modifiers
+      javaModifiers += modifierList.accessModifier
+        .map {
+          case e if e.isPrivate || e.isThis => PsiModifier.PRIVATE
+          case e if e.isProtected => PsiModifier.PROTECTED
+          case _ => PsiModifier.PUBLIC
+        }
+        .getOrElse(PsiModifier.PUBLIC)
     }
 
+    // immutability modifier
+    if (isVal) javaModifiers += PsiModifier.FINAL
+
+    javaModifiers.toSeq
   }
 
-  trait Parent2ScUVariable {
-    def apply(parent: LazyUElement): ScUVariableCommon
+  private class LightModifierListWithGivenAnnotations(manager: PsiManager,
+                                                      lang: Language,
+                                                      annotations: Array[PsiAnnotation],
+                                                      modifiers: String*)
+    extends LightModifierList(manager, lang, modifiers: _*) {
+
+    override def getAnnotations: Array[PsiAnnotation] = annotations
+
+    override def findAnnotation(qualifiedName: String): PsiAnnotation =
+      annotations.find(_.getQualifiedName == qualifiedName).orNull
   }
 
+  private trait ScAnnotatedLightVariable {
+    self: LightVariableBuilder[_] =>
+    @volatile protected var myModifierList: LightModifierList = _
+
+    protected def annotations: Array[PsiAnnotation]
+
+    protected def modifiers: Seq[String]
+
+    locally {
+      this.setModifiers(modifiers)
+    }
+
+    private def setModifiers(modifiers: Seq[String]): Unit =
+      myModifierList = new LightModifierListWithGivenAnnotations(getManager, getLanguage, annotations, modifiers: _*)
+
+    override def setModifiers(modifiers: String*): self.type = {
+      setModifiers(modifiers)
+      self
+    }
+
+    override def getModifierList: PsiModifierList = myModifierList
+
+    override def hasModifierProperty(name: String): Boolean = myModifierList.hasModifierProperty(name)
+
+    override def getTypeElement: PsiTypeElement = new LightTypeElement(getManager, getType)
+  }
+
+  private class ScAnnotatedLightField(name: String, containingClass: ScTypeDefinition,
+                                      typeable: TypeableScPsiElement,
+                                      override protected val annotations: Array[PsiAnnotation],
+                                      override protected val modifiers: Seq[String])
+    extends LightFieldBuilder(name, UastErrorType.INSTANCE, containingClass)
+      with ScAnnotatedLightVariable {
+
+    def this(name: String,
+             containingClass: ScTypeDefinition,
+             typeable: TypeableScPsiElement,
+             modifierList: Option[ScModifierList],
+             isFinal: Boolean) =
+      this(name, containingClass, typeable, modifierList.map(_.getAnnotations).getOrElse(Array.empty),
+        getJavaModifiers(modifierList, isVal = isFinal, isField = true))
+
+    override lazy val getType: PsiType =
+      if (typeable.isValid) typeable.`type`() match {
+        case Right(scType) => scType.toPsiType
+        case Left(_) => super.getType
+      } else super.getType
+  }
+
+  private class ScAnnotatedLightLocalVariable(name: String,
+                                              containingFile: PsiFile,
+                                              typeable: TypeableScPsiElement,
+                                              override protected val annotations: Array[PsiAnnotation],
+                                              override protected val modifiers: Seq[String])
+    extends LightVariableBuilder[ScAnnotatedLightLocalVariable](containingFile.getManager, name, UastErrorType.INSTANCE, containingFile.getLanguage)
+      with PsiLocalVariable
+      with ScAnnotatedLightVariable {
+
+    def this(name: String,
+             containingFile: PsiFile,
+             typeable: TypeableScPsiElement,
+             modifierList: Option[ScModifierList],
+             isFinal: Boolean,
+             isField: Boolean) =
+      this(name, containingFile, typeable, modifierList.map(_.getAnnotations).getOrElse(Array.empty),
+        getJavaModifiers(modifierList, isVal = isFinal, isField = isField))
+
+    override lazy val getType: PsiType =
+      if (typeable.isValid) typeable.`type`() match {
+        case Right(scType) => scType.toPsiType
+        case Left(_) => super.getType
+      } else super.getType
+  }
 }

@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala
 package uast
 
-import com.intellij.lang.{DependentLanguage, Language}
-import com.intellij.openapi.application.{ApplicationManager, Experiments}
+import com.intellij.lang.Language
 import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.annotations.Nullable
@@ -21,7 +20,6 @@ import scala.language.postfixOps
  */
 final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
 
-  import ScalaUastLanguagePlugin._
   import UastLanguagePlugin._
 
   private val fileNameMatcher = new ExtensionFileNameMatcher(ScalaFileType.INSTANCE.getDefaultExtension)
@@ -123,16 +121,4 @@ final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
       case multiple => new ClassSetsWrapper[PsiElement](multiple.map(possibleSourceTypes).toArray)
     }
   }
-}
-
-object ScalaUastLanguagePlugin {
-
-  private def isEnabled =
-    ApplicationManager.getApplication.isUnitTestMode ||
-      Experiments.getInstance().isFeatureEnabled("scala.uast.enabled")
-
-  private object DummyDialect extends Language(ScalaLanguage.INSTANCE, "DummyDialect") with DependentLanguage
-
-  private def toClassTag(@Nullable requiredType: Class[_ <: UElement]) =
-    reflect.ClassTag[UElement](if (requiredType == null) classOf[UElement] else requiredType)
 }

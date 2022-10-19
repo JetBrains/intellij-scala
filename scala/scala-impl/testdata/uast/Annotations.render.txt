@@ -1,10 +1,13 @@
 public annotation MyAnnotation : scala.annotation.StaticAnnotation {
+    public fun MyAnnotation(value: java.lang.String, name: java.lang.String, count: int, cls: java.lang.Class<?>) : void = UastEmptyExpression
 }
 
 @MyAnnotation(null = "abc")
 public class A1 {
+    public fun A1() : void = UastEmptyExpression
 }
 
 @MyAnnotation(value = "ghi", name = "myName", count = 123, cls = null)
 public class A3 {
+    public fun A3() : void = UastEmptyExpression
 }

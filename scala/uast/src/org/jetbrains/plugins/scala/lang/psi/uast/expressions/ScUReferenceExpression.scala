@@ -109,7 +109,7 @@ final class ScUQualifiedReferenceExpression(
           case methodRef @ ScReferenceExpression(
                 _: PsiMethod | _: ScSyntheticFunction
               ) =>
-            new ScUReferenceCallExpression(methodRef, LazyUElement.just(this))
+            functionReferenceCall(methodRef, LazyUElement.just(this))
           case _ =>
             new ScUSimpleNameReferenceExpression(
               scElement,

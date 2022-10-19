@@ -1,11 +1,13 @@
 UFile (package = )
     UClass (name = SimpleAnnotation)
+        UMethod (name = SimpleAnnotation)
     UClass (name = SimpleClass)
         UAnnotation (fqName = SimpleAnnotation)
         UField (name = field)
             ULiteralExpression (value = 1)
         UField (name = another)
             ULiteralExpression (value = 1)
+        UMethod (name = SimpleClass)
         UMethod (name = foo)
             UAnnotation (fqName = java.lang.Deprecated)
             UBlockExpression

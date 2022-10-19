@@ -1,6 +1,7 @@
 import scala.annotation
 
 public abstract interface Func {
+    public final var zero: T
     public abstract fun inc(t: T) : T = UastEmptyExpression
     public abstract fun dec(t: T) : T = UastEmptyExpression
     public abstract fun in() : T = UastEmptyExpression
@@ -27,6 +28,7 @@ public class Tape {
     public var left: scala.collection.immutable.List<T>
     public var cell: T
     public var right: scala.collection.immutable.List<T>
+    public fun Tape(func: Func<T>) : void = UastEmptyExpression
     public fun headOf(list: scala.collection.immutable.List<T>) : T {
         return if (list.isEmpty()) func.zero else list.head()
     }
@@ -77,6 +79,7 @@ public class Brainfuck {
     private var prog: java.lang.String = _
     private var open2close: scala.collection.immutable.Map<java.lang.Object,java.lang.Object> = _
     private var close2open: scala.collection.immutable.Map<java.lang.Object,java.lang.Object> = _
+    public fun Brainfuck(func: Func<T>) : void = UastEmptyExpression
     @scala.annotation.tailrec
     public fun braceMatcher(pos: int, stack: scala.collection.immutable.List<java.lang.Object>, o2c: scala.collection.immutable.Map<java.lang.Object,java.lang.Object>) : scala.collection.immutable.Map<java.lang.Object,java.lang.Object> {
         return if (pos == prog.length()) o2c else switch (prog(pos))

@@ -76,6 +76,7 @@ public final class RandomServer$ {
 
 public class ServerThread : java.lang.Thread {
     public var socket: java.net.Socket
+    public fun ServerThread() : void = UastEmptyExpression
     public fun run() : void {
         final var rand: java.util.Random = Random(System.currentTimeMillis())
         try {

@@ -1,22 +1,27 @@
 public annotation IntRange : scala.annotation.StaticAnnotation {
     public final var from: long
     public final var to: long
+    public fun IntRange() : void = UastEmptyExpression
 }
 
 public annotation RequiresPermission : scala.annotation.StaticAnnotation {
     public final var anyOf: int[]
+    public fun RequiresPermission() : void = UastEmptyExpression
 }
 
 public annotation RequiresStrPermission : scala.annotation.StaticAnnotation {
     public final var strs: java.lang.String[]
+    public fun RequiresStrPermission() : void = UastEmptyExpression
 }
 
 public annotation WithDefaultValue : scala.annotation.StaticAnnotation {
     public final var value: int = 42
+    public fun WithDefaultValue() : void = UastEmptyExpression
 }
 
 public annotation SuppressLint : scala.annotation.StaticAnnotation {
     public final var value: java.lang.String
+    public fun SuppressLint() : void = UastEmptyExpression
 }
 
 public final class Annotations$ {

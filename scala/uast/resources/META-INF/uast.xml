@@ -4,6 +4,7 @@
 
     <extensions defaultExtensionNs="org.jetbrains.uast">
         <uastLanguagePlugin implementation="org.jetbrains.plugins.scala.uast.ScalaUastLanguagePlugin"/>
+        <generate.uastCodeGenerationPlugin implementation="org.jetbrains.plugins.scala.uast.ScalaUastCodeGenerationPlugin"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">

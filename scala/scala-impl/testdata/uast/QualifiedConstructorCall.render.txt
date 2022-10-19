@@ -1,13 +1,16 @@
 package A.B.C
 
 public class Foo {
+    public fun Foo() : void = UastEmptyExpression
 }
 
 public class FooWithParam {
     public final var num: int = 5
+    public fun FooWithParam() : void = UastEmptyExpression
 }
 
 public class Bar {
+    public fun Bar() : void = UastEmptyExpression
     public fun getFoo() : A.B.C.Foo {
         FooWithParam()
         FooWithParam(4)

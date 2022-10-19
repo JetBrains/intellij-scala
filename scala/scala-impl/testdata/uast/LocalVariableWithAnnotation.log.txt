@@ -1,5 +1,6 @@
 UFile (package = )
     UClass (name = TestAnnotation)
+        UMethod (name = TestAnnotation)
     UClass (name = Test$)
         UMethod (name = foo)
             UBlockExpression

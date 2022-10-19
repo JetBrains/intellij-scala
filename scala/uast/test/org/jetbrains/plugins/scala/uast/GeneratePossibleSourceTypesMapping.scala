@@ -112,6 +112,8 @@ object GeneratePossibleSourceTypesMapping {
     @Ignore("for local running only")
     class GatheringTestSuite(path: String, lang: Language, extensions: String*) extends ScalaFileSetTestCase(path, extensions: _*) {
 
+      override protected def needsSdk(): Boolean = true
+
       override protected def supportedInScalaVersion(version: ScalaVersion): Boolean =
         version == ScalaVersion.Latest.Scala_2_13
 
@@ -146,6 +148,7 @@ object GeneratePossibleSourceTypesMapping {
           |# Inner tests were not run...
           |# Make sure you have -cp set to scalaUltimate in your run config.
           |# If that doesn't help try adding VM option -Didea.force.use.core.classloader=true
+          |# and --add-opens options (see scalaUltimate run configuration)
           |#####################################################################################
           |""".stripMargin.trim
       )

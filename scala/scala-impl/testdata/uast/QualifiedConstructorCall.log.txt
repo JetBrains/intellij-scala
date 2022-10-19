@@ -1,9 +1,12 @@
 UFile (package = A.B.C)
     UClass (name = Foo)
+        UMethod (name = Foo)
     UClass (name = FooWithParam)
         UField (name = num)
             ULiteralExpression (value = 5)
+        UMethod (name = FooWithParam)
     UClass (name = Bar)
+        UMethod (name = Bar)
         UMethod (name = getFoo)
             UBlockExpression
                 UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 0))

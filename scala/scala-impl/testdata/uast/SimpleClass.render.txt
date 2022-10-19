@@ -1,10 +1,12 @@
 public annotation SimpleAnnotation : scala.annotation.StaticAnnotation {
+    public fun SimpleAnnotation() : void = UastEmptyExpression
 }
 
 @SimpleAnnotation
 public class SimpleClass {
     private final var field: int = 1
     private final var another: int = 1
+    public fun SimpleClass() : void = UastEmptyExpression
     @java.lang.Deprecated
     public fun foo() : java.lang.Object {
         return int2Integer(field)

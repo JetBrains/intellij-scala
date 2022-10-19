@@ -38,6 +38,7 @@ object ScalaUastSourceTypeMapping {
       classOf[ScClassParameterImpl],
       classOf[ScEnumCaseImpl],
       classOf[ScEnumImpl],
+      classOf[ScFieldIdImpl],
       classOf[ScFunctionDeclarationImpl],
       classOf[ScFunctionDefinitionImpl[_]],
       classOf[ScGivenAliasImpl],
@@ -70,6 +71,7 @@ object ScalaUastSourceTypeMapping {
       classOf[ScEnumCaseImpl],
       classOf[ScEnumImpl],
       classOf[ScExtendsBlockImpl],
+      classOf[ScFieldIdImpl],
       classOf[ScFloatLiteralImpl],
       classOf[ScForImpl],
       classOf[ScFunctionDeclarationImpl],
@@ -148,9 +150,11 @@ object ScalaUastSourceTypeMapping {
     classOf[UCallExpression] -> ClassSetKt.classSetOf(
       classOf[ScConstructorInvocationImpl],
       classOf[ScGenericCallImpl],
+      classOf[ScInfixExprImpl],
       classOf[ScInterpolatedExpressionPrefix],
       classOf[ScMethodCallImpl],
       classOf[ScNewTemplateDefinitionImpl],
+      classOf[ScPostfixExprImpl],
       classOf[ScReferenceExpressionImpl],
     ),
     classOf[UCallableReferenceExpression] -> ClassSetKt.classSetOf(
@@ -175,6 +179,7 @@ object ScalaUastSourceTypeMapping {
       classOf[ScEnumCaseImpl],
       classOf[ScEnumImpl],
       classOf[ScExtendsBlockImpl],
+      classOf[ScFieldIdImpl],
       classOf[ScFunctionDeclarationImpl],
       classOf[ScFunctionDefinitionImpl[_]],
       classOf[ScGivenAliasImpl],
@@ -220,6 +225,7 @@ object ScalaUastSourceTypeMapping {
       classOf[ScEnumCaseImpl],
       classOf[ScEnumImpl],
       classOf[ScExtendsBlockImpl],
+      classOf[ScFieldIdImpl],
       classOf[ScFloatLiteralImpl],
       classOf[ScForImpl],
       classOf[ScFunctionDeclarationImpl],
@@ -338,6 +344,7 @@ object ScalaUastSourceTypeMapping {
     ),
     classOf[UField] -> ClassSetKt.classSetOf(
       classOf[ScClassParameterImpl],
+      classOf[ScFieldIdImpl],
       classOf[ScReferencePatternImpl],
     ),
     classOf[UFile] -> ClassSetKt.classSetOf(
@@ -501,6 +508,7 @@ object ScalaUastSourceTypeMapping {
     ),
     classOf[UVariable] -> ClassSetKt.classSetOf(
       classOf[ScClassParameterImpl],
+      classOf[ScFieldIdImpl],
       classOf[ScParameterImpl],
       classOf[ScReferencePatternImpl],
     ),

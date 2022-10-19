@@ -86,6 +86,7 @@ public final class SimpleInterpreter$ {
     }
     public static class M {
         public var value: A
+        public fun M() : void = UastEmptyExpression
         public fun bind(k: scala.Function1<A,SimpleInterpreter.M<B>>) : SimpleInterpreter.M<B> {
             return k(value)
         }
@@ -107,21 +108,26 @@ public final class SimpleInterpreter$ {
     }
     public static class Var : SimpleInterpreter.Term {
         public var x: java.lang.String
+        public fun Var() : void = UastEmptyExpression
     }
     public static class Con : SimpleInterpreter.Term {
         public var n: int
+        public fun Con() : void = UastEmptyExpression
     }
     public static class Add : SimpleInterpreter.Term {
         public var l: SimpleInterpreter.Term
         public var r: SimpleInterpreter.Term
+        public fun Add() : void = UastEmptyExpression
     }
     public static class Lam : SimpleInterpreter.Term {
         public var x: java.lang.String
         public var body: SimpleInterpreter.Term
+        public fun Lam() : void = UastEmptyExpression
     }
     public static class App : SimpleInterpreter.Term {
         public var fun: SimpleInterpreter.Term
         public var arg: SimpleInterpreter.Term
+        public fun App() : void = UastEmptyExpression
     }
     public static abstract interface Value {
     }
@@ -132,12 +138,14 @@ public final class SimpleInterpreter$ {
     }
     public static class Num : SimpleInterpreter.Value {
         public var n: int
+        public fun Num() : void = UastEmptyExpression
         public fun toString() : java.lang.String {
             return n.toString()
         }
     }
     public static class Fun : SimpleInterpreter.Value {
         public var f: scala.Function1<SimpleInterpreter.Value,SimpleInterpreter.M<SimpleInterpreter.Value>>
+        public fun Fun() : void = UastEmptyExpression
         public fun toString() : java.lang.String {
             return "<function>"
         }

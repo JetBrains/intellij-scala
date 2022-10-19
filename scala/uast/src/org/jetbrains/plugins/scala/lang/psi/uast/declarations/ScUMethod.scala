@@ -4,20 +4,19 @@ package psi
 package uast
 package declarations
 
-import java.util
-
 import com.intellij.psi.{PsiCodeBlock, PsiMethod, PsiNameIdentifierOwner, PsiType}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnchorOwner, ScUAnnotated, ScUElement}
+import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.expressions.ScUImplicitBlockExpression
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.{UAnchorOwner, UExpression, UIdentifier, UMethod, UMethodAdapter, UParameter}
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 /**
@@ -68,6 +67,8 @@ final class ScUMethod(override protected val scElement: ScMethodLike,
 
   @Nullable
   override def getUastAnchor: UIdentifier = getSourcePsi match {
+    case pc: ScPrimaryConstructor =>
+      createUIdentifier(pc.containingClass.getNameIdentifier, this)
     case named: ScNamedElement =>
       createUIdentifier(named.nameId, this)
     case nameId: PsiNameIdentifierOwner =>

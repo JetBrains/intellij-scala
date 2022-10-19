@@ -67,7 +67,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
   ): UExpression = {
     val converted = convertWithParentTo[UExpression](element, convertLambdas)
     converted.getOrElse {
-      val empty = Free.fromConstructor[UExpression](createUEmptyExpression(element = null, _: UElement))
+      val empty = Free.fromConstructor[UExpression](createUEmptyExpression(_: UElement))
       val pinned = makeUParentAndPin(element, empty)
       pinned
     }
@@ -112,20 +112,10 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         case e: ScPrimaryConstructorWrapper => new ScUMethod(e.delegate, _)
         case e: ScFunctionWrapper           => new ScUMethod(e.delegate, _)
         case e: ScParameter                 => new ScUParameter(e, _)
-        case e: ScValueOrVariable           => new ScUDeclarationsExpression(e, _)
+        case e: ScValueOrVariable           => new ScUValOrVarDeclarationsExpression(e, _)
 
         case e: ScFunctionDefinition if e.isLocal =>
-          ScULocalFunction
-            .findContainingTypeDef(e)
-            .map(
-              tpDef =>
-                new ScULocalFunctionDeclarationExpression(
-                  e,
-                  tpDef,
-                  _: LazyUElement
-              )
-            )
-            .orNull
+          new ScULocalFunctionDeclarationExpression(e, _)
 
         //Handle case with anonymous class: new SomeClass() { ... }
         //NOTE: we attach `ScUAnonymousClass` UAST element to `ScExtendsBlock` PSI element and not to `ScTemplateBody` because here:
@@ -203,10 +193,11 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
 
         // ========================= EXPRESSION GROUPS ==========================
 
+        case e: ScInfixExpr   if requiredType != classOf[UCallExpression] => new ScUBinaryExpression(e, _)
+        case e: ScPostfixExpr if requiredType != classOf[UCallExpression] => new ScUPostfixExpression(e, _)
+
         case e: ScBlock             => new ScUBlockExpression(e, _)
-        case e: ScInfixExpr         => new ScUBinaryExpression(e, _)
         case e: ScTypedExpression   => new ScUBinaryExpressionWithType(e, _)
-        case e: ScPostfixExpr       => new ScUPostfixExpression(e, _)
         case e: ScPrefixExpr        => new ScUPrefixExpression(e, _)
         case e: ScParenthesisedExpr => new ScUParenthesizedExpression(e, _)
         case e: ScAssignment =>
@@ -227,12 +218,17 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
               requiredType == classOf[UCallExpression] =>
           new ScUGenericCallExpression(e, _)
 
+        case p@ScPostfixExpr(_, ref@ScReferenceExpression(_: PsiMethod | _: ScSyntheticFunction)) if ref.qualifier.isEmpty && requiredType == classOf[UCallExpression] =>
+          new ScUPostfixExpressionCall(p, _)
+
+        case i@ScInfixExpr(_, ref@ScReferenceExpression(_: PsiMethod | _: ScSyntheticFunction), _) if ref.qualifier.isEmpty && requiredType == classOf[UCallExpression] =>
+          new ScUBinaryExpressionCall(i, _)
+
         case funRef: ScReferenceExpression
             if !funRef.getParent.is[ScMethodCall, ScGenericCall] &&
               requiredType == classOf[UCallExpression] &&
               funRef.resolve().is[PsiMethod, ScSyntheticFunction] =>
-
-          new ScUReferenceCallExpression(funRef, _)
+          functionReferenceCall(funRef, _)
         //endregion
 
         case e: ScNewTemplateDefinition =>
@@ -283,7 +279,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         case funRef: ScReferenceExpression
           if !funRef.getParent.is[ScMethodCall, ScGenericCall, ScUnderscoreSection] &&
             funRef.resolve().is[PsiMethod, ScSyntheticFunction] =>
-          new ScUReferenceCallExpression(funRef, _)
+          functionReferenceCall(funRef, _)
 
         case ScUReferenceExpression(parent2ScURef) =>
           parent2ScURef(_)
@@ -333,6 +329,16 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
       }
     }
   }
+
+  private[uast] def functionReferenceCall(funRef: ScReferenceExpression, parent: LazyUElement): ScUMethodCallCommon =
+    funRef.getParent match {
+      case i@ScInfixExpr(_, `funRef`, _) =>
+        new ScUBinaryExpressionCall(i, parent)
+      case p@ScPostfixExpr(_, `funRef`) =>
+        new ScUPostfixExpressionCall(p, parent)
+      case _ =>
+        new ScUReferenceCallExpression(funRef, parent)
+    }
 
   private def isMethodValue(expr: ScExpression, convertLambdas: Boolean): Boolean = {
     convertLambdas && MethodValue.unapply(expr).isDefined
@@ -424,7 +430,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
           *  - containing class for "fields" skipping declaration expr
           *  - containing declaration expr for local variables
           */
-        case (_: ScReferencePattern, _, declsExpr: UDeclarationsExpression) =>
+        case (_: ScReferencePattern | _: ScFieldId, _, declsExpr: UDeclarationsExpression) =>
           declsExpr.getUastParent match {
             case cls: UClass => cls
             case _           => declsExpr
@@ -439,11 +445,13 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
           * There is a special case for local functions
           * @see [[ScULocalFunctionDeclarationExpression]]
           */
-        case (_, _, declsExpr: UDeclarationsExpression) =>
+        case (_, uElement, declsExpr: UDeclarationsExpression) =>
           val decls = declsExpr.getDeclarations
           val first = if (!decls.isEmpty) decls.get(0) else null
           first match {
-            case uVar: UVariable =>
+            case uVar: UVariable
+              // Avoid cycles caused by making an element its uast parent
+              if uVar != uElement =>
               uVar.getSourcePsi match {
                 case fun: ScFunctionDefinition if fun.isLocal =>
                   uVar.getUastInitializer

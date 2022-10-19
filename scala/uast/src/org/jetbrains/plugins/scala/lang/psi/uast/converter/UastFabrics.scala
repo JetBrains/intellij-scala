@@ -8,8 +8,7 @@ import org.jetbrains.uast._
   * Common UAST element fabrics
   */
 trait UastFabrics {
-  def createUEmptyExpression(@Nullable element: PsiElement,
-                             @Nullable parent: UElement): UExpression =
+  def createUEmptyExpression(@Nullable parent: UElement): UExpression =
     new UastEmptyExpression(parent)
 
   def createUIdentifier(@Nullable element: PsiElement,

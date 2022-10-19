@@ -4,6 +4,7 @@ UFile (package = )
         UField (name = left)
         UField (name = cell)
         UField (name = right)
+        UMethod (name = Tape)
         UMethod (name = isZero)
             UBlockExpression
                 UReturnExpression
@@ -16,6 +17,8 @@ UFile (package = )
                     UMethodCall(name = ???)
                         UIdentifier (Identifier (???))
     UClass (name = Brainfuck)
+        UMethod (name = Brainfuck)
+            UParameter (name = func)
         UMethod (name = execute)
             UParameter (name = p)
             UBlockExpression

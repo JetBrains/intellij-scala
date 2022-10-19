@@ -19,8 +19,7 @@ trait ScUElementWithComments extends UElement {
       case null => java.util.Collections.emptyList()
       case element =>
         val childrenComments = element.getChildren.toSeq
-          .filter(_.isInstanceOf[PsiComment])
-          .map(_.asInstanceOf[PsiComment])
+          .collect { case comment: PsiComment => comment }
 
         val nearestComments = this match {
           case _: UExpression =>
@@ -35,9 +34,8 @@ trait ScUElementWithComments extends UElement {
     }
 
   @tailrec
-  private def nearestCommentSibling(
-                                     element: PsiElement
-                                   )(sibling: PsiElement => PsiElement): Option[PsiComment] =
+  private def nearestCommentSibling(element: PsiElement)
+                                   (sibling: PsiElement => PsiElement): Option[PsiComment] =
     sibling(element) match {
       case comment: PsiComment => Some(comment)
       case whiteSpace: PsiWhiteSpace if !whiteSpace.textContains('\n') =>

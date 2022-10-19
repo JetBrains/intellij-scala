@@ -9,6 +9,7 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportMembersUtil._
+import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportStableMemberIntention.{checkReference, invokeOn}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -25,10 +26,16 @@ class ImportStableMemberIntention extends PsiElementBaseIntentionAction {
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val refAtCaret = PsiTreeUtil.getParentOfType(element, classOf[ScReference])
-    if (refAtCaret == null || !checkReference(refAtCaret)) return
-    refAtCaret.resolve() match {
+    invokeOn(refAtCaret)(project)
+  }
+}
+
+object ImportStableMemberIntention {
+  def invokeOn(ref: ScReference)(implicit project: Project): Unit = {
+    if (ref == null || !checkReference(ref)) return
+    ref.resolve() match {
       case named: PsiNamedElement =>
-        val importHolder = ScImportsHolder(element)(project)
+        val importHolder = ScImportsHolder(ref)
         val usages = ReferencesSearch.search(named, new LocalSearchScope(importHolder)).findAll()
         sorted(usages, isQualifier = false).foreach {
           case usage: ScReference if checkReference(usage) => replaceAndBind(usage, named.name, named)

@@ -1,17 +1,22 @@
 UFile (package = )
     UClass (name = A)
         UAnnotation (fqName = Test)
+        UMethod (name = A)
     UClass (name = Test)
+        UMethod (name = Test)
     UClass (name = MyAnnotation)
         UField (name = text)
+        UMethod (name = MyAnnotation)
     UClass (name = B)
         UAnnotation (fqName = MyAnnotation)
             UUnnamedExpression
                 ULiteralExpression (value = "class")
+        UMethod (name = B)
         UClass (name = InB)
             UAnnotation (fqName = MyAnnotation)
                 UUnnamedExpression
                     ULiteralExpression (value = "inB class")
+            UMethod (name = InB)
     UClass (name = B$)
         UAnnotation (fqName = MyAnnotation)
             UUnnamedExpression

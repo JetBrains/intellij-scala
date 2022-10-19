@@ -179,6 +179,7 @@ UFile (package = )
                                         ULiteralExpression (value = 1)
     UClass (name = ServerThread)
         UField (name = socket)
+        UMethod (name = ServerThread)
         UMethod (name = run)
             UBlockExpression
                 UDeclarationsExpression

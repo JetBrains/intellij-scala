@@ -178,6 +178,13 @@ object ScalaPsiElementFactory {
                                                       (implicit ctx: ProjectContext): E =
     createElementFromText(text)(ctx).asInstanceOf[E]
 
+  def createScalaElementFromTextWithContext[E <: ScalaPsiElement : ClassTag](text: String, @Nullable contextElement: PsiElement)
+                                                                            (implicit ctx: ProjectContext): Option[E] =
+    createElementFromText(text).asOptionOf[E].map { element =>
+      element.context = contextElement
+      element
+    }
+
   def createWildcardNode(implicit ctx: ProjectContext): ASTNode =
     createScalaFileFromText("import a._").getLastChild.getLastChild.getLastChild.getNode
 
@@ -198,6 +205,13 @@ object ScalaPsiElementFactory {
     val function = createMethodFromText(s"def foo($paramText) = null")
     function.parameters.head
   }
+
+  def createClassParameterFromText(@NonNls paramText: String)
+                                  (implicit ctx: ProjectContext): ScClassParameter =
+    createScalaFileFromText(s"class a($paramText)")
+      .typeDefinitions.head.asInstanceOf[ScClass]
+      .constructor.get
+      .parameters.head
 
   // Supports "_" parameter name
   def createFunctionParameterFromText(@NonNls paramText: String)
@@ -303,6 +317,18 @@ object ScalaPsiElementFactory {
                                 (implicit ctx: ProjectContext): ScAnnotationExpr =
     createElement(text)(expressions.AnnotationExpr.parse(_))
       .asInstanceOf[ScAnnotationExpr]
+
+  def createBlockWithGivenExpression(expression: PsiElement)(implicit ctx: ProjectContext): ScBlockExpr =
+    createBlockWithGivenExpressions(Seq(expression))
+
+  def createBlockWithGivenExpressions[CC[X] <: collection.Seq[X]](expressions: CC[PsiElement])
+                                                                 (implicit ctx: ProjectContext): ScBlockExpr = {
+    val block = createScalaElementFromText[ScBlockExpr](expressions.mkString("{\n", "\n", "\n}"))
+    block.exprs.zip(expressions).foreach { case (placeholder, expr) =>
+      placeholder.replace(expr)
+    }
+    block
+  }
 
   def createBlockExpressionWithoutBracesFromText(@NonNls text: String)
                                                 (implicit ctx: ProjectContext): ScBlockImpl = {

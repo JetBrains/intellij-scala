@@ -1,18 +1,23 @@
 @Test
 public class A {
+    public fun A() : void = UastEmptyExpression
 }
 
 public annotation Test : scala.annotation.StaticAnnotation {
+    public fun Test() : void = UastEmptyExpression
 }
 
 public annotation MyAnnotation : scala.annotation.StaticAnnotation {
     public final var text: java.lang.String
+    public fun MyAnnotation() : void = UastEmptyExpression
 }
 
 @MyAnnotation(null = "class")
 public class B {
+    public fun B() : void = UastEmptyExpression
     @MyAnnotation(null = "inB class")
     public class InB {
+        public fun InB() : void = UastEmptyExpression
     }
 }
 

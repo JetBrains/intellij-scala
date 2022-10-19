@@ -1,27 +1,34 @@
 public annotation Annotation : scala.annotation.StaticAnnotation {
     public final var strings: java.lang.String
+    public fun Annotation() : void = UastEmptyExpression
 }
 
 @Annotation
 public class A {
+    public fun A() : void = UastEmptyExpression
 }
 
 public annotation AnnotationInner : scala.annotation.StaticAnnotation {
     public final var value: Annotation
+    public fun AnnotationInner() : void = UastEmptyExpression
 }
 
 @AnnotationArray(null = Annotation())
 public class B1 {
+    public fun B1() : void = UastEmptyExpression
 }
 
 @AnnotationArray(value = Annotation("sv1", "sv2"))
 public class B2 {
+    public fun B2() : void = UastEmptyExpression
 }
 
 public annotation AnnotationArray : scala.annotation.StaticAnnotation {
     public final var value: Annotation
+    public fun AnnotationArray() : void = UastEmptyExpression
 }
 
 @AnnotationArray(null = Annotation(strings = Array("sar1", "sar2") as java.lang.String[]))
 public class C {
+    public fun C() : void = UastEmptyExpression
 }

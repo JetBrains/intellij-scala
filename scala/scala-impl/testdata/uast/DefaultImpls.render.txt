@@ -5,4 +5,5 @@ public abstract interface Foo {
 }
 
 public class Baz : Foo {
+    public fun Baz() : void = UastEmptyExpression
 }

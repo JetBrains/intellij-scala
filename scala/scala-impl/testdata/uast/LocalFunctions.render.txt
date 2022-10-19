@@ -4,6 +4,7 @@ public class Tape {
     public var left: scala.collection.immutable.List<T>
     public var cell: T
     public var right: scala.collection.immutable.List<T>
+    public fun Tape() : void = UastEmptyExpression
     public fun isZero() : boolean {
         return ???()
     }
@@ -13,6 +14,7 @@ public class Tape {
 }
 
 public class Brainfuck {
+    public fun Brainfuck(func: java.lang.Object) : void = UastEmptyExpression
     public fun execute(p: java.lang.String) : void {
         final var prog: java.lang.String = p.replaceAll("[^\\+\\-\\[\\]\\.\\,\\>\\<]", "")
         final var braceMatcher: scala.Function3<java.lang.Object,scala.collection.immutable.List<java.lang.Object>,scala.collection.immutable.Map<java.lang.Object,java.lang.Object>,scala.collection.immutable.Map<java.lang.Object,java.lang.Object>> = { public var pos: int, public var stack: scala.collection.immutable.List<java.lang.Object>, public var o2c: scala.collection.immutable.Map<java.lang.Object,java.lang.Object> ->

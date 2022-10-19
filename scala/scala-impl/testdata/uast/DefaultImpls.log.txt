@@ -5,3 +5,4 @@ UFile (package = )
                 UReturnExpression
                     ULiteralExpression (value = "Hello!")
     UClass (name = Baz)
+        UMethod (name = Baz)
