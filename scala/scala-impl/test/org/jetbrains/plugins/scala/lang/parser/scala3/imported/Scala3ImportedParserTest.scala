@@ -6,11 +6,13 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.DebugUtil.psiToString
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import junit.framework.{Test, TestCase}
-import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTest.rangesDirectory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.{LatestScalaVersions, Scala3Language}
 import org.junit.Assert._
 
 import java.nio.file.Paths
@@ -19,7 +21,11 @@ private[imported] abstract class Scala3ImportedParserTestBase(dir: String) exten
   override protected def getLanguage: Language = Scala3Language.INSTANCE
 
   protected def findErrorElements(fileText: String, project: Project): (Seq[PsiErrorElement], PsiFile) = {
-    val lightFile = createLightFile(fileText, project)
+    val lightFile = ScalaPsiElementFactory.createScalaFileFromText(
+      fileText,
+      ScalaFeatures.forParserTests(LatestScalaVersions.Scala_3)
+    )(project)
+
     val errors = lightFile
       .elements
       .collect { case error: PsiErrorElement => error }

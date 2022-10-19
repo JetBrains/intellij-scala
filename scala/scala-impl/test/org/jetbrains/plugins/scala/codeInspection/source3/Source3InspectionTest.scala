@@ -112,7 +112,7 @@ class Source3InspectionTest extends ScalaInspectionTestBase {
 
     testQuickFix(
       "Seq(a: _*)",
-      "Seq(a*)",
+      "Seq(a *)",
       "Replace with *"
     )
   }
@@ -123,7 +123,7 @@ class Source3InspectionTest extends ScalaInspectionTestBase {
 
     testQuickFix(
       "Seq(a ++ a: _*)",
-      "Seq((a ++ a)*)",
+      "Seq((a ++ a) *)",
       "Replace with *"
     )
   }

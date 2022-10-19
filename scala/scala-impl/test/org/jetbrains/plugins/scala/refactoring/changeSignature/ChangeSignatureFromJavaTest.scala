@@ -3,7 +3,6 @@ package refactoring.changeSignature
 
 import com.intellij.psi.{PsiEllipsisType, PsiMember, PsiMethod, PsiType}
 import com.intellij.refactoring.changeSignature._
-import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
 import org.junit.Assert._
 
 class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {

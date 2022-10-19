@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 /*
   We could probably replace ScalaPsiElementFactory with this class:
@@ -68,27 +68,27 @@ object ScalaCode {
 
     private def code0(parts: Seq[String], args: Seq[Any]): ScalaPsiElement = {
       val separators = args.flatMap {
-        case s: String => Seq(s)
-        case i: Int => Seq(i.toString)
-        case Some(s: String) => Seq(s)
-        case Some(i: Int) => Seq(i.toString)
+        case s: String           => Seq(s)
+        case i: Int              => Seq(i.toString)
+        case Some(s: String)     => Seq(s)
+        case Some(i: Int)        => Seq(i.toString)
         case Some(_: PsiElement) => Seq("%e")
-        case None => Seq.empty
-        case @@(es, s) => Seq(Seq.fill(es.length)("%e").mkString(s))
-        case _ => Seq("%e")
+        case None                => Seq.empty
+        case @@(es, s)           => Seq(Seq.fill(es.length)("%e").mkString(s))
+        case _                   => Seq("%e")
       }
 
-      val argumetns = args.flatMap {
+      val arguments = args.flatMap {
         case _: String | _: Int | None => Seq.empty
-        case Some(_: String) => Seq.empty
-        case Some(e: PsiElement) => Seq(e)
-        case @@(es, _) => es
-        case it => Seq(it)
+        case Some(_: String)           => Seq.empty
+        case Some(e: PsiElement)       => Seq(e)
+        case @@(es, _)                 => es
+        case it                        => Seq(it)
       }
 
       val s = interleave(parts, separators).mkString
 
-      format(s, argumetns: _*)
+      format(s, arguments: _*)
     }
   }
 

@@ -6,8 +6,7 @@ import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt, ProjectPsiFileExt, ScalaFeaturePusher, ScalaFeatures, ScalaLanguageLevel}
-import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.project._
 
 // TODO: now isScala3 is properly set only in org.jetbrains.plugins.scala.lang.parser.ScalaParser
 //  update all ScalaPsiBuilderImpl instantiations passing proper isScala3 value
@@ -33,35 +32,24 @@ class ScalaPsiBuilderImpl(
 
   override def skipExternalToken(): Boolean = false
 
-  override final lazy val isMetaEnabled: Boolean =
-    isUnitTestMode || features.hasMetaEnabled
+  override final lazy val isMetaEnabled: Boolean = features.hasMetaEnabled
 
   override final lazy val isStrictMode: Boolean =
     containingFile.exists(_.isCompilerStrictMode)
 
   override final lazy val features: ScalaFeatures = presetFeatures.getOrElse {
-    def featuresByVersion(features: ScalaFeatures): ScalaFeatures =
-      features.copy(if (isScala3) ScalaVersion.Latest.Scala_3_0 else ScalaVersion.Latest.Scala_2_13)
-
-    def fallback = featuresByVersion(ScalaFeatures.default)
+    def featuresByVersion: ScalaFeatures = {
+      val version = if (isScala3) ScalaVersion.Latest.Scala_3_0 else ScalaVersion.Latest.Scala_2_13
+      ScalaFeatures.onlyByVersion(version)
+    }
 
     containingFile match {
       case Some(file) =>
         file.module match {
-          case Some(module) =>
-            val features = module.features
-
-            // If we don't have a module or a concrete scala version of the file
-            // force the version given by isScala
-            if (isScala3 == features.isScala3) features
-            else featuresByVersion(features)
-          case None =>
-            // try get from file
-            ScalaFeaturePusher.getFeatures(file)
-              .getOrElse(fallback)
+          case Some(module) => module.features
+          case None         => ScalaFeaturePusher.getFeatures(file).getOrElse(featuresByVersion)
         }
-      case None =>
-        fallback
+      case None => featuresByVersion
     }
   }
 
@@ -69,13 +57,16 @@ class ScalaPsiBuilderImpl(
 
   final lazy val scalaLanguageLevel: Option[ScalaLanguageLevel] = Option(features.languageLevel)
 
+  final private lazy val isAtLeast2_12: Boolean = scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_12)
+
   override final def isTrailingComma: Boolean = getTokenType match {
-    case `tCOMMA` => features.hasTrailingCommasEnabled
+    case `tCOMMA` => features.hasTrailingCommasEnabled ||
+      isAtLeast2_12 // hack for light tests, where features are not initialized correctly
     case _        => false
   }
 
   override final def isIdBinding: Boolean =
-    this.invalidVarId || scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_12)
+    this.invalidVarId || isAtLeast2_12
 
   override def newlineBeforeCurrentToken: Boolean =
     findPreviousNewLineSafe.isDefined

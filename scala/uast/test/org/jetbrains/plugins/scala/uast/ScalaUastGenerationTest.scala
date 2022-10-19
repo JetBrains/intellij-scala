@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariableDefi
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createScalaElementFromTextWithContext, createScalaFileFromText}
 import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 import org.jetbrains.plugins.scala.uast.AbstractUastFixtureTest.findUElementByTextFromPsi
 import org.jetbrains.plugins.scala.uast.ScalaUastGenerationTest.UElementExt
 import org.jetbrains.uast.generate.{UParameterInfo, UastCodeGenerationPlugin, UastElementFactory}
@@ -424,7 +424,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testSimpleReferenceFromVariable(): Unit = {
-    val refPattern = createScalaFileFromText("class Foo { val a: Int = ??? }")
+    val refPattern = createScalaFileFromText("class Foo { val a: Int = ??? }", ScalaFeatures.onlyByVersion(version))
       .typeDefinitions.head
       .members.head
       .asInstanceOf[ScValueOrVariableDefinition]
