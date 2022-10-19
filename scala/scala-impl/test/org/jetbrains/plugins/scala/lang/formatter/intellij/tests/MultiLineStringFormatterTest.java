@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatter.intellij.tests;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import org.jetbrains.annotations.NotNull;

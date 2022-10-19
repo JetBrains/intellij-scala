@@ -75,12 +75,12 @@ object ScalaPrimaryConstructorMacro {
 
     private def createScParametersFromText(paramsText: String, context: ExpressionContext): Option[ScParameters] = {
       implicit def projectContext: ProjectContext = context.getProject
-      
-      val features = 
+
+      val features =
         context
         .getPsiElementAtStartOffset
         .toOption
-        .fold(ScalaFeatures.default)(ScalaFeatures.forPsiOrDefault)
+        .fold(ScalaFeatures.default: ScalaFeatures)(ScalaFeatures.forPsiOrDefault)
 
       Option(ScalaPsiElementFactory.createScalaFileFromText(s"def foo$paramsText: Unit = ???", features))
         .flatMap(file => Option(PsiTreeUtil.findChildOfType(file, classOf[ScParameters])))

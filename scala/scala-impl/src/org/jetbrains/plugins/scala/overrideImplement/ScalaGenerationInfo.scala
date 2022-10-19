@@ -37,7 +37,6 @@ class ScalaGenerationInfo(classMember: ClassMember)
       case _ => return
     }
 
-
     val comment = if (ScalaApplicationSettings.getInstance().COPY_SCALADOC)
       Option(classMember.getElement.getDocComment).map(_.getText).getOrElse("") else ""
 
@@ -45,14 +44,14 @@ class ScalaGenerationInfo(classMember: ClassMember)
       case member: ScMethodMember => myMember = insertMethod(member, templDef, anchor)
       case ScAliasMember(alias, substitutor, isOverride) =>
         val needsOverride = isOverride || toAddOverrideToImplemented
-        val m = createOverrideImplementType(alias, substitutor, needsOverride, anchor, comment)(alias.getManager)
+        val m = createOverrideImplementType(alias, substitutor, needsOverride, aClass, comment)(alias.getManager)
 
         val added = templDef.addMember(m, Option(anchor))
         addTargetNameAnnotationIfNeeded(added, alias)
         myMember = added
         TypeAdjuster.markToAdjust(added)
       case member: ScValueOrVariableMember[_] =>
-        val m: ScMember = createVariable(comment, classMember, anchor)
+        val m: ScMember = createVariable(comment, classMember, aClass)
         val added = templDef.addMember(m, Option(anchor))
         addTargetNameAnnotationIfNeeded(added, if (member.element.is[ScClassParameter]) member.element else member.getElement)
         myMember = added
@@ -194,7 +193,7 @@ object ScalaGenerationInfo {
       signature,
       needsOverride,
       body,
-      anchor,
+      td,
       withComment = ScalaApplicationSettings.getInstance().COPY_SCALADOC,
       withAnnotation = false
     )(method.getManager)
@@ -214,11 +213,13 @@ object ScalaGenerationInfo {
       case x: ScVariableMember => x.element
       case _ => ???
     }
+
     val (substitutor, needsOverride) = classMember match {
       case x: ScValueMember => (x.substitutor, x.isOverride)
       case x: ScVariableMember => (x.substitutor, x.isOverride)
       case _ => ???
     }
+
     val addOverride = needsOverride || toAddOverrideToImplemented
     val m = createOverrideImplementVariable(value, substitutor, addOverride, isVal, anchor, comment)(value.getManager)
 

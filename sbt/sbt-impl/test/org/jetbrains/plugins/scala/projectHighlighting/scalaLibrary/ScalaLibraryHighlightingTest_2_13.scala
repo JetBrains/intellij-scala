@@ -50,9 +50,6 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
       (26374, 26376), // Unspecified value parameters: hashf: Hashing[K], ef: Equiv[K]
       (26343, 26358), // Type mismatch, expected: Hashing[K], actual: Hashing.Default[Nothing]
     ),
-    "scala/collection/convert/AsScalaConverters.scala" -> Set(
-      (6799, 6813), // Expression of type Map[_, _] doesn't conform to expected type Map[A, B]
-    ),
     "scala/collection/immutable/ArraySeq.scala" -> Set(
       (10990, 11006), // Scrutinee is incompatible with pattern type, found: Array[AnyRef], required: Array[T]
       (11041, 11054), // Scrutinee is incompatible with pattern type, found: Array[Int], required: Array[T]

@@ -117,7 +117,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
         maybeExpression.foreach {
           case call@Implementation.EmptyCollectionFactoryCall(ref) =>
-            val replacement = createElementFromText(ref.getText, ref)(ref.projectContext)
+            val replacement = createPsiElementFromText(ref.getText, ref)(ref.projectContext)
             call.replace(replacement)
           case _ =>
         }

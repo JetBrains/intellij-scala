@@ -8,6 +8,8 @@ import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
+import com.intellij.psi.impl.source.PsiFileImpl
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.search.GlobalSearchScope
@@ -17,7 +19,6 @@ import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.{NonNls, Nullable}
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClauses
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -37,7 +38,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -48,6 +48,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocParagraph, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.project.ProjectContext.toManager
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 import java.{util => ju}
 import scala.annotation.tailrec
@@ -140,9 +141,9 @@ final class ScalaPsiElementFactoryImpl(project: Project) extends JVMElementFacto
 
 object ScalaPsiElementFactory {
 
-  import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
-  import org.jetbrains.plugins.scala.lang.parser.parsing.{base => parsingBase, statements => parsingStat, _}
   import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.parser.parsing.{base => parsingBase, statements => parsingStat, _}
+  import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
   import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 
   def safe[T](createBody: ScalaPsiElementFactory.type => T): Option[T] =
@@ -163,12 +164,19 @@ object ScalaPsiElementFactory {
     text: String,
     @Nullable contextElement: PsiElement
   )(implicit ctx: ProjectContext): Option[E] = {
-    val features = contextElement.toOption.fold(ScalaFeatures.default)(ScalaFeatures.forPsiOrDefault)
-    createElementFromText[E](text, features).toOption.map { element =>
+    createElementFromText[E](text, contextElement).toOption.map { element =>
       element.context = contextElement
       element
     }
   }
+
+  def createPsiElementFromText(
+    @NonNls text: String,
+    features:     ScalaFeatures
+  )(implicit
+    ctx: ProjectContext
+  ): PsiElement =
+    createElementFromText[PsiElement](text, features)
 
   def createElementFromText[E <: PsiElement](
     @NonNls text: String,
@@ -577,7 +585,7 @@ object ScalaPsiElementFactory {
   }
 
   def createNewLine(@NonNls text: String = "\n")(implicit ctx: ProjectContext): PsiElement =
-    createElementFromText(text, ScalaFeatures.default)
+    createScalaFileFromText(text, ScalaFeatures.default, shouldTrimText = false).getFirstChild
 
   def createNewLineNode(@NonNls text: String = "\n")(implicit ctx: ProjectContext): ASTNode =
     createNewLine(text).getNode
@@ -1044,25 +1052,35 @@ object ScalaPsiElementFactory {
     }
 
   def createScalaFileFromText(
-    @NonNls text: String,
-    features:     ScalaFeatures,
-    checkLength:  Boolean = false
+    @NonNls text:   String,
+    features:       ScalaFeatures,
+    checkLength:    Boolean = false,
+    shouldTrimText: Boolean = true
   )(implicit
     ctx: ProjectContext
   ): ScalaFile =
-    createFromTextImpl(text, features, checkLength)(CompilationUnit()(_))(identity)
+    createFromTextImpl(
+      text,
+      features,
+      checkLength,
+      shouldTrimText
+    )(CompilationUnit()(_))(identity)
 
   private def createFromTextImpl[R <: PsiElement](
-    @NonNls text:  String,
-    features:      ScalaFeatures,
-    checkLength:   Boolean = false
+    @NonNls text:   String,
+    features:       ScalaFeatures,
+    checkLength:    Boolean = false,
+    shouldTrimText: Boolean = true
   )(parse:         ScalaPsiBuilder => Any
   )(getResult:     ScalaFile => R
   )(implicit
     ctx: ProjectContext
   ): R = {
+    val convertedSeparators = convertLineSeparators(text)
+    val seq                 = if (shouldTrimText) convertedSeparators.trim else convertedSeparators
+
     val language = if (features.isScala3) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE
-    val vfile    = new LightVirtualFile("dummy.scala")
+    val vfile    = new LightVirtualFile("dummy.scala", "")
     val factory  = LanguageFileViewProviders.INSTANCE.forLanguage(language)
 
     val viewProvider =
@@ -1072,8 +1090,7 @@ object ScalaPsiElementFactory {
     val project          = ctx.getProject
     val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language)
 
-    val chameleon = scalaFile.getTreeElement
-    val seq       = convertLineSeparators(text).trim
+    val chameleon           = scalaFile.getTreeElement
 
     val delegate = PsiBuilderFactory.getInstance.createBuilder(
       project,
@@ -1090,14 +1107,20 @@ object ScalaPsiElementFactory {
 
     val first = psiBuilder.getTreeBuilt.getFirstChildNode.asInstanceOf[TreeElement]
     chameleon.getFirstChildNode
-    chameleon.rawAddChildren(first)
+
+    if (first ne null) chameleon.rawAddChildren(first)
+
     val result = getResult(scalaFile)
-    if (checkLength && result.getTextLength != seq.length) {
+    if (checkLength && chameleon.getTextLength != seq.length) {
       throw new ScalaPsiElementCreationException(
-        s"Text length differs; actual: ${result.getText}, expected: $seq",
+        s"Text length differs; actual: ${chameleon.getText}, expected: $seq",
         null
       )
     }
+
+    CodeEditUtil.setNodeGeneratedRecursively(chameleon, true)
+    ScalaFeatures.setAttachedScalaFeatures(scalaFile, features)
+    features.psiContext.foreach(scalaFile.context = _)
     result
   }
 
@@ -1135,7 +1158,7 @@ object ScalaPsiElementFactory {
     createElementFromText[ScalaPsiElement]("var f: Int", ScalaFeatures.default).findChildrenByType(tCOLON).head
 
   def createComma(implicit ctx: ProjectContext): PsiElement =
-    createElementFromText(",", ScalaFeatures.default)
+    createScalaFileFromText(",", ScalaFeatures.default).findChildrenByType(tCOMMA).head
 
   def createAssign(implicit ctx: ProjectContext): PsiElement =
     createElementFromText("val x = 0", ScalaFeatures.default)
@@ -1235,10 +1258,16 @@ object ScalaPsiElementFactory {
          |*/""".stripMargin, ScalaFeatures.default).docComment.orNull
       .getNode.getChildren(null)(1).getChildren(null)(2).getPsi
 
-  def createScalaDocTagName(@NonNls name: String)
-                           (implicit ctx: ProjectContext): PsiElement =
+  def createScalaDocTagName(@NonNls name: String)(implicit ctx: ProjectContext): PsiElement =
     createScalaFileFromText("/**@" + name + " qwerty */", ScalaFeatures.default)
-      .typeDefinitions.head.docComment.get.getNode.getChildren(null)(1).getChildren(null)(0).getPsi
+      .findChildrenByClass(classOf[ScTypeDefinition])
+      .head
+      .docComment
+      .get
+      .getNode
+      .getChildren(null)(1)
+      .getChildren(null)(0)
+      .getPsi
 
   def createScalaDocLinkValue(@NonNls text: String)
                              (implicit ctx: ProjectContext): ScDocResolvableCodeReference =

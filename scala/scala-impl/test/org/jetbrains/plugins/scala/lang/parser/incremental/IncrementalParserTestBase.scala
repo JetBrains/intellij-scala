@@ -45,8 +45,15 @@ abstract class IncrementalParserTestBase extends EditorActionTestBase with Asser
     val codeAfter = code.patch(range.getStartOffset, replaceWith, range.getLength)
 
     val expectedPsiText =
-      psiToString(ScalaPsiElementFactory.createScalaFileFromText(codeAfter, ScalaFeatures.onlyByVersion(version)), true)
-        .replace("dummy.scala", "test.scala")
+      psiToString(
+        ScalaPsiElementFactory.createScalaFileFromText(
+          codeAfter,
+          ScalaFeatures.onlyByVersion(version),
+          shouldTrimText = false
+        ),
+        true
+      ).replace("dummy.scala", "test.scala")
+
     val actualPsiText = psiToString(getFile, true)
 
     try actualPsiText shouldBe expectedPsiText catch {

@@ -63,7 +63,7 @@ package object intention {
           case (argExpr, param) =>
             if (!onlyBoolean || (onlyBoolean && param.paramType.isBoolean)) {
               IntentionPreviewUtils.write { () =>
-                argExpr.replace(createExpressionFromText(param.name + " = " + argExpr.getText, element)(element.getManager))
+                argExpr.replace(createExpressionFromText(param.name + " = " + argExpr.getText, argList)(element.getManager))
               }
             }
           case _ =>

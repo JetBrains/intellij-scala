@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstr
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScBlockExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValueDeclaration, ScValueOrVariable, ScValueOrVariableDefinition, ScVariableDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createReferenceFromText, createScalaElementFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createElementFromText, createNewLine, createReferenceFromText}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.uast.UastContextKt.toUElement
 import org.jetbrains.uast.generate.{UastCodeGenerationPlugin, UastElementFactory}
@@ -85,7 +85,7 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
           if (paramPsi == null) return
 
           fieldSourceVariable.foreach { fieldPsi =>
-            val scParam = ScalaPsiElementFactory.createClassParameterFromText(fieldPsi.getText)
+            val scParam = ScalaPsiElementFactory.createClassParameterFromText(fieldPsi.getText, constructor)
             scParam.getModifierList.setModifierProperty(ScalaTokenTypes.kFINAL.text, false)
             scParam.getActualDefaultExpression.foreach(_.delete())
             scParam.getNode.findChildByType(ScalaTokenTypes.tASSIGN).toOption.foreach(_.getPsi.delete())
@@ -97,7 +97,11 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
             case definition: ScValueOrVariableDefinition =>
               definition.expr.foreach(_.replace(createReferenceFromText(uParameter.getName)))
             case declaration@(_: ScValueDeclaration | _: ScVariableDeclaration) =>
-              declaration.replace(createScalaElementFromText[ScValueOrVariableDefinition](s"${declaration.getText} = ${uParameter.getName}"))
+              declaration.replace(
+                createElementFromText[ScValueOrVariableDefinition](
+                  s"${declaration.getText} = ${uParameter.getName}", constructor
+                )
+              )
             case _ =>
           }
         }
@@ -115,14 +119,14 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
             .append(" = ")
             .append(uParameter.getName)
 
-          createScalaElementFromText[ScAssignment](assignmentBuilder.result())
+          createElementFromText[ScAssignment](assignmentBuilder.result(), fn)
         }
 
         fn.body.foreach {
           case block: ScBlockExpr =>
             addToBlock(block, createAssignment)
           case bodyExpr =>
-            val newBody = ScalaPsiElementFactory.createBlockWithGivenExpression(bodyExpr) match {
+            val newBody = ScalaPsiElementFactory.createBlockWithGivenExpression(bodyExpr, bodyExpr) match {
               case block: ScBlockExpr =>
                 addToBlock(block, createAssignment)
                 block
