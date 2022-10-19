@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.annotator.element
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{nameContext, superValsSignatures}
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.superValsSignatures
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -18,32 +19,32 @@ object ScOverriddenVarAnnotator extends ElementAnnotator[ScTypedDefinition] {
       case IsAbstract(_) =>
         None
       case p: ScClassParameter if p.isVar =>
-        val supers = superValsSignatures(elem, withSelfType = true).map { s => nameContext(s.namedElement) }
+        val supers = superValsSignatures(elem, withSelfType = true).map { s => s.namedElement.nameContext }
         if (supers.exists(!isAbstract(_)))
           Some(ScalaBundle.message("var.cannot.be.overridden"))
         else
           None
       case _: ScVariable =>
-        val supers = superValsSignatures(elem, withSelfType = true).map { s => nameContext(s.namedElement) }
+        val supers = superValsSignatures(elem, withSelfType = true).map { s => s.namedElement.nameContext }
         if (supers.exists(!isAbstract(_)))
           Some(ScalaBundle.message("var.cannot.be.overridden"))
         else
           None
       case f: ScFunction if f.name.endsWith("_=") && isSetter(f) =>
         val elemName = f.name.dropRight(2)
-        val supers = f.superSignatures.map { s => nameContext(s.namedElement) }
+        val supers = f.superSignatures.map { s => s.namedElement.nameContext }
         if (supers.exists(isVar) && !hasGetter(elemName, f.containingClass))
           Some(ScalaBundle.message("missing.getter.implementation", elemName))
         else
           None
       case f: ScFunction if isGetter(f) =>
-        val supers = f.superSignatures.map { s => nameContext(s.namedElement) }
+        val supers = f.superSignatures.map { s => s.namedElement.nameContext }
         checkForNonAbstractVarSuper(supers, elem.name, f.containingClass)
       case v: ScValue =>
-        val supers = superValsSignatures(elem, withSelfType = true).map { s => nameContext(s.namedElement) }
+        val supers = superValsSignatures(elem, withSelfType = true).map { s => s.namedElement.nameContext }
         checkForNonAbstractVarSuper(supers, elem.name, v.containingClass)
       case _: ScClassParameter =>
-        val supers = superValsSignatures(elem, withSelfType = true).map { s => nameContext(s.namedElement) }
+        val supers = superValsSignatures(elem, withSelfType = true).map { s => s.namedElement.nameContext }
         if (supers.exists(isVar))
           Some(ScalaBundle.message("var.cannot.be.overridden"))
         else
