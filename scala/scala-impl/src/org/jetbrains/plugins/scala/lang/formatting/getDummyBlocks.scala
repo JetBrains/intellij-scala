@@ -160,10 +160,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
       case _: ScFor =>
         subBlocks.addAll(getForSubBlocks(node.getChildren(null)))
         return subBlocks
-      case _: ScReferenceExpression | _: ScThisReference | _: ScSuperReference =>
-        subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node))
-        return subBlocks
-      case _: ScMethodCall =>
+      case e if canContainMethodCallChain(e) =>
         subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node))
         return subBlocks
       case _: ScLiteral if node.getFirstChildNode != null &&
@@ -718,6 +715,15 @@ class getDummyBlocks(private val block: ScalaBlock) {
     case _ => 0
   }
 
+  private def canContainMethodCallChain(psi: PsiElement): Boolean =
+    psi match {
+      case _: ScReferenceExpression |
+           _: ScThisReference |
+           _: ScSuperReference |
+           _: ScMethodCall => true
+      case _ => false
+    }
+
   private def getMethodCallOrRefExprSubBlocks(node: ASTNode): util.ArrayList[Block] = {
     val dotAlignment = if (cs.ALIGN_MULTILINE_CHAINED_METHODS) Alignment.createAlignment() else null
     val dotWrap = block.suggestedWrap
@@ -731,14 +737,15 @@ class getDummyBlocks(private val block: ScalaBlock) {
       delegatedChildren: List[ASTNode] = List(),
       delegatedContext: Map[ASTNode, SubBlocksContext] = Map(),
     ): Unit = {
-      node.getPsi match {
-        case _: ScLiteral | _: ScBlockExpr=>
-          result.add(subBlock(node, null))
-          for (child <- delegatedChildren.filter(isNotEmptyNode)) {
-            result.add(subBlock(child, null))
-          }
-          return
-        case _ =>
+      val psi = node.getPsi
+      if (canContainMethodCallChain(psi) || psi.is[ScGenericCall]) {
+        //continue
+      } else {
+        result.add(subBlock(node, null))
+        for (child <- delegatedChildren.filter(isNotEmptyNode)) {
+          result.add(subBlock(child, null))
+        }
+        return
       }
 
       val alignment = createAlignment(node)
@@ -847,10 +854,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
       case _: ScInfixPattern if ALIGN_MULTILINE_BINARY_OPERATION                     => create
       case _: ScInfixTypeElement if ALIGN_MULTILINE_BINARY_OPERATION                 => create
       case _: ScCompositePattern if ss.ALIGN_COMPOSITE_PATTERN                       => create
-      case _: ScMethodCall |
-           _: ScReferenceExpression |
-           _: ScThisReference |
-           _: ScSuperReference if ALIGN_MULTILINE_CHAINED_METHODS => create
+      case e if canContainMethodCallChain(e) && ALIGN_MULTILINE_CHAINED_METHODS      => create
       case _: ScDocListItem if ss.SD_ALIGN_LIST_ITEM_CONTENT      => create(true)
       case _                                                      => null
     }

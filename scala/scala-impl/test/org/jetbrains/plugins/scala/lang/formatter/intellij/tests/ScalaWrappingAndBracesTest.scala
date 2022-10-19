@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.junit.Ignore
 
+//TODO: extract "method call chain" tests
 class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
   private val RightMarginMarker = "!"
   private val CHOP_DOWN_IF_LONG = CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
@@ -850,6 +851,39 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
         |""".stripMargin
     doTextTest(before, after)
   }
+
+  def test_MethodCallChain_VariousKindsOfReceivers_Align(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    doTextTest(
+      """implicit class AnyOps(private val value: Any) extends AnyVal {
+        |  def foo() = value
+        |}
+        |
+        |val ref = 42
+        |
+        |ref.foo()
+        |   .foo().foo()
+        |   .foo().foo()
+        |
+        |
+        |(ref).foo()
+        |     .foo().foo()
+        |     .foo().foo()
+        |
+        |(ref, ref).foo().foo()
+        |          .foo()
+        |
+        |"12345".foo().foo()
+        |       .foo()
+        |
+        |{
+        |  42
+        |}.foo().foo()
+        | .foo().foo()
+        |""".stripMargin
+    )
+  }
+
 
   def testIndentForEnumeratorsIfFirstStartsFromNewLine(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_FOR = false
