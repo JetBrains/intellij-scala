@@ -38,7 +38,7 @@ object SAMUtil {
   def isFunctionalExpression(e: ScExpression): Boolean = {
     val res = e match {
       case _: ScFunctionExpr                                    => true
-      case block: ScBlock if block.isPartialFunction          => true
+      case block: ScBlock if block.isPartialFunction            => true
       case MethodValue(_)                                       => true
       case _ if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
       case _                                                    => false

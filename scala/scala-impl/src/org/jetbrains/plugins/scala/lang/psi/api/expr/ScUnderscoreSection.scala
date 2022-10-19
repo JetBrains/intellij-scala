@@ -27,7 +27,7 @@ trait ScUnderscoreSection extends ScExpression {
     def go(expr: ScExpression, calcArguments: Boolean = true): Option[ScExpression] = {
       expr.getContext match {
         case args: ScArgumentExprList =>
-          if (!calcArguments) return Some(expr.asInstanceOf[ScExpression])
+          if (!calcArguments) return Some(expr)
           args.getContext match {
             case call: ScMethodCall => go(call, calcArguments = false)
             case constrInvocation: ScConstructorInvocation =>

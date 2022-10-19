@@ -262,6 +262,7 @@ object ScExpression {
               ).synthesizeContextFunctionType(expectedType, expr)
                .unpackedType
                .synthesizePartialFunctionType(expr, expectedType)
+               .untupleFunction(expr, expectedType)
 
             if (ignoreBaseType) Right(valueType)
             else
@@ -445,6 +446,33 @@ object ScExpression {
     }
 
     /**
+     * Adapt expression of type (T_1, ... T_n) => R1 to
+     * the expected type of tupled unary function TupleN(U_1, ... U_n) => R2
+     * provided forall n. U_n <: T_n and R1 <: R2
+     */
+    final def untupleFunction(
+      expr: ScExpression,
+      pt:   Option[ScType]
+    ): ScType =
+      if (SAMUtil.isFunctionalExpression(expr))
+        scType match {
+          case FunctionType(resTpe, paramTypes) =>
+            pt.map(_.removeAliasDefinitions()) match {
+              case Some(FunctionType(ptRes, Seq(t @ TupleType(ptParams))))
+                if expr.isInScala3Module
+                  && resTpe.conforms(ptRes) && parameterTypesMatch(paramTypes, ptParams) =>
+                implicit val scope: ElementScope = expr.elementScope
+                FunctionType((resTpe, Seq(t)))
+              case _ => scType
+            }
+          case _ => scType
+        }
+      else scType
+
+    private def parameterTypesMatch(params: Seq[ScType], ptParams: Seq[ScType]): Boolean =
+      ptParams.corresponds(params)(_.conforms(_))
+
+    /**
      * https://github.com/scala/scala/pull/8172
      *
      * Adapt type of a function literal, if the expected type is
@@ -461,16 +489,12 @@ object ScExpression {
         case _                => Seq(t)
       }
 
-      def parameterTypesMatch(ptParams: ScType, paramTpes: Iterable[ScType]): Boolean =
-        paramTpes.corresponds(flattenParamTypes(ptParams))(_.conforms(_)) ||
-          paramTpes.corresponds(Seq(ptParams))(_.conforms(_))
-
       def checkExpectedPartialFunctionType(
         resTpe:    ScType,
         paramTpes: Seq[ScType]
       ): ScType = expectedTpe match {
         case Some(PartialFunctionType(ptRes, ptParams))
-            if resTpe.conforms(ptRes) && parameterTypesMatch(ptParams, paramTpes) &&
+            if resTpe.conforms(ptRes) && parameterTypesMatch(paramTpes, flattenParamTypes(ptParams)) &&
               expr.scalaLanguageLevelOrDefault >= Scala_2_13 =>
           val partialFunctionParamType =
             if (paramTpes.size == 1) paramTpes.head

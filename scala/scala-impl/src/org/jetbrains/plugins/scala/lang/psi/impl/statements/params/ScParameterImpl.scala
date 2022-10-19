@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ParameterExpe
 import org.jetbrains.plugins.scala.lang.psi.stubs._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.ScParamElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -111,6 +111,12 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
         def extractFromFunctionType(tpe: ScType, checkDeep: Boolean = false): Option[ScType] =
           tpe match {
             case functionLikeType(_, retTpe, _) if checkDeep => extractFromFunctionType(retTpe)
+            case functionLikeType(_, _, Seq(TupleType(paramTpes)))
+              if this.isInScala3Module && clause.parameters.size == paramTpes.size =>
+              val pt = paramTpes(idx)
+
+              if (isFullyDefined(pt)) pt.removeAbstracts.toOption
+              else                    None
             case functionLikeType(_, _, paramTpes) =>
               paramTpes.lift(idx).flatMap(tpe =>
                 if (isFullyDefined(tpe)) tpe.removeAbstracts.toOption
