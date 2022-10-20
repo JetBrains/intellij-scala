@@ -60,57 +60,59 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
 
     val blockMarker = builder.mark()
     builder.withIndentationWidth(indentationForExprBlock) {
+      builder.withEnabledNewlines {
 
-      blockMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_WS_AND_COMMENT_TOKENS, null)
+        blockMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_WS_AND_COMMENT_TOKENS, null)
 
-      // We need to early parse those definitions which begin with a soft keyword
-      // (extension, inline, transparent, infix, open)
-      // If we don't parse them early, they will be wrongly parsed as expressions with errors.
-      // For example `extension (x: String)` will be parsed as a method call
-      val firstParsedAsDefWithSoftKeyword = Extension() || Def() || TmplDef()
+        // We need to early parse those definitions which begin with a soft keyword
+        // (extension, inline, transparent, infix, open)
+        // If we don't parse them early, they will be wrongly parsed as expressions with errors.
+        // For example `extension (x: String)` will be parsed as a method call
+        val firstParsedAsDefWithSoftKeyword = Extension() || Def() || TmplDef()
 
-      val firstParsedAsExpr =
-        !firstParsedAsDefWithSoftKeyword && exprPartParser()
+        val firstParsedAsExpr =
+          !firstParsedAsDefWithSoftKeyword && exprPartParser()
 
-      val firstParsedAsBlockStat =
-        firstParsedAsDefWithSoftKeyword || !firstParsedAsExpr && BlockStat()
+        val firstParsedAsBlockStat =
+          firstParsedAsDefWithSoftKeyword || !firstParsedAsExpr && BlockStat()
 
-      val firstParsed = firstParsedAsExpr || firstParsedAsBlockStat
+        val firstParsed = firstParsedAsExpr || firstParsedAsBlockStat
 
-      @tailrec
-      def parseRest(isBlock: Boolean): Boolean = {
-        def isOutdent = builder.findPreviousIndent.exists(_ < indentationForExprBlock)
-        if (!isOutdent) {
-          val tt = builder.getTokenType
-          if (tt == ScalaTokenTypes.tSEMICOLON) {
-            builder.advanceLexer() // ate ;
-            parseRest(isBlock = true)
-          } else if (builder.eof() || isFollowSetIfIndented(builder.getTokenType)) {
-            isBlock
-          } else if (!ResultExpr(stopOnOutdent = true) && !BlockStat()) {
-            builder.advanceLexer() // ate something
-            parseRest(isBlock = true)
+        @tailrec
+        def parseRest(isBlock: Boolean): Boolean = {
+          def isOutdent = builder.findPreviousIndent.exists(_ < indentationForExprBlock)
+          if (!isOutdent) {
+            val tt = builder.getTokenType
+            if (tt == ScalaTokenTypes.tSEMICOLON) {
+              builder.advanceLexer() // ate ;
+              parseRest(isBlock = true)
+            } else if (builder.eof() || isFollowSetIfIndented(builder.getTokenType)) {
+              isBlock
+            } else if (!ResultExpr(stopOnOutdent = true) && !BlockStat()) {
+              builder.advanceLexer() // ate something
+              parseRest(isBlock = true)
+            } else {
+              parseRest(isBlock = true)
+            }
           } else {
-            parseRest(isBlock = true)
+            isBlock
           }
-        } else {
-          isBlock
         }
-      }
 
-      /**
-       * If the first body element is not an expression, we also wrap it into block.
-       * E.g. in such silly definition with a single variable definition: {{{
-       *   def foo =
-       *     var inner = 42
-       * }}}
-       */
-      if (parseRest(isBlock = false) || firstParsedAsBlockStat) {
-        blockMarker.done(blockType)
-        true
-      } else {
-        blockMarker.drop()
-        firstParsed
+        /**
+         * If the first body element is not an expression, we also wrap it into block.
+         * E.g. in such silly definition with a single variable definition: {{{
+         *   def foo =
+         *     var inner = 42
+         * }}}
+         */
+        if (parseRest(isBlock = false) || firstParsedAsBlockStat) {
+          blockMarker.done(blockType)
+          true
+        } else {
+          blockMarker.drop()
+          firstParsed
+        }
       }
     }
   }

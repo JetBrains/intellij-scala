@@ -345,8 +345,6 @@ class BlockOutdentTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-
-
   def test_match_with_block(): Unit = checkTree(
     """
       |x match {
@@ -790,19 +788,19 @@ class BlockOutdentTest extends SimpleScala3ParserTestBase {
       |          PsiElement(=>)('=>')
       |          BlockExpression
       |            PsiWhiteSpace('\n      ')
-      |            InfixExpression
-      |              MethodCall
-      |                ReferenceExpression: println
-      |                  PsiElement(identifier)('println')
-      |                ArgumentList
-      |                  PsiElement(()('(')
-      |                  IntegerLiteral
-      |                    PsiElement(integer)('1')
-      |                  PsiElement())(')')
-      |              PsiWhiteSpace('\n      ')
+      |            MethodCall
       |              ReferenceExpression: println
       |                PsiElement(identifier)('println')
-      |              ExpressionInParenthesis
+      |              ArgumentList
+      |                PsiElement(()('(')
+      |                IntegerLiteral
+      |                  PsiElement(integer)('1')
+      |                PsiElement())(')')
+      |            PsiWhiteSpace('\n      ')
+      |            MethodCall
+      |              ReferenceExpression: println
+      |                PsiElement(identifier)('println')
+      |              ArgumentList
       |                PsiElement(()('(')
       |                IntegerLiteral
       |                  PsiElement(integer)('2')
@@ -820,6 +818,167 @@ class BlockOutdentTest extends SimpleScala3ParserTestBase {
       |          PsiElement(integer)('42')
       |        PsiWhiteSpace('\n  ')
       |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def testIndentationRegionInLambdaInsideParentheses(): Unit = checkTree(
+    """List(1, 2, 3).map(x =>
+      |  val y = x + 1
+      |  y
+      |)
+      |""".stripMargin,
+    """ScalaFile
+      |  MethodCall
+      |    ReferenceExpression: List(1, 2, 3).map
+      |      MethodCall
+      |        ReferenceExpression: List
+      |          PsiElement(identifier)('List')
+      |        ArgumentList
+      |          PsiElement(()('(')
+      |          IntegerLiteral
+      |            PsiElement(integer)('1')
+      |          PsiElement(,)(',')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('2')
+      |          PsiElement(,)(',')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('3')
+      |          PsiElement())(')')
+      |      PsiElement(.)('.')
+      |      PsiElement(identifier)('map')
+      |    ArgumentList
+      |      PsiElement(()('(')
+      |      FunctionExpression
+      |        Parameters
+      |          ParametersClause
+      |            Parameter: x
+      |              PsiElement(identifier)('x')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        BlockExpression
+      |          PsiWhiteSpace('\n  ')
+      |          ScPatternDefinition: y
+      |            AnnotationsList
+      |              <empty list>
+      |            Modifiers
+      |              <empty list>
+      |            PsiElement(val)('val')
+      |            PsiWhiteSpace(' ')
+      |            ListOfPatterns
+      |              ReferencePattern: y
+      |                PsiElement(identifier)('y')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(=)('=')
+      |            PsiWhiteSpace(' ')
+      |            InfixExpression
+      |              ReferenceExpression: x
+      |                PsiElement(identifier)('x')
+      |              PsiWhiteSpace(' ')
+      |              ReferenceExpression: +
+      |                PsiElement(identifier)('+')
+      |              PsiWhiteSpace(' ')
+      |              IntegerLiteral
+      |                PsiElement(integer)('1')
+      |          PsiWhiteSpace('\n  ')
+      |          ReferenceExpression: y
+      |            PsiElement(identifier)('y')
+      |      PsiWhiteSpace('\n')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def testInfixExpressionInsideIndentedRegion(): Unit = checkTree(
+    """Option(1).map(x =>
+      |  if x == 0 then
+      |    throw new IllegalArgumentException("wrong argument (" + x
+      |      + ")")
+      |  1.0 / x
+      |)
+      |""".stripMargin,
+    """ScalaFile
+      |  MethodCall
+      |    ReferenceExpression: Option(1).map
+      |      MethodCall
+      |        ReferenceExpression: Option
+      |          PsiElement(identifier)('Option')
+      |        ArgumentList
+      |          PsiElement(()('(')
+      |          IntegerLiteral
+      |            PsiElement(integer)('1')
+      |          PsiElement())(')')
+      |      PsiElement(.)('.')
+      |      PsiElement(identifier)('map')
+      |    ArgumentList
+      |      PsiElement(()('(')
+      |      FunctionExpression
+      |        Parameters
+      |          ParametersClause
+      |            Parameter: x
+      |              PsiElement(identifier)('x')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        BlockExpression
+      |          PsiWhiteSpace('\n  ')
+      |          IfStatement
+      |            PsiElement(if)('if')
+      |            PsiWhiteSpace(' ')
+      |            InfixExpression
+      |              ReferenceExpression: x
+      |                PsiElement(identifier)('x')
+      |              PsiWhiteSpace(' ')
+      |              ReferenceExpression: ==
+      |                PsiElement(identifier)('==')
+      |              PsiWhiteSpace(' ')
+      |              IntegerLiteral
+      |                PsiElement(integer)('0')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(then)('then')
+      |            PsiWhiteSpace('\n    ')
+      |            ThrowStatement
+      |              PsiElement(throw)('throw')
+      |              PsiWhiteSpace(' ')
+      |              ScNewTemplateDefinition: <anonymous>
+      |                PsiElement(new)('new')
+      |                PsiWhiteSpace(' ')
+      |                ExtendsBlock
+      |                  TemplateParents
+      |                    ConstructorInvocation
+      |                      SimpleType: IllegalArgumentException
+      |                        CodeReferenceElement: IllegalArgumentException
+      |                          PsiElement(identifier)('IllegalArgumentException')
+      |                      ArgumentList
+      |                        PsiElement(()('(')
+      |                        InfixExpression
+      |                          InfixExpression
+      |                            StringLiteral
+      |                              PsiElement(string content)('"wrong argument ("')
+      |                            PsiWhiteSpace(' ')
+      |                            ReferenceExpression: +
+      |                              PsiElement(identifier)('+')
+      |                            PsiWhiteSpace(' ')
+      |                            ReferenceExpression: x
+      |                              PsiElement(identifier)('x')
+      |                          PsiWhiteSpace('\n      ')
+      |                          ReferenceExpression: +
+      |                            PsiElement(identifier)('+')
+      |                          PsiWhiteSpace(' ')
+      |                          StringLiteral
+      |                            PsiElement(string content)('")"')
+      |                        PsiElement())(')')
+      |          PsiWhiteSpace('\n  ')
+      |          InfixExpression
+      |            DoubleLiteral
+      |              PsiElement(double)('1.0')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: /
+      |              PsiElement(identifier)('/')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: x
+      |              PsiElement(identifier)('x')
+      |      PsiWhiteSpace('\n')
+      |      PsiElement())(')')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
 }
