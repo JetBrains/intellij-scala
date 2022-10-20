@@ -454,13 +454,12 @@ object ScExpression {
       expr: ScExpression,
       pt:   Option[ScType]
     ): ScType =
-      if (SAMUtil.isFunctionalExpression(expr))
+      if (expr.isInScala3Module && SAMUtil.isFunctionalExpression(expr))
         scType match {
           case FunctionType(resTpe, paramTypes) =>
             pt.map(_.removeAliasDefinitions()) match {
               case Some(FunctionType(ptRes, Seq(t @ TupleType(ptParams))))
-                if expr.isInScala3Module
-                  && resTpe.conforms(ptRes) && parameterTypesMatch(paramTypes, ptParams) =>
+                if resTpe.conforms(ptRes) && parameterTypesMatch(paramTypes, ptParams) =>
                 implicit val scope: ElementScope = expr.elementScope
                 FunctionType((resTpe, Seq(t)))
               case _ => scType
