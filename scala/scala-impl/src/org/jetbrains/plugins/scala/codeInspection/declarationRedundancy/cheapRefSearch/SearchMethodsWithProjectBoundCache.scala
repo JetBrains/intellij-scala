@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isOnlyVisibleInLocalFile}
 
 /**
  * Each [[Search.Method]] has its own cache, and one [[Search.Method]] instance is bound to a project
@@ -10,14 +9,14 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isOnlyVisi
 
 private[declarationRedundancy] final class SearchMethodsWithProjectBoundCache private() {
   val LocalSearchMethods: Seq[Search.Method] = Seq(
-    new LocalImplicitSearch(c => isOnlyVisibleInLocalFile(c.element) && isImplicit(c.element)),
-    new RefCountHolderSearch(c => c.isOnTheFly && isOnlyVisibleInLocalFile(c.element) && !isImplicit(c.element)),
-    new LocalRefSearch(c => !isOnlyVisibleInLocalFile(c.element) || (!c.isOnTheFly && !isImplicit(c.element)))
+    new LocalImplicitSearch(c => c.isOnlyVisibleInLocalFile && c.isImplicit),
+    new RefCountHolderSearch(c => c.isOnTheFly && c.isOnlyVisibleInLocalFile && !c.isImplicit),
+    new LocalRefSearch(c => !c.isOnlyVisibleInLocalFile || (!c.isOnTheFly && !c.isImplicit))
   )
 
   val GlobalSearchMethods: Seq[Search.Method] = Seq(
-    new ForeignEnumSearch(c => !isOnlyVisibleInLocalFile(c.element)),
-    new TextSearch(c => !isOnlyVisibleInLocalFile(c.element) && !isImplicit(c.element))
+    new ForeignEnumSearch(c => !c.isOnlyVisibleInLocalFile),
+    new TextSearch(c => !c.isOnlyVisibleInLocalFile && !c.isImplicit)
   )
 }
 

@@ -112,7 +112,7 @@ private[declarationRedundancy] object Search {
 
       val ctx = new Context(element, canExit)
 
-      val conditions = new Conditions(element, isOnTheFly)
+      val conditions = new Conditions(isOnTheFly, isOnlyVisibleInLocalFile(element), isImplicit(element))
 
       searchMethods.foreach { method =>
         if (method.shouldProcess(conditions) && !res.exists(ctx.canExit)) {
@@ -245,7 +245,7 @@ private[declarationRedundancy] object Search {
      *
      * Also see [[Pipeline.runSearchPipeline]]
      */
-    class Conditions(val element: ScNamedElement, val isOnTheFly: Boolean)
+    class Conditions(val isOnTheFly: Boolean, val isOnlyVisibleInLocalFile: Boolean, val isImplicit: Boolean)
 
     /**
      * See [[Method.shouldProcess]]
