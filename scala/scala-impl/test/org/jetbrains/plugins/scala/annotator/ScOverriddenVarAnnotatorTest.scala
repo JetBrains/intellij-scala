@@ -138,8 +138,25 @@ class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
         |}
         |
         |class Cat extends Animal {
-        |  override val cat: String = ""
+        |  val cat: String = ""
         |  def cat_=(x: String): Unit = {}
+        |}
+        |""".stripMargin
+
+    val errors = errorsFromScalaCode(scalaCode)
+    assert(errors.isEmpty)
+  }
+
+  def testOverrideVarByValRequiresSetter_1(): Unit = {
+    val scalaCode =
+      """
+        |trait Animal {
+        |  var cat: String
+        |}
+        |
+        |class Cat extends Animal {
+        |  override val cat: String = ""
+        |  override def cat_=(x: String): Unit = {}
         |}
         |""".stripMargin
 
@@ -158,5 +175,23 @@ class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
         |Error(override,'override' modifier is not allowed here)
         |""".stripMargin
     )
+  }
+
+  // https://youtrack.jetbrains.com/issue/SCL-20634/annotator-false-positive-Mutable-variable-cannot-be-overriden
+  def testWhenGetterAndSetterAreImplemented(): Unit = {
+    val scalaCode =
+      """
+        |abstract class Base {
+        |  var value: Option[Boolean]
+        |}
+        |
+        |class Child extends Base {
+        |  override def value: Option[Boolean] = ???
+        |  override def value_=(b: Option[Boolean]): Unit = ???
+        |}
+        |""".stripMargin
+
+    val errors = errorsFromScalaCode(scalaCode)
+    assert(errors.isEmpty)
   }
 }

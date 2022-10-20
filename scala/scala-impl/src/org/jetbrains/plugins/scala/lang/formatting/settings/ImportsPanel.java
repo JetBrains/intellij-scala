@@ -36,7 +36,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     private JPanel myAlwaysUsedImportsPanel;
     private JCheckBox myImportRetativeToBasePackageCheckBox;
     private JPanel myImportRetativeToBasePackagePanel;
-    private JComboBox<java.lang.Boolean> importSyntaxInSource3;
+    private JComboBox<Boolean> importSyntaxInSource3;
     private final DefaultListModel<String> myReferencesWithPrefixModel;
     private final DefaultListModel<String> alwaysUsedImportsModel;
     private final DefaultListModel<String> myImportLayoutModel;
