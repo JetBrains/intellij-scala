@@ -14,6 +14,9 @@ import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 import scala.collection.mutable.ListBuffer
 
 private[cheapRefSearch] final class LocalRefSearch(override val shouldProcess: ShouldProcess) extends Method {
+
+  private val IgnoreAccessScope = true
+
   override def searchForUsages(ctx: Search.Context): SearchMethodResult = {
 
     val res = new ListBuffer[ElementUsage]()
@@ -48,7 +51,32 @@ private[cheapRefSearch] final class LocalRefSearch(override val shouldProcess: S
       }
     }
 
-    elementsForSearch.foreach(ReferencesSearch.search(_, scope).forEach(refProcessor))
+    /**
+     * We ignore access scope specifically because of SCL-20114.
+     *
+     * Consider the below code:
+     *
+     * package foo
+     * class A { private[foo] def bar() {}; bar() }
+     *
+     * Normally you'd place A.scala in
+     * src/main/scala/foo/ and LocalRefSearch would not need to pass
+     * ignoreAccessScope = true into ReferencesSearch.search.
+     *
+     * But if you place A.scala anywhere else, a discrepancy between directory
+     * structure and package declaration appears. For the Scala compiler
+     * this is not an issue; it will resolve this discrepancy in the
+     * target directory by creating a directory structure that maps to
+     * package declarations. So placing A.scala for example in src/main/scala,
+     * is a valid thing to do, and the Scala plugin must be able to deal with
+     * these files correctly as well.
+     *
+     * See [[org.jetbrains.plugins.scala.lang.psi.impl.ScalaUseScope.fromQualifiedPrivate]],
+     * which is responsible for narrowing the use scope. It is exactly that narrowing
+     * that we are ignoring by passing this flag.
+     */
+
+    elementsForSearch.foreach(ReferencesSearch.search(_, scope, IgnoreAccessScope).forEach(refProcessor))
 
     new SearchMethodResult(res.toSeq, didExitBeforeExhaustion)
   }

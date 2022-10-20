@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.negativ
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedDeclarationInspectionTestBase
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedDeclarationInspection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.junit.Assert.assertTrue
+import org.junit.Assert.{assertFalse, assertTrue}
 
 class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
 
@@ -339,8 +339,7 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
   )
 
   def test_implicit_parameter_of_abstract_method(): Unit = checkTextHasNoErrors(
-    """
-      |import scala.annotation.unused
+    """import scala.annotation.unused
       |@unused trait A {
       |  @unused def foo(implicit bar: Int): Unit
       |}
@@ -348,11 +347,28 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
   )
 
   def test_DummyImplicit(): Unit = checkTextHasNoErrors(
-    """
-      |import scala.annotation.unused
+    """import scala.annotation.unused
       |@unused class A {
       |  @unused def foo(implicit bar: DummyImplicit): Unit = {}
       |}
       |""".stripMargin
   )
+
+  def test_source_file_outside_package_dir(): Unit = {
+
+    val packageName = "foo"
+
+    checkTextHasNoErrors(
+      s"""package $packageName
+        |@scala.annotation.unused class A { private[$packageName] def bar() {}; bar() }
+        |""".stripMargin
+    )
+
+    /**
+     * To make sure we've just tested the right thing, we verify that the
+     * file does not happen to be in a directory of the same name as the
+     * package name.
+     */
+    assertFalse(getFile.getVirtualFile.getParent.getName == packageName)
+  }
 }
