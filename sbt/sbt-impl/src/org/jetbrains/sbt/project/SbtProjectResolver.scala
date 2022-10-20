@@ -84,6 +84,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       new CompositeReporter(esReporter, logReporter)
     } else esReporter
 
+    val startTime = System.currentTimeMillis()
     val structureDump = dumpStructure(projectRoot, sbtLauncher, Version(sbtVersion), settings, taskId.findProject())
 
     // side-effecty status reporting
@@ -117,11 +118,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
 
     // more side-effecty reporting
+    val endTime = System.currentTimeMillis()
     val resultNode = conversionResult match {
       case Success(_) =>
-        new SuccessResultImpl(0, System.currentTimeMillis(), true) // TODO start time
+        new SuccessResultImpl(startTime, endTime, true)
       case Failure(_) =>
-        new FailureResultImpl(0, System.currentTimeMillis(), Collections.emptyList[ESFailure]) // TODO error list
+        new FailureResultImpl(startTime, endTime, Collections.emptyList[ESFailure]) // TODO error list
     }
     val convertFinishedEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
       importTaskId, null, importTaskDescriptor, resultNode
