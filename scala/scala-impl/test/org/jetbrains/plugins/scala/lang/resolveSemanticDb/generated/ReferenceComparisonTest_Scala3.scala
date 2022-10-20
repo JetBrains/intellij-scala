@@ -1299,7 +1299,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_import_rewrite(): Unit = doTest("import-rewrite", true)
   def test_indent(): Unit = doTest("indent", false) // #extension
   def test_indent_colons(): Unit = doTest("indent-colons", false) // #extension
-  def test_indent_in_parens(): Unit = doTest("indent-in-parens", false)
+  def test_indent_in_parens(): Unit = doTest("indent-in-parens", true)
   def test_indent2(): Unit = doTest("indent2", true)
   def test_indent3(): Unit = doTest("indent3", true)
   def test_indent4(): Unit = doTest("indent4", true)
