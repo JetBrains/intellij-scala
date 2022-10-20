@@ -122,26 +122,21 @@ class BspSession private(bspIn: InputStream,
     }
   }
 
-  private def bspTraceLogger: PrintWriter = {
-    val logfile = sys.env.get("BSP_TRACE_PATH")
-      .orElse(sys.props.get("BSP_TRACE_PATH"))
-      .map(new File(_))
-      .getOrElse({
-        val dirs = Paths.get(PathManager.getLogPath, "bsp")
-        Files.createDirectories(dirs)
-        val stamp = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss").format(LocalDateTime.now())
-        new File(dirs.toFile, s"bsp-protocol-trace-$stamp.log")
-      })
-    new PrintWriter(lazyFileCreateWriter(logfile)) {
-
-      override def println(x: Any): Unit =
-        if (traceLogPredicate())
-          super.println(x)
-
-      override def flush(): Unit =
-        if (traceLogPredicate())
-          super.flush()
-
+  private def bspTraceLogger: Option[PrintWriter] = {
+    if (traceLogPredicate()) {
+      val logfile = sys.env.get("BSP_TRACE_PATH")
+        .orElse(sys.props.get("BSP_TRACE_PATH"))
+        .map(new File(_))
+        .getOrElse({
+          val dirs = Paths.get(PathManager.getLogPath, "bsp")
+          Files.createDirectories(dirs)
+          val stamp = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss")
+            .format(LocalDateTime.now())
+          new File(dirs.toFile, s"bsp-protocol-trace-$stamp.log")
+        })
+      Some(new PrintWriter(lazyFileCreateWriter(logfile)))
+    } else {
+      None
     }
   }
 
@@ -156,7 +151,7 @@ class BspSession private(bspIn: InputStream,
       .setInput(bspIn)
       .setOutput(bspOut)
       .setLocalService(localClient)
-      .traceMessages(bspTraceLogger)
+      .traceMessages(bspTraceLogger.orNull)
       .create()
     val listening = launcher.startListening()
     val bspServer = cancellationSafeBspServer(launcher.getRemoteProxy)
