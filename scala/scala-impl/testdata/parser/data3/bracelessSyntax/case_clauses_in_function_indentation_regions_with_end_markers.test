@@ -1,0 +1,207 @@
+val pf: PartialFunction[(Int, Int), String] =
+  case (0, 0) => "zeroes"
+  case x @ (a, b) => s"a: $a, b: $b, x: $x"
+end pf
+
+val f: Int => String =
+  case 0 => "zero"
+  case n if n % 2 == 0 => "even"
+  case _ => "odd"
+end f
+-----
+ScalaFile
+  ScPatternDefinition: pf
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: pf
+        PsiElement(identifier)('pf')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: PartialFunction[(Int, Int), String]
+      SimpleType: PartialFunction
+        CodeReferenceElement: PartialFunction
+          PsiElement(identifier)('PartialFunction')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TupleType: (Int, Int)
+          PsiElement(()('(')
+          TypesList
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiElement())(')')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              LiteralPattern
+                IntegerLiteral
+                  PsiElement(integer)('0')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralPattern
+                IntegerLiteral
+                  PsiElement(integer)('0')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            StringLiteral
+              PsiElement(string content)('"zeroes"')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          NamingPattern: x
+            PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(@)('@')
+            PsiWhiteSpace(' ')
+            TuplePattern
+              PsiElement(()('(')
+              ArgumentPatterns
+                ReferencePattern: a
+                  PsiElement(identifier)('a')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferencePattern: b
+                  PsiElement(identifier)('b')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            InterpolatedStringLiteral
+              InterpolatedExpressionPrefix: s
+                PsiElement(interpolated string id)('s')
+              PsiElement(interpolated string)('"a: ')
+              PsiElement(interpolated string injection)('$')
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiElement(interpolated string)(', b: ')
+              PsiElement(interpolated string injection)('$')
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+              PsiElement(interpolated string)(', x: ')
+              PsiElement(interpolated string injection)('$')
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiElement(interpolated string end)('"')
+    PsiWhiteSpace('\n')
+    End: pf
+      PsiElement(end)('end')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('pf')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f
+        PsiElement(identifier)('f')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    FunctionalType: Int => String
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      SimpleType: String
+        CodeReferenceElement: String
+          PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralPattern
+            IntegerLiteral
+              PsiElement(integer)('0')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            StringLiteral
+              PsiElement(string content)('"zero"')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ReferencePattern: n
+            PsiElement(identifier)('n')
+          PsiWhiteSpace(' ')
+          Guard
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              InfixExpression
+                ReferenceExpression: n
+                  PsiElement(identifier)('n')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: %
+                  PsiElement(identifier)('%')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ==
+                PsiElement(identifier)('==')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            StringLiteral
+              PsiElement(string content)('"even"')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            StringLiteral
+              PsiElement(string content)('"odd"')
+    PsiWhiteSpace('\n')
+    End: f
+      PsiElement(end)('end')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('f')

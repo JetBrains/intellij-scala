@@ -5,7 +5,7 @@ package parsing
 package expressions
 
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Extension
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{ConstrBlock, Def}
@@ -64,54 +64,109 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
 
         blockMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_WS_AND_COMMENT_TOKENS, null)
 
-        // We need to early parse those definitions which begin with a soft keyword
-        // (extension, inline, transparent, infix, open)
-        // If we don't parse them early, they will be wrongly parsed as expressions with errors.
-        // For example `extension (x: String)` will be parsed as a method call
-        val firstParsedAsDefWithSoftKeyword = Extension() || Def() || TmplDef()
+        def isOutdent = builder.findPreviousIndent.exists(_ < indentationForExprBlock)
 
-        val firstParsedAsExpr =
-          !firstParsedAsDefWithSoftKeyword && exprPartParser()
+        def doParseExpr(): Boolean = {
+          // We need to early parse those definitions which begin with a soft keyword
+          // (extension, inline, transparent, infix, open)
+          // If we don't parse them early, they will be wrongly parsed as expressions with errors.
+          // For example `extension (x: String)` will be parsed as a method call
+          val firstParsedAsDefWithSoftKeyword = Extension() || Def() || TmplDef()
 
-        val firstParsedAsBlockStat =
-          firstParsedAsDefWithSoftKeyword || !firstParsedAsExpr && BlockStat()
+          val firstParsedAsExpr =
+            !firstParsedAsDefWithSoftKeyword && exprPartParser()
 
-        val firstParsed = firstParsedAsExpr || firstParsedAsBlockStat
+          val firstParsedAsBlockStat =
+            firstParsedAsDefWithSoftKeyword || !firstParsedAsExpr && BlockStat()
 
-        @tailrec
-        def parseRest(isBlock: Boolean): Boolean = {
-          def isOutdent = builder.findPreviousIndent.exists(_ < indentationForExprBlock)
-          if (!isOutdent) {
-            val tt = builder.getTokenType
-            if (tt == ScalaTokenTypes.tSEMICOLON) {
-              builder.advanceLexer() // ate ;
-              parseRest(isBlock = true)
-            } else if (builder.eof() || isFollowSetIfIndented(builder.getTokenType)) {
-              isBlock
-            } else if (!ResultExpr(stopOnOutdent = true) && !BlockStat()) {
-              builder.advanceLexer() // ate something
-              parseRest(isBlock = true)
+          val firstParsed = firstParsedAsExpr || firstParsedAsBlockStat
+
+          @tailrec
+          def parseRest(isBlock: Boolean): Boolean = {
+            if (!isOutdent) {
+              val tt = builder.getTokenType
+              if (tt == ScalaTokenTypes.tSEMICOLON) {
+                builder.advanceLexer() // ate ;
+                parseRest(isBlock = true)
+              } else if (builder.eof() || isFollowSetIfIndented(builder.getTokenType)) {
+                isBlock
+              } else if (!ResultExpr(stopOnOutdent = true) && !BlockStat()) {
+                builder.advanceLexer() // ate something
+                parseRest(isBlock = true)
+              } else {
+                parseRest(isBlock = true)
+              }
             } else {
-              parseRest(isBlock = true)
+              isBlock
             }
+          }
+
+          /**
+           * If the first body element is not an expression, we also wrap it into block.
+           * E.g. in such silly definition with a single variable definition: {{{
+           *   def foo =
+           *     var inner = 42
+           * }}}
+           */
+          if (parseRest(isBlock = false) || firstParsedAsBlockStat) {
+            blockMarker.done(blockType)
+            true
           } else {
-            isBlock
+            blockMarker.drop()
+            firstParsed
           }
         }
 
-        /**
-         * If the first body element is not an expression, we also wrap it into block.
-         * E.g. in such silly definition with a single variable definition: {{{
-         *   def foo =
-         *     var inner = 42
-         * }}}
+        /*
+         * Special case check for case clauses in an indented region, which can be used to define partial functions
+         * without braces.
+         *
+         * The Scala 3 syntax grammar for this is:
+         * BlockExpr ::= <<< (CaseClauses | Block) >>>
+         *
+         * where the `<<< ts >>>` notation denotes a token sequence `ts` that is either enclosed in braces
+         * `{ ts }` or that constitutes an indented region `indent ts outdent`.
+         *
+         * Here, only the `indent ts outdent` part is handled because the braced version is currently parsed
+         * by the `BlockExpr` parsing rule.
+         *
+         * For now, this indentation based rule cannot be unified with `BlockExpr` as it is currently implemented,
+         * because `BlockExpr` is always guarded by a token check that looks for an opening brace `{` token, and if a
+         * `{` is missing, `BlockExpr` is not even attempted.
+         *
+         * On the other hand, general expressions in indented regions are already handled by this class.
+         *
+         * The implementation logic is analogous to the one in `BlockExpr`, with the difference that case clauses in
+         * an indented region require that only case clauses be present, with an outdent immediately following the end
+         * of the block. If this is not the case, parsing is given up and regular expression parsing is attempted
+         * instead.
          */
-        if (parseRest(isBlock = false) || firstParsedAsBlockStat) {
-          blockMarker.done(blockType)
-          true
-        } else {
-          blockMarker.drop()
-          firstParsed
+
+        builder.getTokenType match {
+          case ScalaTokenTypes.`kCASE` =>
+            val backMarker = builder.mark()
+            builder.advanceLexer() // case consumed
+            builder.getTokenType match { // peek the following token
+              case ScalaTokenType.ClassKeyword | ScalaTokenType.ObjectKeyword =>
+                // `case class` or `case object` definition, do regular expression parsing
+                backMarker.rollbackTo()
+                doParseExpr()
+              case _ =>
+                // attempt case clauses parsing
+                backMarker.rollbackTo()
+                if (CaseClausesInIndentationRegion() && isOutdent || builder.eof()) {
+                  // case clauses parsed and an outdent or eof is following, succeed with creating a block expression
+                  blockMarker.done(ScCodeBlockElementType.BlockExpression)
+                  true
+                } else {
+                  // do regular expression parsing
+                  backMarker.rollbackTo()
+                  doParseExpr()
+                }
+            }
+          case _ =>
+            // do regular expression parsing
+            doParseExpr()
         }
       }
     }

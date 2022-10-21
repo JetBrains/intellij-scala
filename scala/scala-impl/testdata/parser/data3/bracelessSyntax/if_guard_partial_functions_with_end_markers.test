@@ -1,0 +1,126 @@
+def futureFilterRecover[T](recover: Throwable => T = t => throw t): PartialFunction[Throwable, T] =
+  case NonFatal(t) if t.getMessage.contains("Future.filter predicate is not satisfied") =>
+    recover(t)
+end futureFilterRecover
+-----
+ScalaFile
+  ScFunctionDefinition: futureFilterRecover
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('futureFilterRecover')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: recover
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('recover')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            FunctionalType: Throwable => T
+              SimpleType: Throwable
+                CodeReferenceElement: Throwable
+                  PsiElement(identifier)('Throwable')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: t
+                  PsiElement(identifier)('t')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            ThrowStatement
+              PsiElement(throw)('throw')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: t
+                PsiElement(identifier)('t')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: PartialFunction[Throwable, T]
+      SimpleType: PartialFunction
+        CodeReferenceElement: PartialFunction
+          PsiElement(identifier)('PartialFunction')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Throwable
+          CodeReferenceElement: Throwable
+            PsiElement(identifier)('Throwable')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: T
+          CodeReferenceElement: T
+            PsiElement(identifier)('T')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: NonFatal
+              PsiElement(identifier)('NonFatal')
+            Pattern Argument List
+              PsiElement(()('(')
+              ReferencePattern: t
+                PsiElement(identifier)('t')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          Guard
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: t.getMessage.contains
+                ReferenceExpression: t.getMessage
+                  ReferenceExpression: t
+                    PsiElement(identifier)('t')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('getMessage')
+                PsiElement(.)('.')
+                PsiElement(identifier)('contains')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"Future.filter predicate is not satisfied"')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n    ')
+          BlockOfExpressions
+            MethodCall
+              ReferenceExpression: recover
+                PsiElement(identifier)('recover')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: t
+                  PsiElement(identifier)('t')
+                PsiElement())(')')
+    PsiWhiteSpace('\n')
+    End: futureFilterRecover
+      PsiElement(end)('end')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('futureFilterRecover')
