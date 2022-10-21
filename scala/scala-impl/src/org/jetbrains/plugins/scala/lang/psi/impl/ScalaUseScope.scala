@@ -134,7 +134,7 @@ private object ScalaUseScope {
   }
 
   //should be checked only for the member itself
-  //member of a qualified private class may escape it's package with inheritance
+  //member of a qualified private class may escape its package with inheritance
   private def fromQualifiedPrivate(member: ScMember): Option[SearchScope] = {
     def resolve(reference: PsiReference): Option[PsiNamedElement] = reference match {
       case ResolvesTo(target: PsiNamedElement) =>
@@ -159,8 +159,26 @@ private object ScalaUseScope {
     } yield target
 
     maybeTarget.collect {
-      case p: PsiPackage => new PackageScope(p, /*includeSubpackages*/ true, /*includeLibraries*/ true)
-      case td: ScTypeDefinition => localSearchScope(td)
+      case p: PsiPackage =>
+
+        /**
+         * This case is only entered if `private[foo]` refers to a valid package.
+         * com.intellij.psi.search.PackageScope correctly handles local scopes of files that are placed in the directory
+         * that is congruent with a file's package declaration. If the file is not in such a directory, PackageScope
+         * does not include the file that contains the ScMember.
+         */
+
+      new PackageScope(p, /*includeSubpackages*/ true, /*includeLibraries*/ true)
+
+      case td: ScTypeDefinition =>
+
+        /**
+         * This case is entered if `private[ExistingClass]` syntax is used.
+         * This case is also entered if `private[foo]` or `private[Foo]` does not refer to a valid, accessible
+         * package or class, yielding a reasonable fallback that doesn't impede the editing experience.
+         */
+
+        localSearchScope(td)
     }
   }
 
