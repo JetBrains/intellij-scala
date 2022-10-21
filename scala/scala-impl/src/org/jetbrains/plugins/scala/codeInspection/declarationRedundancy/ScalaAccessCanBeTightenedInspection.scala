@@ -19,6 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 
+import scala.annotation.tailrec
+
 final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspection {
 
   private def getProblemInfos(element: ScNamedElement,
@@ -60,9 +62,11 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
       case _ => Seq.empty
     }
 
+  @tailrec
   override def shouldProcessElement(element: PsiElement): Boolean =
     element match {
       case m: ScMember => !m.isLocal
+      case p: ScPatternList => shouldProcessElement(p.getContext)
       case _ => true
     }
 }

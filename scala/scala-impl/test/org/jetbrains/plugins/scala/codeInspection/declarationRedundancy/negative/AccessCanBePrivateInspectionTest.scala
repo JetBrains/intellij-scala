@@ -54,7 +54,11 @@ final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestB
     checkTextHasNoErrors(code)
   }
 
-  def test_local_members_are_skipped(): Unit = {
+  def test_local_method_members_are_skipped(): Unit = {
     checkTextHasNoErrors("private class A { private def foo(): Unit = { def bar(): Unit = {} } }")
+  }
+
+  def test_local_var_val_members_are_skipped(): Unit = {
+    checkTextHasNoErrors("private class A { private def foo(): Unit = { var x = 42; val y = 42; } }")
   }
 }
