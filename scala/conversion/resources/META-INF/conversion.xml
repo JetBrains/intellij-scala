@@ -18,7 +18,7 @@
 
     <actions>
         <!--suppress PluginXmlCapitalization -->
-        <action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.RenameJavaToScalaAction">
+        <action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.ConvertJavaToScalaAction">
             <add-to-group group-id="RefactoringMenu" anchor="last"/>
             <add-to-group group-id="EditorTabPopupMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control shift G" keymap="$default"/>

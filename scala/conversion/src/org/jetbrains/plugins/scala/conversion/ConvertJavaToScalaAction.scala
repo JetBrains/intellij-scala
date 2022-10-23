@@ -14,8 +14,7 @@ import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.NotificationUtil
 
-//TODO: it's not "rename" it's "convert", rename the action!
-class RenameJavaToScalaAction extends AnAction(
+class ConvertJavaToScalaAction extends AnAction(
   ScalaConversionBundle.message("convert.java.to.scala.action.text"),
   ScalaConversionBundle.message("convert.java.to.scala.action.description"),
   /* icon = */ null
