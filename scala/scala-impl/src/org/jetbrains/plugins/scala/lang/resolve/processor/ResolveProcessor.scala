@@ -35,7 +35,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     }
 
     override def equals(left: ScalaResolveResult, right: ScalaResolveResult): Boolean =
-      if (left == null || right == null) false
+      if (left == null && right == null) true
+      else if (left == null || right == null) false
       else left.qualifiedNameId == right.qualifiedNameId
   }
 
