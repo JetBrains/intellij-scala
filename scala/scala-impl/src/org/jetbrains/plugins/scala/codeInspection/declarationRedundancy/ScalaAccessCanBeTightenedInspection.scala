@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
 import com.intellij.codeInsight.intention.FileModifier
-import com.intellij.codeInspection.{LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType}
-import com.intellij.openapi.editor.Editor
+import com.intellij.codeInspection.{LocalQuickFixOnPsiElement, ProblemHighlightType}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
@@ -73,7 +72,7 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
 
 private object ScalaAccessCanBeTightenedInspection {
 
-  private[declarationRedundancy] class MakePrivateQuickFix(element: ScModifierListOwner) extends LocalQuickFixAndIntentionActionOnPsiElement(element) {
+  private[declarationRedundancy] class MakePrivateQuickFix(element: ScModifierListOwner) extends LocalQuickFixOnPsiElement(element) {
 
     private val text = quickFixText(element)
 
@@ -81,7 +80,7 @@ private object ScalaAccessCanBeTightenedInspection {
 
     override def getFamilyName: String = ScalaInspectionBundle.message("change.modifier")
 
-    override def invoke(project: Project, psiFile: PsiFile, editor: Editor, psiElement: PsiElement, psiElement1: PsiElement): Unit =
+    override def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit =
       element.setModifierProperty("private")
 
     override def getFileModifierForPreview(target: PsiFile): FileModifier =

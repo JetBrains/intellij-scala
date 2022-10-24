@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.quickfix
 
+import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInspection.LocalQuickFixAsIntentionAdapter
 import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
@@ -10,7 +12,7 @@ import org.junit.Assert.assertTrue
  * [[org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.quickFixText]]
  */
 
-class PrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
+class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
 
   override protected val description = ScalaInspectionBundle.message("access.can.be.private")
 
@@ -19,8 +21,12 @@ class PrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnotator
     myFixture.enableInspections(classOf[ScalaAccessCanBeTightenedInspection])
   }
 
-  // Commented out because of a change in org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ProblemInfo and InspectionBasedHighlightingPass
-  // Fixes are no longer Seq[LocalQuickFixAndIntentionActionOnPsiElement], but Seq[LocalQuickFix]
+  private def unwrapFix(intentionAction: IntentionAction): ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix = {
+    val wrappedFix = intentionAction.asInstanceOf[LocalQuickFixAsIntentionAdapter]
+    val myFixField = wrappedFix.getClass.getDeclaredField("myFix")
+    myFixField.setAccessible(true)
+    myFixField.get(wrappedFix).asInstanceOf[ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix]
+  }
 
   def test_text_when_add_type_annotation_quickfix_is_offered(): Unit = {
     val code = s"class A { val a = new A }; private class B { val b = new A().a }"
@@ -28,8 +34,9 @@ class PrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnotator
 
     assertTrue(fixes.size == 1)
 
-    val quickFixElement = fixes.head.asInstanceOf[ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix]
-      .getStartElement.asInstanceOf[ScPatternDefinition]
+    val makePrivateQuickFix = unwrapFix(fixes.head)
+
+    val quickFixElement = makePrivateQuickFix.getStartElement.asInstanceOf[ScPatternDefinition]
     assert(quickFixElement.declaredNames.head == "b")
   }
 
@@ -39,8 +46,9 @@ class PrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnotator
 
     assertTrue(fixes.size == 1)
 
-    val quickFixElement = fixes.head.asInstanceOf[ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix]
-      .getStartElement.asInstanceOf[ScPatternDefinition]
+    val makePrivateQuickFix = unwrapFix(fixes.head)
+
+    val quickFixElement = makePrivateQuickFix.getStartElement.asInstanceOf[ScPatternDefinition]
     assert(quickFixElement.declaredNames.head == "a")
   }
 }
