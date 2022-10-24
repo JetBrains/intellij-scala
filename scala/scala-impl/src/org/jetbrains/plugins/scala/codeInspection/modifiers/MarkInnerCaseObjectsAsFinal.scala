@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package modifiers
+package org.jetbrains.plugins.scala.codeInspection.modifiers
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
+import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 

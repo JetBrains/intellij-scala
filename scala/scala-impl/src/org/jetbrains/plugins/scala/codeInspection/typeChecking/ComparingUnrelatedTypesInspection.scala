@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection.typeChecking
+package org.jetbrains.plugins.scala.codeInspection.typeChecking
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiMethod

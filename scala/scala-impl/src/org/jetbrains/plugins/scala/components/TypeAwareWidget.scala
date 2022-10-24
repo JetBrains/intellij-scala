@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package components
+package org.jetbrains.plugins.scala.components
 
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.keymap.KeymapUtil
@@ -9,6 +8,7 @@ import com.intellij.openapi.wm.{StatusBar, StatusBarWidget}
 import com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
 import com.intellij.util.Consumer
 import com.intellij.util.messages.MessageBusConnection
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.icons.Icons

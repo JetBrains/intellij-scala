@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package highlighter
+package org.jetbrains.plugins.scala.highlighter
 
 import com.intellij.lexer._
 import com.intellij.openapi.editor.colors.TextAttributesKey

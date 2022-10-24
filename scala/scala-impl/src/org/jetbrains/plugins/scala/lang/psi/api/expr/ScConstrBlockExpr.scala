@@ -1,7 +1,3 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package expr
+package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 trait ScConstrBlockExpr extends ScBlockExpr

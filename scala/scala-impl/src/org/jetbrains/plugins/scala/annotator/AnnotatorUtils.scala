@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.annotator.template.kindOf
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter

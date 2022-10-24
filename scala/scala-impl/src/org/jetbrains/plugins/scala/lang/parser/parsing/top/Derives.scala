@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.lang.parser
-package parsing
-package top
+package org.jetbrains.plugins.scala.lang.parser.parsing.top
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 import scala.annotation.tailrec

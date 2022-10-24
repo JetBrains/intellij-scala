@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.lang.transformation
-package references
+package org.jetbrains.plugins.scala.lang.transformation.references
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceExpressionFromText
+import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, targetFor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class PartiallyQualifySimpleReference extends AbstractTransformer {

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package injection
+package org.jetbrains.plugins.scala.injection
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil

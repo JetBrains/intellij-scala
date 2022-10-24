@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.changeSignature
+package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.changeSignature.{ChangeInfo, JavaChangeInfo, OverriderUsageInfo}
 import com.intellij.util.containers.MultiMap
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern

@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package declarationRedundancy
+package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
 import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.daemon.QuickFixBundle
@@ -10,6 +8,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.util.FileContentUtil
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings

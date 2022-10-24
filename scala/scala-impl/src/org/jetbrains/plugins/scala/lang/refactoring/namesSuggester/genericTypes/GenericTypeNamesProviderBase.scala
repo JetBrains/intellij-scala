@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package namesSuggester
-package genericTypes
+package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes
 
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
@@ -10,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 abstract class GenericTypeNamesProviderBase extends GenericTypeNamesProvider {
 
-  import NameSuggester._
+  import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester._
 
   override def names(`type`: ScParameterizedType): Seq[String] =
     if (isValid(`type`)) {

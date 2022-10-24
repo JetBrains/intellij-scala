@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package methodSignature
+package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.psi.PsiClass

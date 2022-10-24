@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package findUsages
-package parameters
+package org.jetbrains.plugins.scala.findUsages.parameters
 
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch

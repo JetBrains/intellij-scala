@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package formatting
-package processors
+package org.jetbrains.plugins.scala.lang.formatting.processors
 
 import com.intellij.formatting.Indent
 import com.intellij.lang.ASTNode
@@ -11,6 +8,8 @@ import com.intellij.psi.impl.source.tree.{LeafPsiElement, PsiWhiteSpaceImpl}
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.isIndented
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
+import org.jetbrains.plugins.scala.lang.TokenSets
+import org.jetbrains.plugins.scala.lang.formatting.{ScalaBlock, isYieldOrDo}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isConstructorArgOrMemberFunctionParameter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}

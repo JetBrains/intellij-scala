@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.lang
-package completion
+package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion.{InsertionContext, InsertHandler => IJInsertHandler}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator}

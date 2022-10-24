@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package scaladoc
+package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._

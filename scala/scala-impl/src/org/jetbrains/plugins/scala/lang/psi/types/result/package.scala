@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala.lang
-package psi
-package types
+package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes

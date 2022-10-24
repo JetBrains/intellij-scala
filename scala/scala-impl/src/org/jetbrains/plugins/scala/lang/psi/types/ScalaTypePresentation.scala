@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
+package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
@@ -9,6 +6,7 @@ import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.K
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.operatorAssociativity
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._

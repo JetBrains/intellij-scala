@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.compiler.references
-package compilation
+package org.jetbrains.plugins.scala.compiler.references.compilation
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService.CompilerIndicesState
+import org.jetbrains.plugins.scala.compiler.references.TransactionGuard
 import org.jetbrains.sbt.project.settings.CompilerMode
 
 private[references] trait CompilationWatcher[M <: CompilerMode] {

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight.intention.imports
+package org.jetbrains.plugins.scala.codeInsight.intention.imports
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -8,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportMembersUtil._
 import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportStableMemberIntention.{checkReference, invokeOn}
 import org.jetbrains.plugins.scala.extensions._

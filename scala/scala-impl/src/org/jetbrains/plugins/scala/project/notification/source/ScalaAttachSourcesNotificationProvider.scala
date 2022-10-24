@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package project
-package notification
-package source
+package org.jetbrains.plugins.scala.project.notification.source
 
 import com.intellij.codeInsight.AttachSourcesProvider
 import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
@@ -15,6 +12,7 @@ import com.intellij.openapi.util.{ActionCallback, Comparing, Key}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications, GuiUtils}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable

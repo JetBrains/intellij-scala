@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package move
+package org.jetbrains.plugins.scala.lang.refactoring.move
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
@@ -11,8 +8,10 @@ import com.intellij.refactoring.move.moveClassesOrPackages._
 import com.intellij.refactoring.util.{CommonRefactoringUtil, TextOccurrencesUtil}
 import com.intellij.refactoring.{JavaRefactoringSettings, MoveDestination}
 import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import java.awt.BorderLayout
 import java.awt.event.ActionEvent
@@ -125,7 +124,7 @@ final class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesH
       if (panel != null) result.add(panel, BorderLayout.NORTH)
 
       val chbMoveCompanion = new JCheckBox(ScalaBundle.message("move.with.companion"))
-      val applicationSettings = settings.ScalaApplicationSettings.getInstance()
+      val applicationSettings = ScalaApplicationSettings.getInstance()
       chbMoveCompanion.setSelected(applicationSettings.MOVE_COMPANION)
       chbMoveCompanion.addActionListener((_: ActionEvent) => {
         applicationSettings.MOVE_COMPANION = chbMoveCompanion.isSelected

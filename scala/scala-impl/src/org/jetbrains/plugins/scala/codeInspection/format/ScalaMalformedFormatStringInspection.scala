@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection.format
+package org.jetbrains.plugins.scala.codeInspection.format
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.util.TextRange

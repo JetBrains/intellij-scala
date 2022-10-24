@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package statements
+package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.diagnostic.Logger
@@ -13,12 +9,15 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScEnumCaseImpl.Log
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -41,7 +40,7 @@ final class ScEnumCaseImpl(
     with ScTypeParametersOwner
     with ScEnumCase {
 
-  import lexer.ScalaTokenTypes.kCASE
+  import ScalaTokenTypes.kCASE
 
   override def processDeclarations(
     processor:  PsiScopeProcessor,
@@ -135,7 +134,7 @@ final class ScEnumCaseImpl(
 
   override protected def targetTokenType: ScalaTokenType = kCASE
 
-  override protected def baseIcon: Icon = icons.Icons.ENUM
+  override protected def baseIcon: Icon = Icons.ENUM
 
   override def isLocal: Boolean = false
 

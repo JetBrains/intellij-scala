@@ -1,12 +1,12 @@
-package org.jetbrains.plugins.scala
-package annotator
-package element
+package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.{findCommonContext, findFirstContext}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.highlightImplicitView
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, UnresolvedReferenceFixProvider}
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix

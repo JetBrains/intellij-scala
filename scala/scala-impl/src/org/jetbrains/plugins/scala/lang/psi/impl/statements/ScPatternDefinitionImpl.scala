@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package statements
+package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiModifierListOwnerExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType

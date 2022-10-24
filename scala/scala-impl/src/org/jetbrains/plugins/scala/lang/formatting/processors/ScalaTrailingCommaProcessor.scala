@@ -1,14 +1,13 @@
-package org.jetbrains.plugins.scala
-package lang
-package formatting
-package processors
+package org.jetbrains.plugins.scala.lang.formatting.processors
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.impl.source.SourceTreeToPsiMap
 import com.intellij.psi.impl.source.codeStyle.{CodeEditUtil, PostFormatProcessor, PostFormatProcessorHelper}
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.ScArgumentExprListOps
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.TrailingCommaMode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes

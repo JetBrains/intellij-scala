@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
+package org.jetbrains.plugins.scala.lang.completion
 
 /**
  * Represents a Scala keyword. Constants defined in this trait represent all

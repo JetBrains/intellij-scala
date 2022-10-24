@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.references
-package search
+package org.jetbrains.plugins.scala.compiler.references.search
 
 import com.intellij.find.FindManager
 import com.intellij.find.impl.FindManagerImpl
@@ -15,6 +14,7 @@ import com.intellij.util.Processor
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
+import org.jetbrains.plugins.scala.compiler.references.{CompilerReferenceServiceStatusListener, ModuleSbtExtensions, ScalaCompilerReferenceService, UsagesInFile, task, upToDateCompilerIndexExists}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.SearchTargetExtractors.SAMType
 //noinspection ApiStatus

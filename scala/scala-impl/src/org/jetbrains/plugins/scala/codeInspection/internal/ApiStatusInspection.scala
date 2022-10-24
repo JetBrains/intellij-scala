@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package internal
+package org.jetbrains.plugins.scala.codeInspection.internal
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.psi.{PsiDocCommentOwner, PsiElement}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.internal.ApiStatusInspection._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil

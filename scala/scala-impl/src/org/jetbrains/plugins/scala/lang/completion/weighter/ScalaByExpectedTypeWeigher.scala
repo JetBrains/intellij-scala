@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package weighter
+package org.jetbrains.plugins.scala.lang.completion.weighter
 
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher, WeighingContext}
 import com.intellij.psi.{PsiElement, PsiField, PsiMethod, PsiNamedElement}

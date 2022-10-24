@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package declarationRedundancy
+package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.codeInsight.daemon.HighlightDisplayKey

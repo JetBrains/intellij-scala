@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package spellchecker
+package org.jetbrains.plugins.scala.spellchecker
 
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.psi.PsiModifierListOwner

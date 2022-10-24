@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package project
-package template
+package org.jetbrains.plugins.scala.project.template
 
 sealed abstract class SdkChoice(val sdk: ScalaSdkDescriptor,
                                 val source: String)

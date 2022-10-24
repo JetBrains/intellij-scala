@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala
-package annotator
-package element
+package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeConstructorDiff, tooltipForDiffTrees}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil

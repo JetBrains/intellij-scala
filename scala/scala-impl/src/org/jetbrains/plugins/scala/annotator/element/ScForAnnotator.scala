@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala
-package annotator
-package element
+package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationBuilder, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.annotator.annotationHolder.{DelegateAnnotationHolder, ErrorIndication}
 import org.jetbrains.plugins.scala.annotator.element.ScForBindingAnnotator.RemoveCaseFromPatternedEnumeratorFix
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.RemoveValFromGeneratorIntentionAction

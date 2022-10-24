@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala
-package annotator
-package element
+package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeDiff}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Mismatch, asString}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions.ObjectExt

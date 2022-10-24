@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
+package org.jetbrains.plugins.scala.lang.refactoring
 
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor

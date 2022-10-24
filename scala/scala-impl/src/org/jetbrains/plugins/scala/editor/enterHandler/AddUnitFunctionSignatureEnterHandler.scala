@@ -1,12 +1,11 @@
-package org.jetbrains.plugins.scala
-package editor
-package enterHandler
+package org.jetbrains.plugins.scala.editor.enterHandler
 
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.Result
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.editor.EditorExt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -54,7 +53,7 @@ class AddUnitFunctionSignatureEnterHandler extends EnterHandlerDelegateAdapter {
       if (!addType && !addAssign) {
         if (addEmptyParens) {
           // Only add empty parens
-          extensions.inWriteAction {
+          inWriteAction {
             document.insertString(fn.paramClauses.getTextOffset, "()")
           }
         }
@@ -71,7 +70,7 @@ class AddUnitFunctionSignatureEnterHandler extends EnterHandlerDelegateAdapter {
 
         textBuilder.append(": Unit = ")
 
-        extensions.inWriteAction {
+        inWriteAction {
           document.replaceString(startOffset, anchor.startOffset, textBuilder.result())
         }
       }

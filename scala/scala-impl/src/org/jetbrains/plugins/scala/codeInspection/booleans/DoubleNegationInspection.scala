@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection.booleans
+package org.jetbrains.plugins.scala.codeInspection.booleans
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project

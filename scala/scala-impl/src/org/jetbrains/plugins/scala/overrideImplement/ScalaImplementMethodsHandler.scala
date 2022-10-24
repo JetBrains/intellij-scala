@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala
-package overrideImplement
+package org.jetbrains.plugins.scala.overrideImplement
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.ScalaCodeInsightActionHandler
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil.invokeOverrideImplement
 
 class ScalaImplementMethodsHandler extends ScalaCodeInsightActionHandler {

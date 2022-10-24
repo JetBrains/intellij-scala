@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
+package org.jetbrains.plugins.scala.lang.parser.parsing
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
@@ -15,8 +14,8 @@ import scala.annotation.tailrec
  */
 object CompilationUnit {
 
-  import lexer.ScalaTokenType.ObjectKeyword
-  import lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.ObjectKeyword
+  import ScalaTokenTypes._
 
   def apply()(implicit builder: ScalaPsiBuilder): Unit = {
     def parsePackagingBody(): Unit = {

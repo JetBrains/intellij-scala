@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
+package org.jetbrains.plugins.scala.lang.parser
 
 import org.jetbrains.annotations.PropertyKey
+import org.jetbrains.plugins.scala.ScalaBundle
 
 object ErrMsg{
   //noinspection DynamicPropertyKey

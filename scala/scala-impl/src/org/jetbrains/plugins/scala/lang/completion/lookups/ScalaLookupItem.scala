@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package lookups
+package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import com.intellij.codeInsight.completion.{InsertionContext, JavaCompletionUtil}
 import com.intellij.codeInsight.lookup._
@@ -10,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
 import org.jetbrains.plugins.scala.autoImport.quickFix._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.{InsertionContextExt, ScalaKeyword}
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaImportingInsertHandler, ScalaInsertHandler}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage

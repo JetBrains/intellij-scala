@@ -1,9 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package statements
+package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaTokenBinders}
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{End, Modifier}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
@@ -22,8 +20,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
  */
 object Def extends ParsingRule {
 
-  import lexer.ScalaTokenType._
-  import lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val defMarker = builder.mark()

@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi
-package types
-package result
+package org.jetbrains.plugins.scala.lang.psi.types.result
 
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.NlsString
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.HashBuilder._
 

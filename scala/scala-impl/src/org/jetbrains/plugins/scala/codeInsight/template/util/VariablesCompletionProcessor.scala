@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight.template.util
+package org.jetbrains.plugins.scala.codeInsight.template.util
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor

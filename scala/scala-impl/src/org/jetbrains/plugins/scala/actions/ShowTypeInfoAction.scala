@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package actions
+package org.jetbrains.plugins.scala.actions
 
 import _root_.com.intellij.codeInsight.TargetElementUtil
 import _root_.com.intellij.psi._
@@ -8,7 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern

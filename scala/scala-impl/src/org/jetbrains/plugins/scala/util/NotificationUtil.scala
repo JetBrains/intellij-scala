@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala
-package util
+package org.jetbrains.plugins.scala.util
 
 import com.intellij.notification._
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.{Nls, NonNls}
+import org.jetbrains.plugins.scala.ScalaBundle
 
 import java.net.URL
 import javax.swing.event.HyperlinkEvent

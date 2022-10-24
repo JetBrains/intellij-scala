@@ -1,12 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package resolve
-package processor
+package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.scope._
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
@@ -23,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor.RecursionState
 import org.jetbrains.plugins.scala.project.ProjectContext

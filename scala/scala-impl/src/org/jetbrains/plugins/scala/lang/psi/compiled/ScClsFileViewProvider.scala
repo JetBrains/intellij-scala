@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package compiled
+package org.jetbrains.plugins.scala.lang.psi.compiled
 
 import com.intellij.lang.Language
 import com.intellij.openapi.fileTypes.FileType

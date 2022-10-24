@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package compiled
+package org.jetbrains.plugins.scala.lang.psi.compiled
 
 import com.intellij.debugger.{DebuggerManager, NameMapper}
 import com.intellij.openapi.application.ApplicationManager

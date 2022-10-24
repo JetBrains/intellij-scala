@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package expr
+package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement

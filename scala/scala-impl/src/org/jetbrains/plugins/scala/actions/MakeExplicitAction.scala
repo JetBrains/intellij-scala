@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package actions
+package org.jetbrains.plugins.scala.actions
 
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.actionSystem._

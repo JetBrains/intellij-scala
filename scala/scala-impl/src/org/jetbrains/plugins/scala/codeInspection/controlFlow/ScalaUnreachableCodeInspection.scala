@@ -1,12 +1,11 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package controlFlow
+package org.jetbrains.plugins.scala.codeInspection.controlFlow
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInsight.unwrap.{ScalaUnwrapContext, ScalaWhileUnwrapper}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractFixOnTwoPsiElements, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScDo}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction

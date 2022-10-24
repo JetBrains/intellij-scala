@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package statements
+package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType

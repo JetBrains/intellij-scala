@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package resolve
+package org.jetbrains.plugins.scala.lang.resolve
 
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 

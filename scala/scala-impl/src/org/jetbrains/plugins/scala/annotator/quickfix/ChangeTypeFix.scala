@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
-package quickfix
+package org.jetbrains.plugins.scala.annotator.quickfix
 
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.lang.transformation
-package conversions
+package org.jetbrains.plugins.scala.lang.transformation.conversions
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
@@ -9,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, bindTo, simpleNameOf}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 // Boxing/unboxing is not a syntactic sugar but rather a JVM-specific implementation detail.

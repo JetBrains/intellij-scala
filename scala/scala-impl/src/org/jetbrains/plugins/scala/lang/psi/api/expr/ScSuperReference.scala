@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package expr
+package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPathElement, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 

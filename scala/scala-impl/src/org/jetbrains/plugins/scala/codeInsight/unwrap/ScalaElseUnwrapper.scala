@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight.unwrap
+package org.jetbrains.plugins.scala.codeInsight.unwrap
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.psi.PsiElement

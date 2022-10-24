@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
+package org.jetbrains.plugins.scala.lang.psi.impl
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
@@ -10,8 +7,10 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaLowerCase}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGivenDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses

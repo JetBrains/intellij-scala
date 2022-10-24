@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang.rearranger
+package org.jetbrains.plugins.scala.lang.rearranger
 
 import com.intellij.application.options.codeStyle.arrangement.ArrangementSettingsPanel
 import com.intellij.psi.codeStyle.CodeStyleSettings
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 class ScalaArrangementPanel(settings: CodeStyleSettings) extends ArrangementSettingsPanel(settings, ScalaLanguage.INSTANCE) {
 

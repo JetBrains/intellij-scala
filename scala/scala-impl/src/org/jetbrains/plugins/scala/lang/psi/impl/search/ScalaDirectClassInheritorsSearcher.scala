@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala.lang
-package psi
-package impl
-package search
+package org.jetbrains.plugins.scala.lang.psi.impl.search
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Comparing

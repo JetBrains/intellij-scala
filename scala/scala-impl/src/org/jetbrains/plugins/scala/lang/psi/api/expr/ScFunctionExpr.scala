@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package expr
+package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 trait ScFunctionExpr extends ScExpression with ScControlFlowOwner {

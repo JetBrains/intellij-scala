@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package format
+package org.jetbrains.plugins.scala.format
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._

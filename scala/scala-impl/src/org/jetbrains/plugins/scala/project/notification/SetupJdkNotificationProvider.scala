@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package project
-package notification
+package org.jetbrains.plugins.scala.project.notification
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.extractTrait
+package org.jetbrains.plugins.scala.lang.refactoring.extractTrait
 
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.editor.{Editor, ScrollType}
@@ -9,6 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.extractSuperclass.ExtractSuperClassUtil
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor

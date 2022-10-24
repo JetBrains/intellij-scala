@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package findUsages
-package apply
+package org.jetbrains.plugins.scala.findUsages.apply
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{&&, Parent}

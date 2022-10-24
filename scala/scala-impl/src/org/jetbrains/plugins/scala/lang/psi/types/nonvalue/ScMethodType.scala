@@ -1,12 +1,12 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
-package nonvalue
+package org.jetbrains.plugins.scala.lang.psi.types.nonvalue
 
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, MissedParametersClause, MissedValueParameter, ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 
@@ -17,14 +17,14 @@ final case class ScMethodType(result: ScType,
                               isImplicit: Boolean)
                              (implicit val elementScope: ElementScope) extends NonValueType {
 
-  override implicit def projectContext: project.ProjectContext = elementScope.projectContext
+  override implicit def projectContext: ProjectContext = elementScope.projectContext
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitMethodType(this)
 
   override def typeDepth: Int = result.typeDepth
 
-  override def inferValueType: api.ValueType =
-    api.FunctionType(result.inferValueType, params.map(p => {
+  override def inferValueType: ValueType =
+    FunctionType(result.inferValueType, params.map(p => {
       val inferredParamType = p.paramType.inferValueType
       if (!p.isRepeated) inferredParamType
       else               inferredParamType.tryWrapIntoSeqType

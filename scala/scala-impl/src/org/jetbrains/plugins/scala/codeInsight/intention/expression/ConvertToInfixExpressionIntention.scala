@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package intention
-package expression
+package org.jetbrains.plugins.scala.codeInsight.intention.expression
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
@@ -11,6 +8,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInsight.intention.analyzeMethodCallArgs
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText

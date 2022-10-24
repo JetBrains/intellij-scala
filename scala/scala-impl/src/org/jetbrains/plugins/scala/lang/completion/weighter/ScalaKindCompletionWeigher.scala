@@ -1,12 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package weighter
+package org.jetbrains.plugins.scala.lang.completion.weighter
 
 import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeigher}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.completion.{insideTypePattern, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition

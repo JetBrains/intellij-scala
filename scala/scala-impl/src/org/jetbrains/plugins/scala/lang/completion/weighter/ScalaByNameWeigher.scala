@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package weighter
+package org.jetbrains.plugins.scala.lang.completion.weighter
 
 import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeigher}
 import com.intellij.codeInsight.lookup.LookupElement
@@ -9,6 +6,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import com.intellij.util.text.EditDistance.optimalAlignment
+import org.jetbrains.plugins.scala.lang.completion.{insideTypePattern, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter

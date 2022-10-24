@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package introduceVariable
+package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.openapi.application.ApplicationManager
@@ -21,7 +18,8 @@ import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
 import com.intellij.ui.NonFocusableCheckBox
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -264,7 +262,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
 
       val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
       link.addHyperlinkListener((_: HyperlinkEvent) => {
-        extensions.invokeLater {
+        invokeLater {
           mySpecifyTypeChb.setSelected(needTypeDefault)
         }
       })
@@ -334,7 +332,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
       } else if (getDeclaration.isDefined && !UndoManager.getInstance(myProject).isUndoInProgress) {
         val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
         if (revertInfo != null) {
-          extensions.inWriteAction {
+          inWriteAction {
             myEditor.getDocument.replaceString(0, myFile.getTextLength, revertInfo.fileText)
           }
           myEditor.getCaretModel.moveToOffset(revertInfo.caretOffset)

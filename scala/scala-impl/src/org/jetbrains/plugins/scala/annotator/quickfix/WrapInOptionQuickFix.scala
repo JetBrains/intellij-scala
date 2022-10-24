@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala
-package annotator.quickfix
+package org.jetbrains.plugins.scala.annotator.quickfix
 
 import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText

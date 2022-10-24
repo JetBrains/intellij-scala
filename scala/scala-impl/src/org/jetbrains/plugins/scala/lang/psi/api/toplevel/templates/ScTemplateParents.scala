@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package toplevel
+package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 package templates
 
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType

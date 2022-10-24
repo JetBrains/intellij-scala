@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package findUsages
+package org.jetbrains.plugins.scala.lang.findUsages
 
 import com.intellij.lang.cacheBuilder.WordsScanner
 import com.intellij.lang.findUsages.FindUsagesProvider

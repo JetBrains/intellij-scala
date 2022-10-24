@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package parentheses
+package org.jetbrains.plugins.scala.codeInspection.parentheses
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -74,10 +74,9 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase extends LocalInspection
           case other => other
         }
 
-        import codeInsight.intention.RemoveBracesIntention._
         element.innerElement
-          .map(collectComments(_))
-          .foreach(addComments(_, replaced.getParent, replaced))
+          .map(RemoveBracesIntention.collectComments(_))
+          .foreach(RemoveBracesIntention.addComments(_, replaced.getParent, replaced))
 
         ScalaPsiUtil padWithWhitespaces replaced
       }

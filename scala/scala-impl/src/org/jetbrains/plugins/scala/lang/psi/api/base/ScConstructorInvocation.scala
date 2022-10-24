@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package base
+package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType

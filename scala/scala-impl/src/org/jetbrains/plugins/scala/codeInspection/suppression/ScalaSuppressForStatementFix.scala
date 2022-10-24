@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package suppression
+package org.jetbrains.plugins.scala.codeInspection.suppression
 
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.daemon.impl.actions.SuppressByCommentFix
@@ -10,6 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}

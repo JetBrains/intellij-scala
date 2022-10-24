@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.psi.impl.statements
+package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._

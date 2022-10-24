@@ -1,19 +1,17 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package base
+package org.jetbrains.plugins.scala.lang.psi.impl.base
 package literals
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScExpressionImplBase
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, result}
 
 abstract class ScLiteralImplBase(node: ASTNode,
                                  override val toString: String)
-  extends expr.ScExpressionImplBase(node)
+  extends ScExpressionImplBase(node)
     with ScLiteral {
 
   protected def wrappedValue(value: V): ScLiteral.Value[V]

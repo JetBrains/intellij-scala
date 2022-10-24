@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.psi.implicits
+package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project

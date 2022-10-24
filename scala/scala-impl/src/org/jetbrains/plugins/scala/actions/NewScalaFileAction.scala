@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package actions
+package org.jetbrains.plugins.scala.actions
 
 import com.intellij.ide.IdeView
 import com.intellij.ide.actions.{CreateFileFromTemplateDialog, CreateTemplateInPackageAction}
@@ -16,6 +15,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 import org.jetbrains.plugins.scala.actions.NewScalaFileAction._
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.icons.Icons

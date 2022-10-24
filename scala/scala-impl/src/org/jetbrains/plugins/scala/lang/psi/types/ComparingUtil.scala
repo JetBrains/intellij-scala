@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.psi.types
+package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch

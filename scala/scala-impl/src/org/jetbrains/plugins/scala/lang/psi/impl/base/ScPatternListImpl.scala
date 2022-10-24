@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package base
+package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScBindingPatternFactory, ScReferencePatternFactory}
@@ -11,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.REFERENCE_PATTERN
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPatternListStub
 
 class ScPatternListImpl private(stub: ScPatternListStub, node: ASTNode)

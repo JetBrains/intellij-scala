@@ -1,8 +1,6 @@
-package org.jetbrains.plugins.scala.lang
-package macros
-package evaluator
-package impl
+package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
 
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroImpl, ScalaMacroTypeable}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScSymbolLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction

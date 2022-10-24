@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala
-package annotator
-package template
+package org.jetbrains.plugins.scala.annotator.template
 
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.{AnnotatorPart, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 
 object TraitHasImplicitBound extends AnnotatorPart[ScTrait] {

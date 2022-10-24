@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package util
-package internal
+package org.jetbrains.plugins.scala.util.internal
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._

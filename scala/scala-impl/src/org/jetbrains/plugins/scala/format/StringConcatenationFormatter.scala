@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package format
+package org.jetbrains.plugins.scala.format
 
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.annotator.createFromUsage.TypeAsClass

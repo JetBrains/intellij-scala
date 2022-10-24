@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package project
-package template
+package org.jetbrains.plugins.scala.project.template
 
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import org.jetbrains.annotations.Nls
@@ -16,7 +14,7 @@ final class SdkTableModel extends ListTableModel[SdkChoice](
   },
   new ColumnInfo[SdkChoice, String](ScalaBundle.message("sdk.table.model.version")) {
 
-    import Version._
+    import org.jetbrains.plugins.scala.project.Version._
 
     override def valueOf(item: SdkChoice): String = {
       val sdk = item.sdk

@@ -1,13 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.FileElement
 import com.intellij.psi.stubs._
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.ScExpressionElementType
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, SelfPsiCreator}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType.isLocal

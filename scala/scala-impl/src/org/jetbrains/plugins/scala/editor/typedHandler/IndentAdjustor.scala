@@ -1,11 +1,10 @@
-package org.jetbrains.plugins.scala
-package editor
-package typedHandler
+package org.jetbrains.plugins.scala.editor.typedHandler
 
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
+import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
 import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools.isBehindPostfixExpr
 import org.jetbrains.plugins.scala.extensions._
 

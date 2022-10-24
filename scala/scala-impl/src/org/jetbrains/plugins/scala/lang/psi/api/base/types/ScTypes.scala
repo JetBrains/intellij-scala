@@ -1,9 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package base
+package org.jetbrains.plugins.scala.lang.psi.api.base
 package types
+
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 trait ScTypes extends ScalaPsiElement {
   def types: Seq[ScTypeElement] = findChildren[ScTypeElement]

@@ -1,25 +1,24 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
+package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions.Valid
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 import scala.collection.immutable.ArraySeq
 import scala.reflect.{ClassTag, classTag}
 
 trait ScalaPsiElement extends PsiElement
-  with project.ProjectContextOwner {
+  with ProjectContextOwner {
 
   import ScalaPsiElement._
 
   implicit def elementScope: ElementScope = ElementScope(this)
 
-  override implicit def projectContext: project.ProjectContext = this.getProject
+  override implicit def projectContext: ProjectContext = this.getProject
 
   final def isInCompiledFile: Boolean = getContainingFile match {
     case sf: ScalaFile => sf.isCompiled

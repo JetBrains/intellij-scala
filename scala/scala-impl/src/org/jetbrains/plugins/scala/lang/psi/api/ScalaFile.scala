@@ -1,9 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
+package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.lang.psi.{ScExportsHolder, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 

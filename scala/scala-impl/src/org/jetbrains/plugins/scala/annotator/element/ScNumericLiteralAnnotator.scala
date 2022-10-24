@@ -1,18 +1,17 @@
-package org.jetbrains.plugins.scala
-package annotator
-package element
+package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.{IntegerKind, Oct, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.annotator.quickfix.NumberLiteralQuickFix._
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPrefixExpr}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag](isLong: Boolean) extends ElementAnnotator[L] {
-
-  import project.ScalaLanguageLevel._
 
   protected def annotate(literal: L)
                         (implicit holder: ScalaAnnotationHolder): Option[(ScExpression, Boolean)] = {
@@ -31,7 +30,7 @@ sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag]
       case _ => literal
     }
 
-    if (kind == Oct && languageLevel.exists(_ >= Scala_2_11)) {
+    if (kind == Oct && languageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_11)) {
       val message = ScalaBundle.message("octal.literals.removed")
       holder.createErrorAnnotation(target.getTextRange, message, new ConvertOctToHex(literal, isLong))
     }
@@ -40,7 +39,7 @@ sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag]
     number.lastIndexOf('_') match {
       case -1 =>
       case index =>
-        if (languageLevel.exists(_ < Scala_2_13)) {
+        if (languageLevel.exists(_ < ScalaLanguageLevel.Scala_2_13)) {
           holder.createErrorAnnotation(target, ScalaBundle.message("illegal.underscore.separator"))
         }
         if (index == number.length - 1) {

@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
-package api
+package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.light.DummyLightTypeParam
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, NamedType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType.isMaskedExtensionTypeParameter
 import org.jetbrains.plugins.scala.project.ProjectContext
 

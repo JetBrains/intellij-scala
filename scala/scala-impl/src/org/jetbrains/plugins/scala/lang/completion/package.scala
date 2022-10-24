@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
+package org.jetbrains.plugins.scala.lang
 
 import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion._

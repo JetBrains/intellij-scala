@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package delayedInit
+package org.jetbrains.plugins.scala.codeInspection.delayedInit
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle, conformsToTypeFromClass}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression

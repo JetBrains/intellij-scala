@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection.syntacticClarification
+package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project

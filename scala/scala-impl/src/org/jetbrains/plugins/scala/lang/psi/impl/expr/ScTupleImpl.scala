@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package expr
+package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Singleton, TupleType, Unit}

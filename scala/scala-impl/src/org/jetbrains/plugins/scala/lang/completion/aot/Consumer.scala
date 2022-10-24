@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala.lang
-package completion
-package aot
+package org.jetbrains.plugins.scala.lang.completion.aot
 
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionResult, CompletionResultSet}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation, LookupElementRenderer}

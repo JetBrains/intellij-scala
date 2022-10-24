@@ -1,14 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClause
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScDerivesClauseImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScDerivesClauseStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScDerivesClauseStubImpl
 
 class ScDerivesClauseElementType extends ScStubElementType[ScDerivesClauseStub, ScDerivesClause]("template derives") {

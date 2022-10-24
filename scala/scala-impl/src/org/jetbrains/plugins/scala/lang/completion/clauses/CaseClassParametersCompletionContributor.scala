@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package clauses
+package org.jetbrains.plugins.scala.lang.completion.clauses
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher}
@@ -9,6 +6,7 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.completion.{ScalaCompletionContributor, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._

@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package methodSignature
+package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isConcreteTermSignature, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
@@ -13,8 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 
 class OverrideAbstractMemberInspection extends LocalInspectionTool {
-
-  import lang.psi.ScalaPsiUtil._
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case param: ScClassParameter if isApplicable(param) =>

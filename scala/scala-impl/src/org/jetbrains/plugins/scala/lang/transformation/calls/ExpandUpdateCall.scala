@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.lang.transformation
-package calls
+package org.jetbrains.plugins.scala.lang.transformation.calls
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
+import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, RenamedReference}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class ExpandUpdateCall extends AbstractTransformer {

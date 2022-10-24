@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor.documentationProvider
+package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.codeInsight.javadoc.JavaDocUtil
 import com.intellij.lang.documentation.CodeDocumentationProvider

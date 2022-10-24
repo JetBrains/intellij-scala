@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package highlighter
-package usages
+package org.jetbrains.plugins.scala.highlighter.usages
 
 import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandlerBase, HighlightUsagesHandlerFactory}

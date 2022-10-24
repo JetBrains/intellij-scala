@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi
-package dataFlow
+package org.jetbrains.plugins.scala.lang.psi.dataFlow
 
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 

@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package statements
+package org.jetbrains.plugins.scala.lang.psi.impl.statements
 package params
 
 import com.intellij.lang.ASTNode
@@ -11,8 +7,10 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeParamFactory
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamClauseStub
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 

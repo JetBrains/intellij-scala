@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
+package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.util.Ref
 import org.jetbrains.plugins.scala.extensions.ObjectExt

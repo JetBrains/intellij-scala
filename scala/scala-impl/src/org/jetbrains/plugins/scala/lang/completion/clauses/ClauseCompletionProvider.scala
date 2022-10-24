@@ -1,11 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package clauses
+package org.jetbrains.plugins.scala.lang.completion.clauses
 
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionProvider, CompletionResultSet}
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 

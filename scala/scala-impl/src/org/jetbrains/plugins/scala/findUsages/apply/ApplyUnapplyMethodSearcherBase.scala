@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package findUsages.apply
+package org.jetbrains.plugins.scala.findUsages.apply
 
 import com.intellij.psi.PsiReference
 import com.intellij.psi.search.searches.ReferencesSearch

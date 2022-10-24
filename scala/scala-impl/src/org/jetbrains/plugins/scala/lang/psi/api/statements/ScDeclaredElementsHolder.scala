@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package statements
+package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 trait ScDeclaredElementsHolder extends ScalaPsiElement {
   def declaredElements : Seq[PsiNamedElement]

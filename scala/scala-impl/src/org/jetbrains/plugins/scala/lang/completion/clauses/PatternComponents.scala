@@ -1,11 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package clauses
+package org.jetbrains.plugins.scala.lang.completion.clauses
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReference}
@@ -31,7 +30,7 @@ object PatternComponents {
 
     def clauseText(patternText: String)
                   (implicit project: Project): String =
-      s"${ScalaKeyword.CASE} $patternText ${psi.ScalaPsiUtil.functionArrow}"
+      s"${ScalaKeyword.CASE} $patternText ${ScalaPsiUtil.functionArrow}"
   }
 }
 

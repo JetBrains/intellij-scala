@@ -1,12 +1,10 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package intention
-package types
+package org.jetbrains.plugins.scala.codeInsight.intention.types
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition

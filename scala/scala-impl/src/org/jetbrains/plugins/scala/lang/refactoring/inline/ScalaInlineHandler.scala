@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package inline
+package org.jetbrains.plugins.scala.lang.refactoring.inline
 
 
 import com.intellij.lang.refactoring.InlineHandler
@@ -18,6 +15,7 @@ import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
 import com.intellij.util.FilteredQuery
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil

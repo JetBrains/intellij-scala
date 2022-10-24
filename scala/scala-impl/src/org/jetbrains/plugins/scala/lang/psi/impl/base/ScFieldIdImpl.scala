@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package base
+package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
@@ -12,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.FIELD_ID
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypedDeclaration, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScImportableDeclarationsOwner
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFieldIdStub
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 

@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package methodSignature
+package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiMethod, PsiType}

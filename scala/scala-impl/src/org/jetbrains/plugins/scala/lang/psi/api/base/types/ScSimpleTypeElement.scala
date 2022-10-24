@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package base
-package types
+package org.jetbrains.plugins.scala.lang.psi.api.base.types
+
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationExpr, ScConstructorInvocation, ScPathElement, ScStableCodeReference}
 
 trait ScSimpleTypeElement extends ScTypeElement {
   override protected val typeName = "SimpleType"
@@ -17,7 +16,7 @@ trait ScSimpleTypeElement extends ScTypeElement {
    *          false for `val y: String`
    */
   override def isSingleton: Boolean = {
-    val typeToken = getNode.findChildByType(lang.lexer.ScalaTokenTypes.kTYPE)
+    val typeToken = getNode.findChildByType(ScalaTokenTypes.kTYPE)
     typeToken != null
   }
 

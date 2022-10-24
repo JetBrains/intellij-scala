@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.references
-package bytecode
+package org.jetbrains.plugins.scala.compiler.references.bytecode
 
 import com.intellij.util.BitUtil.isSet
 import org.jetbrains.org.objectweb.asm.Opcodes._

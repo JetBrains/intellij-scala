@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package functionExpressions
+package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
@@ -12,6 +10,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractFixOnTwoPsiElements, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._

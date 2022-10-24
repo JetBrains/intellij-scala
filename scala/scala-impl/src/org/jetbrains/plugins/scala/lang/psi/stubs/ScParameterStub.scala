@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
+package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import com.intellij.psi.stubs.NamedStub
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter

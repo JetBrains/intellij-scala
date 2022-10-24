@@ -1,9 +1,7 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package methodSignature
-package quickfix
+package org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 

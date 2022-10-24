@@ -1,5 +1,6 @@
-package org.jetbrains.plugins.scala
-package lang.surroundWith.surrounders.scaladoc
+package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc
+
+import org.jetbrains.plugins.scala.ScalaBundle
 
 class ScalaDocWithUnderlinedSurrounder extends ScalaDocWithSyntaxSurrounder {
   override def getSyntaxTag = "__"

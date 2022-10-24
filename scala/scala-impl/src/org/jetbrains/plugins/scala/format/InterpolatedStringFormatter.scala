@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package format
+package org.jetbrains.plugins.scala.format
 
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr

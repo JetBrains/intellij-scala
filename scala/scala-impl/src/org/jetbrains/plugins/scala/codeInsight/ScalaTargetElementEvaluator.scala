@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight
+package org.jetbrains.plugins.scala.codeInsight
 
 import com.intellij.codeInsight.{TargetElementEvaluatorEx, TargetElementEvaluatorEx2}
 import com.intellij.psi._

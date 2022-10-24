@@ -1,20 +1,18 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.apache.commons.lang3.StringUtils
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScGivenAliasImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScFunctionStub, ScGivenStub, ScImplicitStub}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
 
 abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
@@ -114,7 +112,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
   }
 
   override def indexStub(stub: ScFunctionStub[Fun], sink: IndexSink): Unit = {
-    import index.ScalaIndexKeys._
+    import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
 
     val functionName = stub.getName
     sink.occurrences(METHOD_NAME_KEY, functionName)

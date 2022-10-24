@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight.intention.expression
+package org.jetbrains.plugins.scala.codeInsight.intention.expression
 
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
@@ -9,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
 

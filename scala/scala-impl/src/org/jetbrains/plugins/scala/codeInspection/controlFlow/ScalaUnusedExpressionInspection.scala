@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package controlFlow
+package org.jetbrains.plugins.scala.codeInspection.controlFlow
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle, expressionResultIsNotUsed, findDefiningFunction, isUnitFunction}
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RemoveExpressionQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory

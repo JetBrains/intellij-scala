@@ -1,14 +1,13 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package forwardReferenceInspection
+package org.jetbrains.plugins.scala.codeInspection.forwardReferenceInspection
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
-
 
 class ForwardReferenceInspection extends LocalInspectionTool {
 

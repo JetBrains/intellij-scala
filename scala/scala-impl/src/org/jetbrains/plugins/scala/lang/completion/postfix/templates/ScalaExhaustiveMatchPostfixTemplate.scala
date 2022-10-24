@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala.lang
-package completion
-package postfix
-package templates
+package org.jetbrains.plugins.scala.lang.completion.postfix.templates
 
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.codeInsight.template.postfix.templates.{PostfixTemplate, StringBasedPostfixTemplate}
@@ -11,6 +8,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.completion.clauses.{ClauseCompletionParameters, ExhaustiveMatchCompletionContributor, PatternGenerationStrategy}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScMatch}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable

@@ -1,17 +1,13 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package base
+package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedExpressionPrefix, ScInterpolatedPatternPrefix}
 
 trait ScInterpolated extends ScalaPsiElement {
-
-  import lexer.ScalaTokenTypes._
 
   def isMultiLineString: Boolean
 
@@ -40,16 +36,16 @@ trait ScInterpolated extends ScalaPsiElement {
   @inline
   private def buildStringPart(child: ASTNode, dummy: Boolean): String =
     child.getElementType match {
-      case `tINTERPOLATED_STRING` =>
+      case ScalaTokenTypes.`tINTERPOLATED_STRING` =>
         if (dummy) "" else child.getText.stripPrefix(SingleLineQuote)
-      case `tINTERPOLATED_MULTILINE_STRING` =>
+      case ScalaTokenTypes.`tINTERPOLATED_MULTILINE_STRING` =>
         if (dummy) "" else child.getText.stripPrefix(MultiLineQuote)
-      case `tINTERPOLATED_STRING_INJECTION` | `tINTERPOLATED_STRING_END` =>
+      case ScalaTokenTypes.`tINTERPOLATED_STRING_INJECTION` | ScalaTokenTypes.`tINTERPOLATED_STRING_END` =>
         child.getTreePrev match {
           case null => null
           case prev =>
             prev.getElementType match {
-              case `tINTERPOLATED_MULTILINE_STRING` | `tINTERPOLATED_STRING` => null
+              case ScalaTokenTypes.`tINTERPOLATED_MULTILINE_STRING` | ScalaTokenTypes.`tINTERPOLATED_STRING` => null
               case _ => "" //insert empty string between injections
             }
         }

@@ -1,7 +1,5 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package base
+package org.jetbrains.plugins.scala.lang.psi.api.base
+
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 trait ScPathElement extends ScalaPsiElement

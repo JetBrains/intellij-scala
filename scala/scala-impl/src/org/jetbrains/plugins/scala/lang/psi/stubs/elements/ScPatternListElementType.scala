@@ -1,14 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScPatternListImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScPatternListStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPatternListStubImpl
 
 class ScPatternListElementType extends ScStubElementType[ScPatternListStub, ScPatternList]("pattern list") {

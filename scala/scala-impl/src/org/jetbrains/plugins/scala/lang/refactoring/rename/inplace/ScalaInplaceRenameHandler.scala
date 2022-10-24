@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.rename.inplace
+package org.jetbrains.plugins.scala.lang.refactoring.rename.inplace
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -11,6 +10,7 @@ import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
 import com.intellij.ui.components.JBList
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, invokeLaterInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScEnd, ScReference}

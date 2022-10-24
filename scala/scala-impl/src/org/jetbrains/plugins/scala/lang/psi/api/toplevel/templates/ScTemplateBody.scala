@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package toplevel
+package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 package templates
 
+import org.jetbrains.plugins.scala.lang.psi.{ScExportsHolder, ScImportsHolder}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScBraceOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression

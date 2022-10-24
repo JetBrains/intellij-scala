@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package base
+package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import com.intellij.lang.{ASTNode, LanguageNamesValidation}
 import com.intellij.psi.LiteralTextEscaper
@@ -13,6 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.{ScLiteralEscaper, ScLiteralRawEscaper}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
@@ -27,7 +24,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
     with ScInterpolatedStringLiteral {
 
   import ScInterpolatedStringLiteral._
-  import lang.lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
   override def kind: Kind = referenceText match {
     case "s" => Standard

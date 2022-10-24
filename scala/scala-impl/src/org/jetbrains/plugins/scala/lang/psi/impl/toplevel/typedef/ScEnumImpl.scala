@@ -1,19 +1,17 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package toplevel
+package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.EnumKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -56,7 +54,7 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
   override protected def targetTokenType = EnumKeyword
 
   //noinspection TypeAnnotation
-  override protected def baseIcon = icons.Icons.ENUM
+  override protected def baseIcon = Icons.ENUM
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.EnumKeyword
 

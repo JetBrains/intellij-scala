@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.references
-package indices
+package org.jetbrains.plugins.scala.compiler.references.indices
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
@@ -10,6 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.compiler.references.bytecode.{ClassfileParser, CompiledScalaFile}
 import org.jetbrains.plugins.scala.compiler.references.indices.IndexerFailure._
 import org.jetbrains.plugins.scala.compiler.references.indices.IndexingStage._
+import org.jetbrains.plugins.scala.compiler.references.{indexDir, removeIndexFiles, task}
 import org.jetbrains.plugins.scala.indices.protocol.{CompilationInfo, CompiledClass}
 import org.jetbrains.plugins.scala.project.ProjectExt
 

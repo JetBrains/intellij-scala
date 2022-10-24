@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package toplevel
+package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 package templates
 
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScExtension, ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}

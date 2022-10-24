@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
-package nonvalue
+package org.jetbrains.plugins.scala.lang.psi.types.nonvalue
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScAbstractType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes

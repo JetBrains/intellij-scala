@@ -1,15 +1,14 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
-package api
+package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType, ScalaType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 final case class JavaArrayType(argument: ScType) extends ValueType {
 
-  override implicit def projectContext: project.ProjectContext = argument.projectContext
+  override implicit def projectContext: ProjectContext = argument.projectContext
 
   def getParameterizedType(implicit elementScope: ElementScope): Option[ValueType] = {
     elementScope.getCachedClasses("scala.Array").collect {

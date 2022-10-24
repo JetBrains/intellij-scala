@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package varCouldBeValInspection
+package org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection
 
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInspection.{LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType}
@@ -9,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.{HighlightingPassInspection, ProblemInfo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isOnlyVisibleInLocalFile, isPossiblyAssignment}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern

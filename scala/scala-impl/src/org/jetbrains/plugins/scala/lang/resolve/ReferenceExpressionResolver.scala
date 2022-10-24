@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package resolve
+package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._

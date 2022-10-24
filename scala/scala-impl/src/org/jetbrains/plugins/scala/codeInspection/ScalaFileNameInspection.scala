@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
+package org.jetbrains.plugins.scala.codeInspection
 
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection._
@@ -10,6 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiFile, PsiNamedElement}
 import com.intellij.refactoring.RefactoringFactory
 import com.intellij.refactoring.rename.RenameProcessor
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile

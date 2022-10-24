@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala
-package overrideImplement
+package org.jetbrains.plugins.scala.overrideImplement
 
 import com.intellij.codeInsight.generation.PsiElementClassMember
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils
 import org.jetbrains.plugins.scala.lang.psi.api.statements._

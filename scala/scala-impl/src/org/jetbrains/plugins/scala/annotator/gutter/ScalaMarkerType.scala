@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
-package gutter
+package org.jetbrains.plugins.scala.annotator.gutter
 
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.impl.{GutterTooltipHelper, PsiElementListNavigator}
@@ -12,6 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.presentation.java.ClassPresentationUtil
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.gutter.GutterUtil.namedParent
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil

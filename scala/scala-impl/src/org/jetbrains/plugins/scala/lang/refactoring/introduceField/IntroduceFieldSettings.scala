@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.introduceField
+package org.jetbrains.plugins.scala.lang.refactoring.introduceField
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType

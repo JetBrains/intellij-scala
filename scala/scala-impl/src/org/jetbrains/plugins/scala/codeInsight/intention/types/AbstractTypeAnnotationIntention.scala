@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package intention
-package types
+package org.jetbrains.plugins.scala.codeInsight.intention.types
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor

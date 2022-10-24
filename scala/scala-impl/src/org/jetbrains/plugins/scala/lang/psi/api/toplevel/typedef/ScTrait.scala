@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package toplevel
+package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 package typedef
 
 import com.intellij.psi.PsiClass

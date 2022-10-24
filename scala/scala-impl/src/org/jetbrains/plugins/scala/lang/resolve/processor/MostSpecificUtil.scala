@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package resolve
-package processor
+package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
@@ -21,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 

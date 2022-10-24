@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.intention.IntentionAction
+import org.jetbrains.plugins.scala.ExtensionPointDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
 abstract class UnresolvedReferenceFixProvider {

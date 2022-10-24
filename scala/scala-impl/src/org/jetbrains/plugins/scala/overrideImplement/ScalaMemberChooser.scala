@@ -1,11 +1,12 @@
-package org.jetbrains.plugins.scala
-package overrideImplement
+package org.jetbrains.plugins.scala.overrideImplement
 
 import com.intellij.ide.util.MemberChooser
 import com.intellij.psi._
 import com.intellij.ui.{HyperlinkLabel, NonFocusableCheckBox}
 import com.intellij.util.ui.ThreeStateCheckBox
 import com.intellij.util.ui.ThreeStateCheckBox.State
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Location, ScalaTypeAnnotationSettings}
@@ -84,7 +85,7 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
 
   private def setUpHyperLink(): HyperlinkLabel = {
     val link = createTypeAnnotationsHLink(targetClass.getProject, ScalaBundle.message("default.ta.settings"))
-    link.addHyperlinkListener((_: HyperlinkEvent) => extensions.invokeLater(updateSpecifyTypeChb()))
+    link.addHyperlinkListener((_: HyperlinkEvent) => invokeLater(updateSpecifyTypeChb()))
     link
   }
 

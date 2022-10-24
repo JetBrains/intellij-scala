@@ -1,13 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package util
+package org.jetbrains.plugins.scala.lang.parser.util
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ErrMsg, IndentationWidth, PsiBuilderExt, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr

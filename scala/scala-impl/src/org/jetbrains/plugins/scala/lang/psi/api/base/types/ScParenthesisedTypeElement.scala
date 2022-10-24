@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package base
+package org.jetbrains.plugins.scala.lang.psi.api.base
 package types
 
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 trait ScParenthesisedTypeElement extends ScTypeElement with ScParenthesizedElement {
   override protected val typeName = "TypeInParenthesis"

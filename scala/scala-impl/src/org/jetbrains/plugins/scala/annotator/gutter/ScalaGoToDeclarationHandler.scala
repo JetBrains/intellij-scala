@@ -1,12 +1,11 @@
-package org.jetbrains.plugins.scala
-package annotator
-package gutter
+package org.jetbrains.plugins.scala.annotator.gutter
 
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.IsTemplateDefinition

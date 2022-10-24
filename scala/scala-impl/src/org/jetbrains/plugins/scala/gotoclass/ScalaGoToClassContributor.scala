@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package gotoclass
+package org.jetbrains.plugins.scala.gotoclass
 
 import com.intellij.navigation.{GotoClassContributor, NavigationItem}
 import com.intellij.openapi.project.Project

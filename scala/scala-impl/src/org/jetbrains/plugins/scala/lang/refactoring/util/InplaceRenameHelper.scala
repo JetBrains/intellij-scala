@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.util
+package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.highlighting.HighlightManager

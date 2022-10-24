@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor
-package todo
+package org.jetbrains.plugins.scala.editor.todo
 
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.lang.ParserDefinition

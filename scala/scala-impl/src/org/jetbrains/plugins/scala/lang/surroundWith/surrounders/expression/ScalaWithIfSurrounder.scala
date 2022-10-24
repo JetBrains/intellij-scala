@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package surroundWith
-package surrounders
-package expression
+package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange

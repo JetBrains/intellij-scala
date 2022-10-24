@@ -1,12 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package impl
+package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 
 final class ScFunctionStubImpl[F <: ScFunction](
   parent:                                        StubElement[_ <: PsiElement],

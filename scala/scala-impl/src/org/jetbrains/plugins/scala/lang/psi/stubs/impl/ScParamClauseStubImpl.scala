@@ -1,8 +1,5 @@
 
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
+package org.jetbrains.plugins.scala.lang.psi.stubs
 package impl
 
 import com.intellij.psi.PsiElement

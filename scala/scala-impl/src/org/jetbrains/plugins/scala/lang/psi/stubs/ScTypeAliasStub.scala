@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
+package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScBoundsOwnerStub, ScTypeElementOwnerStub}

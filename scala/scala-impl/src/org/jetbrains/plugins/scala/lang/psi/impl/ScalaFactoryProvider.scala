@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
+package org.jetbrains.plugins.scala.lang.psi.impl
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.JVMElementFactoryProvider

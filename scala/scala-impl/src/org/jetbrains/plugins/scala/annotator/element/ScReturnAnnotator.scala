@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala
-package annotator
-package element
+package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.codeInspection.ProblemHighlightType
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeMismatchError}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReturn}
 import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.project.ProjectContext

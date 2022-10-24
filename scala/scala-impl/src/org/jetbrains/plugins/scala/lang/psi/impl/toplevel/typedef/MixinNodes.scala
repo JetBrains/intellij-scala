@@ -1,8 +1,6 @@
 /**
  */
-package org.jetbrains.plugins.scala
-package lang
-package psi
+package org.jetbrains.plugins.scala.lang.psi
 package impl
 package toplevel
 package typedef

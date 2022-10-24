@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.lang
-package refactoring.extractMethod
+package org.jetbrains.plugins.scala.lang.refactoring.extractMethod
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._

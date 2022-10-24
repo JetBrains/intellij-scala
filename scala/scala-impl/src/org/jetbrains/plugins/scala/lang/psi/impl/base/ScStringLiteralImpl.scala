@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package base
+package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
@@ -26,7 +22,7 @@ class ScStringLiteralImpl(node: ASTNode,
 
   import QuotedLiteralImplBase._
   import ScStringLiteralImpl._
-  import lang.lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
   override protected def startQuote: String =
     if (isMultiLineString) MultiLineQuote

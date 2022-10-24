@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor
-package typedHandler
+package org.jetbrains.plugins.scala.editor.typedHandler
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion.CompletionType
@@ -15,6 +13,8 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.editor.{AutoBraceAdvertiser, DocumentExt, EditorExt, ScalaEditorUtils, indentElement, indentKeyword}
 import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt, _}

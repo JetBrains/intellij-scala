@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala.lang.transformation
-package general
+package org.jetbrains.plugins.scala.lang.transformation.general
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.format.{Injection, InterpolatedStringParser, StringPart, Text}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
+import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, quote}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class ExpandStringInterpolation extends AbstractTransformer {

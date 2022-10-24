@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package caches
-package stats
+package org.jetbrains.plugins.scala.caches.stats
 import org.jetbrains.plugins.scala.extensions._
 
 import java.util

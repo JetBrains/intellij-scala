@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.changeSignature
+package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightLevelUtil}
 import com.intellij.openapi.actionSystem.{AnActionEvent, CustomShortcutSet}
@@ -18,6 +17,8 @@ import com.intellij.ui.{util => _, _}
 import com.intellij.util.Consumer
 import com.intellij.util.ui.table.{JBListTable, JBTableRowEditor, JBTableRowRenderer}
 import com.intellij.util.ui.{StartupUiUtil, UIUtil}
+import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -510,7 +511,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
     val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
 
     link.addHyperlinkListener((_: HyperlinkEvent) => {
-      extensions.invokeLater {
+      invokeLater {
         mySpecifyTypeChb.setSelected(needsTypeAnnotation(method))
         updateSignatureAlarmFired()
       }

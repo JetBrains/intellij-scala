@@ -1,14 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package base
+package org.jetbrains.plugins.scala.lang.psi.impl.base
 package types
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 
 class ScRefinementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScRefinement{
   override def toString: String = "Refinement"

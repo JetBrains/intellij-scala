@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package projectView
+package org.jetbrains.plugins.scala.projectView
 
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.openapi.project.Project

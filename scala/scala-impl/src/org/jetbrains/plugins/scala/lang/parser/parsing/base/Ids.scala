@@ -1,9 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package base
+package org.jetbrains.plugins.scala.lang.parser.parsing.base
 
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
@@ -11,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 object Ids extends ParsingRule {
 
-  import ScalaElementType._
-  import lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()

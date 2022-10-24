@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package base
+package org.jetbrains.plugins.scala.lang.psi.impl.base
 package literals
 
 import com.intellij.lang.ASTNode
@@ -21,7 +17,7 @@ final class ScBooleanLiteralImpl(node: ASTNode,
     ScBooleanLiteralImpl.Value(value)
 
   override def getValue: JBoolean = {
-    import lang.lexer.ScalaTokenTypes._
+    import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
     getNode.getFirstChildNode.getElementType match {
       case `kTRUE` => JBoolean.TRUE
       case `kFALSE` => JBoolean.FALSE

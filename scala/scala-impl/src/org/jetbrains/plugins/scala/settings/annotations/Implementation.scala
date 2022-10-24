@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package settings
-package annotations
+package org.jetbrains.plugins.scala.settings.annotations
 
 import com.intellij.psi.{PsiElement, PsiEnumConstant}
 import org.jetbrains.plugins.scala.extensions._

@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package resolve
-package processor
+package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 
 

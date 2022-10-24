@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.runner
-package view
+package org.jetbrains.plugins.scala.runner.view
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper

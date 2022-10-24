@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
+package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.CommonClassNames.JAVA_LANG_OBJECT
 import com.intellij.psi.PsiElement

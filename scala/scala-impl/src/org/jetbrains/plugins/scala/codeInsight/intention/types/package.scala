@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package intention
+package org.jetbrains.plugins.scala.codeInsight.intention
 
 import com.intellij.codeInsight.template._
 import com.intellij.openapi.editor.Editor

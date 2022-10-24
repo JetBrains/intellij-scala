@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.references
-package indices
+package org.jetbrains.plugins.scala.compiler.references.indices
 
 import com.intellij.compiler.CompilerWorkspaceConfiguration
 import com.intellij.openapi.application.ModalityState
@@ -9,6 +8,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.compiler.references.indices.IndexingStage.InvalidateIndex
+import org.jetbrains.plugins.scala.compiler.references.task
 
 private[references] class CompilerReferenceIndexerScheduler(
   project:              Project,

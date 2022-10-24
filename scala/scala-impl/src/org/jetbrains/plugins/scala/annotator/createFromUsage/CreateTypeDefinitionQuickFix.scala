@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator.createFromUsage
+package org.jetbrains.plugins.scala.annotator.createFromUsage
 
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.intention.preview.{IntentionPreviewInfo, IntentionPreviewUtils}
@@ -14,6 +13,7 @@ import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, isUnitTestMode}
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions._

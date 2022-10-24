@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
+package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement
 import com.intellij.codeInsight.completion._
@@ -10,6 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.psi.{PsiElement, PsiMember, PsiMethod}
 import com.intellij.ui.LayeredIcon
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.NotImplementedError
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler.AssignmentText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement

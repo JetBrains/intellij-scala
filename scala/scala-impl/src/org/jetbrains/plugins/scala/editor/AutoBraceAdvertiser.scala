@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor
+package org.jetbrains.plugins.scala.editor
 
 import com.intellij.ide.BrowserUtil
 import com.intellij.notification._

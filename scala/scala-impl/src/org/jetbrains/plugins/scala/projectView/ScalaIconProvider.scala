@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package projectView
+package org.jetbrains.plugins.scala.projectView
 
 import com.intellij.ide.IconProvider
 import com.intellij.openapi.progress.ProgressManager

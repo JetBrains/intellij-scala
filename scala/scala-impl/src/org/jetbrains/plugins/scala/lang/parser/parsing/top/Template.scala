@@ -1,15 +1,13 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package top
+package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.{Body, EnumBody, TemplateBody}
 
 sealed abstract class Template extends ParsingRule {
 
-  import lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
   protected def parentsRule: Parents = TypeDefinitionParents
 

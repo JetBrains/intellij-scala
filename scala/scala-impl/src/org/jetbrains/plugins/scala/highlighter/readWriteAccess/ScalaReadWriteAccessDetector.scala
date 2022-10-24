@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package highlighter.readWriteAccess
+package org.jetbrains.plugins.scala.highlighter.readWriteAccess
 
 import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector
 import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector.Access

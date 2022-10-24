@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.psi.api
+package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.psi.{PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base._

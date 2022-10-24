@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
+package org.jetbrains.plugins.scala.lang.psi.types
 
 import it.unimi.dsi.fastutil.Hash
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap
@@ -10,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import scala.annotation.tailrec
@@ -21,7 +19,7 @@ final class ScExistentialType private (
 ) extends ScalaType
     with ValueType {
 
-  override implicit def projectContext: project.ProjectContext = quantified.projectContext
+  override implicit def projectContext: ProjectContext = quantified.projectContext
 
   override protected def calculateAliasType: Option[AliasType] = {
     quantified.aliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))

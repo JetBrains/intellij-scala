@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
+package org.jetbrains.plugins.scala.lang.parser.parsing
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 

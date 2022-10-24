@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection.format
+package org.jetbrains.plugins.scala.codeInspection.format
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project

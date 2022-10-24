@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi
-package api
-package base
-package types
+package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner

@@ -1,10 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package expressions
+package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.lang.PsiBuilder
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
@@ -51,8 +50,8 @@ import scala.annotation.tailrec
  */
 object SimpleExpr extends ParsingRule {
 
-  import lexer.ScalaTokenType._
-  import lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val simpleMarker = builder.mark()

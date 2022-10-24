@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package statements
+package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Block
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId

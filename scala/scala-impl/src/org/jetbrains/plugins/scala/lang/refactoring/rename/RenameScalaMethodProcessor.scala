@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package rename
+package org.jetbrains.plugins.scala.lang.refactoring.rename
 
 import com.intellij.CommonBundle
 import com.intellij.ide.IdeBundle
@@ -14,6 +11,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.{RenameJavaMethodProcessor, RenamePsiElementProcessor}
 import com.intellij.usageView.UsageInfo
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement

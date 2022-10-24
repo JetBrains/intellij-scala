@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package global
+package org.jetbrains.plugins.scala.lang.completion.global
 
 import com.intellij.codeInsight.completion.InsertHandler
 import com.intellij.codeInsight.lookup.LookupElement
@@ -84,7 +81,7 @@ private final class ExtensionMethodsFinder(originalType: ScType,
 
   import NameAvailabilityState._
 
-  private object NameAvailability extends global.NameAvailability {
+  private object NameAvailability extends NameAvailability {
 
     private lazy val originalTypeMemberNames = candidatesForType(originalType)
       .map(_.name)

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.references
-package settings
+package org.jetbrains.plugins.scala.compiler.references.settings
 
 import com.intellij.ide.IdeBundle
 import com.intellij.openapi.application.ex.ApplicationManagerEx

@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package toplevel
+package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 package typedef
 
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 trait ScClass extends ScTypeDefinition with ScDerivesClauseOwner with ScConstructorOwner {

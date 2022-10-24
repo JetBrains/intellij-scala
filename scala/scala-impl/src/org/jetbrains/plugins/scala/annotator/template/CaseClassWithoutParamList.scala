@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
-package template
+package org.jetbrains.plugins.scala.annotator.template
 
 import com.intellij.codeInsight.intention.{FileModifier, IntentionAction}
 import com.intellij.codeInspection.ProblemHighlightType
@@ -8,6 +6,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.{AnnotatorPart, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.ObjectKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory

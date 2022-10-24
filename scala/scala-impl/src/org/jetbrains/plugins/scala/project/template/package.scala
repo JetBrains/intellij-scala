@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package project
+package org.jetbrains.plugins.scala.project
 
 import com.intellij.openapi.application.Experiments
 import com.intellij.openapi.util.io

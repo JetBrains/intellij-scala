@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection.cast
+package org.jetbrains.plugins.scala.codeInspection.cast
 
 import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}

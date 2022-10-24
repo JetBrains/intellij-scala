@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
+package org.jetbrains.plugins.scala.lang.parser
 
 import com.intellij.lang.{ASTNode, LightPsiParser, PsiBuilder, PsiParser}
 import com.intellij.psi.tree.IElementType

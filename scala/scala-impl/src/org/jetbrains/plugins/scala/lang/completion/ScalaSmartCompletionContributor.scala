@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
+package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.completion._
@@ -13,6 +11,7 @@ import com.intellij.patterns.ElementPattern
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.NotImplementedError
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.lookups.{ScalaChainLookupElement, ScalaKeywordLookupItem, ScalaLookupItem}

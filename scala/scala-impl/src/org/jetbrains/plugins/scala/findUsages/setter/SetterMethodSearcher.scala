@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package findUsages
-package setter
+package org.jetbrains.plugins.scala.findUsages.setter
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight.intention
+package org.jetbrains.plugins.scala.codeInsight.intention
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -7,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.editor.AutoBraceAdvertiser
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator.createFromUsage
+package org.jetbrains.plugins.scala.annotator.createFromUsage
 
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 

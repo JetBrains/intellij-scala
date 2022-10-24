@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.changeSignature.changeInfo
+package org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo
 
 import com.intellij.psi.PsiModifier
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer

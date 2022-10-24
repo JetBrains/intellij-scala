@@ -1,7 +1,6 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package collections
+package org.jetbrains.plugins.scala.codeInspection.collections
 
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}

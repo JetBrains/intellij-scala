@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.psi.controlFlow.impl
+package org.jetbrains.plugins.scala.lang.psi.controlFlow.impl
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import com.intellij.psi.PsiNamedElement

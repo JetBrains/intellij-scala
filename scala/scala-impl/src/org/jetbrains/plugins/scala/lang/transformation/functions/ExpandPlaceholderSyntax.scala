@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala.lang.transformation
-package functions
+package org.jetbrains.plugins.scala.lang.transformation.functions
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{&&, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.lang.transformation.AbstractTransformer
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class ExpandPlaceholderSyntax extends AbstractTransformer {

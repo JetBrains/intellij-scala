@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor.smartEnter
+package org.jetbrains.plugins.scala.editor.smartEnter
 
 import com.intellij.codeInsight.editorActions.smartEnter.SmartEnterProcessor
 import com.intellij.openapi.editor.Editor

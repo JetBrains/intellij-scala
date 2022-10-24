@@ -1,11 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package expressions
+package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType, ScalaTokenBinders}
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Extension
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{ConstrBlock, Def}

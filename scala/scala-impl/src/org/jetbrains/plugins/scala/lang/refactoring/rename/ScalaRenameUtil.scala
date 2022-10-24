@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.rename
+package org.jetbrains.plugins.scala.lang.refactoring.rename
 
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.util.TextRange
@@ -7,6 +6,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.RenameUtil
 import com.intellij.usageView.UsageInfo
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package findUsages.factory
+package org.jetbrains.plugins.scala.findUsages.factory
 
 import com.intellij.find.findUsages.FindUsagesOptions
 import com.intellij.psi._
@@ -7,6 +6,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._

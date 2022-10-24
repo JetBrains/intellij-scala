@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala.lang
-package completion
-package postfix
+package org.jetbrains.plugins.scala.lang.completion.postfix
 
 import com.intellij.codeInsight.template.postfix.templates._
 import com.intellij.openapi.editor.Editor

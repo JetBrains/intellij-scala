@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package syntacticSimplification
+package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 

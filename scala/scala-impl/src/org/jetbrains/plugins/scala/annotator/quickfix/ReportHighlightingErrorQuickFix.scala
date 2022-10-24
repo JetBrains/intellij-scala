@@ -1,12 +1,11 @@
-package org.jetbrains.plugins.scala
-package annotator
-package quickfix
+package org.jetbrains.plugins.scala.annotator.quickfix
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -8,6 +7,7 @@ import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.{PsiComment, PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}

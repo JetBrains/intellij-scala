@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package lexer
+package org.jetbrains.plugins.scala.lang.lexer
 
 import com.intellij.lexer.{FlexAdapter, MergingLexerAdapter}
 import com.intellij.psi.tree.{IElementType, TokenSet}
@@ -33,7 +31,7 @@ object ScalaPlainLexer {
 
   import ScalaTokenTypes._
   import core.{_ScalaCoreLexer => ScalaCoreLexer, _ScalaSplittingLexer => ScalaSplittingLexer}
-  import scaladoc.parser.ScalaDocElementTypes.SCALA_DOC_COMMENT
+  import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes.SCALA_DOC_COMMENT
 
   private object IsDisabled {
 

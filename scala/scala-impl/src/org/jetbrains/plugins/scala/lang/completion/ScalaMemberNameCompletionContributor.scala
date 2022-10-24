@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.lang
-package completion
+package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionType}
 import com.intellij.codeInsight.lookup.LookupElementBuilder

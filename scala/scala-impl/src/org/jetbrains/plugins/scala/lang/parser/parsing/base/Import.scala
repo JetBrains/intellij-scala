@@ -1,15 +1,16 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package base
+package org.jetbrains.plugins.scala.lang.parser.parsing.base
 
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{ExportKeyword, GivenKeyword}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 trait Import extends ParsingRule {
 
-  import lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
   protected def keywordType: IElementType
 
@@ -53,7 +54,7 @@ trait Import extends ParsingRule {
 //noinspection TypeAnnotation
 object Import extends Import {
 
-  override protected def keywordType = lexer.ScalaTokenTypes.kIMPORT
+  override protected def keywordType = ScalaTokenTypes.kIMPORT
 
   override protected def elementType = ScalaElementType.ImportStatement
 }
@@ -64,7 +65,7 @@ object Import extends Import {
 //noinspection TypeAnnotation
 object Export extends Import {
 
-  import lexer.ScalaTokenType._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
 
   override protected def keywordType = ExportKeyword
 

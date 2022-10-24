@@ -1,14 +1,14 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package toplevel
+package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
 trait ScPackaging extends ScImportsHolder
-  with statements.ScDeclaredElementsHolder
+  with ScDeclaredElementsHolder
   with ScPackageLike {
 
   def parentPackageName: String
@@ -59,7 +59,7 @@ trait ScPackaging extends ScImportsHolder
 
   def bodyText: String
 
-  def reference: Option[base.ScStableCodeReference]
+  def reference: Option[ScStableCodeReference]
 
   def packagings: Seq[ScPackaging]
 

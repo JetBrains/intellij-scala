@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package packageNameInspection
+package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager}
@@ -9,6 +7,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable

@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
-package api
+package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.openapi.Disposable
 import com.intellij.psi.CommonClassNames._
@@ -10,6 +6,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, NamedType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
 import org.jetbrains.plugins.scala.project.ProjectContext
 

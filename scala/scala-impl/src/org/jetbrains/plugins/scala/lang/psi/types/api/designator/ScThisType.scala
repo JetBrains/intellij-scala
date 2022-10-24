@@ -1,12 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
-package api
+package org.jetbrains.plugins.scala.lang.psi.types.api
 package designator
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 

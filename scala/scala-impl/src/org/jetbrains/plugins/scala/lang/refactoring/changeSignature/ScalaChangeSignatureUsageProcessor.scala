@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.refactoring.changeSignature
+package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref

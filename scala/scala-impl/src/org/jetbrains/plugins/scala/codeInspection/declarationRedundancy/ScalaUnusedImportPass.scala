@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package declarationRedundancy
+package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager

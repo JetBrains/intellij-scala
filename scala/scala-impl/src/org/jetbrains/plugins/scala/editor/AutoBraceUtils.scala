@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package editor
+package org.jetbrains.plugins.scala.editor
 
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiErrorElement}

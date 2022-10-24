@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
-package usageTracker
+package org.jetbrains.plugins.scala.annotator.usageTracker
 
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzer, impl}

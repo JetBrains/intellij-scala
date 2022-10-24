@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
+package org.jetbrains.plugins.scala.lang.parser
 
 import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.psi.{FileViewProvider, PsiElement}
@@ -14,7 +12,7 @@ abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
 
   override def createFile(viewProvider: FileViewProvider): ScalaFile
 
-  import lexer.ScalaTokenTypes._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
   override def getCommentTokens = COMMENTS_TOKEN_SET
 
