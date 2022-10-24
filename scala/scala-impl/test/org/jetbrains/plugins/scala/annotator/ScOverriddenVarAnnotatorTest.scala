@@ -10,7 +10,6 @@ class ScOverriddenVarAnnotatorTest extends ScalaHighlightingTestBase {
         |""".stripMargin
 
     val errors = errorsFromScalaCode(scalaCode)
-    println(errors.head.message)
     assert(errors.exists(err => err.element == "cat" && err.message == "Mutable variable cannot be overridden"))
   }
 
