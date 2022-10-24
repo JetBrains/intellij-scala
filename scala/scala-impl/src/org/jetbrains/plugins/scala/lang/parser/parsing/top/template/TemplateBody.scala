@@ -23,8 +23,11 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
     builder.enableNewlines()
 
     var canAcceptEnd = false
+    var hasBraces = false
     val (blockIndentation, baseIndentation) = builder.getTokenType match {
       case `tLBRACE` =>
+        hasBraces = true
+        builder.enterBracedRegion()
         builder.advanceLexer() // Ate {
         BlockIndentation.create -> None
       case tok if builder.isScala3IndentationBasedSyntaxEnabled =>
@@ -69,12 +72,15 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
     }
 
     builder.maybeWithIndentationWidth(baseIndentation) {
-      SelfType()
-      parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, ErrMsg("def.dcl.expected")) {
-        statementRule()
+      builder.insideBracedRegionIf(hasBraces) {
+        SelfType()
+        parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, ErrMsg("def.dcl.expected")) {
+          statementRule()
+        }
       }
     }
 
+    if (hasBraces) builder.exitBracedRegion()
     blockIndentation.drop()
     builder.restoreNewlinesState()
     if (canAcceptEnd)

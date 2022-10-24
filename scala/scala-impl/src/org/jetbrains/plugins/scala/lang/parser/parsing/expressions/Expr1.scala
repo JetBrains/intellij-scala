@@ -391,7 +391,14 @@ object Expr1 extends ParsingRule {
       case _ =>
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.kELSE =>
+      case ScalaTokenTypes.kELSE if !(
+        // if `else` is indented more to the left in Scala 3 indentation based syntax
+        // detach else branch from the current if statement
+        builder.isScala3 &&
+          !builder.isInsideBracedRegion &&
+          builder.isScala3IndentationBasedSyntaxEnabled &&
+          builder.findPreviousIndent.exists(_ < iw)
+        ) =>
         builder.advanceLexer()
         if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
         rollbackMarker.drop()

@@ -58,9 +58,11 @@ object CompilationUnit {
 
                     builder.getTokenType match {
                       case `tLBRACE` | InScala3(ScalaTokenTypes.tCOLON) if !builder.twoNewlinesBeforeCurrentToken =>
-                        newMarker.rollbackTo()
-                        parsePackagingBody()
-                        parsePackage
+                        builder.insideBracedRegionIf(builder.getTokenType == tLBRACE) {
+                          newMarker.rollbackTo()
+                          parsePackagingBody()
+                          parsePackage
+                        }
                       case _ =>
                         parsePackageSequence(completed = false) {
                           newMarker.done(ScalaElementType.PACKAGING)
