@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.quickfix
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInspection.LocalQuickFixAsIntentionAdapter
-import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionBundle}
+import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionBundle}
 import org.junit.Assert.assertTrue
 
 /**
@@ -21,34 +20,23 @@ class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnot
     myFixture.enableInspections(classOf[ScalaAccessCanBeTightenedInspection])
   }
 
-  private def unwrapFix(intentionAction: IntentionAction): ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix = {
-    val wrappedFix = intentionAction.asInstanceOf[LocalQuickFixAsIntentionAdapter]
-    val myFixField = wrappedFix.getClass.getDeclaredField("myFix")
-    myFixField.setAccessible(true)
-    myFixField.get(wrappedFix).asInstanceOf[ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix]
-  }
-
   def test_text_when_add_type_annotation_quickfix_is_offered(): Unit = {
-    val code = s"class A { val a = new A }; private class B { val b = new A().a }"
-    val fixes = doFindQuickFixes(code, ScalaInspectionBundle.message("add.private.modifier"))
+    val code = s"private class A { val a = new A }; private class B { val b = new A().a }"
 
-    assertTrue(fixes.size == 1)
-
-    val makePrivateQuickFix = unwrapFix(fixes.head)
-
-    val quickFixElement = makePrivateQuickFix.getStartElement.asInstanceOf[ScPatternDefinition]
-    assert(quickFixElement.declaredNames.head == "b")
+    val highlights = configureByText(code).actualHighlights
+    assert(highlights.size == 1)
+    val (descriptor: HighlightInfo.IntentionActionDescriptor, range: TextRange) = highlights.head.findRegisteredQuickFix((a, b)  => (a, b))
+    assert(range == new TextRange(57, 58))
+    assertTrue(descriptor.getAction.getText == ScalaInspectionBundle.message("add.private.modifier"))
   }
 
   def test_text_when_add_type_annotation_quickfix_is_not_offered(): Unit = {
-    val code = s"class A { val a = 42 }"
-    val fixes = doFindQuickFixes(code, ScalaInspectionBundle.message("make.private"))
+    val code = s"private class A { val a = 42 }"
 
-    assertTrue(fixes.size == 1)
-
-    val makePrivateQuickFix = unwrapFix(fixes.head)
-
-    val quickFixElement = makePrivateQuickFix.getStartElement.asInstanceOf[ScPatternDefinition]
-    assert(quickFixElement.declaredNames.head == "a")
+    val highlights = configureByText(code).actualHighlights
+    assert(highlights.size == 1)
+    val (descriptor: HighlightInfo.IntentionActionDescriptor, range: TextRange) = highlights.head.findRegisteredQuickFix((a, b) => (a, b))
+    assert(range == new TextRange(22, 23))
+    assertTrue(descriptor.getAction.getText == ScalaInspectionBundle.message("make.private"))
   }
 }
