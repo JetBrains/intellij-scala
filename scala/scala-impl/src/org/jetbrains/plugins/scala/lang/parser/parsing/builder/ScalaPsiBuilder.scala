@@ -14,6 +14,12 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def enableNewlines(): Unit
 
+  def enterBracedRegion(): Unit
+
+  def exitBracedRegion(): Unit
+
+  def isInsideBracedRegion: Boolean
+
   def enterQuotedPattern(): Unit
 
   def exitQuotedPattern(): Unit

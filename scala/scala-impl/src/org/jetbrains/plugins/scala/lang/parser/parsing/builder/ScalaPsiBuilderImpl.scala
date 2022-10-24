@@ -18,6 +18,8 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
 
   private var newlinesEnabled = List.empty[Boolean]
 
+  private var inBracedRegion: Int = 0
+
   private var inQuotedPattern: Int = 0
 
   private lazy val containingFile = Option {
@@ -92,6 +94,16 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
   override final def enableNewlines(): Unit = {
     newlinesEnabled = true :: newlinesEnabled
   }
+
+  override final def enterBracedRegion(): Unit =
+    inBracedRegion += 1
+
+  override final def exitBracedRegion(): Unit = {
+    assert(isInsideBracedRegion)
+    inBracedRegion -= 1
+  }
+
+  override final def isInsideBracedRegion: Boolean = inBracedRegion > 0
 
   override final def enterQuotedPattern(): Unit = {
     inQuotedPattern += 1

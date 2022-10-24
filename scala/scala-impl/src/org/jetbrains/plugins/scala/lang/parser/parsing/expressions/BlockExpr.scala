@@ -23,6 +23,7 @@ object BlockExpr extends ParsingRule {
       case `tLBRACE` =>
         builder.advanceLexer()
         builder.enableNewlines()
+        builder.enterBracedRegion()
       case _ =>
         blockExprMarker.drop()
         return false
@@ -47,6 +48,7 @@ object BlockExpr extends ParsingRule {
       }
     }
     blockIndentation.drop()
+    builder.exitBracedRegion()
     builder.restoreNewlinesState()
     blockExprMarker.done(ScCodeBlockElementType.BlockExpression)
     true

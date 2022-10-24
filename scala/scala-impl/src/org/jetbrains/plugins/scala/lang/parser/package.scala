@@ -151,6 +151,16 @@ package object parser {
 
     def maybeWithIndentationWidth[R](width: Option[IndentationWidth])(body: => R): R =
       width.fold(body)(withIndentationWidth(_)(body))
+
+    def insideBracedRegion[T](body: => T): T = {
+      repr.enterBracedRegion()
+      try body
+      finally repr.exitBracedRegion()
+    }
+
+    def insideBracedRegionIf[T](cond: Boolean)(body: => T): T =
+      if (cond) insideBracedRegion(body)
+      else body
   }
 
   private class SoftKeywordRollbackMarker(builder: PsiBuilder, oldTokenType: IElementType) extends PsiBuilder.Marker {
