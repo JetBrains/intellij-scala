@@ -19,15 +19,15 @@ class SwitchExpressionYield {
 class SwitchExpressionYield {
   def main(args: Array[String]): Unit = {
     val x: Int = args.length match {
-      case 1 => if (args(0) == "foo") 3
-      else {
-        System.out.println("not foo")
-        4
-      }
-
-      case _ => System.out.println("Oops")
+      case 1 =>
+        if (args(0) == "foo") 3
+        else {
+          System.out.println("not foo")
+          4
+        }
+      case _ =>
+        System.out.println("Oops")
         args.length * 2
-
     }
   }
 }*/

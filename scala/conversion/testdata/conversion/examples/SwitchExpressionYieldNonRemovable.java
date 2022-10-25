@@ -13,10 +13,11 @@ class SwitchExpressionYieldNonRemovable {
 class SwitchExpressionYieldNonRemovable {
   def main(args: Array[String]): Unit = {
     val x: Int = args.length match {
-      case _ => if (args(0) == "foo") {
-        `yield`
-        5 // todo: Java's yield is not supported
-      }
+      case _ =>
+        if (args(0) == "foo") {
+          `yield`
+          5 // todo: Java's yield is not supported
+        }
         System.out.println("oops")
         6
     }

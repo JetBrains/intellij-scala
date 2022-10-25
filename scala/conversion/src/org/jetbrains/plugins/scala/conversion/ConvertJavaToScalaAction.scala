@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.conversion.ConvertJavaToScalaAction.convertToScalaFile
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.NotificationUtil
 
@@ -110,7 +111,7 @@ object ConvertJavaToScalaAction {
     val scalaFileText = JavaToScala.convertPsiToText(javaFile).trim
     updateDocumentTextAndCommit(targetScalaFile, scalaFileText)
     ConverterUtil.cleanCode(targetScalaFile, project, 0, targetScalaFile.getTextLength)
-    withoutKeepingBlankLines(project) {
+    withoutModifiedSettingsForConverion(project) {
       CodeStyleManager.getInstance(project).reformatText(targetScalaFile, 0, targetScalaFile.getTextLength)
     }
   }
@@ -131,20 +132,28 @@ object ConvertJavaToScalaAction {
     document.commit(project)
   }
 
-  private def withoutKeepingBlankLines(project: Project)(body: => Unit): Unit = {
-    val settings = CodeStyle.getSettings(project).getCommonSettings(ScalaLanguage.INSTANCE)
+  private def withoutModifiedSettingsForConverion(project: Project)(body: => Unit): Unit = {
+    val codeStyle = CodeStyle.getSettings(project)
+    val settings = codeStyle.getCommonSettings(ScalaLanguage.INSTANCE)
+    val scalaSettings = codeStyle.getCustomSettings(classOf[ScalaCodeStyleSettings])
+
     val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
     val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
     val keep_blank_lines_before_rbrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
+    val new_line_after_case_clause_arrow = scalaSettings.NEW_LINE_AFTER_CASE_CLAUSE_ARROW_WHEN_MULTILINE_BODY
+
     settings.KEEP_BLANK_LINES_IN_CODE = 0
     settings.KEEP_BLANK_LINES_IN_DECLARATIONS = 0
     settings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0
+    scalaSettings.NEW_LINE_AFTER_CASE_CLAUSE_ARROW_WHEN_MULTILINE_BODY = true
+
     try {
       body
     } finally {
       settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
       settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
       settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
+      scalaSettings.NEW_LINE_AFTER_CASE_CLAUSE_ARROW_WHEN_MULTILINE_BODY = new_line_after_case_clause_arrow
     }
   }
 }

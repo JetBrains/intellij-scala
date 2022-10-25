@@ -1283,6 +1283,18 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return Spacing.createSpacing(2, 2, 0, false, 0)
     }
 
+    //`case _ => <caret> ...multiline body...`
+    if (scalaSettings.NEW_LINE_AFTER_CASE_CLAUSE_ARROW_WHEN_MULTILINE_BODY) {
+      val isArrowBeforeMultilineCaseClauseBody = leftElementType == ScalaTokenTypes.tFUNTYPE &&
+        leftNodeParentElementType == ScalaElementType.CASE_CLAUSE &&
+        rightElementType == ScalaElementType.BLOCK &&
+        nodeTextContainsNewLine(rightNode, fileText)
+
+      if (isArrowBeforeMultilineCaseClauseBody) {
+        return ON_NEW_LINE
+      }
+    }
+
     //Case Clauses case
     if (leftElementType == ScalaElementType.CASE_CLAUSE && rightElementType == ScalaElementType.CASE_CLAUSE) {
       return WITH_SPACING_DEPENDENT(leftNode.getTreeParent.getTreeParent.getTextRange)
@@ -1397,6 +1409,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
   }
 
+  //TODO: duplicate?
   @inline
   private def containsNewLine(fileText: CharSequence, range: TextRange): Boolean =
     contains(fileText, range.getStartOffset, range.getEndOffset, '\n')
