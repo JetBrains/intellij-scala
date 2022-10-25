@@ -16,7 +16,7 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.workspaceModel.ide.impl.legacyBridge.module.ModuleEntityUtils
 import com.intellij.workspaceModel.ide.{WorkspaceModelChangeListener, WorkspaceModelTopics}
 import com.intellij.workspaceModel.storage.VersionedStorageChange
-import com.intellij.workspaceModel.storage.bridgeEntities.api.{ContentRootEntity, ModuleEntity}
+import com.intellij.workspaceModel.storage.bridgeEntities.{ContentRootEntity, ModuleEntity}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
@@ -194,7 +194,9 @@ abstract class DirtyScopeHolder[Scope](
   private def sourceModules: Seq[Module] =
     ModuleManager.getInstance(project).getModules.filter(_.isSourceModule).toSeq
 
-  //copied from com.intellij.compiler.backwardRefs.DirtyScopeHolder
+  /**
+   * copied from [[com.intellij.compiler.backwardRefs.DirtyScopeHolder]]
+   */
   //noinspection UnstableApiUsage
   locally {
     val moduleChangeListener = new WorkspaceModelChangeListener() {
@@ -232,6 +234,6 @@ abstract class DirtyScopeHolder[Scope](
     }
 
     val connection = project.getMessageBus.connect(project.unloadAwareDisposable)
-    WorkspaceModelTopics.getInstance(project).subscribeAfterModuleLoading(connection, moduleChangeListener)
+    connection.subscribe(WorkspaceModelTopics.CHANGED, moduleChangeListener)
   }
 }
