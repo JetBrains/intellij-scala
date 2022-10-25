@@ -5,8 +5,9 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, MemberInplaceRenameHandler, MemberInplaceRenamer}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScPrimaryConstructorWrapper}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with ScalaInplaceRenameHandler {
@@ -28,8 +29,11 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
                                              elementToRename: PsiNameIdentifierOwner,
                                              editor: Editor): MemberInplaceRenamer = {
     val (maybeFirstElement, maybeSecondElement) = substituted match {
-      case _: PsiClass if elementToRename.isInstanceOf[PsiClassWrapper] =>
+      case _: PsiClass if elementToRename.is[PsiClassWrapper] =>
         (None, None)
+      case wrapper: ScPrimaryConstructorWrapper =>
+        val definition = wrapper.delegate.containingClass
+        (Some(definition), definition.baseCompanion)
       case definition: ScTypeDefinition =>
         (Some(definition), definition.baseCompanion)
       case clazz: PsiClass =>

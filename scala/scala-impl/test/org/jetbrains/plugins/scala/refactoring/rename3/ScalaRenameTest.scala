@@ -13,6 +13,12 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
   def testObjectAndClassToBackticked(): Unit = doTest("`a`")
 
+  def testPrivateObjectAndClass(): Unit = doTest()
+
+  def testPrivateObjectAndPrivateClass(): Unit = doTest()
+
+  def testObjectAndPrivateClass(): Unit = doTest()
+
   def testValInClass(): Unit = doTest()
 
   def testValInTrait(): Unit = doTest()
@@ -50,7 +56,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testMethodSameAsJavaKeyword(): Unit = doTest()
 
   def testParamSameAsJavaKeyword(): Unit = doTest()
-  
+
   def testObjectImport(): Unit = doTest()
 
   def testPrivatePackageClassInheritor(): Unit = doTest()
@@ -66,20 +72,27 @@ class Scala3RenameTest extends ScalaRenameTestBase {
   def testTopLevelMethod(): Unit = doTest()
 
   def testObjectEndMarker(): Unit = doTest()
+
   def testTraitAndCompanionObjectEndMarker(): Unit = doTest()
+
   def testEnumAndCompanionObjectEndMarker(): Unit = doTest()
 
   def testClassAndCompanionObjectEndMarker(): Unit = doTest()
+
   def testClassAuxConstructorEndMarker(): Unit = doTest()
 
   def testMethodEndMarker(): Unit = doTest()
+
   def testOverriddenMethodEndMarker(): Unit = doTest()
+
   def testOverriddenMethodFromJavaEndMarker(): Unit = doTest()
 
   def testShadowedValEndMarker(): Unit = doTest()
+
   def testValueBindingEndMarker(): Unit = doTest("nameAfterRename")
 
   def testGivenAliasEndMarker(): Unit = doTest()
+
   def testGivenDefinitionEndMarker(): Unit = doTest()
 
   // TODO: uncomment when SCL-20145 is fixed

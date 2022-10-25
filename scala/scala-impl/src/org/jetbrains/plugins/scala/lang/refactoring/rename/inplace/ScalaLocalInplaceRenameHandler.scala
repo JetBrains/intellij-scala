@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, VariableInplaceRenameHandler, VariableInplaceRenamer}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 class ScalaLocalInplaceRenameHandler extends VariableInplaceRenameHandler with ScalaInplaceRenameHandler {
@@ -19,6 +20,11 @@ class ScalaLocalInplaceRenameHandler extends VariableInplaceRenameHandler with S
 
   override def createRenamer(elementToRename: PsiElement, editor: Editor): VariableInplaceRenamer = {
     elementToRename match {
+      case td: ScTypeDefinition =>
+        td.baseCompanion match {
+          case Some(companion) => new ScalaMemberInplaceRenamer(td, companion, editor)
+          case _ => new ScalaLocalInplaceRenamer(td, editor)
+        }
       case named: PsiNamedElement => new ScalaLocalInplaceRenamer(named, editor)
       case _ => throw new IllegalArgumentException(s"Cannot rename element: \n${elementToRename.getText}")
     }
@@ -34,5 +40,4 @@ class ScalaLocalInplaceRenameHandler extends VariableInplaceRenameHandler with S
       super.doRename(_, editor, dataContext)
     }
   }
-
 }
