@@ -110,7 +110,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     val left = getPrevBlockForLineCommentInTheEndOfLine(left0)
-    val leftIsLineComment = !(left eq left0) || left.lastNode != null && left.lastNode.getElementType == ScalaTokenTypes.tLINE_COMMENT
+    val leftIsLineComment = !(left eq left0) || {
+      val node = if (left.lastNode == null) left.node else left.lastNode
+      node != null && node.getElementType == ScalaTokenTypes.tLINE_COMMENT
+    }
 
     val scalaSettings = right.settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
