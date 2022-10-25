@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
-case class TypeConstruction(inType: String) extends IntermediateNode with TypedElement {
+case class TypeConstruction(inType: String) extends TypeNode {
   def getDefaultTypeValue: String = {
     inType match {
       case "Int" | "Byte" | "Short" | "Char" => "0"
@@ -25,11 +25,16 @@ case class TypeConstruction(inType: String) extends IntermediateNode with TypedE
 }
 
 object TypeConstruction {
-  def createIntermediateTypePresentation(inType: PsiType, inProject: Project)(implicit textMode: Boolean = false): IntermediateNode = {
+  def createIntermediateTypePresentation(
+    inType: PsiType,
+    inProject: Project,
+    textMode: Boolean,
+  ): TypeNode = {
     implicit val ctx: ProjectContext = inProject
 
     val buffer = mutable.ArrayBuffer.empty[(IntermediateNode, Option[String])]
-    val result = getParts(inType.toScType(paramTopLevel = true), buffer)
+    val scType = inType.toScType(paramTopLevel = true)
+    val result = getParts(scType, buffer, textMode)
 
     result match {
       case parametrized: ParametrizedConstruction =>
@@ -43,41 +48,46 @@ object TypeConstruction {
   }
 
   // get simple parts of type if type is array or parametrized
-  private def getParts(scType: ScType, buffer: mutable.ArrayBuffer[(IntermediateNode, Option[String])])(
-    implicit ctx: ProjectContext, textMode: Boolean = false
-  ): IntermediateNode = {
+  private def getParts(
+    scType: ScType,
+    buffer: mutable.ArrayBuffer[(IntermediateNode, Option[String])],
+    textMode: Boolean
+  )(
+    implicit ctx: ProjectContext
+  ): TypeNode = {
     implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContext
     scType match {
       case p@ParameterizedType(des, args) =>
         val typeConstruction: IntermediateNode = TypeConstruction(ctx.typeSystem.presentableText(des, withPrefix = textMode))
         buffer += ((typeConstruction, p.extractClass.flatMap(el => Option(el.getQualifiedName))))
-        val argsOnLevel = args.map(getParts(_, buffer))
-        ParametrizedConstruction(typeConstruction, argsOnLevel.toSeq)
-      case JavaArrayType(argument) => ArrayConstruction(getParts(argument, buffer))
+        val argsOnLevel = args.map(getParts(_, buffer, textMode))
+        ParametrizedConstruction(typeConstruction, argsOnLevel)
+      case JavaArrayType(argument) =>
+        ArrayConstruction(getParts(argument, buffer, textMode))
       case otherType =>
-        val typeConstruction: IntermediateNode = TypeConstruction(ctx.typeSystem.presentableText(otherType, withPrefix = textMode))
+        val typeConstruction: TypeNode = TypeConstruction(ctx.typeSystem.presentableText(otherType, withPrefix = textMode))
         buffer += ((typeConstruction, otherType.extractClass.flatMap(el => Option(el.getQualifiedName))))
         typeConstruction
     }
   }
 }
 
-case class ParametrizedConstruction(iNode: IntermediateNode, parts: Seq[IntermediateNode]) extends IntermediateNode with TypedElement {
+case class ParametrizedConstruction(iNode: IntermediateNode, parts: Seq[IntermediateNode]) extends TypeNode {
   var associationMap = Seq.empty[(IntermediateNode, Option[String])]
 
   override def getType: TypeConstruction = iNode.asInstanceOf[TypedElement].getType
 }
 
-case class ArrayConstruction(iNode: IntermediateNode) extends IntermediateNode with TypedElement {
+case class ArrayConstruction(iNode: IntermediateNode) extends TypeNode {
   var associationMap = Seq.empty[(IntermediateNode, Option[String])]
 
   override def getType: TypeConstruction = iNode.asInstanceOf[TypedElement].getType
 }
 
-case class DisjunctionTypeConstructions(parts: Seq[IntermediateNode]) extends IntermediateNode with TypedElement {
+case class DisjunctionTypeConstructions(parts: Seq[IntermediateNode]) extends TypeNode {
   override def getType: TypeConstruction = this.asInstanceOf[TypeConstruction]
 }
 
-case class TypeParameterConstruction(name: IntermediateNode, typez: Seq[IntermediateNode]) extends IntermediateNode
+case class TypeParameterConstruction(name: NameIdentifier, typez: Seq[IntermediateNode]) extends IntermediateNode
 
 case class TypeParameters(data: Seq[IntermediateNode]) extends IntermediateNode

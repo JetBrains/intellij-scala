@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiJavaFile}
 import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.conversion.ConvertJavaToScalaAction.convertToScalaFile
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.project._
@@ -67,15 +68,20 @@ class ConvertJavaToScalaAction extends AnAction(
           val dir = javaFile.getContainingDirectory
           if (dir.isWritable) {
             executeWriteActionCommand(ScalaConversionBundle.message("convert.to.scala")) {
-              convertToScalaFile(javaFile)
+              val scalaFile = convertToScalaFile(javaFile)
+              scalaFile.foreach(_.navigate(true))
             }(javaFile.getProject)
           }
         case _ =>
       }
     }
   }
+}
 
-  private def convertToScalaFile(javaFile: PsiJavaFile): Unit = {
+object ConvertJavaToScalaAction {
+
+  private[conversion]
+  def convertToScalaFile(javaFile: PsiJavaFile): Option[PsiFile] = {
     val project = javaFile.getProject
 
     val directory = javaFile.getContainingDirectory
@@ -85,19 +91,28 @@ class ConvertJavaToScalaAction extends AnAction(
     val existingScalaFile: VirtualFile = directory.getVirtualFile.findChild(scalaFileName)
     if (existingScalaFile != null) {
       showFileAlreadyExistsNotification(project, scalaFileName)
-      return
+      return None
     }
-
-    val scalaFileText = JavaToScala.convertPsiToText(javaFile).trim
 
     val scalaFile = directory.createFile(scalaFileName)
-    updateDocumentTextAndCommit(scalaFile, scalaFileText)
 
+    convertToScalaFile(javaFile, scalaFile)
+
+    Some(scalaFile)
+  }
+
+  private[conversion]
+  def convertToScalaFile(
+    javaFile: PsiJavaFile,
+    targetScalaFile: PsiFile
+  ): Unit = {
+    val project = javaFile.getProject
+    val scalaFileText = JavaToScala.convertPsiToText(javaFile).trim
+    updateDocumentTextAndCommit(targetScalaFile, scalaFileText)
+    ConverterUtil.cleanCode(targetScalaFile, project, 0, targetScalaFile.getTextLength)
     withoutKeepingBlankLines(project) {
-      CodeStyleManager.getInstance(project).reformatText(scalaFile, 0, scalaFile.getTextLength)
+      CodeStyleManager.getInstance(project).reformatText(targetScalaFile, 0, targetScalaFile.getTextLength)
     }
-
-    scalaFile.navigate(true)
   }
 
   private def showFileAlreadyExistsNotification(project: Project, scalaFileName: String): Unit =  {

@@ -4,13 +4,23 @@ case class IfStatement(
   condition: Option[IntermediateNode],
   thenBranch: Option[IntermediateNode],
   elseBranch: Option[IntermediateNode]
-) extends IntermediateNode
+) extends ExpressionsHolderNodeBase(condition.toSeq ++ thenBranch ++ elseBranch)
 
-case class ReturnStatement(value: IntermediateNode) extends IntermediateNode
+case class ReturnStatement(value: IntermediateNode)
+  extends ExpressionsHolderNodeBase(value :: Nil) {
 
-case class ThrowStatement(value: IntermediateNode) extends IntermediateNode
+  /**
+   * `return` keyword can be dropped in Scala if it's in tail position<br>
+   * It's convenient to use this mutable field and shouldn't hurt
+   */
+  var canDropReturnKeyword: Boolean = false
+}
 
-case class AssertStatement(condition: Option[IntermediateNode], description: Option[IntermediateNode]) extends IntermediateNode
+case class ThrowStatement(value: IntermediateNode)
+  extends ExpressionsHolderNodeBase(value :: Nil)
+
+case class AssertStatement(condition: Option[IntermediateNode], description: Option[IntermediateNode])
+  extends ExpressionsHolderNodeBase(condition.toSeq ++ description)
 
 case class ImportStatement(importValue: IntermediateNode, onDemand: Boolean) extends IntermediateNode
 
@@ -25,26 +35,35 @@ case class JavaCodeReferenceStatement(
 ) extends IntermediateNode
 
 case class ForeachStatement(
-  iterParamName: IntermediateNode, iteratedValue: Option[IntermediateNode],
-  body: Option[IntermediateNode], isJavaCollection: Boolean
-) extends IntermediateNode
+  iterParamName: IntermediateNode,
+  iteratedValue: Option[IntermediateNode],
+  body: Option[IntermediateNode],
+  isJavaCollection: Boolean
+) extends ExpressionsHolderNodeBase(iteratedValue.toSeq)
 
-case class ExpressionListStatement(exprs: Seq[IntermediateNode]) extends IntermediateNode
 
-case class SynchronizedStatement(lock: Option[IntermediateNode], body: Option[IntermediateNode]) extends IntermediateNode
+case class ExpressionListStatement(exprs: Seq[IntermediateNode])
+  extends ExpressionsHolderNodeBase(exprs)
+
+case class SynchronizedStatement(lock: Option[IntermediateNode], body: Option[IntermediateNode])
+  extends ExpressionsHolderNodeBase(body.toSeq)
 
 case class SwitchLabelStatement(
-  caseValues: Seq[IntermediateNode], arrow: String,
+  caseValues: Seq[IntermediateNode],
+  arrow: String,
   body: Option[IntermediateNode] = None
-) extends IntermediateNode
+) extends ExpressionsHolderNodeBase(caseValues ++ body)
 
-case class SwitchBlock(expression: Option[IntermediateNode], body: Option[IntermediateNode]) extends IntermediateNode
+case class SwitchBlock(expression: Option[IntermediateNode], body: Option[IntermediateNode])
+  extends ExpressionsHolderNodeBase(expression.toSeq ++ body)
 
 case class TryCatchStatement(
-  resourcesList: Seq[(String, IntermediateNode)], tryBlock: Seq[IntermediateNode],
-  catchStatements: Seq[(IntermediateNode, IntermediateNode)],
-  finallyStatements: Option[Seq[IntermediateNode]], arrow: String
-) extends IntermediateNode
+  resourcesList: Seq[(String, IntermediateNode)],
+  tryBlock: Option[BlockConstruction],
+  catchStatements: Seq[(ParameterConstruction, IntermediateNode)],
+  finallyStatements: Option[Seq[IntermediateNode]],
+  arrow: String
+) extends ExpressionsHolderNodeBase(tryBlock.toSeq ++ catchStatements.map(_._2) ++ finallyStatements.getOrElse(Nil))
 
 object WhileStatement {
   val PRE_TEST_LOOP = 0
@@ -57,8 +76,8 @@ case class WhileStatement(
   body: Option[IntermediateNode],
   update: Option[IntermediateNode],
   whileType: Int
-) extends IntermediateNode
+) extends ExpressionsHolderNodeBase(initialization.toSeq ++ condition ++ body ++ update)
 
-case class NotSupported(iNode: Option[IntermediateNode], msg: String) extends IntermediateNode
+case class NotSupported(iNode: Option[IntermediateNode], msg: String) extends ExpressionsHolderNodeBase(iNode.toSeq)
 
 case class NameIdentifier(name: String) extends IntermediateNode

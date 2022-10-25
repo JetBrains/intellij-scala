@@ -1,4 +1,3 @@
-/*start*/
 class SwitchExpression {
     public void main(String[] args) {
         int x = switch (args.length) {
@@ -8,8 +7,7 @@ class SwitchExpression {
             default -> args.length * 2;
         };
     }
-}/*end*/
-
+}
 /*
 class SwitchExpression {
   def main(args: Array[String]): Unit = {

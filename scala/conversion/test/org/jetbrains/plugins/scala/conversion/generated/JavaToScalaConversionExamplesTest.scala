@@ -95,6 +95,10 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
 
   def testLambdaExpr(): Unit = doTest()
 
+  def testLambdaExprWithReturnAtTailPosition(): Unit = doTest(getDefaultSettings)
+
+  def testLambdaExprWithReturnInMiddlePosition(): Unit = doTest(getDefaultSettings)
+
   def testSwitchExpression(): Unit = doTest()
 
   def testSwitchRemovableBreak(): Unit = doTest()

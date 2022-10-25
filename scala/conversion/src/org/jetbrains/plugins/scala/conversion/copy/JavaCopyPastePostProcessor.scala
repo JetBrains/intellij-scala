@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package conversion
 package copy
 
-import java.lang.Boolean
 import com.intellij.codeInsight.editorActions._
 import com.intellij.openapi.diagnostic.{Attachment, ControlFlowException, Logger}
 import com.intellij.openapi.editor.{Editor, RangeMarker}
@@ -10,7 +9,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
-import org.jetbrains.plugins.scala.conversion.ast.{LiteralExpression, MainConstruction, TypedElement}
+import org.jetbrains.plugins.scala.conversion.ast.{IntermediateNode, LiteralExpression, MainConstruction, TypedElement}
 import org.jetbrains.plugins.scala.conversion.copy.ScalaPasteFromJavaDialog.CopyFrom
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -52,31 +51,32 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
 
       import JavaToScala._
       val associationsHelper = mutable.ListBuffer.empty[AssociationHelper]
-      val resultNode = new MainConstruction
       val (topElements, dropElements) = getTopElements(file, startOffsets, endOffsets)
+      val children = new mutable.ArrayBuffer[IntermediateNode]
       for (part <- topElements) {
         part match {
           case TextPart(s) =>
-            resultNode.addChild(LiteralExpression(s))
+            children.append(LiteralExpression(s))
           case ElementPart(comment: PsiComment) =>
             if (!dropElements.contains(comment))
-              resultNode.addChild(LiteralExpression(comment.getText))
+              children.append(LiteralExpression(comment.getText))
             dropElements.add(comment)
           case ElementPart(element) =>
-            val result = convertPsiToIntermediate(element, null)(associationsHelper, data, dropElements, textMode = false)
-            resultNode.addChild(result)
+            val result = convertPsiToIntermediatePublic(element, null)(associationsHelper, data, dropElements, textMode = false)
+            children.append(result)
         }
       }
+      val resultNode = MainConstruction(children.toSeq)
 
-      val visitor = visitors.PrintWithComments(resultNode)
+      val visitor = visitors.PrintWithComments.visit(resultNode)
 
       val updatedAssociations = associationsHelper.collect {
-        case AssociationHelper(itype: TypedElement, path) => Association(path, visitor(itype.getType))
+        case AssociationHelper(itype: TypedElement, path) => Association(path, visitor.getRange(itype.getType))
       } ++ associationsHelper.collect {
-        case AssociationHelper(itype, path) => Association(path, visitor(itype))
+        case AssociationHelper(itype, path) => Association(path, visitor.getRange(itype))
       }
 
-      val text = visitor()
+      val text = visitor.result()
       val oldText = getTextBetweenOffsets(file, startOffsets, endOffsets)
       val result = ConvertedCode(
         updatedAssociations.toArray,
@@ -96,7 +96,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
   }
 
   override def processTransferableData(bounds: RangeMarker, caretOffset: Int,
-                                       ref: Ref[_ >: Boolean], value: ConvertedCode)
+                                       ref: Ref[_ >: java.lang.Boolean], value: ConvertedCode)
                                       (implicit project: Project,
                                        editor: Editor,
                                        file: ScalaFile): Unit = {
