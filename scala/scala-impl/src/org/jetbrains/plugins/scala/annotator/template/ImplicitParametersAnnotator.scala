@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner] {
 
-  override def annotate(element: ImplicitArgumentsOwner, typeAware: Boolean = true)
+  override def annotate(element: ImplicitArgumentsOwner, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     element.findImplicitArguments.foreach { params =>
       val showImplictErrors = {

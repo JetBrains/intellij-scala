@@ -16,7 +16,8 @@ object ScDerivesClauseAnnotator extends ElementAnnotator[ScDerivesClause] {
   private def annotateSyntheticDerivedMembers(
     ref:       ScReference,
     companion: ScObject,
-    session:   AnnotationSession
+    session:   AnnotationSession,
+    typeAware: Boolean
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
@@ -35,10 +36,8 @@ object ScDerivesClauseAnnotator extends ElementAnnotator[ScDerivesClause] {
       member <- derivedMember
       body   <- member.body
     } {
-      ImplicitParametersAnnotator.annotate(body)(delegateHolder)
-      ScExpressionAnnotator.checkExpressionType(body, typeAware = true, inDesugaring = true)(
-        delegateHolder
-      )
+      ImplicitParametersAnnotator.annotate(body, typeAware)(delegateHolder)
+      ScExpressionAnnotator.checkExpressionType(body, typeAware, inDesugaring = true)(delegateHolder)
     }
   }
 
@@ -60,7 +59,7 @@ object ScDerivesClauseAnnotator extends ElementAnnotator[ScDerivesClause] {
           val derivationCheck = checkIfCanBeDerived(tc, ref.refName, owner)
           derivationCheck match {
             case Right(_) =>
-              companion.foreach(obj => annotateSyntheticDerivedMembers(ref, obj, session))
+              companion.foreach(obj => annotateSyntheticDerivedMembers(ref, obj, session, typeAware))
             case Left(error) => holder.createErrorAnnotation(ref, error)
           }
         case Left(error) => holder.createErrorAnnotation(ref, error)
