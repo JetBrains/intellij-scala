@@ -11,7 +11,7 @@ abstract class ImplicitParametersAnnotatorTestBase extends AnnotatorTestBase[Imp
 
   override protected def annotate(element: ImplicitArgumentsOwner)
                                  (implicit holder: ScalaAnnotationHolder): Unit =
-    ImplicitParametersAnnotator.annotate(element)
+    ImplicitParametersAnnotator.annotate(element, typeAware = true)
 }
 
 class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBase {
