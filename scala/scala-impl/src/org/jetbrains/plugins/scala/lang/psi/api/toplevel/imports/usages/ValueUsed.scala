@@ -1,43 +1,45 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages
 
-import com.intellij.psi.{PsiNamedElement, SmartPsiElementPointer}
+import com.intellij.psi.{PsiElement, PsiNamedElement, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.extensions._
 
 sealed trait ValueUsed {
-  val pointer: SmartPsiElementPointer[PsiNamedElement]
+  val declaration: SmartPsiElementPointer[PsiNamedElement]
+  val reference: SmartPsiElementPointer[PsiElement]
 
   protected val name: String
 
-  def isValid: Boolean = pointer match {
-    case ValidSmartPointer(_) => true
+  def isValid: Boolean = (declaration, reference) match {
+    case (ValidSmartPointer(_), ValidSmartPointer(_)) => true
     case _ => false
   }
 
   override final def toString: String = {
-    val maybeName = Option(pointer.getElement).map(_.name)
+    val maybeName = Option(declaration.getElement).map(_.name)
     s"$name(${maybeName.getOrElse("No element")})"
   }
 }
 
-object ValueUsed {
-
-  def unapply(v: ValueUsed): Option[PsiNamedElement] = {
-    Option(v.pointer.getElement)
-  }
-}
-
-case class ReadValueUsed(override val pointer: SmartPsiElementPointer[PsiNamedElement]) extends ValueUsed {
+case class ReadValueUsed(
+  override val declaration: SmartPsiElementPointer[PsiNamedElement],
+  override val reference: SmartPsiElementPointer[PsiElement]
+) extends ValueUsed {
   override protected val name: String = "ValueRead"
 }
 
 object ReadValueUsed {
-  def apply(e: PsiNamedElement): ReadValueUsed = ReadValueUsed(e.createSmartPointer)
+  def apply(declaration: PsiNamedElement, reference: PsiElement): ReadValueUsed =
+    ReadValueUsed(declaration.createSmartPointer, reference.createSmartPointer)
 }
 
-case class WriteValueUsed(override val pointer: SmartPsiElementPointer[PsiNamedElement]) extends ValueUsed {
+case class WriteValueUsed(
+  override val declaration: SmartPsiElementPointer[PsiNamedElement],
+  override val reference: SmartPsiElementPointer[PsiElement]
+) extends ValueUsed {
   override protected val name: String = "ValueWrite"
 }
 
 object WriteValueUsed {
-  def apply(e: PsiNamedElement): WriteValueUsed = WriteValueUsed(e.createSmartPointer)
+  def apply(declaration: PsiNamedElement, reference: PsiElement): WriteValueUsed =
+    WriteValueUsed(declaration.createSmartPointer, reference.createSmartPointer)
 }

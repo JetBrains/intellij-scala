@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import java.lang.ref.Reference
 import java.util.concurrent.atomic.AtomicLong
 import java.{util => ju}
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 final class ScalaRefCountHolder private (file: PsiFile) {
 
@@ -46,17 +47,18 @@ final class ScalaRefCountHolder private (file: PsiFile) {
     myImportUsed.contains(used)
   }
 
-  def isValueWriteUsed(element: PsiNamedElement): Boolean = isValueUsed {
-    WriteValueUsed(element)
-  }
-
-  def isValueReadUsed(element: PsiNamedElement): Boolean = isValueUsed {
-    ReadValueUsed(element)
-  }
-
-  private def isValueUsed(used: ValueUsed): Boolean = {
+  def isValueWriteUsed(element: PsiNamedElement): Boolean = {
     assertReady()
-    myValueUsed.contains(used)
+    myValueUsed.asScala.collect {
+      case w: WriteValueUsed if w.declaration.getElement != null => w
+    }.exists(_.declaration.getElement == element)
+  }
+
+  def isValueReadUsed(element: PsiNamedElement): Boolean = {
+    assertReady()
+    myValueUsed.asScala.collect {
+      case r: ReadValueUsed if r.declaration.getElement != null => r
+    }.exists(_.declaration.getElement == element)
   }
 
   def analyze(analyze: Runnable, file: PsiFile): Boolean = {

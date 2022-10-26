@@ -113,12 +113,12 @@ object UsageTracker {
 
           val additionalWrite = ref.getContext match {
             case ScAssignment.resolvesTo(assignmentTarget) if assignmentTarget != targetElement =>
-              Seq(WriteValueUsed(assignmentTarget))
+              Seq(WriteValueUsed(assignmentTarget, ref))
             case _ => Seq.empty
           }
 
-          WriteValueUsed(targetElement) +: additionalWrite
-        case _ => Seq(ReadValueUsed(targetElement))
+          WriteValueUsed(targetElement, ref) +: additionalWrite
+        case _ => Seq(ReadValueUsed(targetElement, sourceElement))
       }
 
       val holder = ScalaRefCountHolder.getInstance(sourceElement.getContainingFile)
