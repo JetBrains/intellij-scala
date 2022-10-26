@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
 import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
 /*
  * Expr1 ::= ['inline'] 'if' '(' Expr ')' {nl} Expr [[semi] else Expr]
@@ -182,7 +182,7 @@ object Expr1 extends ParsingRule {
             //for (tupleValue) <- List("a", "b", "c").zipWithIndex do println(value)
             val backupMarker = builder.mark()
             val bracelessForStartingWithPatternGenerator =
-              builder.isScala3 && Enumerators() && isDoOrYield(builder)
+              builder.isScala3 && parseScala3ForRest()
 
             if (bracelessForStartingWithPatternGenerator) {
               backupMarker.drop()
@@ -204,14 +204,7 @@ object Expr1 extends ParsingRule {
           // NOTE: enumerators without brackets are not controlled by `-no-indent` flag
           // https://github.com/lampepfl/dotty/issues/12427#issuecomment-838979407
           case _ if builder.isScala3 =>
-            builder.enableNewlines()
-            if (!EnumeratorsInIndentationRegion()) {
-              builder error ErrMsg("enumerators.expected")
-            }
-            builder.restoreNewlinesState()
-            if (!isDoOrYield(builder)) {
-              builder error ErrMsg("expected.do.or.yield")
-            }
+            parseScala3ForRest()
           case _ =>
             builder error ErrMsg("enumerators.expected")
         }
@@ -340,6 +333,21 @@ object Expr1 extends ParsingRule {
     }
     exprMarker.rollbackTo()
     false
+  }
+
+  private def parseScala3ForRest()(implicit builder: ScalaPsiBuilder): Boolean = {
+    var hasError = false
+    builder.withEnabledNewlines {
+      if (!EnumeratorsInIndentationRegion()) {
+        hasError = true
+        builder.error(ErrMsg("enumerators.expected"))
+      }
+    }
+    if (!isDoOrYield(builder)) {
+      hasError = true
+      builder.error(ErrMsg("expected.do.or.yield"))
+    }
+    !hasError
   }
 
   private def isDoOrYield(builder: ScalaPsiBuilder): Boolean = {
