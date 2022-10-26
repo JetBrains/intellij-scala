@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.{assertIsBlank, assertStringMatches}
 import org.jetbrains.plugins.scala.util.runners.{NotSupportedScalaVersions, RunWithJdkVersions, RunWithScalaVersions, SupportedScalaVersions, TestJdkVersion, TestScalaVersion}
-import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
@@ -15,15 +15,13 @@ import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUi
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, WorksheetEvaluationTests}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert.assertEquals
-import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_11))
-@Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplIntegration_Scala_2_11_Test
   extends WorksheetReplIntegrationBaseTest
     with WorksheetRuntimeExceptionsTests {

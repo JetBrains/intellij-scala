@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.{TestDependencyManager, WorksheetEvaluationTests}
+import org.jetbrains.plugins.scala.TestDependencyManager
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
@@ -14,13 +14,11 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.Workshe
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
-@Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegration_Scala_2_12_Test {
 
   // with some health check runs

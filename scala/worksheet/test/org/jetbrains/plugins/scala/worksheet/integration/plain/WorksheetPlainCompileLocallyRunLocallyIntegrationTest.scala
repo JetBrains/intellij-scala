@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
+import org.jetbrains.plugins.scala.LatestScalaVersions
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
-import org.jetbrains.plugins.scala.{LatestScalaVersions, WorksheetEvaluationTests}
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetPlainCompileLocallyRunLocallyIntegrationTest
   extends WorksheetIntegrationBaseTest
     with WorksheetRunTestSettings

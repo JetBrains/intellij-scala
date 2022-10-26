@@ -4,9 +4,8 @@ import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, WorksheetEvaluationTests}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 import scala.language.postfixOps
 
@@ -15,7 +14,6 @@ import scala.language.postfixOps
   TestScalaVersion.Scala_3_1,
   TestScalaVersion.Scala_3_Latest,
 ))
-@Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplIntegration_Scala_3_Test extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
 

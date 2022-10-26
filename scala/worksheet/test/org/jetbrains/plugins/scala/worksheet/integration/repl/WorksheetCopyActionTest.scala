@@ -3,19 +3,16 @@ package org.jetbrains.plugins.scala.worksheet.integration.repl
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.testFramework.PlatformTestUtil
-import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.{CleanWorksheetAction, CopyWorksheetAction}
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 import scala.language.postfixOps
 
 // no need in exhaustive check
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
-@Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetCopyActionTest extends WorksheetReplIntegrationBaseTest {
 
   private def prepareEditorForCopyAction(): Editor = doRenderTest(

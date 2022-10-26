@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertStringMatches
 import org.jetbrains.plugins.scala.util.runners._
@@ -15,12 +14,10 @@ import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 import org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetFilePersistentSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
-import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.DurationInt
 
 //noinspection RedundantBlock
-@Category(Array(classOf[WorksheetEvaluationTests]))
 abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBaseTest
   with WorksheetRunTestSettings
   with WorksheetRuntimeExceptionsTests
