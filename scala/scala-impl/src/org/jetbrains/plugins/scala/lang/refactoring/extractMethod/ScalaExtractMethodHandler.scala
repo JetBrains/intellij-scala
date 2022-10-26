@@ -8,7 +8,6 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference}
@@ -30,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
   private val REFACTORING_NAME: String = ScalaBundle.message("extract.method.title")
@@ -132,34 +132,39 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
         .minByOption(_.getContext.getTextLength)
 
   private def getSiblings(element: PsiElement, @Nullable stopAtScope: PsiElement): Seq[PsiElement] = {
-    def isParentOk(parent: PsiElement): Boolean = {
-      if (parent == null) return false
-      assert(parent.getTextRange != null, "TextRange is null: " + parent.getText)
-      stopAtScope == null || stopAtScope.getTextRange.contains(parent.getTextRange)
+    def isInScala2(file: PsiFile): Boolean =
+      file.getViewProvider.getBaseLanguage == ScalaLanguage.INSTANCE
+
+    def isParentOk(prev: PsiElement, parent: PsiElement): Boolean = (prev, parent) match {
+      case (_, null)                                                                    => false
+      case (_, file: ScalaFile)               if isInScala2(file)                       => false
+      case (_, pkg: ScPackaging)              if pkg.containingFile.forall(isInScala2)  => false
+      case (p: ScPackaging, _: ScalaFile)     if !p.isExplicit                          => false
+      case (p1: ScPackaging, p2: ScPackaging) if !p1.isExplicit && !p2.isExplicit       => false
+      case _ =>
+        assert(parent.getTextRange != null, "TextRange is null: " + parent.getText)
+        stopAtScope == null || stopAtScope.getTextRange.contains(parent.getTextRange)
     }
 
-    var res = List.empty[PsiElement]
-    var prev = element
+    var res    = List.empty[PsiElement]
+    var prev   = element
     var parent = element.getParent
-    while (isParentOk(parent)) {
-      parent match {
-        case file: ScalaFile if file.getViewProvider.getBaseLanguage != ScalaLanguage.INSTANCE => res ::= prev
-        case _: ScBlock => res ::= prev
-        case _: ScTemplateBody => res ::= prev
-        case _ =>
-      }
-      prev = parent
+
+    while (isParentOk(prev, parent)) {
+      if (parent.is[ScalaFile, ScPackaging, ScBlock, ScTemplateBody])
+        res ::= prev
+
+      prev   = parent
       parent = parent match {
-        case _: ScalaFile =>
-          null
-        case _ => parent.getParent
+        case _: ScalaFile => null
+        case _            => parent.getParent
       }
     }
     res
   }
 
   private def findScopeBound(elements: Seq[PsiElement]): Option[PsiElement] = {
-    val commonParent = PsiTreeUtil.findCommonParent(elements.toSeq: _*)
+    val commonParent = PsiTreeUtil.findCommonParent(elements: _*)
 
     def scopeBound(ref: ScReference): Option[PsiElement] = {
       val fromThisRef: Option[ScTemplateDefinition] = ref.qualifier match {
@@ -281,6 +286,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
           case funExpr: ScFunctionExpr if funExpr.result.contains(b) => local(ScalaBundle.message("function.expression"))
           case _ => local(ScalaBundle.message("code.block"))
         }
+      case p: ScPackaging => ScalaBundle.message("extract.method.to.package.name", p.packageName)
       case _: ScalaFile => ScalaBundle.message("extract.file.method")
       case _ => ScalaBundle.message("unknown.extraction")
     }
