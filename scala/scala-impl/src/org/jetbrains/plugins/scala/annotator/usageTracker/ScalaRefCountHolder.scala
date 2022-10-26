@@ -47,6 +47,16 @@ final class ScalaRefCountHolder private (file: PsiFile) {
     myImportUsed.contains(used)
   }
 
+  def getWriteReferences(element: PsiNamedElement): Seq[SmartPsiElementPointer[PsiElement]] =
+    myValueUsed.asScala.collect {
+      case w: WriteValueUsed if w.declaration.getElement != null && w.declaration.getElement == element => w
+    }.map(_.reference).toSeq
+
+  def getReadReferences(element: PsiNamedElement): Seq[SmartPsiElementPointer[PsiElement]] =
+    myValueUsed.asScala.collect {
+      case r: ReadValueUsed if r.declaration.getElement != null && r.declaration.getElement == element => r
+    }.map(_.reference).toSeq
+
   def isValueWriteUsed(element: PsiNamedElement): Boolean = {
     assertReady()
     myValueUsed.asScala.collect {
