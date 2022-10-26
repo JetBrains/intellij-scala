@@ -2,6 +2,7 @@ package org.jetbrains.sbt.project
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.{AbstractOpenProjectProvider, ImportSpecBuilder}
 import com.intellij.openapi.externalSystem.model.internal.InternalExternalProjectInfo
 import com.intellij.openapi.externalSystem.model.project.ProjectData
@@ -12,14 +13,16 @@ import com.intellij.openapi.externalSystem.service.ui.ExternalProjectDataSelecto
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.project.SbtOpenProjectProvider.Log
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 
-import java.nio.file.Path
-
+//noinspection UnstableApiUsage,ApiStatus
 class SbtOpenProjectProvider extends AbstractOpenProjectProvider {
+
 
   override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -27,6 +30,8 @@ class SbtOpenProjectProvider extends AbstractOpenProjectProvider {
     SbtProjectImportProvider.canImport(file)
 
   override def linkToExistingProject(projectFile: VirtualFile, project: Project): Unit = {
+    Log.debug(s"Link SBT project '$projectFile' to existing project ${project.getName}")
+
     val sbtProjectSettings = SbtProjectSettings.forProject(project).getOrElse(SbtProjectSettings.default)
     val projectDirectory = getProjectDirectory(projectFile)
     sbtProjectSettings.setExternalProjectPath(projectDirectory.toNioPath.toString)
@@ -36,17 +41,20 @@ class SbtOpenProjectProvider extends AbstractOpenProjectProvider {
   private def attachSbtProjectAndRefresh(settings: SbtProjectSettings, project: Project): Unit = {
     val externalProjectPath = settings.getExternalProjectPath
     SbtUtil.sbtSettings(project).linkProject(settings)
-    ExternalSystemUtil.refreshProject(
-      externalProjectPath,
-      new ImportSpecBuilder(project, SbtProjectSystem.Id)
-        .usePreviewMode()
-        .use(ProgressExecutionMode.MODAL_SYNC)
-    )
-    ExternalSystemUtil.refreshProject(
-      externalProjectPath,
-      new ImportSpecBuilder(project, SbtProjectSystem.Id)
-        .callback(new FinalImportCallback(project, settings))
-    )
+
+    if (!Registry.is("external.system.auto.import.disabled")) {
+      ExternalSystemUtil.refreshProject(
+        externalProjectPath,
+        new ImportSpecBuilder(project, SbtProjectSystem.Id)
+          .usePreviewMode()
+          .use(ProgressExecutionMode.MODAL_SYNC)
+      )
+      ExternalSystemUtil.refreshProject(
+        externalProjectPath,
+        new ImportSpecBuilder(project, SbtProjectSystem.Id)
+          .callback(new FinalImportCallback(project, settings))
+      )
+    }
   }
 
 
@@ -65,7 +73,7 @@ class SbtOpenProjectProvider extends AbstractOpenProjectProvider {
         if (dialog.hasMultipleDataToSelect)
           dialog.showAndGet()
         else
-          Disposer.dispose((dialog.getDisposable): Disposable)
+          Disposer.dispose(dialog.getDisposable: Disposable)
       }
 
       def importTask(): Unit = {
@@ -86,4 +94,8 @@ class SbtOpenProjectProvider extends AbstractOpenProjectProvider {
       }
     }
   }
+}
+
+object SbtOpenProjectProvider {
+  private val Log = Logger.getInstance(classOf[SbtOpenProjectProvider])
 }

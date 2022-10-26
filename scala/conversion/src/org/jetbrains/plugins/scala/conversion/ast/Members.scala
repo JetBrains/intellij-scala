@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.conversion.ast
 
 //TODO setter&getter
 case class FieldConstruction(
-  modifiers: IntermediateNode,
-  name: IntermediateNode,
-  ftype: IntermediateNode,
+  modifiers: ModifiersConstruction,
+  name: NameIdentifier,
+  ftype: TypeNode,
   isVar: Boolean,
   initializer: Option[IntermediateNode]
 ) extends IntermediateNode with TypedElement {
@@ -12,29 +12,29 @@ case class FieldConstruction(
 }
 
 case class MethodConstruction(
-  modifiers: IntermediateNode,
-  name: IntermediateNode,
-  typeParams: Seq[IntermediateNode],
-  params: Seq[IntermediateNode],
+  modifiers: ModifiersConstruction,
+  name: NameIdentifier,
+  typeParams: Seq[TypeParameterConstruction],
+  params: Seq[ParameterConstruction],
   body: Option[IntermediateNode],
-  retType: Option[IntermediateNode]
-) extends IntermediateNode
+  retType: Option[TypeNode]
+) extends ExpressionsHolderNodeBase(body.toSeq)
 
 
 trait Constructor
 
 case class ConstructorSimply(
-  modifiers: IntermediateNode,
-  typeParams: Seq[IntermediateNode],
-  params: Seq[IntermediateNode],
+  modifiers: ModifiersConstruction,
+  typeParams: Seq[TypeParameterConstruction],
+  params: Seq[ParameterConstruction],
   body: Option[IntermediateNode]
-) extends IntermediateNode
+) extends ExpressionsHolderNodeBase(body.toSeq)
 
-case class PrimaryConstruction(
-  params: Seq[IntermediateNode],
+case class PrimaryConstructor(
+  params: Seq[ParameterConstruction],
   superCall: IntermediateNode,
-  body: Option[Seq[IntermediateNode]],
-  modifiers: IntermediateNode
-) extends IntermediateNode with Constructor
+  body: Option[BlockConstruction],
+  modifiers: ModifiersConstruction
+) extends ExpressionsHolderNodeBase(body.toSeq) with Constructor
 
-case class EnumConstruction(name: IntermediateNode) extends IntermediateNode
+case class EnumConstruction(name: NameIdentifier) extends IntermediateNode

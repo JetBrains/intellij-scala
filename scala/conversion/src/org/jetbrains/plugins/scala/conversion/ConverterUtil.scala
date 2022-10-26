@@ -30,7 +30,8 @@ object ConverterUtil {
 
     def buildTextPart(offset1: Int, offset2: Int, dropElements: mutable.HashSet[PsiElement]): TextPart = {
       val possibleComment = file.findElementAt(offset1)
-      if (possibleComment != null && CommentsCollector.isComment(possibleComment)) dropElements += possibleComment
+      if (possibleComment != null && CommentsCollector.isComment(possibleComment))
+        dropElements += possibleComment
       TextPart(new TextRange(offset1, offset2).substring(file.getText))
     }
 

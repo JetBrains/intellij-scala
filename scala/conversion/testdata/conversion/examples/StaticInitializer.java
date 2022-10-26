@@ -14,6 +14,5 @@ object JSome {
   def m: Int = 123
 
   try i = m
-
 }
 */

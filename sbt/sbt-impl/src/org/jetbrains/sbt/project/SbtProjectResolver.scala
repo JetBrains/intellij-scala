@@ -1,10 +1,9 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
-import com.intellij.openapi.externalSystem.model.task.event._
+import com.intellij.openapi.externalSystem.model.task.event.{Failure => ESFailure, _}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
@@ -12,6 +11,7 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.registry.RegistryManager
 import org.jetbrains.annotations.{NonNls, Nullable, TestOnly}
 import org.jetbrains.plugins.scala._
 import org.jetbrains.plugins.scala.build._
@@ -25,6 +25,7 @@ import org.jetbrains.sbt.project.SbtProjectResolver._
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
+import org.jetbrains.sbt.project.structure.SbtStructureDump.PrintProcessOutputOnFailurePropertyName
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
@@ -32,14 +33,17 @@ import org.jetbrains.sbt.structure.{BuildData, Configuration, ConfigurationData,
 import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, usingTempFile, structure => sbtStructure}
 
 import java.io.{File, FileNotFoundException}
-import java.util.{Locale, UUID}
+import java.util.{Collections, Locale, UUID}
 import scala.collection.{MapView, mutable}
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Random, Success, Try}
 import scala.xml.{Elem, XML}
 
+/**
+ * @see [[com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver]]
+ * @see [[com.intellij.openapi.externalSystem.service.remote.wrapper.ExternalSystemProjectResolverWrapper]]
+ */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] with ExternalSourceRootResolution {
 
   private val log = Logger.getInstance(getClass)
@@ -51,8 +55,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                                   isPreview: Boolean,
                                   settings: SbtExecutionSettings,
                                   listener: ExternalSystemTaskNotificationListener): DataNode[ESProjectData] = {
-
-
     val projectRoot = {
       val file = new File(settings.realProjectPath)
       if (file.isDirectory) file else file.getParentFile
@@ -63,7 +65,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     if (isPreview) dummyProject(projectRoot, settings, sbtVersion).toDataNode
     else importProject(taskId, settings, projectRoot, sbtLauncher, sbtVersion, listener)
-
   }
 
   private def importProject(taskId: ExternalSystemTaskId,
@@ -83,6 +84,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       new CompositeReporter(esReporter, logReporter)
     } else esReporter
 
+    val startTime = System.currentTimeMillis()
     val structureDump = dumpStructure(projectRoot, sbtLauncher, Version(sbtVersion), settings, taskId.findProject())
 
     // side-effecty status reporting
@@ -92,7 +94,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       notifications.onStatusChange(event)
     }
 
-    val conversionResult = structureDump
+    val conversionResult: Try[DataNode[ESProjectData]] = structureDump
       .map { case (elem, _) =>
         val data = elem.deserialize[sbtStructure.StructureData].getRight
         convert(normalizePath(projectRoot), data, settings.jdk, sbtVersion).toDataNode
@@ -116,23 +118,20 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
 
     // more side-effecty reporting
-    conversionResult.transform (
-      _ => Success(new SuccessResultImpl(0, System.currentTimeMillis(), true)), /* TODO starttime*/
-      _ => Success(
-        new FailureResultImpl(0, System.currentTimeMillis(),
-          List.empty[com.intellij.openapi.externalSystem.model.task.event.Failure].asJava // TODO error list
-        )
-      )
-    ).foreach { result =>
-      val convertFinishedEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
-        importTaskId, null, importTaskDescriptor, result
-      )
-      val event = new ExternalSystemTaskExecutionEvent(taskId, convertFinishedEvent)
-      notifications.onStatusChange(event)
+    val endTime = System.currentTimeMillis()
+    val resultNode = conversionResult match {
+      case Success(_) =>
+        new SuccessResultImpl(startTime, endTime, true)
+      case Failure(_) =>
+        new FailureResultImpl(startTime, endTime, Collections.emptyList[ESFailure]) // TODO error list
     }
+    val convertFinishedEvent = new ExternalSystemFinishEventImpl[TaskOperationDescriptor](
+      importTaskId, null, importTaskDescriptor, resultNode
+    )
+    val event = new ExternalSystemTaskExecutionEvent(taskId, convertFinishedEvent)
+    notifications.onStatusChange(event)
 
     conversionResult.get // ok to throw here, that's the way ExternalSystem likes it
-
   }
 
   private def dumpStructure(projectRoot: File,
@@ -141,7 +140,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                             settings:SbtExecutionSettings,
                             @Nullable project: Project
                            )(implicit reporter: BuildReporter): Try[(Elem, BuildMessages)] = {
-
     val useShellImport = settings.useShellForImport && shellImportSupported(sbtVersion) && project != null
     val options = dumpOptions(settings)
 
@@ -202,9 +200,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         }
       }
       if (result.isFailure) {
+        //NOTE: exception is logged in other places
         val processOutput = dumper.processOutput.mkString
-        // exception is logged in other places
-        log.debug(s"failed to dump sbt structure, sbt process output:\n$processOutput")
+        val processOutputHint =
+          if (processOutput.nonEmpty) s", sbt process output:\n$processOutput"
+          else s" (to see sbt process output pass -D$PrintProcessOutputOnFailurePropertyName=true)"
+        log.debug(s"""failed to dump sbt structure $processOutputHint""")
       }
       result
     }
@@ -763,7 +764,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
 object SbtProjectResolver {
 
-  val IJ_SDK_CLASSIFIERS = Set("IJ-SDK", "IJ-PLUGIN")
+  val IJ_SDK_CLASSIFIERS: Set[String] = Set("IJ-SDK", "IJ-PLUGIN")
 
   case class ImportCancelledException(cause: Throwable) extends Exception(cause)
 

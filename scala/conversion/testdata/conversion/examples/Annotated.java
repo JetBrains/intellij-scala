@@ -16,7 +16,6 @@ package java
 
 import java.lang.SuppressWarnings
 
-
 @SuppressWarnings(value = Array("foo"))
 @SuppressWarnings(Array("bar")) object Annotated {
   @SuppressWarnings(value = Array("bar"), x = 1, array = Array(1, 2, 3), inner = new SuppressWarnings) def main(@SuppressWarnings(Array("baz")) @deprecated args: Array[String]): Unit = {

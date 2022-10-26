@@ -1,21 +1,22 @@
 package org.jetbrains.plugins.scala.conversion
 
-import com.intellij.openapi.command.CommandProcessor
-
-import java.io.File
+import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.editor.DocumentExt
+import org.jetbrains.plugins.scala.extensions.{executeWriteActionCommand, inWriteAction}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
+import org.junit.Assert._
 
-import scala.collection.mutable
+import java.io.File
 
+//noinspection InstanceOf
 abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   import TypeAnnotationSettings._
@@ -49,10 +50,10 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtur
   ): Unit = {
     val oldSettings: Any = getDefaultSettings.clone
     set(getProject, typeAnnotationSettings)
-    val filePath = folderPath + testFileName
+    val filePath = (folderPath + testFileName).replace(File.separatorChar, '/')
 
     try {
-      doTestForFilePath(typeAnnotationSettings, testFileName, filePath)
+      doTestForFilePath(testFileName, filePath)
     } catch {
       case ex: Throwable =>
         System.err.println(s"Test file path: $filePath")
@@ -62,56 +63,94 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtur
     }
   }
 
+  private def readFileContent(file: VirtualFile) : String = {
+    val content = FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8)
+    StringUtil.convertLineSeparators(content)
+  }
+
   protected def doTestForFilePath(
-    typeAnnotationSettings: ScalaCodeStyleSettings,
     testFileName: String,
     filePath: String
   ): Unit = {
-    import org.junit.Assert._
-    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
-    assert(file != null, "file " + filePath + " not found")
-    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileText(testFileName, fileText)
-    val javaFile = getFile
-    val offset = fileText.indexOf(startMarker)
+    val testFile = LocalFileSystem.getInstance.findFileByPath(filePath)
+    assert(testFile != null, s"file $filePath not found")
 
-    val startOffset = if (offset != -1) offset + startMarker.length else 0
+    val testFileText = readFileContent(testFile)
+    val javaFile = configureFromFileText(testFileName, testFileText).asInstanceOf[PsiJavaFile]
 
-    val lastPsi = javaFile.findElementAt(javaFile.getText.length - 1)
-    var endOffset = fileText.indexOf(endMarker)
-    if (endOffset == -1) endOffset = lastPsi.getTextRange.getStartOffset
+    val expectedResult: String = javaFile.findElementAt(javaFile.getText.length - 1) match {
+      case lastPsiComment: PsiComment =>
+        val commentContent = getCommentContent(lastPsiComment)
+        inWriteAction {
+          executeWriteActionCommand(
+            () => {
+              lastPsiComment.delete() // delete from original java file, the comment will remain in detached mode
+            },
+            "deleting test comment",
+            UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION
+          )(getProject)
+        }
+        commentContent
+      case e =>
+        val expectedScalaFileName = filePath.replace(".java", ".scala")
+        val expectedScalaFile = LocalFileSystem.getInstance.findFileByPath(expectedScalaFileName)
+        if (expectedScalaFile != null)
+          readFileContent(expectedScalaFile)
+        else {
+          fail(
+            s"""No expected Scala content found.
+               |It should be located in the last element in ${testFile.getName}
+               |Or placed in a separate file ${new File(expectedScalaFileName).getName}""".stripMargin
+          ).asInstanceOf[Nothing]
+        }
+    }
 
-    val buf = ConverterUtil.collectTopElements(startOffset, endOffset, javaFile)
-    var res = JavaToScala.convertPsisToText(buf, getUsedComments(offset, endOffset, lastPsi, javaFile))
-    val newFile = PsiFileFactory.getInstance(getProject)
-      .createFileFromText("dummyForJavaToScala.scala", ScalaLanguage.INSTANCE, res)
+    val startMarkerOffset = testFileText.indexOf(startMarker)
+    val endMarkerOffset = testFileText.indexOf(endMarker)
 
+    val factory = PsiFileFactory.getInstance(getProject)
+    val scalaFile = factory.createFileFromText("dummyForJavaToScala.scala", ScalaLanguage.INSTANCE, "")
     CommandProcessor.getInstance.executeCommand(getProject, () => {
       inWriteAction {
-        ConverterUtil.cleanCode(newFile, getProject, 0, newFile.getText.length)
-        res = CodeStyleManager.getInstance(getProject).reformat(newFile).getText
+        val convertFullFile = startMarkerOffset == -1 || endMarkerOffset == -1
+        if (convertFullFile) {
+          //truly invoke full-file "Convert Java to Scala" action
+          ConvertJavaToScalaAction.convertToScalaFile(javaFile, scalaFile)
+        } else {
+          val startOffset = startMarkerOffset + startMarker.length
+          val endOffset = endMarkerOffset
+
+          val elements = ConverterUtil.collectTopElements(startOffset, endOffset, javaFile)
+          val convertedText = JavaToScala.convertPsisToText(elements)
+          updateDocumentTextAndCommit(scalaFile, convertedText)
+
+          ConverterUtil.cleanCode(scalaFile, getProject, 0, scalaFile.getText.length)
+          CodeStyleManager.getInstance(getProject).reformat(scalaFile)
+        }
       }
     }, null, null)
 
-    val text = lastPsi.getText
-    val output = lastPsi.getNode.getElementType match {
-      case JavaTokenType.END_OF_LINE_COMMENT => text.substring(2).trim
-      case JavaTokenType.C_STYLE_COMMENT =>
-        text.substring(2, text.length - 2).trim
-      case _ => assertTrue("Test result must be in last comment statement.", false)
-    }
-
-    assertEquals(output, res.trim)
+    val scalaFileText = scalaFile.getText
+    val actualResult = scalaFileText.trim.stripPrefix(startMarker).stripSuffix(endMarker).trim
+    assertEquals(expectedResult, actualResult)
   }
 
-  private def getUsedComments(startOffset: Int, endOffset: Int,
-                              lastComment: PsiElement, javaFile: PsiFile) = {
-    val usedComments = mutable.HashSet.empty[PsiElement]
-    val startComment = javaFile.findElementAt(startOffset)
-    val endComment = javaFile.findElementAt(endOffset)
-    if (startComment != null) usedComments += startComment
-    if (endComment != null) usedComments += endComment
-    if (lastComment != null) usedComments += lastComment
-    usedComments
+  private def updateDocumentTextAndCommit(scalaFile: PsiFile, convertedScalaText: String): Unit = {
+    val project = scalaFile.getProject
+    val document = PsiDocumentManager.getInstance(project).getDocument(scalaFile)
+    document.insertString(0, convertedScalaText)
+    document.commit(project)
+  }
+
+  private def getCommentContent(comment: PsiComment): String = {
+    val lastCommentText = comment.getText
+    comment.getNode.getElementType match {
+      case JavaTokenType.END_OF_LINE_COMMENT =>
+        lastCommentText.substring(2).trim
+      case JavaTokenType.C_STYLE_COMMENT =>
+        lastCommentText.substring(2, lastCommentText.length - 2).trim
+      case _ =>
+        fail("Test result must be in last comment statement").asInstanceOf[Nothing]
+    }
   }
 }

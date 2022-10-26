@@ -1917,4 +1917,27 @@ class ScalaBlankLinesTest2 extends AbstractScalaFormatterTestBase with LineComme
       placeAfterEachNonEmptyLine(after, ";;;;;;; // comment")
     )
   }
+
+  def testLineCommentBetweenClassNameAncExtendsList(): Unit = {
+    doTextTest(
+      """class MyClass1 //line comment for constructor
+        |{
+        |}
+        |
+        |class MyClass2
+        |//line comment for constructor
+        |{
+        |}
+        |
+        |class MyClass3(x: Int) //line comment for constructor
+        |{
+        |}
+        |
+        |class MyClass4(x: Int)
+        |//line comment for constructor
+        |{
+        |}
+        |""".stripMargin
+    )
+  }
 }

@@ -24,6 +24,7 @@ import java.nio.charset.Charset
 import java.util.UUID
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
+import scala.collection.mutable
 import scala.concurrent.Future
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.jdk.CollectionConverters._
@@ -38,7 +39,7 @@ class SbtStructureDump {
   private val MaxImportDurationInUnitTests: FiniteDuration = 10.minutes
 
   // in failed tests we would like to see sbt process output
-  private val processOutputBuilder = new StringBuilder
+  private val processOutputBuilder = new mutable.StringBuilder
   def processOutput: String = processOutputBuilder.mkString
 
   def cancel(): Unit = cancellationFlag.set(true)
@@ -252,7 +253,7 @@ class SbtStructureDump {
 
     var messages = BuildMessages.empty
 
-   def update(typ: OutputType, textRaw: String): Unit = {
+    def update(typ: OutputType, textRaw: String): Unit = {
       val text = textRaw.trim
 
       if (text.nonEmpty) {
@@ -267,10 +268,12 @@ class SbtStructureDump {
     }
 
     val isUnitTest = ApplicationManager.getApplication.isUnitTestMode
+    val collectProcessOutput = isUnitTest || System.getProperty(PrintProcessOutputOnFailurePropertyName, "false") == "true"
+    Log.debug(s"collectProcessOutput = $collectProcessOutput")
     processOutputBuilder.clear()
 
     val processListener: (OutputType, String) => Unit = (typ, line) => {
-      if (isUnitTest) {
+      if (collectProcessOutput) {
         processOutputBuilder.append(s"[${typ.getClass.getSimpleName}] $line")
         if (!line.endsWith("\n")) {
           processOutputBuilder.append('\n')
@@ -302,7 +305,7 @@ class SbtStructureDump {
 
       var processEnded = false
       while (!processEnded && !cancellationFlag.get()) {
-        processEnded = handler.waitFor(SBT_PROCESS_CHECK_TIMEOUT_MSEC)
+        processEnded = handler.waitFor(SBT_PROCESS_CHECK_TIMEOUT_MS)
 
         val importIsTooLong = isUnitTest && System.currentTimeMillis() - start > MaxImportDurationInUnitTests.toMillis
         if (importIsTooLong) {
@@ -334,7 +337,9 @@ object SbtStructureDump {
 
   private val Log = Logger.getInstance(classOf[SbtStructureDump])
 
-  private val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
+  private val SBT_PROCESS_CHECK_TIMEOUT_MS = 100
+
+  val PrintProcessOutputOnFailurePropertyName = "sbt.import.print.process.output.on.failure"
 
   @TestOnly
   var printErrorsAndWarningsToConsoleDuringTests = true

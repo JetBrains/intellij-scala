@@ -1,4 +1,3 @@
-/*start*/
 class SwitchMultiLabel {
     public void main(String[] args) {
         int x = switch (args.length) {
@@ -8,8 +7,7 @@ class SwitchMultiLabel {
             default -> 8;
         };
     }
-}/*end*/
-
+}
 /*
 class SwitchMultiLabel {
   def main(args: Array[String]): Unit = {

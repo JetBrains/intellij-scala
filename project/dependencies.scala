@@ -1,5 +1,8 @@
 import sbt._
 
+import java.io.IOException
+import java.net.SocketTimeoutException
+
 object Versions {
   val scalaVersion: String = "2.13.10"
   val scala3Version: String = "3.2.0"
@@ -10,7 +13,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.5.4"
   val zincVersion = "1.7.2"
-  val intellijVersion = "223.7126.7"
+  val intellijVersion = "223.7255.1"
 
   val nailgunVersion = "1.2.1"
 
@@ -273,12 +276,17 @@ private object Utils {
     val nightlyVersion = versionWithoutTail + "-SNAPSHOT"
     val eapVersion = intellijVersion + "-EAP-SNAPSHOT"
 
-    val buildType =
+    val buildType: IdeBuildType =
       if (intellijVersion.count(_ == '.') == 1) IdeBuildType.Nightly
       else if (Utils.isIdeaReleaseBuildAvailable(intellijVersion)) IdeBuildType.Release
       else if (Utils.isIdeaEapBuildAvailable(eapVersion)) IdeBuildType.Eap
       else if (Utils.isIdeaEapBuildAvailable(eapCandidateVersion)) IdeBuildType.EapCandidate
-      else throw new IllegalStateException(s"Cannot determine build type for version $intellijVersion")
+      else {
+        val fallback = IdeBuildType.EapCandidate
+        val exception = new IllegalStateException(s"Cannot determine build type for version $intellijVersion, fallback to: $fallback (if the fallback isn't resolved from local caches try change it in sources and reload)")
+        exception.printStackTrace()
+        fallback
+      }
 
     val (intellijVersionManaged, intellijRepositoryManaged) = buildType match {
       case IdeBuildType.Release => (intellijVersion, Repositories.intellijRepositoryReleases)
@@ -305,12 +313,18 @@ private object Utils {
     import java.net.{HttpURLConnection, URL}
 
     val url = new URL(urlText)
-    val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-    connection.setRequestMethod("GET")
-    connection.connect()
-    val rc = connection.getResponseCode
-    connection.disconnect()
-    rc != 404
+    try {
+      val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+      connection.setRequestMethod("GET")
+      connection.connect()
+      val rc = connection.getResponseCode
+      connection.disconnect()
+      rc != 404
+    } catch {
+      case _: IOException | _: SocketTimeoutException =>
+        //no internet, for example
+        false
+    }
   }
 
   sealed trait IdeBuildType

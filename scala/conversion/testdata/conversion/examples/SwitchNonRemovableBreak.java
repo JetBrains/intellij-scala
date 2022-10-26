@@ -1,4 +1,3 @@
-/*start*/
 class SwitchNonRemovableBreak {
     public void main(String[] args) {
         switch(args.length) {
@@ -11,8 +10,7 @@ class SwitchNonRemovableBreak {
                 break;
         }
     }
-}/*end*/
-
+}
 /*
 class SwitchNonRemovableBreak {
   def main(args: Array[String]): Unit = {
@@ -22,10 +20,8 @@ class SwitchNonRemovableBreak {
           System.out.println("Foo is passed")
           break //todo: break is not supported
           // unsupported
-
         }
         System.out.println("Single arg is passed (not foo)")
-
     }
   }
 }*/

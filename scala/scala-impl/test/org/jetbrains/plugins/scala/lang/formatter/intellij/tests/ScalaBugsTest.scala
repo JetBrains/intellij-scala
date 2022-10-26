@@ -3745,4 +3745,17 @@ final class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         |}""".stripMargin
     )
   }
+
+  //EA-448874
+  def testEA448874(): Unit = doTextTest(
+    """object Example {
+      |  (
+      |    1,
+      |    //line comment 1
+      |    2,
+      |    //line comment 2
+      |    3
+      |  ).productElementName
+      |}""".stripMargin
+  )
 }

@@ -675,4 +675,30 @@ class ScalaSpacingTest extends AbstractScalaFormatterTestBase {
         |""".stripMargin
     )
   }
+
+  def testCaseClauseWithMultilineBody_PlaceOnNewLine(): Unit = {
+    val before =
+      """class a {
+        |  42 match {
+        |    case 1 => println(1)
+        |    case 2 => println(2)
+        |      println(22)
+        |  }
+        |}
+        |""".stripMargin
+    val after =
+      """class a {
+        |  42 match {
+        |    case 1 => println(1)
+        |    case 2 =>
+        |      println(2)
+        |      println(22)
+        |  }
+        |}
+        |""".stripMargin
+
+    doTextTest(before)
+    scalaSettings.NEW_LINE_AFTER_CASE_CLAUSE_ARROW_WHEN_MULTILINE_BODY = true
+    doTextTest(before, after)
+  }
 }

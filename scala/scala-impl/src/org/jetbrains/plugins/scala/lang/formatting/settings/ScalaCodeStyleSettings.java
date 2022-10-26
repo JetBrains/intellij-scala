@@ -103,6 +103,14 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean INDENT_BRACED_FUNCTION_ARGS = true;
   public boolean DO_NOT_INDENT_CASE_CLAUSE_BODY = false;
 
+  //ATTENTION:
+  //This setting is currently not available for the user and is needed for internal use only (for "Java to Scala" converter)
+  //If we decide to make it public:
+  // 1. consider setting it to true by default
+  // 2. maybe create some setting for any `=>`, not only for case clauses but for functional expressions?
+  //Also probably think about better name
+  public boolean NEW_LINE_AFTER_CASE_CLAUSE_ARROW_WHEN_MULTILINE_BODY = false;
+
   //blank lines
   public int BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = 1;
   public int BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES = 0;

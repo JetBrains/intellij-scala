@@ -2,7 +2,8 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.execution.configurations.SimpleJavaParameters
-import com.intellij.openapi.application.{ApplicationManager, PathManager}
+import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, ProjectSystemId}
 import com.intellij.openapi.externalSystem.util._
 import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, ExternalSystemManager}
@@ -16,7 +17,8 @@ import com.intellij.util.Function
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JdkVersionDetector
-import org.jetbrains.plugins.scala.extensions.RichFile
+import org.jetbrains.plugins.scala.extensions.{RichFile, invokeAndWait}
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
 
@@ -63,6 +65,8 @@ class SbtExternalSystemManager
 
 object SbtExternalSystemManager {
 
+  private val Log = Logger.getInstance(classOf[SbtExternalSystemManager])
+
   def executionSettingsFor(project: Project, path: String): SbtExecutionSettings = {
     val settings = SbtSettings.getInstance(project)
     val settingsState = settings.getState
@@ -100,53 +104,72 @@ object SbtExternalSystemManager {
   }
 
   /** Choose a jdk for imports. This is then only used when no overriding information is available from sbt definition.
-    * SbtProjectResolver figures out that part
-    */
+   * SbtProjectResolver figures out that part
+   */
   private def bootstrapJdk(project: Project, importSettings: SbtProjectSettings) = {
     // either what was set in previous import, or default from Project Structure defaults
     val jdkInProject = Option(ProjectRootManager.getInstance(project).getProjectSdk).map(_.getName)
     // setting used *only* for initial import
     val jdkInImportSettings = importSettings.jdkName
     // use setting from initial import only when there is no other information
-    jdkInProject.orElse(jdkInImportSettings)
+    val result = jdkInProject.orElse(jdkInImportSettings)
+    Log.debug(s"""bootstrapJdk: $result${if (result.isEmpty) "" else s" (from project: ${jdkInProject.isDefined})"}""")
+    result
   }
 
   private def getVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State): File = {
     val jdkTable = ProjectJdkTable.getInstance()
-    // automatically detect JDK if none is defined
-    ApplicationManager.getApplication.invokeAndWait(() => jdkTable.preconfigure())
 
     val customPath = settings.customVMPath
     val customVmExecutable =
       if (settings.customVMEnabled && JdkUtil.checkForJre(customPath)) {
+        Log.debug(s"Using Java from custom VM path: $customPath")
+
         @NonNls val javaExe = if (SystemInfo.isWindows) "java.exe" else "java"
         Some(new File(customPath) / "bin" / javaExe)
       }
       else None
 
-    val realExe = customVmExecutable.orElse {
-      val projectJdkFound = projectJdkName.safeMap(jdkTable.findJdk)
-      projectJdkFound
-        .map { sdk =>
-          sdk.getSdkType match {
-            case sdkType: JavaSdkType =>
-              new File(sdkType.getVMExecutablePath(sdk))
-            case _ =>
-              // ugh
-              throw new ExternalSystemException(SbtBundle.message("sbt.import.noProjectJvmFound"))
+    val realExe = customVmExecutable
+      .orElse {
+        val projectJdkFound = projectJdkName.safeMap(jdkTable.findJdk)
+        projectJdkFound
+          .map { sdk =>
+            Log.debug(s"Using Java project JDK: $sdk")
+
+            sdk.getSdkType match {
+              case sdkType: JavaSdkType =>
+                new File(sdkType.getVMExecutablePath(sdk))
+              case _ =>
+                // ugh
+                throw new ExternalSystemException(SbtBundle.message("sbt.import.noProjectJvmFound"))
+            }
+          }
+      }
+      .orElse {
+        //automatically detect JDK if none is defined
+        invokeAndWait {
+          val sdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable)
+          if (sdk.sdk.isEmpty) {
+            Log.debug("Preconfigure JDK table for SBT import")
+            SbtProcessJdkGuesser.preconfigureJdkForSbt(jdkTable)
           }
         }
-    }
-    .orElse {
-      val jdkType = JavaSdk.getInstance()
-      val mostRecentSdk = Option(jdkTable.findMostRecentSdkOfType(jdkType))
-      mostRecentSdk.map { sdk =>
-        new File(jdkType.getVMExecutablePath(sdk))
+
+        val suitableSdk = SbtProcessJdkGuesser.findJdkWithSuitableVersion(jdkTable)
+        val autoDetectedSdk = suitableSdk.sdk
+          //if no suitable sdj >= 8 found, take any JDK, and hope that sbt import will work
+          .orElse(suitableSdk.allSdkSorted.lastOption)
+
+        autoDetectedSdk.map { sdk =>
+          Log.debug(s"Using Java from best auto-detected JDK: $sdk")
+
+          new File(JavaSdk.getInstance().getVMExecutablePath(sdk))
+        }
       }
-    }
-    .getOrElse {
-      throw new ExternalSystemException(SbtBundle.message("sbt.import.noCustomJvmFound"))
-    }
+      .getOrElse {
+        throw new ExternalSystemException(SbtBundle.message("sbt.import.noCustomJvmFound"))
+      }
 
     realExe
   }
