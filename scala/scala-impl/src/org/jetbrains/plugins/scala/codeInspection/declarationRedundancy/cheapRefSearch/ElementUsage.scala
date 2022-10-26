@@ -44,4 +44,7 @@ private object ElementUsageWithReference {
 
   def apply(reference: PsiElement, target: ScNamedElement): ElementUsageWithReference =
     new ElementUsageWithReference(reference.createSmartPointer, WeakReference(target))
+
+  def apply(reference: SmartPsiElementPointer[PsiElement], target: ScNamedElement): ElementUsageWithReference =
+    new ElementUsageWithReference(reference, WeakReference(target))
 }

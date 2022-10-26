@@ -112,7 +112,21 @@ private[declarationRedundancy] object Search {
 
       val ctx = new Context(element, canExit)
 
-      val conditions = new Conditions(isOnTheFly, isOnlyVisibleInLocalFile(element), isImplicit(element))
+      val isMemberOfUnusedTypeDefinition = element match {
+        case m: ScMember =>
+          val containingClass = m.containingClass
+          containingClass != null &&
+            Util.shouldProcessElement(containingClass) &&
+            runSearchPipeline(containingClass, isOnTheFly).isEmpty
+        case _ => false
+      }
+
+      val conditions = new Conditions(
+        isOnTheFly,
+        isOnlyVisibleInLocalFile(element),
+        isImplicit(element),
+        isMemberOfUnusedTypeDefinition
+      )
 
       searchMethods.foreach { method =>
         if (method.shouldProcess(conditions) && !res.exists(ctx.canExit)) {
@@ -245,7 +259,12 @@ private[declarationRedundancy] object Search {
      *
      * Also see [[Pipeline.runSearchPipeline]]
      */
-    class Conditions(val isOnTheFly: Boolean, val isOnlyVisibleInLocalFile: Boolean, val isImplicit: Boolean)
+    class Conditions(
+      val isOnTheFly: Boolean,
+      val isOnlyVisibleInLocalFile: Boolean,
+      val isImplicit: Boolean,
+      val isMemberOfUnusedTypeDefinition: Boolean
+    )
 
     /**
      * See [[Method.shouldProcess]]

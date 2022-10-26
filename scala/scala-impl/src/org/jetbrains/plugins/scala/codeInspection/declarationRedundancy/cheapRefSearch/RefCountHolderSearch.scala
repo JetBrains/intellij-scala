@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch
 
+import com.intellij.psi.{PsiElement, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.{SearchMethodResult, Method}
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.{Method, SearchMethodResult}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline.ShouldProcess
 
 /**
@@ -20,18 +21,18 @@ private[cheapRefSearch] final class RefCountHolderSearch(override val shouldProc
   override def searchForUsages(ctx: Search.Context): SearchMethodResult = {
     val refCountHolder: ScalaRefCountHolder = ScalaRefCountHolder(ctx.element)
 
-    var used = false
+    var references: Seq[SmartPsiElementPointer[PsiElement]] = Seq.empty
 
     val success = refCountHolder.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
-      used = refCountHolder.isValueReadUsed(ctx.element) || refCountHolder.isValueWriteUsed(ctx.element)
+      references = refCountHolder.getReadReferences(ctx.element) ++ refCountHolder.getWriteReferences(ctx.element)
     }
 
-    val res = if (!success || used) {
+    val res = if (!success) {
       // ElementUsageWithoutReference is used because ScalaRefCountHolder does not remember
       // reference sources, only their targets.
       Seq(ElementUsageWithoutReference)
     } else {
-      Seq.empty
+      references.map(r => ElementUsageWithReference(r, ctx.element))
     }
 
     new SearchMethodResult(res, !success)
