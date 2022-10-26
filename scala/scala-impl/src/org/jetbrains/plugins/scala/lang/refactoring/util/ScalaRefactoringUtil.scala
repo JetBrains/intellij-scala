@@ -160,10 +160,10 @@ object ScalaRefactoringUtil {
     getExpressionWithTypes(file, editor.getDocument, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
   }
 
-  def getExpressionWithTypes(file: PsiFile, document: Document, startOffset: Int, endOffset: Int)
+  def getExpressionWithTypes(file: PsiFile, document: Document, start: Int, end: Int)
                             (implicit project: Project): Option[(ScExpression, ArraySeq[ScType])] = {
 
-    val rangeText = file.charSequence.substring(startOffset, endOffset)
+    val (rangeText, startOffset, endOffset) = trimRangeText(file.charSequence, start, end)
 
     def selectedInfixExpr(): Option[(ScExpression, ArraySeq[ScType])] = {
       val expr = createOptionExpressionFromText(rangeText)(file.getManager)
@@ -237,6 +237,19 @@ object ScalaRefactoringUtil {
 
     Some((expression, ArraySeq(typeNoExpected)))
   }
+
+  def trimRangeText(charSequence: CharSequence, startOffset: Int, endOffset: Int): (String, Int, Int) =
+    if (startOffset >= endOffset) ("", startOffset, endOffset)
+    else {
+      val text = charSequence.substring(startOffset, endOffset)
+      if (!text.head.isWhitespace && !text.last.isWhitespace) (text, startOffset, endOffset)
+      else if (text.forall(_.isWhitespace)) ("", startOffset, startOffset) // the offset is cut down to the start of the highlight
+      else {
+        val startWhitespaces = text.iterator.takeWhile(_.isWhitespace).length
+        val endWhitespaces = text.reverseIterator.takeWhile(_.isWhitespace).length
+        (text.substring(startWhitespaces, text.length - endWhitespaces), startOffset + startWhitespaces, endOffset - endWhitespaces)
+      }
+    }
 
   def expressionToIntroduce(expr: ScExpression): ScExpression = {
     def copyExpr = expr.copy.asInstanceOf[ScExpression]
