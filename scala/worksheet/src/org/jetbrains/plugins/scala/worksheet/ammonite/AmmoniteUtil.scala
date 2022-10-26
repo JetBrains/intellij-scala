@@ -34,6 +34,7 @@ object AmmoniteUtil {
   private val ROOT_EXEC   = "$exec"
   private val ROOT_IVY    = "$ivy"
   private val ROOT_PLUGIN = "$plugin"
+  private val ROOT_REPO   = "$repo"
 
   private val PARENT_FILE = "^"
 
@@ -61,13 +62,10 @@ object AmmoniteUtil {
     def scriptResolveNoQualifier(refElement: ScStableCodeReference): Option[PsiDirectory] =
       refElement.getContainingFile match {
         case scalaFile: ScalaFileImpl if isAmmoniteFile(scalaFile) =>
-          if (refElement.textMatches(ROOT_FILE) || refElement.textMatches(ROOT_EXEC)) {
-            val dir = scalaFile.getContainingDirectory
-
-            if (dir != null) Option(scalaFile.getContainingDirectory) else {
-              Option(scalaFile.getOriginalFile).flatMap(file => Option(file.getContainingDirectory))
-            }
-          } else None
+          if (refElement.textMatches(ROOT_FILE) || refElement.textMatches(ROOT_EXEC))
+            Option(scalaFile.getContainingDirectory)
+              .orElse(Option(scalaFile.getOriginalFile).flatMap(file => Option(file.getContainingDirectory)))
+          else None
         case _ => None
       }
 
@@ -80,9 +78,9 @@ object AmmoniteUtil {
               case other =>
                 d match {
                   case dir: PsiDirectory =>
-                    Option(dir.findFile(other + "." + WorksheetFileType.getDefaultExtension)).orElse {
-                      Option(dir.findSubdirectory(other))
-                    }
+                    val otherSanitized = other.replace("`", "")
+                    Option(dir.findFile(otherSanitized + "." + WorksheetFileType.getDefaultExtension))
+                      .orElse(Option(dir.findSubdirectory(otherSanitized)))
                   case _ => None
                 }
             }
@@ -162,7 +160,11 @@ object AmmoniteUtil {
   }
 
   private def isAmmoniteRefText(txt: String): Boolean =
-    txt.startsWith(ROOT_EXEC) || txt.startsWith(ROOT_FILE) || txt.startsWith(ROOT_IVY) || txt.startsWith(ROOT_PLUGIN)
+    txt.startsWith(ROOT_EXEC) ||
+      txt.startsWith(ROOT_FILE) ||
+      txt.startsWith(ROOT_IVY) ||
+      txt.startsWith(ROOT_PLUGIN) ||
+      txt.startsWith(ROOT_REPO)
 
   def isAmmoniteSpecificTextImport(expr: ScImportExpr): Boolean = isAmmoniteRefText(expr.getText)
 
