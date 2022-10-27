@@ -38,7 +38,6 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
           ProblemInfo(
             element.nameId,
             ScalaInspectionBundle.message("access.can.be.private"),
-            ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
             Seq(fix)
           )
         )
@@ -130,7 +129,7 @@ private object ScalaAccessCanBeTightenedInspection {
 
   private def typeAnnotationWarningWillBeShown(modifierListOwner: ScModifierListOwner): Boolean = {
     val inspectionProfile = InspectionProjectProfileManager.getInstance(modifierListOwner.getProject).getCurrentProfile
-    //TypeAnnotationToolKey can be null in tests where the inspection is not explicitely enabled
+    //TypeAnnotationToolKey can be null in tests where the inspection is not explicitly enabled
     val typeAnnotationKey = TypeAnnotationInspection.highlightKey
     if (typeAnnotationKey != null && !inspectionProfile.isToolEnabled(typeAnnotationKey))
       return false

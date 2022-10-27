@@ -23,7 +23,7 @@ class VarCouldBeValInspection extends HighlightingPassInspection {
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = element match {
     case variable: ScVariableDefinition
       if variable.declaredElements.forall(if (isOnTheFly) hasNoWriteUsagesOnTheFly else hasNoWriteUsages) =>
-      Seq(ProblemInfo(variable.keywordToken, ScalaInspectionBundle.message("var.could.be.a.val"), ProblemHighlightType.LIKE_UNUSED_SYMBOL, Seq(new VarToValFix(variable))))
+      Seq(ProblemInfo(variable.keywordToken, ScalaInspectionBundle.message("var.could.be.a.val"), Seq(new VarToValFix(variable))))
     case _ => Seq.empty
   }
 

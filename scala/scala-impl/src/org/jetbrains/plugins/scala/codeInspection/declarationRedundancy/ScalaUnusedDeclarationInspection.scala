@@ -98,7 +98,6 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
             ProblemInfo(
               original.nameId,
               message,
-              ProblemHighlightType.LIKE_UNUSED_SYMBOL,
               DeleteUnusedElementFix.quickfixesFor(original) ++
                 dontReportPublicDeclarationsQuickFix ++
                 addScalaAnnotationUnusedQuickFix

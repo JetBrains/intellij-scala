@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
-import com.intellij.codeInsight.daemon.impl.HighlightInfo.convertSeverity
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInspection.{LocalQuickFixAsIntentionAdapter, ProblemDescriptorUtil, ProblemHighlightType}
+import com.intellij.codeInspection.ex.InspectionProfileImpl
+import com.intellij.codeInspection.{LocalQuickFixAsIntentionAdapter, ProblemDescriptorUtil}
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi._
@@ -39,16 +40,18 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
 
   private val inspectionSuppressor = new ScalaInspectionSuppressor
 
-  private def profile = InspectionProjectProfileManager.getInstance(myProject).getCurrentProfile
+  private def profile: InspectionProfileImpl = InspectionProjectProfileManager.getInstance(myProject).getCurrentProfile
 
   def isEnabled(element: PsiElement): Boolean = {
     profile.isToolEnabled(highlightKey, element) && !inspectionSuppressor.isSuppressedFor(element, inspection.getShortName)
   }
 
-  def severity: HighlightSeverity = {
-    Option(highlightKey).map {
-      profile.getErrorLevel(_, file).getSeverity
-    }.getOrElse(HighlightSeverity.WEAK_WARNING)
+  def getSeverity: HighlightSeverity = {
+    val severity = Option(highlightKey).map { key =>
+      val errorLevel = profile.getErrorLevel(key, file)
+      errorLevel.getSeverity
+    }
+    severity.getOrElse(HighlightSeverity.WEAK_WARNING)
   }
 
   def highlightKey: HighlightDisplayKey = HighlightDisplayKey.find(inspection.getShortName)
@@ -83,11 +86,20 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
       }
       highlightInfos ++= infos.map { info: ProblemInfo =>
         val range = info.element.getTextRange
-        val infoType = toHighlightInfoType(info.highlightingType, severity)
-        val highlightInfo = HighlightInfo.newHighlightInfo(infoType)
+        val severity: HighlightSeverity = getSeverity
+        val infoType: HighlightInfoType = HighlightInfo.convertSeverity(severity)
+        val textAttributes: TextAttributesKey = profile.getEditorAttributes(highlightKey.toString, file)
+
+        val highlightingInfoBuilder = HighlightInfo
+          .newHighlightInfo(infoType)
+          .severity(severity)
           .range(range)
           .descriptionAndTooltip(info.message)
-          .create()
+        if (textAttributes != null) {
+          highlightingInfoBuilder.textAttributes(textAttributes)
+        }
+        val highlightInfo = highlightingInfoBuilder.create()
+
         info.fixes.foreach { fix =>
           val action = fix match {
             case intention: IntentionAction =>
@@ -105,16 +117,6 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
   }
 
   override def getInfos: java.util.List[HighlightInfo] = highlightInfos.asJava
-
-  private def toHighlightInfoType(problemHighlightType: ProblemHighlightType, severity: HighlightSeverity): HighlightInfoType =
-    problemHighlightType match {
-      case ProblemHighlightType.LIKE_UNUSED_SYMBOL => HighlightInfoType.UNUSED_SYMBOL
-      case ProblemHighlightType.LIKE_UNKNOWN_SYMBOL => HighlightInfoType.WRONG_REF
-      case ProblemHighlightType.LIKE_DEPRECATED => HighlightInfoType.DEPRECATED
-      case ProblemHighlightType.LIKE_MARKED_FOR_REMOVAL => HighlightInfoType.MARKED_FOR_REMOVAL
-      case ProblemHighlightType.POSSIBLE_PROBLEM => HighlightInfoType.POSSIBLE_PROBLEM
-      case _ => convertSeverity(severity)
-    }
 }
 
 object InspectionBasedHighlightingPass {
