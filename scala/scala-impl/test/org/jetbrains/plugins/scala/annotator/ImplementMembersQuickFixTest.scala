@@ -12,7 +12,10 @@ class ImplementMembersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
   override protected def description: String = "...must either be declared abstract or implement abstract member..."
 
   override protected def descriptionMatches(s: String): Boolean =
-    s != null && s.contains("must either be declared abstract or implement abstract member")
+    s != null && {
+      s.contains("must either be declared abstract or implement abstract member") ||
+        s.startsWith("Object creation impossible, since member") && s.endsWith("is not defined")
+    }
 
   def testProperDefaultValueForVariousMemberTypes(): Unit = {
     val before =
@@ -45,7 +48,98 @@ class ImplementMembersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
          |""".stripMargin
 
     checkTextHasError(before)
+    testQuickFix(before, after, "Implement members")
+  }
 
+  def testCaretInTheBeginning(): Unit = {
+    val before =
+      s"""abstract class MyTrait {
+         |  def myDef: Int
+         |}
+         |$CARET${START}class MyClass extends MyTrait$END
+         |""".stripMargin
+
+    val after =
+      s"""abstract class MyTrait {
+         |  def myDef: Int
+         |}
+         |class MyClass extends MyTrait {
+         |  override def myDef: Int = $START???$END
+         |}
+         |""".stripMargin
+
+    checkTextHasError(before)
+    testQuickFix(before, after, "Implement members")
+  }
+
+  def testCaretInTheEnd(): Unit = {
+    val before =
+      s"""abstract class MyTrait {
+         |  def myDef: Int
+         |}
+         |${START}class MyClass extends MyTrait$END$CARET
+         |
+         |class Other
+         |""".stripMargin
+
+    val after =
+      s"""abstract class MyTrait {
+         |  def myDef: Int
+         |}
+         |class MyClass extends MyTrait {
+         |  override def myDef: Int = $START???$END
+         |}
+         |
+         |class Other
+         |""".stripMargin
+
+    checkTextHasError(before)
+    testQuickFix(before, after, "Implement members")
+  }
+
+  def testCaretInTheEnd_EOF(): Unit = {
+    val before =
+      s"""abstract class MyTrait {
+         |  def myDef: Int
+         |}
+         |${START}class MyClass extends MyTrait$END$CARET
+         |""".stripMargin.trim
+
+    val after =
+      s"""abstract class MyTrait {
+         |  def myDef: Int
+         |}
+         |class MyClass extends MyTrait {
+         |  override def myDef: Int = $START???$END
+         |}
+         |""".stripMargin.trim
+
+    checkTextHasError(before)
+    testQuickFix(before, after, "Implement members")
+  }
+
+  //SCL-665
+  def testCaretInTheEndOfNewTemplateDefinition(): Unit = {
+    val before =
+      s"""abstract class MyTrait {
+         |  def myDef: Int
+         |}
+         |object Wrapper {
+         |  val x = new ${START}MyTrait$END$CARET
+         |}
+         |""".stripMargin
+
+    val after =
+      s"""abstract class MyTrait {
+         |  def myDef: Int
+         |}
+         |object Wrapper {
+         |  val x = new MyTrait {
+         |    override def myDef: Int = $START???$END
+         |  }
+         |}""".stripMargin
+
+    checkTextHasError(before)
     testQuickFix(before, after, "Implement members")
   }
 }

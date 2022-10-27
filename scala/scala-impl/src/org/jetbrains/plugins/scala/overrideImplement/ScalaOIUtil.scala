@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.editor.ScalaEditorUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.Constructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -63,14 +64,23 @@ object ScalaOIUtil {
     invokeOverrideImplement(file, isImplement, None)
 
   def invokeOverrideImplement(file: PsiFile, isImplement: Boolean, methodName: Option[String])
-                             (implicit project: Project, editor: Editor): Unit =
-    file.findElementAt(editor.getCaretModel.getOffset - 1)
+                             (implicit project: Project, editor: Editor): Unit = {
+    val caretOffset = editor.getCaretModel.getOffset
+    val elementAtCaret = ScalaEditorUtils.findElementAtCaret_WithFixedEOF(file, editor.getDocument, caretOffset)
+    val elementAtCaretFixed = elementAtCaret match {
+      case ws: PsiWhiteSpace if caretOffset == ws.getNode.getStartOffset =>
+        //in case when caret is right after the error end offset
+        PsiTreeUtil.prevLeaf(ws)
+      case e => e
+    }
+    elementAtCaretFixed
       .parentOfType(classOf[ScTemplateDefinition], strict = false)
       .map {
         case enumCase: ScEnumCase => enumCase.enumParent
         case td => td
       }
       .foreach(invokeOverrideImplement(_, isImplement, methodName))
+  }
 
   def invokeOverrideImplement(clazz: ScTemplateDefinition, isImplement: Boolean)
                              (implicit project: Project, editor: Editor): Unit =
