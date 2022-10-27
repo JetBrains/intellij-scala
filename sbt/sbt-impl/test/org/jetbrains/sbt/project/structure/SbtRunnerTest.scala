@@ -6,6 +6,7 @@ import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.TestDependencyManager
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.junit.Assert._
@@ -16,6 +17,11 @@ import java.util.zip.ZipEntry
 import scala.util.Using
 
 class SbtRunnerTest extends UsefulTestCase {
+
+  override def setUp(): Unit = {
+    TestUtils.optimizeSearchingForIndexableFiles(getTestRootDisposable)
+    super.setUp()
+  }
 
   def testSbtLaunch_0_12_4(): Unit =
     doTestSbtLauncherVersionDetection("0.12.4")

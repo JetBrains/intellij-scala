@@ -15,6 +15,7 @@ class ControlFlowTest extends LightJavaCodeInsightFixtureTestCase {
   protected override def getBasePath = TestUtils.getTestDataPath + "/controlFlow/"
 
   override def setUp(): Unit = {
+    TestUtils.optimizeSearchingForIndexableFiles(getTestRootDisposable)
     super.setUp()
     myFixture.setTestDataPath(getBasePath)
   }

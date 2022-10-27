@@ -15,9 +15,12 @@
 
 package org.jetbrains.plugins.scala.util;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.newvfs.impl.VfsData;
+import com.intellij.testFramework.TestModeFlags;
 import com.intellij.testFramework.common.ThreadLeakTracker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +33,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestUtils {
+public final class TestUtils {
+
+  private TestUtils() {}
+
   private static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.util.TestUtils");
 
   public static final String CARET_MARKER = "<caret>";
@@ -141,5 +147,12 @@ public class TestUtils {
     ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "Timer");
     ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "BaseDataReader");
     ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "ProcessWaitFor");
+  }
+
+  public static void optimizeSearchingForIndexableFiles(Disposable disposable) {
+    // The test flag needs to be set _before_ calling super.setUp() in order to disable repeated searching
+    // for indexable files before each test. Our test environment in light project tests does not change
+    // between test runs and enabling this optimization cuts down test execution time considerably.
+    TestModeFlags.set(VfsData.ENABLE_IS_INDEXED_FLAG_KEY, java.lang.Boolean.TRUE, disposable);
   }
 }
