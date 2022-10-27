@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.quickfix
 
-import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection
+import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionBundle}
 
 class MakePrivateQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
 
@@ -11,8 +11,7 @@ class MakePrivateQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
    * For the reason behind this plurality of hints see
    * [[org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection#processElement]]
    */
-  private val hintWhenAddTypeAnnotationQuickFixIsNotOffered = ScalaInspectionBundle.message("make.private")
-  private val hintWhenAddTypeAnnotationQuickFixIsOffered = ScalaInspectionBundle.message("add.private.modifier")
+  private val quickFixHint = ScalaInspectionBundle.message("make.private")
 
   override def setUp(): Unit = {
     super.setUp()
@@ -22,54 +21,54 @@ class MakePrivateQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
   def test_unused_method(): Unit = {
     val code = s"private class Foo { def bar = {} }"
     val expected = s"private class Foo { private def bar = {} }"
-    testQuickFix(code, expected, hintWhenAddTypeAnnotationQuickFixIsOffered)
+    testQuickFix(code, expected, quickFixHint)
   }
 
   def test_used_method(): Unit = {
     val code = s"private class Foo { def bar = {}; bar }"
     val expected = s"private class Foo { private def bar = {}; bar }"
-    testQuickFix(code, expected, hintWhenAddTypeAnnotationQuickFixIsOffered)
+    testQuickFix(code, expected, quickFixHint)
   }
 
   def test_unused_val(): Unit = {
     val code = s"private class Foo { val bar = 42 }"
     val expected = s"private class Foo { private val bar = 42 }"
-    testQuickFix(code, expected, hintWhenAddTypeAnnotationQuickFixIsNotOffered)
+    testQuickFix(code, expected, quickFixHint)
   }
 
   def test_used_val(): Unit = {
     val code = s"private class Foo { val bar = 42; bar }"
     val expected = s"private class Foo { private val bar = 42; bar }"
-    testQuickFix(code, expected, hintWhenAddTypeAnnotationQuickFixIsNotOffered)
+    testQuickFix(code, expected, quickFixHint)
   }
 
   def test_unused_var(): Unit = {
     val code = s"private class Foo { var bar = 42 }"
     val expected = s"private class Foo { private var bar = 42 }"
-    testQuickFix(code, expected, hintWhenAddTypeAnnotationQuickFixIsOffered)
+    testQuickFix(code, expected, quickFixHint)
   }
 
   def test_used_var(): Unit = {
     val code = s"private class Foo { var bar = 42; bar }"
     val expected = s"private class Foo { private var bar = 42; bar }"
-    testQuickFix(code, expected, hintWhenAddTypeAnnotationQuickFixIsOffered)
+    testQuickFix(code, expected, quickFixHint)
   }
 
   def test_unused_class(): Unit = {
     val code = s"class A"
     val expected = s"private class A"
-    testQuickFix(code, expected, hintWhenAddTypeAnnotationQuickFixIsOffered)
+    testQuickFix(code, expected, quickFixHint)
   }
 
   def test_unused_trait(): Unit = {
     val code = s"trait A"
     val expected = s"private trait A"
-    testQuickFix(code, expected, hintWhenAddTypeAnnotationQuickFixIsOffered)
+    testQuickFix(code, expected, quickFixHint)
   }
 
   def test_unused_object(): Unit = {
     val code = s"object A"
     val expected = s"private object A"
-    testQuickFix(code, expected, hintWhenAddTypeAnnotationQuickFixIsOffered)
+    testQuickFix(code, expected, quickFixHint)
   }
 }

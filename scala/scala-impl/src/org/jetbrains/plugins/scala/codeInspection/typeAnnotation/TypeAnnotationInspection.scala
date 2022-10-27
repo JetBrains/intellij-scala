@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.typeAnnotation
 
+import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection._
-import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScTypedExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util._
 
@@ -38,6 +37,8 @@ class TypeAnnotationInspection extends LocalInspectionTool {
 }
 
 object TypeAnnotationInspection {
+
+  def highlightKey: HighlightDisplayKey = HighlightDisplayKey.find("TypeAnnotation")
 
   def getReasonForTypeAnnotationOn(element: ScalaPsiElement, implementation: Option[ScExpression]): Option[String] = {
     val declaration = Declaration(element)

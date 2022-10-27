@@ -5,8 +5,10 @@ import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.daemon.impl.HighlightInfo.convertSeverity
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
+import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.{LocalQuickFixAsIntentionAdapter, ProblemDescriptorUtil, ProblemHighlightType}
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
@@ -20,7 +22,18 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option[Document], inspection: HighlightingPassInspection)
-  extends TextEditorHighlightingPass(file.getProject, document.orNull, /*runIntentionPassAfter*/ false) {
+  extends TextEditorHighlightingPass(
+    file.getProject,
+    document.orNull,
+    //NOTE: this parameter was set to `false` among other changes within SCL-15476.
+    //However in some tests we need extra intention pass to be run after this pass
+    //This is needed when we want to truly test the order of actions (intention actions, quick fixes, etc...)
+    //For example see: MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest
+    //I decided to leave `runIntentionPassAfter=false` in production just because I am not aware of any issues with it in prod
+    //And I am not sure whether making it `true` always can lead to some regressions
+    /*runIntentionPassAfter = */ InspectionBasedHighlightingPass.isUnitTest
+//    /*runIntentionPassAfter = */ InspectionBasedHighlightingPass.isUnitTest
+  ) {
 
   private val highlightInfos = mutable.Buffer[HighlightInfo]()
 
@@ -68,7 +81,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
       }.flatMap {
         inspection.invoke(_, isOnTheFly = true)
       }
-      highlightInfos ++= infos.map { info =>
+      highlightInfos ++= infos.map { info: ProblemInfo =>
         val range = info.element.getTextRange
         val infoType = toHighlightInfoType(info.highlightingType, severity)
         val highlightInfo = HighlightInfo.newHighlightInfo(infoType)
@@ -76,7 +89,13 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
           .descriptionAndTooltip(info.message)
           .create()
         info.fixes.foreach { fix =>
-          val action = new LocalQuickFixAsIntentionAdapter(fix, ProblemDescriptorUtil.toProblemDescriptor(file, highlightInfo))
+          val action = fix match {
+            case intention: IntentionAction =>
+              intention
+            case _ =>
+              val problemDescriptor = ProblemDescriptorUtil.toProblemDescriptor(file, highlightInfo)
+              new LocalQuickFixAsIntentionAdapter(fix, problemDescriptor)
+          }
           highlightInfo.registerFix(action, null, info.message, range, highlightKey)
         }
 
@@ -96,4 +115,8 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
       case ProblemHighlightType.POSSIBLE_PROBLEM => HighlightInfoType.POSSIBLE_PROBLEM
       case _ => convertSeverity(severity)
     }
+}
+
+object InspectionBasedHighlightingPass {
+  private val isUnitTest = ApplicationManager.getApplication.isUnitTestMode
 }

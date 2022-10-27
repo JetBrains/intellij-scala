@@ -174,7 +174,7 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
     val expectedHighlights =
       expectedRanges.map(ExpectedHighlight)
 
-    val (normalizedText, offset) =
+    val (normalizedText, caretOffset) =
       findCaretOffset(fileText, stripTrailingSpaces = true)
 
     if (isScratchFile) {
@@ -184,12 +184,18 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
       myFixture.configureByText(fileType, normalizedText)
     }
 
+    if (caretOffset >= 0) {
+      //caret position in editor can be important if we want to test quick fixes at caret positions
+      getEditor.getCaretModel.moveToOffset(caretOffset)
+    }
+
     onFileCreated(myFixture.getFile)
 
     val actualHighlights =
-      myFixture.doHighlighting().asScala
+      myFixture
+        .doHighlighting().asScala
         .filter(highlightInfo => descriptionMatches(highlightInfo.getDescription))
-        .filter(checkOffset(_, offset))
+        .filter(checkOffset(_, caretOffset))
 
     TestPrepareResult(myFixture.getFile.getText, expectedHighlights, actualHighlights.toSeq)
   }
@@ -221,11 +227,11 @@ object ScalaAnnotatorQuickFixTestBase {
   private def highlightedRange(info: HighlightInfo): TextRange =
     new TextRange(info.getStartOffset, info.getEndOffset)
 
-  private def checkOffset(highlightInfo: HighlightInfo, offset: Int): Boolean =
-    if (offset == -1) {
+  private def checkOffset(highlightInfo: HighlightInfo, caretOffset: Int): Boolean =
+    if (caretOffset == -1)
       true
-    } else {
+    else {
       val range = highlightedRange(highlightInfo)
-      range.containsOffset(offset)
+      range.containsOffset(caretOffset)
     }
 }
