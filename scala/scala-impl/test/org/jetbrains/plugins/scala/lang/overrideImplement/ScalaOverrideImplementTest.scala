@@ -71,7 +71,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |package test
          |
          |class Foo extends b {
-         |  def foo(x: b): b = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def foo(x: b): b = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
          |abstract class b {
          |  def foo(x: b): b
@@ -104,7 +104,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |class Empty extends b {
          |  def foo(): Int = 3
          |
-         |  def too: b = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def too: b = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
          |abstract class b {
          |  def too: b
@@ -134,7 +134,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |class MethodsNewLine extends b {
          |  def foo(): Int = 3
          |
-         |  def too: b = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def too: b = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
          |abstract class b {
          |  def too: b
@@ -164,7 +164,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |
          |class UpperNewLine extends b {
          |
-         |  def too: b = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def too: b = $SELECTION_START_TAG???$SELECTION_END_TAG
          |
          |  def foo(): Int = 3
          |}
@@ -232,7 +232,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |class TypeAlias extends Aa {
          |  val t = foo()
          |
-         |  type K = ${SELECTION_START_TAG}this.type$SELECTION_END_TAG
+         |  override type K = ${SELECTION_START_TAG}this.type$SELECTION_END_TAG
          |
          |  def y(): Int = 3
          |}
@@ -264,7 +264,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |class OverrideValue extends A {
          |  val t = foo()
-         |  override val foo: A = ${SELECTION_START_TAG}_$SELECTION_END_TAG
+         |  override val foo: A = ${SELECTION_START_TAG}???$SELECTION_END_TAG
          |}
       """.stripMargin
     val methodName: String = "foo"
@@ -296,7 +296,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |class VarImplement extends A {
          |  val t = foo()
          |
-         |  var foo: A = ${SELECTION_START_TAG}_$SELECTION_END_TAG
+         |  override var foo: A = ${SELECTION_START_TAG}???$SELECTION_END_TAG
          |
          |  def y(): Int = 3
          |}
@@ -328,7 +328,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |trait B {
          |  self: A =>
-         |  def foo: Int = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def foo: Int = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
       """.stripMargin
     val methodName: String = "foo"
@@ -381,7 +381,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
     val expectedText =
       s"""
          |class ImplementTypeAlias extends b {
-         |  type L = ${SELECTION_START_TAG}this.type$SELECTION_END_TAG
+         |  override type L = ${SELECTION_START_TAG}this.type$SELECTION_END_TAG
          |}
          |abstract class b {
          |  type L
@@ -409,7 +409,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |package test
          |
          |class Val extends b {
-         |  val too: b = ${SELECTION_START_TAG}_$SELECTION_END_TAG
+         |  override val too: b = ${SELECTION_START_TAG}???$SELECTION_END_TAG
          |}
          |abstract class b {
          |  val too: b
@@ -437,7 +437,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |package test
          |
          |class Var extends b {
-         |  var too: b = ${SELECTION_START_TAG}_$SELECTION_END_TAG
+         |  override var too: b = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
          |abstract class b {
          |  var too: b
@@ -516,7 +516,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |  def foo[T](x: T): T
          |}
          |class SimpleTypeParam extends A {
-         |  def foo[T](x: T): T = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def foo[T](x: T): T = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
       """.stripMargin
     val methodName: String = "foo"
@@ -546,7 +546,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |trait Sub extends Foo {
-         |  def foo(a: Any*): Any = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def foo(a: Any*): Any = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
       """.stripMargin
     val methodName: String = "foo"
@@ -576,7 +576,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |class Child extends Parent {
-         |  def m(p: (T) forSome {type T <: Number}): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def m(p: (T) forSome {type T <: Number}): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
       """.stripMargin
     val methodName: String = "m"
@@ -688,7 +688,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |class B extends A {
-         |  override val foo: ID[Int] = ${SELECTION_START_TAG}_$SELECTION_END_TAG
+         |  override val foo: ID[Int] = ${SELECTION_START_TAG}???$SELECTION_END_TAG
          |}
       """.stripMargin
     val methodName: String = "foo"
@@ -760,13 +760,9 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |package test
          |
          |object A {
-         |
          |  object Nested {
-         |
          |    class Nested2
-         |
          |  }
-         |
          |}
          |
          |abstract class B {
@@ -784,13 +780,9 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |import test.A.Nested
          |
          |object A {
-         |
          |  object Nested {
-         |
          |    class Nested2
-         |
          |  }
-         |
          |}
          |
          |abstract class B {
@@ -798,7 +790,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |class C extends B {
-         |  def foo(v: Nested.Nested2): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def foo(v: Nested.Nested2): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
       """.stripMargin
     val methodName: String = "foo"
@@ -823,7 +815,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |package test
          |
          |class Foo extends b {
-         |  def foo(x: b): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def foo(x: b): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
          |abstract class b {
          |  def foo(x: b): Unit
@@ -964,7 +956,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |class B extends A {
-         |  protected def foo() = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override protected def foo() = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
       """.stripMargin
     val methodName: String = "foo"
@@ -991,7 +983,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |class B extends A {
-         |  protected def foo(): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override protected def foo(): Unit = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
       """.stripMargin
     val methodName: String = "foo"
@@ -1112,7 +1104,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |class Parent(val param1: Int, var param2: String)
          |
          |class Child extends Parent(4, "") {
-         |  override val param1: Int = _
+         |  override val param1: Int = ???
          |}
       """.stripMargin
 
@@ -1189,7 +1181,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |class UserRepoImpl extends UserRepo {
-         |  def deleteUser(userId: Int @@ UserId): Unit = ???
+         |  override def deleteUser(userId: Int @@ UserId): Unit = ???
          |}
       """.stripMargin
     val methodName = "deleteUser"
@@ -1214,7 +1206,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |class OverridingClass extends ClassToOverride {
-         |  def methodToOverride(): Unit = ???
+         |  override def methodToOverride(): Unit = ???
          |}""".stripMargin
     val methodName = "methodToOverride"
     runTest(methodName, fileText, expectedResult, isImplement = true)
@@ -1240,7 +1232,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |class Bar extends Foo[Either[String, ?]] {
-         |  def monad: Monad[Either[String, ?]] = ???
+         |  override def monad: Monad[Either[String, ?]] = ???
          |}
       """.stripMargin
     val methodName = "monad"
@@ -1267,7 +1259,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |class Bar extends Foo[Lambda[A => (A, A)]] {
-         |  def monad: Monad[Lambda[A => (A, A)]] = ???
+         |  override def monad: Monad[Lambda[A => (A, A)]] = ???
          |}
       """.stripMargin
     val methodName = "monad"
@@ -1294,7 +1286,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |class Bar extends Foo[Lambda[`+A` => Either[List[A], List[A]]]] {
-         |  def monad: Monad[Lambda[`+A` => Either[List[A], List[A]]]] = ???
+         |  override def monad: Monad[Lambda[`+A` => Either[List[A], List[A]]]] = ???
          |}
       """.stripMargin
     val methodName = "monad"
@@ -1319,7 +1311,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |class Bar extends Foo[λ[(-[A], +[B]) => (A, Int) => B]] {
-         |  def foo: (Double, Int) => String = ???
+         |  override def foo: (Double, Int) => String = ???
          |}
       """.stripMargin
     val methodName = "foo"
@@ -1346,7 +1338,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |class Bar extends Foo[({ type L[A] = List[(String, A)] })#L] {
-         |  def monad: Monad[Lambda[A => List[(String, A)]]] = ???
+         |  override def monad: Monad[Lambda[A => List[(String, A)]]] = ???
          |}
       """.stripMargin
     val methodName = "monad"
@@ -1383,7 +1375,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
         |
         |implicit def reader[F[_]: Monad, R]: Unlift[F, ReaderT[F, R, ?]] =
         |    new Unlift[F, ReaderT[F, R, ?]] {
-        |      def unlift: ReaderT[F, R, ReaderT[F, R, ?] ~> F] = ???
+        |      override def unlift: ReaderT[F, R, ReaderT[F, R, ?] ~> F] = ???
         |    }
       """.stripMargin
     val methodName = "unlift"
@@ -1411,7 +1403,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |  }
          |
          |  class Baz extends Bar {
-         |    private[Foo] def foo: Unit = ???
+         |    override private[Foo] def foo: Unit = ???
          |  }
          |}
       """.stripMargin
@@ -1438,7 +1430,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |}
          |
          |final case class Cons(head: Int, tail: List) extends List {
-         |  def length: Int = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def length: Int = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
          |
          |case object Nil extends List
@@ -1495,7 +1487,7 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
          |  def foo(x: Int): String
          |
          |class Bar extends Foo:
-         |  def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
          |
          |""".stripMargin
     val methodName: String = "foo"
@@ -1522,7 +1514,7 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
          |  def foo(x: Int): String
          |
          |class Bar extends Foo:
-         |  def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
          |
          |""".stripMargin
     val methodName: String = "foo"
@@ -1549,7 +1541,7 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
          |  def foo(x: Int): String
          |
          |class Bar extends Foo:
-         |  def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
          |
          |""".stripMargin
     val methodName: String = "foo"
@@ -1576,7 +1568,7 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
          |  def foo(x: Int): String
          |
          |class Bar extends Foo {
-         |  def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  override def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
          |}
          |
          |""".stripMargin

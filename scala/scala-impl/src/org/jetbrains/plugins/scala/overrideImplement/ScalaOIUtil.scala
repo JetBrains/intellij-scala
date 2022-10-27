@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
+//noinspection InstanceOf
 object ScalaOIUtil {
 
   private[this] def toClassMember(signature: Signature, isOverride: Boolean): Option[ClassMember] = {
@@ -85,19 +86,43 @@ object ScalaOIUtil {
     if (classMembers.nonEmpty) {
       val selectedMembers = methodName match {
         case None =>
-          val chooser = new ScalaMemberChooser[ClassMember](classMembers.to(ArraySeq), false, true, isImplement, true, true, clazz)
-          chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override"))
-          if (isImplement) chooser.selectElements(classMembers.toArray[JClassMember])
-          chooser.show()
-          Option(chooser.getSelectedElements).map(_.asScala.toSeq).getOrElse(Seq.empty)
+          if (ApplicationManager.getApplication.isUnitTestMode)
+            classMembers //if no explicit methodName is specified in tests, implement all members
+          else
+            showSelectMembersDialogAndGet(clazz, isImplement, classMembers)
         case Some(name) =>
           classMembers.find {
             case named: ScalaNamedMember if named.name == name => true
             case _ => false
           }.toSeq
       }
-      if (selectedMembers.nonEmpty) runAction(selectedMembers, isImplement, clazz)
+      if (selectedMembers.nonEmpty) {
+        runAction(selectedMembers, isImplement, clazz)
+      }
     }
+  }
+
+  private def showSelectMembersDialogAndGet(
+    clazz: ScTemplateDefinition,
+    isImplement: Boolean,
+    classMembers: Seq[ClassMember]
+  ): Seq[ClassMember] = {
+    val title = if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override")
+    val chooserDialog = new ScalaMemberChooser[ClassMember](
+      classMembers.to(ArraySeq),
+      false,
+      true,
+      isImplement,
+      true,
+      true,
+      clazz
+    )
+    chooserDialog.setTitle(title)
+    if (isImplement) {
+      chooserDialog.selectElements(classMembers.toArray[JClassMember])
+    }
+    chooserDialog.show()
+    Option(chooserDialog.getSelectedElements).map(_.asScala.toSeq).getOrElse(Seq.empty)
   }
 
   def runAction(selectedMembers: Seq[ClassMember],

@@ -9,7 +9,6 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase.{ExpectedHighlight, TestPrepareResult, checkOffset}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, StringExt, executeWriteActionCommand}
-import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffset
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.{EditorTests, ScalaFileType}
 import org.junit.Assert.{assertFalse, assertTrue, fail}
@@ -73,13 +72,17 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
     actionsMatching
   }
 
-  protected def findAllQuickFixes(text: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] =
-    configureByText(text).actualHighlights match {
-      case Seq() if failOnEmptyErrors => fail("Errors not found.").asInstanceOf[Nothing]
-      case seq => seq.flatMap(quickFixes)
+  protected def findAllQuickFixes(text: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] = {
+    val highlights = configureByText(text).actualHighlights
+    if (highlights.isEmpty && failOnEmptyErrors) {
+      fail("Errors not found.").asInstanceOf[Nothing]
     }
+    else {
+      highlights.flatMap(quickFixes)
+    }
+  }
 
-  protected val description: String
+  protected def description: String
 
   protected val fileType: LanguageFileType = ScalaFileType.INSTANCE
   protected val isScratchFile: Boolean = false
@@ -166,38 +169,36 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
   }
 
   protected def configureByText(text: String): TestPrepareResult = {
-    val fileText = createTestText(text).withNormalizedSeparator.trim
-
-    val (_, expectedRanges) =
-      MarkersUtils.extractMarker(fileText, START, END)
-
-    val expectedHighlights =
-      expectedRanges.map(ExpectedHighlight)
-
-    val (normalizedText, caretOffset) =
-      findCaretOffset(fileText, stripTrailingSpaces = true)
+    val fileTextNormalized =
+      createTestText(text).withNormalizedSeparator.trim
 
     if (isScratchFile) {
-      val vFile = createScratchFile(normalizedText)
+      val vFile = createScratchFile(fileTextNormalized)
       myFixture.configureFromExistingVirtualFile(vFile)
     } else {
-      myFixture.configureByText(fileType, normalizedText)
+      myFixture.configureByText(fileType, fileTextNormalized)
     }
 
-    if (caretOffset >= 0) {
-      //caret position in editor can be important if we want to test quick fixes at caret positions
-      getEditor.getCaretModel.moveToOffset(caretOffset)
-    }
+    val (_, expectedRanges) = MarkersUtils.extractMarker(fileTextNormalized, START, END, caretMarker = Some(CARET))
+    val expectedHighlights = expectedRanges.map(ExpectedHighlight)
+
+    //we calculate caret offset after the editor was configured and all selection markers are stripped away
+    val explicitCaretMarkerOffset =
+      if (fileTextNormalized.contains(CARET))
+        getEditor.getCaretModel.getOffset
+      else
+        -1
 
     onFileCreated(myFixture.getFile)
 
-    val actualHighlights =
-      myFixture
-        .doHighlighting().asScala
+    val highlightsAll =
+      myFixture.doHighlighting().asScala.toSeq
+    val highlightsFiltered =
+      highlightsAll
         .filter(highlightInfo => descriptionMatches(highlightInfo.getDescription))
-        .filter(checkOffset(_, caretOffset))
+        .filter(checkOffset(_, explicitCaretMarkerOffset))
 
-    TestPrepareResult(myFixture.getFile.getText, expectedHighlights, actualHighlights.toSeq)
+    TestPrepareResult(myFixture.getFile.getText, expectedHighlights, highlightsFiltered)
   }
 
   private def createScratchFile(normalizedText: String) = {

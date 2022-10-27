@@ -601,7 +601,8 @@ object ScalaPsiElementFactory {
                                       @NonNls comment: String = "",
                                       withBody: Boolean = true)
                                      (implicit ctx: ProjectContext): ScMember = {
-    val variableSign = getOverrideImplementVariableSign(variable, substitutor, if (withBody) Some("_") else None, needsOverrideModifier, isVal, needsInferType = true)
+    val body = if (withBody) Some("???") else None
+    val variableSign = getOverrideImplementVariableSign(variable, substitutor, body, needsOverrideModifier, isVal, needsInferType = true)
     createMemberFromText(s"$comment $variableSign")
   }
 

@@ -505,7 +505,7 @@ class ScalaSmartCompletionTest_2_13 extends ScalaCompletionTestBase {
       resultText =
         s"""
            |val x: Int => String = new Function[Int, String] {
-           |  def apply(v1: Int): String = $START???$END
+           |  override def apply(v1: Int): String = $START???$END
            |}
         """.stripMargin,
       item = "Function1",
@@ -530,7 +530,7 @@ class ScalaSmartCompletionTest_3_Latest extends ScalaCompletionTestBase {
       resultText =
         s"""
            |val x: Int => String = new Function[Int, String]:
-           |  def apply(v1: Int): String = $START???$END
+           |  override def apply(v1: Int): String = $START???$END
         """.stripMargin,
       item = "Function1",
       completionType = SMART
