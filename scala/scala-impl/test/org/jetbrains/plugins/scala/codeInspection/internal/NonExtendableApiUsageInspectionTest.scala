@@ -4,13 +4,16 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInspection.{LocalInspectionTool, NonExtendableApiUsageInspection}
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFileManager, VirtualFileSystem}
 import com.intellij.testFramework.PsiTestUtil
 import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.codeInspection.internal.NonExtendableApiUsageInspectionTest.HighlightMessage
 import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionTestBase}
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 
+import java.nio.file.Path
 import java.util
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 /**
  * Test UAST-based inspection from platform: [[com.intellij.codeInspection.NonExtendableApiUsageInspection]]
@@ -34,9 +37,17 @@ class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
   override def setUpLibraries(implicit module: com.intellij.openapi.module.Module): Unit = {
     super.setUpLibraries(module)
 
+    val libraryRootPath = getTestDataPath + "library_root"
+
+    //without this calls, updates in `.class` files in test data will not be visible
+    val libraryRootVFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(libraryRootPath))
+    //before refreshing we need to iterate over children. I don't know why, but without this it's not refreshed properly
+    libraryRootVFile.getChildren.foreach(_.getChildren)
+    libraryRootVFile.getFileSystem.refresh(false)
+
     ModuleRootModificationUtil.updateModel(module, (model: ModifiableRootModel) => {
       PsiTestUtil.addProjectLibrary(model, "annotations", util.Arrays.asList(PathUtil.getJarPathForClass(classOf[org.jetbrains.annotations.ApiStatus.NonExtendable])))
-      PsiTestUtil.addProjectLibrary(model, "library", util.Arrays.asList(getTestDataPath + "library_root"))
+      PsiTestUtil.addProjectLibrary(model, "library", util.Arrays.asList(libraryRootPath))
 
       PsiTestUtil.addProjectLibrary(model, "intellij_platform_utils", util.Arrays.asList(PathUtil.getJarPathForClass(classOf[com.intellij.util.messages.Topic[_]])))
     })
