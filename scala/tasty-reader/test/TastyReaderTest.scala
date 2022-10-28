@@ -7,6 +7,13 @@ import java.nio.file.{Files, Path}
 import scala.util.control.NonFatal
 
 // TODO
+// restore this prefix (don't simplify, root?), why just "Tree" in dotc parameters
+// Symbols.super[TypeTags/*scala.reflect.api.TypeTags*/].WeakTypeTag[T] (scala.reflect.internal.Symbols)
+// "compiled code" comments
+// simplify: Boolean parameter
+// final scalaVersionSpecific
+// zio.Experimental $throws
+// parameter.Modifiers - move using and implict to specific tests? implicit / using with regular
 // test quotes in textOfType, given, extension, package, qualifier (plus format)
 // enum companion: case(), object
 // Target names
@@ -122,7 +129,7 @@ class TastyReaderTest extends TestCase {
   def testTypesThis(): Unit = doTest("types/This")
   def testTypesTuple(): Unit = doTest("types/Tuple")
   def testTypesWildcard(): Unit = doTest("types/Wildcard")
-  def testMemberAliases(): Unit = doTest("Aliases")
+  def testAliases(): Unit = doTest("Aliases")
   def testEmptyPackage(): Unit = doTest("EmptyPackage")
   def testNesting(): Unit = doTest("Nesting")
 

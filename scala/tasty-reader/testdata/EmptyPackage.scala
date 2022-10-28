@@ -1,1 +1,3 @@
-class EmptyPackage
+class EmptyPackage {
+  type T = EmptyPackage
+}
