@@ -127,7 +127,13 @@ class TastyReaderTest extends TestCase {
   def testNesting(): Unit = doTest("Nesting")
 
   private def doTest(path: String): Unit = {
-    val scalaFile = Path.of(getClass.getResource("/" + path + ".scala").toURI)
+    val testDataPath = {
+      val path = Path.of("scala/tasty-reader/testdata")
+      if (Files.exists(path)) path else Path.of("community", path.toString)
+    }
+    assert(Files.exists(testDataPath), testDataPath.toAbsolutePath)
+
+    val scalaFile = testDataPath.resolve(path + ".scala")
     assertTrue(s"File $scalaFile does not exist", Files.exists(scalaFile))
 
     val tastyFile: Path = {
