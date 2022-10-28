@@ -7,6 +7,12 @@ import java.nio.file.{Files, Path}
 import scala.util.control.NonFatal
 
 // TODO
+// restore this prefix (don't simplify, root?), why just "Tree" in dotc parameters
+// Symbols.super[TypeTags/*scala.reflect.api.TypeTags*/].WeakTypeTag[T] (scala.reflect.internal.Symbols)
+// simplify: Boolean parameter
+// final scalaVersionSpecific
+// zio.Experimental $throws
+// parameter.Modifiers - move using and implict to specific tests? implicit / using with regular
 // test quotes in textOfType, given, extension, package, qualifier (plus format)
 // enum companion: case(), object
 // Target names
@@ -122,12 +128,18 @@ class TastyReaderTest extends TestCase {
   def testTypesThis(): Unit = doTest("types/This")
   def testTypesTuple(): Unit = doTest("types/Tuple")
   def testTypesWildcard(): Unit = doTest("types/Wildcard")
-  def testMemberAliases(): Unit = doTest("Aliases")
+  def testAliases(): Unit = doTest("Aliases")
   def testEmptyPackage(): Unit = doTest("EmptyPackage")
   def testNesting(): Unit = doTest("Nesting")
 
   private def doTest(path: String): Unit = {
-    val scalaFile = Path.of(getClass.getResource("/" + path + ".scala").toURI)
+    val testDataPath = {
+      val path = Path.of("scala/tasty-reader/testdata")
+      if (Files.exists(path)) path else Path.of("community", path.toString)
+    }
+    assert(Files.exists(testDataPath), testDataPath.toAbsolutePath)
+
+    val scalaFile = testDataPath.resolve(path + ".scala")
     assertTrue(s"File $scalaFile does not exist", Files.exists(scalaFile))
 
     val tastyFile: Path = {
@@ -141,7 +153,7 @@ class TastyReaderTest extends TestCase {
     val tree = TreeReader.treeFrom(readBytes(tastyFile))
 
     val (sourceFile, actual) = try {
-      val treePrinter = new TreePrinter(privateMembers = true)
+      val treePrinter = new TreePrinter(privateMembers = true, compiledCode = "???")
       treePrinter.fileAndTextOf(tree)
     } catch {
       case NonFatal(e) =>

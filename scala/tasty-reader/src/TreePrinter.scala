@@ -17,7 +17,7 @@ import scala.collection.mutable
 // nonEmpty predicate
 // implicit StringBuilder?
 // indent: opaque type, implicit
-class TreePrinter(privateMembers: Boolean = false) {
+class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* compiled code */ }") {
   private final val Indent = "  "
 
   // TODO use parameters
@@ -171,7 +171,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       } else {
         sb ++= " = "
         if (node.contains(OPAQUE)) {
-          sb ++= "???" // TODO parameter, { /* compiled code */ }
+          sb ++= compiledCode
         } else {
           repr.children.findLast(_.isTypeTree).orElse(repr.children.find(_.is(TYPEBOUNDS)).flatMap(_.children.headOption)) match {
             case Some(t) =>
@@ -277,7 +277,8 @@ class TreePrinter(privateMembers: Boolean = false) {
       modifiersIn(sb, node)
       sb ++= "def this"
       parametersIn(sb, node)
-      sb ++= " = ???" // TODO parameter, { /* compiled code */ }
+      sb ++= " = "
+      sb ++= compiledCode
     } else {
       if (node.contains(EXTENSION)) {
         sb ++= "extension "
@@ -312,7 +313,8 @@ class TreePrinter(privateMembers: Boolean = false) {
       }
       val isDeclaration = remainder.drop(1).forall(_.isModifier)
       if (!isDeclaration) {
-        sb ++= " = ???" // TODO parameter, { /* compiled code */ }
+        sb ++= " = "
+        sb ++= compiledCode
       }
     }
   }
@@ -358,7 +360,8 @@ class TreePrinter(privateMembers: Boolean = false) {
       }
       val isDeclaration = children.drop(1).forall(_.isModifier)
       if (!isDeclaration) {
-        sb ++= " = ???" // TODO parameter, /* compiled code */
+        sb ++= " = "
+        sb ++= compiledCode
       }
     }
   }
@@ -633,6 +636,8 @@ class TreePrinter(privateMembers: Boolean = false) {
     open = false
     next = false
 
+    var isImplicitClause = false
+
     ps.foreach {
       case Node1(EMPTYCLAUSE) =>
         sb ++= "()"
@@ -649,6 +654,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           }
           if (node.contains(IMPLICIT)) {
             sb ++= "implicit "
+            isImplicitClause = true
           }
         }
         if (next) {
@@ -664,7 +670,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           templateValueParam.foreach { valueParam =>
             if (!valueParam.contains(LOCAL)) {
               val sb1 = new StringBuilder() // TODO reuse
-              modifiersIn(sb1, valueParam, Set(GIVEN))
+              modifiersIn(sb1, valueParam, if (isImplicitClause) Set(GIVEN, IMPLICIT) else Set(GIVEN))
               sb ++= sb1
               if (valueParam.contains(MUTABLE)) {
                 sb ++= "var "
@@ -685,7 +691,8 @@ class TreePrinter(privateMembers: Boolean = false) {
         }
         sb ++= simple(tpe).stripSuffix(" @scala.annotation.internal.InlineParam")
         if (node.contains(HASDEFAULT)) {
-          sb ++= " = ???" // TODO parameter, /* compiled code */
+          sb ++= " = "
+          sb ++= compiledCode
         }
         next = true
       case _ =>
@@ -736,7 +743,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (node.contains(GIVEN) && !excluding(GIVEN)) {
       sb ++= (if (isParameter) "using " else "given ")
     }
-    if (node.contains(IMPLICIT)) {
+    if (node.contains(IMPLICIT) && !excluding(IMPLICIT)) {
       sb ++= "implicit "
     }
     if (node.contains(FINAL) && !excluding(FINAL)) {
