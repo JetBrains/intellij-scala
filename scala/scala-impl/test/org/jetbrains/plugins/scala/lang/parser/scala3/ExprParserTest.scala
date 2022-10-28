@@ -1416,4 +1416,54 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_var_block_with_comment_after_assign(): Unit = checkTree(
+    """var foo =   // Some comment
+      |  val x = 2
+      |  x + 2
+      |""".stripMargin,
+    """ScalaFile
+      |  ScVariableDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(var)('var')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: foo
+      |        PsiElement(identifier)('foo')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    BlockExpression
+      |      PsiWhiteSpace('   ')
+      |      PsiComment(comment)('// Some comment')
+      |      PsiWhiteSpace('\n  ')
+      |      ScPatternDefinition: x
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(val)('val')
+      |        PsiWhiteSpace(' ')
+      |        ListOfPatterns
+      |          ReferencePattern: x
+      |            PsiElement(identifier)('x')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('2')
+      |      PsiWhiteSpace('\n  ')
+      |      InfixExpression
+      |        ReferenceExpression: x
+      |          PsiElement(identifier)('x')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: +
+      |          PsiElement(identifier)('+')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('2')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
 }
