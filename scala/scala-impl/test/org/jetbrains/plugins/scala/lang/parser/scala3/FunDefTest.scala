@@ -295,4 +295,240 @@ class FunDefTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_fn_block_starting_with_a_block_comment_followed_by_fn(): Unit = checkTree(
+    """def foo =
+      |  /* some comment */ inline def a = 21
+      |  /* another comment */ inline def b = 35
+      |  println(a + b)
+      |""".stripMargin,
+    """ScalaFile
+      |  ScFunctionDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: a
+      |        PsiComment(BlockComment)('/* some comment */')
+      |        PsiWhiteSpace(' ')
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          PsiElement(inline)('inline')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('a')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('21')
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: b
+      |        PsiComment(BlockComment)('/* another comment */')
+      |        PsiWhiteSpace(' ')
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          PsiElement(inline)('inline')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('b')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('35')
+      |      PsiWhiteSpace('\n  ')
+      |      MethodCall
+      |        ReferenceExpression: println
+      |          PsiElement(identifier)('println')
+      |        ArgumentList
+      |          PsiElement(()('(')
+      |          InfixExpression
+      |            ReferenceExpression: a
+      |              PsiElement(identifier)('a')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: +
+      |              PsiElement(identifier)('+')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: b
+      |              PsiElement(identifier)('b')
+      |          PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def test_fn_block_starting_with_a_line_comment(): Unit = checkTree(
+    """def foo =
+      |  // some comment
+      |  inline def a = 21
+      |  // another comment
+      |  inline def b = 35
+      |  println(a + b)
+      |""".stripMargin,
+    """ScalaFile
+      |  ScFunctionDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: a
+      |        PsiComment(comment)('// some comment')
+      |        PsiWhiteSpace('\n  ')
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          PsiElement(inline)('inline')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('a')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('21')
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: b
+      |        PsiComment(comment)('// another comment')
+      |        PsiWhiteSpace('\n  ')
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          PsiElement(inline)('inline')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('b')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('35')
+      |      PsiWhiteSpace('\n  ')
+      |      MethodCall
+      |        ReferenceExpression: println
+      |          PsiElement(identifier)('println')
+      |        ArgumentList
+      |          PsiElement(()('(')
+      |          InfixExpression
+      |            ReferenceExpression: a
+      |              PsiElement(identifier)('a')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: +
+      |              PsiElement(identifier)('+')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: b
+      |              PsiElement(identifier)('b')
+      |          PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def test_fn_block_starting_with_a_block_comment(): Unit = checkTree(
+    """def foo =
+      |  /* some comment */
+      |  inline def a = 21
+      |  /* another comment */
+      |  inline def b = 35
+      |  println(a + b)
+      |""".stripMargin,
+    """ScalaFile
+      |  ScFunctionDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: a
+      |        PsiComment(BlockComment)('/* some comment */')
+      |        PsiWhiteSpace('\n  ')
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          PsiElement(inline)('inline')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('a')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('21')
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: b
+      |        PsiComment(BlockComment)('/* another comment */')
+      |        PsiWhiteSpace('\n  ')
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          PsiElement(inline)('inline')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('b')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('35')
+      |      PsiWhiteSpace('\n  ')
+      |      MethodCall
+      |        ReferenceExpression: println
+      |          PsiElement(identifier)('println')
+      |        ArgumentList
+      |          PsiElement(()('(')
+      |          InfixExpression
+      |            ReferenceExpression: a
+      |              PsiElement(identifier)('a')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: +
+      |              PsiElement(identifier)('+')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: b
+      |              PsiElement(identifier)('b')
+      |          PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
 }
