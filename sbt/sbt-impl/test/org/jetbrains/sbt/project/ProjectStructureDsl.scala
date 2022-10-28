@@ -3,6 +3,7 @@ package project
 
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.pom.java.LanguageLevel
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.external.SdkReference
 
@@ -41,6 +42,7 @@ object ProjectStructureDsl {
   object excluded            extends Attribute[Seq[String]]("excluded")                         with ModuleAttribute
   object moduleDependencies  extends Attribute[Seq[dependency[module]]]("moduleDependencies")   with ModuleAttribute
   object libraryDependencies extends Attribute[Seq[dependency[library]]]("libraryDependencies") with ModuleAttribute
+  object compileOrder extends Attribute[CompileOrder]("compileOrder") with ModuleAttribute
 
   object libClasses       extends Attribute[Seq[String]]("libraryClasses")                         with LibraryAttribute
   object libSources       extends Attribute[Seq[String]]("librarySources")                         with LibraryAttribute

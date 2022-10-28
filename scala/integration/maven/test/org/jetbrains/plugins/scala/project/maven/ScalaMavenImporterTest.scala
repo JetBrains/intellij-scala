@@ -5,6 +5,7 @@ import com.intellij.openapi.module.{ModuleTypeManager, StdModuleTypes}
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import org.jetbrains.idea.maven.utils.MavenUtil
 import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -99,6 +100,7 @@ class ScalaMavenImporterTest
         testResources := Seq("src/test/resources")
         excluded := Seq("target")
         libraryDependencies := expectedLibraries.map(library2libraryDependency)
+        compileOrder := CompileOrder.Mixed
       })
     })
 
@@ -283,4 +285,11 @@ class ScalaMavenImporterTest
     })
   }
 
+  def testWithCompileOrder(): Unit = {
+    runImportingTest(new project("testWithCompileOrder") {
+      modules := Seq(new module("dummy-artifact-id") {
+        compileOrder := CompileOrder.ScalaThenJava
+      })
+    })
+  }
 }
