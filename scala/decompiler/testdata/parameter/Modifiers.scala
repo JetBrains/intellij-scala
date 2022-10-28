@@ -5,7 +5,7 @@ trait Modifiers {
 
   class ClassImplicitVal1(implicit val x: Int, val y: Int)
 
-  class ClassImplicitVal2(x: Int, implicit val y: Int)
+  class ClassImplicitVal2(val x: Int, implicit val y: Int)
 
   class ClassRegularAndImplicit(x: Int)(implicit y: Long)
 
