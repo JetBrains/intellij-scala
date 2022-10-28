@@ -15,6 +15,7 @@ import com.intellij.openapi.util.registry.RegistryManager
 import org.jetbrains.annotations.{NonNls, Nullable, TestOnly}
 import org.jetbrains.plugins.scala._
 import org.jetbrains.plugins.scala.build._
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.compiler.data.serialization.extensions.EitherExt
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.Version
@@ -282,7 +283,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val dummyDependencyData = DependencyData(Seq.empty, Seq.empty, Seq.empty)
     val dummyRootProject = ProjectData(
       projectTmpName, projectRoot.toURI, projectTmpName, s"org.$projectName", "0.0", projectRoot, None, Seq.empty,
-      new File(projectRoot, "target"), Seq(dummyConfigurationData), Option(dummyJavaData), None, None,
+      new File(projectRoot, "target"), Seq(dummyConfigurationData), Option(dummyJavaData), None, CompileOrder.Mixed.toString, None,
       dummyDependencyData, Set.empty, None, Seq.empty, Seq.empty, Seq.empty
     )
 
@@ -452,7 +453,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createModuleExtData(project: sbtStructure.ProjectData): ModuleExtNode = {
-    val ProjectData(_, _, _, _, _, _, packagePrefix, basePackages, _, _, java, scala, android, _, _, _, _, _, _) = project
+    val ProjectData(_, _, _, _, _, _, packagePrefix, basePackages, _, _, java, scala, compileOrder, android, _, _, _, _, _, _) = project
 
     val sdk = android.map(_.targetVersion).map(AndroidJdk)
       .orElse(java.flatMap(_.home).map(JdkByHome))
@@ -465,7 +466,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       sdk                    = sdk,
       javacOptions           = java.fold(Seq.empty[String])(_.options),
       packagePrefix          = packagePrefix,
-      basePackage            = basePackages.headOption // TODO Rename basePackages to basePackage in sbt-ide-settings?
+      basePackage            = basePackages.headOption, // TODO Rename basePackages to basePackage in sbt-ide-settings?
+      compileOrder           = CompileOrder.valueOf(compileOrder)
     )
     new ModuleExtNode(data)
   }

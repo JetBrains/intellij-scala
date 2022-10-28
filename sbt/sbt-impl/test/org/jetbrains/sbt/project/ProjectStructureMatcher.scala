@@ -16,7 +16,6 @@ import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.project.external.{SdkReference, SdkUtils, ShownNotification, ShownNotificationsKey}
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaLibraryProperties}
 import org.jetbrains.sbt.DslUtils.MatchType
 import org.jetbrains.sbt.project.ProjectStructureDsl._
