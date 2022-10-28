@@ -53,33 +53,46 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
-
 object ScalaRefactoringUtil {
+
+  def trimSelectionOffsets(file: PsiFile, startOffset: Int, endOffset: Int, trimComments: Boolean): (Int, Int) = {
+    assert(startOffset <= endOffset, "range start offset must not be greater than end offset")
+    assert(endOffset <= file.getTextLength, "range end offset must not be greater than the file length")
+
+    var stop = false
+    var start = startOffset
+    while (!stop && start < endOffset)
+      file.findElementAt(start) match {
+        case comment: PsiComment if trimComments => start = comment.endOffset
+        case whitespace: PsiWhiteSpace           => start = whitespace.endOffset
+        case _                                   => stop = true
+      }
+
+    if (start >= endOffset) {
+      (startOffset, startOffset)
+    } else {
+      stop = false
+      var end = endOffset
+      while (!stop && end > start)
+        file.findElementAt(end - 1) match {
+          case comment: PsiComment if trimComments => end = comment.getTextOffset
+          case whitespace: PsiWhiteSpace           => end = whitespace.getTextOffset
+          case _                                   => stop = true
+        }
+
+      (start, end)
+    }
+  }
 
   def trimSpacesAndComments(editor: Editor, file: PsiFile, trimComments: Boolean = true): Unit = {
     val selectionModel = editor.getSelectionModel
-    var start = selectionModel.getSelectionStart
-    var end = selectionModel.getSelectionEnd
-    if (start == end)
-      return
+    val startOffset = selectionModel.getSelectionStart
+    val endOffset = selectionModel.getSelectionEnd
 
-    val fileText = file.charSequence
+    val (start, end) = trimSelectionOffsets(file, startOffset, endOffset, trimComments)
 
-    //TODO: optimize this shit
-    while (file.findElementAt(start).is[PsiWhiteSpace] ||
-      (file.findElementAt(start).is[PsiComment] && trimComments) ||
-      fileText.charAt(start) == '\n' ||
-      fileText.charAt(start) == ' ') {
-      start = start + 1
-    }
-    while (file.findElementAt(end - 1).is[PsiWhiteSpace] ||
-      (file.findElementAt(end - 1).is[PsiComment] && trimComments) ||
-      fileText.charAt(end - 1) == '\n' ||
-      fileText.charAt(end - 1) == ' ') {
-      end = end - 1
-    }
-
-    selectionModel.setSelection(start, end)
+    if (start != startOffset || end != endOffset)
+      selectionModel.setSelection(start, end)
   }
 
   private def inTemplateParents(typeElement: ScTypeElement): Boolean = {
@@ -160,10 +173,14 @@ object ScalaRefactoringUtil {
     getExpressionWithTypes(file, editor.getDocument, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
   }
 
-  def getExpressionWithTypes(file: PsiFile, document: Document, start: Int, end: Int)
+  def getExpressionWithTypes(file: PsiFile, document: Document, start: Int, end: Int, trimText: Boolean = true)
                             (implicit project: Project): Option[(ScExpression, ArraySeq[ScType])] = {
-
-    val (rangeText, startOffset, endOffset) = trimRangeText(file.charSequence, start, end)
+    val (startOffset, endOffset) =
+      if (trimText)
+        trimSelectionOffsets(file, start, end, trimComments = false)
+      else
+        (start, end)
+    val rangeText = file.charSequence.substring(startOffset, endOffset)
 
     def selectedInfixExpr(): Option[(ScExpression, ArraySeq[ScType])] = {
       val expr = createOptionExpressionFromText(rangeText)(file.getManager)
@@ -179,7 +196,7 @@ object ScalaRefactoringUtil {
               document.insertString(startOffset, "(")
               documentManager.commitDocument(document)
 
-              val newOpt = getExpressionWithTypes(file, document, startOffset, endOffset + 2)
+              val newOpt = getExpressionWithTypes(file, document, startOffset, endOffset + 2, trimText = false)
               newOpt match {
                 case Some((expression: ScExpression, typez)) =>
                   expression.getParent match {
@@ -237,19 +254,6 @@ object ScalaRefactoringUtil {
 
     Some((expression, ArraySeq(typeNoExpected)))
   }
-
-  def trimRangeText(charSequence: CharSequence, startOffset: Int, endOffset: Int): (String, Int, Int) =
-    if (startOffset >= endOffset) ("", startOffset, endOffset)
-    else {
-      val text = charSequence.substring(startOffset, endOffset)
-      if (!text.head.isWhitespace && !text.last.isWhitespace) (text, startOffset, endOffset)
-      else if (text.forall(_.isWhitespace)) ("", startOffset, startOffset) // the offset is cut down to the start of the highlight
-      else {
-        val startWhitespaces = text.iterator.takeWhile(_.isWhitespace).length
-        val endWhitespaces = text.reverseIterator.takeWhile(_.isWhitespace).length
-        (text.substring(startWhitespaces, text.length - endWhitespaces), startOffset + startWhitespaces, endOffset - endWhitespaces)
-      }
-    }
 
   def expressionToIntroduce(expr: ScExpression): ScExpression = {
     def copyExpr = expr.copy.asInstanceOf[ScExpression]
