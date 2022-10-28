@@ -1,0 +1,3 @@
+package typeDefinition
+
+object Object
