@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala.lang.overrideImplement
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
@@ -38,7 +38,7 @@ class ImplementMembersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
          |}
          |
          |class MyClass1 extends MyTrait {
-         |  override var myVariable: Int = ${START}_$END
+         |  override var myVariable: Int = ${START}???$END
          |  override val myValue: Int = ???
          |
          |  override def myDef: Int = ???
