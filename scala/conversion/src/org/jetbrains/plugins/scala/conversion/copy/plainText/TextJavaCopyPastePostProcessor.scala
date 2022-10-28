@@ -56,12 +56,20 @@ final class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcesso
     file: ScalaFile
   ): Unit = {
     val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
-    if (!settings.isEnableJavaToScalaConversion) return
+    if (!settings.isEnableJavaToScalaConversion)
+      return
 
     val ConvertedCode(_, text, _) = value
-    if (text == null || text == "") return
+    if (text == null || text == "")
+      return
 
-    if (PlainTextCopyUtil.isValidScalaFile(text)) return
+    val module = file.module match {
+      case Some(m) => m
+      case None =>
+        return
+    }
+    if (PlainTextCopyUtil.isValidScalaFile(text, module))
+      return
 
     // TODO: Collect available imports in current scope. Use them while converting
     val javaCodeWithContextOpt = computeJavaCodeWithCopyContext(text)

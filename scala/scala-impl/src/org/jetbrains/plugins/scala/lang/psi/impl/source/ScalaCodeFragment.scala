@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.source
 
+import com.intellij.lang.Language
 import com.intellij.openapi.command.undo.{BasicUndoableAction, UndoManager}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.IntentionFilterOwner.IntentionActionsFilter
@@ -176,11 +177,18 @@ object ScalaCodeFragment {
       .filter(_.isKindOf(ScalaLanguage.INSTANCE))
       .getOrElse(ScalaLanguage.INSTANCE)
 
-    val viewProvider = new SingleRootFileViewProvider(
-      PsiManager.getInstance(project),
-      new LightVirtualFile("Dummy.scala", language, text),
-      true
-    )
+    create(text, language, context, child)
+  }
+
+  def create(
+    text: String,
+    language: Language,
+    context: PsiElement = null,
+    child: PsiElement = null
+  )(implicit project: Project): ScalaCodeFragment = {
+    val virtualFile = new LightVirtualFile("Dummy.scala", language, text)
+    val psiManager = PsiManager.getInstance(project)
+    val viewProvider = new SingleRootFileViewProvider(psiManager, virtualFile, true)
     val fragment = new ScalaCodeFragment(viewProvider)
     fragment.context = context
     fragment.child = child
