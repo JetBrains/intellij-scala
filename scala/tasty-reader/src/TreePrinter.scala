@@ -651,10 +651,11 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
           next = false
           if (node.contains(GIVEN)) {
             sb ++= "using "
-          }
-          if (node.contains(IMPLICIT)) {
-            sb ++= "implicit "
-            isImplicitClause = true
+          } else {
+            if (node.contains(IMPLICIT)) {
+              sb ++= "implicit "
+              isImplicitClause = true
+            }
           }
         }
         if (next) {
