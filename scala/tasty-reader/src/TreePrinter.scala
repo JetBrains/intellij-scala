@@ -636,6 +636,8 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
     open = false
     next = false
 
+    var isImplicitClause = false
+
     ps.foreach {
       case Node1(EMPTYCLAUSE) =>
         sb ++= "()"
@@ -652,6 +654,7 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
           }
           if (node.contains(IMPLICIT)) {
             sb ++= "implicit "
+            isImplicitClause = true
           }
         }
         if (next) {
@@ -667,7 +670,7 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
           templateValueParam.foreach { valueParam =>
             if (!valueParam.contains(LOCAL)) {
               val sb1 = new StringBuilder() // TODO reuse
-              modifiersIn(sb1, valueParam, Set(GIVEN, IMPLICIT))
+              modifiersIn(sb1, valueParam, if (isImplicitClause) Set(GIVEN, IMPLICIT) else Set(GIVEN))
               sb ++= sb1
               if (valueParam.contains(MUTABLE)) {
                 sb ++= "var "
