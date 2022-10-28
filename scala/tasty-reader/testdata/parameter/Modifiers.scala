@@ -3,13 +3,19 @@ package parameter
 trait Modifiers {
   class ClassUsing(using x: Int, y: Long)
 
-  class ClassUsingMultiple(using x: Int)(using y: Long)
-
   class ClassAnonymousUsing(using Int, Long)
 
-  class ClassContextParameter(using val x: Int, val y: Int)
+  class ClassUsingVal(using val x: Int, val y: Int)
+
+  class ClassRegularAndUsing(x: Int)(using y: Long)
+
+  class ClassUsingMultiple(using x: Int)(using y: Long)
 
   class ClassImplicit(implicit x: Int, y: Long)
+
+  class ClassImplicitVal(implicit val x: Int, val y: Int)
+
+  class ClassRegularAndImplicit(x: Int)(implicit y: Long)
 
   class ClassUsingAndImplicit(using x: Int)(implicit y: Long)
 
@@ -27,13 +33,19 @@ trait Modifiers {
 
   trait TraitUsing(using x: Int, y: Long)
 
-  trait TraitUsingMultiple(using x: Int)(using y: Long)
-
   trait TraitAnonymousUsing(using Int, Long)
 
-  trait TraitContextParameter(using val x: Int, val y: Long)
+  trait TraitUsingVal(using val x: Int, val y: Long)
+
+  trait TraitRegularAndUsing(x: Int)(using y: Long)
+
+  trait TraitUsingMultiple(using x: Int)(using y: Long)
 
   trait TraitImplicit(implicit x: Int, y: Long)
+
+  trait TraitImplicitVal(implicit val x: Int, val y: Int)
+
+  trait TraitRegularAndImplicit(x: Int)(implicit y: Long)
 
   trait TraitUsingAndImplicit(using x: Int)(implicit y: Long)
 
@@ -51,11 +63,17 @@ trait Modifiers {
 
   def defUsing(using x: Int, y: Long): Unit
 
+  def defUsingAnonymous(using Int, Long): Unit
+
+  def defRegularAndUsing(x: Int)(using y: Long): Unit
+
   def defUsingMultiple(using x: Int)(using y: Long): Unit
 
   def defAnonymousUsing(using Int, Long): Unit
 
   def defImplicit(implicit x: Int, y: Long): Unit
+
+  def defRegularAndImplicit(x: Int)(implicit y: Long): Unit
 
   def defUsingAndImplicit(using x: Int)(implicit y: Long): Unit
 

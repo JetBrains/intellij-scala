@@ -664,7 +664,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           templateValueParam.foreach { valueParam =>
             if (!valueParam.contains(LOCAL)) {
               val sb1 = new StringBuilder() // TODO reuse
-              modifiersIn(sb1, valueParam, Set(GIVEN))
+              modifiersIn(sb1, valueParam, Set(GIVEN, IMPLICIT))
               sb ++= sb1
               if (valueParam.contains(MUTABLE)) {
                 sb ++= "var "
@@ -736,7 +736,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (node.contains(GIVEN) && !excluding(GIVEN)) {
       sb ++= (if (isParameter) "using " else "given ")
     }
-    if (node.contains(IMPLICIT)) {
+    if (node.contains(IMPLICIT) && !excluding(IMPLICIT)) {
       sb ++= "implicit "
     }
     if (node.contains(FINAL) && !excluding(FINAL)) {
