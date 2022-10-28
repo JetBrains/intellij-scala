@@ -17,6 +17,7 @@ import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
@@ -188,10 +189,10 @@ package object project {
     def scalaCompilerSettings: ScalaCompilerSettings =
       compilerConfiguration.getSettingsForModule(module)
 
-    def configureScalaCompilerSettingsFrom(source: String, options: collection.Seq[String]): Unit = {
+    def configureScalaCompilerSettingsFrom(source: String, options: collection.Seq[String], compileOrder: CompileOrder = CompileOrder.Mixed): Unit = {
       val baseDirectory = Option(ExternalSystemModulePropertyManager.getInstance(module).getRootProjectPath)
         .getOrElse(module.getProject.getBasePath)
-      val compilerSettings = ScalaCompilerSettings.fromOptions(withPathsRelativeTo(baseDirectory, options.toSeq))
+      val compilerSettings = ScalaCompilerSettings.fromOptions(withPathsRelativeTo(baseDirectory, options.toSeq), compileOrder)
       compilerConfiguration.configureSettingsForModule(module, source, compilerSettings)
     }
 

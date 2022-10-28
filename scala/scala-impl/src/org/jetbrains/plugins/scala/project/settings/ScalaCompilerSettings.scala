@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /**
  * @see [[org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings]]
- * @see [[org.jetbrains.jps.incremental.scala.model.CompilerSettingsImpl]]
+ * @see `org.jetbrains.jps.incremental.scala.model.CompilerSettingsImpl`
  */
 case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  nameHashing: Boolean,
@@ -115,7 +115,7 @@ object ScalaCompilerSettings {
       plugins = state.plugins.toSeq
     )
 
-  def fromOptions(options: collection.Seq[String]): ScalaCompilerSettings = {
+  def fromOptions(options: collection.Seq[String], compileOrder: CompileOrder): ScalaCompilerSettings = {
     val state = new ScalaCompilerSettingsState
     val normalizedOptions = normalized(options)
     val optionToSetter = ToggleOptions.map(it => (it._1, it._3)).toMap
@@ -138,6 +138,8 @@ object ScalaCompilerSettings {
         DebuggingOptions.keySet.contains(option) ||
         PluginOptionPattern.findFirstIn(option).isDefined
     }.toArray
+
+    state.compileOrder = compileOrder
 
     fromState(state)
   }
