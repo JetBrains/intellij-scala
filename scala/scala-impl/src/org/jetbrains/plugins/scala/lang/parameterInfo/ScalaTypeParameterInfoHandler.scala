@@ -138,7 +138,9 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
           (tp: ScType) => appendPresentableText(" <% ", tp)
         }
         param.contextBound foreach {
-          (tp: ScType) => appendPresentableText(" : ", tp)
+          (tp: ScType) =>
+            val needsSpace = param.name.lastOption.exists(c => !c.isLetterOrDigit && c != '`')
+            appendPresentableText(if (needsSpace) " : " else ": ", tp)
         }
 
         if (isBold) makeBold()

@@ -1,69 +1,69 @@
 package scala.collection.mutable
 trait HashTable[A, Entry >: scala.Null <: scala.collection.mutable.HashEntry[A, Entry]] extends scala.AnyRef with scala.collection.mutable.HashTable.HashUtils[A] {
   @scala.transient
-  protected var _loadFactor : scala.Int = { /* compiled code */ }
+  protected var _loadFactor: scala.Int = { /* compiled code */ }
   @scala.transient
-  protected var table : scala.Array[scala.collection.mutable.HashEntry[A, Entry]] = { /* compiled code */ }
+  protected var table: scala.Array[scala.collection.mutable.HashEntry[A, Entry]] = { /* compiled code */ }
   @scala.transient
-  protected var tableSize : scala.Int = { /* compiled code */ }
+  protected var tableSize: scala.Int = { /* compiled code */ }
   @scala.transient
-  protected var threshold : scala.Int = { /* compiled code */ }
+  protected var threshold: scala.Int = { /* compiled code */ }
   @scala.transient
-  protected var sizemap : scala.Array[scala.Int] = { /* compiled code */ }
+  protected var sizemap: scala.Array[scala.Int] = { /* compiled code */ }
   @scala.transient
-  protected var seedvalue : scala.Int = { /* compiled code */ }
-  protected def tableSizeSeed : scala.Int = { /* compiled code */ }
-  protected def initialSize : scala.Int = { /* compiled code */ }
-  private[collection] def init(in : java.io.ObjectInputStream, readEntry : => Entry) : scala.Unit = { /* compiled code */ }
-  private[collection] def serializeTo(out : java.io.ObjectOutputStream, writeEntry : scala.Function1[Entry, scala.Unit]) : scala.Unit = { /* compiled code */ }
+  protected var seedvalue: scala.Int = { /* compiled code */ }
+  protected def tableSizeSeed: scala.Int = { /* compiled code */ }
+  protected def initialSize: scala.Int = { /* compiled code */ }
+  private[collection] def init(in: java.io.ObjectInputStream, readEntry: => Entry): scala.Unit = { /* compiled code */ }
+  private[collection] def serializeTo(out: java.io.ObjectOutputStream, writeEntry: scala.Function1[Entry, scala.Unit]): scala.Unit = { /* compiled code */ }
   @scala.deprecatedOverriding("No sensible way to override findEntry as private findEntry0 is used in multiple places internally.", "2.11.0")
-  protected def findEntry(key : A) : Entry = { /* compiled code */ }
+  protected def findEntry(key: A): Entry = { /* compiled code */ }
   @scala.deprecatedOverriding("No sensible way to override addEntry as private addEntry0 is used in multiple places internally.", "2.11.0")
-  protected def addEntry(e : Entry) : scala.Unit = { /* compiled code */ }
-  protected def findOrAddEntry[B](key : A, value : B) : Entry = { /* compiled code */ }
-  protected def createNewEntry[B](key : A, value : B) : Entry
+  protected def addEntry(e: Entry): scala.Unit = { /* compiled code */ }
+  protected def findOrAddEntry[B](key: A, value: B): Entry = { /* compiled code */ }
+  protected def createNewEntry[B](key: A, value: B): Entry
   @scala.deprecatedOverriding("Internal implementation does not admit sensible overriding of this method.", "2.11.0")
-  protected def removeEntry(key : A) : Entry = { /* compiled code */ }
-  protected def entriesIterator : scala.collection.Iterator[Entry] = { /* compiled code */ }
-  protected def foreachEntry[U](f : scala.Function1[Entry, U]) : scala.Unit = { /* compiled code */ }
-  protected def clearTable() : scala.Unit = { /* compiled code */ }
+  protected def removeEntry(key: A): Entry = { /* compiled code */ }
+  protected def entriesIterator: scala.collection.Iterator[Entry] = { /* compiled code */ }
+  protected def foreachEntry[U](f: scala.Function1[Entry, U]): scala.Unit = { /* compiled code */ }
+  protected def clearTable(): scala.Unit = { /* compiled code */ }
   @scala.deprecatedOverriding("Internal implementation does not admit sensible overriding of this method.", "2.11.0")
-  protected def nnSizeMapAdd(h : scala.Int) : scala.Unit = { /* compiled code */ }
+  protected def nnSizeMapAdd(h: scala.Int): scala.Unit = { /* compiled code */ }
   @scala.deprecatedOverriding("Internal implementation does not admit sensible overriding of this method.", "2.11.0")
-  protected def nnSizeMapRemove(h : scala.Int) : scala.Unit = { /* compiled code */ }
+  protected def nnSizeMapRemove(h: scala.Int): scala.Unit = { /* compiled code */ }
   @scala.deprecatedOverriding("Internal implementation does not admit sensible overriding of this method.", "2.11.0")
-  protected def nnSizeMapReset(tableLength : scala.Int) : scala.Unit = { /* compiled code */ }
-  private[collection] final def totalSizeMapBuckets : scala.Int = { /* compiled code */ }
+  protected def nnSizeMapReset(tableLength: scala.Int): scala.Unit = { /* compiled code */ }
+  private[collection] final def totalSizeMapBuckets: scala.Int = { /* compiled code */ }
   @scala.deprecatedOverriding("Internal implementation does not admit sensible overriding of this method.", "2.11.0")
-  protected def calcSizeMapSize(tableLength : scala.Int) : scala.Int = { /* compiled code */ }
-  protected def sizeMapInit(tableLength : scala.Int) : scala.Unit = { /* compiled code */ }
+  protected def calcSizeMapSize(tableLength: scala.Int): scala.Int = { /* compiled code */ }
+  protected def sizeMapInit(tableLength: scala.Int): scala.Unit = { /* compiled code */ }
   @scala.deprecatedOverriding("Internal implementation does not admit sensible overriding of this method.", "2.11.0")
-  protected def sizeMapInitAndRebuild() : scala.Unit = { /* compiled code */ }
-  private[collection] def printSizeMap() : scala.Unit = { /* compiled code */ }
+  protected def sizeMapInitAndRebuild(): scala.Unit = { /* compiled code */ }
+  private[collection] def printSizeMap(): scala.Unit = { /* compiled code */ }
   @scala.deprecatedOverriding("Internal implementation does not admit sensible overriding of this method.", "2.11.0")
-  protected def sizeMapDisable() : scala.Unit = { /* compiled code */ }
+  protected def sizeMapDisable(): scala.Unit = { /* compiled code */ }
   @scala.deprecatedOverriding("Internal implementation does not admit sensible overriding of this method.", "2.11.0")
-  protected def isSizeMapDefined : scala.Boolean = { /* compiled code */ }
-  protected def alwaysInitSizeMap : scala.Boolean = { /* compiled code */ }
-  protected def elemEquals(key1 : A, key2 : A) : scala.Boolean = { /* compiled code */ }
-  protected final def index(hcode : scala.Int) : scala.Int = { /* compiled code */ }
-  protected def initWithContents(c : scala.collection.mutable.HashTable.Contents[A, Entry]) : scala.Unit = { /* compiled code */ }
-  private[collection] def hashTableContents : scala.collection.mutable.HashTable.Contents[A, Entry] = { /* compiled code */ }
+  protected def isSizeMapDefined: scala.Boolean = { /* compiled code */ }
+  protected def alwaysInitSizeMap: scala.Boolean = { /* compiled code */ }
+  protected def elemEquals(key1: A, key2: A): scala.Boolean = { /* compiled code */ }
+  protected final def index(hcode: scala.Int): scala.Int = { /* compiled code */ }
+  protected def initWithContents(c: scala.collection.mutable.HashTable.Contents[A, Entry]): scala.Unit = { /* compiled code */ }
+  private[collection] def hashTableContents: scala.collection.mutable.HashTable.Contents[A, Entry] = { /* compiled code */ }
 }
 private[collection] object HashTable extends scala.AnyRef {
-  private[collection] final def defaultLoadFactor : scala.Int = { /* compiled code */ }
-  private[collection] final def loadFactorDenum : scala.Int = { /* compiled code */ }
-  private[collection] final def newThreshold(_loadFactor : scala.Int, size : scala.Int) : scala.Int = { /* compiled code */ }
-  private[collection] final def sizeForThreshold(_loadFactor : scala.Int, thr : scala.Int) : scala.Int = { /* compiled code */ }
-  private[collection] final def capacity(expectedSize : scala.Int) : scala.Int = { /* compiled code */ }
+  private[collection] final def defaultLoadFactor: scala.Int = { /* compiled code */ }
+  private[collection] final def loadFactorDenum: scala.Int = { /* compiled code */ }
+  private[collection] final def newThreshold(_loadFactor: scala.Int, size: scala.Int): scala.Int = { /* compiled code */ }
+  private[collection] final def sizeForThreshold(_loadFactor: scala.Int, thr: scala.Int): scala.Int = { /* compiled code */ }
+  private[collection] final def capacity(expectedSize: scala.Int): scala.Int = { /* compiled code */ }
   trait HashUtils[KeyType] extends scala.AnyRef {
-    protected final def sizeMapBucketBitSize : scala.Int = { /* compiled code */ }
-    protected final def sizeMapBucketSize : scala.Int = { /* compiled code */ }
-    protected def elemHashCode(key : KeyType) : scala.Int = { /* compiled code */ }
-    protected final def improve(hcode : scala.Int, seed : scala.Int) : scala.Int = { /* compiled code */ }
+    protected final def sizeMapBucketBitSize: scala.Int = { /* compiled code */ }
+    protected final def sizeMapBucketSize: scala.Int = { /* compiled code */ }
+    protected def elemHashCode(key: KeyType): scala.Int = { /* compiled code */ }
+    protected final def improve(hcode: scala.Int, seed: scala.Int): scala.Int = { /* compiled code */ }
   }
-  private[collection] def powerOfTwo(target : scala.Int) : scala.Int = { /* compiled code */ }
-  class Contents[A, Entry >: scala.Null <: scala.collection.mutable.HashEntry[A, Entry]](val loadFactor : scala.Int, val table : scala.Array[scala.collection.mutable.HashEntry[A, Entry]], val tableSize : scala.Int, val threshold : scala.Int, val seedvalue : scala.Int, val sizemap : scala.Array[scala.Int]) extends scala.AnyRef {
-    private[collection] def debugInformation : scala.Predef.String = { /* compiled code */ }
+  private[collection] def powerOfTwo(target: scala.Int): scala.Int = { /* compiled code */ }
+  class Contents[A, Entry >: scala.Null <: scala.collection.mutable.HashEntry[A, Entry]](val loadFactor: scala.Int, val table: scala.Array[scala.collection.mutable.HashEntry[A, Entry]], val tableSize: scala.Int, val threshold: scala.Int, val seedvalue: scala.Int, val sizemap: scala.Array[scala.Int]) extends scala.AnyRef {
+    private[collection] def debugInformation: scala.Predef.String = { /* compiled code */ }
   }
 }
