@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.refactoring
-package introduceField
+package org.jetbrains.plugins.scala.refactoring.introduceField
 
 import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.project.Project
@@ -9,7 +8,6 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, executeWriteActionCommand}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -17,6 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Int
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.{IntroduceFieldContext, IntroduceFieldSettings, ScalaIntroduceFieldFromExpressionHandler}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpressionWithTypes
+import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
 import org.junit.Assert._
 
 import java.io.File
@@ -52,9 +53,6 @@ abstract class IntroduceFieldTestBase() extends ScalaLightCodeInsightFixtureTest
     val editor = getEditor
     editor.getSelectionModel.setSelection(startOffset, endOffset)
 
-    var res: String = null
-
-    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val replaceAll = fileText.contains(replaceAllMarker)
     val initInDecl = if (fileText.contains(initInDeclarationMarker)) Some(true)
     else if (fileText.contains(initLocallyMarker)) Some(false)
@@ -81,23 +79,13 @@ abstract class IntroduceFieldTestBase() extends ScalaLightCodeInsightFixtureTest
         handler.runRefactoring(ifc, settings)
         UsefulTestCase.doPostponedFormatting(getProject)
       }
-
-      res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
-    }
-    catch {
-      case e: Exception => assert(assertion = false, message = e.getMessage + "\n" + e.getStackTrace.map(_.toString).mkString("  \n"))
+    } catch {
+      case e: Exception =>
+        throw new AssertionError(e)
     }
 
-    val text = lastPsi.getText
-    val output = lastPsi.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
-      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-        text.substring(2, text.length - 2).trim
-      case _ =>
-        assertTrue("Test result must be in last comment statement.", false)
-        ""
-    }
-    
+    val ExpectedResultFromLastComment(res, output) = TestUtils.extractExpectedResultFromLastComment(getFile)
+
     assertEquals(output, res)
   }
 }

@@ -1,19 +1,16 @@
 package org.jetbrains.plugins.scala.lang.adjustTypes
 
-import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.UsefulTestCase
-import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.WriteCommandActionEx
+import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
+import org.jetbrains.plugins.scala.util.{TestUtils, WriteCommandActionEx}
 
 import java.io.File
 
@@ -50,18 +47,7 @@ abstract class AdjustTypesTestBase extends ScalaLightCodeInsightFixtureTestCase 
       UsefulTestCase.doPostponedFormatting(getProject)
     })
 
-    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-    val res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
-
-    val text = lastPsi.getText
-    val output = lastPsi.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
-      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-        text.substring(2, text.length - 2).trim
-      case _ =>
-        assertTrue("Test result must be in last comment statement.", false)
-        ""
-    }
+    val ExpectedResultFromLastComment(res, output) = TestUtils.extractExpectedResultFromLastComment(scalaFile)
     assertEquals(output, res)
   }
 }

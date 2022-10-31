@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package implicits
+package org.jetbrains.plugins.scala.lang.implicits
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -9,9 +7,10 @@ import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
 
 import java.io.File
 
@@ -48,14 +47,9 @@ abstract class ImplicitsTestBase extends ScalaLightCodeInsightFixtureTestCase {
         case _ => assert(assertion = false, message = "elem is not PsiNamedElement")
       }
       )
-    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-    val text = lastPsi.getText
-    val output = lastPsi.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
-      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-        text.substring(2, text.length - 2).trim
-      case _ => assertTrue("Test result must be in last comment statement.", false)
-    }
+
+    val ExpectedResultFromLastComment(_, output) = TestUtils.extractExpectedResultFromLastComment(scalaFile)
+
     assertEquals(output, res)
   }
 }

@@ -5,9 +5,12 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.newvfs.impl.VfsData
+import com.intellij.psi.{PsiComment, PsiFile}
 import com.intellij.testFramework.TestModeFlags
 import com.intellij.testFramework.common.ThreadLeakTracker
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.junit.Assert
+import org.junit.Assert.fail
 
 import java.io.{File, IOException}
 import java.net.URISyntaxException
@@ -131,5 +134,46 @@ object TestUtils {
     // for indexable files before each test. Our test environment in light project tests does not change
     // between test runs and enabling this optimization cuts down test execution time considerably.
     TestModeFlags.set(VfsData.ENABLE_IS_INDEXED_FLAG_KEY, java.lang.Boolean.TRUE, disposable)
+  }
+
+  /**
+   * @param fileText text of the file without last comment
+   * @param expectedResult content of the last comment in teh file
+   */
+  case class ExpectedResultFromLastComment(fileText: String, expectedResult: String)
+
+  /**
+   * A lot of file-based tests contain their test data in the last comment in the file.<br>
+   * For example for some formatter tests the file could look like:
+   * {{{
+   *   class   ClassForFormat   {     }
+   *   /*
+   *   class ClassForFormat {}
+   *   */
+   * }}}
+   *
+   * @param file file which was created from test data which contains comment in the end of the file
+   * @return 1. file content without last comment 2. last comment content as an expected result
+   */
+  def extractExpectedResultFromLastComment(file: PsiFile): ExpectedResultFromLastComment = {
+    val fileText = file.getText
+
+    val lastComment = file.findElementAt(fileText.length - 1) match {
+      case comment: PsiComment => comment
+      case element =>
+        fail(s"Last element in the file is expected to be a comment but got: ${element.getClass}").asInstanceOf[Nothing]
+    }
+
+    val fileTextWithoutLastComment = file.getText.substring(0, lastComment.getTextOffset).trim
+
+    val commentText = lastComment.getText
+    val commentInnerContent = lastComment.getNode.getElementType match {
+      case ScalaTokenTypes.tLINE_COMMENT => commentText.substring(2)
+      case ScalaTokenTypes.tBLOCK_COMMENT=> commentText.substring(2, commentText.length - 2)
+      case ScalaTokenTypes.tDOC_COMMENT => commentText.substring(3, commentText.length - 2)
+      case _ =>
+        fail("Test result must be in last comment statement.").asInstanceOf[Nothing]
+    }
+    ExpectedResultFromLastComment(fileTextWithoutLastComment, commentInnerContent.trim)
   }
 }

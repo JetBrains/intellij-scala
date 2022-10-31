@@ -1,17 +1,20 @@
-package org.jetbrains.plugins.scala
-package lang
-package typeInference
+package org.jetbrains.plugins.scala.lang.typeInference
 
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiFile}
 import junit.framework.TestCase
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotationHolder, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.{FailableTest, ScalaSdkOwner}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
 import org.jetbrains.plugins.scala.util.assertions.PsiAssertions.assertNoParserErrors
+import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -19,10 +22,13 @@ import org.junit.experimental.categories.Category
 trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner {
   protected val START = "/*start*/"
   protected val END = "/*end*/"
-  private val fewVariantsMarker = "Few variants:"
+
   private val ExpectedPattern = """expected: (.*)""".r
   private val SimplifiedPattern = """simplified: (.*)""".r
   private val JavaTypePattern = """java type: (.*)""".r
+
+  //Used in expected data, some types may be rendered in different ways, e.g. `A with B` or `B with A`
+  private val FewVariantsMarker = "Few variants:"
 
   def configureFromFileText(fileName: String, fileText: Option[String]): ScalaFile
 
@@ -49,22 +55,15 @@ trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner 
     typez match {
       case Right(ttypez) =>
         val res = ttypez.presentableText
-        val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-        val text = lastPsi.getText
-        val output = lastPsi.getNode.getElementType match {
-          case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
-          case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-            val resText = extractTextForCurrentVersion(text.substring(2, text.length - 2).trim, version)
+        val ExpectedResultFromLastComment(_, lastLineCommentText) = TestUtils.extractExpectedResultFromLastComment(scalaFile)
+        val expectedTextForCurrentVersion = extractTextForCurrentVersion(lastLineCommentText, version)
 
-            if (resText.startsWith(fewVariantsMarker)) {
-              val results = resText.substring(fewVariantsMarker.length).trim.split('\n')
-              if (!results.contains(res)) assertEqualsFailable(results(0), res)
-              return
-            } else resText
-          case _ =>
-            throw new AssertionError("Test result must be in last comment statement.")
+        if (expectedTextForCurrentVersion.startsWith(FewVariantsMarker)) {
+          val results = expectedTextForCurrentVersion.substring(FewVariantsMarker.length).trim.split('\n')
+          if (!results.contains(res))
+            assertEqualsFailable(results(0), res)
         }
-        output match {
+        else expectedTextForCurrentVersion match {
           case ExpectedPattern(expectedExpectedTypeText) =>
             val actualExpectedTypeText = expr.expectedType().map(_.presentableText).getOrElse("<none>")
             assertEqualsFailable(expectedExpectedTypeText, actualExpectedTypeText)
@@ -72,7 +71,8 @@ trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner 
             assertEqualsFailable(expectedText, TypePresentation.withoutAliases(ttypez))
           case JavaTypePattern(expectedText) =>
             assertEqualsFailable(expectedText, expr.`type`().map(_.toPsiType.getPresentableText()).getOrElse("<none>"))
-          case _ => assertEqualsFailable(output, res)
+          case _ =>
+            assertEqualsFailable(expectedTextForCurrentVersion, res)
         }
       case Failure(msg) if shouldPass => fail(msg)
       case _ =>

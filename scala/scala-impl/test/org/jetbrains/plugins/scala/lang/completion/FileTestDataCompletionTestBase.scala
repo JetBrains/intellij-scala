@@ -6,9 +6,9 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import org.jetbrains.plugins.scala.{CompletionTests, ScalaVersion}
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.{CompletionTests, ScalaVersion}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -25,31 +25,6 @@ abstract class FileTestDataCompletionTestBase extends ScalaLightCodeInsightFixtu
   override protected def sharedProjectToken = SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_2_13
-
-  /**
-   * Fetches last PSI element, checks if it is comment or not
-   * If it is some kind of comment, treat it like an expected result string
-   * If it's not, fail and return empty string
-   *
-   * @return Expected result string
-   */
-  protected final def getExpectedResult: String = {
-    import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
-
-    val scalaFile = getFile.asInstanceOf[ScalaFile]
-    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-
-    val trimRight = lastPsi.getNode.getElementType match {
-      case `tLINE_COMMENT` => 0
-      case `tBLOCK_COMMENT` |
-           `tDOC_COMMENT` => 2
-      case _ =>
-        throw new AssertionError("Test result must be in last comment statement.")
-    }
-
-    val text = lastPsi.getText
-    text.substring(2, text.length - trimRight).trim
-  }
 
   protected def checkResult(variants: Array[String], expected: String): Unit = {
     val actual = variants.sortWith(_ < _)
@@ -104,7 +79,7 @@ abstract class FileTestDataCompletionTestBase extends ScalaLightCodeInsightFixtu
       case _ => Array.empty[String]
     }
 
-    val expected = getExpectedResult
+    val expected = TestUtils.extractExpectedResultFromLastComment(getFile).expectedResult
     checkResult(items, expected)
   }
 }

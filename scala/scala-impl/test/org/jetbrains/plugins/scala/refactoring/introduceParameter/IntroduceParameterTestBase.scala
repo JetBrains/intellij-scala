@@ -1,8 +1,6 @@
-package org.jetbrains.plugins.scala.refactoring
-package introduceParameter
+package org.jetbrains.plugins.scala.refactoring.introduceParameter
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -11,7 +9,6 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -23,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChange
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{afterExpressionChoosing, trimSpacesAndComments}
 import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
 
 import java.io.File
 
@@ -50,11 +49,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightCodeInsightFixtureTe
     val endOffset = fileText.indexOf(endMarker)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
 
-    implicit val editor = openEditorAtOffset(startOffset)
-
-    var res: String = null
-
-    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
+    implicit val editor: Editor = openEditorAtOffset(startOffset)
 
     //getting settings
     def getSetting(marker: String, default: String): String = {
@@ -100,21 +95,14 @@ abstract class IntroduceParameterTestBase extends ScalaLightCodeInsightFixtureTe
           new ScalaChangeSignatureProcessor(changeInfo).run()
         }
       }
-      res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
     }
     catch {
-      case e: Exception => assert(assertion = false, message = e.getMessage + "\n" + e.getStackTrace)
+      case e: Exception =>
+        throw new AssertionError(e)
     }
 
-    val text = lastPsi.getText
-    val output = lastPsi.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
-      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-        text.substring(2, text.length - 2).trim
-      case _ =>
-        assertTrue("Test result must be in last comment statement.", false)
-        ""
-    }
+    val ExpectedResultFromLastComment(res, output) = TestUtils.extractExpectedResultFromLastComment(getFile)
+
     assertEquals(output, res.trim)
   }
 }

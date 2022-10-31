@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package autoImport
+package org.jetbrains.plugins.scala.lang.autoImport
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
@@ -10,10 +8,11 @@ import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.psi.{PsiClass, PsiPackage, SmartPointerManager}
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
 import org.junit.Assert._
 
 import java.io.File
@@ -58,30 +57,12 @@ abstract class AutoImportTestBase extends ScalaLightCodeInsightFixtureTestCase w
       case element => fail(s"Class, alias or package is expected, found: $element")
     }
 
-    var res: String = null
-    val lastPsi = scalaFile.findElementAt(scalaFile.getTextLength - 1)
-    try {
-      val action = fix.createAddImportAction(getEditor)
-      action.addImportTestOnly(classes.head)
+    val action = fix.createAddImportAction(getEditor)
+    action.addImportTestOnly(classes.head)
+    assertNotNull("reference is unresolved after import action", refPointer.getElement.resolve)
 
-      res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
-      assertNotNull("reference is unresolved after import action", refPointer.getElement.resolve)
-    }
-    catch {
-      case e: Exception =>
-        println(e)
-        fail(e.getMessage + "\n" + e.getStackTrace.mkString("Array(", ", ", ")"))
-    }
+    val ExpectedResultFromLastComment(res, output) = TestUtils.extractExpectedResultFromLastComment(scalaFile)
 
-    val text = lastPsi.getText
-    val output = lastPsi.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
-      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-        text.substring(2, text.length - 2).trim
-      case _ =>
-        assertTrue("Test result must be in last comment statement.", false)
-        ""
-    }
     assertEquals(output, res)
   }
 
