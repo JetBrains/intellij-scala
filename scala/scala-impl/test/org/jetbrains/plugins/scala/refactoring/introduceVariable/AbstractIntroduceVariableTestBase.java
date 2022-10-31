@@ -36,7 +36,6 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
   protected Editor myEditor;
   protected FileEditorManager fileEditorManager;
-  protected String newDocumentText;
   protected PsiFile myFile;
 
   protected boolean replaceAllOccurrences = false;
@@ -80,7 +79,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
     String fileText = fileTextAndSuggestedName._1;
     Option<String> suggestedName = fileTextAndSuggestedName._2;
 
-    int startOffset = fileText.indexOf(TestUtils.BEGIN_MARKER);
+    int startOffset = fileText.indexOf(TestUtils.BEGIN_MARKER());
     int endOffset = -1;
     if (startOffset >= 0) {
       replaceAllOccurrences = false;
@@ -101,10 +100,10 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
             replaceAllOccurrences = true;
             fileText = removeMarker(fileText, ALL_MARKER);
           } else {
-            startOffset = fileText.indexOf(TestUtils.CARET_MARKER);
+            startOffset = fileText.indexOf(TestUtils.CARET_MARKER());
             if (startOffset >= 0) {
               replaceAllOccurrences = false;
-              fileText = removeMarker(fileText, TestUtils.CARET_MARKER);
+              fileText = removeMarker(fileText, TestUtils.CARET_MARKER());
               endOffset = startOffset;
             }
           }
@@ -113,7 +112,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
     }
 
     if (endOffset < 0) {
-      endOffset = fileText.indexOf(TestUtils.END_MARKER);
+      endOffset = fileText.indexOf(TestUtils.END_MARKER());
       fileText = TestUtils.removeEndMarker(fileText);
     }
     myFile = createLightFile(fileText, project);
