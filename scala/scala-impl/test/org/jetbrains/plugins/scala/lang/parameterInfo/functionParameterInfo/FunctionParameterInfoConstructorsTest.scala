@@ -11,6 +11,8 @@ class FunctionParameterInfoConstructorsTest extends FunctionParameterInfoTestBas
 
   def testCaseClass(): Unit = doTest()
 
+  def testContextBound(): Unit = doTest()
+
   def testGenericScalaConstructor(): Unit = doTest()
 
   def testJavaConstructor(): Unit = doTest()

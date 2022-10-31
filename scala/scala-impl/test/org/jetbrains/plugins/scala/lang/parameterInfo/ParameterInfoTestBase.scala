@@ -42,7 +42,7 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
 
     assertNotNull(expected)
     if (!expected.contains(actual)) {
-      throw new ComparisonFailure("signatures don't match", expected.mkString("\n"), actual.mkString("\n"))
+      throw new ComparisonFailure("signatures don't match", expected.flatten.mkString("\n"), actual.mkString("\n"))
     }
 
     if (testUpdate && actual.nonEmpty) {
