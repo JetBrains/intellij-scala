@@ -1,74 +1,74 @@
 package scala.concurrent
 trait Future[+T] extends scala.AnyRef with scala.concurrent.Awaitable[T] {
-  def onComplete[U](f : scala.Function1[scala.util.Try[T], U])(implicit executor : scala.concurrent.ExecutionContext) : scala.Unit
-  def isCompleted : scala.Boolean
-  def value : scala.Option[scala.util.Try[T]]
-  def failed : scala.concurrent.Future[scala.Throwable] = { /* compiled code */ }
-  def foreach[U](f : scala.Function1[T, U])(implicit executor : scala.concurrent.ExecutionContext) : scala.Unit = { /* compiled code */ }
-  def transform[S](s : scala.Function1[T, S], f : scala.Function1[scala.Throwable, scala.Throwable])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[S] = { /* compiled code */ }
-  def transform[S](f : scala.Function1[scala.util.Try[T], scala.util.Try[S]])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[S]
-  def transformWith[S](f : scala.Function1[scala.util.Try[T], scala.concurrent.Future[S]])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[S]
-  def map[S](f : scala.Function1[T, S])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[S] = { /* compiled code */ }
-  def flatMap[S](f : scala.Function1[T, scala.concurrent.Future[S]])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[S] = { /* compiled code */ }
-  def flatten[S](implicit ev : _root_.scala.Predef.<:<[T, scala.concurrent.Future[S]]) : scala.concurrent.Future[S] = { /* compiled code */ }
-  def filter(p : scala.Function1[T, scala.Boolean])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[T] = { /* compiled code */ }
-  final def withFilter(p : scala.Function1[T, scala.Boolean])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[T] = { /* compiled code */ }
-  def collect[S](pf : scala.PartialFunction[T, S])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[S] = { /* compiled code */ }
-  def recover[U >: T](pf : scala.PartialFunction[scala.Throwable, U])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[U] = { /* compiled code */ }
-  def recoverWith[U >: T](pf : scala.PartialFunction[scala.Throwable, scala.concurrent.Future[U]])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[U] = { /* compiled code */ }
-  def zip[U](that : scala.concurrent.Future[U]) : scala.concurrent.Future[scala.Tuple2[T, U]] = { /* compiled code */ }
-  def zipWith[U, R](that : scala.concurrent.Future[U])(f : scala.Function2[T, U, R])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[R] = { /* compiled code */ }
-  def fallbackTo[U >: T](that : scala.concurrent.Future[U]) : scala.concurrent.Future[U] = { /* compiled code */ }
-  def mapTo[S](implicit tag : scala.reflect.ClassTag[S]) : scala.concurrent.Future[S] = { /* compiled code */ }
-  def andThen[U](pf : scala.PartialFunction[scala.util.Try[T], U])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[T] = { /* compiled code */ }
+  def onComplete[U](f: scala.Function1[scala.util.Try[T], U])(implicit executor: scala.concurrent.ExecutionContext): scala.Unit
+  def isCompleted: scala.Boolean
+  def value: scala.Option[scala.util.Try[T]]
+  def failed: scala.concurrent.Future[scala.Throwable] = { /* compiled code */ }
+  def foreach[U](f: scala.Function1[T, U])(implicit executor: scala.concurrent.ExecutionContext): scala.Unit = { /* compiled code */ }
+  def transform[S](s: scala.Function1[T, S], f: scala.Function1[scala.Throwable, scala.Throwable])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[S] = { /* compiled code */ }
+  def transform[S](f: scala.Function1[scala.util.Try[T], scala.util.Try[S]])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[S]
+  def transformWith[S](f: scala.Function1[scala.util.Try[T], scala.concurrent.Future[S]])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[S]
+  def map[S](f: scala.Function1[T, S])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[S] = { /* compiled code */ }
+  def flatMap[S](f: scala.Function1[T, scala.concurrent.Future[S]])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[S] = { /* compiled code */ }
+  def flatten[S](implicit ev: _root_.scala.Predef.<:<[T, scala.concurrent.Future[S]]): scala.concurrent.Future[S] = { /* compiled code */ }
+  def filter(p: scala.Function1[T, scala.Boolean])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[T] = { /* compiled code */ }
+  final def withFilter(p: scala.Function1[T, scala.Boolean])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[T] = { /* compiled code */ }
+  def collect[S](pf: scala.PartialFunction[T, S])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[S] = { /* compiled code */ }
+  def recover[U >: T](pf: scala.PartialFunction[scala.Throwable, U])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[U] = { /* compiled code */ }
+  def recoverWith[U >: T](pf: scala.PartialFunction[scala.Throwable, scala.concurrent.Future[U]])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[U] = { /* compiled code */ }
+  def zip[U](that: scala.concurrent.Future[U]): scala.concurrent.Future[scala.Tuple2[T, U]] = { /* compiled code */ }
+  def zipWith[U, R](that: scala.concurrent.Future[U])(f: scala.Function2[T, U, R])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[R] = { /* compiled code */ }
+  def fallbackTo[U >: T](that: scala.concurrent.Future[U]): scala.concurrent.Future[U] = { /* compiled code */ }
+  def mapTo[S](implicit tag: scala.reflect.ClassTag[S]): scala.concurrent.Future[S] = { /* compiled code */ }
+  def andThen[U](pf: scala.PartialFunction[scala.util.Try[T], U])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[T] = { /* compiled code */ }
 }
 object Future extends scala.AnyRef {
-  private[concurrent] val toBoxed : scala.collection.immutable.Map[java.lang.Class[_], java.lang.Class[_]] = { /* compiled code */ }
+  private[concurrent] val toBoxed: scala.collection.immutable.Map[java.lang.Class[_], java.lang.Class[_]] = { /* compiled code */ }
   object never extends scala.AnyRef with scala.concurrent.Future[scala.Nothing] {
     @scala.throws[scala.InterruptedException](classOf[scala.InterruptedException])
     @scala.throws[scala.concurrent.TimeoutException](classOf[scala.concurrent.TimeoutException])
-    override def ready(atMost : scala.concurrent.duration.Duration)(implicit permit : scala.concurrent.CanAwait) : never.this.type = { /* compiled code */ }
+    override def ready(atMost: scala.concurrent.duration.Duration)(implicit permit: scala.concurrent.CanAwait): never.this.type = { /* compiled code */ }
     @scala.throws[scala.Exception](classOf[scala.Exception])
-    override def result(atMost : scala.concurrent.duration.Duration)(implicit permit : scala.concurrent.CanAwait) : scala.Nothing = { /* compiled code */ }
-    override def onComplete[U](f : scala.Function1[scala.util.Try[scala.Nothing], U])(implicit executor : scala.concurrent.ExecutionContext) : scala.Unit = { /* compiled code */ }
-    override def isCompleted : scala.Boolean = { /* compiled code */ }
-    override def value : scala.Option[scala.util.Try[scala.Nothing]] = { /* compiled code */ }
-    override def failed : scala.concurrent.Future[scala.Throwable] = { /* compiled code */ }
-    override def foreach[U](f : scala.Function1[scala.Nothing, U])(implicit executor : scala.concurrent.ExecutionContext) : scala.Unit = { /* compiled code */ }
-    override def transform[S](s : scala.Function1[scala.Nothing, S], f : scala.Function1[scala.Throwable, scala.Throwable])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[S] = { /* compiled code */ }
-    override def transform[S](f : scala.Function1[scala.util.Try[scala.Nothing], scala.util.Try[S]])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[S] = { /* compiled code */ }
-    override def transformWith[S](f : scala.Function1[scala.util.Try[scala.Nothing], scala.concurrent.Future[S]])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[S] = { /* compiled code */ }
-    override def map[S](f : scala.Function1[scala.Nothing, S])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[S] = { /* compiled code */ }
-    override def flatMap[S](f : scala.Function1[scala.Nothing, scala.concurrent.Future[S]])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[S] = { /* compiled code */ }
-    override def flatten[S](implicit ev : _root_.scala.Predef.<:<[scala.Nothing, scala.concurrent.Future[S]]) : scala.concurrent.Future[S] = { /* compiled code */ }
-    override def filter(p : scala.Function1[scala.Nothing, scala.Boolean])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[scala.Nothing] = { /* compiled code */ }
-    override def collect[S](pf : scala.PartialFunction[scala.Nothing, S])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[S] = { /* compiled code */ }
-    override def recover[U](pf : scala.PartialFunction[scala.Throwable, U])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[U] = { /* compiled code */ }
-    override def recoverWith[U](pf : scala.PartialFunction[scala.Throwable, scala.concurrent.Future[U]])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[U] = { /* compiled code */ }
-    override def zip[U](that : scala.concurrent.Future[U]) : scala.concurrent.Future[scala.Tuple2[scala.Nothing, U]] = { /* compiled code */ }
-    override def zipWith[U, R](that : scala.concurrent.Future[U])(f : scala.Function2[scala.Nothing, U, R])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[R] = { /* compiled code */ }
-    override def fallbackTo[U](that : scala.concurrent.Future[U]) : scala.concurrent.Future[U] = { /* compiled code */ }
-    override def mapTo[S](implicit tag : scala.reflect.ClassTag[S]) : scala.concurrent.Future[S] = { /* compiled code */ }
-    override def andThen[U](pf : scala.PartialFunction[scala.util.Try[scala.Nothing], U])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[scala.Nothing] = { /* compiled code */ }
-    override def toString() : _root_.scala.Predef.String = { /* compiled code */ }
+    override def result(atMost: scala.concurrent.duration.Duration)(implicit permit: scala.concurrent.CanAwait): scala.Nothing = { /* compiled code */ }
+    override def onComplete[U](f: scala.Function1[scala.util.Try[scala.Nothing], U])(implicit executor: scala.concurrent.ExecutionContext): scala.Unit = { /* compiled code */ }
+    override def isCompleted: scala.Boolean = { /* compiled code */ }
+    override def value: scala.Option[scala.util.Try[scala.Nothing]] = { /* compiled code */ }
+    override def failed: scala.concurrent.Future[scala.Throwable] = { /* compiled code */ }
+    override def foreach[U](f: scala.Function1[scala.Nothing, U])(implicit executor: scala.concurrent.ExecutionContext): scala.Unit = { /* compiled code */ }
+    override def transform[S](s: scala.Function1[scala.Nothing, S], f: scala.Function1[scala.Throwable, scala.Throwable])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[S] = { /* compiled code */ }
+    override def transform[S](f: scala.Function1[scala.util.Try[scala.Nothing], scala.util.Try[S]])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[S] = { /* compiled code */ }
+    override def transformWith[S](f: scala.Function1[scala.util.Try[scala.Nothing], scala.concurrent.Future[S]])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[S] = { /* compiled code */ }
+    override def map[S](f: scala.Function1[scala.Nothing, S])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[S] = { /* compiled code */ }
+    override def flatMap[S](f: scala.Function1[scala.Nothing, scala.concurrent.Future[S]])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[S] = { /* compiled code */ }
+    override def flatten[S](implicit ev: _root_.scala.Predef.<:<[scala.Nothing, scala.concurrent.Future[S]]): scala.concurrent.Future[S] = { /* compiled code */ }
+    override def filter(p: scala.Function1[scala.Nothing, scala.Boolean])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[scala.Nothing] = { /* compiled code */ }
+    override def collect[S](pf: scala.PartialFunction[scala.Nothing, S])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[S] = { /* compiled code */ }
+    override def recover[U](pf: scala.PartialFunction[scala.Throwable, U])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[U] = { /* compiled code */ }
+    override def recoverWith[U](pf: scala.PartialFunction[scala.Throwable, scala.concurrent.Future[U]])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[U] = { /* compiled code */ }
+    override def zip[U](that: scala.concurrent.Future[U]): scala.concurrent.Future[scala.Tuple2[scala.Nothing, U]] = { /* compiled code */ }
+    override def zipWith[U, R](that: scala.concurrent.Future[U])(f: scala.Function2[scala.Nothing, U, R])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[R] = { /* compiled code */ }
+    override def fallbackTo[U](that: scala.concurrent.Future[U]): scala.concurrent.Future[U] = { /* compiled code */ }
+    override def mapTo[S](implicit tag: scala.reflect.ClassTag[S]): scala.concurrent.Future[S] = { /* compiled code */ }
+    override def andThen[U](pf: scala.PartialFunction[scala.util.Try[scala.Nothing], U])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[scala.Nothing] = { /* compiled code */ }
+    override def toString(): _root_.scala.Predef.String = { /* compiled code */ }
   }
-  val unit : scala.concurrent.Future[scala.Unit] = { /* compiled code */ }
-  def failed[T](exception : scala.Throwable) : scala.concurrent.Future[T] = { /* compiled code */ }
-  def successful[T](result : T) : scala.concurrent.Future[T] = { /* compiled code */ }
-  def fromTry[T](result : scala.util.Try[T]) : scala.concurrent.Future[T] = { /* compiled code */ }
-  def apply[T](body : => T)(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[T] = { /* compiled code */ }
-  def sequence[A, CC[X] <: scala.IterableOnce[X], To](in : CC[scala.concurrent.Future[A]])(implicit bf : scala.collection.BuildFrom[CC[scala.concurrent.Future[A]], A, To], executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[To] = { /* compiled code */ }
-  def firstCompletedOf[T](futures : scala.IterableOnce[scala.concurrent.Future[T]])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[T] = { /* compiled code */ }
-  def find[T](futures : scala.collection.immutable.Iterable[scala.concurrent.Future[T]])(p : scala.Function1[T, scala.Boolean])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[scala.Option[T]] = { /* compiled code */ }
-  def foldLeft[T, R](futures : scala.collection.immutable.Iterable[scala.concurrent.Future[T]])(zero : R)(op : scala.Function2[R, T, R])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[R] = { /* compiled code */ }
+  val unit: scala.concurrent.Future[scala.Unit] = { /* compiled code */ }
+  def failed[T](exception: scala.Throwable): scala.concurrent.Future[T] = { /* compiled code */ }
+  def successful[T](result: T): scala.concurrent.Future[T] = { /* compiled code */ }
+  def fromTry[T](result: scala.util.Try[T]): scala.concurrent.Future[T] = { /* compiled code */ }
+  def apply[T](body: => T)(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[T] = { /* compiled code */ }
+  def sequence[A, CC[X] <: scala.IterableOnce[X], To](in: CC[scala.concurrent.Future[A]])(implicit bf: scala.collection.BuildFrom[CC[scala.concurrent.Future[A]], A, To], executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[To] = { /* compiled code */ }
+  def firstCompletedOf[T](futures: scala.IterableOnce[scala.concurrent.Future[T]])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[T] = { /* compiled code */ }
+  def find[T](futures: scala.collection.immutable.Iterable[scala.concurrent.Future[T]])(p: scala.Function1[T, scala.Boolean])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[scala.Option[T]] = { /* compiled code */ }
+  def foldLeft[T, R](futures: scala.collection.immutable.Iterable[scala.concurrent.Future[T]])(zero: R)(op: scala.Function2[R, T, R])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[R] = { /* compiled code */ }
   @scala.deprecated("use Future.foldLeft instead", "2.12.0")
-  def fold[T, R](futures : scala.IterableOnce[scala.concurrent.Future[T]])(zero : R)(op : scala.Function2[R, T, R])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[R] = { /* compiled code */ }
+  def fold[T, R](futures: scala.IterableOnce[scala.concurrent.Future[T]])(zero: R)(op: scala.Function2[R, T, R])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[R] = { /* compiled code */ }
   @scala.deprecated("use Future.reduceLeft instead", "2.12.0")
-  def reduce[T, R >: T](futures : scala.IterableOnce[scala.concurrent.Future[T]])(op : scala.Function2[R, T, R])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[R] = { /* compiled code */ }
-  def reduceLeft[T, R >: T](futures : scala.collection.immutable.Iterable[scala.concurrent.Future[T]])(op : scala.Function2[R, T, R])(implicit executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[R] = { /* compiled code */ }
-  def traverse[A, B, M[X] <: scala.IterableOnce[X]](in : M[A])(fn : scala.Function1[A, scala.concurrent.Future[B]])(implicit bf : scala.collection.BuildFrom[M[A], B, M[B]], executor : scala.concurrent.ExecutionContext) : scala.concurrent.Future[M[B]] = { /* compiled code */ }
+  def reduce[T, R >: T](futures: scala.IterableOnce[scala.concurrent.Future[T]])(op: scala.Function2[R, T, R])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[R] = { /* compiled code */ }
+  def reduceLeft[T, R >: T](futures: scala.collection.immutable.Iterable[scala.concurrent.Future[T]])(op: scala.Function2[R, T, R])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[R] = { /* compiled code */ }
+  def traverse[A, B, M[X] <: scala.IterableOnce[X]](in: M[A])(fn: scala.Function1[A, scala.concurrent.Future[B]])(implicit bf: scala.collection.BuildFrom[M[A], B, M[B]], executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[M[B]] = { /* compiled code */ }
   private[concurrent] object InternalCallbackExecutor extends scala.AnyRef with scala.concurrent.ExecutionContext with scala.concurrent.BatchingExecutor {
-    protected override def unbatchedExecute(r : java.lang.Runnable) : scala.Unit = { /* compiled code */ }
-    override def reportFailure(t : scala.Throwable) : scala.Unit = { /* compiled code */ }
+    protected override def unbatchedExecute(r: java.lang.Runnable): scala.Unit = { /* compiled code */ }
+    override def reportFailure(t: scala.Throwable): scala.Unit = { /* compiled code */ }
   }
 }

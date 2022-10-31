@@ -1,19 +1,19 @@
 package ch.epfl.lamp.compiler.msil.emit
-class AssemblyBuilder(name : ch.epfl.lamp.compiler.msil.AssemblyName) extends ch.epfl.lamp.compiler.msil.Assembly with ch.epfl.lamp.compiler.msil.emit.ICustomAttributeSetter with ch.epfl.lamp.compiler.msil.emit.Visitable {
-  def DefineDynamicModule(name : scala.Predef.String, fileName : scala.Predef.String) : ch.epfl.lamp.compiler.msil.emit.ModuleBuilder = { /* compiled code */ }
-  def GetDynamicModule(name : scala.Predef.String) : ch.epfl.lamp.compiler.msil.emit.ModuleBuilder = { /* compiled code */ }
+class AssemblyBuilder(name: ch.epfl.lamp.compiler.msil.AssemblyName) extends ch.epfl.lamp.compiler.msil.Assembly with ch.epfl.lamp.compiler.msil.emit.ICustomAttributeSetter with ch.epfl.lamp.compiler.msil.emit.Visitable {
+  def DefineDynamicModule(name: scala.Predef.String, fileName: scala.Predef.String): ch.epfl.lamp.compiler.msil.emit.ModuleBuilder = { /* compiled code */ }
+  def GetDynamicModule(name: scala.Predef.String): ch.epfl.lamp.compiler.msil.emit.ModuleBuilder = { /* compiled code */ }
   @scala.throws[T](classOf[java.io.IOException])
-  def Save(fileName : scala.Predef.String) : scala.Unit = { /* compiled code */ }
+  def Save(fileName: scala.Predef.String): scala.Unit = { /* compiled code */ }
   @scala.throws[T](classOf[java.io.IOException])
-  def Save(destPath : scala.Predef.String, sourceFilesPath : scala.Predef.String) : scala.Unit = { /* compiled code */ }
-  def GetGeneratedFiles() : scala.Array[scala.Predef.String] = { /* compiled code */ }
-  def SetEntryPoint(entryMethod : ch.epfl.lamp.compiler.msil.MethodInfo) : scala.Unit = { /* compiled code */ }
-  def SetCustomAttribute(constr : ch.epfl.lamp.compiler.msil.ConstructorInfo, value : scala.Array[scala.Byte]) : scala.Unit = { /* compiled code */ }
-  protected var externAssemblies : scala.collection.mutable.Set[ch.epfl.lamp.compiler.msil.Assembly] = { /* compiled code */ }
-  protected def registerExternAssembly(assembly : ch.epfl.lamp.compiler.msil.Assembly) : scala.Unit = { /* compiled code */ }
-  def getExternAssemblies() : scala.Array[ch.epfl.lamp.compiler.msil.Assembly] = { /* compiled code */ }
-  def loadModules() : scala.Unit = { /* compiled code */ }
-  var generatedFiles : scala.collection.mutable.ArrayBuffer[scala.Predef.String] = { /* compiled code */ }
+  def Save(destPath: scala.Predef.String, sourceFilesPath: scala.Predef.String): scala.Unit = { /* compiled code */ }
+  def GetGeneratedFiles(): scala.Array[scala.Predef.String] = { /* compiled code */ }
+  def SetEntryPoint(entryMethod: ch.epfl.lamp.compiler.msil.MethodInfo): scala.Unit = { /* compiled code */ }
+  def SetCustomAttribute(constr: ch.epfl.lamp.compiler.msil.ConstructorInfo, value: scala.Array[scala.Byte]): scala.Unit = { /* compiled code */ }
+  protected var externAssemblies: scala.collection.mutable.Set[ch.epfl.lamp.compiler.msil.Assembly] = { /* compiled code */ }
+  protected def registerExternAssembly(assembly: ch.epfl.lamp.compiler.msil.Assembly): scala.Unit = { /* compiled code */ }
+  def getExternAssemblies(): scala.Array[ch.epfl.lamp.compiler.msil.Assembly] = { /* compiled code */ }
+  def loadModules(): scala.Unit = { /* compiled code */ }
+  var generatedFiles: scala.collection.mutable.ArrayBuffer[scala.Predef.String] = { /* compiled code */ }
   @scala.throws[T](classOf[java.io.IOException])
-  def apply(v : ch.epfl.lamp.compiler.msil.emit.Visitor) : scala.Unit = { /* compiled code */ }
+  def apply(v: ch.epfl.lamp.compiler.msil.emit.Visitor): scala.Unit = { /* compiled code */ }
 }

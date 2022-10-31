@@ -152,7 +152,6 @@ class DecompilerTest2 extends TestCase {
       .replace(" extends Product with Serializable", "")
       .replace(" with Product with Serializable", "")
       .replaceAll("\\(\\)( \\{| extends|\\()", "$1")
-      .replaceAll("(?<!&) : ", ": ")
       .replaceAll(" \\{\n\\s*}", "")
       .replaceAll("(?<=case class .+)(?<!private )val ", "")
       .replaceAll("(case class \\w+)(?=\n| extends)", "$1()")

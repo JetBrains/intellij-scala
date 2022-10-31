@@ -14,5 +14,5 @@ object Constants extends scala.AnyRef {
   final val clz = scala.Predef.classOf[scala.Option[scala.Int]]
   final val nl = null
   final val enum = java.time.Month.JANUARY
-  final val symbol : scala.Symbol = { /* compiled code */ }
+  final val symbol: scala.Symbol = { /* compiled code */ }
 }

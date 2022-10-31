@@ -1,4 +1,4 @@
 abstract class AnyVaal212() extends scala.AnyRef {
-  val scala : scala.Int = { /* compiled code */ }
-  def toStr : _root_.scala.Predef.String = { /* compiled code */ }
+  val scala: scala.Int = { /* compiled code */ }
+  def toStr: _root_.scala.Predef.String = { /* compiled code */ }
 }

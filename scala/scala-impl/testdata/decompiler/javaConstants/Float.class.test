@@ -1,103 +1,103 @@
 package scala
 final abstract class Float() extends scala.AnyVal {
-  def toByte : scala.Byte
-  def toShort : scala.Short
-  def toChar : scala.Char
-  def toInt : scala.Int
-  def toLong : scala.Long
-  def toFloat : scala.Float
-  def toDouble : scala.Double
+  def toByte: scala.Byte
+  def toShort: scala.Short
+  def toChar: scala.Char
+  def toInt: scala.Int
+  def toLong: scala.Long
+  def toFloat: scala.Float
+  def toDouble: scala.Double
   def unary_+ : scala.Float
   def unary_- : scala.Float
-  def +(x : _root_.scala.Predef.String) : _root_.scala.Predef.String
-  def ==(x : scala.Byte) : scala.Boolean
-  def ==(x : scala.Short) : scala.Boolean
-  def ==(x : scala.Char) : scala.Boolean
-  def ==(x : scala.Int) : scala.Boolean
-  def ==(x : scala.Long) : scala.Boolean
-  def ==(x : scala.Float) : scala.Boolean
-  def ==(x : scala.Double) : scala.Boolean
-  def !=(x : scala.Byte) : scala.Boolean
-  def !=(x : scala.Short) : scala.Boolean
-  def !=(x : scala.Char) : scala.Boolean
-  def !=(x : scala.Int) : scala.Boolean
-  def !=(x : scala.Long) : scala.Boolean
-  def !=(x : scala.Float) : scala.Boolean
-  def !=(x : scala.Double) : scala.Boolean
-  def <(x : scala.Byte) : scala.Boolean
-  def <(x : scala.Short) : scala.Boolean
-  def <(x : scala.Char) : scala.Boolean
-  def <(x : scala.Int) : scala.Boolean
-  def <(x : scala.Long) : scala.Boolean
-  def <(x : scala.Float) : scala.Boolean
-  def <(x : scala.Double) : scala.Boolean
-  def <=(x : scala.Byte) : scala.Boolean
-  def <=(x : scala.Short) : scala.Boolean
-  def <=(x : scala.Char) : scala.Boolean
-  def <=(x : scala.Int) : scala.Boolean
-  def <=(x : scala.Long) : scala.Boolean
-  def <=(x : scala.Float) : scala.Boolean
-  def <=(x : scala.Double) : scala.Boolean
-  def >(x : scala.Byte) : scala.Boolean
-  def >(x : scala.Short) : scala.Boolean
-  def >(x : scala.Char) : scala.Boolean
-  def >(x : scala.Int) : scala.Boolean
-  def >(x : scala.Long) : scala.Boolean
-  def >(x : scala.Float) : scala.Boolean
-  def >(x : scala.Double) : scala.Boolean
-  def >=(x : scala.Byte) : scala.Boolean
-  def >=(x : scala.Short) : scala.Boolean
-  def >=(x : scala.Char) : scala.Boolean
-  def >=(x : scala.Int) : scala.Boolean
-  def >=(x : scala.Long) : scala.Boolean
-  def >=(x : scala.Float) : scala.Boolean
-  def >=(x : scala.Double) : scala.Boolean
-  def +(x : scala.Byte) : scala.Float
-  def +(x : scala.Short) : scala.Float
-  def +(x : scala.Char) : scala.Float
-  def +(x : scala.Int) : scala.Float
-  def +(x : scala.Long) : scala.Float
-  def +(x : scala.Float) : scala.Float
-  def +(x : scala.Double) : scala.Double
-  def -(x : scala.Byte) : scala.Float
-  def -(x : scala.Short) : scala.Float
-  def -(x : scala.Char) : scala.Float
-  def -(x : scala.Int) : scala.Float
-  def -(x : scala.Long) : scala.Float
-  def -(x : scala.Float) : scala.Float
-  def -(x : scala.Double) : scala.Double
-  def *(x : scala.Byte) : scala.Float
-  def *(x : scala.Short) : scala.Float
-  def *(x : scala.Char) : scala.Float
-  def *(x : scala.Int) : scala.Float
-  def *(x : scala.Long) : scala.Float
-  def *(x : scala.Float) : scala.Float
-  def *(x : scala.Double) : scala.Double
-  def /(x : scala.Byte) : scala.Float
-  def /(x : scala.Short) : scala.Float
-  def /(x : scala.Char) : scala.Float
-  def /(x : scala.Int) : scala.Float
-  def /(x : scala.Long) : scala.Float
-  def /(x : scala.Float) : scala.Float
-  def /(x : scala.Double) : scala.Double
-  def %(x : scala.Byte) : scala.Float
-  def %(x : scala.Short) : scala.Float
-  def %(x : scala.Char) : scala.Float
-  def %(x : scala.Int) : scala.Float
-  def %(x : scala.Long) : scala.Float
-  def %(x : scala.Float) : scala.Float
-  def %(x : scala.Double) : scala.Double
-  override def getClass() : _root_.scala.Predef.Class[scala.Float] = { /* compiled code */ }
+  def +(x: _root_.scala.Predef.String): _root_.scala.Predef.String
+  def ==(x: scala.Byte): scala.Boolean
+  def ==(x: scala.Short): scala.Boolean
+  def ==(x: scala.Char): scala.Boolean
+  def ==(x: scala.Int): scala.Boolean
+  def ==(x: scala.Long): scala.Boolean
+  def ==(x: scala.Float): scala.Boolean
+  def ==(x: scala.Double): scala.Boolean
+  def !=(x: scala.Byte): scala.Boolean
+  def !=(x: scala.Short): scala.Boolean
+  def !=(x: scala.Char): scala.Boolean
+  def !=(x: scala.Int): scala.Boolean
+  def !=(x: scala.Long): scala.Boolean
+  def !=(x: scala.Float): scala.Boolean
+  def !=(x: scala.Double): scala.Boolean
+  def <(x: scala.Byte): scala.Boolean
+  def <(x: scala.Short): scala.Boolean
+  def <(x: scala.Char): scala.Boolean
+  def <(x: scala.Int): scala.Boolean
+  def <(x: scala.Long): scala.Boolean
+  def <(x: scala.Float): scala.Boolean
+  def <(x: scala.Double): scala.Boolean
+  def <=(x: scala.Byte): scala.Boolean
+  def <=(x: scala.Short): scala.Boolean
+  def <=(x: scala.Char): scala.Boolean
+  def <=(x: scala.Int): scala.Boolean
+  def <=(x: scala.Long): scala.Boolean
+  def <=(x: scala.Float): scala.Boolean
+  def <=(x: scala.Double): scala.Boolean
+  def >(x: scala.Byte): scala.Boolean
+  def >(x: scala.Short): scala.Boolean
+  def >(x: scala.Char): scala.Boolean
+  def >(x: scala.Int): scala.Boolean
+  def >(x: scala.Long): scala.Boolean
+  def >(x: scala.Float): scala.Boolean
+  def >(x: scala.Double): scala.Boolean
+  def >=(x: scala.Byte): scala.Boolean
+  def >=(x: scala.Short): scala.Boolean
+  def >=(x: scala.Char): scala.Boolean
+  def >=(x: scala.Int): scala.Boolean
+  def >=(x: scala.Long): scala.Boolean
+  def >=(x: scala.Float): scala.Boolean
+  def >=(x: scala.Double): scala.Boolean
+  def +(x: scala.Byte): scala.Float
+  def +(x: scala.Short): scala.Float
+  def +(x: scala.Char): scala.Float
+  def +(x: scala.Int): scala.Float
+  def +(x: scala.Long): scala.Float
+  def +(x: scala.Float): scala.Float
+  def +(x: scala.Double): scala.Double
+  def -(x: scala.Byte): scala.Float
+  def -(x: scala.Short): scala.Float
+  def -(x: scala.Char): scala.Float
+  def -(x: scala.Int): scala.Float
+  def -(x: scala.Long): scala.Float
+  def -(x: scala.Float): scala.Float
+  def -(x: scala.Double): scala.Double
+  def *(x: scala.Byte): scala.Float
+  def *(x: scala.Short): scala.Float
+  def *(x: scala.Char): scala.Float
+  def *(x: scala.Int): scala.Float
+  def *(x: scala.Long): scala.Float
+  def *(x: scala.Float): scala.Float
+  def *(x: scala.Double): scala.Double
+  def /(x: scala.Byte): scala.Float
+  def /(x: scala.Short): scala.Float
+  def /(x: scala.Char): scala.Float
+  def /(x: scala.Int): scala.Float
+  def /(x: scala.Long): scala.Float
+  def /(x: scala.Float): scala.Float
+  def /(x: scala.Double): scala.Double
+  def %(x: scala.Byte): scala.Float
+  def %(x: scala.Short): scala.Float
+  def %(x: scala.Char): scala.Float
+  def %(x: scala.Int): scala.Float
+  def %(x: scala.Long): scala.Float
+  def %(x: scala.Float): scala.Float
+  def %(x: scala.Double): scala.Double
+  override def getClass(): _root_.scala.Predef.Class[scala.Float] = { /* compiled code */ }
 }
 object Float extends scala.AnyRef with scala.AnyValCompanion {
   final val MinPositiveValue = 1.4E-45f
   final val NaN = java.lang.Float.NaN
   final val PositiveInfinity = java.lang.Float.POSITIVE_INFINITY
   final val NegativeInfinity = java.lang.Float.NEGATIVE_INFINITY
-  final val MinValue : scala.Float = { /* compiled code */ }
+  final val MinValue: scala.Float = { /* compiled code */ }
   final val MaxValue = 3.4028235E38f
-  def box(x : scala.Float) : java.lang.Float = { /* compiled code */ }
-  def unbox(x : java.lang.Object) : scala.Float = { /* compiled code */ }
-  override def toString() : java.lang.String = { /* compiled code */ }
-  implicit def float2double(x : scala.Float) : scala.Double = { /* compiled code */ }
+  def box(x: scala.Float): java.lang.Float = { /* compiled code */ }
+  def unbox(x: java.lang.Object): scala.Float = { /* compiled code */ }
+  override def toString(): java.lang.String = { /* compiled code */ }
+  implicit def float2double(x: scala.Float): scala.Double = { /* compiled code */ }
 }
