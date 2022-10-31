@@ -20,9 +20,9 @@ final class TypeBoundsRenderer(
     if (typ.isNothing) ""
     else boundText(typ, tLOWER_BOUND)
 
-  def boundText(typ: ScType, bound: IElementType)
+  def boundText(typ: ScType, bound: IElementType, space: Boolean = true)
                (implicit typeRenderer: TypeRenderer): String = {
     val boundEscaped = textEscaper.escape(bound.toString)
-    " " + boundEscaped + " " + typeRenderer(typ)
+    (if (space) " " else "") + boundEscaped + " " + typeRenderer(typ)
   }
 }

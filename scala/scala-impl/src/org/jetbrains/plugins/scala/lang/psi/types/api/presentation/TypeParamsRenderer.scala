@@ -106,7 +106,8 @@ class TypeParamsRenderer(
     }
     context.foreach { tp =>
       val tpFixed = if (stripContextTypeArgs) ScTypeUtil.stripTypeArgs(tp) else tp
-      buffer.append(boundsRenderer.boundText(tpFixed, ScalaTokenTypes.tCOLON)(typeRenderer))
+      val needsSpace = paramName.lastOption.exists(c => !c.isLetterOrDigit && c != '`')
+      buffer.append(boundsRenderer.boundText(tpFixed, ScalaTokenTypes.tCOLON, space = needsSpace)(typeRenderer))
     }
 
     buffer.result()
