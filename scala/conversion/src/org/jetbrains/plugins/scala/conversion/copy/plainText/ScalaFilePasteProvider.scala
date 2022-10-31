@@ -11,6 +11,7 @@ import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages.showErrorDialog
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.conversion.ScalaConversionBundle
@@ -115,7 +116,12 @@ final class ScalaFilePasteProvider extends PasteProvider {
       if (document != null) {
         document.setText(fileText)
         documentManager.commitDocument(document)
+
+        CodeStyleManager.getInstance(project).adjustLineIndent(psiFile, psiFile.getTextRange)
+        documentManager.commitDocument(document)
+
         updatePackageStatement(psiFile, targetPsiDir)
+
         new OpenFileDescriptor(project, psiFile.getVirtualFile).navigate(true)
       }
     }
