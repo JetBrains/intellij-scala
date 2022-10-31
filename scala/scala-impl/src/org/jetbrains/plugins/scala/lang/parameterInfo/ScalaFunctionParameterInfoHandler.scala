@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfo
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{ModifiersRenderer, ParameterRenderer, TypeAnnotationRenderer, TypeRenderer}
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{ModifiersRenderer, ParameterRenderer, TypeAnnotationRenderer, TypeParamsRenderer, TypeRenderer}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -88,6 +88,9 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           )
           renderer.render(param)
         }
+        def typeParamText(param: ScTypeParam, subst: ScSubstitutor) = {
+          new TypeParamsRenderer(subst(_).presentableText).render(param)
+        }
         p match {
           case x: String if x == "" =>
             noParams(buffer)
@@ -123,7 +126,9 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
               psiMethod match {
                 case method: ScFunction =>
-                  val clauses = method.effectiveParameterClauses
+                  val isEffective = method.allClauses.length <= i
+                  val clauses = if (isEffective) method.effectiveParameterClauses else method.allClauses
+
                   if (clauses.length <= i || (i == -1 && clauses.isEmpty)) {
                     if (clauses.isEmpty && i == 0) { // SCL-20512
                       method.returnType.fold(_ => noParams(buffer), processApplyMethod)
@@ -137,11 +142,19 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     val preceedingClauses = if (i == -1) Seq.empty else clauses.take(i)
                     val remainingClauses = if (i == -1) Seq.empty else clauses.drop(i + 1)
 
-                    val multipleLists = preceedingClauses.nonEmpty || remainingClauses.nonEmpty
+                    val typeParameters = method.typeParameters
+                    val multipleLists = typeParameters.nonEmpty || preceedingClauses.nonEmpty || remainingClauses.nonEmpty
 
                     def parametersOf(clause: ScParameterClause): Seq[(Parameter, String)] = {
-                      val parameters: Seq[ScParameter] = if (i != -1) clause.effectiveParameters else clause.effectiveParameters.take(length - 1)
+                      val parameters0 = if (isEffective) clause.effectiveParameters else clause.parameters
+                      val parameters: Seq[ScParameter] = if (i != -1) parameters0 else parameters0.take(length - 1)
                       parameters.map(param => (Parameter(param), paramText(param, subst)))
+                    }
+
+                    if (typeParameters.nonEmpty) {
+                      buffer.append("[")
+                      buffer.append(typeParameters.map(typeParamText(_, subst)).mkString(", "))
+                      buffer.append("]")
                     }
 
                     preceedingClauses.foreach { clause =>
@@ -236,15 +249,30 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
             processMethod(sign.method)
           case (constructor: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) if constructor.isValid =>
-            val clauses = constructor.effectiveParameterClauses
+            val isEffective = constructor.allClauses.length <= i
+            val clauses = if (isEffective) constructor.effectiveParameterClauses else constructor.allClauses
+
             if (clauses.length <= i) noParams(buffer)
             else {
               val clause: ScParameterClause = clauses(i)
               val preceedingClauses = clauses.take(i)
               val remainingClauses = clauses.drop(i + 1)
-              val multipleLists = preceedingClauses.nonEmpty || remainingClauses.nonEmpty
+              val typeParameters = constructor.getParent match {
+                case owner: ScTypeParametersOwner => owner.typeParameters
+                case _ => Seq.empty
+              }
+              val multipleLists = typeParameters.nonEmpty || preceedingClauses.nonEmpty || remainingClauses.nonEmpty
 
-              def parametersOf(clause: ScParameterClause) = clause.effectiveParameters.map(param => (Parameter(param), paramText(param, subst)))
+              def parametersOf(clause: ScParameterClause) = {
+                val parameters = if (isEffective) clause.effectiveParameters else clause.parameters
+                parameters.map(param => (Parameter(param), paramText(param, subst)))
+              }
+
+              if (typeParameters.nonEmpty) {
+                buffer.append("[")
+                buffer.append(typeParameters.map(typeParamText(_, subst)).mkString(", "))
+                buffer.append("]")
+              }
 
               preceedingClauses.foreach { clause =>
                 buffer.append("(")

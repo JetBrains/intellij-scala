@@ -1,15 +1,15 @@
 val s = ""
 s.indexOf(<caret>)
 /*
+[B >: Char](elem: B)
+[B >: Char](elem: B, from: Int)
 ch: Int
 ch: Int, fromIndex: Int
-elem: B
-elem: B, from: Int
 str: String
 str: String, fromIndex: Int
 <--->
-elem: B
-elem: B, from: Int
+[B >: Char](elem: B)
+[B >: Char](elem: B, from: Int)
 i: Int
 i: Int, i1: Int
 s: String

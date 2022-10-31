@@ -3,4 +3,4 @@ object ObjectGenericApply2 {
 }
 
 ObjectGenericApply2[Int](<caret>)
-//x: Int
+//[T](x: Int)
