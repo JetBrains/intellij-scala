@@ -24,6 +24,7 @@ import java.io.File
 import java.{util => ju}
 import scala.jdk.CollectionConverters._
 import scala.util.Try
+import scala.util.control.NonFatal
 
 /**
  * The class is responsible for pasting Scala files in Project View.
@@ -70,59 +71,65 @@ final class ScalaFilePasteProvider extends PasteProvider {
       fileNameAndExtension(scalaFile)
     }
 
-  private def createFileInDirectory(fileNameAndExtension: FileNameWithExtension, fileText: String, targetPsiDir: PsiDirectory)
-                                   (implicit project: Project): Unit =
-    Try {
-      inWriteCommandAction {
-        val FileNameWithExtension(name, extension) = fileNameAndExtension
+  private def createFileInDirectory(
+    fileNameAndExtension: FileNameWithExtension,
+    fileText: String,
+    targetPsiDir: PsiDirectory
+  )(implicit project: Project): Unit = try {
+    val FileNameWithExtension(name, extension) = fileNameAndExtension
 
-        val isWorksheet = extension == "sc"
-        //allow creating multiple worksheets in same directory: worksheet.sc, worksheet1.sc, worksheet2.sc, etc...
-        val fileName: String =
-          if (isWorksheet) VfsUtil.getNextAvailableName(targetPsiDir.getVirtualFile, name, extension)
-          else s"$name.$extension"
+    val isWorksheet = extension == "sc"
+    //allow creating multiple worksheets in same directory: worksheet.sc, worksheet1.sc, worksheet2.sc, etc...
+    val fileName: String =
+      if (isWorksheet) VfsUtil.getNextAvailableName(targetPsiDir.getVirtualFile, name, extension)
+      else s"$name.$extension"
 
-        //If the file with same name already exists ask the user whether s/he wants to replace it
-        val existingFile = targetPsiDir.findFile(fileName)
-        if (existingFile != null) {
-          val dialog = MessageDialogBuilder.yesNo(
-            IdeBundle.message("title.file.already.exists"),
-            CoreBundle.message("prompt.overwrite.project.file", fileName, "")
-          )
-          val replaceExistingFile = dialog.ask(project)
-          if (!replaceExistingFile) {
-            return
-          }
-        }
-
-        val psiFile =
-          if (existingFile != null)
-            existingFile.asInstanceOf[ScalaFile] //we are sure it's scala file because of `.scala` extension
-          else {
-            try targetPsiDir.createFile(fileName).asInstanceOf[ScalaFile]
-            catch {
-              case _: IncorrectOperationException =>
-                return
-            }
-          }
-
-        val documentManager = PsiDocumentManager.getInstance(project)
-
-        Option(documentManager.getDocument(psiFile)).foreach { document =>
-          document.setText(fileText)
-          documentManager.commitDocument(document)
-          updatePackageStatement(psiFile, targetPsiDir)
-          new OpenFileDescriptor(project, psiFile.getVirtualFile).navigate(true)
-        }
+    //If the file with same name already exists ask the user whether s/he wants to replace it
+    val existingFile = targetPsiDir.findFile(fileName)
+    if (existingFile != null) {
+      val dialog = MessageDialogBuilder.yesNo(
+        IdeBundle.message("title.file.already.exists"),
+        CoreBundle.message("prompt.overwrite.project.file", fileName, "")
+      )
+      val replaceExistingFile = dialog.ask(project)
+      if (!replaceExistingFile) {
+        return
       }
-    }.recover { case e: IncorrectOperationException =>
+    }
+
+    inWriteCommandAction {
+      val psiFile =
+        if (existingFile != null)
+          existingFile.asInstanceOf[ScalaFile] //we are sure it's scala file because of `.scala` extension
+        else {
+          try targetPsiDir.createFile(fileName).asInstanceOf[ScalaFile]
+          catch {
+            case _: IncorrectOperationException =>
+              return
+          }
+        }
+
+      val documentManager = PsiDocumentManager.getInstance(project)
+
+      val document = documentManager.getDocument(psiFile)
+      if (document != null) {
+        document.setText(fileText)
+        documentManager.commitDocument(document)
+        updatePackageStatement(psiFile, targetPsiDir)
+        new OpenFileDescriptor(project, psiFile.getVirtualFile).navigate(true)
+      }
+    }
+  } catch {
+    case e: IncorrectOperationException =>
       //noinspection ReferencePassedToNls
       showErrorDialog(
         project,
         e.getMessage,
         ScalaConversionBundle.message("paste.error.title")
       )
-    }
+    case NonFatal(ex) =>
+      throw ex
+  }
 
   private def fileNameAndExtension(scalaFile: ScalaFile): FileNameWithExtension = {
     val firstMemberName = scalaFile.members.headOption.flatMap(_.names.headOption)
@@ -154,7 +161,7 @@ object ScalaFilePasteProvider {
   implicit class DataContextExt(private val context: DataContext) extends AnyVal {
     def maybeIdeView: Option[IdeView] = Option(LangDataKeys.IDE_VIEW.getData(context))
 
-    def maybeModule: Option[Module] = Option(PlatformCoreDataKeys.MODULE.getData(context))
+    private def maybeModule: Option[Module] = Option(PlatformCoreDataKeys.MODULE.getData(context))
 
     def maybeModuleWithScala: Option[Module] = maybeModule.filter(_.hasScala)
   }
