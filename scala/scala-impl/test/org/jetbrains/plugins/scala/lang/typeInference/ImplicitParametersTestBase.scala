@@ -13,7 +13,7 @@ trait ImplicitParametersTestBase extends TypeInferenceTestBase {
       Some(fileText.withNormalizedSeparator.trim)
     )
 
-    val expr: ScExpression = findExpression(scalaFile)
+    val expr: ScExpression = findSelectedExpression(scalaFile)
 
     expr.findImplicitArguments match {
       case None =>
