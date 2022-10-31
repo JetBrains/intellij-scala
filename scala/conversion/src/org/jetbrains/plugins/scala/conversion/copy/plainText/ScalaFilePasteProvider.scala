@@ -25,6 +25,13 @@ import java.{util => ju}
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
+/**
+ * The class is responsible for pasting Scala files in Project View.
+ * If the content which is pasted to Project View is a Scala content
+ * this class tries to calculate the best file name for the newly-created Scala file
+ *
+ * For a similar Java implementation see [[com.intellij.ide.JavaFilePasteProvider]]
+ */
 final class ScalaFilePasteProvider extends PasteProvider {
 
   override def isPastePossible(dataContext: DataContext): Boolean = true
@@ -68,12 +75,14 @@ final class ScalaFilePasteProvider extends PasteProvider {
     Try {
       inWriteCommandAction {
         val FileNameWithExtension(name, extension) = fileNameAndExtension
+
         val isWorksheet = extension == "sc"
-        //allow creating multiple worksheets in same directory
+        //allow creating multiple worksheets in same directory: worksheet.sc, worksheet1.sc, worksheet2.sc, etc...
         val fileName: String =
           if (isWorksheet) VfsUtil.getNextAvailableName(targetPsiDir.getVirtualFile, name, extension)
           else s"$name.$extension"
 
+        //If the file with same name already exists ask the user whether s/he wants to replace it
         val existingFile = targetPsiDir.findFile(fileName)
         if (existingFile != null) {
           val dialog = MessageDialogBuilder.yesNo(
