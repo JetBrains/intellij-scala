@@ -329,6 +329,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   private String[] IMPORTS_WITH_PREFIX = new String[]{
       "exclude:scala.collection.mutable.ArrayBuffer",
       "exclude:scala.collection.mutable.ListBuffer",
+      "exclude:scala.collection.mutable.StringBuilder",
+      "java.lang.StringBuilder",
       "java.util.AbstractCollection",
       "java.util.AbstractList",
       "java.util.AbstractMap",
