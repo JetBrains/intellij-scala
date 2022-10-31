@@ -32,18 +32,36 @@ trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner 
 
   def configureFromFileText(fileName: String, fileText: Option[String]): ScalaFile
 
-  protected def doTest(fileText: String): Unit = {
-    doTest(Some(fileText))
+  final protected def doTest(fileText: String): Unit = {
+    doTest(fileText, true)
+  }
+
+  final protected def doTest(
+    fileText: String,
+    failIfNoAnnotatorErrorsInFileIfTestIsSupposedToFail: Boolean
+  ): Unit = {
+    doTest(Some(fileText), failIfNoAnnotatorErrorsInFileIfTestIsSupposedToFail = failIfNoAnnotatorErrorsInFileIfTestIsSupposedToFail)
   }
 
   protected def doTest(
     fileText: Option[String],
     failOnParserErrorsInFile: Boolean = true,
+    failIfNoAnnotatorErrorsInFileIfTestIsSupposedToFail: Boolean = true,
     fileName: String = "dummy.scala"
   ): Unit = {
     val scalaFile: ScalaFile = configureFromFileText(fileName, fileText)
     if (failOnParserErrorsInFile) {
       assertNoParserErrors(scalaFile)
+    }
+    if (!shouldPass && failIfNoAnnotatorErrorsInFileIfTestIsSupposedToFail) {
+      val errors = errorsFromAnnotator(scalaFile)
+      assertTrue(
+        s"""Expected to detect annotator errors in available test, but found no errors.
+           |Maybe the test was fixed in some changes?
+           |Check it manually and consider moving into successfully tests.
+           |If the test is still actual but no annotator errors is expected then pass argument `failIfNoAnnotatorErrorsInFileIfTestIsSupposedToFail=true`""".stripMargin,
+        errors.nonEmpty
+      )
     }
 
     val expr: ScExpression = findSelectedExpression(scalaFile)
@@ -141,4 +159,21 @@ trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner 
         .getOrElse(resultsWithVersions.last._2)
     }
   }
+
+  private def errorsFromAnnotator(file: PsiFile): Seq[Message] = {
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
+
+    file.depthFirst().foreach(annotate(_))
+
+    val annotations = mock.annotations
+    val errors = annotations.filter {
+      case Error(_, null) | Error(null, _) => false
+      case Error(_, _) => true
+      case _ => false
+    }
+    errors
+  }
+
+  private def annotate(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit =
+    new ScalaAnnotator().annotate(element)
 }

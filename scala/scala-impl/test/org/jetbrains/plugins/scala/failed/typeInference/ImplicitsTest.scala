@@ -8,8 +8,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
 
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL8242(): Unit = doTest()
-
   def testSCL9076(): Unit = doTest()
 
   def testSCL9961(): Unit = doTest()
@@ -19,24 +17,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
   def testSCL7605(): Unit = doTest()
 
   def testSCL8831(): Unit = doTest()
-
-  def testSCL7658(): Unit = {
-    doTest(
-      """implicit def i2s(i: Int): String = i.toString
-        |
-        |def hoo(x: String): String = {
-        |  println(1)
-        |  x
-        |}
-        |def hoo(x: Int): Int = {
-        |  println(2)
-        |  x
-        |}
-        |
-        |val ss: String = hoo(/*start*/1/*end*/)
-        |//Int
-      """.stripMargin)
-  }
 
   def testSCL9903(): Unit = doTest {
     s"""trait Prop extends  {
@@ -60,33 +40,7 @@ class ImplicitsTest extends TypeInferenceTestBase {
     """.stripMargin
   }
 
-  def testSCL10077(): Unit = {
-    doTest(
-      """
-        |object SCL10077{
-        |
-        |  trait C[A] {
-        |    def test(a: A): String
-        |  }
-        |  case class Ev[TC[_], A](a: A)(implicit val ev: TC[A]) {
-        |    def operate(fn: (A, TC[A]) => Int): Int = 23
-        |  }
-        |  class A
-        |  implicit object AisCISH extends C[A] {
-        |    def test(a: A) = "A"
-        |  }
-        |
-        |  val m: Map[String, Ev[C, _]] = Map.empty
-        |  val r = m + ("mutt" -> Ev(new A))
-        |  val x = r("mutt")
-        |
-        |  x.operate(/*start*/(arg, tc) => 66/*end*/)
-        |}
-        |
-        |//(_$1, _$1[_$1]) => Int
-      """.stripMargin)
-  }
-
+  //SCL-7468
   def testSCL7468(): Unit = {
     doTest(
       s"""
@@ -102,12 +56,14 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |implicit def getContained[A](cont: Container[A]): A = cont.value
          |def container[A] = new Impl[A]
          |
-        |class Impl[A] { def apply[B](x: => B)(implicit unboxer: Unboxer[B, A]): Container[A] = new Container(Unboxer.unbox(x)) }
+         |class Impl[A] { def apply[B](x: => B)(implicit unboxer: Unboxer[B, A]): Container[A] = new Container(Unboxer.unbox(x)) }
          |
-        |val stringCont = container("SomeString")
+         |val stringCont = container("SomeString")
          |val a1 = ${START}stringCont$END
-         |//String
-      """.stripMargin)
+         |//Container[String]
+      """.stripMargin,
+      failIfNoAnnotatorErrorsInFileIfTestIsSupposedToFail = false //no annotator errros, just a wrong type inferred
+    )
   }
 
   def testSCL8214(): Unit = {
@@ -125,37 +81,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |implicit def r[S, T](p: S)(implicit x: Z[T]): F[T] = new F[T]
          |val r: F[B] = ${START}new A$END
          |//F[B]
-      """.stripMargin)
-  }
-
-  def testSCL6372(): Unit = {
-    doTest(
-      s"""
-         |class TagA[A]
-         |  class TagB[B]
-         |
-         |  abstract class Converter[A: TagA, B: TagB] {
-         |    def work(orig: A): B
-         |  }
-         |  object Converter {
-         |    class Detected[A: TagA, B: TagB] {
-         |      def using(fun: A => B) = new Converter[A, B] {
-         |        def work(orig: A) = fun(orig)
-         |      }
-         |    }
-         |    def apply[A: TagA, B: TagB]() = new Detected
-         |  }
-         |
-         |  class Config[A, B] {
-         |    implicit val tagA = new TagA[A]
-         |    implicit val tagB = new TagB[B]
-         |  }
-         |
-         |  class Test extends Config[Long, Int] {
-         |    val conv = Converter().using(java.lang.Long.bitCount)
-         |    def run() = conv.work(${START}366111312291L$END)
-         |  }
-         |//Nothing
       """.stripMargin)
   }
 

@@ -6,15 +6,6 @@ class CaseClassTypeInferenceTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL10292(): Unit = {
-    doTest(
-      s"""
-         |case class Foo(a: Int)
-         |Foo.getClass.getMethods.find(${START}x => x.getName == "apply"$END)
-         |//(Nothing) => Boolean
-      """.stripMargin)
-  }
-
   def testSCL11159a(): Unit = {
     doTest(
       s"""import java.util.concurrent.atomic.AtomicReference

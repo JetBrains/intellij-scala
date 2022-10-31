@@ -8,17 +8,17 @@ class LocalTypeInferenceTest extends TypeInferenceTestBase {
 
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL6482(): Unit = doTest {
-    """
-      |object SCL6482 {
+  //SCL-6482
+  def testSCL6482(): Unit = doTest(
+    """object SCL6482 {
       |  class Foo[T, U <: T](u: U)
       |  def foo[T](t: T) = new Foo(t)
       |
-      |  /*start*/foo(1)/*end*/
+      |  private val value: Foo[Int, Int] = /*start*/foo(1)/*end*/
       |}
-      |//SCL6482.Foo[Int, Int]
-    """.stripMargin.trim
-  }
+      |//Foo[Int, Int]
+      |""".stripMargin.trim
+  )
 
   def testSCL6233(): Unit = doTest {
     """

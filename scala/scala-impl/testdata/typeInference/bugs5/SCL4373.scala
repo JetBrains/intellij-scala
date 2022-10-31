@@ -6,4 +6,4 @@ object SCL4373 {
     val y: Set[C[Int]] = /*start*/Set(foo(x))/*end*/ //error highlighting is not stable here:(
   }
 }
-//Set[SCL4373.C[A]]
+//Set[SCL4373.C[Int]]
