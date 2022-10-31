@@ -1,19 +1,18 @@
-package org.jetbrains.plugins.scala.codeInspection.internal
+package org.jetbrains.plugins.scala.uast.platform_inspections
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInspection.{LocalInspectionTool, NonExtendableApiUsageInspection}
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFileManager, VirtualFileSystem}
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.testFramework.PsiTestUtil
 import com.intellij.util.PathUtil
-import org.jetbrains.plugins.scala.codeInspection.internal.NonExtendableApiUsageInspectionTest.HighlightMessage
 import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.uast.platform_inspections.NonExtendableApiUsageInspectionTest.HighlightMessage
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 
 import java.nio.file.Path
 import java.util
-import scala.jdk.CollectionConverters.ListHasAsScala
 
 /**
  * Test UAST-based inspection from platform: [[com.intellij.codeInspection.NonExtendableApiUsageInspection]]
