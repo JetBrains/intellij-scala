@@ -25,8 +25,6 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
 
   def testDeeperLub(): Unit = doTest()
 
-  def testDefaultParamInference(): Unit = doTest()
-
   def testEA52539(): Unit = doTest()
 
   def testExistentialConformance(): Unit = doTest()

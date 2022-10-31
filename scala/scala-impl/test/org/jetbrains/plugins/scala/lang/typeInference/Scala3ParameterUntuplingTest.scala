@@ -10,7 +10,7 @@ class Scala3ParameterUntuplingTest extends TypeInferenceTestBase {
     s"""
        |object A {
        |  val xs: List[(Int, Int)] = ???
-       |  ${START}xs.map { (x, y) => x + y) }$END
+       |  ${START}xs.map { (x, y) => x + y }$END
        |}
        |//List[Int]
        |""".stripMargin

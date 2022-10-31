@@ -3,6 +3,7 @@ package lang
 package typeInference
 
 import com.intellij.psi.util.PsiTreeUtil
+import junit.framework.TestCase
 import org.jetbrains.plugins.scala.base.{FailableTest, ScalaSdkOwner}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -10,11 +11,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.util.assertions.PsiAssertions.assertNoParserErrors
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-trait TypeInferenceDoTest extends FailableTest with ScalaSdkOwner {
+trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner {
   protected val START = "/*start*/"
   protected val END = "/*end*/"
   private val fewVariantsMarker = "Few variants:"
@@ -24,10 +26,20 @@ trait TypeInferenceDoTest extends FailableTest with ScalaSdkOwner {
 
   def configureFromFileText(fileName: String, fileText: Option[String]): ScalaFile
 
-  protected def doTest(fileText: String): Unit = doTest(Some(fileText))
+  protected def doTest(fileText: String): Unit = {
+    doTest(Some(fileText))
+  }
 
-  protected def doTest(fileText: Option[String], fileName: String = "dummy.scala"): Unit = {
+  protected def doTest(
+    fileText: Option[String],
+    failOnParserErrorsInFile: Boolean = true,
+    fileName: String = "dummy.scala"
+  ): Unit = {
     val scalaFile: ScalaFile = configureFromFileText(fileName, fileText)
+    if (failOnParserErrorsInFile) {
+      assertNoParserErrors(scalaFile)
+    }
+
     val expr: ScExpression = findSelectedExpression(scalaFile)
     implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContext
     val typez = expr.`type`() match {

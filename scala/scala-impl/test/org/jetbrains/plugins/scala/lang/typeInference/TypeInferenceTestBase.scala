@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package typeInference
+package org.jetbrains.plugins.scala.lang.typeInference
 
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.util.io.FileUtil
@@ -11,6 +9,7 @@ import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, S
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.util.{PsiFileTestUtil, TestUtils}
+import org.jetbrains.plugins.scala.{ScalaFileType, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
 import java.io.File
@@ -49,5 +48,8 @@ abstract class TypeInferenceTestBase extends ScalaLightCodeInsightFixtureTestCas
   protected def addFileToProject(fileName: String, text: String): PsiFile =
     PsiFileTestUtil.addFileToProject(fileName, text, getProject)
 
-  protected def doTest(): Unit = doTest(None, getTestName(false) + ".scala")
+  protected def doTest(): Unit = {
+    val fileName = getTestName(false) + ".scala"
+    doTest(None, fileName = fileName)
+  }
 }
