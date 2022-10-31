@@ -294,12 +294,14 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
         sb ++= (if (node.contains(STABLE)) "val " else "def ")
       }
       val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
+      var nameId = ""
       if (!isAnonymousGiven) {
-        sb ++= id(name)
+        nameId = id(name)
+        sb ++= nameId
       }
       val previousLength = sb.length
       parametersIn(sb, node, target = if (node.contains(EXTENSION)) Target.ExtensionMethod else Target.Definition)
-      if (sb.length == previousLength && name.forall(!_.isLetterOrDigit)) {
+      if (sb.length == previousLength && needsSpace(nameId)) {
         sb ++= " "
       }
       sb ++= ": "
@@ -345,8 +347,9 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
       }
       val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
       if (!isAnonymousGiven) {
-        sb ++= id(name)
-        if (name.forall(!_.isLetterOrDigit)) {
+        val nameId = id(name)
+        sb ++= nameId
+        if (needsSpace(nameId)) {
           sb ++= " "
         }
         sb ++= ": "
@@ -588,7 +591,8 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
             sb ++= "-"
           }
         }
-        sb ++= (if (!uniqueNames && name.startsWith("_$")) "_" else id(name)) // TODO detect Unique name
+        val nameId = if (!uniqueNames && name.startsWith("_$")) "_" else id(name)
+        sb ++= nameId // TODO detect Unique name
         node.children match {
           case Seq(lambda @ Node1(LAMBDAtpt), _: _*) =>
             parametersIn(sb, lambda)
@@ -603,7 +607,7 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
         }
         contextBounds.foreach { case (id, tpe) =>
           if (id == name) {
-            if (name.forall(!_.isLetterOrDigit)) {
+            if (needsSpace(nameId)) {
               sb ++= " "
             }
             sb ++= ": "
@@ -684,8 +688,9 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
           }
         }
         if (!(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
-          sb ++= id(name)
-          if (name.forall(!_.isLetterOrDigit)) {
+          val nameId = id(name)
+          sb ++= nameId
+          if (needsSpace(nameId)) {
             sb ++= " "
           }
           sb ++= ": "
@@ -789,9 +794,11 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
   }
 
   private def id(s: String): String = {
-    val quoted = Keywords(s) || (!s.startsWith("@") && s.headOption.exists(!_.isLetter) && s.exists(_.isLetter))
+    val quoted = Keywords(s) || (!s.startsWith("@") && s.headOption.exists(!_.isLetter) && s.exists(_.isLetter) || s.contains(' '))
     if (quoted) "`" + s + "`" else s
   }
+
+  private def needsSpace(id: String) = id.lastOption.exists(c => !c.isLetterOrDigit && c != '`')
 }
 
 private object TreePrinter {

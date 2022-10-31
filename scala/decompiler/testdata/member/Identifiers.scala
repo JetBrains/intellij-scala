@@ -3,6 +3,8 @@ package member
 trait Identifiers {
   def `def`: Int = ???
 
+  def `foo bar`: Int = ???
+
   val `val`: Int = ???
 
   var `var`: Int = ???
@@ -11,11 +13,23 @@ trait Identifiers {
 
   def & : Int = ???
 
-  def &(x: Long): Int = ???
+  def foo_ : Int = ???
 
-  val && : Int = ???
+  def foo_& : Int = ???
 
-  var &&& : Int = ???
+  def `foo &`: Int = ???
+
+  def &(x: Int): Int = ???
+
+  def &(x: Int)(y: Int): Int = ???
+
+  def &&[A]: Int = ???
+
+  def &&[A](x: Int): Int = ???
+
+  val &&& : Int = ???
+
+  var &&&& : Int = ???
 
   type & = Int
 

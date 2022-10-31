@@ -223,7 +223,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
         print(" {")
         //Print class selftype
         c.thisTypeRef match {
-          case Some(t) => print("\n"); print(" this : " + toString(t.get) + " =>")
+          case Some(t) => print("\n"); print(" this: " + toString(t.get) + " =>")
           case None =>
         }
         print("\n")
@@ -287,7 +287,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   private def methodSymbolAsMethodParam(ms: MethodSymbol): String = {
-    val nameAndType = processName(ms.name) + " : " + toString(ms.infoType)(TypeFlags(true))
+    val nameId = processName(ms.name)
+    val nameAndType = nameId + colonAfter(nameId)+ toString(ms.infoType)(TypeFlags(true))
     val default = if (ms.hasDefault) compiledCodeBody else ""
     nameAndType + default
   }
@@ -310,14 +311,16 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case _ =>
     }
 
-    val nameAndType = processName(methodName) + " : " + toString(msymb.infoType)(TypeFlags(true))
+    val nameId = processName(methodName)
+    val nameAndType = nameId + colonAfter(nameId) + toString(msymb.infoType)(TypeFlags(true))
     val default = if (msymb.hasDefault) compiledCodeBody else ""
     printer.print(nameAndType + default)
     printer.result
   }
 
   def printMethodType(t: Type, printResult: Boolean,
-                      pe: MethodSymbol => String = methodSymbolAsMethodParam)(cont: => Unit): Unit = {
+                      pe: MethodSymbol => String = methodSymbolAsMethodParam,
+                      needsSpace: Boolean = false)(cont: => Unit): Unit = {
 
     def _pmt(mt: FunctionType): Unit = {
 
@@ -348,7 +351,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
         case mt: MethodType => printMethodType(mt, printResult, pe)({})
         case imt: ImplicitMethodType => printMethodType(imt, printResult, pe)({})
         case x => if (printResult) {
-          print(" : ")
+          print(": ")
           printType(x)
         }
       }
@@ -368,7 +371,9 @@ class ScalaSigPrinter(builder: StringBuilder) {
           for (param <- typeParams) removeTypeParameter(param)
         }
       //todo consider another method types
-      case x => print(" : "); printType(x)
+      case x =>
+        if (needsSpace) print(" ")
+        print(": "); printType(x)
     }
 
     // Print rest of the symbol output
@@ -445,14 +450,16 @@ class ScalaSigPrinter(builder: StringBuilder) {
           case isConstantType(ct) if isConstantValueDefinition =>
             Constants.constantExpression(ct) match {
               case Some(expr) => print(s" = $expr")
-              case None => print(s" : ${Constants.typeText(ct)} $compiledCodeBody")
+              case None =>
+                if (needsSpace(nn)) print(" ")
+                print(s": ${Constants.typeText(ct)} $compiledCodeBody")
             }
           case _                                               =>
             val printBody = !m.isDeferred && (m.parent match {
               case Some(c: ClassSymbol) if refinementClass(c) => false
               case _ => true
             })
-            printMethodType(m.infoType, printResult = true)(
+            printMethodType(m.infoType, printResult = true, needsSpace = needsSpace(nn))(
               {if (printBody) print(compiledCodeBody /* Print body only for non-abstract methods */ )}
             )
         }
@@ -698,8 +705,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
     if (params.isEmpty) ""
     else params.map { param =>
       val contextBounds = bounds.map { case (id, tpe) =>
-        val paramName = processName(currentTypeParameters.getOrElse(param, param.name))
-        if (id == paramName) " : " + tpe else ""
+        val nameId = processName(currentTypeParameters.getOrElse(param, param.name))
+        if (id == nameId) colonAfter(nameId) + tpe else ""
       }
       toString(param) + contextBounds.mkString
     }.mkString("[", ", ", "]")
@@ -906,4 +913,7 @@ object ScalaSigPrinter {
     if (canUseMultiline && (s.contains("\n") || s.contains("\r"))) "\"\"\"" + s + "\"\"\""
     else "\"" +  StringEscapeUtils.escapeJava(s) + "\""
 
+  private def colonAfter(id: String) = if (needsSpace(id)) " : " else ": "
+
+  private def needsSpace(id: String) = id.lastOption.exists(c => !c.isLetterOrDigit && c != '`')
 }
