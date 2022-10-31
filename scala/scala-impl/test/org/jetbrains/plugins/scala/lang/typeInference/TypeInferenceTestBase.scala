@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import com.intellij.openapi.extensions.Extensions
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.{ScalaFileType, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
 import java.io.File
-import scala.annotation.nowarn
 
 @Category(Array(classOf[TypecheckerTests]))
 abstract class TypeInferenceTestBase extends ScalaLightCodeInsightFixtureTestCase with TypeInferenceDoTest {
@@ -26,13 +25,10 @@ abstract class TypeInferenceTestBase extends ScalaLightCodeInsightFixtureTestCas
   override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
 
   protected def doInjectorTest(injector: SyntheticMembersInjector): Unit = {
-    val extensionPoint = Extensions.getRootArea.getExtensionPoint(SyntheticMembersInjector.EP_NAME): @nowarn("cat=deprecation")
-    extensionPoint.registerExtension(injector): @nowarn("cat=deprecation")
-    try {
-      doTest()
-    } finally {
-      extensionPoint.unregisterExtension(injector): @nowarn("cat=deprecation")
-    }
+    val extensionArea = ApplicationManager.getApplication.getExtensionArea
+    val extensionPoint = extensionArea.getExtensionPoint(SyntheticMembersInjector.EP_NAME)
+    extensionPoint.registerExtension(injector, getTestRootDisposable)
+    doTest()
   }
 
   override def configureFromFileText(fileName: String, fileText: Option[String]): ScalaFile = {
