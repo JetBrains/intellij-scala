@@ -32,14 +32,13 @@ object Sbt {
 
   @NonNls val UnmanagedSourcesAndDocsName = "unmanaged-sources-and-docs"
 
-  @NonNls val DefinitionHolderClasses = Seq("sbt.Plugin", "sbt.Build")
+  @NonNls val DefinitionHolderClasses: Seq[String] = Seq("sbt.Plugin", "sbt.Build")
 
   // this should be in sync with sbt.BuildUtil.baseImports
-  @NonNls val DefaultImplicitImports = Seq("sbt._", "Process._", "Keys._", "dsl._")
+  @NonNls val DefaultImplicitImports: Seq[String] = Seq("sbt._", "Process._", "Keys._", "dsl._")
 
   val LatestVersion: Version = Version(BuildInfo.sbtLatestVersion)
   val Latest_1_0: Version = Version(BuildInfo.sbtLatest_1_0)
-  val Latest_0_12: Version = Version(BuildInfo.sbtLatest_0_12)
   val Latest_0_13: Version = Version(BuildInfo.sbtLatest_0_13)
 
   /**

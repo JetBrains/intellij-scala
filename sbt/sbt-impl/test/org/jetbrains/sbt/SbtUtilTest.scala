@@ -88,7 +88,6 @@ class SbtUtilTest {
 
   @Test
   def testLatestCompatibleVersion(): Unit = {
-    assertEquals(Sbt.Latest_0_12,latestCompatibleVersion(v0120))
     assertEquals(Sbt.Latest_0_13,latestCompatibleVersion(v0130))
     assertEquals(Sbt.Latest_0_13,latestCompatibleVersion(v01317))
     assertEquals(Sbt.Latest_1_0,latestCompatibleVersion(v100))

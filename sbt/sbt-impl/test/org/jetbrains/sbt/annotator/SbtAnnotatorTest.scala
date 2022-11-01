@@ -16,7 +16,7 @@ import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.{MockSbtBase, MockSbt_0_12, MockSbt_0_13, MockSbt_1_0, Sbt, SbtBundle, language}
+import org.jetbrains.sbt.{MockSbtBase, MockSbt_0_13, MockSbt_1_0, Sbt, SbtBundle}
 import org.junit.Assert.assertNotNull
 import org.junit.Ignore
 import org.junit.experimental.categories.Category
@@ -100,14 +100,6 @@ abstract class SbtAnnotatorTestBase extends HeavyPlatformTestCase with MockSbtBa
       model.addContentEntry(testdataUrl).addSourceFolder(testdataUrl, false)
     })
   }
-}
-
-@Category(Array(classOf[SlowTests]))
-@Ignore
-class SbtAnnotatorTest_0_12_4 extends SbtAnnotatorTestBase with MockSbt_0_12 {
-  override implicit val sbtVersion: Version = Version("0.12.4")
-
-  def test(): Unit = runTest(sbtVersion, Expectations.sbt_0_12)
 }
 
 @Category(Array(classOf[SlowTests]))
