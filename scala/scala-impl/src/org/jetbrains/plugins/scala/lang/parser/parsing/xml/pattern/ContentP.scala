@@ -30,7 +30,7 @@ object ContentP extends ParsingRule {
     def subparse(): Unit = {
       var isReturn = false
       if (!CDSect() &&
-        !Comment() &&
+        !XmlComment() &&
         !PI() &&
         !ScalaPatterns() &&
         !XmlPattern()) isReturn = true
