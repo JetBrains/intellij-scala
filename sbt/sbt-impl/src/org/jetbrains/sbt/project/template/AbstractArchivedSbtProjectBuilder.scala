@@ -86,12 +86,24 @@ abstract class AbstractArchivedSbtProjectBuilder extends SbtModuleBuilderBase {
     relativePath: String,
     replacements: Map[String, String]
   ): Either[Seq[String], String] = {
+    modifyFileContent(
+      root,
+      relativePath,
+      replacePatterns2(_, replacements)
+    )
+  }
+
+  protected def modifyFileContent(
+    root: File,
+    relativePath: String,
+    modifyContent: String => Either[Seq[String], String]
+  ): Either[Seq[String], String] = {
     val file = new File(root, relativePath)
     val filePath = file.toPath
     if (Files.exists(filePath)) {
       val newContent = try {
         val content = Files.readString(filePath)
-        val contentPatched = replacePatterns2(content, replacements)
+        val contentPatched = modifyContent(content)
         contentPatched match {
           case Right(result) =>
             Files.writeString(filePath, result)
