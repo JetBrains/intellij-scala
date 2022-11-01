@@ -9,6 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.editor.ScalaEditorUtils
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.Constructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -69,8 +70,12 @@ object ScalaOIUtil {
     val elementAtCaret = ScalaEditorUtils.findElementAtCaret_WithFixedEOF(file, editor.getDocument, caretOffset)
     val elementAtCaretFixed = elementAtCaret match {
       case ws: PsiWhiteSpace if caretOffset == ws.getNode.getStartOffset =>
-        //in case when caret is right after the error end offset
+        // in case when caret is right after the error end offset
         PsiTreeUtil.prevLeaf(ws)
+      case (ws: PsiWhiteSpace) && PrevElement(colon @ ElementType(ScalaTokenTypes.tCOLON) && Parent(body: ScTemplateBody))
+        if ws.containingFile.exists(_.useIndentationBasedSyntax) && body.exprs.isEmpty =>
+        // in case when caret is inside an empty template body in Scala 3 indentation-based syntax
+        colon
       case e => e
     }
     elementAtCaretFixed

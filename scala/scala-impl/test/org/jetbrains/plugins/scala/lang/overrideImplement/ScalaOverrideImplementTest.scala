@@ -1549,6 +1549,34 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
     runTest(methodName, fileText, expectedText, isImplement, settingsWithoutIndentationBasedSyntax)
   }
 
+  def testImplementUsingIndentationBasedSyntaxInsideAnEmptyTemplateBody(): Unit = {
+    val fileText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  def foo(x: Int): String
+         |
+         |class Bar extends Foo:
+         |  $CARET_TAG
+         |""".stripMargin
+    val expectedText =
+      s"""
+      |package test
+      |
+      |trait Foo:
+      |  def foo(x: Int): String
+      |
+      |class Bar extends Foo:
+      |  override def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+      |""".stripMargin ++
+      // IDEA trims whitespaces in multiline strings
+      "  \n"
+    val methodName: String = "foo"
+    val isImplement = true
+    runTest(methodName, fileText, expectedText, isImplement, settingsWithIndentationBasedSyntax)
+  }
+
   def testImplementUsingStandardSyntaxWithBracesWhenSettingIsOff(): Unit = {
     val fileText =
       s"""
