@@ -1,5 +1,4 @@
-package org.jetbrains.sbt
-package project.structure
+package org.jetbrains.sbt.project.structure
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.testFramework.UsefulTestCase
@@ -22,18 +21,6 @@ class SbtRunnerTest extends UsefulTestCase {
     TestUtils.optimizeSearchingForIndexableFiles(getTestRootDisposable)
     super.setUp()
   }
-
-  def testSbtLaunch_0_12_4(): Unit =
-    doTestSbtLauncherVersionDetection("0.12.4")
-
-  def testSbtLaunch_0_13_0(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.0")
-
-  def testSbtLaunch_0_13_5(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.5")
-
-  def testSbtLaunch_0_13_9(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.9")
 
   def testSbtLaunch_latest_0_13(): Unit =
     doTestSbtLauncherVersionDetection(BuildInfo.sbtLatest_0_13)
