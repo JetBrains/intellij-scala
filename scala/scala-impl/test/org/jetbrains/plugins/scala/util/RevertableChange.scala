@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
+import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
 import com.intellij.openapi.util.Disposer
@@ -132,5 +133,24 @@ object RevertableChange {
       application.setSaveAllowed(saveAllowedBefore)
       application.saveSettings()
     }
+  }
+
+
+  def withModifiedCodeInsightSettings[T](
+    get: CodeInsightSettings => T,
+    set: (CodeInsightSettings, T) => Unit,
+    value: T
+  ): RevertableChange = new RevertableChange {
+    private def instance: CodeInsightSettings = CodeInsightSettings.getInstance
+
+    private var before: Option[T] = None
+
+    override def applyChange(): Unit = {
+      before = Some(get(instance))
+      set(instance, value)
+    }
+
+    override def revertChange(): Unit =
+      before.foreach(set(instance, _))
   }
 }
