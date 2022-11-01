@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.actions.editor
 
-import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.util.RevertableChange
@@ -8,6 +7,13 @@ import org.jetbrains.plugins.scala.util.RevertableChange
 class InterpolatedStringTypingTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
+
+  private def withAutoInsertPairBracket(value: Boolean): RevertableChange =
+    RevertableChange.withModifiedCodeInsightSettings[Boolean](
+      _.AUTOINSERT_PAIR_BRACKET,
+      _.AUTOINSERT_PAIR_BRACKET = _,
+      value
+    )
 
   def testSimpleStringTypingOpeningQuote(): Unit = {
     val text = s"""class A { val a = s$CARET_MARKER }"""
@@ -92,30 +98,6 @@ class InterpolatedStringTypingTest extends EditorActionTestBase {
 
     checkGeneratedTextAfterTyping(text, assumedStub, '{')
   }
-
-  private def withModifiedCodeInsightSettings[T](
-    get: CodeInsightSettings => T,
-    set: (CodeInsightSettings, T) => Unit,
-    value: T
-  ): RevertableChange = new RevertableChange {
-    private def instance = CodeInsightSettings.getInstance
-    private var before: Option[T] = None
-
-    override def applyChange(): Unit = {
-      before = Some(get(instance))
-      set(instance, value)
-    }
-
-    override def revertChange(): Unit =
-      before.foreach(set(instance, _))
-  }
-
-  private def withAutoInsertPairBracket(value: Boolean): RevertableChange =
-    withModifiedCodeInsightSettings[Boolean](
-      _.AUTOINSERT_PAIR_BRACKET,
-      _.AUTOINSERT_PAIR_BRACKET = _,
-      value
-    )
 
   def testInsertBrace(): Unit = withAutoInsertPairBracket(true) {
     val text = s""" val a = s"($$$CARET_MARKER)" """
