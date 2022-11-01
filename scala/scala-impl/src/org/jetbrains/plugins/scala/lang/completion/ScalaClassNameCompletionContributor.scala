@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tMULTILINE_STRING
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.withCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
@@ -118,6 +118,7 @@ object ScalaClassNameCompletionContributor {
       case _: ScClass |
            _: ScTrait => isInImport || classesOnly
       case _: ScObject => isInImport || !classesOnly
+      case c: ScEnumCase => isInImport || (classesOnly && c.constructor.isDefined)
       case _ => true
     }
   }
@@ -130,7 +131,7 @@ object ScalaClassNameCompletionContributor {
              (context: ProcessingContext): CompletionState = {
       val (isInStableCodeReference, classesOnly) = getContextOfType(place, false, classOf[ScStableCodeReference]) match {
         case null => (false, false)
-        case codeReference => (true, !codeReference.getContext.isInstanceOf[ScConstructorPattern])
+        case codeReference => (true, !codeReference.getContext.is[ScConstructorPattern])
       }
 
       CompletionState(
