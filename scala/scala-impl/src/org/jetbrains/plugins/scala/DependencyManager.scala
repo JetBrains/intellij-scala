@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 
-import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.util.registry.RegistryManager
 import org.apache.ivy.Ivy
 import org.apache.ivy.core.module.id.ModuleRevisionId
 import org.apache.ivy.core.report.{ArtifactDownloadReport, ResolveReport}
@@ -365,30 +365,30 @@ object DependencyManagerBase {
   }
 }
 
-/** @param includeTypesafeRepo mainly required to be able to resolve sbt 0.13 releases, which are not published to maven central */
-final class TestDependencyManager(includeTypesafeRepo: Boolean = false) extends DependencyManagerBase {
+final class TestDependencyManager extends DependencyManagerBase {
 
   // from Michael M.: this blacklist is in order that tested libraries do not transitively fetch `scala-library`,
   // which is loaded in a special way in tests via org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
   //TODO: should we add scala3-* here?
   override val artifactBlackList: Set[String] = Set("scala-library", "scala-reflect", "scala-compiler")
-
-  override protected def resolvers: Seq[DependencyManagerBase.Resolver] = {
-    val extraResolvers =
-      if (includeTypesafeRepo)
-        Seq(IvyResolver(
-          "typesafe-releases",
-          "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]"
-        ))
-      else Nil
-    super.resolvers ++ extraResolvers
-  }
 }
 
-object TestDependencyManager {
-  def forSbtVersion(sbtVersion: Version): TestDependencyManager = {
-    val includeTypesafeRepo = sbtVersion < Version("1.0.0")
-    new TestDependencyManager(includeTypesafeRepo)
+/**
+ * Adds additional resolver for typesafe repository<br>
+ * It's needed to be able to resolve sbt 0.13 releases, which is not published to maven central
+ */
+final class DependencyManagerForSbt(sbtVersion: Version) extends DependencyManagerBase {
+
+  private val includeTypesafeRepo = sbtVersion < Version("1.0.0")
+
+  private val typeSafeResolver = IvyResolver(
+    "typesafe-releases",
+    "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]"
+  )
+
+  override protected def resolvers: Seq[DependencyManagerBase.Resolver] = {
+    val extraResolvers = if (includeTypesafeRepo) Seq(typeSafeResolver) else Nil
+    super.resolvers ++ extraResolvers
   }
 }
 
