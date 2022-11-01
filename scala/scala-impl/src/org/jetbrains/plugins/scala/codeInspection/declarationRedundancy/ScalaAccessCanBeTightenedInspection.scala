@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
 import com.intellij.codeInsight.intention.PriorityAction.Priority
 import com.intellij.codeInsight.intention.{FileModifier, PriorityAction}
-import com.intellij.codeInspection.{LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType}
+import com.intellij.codeInspection.LocalQuickFixAndIntentionActionOnPsiElement
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
