@@ -17,6 +17,8 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 /**
  * For the motivation behind this test, see
  * [[org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.quickFixPriority]]
+ *
+ * Also keep in mind that since SCL-20508, unused declarations are not eligible for tightening access.
  */
 class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
 
@@ -62,7 +64,7 @@ class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnot
   }
 
   //noinspection SameParameterValue
-  private def configureByTextAndGerHighlightingsFor(fileText: String, highlightedElementText: String): Seq[HighlightInfo] = {
+  private def configureByTextAndGetHighlightsFor(fileText: String, highlightedElementText: String): Seq[HighlightInfo] = {
     val highlightsAllInFile = configureByText(fileText).actualHighlights
     highlightsAllInFile.filter(_.getText == highlightedElementText).filter(_.getDescription != null)
   }
@@ -74,7 +76,7 @@ class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnot
     expectedWarningMessages: Seq[String],
     expectedOrderedActionTexts: Seq[String]
   ): Unit = {
-    val highlights = configureByTextAndGerHighlightingsFor(fileText, definitionName)
+    val highlights = configureByTextAndGetHighlightsFor(fileText, definitionName)
     assertCollectionEquals(
       "Warning messages do not match",
       expectedWarningMessages.sorted,
@@ -90,8 +92,8 @@ class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnot
   }
 
   def test_when_add_type_annotation_quickfix_is_offered_show_prioritise_make_private_fix(): Unit = {
-    //NOTE: we are using `get` prefix to trigger "Type required required
-    val fileText = s"""private class A { def ${CARET}getMyDefinition = { 2 + 2; () } }"""
+    //NOTE: we are using `get` prefix to trigger "Type annotation required"
+    val fileText = s"private class A { def ${CARET}getMyDefinition = { 2 + 2; () }; getMyDefinition }"
 
     doTest(
       fileText,
@@ -112,8 +114,8 @@ class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnot
   }
 
   def test_when_add_type_annotation_quickfix_should_be_offered_but_inspection_is_disabled_show_prioritise_make_private_fix(): Unit = {
-    //NOTE: we are using `get` prefix to trigger "Type required required
-    val fileText = s"""private class A { def ${CARET}getMyDefinition = { 2 + 2; () } }"""
+    //NOTE: we are using `get` prefix to trigger "Type annotation required"
+    val fileText = s"private class A { def ${CARET}getMyDefinition = { 2 + 2; () }; getMyDefinition }"
 
     val key = TypeAnnotationInspection.highlightKey
     val inspectionProfile = InspectionProjectProfileManager.getInstance(getProject).getCurrentProfile
@@ -140,9 +142,9 @@ class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnot
   }
 
   def test_text_when_add_type_annotation_quickfix_is_not_offered_not_prioritise_make_private_fix(): Unit = {
-    //NOTE: we are using `get` prefix to trigger "Type required required
+    //NOTE: we are using `get` prefix to trigger "Type annotation required"
     //NOTE: the definition has explicit Unit type
-    val fileText = s"""private class A { def ${CARET}getMyDefinition: Unit = { 2 + 2; () } }"""
+    val fileText = s"""private class A { def ${CARET}getMyDefinition: Unit = { 2 + 2; () }; getMyDefinition }"""
 
     doTest(
       fileText,

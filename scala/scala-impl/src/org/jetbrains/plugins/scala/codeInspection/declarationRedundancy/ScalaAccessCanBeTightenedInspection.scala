@@ -31,7 +31,7 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
 
       val usages = getPipeline(element.getProject).runSearchPipeline(element, isOnTheFly)
 
-      if (usages.forall(_.targetCanBePrivate)) {
+      if (usages.nonEmpty && usages.forall(_.targetCanBePrivate)) {
         val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(modifierListOwner)
 
         Seq(
@@ -116,7 +116,7 @@ private object ScalaAccessCanBeTightenedInspection {
    *
    * @note At the moment [[PriorityAction]] is the best API we have to reorder actions & quick fixes<br>
    *       See [[https://youtrack.jetbrains.com/issue/IDEA-88512]].
-   * @note [[TypeAnnotationInspection]] doesn't implement [[PriorityAction]] so it's priority is by default NORMAL<br>
+   * @note [[TypeAnnotationInspection]] doesn't implement [[PriorityAction]] so its priority is by default NORMAL<br>
    *       This is because it will be wrapped into [[com.intellij.codeInspection.ex.QuickFixWrapper]].
    */
   private def quickFixPriority(modifierListOwner: ScModifierListOwner): Priority = {
