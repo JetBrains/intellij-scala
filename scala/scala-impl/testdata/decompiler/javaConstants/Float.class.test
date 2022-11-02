@@ -90,12 +90,12 @@ final abstract class Float extends scala.AnyVal {
   override def getClass(): _root_.scala.Predef.Class[scala.Float] = { /* compiled code */ }
 }
 object Float extends scala.AnyRef with scala.AnyValCompanion {
-  final val MinPositiveValue = 1.4E-45f
+  final val MinPositiveValue = 1.4E-45F
   final val NaN = java.lang.Float.NaN
   final val PositiveInfinity = java.lang.Float.POSITIVE_INFINITY
   final val NegativeInfinity = java.lang.Float.NEGATIVE_INFINITY
   final val MinValue: scala.Float = { /* compiled code */ }
-  final val MaxValue = 3.4028235E38f
+  final val MaxValue = 3.4028235E38F
   def box(x: scala.Float): java.lang.Float = { /* compiled code */ }
   def unbox(x: java.lang.Object): scala.Float = { /* compiled code */ }
   override def toString(): java.lang.String = { /* compiled code */ }
