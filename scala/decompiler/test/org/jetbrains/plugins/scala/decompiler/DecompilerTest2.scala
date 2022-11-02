@@ -8,16 +8,10 @@ import scala.util.control.NonFatal
 
 // TODO Prettify and unify Scala 2 decompiler output, SCL-20672
 
-// no line separators
-// whitespace before :
-// empty {}
-// empty () primary constructors, or trailing whitespaces
 // extends AnyRef
 // case calss with Product with Serializable
 // case class val
-// case class empty () required
-// self type class with, indent
-// float f -> F
+// self type class with
 // double D
 // final override -> override final
 // infix parameterized types
@@ -136,8 +130,7 @@ class DecompilerTest2 extends TestCase {
       .replaceAll(raw"(?s)/\*\*/.*?/\*(.*?)\*/", "$1")
       .replace("\r", "")
 
-    val adjustedActual = actual
-      .replace("{ /* compiled code */ }", "???")
+    val adjusted = actual
       .replace("scala.math.Ordering", "Ordering")
       .replace("scala.math.PartialOrdering", "PartialOrdering")
       .replaceAll("scala\\.(?=\\p{Lu}|\\W)", "")
@@ -151,19 +144,11 @@ class DecompilerTest2 extends TestCase {
       .replace(" extends AnyRef", "")
       .replace(" extends Product with Serializable", "")
       .replace(" with Product with Serializable", "")
-      .replaceAll("\\(\\)( \\{| extends|\\()", "$1")
-      .replaceAll(" \\{\n\\s*}", "")
       .replaceAll("(?<=case class .+)(?<!private )val ", "")
-      .replaceAll("(case class \\w+)(?=\n| extends)", "$1()")
       .replaceAll("`\\d+`", "_")
       .trim
 
-    val adjustedExpected = expected
-      .replaceAll("\n\n", "\n")
-      .replace(" ()", " ")
-      .replaceAll("\n\\s+private .+\n", "\n")
-
-    assertEquals(s"Content for $path", adjustedExpected, adjustedActual)
+    assertEquals(s"Content for $path", expected, adjusted)
   }
 
   private def readBytes(file: Path): Array[Byte] = Files.readAllBytes(file)

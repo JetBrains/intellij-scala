@@ -1,48 +1,60 @@
 package japgolly.scalajs.react
+
 package object vdom extends scala.AnyRef {
-  val EmptyTag: japgolly.scalajs.react.vdom.TagMod = { /* compiled code */ }
-  trait Tags extends scala.AnyRef with japgolly.scalajs.react.vdom.HtmlTags with japgolly.scalajs.react.vdom.Extra.Tags {
-  }
+  val EmptyTag: japgolly.scalajs.react.vdom.TagMod = ???
+
+  trait Tags extends scala.AnyRef with japgolly.scalajs.react.vdom.HtmlTags with japgolly.scalajs.react.vdom.Extra.Tags
+
   trait JustTags extends scala.AnyRef with japgolly.scalajs.react.vdom.Tags {
-    final def svg: japgolly.scalajs.react.vdom.SvgTags.type = { /* compiled code */ }
+    final def svg: japgolly.scalajs.react.vdom.SvgTags.type = ???
   }
-  object Tags extends scala.AnyRef with japgolly.scalajs.react.vdom.JustTags {
-  }
-  trait Attrs extends scala.AnyRef with japgolly.scalajs.react.vdom.HtmlAttrs with japgolly.scalajs.react.vdom.Extra.Attrs with japgolly.scalajs.react.vdom.HtmlStyles {
-  }
+
+  object Tags extends scala.AnyRef with japgolly.scalajs.react.vdom.JustTags
+
+  trait Attrs extends scala.AnyRef with japgolly.scalajs.react.vdom.HtmlAttrs with japgolly.scalajs.react.vdom.Extra.Attrs with japgolly.scalajs.react.vdom.HtmlStyles
+
   trait JustAttrs extends scala.AnyRef with japgolly.scalajs.react.vdom.Attrs {
-    final def svg: japgolly.scalajs.react.vdom.SvgAttrs.type = { /* compiled code */ }
+    final def svg: japgolly.scalajs.react.vdom.SvgAttrs.type = ???
   }
-  object Attrs extends scala.AnyRef with japgolly.scalajs.react.vdom.JustAttrs {
-  }
-  abstract class Base() extends japgolly.scalajs.react.vdom.Implicits {
+
+  object Attrs extends scala.AnyRef with japgolly.scalajs.react.vdom.JustAttrs
+
+  abstract class Base extends japgolly.scalajs.react.vdom.Implicits {
     final type ReactTag = japgolly.scalajs.react.vdom.ReactTag
+
     final type TagMod = japgolly.scalajs.react.vdom.TagMod
+
     @scala.inline
-    final def EmptyTag: japgolly.scalajs.react.vdom.TagMod = { /* compiled code */ }
+    final def EmptyTag: japgolly.scalajs.react.vdom.TagMod = ???
   }
+
   object all extends japgolly.scalajs.react.vdom.Base with japgolly.scalajs.react.vdom.Tags with japgolly.scalajs.react.vdom.Attrs {
-    object svg extends scala.AnyRef with japgolly.scalajs.react.vdom.SvgTags with japgolly.scalajs.react.vdom.SvgAttrs {
-    }
+    object svg extends scala.AnyRef with japgolly.scalajs.react.vdom.SvgTags with japgolly.scalajs.react.vdom.SvgAttrs
+
     @scala.inline
-    def keyAttr: japgolly.scalajs.react.vdom.Attr = { /* compiled code */ }
+    def keyAttr: japgolly.scalajs.react.vdom.Attr = ???
+
     @scala.inline
-    def refAttr: japgolly.scalajs.react.vdom.Attr = { /* compiled code */ }
+    def refAttr: japgolly.scalajs.react.vdom.Attr = ???
   }
+
   object prefix_<^ extends japgolly.scalajs.react.vdom.Base {
     @scala.inline
-    def < : vdom.Tags.type = { /* compiled code */ }
+    def < : vdom.Tags.type = ???
+
     @scala.inline
-    def ^ : vdom.Attrs.type = { /* compiled code */ }
+    def ^ : vdom.Attrs.type = ???
   }
+
   object svg extends scala.AnyRef {
-    object all extends japgolly.scalajs.react.vdom.Base with japgolly.scalajs.react.vdom.SvgTags with japgolly.scalajs.react.vdom.SvgAttrs {
-    }
+    object all extends japgolly.scalajs.react.vdom.Base with japgolly.scalajs.react.vdom.SvgTags with japgolly.scalajs.react.vdom.SvgAttrs
+
     object prefix_<^ extends japgolly.scalajs.react.vdom.Base {
       @scala.inline
-      def < : japgolly.scalajs.react.vdom.SvgTags.type = { /* compiled code */ }
+      def < : japgolly.scalajs.react.vdom.SvgTags.type = ???
+
       @scala.inline
-      def ^ : japgolly.scalajs.react.vdom.SvgAttrs.type = { /* compiled code */ }
+      def ^ : japgolly.scalajs.react.vdom.SvgAttrs.type = ???
     }
   }
 }

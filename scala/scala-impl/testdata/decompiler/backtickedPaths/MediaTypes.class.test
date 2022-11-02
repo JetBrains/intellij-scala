@@ -1,184 +1,363 @@
 package akka.http.scaladsl.model
+
 object MediaTypes extends scala.AnyRef with akka.http.impl.util.ObjectRegistry[scala.Tuple2[_root_.scala.Predef.String, _root_.scala.Predef.String], akka.http.scaladsl.model.MediaType] {
   type FindCustom = scala.Function2[_root_.scala.Predef.String, _root_.scala.Predef.String, scala.Option[akka.http.scaladsl.model.MediaType]]
-  def forExtensionOption(ext: _root_.scala.Predef.String): scala.Option[akka.http.scaladsl.model.MediaType] = { /* compiled code */ }
-  def forExtension(ext: _root_.scala.Predef.String): akka.http.scaladsl.model.MediaType = { /* compiled code */ }
-  private[http] val NoMediaType: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/atom+xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `application/base64`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `application/excel`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/font-woff`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/gnutar`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/java-archive`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/javascript`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `application/json`: akka.http.scaladsl.model.MediaType.WithFixedCharset = { /* compiled code */ }
-  val `application/json-patch+json`: akka.http.scaladsl.model.MediaType.WithFixedCharset = { /* compiled code */ }
-  val `application/grpc+proto`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/lha`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/lzx`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/mspowerpoint`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/msword`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/octet-stream`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/pdf`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/postscript`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/rss+xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `application/soap+xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `application/vnd.api+json`: akka.http.scaladsl.model.MediaType.WithFixedCharset = { /* compiled code */ }
-  val `application/vnd.google-earth.kml+xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `application/vnd.google-earth.kmz`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.ms-fontobject`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.oasis.opendocument.chart`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.oasis.opendocument.database`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.oasis.opendocument.formula`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.oasis.opendocument.graphics`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.oasis.opendocument.image`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.oasis.opendocument.presentation`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.oasis.opendocument.spreadsheet`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.oasis.opendocument.text`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.oasis.opendocument.text-master`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.oasis.opendocument.text-web`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.openxmlformats-officedocument.presentationml.presentation`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.openxmlformats-officedocument.presentationml.slide`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.openxmlformats-officedocument.presentationml.slideshow`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.openxmlformats-officedocument.presentationml.template`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.openxmlformats-officedocument.spreadsheetml.template`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.openxmlformats-officedocument.wordprocessingml.document`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/vnd.openxmlformats-officedocument.wordprocessingml.template`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-7z-compressed`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-ace-compressed`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-apple-diskimage`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-arc-compressed`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-bzip`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-bzip2`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-chrome-extension`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-compress`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-compressed`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-debian-package`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-dvi`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-font-truetype`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-font-opentype`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-gtar`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-gzip`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-latex`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `application/x-rar-compressed`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-redhat-package-manager`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-shockwave-flash`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-tar`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-tex`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-texinfo`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-vrml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `application/x-www-form-urlencoded`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `application/x-x509-ca-cert`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/x-xpinstall`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `application/xhtml+xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `application/xml-dtd`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `application/xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `application/zip`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/aiff`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/basic`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/midi`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/mod`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/mpeg`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/ogg`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/voc`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/vorbis`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/voxware`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/wav`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/x-realaudio`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/x-psid`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/xm`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `audio/webm`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/gif`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/jpeg`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/pict`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/png`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/svg+xml`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/svgz`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/tiff`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/x-icon`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/x-ms-bmp`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/x-pcx`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/x-pict`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/x-quicktime`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/x-rgb`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/x-xbitmap`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/x-xpixmap`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `image/webp`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `message/http`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `message/delivery-status`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `message/rfc822`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
+
+  def forExtensionOption(ext: _root_.scala.Predef.String): scala.Option[akka.http.scaladsl.model.MediaType] = ???
+
+  def forExtension(ext: _root_.scala.Predef.String): akka.http.scaladsl.model.MediaType = ???
+
+  private[http] val NoMediaType: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/atom+xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `application/base64`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `application/excel`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/font-woff`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/gnutar`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/java-archive`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/javascript`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `application/json`: akka.http.scaladsl.model.MediaType.WithFixedCharset = ???
+
+  val `application/json-patch+json`: akka.http.scaladsl.model.MediaType.WithFixedCharset = ???
+
+  val `application/grpc+proto`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/lha`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/lzx`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/mspowerpoint`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/msword`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/octet-stream`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/pdf`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/postscript`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/rss+xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `application/soap+xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `application/vnd.api+json`: akka.http.scaladsl.model.MediaType.WithFixedCharset = ???
+
+  val `application/vnd.google-earth.kml+xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `application/vnd.google-earth.kmz`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.ms-fontobject`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.oasis.opendocument.chart`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.oasis.opendocument.database`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.oasis.opendocument.formula`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.oasis.opendocument.graphics`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.oasis.opendocument.image`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.oasis.opendocument.presentation`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.oasis.opendocument.spreadsheet`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.oasis.opendocument.text`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.oasis.opendocument.text-master`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.oasis.opendocument.text-web`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.openxmlformats-officedocument.presentationml.presentation`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.openxmlformats-officedocument.presentationml.slide`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.openxmlformats-officedocument.presentationml.slideshow`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.openxmlformats-officedocument.presentationml.template`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.openxmlformats-officedocument.spreadsheetml.template`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.openxmlformats-officedocument.wordprocessingml.document`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/vnd.openxmlformats-officedocument.wordprocessingml.template`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-7z-compressed`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-ace-compressed`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-apple-diskimage`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-arc-compressed`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-bzip`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-bzip2`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-chrome-extension`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-compress`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-compressed`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-debian-package`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-dvi`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-font-truetype`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-font-opentype`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-gtar`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-gzip`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-latex`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `application/x-rar-compressed`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-redhat-package-manager`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-shockwave-flash`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-tar`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-tex`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-texinfo`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-vrml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `application/x-www-form-urlencoded`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `application/x-x509-ca-cert`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/x-xpinstall`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `application/xhtml+xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `application/xml-dtd`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `application/xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `application/zip`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/aiff`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/basic`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/midi`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/mod`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/mpeg`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/ogg`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/voc`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/vorbis`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/voxware`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/wav`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/x-realaudio`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/x-psid`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/xm`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `audio/webm`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/gif`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/jpeg`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/pict`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/png`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/svg+xml`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/svgz`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/tiff`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/x-icon`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/x-ms-bmp`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/x-pcx`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/x-pict`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/x-quicktime`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/x-rgb`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/x-xbitmap`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/x-xpixmap`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `image/webp`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `message/http`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `message/delivery-status`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `message/rfc822`: akka.http.scaladsl.model.MediaType.Binary = ???
+
   object multipart extends scala.AnyRef {
-    def mixed(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-    def alternative(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-    def related(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-    def `form-data`(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-    def signed(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-    def encrypted(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-    def byteRanges(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
+    def mixed(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = ???
+
+    def alternative(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = ???
+
+    def related(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = ???
+
+    def `form-data`(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = ???
+
+    def signed(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = ???
+
+    def encrypted(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = ???
+
+    def byteRanges(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = ???
   }
-  val `multipart/mixed`: akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-  val `multipart/alternative`: akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-  val `multipart/related`: akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-  val `multipart/form-data`: akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-  val `multipart/signed`: akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-  val `multipart/encrypted`: akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-  val `multipart/byteranges`: akka.http.scaladsl.model.MediaType.Multipart = { /* compiled code */ }
-  val `text/asp`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/cache-manifest`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/calendar`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/css`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/csv`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/event-stream`: akka.http.scaladsl.model.MediaType.WithFixedCharset = { /* compiled code */ }
-  val `text/html`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/markdown`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/mcf`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/plain`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/richtext`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/tab-separated-values`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/uri-list`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/vnd.wap.wml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/vnd.wap.wmlscript`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-asm`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-c`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-component`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-h`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-java-source`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-pascal`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-script`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scriptcsh`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scriptelisp`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scriptksh`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scriptlisp`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scriptperl`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scriptperl-module`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scriptphyton`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scriptrexx`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scriptscheme`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scriptsh`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scripttcl`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scripttcsh`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-scriptzsh`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-server-parsed-html`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-setext`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-sgml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-speech`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-uuencode`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-vcalendar`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/x-vcard`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `text/xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = { /* compiled code */ }
-  val `video/avs-video`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/divx`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/gl`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/mp4`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/mpeg`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/ogg`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/quicktime`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/x-dv`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/x-flv`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/x-motion-jpeg`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/x-ms-asf`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/x-msvideo`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/x-sgi-movie`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
-  val `video/webm`: akka.http.scaladsl.model.MediaType.Binary = { /* compiled code */ }
+
+  val `multipart/mixed`: akka.http.scaladsl.model.MediaType.Multipart = ???
+
+  val `multipart/alternative`: akka.http.scaladsl.model.MediaType.Multipart = ???
+
+  val `multipart/related`: akka.http.scaladsl.model.MediaType.Multipart = ???
+
+  val `multipart/form-data`: akka.http.scaladsl.model.MediaType.Multipart = ???
+
+  val `multipart/signed`: akka.http.scaladsl.model.MediaType.Multipart = ???
+
+  val `multipart/encrypted`: akka.http.scaladsl.model.MediaType.Multipart = ???
+
+  val `multipart/byteranges`: akka.http.scaladsl.model.MediaType.Multipart = ???
+
+  val `text/asp`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/cache-manifest`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/calendar`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/css`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/csv`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/event-stream`: akka.http.scaladsl.model.MediaType.WithFixedCharset = ???
+
+  val `text/html`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/markdown`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/mcf`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/plain`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/richtext`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/tab-separated-values`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/uri-list`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/vnd.wap.wml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/vnd.wap.wmlscript`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-asm`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-c`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-component`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-h`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-java-source`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-pascal`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-script`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scriptcsh`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scriptelisp`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scriptksh`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scriptlisp`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scriptperl`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scriptperl-module`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scriptphyton`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scriptrexx`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scriptscheme`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scriptsh`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scripttcl`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scripttcsh`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-scriptzsh`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-server-parsed-html`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-setext`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-sgml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-speech`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-uuencode`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-vcalendar`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/x-vcard`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `text/xml`: akka.http.scaladsl.model.MediaType.WithOpenCharset = ???
+
+  val `video/avs-video`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/divx`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/gl`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/mp4`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/mpeg`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/ogg`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/quicktime`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/x-dv`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/x-flv`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/x-motion-jpeg`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/x-ms-asf`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/x-msvideo`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/x-sgi-movie`: akka.http.scaladsl.model.MediaType.Binary = ???
+
+  val `video/webm`: akka.http.scaladsl.model.MediaType.Binary = ???
 }

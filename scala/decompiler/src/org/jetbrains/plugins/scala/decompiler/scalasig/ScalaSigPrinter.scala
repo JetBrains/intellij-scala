@@ -137,15 +137,28 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
 
   private def printChildren(level: Int, symbol: Symbol, filterFirstCons: Boolean = false): Unit = {
+    val previousLength = builder.length
+
     var firstConsFiltered = !filterFirstCons
     for (child <- symbol.children) {
       if (child.isParam && child.isType) {} // do nothing
       else if (!firstConsFiltered)
         child match {
           case m: MethodSymbol if m.name == CONSTRUCTOR_NAME => firstConsFiltered = true
-          case _ => printSymbol(level + 1, child)
+          case _ =>
+            val previousLength = builder.length
+            printSymbol(level + 1, child)
+            if (builder.length > previousLength) print("\n")
         }
-      else printSymbol(level + 1, child)
+      else {
+        val previousLength = builder.length
+        printSymbol(level + 1, child)
+        if (builder.length > previousLength) print("\n")
+      }
+    }
+
+    if (builder.length > previousLength) {
+      builder.delete(builder.length - 1, builder.length)
     }
   }
 
@@ -212,23 +225,29 @@ class ScalaSigPrinter(builder: StringBuilder) {
       if (c.isTrait) print("trait ") else print("class ")
       print(processName(c.name))
       val it = c.infoType
+      val cons = if (defaultConstructor == "()" && !c.isCase) "" else defaultConstructor
       val (classType, typeParams) = it match {
-        case PolyType(typeRef, symbols) => (PolyTypeWithCons(typeRef, symbols, defaultConstructor, contextBounds), symbols)
-        case ClassInfoType(a, b) if !c.isTrait => (ClassInfoTypeWithCons(a, b, defaultConstructor), Seq.empty)
+        case PolyType(typeRef, symbols) => (PolyTypeWithCons(typeRef, symbols, cons, contextBounds), symbols)
+        case ClassInfoType(a, b) if !c.isTrait => (ClassInfoTypeWithCons(a, b, cons), Seq.empty)
         case _ => (it, Seq.empty)
       }
       for (param <- typeParams) addTypeParameter(param.get)
       printType(classType)
       try {
+        val previousLength = builder.length
         print(" {")
         //Print class selftype
         c.thisTypeRef match {
-          case Some(t) => print("\n"); print(" this: " + toString(t.get) + " =>")
+          case Some(t) => print(" this: " + toString(t.get) + " =>")
           case None =>
         }
         print("\n")
         printChildren(level, c, !c.isTrait)
-        printWithIndent(level, "}\n")
+        if (builder.length == previousLength + 3) {
+          builder.delete(previousLength, previousLength + 2)
+        } else {
+          printWithIndent(level, "}\n")
+        }
       }
       finally {
         for (param <- typeParams) removeTypeParameter(param.get)
@@ -269,10 +288,14 @@ class ScalaSigPrinter(builder: StringBuilder) {
     print(processName(poName))
     val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType
     printType(classSymbol)
+    val previousLength = builder.length
     print(" {\n")
     printChildren(level, classSymbol)
-    printWithIndent(level, "}\n")
-
+    if (builder.length == previousLength + 3) {
+      builder.delete(previousLength, previousLength + 2)
+    } else {
+      printWithIndent(level, "}\n")
+    }
   }
 
   def printObject(level: Int, o: ObjectSymbol): Unit = {
@@ -281,9 +304,14 @@ class ScalaSigPrinter(builder: StringBuilder) {
     print(processName(o.name))
     val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType
     printType(classSymbol)
+    val previousLength = builder.length
     print(" {\n")
     printChildren(level, classSymbol)
-    printWithIndent(level, "}\n")
+    if (builder.length == previousLength + 3) {
+      builder.delete(previousLength, previousLength + 2)
+    } else {
+      printWithIndent(level, "}\n")
+    }
   }
 
   private def methodSymbolAsMethodParam(ms: MethodSymbol): String = {
@@ -773,8 +801,9 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case Ref(Name(value))                        => quote(value, canUseMultiline = false)
       case value: Char                             => "\'" + value + "\'"
       case value: Long                             => value.toString + "L"
-      case value: Float                            => value.toString + "f"
-      case value@(_: Boolean | _: Int | _: Double) => value.toString
+      case value: Float                            => value.toString + "F"
+      case value: Double                            => value.toString + "D"
+      case value@(_: Boolean | _: Int) => value.toString
     }
   }
 }
@@ -788,7 +817,7 @@ object ScalaSigPrinter {
       "this", "throw", "trait", "try", "type", "val", "var", "while", "with",
       "yield")
 
-  val compiledCodeBody = " = { /* compiled code */ }"
+  val compiledCodeBody = " = ???"
 
   //name may be qualified here
   def processName(name: String): String = {

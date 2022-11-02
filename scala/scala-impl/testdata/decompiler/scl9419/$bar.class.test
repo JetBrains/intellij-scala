@@ -1,5 +1,5 @@
-sealed trait |[A, B] extends scala.AnyRef {
-}
+sealed trait |[A, B] extends scala.AnyRef
+
 object | extends scala.AnyRef {
-  def foo(): scala.Int = { /* compiled code */ }
+  def foo(): scala.Int = ???
 }

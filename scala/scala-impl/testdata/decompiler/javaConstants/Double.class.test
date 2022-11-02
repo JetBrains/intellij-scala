@@ -1,102 +1,199 @@
 package scala
-final abstract class Double() extends scala.AnyVal {
+
+final abstract class Double extends scala.AnyVal {
   def toByte: scala.Byte
+
   def toShort: scala.Short
+
   def toChar: scala.Char
+
   def toInt: scala.Int
+
   def toLong: scala.Long
+
   def toFloat: scala.Float
+
   def toDouble: scala.Double
+
   def unary_+ : scala.Double
+
   def unary_- : scala.Double
+
   def +(x: _root_.scala.Predef.String): _root_.scala.Predef.String
+
   def ==(x: scala.Byte): scala.Boolean
+
   def ==(x: scala.Short): scala.Boolean
+
   def ==(x: scala.Char): scala.Boolean
+
   def ==(x: scala.Int): scala.Boolean
+
   def ==(x: scala.Long): scala.Boolean
+
   def ==(x: scala.Float): scala.Boolean
+
   def ==(x: scala.Double): scala.Boolean
+
   def !=(x: scala.Byte): scala.Boolean
+
   def !=(x: scala.Short): scala.Boolean
+
   def !=(x: scala.Char): scala.Boolean
+
   def !=(x: scala.Int): scala.Boolean
+
   def !=(x: scala.Long): scala.Boolean
+
   def !=(x: scala.Float): scala.Boolean
+
   def !=(x: scala.Double): scala.Boolean
+
   def <(x: scala.Byte): scala.Boolean
+
   def <(x: scala.Short): scala.Boolean
+
   def <(x: scala.Char): scala.Boolean
+
   def <(x: scala.Int): scala.Boolean
+
   def <(x: scala.Long): scala.Boolean
+
   def <(x: scala.Float): scala.Boolean
+
   def <(x: scala.Double): scala.Boolean
+
   def <=(x: scala.Byte): scala.Boolean
+
   def <=(x: scala.Short): scala.Boolean
+
   def <=(x: scala.Char): scala.Boolean
+
   def <=(x: scala.Int): scala.Boolean
+
   def <=(x: scala.Long): scala.Boolean
+
   def <=(x: scala.Float): scala.Boolean
+
   def <=(x: scala.Double): scala.Boolean
+
   def >(x: scala.Byte): scala.Boolean
+
   def >(x: scala.Short): scala.Boolean
+
   def >(x: scala.Char): scala.Boolean
+
   def >(x: scala.Int): scala.Boolean
+
   def >(x: scala.Long): scala.Boolean
+
   def >(x: scala.Float): scala.Boolean
+
   def >(x: scala.Double): scala.Boolean
+
   def >=(x: scala.Byte): scala.Boolean
+
   def >=(x: scala.Short): scala.Boolean
+
   def >=(x: scala.Char): scala.Boolean
+
   def >=(x: scala.Int): scala.Boolean
+
   def >=(x: scala.Long): scala.Boolean
+
   def >=(x: scala.Float): scala.Boolean
+
   def >=(x: scala.Double): scala.Boolean
+
   def +(x: scala.Byte): scala.Double
+
   def +(x: scala.Short): scala.Double
+
   def +(x: scala.Char): scala.Double
+
   def +(x: scala.Int): scala.Double
+
   def +(x: scala.Long): scala.Double
+
   def +(x: scala.Float): scala.Double
+
   def +(x: scala.Double): scala.Double
+
   def -(x: scala.Byte): scala.Double
+
   def -(x: scala.Short): scala.Double
+
   def -(x: scala.Char): scala.Double
+
   def -(x: scala.Int): scala.Double
+
   def -(x: scala.Long): scala.Double
+
   def -(x: scala.Float): scala.Double
+
   def -(x: scala.Double): scala.Double
+
   def *(x: scala.Byte): scala.Double
+
   def *(x: scala.Short): scala.Double
+
   def *(x: scala.Char): scala.Double
+
   def *(x: scala.Int): scala.Double
+
   def *(x: scala.Long): scala.Double
+
   def *(x: scala.Float): scala.Double
+
   def *(x: scala.Double): scala.Double
+
   def /(x: scala.Byte): scala.Double
+
   def /(x: scala.Short): scala.Double
+
   def /(x: scala.Char): scala.Double
+
   def /(x: scala.Int): scala.Double
+
   def /(x: scala.Long): scala.Double
+
   def /(x: scala.Float): scala.Double
+
   def /(x: scala.Double): scala.Double
+
   def %(x: scala.Byte): scala.Double
+
   def %(x: scala.Short): scala.Double
+
   def %(x: scala.Char): scala.Double
+
   def %(x: scala.Int): scala.Double
+
   def %(x: scala.Long): scala.Double
+
   def %(x: scala.Float): scala.Double
+
   def %(x: scala.Double): scala.Double
-  override def getClass(): _root_.scala.Predef.Class[scala.Double] = { /* compiled code */ }
+
+  override def getClass(): _root_.scala.Predef.Class[scala.Double] = ???
 }
+
 object Double extends scala.AnyRef with scala.AnyValCompanion {
-  final val MinPositiveValue = 4.9E-324
+  final val MinPositiveValue = 4.9E-324D
+
   final val NaN = java.lang.Double.NaN
+
   final val PositiveInfinity = java.lang.Double.POSITIVE_INFINITY
+
   final val NegativeInfinity = java.lang.Double.NEGATIVE_INFINITY
-  final val MinValue: scala.Double = { /* compiled code */ }
-  final val MaxValue = 1.7976931348623157E308
-  def box(x: scala.Double): java.lang.Double = { /* compiled code */ }
-  def unbox(x: java.lang.Object): scala.Double = { /* compiled code */ }
-  override def toString(): java.lang.String = { /* compiled code */ }
+
+  final val MinValue: scala.Double = ???
+
+  final val MaxValue = 1.7976931348623157E308D
+
+  def box(x: scala.Double): java.lang.Double = ???
+
+  def unbox(x: java.lang.Object): scala.Double = ???
+
+  override def toString(): java.lang.String = ???
 }

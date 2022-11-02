@@ -1,29 +1,42 @@
 package nyaya
+
 package object prop extends scala.AnyRef {
   case class Input(val a: scala.Any) extends scala.AnyRef with scala.Product with scala.Serializable {
-    def show: scala.Predef.String = { /* compiled code */ }
+    def show: scala.Predef.String = ???
   }
+
   type Name = scalaz.Need[scala.Predef.String]
+
   type FailureReason = scala.Predef.String
+
   type FailureReasonO = scala.Option[nyaya.prop.FailureReason]
+
   type Eval_[x] = nyaya.prop.Eval
+
   type EvalL = nyaya.prop.Logic[nyaya.prop.Eval_, scala.Nothing]
+
   type Prop[A] = nyaya.prop.Logic[nyaya.prop.PropA, A]
+
   implicit final class Prop_AnyExt[A](a: A) extends scala.AnyVal {
     @scala.annotation.elidable(2000)
-    def assertSatisfies(p: nyaya.prop.Prop[A]): scala.Unit = { /* compiled code */ }
+    def assertSatisfies(p: nyaya.prop.Prop[A]): scala.Unit = ???
   }
+
   implicit final class LogicPropExt[A](prop: nyaya.prop.Prop[A]) extends scala.AnyVal {
     @scala.inline
-    def apply(a: A): nyaya.prop.Eval = { /* compiled code */ }
+    def apply(a: A): nyaya.prop.Eval = ???
+
     @scala.inline
-    def forall[B, F[_]: scalaz.Foldable](f: scala.Function1[B, F[A]]): nyaya.prop.Prop[B] = { /* compiled code */ }
+    def forall[B, F[_]: scalaz.Foldable](f: scala.Function1[B, F[A]]): nyaya.prop.Prop[B] = ???
+
     @scala.inline
-    def forallS[B, F[_]: scalaz.Foldable, C](f: scala.Function1[B, F[C]])(implicit ev: scala.Predef.<:<[C, A]): nyaya.prop.Prop[B] = { /* compiled code */ }
+    def forallS[B, F[_]: scalaz.Foldable, C](f: scala.Function1[B, F[C]])(implicit ev: scala.Predef.<:<[C, A]): nyaya.prop.Prop[B] = ???
+
     @scala.inline
-    def forallF[F[_]: scalaz.Foldable]: nyaya.prop.Prop[F[A]] = { /* compiled code */ }
+    def forallF[F[_]: scalaz.Foldable]: nyaya.prop.Prop[F[A]] = ???
+
     @scala.inline
     @scala.annotation.elidable(2000)
-    def assert(a: A): scala.Unit = { /* compiled code */ }
+    def assert(a: A): scala.Unit = ???
   }
 }
