@@ -89,7 +89,9 @@ object Decompiler {
                              className: String,
                              isPackageObject: Boolean) =
     try {
-      val printer = new ScalaSigPrinter(new StringBuilder)
+      val builder = new StringBuilder
+
+      val printer = new ScalaSigPrinter(builder)
 
       def findPath(symbol: Symbol) = symbol.name match {
         case "<empty>" => None
@@ -114,12 +116,20 @@ object Decompiler {
       } {
         printer.print("package ")
         printer.print(packageName)
-        printer.print("\n")
+        printer.print("\n\n")
       }
+
+      val previousLength = builder.length
 
       // Print classes
       for (symbol <- symbols) {
+        val previousLenght = builder.length
         printer.printSymbol(symbol)
+        if (builder.length > previousLenght) builder.append("\n")
+      }
+
+      if (builder.length > previousLength) {
+        builder.delete(builder.length - 1, builder.length)
       }
 
       Some(printer.result)

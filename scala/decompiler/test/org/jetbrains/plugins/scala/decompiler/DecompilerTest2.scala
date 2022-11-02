@@ -8,7 +8,6 @@ import scala.util.control.NonFatal
 
 // TODO Prettify and unify Scala 2 decompiler output, SCL-20672
 
-// no line separators
 // extends AnyRef
 // case calss with Product with Serializable
 // case class val
@@ -131,7 +130,7 @@ class DecompilerTest2 extends TestCase {
       .replaceAll(raw"(?s)/\*\*/.*?/\*(.*?)\*/", "$1")
       .replace("\r", "")
 
-    val adjustedActual = actual
+    val adjusted = actual
       .replace("{ /* compiled code */ }", "???")
       .replace("scala.math.Ordering", "Ordering")
       .replace("scala.math.PartialOrdering", "PartialOrdering")
@@ -150,10 +149,7 @@ class DecompilerTest2 extends TestCase {
       .replaceAll("`\\d+`", "_")
       .trim
 
-    val adjustedExpected = expected
-      .replaceAll("\n\n", "\n")
-
-    assertEquals(s"Content for $path", adjustedExpected, adjustedActual)
+    assertEquals(s"Content for $path", expected, adjusted)
   }
 
   private def readBytes(file: Path): Array[Byte] = Files.readAllBytes(file)

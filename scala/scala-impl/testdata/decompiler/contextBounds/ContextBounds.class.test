@@ -1,13 +1,23 @@
 class ContextBounds[T: scala.math.Ordering] extends scala.AnyRef {
   def singleParameter[A: scala.math.Ordering]: scala.Unit = { /* compiled code */ }
+
   def multipleParameters[A: scala.math.Ordering, B: scala.math.PartialOrdering]: scala.Unit = { /* compiled code */ }
+
   def multipleBounds[A: scala.math.Ordering: scala.math.PartialOrdering]: scala.Unit = { /* compiled code */ }
+
   def typeAndContext[A <: scala.Int: scala.math.Ordering]: scala.Unit = { /* compiled code */ }
+
   def typeParameter1[A, B: scala.math.Ordering]: scala.Unit = { /* compiled code */ }
+
   def typeParameter2[A: scala.math.Ordering, B]: scala.Unit = { /* compiled code */ }
+
   def valueParameter[A: scala.math.Ordering](x: scala.Int): scala.Unit = { /* compiled code */ }
+
   def implicitParameter[A: scala.math.Ordering](implicit x: scala.Int): scala.Unit = { /* compiled code */ }
+
   def implicitParameterOrder[A](implicit x: scala.Int, evidence$11: scala.math.Ordering[A]): scala.Unit = { /* compiled code */ }
+
   def notImplicit[A](evidence$1: scala.math.Ordering[A]): scala.Unit = { /* compiled code */ }
+
   def multiParameter[A, B](implicit evidence$1: scala.<:<[A, B]): scala.Unit = { /* compiled code */ }
 }

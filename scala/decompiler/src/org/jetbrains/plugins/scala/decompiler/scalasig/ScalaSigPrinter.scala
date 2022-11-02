@@ -137,15 +137,28 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
 
   private def printChildren(level: Int, symbol: Symbol, filterFirstCons: Boolean = false): Unit = {
+    val previousLength = builder.length
+
     var firstConsFiltered = !filterFirstCons
     for (child <- symbol.children) {
       if (child.isParam && child.isType) {} // do nothing
       else if (!firstConsFiltered)
         child match {
           case m: MethodSymbol if m.name == CONSTRUCTOR_NAME => firstConsFiltered = true
-          case _ => printSymbol(level + 1, child)
+          case _ =>
+            val previousLength = builder.length
+            printSymbol(level + 1, child)
+            if (builder.length > previousLength) print("\n")
         }
-      else printSymbol(level + 1, child)
+      else {
+        val previousLength = builder.length
+        printSymbol(level + 1, child)
+        if (builder.length > previousLength) print("\n")
+      }
+    }
+
+    if (builder.length > previousLength) {
+      builder.delete(builder.length - 1, builder.length)
     }
   }
 
