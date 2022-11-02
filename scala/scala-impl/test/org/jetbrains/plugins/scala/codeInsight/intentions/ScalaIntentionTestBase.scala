@@ -51,15 +51,19 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestC
     checkIntentionResultText(resultText)(text)
   }
 
-  protected def checkIntentionResultText(resultText: String)(originalInputForDebugging: String)(implicit project: Project): Unit =
+  protected def formatIntentionResultBeforeChecking: Boolean = true
+
+  protected def checkIntentionResultText(expectedResultText: String)(originalInputForDebugging: String)(implicit project: Project): Unit =
     executeWriteActionCommand("Test Intention Formatting") {
-      val document = FileDocumentManager.getInstance().getDocument(getFile.getVirtualFile)
-      document.commit(project)
-      CodeStyleManager.getInstance(project).reformat(getFile)
-      val normalizedResultText = resultText.replace("\r", "")
+      if (formatIntentionResultBeforeChecking) {
+        val document = FileDocumentManager.getInstance().getDocument(getFile.getVirtualFile)
+        document.commit(project)
+        CodeStyleManager.getInstance(project).reformat(getFile)
+      }
 
       try {
-        myFixture.checkResult(normalizedResultText)
+        val expectedResultTextNormalized = expectedResultText.replace("\r", "")
+        myFixture.checkResult(expectedResultTextNormalized)
       } catch {
         case err: AssertionError =>
           System.err.println(s"Wrong result for input:\n$originalInputForDebugging")

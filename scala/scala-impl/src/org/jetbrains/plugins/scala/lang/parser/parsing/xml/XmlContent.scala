@@ -17,7 +17,7 @@ object XmlContent extends ParsingRule {
       case ScalaXmlTokenTypes.XML_START_TAG_START =>
         Element()
       case ScalaXmlTokenTypes.XML_COMMENT_START =>
-        Comment()
+        XmlComment()
       case ScalaXmlTokenTypes.XML_CDATA_START =>
         CDSect()
       case ScalaXmlTokenTypes.XML_PI_START =>

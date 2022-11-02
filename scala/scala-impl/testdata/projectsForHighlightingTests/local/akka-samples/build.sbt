@@ -1,10 +1,11 @@
-organization := "com.typesafe.akka.samples"
-name := "akka-samples"
+ThisBuild / organization := "com.typesafe.akka.samples"
 
-scalaVersion := "2.12.2"
+ThisBuild / name := "akka-samples"
+
+ThisBuild / scalaVersion := "2.12.2"
 val akkaVersion = "2.5.4"
 
-libraryDependencies ++= Seq(
+ThisBuild / libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-camel" % akkaVersion,
   "org.apache.camel" % "camel-jetty" % "2.17.7",
   "org.apache.camel" % "camel-quartz" % "2.17.7",
@@ -27,4 +28,4 @@ libraryDependencies ++= Seq(
   "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8"
 )
 
-licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
+ThisBuild / licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))

@@ -18,7 +18,7 @@ class Test {
 class Test {
   def booleanMethod: Boolean = false
 
-  override def equals(o: Any): Boolean = {
+  override def equals(o: AnyRef): Boolean = {
     !booleanMethod
     super.equals(o)
   }

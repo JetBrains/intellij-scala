@@ -3,6 +3,6 @@ class C {
 }
 /*
 class C {
-  val array: Array[Array[Any]] = Array[Array[Any]](Array("Good", 4), Array("Bad", 87))
+  val array: Array[Array[AnyRef]] = Array[Array[AnyRef]](Array("Good", 4), Array("Bad", 87))
 }
  */
