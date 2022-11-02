@@ -1,5 +1,7 @@
 package scala.collection.mutable
+
 final class LinkedEntry[A, B](val key: A, var value: B) extends scala.AnyRef with scala.collection.mutable.HashEntry[A, scala.collection.mutable.LinkedEntry[A, B]] with scala.Serializable {
   var earlier: scala.collection.mutable.LinkedEntry[A, B] = { /* compiled code */ }
+
   var later: scala.collection.mutable.LinkedEntry[A, B] = { /* compiled code */ }
 }
