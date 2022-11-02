@@ -1,5 +1,5 @@
 package scala
-final abstract class Double() extends scala.AnyVal {
+final abstract class Double extends scala.AnyVal {
   def toByte: scala.Byte
   def toShort: scala.Short
   def toChar: scala.Char
