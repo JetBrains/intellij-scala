@@ -1,6 +1,5 @@
 package scala.sys.process
-private[process] trait ProcessBuilderImpl extends scala.AnyRef {
- this: scala.sys.process.ProcessBuilder.type =>
+private[process] trait ProcessBuilderImpl extends scala.AnyRef { this: scala.sys.process.ProcessBuilder.type =>
   private[process] class DaemonBuilder(underlying: scala.sys.process.ProcessBuilder) extends ProcessBuilderImpl.this.AbstractBuilder {
     final def run(io: scala.sys.process.ProcessIO): scala.sys.process.Process = { /* compiled code */ }
   }
