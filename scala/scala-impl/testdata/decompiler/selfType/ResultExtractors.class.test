@@ -1,6 +1,5 @@
 package play.api.test
-trait ResultExtractors extends scala.AnyRef {
- this: play.api.test.ResultExtractors with play.api.http.HeaderNames with play.api.http.Status =>
+trait ResultExtractors extends scala.AnyRef { this: play.api.test.ResultExtractors with play.api.http.HeaderNames with play.api.http.Status =>
   def contentType(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): scala.Predef.String = { /* compiled code */ }
   def contentAsString(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): scala.Predef.String = { /* compiled code */ }
   def contentAsBytes(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): scala.Array[scala.Byte] = { /* compiled code */ }

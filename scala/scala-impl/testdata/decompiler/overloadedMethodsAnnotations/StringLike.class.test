@@ -1,6 +1,5 @@
 package scala.collection.immutable
-trait StringLike[+Repr] extends scala.Any with scala.collection.IndexedSeqOptimized[scala.Char, Repr] with scala.Ordered[scala.Predef.String] {
- this: scala.collection.immutable.StringLike[Repr] =>
+trait StringLike[+Repr] extends scala.Any with scala.collection.IndexedSeqOptimized[scala.Char, Repr] with scala.Ordered[scala.Predef.String] { this: scala.collection.immutable.StringLike[Repr] =>
   protected[this] def newBuilder: scala.collection.mutable.Builder[scala.Char, Repr]
   def apply(n: scala.Int): scala.Char = { /* compiled code */ }
   def length: scala.Int = { /* compiled code */ }
