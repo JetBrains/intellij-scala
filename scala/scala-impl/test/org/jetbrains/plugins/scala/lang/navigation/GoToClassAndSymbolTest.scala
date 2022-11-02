@@ -14,10 +14,7 @@ import org.junit.Assert._
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-class GoToClassAndSymbolTest extends GoToTestBase {
-
-  override protected def loadScalaLibrary = false
-
+abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
   private var myPopup: ChooseByNamePopup = _
 
   private def createPopup(model: ChooseByNameModel): ChooseByNamePopup = {
@@ -36,10 +33,10 @@ class GoToClassAndSymbolTest extends GoToTestBase {
     super.tearDown()
   }
 
-  private def gotoClassElements(text: String): Set[Any] = getPopupElements(new GotoClassModel2(getProject), text)
+  protected def gotoClassElements(text: String): Set[Any] = getPopupElements(new GotoClassModel2(getProject), text)
 
   @nowarn("cat=deprecation")
-  private def gotoSymbolElements(text: String): Set[Any] = getPopupElements(new GotoSymbolModel2(getProject), text)
+  protected def gotoSymbolElements(text: String): Set[Any] = getPopupElements(new GotoSymbolModel2(getProject), text)
 
   private def getPopupElements(model: ChooseByNameModel, text: String): Set[Any] = {
     calcPopupElements(createPopup(model), text)
@@ -59,19 +56,23 @@ class GoToClassAndSymbolTest extends GoToTestBase {
     result
   }
 
-  private def checkContainExpected(elements: Set[Any],
-                                   expected: (Any => Boolean, String)*): Unit = for {
+  protected def checkContainExpected(elements: Set[Any],
+                                     expected: (Any => Boolean, String)*): Unit = for {
     (predicate, expectedName) <- expected
 
     actualNames = elements.filter(predicate).map(actualName)
     if !actualNames.contains(expectedName)
   } fail(s"Element not found: $expectedName, found: $actualNames")
 
-  private def checkSize(elements: Set[Any], expectedSize: Int): Unit = assertEquals(
+  protected def checkSize(elements: Set[Any], expectedSize: Int): Unit = assertEquals(
     s"Wrong number of elements found, found: $elements",
     expectedSize,
     elements.size
   )
+}
+
+class GoToClassAndSymbolTest extends GoToClassAndSymbolTestBase {
+  override protected def loadScalaLibrary = false
 
   def testTrait(): Unit = {
     myFixture.addFileToProject("GoToClassSimpleTrait.scala", "trait GoToClassSimpleTrait")
@@ -163,5 +164,4 @@ class GoToClassAndSymbolTest extends GoToTestBase {
     checkContainExpected(elements, (is[ScClass], "test.:::"), (is[ScFunction], ":::"))
     checkSize(elements, 2)
   }
-
 }
