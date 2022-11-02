@@ -29,5 +29,5 @@ object Constants extends scala.AnyRef {
 
   final val enum = java.time.Month.JANUARY
 
-  final val symbol: scala.Symbol = { /* compiled code */ }
+  final val symbol: scala.Symbol = ???
 }

@@ -2,7 +2,7 @@ package Test
 
 object MyJoin extends scala.AnyRef {
   trait Join[P, S] extends scala.AnyRef {
-    val e: scala.Int = { /* compiled code */ }
+    val e: scala.Int = ???
 
     type Out
 
@@ -18,6 +18,6 @@ object MyJoin extends scala.AnyRef {
   trait Join2 extends scala.AnyRef with Test.MyJoin.Join[scala.Int, scala.Int] {
     override type Out = scala.Int
 
-    override val e: scala.Int = { /* compiled code */ }
+    override val e: scala.Int = ???
   }
 }

@@ -1,35 +1,35 @@
 package play.api.test
 
 trait ResultExtractors extends scala.AnyRef { this: play.api.test.ResultExtractors with play.api.http.HeaderNames with play.api.http.Status =>
-  def contentType(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): scala.Predef.String = { /* compiled code */ }
+  def contentType(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): scala.Predef.String = ???
 
-  def contentAsString(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): scala.Predef.String = { /* compiled code */ }
+  def contentAsString(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): scala.Predef.String = ???
 
-  def contentAsBytes(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): scala.Array[scala.Byte] = { /* compiled code */ }
+  def contentAsBytes(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): scala.Array[scala.Byte] = ???
 
-  def contentAsJson(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): play.api.libs.json.JsValue = { /* compiled code */ }
+  def contentAsJson(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): play.api.libs.json.JsValue = ???
 
-  def contentType(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Option[scala.Predef.String] = { /* compiled code */ }
+  def contentType(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Option[scala.Predef.String] = ???
 
-  def charset(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Option[scala.Predef.String] = { /* compiled code */ }
+  def charset(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Option[scala.Predef.String] = ???
 
-  def contentAsString(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Predef.String = { /* compiled code */ }
+  def contentAsString(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Predef.String = ???
 
-  def contentAsBytes(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Array[scala.Byte] = { /* compiled code */ }
+  def contentAsBytes(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Array[scala.Byte] = ???
 
-  def contentAsJson(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): play.api.libs.json.JsValue = { /* compiled code */ }
+  def contentAsJson(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): play.api.libs.json.JsValue = ???
 
-  def status(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Int = { /* compiled code */ }
+  def status(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Int = ???
 
-  def cookies(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): play.api.mvc.Cookies = { /* compiled code */ }
+  def cookies(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): play.api.mvc.Cookies = ???
 
-  def flash(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): play.api.mvc.Flash = { /* compiled code */ }
+  def flash(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): play.api.mvc.Flash = ???
 
-  def session(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): play.api.mvc.Session = { /* compiled code */ }
+  def session(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): play.api.mvc.Session = ???
 
-  def redirectLocation(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Option[scala.Predef.String] = { /* compiled code */ }
+  def redirectLocation(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Option[scala.Predef.String] = ???
 
-  def header(header: scala.Predef.String, of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Option[scala.Predef.String] = { /* compiled code */ }
+  def header(header: scala.Predef.String, of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Option[scala.Predef.String] = ???
 
-  def headers(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Predef.Map[scala.Predef.String, scala.Predef.String] = { /* compiled code */ }
+  def headers(of: scala.concurrent.Future[play.api.mvc.Result])(implicit timeout: akka.util.Timeout): scala.Predef.Map[scala.Predef.String, scala.Predef.String] = ???
 }

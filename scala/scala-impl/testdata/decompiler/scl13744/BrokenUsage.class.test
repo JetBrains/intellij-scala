@@ -5,7 +5,7 @@ trait BrokenUsage extends scala.AnyRef {
   val field: scala.Int
 
   object Foo extends scala.AnyRef {
-    lazy val x: scala.Int = { /* compiled code */ }
+    lazy val x: scala.Int = ???
   }
 
   def x(y: scala.Int)(z: scala.Int): scala.Int

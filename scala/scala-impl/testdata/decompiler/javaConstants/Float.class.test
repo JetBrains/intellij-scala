@@ -175,7 +175,7 @@ final abstract class Float extends scala.AnyVal {
 
   def %(x: scala.Double): scala.Double
 
-  override def getClass(): _root_.scala.Predef.Class[scala.Float] = { /* compiled code */ }
+  override def getClass(): _root_.scala.Predef.Class[scala.Float] = ???
 }
 
 object Float extends scala.AnyRef with scala.AnyValCompanion {
@@ -187,15 +187,15 @@ object Float extends scala.AnyRef with scala.AnyValCompanion {
 
   final val NegativeInfinity = java.lang.Float.NEGATIVE_INFINITY
 
-  final val MinValue: scala.Float = { /* compiled code */ }
+  final val MinValue: scala.Float = ???
 
   final val MaxValue = 3.4028235E38F
 
-  def box(x: scala.Float): java.lang.Float = { /* compiled code */ }
+  def box(x: scala.Float): java.lang.Float = ???
 
-  def unbox(x: java.lang.Object): scala.Float = { /* compiled code */ }
+  def unbox(x: java.lang.Object): scala.Float = ???
 
-  override def toString(): java.lang.String = { /* compiled code */ }
+  override def toString(): java.lang.String = ???
 
-  implicit def float2double(x: scala.Float): scala.Double = { /* compiled code */ }
+  implicit def float2double(x: scala.Float): scala.Double = ???
 }

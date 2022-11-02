@@ -17,8 +17,9 @@ import scala.collection.mutable
 // nonEmpty predicate
 // implicit StringBuilder?
 // indent: opaque type, implicit
-class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* compiled code */ }") {
+class TreePrinter(privateMembers: Boolean = false) {
   private final val Indent = "  "
+  private final val CompiledCode = "???"
 
   // TODO use parameters
   private val sharedTypes = mutable.Map[Addr, String]()
@@ -171,7 +172,7 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
       } else {
         sb ++= " = "
         if (node.contains(OPAQUE)) {
-          sb ++= compiledCode
+          sb ++= CompiledCode
         } else {
           repr.children.findLast(_.isTypeTree).orElse(repr.children.find(_.is(TYPEBOUNDS)).flatMap(_.children.headOption)) match {
             case Some(t) =>
@@ -278,7 +279,7 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
       sb ++= "def this"
       parametersIn(sb, node)
       sb ++= " = "
-      sb ++= compiledCode
+      sb ++= CompiledCode
     } else {
       if (node.contains(EXTENSION)) {
         sb ++= "extension "
@@ -316,7 +317,7 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
       val isDeclaration = remainder.drop(1).forall(_.isModifier)
       if (!isDeclaration) {
         sb ++= " = "
-        sb ++= compiledCode
+        sb ++= CompiledCode
       }
     }
   }
@@ -364,7 +365,7 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
       val isDeclaration = children.drop(1).forall(_.isModifier)
       if (!isDeclaration) {
         sb ++= " = "
-        sb ++= compiledCode
+        sb ++= CompiledCode
       }
     }
   }
@@ -698,7 +699,7 @@ class TreePrinter(privateMembers: Boolean = false, compiledCode: String = "{ /* 
         sb ++= simple(tpe).stripSuffix(" @scala.annotation.internal.InlineParam")
         if (node.contains(HASDEFAULT)) {
           sb ++= " = "
-          sb ++= compiledCode
+          sb ++= CompiledCode
         }
         next = true
       case _ =>
