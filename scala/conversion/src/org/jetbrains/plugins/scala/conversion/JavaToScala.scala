@@ -500,24 +500,25 @@ object JavaToScala {
         }
 
         val iType = convertTypePsiToIntermediate(n.getType, n.getClassReference, n.getProject)
-        if (n.getArrayInitializer != null) {
-          NewExpression(iType, n.getArrayInitializer.getInitializers.map(convertPsiToIntermediate(_, externalProperties)).toIndexedSeq)
-        } else if (n.getArrayDimensions.nonEmpty) {
-          NewExpression(iType, n.getArrayDimensions.map(convertPsiToIntermediate(_, externalProperties)).toIndexedSeq,
-            withArrayInitalizer = false)
-        } else {
-          val argList: Seq[IntermediateNode] = if (n.getArgumentList != null) {
-            if (n.getArgumentList.getExpressions.isEmpty) {
+        val withArrayInitializer = n.getArrayInitializer != null
+        val argList: Seq[IntermediateNode] =
+          if (n.getArrayInitializer != null)
+            n.getArrayInitializer.getInitializers.map(convertPsiToIntermediate(_, externalProperties)).toIndexedSeq
+          else if (n.getArrayDimensions.nonEmpty)
+            n.getArrayDimensions.map(convertPsiToIntermediate(_, externalProperties)).toIndexedSeq
+          else if (n.getArgumentList != null) {
+            if (n.getArgumentList.getExpressions.isEmpty)
               n.getParent match {
-                case r: PsiJavaCodeReferenceElement if n == r.getQualifier => Seq(LiteralExpression("()"))
+                case r: PsiJavaCodeReferenceElement if n == r.getQualifier =>
+                  Seq(LiteralExpression("()"))
                 case _ => null
               }
-            } else {
+            else
               Seq(convertPsiToIntermediate(n.getArgumentList, externalProperties))
-            }
-          } else null
-          NewExpression(iType, argList, withArrayInitalizer = false)
-        }
+          }
+          else null
+
+        NewExpression(iType, argList, withArrayInitializer)
       case t: PsiTryStatement =>
         val resourcesVariables = mutable.ArrayBuffer[(String, IntermediateNode)]()
         Option(t.getResourceList).foreach { resourceList =>
