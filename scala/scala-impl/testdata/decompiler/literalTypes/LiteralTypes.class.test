@@ -1,7 +1,7 @@
 class LiteralTypes extends scala.AnyRef {
   val a: 1 = { /* compiled code */ }
   val b: 1L = { /* compiled code */ }
-  val c: 1.0 = { /* compiled code */ }
+  val c: 1.0D = { /* compiled code */ }
   val d: 1.0F = { /* compiled code */ }
   val e: true = { /* compiled code */ }
   val f: 'c' = { /* compiled code */ }
@@ -9,12 +9,12 @@ class LiteralTypes extends scala.AnyRef {
   val h: 'foo = { /* compiled code */ }
   val aNeg: -1 = { /* compiled code */ }
   val bNeg: -1L = { /* compiled code */ }
-  val cNeg: -1.0 = { /* compiled code */ }
+  val cNeg: -1.0D = { /* compiled code */ }
   val dNeg: -1.0F = { /* compiled code */ }
   type multiline = "aa\naa\"\""
   type a = 1
   type b = 1L
-  type c = 1.0
+  type c = 1.0D
   type d = 1.0F
   type e = true
   type f = 'c'
@@ -22,6 +22,6 @@ class LiteralTypes extends scala.AnyRef {
   type h = 'foo
   type aNeg = -1
   type bNeg = -1L
-  type cNeg = -1.0
+  type cNeg = -1.0D
   type dNeg = -1.0F
 }
