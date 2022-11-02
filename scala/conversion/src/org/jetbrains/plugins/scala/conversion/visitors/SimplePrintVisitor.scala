@@ -111,7 +111,8 @@ class SimplePrintVisitor protected() {
     case sb: SwitchBlock =>
       visitSwitchBlock(sb)
     case SwitchLabelStatement(caseValues, arrow, body) => visitSwitchLabelStatement(caseValues, arrow, body)
-    case SynchronizedStatement(lock, body) => visitSynchronizedStatement(lock, body)
+    case SynchronizedStatement(lock, body) =>
+      visitSynchronizedStatement(lock, body)
     case ExpressionListStatement(exprs) => visitExpressionListStatement(exprs)
     case EnumConstruction(name) => visit(name)
     case NotSupported(n, msg) => visitNotSupported(n, msg)
@@ -879,9 +880,15 @@ class SimplePrintVisitor protected() {
   }
 
   protected def visitSynchronizedStatement(lock: Option[IntermediateNode], body: Option[IntermediateNode]): Unit = {
-    if (lock.isDefined) visit(lock.get)
-    printer.append(" synchronized ")
-    if (body.isDefined) visit(body.get)
+    if (lock.isDefined) {
+      visit(lock.get)
+      printer.append(".")
+    }
+    printer.append("synchronized {")
+    if (body.isDefined) {
+      visit(body.get)
+    }
+    printer.append("}")
   }
 
   protected def visitExpressionListStatement(exprs: Seq[IntermediateNode]): Unit = {
