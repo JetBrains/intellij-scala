@@ -299,7 +299,7 @@ class SimplePrintVisitor protected() {
     printWithSeparator(expressions, ", ", "Array(", ")")
   }
 
-  protected def visitBinary(firstPart: IntermediateNode, secondPart: IntermediateNode, operation: String, inExpression: Boolean): Any = {
+  protected def visitBinary(firstPart: IntermediateNode, secondPart: IntermediateNode, operation: String, inExpression: Boolean): Unit = {
     val specialOperations = Seq("eq", "ne")
 
     if (inExpression && specialOperations.contains(operation))
@@ -333,7 +333,7 @@ class SimplePrintVisitor protected() {
     }
   }
 
-  protected def visitMethodCall(method: IntermediateNode, args: IntermediateNode, withSideEffects: Boolean): Any = {
+  protected def visitMethodCall(method: IntermediateNode, args: IntermediateNode, withSideEffects: Boolean): Unit = {
     visit(method)
     if (args != null)
       visit(args)
@@ -511,7 +511,7 @@ class SimplePrintVisitor protected() {
 
   protected def visitVariable(modifiers: ModifiersConstruction, name: NameIdentifier,
                               ftype: IntermediateNode, isVar: Boolean,
-                              initializer: Option[IntermediateNode]): Any = {
+                              initializer: Option[IntermediateNode]): Unit = {
     visit(modifiers)
 
     if (isVar) {
@@ -636,7 +636,7 @@ class SimplePrintVisitor protected() {
     })
   }
 
-  protected def visitModifierWithExpr(mtype: ModifierType, value: IntermediateNode): Any = {
+  protected def visitModifierWithExpr(mtype: ModifierType, value: IntermediateNode): Unit = {
     mtype match {
       case THROW =>
         printer.append("@throws[")
@@ -658,7 +658,7 @@ class SimplePrintVisitor protected() {
   }
 
   protected def visitParameters(modifiers: ModifiersConstruction, name: NameIdentifier,
-                                scCompType: IntermediateNode, isVar: Option[Boolean], isArray: Boolean): Any = {
+                                scCompType: IntermediateNode, isVar: Option[Boolean], isArray: Boolean): Unit = {
     def visitDisjunctionType(disjunctionTypeConstructions: DisjunctionTypeConstructions): Unit = {
       visit(name)
       printer.append("@(")
@@ -733,7 +733,7 @@ class SimplePrintVisitor protected() {
     printer.append(")")
   }
 
-  protected def visitImportStatement(importValue: IntermediateNode, onDemand: Boolean): Any = {
+  protected def visitImportStatement(importValue: IntermediateNode, onDemand: Boolean): Unit = {
     printer.append("import ")
     visit(importValue)
     if (onDemand) {
