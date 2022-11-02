@@ -224,7 +224,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
         print(" {")
         //Print class selftype
         c.thisTypeRef match {
-          case Some(t) => print("\n"); print(" this: " + toString(t.get) + " =>")
+          case Some(t) => print(" this: " + toString(t.get) + " =>")
           case None =>
         }
         print("\n")

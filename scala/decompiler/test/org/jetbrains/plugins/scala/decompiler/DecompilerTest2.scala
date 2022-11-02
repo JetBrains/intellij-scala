@@ -14,7 +14,7 @@ import scala.util.control.NonFatal
 // case calss with Product with Serializable
 // case class val
 // case class empty () required
-// self type class with, indent
+// self type class with
 // float f -> F
 // double D
 // final override -> override final
