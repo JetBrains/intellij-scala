@@ -27,21 +27,16 @@ class RequestBuilder[HasUrl, HasForm] private[http] (config: com.twitter.finagle
   private[http] def withContent(method: com.twitter.finagle.http.Method, content: com.twitter.io.Buf): com.twitter.finagle.http.Request = { /* compiled code */ }
 }
 object RequestBuilder extends scala.AnyRef {
-  sealed trait Valid extends scala.AnyRef {
-  }
+  sealed trait Valid extends scala.AnyRef
   @scala.annotation.implicitNotFound("Http RequestBuilder is not correctly configured: HasUrl (exp: Yes): ${HasUrl}, HasForm (exp: Nothing) ${HasForm}.")
-  trait RequestEvidence[HasUrl, HasForm] extends scala.AnyRef {
-  }
+  trait RequestEvidence[HasUrl, HasForm] extends scala.AnyRef
   private object RequestEvidence extends scala.AnyRef {
-    implicit object FullyConfigured extends scala.AnyRef with com.twitter.finagle.http.RequestBuilder.RequestEvidence[com.twitter.finagle.http.RequestBuilder.Valid, scala.Nothing] {
-    }
+    implicit object FullyConfigured extends scala.AnyRef with com.twitter.finagle.http.RequestBuilder.RequestEvidence[com.twitter.finagle.http.RequestBuilder.Valid, scala.Nothing]
   }
   @scala.annotation.implicitNotFound("Http RequestBuilder is not correctly configured for form post: HasUrl (exp: Yes): ${HasUrl}, HasForm (exp: Yes): ${HasForm}.")
-  trait PostRequestEvidence[HasUrl, HasForm] extends scala.AnyRef {
-  }
+  trait PostRequestEvidence[HasUrl, HasForm] extends scala.AnyRef
   private object PostRequestEvidence extends scala.AnyRef {
-    implicit object FullyConfigured extends scala.AnyRef with com.twitter.finagle.http.RequestBuilder.PostRequestEvidence[com.twitter.finagle.http.RequestBuilder.Valid, com.twitter.finagle.http.RequestBuilder.Valid] {
-    }
+    implicit object FullyConfigured extends scala.AnyRef with com.twitter.finagle.http.RequestBuilder.PostRequestEvidence[com.twitter.finagle.http.RequestBuilder.Valid, com.twitter.finagle.http.RequestBuilder.Valid]
   }
   type Complete = com.twitter.finagle.http.RequestBuilder[com.twitter.finagle.http.RequestBuilder.Valid, scala.Nothing]
   type CompleteForm = com.twitter.finagle.http.RequestBuilder[com.twitter.finagle.http.RequestBuilder.Valid, com.twitter.finagle.http.RequestBuilder.Valid]
