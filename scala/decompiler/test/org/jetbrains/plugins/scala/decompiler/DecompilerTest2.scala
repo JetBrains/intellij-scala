@@ -9,8 +9,6 @@ import scala.util.control.NonFatal
 // TODO Prettify and unify Scala 2 decompiler output, SCL-20672
 
 // no line separators
-// whitespace before :
-// empty {}
 // empty () primary constructors, or trailing whitespaces
 // extends AnyRef
 // case calss with Product with Serializable
@@ -151,8 +149,7 @@ class DecompilerTest2 extends TestCase {
       .replace(" extends AnyRef", "")
       .replace(" extends Product with Serializable", "")
       .replace(" with Product with Serializable", "")
-      .replaceAll("\\(\\)( \\{| extends|\\()", "$1")
-      .replaceAll(" \\{\n\\s*}", "")
+      .replaceAll("\\(\\)(\n| \\{| extends|\\()", "$1")
       .replaceAll("(?<=case class .+)(?<!private )val ", "")
       .replaceAll("(case class \\w+)(?=\n| extends)", "$1()")
       .replaceAll("`\\d+`", "_")

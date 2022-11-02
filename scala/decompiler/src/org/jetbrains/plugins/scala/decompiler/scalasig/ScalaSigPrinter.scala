@@ -220,6 +220,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       for (param <- typeParams) addTypeParameter(param.get)
       printType(classType)
       try {
+        val previousLength = builder.length
         print(" {")
         //Print class selftype
         c.thisTypeRef match {
@@ -228,7 +229,11 @@ class ScalaSigPrinter(builder: StringBuilder) {
         }
         print("\n")
         printChildren(level, c, !c.isTrait)
-        printWithIndent(level, "}\n")
+        if (builder.length == previousLength + 3) {
+          builder.delete(previousLength, previousLength + 2)
+        } else {
+          printWithIndent(level, "}\n")
+        }
       }
       finally {
         for (param <- typeParams) removeTypeParameter(param.get)
@@ -269,10 +274,14 @@ class ScalaSigPrinter(builder: StringBuilder) {
     print(processName(poName))
     val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType
     printType(classSymbol)
+    val previousLength = builder.length
     print(" {\n")
     printChildren(level, classSymbol)
-    printWithIndent(level, "}\n")
-
+    if (builder.length == previousLength + 3) {
+      builder.delete(previousLength, previousLength + 2)
+    } else {
+      printWithIndent(level, "}\n")
+    }
   }
 
   def printObject(level: Int, o: ObjectSymbol): Unit = {
@@ -281,9 +290,14 @@ class ScalaSigPrinter(builder: StringBuilder) {
     print(processName(o.name))
     val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType
     printType(classSymbol)
+    val previousLength = builder.length
     print(" {\n")
     printChildren(level, classSymbol)
-    printWithIndent(level, "}\n")
+    if (builder.length == previousLength + 3) {
+      builder.delete(previousLength, previousLength + 2)
+    } else {
+      printWithIndent(level, "}\n")
+    }
   }
 
   private def methodSymbolAsMethodParam(ms: MethodSymbol): String = {

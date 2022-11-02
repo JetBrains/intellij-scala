@@ -35,5 +35,4 @@ trait StringLike[+Repr] extends scala.Any with scala.collection.IndexedSeqOptimi
   def format(args: scala.Any*): scala.Predef.String = { /* compiled code */ }
   def formatLocal(l: java.util.Locale, args: scala.Any*): scala.Predef.String = { /* compiled code */ }
 }
-object StringLike extends scala.AnyRef {
-}
+object StringLike extends scala.AnyRef
