@@ -36,18 +36,15 @@ private[process] trait ProcessBuilderImpl extends scala.AnyRef {
     override def run(io: scala.sys.process.ProcessIO): scala.sys.process.Process = { /* compiled code */ }
     override def canPipeTo: scala.Boolean = { /* compiled code */ }
   }
-  private[process] class URLInput(url: scala.sys.process.processInternal.URL) extends ProcessBuilderImpl.this.IStreamBuilder {
-  }
+  private[process] class URLInput(url: scala.sys.process.processInternal.URL) extends ProcessBuilderImpl.this.IStreamBuilder
   private[process] class IStreamBuilder(stream: => scala.sys.process.processInternal.InputStream, label: scala.Predef.String) extends ProcessBuilderImpl.this.ThreadBuilder {
     override def hasExitValue: scala.Boolean = { /* compiled code */ }
   }
   private[process] abstract class ThreadBuilder(override val toString: scala.Predef.String, runImpl: scala.Function1[scala.sys.process.ProcessIO, scala.Unit]) extends ProcessBuilderImpl.this.AbstractBuilder {
     override def run(io: scala.sys.process.ProcessIO): scala.sys.process.Process = { /* compiled code */ }
   }
-  private[process] class FileInput(file: scala.sys.process.processInternal.File) extends ProcessBuilderImpl.this.IStreamBuilder {
-  }
-  private[process] class FileOutput(file: scala.sys.process.processInternal.File, append: scala.Boolean) extends ProcessBuilderImpl.this.OStreamBuilder {
-  }
+  private[process] class FileInput(file: scala.sys.process.processInternal.File) extends ProcessBuilderImpl.this.IStreamBuilder
+  private[process] class FileOutput(file: scala.sys.process.processInternal.File, append: scala.Boolean) extends ProcessBuilderImpl.this.OStreamBuilder
   private[process] class OStreamBuilder(stream: => scala.sys.process.processInternal.OutputStream, label: scala.Predef.String) extends ProcessBuilderImpl.this.ThreadBuilder {
     override def hasExitValue: scala.Boolean = { /* compiled code */ }
   }
