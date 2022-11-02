@@ -9,11 +9,9 @@ import scala.util.control.NonFatal
 // TODO Prettify and unify Scala 2 decompiler output, SCL-20672
 
 // no line separators
-// empty () primary constructors, or trailing whitespaces
 // extends AnyRef
 // case calss with Product with Serializable
 // case class val
-// case class empty () required
 // self type class with
 // float f -> F
 // double D
@@ -149,16 +147,12 @@ class DecompilerTest2 extends TestCase {
       .replace(" extends AnyRef", "")
       .replace(" extends Product with Serializable", "")
       .replace(" with Product with Serializable", "")
-      .replaceAll("\\(\\)(\n| \\{| extends|\\()", "$1")
       .replaceAll("(?<=case class .+)(?<!private )val ", "")
-      .replaceAll("(case class \\w+)(?=\n| extends)", "$1()")
       .replaceAll("`\\d+`", "_")
       .trim
 
     val adjustedExpected = expected
       .replaceAll("\n\n", "\n")
-      .replace(" ()", " ")
-      .replaceAll("\n\\s+private .+\n", "\n")
 
     assertEquals(s"Content for $path", adjustedExpected, adjustedActual)
   }
