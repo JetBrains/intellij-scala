@@ -131,7 +131,6 @@ class DecompilerTest2 extends TestCase {
       .replace("\r", "")
 
     val adjusted = actual
-      .replace("{ /* compiled code */ }", "???")
       .replace("scala.math.Ordering", "Ordering")
       .replace("scala.math.PartialOrdering", "PartialOrdering")
       .replaceAll("scala\\.(?=\\p{Lu}|\\W)", "")

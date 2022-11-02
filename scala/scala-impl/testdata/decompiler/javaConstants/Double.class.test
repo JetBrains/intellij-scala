@@ -175,7 +175,7 @@ final abstract class Double extends scala.AnyVal {
 
   def %(x: scala.Double): scala.Double
 
-  override def getClass(): _root_.scala.Predef.Class[scala.Double] = { /* compiled code */ }
+  override def getClass(): _root_.scala.Predef.Class[scala.Double] = ???
 }
 
 object Double extends scala.AnyRef with scala.AnyValCompanion {
@@ -187,13 +187,13 @@ object Double extends scala.AnyRef with scala.AnyValCompanion {
 
   final val NegativeInfinity = java.lang.Double.NEGATIVE_INFINITY
 
-  final val MinValue: scala.Double = { /* compiled code */ }
+  final val MinValue: scala.Double = ???
 
   final val MaxValue = 1.7976931348623157E308D
 
-  def box(x: scala.Double): java.lang.Double = { /* compiled code */ }
+  def box(x: scala.Double): java.lang.Double = ???
 
-  def unbox(x: java.lang.Object): scala.Double = { /* compiled code */ }
+  def unbox(x: java.lang.Object): scala.Double = ???
 
-  override def toString(): java.lang.String = { /* compiled code */ }
+  override def toString(): java.lang.String = ???
 }
