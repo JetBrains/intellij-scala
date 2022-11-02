@@ -16,7 +16,7 @@ class SynchronizedExample {
 }
 /*
 class SynchronizedExample {
-  final val lock = new Any
+  final val lock = new AnyRef
 
   def foo(): Unit = {
     lock.synchronized {
