@@ -90,12 +90,12 @@ final abstract class Double extends scala.AnyVal {
   override def getClass(): _root_.scala.Predef.Class[scala.Double] = { /* compiled code */ }
 }
 object Double extends scala.AnyRef with scala.AnyValCompanion {
-  final val MinPositiveValue = 4.9E-324
+  final val MinPositiveValue = 4.9E-324D
   final val NaN = java.lang.Double.NaN
   final val PositiveInfinity = java.lang.Double.POSITIVE_INFINITY
   final val NegativeInfinity = java.lang.Double.NEGATIVE_INFINITY
   final val MinValue: scala.Double = { /* compiled code */ }
-  final val MaxValue = 1.7976931348623157E308
+  final val MaxValue = 1.7976931348623157E308D
   def box(x: scala.Double): java.lang.Double = { /* compiled code */ }
   def unbox(x: java.lang.Object): scala.Double = { /* compiled code */ }
   override def toString(): java.lang.String = { /* compiled code */ }
