@@ -25,7 +25,7 @@ class Scala3DerivingTest extends ImplicitParametersTestBase {
        |enum Tree[T](x: Int) derives Eq
        |object A {
        |  implicit val eqInt: Eq[Int] = ???
-       |  ${START}implicitly[Eq[Tree[Int]]$END
+       |  ${START}implicitly[Eq[Tree[Int]]]$END
        |}
        |""".stripMargin
   )
@@ -40,7 +40,7 @@ class Scala3DerivingTest extends ImplicitParametersTestBase {
        |  given eqInt: Eq[Int] = ???
        |  given eqString: Eq[String] = ???
        |  given eqDouble: Eq[Double] = ???
-       |  ${START}implicitly[Eq[Foo[Int, String, Double]]$END
+       |  ${START}implicitly[Eq[Foo[Int, String, Double]]]$END
        |}
        |
        |""".stripMargin

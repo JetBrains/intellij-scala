@@ -14,5 +14,4 @@ object SCL7954 {
   }
 
 }
-
-//SCL7954.Base {type HKT[X] = Base.this.HKT[X]}
+//SCL7954.Derived

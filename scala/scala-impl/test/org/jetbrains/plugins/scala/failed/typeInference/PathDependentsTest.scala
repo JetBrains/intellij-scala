@@ -8,10 +8,6 @@ class PathDependentsTest extends TypeInferenceTestBase {
 
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL7954(): Unit = doTest()
-
-  def testSCL6143(): Unit = doTest()
-
   def testSCL8394(): Unit = {
     val text =
       s"""class Data{

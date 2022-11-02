@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala
-package lang.typeInference
+package org.jetbrains.plugins.scala.lang.typeInference
 
+import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.junit.experimental.categories.Category
 
@@ -114,29 +114,29 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   def testSCL4652(): Unit = checkTextHasNoErrors(
     s"""import scala.language.higherKinds
-      |
-      |  trait Binding[A]
-      |
-      |  trait ValueKey[BindingRoot] {
-      |    def update(value: Any): Binding[BindingRoot]
-      |  }
-      |
-      |  class Foo[A] {
-      |    type ObjectType[B[_]] = B[A]
-      |    val bar: ObjectType[Bar] = ???
-      |  }
-      |
-      |  class Bar[A] {
-      |    type ValueType = ValueKey[A]
-      |    val qux: ValueType = ???
-      |  }
-      |
-      |  object Test {
-      |    def foo123(): Unit = {
-      |      val g: Foo[String] => Binding[String] = _.bar.qux.update(1)
-      |    }
-      |  }
-      |""".stripMargin
+       |
+       |  trait Binding[A]
+       |
+       |  trait ValueKey[BindingRoot] {
+       |    def update(value: Any): Binding[BindingRoot]
+       |  }
+       |
+       |  class Foo[A] {
+       |    type ObjectType[B[_]] = B[A]
+       |    val bar: ObjectType[Bar] = ???
+       |  }
+       |
+       |  class Bar[A] {
+       |    type ValueType = ValueKey[A]
+       |    val qux: ValueType = ???
+       |  }
+       |
+       |  object Test {
+       |    def foo123(): Unit = {
+       |      val g: Foo[String] => Binding[String] = _.bar.qux.update(1)
+       |    }
+       |  }
+       |""".stripMargin
   )
 
   def testSCL14680(): Unit =
@@ -306,4 +306,404 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
        |}
        |""".stripMargin
   )
+
+  //SCL-8236
+  def testSCL8236(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.util.{Try, Failure, Success}
+      |class Foo(s: String) {
+      |  def doFoo(s: String) = {
+      |    doBar1(new Exception {
+      |      def doSomething = {
+      |        if(true) doBar2(/*start*/Success("", this))
+      |        else doBar2(Failure(new Exception()))
+      |      }
+      |    })
+      |  }
+      |  def doBar1(e: Exception) = { }
+      |  def doBar2(e: Try[(String, Exception)]) = { }
+      |}
+      |//Success[(String, Exception { def doSomething: Unit })]
+      |""".stripMargin.trim,
+  )
+
+
+  //SCL-10077
+  def testSCL10077(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |object SCL10077{
+        |
+        |  trait C[A] {
+        |    def test(a: A): String
+        |  }
+        |  case class Ev[TC[_], A](a: A)(implicit val ev: TC[A]) {
+        |    def operate(fn: (A, TC[A]) => Int): Int = 23
+        |  }
+        |  class A
+        |  implicit object AisCISH extends C[A] {
+        |    def test(a: A) = "A"
+        |  }
+        |
+        |  val m: Map[String, Ev[C, _]] = Map.empty
+        |  val r = m + ("mutt" -> Ev(new A))
+        |  val x = r("mutt")
+        |
+        |  x.operate((arg, tc) => 66)
+        |}
+      """.stripMargin)
+  }
+
+  //SCL-7468
+  def testSCL7468(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |class Container[A](x: A) { def value: A = x }
+         |trait Unboxer[A, B] { def unbox(x: A): B }
+         |trait LowPriorityUnboxer {
+         |  implicit def defaultCase[A, B](implicit fun: A => B) = new Unboxer[A, B] { def unbox(x: A) = fun(x) }
+         |}
+         |object Unboxer extends LowPriorityUnboxer {
+         |  def unbox[A, B](x: A)(implicit f: Unboxer[A, B]) = f.unbox(x)
+         |  implicit def containerCase[A] = new Unboxer[Container[A], A] { def unbox(x: Container[A]) = x.value }
+         |}
+         |implicit def getContained[A](cont: Container[A]): A = cont.value
+         |def container[A] = new Impl[A]
+         |
+         |class Impl[A] { def apply[B](x: => B)(implicit unboxer: Unboxer[B, A]): Container[A] = new Container(Unboxer.unbox(x)) }
+         |
+         |val stringCont = container("SomeString")
+         |val a1 = stringCont
+      """.stripMargin,
+    )
+
+  //SCL-6372
+  def testSCL6372(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |class TagA[A]
+         |  class TagB[B]
+         |
+         |  abstract class Converter[A: TagA, B: TagB] {
+         |    def work(orig: A): B
+         |  }
+         |  object Converter {
+         |    class Detected[A: TagA, B: TagB] {
+         |      def using(fun: A => B) = new Converter[A, B] {
+         |        def work(orig: A) = fun(orig)
+         |      }
+         |    }
+         |    def apply[A: TagA, B: TagB]() = new Detected
+         |  }
+         |
+         |  class Config[A, B] {
+         |    implicit val tagA = new TagA[A]
+         |    implicit val tagB = new TagB[B]
+         |  }
+         |
+         |  class Test extends Config[Long, Int] {
+         |    val conv = Converter().using(java.lang.Long.bitCount)
+         |    def run() = conv.work(366111312291L)
+         |  }
+      """.stripMargin)
+
+  //SCL-7658
+  def testSCL7658(): Unit = {
+    checkTextHasNoErrors(
+      """implicit def i2s(i: Int): String = i.toString
+        |
+        |def hoo(x: String): String = {
+        |  println(1)
+        |  x
+        |}
+        |def hoo(x: Int): Int = {
+        |  println(2)
+        |  x
+        |}
+        |
+        |val ss: String = hoo(1)
+      """.stripMargin)
+  }
+
+  //SCL-8242
+  def testSCL8242(): Unit = {
+    checkTextHasNoErrors(
+      """object SCL8242 {
+        |  def foo(x: Float) = {
+        |    val t: Double = 56
+        |    if (true) x + t
+        |    else x
+        |  }
+        |}
+        |""".stripMargin
+    )
+  }
+
+  //SCL-8242
+  def testSCL8242_1(): Unit = {
+    checkTextHasNoErrors(
+      """import scala.language.implicitConversions
+        |import scala.math._
+        |
+        |object Curve extends App {
+        |
+        |  case class XY(x: Float, y: Float) {
+        |    def unary_- = XY(-x, -y)
+        |    def unary_+ = this
+        |    def -(xy: XY) = XY(x - xy.x, y - xy.y)
+        |    def +(xy: XY) = XY(x + xy.x, y + xy.y)
+        |    def *(xy: XY) = XY(x * xy.x, y * xy.y)
+        |    def *(f: Float) = XY(x * f, y * f)
+        |
+        |    def sum = x + y
+        |    def dot(xy: XY) = (xy * this).sum
+        |    def sizeSquared = this dot this
+        |    def size = sqrt(sizeSquared).toFloat
+        |
+        |    def dist(xy: XY) = (xy - this).size
+        |    def dist2(xy: XY) = (xy - this).sizeSquared
+        |
+        |  }
+        |
+        |  // allow operations from left side where it makes sense
+        |  implicit class XYFloatMaths(val x: Float) extends AnyVal {
+        |    def *(xy: XY) = xy * x
+        |  }
+        |
+        |  def lineDistance(v: XY, w: XY, p: XY) = {
+        |    val l2 = v dist2 w
+        |    if (l2 == 0) p dist2 v
+        |    else {
+        |      val t = ((p - v) dot (w - v)) / l2
+        |      math.sqrt(p dist2 v + t * (w - v))
+        |    }
+        |  }
+        |
+        |  val v = XY(0,0)
+        |  val w = XY(1,2)
+        |  val p = XY(1,1)
+        |
+        |  println(s"Distance to line ${lineDistance(v,w,p)}")
+        |}
+        |""".stripMargin
+    )
+  }
+
+
+  //SCL-9241
+  def testSCL9241(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |trait Inv[A] { def head: A }
+         |trait Cov[+A] { def head: A }
+         |
+         |def inv(i: Inv[Inv[String]]) = i match {
+         |    case l: Inv[a] =>
+         |      val x: a = l.head
+         |  }
+         |//a
+      """.stripMargin
+    )
+
+
+  //SCL-12174
+  def testSCL12174_1(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |def foo = (_:String).split(":") match {
+         |    case x => x
+         |}
+      """.stripMargin
+    )
+
+  //SCL-4487
+  def testSCL4487(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |def x(a: Int): String => Int = _ match {
+         |  case value if value == "0" => a
+         |}
+      """.stripMargin
+    )
+
+  //SCL-5725
+  def testSCL5725(): Unit =
+    checkTextHasNoErrors(
+      """def test(x: List[Int]) = x match {
+        |  case l: List[a] => ???
+        |}
+        |""".stripMargin.trim
+    )
+
+  //SCL-5725
+  def testSCL5725_1(): Unit =
+    checkTextHasNoErrors(
+      """
+        |class Zoo {
+        |  def g: Any = 1
+        |  def test = g match {
+        |    case l: List[s] =>
+        |      l(0)
+        |  }
+        |}
+        |""".stripMargin.trim
+    )
+
+
+  //SCL-9474
+  def testSCL9474(): Unit = checkTextHasNoErrors {
+    """
+      |object Foo {
+      |  trait Sys[L <: Sys[L]]
+      |
+      |  trait SkipMap[E <: Sys[E], A, B] {
+      |    def add(entry: (A, B)): Option[B]
+      |  }
+      |
+      |  trait Output[C <: Sys[C]]
+      |
+      |  class OutputImpl[S <: Sys[S]](proc: Proc[S]) extends Output[S] {
+      |    import proc.{outputs => map}
+      |
+      |    def add(key: String, value: Output[S]): Unit =
+      |      map.add(key -> /*start*/value/*end*/)   // type mismatch here
+      |  }
+      |
+      |  trait Proc[J <: Sys[J]] {
+      |    def outputs: SkipMap[J, String, Output[J]]
+      |  }
+      |}
+      |""".stripMargin.trim
+  }
+
+  //SCL-13634
+  def testSCL13634(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |trait C[+A, B]
+         |  type F[T] = C[Int, T]
+         |  def foo(f: F[_]): Unit = ???
+         |
+         |  val st: C[Int, String] = ???
+         |  foo(st)
+      """.stripMargin
+    )
+
+  //SCL-10414
+  def testSCL10414(): Unit = {
+    checkTextHasNoErrors(
+      """object X {
+        |  val s1 : Set[Class[_]] = Set()
+        |  val s2 : Set[Class[_]] = Set()
+        |
+        |  if(!s1.union(s2).isEmpty) println(5)
+        |}
+        |
+        |object Y {
+        |  val s1 : Set[Class[_]] = Set()
+        |  val s2 : Set[java.lang.Class[_]] = Set()
+        |
+        |  if(!s1.union(s2).isEmpty) println(5)
+        |}
+        |""".stripMargin
+    )
+  }
+
+  //SCL-11052
+  def testSCL11052(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |def second[T]: Seq[T] => Option[T] = _.drop(1).headOption
+         |second(Seq("one", "two"))
+         |""".stripMargin
+    )
+  }
+
+  //SCL-6143
+  def testSCL6143(): Unit =
+    checkTextHasNoErrors(
+      """object SCL6143 extends App {
+        |  class A {
+        |    class B {
+        |      def foo: A.this.type = A.this
+        |    }
+        |  }
+        |
+        |  class B extends A {
+        |    class B extends super[A].B {
+        |      val x = super.foo
+        |    }
+        |    /*start*/(new B().x, new B().foo)/*end*/
+        |  }
+        |}
+        |""".stripMargin
+    )
+
+  //SCL-7954
+  def testSCL7954(): Unit =
+    checkTextHasNoErrors(
+      """object SCL7954 {
+        |
+        |  trait Base {
+        |    type HKT[X]
+        |    val value: HKT[Int]
+        |
+        |    def f(n: Int): (Base {type HKT[X] = Base.this.HKT[X]})
+        |  }
+        |
+        |  class Derived(val value: Option[Int]) extends Base {
+        |    type HKT[X] = Option[X]
+        |
+        |    def f(n: Int) = /*start*/new Derived(Some(n * 2))/*end*/
+        |  }
+        |
+        |}
+        |""".stripMargin
+    )
+
+  //SCL-8234
+  def testSCL8234(): Unit =
+    checkTextHasNoErrors(
+      s"""object Test {
+         |  implicit class Gram(number: Double) {
+         |    def g: Gram = this
+         |
+         |    def kg: Gram = Gram(number * 1000)
+         |  }
+         |
+         |  def main(args: Array[String]): Unit = {
+         |    ${START}1.kg$END
+         |  }
+         |}
+         |""".stripMargin
+    )
+
+  //SCL-9523
+  def testScl9523(): Unit = {
+    checkTextHasNoErrors(
+      s"""import scala.language.{existentials, implicitConversions}
+         |
+         |object Main extends App {
+         |  Tag("key", Set[Value[Value.T]](${START}123$END))
+         |}
+         |
+         |case class Tag(key: String, values: Set[Value[Value.T]])
+         |
+         |object Value {
+         |  type T = X forSome { type X <: AnyVal }
+         |
+         |  implicit def number2Value(v: Long): Value[T] = LongValue(v)
+         |
+         |  def apply(v: Long): Value[T] = LongValue(v)
+         |}
+         |
+         |sealed trait Value[+T <: AnyVal] {
+         |  def v: T
+         |}
+         |
+         |case class LongValue(v: Long) extends Value[Long]
+         |
+         |//Value[Value.T]""".stripMargin
+    )
+  }
 }

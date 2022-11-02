@@ -5,6 +5,7 @@ import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert.assertEquals
 
@@ -69,7 +70,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     val expectedText =
       """
         |class Child extends JavaDummy {
-        |  def vararg(args: Int*): Unit = ???
+        |  override def vararg(args: Int*): Unit = ???
         |}
       """.stripMargin
     runTest("vararg", javaText, scalaText, expectedText, isImplement = true)
@@ -314,14 +315,48 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     val expectedText =
       """
         |class ExtendsMap[K, V] extends Map[K, V] {
-        |  def putAll(m: Map[_ <: K, _ <: V]): Unit = ???
+        |  override def putAll(m: Map[_ <: K, _ <: V]): Unit = ???
         |}
       """.stripMargin
     val methodName: String = "putAll"
     val isImplement = true
     runTest(methodName, javaText, scalaText, expectedText, isImplement)
   }
-  
+
+  def testMap_ADD_OVERRIDE_TO_IMPLEMENTED_setting_is_false(): Unit = {
+    val settings = ScalaApplicationSettings.getInstance
+    val before = settings.ADD_OVERRIDE_TO_IMPLEMENTED
+    try {
+      settings.ADD_OVERRIDE_TO_IMPLEMENTED = false
+
+      val javaText = {
+        """
+          |public interface Map<K,V>
+          |    void putAll(Map<? extends K, ? extends V> m);
+          |}
+        """.stripMargin
+      }
+      val scalaText =
+        """
+          |class ExtendsMap[K, V] extends Map[K, V] {
+          |  <caret>
+          |}
+        """.stripMargin
+      val expectedText =
+        """
+          |class ExtendsMap[K, V] extends Map[K, V] {
+          |  def putAll(m: Map[_ <: K, _ <: V]): Unit = ???
+          |}
+        """.stripMargin
+      val methodName: String = "putAll"
+      val isImplement = true
+      runTest(methodName, javaText, scalaText, expectedText, isImplement)
+    } finally {
+      settings.ADD_OVERRIDE_TO_IMPLEMENTED = before
+    }
+  }
+
+
   def testSCL14206(): Unit = {
     val java = "public interface Solution { long find(int a[], int n); }"
     
@@ -335,7 +370,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     val expected =
       """
         |class Impl extends Solution {
-        |  def find(a: Array[Int], n: Int): Long = ???
+        |  override def find(a: Array[Int], n: Int): Long = ???
         |}
       """.stripMargin
     
@@ -362,7 +397,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     val expected =
       """
         |class B extends A[Foo] {
-        |  def foo(a: A[_]): Unit = ???
+        |  override def foo(a: A[_]): Unit = ???
         |}
         |
         |trait Foo
@@ -391,7 +426,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     val expected =
       """
         |class B extends A[Foo] {
-        |  def foo(a: A[_ <: Foo]): Unit = ???
+        |  override def foo(a: A[_ <: Foo]): Unit = ???
         |}
         |
         |trait Foo
@@ -399,5 +434,4 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
 
     runTest("foo", java, scala, expected, isImplement = true)
   }
-
 }

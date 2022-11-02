@@ -3,24 +3,42 @@ package org.jetbrains.sbt.annotator
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}
-import com.intellij.openapi.vfs.VfsUtilCore
-import com.intellij.testFramework.UsefulTestCase
+import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
+import com.intellij.psi.PsiManager
+import com.intellij.testFramework.{HeavyPlatformTestCase, UsefulTestCase}
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.annotator.{Error, _}
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath
+import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.{MockSbtBase, MockSbt_0_12, MockSbt_0_13, MockSbt_1_0, Sbt, SbtBundle}
+import org.jetbrains.sbt.{MockSbtBase, MockSbt_0_13, MockSbt_1_0, Sbt, SbtBundle}
+import org.junit.Assert.assertNotNull
 import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
+import java.io.File
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-abstract class SbtAnnotatorTestBase extends org.jetbrains.sbt.annotator.AnnotatorTestBase with MockSbtBase {
+@Category(Array(classOf[SlowTests]))
+abstract class SbtAnnotatorTestBase extends HeavyPlatformTestCase with MockSbtBase {
+
+  protected def testdataPath: String = s"$getTestDataPath/annotator/Sbt"
+
+  protected def loadTestFile(): SbtFileImpl = {
+    val filePath = s"$testdataPath/${getTestName(false)}${Sbt.Extension}"
+    val file = LocalFileSystem.getInstance
+      .findFileByPath(filePath.replace(File.separatorChar, '/'))
+    assertNotNull(filePath, file)
+    val sbtFile = PsiManager.getInstance(getProject).findFile(file).asInstanceOf[SbtFileImpl]
+    sbtFile.putUserData(ModuleUtilCore.KEY_MODULE, getModule)
+    sbtFile
+  }
 
   implicit protected lazy val module: Module = inWriteAction {
     val moduleName = getModule.getName + Sbt.BuildModuleSuffix + ".iml"
@@ -42,12 +60,6 @@ abstract class SbtAnnotatorTestBase extends org.jetbrains.sbt.annotator.Annotato
   override def tearDown(): Unit = {
     disposeLibraries(module)
     super.tearDown()
-  }
-
-  override def loadTestFile() = {
-    val result = super.loadTestFile()
-    result.putUserData(ModuleUtilCore.KEY_MODULE, getModule)
-    result
   }
 
   override def getTestName(lowercaseFirstLetter: Boolean) = "SbtAnnotator"
@@ -88,14 +100,6 @@ abstract class SbtAnnotatorTestBase extends org.jetbrains.sbt.annotator.Annotato
       model.addContentEntry(testdataUrl).addSourceFolder(testdataUrl, false)
     })
   }
-}
-
-@Category(Array(classOf[SlowTests]))
-@Ignore
-class SbtAnnotatorTest_0_12_4 extends SbtAnnotatorTestBase with MockSbt_0_12 {
-  override implicit val sbtVersion: Version = Version("0.12.4")
-
-  def test(): Unit = runTest(sbtVersion, Expectations.sbt_0_12)
 }
 
 @Category(Array(classOf[SlowTests]))

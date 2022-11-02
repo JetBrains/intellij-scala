@@ -21,7 +21,7 @@ abstract class AbstractUastFixtureTest
 
   override def runInDispatchThread() = false
 
-  override def getTestDataPath: String = super.getTestDataPath + "uast"
+  override def getTestDataPath: String = super.getTestDataPath + "../../uast/testdata/uast"
 
   protected def getTestFile(testName: String): File =
     new File(getTestDataPath, testName + ".scala")

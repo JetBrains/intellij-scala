@@ -6,12 +6,13 @@ import org.jetbrains.annotations.Nls
 
 trait HighlightingPassInspection extends LocalInspectionTool {
   override final def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    if (isOnTheFly) PsiElementVisitor.EMPTY_VISITOR //highlighting pass should take care of that
+    if (isOnTheFly)
+      PsiElementVisitor.EMPTY_VISITOR //highlighting pass should take care of that
     else {
       new PsiElementVisitor {
         override def visitElement(element: PsiElement): Unit = if (shouldProcessElement(element)) {
           invoke(element, isOnTheFly).foreach { info =>
-            holder.registerProblem(info.element, info.message, info.highlightingType, info.fixes: _*)
+            holder.registerProblem(info.element, info.message, info.fixes: _*)
           }
         }
       }
@@ -25,5 +26,4 @@ trait HighlightingPassInspection extends LocalInspectionTool {
 
 case class ProblemInfo(element: PsiElement,
                        @Nls message: String,
-                       highlightingType: ProblemHighlightType,
                        fixes: Seq[LocalQuickFix])

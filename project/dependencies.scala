@@ -26,42 +26,24 @@ object Versions {
   val junitInterfaceVersion: String = "0.13.3"
 
   val bspVersion = "2.0.0"
-  val sbtStructureVersion: String = "2021.3.0"
+  val sbtStructureVersion: String = "2022.3.1"
   val sbtIdeaShellVersion: String = "2021.1.0"
   val compilerIndicesVersion = "1.0.13"
 
-  object Scala {
-    val binary_2_9 = "2.9.2"
-    val binary_2_10 = "2.10"
-    val binary_2_11 = "2.11"
-    val binary_2_12 = "2.12"
-    val binary_2_13 = "2.13"
-
-    def binaryVersion(v: String): String =
-      if (v.startsWith("2.9")) binary_2_9
-      else if (v.startsWith(binary_2_10)) binary_2_10
-      else if (v.startsWith(binary_2_11)) binary_2_11
-      else if (v.startsWith(binary_2_12)) binary_2_12
-      else if (v.startsWith(binary_2_13)) binary_2_13
-      else throw new RuntimeException(s"Unknown Scala binary version: $v -- need to update dependencies.scala?")
-  }
-
   object Sbt {
-    val binary_0_12 = "0.12"
     val binary_0_13 = "0.13"
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.7.2"
+    val latest_1_0 = "1.7.3"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
 
     def scalaVersion(v: String): String =
-      if (v.startsWith(Sbt.binary_0_12)) Scala.binary_2_9
-      else if (v.startsWith(Sbt.binary_0_13)) Scala.binary_2_10
-      else if (v.startsWith(Sbt.binary_1_0)) Scala.binary_2_12
+      if (v.startsWith(Sbt.binary_0_13)) "2.10"
+      else if (v.startsWith(Sbt.binary_1_0)) "2.12"
       else throw new RuntimeException(s"Unknown sbt binary version: $v -- need to update dependencies.scala?")
   }
 }
@@ -115,9 +97,9 @@ object Dependencies {
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
   val fastparse: ModuleID = "com.lihaoyi" %% "fastparse" % fastparseVersion // transitive dependency of scalaMeta, needs explicit versioning
 
-  val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.13"
+  val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.14"
   val scalaTest: ModuleID = scalaTestNotSpecified % Test
-  val scalaCheck: ModuleID = "org.scalatestplus" %% "scalacheck-1-16" % "3.2.13.0" % Test
+  val scalaCheck: ModuleID = "org.scalatestplus" %% "scalacheck-1-16" % "3.2.14.0" % Test
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.5.0"
 
@@ -196,7 +178,7 @@ object DependencyGroups {
     "ch.epfl.scala" %% "bsp-testkit" % bspVersion % Test,
     scalaTest,
     scalaCheck,
-    "org.scalatestplus" %% "junit-4-13" % "3.2.13.0" % Test,
+    "org.scalatestplus" %% "junit-4-13" % "3.2.14.0" % Test,
     "com.propensive" %% "mercator" % "0.3.0"
   )
 

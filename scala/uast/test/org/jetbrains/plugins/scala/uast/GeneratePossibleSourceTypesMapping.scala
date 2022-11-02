@@ -21,7 +21,7 @@ import scala.util.Try
  */
 object GeneratePossibleSourceTypesMapping {
   val mappingOutputPath: Path =
-    Paths.get(TestUtils.findCommunityRoot())
+    Paths.get(TestUtils.findCommunityRoot)
       .resolve("scala/uast/src/org/jetbrains/plugins/scala/uast/ScalaUastSourceTypeMapping.scala")
 
   def main(args: Array[String]): Unit = {

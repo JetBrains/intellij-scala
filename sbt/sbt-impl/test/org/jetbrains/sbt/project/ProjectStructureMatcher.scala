@@ -14,6 +14,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.util.{CommonProcessors, PathUtil}
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.project.external.{SdkReference, SdkUtils, ShownNotification, ShownNotificationsKey}
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaLibraryProperties}
 import org.jetbrains.sbt.DslUtils.MatchType
@@ -105,6 +106,7 @@ trait ProjectStructureMatcher {
     expected.foreach0(javaLanguageLevel)(assertModuleJavaLanguageLevel(actual))
     expected.foreach0(javaTargetBytecodeLevel)(assertModuleJavaTargetBytecodeLevel(actual))
     expected.foreach(javacOptions)(assertModuleJavacOptions(actual))
+    expected.foreach0(compileOrder)(assertModuleCompileOrder(actual))
 
     assertGroupEqual(expected, actual)
 
@@ -148,6 +150,11 @@ trait ProjectStructureMatcher {
     val actual = settings.getAdditionalOptions(module).asScala
     Assert.assertEquals(s"Module javacOptions (${module.getName})", expectedOptions, actual)
   }
+
+  private def assertModuleCompileOrder(module: Module)(expected: CompileOrder): Unit = {
+    assertEquals("Compile order", expected, module.scalaCompilerSettings.compileOrder)
+  }
+
   private def assertProjectJavacOptions(project: Project)(expectedOptions: Seq[String]): Unit = {
     val settings = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
     val actual = settings.ADDITIONAL_OPTIONS_STRING

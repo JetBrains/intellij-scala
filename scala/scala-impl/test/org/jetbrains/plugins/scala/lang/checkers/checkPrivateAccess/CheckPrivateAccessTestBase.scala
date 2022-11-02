@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package checkers
-package checkPrivateAccess
+package org.jetbrains.plugins.scala.lang.checkers.checkPrivateAccess
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -9,10 +6,11 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiMember
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
 import org.junit.Assert._
 
 import java.io.File
@@ -42,15 +40,8 @@ abstract class CheckPrivateAccessTestBase extends ScalaLightCodeInsightFixtureTe
     val resolve: PsiMember = PsiTreeUtil.getParentOfType(ref.resolve(), classOf[PsiMember], false)
 
     val actual = ResolveUtils.isAccessible(resolve, elem)
-    
-    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-    val text = lastPsi.getText
-    val expected = lastPsi.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
-      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-        text.substring(2, text.length - 2).trim
-      case _ => fail("Test result must be in last comment statement.")
-    }
+
+    val ExpectedResultFromLastComment(_, expected) = TestUtils.extractExpectedResultFromLastComment(scalaFile)
 
     if (shouldPass) {
       assertEquals("Wrong reference accessibility: ", expected, actual.toString)

@@ -146,6 +146,18 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
     expectedType = ScalaTokenTypes.kTRY
   )
 
+  def test_end_match_after_a_comment(): Unit = doTest(
+    """def bar =
+      |    /* hm
+      |    *
+      |    * */ i match
+      |      case 1 => "foo"
+      |      case _ => "bar"
+      |    end match
+      |  end bar""".stripMargin,
+    expectedType = ScalaTokenTypes.kMATCH
+  )
+
   def test_end_match(): Unit = doTest(
     """
       |something match

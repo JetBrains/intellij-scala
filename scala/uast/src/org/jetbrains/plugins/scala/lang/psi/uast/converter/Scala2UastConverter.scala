@@ -238,6 +238,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
             .getOrElse(null)
 
         case e: ScMethodCall =>
+          /** NOTE: see related code in [[org.jetbrains.plugins.scala.lang.psi.uast.expressions.ScUQualifiedReferenceExpression.getExpressionType]] */
           e.getInvokedExpr match {
             case ref: ScReferenceExpression if ref.isQualified =>
               new ScUQualifiedReferenceExpression(ref, sourcePsi = e, _)

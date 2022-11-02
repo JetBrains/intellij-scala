@@ -8,8 +8,6 @@ class BoundsTest extends TypeInferenceTestBase {
 
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL4373(): Unit = doTest() //blinking test
-
   def testSCL5215(): Unit = doTest()
 
   def testSCL7085(): Unit = doTest()
@@ -32,10 +30,20 @@ class BoundsTest extends TypeInferenceTestBase {
 
   def testSCL5186(): Unit ={
     doTest(
-      s"""
-        |def foo[V <: U, U](v: V, u: U) = u
-        |${START}foo(1, "asa")$END
-        |//Any
-      """.stripMargin)
+      s"""object Test {
+         |  def foo[V <: U, U](v: V, u: U) = u
+         |  def bar[V, U >: V](v: V, u: U) = u
+         |
+         |  def zz(x: Any) = 1
+         |  def zz(x: String) = "text"
+         |
+         |  def test(a: Any, s: String) {
+         |    val z = ${START}foo(a, s)$END //plugin infers String (as a result), compiler infers Any
+         |    val h = zz(z)
+         |    val u: Int = h
+         |  }
+         |}
+         |//Any
+         |""".stripMargin)
   }
 }

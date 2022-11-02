@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.overrideImplement
 
 import com.intellij.codeInsight.generation.GenerationInfoBase
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager}
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.pom.Navigatable
@@ -222,8 +221,7 @@ object ScalaGenerationInfo {
   }
 
   def toAddOverrideToImplemented: Boolean =
-    if (ApplicationManager.getApplication.isUnitTestMode) false
-    else ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED
+    ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED
 
   def typeAnnotationsPolicy: ScalaApplicationSettings.ReturnTypeLevel =
     ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY

@@ -1,15 +1,17 @@
-package org.jetbrains.plugins.scala.codeInspection.internal
+package org.jetbrains.plugins.scala.uast.platform_inspections
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInspection.{LocalInspectionTool, NonExtendableApiUsageInspection}
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.testFramework.PsiTestUtil
 import com.intellij.util.PathUtil
-import org.jetbrains.plugins.scala.codeInspection.internal.NonExtendableApiUsageInspectionTest.HighlightMessage
 import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.uast.platform_inspections.NonExtendableApiUsageInspectionTest.HighlightMessage
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 
+import java.nio.file.Path
 import java.util
 
 /**
@@ -34,9 +36,17 @@ class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
   override def setUpLibraries(implicit module: com.intellij.openapi.module.Module): Unit = {
     super.setUpLibraries(module)
 
+    val libraryRootPath = getTestDataPath + "library_root"
+
+    //without this calls, updates in `.class` files in test data will not be visible
+    val libraryRootVFile = VirtualFileManager.getInstance().findFileByNioPath(Path.of(libraryRootPath))
+    //before refreshing we need to iterate over children. I don't know why, but without this it's not refreshed properly
+    libraryRootVFile.getChildren.foreach(_.getChildren)
+    libraryRootVFile.getFileSystem.refresh(false)
+
     ModuleRootModificationUtil.updateModel(module, (model: ModifiableRootModel) => {
       PsiTestUtil.addProjectLibrary(model, "annotations", util.Arrays.asList(PathUtil.getJarPathForClass(classOf[org.jetbrains.annotations.ApiStatus.NonExtendable])))
-      PsiTestUtil.addProjectLibrary(model, "library", util.Arrays.asList(getTestDataPath + "library_root"))
+      PsiTestUtil.addProjectLibrary(model, "library", util.Arrays.asList(libraryRootPath))
 
       PsiTestUtil.addProjectLibrary(model, "intellij_platform_utils", util.Arrays.asList(PathUtil.getJarPathForClass(classOf[com.intellij.util.messages.Topic[_]])))
     })
@@ -132,25 +142,25 @@ class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
         HighlightMessage((548, 561), "Interface 'library.JavaInterface' must not be implemented"),
         HighlightMessage((609, 622), "Interface 'library.JavaInterface' must not be extended"),
         HighlightMessage((668, 677), "Class 'library.JavaClass' must not be extended"),
-        HighlightMessage((824,841), "Class 'library.JavaClass' must not be extended"),
+        HighlightMessage((726, 774), "Class 'library.JavaNonExtendableNestedOwner.NonExtendableNested' must not be extended"),
+        HighlightMessage((824, 841), "Class 'library.JavaClass' must not be extended"),
         HighlightMessage((938, 951), "Method 'doNotOverride()' must not be overridden"),
         HighlightMessage((1058, 1071), "Method 'doNotOverride()' must not be overridden"),
-
         HighlightMessage((1350, 1361), "Class 'library.KotlinClass' must not be extended"),
         HighlightMessage((1411, 1426), "Interface 'library.KotlinInterface' must not be implemented"),
         HighlightMessage((1476, 1491), "Interface 'library.KotlinInterface' must not be extended"),
         HighlightMessage((1539, 1550), "Class 'library.KotlinClass' must not be extended"),
-        HighlightMessage((1703,1722), "Class 'library.KotlinClass' must not be extended"),
+        HighlightMessage((1601, 1651), "Class 'library.KotlinNonExtendableNestedOwner.NonExtendableNested' must not be extended"),
+        HighlightMessage((1703, 1722), "Class 'library.KotlinClass' must not be extended"),
         HighlightMessage((1823, 1836), "Method 'doNotOverride()' must not be overridden"),
         HighlightMessage((1947, 1960), "Method 'doNotOverride()' must not be overridden"),
-
-        //in AnonymousClasses
         HighlightMessage((2120, 2129), "Class 'library.JavaClass' must not be extended"),
         HighlightMessage((2141, 2154), "Interface 'library.JavaInterface' must not be implemented"),
-        HighlightMessage((2166,2183), "Class 'library.JavaClass' must not be extended"),
+        HighlightMessage((2166, 2183), "Class 'library.JavaClass' must not be extended"),
+        HighlightMessage((2195, 2243), "Class 'library.JavaNonExtendableNestedOwner.NonExtendableNested' must not be extended"),
         HighlightMessage((2256, 2267), "Class 'library.KotlinClass' must not be extended"),
         HighlightMessage((2279, 2294), "Interface 'library.KotlinInterface' must not be implemented"),
-
+        HighlightMessage((2306, 2356), "Class 'library.KotlinNonExtendableNestedOwner.NonExtendableNested' must not be extended"),
         HighlightMessage((2402, 2415), "Method 'doNotOverride()' must not be overridden"),
         HighlightMessage((2466, 2479), "Method 'doNotOverride()' must not be overridden"),
         HighlightMessage((2529, 2542), "Method 'doNotOverride()' must not be overridden"),

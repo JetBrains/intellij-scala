@@ -876,17 +876,21 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.var.could.be.a.val"
                          groupPath="Scala" groupKey="group.general" shortName="VarCouldBeVal"
-                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
+                         level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedDeclarationInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.unused.declaration"
                          groupPath="Scala" groupKey="group.general" shortName="ScalaUnusedSymbol"
-                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
+                         level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
+                         enabledByDefault="true" language="Scala"/>
+        <!--NOTE: editorAttributes="INFO_ATTRIBUTES" correspond WEAK_WARNING (IDK who invented this naming ¯\_(ツ)_/¯) -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.access.can.be.weaker"
                          groupPath="Scala" groupKey="group.general" shortName="ScalaWeakerAccess"
-                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
+                         level="WARNING" editorAttributes="INFO_ATTRIBUTES"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorUseCorrectLambdaKeywordInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.in.kind.projector.use.correct.lambda.keyword"

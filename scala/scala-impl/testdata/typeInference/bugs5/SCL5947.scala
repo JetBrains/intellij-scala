@@ -1,5 +1,3 @@
-
-
 object SCL5947 {
 
   trait HighlightErrorExampleComponent {
@@ -22,4 +20,4 @@ object SCL5947 {
   }
 }
 
-//HighlightErrorExampleComponent#HighlightErrorExample
+//HighlightErrorExampleMixed.this.HighlightErrorExample

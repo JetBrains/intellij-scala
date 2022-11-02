@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package parameterInfo
+package org.jetbrains.plugins.scala.lang.parameterInfo
 
 import com.intellij.codeInsight.hint.{HintUtil, ShowParameterInfoContext}
 import com.intellij.lang.parameterInfo._
@@ -8,8 +6,8 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.testFramework.utils.parameterInfo.MockUpdateParameterInfoContext
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
 import org.junit.Assert._
 import org.junit.ComparisonFailure
 
@@ -38,7 +36,7 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
     val handler = createHandler
 
     val actual: Seq[String] = handleUI(handler, context)
-    val expected: Seq[Seq[String]] = expectedSignatures(lastElement())
+    val expected: Seq[Seq[String]] = expectedSignatures(getFile)
 
     assertNotNull(expected)
     if (!expected.contains(actual)) {
@@ -81,11 +79,6 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
         items = Array.empty
       }
     }
-  }
-
-  private def lastElement() = {
-    val file = getFile
-    file.findElementAt(file.getTextLength - 1)
   }
 }
 
@@ -131,14 +124,8 @@ object ParameterInfoTestBase {
     override def setupRawUIComponentPresentation(htmlText: String): Unit = {}
   }
 
-  private def expectedSignatures(lastElement: PsiElement): Seq[Seq[String]] = {
-    val dropRight = lastElement.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => 0
-      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT => 2
-    }
-
-    val text = lastElement.getText
-    val commentText = text.substring(2, text.length - dropRight)
+  private def expectedSignatures(file: PsiFile): Seq[Seq[String]] = {
+    val ExpectedResultFromLastComment(_, commentText) = TestUtils.extractExpectedResultFromLastComment(file)
     val values = commentText.split("<--->")
     val valuesNormalized = values.map(normalize)
     valuesNormalized.toIndexedSeq

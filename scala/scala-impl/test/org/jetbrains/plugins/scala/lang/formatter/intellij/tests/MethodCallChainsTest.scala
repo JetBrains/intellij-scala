@@ -642,6 +642,22 @@ class MethodCallChainsTest extends AbstractScalaFormatterTestBase {
         |  42
         |}.foo().foo()
         | .foo().foo()
+        |
+        |//to be able to call apply on tuple
+        |implicit class TupleOps(private val tuple: Product) extends AnyVal {
+        |  def apply(index: Int): Any = tuple.productElement(index)
+        |}
+        |
+        |val array = Array(1, 2, 3)
+        |array(1)
+        |(array)(1)
+        |((array))(1)
+        |(1, 2, 3)(1)
+        |
+        |array.apply(1)
+        |(array).apply(1)
+        |((array)).apply(1)
+        |(1, 2, 3).apply(1)
         |""".stripMargin
     )
   }

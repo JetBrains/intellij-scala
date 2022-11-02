@@ -24,7 +24,7 @@ object ReferenceComparisonTestsGenerator_Scala3  {
     )
 
     val testOutputPath: Path =
-      Paths.get(TestUtils.findCommunityRoot())
+      Paths.get(TestUtils.findCommunityRoot)
         .resolve("scala/scala-impl/test/org/jetbrains/plugins/scala/lang/resolveSemanticDb/generated/ReferenceComparisonTest_Scala3.scala")
 
     def test_run_generator(): Unit = {

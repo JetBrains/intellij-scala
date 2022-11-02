@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package typeInference
-package generated
+package org.jetbrains.plugins.scala.lang.typeInference.generated
 
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import org.jetbrains.plugins.scala.lang.typeInference.testInjectors.{SCL9445Injector, SCL9532Injector, SCL9533Injector, SCL9865Injector}
 
 abstract class TypeInferenceBugs5TestBase extends TypeInferenceTestBase {
@@ -24,8 +23,6 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
   def testCyclicGetClass(): Unit = doTest()
 
   def testDeeperLub(): Unit = doTest()
-
-  def testDefaultParamInference(): Unit = doTest()
 
   def testEA52539(): Unit = doTest()
 
@@ -1169,10 +1166,289 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
   def testSCL8661(): Unit = doTest()
 
   def testSCL9681(): Unit = doTest()
+
+  //SCL-5571
+  def testSCL5571(): Unit = doTest()
+
+  //SCL-5947
+  def testSCL5947(): Unit = doTest()
+
+  //SCL-7954
+  def testSCL7954(): Unit = doTest()
+
+  //SCL-8236
+  def testSCL8236(): Unit = doTest(
+    """
+      |import scala.util.{Try, Failure, Success}
+      |class Foo(s: String) {
+      |  def doFoo(s: String) = {
+      |    doBar1(new Exception {
+      |      def doSomething = {
+      |        if(true) doBar2(/*start*/Success("", this)/*end*/)
+      |        else doBar2(Failure(new Exception()))
+      |      }
+      |    })
+      |  }
+      |  def doBar1(e: Exception) = { }
+      |  def doBar2(e: Try[(String, Exception)]) = { }
+      |}
+      |/*
+      |Success[(String, Exception {
+      |  def doSomething: Unit
+      |})]
+      |*/
+    """.stripMargin.trim,
+  )
+
+  //SCL-12174
+  def testSCL12174_1(): Unit = {
+    doTest(
+      s"""
+         |def foo = (_:String).split(":") match {
+         |    case x => ${START}x$END
+         |}
+         |//Array[String]
+      """.stripMargin)
+  }
+
+  //SCL-12174
+  def testSCL12174_2(): Unit = {
+    doTest(
+      s"""
+         |def foo = (_:String).split(":") match {
+         |    case x => x
+         |}
+         |${START}foo$END
+         |//String => Array[String]
+      """.stripMargin)
+  }
+
+  //SCL-4487
+  def testSCL4487(): Unit = {
+    doTest(
+      s"""
+         |def x(a: Int): String => Int = _ match {
+         |  case value if value == "0" => ${START}a$END
+         |}
+         |//Int
+      """.stripMargin)
+  }
+
+  //SCL-10292
+  def testSCL10292(): Unit = {
+    doTest(
+      s"""
+         |case class Foo(a: Int)
+         |Foo.getClass.getMethods.find(${START}x => x.getName == "apply"$END)
+         |//Method => Boolean
+      """.stripMargin)
+  }
+
+  //SCL-9474
+  def testSCL9474(): Unit = doTest {
+    """
+      |object Foo {
+      |  trait Sys[L <: Sys[L]]
+      |
+      |  trait SkipMap[E <: Sys[E], A, B] {
+      |    def add(entry: (A, B)): Option[B]
+      |  }
+      |
+      |  trait Output[C <: Sys[C]]
+      |
+      |  class OutputImpl[S <: Sys[S]](proc: Proc[S]) extends Output[S] {
+      |    import proc.{outputs => map}
+      |
+      |    def add(key: String, value: Output[S]): Unit =
+      |      map.add(key -> /*start*/value/*end*/)   // type mismatch here
+      |  }
+      |
+      |  trait Proc[J <: Sys[J]] {
+      |    def outputs: SkipMap[J, String, Output[J]]
+      |  }
+      |}
+      |//Foo.Output[S]
+      |""".stripMargin.trim
+  }
+
+  //SCL-10173
+  def testSCL10173a(): Unit = doTest(
+    s"""
+       |trait T
+       |class Root
+       |class A extends Root with T
+       |class B extends A {
+       |  def foo(node: Root with T): Unit = {}
+       |}
+       |
+       |object Example extends App {
+       |
+       |  def bug1(b: B): Unit = {
+       |    val a: A = new A()
+       |    b.foo(${START}a$END)
+       |  }
+       |}
+       |//A
+      """.stripMargin)
+
+  def testSCL10173b(): Unit = doTest(
+    s"""
+       |trait T
+       |class Root
+       |class A extends Root with T
+       |class B extends A {
+       |  def foo(node: Root with T): Unit = {}
+       |}
+       |
+       |object Example extends App {
+       |  def bug2(b: B): Unit = {
+       |    val b2: B = new B()
+       |    b.foo(${START}b2$END)
+       |  }
+       |}
+       |//B
+      """.stripMargin)
+
+  //SCL-8648
+  def testSCL8648(): Unit = {
+    doTest(
+      s"""
+         |trait C {
+         |    type T
+         |  }
+         |
+         |  trait A[S]
+         |
+         |  trait B {
+         |    def bar(x : A[C { type T }]) : A[C] = ${START}x$END
+         |  }
+         |/*
+         |A[C {
+         |  type T
+         |}]
+         |*/
+      """.stripMargin)
+  }
+
+  //SCL-3959
+  def testSCL3959(): Unit = {
+    doTest(
+      s"""
+         |class Z[T]
+         |class B[T] {
+         |  def foo(x: T) = x
+         |}
+         |
+         |def foo1[T]: Z[T] = new Z[T]
+         |def goo1[T](x: Z[T]): B[T] = new B[T]
+         |goo1(foo1) foo ${START}1$END
+         |//Int
+      """.stripMargin)
+  }
+
+  //SCL-7493
+  def testSCL7493(): Unit = {
+    doTest(
+      s"""
+         |  class Foo[T,+U] {}
+         |  class Bar[T] {}
+         |  type FooBar[T,U] = Foo[T,Bar[U]]
+         |
+         |  def baz[T,U](x: FooBar[T,U], y: FooBar[T,_]): FooBar[T,U] = x
+         |
+         |  val s1: FooBar[String,Int] = null
+         |  val s2: FooBar[String,Boolean] = null
+         |  baz[String,Int](s1,${START}s2$END)
+         |
+         |//FooBar[String, Boolean]
+      """.stripMargin)
+  }
+
+  //SCL-9471
+  def testSCL9471(): Unit = {
+    doTest(
+      s"""
+         |  object Foo {
+         |  trait Sys[S <: Sys[S]] {
+         |    type I <: Sys[I]
+         |  }
+         |
+         |  def apply[S <: Sys[S]](system: S): Any =
+         |    prepare[S, system.I](${START}system$END)
+         |
+         |  private def prepare[S <: Sys[S], I1 <: Sys[I1]](system: S {type I = I1}): Any = ???
+         |}
+         |//system.type
+      """.stripMargin)
+  }
+
+  //SCL-13634
+  def testSCL13634(): Unit = {
+    doTest(
+      s"""trait C[+A, B]
+         |type F[T] = C[Int, T]
+         |def foo(f: F[_]): Unit = ???
+         |
+         |val st: C[Int, String] = ???
+         |foo(${START}st$END)
+         |//C[Int, String]
+         |""".stripMargin
+    )
+  }
+
+  //SCL-10414
+  def testSCL10414(): Unit = {
+    val text =
+      s"""
+         |val s1 : Set[Class[_]] = Set()
+         |val s2 : Set[java.lang.Class[_]] = Set()
+         |
+         |if(!s1.union(${START}s2$END).isEmpty) println(5)
+         |//Set[Class[_]]""".stripMargin
+    doTest(text)
+  }
+
+  //SCL-11052
+  def testSCL11052(): Unit = {
+    doTest(
+      s"""
+         |def second[T]: Seq[T] => Option[T] = _.drop(1).headOption
+         |second(${START}Seq("one", "two")$END)
+         |//Seq[String]""".stripMargin
+    )
+  }
+
+  //SCL-9523
+  def testScl9523(): Unit = {
+    doTest(
+      s"""import scala.language.{existentials, implicitConversions}
+         |
+         |object Main extends App {
+         |  Tag("key", Set[Value[Value.T]](${START}123$END))
+         |}
+         |
+         |case class Tag(key: String, values: Set[Value[Value.T]])
+         |
+         |object Value {
+         |  type T = X forSome { type X <: AnyVal }
+         |
+         |  implicit def number2Value(v: Long): Value[T] = LongValue(v)
+         |
+         |  def apply(v: Long): Value[T] = LongValue(v)
+         |}
+         |
+         |sealed trait Value[+T <: AnyVal] {
+         |  def v: T
+         |}
+         |
+         |case class LongValue(v: Long) extends Value[Long]
+         |
+         |//Value[Value.T]""".stripMargin)
+  }
 }
 
 class TypeInferenceBugs5Test_with_parser_combinators extends TypeInferenceBugs5TestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2_10
 
   def testSCL3076(): Unit = doTest()
 
@@ -1186,7 +1462,7 @@ class TypeInferenceBugs5Test_with_parser_combinators extends TypeInferenceBugs5T
 }
 
 class TypeInferenceBug5Test_with_xml extends TypeInferenceBugs5TestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_10
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2_10
 
   def testSCL3542(): Unit = doTest()
 
@@ -1196,7 +1472,7 @@ class TypeInferenceBug5Test_with_xml extends TypeInferenceBugs5TestBase {
 }
 
 class TypeInferenceBugs5_with_StreamWithFilter extends TypeInferenceBugs5TestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version < LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version < ScalaVersion.Latest.Scala_2_12
 
   def testSCL5669A(): Unit = doTest()
 }

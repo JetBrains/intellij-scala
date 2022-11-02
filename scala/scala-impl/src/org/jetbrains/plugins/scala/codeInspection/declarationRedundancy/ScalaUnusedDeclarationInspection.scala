@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
-import com.intellij.codeInspection.{ProblemHighlightType, SetInspectionOptionFix}
+import com.intellij.codeInspection.SetInspectionOptionFix
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiAnnotationOwner, PsiElement}
 import org.jetbrains.annotations.{Nls, NonNls}
@@ -98,7 +98,6 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
             ProblemInfo(
               original.nameId,
               message,
-              ProblemHighlightType.LIKE_UNUSED_SYMBOL,
               DeleteUnusedElementFix.quickfixesFor(original) ++
                 dontReportPublicDeclarationsQuickFix ++
                 addScalaAnnotationUnusedQuickFix

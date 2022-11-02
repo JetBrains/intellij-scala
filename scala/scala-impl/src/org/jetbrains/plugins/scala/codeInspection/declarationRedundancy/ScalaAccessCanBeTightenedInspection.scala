@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
-import com.intellij.codeInsight.intention.FileModifier
-import com.intellij.codeInspection.{LocalQuickFixOnPsiElement, ProblemHighlightType}
+import com.intellij.codeInsight.intention.PriorityAction.Priority
+import com.intellij.codeInsight.intention.{FileModifier, PriorityAction}
+import com.intellij.codeInspection.LocalQuickFixAndIntentionActionOnPsiElement
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.getPipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
@@ -29,14 +31,13 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
 
       val usages = getPipeline(element.getProject).runSearchPipeline(element, isOnTheFly)
 
-      if (usages.forall(_.targetCanBePrivate)) {
+      if (usages.nonEmpty && usages.forall(_.targetCanBePrivate)) {
         val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(modifierListOwner)
 
         Seq(
           ProblemInfo(
             element.nameId,
             ScalaInspectionBundle.message("access.can.be.private"),
-            ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
             Seq(fix)
           )
         )
@@ -72,15 +73,20 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
 
 private object ScalaAccessCanBeTightenedInspection {
 
-  private[declarationRedundancy] class MakePrivateQuickFix(element: ScModifierListOwner) extends LocalQuickFixOnPsiElement(element) {
+  private[declarationRedundancy]
+  class MakePrivateQuickFix(element: ScModifierListOwner)
+    extends LocalQuickFixAndIntentionActionOnPsiElement(element)
+      with PriorityAction {
 
-    private val text = quickFixText(element)
+    private lazy val priority = quickFixPriority(element)
 
-    override def getText: String = text
+    override def getPriority: PriorityAction.Priority = priority
+
+    override def getText: String = ScalaInspectionBundle.message("make.private")
 
     override def getFamilyName: String = ScalaInspectionBundle.message("change.modifier")
 
-    override def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit =
+    override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit =
       element.setModifierProperty("private")
 
     override def getFileModifierForPreview(target: PsiFile): FileModifier =
@@ -100,40 +106,46 @@ private object ScalaAccessCanBeTightenedInspection {
   }
 
   /**
-   * The reason for the below logic is as follows:
+   * When type annotation warning is shown we want to show "Make private" quick fix above "Add type annotation".
+   * This is because after adding `private` modifier "missing type annotation" warning will become non-actual
+   * (at least with the default code style settings)
    *
-   * 1. On the one hand we want to keep our QuickFix text congruent with Java's
-   * [[com.intellij.codeInspection.visibility.AccessCanBeTightenedInspection]], where the QuickFix text
-   * is "Make 'private'".
-   * 2. On the other hand we prefer to present the QuickFix that adds the 'private'
-   * modifier at the top of the QuickFix list.
-   * 3. Since the platform applies alphabetical ordering when presenting the QuickFixes,
-   * and quite often [[org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection]]
-   * offers a "Add type annotation" QuickFix at the same time that a declaration can be made private,
-   * a QuickFix with the text "Make 'private'" would not appear at the top in such a case.
+   * So, in case a [[ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix]]
+   * is offered to the user, we essentially perform the same check as [[TypeAnnotationInspection]].
+   * When the result is positive (i.e. a type annotation QuickFix is offered), we use a higher priority for "Make private" quick fix.
    *
-   * So, in case a [[org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix]] is
-   * offered to the user, we essentially perform the same check as
-   * [[org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection]]. When the result is
-   * positive (i.e. a type annotation QuickFix is offered), we go for a fallback text that starts with "Add ...".
-   *
-   * In case we ever get custom QuickFix ordering, this fallback routine becomes redundant.
-   * See [[https://youtrack.jetbrains.com/issue/IDEA-88512]].
+   * @note At the moment [[PriorityAction]] is the best API we have to reorder actions & quick fixes<br>
+   *       See [[https://youtrack.jetbrains.com/issue/IDEA-88512]].
+   * @note [[TypeAnnotationInspection]] doesn't implement [[PriorityAction]] so its priority is by default NORMAL<br>
+   *       This is because it will be wrapped into [[com.intellij.codeInspection.ex.QuickFixWrapper]].
    */
-  @Nls
-  private def quickFixText(modifierListOwner: ScModifierListOwner): String = {
-    val expression = modifierListOwner match {
-      case value: ScPatternDefinition if value.isSimple && !value.hasExplicitType =>
-        value.expr
-      case method: ScFunctionDefinition if method.hasAssign && !method.hasExplicitType && !method.isConstructor =>
-        method.body
-      case _ => None
+  private def quickFixPriority(modifierListOwner: ScModifierListOwner): Priority = {
+    val needHigherPriority = typeAnnotationWarningWillBeShown(modifierListOwner)
+    if (needHigherPriority)
+      Priority.HIGH
+    else
+      Priority.NORMAL
+  }
+
+  private def typeAnnotationWarningWillBeShown(modifierListOwner: ScModifierListOwner): Boolean = {
+    val inspectionProfile = InspectionProjectProfileManager.getInstance(modifierListOwner.getProject).getCurrentProfile
+    //TypeAnnotationToolKey can be null in tests where the inspection is not explicitly enabled
+    val typeAnnotationKey = TypeAnnotationInspection.highlightKey
+    if (typeAnnotationKey != null && !inspectionProfile.isToolEnabled(typeAnnotationKey))
+      return false
+
+    val (expression, hasExplicitType) = modifierListOwner match {
+      case value: ScPatternDefinition if value.isSimple =>
+        (value.expr, value.hasExplicitType)
+      case method: ScFunctionDefinition if method.hasAssign && !method.isConstructor =>
+        (method.body, method.hasExplicitType)
+      case _ =>
+        (None, true)
     }
 
-    if (TypeAnnotationInspection.getReasonForTypeAnnotationOn(modifierListOwner, expression).isEmpty) {
-      ScalaInspectionBundle.message("make.private")
-    } else {
-      ScalaInspectionBundle.message("add.private.modifier")
+    !hasExplicitType && {
+      val typeAnnotationReason = TypeAnnotationInspection.getReasonForTypeAnnotationOn(modifierListOwner, expression)
+      typeAnnotationReason.isDefined
     }
   }
 }

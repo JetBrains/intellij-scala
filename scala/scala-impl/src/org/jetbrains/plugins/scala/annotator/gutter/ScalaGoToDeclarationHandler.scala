@@ -195,6 +195,7 @@ object ScalaGoToDeclarationHandler {
         val companionClass = getCompanionModule(scObject)
         companionClass.collect {
           case ScEnum.Original(enum) => enum
+          case ScEnumCase.Original(enum) => enum
         }.orElse(companionClass).toSeq
       case definition: ScTypeDefinition if definition.isSynthetic => Option(definition.syntheticContainingClass).toSeq
       case parameter: ScParameter                                 => parameterForSyntheticParameter(parameter).toSeq

@@ -85,7 +85,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     resultText =
       """
         |class Inheritor extends Base {
-        |  override val intValue: Int = _
+        |  override val intValue: Int = ???
         |}
       """.stripMargin,
     items = "intValue"
@@ -101,7 +101,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     resultText =
       """
         |class Inheritor extends Base {
-        |  override var intVariable: Int = _
+        |  override var intVariable: Int = ???
         |}
       """.stripMargin,
     items = "intVariable"
@@ -197,7 +197,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     resultText =
       """
         |class Inheritor extends Base {
-        |  override var intVariable: Int = _
+        |  override var intVariable: Int = ???
         |}
       """.stripMargin,
     items = "intVariable"
@@ -309,7 +309,7 @@ class ScalaOverrideCompletionTest2 extends ScalaCompletionTestBase {
   TestScalaVersion.Scala_3_Latest
 ))
 class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestBase {
-
+//TODO
   def testFunction(): Unit = doRawCompletionTest(
     fileText =
       s"""class Inheritor extends BaseTrait {
@@ -335,7 +335,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
       """
         |class Inheritor extends BaseTrait {
         |  @targetName("extIntValue")
-        |  override val intValue: Int = _
+        |  override val intValue: Int = ???
         |}
       """.stripMargin,
     items = "intValue"
@@ -349,7 +349,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     resultText =
       """class Inheritor extends BaseTrait {
         |  @targetName("extIntVariable")
-        |  override var intVariable: Int = _
+        |  override var intVariable: Int = ???
         |}""".stripMargin,
     items = "intVariable"
   )
@@ -477,7 +477,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     resultText =
       """class Inheritor extends BaseTrait {
         |  @targetName("extIntVariable")
-        |  override var intVariable: Int = _
+        |  override var intVariable: Int = ???
         |}
       """.stripMargin,
     items = "intVariable"
@@ -491,7 +491,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
       """.stripMargin,
     resultText =
       """class Inheritor extends BaseTrait {
-        |  @targetName("anotherExtIntValue") override val intValue: Int = _
+        |  @targetName("anotherExtIntValue") override val intValue: Int = ???
         |}
       """.stripMargin,
     items = "intValue"

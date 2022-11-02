@@ -7,7 +7,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.editor.ScalaEditorUtils
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.Constructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -24,6 +26,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
+//noinspection InstanceOf
 object ScalaOIUtil {
 
   private[this] def toClassMember(signature: Signature, isOverride: Boolean): Option[ClassMember] = {
@@ -62,14 +65,27 @@ object ScalaOIUtil {
     invokeOverrideImplement(file, isImplement, None)
 
   def invokeOverrideImplement(file: PsiFile, isImplement: Boolean, methodName: Option[String])
-                             (implicit project: Project, editor: Editor): Unit =
-    file.findElementAt(editor.getCaretModel.getOffset - 1)
+                             (implicit project: Project, editor: Editor): Unit = {
+    val caretOffset = editor.getCaretModel.getOffset
+    val elementAtCaret = ScalaEditorUtils.findElementAtCaret_WithFixedEOF(file, editor.getDocument, caretOffset)
+    val elementAtCaretFixed = elementAtCaret match {
+      case ws: PsiWhiteSpace if caretOffset == ws.getNode.getStartOffset =>
+        // in case when caret is right after the error end offset
+        PsiTreeUtil.prevLeaf(ws)
+      case (ws: PsiWhiteSpace) && PrevElement(colon @ ElementType(ScalaTokenTypes.tCOLON) && Parent(body: ScTemplateBody))
+        if ws.containingFile.exists(_.useIndentationBasedSyntax) && body.exprs.isEmpty =>
+        // in case when caret is inside an empty template body in Scala 3 indentation-based syntax
+        colon
+      case e => e
+    }
+    elementAtCaretFixed
       .parentOfType(classOf[ScTemplateDefinition], strict = false)
       .map {
         case enumCase: ScEnumCase => enumCase.enumParent
         case td => td
       }
       .foreach(invokeOverrideImplement(_, isImplement, methodName))
+  }
 
   def invokeOverrideImplement(clazz: ScTemplateDefinition, isImplement: Boolean)
                              (implicit project: Project, editor: Editor): Unit =
@@ -85,19 +101,43 @@ object ScalaOIUtil {
     if (classMembers.nonEmpty) {
       val selectedMembers = methodName match {
         case None =>
-          val chooser = new ScalaMemberChooser[ClassMember](classMembers.to(ArraySeq), false, true, isImplement, true, true, clazz)
-          chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override"))
-          if (isImplement) chooser.selectElements(classMembers.toArray[JClassMember])
-          chooser.show()
-          Option(chooser.getSelectedElements).map(_.asScala.toSeq).getOrElse(Seq.empty)
+          if (ApplicationManager.getApplication.isUnitTestMode)
+            classMembers //if no explicit methodName is specified in tests, implement all members
+          else
+            showSelectMembersDialogAndGet(clazz, isImplement, classMembers)
         case Some(name) =>
           classMembers.find {
             case named: ScalaNamedMember if named.name == name => true
             case _ => false
           }.toSeq
       }
-      if (selectedMembers.nonEmpty) runAction(selectedMembers, isImplement, clazz)
+      if (selectedMembers.nonEmpty) {
+        runAction(selectedMembers, isImplement, clazz)
+      }
     }
+  }
+
+  private def showSelectMembersDialogAndGet(
+    clazz: ScTemplateDefinition,
+    isImplement: Boolean,
+    classMembers: Seq[ClassMember]
+  ): Seq[ClassMember] = {
+    val title = if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override")
+    val chooserDialog = new ScalaMemberChooser[ClassMember](
+      classMembers.to(ArraySeq),
+      false,
+      true,
+      isImplement,
+      true,
+      true,
+      clazz
+    )
+    chooserDialog.setTitle(title)
+    if (isImplement) {
+      chooserDialog.selectElements(classMembers.toArray[JClassMember])
+    }
+    chooserDialog.show()
+    Option(chooserDialog.getSelectedElements).map(_.asScala.toSeq).getOrElse(Seq.empty)
   }
 
   def runAction(selectedMembers: Seq[ClassMember],

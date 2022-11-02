@@ -16,6 +16,7 @@ import org.jetbrains.idea.maven.project._
 import org.jetbrains.idea.maven.server.{MavenEmbedderWrapper, NativeMavenProjectHolder}
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
@@ -24,6 +25,7 @@ import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
 import java.io.File
 import java.util
 import scala.jdk.CollectionConverters._
+import scala.util.Try
 
 final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-plugin") {
 
@@ -86,7 +88,9 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
         configuration.compilerOptions ++ plugins.map(path => "-Xplugin:" + path)
       }
 
-      module.configureScalaCompilerSettingsFrom("Maven", compilerOptions)
+      val compileOrder = configuration.compileOrder.getOrElse(CompileOrder.Mixed)
+
+      module.configureScalaCompilerSettingsFrom("Maven", compilerOptions, compileOrder)
 
       configuration.compilerVersion match {
         case Some(compilerVersion) =>
@@ -276,6 +280,10 @@ private object ScalaMavenImporter {
 
     def compilerVersionProperty: Option[String] =
       resolvePluginConfig(configElementName = "scalaVersion", userPropertyName = "scala.version")
+
+    def compileOrder: Option[CompileOrder] =
+      resolvePluginConfig("compileOrder", "compileOrder")
+        .flatMap(s => Try(CompileOrder.valueOf(s)).toOption)
 
     def compilerOptions: Seq[String] = {
       val args = elements("args", "arg").map(_.getTextTrim)

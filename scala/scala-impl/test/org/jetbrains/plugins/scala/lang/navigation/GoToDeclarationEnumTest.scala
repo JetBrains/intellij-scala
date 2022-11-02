@@ -60,4 +60,35 @@ class GoToDeclarationEnumTest extends GotoDeclarationTestBase {
        |""".stripMargin,
     expected = (is[ScEnum], "Option")
   )
+
+  def testImportSimpleCase(): Unit = doTest(
+    s"""
+       |object Model {
+       |  enum Foo {
+       |    case Bar, Baz, Qux
+       |  }
+       |}
+       |
+       |def test(): Unit = {
+       |  import Model.Foo.Ba${CARET}z
+       |}
+       |""".stripMargin,
+    expected = (is[ScEnumCase], "Model.Foo.Baz")
+  )
+
+  def testImportCaseWithConstructor(): Unit = doTest(
+    s"""
+       |object Model {
+       |  enum Foo {
+       |    case Bar
+       |    case Baz(i: Int)
+       |  }
+       |}
+       |
+       |def test(): Unit = {
+       |  import Model.Foo.Ba${CARET}z
+       |}
+       |""".stripMargin,
+    expected = (is[ScEnumCase], "Model.Foo.Baz")
+  )
 }

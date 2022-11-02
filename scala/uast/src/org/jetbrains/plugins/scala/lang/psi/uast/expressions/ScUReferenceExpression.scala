@@ -118,6 +118,32 @@ final class ScUQualifiedReferenceExpression(
             )
         }
     }
+
+  /**
+   * For now, for some reason qualified method calls are represented by reference expression.<br>
+   * It's whether a historical reason, or most likely it was just copied from Java, where ot was actual historical reason.
+   * (See comments to SCL-20546)
+   *
+   * See related code in [[org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter]]<br>
+   * In particular `case e: ScMethodCall =>`
+   *
+   * UAST structure could be improved: we could represent qualified method call as ScUMethodCallExpression as well.
+   * But for now this quick fix is enough.
+   */
+  override def getExpressionType: PsiType = {
+    val effectiveTypeable: Option[Typeable] = scElement.getParent match {
+      case mc: ScMethodCall =>
+        Some(mc)
+      case gc: ScGenericCall =>
+        Some(gc.getParent match {
+          case mc: ScMethodCall => mc
+          case _ => gc
+        })
+      case _ =>
+        typeProvider
+    }
+    effectiveTypeable.flatMap(_.`type`().map(_.toPsiType).toOption).orNull
+  }
 }
 
 /**

@@ -54,6 +54,10 @@ class ScalaShortNamesCache(implicit project: Project) extends PsiShortNamesCache
           c.fakeCompanionModule.foreach(res.+=)
         case _ =>
       }
+    } else classes.foreach {
+      case c: ScTypeDefinition if isOkForJava(c) =>
+        res += c
+      case _ =>
     }
 
     res.toArray

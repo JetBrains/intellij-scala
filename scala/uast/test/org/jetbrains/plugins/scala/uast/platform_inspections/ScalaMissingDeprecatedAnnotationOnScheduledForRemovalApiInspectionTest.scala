@@ -1,4 +1,4 @@
-package com.intellij.codeInspection.tests.scala
+package org.jetbrains.plugins.scala.uast.platform_inspections
 
 import com.intellij.codeInspection.MissingDeprecatedAnnotationOnScheduledForRemovalApiInspection
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}

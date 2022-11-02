@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package typeConformance
+package org.jetbrains.plugins.scala.lang.typeConformance
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -9,7 +7,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement}
 import org.jetbrains.plugins.scala.base.{FailableTest, ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
@@ -17,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
+import org.jetbrains.plugins.scala.{ScalaFileType, TypecheckerTests}
 import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
 
@@ -113,15 +112,8 @@ abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestC
 
   private def expectedResult: Boolean = {
     val scalaFile = getFile.asInstanceOf[ScalaFile]
-    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-    val text = lastPsi.getText
-    val output = lastPsi.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
-      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-        text.substring(2, text.length - 2).trim
-      case _ => fail("Test result must be in last comment statement")
-    }
-    val expectedResult = java.lang.Boolean.parseBoolean(output.asInstanceOf[String])
+    val ExpectedResultFromLastComment(_, output) = TestUtils.extractExpectedResultFromLastComment(scalaFile)
+    val expectedResult = java.lang.Boolean.parseBoolean(output)
     expectedResult
   }
 

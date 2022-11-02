@@ -1,9 +1,7 @@
-package org.jetbrains.plugins.scala.refactoring
-package extractMethod
+package org.jetbrains.plugins.scala.refactoring.extractMethod
 
 import com.intellij.openapi.actionSystem.DataKey
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
@@ -12,10 +10,10 @@ import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodHandler
-import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
+import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
+import org.jetbrains.plugins.scala.util.{TestUtils, TypeAnnotationSettings}
 import org.junit.Assert._
 
 import java.io.File
@@ -58,7 +56,7 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightCodeInsightFixtureTe
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
 
     val actual = extractActualResult(scalaFile, lastPsi).trim
-    val expected = extractExpectedResult(lastPsi)
+    val expected = TestUtils.extractExpectedResultFromLastComment(getFile).expectedResult
     assertEquals(expected, actual)
   }
 
@@ -88,16 +86,6 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightCodeInsightFixtureTe
 
   private def extractActualResult(file: PsiFile, lastPsi: PsiElement) = {
     file.getText.substring(0, lastPsi.getTextOffset).trim
-  }
-
-  private def extractExpectedResult(lastPsi: PsiElement) = {
-    import ScalaTokenTypes._
-    val text = lastPsi.getText
-    lastPsi.getNode.getElementType match {
-      case `tLINE_COMMENT`                   => text.substring(2).trim
-      case `tBLOCK_COMMENT` | `tDOC_COMMENT` => text.substring(2, text.length - 2).trim
-      case _                                 => fail("Test result must be in last comment statement.").asInstanceOf[Nothing]
-    }
   }
 
   private def extractFileContentText(filePath: String): (String, Int, Int, Int) = {

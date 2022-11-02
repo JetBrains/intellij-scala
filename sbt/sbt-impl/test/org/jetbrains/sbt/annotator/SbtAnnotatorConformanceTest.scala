@@ -40,24 +40,8 @@ abstract class SbtAnnotatorConformanceTestBase extends SbtAnnotatorTestBase {
   }
 }
 
-class SbtAnnotatorConformanceTest_0_12_4 extends SbtAnnotatorConformanceTestBase with MockSbt_0_12 {
-  override implicit val sbtVersion: Version = Version("0.12.4")
-
-  def testSingleSetting(): Unit = testSingleSetting("Project.Setting[_]")
-
-  def testSeqSettings(): Unit = testSeqSettings("Seq[Project.Setting[_]]")
-}
-
-class SbtAnnotatorConformanceTest_0_13_1 extends SbtAnnotatorConformanceTestBase with MockSbt_0_13 {
-  override implicit val sbtVersion: Version = Version("0.13.1")
-
-  def testSingleSetting(): Unit = testSingleSetting("Def.SettingsDefinition")
-
-  def testSeqSettings(): Unit = testSeqSettings("Seq[Def.SettingsDefinition]")
-}
-
-class SbtAnnotatorConformanceTest_0_13_7 extends SbtAnnotatorConformanceTestBase with MockSbt_0_13 {
-  override implicit val sbtVersion: Version = Version("0.13.7")
+class SbtAnnotatorConformanceTest_latest_0_13 extends SbtAnnotatorConformanceTestBase with MockSbt_0_13 {
+  override implicit val sbtVersion: Version = Sbt.Latest_0_13
 
   def testSingleSetting(): Unit = testSingleSetting("sbt.internals.DslEntry")
 

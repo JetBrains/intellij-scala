@@ -63,7 +63,7 @@ class RemoveApplyIntentionTest extends ScalaIntentionTestBase {
   def testRemoveApply5(): Unit =
     doTest(
       s"(foo()).a${CARET}pply(1)",
-      s"(foo())$CARET (1)"
+      s"(foo())$CARET(1)"
     )
 
   def testRemoveApply6(): Unit =

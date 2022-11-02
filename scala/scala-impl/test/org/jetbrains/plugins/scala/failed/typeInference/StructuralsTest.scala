@@ -78,25 +78,6 @@ class StructuralsTest extends TypeInferenceTestBase {
     """.stripMargin.trim
   }
 
-  def testSCL8236(): Unit = doTest {
-    """
-      |import scala.util.{Try, Failure, Success}
-      |class Foo(s: String) {
-      |  def doFoo(s: String) = {
-      |    doBar1(new Exception {
-      |      def doSomething = {
-      |        if(true) doBar2(/*start*/Success("", this)/*end*/)
-      |        else doBar2(Failure(new Exception()))
-      |      }
-      |    })
-      |  }
-      |  def doBar1(e: Exception) = { }
-      |  def doBar2(e: Try[(String, Exception)]) = { }
-      |}
-      |//Try[(String, Exeption)]
-    """.stripMargin.trim
-  }
-
   def testSCL12125(): Unit = doTest {
     """
       |trait A {
@@ -114,5 +95,4 @@ class StructuralsTest extends TypeInferenceTestBase {
       |//a.X
     """.stripMargin.trim
   }
-
 }

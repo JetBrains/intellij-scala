@@ -10,6 +10,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -507,5 +508,24 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
     assertEquals(defaultCompilerOptions.ADDITIONAL_OPTIONS_STRING, compilerOptions.ADDITIONAL_OPTIONS_STRING)
     assertEquals(defaultCompilerOptions.MAXIMUM_HEAP_SIZE, compilerOptions.MAXIMUM_HEAP_SIZE)
     assertEquals(defaultCompilerOptions.PREFER_TARGET_JDK_COMPILER, compilerOptions.PREFER_TARGET_JDK_COMPILER)
+  }
+
+  def testCompileOrder(): Unit = {
+    runTest(new project("compile-order-unspecified") {
+      modules := Seq(
+        new module("compile-order-unspecified") {
+          compileOrder := CompileOrder.Mixed
+        },
+        new module("compile-order-mixed") {
+          compileOrder := CompileOrder.Mixed
+        },
+        new module("compile-order-scala-then-java") {
+          compileOrder := CompileOrder.ScalaThenJava
+        },
+        new module("compile-order-java-then-scala") {
+          compileOrder := CompileOrder.JavaThenScala
+        }
+      )
+    })
   }
 }

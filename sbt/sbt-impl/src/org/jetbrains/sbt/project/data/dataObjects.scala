@@ -4,6 +4,7 @@ import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityD
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.{Nls, Nullable}
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.project.external.SdkReference
 import org.jetbrains.sbt.RichSeq
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -146,8 +147,8 @@ object SbtCommandData {
  *                               Needs to be added to `scalacClasspath`<br>
  *                               For Scala 2 it is empty, because scaladoc generation is built into compiler
  */
-@SerialVersionUID(3)
-case class SbtModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scaladocExtraClasspath", "scalacOptions", "sdk", "javacOptions", "packagePrefix", "basePackage")) (
+@SerialVersionUID(4)
+case class SbtModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scaladocExtraClasspath", "scalacOptions", "sdk", "javacOptions", "packagePrefix", "basePackage", "compileOrder")) (
   @Nullable scalaVersion: String,
   scalacClasspath: JList[File],
   scaladocExtraClasspath: JList[File],
@@ -156,6 +157,7 @@ case class SbtModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClassp
   javacOptions: JList[String],
   packagePrefix: String,
   basePackage: String,
+  compileOrder: CompileOrder
 ) extends SbtEntityData
 
 object SbtModuleExtData {
@@ -169,9 +171,10 @@ object SbtModuleExtData {
     sdk: Option[SdkReference] = None,
     javacOptions: Seq[String] = Seq.empty,
     packagePrefix: Option[String] = None,
-    basePackage: Option[String] = None
+    basePackage: Option[String] = None,
+    compileOrder: CompileOrder = CompileOrder.Mixed
   ): SbtModuleExtData =
-    SbtModuleExtData(
+    new SbtModuleExtData(
       scalaVersion.orNull,
       scalacClasspath.toJavaList,
       scaladocExtraClasspath.toJavaList,
@@ -179,7 +182,8 @@ object SbtModuleExtData {
       sdk.orNull,
       javacOptions.toJavaList,
       packagePrefix.orNull,
-      basePackage.orNull
+      basePackage.orNull,
+      compileOrder
     )
 }
 

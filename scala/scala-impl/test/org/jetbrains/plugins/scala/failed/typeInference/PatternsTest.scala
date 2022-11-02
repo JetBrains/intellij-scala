@@ -12,6 +12,7 @@ class PatternsTest extends TypeInferenceTestBase {
 
   def testSCL9888():Unit = doTest()
 
+  //SCL-8171
   def testSCL8171(): Unit = {
     val text =
       s"""import scala.collection.immutable.NumericRange
@@ -22,7 +23,7 @@ class PatternsTest extends TypeInferenceTestBase {
           |  case _ => null
           |}
           |//NumericRange[_]""".stripMargin
-    doTest(text)
+    doTest(text, failIfNoAnnotatorErrorsInFileIfTestIsSupposedToFail = false)
   }
 
   // something seriously wrong, y isn't even a valid psi
@@ -33,31 +34,9 @@ class PatternsTest extends TypeInferenceTestBase {
         |val (y, _) = x
         |${START}y$END
         |//Int
-      """.stripMargin)
-  }
-
-  def testSCL4487(): Unit = {
-    doTest(
-      s"""
-         |def x(a: Int): String => Int = _ match {
-         |  case value if value == "0" => ${START}a$END
-         |}
-         |//(String) => Int
-      """.stripMargin)
-  }
-
-  def testSCL9241(): Unit = {
-    doTest(
-      s"""
-         |trait Inv[A] { def head: A }
-         |trait Cov[+A] { def head: A }
-         |
-         |def inv(i: Inv[Inv[String]]) = i match {
-         |    case l: Inv[a] =>
-         |      val x: a = ${START}l.head$END
-         |  }
-         |//a
-      """.stripMargin)
+      """.stripMargin,
+      failIfNoAnnotatorErrorsInFileIfTestIsSupposedToFail = false
+    )
   }
 
   def testSCL3170(): Unit = {
@@ -156,16 +135,6 @@ class PatternsTest extends TypeInferenceTestBase {
          |    }
          |  }
          |//Nothing
-      """.stripMargin)
-  }
-
-  def testSCL12174(): Unit = {
-    doTest(
-      s"""
-         |def foo = (_:String).split(":") match {
-         |    case x => ${START}x$END
-         |}
-         |//(String) => Array[String]
       """.stripMargin)
   }
 }

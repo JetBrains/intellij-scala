@@ -5,7 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.Nullable
 
-private[editor] object ScalaEditorUtils {
+object ScalaEditorUtils {
 
   /**
    * If caret is in the end of the document, file.findElementAt returns null.<br>
