@@ -1,6 +1,8 @@
 package scala
+
 @scala.deprecatedInheritance("Tuples will be made final in a future version.", "2.11.0")
 case class Tuple2[@scala.specialized +T1, @scala.specialized +T2](val _1: T1, val _2: T2) extends scala.AnyRef with scala.Product2[T1, T2] with scala.Product with scala.Serializable {
   override def toString(): java.lang.String = { /* compiled code */ }
+
   def swap: scala.Tuple2[T2, T1] = { /* compiled code */ }
 }

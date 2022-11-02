@@ -1,16 +1,23 @@
 package Test
+
 object MyJoin extends scala.AnyRef {
   trait Join[P, S] extends scala.AnyRef {
     val e: scala.Int = { /* compiled code */ }
+
     type Out
+
     def apply(prefix: P, suffix: S): Join.this.Out
   }
+
   type JoinAux[P, S, O] = Test.MyJoin.Join[P, S] {
     type Out = O
+
     val e: scala.Int
   }
+
   trait Join2 extends scala.AnyRef with Test.MyJoin.Join[scala.Int, scala.Int] {
     override type Out = scala.Int
+
     override val e: scala.Int = { /* compiled code */ }
   }
 }

@@ -1,2003 +1,4003 @@
 package test
+
 class Generated extends scala.AnyRef {
   type Foo1[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo1[T, S](s: Generated.this.Foo1[T]): Generated.this.Foo1[S] = { /* compiled code */ }
+
   type Foo2[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo2[T, S](s: Generated.this.Foo2[T]): Generated.this.Foo2[S] = { /* compiled code */ }
+
   type Foo3[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo3[T, S](s: Generated.this.Foo3[T]): Generated.this.Foo3[S] = { /* compiled code */ }
+
   type Foo4[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo4[T, S](s: Generated.this.Foo4[T]): Generated.this.Foo4[S] = { /* compiled code */ }
+
   type Foo5[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo5[T, S](s: Generated.this.Foo5[T]): Generated.this.Foo5[S] = { /* compiled code */ }
+
   type Foo6[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo6[T, S](s: Generated.this.Foo6[T]): Generated.this.Foo6[S] = { /* compiled code */ }
+
   type Foo7[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo7[T, S](s: Generated.this.Foo7[T]): Generated.this.Foo7[S] = { /* compiled code */ }
+
   type Foo8[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo8[T, S](s: Generated.this.Foo8[T]): Generated.this.Foo8[S] = { /* compiled code */ }
+
   type Foo9[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo9[T, S](s: Generated.this.Foo9[T]): Generated.this.Foo9[S] = { /* compiled code */ }
+
   type Foo10[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo10[T, S](s: Generated.this.Foo10[T]): Generated.this.Foo10[S] = { /* compiled code */ }
+
   type Foo11[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo11[T, S](s: Generated.this.Foo11[T]): Generated.this.Foo11[S] = { /* compiled code */ }
+
   type Foo12[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo12[T, S](s: Generated.this.Foo12[T]): Generated.this.Foo12[S] = { /* compiled code */ }
+
   type Foo13[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo13[T, S](s: Generated.this.Foo13[T]): Generated.this.Foo13[S] = { /* compiled code */ }
+
   type Foo14[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo14[T, S](s: Generated.this.Foo14[T]): Generated.this.Foo14[S] = { /* compiled code */ }
+
   type Foo15[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo15[T, S](s: Generated.this.Foo15[T]): Generated.this.Foo15[S] = { /* compiled code */ }
+
   type Foo16[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo16[T, S](s: Generated.this.Foo16[T]): Generated.this.Foo16[S] = { /* compiled code */ }
+
   type Foo17[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo17[T, S](s: Generated.this.Foo17[T]): Generated.this.Foo17[S] = { /* compiled code */ }
+
   type Foo18[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo18[T, S](s: Generated.this.Foo18[T]): Generated.this.Foo18[S] = { /* compiled code */ }
+
   type Foo19[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo19[T, S](s: Generated.this.Foo19[T]): Generated.this.Foo19[S] = { /* compiled code */ }
+
   type Foo20[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo20[T, S](s: Generated.this.Foo20[T]): Generated.this.Foo20[S] = { /* compiled code */ }
+
   type Foo21[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo21[T, S](s: Generated.this.Foo21[T]): Generated.this.Foo21[S] = { /* compiled code */ }
+
   type Foo22[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo22[T, S](s: Generated.this.Foo22[T]): Generated.this.Foo22[S] = { /* compiled code */ }
+
   type Foo23[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo23[T, S](s: Generated.this.Foo23[T]): Generated.this.Foo23[S] = { /* compiled code */ }
+
   type Foo24[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo24[T, S](s: Generated.this.Foo24[T]): Generated.this.Foo24[S] = { /* compiled code */ }
+
   type Foo25[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo25[T, S](s: Generated.this.Foo25[T]): Generated.this.Foo25[S] = { /* compiled code */ }
+
   type Foo26[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo26[T, S](s: Generated.this.Foo26[T]): Generated.this.Foo26[S] = { /* compiled code */ }
+
   type Foo27[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo27[T, S](s: Generated.this.Foo27[T]): Generated.this.Foo27[S] = { /* compiled code */ }
+
   type Foo28[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo28[T, S](s: Generated.this.Foo28[T]): Generated.this.Foo28[S] = { /* compiled code */ }
+
   type Foo29[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo29[T, S](s: Generated.this.Foo29[T]): Generated.this.Foo29[S] = { /* compiled code */ }
+
   type Foo30[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo30[T, S](s: Generated.this.Foo30[T]): Generated.this.Foo30[S] = { /* compiled code */ }
+
   type Foo31[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo31[T, S](s: Generated.this.Foo31[T]): Generated.this.Foo31[S] = { /* compiled code */ }
+
   type Foo32[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo32[T, S](s: Generated.this.Foo32[T]): Generated.this.Foo32[S] = { /* compiled code */ }
+
   type Foo33[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo33[T, S](s: Generated.this.Foo33[T]): Generated.this.Foo33[S] = { /* compiled code */ }
+
   type Foo34[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo34[T, S](s: Generated.this.Foo34[T]): Generated.this.Foo34[S] = { /* compiled code */ }
+
   type Foo35[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo35[T, S](s: Generated.this.Foo35[T]): Generated.this.Foo35[S] = { /* compiled code */ }
+
   type Foo36[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo36[T, S](s: Generated.this.Foo36[T]): Generated.this.Foo36[S] = { /* compiled code */ }
+
   type Foo37[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo37[T, S](s: Generated.this.Foo37[T]): Generated.this.Foo37[S] = { /* compiled code */ }
+
   type Foo38[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo38[T, S](s: Generated.this.Foo38[T]): Generated.this.Foo38[S] = { /* compiled code */ }
+
   type Foo39[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo39[T, S](s: Generated.this.Foo39[T]): Generated.this.Foo39[S] = { /* compiled code */ }
+
   type Foo40[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo40[T, S](s: Generated.this.Foo40[T]): Generated.this.Foo40[S] = { /* compiled code */ }
+
   type Foo41[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo41[T, S](s: Generated.this.Foo41[T]): Generated.this.Foo41[S] = { /* compiled code */ }
+
   type Foo42[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo42[T, S](s: Generated.this.Foo42[T]): Generated.this.Foo42[S] = { /* compiled code */ }
+
   type Foo43[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo43[T, S](s: Generated.this.Foo43[T]): Generated.this.Foo43[S] = { /* compiled code */ }
+
   type Foo44[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo44[T, S](s: Generated.this.Foo44[T]): Generated.this.Foo44[S] = { /* compiled code */ }
+
   type Foo45[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo45[T, S](s: Generated.this.Foo45[T]): Generated.this.Foo45[S] = { /* compiled code */ }
+
   type Foo46[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo46[T, S](s: Generated.this.Foo46[T]): Generated.this.Foo46[S] = { /* compiled code */ }
+
   type Foo47[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo47[T, S](s: Generated.this.Foo47[T]): Generated.this.Foo47[S] = { /* compiled code */ }
+
   type Foo48[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo48[T, S](s: Generated.this.Foo48[T]): Generated.this.Foo48[S] = { /* compiled code */ }
+
   type Foo49[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo49[T, S](s: Generated.this.Foo49[T]): Generated.this.Foo49[S] = { /* compiled code */ }
+
   type Foo50[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo50[T, S](s: Generated.this.Foo50[T]): Generated.this.Foo50[S] = { /* compiled code */ }
+
   type Foo51[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo51[T, S](s: Generated.this.Foo51[T]): Generated.this.Foo51[S] = { /* compiled code */ }
+
   type Foo52[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo52[T, S](s: Generated.this.Foo52[T]): Generated.this.Foo52[S] = { /* compiled code */ }
+
   type Foo53[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo53[T, S](s: Generated.this.Foo53[T]): Generated.this.Foo53[S] = { /* compiled code */ }
+
   type Foo54[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo54[T, S](s: Generated.this.Foo54[T]): Generated.this.Foo54[S] = { /* compiled code */ }
+
   type Foo55[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo55[T, S](s: Generated.this.Foo55[T]): Generated.this.Foo55[S] = { /* compiled code */ }
+
   type Foo56[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo56[T, S](s: Generated.this.Foo56[T]): Generated.this.Foo56[S] = { /* compiled code */ }
+
   type Foo57[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo57[T, S](s: Generated.this.Foo57[T]): Generated.this.Foo57[S] = { /* compiled code */ }
+
   type Foo58[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo58[T, S](s: Generated.this.Foo58[T]): Generated.this.Foo58[S] = { /* compiled code */ }
+
   type Foo59[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo59[T, S](s: Generated.this.Foo59[T]): Generated.this.Foo59[S] = { /* compiled code */ }
+
   type Foo60[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo60[T, S](s: Generated.this.Foo60[T]): Generated.this.Foo60[S] = { /* compiled code */ }
+
   type Foo61[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo61[T, S](s: Generated.this.Foo61[T]): Generated.this.Foo61[S] = { /* compiled code */ }
+
   type Foo62[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo62[T, S](s: Generated.this.Foo62[T]): Generated.this.Foo62[S] = { /* compiled code */ }
+
   type Foo63[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo63[T, S](s: Generated.this.Foo63[T]): Generated.this.Foo63[S] = { /* compiled code */ }
+
   type Foo64[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo64[T, S](s: Generated.this.Foo64[T]): Generated.this.Foo64[S] = { /* compiled code */ }
+
   type Foo65[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo65[T, S](s: Generated.this.Foo65[T]): Generated.this.Foo65[S] = { /* compiled code */ }
+
   type Foo66[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo66[T, S](s: Generated.this.Foo66[T]): Generated.this.Foo66[S] = { /* compiled code */ }
+
   type Foo67[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo67[T, S](s: Generated.this.Foo67[T]): Generated.this.Foo67[S] = { /* compiled code */ }
+
   type Foo68[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo68[T, S](s: Generated.this.Foo68[T]): Generated.this.Foo68[S] = { /* compiled code */ }
+
   type Foo69[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo69[T, S](s: Generated.this.Foo69[T]): Generated.this.Foo69[S] = { /* compiled code */ }
+
   type Foo70[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo70[T, S](s: Generated.this.Foo70[T]): Generated.this.Foo70[S] = { /* compiled code */ }
+
   type Foo71[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo71[T, S](s: Generated.this.Foo71[T]): Generated.this.Foo71[S] = { /* compiled code */ }
+
   type Foo72[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo72[T, S](s: Generated.this.Foo72[T]): Generated.this.Foo72[S] = { /* compiled code */ }
+
   type Foo73[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo73[T, S](s: Generated.this.Foo73[T]): Generated.this.Foo73[S] = { /* compiled code */ }
+
   type Foo74[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo74[T, S](s: Generated.this.Foo74[T]): Generated.this.Foo74[S] = { /* compiled code */ }
+
   type Foo75[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo75[T, S](s: Generated.this.Foo75[T]): Generated.this.Foo75[S] = { /* compiled code */ }
+
   type Foo76[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo76[T, S](s: Generated.this.Foo76[T]): Generated.this.Foo76[S] = { /* compiled code */ }
+
   type Foo77[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo77[T, S](s: Generated.this.Foo77[T]): Generated.this.Foo77[S] = { /* compiled code */ }
+
   type Foo78[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo78[T, S](s: Generated.this.Foo78[T]): Generated.this.Foo78[S] = { /* compiled code */ }
+
   type Foo79[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo79[T, S](s: Generated.this.Foo79[T]): Generated.this.Foo79[S] = { /* compiled code */ }
+
   type Foo80[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo80[T, S](s: Generated.this.Foo80[T]): Generated.this.Foo80[S] = { /* compiled code */ }
+
   type Foo81[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo81[T, S](s: Generated.this.Foo81[T]): Generated.this.Foo81[S] = { /* compiled code */ }
+
   type Foo82[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo82[T, S](s: Generated.this.Foo82[T]): Generated.this.Foo82[S] = { /* compiled code */ }
+
   type Foo83[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo83[T, S](s: Generated.this.Foo83[T]): Generated.this.Foo83[S] = { /* compiled code */ }
+
   type Foo84[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo84[T, S](s: Generated.this.Foo84[T]): Generated.this.Foo84[S] = { /* compiled code */ }
+
   type Foo85[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo85[T, S](s: Generated.this.Foo85[T]): Generated.this.Foo85[S] = { /* compiled code */ }
+
   type Foo86[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo86[T, S](s: Generated.this.Foo86[T]): Generated.this.Foo86[S] = { /* compiled code */ }
+
   type Foo87[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo87[T, S](s: Generated.this.Foo87[T]): Generated.this.Foo87[S] = { /* compiled code */ }
+
   type Foo88[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo88[T, S](s: Generated.this.Foo88[T]): Generated.this.Foo88[S] = { /* compiled code */ }
+
   type Foo89[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo89[T, S](s: Generated.this.Foo89[T]): Generated.this.Foo89[S] = { /* compiled code */ }
+
   type Foo90[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo90[T, S](s: Generated.this.Foo90[T]): Generated.this.Foo90[S] = { /* compiled code */ }
+
   type Foo91[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo91[T, S](s: Generated.this.Foo91[T]): Generated.this.Foo91[S] = { /* compiled code */ }
+
   type Foo92[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo92[T, S](s: Generated.this.Foo92[T]): Generated.this.Foo92[S] = { /* compiled code */ }
+
   type Foo93[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo93[T, S](s: Generated.this.Foo93[T]): Generated.this.Foo93[S] = { /* compiled code */ }
+
   type Foo94[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo94[T, S](s: Generated.this.Foo94[T]): Generated.this.Foo94[S] = { /* compiled code */ }
+
   type Foo95[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo95[T, S](s: Generated.this.Foo95[T]): Generated.this.Foo95[S] = { /* compiled code */ }
+
   type Foo96[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo96[T, S](s: Generated.this.Foo96[T]): Generated.this.Foo96[S] = { /* compiled code */ }
+
   type Foo97[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo97[T, S](s: Generated.this.Foo97[T]): Generated.this.Foo97[S] = { /* compiled code */ }
+
   type Foo98[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo98[T, S](s: Generated.this.Foo98[T]): Generated.this.Foo98[S] = { /* compiled code */ }
+
   type Foo99[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo99[T, S](s: Generated.this.Foo99[T]): Generated.this.Foo99[S] = { /* compiled code */ }
+
   type Foo100[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo100[T, S](s: Generated.this.Foo100[T]): Generated.this.Foo100[S] = { /* compiled code */ }
+
   type Foo101[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo101[T, S](s: Generated.this.Foo101[T]): Generated.this.Foo101[S] = { /* compiled code */ }
+
   type Foo102[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo102[T, S](s: Generated.this.Foo102[T]): Generated.this.Foo102[S] = { /* compiled code */ }
+
   type Foo103[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo103[T, S](s: Generated.this.Foo103[T]): Generated.this.Foo103[S] = { /* compiled code */ }
+
   type Foo104[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo104[T, S](s: Generated.this.Foo104[T]): Generated.this.Foo104[S] = { /* compiled code */ }
+
   type Foo105[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo105[T, S](s: Generated.this.Foo105[T]): Generated.this.Foo105[S] = { /* compiled code */ }
+
   type Foo106[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo106[T, S](s: Generated.this.Foo106[T]): Generated.this.Foo106[S] = { /* compiled code */ }
+
   type Foo107[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo107[T, S](s: Generated.this.Foo107[T]): Generated.this.Foo107[S] = { /* compiled code */ }
+
   type Foo108[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo108[T, S](s: Generated.this.Foo108[T]): Generated.this.Foo108[S] = { /* compiled code */ }
+
   type Foo109[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo109[T, S](s: Generated.this.Foo109[T]): Generated.this.Foo109[S] = { /* compiled code */ }
+
   type Foo110[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo110[T, S](s: Generated.this.Foo110[T]): Generated.this.Foo110[S] = { /* compiled code */ }
+
   type Foo111[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo111[T, S](s: Generated.this.Foo111[T]): Generated.this.Foo111[S] = { /* compiled code */ }
+
   type Foo112[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo112[T, S](s: Generated.this.Foo112[T]): Generated.this.Foo112[S] = { /* compiled code */ }
+
   type Foo113[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo113[T, S](s: Generated.this.Foo113[T]): Generated.this.Foo113[S] = { /* compiled code */ }
+
   type Foo114[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo114[T, S](s: Generated.this.Foo114[T]): Generated.this.Foo114[S] = { /* compiled code */ }
+
   type Foo115[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo115[T, S](s: Generated.this.Foo115[T]): Generated.this.Foo115[S] = { /* compiled code */ }
+
   type Foo116[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo116[T, S](s: Generated.this.Foo116[T]): Generated.this.Foo116[S] = { /* compiled code */ }
+
   type Foo117[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo117[T, S](s: Generated.this.Foo117[T]): Generated.this.Foo117[S] = { /* compiled code */ }
+
   type Foo118[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo118[T, S](s: Generated.this.Foo118[T]): Generated.this.Foo118[S] = { /* compiled code */ }
+
   type Foo119[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo119[T, S](s: Generated.this.Foo119[T]): Generated.this.Foo119[S] = { /* compiled code */ }
+
   type Foo120[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo120[T, S](s: Generated.this.Foo120[T]): Generated.this.Foo120[S] = { /* compiled code */ }
+
   type Foo121[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo121[T, S](s: Generated.this.Foo121[T]): Generated.this.Foo121[S] = { /* compiled code */ }
+
   type Foo122[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo122[T, S](s: Generated.this.Foo122[T]): Generated.this.Foo122[S] = { /* compiled code */ }
+
   type Foo123[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo123[T, S](s: Generated.this.Foo123[T]): Generated.this.Foo123[S] = { /* compiled code */ }
+
   type Foo124[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo124[T, S](s: Generated.this.Foo124[T]): Generated.this.Foo124[S] = { /* compiled code */ }
+
   type Foo125[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo125[T, S](s: Generated.this.Foo125[T]): Generated.this.Foo125[S] = { /* compiled code */ }
+
   type Foo126[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo126[T, S](s: Generated.this.Foo126[T]): Generated.this.Foo126[S] = { /* compiled code */ }
+
   type Foo127[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo127[T, S](s: Generated.this.Foo127[T]): Generated.this.Foo127[S] = { /* compiled code */ }
+
   type Foo128[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo128[T, S](s: Generated.this.Foo128[T]): Generated.this.Foo128[S] = { /* compiled code */ }
+
   type Foo129[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo129[T, S](s: Generated.this.Foo129[T]): Generated.this.Foo129[S] = { /* compiled code */ }
+
   type Foo130[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo130[T, S](s: Generated.this.Foo130[T]): Generated.this.Foo130[S] = { /* compiled code */ }
+
   type Foo131[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo131[T, S](s: Generated.this.Foo131[T]): Generated.this.Foo131[S] = { /* compiled code */ }
+
   type Foo132[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo132[T, S](s: Generated.this.Foo132[T]): Generated.this.Foo132[S] = { /* compiled code */ }
+
   type Foo133[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo133[T, S](s: Generated.this.Foo133[T]): Generated.this.Foo133[S] = { /* compiled code */ }
+
   type Foo134[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo134[T, S](s: Generated.this.Foo134[T]): Generated.this.Foo134[S] = { /* compiled code */ }
+
   type Foo135[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo135[T, S](s: Generated.this.Foo135[T]): Generated.this.Foo135[S] = { /* compiled code */ }
+
   type Foo136[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo136[T, S](s: Generated.this.Foo136[T]): Generated.this.Foo136[S] = { /* compiled code */ }
+
   type Foo137[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo137[T, S](s: Generated.this.Foo137[T]): Generated.this.Foo137[S] = { /* compiled code */ }
+
   type Foo138[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo138[T, S](s: Generated.this.Foo138[T]): Generated.this.Foo138[S] = { /* compiled code */ }
+
   type Foo139[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo139[T, S](s: Generated.this.Foo139[T]): Generated.this.Foo139[S] = { /* compiled code */ }
+
   type Foo140[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo140[T, S](s: Generated.this.Foo140[T]): Generated.this.Foo140[S] = { /* compiled code */ }
+
   type Foo141[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo141[T, S](s: Generated.this.Foo141[T]): Generated.this.Foo141[S] = { /* compiled code */ }
+
   type Foo142[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo142[T, S](s: Generated.this.Foo142[T]): Generated.this.Foo142[S] = { /* compiled code */ }
+
   type Foo143[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo143[T, S](s: Generated.this.Foo143[T]): Generated.this.Foo143[S] = { /* compiled code */ }
+
   type Foo144[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo144[T, S](s: Generated.this.Foo144[T]): Generated.this.Foo144[S] = { /* compiled code */ }
+
   type Foo145[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo145[T, S](s: Generated.this.Foo145[T]): Generated.this.Foo145[S] = { /* compiled code */ }
+
   type Foo146[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo146[T, S](s: Generated.this.Foo146[T]): Generated.this.Foo146[S] = { /* compiled code */ }
+
   type Foo147[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo147[T, S](s: Generated.this.Foo147[T]): Generated.this.Foo147[S] = { /* compiled code */ }
+
   type Foo148[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo148[T, S](s: Generated.this.Foo148[T]): Generated.this.Foo148[S] = { /* compiled code */ }
+
   type Foo149[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo149[T, S](s: Generated.this.Foo149[T]): Generated.this.Foo149[S] = { /* compiled code */ }
+
   type Foo150[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo150[T, S](s: Generated.this.Foo150[T]): Generated.this.Foo150[S] = { /* compiled code */ }
+
   type Foo151[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo151[T, S](s: Generated.this.Foo151[T]): Generated.this.Foo151[S] = { /* compiled code */ }
+
   type Foo152[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo152[T, S](s: Generated.this.Foo152[T]): Generated.this.Foo152[S] = { /* compiled code */ }
+
   type Foo153[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo153[T, S](s: Generated.this.Foo153[T]): Generated.this.Foo153[S] = { /* compiled code */ }
+
   type Foo154[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo154[T, S](s: Generated.this.Foo154[T]): Generated.this.Foo154[S] = { /* compiled code */ }
+
   type Foo155[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo155[T, S](s: Generated.this.Foo155[T]): Generated.this.Foo155[S] = { /* compiled code */ }
+
   type Foo156[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo156[T, S](s: Generated.this.Foo156[T]): Generated.this.Foo156[S] = { /* compiled code */ }
+
   type Foo157[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo157[T, S](s: Generated.this.Foo157[T]): Generated.this.Foo157[S] = { /* compiled code */ }
+
   type Foo158[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo158[T, S](s: Generated.this.Foo158[T]): Generated.this.Foo158[S] = { /* compiled code */ }
+
   type Foo159[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo159[T, S](s: Generated.this.Foo159[T]): Generated.this.Foo159[S] = { /* compiled code */ }
+
   type Foo160[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo160[T, S](s: Generated.this.Foo160[T]): Generated.this.Foo160[S] = { /* compiled code */ }
+
   type Foo161[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo161[T, S](s: Generated.this.Foo161[T]): Generated.this.Foo161[S] = { /* compiled code */ }
+
   type Foo162[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo162[T, S](s: Generated.this.Foo162[T]): Generated.this.Foo162[S] = { /* compiled code */ }
+
   type Foo163[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo163[T, S](s: Generated.this.Foo163[T]): Generated.this.Foo163[S] = { /* compiled code */ }
+
   type Foo164[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo164[T, S](s: Generated.this.Foo164[T]): Generated.this.Foo164[S] = { /* compiled code */ }
+
   type Foo165[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo165[T, S](s: Generated.this.Foo165[T]): Generated.this.Foo165[S] = { /* compiled code */ }
+
   type Foo166[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo166[T, S](s: Generated.this.Foo166[T]): Generated.this.Foo166[S] = { /* compiled code */ }
+
   type Foo167[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo167[T, S](s: Generated.this.Foo167[T]): Generated.this.Foo167[S] = { /* compiled code */ }
+
   type Foo168[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo168[T, S](s: Generated.this.Foo168[T]): Generated.this.Foo168[S] = { /* compiled code */ }
+
   type Foo169[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo169[T, S](s: Generated.this.Foo169[T]): Generated.this.Foo169[S] = { /* compiled code */ }
+
   type Foo170[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo170[T, S](s: Generated.this.Foo170[T]): Generated.this.Foo170[S] = { /* compiled code */ }
+
   type Foo171[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo171[T, S](s: Generated.this.Foo171[T]): Generated.this.Foo171[S] = { /* compiled code */ }
+
   type Foo172[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo172[T, S](s: Generated.this.Foo172[T]): Generated.this.Foo172[S] = { /* compiled code */ }
+
   type Foo173[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo173[T, S](s: Generated.this.Foo173[T]): Generated.this.Foo173[S] = { /* compiled code */ }
+
   type Foo174[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo174[T, S](s: Generated.this.Foo174[T]): Generated.this.Foo174[S] = { /* compiled code */ }
+
   type Foo175[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo175[T, S](s: Generated.this.Foo175[T]): Generated.this.Foo175[S] = { /* compiled code */ }
+
   type Foo176[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo176[T, S](s: Generated.this.Foo176[T]): Generated.this.Foo176[S] = { /* compiled code */ }
+
   type Foo177[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo177[T, S](s: Generated.this.Foo177[T]): Generated.this.Foo177[S] = { /* compiled code */ }
+
   type Foo178[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo178[T, S](s: Generated.this.Foo178[T]): Generated.this.Foo178[S] = { /* compiled code */ }
+
   type Foo179[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo179[T, S](s: Generated.this.Foo179[T]): Generated.this.Foo179[S] = { /* compiled code */ }
+
   type Foo180[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo180[T, S](s: Generated.this.Foo180[T]): Generated.this.Foo180[S] = { /* compiled code */ }
+
   type Foo181[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo181[T, S](s: Generated.this.Foo181[T]): Generated.this.Foo181[S] = { /* compiled code */ }
+
   type Foo182[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo182[T, S](s: Generated.this.Foo182[T]): Generated.this.Foo182[S] = { /* compiled code */ }
+
   type Foo183[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo183[T, S](s: Generated.this.Foo183[T]): Generated.this.Foo183[S] = { /* compiled code */ }
+
   type Foo184[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo184[T, S](s: Generated.this.Foo184[T]): Generated.this.Foo184[S] = { /* compiled code */ }
+
   type Foo185[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo185[T, S](s: Generated.this.Foo185[T]): Generated.this.Foo185[S] = { /* compiled code */ }
+
   type Foo186[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo186[T, S](s: Generated.this.Foo186[T]): Generated.this.Foo186[S] = { /* compiled code */ }
+
   type Foo187[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo187[T, S](s: Generated.this.Foo187[T]): Generated.this.Foo187[S] = { /* compiled code */ }
+
   type Foo188[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo188[T, S](s: Generated.this.Foo188[T]): Generated.this.Foo188[S] = { /* compiled code */ }
+
   type Foo189[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo189[T, S](s: Generated.this.Foo189[T]): Generated.this.Foo189[S] = { /* compiled code */ }
+
   type Foo190[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo190[T, S](s: Generated.this.Foo190[T]): Generated.this.Foo190[S] = { /* compiled code */ }
+
   type Foo191[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo191[T, S](s: Generated.this.Foo191[T]): Generated.this.Foo191[S] = { /* compiled code */ }
+
   type Foo192[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo192[T, S](s: Generated.this.Foo192[T]): Generated.this.Foo192[S] = { /* compiled code */ }
+
   type Foo193[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo193[T, S](s: Generated.this.Foo193[T]): Generated.this.Foo193[S] = { /* compiled code */ }
+
   type Foo194[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo194[T, S](s: Generated.this.Foo194[T]): Generated.this.Foo194[S] = { /* compiled code */ }
+
   type Foo195[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo195[T, S](s: Generated.this.Foo195[T]): Generated.this.Foo195[S] = { /* compiled code */ }
+
   type Foo196[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo196[T, S](s: Generated.this.Foo196[T]): Generated.this.Foo196[S] = { /* compiled code */ }
+
   type Foo197[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo197[T, S](s: Generated.this.Foo197[T]): Generated.this.Foo197[S] = { /* compiled code */ }
+
   type Foo198[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo198[T, S](s: Generated.this.Foo198[T]): Generated.this.Foo198[S] = { /* compiled code */ }
+
   type Foo199[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo199[T, S](s: Generated.this.Foo199[T]): Generated.this.Foo199[S] = { /* compiled code */ }
+
   type Foo200[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo200[T, S](s: Generated.this.Foo200[T]): Generated.this.Foo200[S] = { /* compiled code */ }
+
   type Foo201[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo201[T, S](s: Generated.this.Foo201[T]): Generated.this.Foo201[S] = { /* compiled code */ }
+
   type Foo202[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo202[T, S](s: Generated.this.Foo202[T]): Generated.this.Foo202[S] = { /* compiled code */ }
+
   type Foo203[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo203[T, S](s: Generated.this.Foo203[T]): Generated.this.Foo203[S] = { /* compiled code */ }
+
   type Foo204[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo204[T, S](s: Generated.this.Foo204[T]): Generated.this.Foo204[S] = { /* compiled code */ }
+
   type Foo205[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo205[T, S](s: Generated.this.Foo205[T]): Generated.this.Foo205[S] = { /* compiled code */ }
+
   type Foo206[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo206[T, S](s: Generated.this.Foo206[T]): Generated.this.Foo206[S] = { /* compiled code */ }
+
   type Foo207[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo207[T, S](s: Generated.this.Foo207[T]): Generated.this.Foo207[S] = { /* compiled code */ }
+
   type Foo208[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo208[T, S](s: Generated.this.Foo208[T]): Generated.this.Foo208[S] = { /* compiled code */ }
+
   type Foo209[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo209[T, S](s: Generated.this.Foo209[T]): Generated.this.Foo209[S] = { /* compiled code */ }
+
   type Foo210[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo210[T, S](s: Generated.this.Foo210[T]): Generated.this.Foo210[S] = { /* compiled code */ }
+
   type Foo211[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo211[T, S](s: Generated.this.Foo211[T]): Generated.this.Foo211[S] = { /* compiled code */ }
+
   type Foo212[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo212[T, S](s: Generated.this.Foo212[T]): Generated.this.Foo212[S] = { /* compiled code */ }
+
   type Foo213[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo213[T, S](s: Generated.this.Foo213[T]): Generated.this.Foo213[S] = { /* compiled code */ }
+
   type Foo214[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo214[T, S](s: Generated.this.Foo214[T]): Generated.this.Foo214[S] = { /* compiled code */ }
+
   type Foo215[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo215[T, S](s: Generated.this.Foo215[T]): Generated.this.Foo215[S] = { /* compiled code */ }
+
   type Foo216[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo216[T, S](s: Generated.this.Foo216[T]): Generated.this.Foo216[S] = { /* compiled code */ }
+
   type Foo217[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo217[T, S](s: Generated.this.Foo217[T]): Generated.this.Foo217[S] = { /* compiled code */ }
+
   type Foo218[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo218[T, S](s: Generated.this.Foo218[T]): Generated.this.Foo218[S] = { /* compiled code */ }
+
   type Foo219[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo219[T, S](s: Generated.this.Foo219[T]): Generated.this.Foo219[S] = { /* compiled code */ }
+
   type Foo220[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo220[T, S](s: Generated.this.Foo220[T]): Generated.this.Foo220[S] = { /* compiled code */ }
+
   type Foo221[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo221[T, S](s: Generated.this.Foo221[T]): Generated.this.Foo221[S] = { /* compiled code */ }
+
   type Foo222[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo222[T, S](s: Generated.this.Foo222[T]): Generated.this.Foo222[S] = { /* compiled code */ }
+
   type Foo223[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo223[T, S](s: Generated.this.Foo223[T]): Generated.this.Foo223[S] = { /* compiled code */ }
+
   type Foo224[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo224[T, S](s: Generated.this.Foo224[T]): Generated.this.Foo224[S] = { /* compiled code */ }
+
   type Foo225[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo225[T, S](s: Generated.this.Foo225[T]): Generated.this.Foo225[S] = { /* compiled code */ }
+
   type Foo226[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo226[T, S](s: Generated.this.Foo226[T]): Generated.this.Foo226[S] = { /* compiled code */ }
+
   type Foo227[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo227[T, S](s: Generated.this.Foo227[T]): Generated.this.Foo227[S] = { /* compiled code */ }
+
   type Foo228[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo228[T, S](s: Generated.this.Foo228[T]): Generated.this.Foo228[S] = { /* compiled code */ }
+
   type Foo229[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo229[T, S](s: Generated.this.Foo229[T]): Generated.this.Foo229[S] = { /* compiled code */ }
+
   type Foo230[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo230[T, S](s: Generated.this.Foo230[T]): Generated.this.Foo230[S] = { /* compiled code */ }
+
   type Foo231[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo231[T, S](s: Generated.this.Foo231[T]): Generated.this.Foo231[S] = { /* compiled code */ }
+
   type Foo232[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo232[T, S](s: Generated.this.Foo232[T]): Generated.this.Foo232[S] = { /* compiled code */ }
+
   type Foo233[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo233[T, S](s: Generated.this.Foo233[T]): Generated.this.Foo233[S] = { /* compiled code */ }
+
   type Foo234[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo234[T, S](s: Generated.this.Foo234[T]): Generated.this.Foo234[S] = { /* compiled code */ }
+
   type Foo235[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo235[T, S](s: Generated.this.Foo235[T]): Generated.this.Foo235[S] = { /* compiled code */ }
+
   type Foo236[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo236[T, S](s: Generated.this.Foo236[T]): Generated.this.Foo236[S] = { /* compiled code */ }
+
   type Foo237[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo237[T, S](s: Generated.this.Foo237[T]): Generated.this.Foo237[S] = { /* compiled code */ }
+
   type Foo238[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo238[T, S](s: Generated.this.Foo238[T]): Generated.this.Foo238[S] = { /* compiled code */ }
+
   type Foo239[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo239[T, S](s: Generated.this.Foo239[T]): Generated.this.Foo239[S] = { /* compiled code */ }
+
   type Foo240[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo240[T, S](s: Generated.this.Foo240[T]): Generated.this.Foo240[S] = { /* compiled code */ }
+
   type Foo241[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo241[T, S](s: Generated.this.Foo241[T]): Generated.this.Foo241[S] = { /* compiled code */ }
+
   type Foo242[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo242[T, S](s: Generated.this.Foo242[T]): Generated.this.Foo242[S] = { /* compiled code */ }
+
   type Foo243[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo243[T, S](s: Generated.this.Foo243[T]): Generated.this.Foo243[S] = { /* compiled code */ }
+
   type Foo244[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo244[T, S](s: Generated.this.Foo244[T]): Generated.this.Foo244[S] = { /* compiled code */ }
+
   type Foo245[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo245[T, S](s: Generated.this.Foo245[T]): Generated.this.Foo245[S] = { /* compiled code */ }
+
   type Foo246[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo246[T, S](s: Generated.this.Foo246[T]): Generated.this.Foo246[S] = { /* compiled code */ }
+
   type Foo247[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo247[T, S](s: Generated.this.Foo247[T]): Generated.this.Foo247[S] = { /* compiled code */ }
+
   type Foo248[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo248[T, S](s: Generated.this.Foo248[T]): Generated.this.Foo248[S] = { /* compiled code */ }
+
   type Foo249[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo249[T, S](s: Generated.this.Foo249[T]): Generated.this.Foo249[S] = { /* compiled code */ }
+
   type Foo250[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo250[T, S](s: Generated.this.Foo250[T]): Generated.this.Foo250[S] = { /* compiled code */ }
+
   type Foo251[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo251[T, S](s: Generated.this.Foo251[T]): Generated.this.Foo251[S] = { /* compiled code */ }
+
   type Foo252[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo252[T, S](s: Generated.this.Foo252[T]): Generated.this.Foo252[S] = { /* compiled code */ }
+
   type Foo253[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo253[T, S](s: Generated.this.Foo253[T]): Generated.this.Foo253[S] = { /* compiled code */ }
+
   type Foo254[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo254[T, S](s: Generated.this.Foo254[T]): Generated.this.Foo254[S] = { /* compiled code */ }
+
   type Foo255[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo255[T, S](s: Generated.this.Foo255[T]): Generated.this.Foo255[S] = { /* compiled code */ }
+
   type Foo256[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo256[T, S](s: Generated.this.Foo256[T]): Generated.this.Foo256[S] = { /* compiled code */ }
+
   type Foo257[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo257[T, S](s: Generated.this.Foo257[T]): Generated.this.Foo257[S] = { /* compiled code */ }
+
   type Foo258[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo258[T, S](s: Generated.this.Foo258[T]): Generated.this.Foo258[S] = { /* compiled code */ }
+
   type Foo259[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo259[T, S](s: Generated.this.Foo259[T]): Generated.this.Foo259[S] = { /* compiled code */ }
+
   type Foo260[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo260[T, S](s: Generated.this.Foo260[T]): Generated.this.Foo260[S] = { /* compiled code */ }
+
   type Foo261[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo261[T, S](s: Generated.this.Foo261[T]): Generated.this.Foo261[S] = { /* compiled code */ }
+
   type Foo262[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo262[T, S](s: Generated.this.Foo262[T]): Generated.this.Foo262[S] = { /* compiled code */ }
+
   type Foo263[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo263[T, S](s: Generated.this.Foo263[T]): Generated.this.Foo263[S] = { /* compiled code */ }
+
   type Foo264[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo264[T, S](s: Generated.this.Foo264[T]): Generated.this.Foo264[S] = { /* compiled code */ }
+
   type Foo265[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo265[T, S](s: Generated.this.Foo265[T]): Generated.this.Foo265[S] = { /* compiled code */ }
+
   type Foo266[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo266[T, S](s: Generated.this.Foo266[T]): Generated.this.Foo266[S] = { /* compiled code */ }
+
   type Foo267[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo267[T, S](s: Generated.this.Foo267[T]): Generated.this.Foo267[S] = { /* compiled code */ }
+
   type Foo268[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo268[T, S](s: Generated.this.Foo268[T]): Generated.this.Foo268[S] = { /* compiled code */ }
+
   type Foo269[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo269[T, S](s: Generated.this.Foo269[T]): Generated.this.Foo269[S] = { /* compiled code */ }
+
   type Foo270[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo270[T, S](s: Generated.this.Foo270[T]): Generated.this.Foo270[S] = { /* compiled code */ }
+
   type Foo271[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo271[T, S](s: Generated.this.Foo271[T]): Generated.this.Foo271[S] = { /* compiled code */ }
+
   type Foo272[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo272[T, S](s: Generated.this.Foo272[T]): Generated.this.Foo272[S] = { /* compiled code */ }
+
   type Foo273[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo273[T, S](s: Generated.this.Foo273[T]): Generated.this.Foo273[S] = { /* compiled code */ }
+
   type Foo274[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo274[T, S](s: Generated.this.Foo274[T]): Generated.this.Foo274[S] = { /* compiled code */ }
+
   type Foo275[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo275[T, S](s: Generated.this.Foo275[T]): Generated.this.Foo275[S] = { /* compiled code */ }
+
   type Foo276[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo276[T, S](s: Generated.this.Foo276[T]): Generated.this.Foo276[S] = { /* compiled code */ }
+
   type Foo277[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo277[T, S](s: Generated.this.Foo277[T]): Generated.this.Foo277[S] = { /* compiled code */ }
+
   type Foo278[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo278[T, S](s: Generated.this.Foo278[T]): Generated.this.Foo278[S] = { /* compiled code */ }
+
   type Foo279[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo279[T, S](s: Generated.this.Foo279[T]): Generated.this.Foo279[S] = { /* compiled code */ }
+
   type Foo280[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo280[T, S](s: Generated.this.Foo280[T]): Generated.this.Foo280[S] = { /* compiled code */ }
+
   type Foo281[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo281[T, S](s: Generated.this.Foo281[T]): Generated.this.Foo281[S] = { /* compiled code */ }
+
   type Foo282[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo282[T, S](s: Generated.this.Foo282[T]): Generated.this.Foo282[S] = { /* compiled code */ }
+
   type Foo283[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo283[T, S](s: Generated.this.Foo283[T]): Generated.this.Foo283[S] = { /* compiled code */ }
+
   type Foo284[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo284[T, S](s: Generated.this.Foo284[T]): Generated.this.Foo284[S] = { /* compiled code */ }
+
   type Foo285[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo285[T, S](s: Generated.this.Foo285[T]): Generated.this.Foo285[S] = { /* compiled code */ }
+
   type Foo286[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo286[T, S](s: Generated.this.Foo286[T]): Generated.this.Foo286[S] = { /* compiled code */ }
+
   type Foo287[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo287[T, S](s: Generated.this.Foo287[T]): Generated.this.Foo287[S] = { /* compiled code */ }
+
   type Foo288[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo288[T, S](s: Generated.this.Foo288[T]): Generated.this.Foo288[S] = { /* compiled code */ }
+
   type Foo289[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo289[T, S](s: Generated.this.Foo289[T]): Generated.this.Foo289[S] = { /* compiled code */ }
+
   type Foo290[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo290[T, S](s: Generated.this.Foo290[T]): Generated.this.Foo290[S] = { /* compiled code */ }
+
   type Foo291[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo291[T, S](s: Generated.this.Foo291[T]): Generated.this.Foo291[S] = { /* compiled code */ }
+
   type Foo292[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo292[T, S](s: Generated.this.Foo292[T]): Generated.this.Foo292[S] = { /* compiled code */ }
+
   type Foo293[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo293[T, S](s: Generated.this.Foo293[T]): Generated.this.Foo293[S] = { /* compiled code */ }
+
   type Foo294[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo294[T, S](s: Generated.this.Foo294[T]): Generated.this.Foo294[S] = { /* compiled code */ }
+
   type Foo295[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo295[T, S](s: Generated.this.Foo295[T]): Generated.this.Foo295[S] = { /* compiled code */ }
+
   type Foo296[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo296[T, S](s: Generated.this.Foo296[T]): Generated.this.Foo296[S] = { /* compiled code */ }
+
   type Foo297[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo297[T, S](s: Generated.this.Foo297[T]): Generated.this.Foo297[S] = { /* compiled code */ }
+
   type Foo298[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo298[T, S](s: Generated.this.Foo298[T]): Generated.this.Foo298[S] = { /* compiled code */ }
+
   type Foo299[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo299[T, S](s: Generated.this.Foo299[T]): Generated.this.Foo299[S] = { /* compiled code */ }
+
   type Foo300[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo300[T, S](s: Generated.this.Foo300[T]): Generated.this.Foo300[S] = { /* compiled code */ }
+
   type Foo301[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo301[T, S](s: Generated.this.Foo301[T]): Generated.this.Foo301[S] = { /* compiled code */ }
+
   type Foo302[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo302[T, S](s: Generated.this.Foo302[T]): Generated.this.Foo302[S] = { /* compiled code */ }
+
   type Foo303[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo303[T, S](s: Generated.this.Foo303[T]): Generated.this.Foo303[S] = { /* compiled code */ }
+
   type Foo304[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo304[T, S](s: Generated.this.Foo304[T]): Generated.this.Foo304[S] = { /* compiled code */ }
+
   type Foo305[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo305[T, S](s: Generated.this.Foo305[T]): Generated.this.Foo305[S] = { /* compiled code */ }
+
   type Foo306[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo306[T, S](s: Generated.this.Foo306[T]): Generated.this.Foo306[S] = { /* compiled code */ }
+
   type Foo307[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo307[T, S](s: Generated.this.Foo307[T]): Generated.this.Foo307[S] = { /* compiled code */ }
+
   type Foo308[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo308[T, S](s: Generated.this.Foo308[T]): Generated.this.Foo308[S] = { /* compiled code */ }
+
   type Foo309[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo309[T, S](s: Generated.this.Foo309[T]): Generated.this.Foo309[S] = { /* compiled code */ }
+
   type Foo310[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo310[T, S](s: Generated.this.Foo310[T]): Generated.this.Foo310[S] = { /* compiled code */ }
+
   type Foo311[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo311[T, S](s: Generated.this.Foo311[T]): Generated.this.Foo311[S] = { /* compiled code */ }
+
   type Foo312[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo312[T, S](s: Generated.this.Foo312[T]): Generated.this.Foo312[S] = { /* compiled code */ }
+
   type Foo313[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo313[T, S](s: Generated.this.Foo313[T]): Generated.this.Foo313[S] = { /* compiled code */ }
+
   type Foo314[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo314[T, S](s: Generated.this.Foo314[T]): Generated.this.Foo314[S] = { /* compiled code */ }
+
   type Foo315[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo315[T, S](s: Generated.this.Foo315[T]): Generated.this.Foo315[S] = { /* compiled code */ }
+
   type Foo316[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo316[T, S](s: Generated.this.Foo316[T]): Generated.this.Foo316[S] = { /* compiled code */ }
+
   type Foo317[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo317[T, S](s: Generated.this.Foo317[T]): Generated.this.Foo317[S] = { /* compiled code */ }
+
   type Foo318[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo318[T, S](s: Generated.this.Foo318[T]): Generated.this.Foo318[S] = { /* compiled code */ }
+
   type Foo319[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo319[T, S](s: Generated.this.Foo319[T]): Generated.this.Foo319[S] = { /* compiled code */ }
+
   type Foo320[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo320[T, S](s: Generated.this.Foo320[T]): Generated.this.Foo320[S] = { /* compiled code */ }
+
   type Foo321[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo321[T, S](s: Generated.this.Foo321[T]): Generated.this.Foo321[S] = { /* compiled code */ }
+
   type Foo322[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo322[T, S](s: Generated.this.Foo322[T]): Generated.this.Foo322[S] = { /* compiled code */ }
+
   type Foo323[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo323[T, S](s: Generated.this.Foo323[T]): Generated.this.Foo323[S] = { /* compiled code */ }
+
   type Foo324[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo324[T, S](s: Generated.this.Foo324[T]): Generated.this.Foo324[S] = { /* compiled code */ }
+
   type Foo325[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo325[T, S](s: Generated.this.Foo325[T]): Generated.this.Foo325[S] = { /* compiled code */ }
+
   type Foo326[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo326[T, S](s: Generated.this.Foo326[T]): Generated.this.Foo326[S] = { /* compiled code */ }
+
   type Foo327[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo327[T, S](s: Generated.this.Foo327[T]): Generated.this.Foo327[S] = { /* compiled code */ }
+
   type Foo328[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo328[T, S](s: Generated.this.Foo328[T]): Generated.this.Foo328[S] = { /* compiled code */ }
+
   type Foo329[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo329[T, S](s: Generated.this.Foo329[T]): Generated.this.Foo329[S] = { /* compiled code */ }
+
   type Foo330[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo330[T, S](s: Generated.this.Foo330[T]): Generated.this.Foo330[S] = { /* compiled code */ }
+
   type Foo331[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo331[T, S](s: Generated.this.Foo331[T]): Generated.this.Foo331[S] = { /* compiled code */ }
+
   type Foo332[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo332[T, S](s: Generated.this.Foo332[T]): Generated.this.Foo332[S] = { /* compiled code */ }
+
   type Foo333[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo333[T, S](s: Generated.this.Foo333[T]): Generated.this.Foo333[S] = { /* compiled code */ }
+
   type Foo334[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo334[T, S](s: Generated.this.Foo334[T]): Generated.this.Foo334[S] = { /* compiled code */ }
+
   type Foo335[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo335[T, S](s: Generated.this.Foo335[T]): Generated.this.Foo335[S] = { /* compiled code */ }
+
   type Foo336[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo336[T, S](s: Generated.this.Foo336[T]): Generated.this.Foo336[S] = { /* compiled code */ }
+
   type Foo337[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo337[T, S](s: Generated.this.Foo337[T]): Generated.this.Foo337[S] = { /* compiled code */ }
+
   type Foo338[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo338[T, S](s: Generated.this.Foo338[T]): Generated.this.Foo338[S] = { /* compiled code */ }
+
   type Foo339[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo339[T, S](s: Generated.this.Foo339[T]): Generated.this.Foo339[S] = { /* compiled code */ }
+
   type Foo340[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo340[T, S](s: Generated.this.Foo340[T]): Generated.this.Foo340[S] = { /* compiled code */ }
+
   type Foo341[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo341[T, S](s: Generated.this.Foo341[T]): Generated.this.Foo341[S] = { /* compiled code */ }
+
   type Foo342[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo342[T, S](s: Generated.this.Foo342[T]): Generated.this.Foo342[S] = { /* compiled code */ }
+
   type Foo343[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo343[T, S](s: Generated.this.Foo343[T]): Generated.this.Foo343[S] = { /* compiled code */ }
+
   type Foo344[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo344[T, S](s: Generated.this.Foo344[T]): Generated.this.Foo344[S] = { /* compiled code */ }
+
   type Foo345[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo345[T, S](s: Generated.this.Foo345[T]): Generated.this.Foo345[S] = { /* compiled code */ }
+
   type Foo346[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo346[T, S](s: Generated.this.Foo346[T]): Generated.this.Foo346[S] = { /* compiled code */ }
+
   type Foo347[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo347[T, S](s: Generated.this.Foo347[T]): Generated.this.Foo347[S] = { /* compiled code */ }
+
   type Foo348[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo348[T, S](s: Generated.this.Foo348[T]): Generated.this.Foo348[S] = { /* compiled code */ }
+
   type Foo349[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo349[T, S](s: Generated.this.Foo349[T]): Generated.this.Foo349[S] = { /* compiled code */ }
+
   type Foo350[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo350[T, S](s: Generated.this.Foo350[T]): Generated.this.Foo350[S] = { /* compiled code */ }
+
   type Foo351[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo351[T, S](s: Generated.this.Foo351[T]): Generated.this.Foo351[S] = { /* compiled code */ }
+
   type Foo352[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo352[T, S](s: Generated.this.Foo352[T]): Generated.this.Foo352[S] = { /* compiled code */ }
+
   type Foo353[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo353[T, S](s: Generated.this.Foo353[T]): Generated.this.Foo353[S] = { /* compiled code */ }
+
   type Foo354[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo354[T, S](s: Generated.this.Foo354[T]): Generated.this.Foo354[S] = { /* compiled code */ }
+
   type Foo355[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo355[T, S](s: Generated.this.Foo355[T]): Generated.this.Foo355[S] = { /* compiled code */ }
+
   type Foo356[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo356[T, S](s: Generated.this.Foo356[T]): Generated.this.Foo356[S] = { /* compiled code */ }
+
   type Foo357[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo357[T, S](s: Generated.this.Foo357[T]): Generated.this.Foo357[S] = { /* compiled code */ }
+
   type Foo358[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo358[T, S](s: Generated.this.Foo358[T]): Generated.this.Foo358[S] = { /* compiled code */ }
+
   type Foo359[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo359[T, S](s: Generated.this.Foo359[T]): Generated.this.Foo359[S] = { /* compiled code */ }
+
   type Foo360[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo360[T, S](s: Generated.this.Foo360[T]): Generated.this.Foo360[S] = { /* compiled code */ }
+
   type Foo361[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo361[T, S](s: Generated.this.Foo361[T]): Generated.this.Foo361[S] = { /* compiled code */ }
+
   type Foo362[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo362[T, S](s: Generated.this.Foo362[T]): Generated.this.Foo362[S] = { /* compiled code */ }
+
   type Foo363[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo363[T, S](s: Generated.this.Foo363[T]): Generated.this.Foo363[S] = { /* compiled code */ }
+
   type Foo364[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo364[T, S](s: Generated.this.Foo364[T]): Generated.this.Foo364[S] = { /* compiled code */ }
+
   type Foo365[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo365[T, S](s: Generated.this.Foo365[T]): Generated.this.Foo365[S] = { /* compiled code */ }
+
   type Foo366[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo366[T, S](s: Generated.this.Foo366[T]): Generated.this.Foo366[S] = { /* compiled code */ }
+
   type Foo367[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo367[T, S](s: Generated.this.Foo367[T]): Generated.this.Foo367[S] = { /* compiled code */ }
+
   type Foo368[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo368[T, S](s: Generated.this.Foo368[T]): Generated.this.Foo368[S] = { /* compiled code */ }
+
   type Foo369[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo369[T, S](s: Generated.this.Foo369[T]): Generated.this.Foo369[S] = { /* compiled code */ }
+
   type Foo370[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo370[T, S](s: Generated.this.Foo370[T]): Generated.this.Foo370[S] = { /* compiled code */ }
+
   type Foo371[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo371[T, S](s: Generated.this.Foo371[T]): Generated.this.Foo371[S] = { /* compiled code */ }
+
   type Foo372[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo372[T, S](s: Generated.this.Foo372[T]): Generated.this.Foo372[S] = { /* compiled code */ }
+
   type Foo373[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo373[T, S](s: Generated.this.Foo373[T]): Generated.this.Foo373[S] = { /* compiled code */ }
+
   type Foo374[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo374[T, S](s: Generated.this.Foo374[T]): Generated.this.Foo374[S] = { /* compiled code */ }
+
   type Foo375[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo375[T, S](s: Generated.this.Foo375[T]): Generated.this.Foo375[S] = { /* compiled code */ }
+
   type Foo376[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo376[T, S](s: Generated.this.Foo376[T]): Generated.this.Foo376[S] = { /* compiled code */ }
+
   type Foo377[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo377[T, S](s: Generated.this.Foo377[T]): Generated.this.Foo377[S] = { /* compiled code */ }
+
   type Foo378[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo378[T, S](s: Generated.this.Foo378[T]): Generated.this.Foo378[S] = { /* compiled code */ }
+
   type Foo379[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo379[T, S](s: Generated.this.Foo379[T]): Generated.this.Foo379[S] = { /* compiled code */ }
+
   type Foo380[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo380[T, S](s: Generated.this.Foo380[T]): Generated.this.Foo380[S] = { /* compiled code */ }
+
   type Foo381[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo381[T, S](s: Generated.this.Foo381[T]): Generated.this.Foo381[S] = { /* compiled code */ }
+
   type Foo382[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo382[T, S](s: Generated.this.Foo382[T]): Generated.this.Foo382[S] = { /* compiled code */ }
+
   type Foo383[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo383[T, S](s: Generated.this.Foo383[T]): Generated.this.Foo383[S] = { /* compiled code */ }
+
   type Foo384[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo384[T, S](s: Generated.this.Foo384[T]): Generated.this.Foo384[S] = { /* compiled code */ }
+
   type Foo385[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo385[T, S](s: Generated.this.Foo385[T]): Generated.this.Foo385[S] = { /* compiled code */ }
+
   type Foo386[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo386[T, S](s: Generated.this.Foo386[T]): Generated.this.Foo386[S] = { /* compiled code */ }
+
   type Foo387[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo387[T, S](s: Generated.this.Foo387[T]): Generated.this.Foo387[S] = { /* compiled code */ }
+
   type Foo388[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo388[T, S](s: Generated.this.Foo388[T]): Generated.this.Foo388[S] = { /* compiled code */ }
+
   type Foo389[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo389[T, S](s: Generated.this.Foo389[T]): Generated.this.Foo389[S] = { /* compiled code */ }
+
   type Foo390[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo390[T, S](s: Generated.this.Foo390[T]): Generated.this.Foo390[S] = { /* compiled code */ }
+
   type Foo391[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo391[T, S](s: Generated.this.Foo391[T]): Generated.this.Foo391[S] = { /* compiled code */ }
+
   type Foo392[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo392[T, S](s: Generated.this.Foo392[T]): Generated.this.Foo392[S] = { /* compiled code */ }
+
   type Foo393[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo393[T, S](s: Generated.this.Foo393[T]): Generated.this.Foo393[S] = { /* compiled code */ }
+
   type Foo394[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo394[T, S](s: Generated.this.Foo394[T]): Generated.this.Foo394[S] = { /* compiled code */ }
+
   type Foo395[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo395[T, S](s: Generated.this.Foo395[T]): Generated.this.Foo395[S] = { /* compiled code */ }
+
   type Foo396[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo396[T, S](s: Generated.this.Foo396[T]): Generated.this.Foo396[S] = { /* compiled code */ }
+
   type Foo397[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo397[T, S](s: Generated.this.Foo397[T]): Generated.this.Foo397[S] = { /* compiled code */ }
+
   type Foo398[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo398[T, S](s: Generated.this.Foo398[T]): Generated.this.Foo398[S] = { /* compiled code */ }
+
   type Foo399[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo399[T, S](s: Generated.this.Foo399[T]): Generated.this.Foo399[S] = { /* compiled code */ }
+
   type Foo400[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo400[T, S](s: Generated.this.Foo400[T]): Generated.this.Foo400[S] = { /* compiled code */ }
+
   type Foo401[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo401[T, S](s: Generated.this.Foo401[T]): Generated.this.Foo401[S] = { /* compiled code */ }
+
   type Foo402[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo402[T, S](s: Generated.this.Foo402[T]): Generated.this.Foo402[S] = { /* compiled code */ }
+
   type Foo403[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo403[T, S](s: Generated.this.Foo403[T]): Generated.this.Foo403[S] = { /* compiled code */ }
+
   type Foo404[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo404[T, S](s: Generated.this.Foo404[T]): Generated.this.Foo404[S] = { /* compiled code */ }
+
   type Foo405[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo405[T, S](s: Generated.this.Foo405[T]): Generated.this.Foo405[S] = { /* compiled code */ }
+
   type Foo406[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo406[T, S](s: Generated.this.Foo406[T]): Generated.this.Foo406[S] = { /* compiled code */ }
+
   type Foo407[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo407[T, S](s: Generated.this.Foo407[T]): Generated.this.Foo407[S] = { /* compiled code */ }
+
   type Foo408[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo408[T, S](s: Generated.this.Foo408[T]): Generated.this.Foo408[S] = { /* compiled code */ }
+
   type Foo409[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo409[T, S](s: Generated.this.Foo409[T]): Generated.this.Foo409[S] = { /* compiled code */ }
+
   type Foo410[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo410[T, S](s: Generated.this.Foo410[T]): Generated.this.Foo410[S] = { /* compiled code */ }
+
   type Foo411[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo411[T, S](s: Generated.this.Foo411[T]): Generated.this.Foo411[S] = { /* compiled code */ }
+
   type Foo412[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo412[T, S](s: Generated.this.Foo412[T]): Generated.this.Foo412[S] = { /* compiled code */ }
+
   type Foo413[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo413[T, S](s: Generated.this.Foo413[T]): Generated.this.Foo413[S] = { /* compiled code */ }
+
   type Foo414[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo414[T, S](s: Generated.this.Foo414[T]): Generated.this.Foo414[S] = { /* compiled code */ }
+
   type Foo415[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo415[T, S](s: Generated.this.Foo415[T]): Generated.this.Foo415[S] = { /* compiled code */ }
+
   type Foo416[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo416[T, S](s: Generated.this.Foo416[T]): Generated.this.Foo416[S] = { /* compiled code */ }
+
   type Foo417[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo417[T, S](s: Generated.this.Foo417[T]): Generated.this.Foo417[S] = { /* compiled code */ }
+
   type Foo418[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo418[T, S](s: Generated.this.Foo418[T]): Generated.this.Foo418[S] = { /* compiled code */ }
+
   type Foo419[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo419[T, S](s: Generated.this.Foo419[T]): Generated.this.Foo419[S] = { /* compiled code */ }
+
   type Foo420[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo420[T, S](s: Generated.this.Foo420[T]): Generated.this.Foo420[S] = { /* compiled code */ }
+
   type Foo421[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo421[T, S](s: Generated.this.Foo421[T]): Generated.this.Foo421[S] = { /* compiled code */ }
+
   type Foo422[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo422[T, S](s: Generated.this.Foo422[T]): Generated.this.Foo422[S] = { /* compiled code */ }
+
   type Foo423[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo423[T, S](s: Generated.this.Foo423[T]): Generated.this.Foo423[S] = { /* compiled code */ }
+
   type Foo424[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo424[T, S](s: Generated.this.Foo424[T]): Generated.this.Foo424[S] = { /* compiled code */ }
+
   type Foo425[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo425[T, S](s: Generated.this.Foo425[T]): Generated.this.Foo425[S] = { /* compiled code */ }
+
   type Foo426[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo426[T, S](s: Generated.this.Foo426[T]): Generated.this.Foo426[S] = { /* compiled code */ }
+
   type Foo427[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo427[T, S](s: Generated.this.Foo427[T]): Generated.this.Foo427[S] = { /* compiled code */ }
+
   type Foo428[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo428[T, S](s: Generated.this.Foo428[T]): Generated.this.Foo428[S] = { /* compiled code */ }
+
   type Foo429[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo429[T, S](s: Generated.this.Foo429[T]): Generated.this.Foo429[S] = { /* compiled code */ }
+
   type Foo430[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo430[T, S](s: Generated.this.Foo430[T]): Generated.this.Foo430[S] = { /* compiled code */ }
+
   type Foo431[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo431[T, S](s: Generated.this.Foo431[T]): Generated.this.Foo431[S] = { /* compiled code */ }
+
   type Foo432[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo432[T, S](s: Generated.this.Foo432[T]): Generated.this.Foo432[S] = { /* compiled code */ }
+
   type Foo433[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo433[T, S](s: Generated.this.Foo433[T]): Generated.this.Foo433[S] = { /* compiled code */ }
+
   type Foo434[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo434[T, S](s: Generated.this.Foo434[T]): Generated.this.Foo434[S] = { /* compiled code */ }
+
   type Foo435[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo435[T, S](s: Generated.this.Foo435[T]): Generated.this.Foo435[S] = { /* compiled code */ }
+
   type Foo436[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo436[T, S](s: Generated.this.Foo436[T]): Generated.this.Foo436[S] = { /* compiled code */ }
+
   type Foo437[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo437[T, S](s: Generated.this.Foo437[T]): Generated.this.Foo437[S] = { /* compiled code */ }
+
   type Foo438[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo438[T, S](s: Generated.this.Foo438[T]): Generated.this.Foo438[S] = { /* compiled code */ }
+
   type Foo439[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo439[T, S](s: Generated.this.Foo439[T]): Generated.this.Foo439[S] = { /* compiled code */ }
+
   type Foo440[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo440[T, S](s: Generated.this.Foo440[T]): Generated.this.Foo440[S] = { /* compiled code */ }
+
   type Foo441[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo441[T, S](s: Generated.this.Foo441[T]): Generated.this.Foo441[S] = { /* compiled code */ }
+
   type Foo442[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo442[T, S](s: Generated.this.Foo442[T]): Generated.this.Foo442[S] = { /* compiled code */ }
+
   type Foo443[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo443[T, S](s: Generated.this.Foo443[T]): Generated.this.Foo443[S] = { /* compiled code */ }
+
   type Foo444[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo444[T, S](s: Generated.this.Foo444[T]): Generated.this.Foo444[S] = { /* compiled code */ }
+
   type Foo445[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo445[T, S](s: Generated.this.Foo445[T]): Generated.this.Foo445[S] = { /* compiled code */ }
+
   type Foo446[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo446[T, S](s: Generated.this.Foo446[T]): Generated.this.Foo446[S] = { /* compiled code */ }
+
   type Foo447[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo447[T, S](s: Generated.this.Foo447[T]): Generated.this.Foo447[S] = { /* compiled code */ }
+
   type Foo448[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo448[T, S](s: Generated.this.Foo448[T]): Generated.this.Foo448[S] = { /* compiled code */ }
+
   type Foo449[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo449[T, S](s: Generated.this.Foo449[T]): Generated.this.Foo449[S] = { /* compiled code */ }
+
   type Foo450[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo450[T, S](s: Generated.this.Foo450[T]): Generated.this.Foo450[S] = { /* compiled code */ }
+
   type Foo451[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo451[T, S](s: Generated.this.Foo451[T]): Generated.this.Foo451[S] = { /* compiled code */ }
+
   type Foo452[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo452[T, S](s: Generated.this.Foo452[T]): Generated.this.Foo452[S] = { /* compiled code */ }
+
   type Foo453[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo453[T, S](s: Generated.this.Foo453[T]): Generated.this.Foo453[S] = { /* compiled code */ }
+
   type Foo454[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo454[T, S](s: Generated.this.Foo454[T]): Generated.this.Foo454[S] = { /* compiled code */ }
+
   type Foo455[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo455[T, S](s: Generated.this.Foo455[T]): Generated.this.Foo455[S] = { /* compiled code */ }
+
   type Foo456[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo456[T, S](s: Generated.this.Foo456[T]): Generated.this.Foo456[S] = { /* compiled code */ }
+
   type Foo457[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo457[T, S](s: Generated.this.Foo457[T]): Generated.this.Foo457[S] = { /* compiled code */ }
+
   type Foo458[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo458[T, S](s: Generated.this.Foo458[T]): Generated.this.Foo458[S] = { /* compiled code */ }
+
   type Foo459[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo459[T, S](s: Generated.this.Foo459[T]): Generated.this.Foo459[S] = { /* compiled code */ }
+
   type Foo460[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo460[T, S](s: Generated.this.Foo460[T]): Generated.this.Foo460[S] = { /* compiled code */ }
+
   type Foo461[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo461[T, S](s: Generated.this.Foo461[T]): Generated.this.Foo461[S] = { /* compiled code */ }
+
   type Foo462[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo462[T, S](s: Generated.this.Foo462[T]): Generated.this.Foo462[S] = { /* compiled code */ }
+
   type Foo463[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo463[T, S](s: Generated.this.Foo463[T]): Generated.this.Foo463[S] = { /* compiled code */ }
+
   type Foo464[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo464[T, S](s: Generated.this.Foo464[T]): Generated.this.Foo464[S] = { /* compiled code */ }
+
   type Foo465[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo465[T, S](s: Generated.this.Foo465[T]): Generated.this.Foo465[S] = { /* compiled code */ }
+
   type Foo466[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo466[T, S](s: Generated.this.Foo466[T]): Generated.this.Foo466[S] = { /* compiled code */ }
+
   type Foo467[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo467[T, S](s: Generated.this.Foo467[T]): Generated.this.Foo467[S] = { /* compiled code */ }
+
   type Foo468[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo468[T, S](s: Generated.this.Foo468[T]): Generated.this.Foo468[S] = { /* compiled code */ }
+
   type Foo469[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo469[T, S](s: Generated.this.Foo469[T]): Generated.this.Foo469[S] = { /* compiled code */ }
+
   type Foo470[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo470[T, S](s: Generated.this.Foo470[T]): Generated.this.Foo470[S] = { /* compiled code */ }
+
   type Foo471[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo471[T, S](s: Generated.this.Foo471[T]): Generated.this.Foo471[S] = { /* compiled code */ }
+
   type Foo472[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo472[T, S](s: Generated.this.Foo472[T]): Generated.this.Foo472[S] = { /* compiled code */ }
+
   type Foo473[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo473[T, S](s: Generated.this.Foo473[T]): Generated.this.Foo473[S] = { /* compiled code */ }
+
   type Foo474[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo474[T, S](s: Generated.this.Foo474[T]): Generated.this.Foo474[S] = { /* compiled code */ }
+
   type Foo475[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo475[T, S](s: Generated.this.Foo475[T]): Generated.this.Foo475[S] = { /* compiled code */ }
+
   type Foo476[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo476[T, S](s: Generated.this.Foo476[T]): Generated.this.Foo476[S] = { /* compiled code */ }
+
   type Foo477[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo477[T, S](s: Generated.this.Foo477[T]): Generated.this.Foo477[S] = { /* compiled code */ }
+
   type Foo478[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo478[T, S](s: Generated.this.Foo478[T]): Generated.this.Foo478[S] = { /* compiled code */ }
+
   type Foo479[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo479[T, S](s: Generated.this.Foo479[T]): Generated.this.Foo479[S] = { /* compiled code */ }
+
   type Foo480[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo480[T, S](s: Generated.this.Foo480[T]): Generated.this.Foo480[S] = { /* compiled code */ }
+
   type Foo481[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo481[T, S](s: Generated.this.Foo481[T]): Generated.this.Foo481[S] = { /* compiled code */ }
+
   type Foo482[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo482[T, S](s: Generated.this.Foo482[T]): Generated.this.Foo482[S] = { /* compiled code */ }
+
   type Foo483[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo483[T, S](s: Generated.this.Foo483[T]): Generated.this.Foo483[S] = { /* compiled code */ }
+
   type Foo484[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo484[T, S](s: Generated.this.Foo484[T]): Generated.this.Foo484[S] = { /* compiled code */ }
+
   type Foo485[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo485[T, S](s: Generated.this.Foo485[T]): Generated.this.Foo485[S] = { /* compiled code */ }
+
   type Foo486[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo486[T, S](s: Generated.this.Foo486[T]): Generated.this.Foo486[S] = { /* compiled code */ }
+
   type Foo487[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo487[T, S](s: Generated.this.Foo487[T]): Generated.this.Foo487[S] = { /* compiled code */ }
+
   type Foo488[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo488[T, S](s: Generated.this.Foo488[T]): Generated.this.Foo488[S] = { /* compiled code */ }
+
   type Foo489[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo489[T, S](s: Generated.this.Foo489[T]): Generated.this.Foo489[S] = { /* compiled code */ }
+
   type Foo490[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo490[T, S](s: Generated.this.Foo490[T]): Generated.this.Foo490[S] = { /* compiled code */ }
+
   type Foo491[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo491[T, S](s: Generated.this.Foo491[T]): Generated.this.Foo491[S] = { /* compiled code */ }
+
   type Foo492[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo492[T, S](s: Generated.this.Foo492[T]): Generated.this.Foo492[S] = { /* compiled code */ }
+
   type Foo493[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo493[T, S](s: Generated.this.Foo493[T]): Generated.this.Foo493[S] = { /* compiled code */ }
+
   type Foo494[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo494[T, S](s: Generated.this.Foo494[T]): Generated.this.Foo494[S] = { /* compiled code */ }
+
   type Foo495[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo495[T, S](s: Generated.this.Foo495[T]): Generated.this.Foo495[S] = { /* compiled code */ }
+
   type Foo496[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo496[T, S](s: Generated.this.Foo496[T]): Generated.this.Foo496[S] = { /* compiled code */ }
+
   type Foo497[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo497[T, S](s: Generated.this.Foo497[T]): Generated.this.Foo497[S] = { /* compiled code */ }
+
   type Foo498[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo498[T, S](s: Generated.this.Foo498[T]): Generated.this.Foo498[S] = { /* compiled code */ }
+
   type Foo499[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo499[T, S](s: Generated.this.Foo499[T]): Generated.this.Foo499[S] = { /* compiled code */ }
+
   type Foo500[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo500[T, S](s: Generated.this.Foo500[T]): Generated.this.Foo500[S] = { /* compiled code */ }
+
   type Foo501[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo501[T, S](s: Generated.this.Foo501[T]): Generated.this.Foo501[S] = { /* compiled code */ }
+
   type Foo502[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo502[T, S](s: Generated.this.Foo502[T]): Generated.this.Foo502[S] = { /* compiled code */ }
+
   type Foo503[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo503[T, S](s: Generated.this.Foo503[T]): Generated.this.Foo503[S] = { /* compiled code */ }
+
   type Foo504[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo504[T, S](s: Generated.this.Foo504[T]): Generated.this.Foo504[S] = { /* compiled code */ }
+
   type Foo505[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo505[T, S](s: Generated.this.Foo505[T]): Generated.this.Foo505[S] = { /* compiled code */ }
+
   type Foo506[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo506[T, S](s: Generated.this.Foo506[T]): Generated.this.Foo506[S] = { /* compiled code */ }
+
   type Foo507[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo507[T, S](s: Generated.this.Foo507[T]): Generated.this.Foo507[S] = { /* compiled code */ }
+
   type Foo508[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo508[T, S](s: Generated.this.Foo508[T]): Generated.this.Foo508[S] = { /* compiled code */ }
+
   type Foo509[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo509[T, S](s: Generated.this.Foo509[T]): Generated.this.Foo509[S] = { /* compiled code */ }
+
   type Foo510[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo510[T, S](s: Generated.this.Foo510[T]): Generated.this.Foo510[S] = { /* compiled code */ }
+
   type Foo511[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo511[T, S](s: Generated.this.Foo511[T]): Generated.this.Foo511[S] = { /* compiled code */ }
+
   type Foo512[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo512[T, S](s: Generated.this.Foo512[T]): Generated.this.Foo512[S] = { /* compiled code */ }
+
   type Foo513[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo513[T, S](s: Generated.this.Foo513[T]): Generated.this.Foo513[S] = { /* compiled code */ }
+
   type Foo514[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo514[T, S](s: Generated.this.Foo514[T]): Generated.this.Foo514[S] = { /* compiled code */ }
+
   type Foo515[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo515[T, S](s: Generated.this.Foo515[T]): Generated.this.Foo515[S] = { /* compiled code */ }
+
   type Foo516[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo516[T, S](s: Generated.this.Foo516[T]): Generated.this.Foo516[S] = { /* compiled code */ }
+
   type Foo517[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo517[T, S](s: Generated.this.Foo517[T]): Generated.this.Foo517[S] = { /* compiled code */ }
+
   type Foo518[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo518[T, S](s: Generated.this.Foo518[T]): Generated.this.Foo518[S] = { /* compiled code */ }
+
   type Foo519[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo519[T, S](s: Generated.this.Foo519[T]): Generated.this.Foo519[S] = { /* compiled code */ }
+
   type Foo520[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo520[T, S](s: Generated.this.Foo520[T]): Generated.this.Foo520[S] = { /* compiled code */ }
+
   type Foo521[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo521[T, S](s: Generated.this.Foo521[T]): Generated.this.Foo521[S] = { /* compiled code */ }
+
   type Foo522[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo522[T, S](s: Generated.this.Foo522[T]): Generated.this.Foo522[S] = { /* compiled code */ }
+
   type Foo523[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo523[T, S](s: Generated.this.Foo523[T]): Generated.this.Foo523[S] = { /* compiled code */ }
+
   type Foo524[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo524[T, S](s: Generated.this.Foo524[T]): Generated.this.Foo524[S] = { /* compiled code */ }
+
   type Foo525[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo525[T, S](s: Generated.this.Foo525[T]): Generated.this.Foo525[S] = { /* compiled code */ }
+
   type Foo526[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo526[T, S](s: Generated.this.Foo526[T]): Generated.this.Foo526[S] = { /* compiled code */ }
+
   type Foo527[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo527[T, S](s: Generated.this.Foo527[T]): Generated.this.Foo527[S] = { /* compiled code */ }
+
   type Foo528[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo528[T, S](s: Generated.this.Foo528[T]): Generated.this.Foo528[S] = { /* compiled code */ }
+
   type Foo529[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo529[T, S](s: Generated.this.Foo529[T]): Generated.this.Foo529[S] = { /* compiled code */ }
+
   type Foo530[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo530[T, S](s: Generated.this.Foo530[T]): Generated.this.Foo530[S] = { /* compiled code */ }
+
   type Foo531[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo531[T, S](s: Generated.this.Foo531[T]): Generated.this.Foo531[S] = { /* compiled code */ }
+
   type Foo532[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo532[T, S](s: Generated.this.Foo532[T]): Generated.this.Foo532[S] = { /* compiled code */ }
+
   type Foo533[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo533[T, S](s: Generated.this.Foo533[T]): Generated.this.Foo533[S] = { /* compiled code */ }
+
   type Foo534[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo534[T, S](s: Generated.this.Foo534[T]): Generated.this.Foo534[S] = { /* compiled code */ }
+
   type Foo535[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo535[T, S](s: Generated.this.Foo535[T]): Generated.this.Foo535[S] = { /* compiled code */ }
+
   type Foo536[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo536[T, S](s: Generated.this.Foo536[T]): Generated.this.Foo536[S] = { /* compiled code */ }
+
   type Foo537[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo537[T, S](s: Generated.this.Foo537[T]): Generated.this.Foo537[S] = { /* compiled code */ }
+
   type Foo538[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo538[T, S](s: Generated.this.Foo538[T]): Generated.this.Foo538[S] = { /* compiled code */ }
+
   type Foo539[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo539[T, S](s: Generated.this.Foo539[T]): Generated.this.Foo539[S] = { /* compiled code */ }
+
   type Foo540[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo540[T, S](s: Generated.this.Foo540[T]): Generated.this.Foo540[S] = { /* compiled code */ }
+
   type Foo541[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo541[T, S](s: Generated.this.Foo541[T]): Generated.this.Foo541[S] = { /* compiled code */ }
+
   type Foo542[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo542[T, S](s: Generated.this.Foo542[T]): Generated.this.Foo542[S] = { /* compiled code */ }
+
   type Foo543[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo543[T, S](s: Generated.this.Foo543[T]): Generated.this.Foo543[S] = { /* compiled code */ }
+
   type Foo544[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo544[T, S](s: Generated.this.Foo544[T]): Generated.this.Foo544[S] = { /* compiled code */ }
+
   type Foo545[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo545[T, S](s: Generated.this.Foo545[T]): Generated.this.Foo545[S] = { /* compiled code */ }
+
   type Foo546[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo546[T, S](s: Generated.this.Foo546[T]): Generated.this.Foo546[S] = { /* compiled code */ }
+
   type Foo547[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo547[T, S](s: Generated.this.Foo547[T]): Generated.this.Foo547[S] = { /* compiled code */ }
+
   type Foo548[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo548[T, S](s: Generated.this.Foo548[T]): Generated.this.Foo548[S] = { /* compiled code */ }
+
   type Foo549[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo549[T, S](s: Generated.this.Foo549[T]): Generated.this.Foo549[S] = { /* compiled code */ }
+
   type Foo550[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo550[T, S](s: Generated.this.Foo550[T]): Generated.this.Foo550[S] = { /* compiled code */ }
+
   type Foo551[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo551[T, S](s: Generated.this.Foo551[T]): Generated.this.Foo551[S] = { /* compiled code */ }
+
   type Foo552[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo552[T, S](s: Generated.this.Foo552[T]): Generated.this.Foo552[S] = { /* compiled code */ }
+
   type Foo553[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo553[T, S](s: Generated.this.Foo553[T]): Generated.this.Foo553[S] = { /* compiled code */ }
+
   type Foo554[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo554[T, S](s: Generated.this.Foo554[T]): Generated.this.Foo554[S] = { /* compiled code */ }
+
   type Foo555[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo555[T, S](s: Generated.this.Foo555[T]): Generated.this.Foo555[S] = { /* compiled code */ }
+
   type Foo556[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo556[T, S](s: Generated.this.Foo556[T]): Generated.this.Foo556[S] = { /* compiled code */ }
+
   type Foo557[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo557[T, S](s: Generated.this.Foo557[T]): Generated.this.Foo557[S] = { /* compiled code */ }
+
   type Foo558[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo558[T, S](s: Generated.this.Foo558[T]): Generated.this.Foo558[S] = { /* compiled code */ }
+
   type Foo559[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo559[T, S](s: Generated.this.Foo559[T]): Generated.this.Foo559[S] = { /* compiled code */ }
+
   type Foo560[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo560[T, S](s: Generated.this.Foo560[T]): Generated.this.Foo560[S] = { /* compiled code */ }
+
   type Foo561[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo561[T, S](s: Generated.this.Foo561[T]): Generated.this.Foo561[S] = { /* compiled code */ }
+
   type Foo562[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo562[T, S](s: Generated.this.Foo562[T]): Generated.this.Foo562[S] = { /* compiled code */ }
+
   type Foo563[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo563[T, S](s: Generated.this.Foo563[T]): Generated.this.Foo563[S] = { /* compiled code */ }
+
   type Foo564[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo564[T, S](s: Generated.this.Foo564[T]): Generated.this.Foo564[S] = { /* compiled code */ }
+
   type Foo565[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo565[T, S](s: Generated.this.Foo565[T]): Generated.this.Foo565[S] = { /* compiled code */ }
+
   type Foo566[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo566[T, S](s: Generated.this.Foo566[T]): Generated.this.Foo566[S] = { /* compiled code */ }
+
   type Foo567[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo567[T, S](s: Generated.this.Foo567[T]): Generated.this.Foo567[S] = { /* compiled code */ }
+
   type Foo568[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo568[T, S](s: Generated.this.Foo568[T]): Generated.this.Foo568[S] = { /* compiled code */ }
+
   type Foo569[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo569[T, S](s: Generated.this.Foo569[T]): Generated.this.Foo569[S] = { /* compiled code */ }
+
   type Foo570[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo570[T, S](s: Generated.this.Foo570[T]): Generated.this.Foo570[S] = { /* compiled code */ }
+
   type Foo571[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo571[T, S](s: Generated.this.Foo571[T]): Generated.this.Foo571[S] = { /* compiled code */ }
+
   type Foo572[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo572[T, S](s: Generated.this.Foo572[T]): Generated.this.Foo572[S] = { /* compiled code */ }
+
   type Foo573[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo573[T, S](s: Generated.this.Foo573[T]): Generated.this.Foo573[S] = { /* compiled code */ }
+
   type Foo574[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo574[T, S](s: Generated.this.Foo574[T]): Generated.this.Foo574[S] = { /* compiled code */ }
+
   type Foo575[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo575[T, S](s: Generated.this.Foo575[T]): Generated.this.Foo575[S] = { /* compiled code */ }
+
   type Foo576[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo576[T, S](s: Generated.this.Foo576[T]): Generated.this.Foo576[S] = { /* compiled code */ }
+
   type Foo577[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo577[T, S](s: Generated.this.Foo577[T]): Generated.this.Foo577[S] = { /* compiled code */ }
+
   type Foo578[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo578[T, S](s: Generated.this.Foo578[T]): Generated.this.Foo578[S] = { /* compiled code */ }
+
   type Foo579[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo579[T, S](s: Generated.this.Foo579[T]): Generated.this.Foo579[S] = { /* compiled code */ }
+
   type Foo580[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo580[T, S](s: Generated.this.Foo580[T]): Generated.this.Foo580[S] = { /* compiled code */ }
+
   type Foo581[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo581[T, S](s: Generated.this.Foo581[T]): Generated.this.Foo581[S] = { /* compiled code */ }
+
   type Foo582[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo582[T, S](s: Generated.this.Foo582[T]): Generated.this.Foo582[S] = { /* compiled code */ }
+
   type Foo583[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo583[T, S](s: Generated.this.Foo583[T]): Generated.this.Foo583[S] = { /* compiled code */ }
+
   type Foo584[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo584[T, S](s: Generated.this.Foo584[T]): Generated.this.Foo584[S] = { /* compiled code */ }
+
   type Foo585[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo585[T, S](s: Generated.this.Foo585[T]): Generated.this.Foo585[S] = { /* compiled code */ }
+
   type Foo586[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo586[T, S](s: Generated.this.Foo586[T]): Generated.this.Foo586[S] = { /* compiled code */ }
+
   type Foo587[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo587[T, S](s: Generated.this.Foo587[T]): Generated.this.Foo587[S] = { /* compiled code */ }
+
   type Foo588[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo588[T, S](s: Generated.this.Foo588[T]): Generated.this.Foo588[S] = { /* compiled code */ }
+
   type Foo589[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo589[T, S](s: Generated.this.Foo589[T]): Generated.this.Foo589[S] = { /* compiled code */ }
+
   type Foo590[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo590[T, S](s: Generated.this.Foo590[T]): Generated.this.Foo590[S] = { /* compiled code */ }
+
   type Foo591[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo591[T, S](s: Generated.this.Foo591[T]): Generated.this.Foo591[S] = { /* compiled code */ }
+
   type Foo592[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo592[T, S](s: Generated.this.Foo592[T]): Generated.this.Foo592[S] = { /* compiled code */ }
+
   type Foo593[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo593[T, S](s: Generated.this.Foo593[T]): Generated.this.Foo593[S] = { /* compiled code */ }
+
   type Foo594[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo594[T, S](s: Generated.this.Foo594[T]): Generated.this.Foo594[S] = { /* compiled code */ }
+
   type Foo595[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo595[T, S](s: Generated.this.Foo595[T]): Generated.this.Foo595[S] = { /* compiled code */ }
+
   type Foo596[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo596[T, S](s: Generated.this.Foo596[T]): Generated.this.Foo596[S] = { /* compiled code */ }
+
   type Foo597[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo597[T, S](s: Generated.this.Foo597[T]): Generated.this.Foo597[S] = { /* compiled code */ }
+
   type Foo598[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo598[T, S](s: Generated.this.Foo598[T]): Generated.this.Foo598[S] = { /* compiled code */ }
+
   type Foo599[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo599[T, S](s: Generated.this.Foo599[T]): Generated.this.Foo599[S] = { /* compiled code */ }
+
   type Foo600[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo600[T, S](s: Generated.this.Foo600[T]): Generated.this.Foo600[S] = { /* compiled code */ }
+
   type Foo601[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo601[T, S](s: Generated.this.Foo601[T]): Generated.this.Foo601[S] = { /* compiled code */ }
+
   type Foo602[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo602[T, S](s: Generated.this.Foo602[T]): Generated.this.Foo602[S] = { /* compiled code */ }
+
   type Foo603[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo603[T, S](s: Generated.this.Foo603[T]): Generated.this.Foo603[S] = { /* compiled code */ }
+
   type Foo604[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo604[T, S](s: Generated.this.Foo604[T]): Generated.this.Foo604[S] = { /* compiled code */ }
+
   type Foo605[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo605[T, S](s: Generated.this.Foo605[T]): Generated.this.Foo605[S] = { /* compiled code */ }
+
   type Foo606[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo606[T, S](s: Generated.this.Foo606[T]): Generated.this.Foo606[S] = { /* compiled code */ }
+
   type Foo607[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo607[T, S](s: Generated.this.Foo607[T]): Generated.this.Foo607[S] = { /* compiled code */ }
+
   type Foo608[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo608[T, S](s: Generated.this.Foo608[T]): Generated.this.Foo608[S] = { /* compiled code */ }
+
   type Foo609[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo609[T, S](s: Generated.this.Foo609[T]): Generated.this.Foo609[S] = { /* compiled code */ }
+
   type Foo610[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo610[T, S](s: Generated.this.Foo610[T]): Generated.this.Foo610[S] = { /* compiled code */ }
+
   type Foo611[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo611[T, S](s: Generated.this.Foo611[T]): Generated.this.Foo611[S] = { /* compiled code */ }
+
   type Foo612[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo612[T, S](s: Generated.this.Foo612[T]): Generated.this.Foo612[S] = { /* compiled code */ }
+
   type Foo613[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo613[T, S](s: Generated.this.Foo613[T]): Generated.this.Foo613[S] = { /* compiled code */ }
+
   type Foo614[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo614[T, S](s: Generated.this.Foo614[T]): Generated.this.Foo614[S] = { /* compiled code */ }
+
   type Foo615[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo615[T, S](s: Generated.this.Foo615[T]): Generated.this.Foo615[S] = { /* compiled code */ }
+
   type Foo616[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo616[T, S](s: Generated.this.Foo616[T]): Generated.this.Foo616[S] = { /* compiled code */ }
+
   type Foo617[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo617[T, S](s: Generated.this.Foo617[T]): Generated.this.Foo617[S] = { /* compiled code */ }
+
   type Foo618[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo618[T, S](s: Generated.this.Foo618[T]): Generated.this.Foo618[S] = { /* compiled code */ }
+
   type Foo619[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo619[T, S](s: Generated.this.Foo619[T]): Generated.this.Foo619[S] = { /* compiled code */ }
+
   type Foo620[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo620[T, S](s: Generated.this.Foo620[T]): Generated.this.Foo620[S] = { /* compiled code */ }
+
   type Foo621[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo621[T, S](s: Generated.this.Foo621[T]): Generated.this.Foo621[S] = { /* compiled code */ }
+
   type Foo622[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo622[T, S](s: Generated.this.Foo622[T]): Generated.this.Foo622[S] = { /* compiled code */ }
+
   type Foo623[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo623[T, S](s: Generated.this.Foo623[T]): Generated.this.Foo623[S] = { /* compiled code */ }
+
   type Foo624[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo624[T, S](s: Generated.this.Foo624[T]): Generated.this.Foo624[S] = { /* compiled code */ }
+
   type Foo625[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo625[T, S](s: Generated.this.Foo625[T]): Generated.this.Foo625[S] = { /* compiled code */ }
+
   type Foo626[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo626[T, S](s: Generated.this.Foo626[T]): Generated.this.Foo626[S] = { /* compiled code */ }
+
   type Foo627[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo627[T, S](s: Generated.this.Foo627[T]): Generated.this.Foo627[S] = { /* compiled code */ }
+
   type Foo628[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo628[T, S](s: Generated.this.Foo628[T]): Generated.this.Foo628[S] = { /* compiled code */ }
+
   type Foo629[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo629[T, S](s: Generated.this.Foo629[T]): Generated.this.Foo629[S] = { /* compiled code */ }
+
   type Foo630[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo630[T, S](s: Generated.this.Foo630[T]): Generated.this.Foo630[S] = { /* compiled code */ }
+
   type Foo631[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo631[T, S](s: Generated.this.Foo631[T]): Generated.this.Foo631[S] = { /* compiled code */ }
+
   type Foo632[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo632[T, S](s: Generated.this.Foo632[T]): Generated.this.Foo632[S] = { /* compiled code */ }
+
   type Foo633[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo633[T, S](s: Generated.this.Foo633[T]): Generated.this.Foo633[S] = { /* compiled code */ }
+
   type Foo634[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo634[T, S](s: Generated.this.Foo634[T]): Generated.this.Foo634[S] = { /* compiled code */ }
+
   type Foo635[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo635[T, S](s: Generated.this.Foo635[T]): Generated.this.Foo635[S] = { /* compiled code */ }
+
   type Foo636[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo636[T, S](s: Generated.this.Foo636[T]): Generated.this.Foo636[S] = { /* compiled code */ }
+
   type Foo637[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo637[T, S](s: Generated.this.Foo637[T]): Generated.this.Foo637[S] = { /* compiled code */ }
+
   type Foo638[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo638[T, S](s: Generated.this.Foo638[T]): Generated.this.Foo638[S] = { /* compiled code */ }
+
   type Foo639[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo639[T, S](s: Generated.this.Foo639[T]): Generated.this.Foo639[S] = { /* compiled code */ }
+
   type Foo640[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo640[T, S](s: Generated.this.Foo640[T]): Generated.this.Foo640[S] = { /* compiled code */ }
+
   type Foo641[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo641[T, S](s: Generated.this.Foo641[T]): Generated.this.Foo641[S] = { /* compiled code */ }
+
   type Foo642[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo642[T, S](s: Generated.this.Foo642[T]): Generated.this.Foo642[S] = { /* compiled code */ }
+
   type Foo643[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo643[T, S](s: Generated.this.Foo643[T]): Generated.this.Foo643[S] = { /* compiled code */ }
+
   type Foo644[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo644[T, S](s: Generated.this.Foo644[T]): Generated.this.Foo644[S] = { /* compiled code */ }
+
   type Foo645[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo645[T, S](s: Generated.this.Foo645[T]): Generated.this.Foo645[S] = { /* compiled code */ }
+
   type Foo646[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo646[T, S](s: Generated.this.Foo646[T]): Generated.this.Foo646[S] = { /* compiled code */ }
+
   type Foo647[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo647[T, S](s: Generated.this.Foo647[T]): Generated.this.Foo647[S] = { /* compiled code */ }
+
   type Foo648[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo648[T, S](s: Generated.this.Foo648[T]): Generated.this.Foo648[S] = { /* compiled code */ }
+
   type Foo649[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo649[T, S](s: Generated.this.Foo649[T]): Generated.this.Foo649[S] = { /* compiled code */ }
+
   type Foo650[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo650[T, S](s: Generated.this.Foo650[T]): Generated.this.Foo650[S] = { /* compiled code */ }
+
   type Foo651[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo651[T, S](s: Generated.this.Foo651[T]): Generated.this.Foo651[S] = { /* compiled code */ }
+
   type Foo652[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo652[T, S](s: Generated.this.Foo652[T]): Generated.this.Foo652[S] = { /* compiled code */ }
+
   type Foo653[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo653[T, S](s: Generated.this.Foo653[T]): Generated.this.Foo653[S] = { /* compiled code */ }
+
   type Foo654[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo654[T, S](s: Generated.this.Foo654[T]): Generated.this.Foo654[S] = { /* compiled code */ }
+
   type Foo655[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo655[T, S](s: Generated.this.Foo655[T]): Generated.this.Foo655[S] = { /* compiled code */ }
+
   type Foo656[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo656[T, S](s: Generated.this.Foo656[T]): Generated.this.Foo656[S] = { /* compiled code */ }
+
   type Foo657[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo657[T, S](s: Generated.this.Foo657[T]): Generated.this.Foo657[S] = { /* compiled code */ }
+
   type Foo658[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo658[T, S](s: Generated.this.Foo658[T]): Generated.this.Foo658[S] = { /* compiled code */ }
+
   type Foo659[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo659[T, S](s: Generated.this.Foo659[T]): Generated.this.Foo659[S] = { /* compiled code */ }
+
   type Foo660[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo660[T, S](s: Generated.this.Foo660[T]): Generated.this.Foo660[S] = { /* compiled code */ }
+
   type Foo661[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo661[T, S](s: Generated.this.Foo661[T]): Generated.this.Foo661[S] = { /* compiled code */ }
+
   type Foo662[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo662[T, S](s: Generated.this.Foo662[T]): Generated.this.Foo662[S] = { /* compiled code */ }
+
   type Foo663[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo663[T, S](s: Generated.this.Foo663[T]): Generated.this.Foo663[S] = { /* compiled code */ }
+
   type Foo664[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo664[T, S](s: Generated.this.Foo664[T]): Generated.this.Foo664[S] = { /* compiled code */ }
+
   type Foo665[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo665[T, S](s: Generated.this.Foo665[T]): Generated.this.Foo665[S] = { /* compiled code */ }
+
   type Foo666[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo666[T, S](s: Generated.this.Foo666[T]): Generated.this.Foo666[S] = { /* compiled code */ }
+
   type Foo667[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo667[T, S](s: Generated.this.Foo667[T]): Generated.this.Foo667[S] = { /* compiled code */ }
+
   type Foo668[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo668[T, S](s: Generated.this.Foo668[T]): Generated.this.Foo668[S] = { /* compiled code */ }
+
   type Foo669[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo669[T, S](s: Generated.this.Foo669[T]): Generated.this.Foo669[S] = { /* compiled code */ }
+
   type Foo670[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo670[T, S](s: Generated.this.Foo670[T]): Generated.this.Foo670[S] = { /* compiled code */ }
+
   type Foo671[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo671[T, S](s: Generated.this.Foo671[T]): Generated.this.Foo671[S] = { /* compiled code */ }
+
   type Foo672[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo672[T, S](s: Generated.this.Foo672[T]): Generated.this.Foo672[S] = { /* compiled code */ }
+
   type Foo673[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo673[T, S](s: Generated.this.Foo673[T]): Generated.this.Foo673[S] = { /* compiled code */ }
+
   type Foo674[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo674[T, S](s: Generated.this.Foo674[T]): Generated.this.Foo674[S] = { /* compiled code */ }
+
   type Foo675[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo675[T, S](s: Generated.this.Foo675[T]): Generated.this.Foo675[S] = { /* compiled code */ }
+
   type Foo676[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo676[T, S](s: Generated.this.Foo676[T]): Generated.this.Foo676[S] = { /* compiled code */ }
+
   type Foo677[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo677[T, S](s: Generated.this.Foo677[T]): Generated.this.Foo677[S] = { /* compiled code */ }
+
   type Foo678[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo678[T, S](s: Generated.this.Foo678[T]): Generated.this.Foo678[S] = { /* compiled code */ }
+
   type Foo679[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo679[T, S](s: Generated.this.Foo679[T]): Generated.this.Foo679[S] = { /* compiled code */ }
+
   type Foo680[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo680[T, S](s: Generated.this.Foo680[T]): Generated.this.Foo680[S] = { /* compiled code */ }
+
   type Foo681[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo681[T, S](s: Generated.this.Foo681[T]): Generated.this.Foo681[S] = { /* compiled code */ }
+
   type Foo682[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo682[T, S](s: Generated.this.Foo682[T]): Generated.this.Foo682[S] = { /* compiled code */ }
+
   type Foo683[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo683[T, S](s: Generated.this.Foo683[T]): Generated.this.Foo683[S] = { /* compiled code */ }
+
   type Foo684[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo684[T, S](s: Generated.this.Foo684[T]): Generated.this.Foo684[S] = { /* compiled code */ }
+
   type Foo685[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo685[T, S](s: Generated.this.Foo685[T]): Generated.this.Foo685[S] = { /* compiled code */ }
+
   type Foo686[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo686[T, S](s: Generated.this.Foo686[T]): Generated.this.Foo686[S] = { /* compiled code */ }
+
   type Foo687[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo687[T, S](s: Generated.this.Foo687[T]): Generated.this.Foo687[S] = { /* compiled code */ }
+
   type Foo688[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo688[T, S](s: Generated.this.Foo688[T]): Generated.this.Foo688[S] = { /* compiled code */ }
+
   type Foo689[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo689[T, S](s: Generated.this.Foo689[T]): Generated.this.Foo689[S] = { /* compiled code */ }
+
   type Foo690[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo690[T, S](s: Generated.this.Foo690[T]): Generated.this.Foo690[S] = { /* compiled code */ }
+
   type Foo691[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo691[T, S](s: Generated.this.Foo691[T]): Generated.this.Foo691[S] = { /* compiled code */ }
+
   type Foo692[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo692[T, S](s: Generated.this.Foo692[T]): Generated.this.Foo692[S] = { /* compiled code */ }
+
   type Foo693[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo693[T, S](s: Generated.this.Foo693[T]): Generated.this.Foo693[S] = { /* compiled code */ }
+
   type Foo694[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo694[T, S](s: Generated.this.Foo694[T]): Generated.this.Foo694[S] = { /* compiled code */ }
+
   type Foo695[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo695[T, S](s: Generated.this.Foo695[T]): Generated.this.Foo695[S] = { /* compiled code */ }
+
   type Foo696[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo696[T, S](s: Generated.this.Foo696[T]): Generated.this.Foo696[S] = { /* compiled code */ }
+
   type Foo697[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo697[T, S](s: Generated.this.Foo697[T]): Generated.this.Foo697[S] = { /* compiled code */ }
+
   type Foo698[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo698[T, S](s: Generated.this.Foo698[T]): Generated.this.Foo698[S] = { /* compiled code */ }
+
   type Foo699[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo699[T, S](s: Generated.this.Foo699[T]): Generated.this.Foo699[S] = { /* compiled code */ }
+
   type Foo700[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo700[T, S](s: Generated.this.Foo700[T]): Generated.this.Foo700[S] = { /* compiled code */ }
+
   type Foo701[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo701[T, S](s: Generated.this.Foo701[T]): Generated.this.Foo701[S] = { /* compiled code */ }
+
   type Foo702[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo702[T, S](s: Generated.this.Foo702[T]): Generated.this.Foo702[S] = { /* compiled code */ }
+
   type Foo703[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo703[T, S](s: Generated.this.Foo703[T]): Generated.this.Foo703[S] = { /* compiled code */ }
+
   type Foo704[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo704[T, S](s: Generated.this.Foo704[T]): Generated.this.Foo704[S] = { /* compiled code */ }
+
   type Foo705[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo705[T, S](s: Generated.this.Foo705[T]): Generated.this.Foo705[S] = { /* compiled code */ }
+
   type Foo706[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo706[T, S](s: Generated.this.Foo706[T]): Generated.this.Foo706[S] = { /* compiled code */ }
+
   type Foo707[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo707[T, S](s: Generated.this.Foo707[T]): Generated.this.Foo707[S] = { /* compiled code */ }
+
   type Foo708[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo708[T, S](s: Generated.this.Foo708[T]): Generated.this.Foo708[S] = { /* compiled code */ }
+
   type Foo709[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo709[T, S](s: Generated.this.Foo709[T]): Generated.this.Foo709[S] = { /* compiled code */ }
+
   type Foo710[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo710[T, S](s: Generated.this.Foo710[T]): Generated.this.Foo710[S] = { /* compiled code */ }
+
   type Foo711[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo711[T, S](s: Generated.this.Foo711[T]): Generated.this.Foo711[S] = { /* compiled code */ }
+
   type Foo712[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo712[T, S](s: Generated.this.Foo712[T]): Generated.this.Foo712[S] = { /* compiled code */ }
+
   type Foo713[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo713[T, S](s: Generated.this.Foo713[T]): Generated.this.Foo713[S] = { /* compiled code */ }
+
   type Foo714[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo714[T, S](s: Generated.this.Foo714[T]): Generated.this.Foo714[S] = { /* compiled code */ }
+
   type Foo715[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo715[T, S](s: Generated.this.Foo715[T]): Generated.this.Foo715[S] = { /* compiled code */ }
+
   type Foo716[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo716[T, S](s: Generated.this.Foo716[T]): Generated.this.Foo716[S] = { /* compiled code */ }
+
   type Foo717[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo717[T, S](s: Generated.this.Foo717[T]): Generated.this.Foo717[S] = { /* compiled code */ }
+
   type Foo718[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo718[T, S](s: Generated.this.Foo718[T]): Generated.this.Foo718[S] = { /* compiled code */ }
+
   type Foo719[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo719[T, S](s: Generated.this.Foo719[T]): Generated.this.Foo719[S] = { /* compiled code */ }
+
   type Foo720[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo720[T, S](s: Generated.this.Foo720[T]): Generated.this.Foo720[S] = { /* compiled code */ }
+
   type Foo721[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo721[T, S](s: Generated.this.Foo721[T]): Generated.this.Foo721[S] = { /* compiled code */ }
+
   type Foo722[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo722[T, S](s: Generated.this.Foo722[T]): Generated.this.Foo722[S] = { /* compiled code */ }
+
   type Foo723[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo723[T, S](s: Generated.this.Foo723[T]): Generated.this.Foo723[S] = { /* compiled code */ }
+
   type Foo724[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo724[T, S](s: Generated.this.Foo724[T]): Generated.this.Foo724[S] = { /* compiled code */ }
+
   type Foo725[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo725[T, S](s: Generated.this.Foo725[T]): Generated.this.Foo725[S] = { /* compiled code */ }
+
   type Foo726[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo726[T, S](s: Generated.this.Foo726[T]): Generated.this.Foo726[S] = { /* compiled code */ }
+
   type Foo727[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo727[T, S](s: Generated.this.Foo727[T]): Generated.this.Foo727[S] = { /* compiled code */ }
+
   type Foo728[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo728[T, S](s: Generated.this.Foo728[T]): Generated.this.Foo728[S] = { /* compiled code */ }
+
   type Foo729[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo729[T, S](s: Generated.this.Foo729[T]): Generated.this.Foo729[S] = { /* compiled code */ }
+
   type Foo730[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo730[T, S](s: Generated.this.Foo730[T]): Generated.this.Foo730[S] = { /* compiled code */ }
+
   type Foo731[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo731[T, S](s: Generated.this.Foo731[T]): Generated.this.Foo731[S] = { /* compiled code */ }
+
   type Foo732[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo732[T, S](s: Generated.this.Foo732[T]): Generated.this.Foo732[S] = { /* compiled code */ }
+
   type Foo733[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo733[T, S](s: Generated.this.Foo733[T]): Generated.this.Foo733[S] = { /* compiled code */ }
+
   type Foo734[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo734[T, S](s: Generated.this.Foo734[T]): Generated.this.Foo734[S] = { /* compiled code */ }
+
   type Foo735[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo735[T, S](s: Generated.this.Foo735[T]): Generated.this.Foo735[S] = { /* compiled code */ }
+
   type Foo736[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo736[T, S](s: Generated.this.Foo736[T]): Generated.this.Foo736[S] = { /* compiled code */ }
+
   type Foo737[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo737[T, S](s: Generated.this.Foo737[T]): Generated.this.Foo737[S] = { /* compiled code */ }
+
   type Foo738[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo738[T, S](s: Generated.this.Foo738[T]): Generated.this.Foo738[S] = { /* compiled code */ }
+
   type Foo739[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo739[T, S](s: Generated.this.Foo739[T]): Generated.this.Foo739[S] = { /* compiled code */ }
+
   type Foo740[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo740[T, S](s: Generated.this.Foo740[T]): Generated.this.Foo740[S] = { /* compiled code */ }
+
   type Foo741[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo741[T, S](s: Generated.this.Foo741[T]): Generated.this.Foo741[S] = { /* compiled code */ }
+
   type Foo742[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo742[T, S](s: Generated.this.Foo742[T]): Generated.this.Foo742[S] = { /* compiled code */ }
+
   type Foo743[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo743[T, S](s: Generated.this.Foo743[T]): Generated.this.Foo743[S] = { /* compiled code */ }
+
   type Foo744[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo744[T, S](s: Generated.this.Foo744[T]): Generated.this.Foo744[S] = { /* compiled code */ }
+
   type Foo745[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo745[T, S](s: Generated.this.Foo745[T]): Generated.this.Foo745[S] = { /* compiled code */ }
+
   type Foo746[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo746[T, S](s: Generated.this.Foo746[T]): Generated.this.Foo746[S] = { /* compiled code */ }
+
   type Foo747[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo747[T, S](s: Generated.this.Foo747[T]): Generated.this.Foo747[S] = { /* compiled code */ }
+
   type Foo748[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo748[T, S](s: Generated.this.Foo748[T]): Generated.this.Foo748[S] = { /* compiled code */ }
+
   type Foo749[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo749[T, S](s: Generated.this.Foo749[T]): Generated.this.Foo749[S] = { /* compiled code */ }
+
   type Foo750[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo750[T, S](s: Generated.this.Foo750[T]): Generated.this.Foo750[S] = { /* compiled code */ }
+
   type Foo751[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo751[T, S](s: Generated.this.Foo751[T]): Generated.this.Foo751[S] = { /* compiled code */ }
+
   type Foo752[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo752[T, S](s: Generated.this.Foo752[T]): Generated.this.Foo752[S] = { /* compiled code */ }
+
   type Foo753[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo753[T, S](s: Generated.this.Foo753[T]): Generated.this.Foo753[S] = { /* compiled code */ }
+
   type Foo754[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo754[T, S](s: Generated.this.Foo754[T]): Generated.this.Foo754[S] = { /* compiled code */ }
+
   type Foo755[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo755[T, S](s: Generated.this.Foo755[T]): Generated.this.Foo755[S] = { /* compiled code */ }
+
   type Foo756[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo756[T, S](s: Generated.this.Foo756[T]): Generated.this.Foo756[S] = { /* compiled code */ }
+
   type Foo757[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo757[T, S](s: Generated.this.Foo757[T]): Generated.this.Foo757[S] = { /* compiled code */ }
+
   type Foo758[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo758[T, S](s: Generated.this.Foo758[T]): Generated.this.Foo758[S] = { /* compiled code */ }
+
   type Foo759[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo759[T, S](s: Generated.this.Foo759[T]): Generated.this.Foo759[S] = { /* compiled code */ }
+
   type Foo760[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo760[T, S](s: Generated.this.Foo760[T]): Generated.this.Foo760[S] = { /* compiled code */ }
+
   type Foo761[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo761[T, S](s: Generated.this.Foo761[T]): Generated.this.Foo761[S] = { /* compiled code */ }
+
   type Foo762[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo762[T, S](s: Generated.this.Foo762[T]): Generated.this.Foo762[S] = { /* compiled code */ }
+
   type Foo763[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo763[T, S](s: Generated.this.Foo763[T]): Generated.this.Foo763[S] = { /* compiled code */ }
+
   type Foo764[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo764[T, S](s: Generated.this.Foo764[T]): Generated.this.Foo764[S] = { /* compiled code */ }
+
   type Foo765[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo765[T, S](s: Generated.this.Foo765[T]): Generated.this.Foo765[S] = { /* compiled code */ }
+
   type Foo766[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo766[T, S](s: Generated.this.Foo766[T]): Generated.this.Foo766[S] = { /* compiled code */ }
+
   type Foo767[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo767[T, S](s: Generated.this.Foo767[T]): Generated.this.Foo767[S] = { /* compiled code */ }
+
   type Foo768[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo768[T, S](s: Generated.this.Foo768[T]): Generated.this.Foo768[S] = { /* compiled code */ }
+
   type Foo769[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo769[T, S](s: Generated.this.Foo769[T]): Generated.this.Foo769[S] = { /* compiled code */ }
+
   type Foo770[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo770[T, S](s: Generated.this.Foo770[T]): Generated.this.Foo770[S] = { /* compiled code */ }
+
   type Foo771[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo771[T, S](s: Generated.this.Foo771[T]): Generated.this.Foo771[S] = { /* compiled code */ }
+
   type Foo772[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo772[T, S](s: Generated.this.Foo772[T]): Generated.this.Foo772[S] = { /* compiled code */ }
+
   type Foo773[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo773[T, S](s: Generated.this.Foo773[T]): Generated.this.Foo773[S] = { /* compiled code */ }
+
   type Foo774[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo774[T, S](s: Generated.this.Foo774[T]): Generated.this.Foo774[S] = { /* compiled code */ }
+
   type Foo775[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo775[T, S](s: Generated.this.Foo775[T]): Generated.this.Foo775[S] = { /* compiled code */ }
+
   type Foo776[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo776[T, S](s: Generated.this.Foo776[T]): Generated.this.Foo776[S] = { /* compiled code */ }
+
   type Foo777[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo777[T, S](s: Generated.this.Foo777[T]): Generated.this.Foo777[S] = { /* compiled code */ }
+
   type Foo778[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo778[T, S](s: Generated.this.Foo778[T]): Generated.this.Foo778[S] = { /* compiled code */ }
+
   type Foo779[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo779[T, S](s: Generated.this.Foo779[T]): Generated.this.Foo779[S] = { /* compiled code */ }
+
   type Foo780[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo780[T, S](s: Generated.this.Foo780[T]): Generated.this.Foo780[S] = { /* compiled code */ }
+
   type Foo781[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo781[T, S](s: Generated.this.Foo781[T]): Generated.this.Foo781[S] = { /* compiled code */ }
+
   type Foo782[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo782[T, S](s: Generated.this.Foo782[T]): Generated.this.Foo782[S] = { /* compiled code */ }
+
   type Foo783[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo783[T, S](s: Generated.this.Foo783[T]): Generated.this.Foo783[S] = { /* compiled code */ }
+
   type Foo784[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo784[T, S](s: Generated.this.Foo784[T]): Generated.this.Foo784[S] = { /* compiled code */ }
+
   type Foo785[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo785[T, S](s: Generated.this.Foo785[T]): Generated.this.Foo785[S] = { /* compiled code */ }
+
   type Foo786[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo786[T, S](s: Generated.this.Foo786[T]): Generated.this.Foo786[S] = { /* compiled code */ }
+
   type Foo787[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo787[T, S](s: Generated.this.Foo787[T]): Generated.this.Foo787[S] = { /* compiled code */ }
+
   type Foo788[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo788[T, S](s: Generated.this.Foo788[T]): Generated.this.Foo788[S] = { /* compiled code */ }
+
   type Foo789[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo789[T, S](s: Generated.this.Foo789[T]): Generated.this.Foo789[S] = { /* compiled code */ }
+
   type Foo790[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo790[T, S](s: Generated.this.Foo790[T]): Generated.this.Foo790[S] = { /* compiled code */ }
+
   type Foo791[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo791[T, S](s: Generated.this.Foo791[T]): Generated.this.Foo791[S] = { /* compiled code */ }
+
   type Foo792[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo792[T, S](s: Generated.this.Foo792[T]): Generated.this.Foo792[S] = { /* compiled code */ }
+
   type Foo793[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo793[T, S](s: Generated.this.Foo793[T]): Generated.this.Foo793[S] = { /* compiled code */ }
+
   type Foo794[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo794[T, S](s: Generated.this.Foo794[T]): Generated.this.Foo794[S] = { /* compiled code */ }
+
   type Foo795[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo795[T, S](s: Generated.this.Foo795[T]): Generated.this.Foo795[S] = { /* compiled code */ }
+
   type Foo796[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo796[T, S](s: Generated.this.Foo796[T]): Generated.this.Foo796[S] = { /* compiled code */ }
+
   type Foo797[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo797[T, S](s: Generated.this.Foo797[T]): Generated.this.Foo797[S] = { /* compiled code */ }
+
   type Foo798[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo798[T, S](s: Generated.this.Foo798[T]): Generated.this.Foo798[S] = { /* compiled code */ }
+
   type Foo799[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo799[T, S](s: Generated.this.Foo799[T]): Generated.this.Foo799[S] = { /* compiled code */ }
+
   type Foo800[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo800[T, S](s: Generated.this.Foo800[T]): Generated.this.Foo800[S] = { /* compiled code */ }
+
   type Foo801[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo801[T, S](s: Generated.this.Foo801[T]): Generated.this.Foo801[S] = { /* compiled code */ }
+
   type Foo802[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo802[T, S](s: Generated.this.Foo802[T]): Generated.this.Foo802[S] = { /* compiled code */ }
+
   type Foo803[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo803[T, S](s: Generated.this.Foo803[T]): Generated.this.Foo803[S] = { /* compiled code */ }
+
   type Foo804[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo804[T, S](s: Generated.this.Foo804[T]): Generated.this.Foo804[S] = { /* compiled code */ }
+
   type Foo805[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo805[T, S](s: Generated.this.Foo805[T]): Generated.this.Foo805[S] = { /* compiled code */ }
+
   type Foo806[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo806[T, S](s: Generated.this.Foo806[T]): Generated.this.Foo806[S] = { /* compiled code */ }
+
   type Foo807[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo807[T, S](s: Generated.this.Foo807[T]): Generated.this.Foo807[S] = { /* compiled code */ }
+
   type Foo808[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo808[T, S](s: Generated.this.Foo808[T]): Generated.this.Foo808[S] = { /* compiled code */ }
+
   type Foo809[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo809[T, S](s: Generated.this.Foo809[T]): Generated.this.Foo809[S] = { /* compiled code */ }
+
   type Foo810[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo810[T, S](s: Generated.this.Foo810[T]): Generated.this.Foo810[S] = { /* compiled code */ }
+
   type Foo811[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo811[T, S](s: Generated.this.Foo811[T]): Generated.this.Foo811[S] = { /* compiled code */ }
+
   type Foo812[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo812[T, S](s: Generated.this.Foo812[T]): Generated.this.Foo812[S] = { /* compiled code */ }
+
   type Foo813[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo813[T, S](s: Generated.this.Foo813[T]): Generated.this.Foo813[S] = { /* compiled code */ }
+
   type Foo814[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo814[T, S](s: Generated.this.Foo814[T]): Generated.this.Foo814[S] = { /* compiled code */ }
+
   type Foo815[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo815[T, S](s: Generated.this.Foo815[T]): Generated.this.Foo815[S] = { /* compiled code */ }
+
   type Foo816[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo816[T, S](s: Generated.this.Foo816[T]): Generated.this.Foo816[S] = { /* compiled code */ }
+
   type Foo817[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo817[T, S](s: Generated.this.Foo817[T]): Generated.this.Foo817[S] = { /* compiled code */ }
+
   type Foo818[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo818[T, S](s: Generated.this.Foo818[T]): Generated.this.Foo818[S] = { /* compiled code */ }
+
   type Foo819[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo819[T, S](s: Generated.this.Foo819[T]): Generated.this.Foo819[S] = { /* compiled code */ }
+
   type Foo820[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo820[T, S](s: Generated.this.Foo820[T]): Generated.this.Foo820[S] = { /* compiled code */ }
+
   type Foo821[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo821[T, S](s: Generated.this.Foo821[T]): Generated.this.Foo821[S] = { /* compiled code */ }
+
   type Foo822[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo822[T, S](s: Generated.this.Foo822[T]): Generated.this.Foo822[S] = { /* compiled code */ }
+
   type Foo823[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo823[T, S](s: Generated.this.Foo823[T]): Generated.this.Foo823[S] = { /* compiled code */ }
+
   type Foo824[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo824[T, S](s: Generated.this.Foo824[T]): Generated.this.Foo824[S] = { /* compiled code */ }
+
   type Foo825[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo825[T, S](s: Generated.this.Foo825[T]): Generated.this.Foo825[S] = { /* compiled code */ }
+
   type Foo826[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo826[T, S](s: Generated.this.Foo826[T]): Generated.this.Foo826[S] = { /* compiled code */ }
+
   type Foo827[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo827[T, S](s: Generated.this.Foo827[T]): Generated.this.Foo827[S] = { /* compiled code */ }
+
   type Foo828[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo828[T, S](s: Generated.this.Foo828[T]): Generated.this.Foo828[S] = { /* compiled code */ }
+
   type Foo829[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo829[T, S](s: Generated.this.Foo829[T]): Generated.this.Foo829[S] = { /* compiled code */ }
+
   type Foo830[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo830[T, S](s: Generated.this.Foo830[T]): Generated.this.Foo830[S] = { /* compiled code */ }
+
   type Foo831[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo831[T, S](s: Generated.this.Foo831[T]): Generated.this.Foo831[S] = { /* compiled code */ }
+
   type Foo832[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo832[T, S](s: Generated.this.Foo832[T]): Generated.this.Foo832[S] = { /* compiled code */ }
+
   type Foo833[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo833[T, S](s: Generated.this.Foo833[T]): Generated.this.Foo833[S] = { /* compiled code */ }
+
   type Foo834[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo834[T, S](s: Generated.this.Foo834[T]): Generated.this.Foo834[S] = { /* compiled code */ }
+
   type Foo835[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo835[T, S](s: Generated.this.Foo835[T]): Generated.this.Foo835[S] = { /* compiled code */ }
+
   type Foo836[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo836[T, S](s: Generated.this.Foo836[T]): Generated.this.Foo836[S] = { /* compiled code */ }
+
   type Foo837[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo837[T, S](s: Generated.this.Foo837[T]): Generated.this.Foo837[S] = { /* compiled code */ }
+
   type Foo838[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo838[T, S](s: Generated.this.Foo838[T]): Generated.this.Foo838[S] = { /* compiled code */ }
+
   type Foo839[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo839[T, S](s: Generated.this.Foo839[T]): Generated.this.Foo839[S] = { /* compiled code */ }
+
   type Foo840[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo840[T, S](s: Generated.this.Foo840[T]): Generated.this.Foo840[S] = { /* compiled code */ }
+
   type Foo841[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo841[T, S](s: Generated.this.Foo841[T]): Generated.this.Foo841[S] = { /* compiled code */ }
+
   type Foo842[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo842[T, S](s: Generated.this.Foo842[T]): Generated.this.Foo842[S] = { /* compiled code */ }
+
   type Foo843[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo843[T, S](s: Generated.this.Foo843[T]): Generated.this.Foo843[S] = { /* compiled code */ }
+
   type Foo844[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo844[T, S](s: Generated.this.Foo844[T]): Generated.this.Foo844[S] = { /* compiled code */ }
+
   type Foo845[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo845[T, S](s: Generated.this.Foo845[T]): Generated.this.Foo845[S] = { /* compiled code */ }
+
   type Foo846[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo846[T, S](s: Generated.this.Foo846[T]): Generated.this.Foo846[S] = { /* compiled code */ }
+
   type Foo847[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo847[T, S](s: Generated.this.Foo847[T]): Generated.this.Foo847[S] = { /* compiled code */ }
+
   type Foo848[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo848[T, S](s: Generated.this.Foo848[T]): Generated.this.Foo848[S] = { /* compiled code */ }
+
   type Foo849[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo849[T, S](s: Generated.this.Foo849[T]): Generated.this.Foo849[S] = { /* compiled code */ }
+
   type Foo850[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo850[T, S](s: Generated.this.Foo850[T]): Generated.this.Foo850[S] = { /* compiled code */ }
+
   type Foo851[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo851[T, S](s: Generated.this.Foo851[T]): Generated.this.Foo851[S] = { /* compiled code */ }
+
   type Foo852[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo852[T, S](s: Generated.this.Foo852[T]): Generated.this.Foo852[S] = { /* compiled code */ }
+
   type Foo853[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo853[T, S](s: Generated.this.Foo853[T]): Generated.this.Foo853[S] = { /* compiled code */ }
+
   type Foo854[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo854[T, S](s: Generated.this.Foo854[T]): Generated.this.Foo854[S] = { /* compiled code */ }
+
   type Foo855[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo855[T, S](s: Generated.this.Foo855[T]): Generated.this.Foo855[S] = { /* compiled code */ }
+
   type Foo856[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo856[T, S](s: Generated.this.Foo856[T]): Generated.this.Foo856[S] = { /* compiled code */ }
+
   type Foo857[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo857[T, S](s: Generated.this.Foo857[T]): Generated.this.Foo857[S] = { /* compiled code */ }
+
   type Foo858[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo858[T, S](s: Generated.this.Foo858[T]): Generated.this.Foo858[S] = { /* compiled code */ }
+
   type Foo859[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo859[T, S](s: Generated.this.Foo859[T]): Generated.this.Foo859[S] = { /* compiled code */ }
+
   type Foo860[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo860[T, S](s: Generated.this.Foo860[T]): Generated.this.Foo860[S] = { /* compiled code */ }
+
   type Foo861[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo861[T, S](s: Generated.this.Foo861[T]): Generated.this.Foo861[S] = { /* compiled code */ }
+
   type Foo862[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo862[T, S](s: Generated.this.Foo862[T]): Generated.this.Foo862[S] = { /* compiled code */ }
+
   type Foo863[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo863[T, S](s: Generated.this.Foo863[T]): Generated.this.Foo863[S] = { /* compiled code */ }
+
   type Foo864[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo864[T, S](s: Generated.this.Foo864[T]): Generated.this.Foo864[S] = { /* compiled code */ }
+
   type Foo865[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo865[T, S](s: Generated.this.Foo865[T]): Generated.this.Foo865[S] = { /* compiled code */ }
+
   type Foo866[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo866[T, S](s: Generated.this.Foo866[T]): Generated.this.Foo866[S] = { /* compiled code */ }
+
   type Foo867[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo867[T, S](s: Generated.this.Foo867[T]): Generated.this.Foo867[S] = { /* compiled code */ }
+
   type Foo868[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo868[T, S](s: Generated.this.Foo868[T]): Generated.this.Foo868[S] = { /* compiled code */ }
+
   type Foo869[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo869[T, S](s: Generated.this.Foo869[T]): Generated.this.Foo869[S] = { /* compiled code */ }
+
   type Foo870[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo870[T, S](s: Generated.this.Foo870[T]): Generated.this.Foo870[S] = { /* compiled code */ }
+
   type Foo871[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo871[T, S](s: Generated.this.Foo871[T]): Generated.this.Foo871[S] = { /* compiled code */ }
+
   type Foo872[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo872[T, S](s: Generated.this.Foo872[T]): Generated.this.Foo872[S] = { /* compiled code */ }
+
   type Foo873[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo873[T, S](s: Generated.this.Foo873[T]): Generated.this.Foo873[S] = { /* compiled code */ }
+
   type Foo874[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo874[T, S](s: Generated.this.Foo874[T]): Generated.this.Foo874[S] = { /* compiled code */ }
+
   type Foo875[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo875[T, S](s: Generated.this.Foo875[T]): Generated.this.Foo875[S] = { /* compiled code */ }
+
   type Foo876[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo876[T, S](s: Generated.this.Foo876[T]): Generated.this.Foo876[S] = { /* compiled code */ }
+
   type Foo877[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo877[T, S](s: Generated.this.Foo877[T]): Generated.this.Foo877[S] = { /* compiled code */ }
+
   type Foo878[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo878[T, S](s: Generated.this.Foo878[T]): Generated.this.Foo878[S] = { /* compiled code */ }
+
   type Foo879[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo879[T, S](s: Generated.this.Foo879[T]): Generated.this.Foo879[S] = { /* compiled code */ }
+
   type Foo880[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo880[T, S](s: Generated.this.Foo880[T]): Generated.this.Foo880[S] = { /* compiled code */ }
+
   type Foo881[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo881[T, S](s: Generated.this.Foo881[T]): Generated.this.Foo881[S] = { /* compiled code */ }
+
   type Foo882[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo882[T, S](s: Generated.this.Foo882[T]): Generated.this.Foo882[S] = { /* compiled code */ }
+
   type Foo883[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo883[T, S](s: Generated.this.Foo883[T]): Generated.this.Foo883[S] = { /* compiled code */ }
+
   type Foo884[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo884[T, S](s: Generated.this.Foo884[T]): Generated.this.Foo884[S] = { /* compiled code */ }
+
   type Foo885[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo885[T, S](s: Generated.this.Foo885[T]): Generated.this.Foo885[S] = { /* compiled code */ }
+
   type Foo886[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo886[T, S](s: Generated.this.Foo886[T]): Generated.this.Foo886[S] = { /* compiled code */ }
+
   type Foo887[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo887[T, S](s: Generated.this.Foo887[T]): Generated.this.Foo887[S] = { /* compiled code */ }
+
   type Foo888[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo888[T, S](s: Generated.this.Foo888[T]): Generated.this.Foo888[S] = { /* compiled code */ }
+
   type Foo889[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo889[T, S](s: Generated.this.Foo889[T]): Generated.this.Foo889[S] = { /* compiled code */ }
+
   type Foo890[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo890[T, S](s: Generated.this.Foo890[T]): Generated.this.Foo890[S] = { /* compiled code */ }
+
   type Foo891[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo891[T, S](s: Generated.this.Foo891[T]): Generated.this.Foo891[S] = { /* compiled code */ }
+
   type Foo892[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo892[T, S](s: Generated.this.Foo892[T]): Generated.this.Foo892[S] = { /* compiled code */ }
+
   type Foo893[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo893[T, S](s: Generated.this.Foo893[T]): Generated.this.Foo893[S] = { /* compiled code */ }
+
   type Foo894[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo894[T, S](s: Generated.this.Foo894[T]): Generated.this.Foo894[S] = { /* compiled code */ }
+
   type Foo895[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo895[T, S](s: Generated.this.Foo895[T]): Generated.this.Foo895[S] = { /* compiled code */ }
+
   type Foo896[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo896[T, S](s: Generated.this.Foo896[T]): Generated.this.Foo896[S] = { /* compiled code */ }
+
   type Foo897[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo897[T, S](s: Generated.this.Foo897[T]): Generated.this.Foo897[S] = { /* compiled code */ }
+
   type Foo898[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo898[T, S](s: Generated.this.Foo898[T]): Generated.this.Foo898[S] = { /* compiled code */ }
+
   type Foo899[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo899[T, S](s: Generated.this.Foo899[T]): Generated.this.Foo899[S] = { /* compiled code */ }
+
   type Foo900[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo900[T, S](s: Generated.this.Foo900[T]): Generated.this.Foo900[S] = { /* compiled code */ }
+
   type Foo901[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo901[T, S](s: Generated.this.Foo901[T]): Generated.this.Foo901[S] = { /* compiled code */ }
+
   type Foo902[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo902[T, S](s: Generated.this.Foo902[T]): Generated.this.Foo902[S] = { /* compiled code */ }
+
   type Foo903[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo903[T, S](s: Generated.this.Foo903[T]): Generated.this.Foo903[S] = { /* compiled code */ }
+
   type Foo904[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo904[T, S](s: Generated.this.Foo904[T]): Generated.this.Foo904[S] = { /* compiled code */ }
+
   type Foo905[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo905[T, S](s: Generated.this.Foo905[T]): Generated.this.Foo905[S] = { /* compiled code */ }
+
   type Foo906[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo906[T, S](s: Generated.this.Foo906[T]): Generated.this.Foo906[S] = { /* compiled code */ }
+
   type Foo907[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo907[T, S](s: Generated.this.Foo907[T]): Generated.this.Foo907[S] = { /* compiled code */ }
+
   type Foo908[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo908[T, S](s: Generated.this.Foo908[T]): Generated.this.Foo908[S] = { /* compiled code */ }
+
   type Foo909[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo909[T, S](s: Generated.this.Foo909[T]): Generated.this.Foo909[S] = { /* compiled code */ }
+
   type Foo910[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo910[T, S](s: Generated.this.Foo910[T]): Generated.this.Foo910[S] = { /* compiled code */ }
+
   type Foo911[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo911[T, S](s: Generated.this.Foo911[T]): Generated.this.Foo911[S] = { /* compiled code */ }
+
   type Foo912[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo912[T, S](s: Generated.this.Foo912[T]): Generated.this.Foo912[S] = { /* compiled code */ }
+
   type Foo913[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo913[T, S](s: Generated.this.Foo913[T]): Generated.this.Foo913[S] = { /* compiled code */ }
+
   type Foo914[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo914[T, S](s: Generated.this.Foo914[T]): Generated.this.Foo914[S] = { /* compiled code */ }
+
   type Foo915[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo915[T, S](s: Generated.this.Foo915[T]): Generated.this.Foo915[S] = { /* compiled code */ }
+
   type Foo916[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo916[T, S](s: Generated.this.Foo916[T]): Generated.this.Foo916[S] = { /* compiled code */ }
+
   type Foo917[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo917[T, S](s: Generated.this.Foo917[T]): Generated.this.Foo917[S] = { /* compiled code */ }
+
   type Foo918[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo918[T, S](s: Generated.this.Foo918[T]): Generated.this.Foo918[S] = { /* compiled code */ }
+
   type Foo919[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo919[T, S](s: Generated.this.Foo919[T]): Generated.this.Foo919[S] = { /* compiled code */ }
+
   type Foo920[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo920[T, S](s: Generated.this.Foo920[T]): Generated.this.Foo920[S] = { /* compiled code */ }
+
   type Foo921[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo921[T, S](s: Generated.this.Foo921[T]): Generated.this.Foo921[S] = { /* compiled code */ }
+
   type Foo922[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo922[T, S](s: Generated.this.Foo922[T]): Generated.this.Foo922[S] = { /* compiled code */ }
+
   type Foo923[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo923[T, S](s: Generated.this.Foo923[T]): Generated.this.Foo923[S] = { /* compiled code */ }
+
   type Foo924[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo924[T, S](s: Generated.this.Foo924[T]): Generated.this.Foo924[S] = { /* compiled code */ }
+
   type Foo925[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo925[T, S](s: Generated.this.Foo925[T]): Generated.this.Foo925[S] = { /* compiled code */ }
+
   type Foo926[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo926[T, S](s: Generated.this.Foo926[T]): Generated.this.Foo926[S] = { /* compiled code */ }
+
   type Foo927[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo927[T, S](s: Generated.this.Foo927[T]): Generated.this.Foo927[S] = { /* compiled code */ }
+
   type Foo928[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo928[T, S](s: Generated.this.Foo928[T]): Generated.this.Foo928[S] = { /* compiled code */ }
+
   type Foo929[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo929[T, S](s: Generated.this.Foo929[T]): Generated.this.Foo929[S] = { /* compiled code */ }
+
   type Foo930[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo930[T, S](s: Generated.this.Foo930[T]): Generated.this.Foo930[S] = { /* compiled code */ }
+
   type Foo931[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo931[T, S](s: Generated.this.Foo931[T]): Generated.this.Foo931[S] = { /* compiled code */ }
+
   type Foo932[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo932[T, S](s: Generated.this.Foo932[T]): Generated.this.Foo932[S] = { /* compiled code */ }
+
   type Foo933[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo933[T, S](s: Generated.this.Foo933[T]): Generated.this.Foo933[S] = { /* compiled code */ }
+
   type Foo934[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo934[T, S](s: Generated.this.Foo934[T]): Generated.this.Foo934[S] = { /* compiled code */ }
+
   type Foo935[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo935[T, S](s: Generated.this.Foo935[T]): Generated.this.Foo935[S] = { /* compiled code */ }
+
   type Foo936[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo936[T, S](s: Generated.this.Foo936[T]): Generated.this.Foo936[S] = { /* compiled code */ }
+
   type Foo937[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo937[T, S](s: Generated.this.Foo937[T]): Generated.this.Foo937[S] = { /* compiled code */ }
+
   type Foo938[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo938[T, S](s: Generated.this.Foo938[T]): Generated.this.Foo938[S] = { /* compiled code */ }
+
   type Foo939[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo939[T, S](s: Generated.this.Foo939[T]): Generated.this.Foo939[S] = { /* compiled code */ }
+
   type Foo940[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo940[T, S](s: Generated.this.Foo940[T]): Generated.this.Foo940[S] = { /* compiled code */ }
+
   type Foo941[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo941[T, S](s: Generated.this.Foo941[T]): Generated.this.Foo941[S] = { /* compiled code */ }
+
   type Foo942[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo942[T, S](s: Generated.this.Foo942[T]): Generated.this.Foo942[S] = { /* compiled code */ }
+
   type Foo943[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo943[T, S](s: Generated.this.Foo943[T]): Generated.this.Foo943[S] = { /* compiled code */ }
+
   type Foo944[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo944[T, S](s: Generated.this.Foo944[T]): Generated.this.Foo944[S] = { /* compiled code */ }
+
   type Foo945[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo945[T, S](s: Generated.this.Foo945[T]): Generated.this.Foo945[S] = { /* compiled code */ }
+
   type Foo946[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo946[T, S](s: Generated.this.Foo946[T]): Generated.this.Foo946[S] = { /* compiled code */ }
+
   type Foo947[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo947[T, S](s: Generated.this.Foo947[T]): Generated.this.Foo947[S] = { /* compiled code */ }
+
   type Foo948[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo948[T, S](s: Generated.this.Foo948[T]): Generated.this.Foo948[S] = { /* compiled code */ }
+
   type Foo949[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo949[T, S](s: Generated.this.Foo949[T]): Generated.this.Foo949[S] = { /* compiled code */ }
+
   type Foo950[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo950[T, S](s: Generated.this.Foo950[T]): Generated.this.Foo950[S] = { /* compiled code */ }
+
   type Foo951[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo951[T, S](s: Generated.this.Foo951[T]): Generated.this.Foo951[S] = { /* compiled code */ }
+
   type Foo952[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo952[T, S](s: Generated.this.Foo952[T]): Generated.this.Foo952[S] = { /* compiled code */ }
+
   type Foo953[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo953[T, S](s: Generated.this.Foo953[T]): Generated.this.Foo953[S] = { /* compiled code */ }
+
   type Foo954[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo954[T, S](s: Generated.this.Foo954[T]): Generated.this.Foo954[S] = { /* compiled code */ }
+
   type Foo955[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo955[T, S](s: Generated.this.Foo955[T]): Generated.this.Foo955[S] = { /* compiled code */ }
+
   type Foo956[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo956[T, S](s: Generated.this.Foo956[T]): Generated.this.Foo956[S] = { /* compiled code */ }
+
   type Foo957[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo957[T, S](s: Generated.this.Foo957[T]): Generated.this.Foo957[S] = { /* compiled code */ }
+
   type Foo958[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo958[T, S](s: Generated.this.Foo958[T]): Generated.this.Foo958[S] = { /* compiled code */ }
+
   type Foo959[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo959[T, S](s: Generated.this.Foo959[T]): Generated.this.Foo959[S] = { /* compiled code */ }
+
   type Foo960[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo960[T, S](s: Generated.this.Foo960[T]): Generated.this.Foo960[S] = { /* compiled code */ }
+
   type Foo961[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo961[T, S](s: Generated.this.Foo961[T]): Generated.this.Foo961[S] = { /* compiled code */ }
+
   type Foo962[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo962[T, S](s: Generated.this.Foo962[T]): Generated.this.Foo962[S] = { /* compiled code */ }
+
   type Foo963[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo963[T, S](s: Generated.this.Foo963[T]): Generated.this.Foo963[S] = { /* compiled code */ }
+
   type Foo964[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo964[T, S](s: Generated.this.Foo964[T]): Generated.this.Foo964[S] = { /* compiled code */ }
+
   type Foo965[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo965[T, S](s: Generated.this.Foo965[T]): Generated.this.Foo965[S] = { /* compiled code */ }
+
   type Foo966[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo966[T, S](s: Generated.this.Foo966[T]): Generated.this.Foo966[S] = { /* compiled code */ }
+
   type Foo967[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo967[T, S](s: Generated.this.Foo967[T]): Generated.this.Foo967[S] = { /* compiled code */ }
+
   type Foo968[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo968[T, S](s: Generated.this.Foo968[T]): Generated.this.Foo968[S] = { /* compiled code */ }
+
   type Foo969[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo969[T, S](s: Generated.this.Foo969[T]): Generated.this.Foo969[S] = { /* compiled code */ }
+
   type Foo970[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo970[T, S](s: Generated.this.Foo970[T]): Generated.this.Foo970[S] = { /* compiled code */ }
+
   type Foo971[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo971[T, S](s: Generated.this.Foo971[T]): Generated.this.Foo971[S] = { /* compiled code */ }
+
   type Foo972[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo972[T, S](s: Generated.this.Foo972[T]): Generated.this.Foo972[S] = { /* compiled code */ }
+
   type Foo973[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo973[T, S](s: Generated.this.Foo973[T]): Generated.this.Foo973[S] = { /* compiled code */ }
+
   type Foo974[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo974[T, S](s: Generated.this.Foo974[T]): Generated.this.Foo974[S] = { /* compiled code */ }
+
   type Foo975[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo975[T, S](s: Generated.this.Foo975[T]): Generated.this.Foo975[S] = { /* compiled code */ }
+
   type Foo976[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo976[T, S](s: Generated.this.Foo976[T]): Generated.this.Foo976[S] = { /* compiled code */ }
+
   type Foo977[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo977[T, S](s: Generated.this.Foo977[T]): Generated.this.Foo977[S] = { /* compiled code */ }
+
   type Foo978[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo978[T, S](s: Generated.this.Foo978[T]): Generated.this.Foo978[S] = { /* compiled code */ }
+
   type Foo979[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo979[T, S](s: Generated.this.Foo979[T]): Generated.this.Foo979[S] = { /* compiled code */ }
+
   type Foo980[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo980[T, S](s: Generated.this.Foo980[T]): Generated.this.Foo980[S] = { /* compiled code */ }
+
   type Foo981[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo981[T, S](s: Generated.this.Foo981[T]): Generated.this.Foo981[S] = { /* compiled code */ }
+
   type Foo982[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo982[T, S](s: Generated.this.Foo982[T]): Generated.this.Foo982[S] = { /* compiled code */ }
+
   type Foo983[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo983[T, S](s: Generated.this.Foo983[T]): Generated.this.Foo983[S] = { /* compiled code */ }
+
   type Foo984[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo984[T, S](s: Generated.this.Foo984[T]): Generated.this.Foo984[S] = { /* compiled code */ }
+
   type Foo985[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo985[T, S](s: Generated.this.Foo985[T]): Generated.this.Foo985[S] = { /* compiled code */ }
+
   type Foo986[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo986[T, S](s: Generated.this.Foo986[T]): Generated.this.Foo986[S] = { /* compiled code */ }
+
   type Foo987[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo987[T, S](s: Generated.this.Foo987[T]): Generated.this.Foo987[S] = { /* compiled code */ }
+
   type Foo988[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo988[T, S](s: Generated.this.Foo988[T]): Generated.this.Foo988[S] = { /* compiled code */ }
+
   type Foo989[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo989[T, S](s: Generated.this.Foo989[T]): Generated.this.Foo989[S] = { /* compiled code */ }
+
   type Foo990[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo990[T, S](s: Generated.this.Foo990[T]): Generated.this.Foo990[S] = { /* compiled code */ }
+
   type Foo991[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo991[T, S](s: Generated.this.Foo991[T]): Generated.this.Foo991[S] = { /* compiled code */ }
+
   type Foo992[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo992[T, S](s: Generated.this.Foo992[T]): Generated.this.Foo992[S] = { /* compiled code */ }
+
   type Foo993[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo993[T, S](s: Generated.this.Foo993[T]): Generated.this.Foo993[S] = { /* compiled code */ }
+
   type Foo994[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo994[T, S](s: Generated.this.Foo994[T]): Generated.this.Foo994[S] = { /* compiled code */ }
+
   type Foo995[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo995[T, S](s: Generated.this.Foo995[T]): Generated.this.Foo995[S] = { /* compiled code */ }
+
   type Foo996[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo996[T, S](s: Generated.this.Foo996[T]): Generated.this.Foo996[S] = { /* compiled code */ }
+
   type Foo997[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo997[T, S](s: Generated.this.Foo997[T]): Generated.this.Foo997[S] = { /* compiled code */ }
+
   type Foo998[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo998[T, S](s: Generated.this.Foo998[T]): Generated.this.Foo998[S] = { /* compiled code */ }
+
   type Foo999[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo999[T, S](s: Generated.this.Foo999[T]): Generated.this.Foo999[S] = { /* compiled code */ }
+
   type Foo1000[_] = scala.Predef.Map[_, scala.Predef.String]
+
   def foo1000[T, S](s: Generated.this.Foo1000[T]): Generated.this.Foo1000[S] = { /* compiled code */ }
 }

@@ -1,37 +1,69 @@
 package scala.collection.immutable
+
 trait StringLike[+Repr] extends scala.Any with scala.collection.IndexedSeqOptimized[scala.Char, Repr] with scala.Ordered[scala.Predef.String] { this: scala.collection.immutable.StringLike[Repr] =>
   protected[this] def newBuilder: scala.collection.mutable.Builder[scala.Char, Repr]
+
   def apply(n: scala.Int): scala.Char = { /* compiled code */ }
+
   def length: scala.Int = { /* compiled code */ }
+
   override def mkString: scala.Predef.String = { /* compiled code */ }
+
   override def slice(from: scala.Int, until: scala.Int): Repr = { /* compiled code */ }
+
   def *(n: scala.Int): scala.Predef.String = { /* compiled code */ }
+
   override def compare(other: scala.Predef.String): scala.Int = { /* compiled code */ }
+
   def stripLineEnd: scala.Predef.String = { /* compiled code */ }
+
   def linesWithSeparators: scala.collection.Iterator[scala.Predef.String] = { /* compiled code */ }
+
   def lines: scala.collection.Iterator[scala.Predef.String] = { /* compiled code */ }
+
   @scala.deprecated("Use `lines` instead.", "2.11.0")
   def linesIterator: scala.collection.Iterator[scala.Predef.String] = { /* compiled code */ }
+
   def capitalize: scala.Predef.String = { /* compiled code */ }
+
   def stripPrefix(prefix: scala.Predef.String): java.lang.String = { /* compiled code */ }
+
   def stripSuffix(suffix: scala.Predef.String): java.lang.String = { /* compiled code */ }
+
   def replaceAllLiterally(literal: scala.Predef.String, replacement: scala.Predef.String): scala.Predef.String = { /* compiled code */ }
+
   def stripMargin(marginChar: scala.Char): scala.Predef.String = { /* compiled code */ }
+
   def stripMargin: scala.Predef.String = { /* compiled code */ }
+
   def split(separator: scala.Char): scala.Array[scala.Predef.String] = { /* compiled code */ }
+
   @scala.throws[java.util.regex.PatternSyntaxException](classOf[java.util.regex.PatternSyntaxException])
   def split(separators: scala.Array[scala.Char]): scala.Array[scala.Predef.String] = { /* compiled code */ }
+
   def r: scala.util.matching.Regex = { /* compiled code */ }
+
   def r(groupNames: scala.Predef.String*): scala.util.matching.Regex = { /* compiled code */ }
+
   def toBoolean: scala.Boolean = { /* compiled code */ }
+
   def toByte: scala.Byte = { /* compiled code */ }
+
   def toShort: scala.Short = { /* compiled code */ }
+
   def toInt: scala.Int = { /* compiled code */ }
+
   def toLong: scala.Long = { /* compiled code */ }
+
   def toFloat: scala.Float = { /* compiled code */ }
+
   def toDouble: scala.Double = { /* compiled code */ }
+
   override def toArray[B >: scala.Char: scala.reflect.ClassTag]: scala.Array[B] = { /* compiled code */ }
+
   def format(args: scala.Any*): scala.Predef.String = { /* compiled code */ }
+
   def formatLocal(l: java.util.Locale, args: scala.Any*): scala.Predef.String = { /* compiled code */ }
 }
+
 object StringLike extends scala.AnyRef

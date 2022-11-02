@@ -1,9 +1,12 @@
 package test
+
 trait BrokenUsage extends scala.AnyRef {
   @test.testAnnotation
   val field: scala.Int
+
   object Foo extends scala.AnyRef {
     lazy val x: scala.Int = { /* compiled code */ }
   }
+
   def x(y: scala.Int)(z: scala.Int): scala.Int
 }
