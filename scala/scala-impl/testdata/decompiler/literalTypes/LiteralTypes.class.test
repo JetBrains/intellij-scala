@@ -1,4 +1,4 @@
-class LiteralTypes() extends scala.AnyRef {
+class LiteralTypes extends scala.AnyRef {
   val a: 1 = { /* compiled code */ }
   val b: 1L = { /* compiled code */ }
   val c: 1.0 = { /* compiled code */ }

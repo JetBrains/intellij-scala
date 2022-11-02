@@ -11,7 +11,7 @@ package object vdom extends scala.AnyRef {
     final def svg: japgolly.scalajs.react.vdom.SvgAttrs.type = { /* compiled code */ }
   }
   object Attrs extends scala.AnyRef with japgolly.scalajs.react.vdom.JustAttrs
-  abstract class Base() extends japgolly.scalajs.react.vdom.Implicits {
+  abstract class Base extends japgolly.scalajs.react.vdom.Implicits {
     final type ReactTag = japgolly.scalajs.react.vdom.ReactTag
     final type TagMod = japgolly.scalajs.react.vdom.TagMod
     @scala.inline
