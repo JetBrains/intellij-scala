@@ -1,93 +1,93 @@
 package izumi.distage.testkit
 
-final case class TestConfig(val pluginConfig: izumi.distage.plugins.PluginConfig, val bootstrapPluginConfig: izumi.distage.plugins.PluginConfig = { /* compiled code */ }, val activation: distage.Activation = { /* compiled code */ }, val moduleOverrides: distage.Module = { /* compiled code */ }, val bootstrapOverrides: distage.BootstrapModule = { /* compiled code */ }, val memoizationRoots: izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }, val forcedRoots: izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }, val parallelEnvs: izumi.distage.testkit.TestConfig.ParallelLevel = { /* compiled code */ }, val parallelSuites: izumi.distage.testkit.TestConfig.ParallelLevel = { /* compiled code */ }, val parallelTests: izumi.distage.testkit.TestConfig.ParallelLevel = { /* compiled code */ }, val configBaseName: _root_.scala.Predef.String, val configOverrides: scala.Option[distage.config.AppConfig] = { /* compiled code */ }, val bootstrapFactory: izumi.distage.testkit.services.dstest.BootstrapFactory = { /* compiled code */ }, val planningOptions: izumi.distage.framework.config.PlanningOptions = { /* compiled code */ }, val logLevel: izumi.logstage.api.Log.Level = { /* compiled code */ }, val debugOutput: scala.Boolean = { /* compiled code */ }) extends scala.AnyRef with scala.Product with scala.Serializable
+final case class TestConfig(val pluginConfig: izumi.distage.plugins.PluginConfig, val bootstrapPluginConfig: izumi.distage.plugins.PluginConfig = ???, val activation: distage.Activation = ???, val moduleOverrides: distage.Module = ???, val bootstrapOverrides: distage.BootstrapModule = ???, val memoizationRoots: izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???, val forcedRoots: izumi.distage.testkit.TestConfig.AxisDIKeys = ???, val parallelEnvs: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val parallelSuites: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val parallelTests: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val configBaseName: _root_.scala.Predef.String, val configOverrides: scala.Option[distage.config.AppConfig] = ???, val bootstrapFactory: izumi.distage.testkit.services.dstest.BootstrapFactory = ???, val planningOptions: izumi.distage.framework.config.PlanningOptions = ???, val logLevel: izumi.logstage.api.Log.Level = ???, val debugOutput: scala.Boolean = ???) extends scala.AnyRef with scala.Product with scala.Serializable
 
 object TestConfig extends scala.AnyRef with java.io.Serializable {
-  def forSuite(clazz: _root_.scala.Predef.Class[`?$1`] forSome {type `?$1`}): izumi.distage.testkit.TestConfig = { /* compiled code */ }
+  def forSuite(clazz: _root_.scala.Predef.Class[`?$1`] forSome {type `?$1`}): izumi.distage.testkit.TestConfig = ???
 
   final case class AxisDIKeys(val keyMap: _root_.scala.Predef.Map[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], _root_.scala.Predef.Set[distage.DIKey]]) extends scala.AnyVal with scala.Product with scala.Serializable {
-    def getActiveKeys(activation: distage.Activation): _root_.scala.Predef.Set[distage.DIKey] = { /* compiled code */ }
+    def getActiveKeys(activation: distage.Activation): _root_.scala.Predef.Set[distage.DIKey] = ???
 
-    def ++(that: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    def ++(that: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
-    def +(key: distage.DIKey): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    def +(key: distage.DIKey): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
-    def +(axisKey: scala.Tuple2[izumi.distage.model.definition.Axis.AxisChoice, distage.DIKey]): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    def +(axisKey: scala.Tuple2[izumi.distage.model.definition.Axis.AxisChoice, distage.DIKey]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
-    def +(setAxisKey: scala.Tuple2[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], distage.DIKey])(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    def +(setAxisKey: scala.Tuple2[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], distage.DIKey])(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
   }
 
   object AxisDIKeys extends scala.AnyRef with java.io.Serializable {
-    def empty: izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    def empty: izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
     @scala.inline
-    implicit def fromSet(set: _root_.scala.Predef.Set[`?$2`] forSome {type `?$2` <: distage.DIKey}): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    implicit def fromSet(set: _root_.scala.Predef.Set[`?$2`] forSome {type `?$2` <: distage.DIKey}): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
     @scala.inline
-    implicit def fromSetMap(map: scala.Iterable[scala.Tuple2[_root_.scala.Predef.Set[`?$3`] forSome {type `?$3` <: izumi.distage.model.definition.Axis.AxisChoice}, _root_.scala.Predef.Set[`?$4`] forSome {type `?$4` <: distage.DIKey}]]): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    implicit def fromSetMap(map: scala.Iterable[scala.Tuple2[_root_.scala.Predef.Set[`?$3`] forSome {type `?$3` <: izumi.distage.model.definition.Axis.AxisChoice}, _root_.scala.Predef.Set[`?$4`] forSome {type `?$4` <: distage.DIKey}]]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
     @scala.inline
-    implicit def fromSingleMap(map: scala.Iterable[scala.Tuple2[izumi.distage.model.definition.Axis.AxisChoice, distage.DIKey]]): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    implicit def fromSingleMap(map: scala.Iterable[scala.Tuple2[izumi.distage.model.definition.Axis.AxisChoice, distage.DIKey]]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
     @scala.inline
-    implicit def fromSingleToSetMap(map: scala.Iterable[scala.Tuple2[izumi.distage.model.definition.Axis.AxisChoice, _root_.scala.Predef.Set[`?$5`] forSome {type `?$5` <: distage.DIKey}]]): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    implicit def fromSingleToSetMap(map: scala.Iterable[scala.Tuple2[izumi.distage.model.definition.Axis.AxisChoice, _root_.scala.Predef.Set[`?$5`] forSome {type `?$5` <: distage.DIKey}]]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
     @scala.inline
-    implicit def fromSetToSingleMap(map: scala.Iterable[scala.Tuple2[_root_.scala.Predef.Set[`?$6`] forSome {type `?$6` <: izumi.distage.model.definition.Axis.AxisChoice}, distage.DIKey]]): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    implicit def fromSetToSingleMap(map: scala.Iterable[scala.Tuple2[_root_.scala.Predef.Set[`?$6`] forSome {type `?$6` <: izumi.distage.model.definition.Axis.AxisChoice}, distage.DIKey]]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
-    final def getActiveKeys$extension($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(activation: distage.Activation): _root_.scala.Predef.Set[distage.DIKey] = { /* compiled code */ }
+    final def getActiveKeys$extension($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(activation: distage.Activation): _root_.scala.Predef.Set[distage.DIKey] = ???
 
-    final def `++$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(that: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    final def `++$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(that: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
-    final def `+$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(key: distage.DIKey): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    final def `+$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(key: distage.DIKey): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
-    final def `+$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(axisKey: scala.Tuple2[izumi.distage.model.definition.Axis.AxisChoice, distage.DIKey]): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    final def `+$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(axisKey: scala.Tuple2[izumi.distage.model.definition.Axis.AxisChoice, distage.DIKey]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
-    final def `+$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(setAxisKey: scala.Tuple2[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], distage.DIKey])(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.AxisDIKeys = { /* compiled code */ }
+    final def `+$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(setAxisKey: scala.Tuple2[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], distage.DIKey])(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
   }
 
   final case class PriorAxisDIKeys(val keys: _root_.scala.Predef.Map[scala.Int, izumi.distage.testkit.TestConfig.AxisDIKeys]) extends scala.AnyVal with scala.Product with scala.Serializable {
-    def ++(that: izumi.distage.testkit.TestConfig.PriorAxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    def ++(that: izumi.distage.testkit.TestConfig.PriorAxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    def ++(that: izumi.distage.testkit.TestConfig.AxisDIKeys)(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    def ++(that: izumi.distage.testkit.TestConfig.AxisDIKeys)(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    def ++[A](elem: scala.Tuple2[scala.Int, A])(implicit toAxisDIKeys: scala.Function1[A, izumi.distage.testkit.TestConfig.AxisDIKeys]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    def ++[A](elem: scala.Tuple2[scala.Int, A])(implicit toAxisDIKeys: scala.Function1[A, izumi.distage.testkit.TestConfig.AxisDIKeys]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    def +(key: distage.DIKey): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    def +(key: distage.DIKey): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    def +(priorKey: scala.Tuple2[scala.Int, distage.DIKey]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    def +(priorKey: scala.Tuple2[scala.Int, distage.DIKey]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    def addToLevel(level: scala.Int, keys: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    def addToLevel(level: scala.Int, keys: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
   }
 
   object PriorAxisDIKeys extends scala.AnyRef with java.io.Serializable {
-    def empty: izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    def empty: izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     final val MaxLevel = 2147483647
 
     @scala.inline
-    implicit def fromSet(set: _root_.scala.Predef.Set[`?$7`] forSome {type `?$7` <: distage.DIKey}): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    implicit def fromSet(set: _root_.scala.Predef.Set[`?$7`] forSome {type `?$7` <: distage.DIKey}): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     @scala.inline
-    implicit def fromPriorSet(map: _root_.scala.Predef.Map[scala.Int, _root_.scala.Predef.Set[`?$8`] forSome {type `?$8` <: distage.DIKey}]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    implicit def fromPriorSet(map: _root_.scala.Predef.Map[scala.Int, _root_.scala.Predef.Set[`?$8`] forSome {type `?$8` <: distage.DIKey}]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     @scala.inline
-    implicit def fromAxisDIKeys[A](set: A)(implicit toAxisDIKeys: scala.Function1[A, izumi.distage.testkit.TestConfig.AxisDIKeys]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    implicit def fromAxisDIKeys[A](set: A)(implicit toAxisDIKeys: scala.Function1[A, izumi.distage.testkit.TestConfig.AxisDIKeys]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     @scala.inline
-    implicit def fromPriorAxisDIKeys[A](map: _root_.scala.Predef.Map[scala.Int, A])(implicit toAxisDIKeys: scala.Function1[A, izumi.distage.testkit.TestConfig.AxisDIKeys]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    implicit def fromPriorAxisDIKeys[A](map: _root_.scala.Predef.Map[scala.Int, A])(implicit toAxisDIKeys: scala.Function1[A, izumi.distage.testkit.TestConfig.AxisDIKeys]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    final def `++$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(that: izumi.distage.testkit.TestConfig.PriorAxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    final def `++$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(that: izumi.distage.testkit.TestConfig.PriorAxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    final def `++$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(that: izumi.distage.testkit.TestConfig.AxisDIKeys)(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    final def `++$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(that: izumi.distage.testkit.TestConfig.AxisDIKeys)(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    final def `++$extension`[A]($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(elem: scala.Tuple2[scala.Int, A])(implicit toAxisDIKeys: scala.Function1[A, izumi.distage.testkit.TestConfig.AxisDIKeys]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    final def `++$extension`[A]($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(elem: scala.Tuple2[scala.Int, A])(implicit toAxisDIKeys: scala.Function1[A, izumi.distage.testkit.TestConfig.AxisDIKeys]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    final def `+$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(key: distage.DIKey): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    final def `+$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(key: distage.DIKey): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    final def `+$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(priorKey: scala.Tuple2[scala.Int, distage.DIKey]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    final def `+$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(priorKey: scala.Tuple2[scala.Int, distage.DIKey]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    final def addToLevel$extension($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(level: scala.Int, keys: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = { /* compiled code */ }
+    final def addToLevel$extension($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(level: scala.Int, keys: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
   }
 
   sealed trait ParallelLevel extends scala.AnyRef

@@ -817,7 +817,7 @@ object ScalaSigPrinter {
       "this", "throw", "trait", "try", "type", "val", "var", "while", "with",
       "yield")
 
-  val compiledCodeBody = " = { /* compiled code */ }"
+  val compiledCodeBody = " = ???"
 
   //name may be qualified here
   def processName(name: String): String = {
