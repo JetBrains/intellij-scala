@@ -5,7 +5,7 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
   protected def note: org.scalatest.Notifier = { /* compiled code */ }
   protected def alert: org.scalatest.Alerter = { /* compiled code */ }
   protected def markup: org.scalatest.Documenter = { /* compiled code */ }
-  protected final class BehaviorWord() extends scala.AnyRef {
+  protected final class BehaviorWord extends scala.AnyRef {
     def of(description: scala.Predef.String): scala.Unit = { /* compiled code */ }
   }
   protected val behavior: FlatSpecLike.this.BehaviorWord = { /* compiled code */ }
@@ -20,7 +20,7 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
     def ignore(testFun: => scala.Unit): scala.Unit = { /* compiled code */ }
     def taggedAs(firstTestTag: org.scalatest.Tag, otherTestTags: org.scalatest.Tag*): FlatSpecLike.this.ItVerbStringTaggedAs = { /* compiled code */ }
   }
-  protected final class ItWord() extends scala.AnyRef {
+  protected final class ItWord extends scala.AnyRef {
     def should(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = { /* compiled code */ }
     def must(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = { /* compiled code */ }
     def can(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = { /* compiled code */ }
@@ -38,7 +38,7 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
     def is(testFun: => org.scalatest.PendingNothing): scala.Unit = { /* compiled code */ }
     def taggedAs(firstTestTag: org.scalatest.Tag, otherTestTags: org.scalatest.Tag*): FlatSpecLike.this.IgnoreVerbStringTaggedAs = { /* compiled code */ }
   }
-  protected final class IgnoreWord() extends scala.AnyRef {
+  protected final class IgnoreWord extends scala.AnyRef {
     def should(string: scala.Predef.String): FlatSpecLike.this.IgnoreVerbString = { /* compiled code */ }
     def must(string: scala.Predef.String): FlatSpecLike.this.IgnoreVerbString = { /* compiled code */ }
     def can(string: scala.Predef.String): FlatSpecLike.this.IgnoreVerbString = { /* compiled code */ }
@@ -55,7 +55,7 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
     def ignore(testFun: => scala.Unit): scala.Unit = { /* compiled code */ }
     def taggedAs(firstTestTag: org.scalatest.Tag, otherTestTags: org.scalatest.Tag*): FlatSpecLike.this.ItVerbStringTaggedAs = { /* compiled code */ }
   }
-  protected final class TheyWord() extends scala.AnyRef {
+  protected final class TheyWord extends scala.AnyRef {
     def should(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = { /* compiled code */ }
     def must(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = { /* compiled code */ }
     def can(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = { /* compiled code */ }

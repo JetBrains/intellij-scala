@@ -3,7 +3,7 @@ private[process] trait ProcessBuilderImpl extends scala.AnyRef { this: scala.sys
   private[process] class DaemonBuilder(underlying: scala.sys.process.ProcessBuilder) extends ProcessBuilderImpl.this.AbstractBuilder {
     final def run(io: scala.sys.process.ProcessIO): scala.sys.process.Process = { /* compiled code */ }
   }
-  private[scala] abstract class AbstractBuilder() extends scala.AnyRef with scala.sys.process.ProcessBuilder with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Sink with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Source {
+  private[scala] abstract class AbstractBuilder extends scala.AnyRef with scala.sys.process.ProcessBuilder with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Sink with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Source {
     protected def toSource: ProcessBuilderImpl.this.AbstractBuilder = { /* compiled code */ }
     protected def toSink: ProcessBuilderImpl.this.AbstractBuilder = { /* compiled code */ }
     def #|(other: scala.sys.process.ProcessBuilder): scala.sys.process.ProcessBuilder = { /* compiled code */ }
@@ -63,7 +63,7 @@ private[process] trait ProcessBuilderImpl extends scala.AnyRef { this: scala.sys
     def #<<(s: => scala.sys.process.processInternal.InputStream): scala.sys.process.ProcessBuilder = { /* compiled code */ }
     def #<<(b: scala.sys.process.ProcessBuilder): scala.sys.process.ProcessBuilder = { /* compiled code */ }
   }
-  private[process] abstract class BasicBuilder() extends ProcessBuilderImpl.this.AbstractBuilder {
+  private[process] abstract class BasicBuilder extends ProcessBuilderImpl.this.AbstractBuilder {
     protected[this] def checkNotThis(a: scala.sys.process.ProcessBuilder): scala.Unit = { /* compiled code */ }
     final def run(io: scala.sys.process.ProcessIO): scala.sys.process.Process = { /* compiled code */ }
     protected[this] def createProcess(io: scala.sys.process.ProcessIO): scala.sys.process.Process.BasicProcess

@@ -1,4 +1,4 @@
-class Constants() extends scala.AnyRef {
+class Constants extends scala.AnyRef {
   final val a = 1
   final val b = 1L
   final val c = 1.0
