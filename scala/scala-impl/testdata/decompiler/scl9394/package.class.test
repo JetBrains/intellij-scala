@@ -1,7 +1,7 @@
 package nyaya
 
 package object prop {
-  case class Input(val a: scala.Any) {
+  case class Input(a: scala.Any) {
     def show: scala.Predef.String = ???
   }
 

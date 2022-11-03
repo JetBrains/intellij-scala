@@ -322,7 +322,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   private def methodSymbolAsClassParam(msymb: MethodSymbol, c: ClassSymbol): String = {
-    val printer = new ScalaSigPrinter(new StringBuilder())
+    val sb = new StringBuilder()
+    val printer = new ScalaSigPrinter(sb)
     val methodName = msymb.name
     val paramAccessors = c.children.filter {
       case ms: MethodSymbol if ms.isParamAccessor && ms.name.startsWith(methodName) => true
@@ -333,9 +334,10 @@ class ScalaSigPrinter(builder: StringBuilder) {
     toPrint match {
       case Some(ms) =>
         printer.printSymbolAttributes(ms, onNewLine = false, ())
+        val previousLength = sb.length
         printer.printModifiers(ms)
         if (isMutable) printer.print("var ")
-        else printer.print("val ")
+        else if (!(c.isCase && sb.length == previousLength)) printer.print("val ")
       case _ =>
     }
 
