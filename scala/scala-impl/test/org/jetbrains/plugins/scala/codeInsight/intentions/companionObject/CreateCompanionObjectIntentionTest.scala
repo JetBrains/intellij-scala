@@ -1,7 +1,10 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package intentions
-package companionObject
+package org.jetbrains.plugins.scala.codeInsight.intentions.companionObject
+
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.runner.RunWith
 
 /**
   * mattfowler
@@ -13,7 +16,7 @@ class CreateCompanionObjectIntentionTest extends ScalaIntentionTestBase {
   def testShouldCreateCompanion(): Unit = {
     val text =
       s"""
-         |class B<caret>ar {}
+         |class B${CARET}ar {}
        """.stripMargin
 
     val expected =
@@ -21,7 +24,25 @@ class CreateCompanionObjectIntentionTest extends ScalaIntentionTestBase {
          |class Bar {}
          |
          |object Bar {
-         |<caret>
+         |$CARET
+         |}
+       """.stripMargin
+
+    doTest(text, expected)
+  }
+
+  def testShouldCreateCompanionForCaseClass(): Unit = {
+    val text =
+      s"""
+         |case class B${CARET}ar()
+       """.stripMargin
+
+    val expected =
+      s"""
+         |case class Bar()
+         |
+         |object Bar {
+         |$CARET
          |}
        """.stripMargin
 
@@ -31,7 +52,7 @@ class CreateCompanionObjectIntentionTest extends ScalaIntentionTestBase {
   def testShouldCreateCompanionForTrait(): Unit = {
     val text =
       s"""
-         |trait B<caret>ar {}
+         |trait B${CARET}ar {}
        """.stripMargin
 
     val expected =
@@ -39,7 +60,7 @@ class CreateCompanionObjectIntentionTest extends ScalaIntentionTestBase {
          |trait Bar {}
          |
          |object Bar {
-         |<caret>
+         |$CARET
          |}
        """.stripMargin
 
@@ -50,7 +71,7 @@ class CreateCompanionObjectIntentionTest extends ScalaIntentionTestBase {
   def testShouldNotShowIfAlreadyHasCompanion(): Unit =
     checkIntentionIsNotAvailable(
       s"""
-         |class F<caret>oo { }
+         |class F${CARET}oo { }
          |
          |object Foo { }
        """.stripMargin)
@@ -59,7 +80,7 @@ class CreateCompanionObjectIntentionTest extends ScalaIntentionTestBase {
     checkIntentionIsNotAvailable(
       s"""
          |object Foo { }
-         |class F<caret>oo { }
+         |class F${CARET}oo { }
        """.stripMargin)
 
   def testShouldNotShowOnCompanion(): Unit =
@@ -67,7 +88,121 @@ class CreateCompanionObjectIntentionTest extends ScalaIntentionTestBase {
       s"""
          |class Foo { }
          |
-         |object F<caret>oo { }
+         |object F${CARET}oo { }
        """.stripMargin)
+}
 
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
+class CreateCompanionObjectIntentionTest_3_Latest extends ScalaIntentionTestBase {
+  override val familyName = ScalaBundle.message("family.name.create.companion.object")
+
+  private def doTest(text: String, expected: String, useIndentationBasedSyntax: Boolean): Unit = {
+    val settings = ScalaCodeStyleSettings.getInstance(getProject)
+    val oldSetting = settings.USE_SCALA3_INDENTATION_BASED_SYNTAX
+    try {
+      settings.USE_SCALA3_INDENTATION_BASED_SYNTAX = useIndentationBasedSyntax
+      doTest(text, expected)
+    } finally settings.USE_SCALA3_INDENTATION_BASED_SYNTAX = oldSetting
+  }
+
+  def testShouldCreateCompanionForClassBraced(): Unit = {
+    val text =
+      s"""class B${CARET}ar
+       """.stripMargin
+
+    val expected =
+      s"""class Bar
+         |
+         |object Bar {
+         |$CARET
+         |}
+       """.stripMargin
+
+    doTest(text, expected, useIndentationBasedSyntax = false)
+  }
+
+  def testShouldCreateCompanionForClassBraceless(): Unit = {
+    val text =
+      s"""class B${CARET}ar
+       """.stripMargin
+
+    val expected =
+      s"""class Bar
+         |
+         |object Bar:
+         |$CARET
+         |end Bar
+       """.stripMargin
+
+    doTest(text, expected, useIndentationBasedSyntax = true)
+  }
+
+  def testShouldCreateCompanionForTraitBraced(): Unit = {
+    val text =
+      s"""trait B${CARET}ar
+       """.stripMargin
+
+    val expected =
+      s"""trait Bar
+         |
+         |object Bar {
+         |$CARET
+         |}
+       """.stripMargin
+
+    doTest(text, expected, useIndentationBasedSyntax = false)
+  }
+
+  def testShouldCreateCompanionForTraitBraceless(): Unit = {
+    val text =
+      s"""trait B${CARET}ar
+       """.stripMargin
+
+    val expected =
+      s"""trait Bar
+         |
+         |object Bar:
+         |$CARET
+         |end Bar
+       """.stripMargin
+
+    doTest(text, expected, useIndentationBasedSyntax = true)
+  }
+
+  def testShouldCreateCompanionForEnumBraced(): Unit = {
+    val text =
+      s"""enum B${CARET}ar:
+         |  case Baz
+       """.stripMargin
+
+    val expected =
+      s"""enum Bar:
+         |  case Baz
+         |
+         |object Bar {
+         |$CARET
+         |}
+       """.stripMargin
+
+    doTest(text, expected, useIndentationBasedSyntax = false)
+  }
+
+  def testShouldCreateCompanionForEnumBraceless(): Unit = {
+    val text =
+      s"""enum B${CARET}ar:
+         |  case Baz
+       """.stripMargin
+
+    val expected =
+      s"""enum Bar:
+         |  case Baz
+         |
+         |object Bar:
+         |$CARET
+         |end Bar
+       """.stripMargin
+
+    doTest(text, expected, useIndentationBasedSyntax = true)
+  }
 }

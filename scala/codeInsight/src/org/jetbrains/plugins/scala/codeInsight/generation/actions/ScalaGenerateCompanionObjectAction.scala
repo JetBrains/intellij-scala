@@ -1,15 +1,14 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package generation
-package actions
+package org.jetbrains.plugins.scala.codeInsight.generation.actions
 
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import org.jetbrains.plugins.scala.ScalaCodeInsightActionHandler
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.codeInsight.generation.elementOfTypeAtCaret
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createObjectWithContext}
 
 final class ScalaGenerateCompanionObjectAction extends ScalaBaseGenerateAction(
@@ -26,12 +25,12 @@ object ScalaGenerateCompanionObjectAction {
 
     override def isValidFor(editor: Editor, file: PsiFile): Boolean =
       super.isValidFor(editor, file) &&
-        findClassOrTraitAtCaret(editor, file).exists(canAddCompanionObject)
+        findTypeDefinitionAtCaret(editor, file).exists(canAddCompanionObject)
 
     override def invoke(project: Project,
                         editor: Editor,
                         file: PsiFile): Unit =
-      for (clazz <- findClassOrTraitAtCaret(editor, file)) {
+      for (clazz <- findTypeDefinitionAtCaret(editor, file)) {
         val obj = createCompanionObject(clazz)
         val parent = clazz.getParent
         val addedObj = parent.addAfter(obj, clazz)
@@ -47,21 +46,22 @@ object ScalaGenerateCompanionObjectAction {
       }
   }
 
-
   private object Handler {
 
-    private def findClassOrTraitAtCaret(implicit editor: Editor, file: PsiFile): Option[ScTypeDefinition] =
-      elementOfTypeAtCaret(classOf[ScClass], classOf[ScTrait])
+    private def findTypeDefinitionAtCaret(implicit editor: Editor, file: PsiFile): Option[ScTypeDefinition] =
+      elementOfTypeAtCaret(classOf[ScClass], classOf[ScTrait], classOf[ScEnum])
 
     private def canAddCompanionObject(clazz: ScTypeDefinition): Boolean =
-      getCompanionModule(clazz).isEmpty
+      !clazz.isObject && clazz.baseCompanion.isEmpty
 
     private def createCompanionObject(clazz: ScTypeDefinition): ScObject = {
       if (canAddCompanionObject(clazz)) {
-        createObjectWithContext(s"object ${clazz.name} {\n \n}", clazz.getContext, clazz)
+        val name = clazz.name
+        val braceless = clazz.containingFile.exists(_.useIndentationBasedSyntax)
+        val block = if (braceless) s":\n \nend $name" else " {\n \n}"
+        createObjectWithContext(s"object $name$block", clazz.getContext, clazz)
       }
       else throw new IllegalArgumentException("Cannot create companion object")
     }
   }
-
 }
