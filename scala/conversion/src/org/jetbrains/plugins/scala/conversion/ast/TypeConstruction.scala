@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.project.ProjectContext.fromProject
 
 import scala.collection.mutable
 
@@ -34,8 +33,7 @@ object TypeConstruction {
     implicit val ctx: ProjectContext = inProject
 
     val buffer = mutable.ArrayBuffer.empty[(IntermediateNode, Option[String])]
-    //java Object should be treated as AnyRef, not Any
-    val scType = inType.toScType(paramTopLevel = true, treatJavaObjectAsAny = false)
+    val scType = inType.toScType(paramTopLevel = true)
     val result = getParts(scType, buffer, textMode)
 
     result match {
