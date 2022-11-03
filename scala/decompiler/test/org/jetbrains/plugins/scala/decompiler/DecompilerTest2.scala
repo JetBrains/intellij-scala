@@ -17,7 +17,6 @@ import scala.util.control.NonFatal
 // tuple types
 // HKTs: `n` -> _
 // structural types: single line
-// companion object extends java.io.Serializable
 // order of annotations
 
 // fix: <empty> package
@@ -73,7 +72,7 @@ class DecompilerTest2 extends TestCase {
   def testParameterType(): Unit = doTest("parameter/Type")
   def testParameterVariance(): Unit = doTest("parameter/Variance") // TODO TypeMember
   def testTypeDefinitionClass(): Unit = doTest("typeDefinition/Class")
-//  def testTypeDefinitionCompanions(): Unit = doTest("typeDefinition/Companions")
+  def testTypeDefinitionCompanions(): Unit = doTest("typeDefinition/Companions")
   def testTypeDefinitionIdentifiers(): Unit = doTest("typeDefinition/Identifiers")
   def testTypeDefinitionImplicitClass(): Unit = doTest("typeDefinition/ImplicitClass")
   def testTypeDefinitionMembers(): Unit = doTest("typeDefinition/Members")

@@ -2,7 +2,7 @@ package izumi.distage.testkit
 
 final case class TestConfig(val pluginConfig: izumi.distage.plugins.PluginConfig, val bootstrapPluginConfig: izumi.distage.plugins.PluginConfig = ???, val activation: distage.Activation = ???, val moduleOverrides: distage.Module = ???, val bootstrapOverrides: distage.BootstrapModule = ???, val memoizationRoots: izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???, val forcedRoots: izumi.distage.testkit.TestConfig.AxisDIKeys = ???, val parallelEnvs: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val parallelSuites: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val parallelTests: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val configBaseName: _root_.scala.Predef.String, val configOverrides: scala.Option[distage.config.AppConfig] = ???, val bootstrapFactory: izumi.distage.testkit.services.dstest.BootstrapFactory = ???, val planningOptions: izumi.distage.framework.config.PlanningOptions = ???, val logLevel: izumi.logstage.api.Log.Level = ???, val debugOutput: scala.Boolean = ???)
 
-object TestConfig extends java.io.Serializable {
+object TestConfig {
   def forSuite(clazz: _root_.scala.Predef.Class[`?$1`] forSome {type `?$1`}): izumi.distage.testkit.TestConfig = ???
 
   final case class AxisDIKeys(val keyMap: _root_.scala.Predef.Map[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], _root_.scala.Predef.Set[distage.DIKey]]) extends scala.AnyVal {
@@ -17,7 +17,7 @@ object TestConfig extends java.io.Serializable {
     def +(setAxisKey: scala.Tuple2[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], distage.DIKey])(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
   }
 
-  object AxisDIKeys extends java.io.Serializable {
+  object AxisDIKeys {
     def empty: izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
     @scala.inline
@@ -60,7 +60,7 @@ object TestConfig extends java.io.Serializable {
     def addToLevel(level: scala.Int, keys: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
   }
 
-  object PriorAxisDIKeys extends java.io.Serializable {
+  object PriorAxisDIKeys {
     def empty: izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     final val MaxLevel = 2147483647

@@ -688,10 +688,10 @@ class ScalaSigPrinter(builder: StringBuilder) {
         sep + typeRefs.map(toString(_, level)).mkString("", " with ", "") + classStr
       case RefinedType(_, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString("", " with ", "")
       case ClassInfoType(symbol, typeRefs) =>
-        val parents = simplify(typeRefs.map(toString(_, level)), symbol.isCase)
+        val parents = simplify(symbol, typeRefs.map(toString(_, level)))
         if (parents.nonEmpty) sep + parents.mkString(" extends ", " with ", "") else sep
       case ClassInfoTypeWithCons(symbol, typeRefs, cons) =>
-        val parents = simplify(typeRefs.map(toString(_, level)), symbol.isCase)
+        val parents = simplify(symbol, typeRefs.map(toString(_, level)))
         if (parents.nonEmpty) sep + parents.mkString(cons + " extends ", " with ", "") else sep + cons
 
       case ImplicitMethodType(resultType, _) => toString(resultType, sep, level)
@@ -713,9 +713,10 @@ class ScalaSigPrinter(builder: StringBuilder) {
     }
   }
 
-  private def simplify(parents: Seq[String], isCase: Boolean) = {
+  private def simplify(symbol: Symbol, parents: Seq[String]): Seq[String] = {
     val parents0 = parents.dropWhile(_ == "scala.AnyRef")
-    if (isCase) parents0.filterNot(_ == "scala.Product").filterNot(_ == "scala.Serializable") else parents0
+    val parents1 = if (symbol.isCase) parents0.filterNot(_ == "scala.Product").filterNot(_ == "scala.Serializable") else parents0
+    if (symbol.isModule && symbol.parent.exists(_.children.exists(child => child.isCase && child.name == symbol.name))) parents1.filterNot(_ == "java.io.Serializable") else parents1
   }
 
   def getVariance(t: TypeSymbol): String = if (t.isCovariant) "+" else if (t.isContravariant) "-" else ""
