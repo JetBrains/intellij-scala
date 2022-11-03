@@ -65,4 +65,24 @@ final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestB
   def test_unused_declarations_are_skipped(): Unit = {
     checkTextHasNoErrors("private class A { def foo() = {} }")
   }
+
+  def test_prevent_leaking_via_val(): Unit = {
+    checkTextHasNoErrors("object A { class B; val c: B = ??? }")
+  }
+
+  def test_prevent_leaking_via_def_return_type(): Unit = {
+    checkTextHasNoErrors("object A { class B; def c: B = ??? }")
+  }
+
+  def test_prevent_via_def_param(): Unit = {
+    checkTextHasNoErrors("object A { class B; def foo(b: B) = () }")
+  }
+
+  def test_prevent_via_def_type_param(): Unit = {
+    checkTextHasNoErrors("object A { class B; def foo[T <: B]() = () }")
+  }
+
+  def test_prevent_leaking_via_inheritance(): Unit = {
+    checkTextHasNoErrors("object A { class B; class C extends B }")
+  }
 }
