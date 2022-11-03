@@ -111,7 +111,6 @@ lazy val sbtApi =
         "sbtStructureVersion" -> Versions.sbtStructureVersion,
         "sbtIdeaShellVersion" -> Versions.sbtIdeaShellVersion,
         "sbtIdeaCompilerIndicesVersion" -> Versions.compilerIndicesVersion,
-        "sbtLatest_0_12" -> Versions.Sbt.latest_0_12,
         "sbtLatest_0_13" -> Versions.Sbt.latest_0_13,
         "sbtLatest_1_0" -> Versions.Sbt.latest_1_0,
         "sbtLatestVersion" -> Versions.sbtVersion,
