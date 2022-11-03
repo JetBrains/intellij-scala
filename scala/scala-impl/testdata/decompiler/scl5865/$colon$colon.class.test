@@ -1,7 +1,7 @@
 package scala.collection.immutable
 
 @scala.SerialVersionUID(value = 509929039250432923)
-final case class ::[B](override val head: B, private[scala] var tl: scala.collection.immutable.List[B]) extends scala.collection.immutable.List[B] with scala.Product with scala.Serializable {
+final case class ::[B](override val head: B, private[scala] var tl: scala.collection.immutable.List[B]) extends scala.collection.immutable.List[B] {
   override def tail: scala.collection.immutable.List[B] = ???
 
   override def isEmpty: scala.Boolean = ???

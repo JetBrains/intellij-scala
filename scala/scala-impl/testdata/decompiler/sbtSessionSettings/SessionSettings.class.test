@@ -1,6 +1,6 @@
 package sbt
 
-final case class SessionSettings(val currentBuild: java.net.URI, val currentProject: scala.Predef.Map[java.net.URI, scala.Predef.String], val original: scala.Seq[sbt.Def.Setting[_]], val append: sbt.SessionSettings.SessionMap, val rawAppend: scala.Seq[sbt.Def.Setting[_]], val currentEval: scala.Function0[sbt.compiler.Eval]) extends scala.Product with scala.Serializable {
+final case class SessionSettings(val currentBuild: java.net.URI, val currentProject: scala.Predef.Map[java.net.URI, scala.Predef.String], val original: scala.Seq[sbt.Def.Setting[_]], val append: sbt.SessionSettings.SessionMap, val rawAppend: scala.Seq[sbt.Def.Setting[_]], val currentEval: scala.Function0[sbt.compiler.Eval]) {
   def setCurrent(build: java.net.URI, project: scala.Predef.String, eval: scala.Function0[sbt.compiler.Eval]): sbt.SessionSettings = ???
 
   def current: sbt.ProjectRef = ???

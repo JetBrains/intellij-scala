@@ -8,7 +8,6 @@ import scala.util.control.NonFatal
 
 // TODO Prettify and unify Scala 2 decompiler output, SCL-20672
 
-// case calss with Product with Serializable
 // case class val
 // self type class with
 // double D
@@ -139,8 +138,6 @@ class DecompilerTest2 extends TestCase {
       .replace("Predef.", "")
       .replaceAll("\\w+\\.this\\.", "")
       .replace("final override ", "override final ")
-      .replace(" extends Product with Serializable", "")
-      .replace(" with Product with Serializable", "")
       .replaceAll("(?<=case class .+)(?<!private )val ", "")
       .replaceAll("`\\d+`", "_")
       .trim
