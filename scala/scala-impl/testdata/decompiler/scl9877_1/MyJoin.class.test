@@ -9,11 +9,7 @@ object MyJoin {
     def apply(prefix: P, suffix: S): Join.this.Out
   }
 
-  type JoinAux[P, S, O] = Test.MyJoin.Join[P, S] {
-    type Out = O
-
-    val e: scala.Int
-  }
+  type JoinAux[P, S, O] = Test.MyJoin.Join[P, S] { type Out = O; val e: scala.Int }
 
   trait Join2 extends Test.MyJoin.Join[scala.Int, scala.Int] {
     override type Out = scala.Int
