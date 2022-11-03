@@ -8,15 +8,12 @@ import scala.util.control.NonFatal
 
 // TODO Prettify and unify Scala 2 decompiler output, SCL-20672
 
-// case class val
 // self type class with
-// double D
 // final override -> override final
 // infix parameterized types
 // function types
 // tuple types
 // HKTs: `n` -> _
-// structural types: single line
 // order of annotations
 
 // fix: <empty> package
@@ -90,7 +87,7 @@ class DecompilerTest2 extends TestCase {
 //  def testTypesLiteral(): Unit = doTest("types/Literal")
 //  def testTypesParameterized(): Unit = doTest("types/Parameterized")
 //  def testTypesProjection(): Unit = doTest("types/Projection")
-//  def testTypesRefinement(): Unit = doTest("types/Refinement")
+  def testTypesRefinement(): Unit = doTest("types/Refinement")
   def testTypesRefs(): Unit = doTest("types/Refs")
   def testTypesSelect(): Unit = doTest("types/Select")
   def testTypesSingleton(): Unit = doTest("types/Singleton")
