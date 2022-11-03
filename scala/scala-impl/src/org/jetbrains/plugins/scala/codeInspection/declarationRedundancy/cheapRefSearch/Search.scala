@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRe
 
 import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
 import com.intellij.openapi.roots.TestSourcesFilter
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.caches.ModTracker.anyScalaPsiChange
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline.{Conditions, ShouldProcess}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -74,8 +74,8 @@ private[declarationRedundancy] object Search {
    * <b>Example 3</b> -- Stop searching when encountering a reference of type `T`
    * <pre><code>
    * val canExit: CanExit = (usage: ElementUsage) => usage match {
-   *   case u: ElementUsageWithReference => u.reference.isInstanceOf[T]
-   *   case _ => false
+   * case u: ElementUsageWithReference => u.reference.isInstanceOf[T]
+   * case _ => false
    * }
    * </code></pre>
    */
@@ -128,9 +128,24 @@ private[declarationRedundancy] object Search {
         isMemberOfUnusedTypeDefinition
       )
 
+      val elementAsPsiClass = element match {
+        case c: PsiClass => Some(c)
+        case _ => None
+      }
+
+      def referenceCantBeRemovedWithoutBreakingCompilation(usage: ElementUsage): Boolean = (usage, elementAsPsiClass) match {
+        case (usageWithReference: ElementUsageWithReference, Some(c: PsiClass)) =>
+          !usageWithReference.referenceIsWithinPrivateScopeOfTypeDef(c)
+        case _ => true
+      }
+
       searchMethods.foreach { method =>
         if (method.shouldProcess(conditions) && !res.exists(ctx.canExit)) {
-          method.getUsages(ctx).foreach(res.addOne)
+          method.getUsages(ctx)
+            .filter(referenceCantBeRemovedWithoutBreakingCompilation)
+            .foreach { usage =>
+              res.addOne(usage)
+            }
         }
       }
 

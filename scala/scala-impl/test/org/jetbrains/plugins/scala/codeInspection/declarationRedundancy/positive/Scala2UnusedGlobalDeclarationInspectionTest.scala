@@ -5,48 +5,46 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnu
 class Scala2UnusedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
   private def addFile(text: String): Unit = myFixture.addFileToProject("Foo.scala", text)
 
-  private def testOperator(operatorName: String): Unit = {
-    checkTextHasError(
-      s"""
-         | class Num(n: Int) {
-         |   def $START$operatorName$END(n: Int): Num = new Num(n + this.n)
-         | }
-         |""".stripMargin)
-  }
+  private def doOperatorTest(operatorName: String): Unit = checkTextHasError(
+    s"""@scala.annotation.unused class Num(n: Int) {
+       |  def $START$operatorName$END(n: Int): Num = new Num(n + this.n)
+       |}
+       |""".stripMargin
+  )
 
-  def test_plus(): Unit = testOperator("+")
+  def test_plus(): Unit = doOperatorTest("+")
 
-  def test_minus(): Unit = testOperator("-")
+  def test_minus(): Unit = doOperatorTest("-")
 
-  def test_tilde(): Unit = testOperator("~")
+  def test_tilde(): Unit = doOperatorTest("~")
 
-  def test_eqeq(): Unit = testOperator("==")
+  def test_eqeq(): Unit = doOperatorTest("==")
 
-  def test_less(): Unit = testOperator("<")
+  def test_less(): Unit = doOperatorTest("<")
 
-  def test_lesseq(): Unit = testOperator("<=")
+  def test_lesseq(): Unit = doOperatorTest("<=")
 
-  def test_greater(): Unit = testOperator(">")
+  def test_greater(): Unit = doOperatorTest(">")
 
-  def test_greatereq(): Unit = testOperator(">=")
+  def test_greatereq(): Unit = doOperatorTest(">=")
 
-  def test_bang(): Unit = testOperator("!")
+  def test_bang(): Unit = doOperatorTest("!")
 
-  def test_percent(): Unit = testOperator("%")
+  def test_percent(): Unit = doOperatorTest("%")
 
-  def test_up(): Unit = testOperator("^")
+  def test_up(): Unit = doOperatorTest("^")
 
-  def test_amp(): Unit = testOperator("&")
+  def test_amp(): Unit = doOperatorTest("&")
 
-  def test_bar(): Unit = testOperator("|")
+  def test_bar(): Unit = doOperatorTest("|")
 
-  def test_times(): Unit = testOperator("*")
+  def test_times(): Unit = doOperatorTest("*")
 
-  def test_div(): Unit = testOperator("/")
+  def test_div(): Unit = doOperatorTest("/")
 
-  def test_bslash(): Unit = testOperator("\\")
+  def test_bslash(): Unit = doOperatorTest("\\")
 
-  def test_qmark(): Unit = testOperator("?")
+  def test_qmark(): Unit = doOperatorTest("?")
 
   def test_presence_in_string_literal(): Unit = {
     addFile("\"Abc\"")
@@ -66,10 +64,10 @@ class Scala2UnusedGlobalDeclarationInspectionTest extends ScalaUnusedDeclaration
         |""".stripMargin)
     checkTextHasError(
       s"""@scala.annotation.unused
-        |class MainClass {
-        |  class ${START}SomeName$END
-        |}
-        |""".stripMargin)
+         |class MainClass {
+         |  class ${START}SomeName$END
+         |}
+         |""".stripMargin)
   }
 
   def test_reference_pattern_with_same_name(): Unit = {
@@ -81,4 +79,33 @@ class Scala2UnusedGlobalDeclarationInspectionTest extends ScalaUnusedDeclaration
     addFile("object Ctx1 { trait Abc }")
     checkTextHasError(s"@scala.annotation.unused object Ctx2 { trait ${START}Abc$END }")
   }
+
+  def test_class_that_is_only_used_by_itself_via_class_parameter_type(): Unit = checkTextHasError(
+    s"class ${START}A$END(@scala.annotation.unused a: A)"
+  )
+
+  def test_class_that_is_only_used_by_itself_via_method_return_type(): Unit = checkTextHasError(
+    s"class ${START}A$END { @scala.annotation.unused def foo: A = null }"
+  )
+
+  def test_class_that_is_only_used_by_itself_via_method_parameter_type(): Unit = checkTextHasError(
+    s"""import scala.annotation.unused
+       |class ${START}A$END { @unused def foo(@unused a :A) = () }""".stripMargin
+  )
+
+  def test_class_that_is_only_used_by_itself_via_new_template_definition(): Unit = checkTextHasError(
+    s"class ${START}A$END { @scala.annotation.unused def foo = new A }"
+  )
+
+  def test_object_is_only_used_by_itself(): Unit = checkTextHasError(
+    s"object ${START}A$END { private val x = 42; println(A.x) }"
+  )
+
+  def test_trait_that_is_only_used_by_itself_via_method_return_type(): Unit = checkTextHasError(
+    s"trait ${START}A$END { @scala.annotation.unused def foo: A }"
+  )
+
+  def test_trait_that_is_only_used_by_itself_via_method_parameter_type(): Unit = checkTextHasError(
+    s"trait ${START}A$END { @scala.annotation.unused def foo(a :A): Unit }"
+  )
 }

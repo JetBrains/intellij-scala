@@ -20,7 +20,7 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
   )
 
   def test_property_assignment(): Unit = checkTextHasNoErrors(
-    """object Test {
+    """@scala.annotation.unused object Test {
       |  private def data: Int = 0
       |  private def data_=(i: Int): Int = i
       |
@@ -198,11 +198,11 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
   )
 
   // SCL-17662
-  def test_private_auxiliary_constructor_is_used_within_same_class(): Unit = checkTextHasNoErrors(
-    """class Test(s: String) {
+  def test_private_auxiliary_constructor_is_used_within_companion_object(): Unit = checkTextHasNoErrors(
+    """class Test(val s: String) {
       |  private def this(i: Int) = this(i.toString)
-      |  new Test(42).s
       |}
+      |@scala.annotation.unused object Test { new Test(42).s }
       |""".stripMargin
   )
 
