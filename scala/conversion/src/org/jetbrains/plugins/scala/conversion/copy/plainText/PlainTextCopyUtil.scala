@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.conversion.copy.plainText
 
+
 import com.intellij.codeInsight.daemon.JavaErrorBundle
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.module.Module
@@ -32,14 +33,12 @@ object PlainTextCopyUtil {
     * Treat scala file as valid if it doesn't contain ";\n" or one word text or parsed correctly as scala and not parsed correctly as java
     */
   def isValidScalaFile(text: String, module: Module): Boolean = {
+    def withLastSemicolon(text: String): Boolean = (!text.contains("\n") && text.contains(";")) || text.contains(";\n")
+
     def isOneWord(text: String): Boolean = !text.trim.contains(" ")
 
-    if (hasToplevelJavaClassWithPublicModifier(text)(module.getProject)) {
-      //we now fo sure that it's not Scala
-      false
-    }
-    else if (isOneWord(text))
-      true
+    if (withLastSemicolon(text) || isJavaClassWithPublic(text)(module.getProject)) false
+    else if (isOneWord(text)) true
     else {
       val scalaFile = createDummyScalaFile(text, module)
       scalaFile.isDefined
@@ -52,17 +51,14 @@ object PlainTextCopyUtil {
     Some(file).filter(isParsedCorrectly)
   }
 
-  //noinspection ScalaWrongPlatformMethodsUsage
-  private def hasToplevelJavaClassWithPublicModifier(text: String)
-                                                    (implicit project: Project): Boolean = {
-    val maybeJavaFile = createJavaFile(text)
-    maybeJavaFile.exists(_.getClasses.exists(_.hasModifierProperty("public")))
-  }
+  def isJavaClassWithPublic(text: String)
+                           (implicit project: Project): Boolean =
+    createJavaFile(text).exists(_.getClasses.exists(_.hasModifierProperty("public")))
 
   def isValidJavaFile(text: String)
                      (implicit project: Project): Boolean = createJavaFile(text).exists(isParsedCorrectly)
 
-  private def isParsedCorrectly(file: PsiFile): Boolean = {
+  def isParsedCorrectly(file: PsiFile): Boolean = {
     val errorElements = file.depthFirst().filterByType[PsiErrorElement].toList
 
     if (errorElements.isEmpty) true
