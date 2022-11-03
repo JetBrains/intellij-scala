@@ -4,6 +4,10 @@
 
 <p>The quick-fix removes the unused declaration.</p>
 
+<p>In the <b>Options</b> below, you can control if the inspection should work for public and/or local declarations.
+  In case of local declarations, on top of enabling and disabling the inspection, you can also make it dependent
+  on the existence of one of three compiler options: <code>-Wunused:locals</code>, <code>-Wunused:linted</code>, or <code>-Xlint:unused</code>.</p>
+
 <p><b>Example:</b></p>
 <pre><code>
   def test(): Int = {
