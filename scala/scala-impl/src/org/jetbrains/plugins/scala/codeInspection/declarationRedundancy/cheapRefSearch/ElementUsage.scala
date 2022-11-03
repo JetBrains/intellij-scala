@@ -69,23 +69,32 @@ private final class ElementUsageWithReference private(
     }
   }
 
-  override lazy val targetCanBePrivate: Boolean = !referenceLeaksTargetType && {
-    val targetContainingClass = PsiTreeUtil.getParentOfType(target.underlying.get, classOf[PsiClass])
-    var refContainingClass = PsiTreeUtil.getParentOfType(reference.getElement, classOf[PsiClass])
-
-    var counter = 0
-
-    if (targetContainingClass == null) {
+  def referenceIsWithinPrivateScopeOfTypeDef(typeDef: PsiClass): Boolean =
+    if (typeDef == null) {
       false
     } else {
-      while (counter < ElementUsageWithReference.MaxSearchDepth && refContainingClass != null && refContainingClass != targetContainingClass) {
+
+      var refContainingClass = PsiTreeUtil.getParentOfType(reference.getElement, classOf[PsiClass])
+      var counter = 0
+
+      while (
+        counter < ElementUsageWithReference.MaxSearchDepth &&
+          refContainingClass != null &&
+          refContainingClass != typeDef
+      ) {
         refContainingClass = PsiTreeUtil.getParentOfType(refContainingClass, classOf[PsiClass])
         counter += 1
       }
 
-      refContainingClass == targetContainingClass
+      refContainingClass == typeDef
     }
+
+  private def referenceIsWithinTargetPrivateScope: Boolean = {
+    val targetContainingClass =  PsiTreeUtil.getParentOfType(target.underlying.get, classOf[PsiClass])
+    referenceIsWithinPrivateScopeOfTypeDef(targetContainingClass)
   }
+
+  override lazy val targetCanBePrivate: Boolean = !referenceLeaksTargetType && referenceIsWithinTargetPrivateScope
 }
 
 private object ElementUsageWithReference {
