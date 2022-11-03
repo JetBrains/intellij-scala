@@ -10,7 +10,7 @@ import org.junit.Assert
 class StaticJavaTest extends LightJavaCodeInsightFixtureTestCase {
 
   override def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles(getTestRootDisposable)
+    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
   }
 

@@ -8,7 +8,7 @@ import org.junit.Assert._
 class CodeStyleSettingsMigrationServiceBaseTest extends LightIdeaTestCase {
 
   override def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles(getTestRootDisposable)
+    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
   }
 
