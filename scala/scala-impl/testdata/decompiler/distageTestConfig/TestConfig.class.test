@@ -1,11 +1,11 @@
 package izumi.distage.testkit
 
-final case class TestConfig(val pluginConfig: izumi.distage.plugins.PluginConfig, val bootstrapPluginConfig: izumi.distage.plugins.PluginConfig = ???, val activation: distage.Activation = ???, val moduleOverrides: distage.Module = ???, val bootstrapOverrides: distage.BootstrapModule = ???, val memoizationRoots: izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???, val forcedRoots: izumi.distage.testkit.TestConfig.AxisDIKeys = ???, val parallelEnvs: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val parallelSuites: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val parallelTests: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val configBaseName: _root_.scala.Predef.String, val configOverrides: scala.Option[distage.config.AppConfig] = ???, val bootstrapFactory: izumi.distage.testkit.services.dstest.BootstrapFactory = ???, val planningOptions: izumi.distage.framework.config.PlanningOptions = ???, val logLevel: izumi.logstage.api.Log.Level = ???, val debugOutput: scala.Boolean = ???)
+final case class TestConfig(pluginConfig: izumi.distage.plugins.PluginConfig, bootstrapPluginConfig: izumi.distage.plugins.PluginConfig = ???, activation: distage.Activation = ???, moduleOverrides: distage.Module = ???, bootstrapOverrides: distage.BootstrapModule = ???, memoizationRoots: izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???, forcedRoots: izumi.distage.testkit.TestConfig.AxisDIKeys = ???, parallelEnvs: izumi.distage.testkit.TestConfig.ParallelLevel = ???, parallelSuites: izumi.distage.testkit.TestConfig.ParallelLevel = ???, parallelTests: izumi.distage.testkit.TestConfig.ParallelLevel = ???, configBaseName: _root_.scala.Predef.String, configOverrides: scala.Option[distage.config.AppConfig] = ???, bootstrapFactory: izumi.distage.testkit.services.dstest.BootstrapFactory = ???, planningOptions: izumi.distage.framework.config.PlanningOptions = ???, logLevel: izumi.logstage.api.Log.Level = ???, debugOutput: scala.Boolean = ???)
 
 object TestConfig {
   def forSuite(clazz: _root_.scala.Predef.Class[`?$1`] forSome {type `?$1`}): izumi.distage.testkit.TestConfig = ???
 
-  final case class AxisDIKeys(val keyMap: _root_.scala.Predef.Map[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], _root_.scala.Predef.Set[distage.DIKey]]) extends scala.AnyVal {
+  final case class AxisDIKeys(keyMap: _root_.scala.Predef.Map[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], _root_.scala.Predef.Set[distage.DIKey]]) extends scala.AnyVal {
     def getActiveKeys(activation: distage.Activation): _root_.scala.Predef.Set[distage.DIKey] = ???
 
     def ++(that: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
@@ -46,7 +46,7 @@ object TestConfig {
     final def `+$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(setAxisKey: scala.Tuple2[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], distage.DIKey])(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
   }
 
-  final case class PriorAxisDIKeys(val keys: _root_.scala.Predef.Map[scala.Int, izumi.distage.testkit.TestConfig.AxisDIKeys]) extends scala.AnyVal {
+  final case class PriorAxisDIKeys(keys: _root_.scala.Predef.Map[scala.Int, izumi.distage.testkit.TestConfig.AxisDIKeys]) extends scala.AnyVal {
     def ++(that: izumi.distage.testkit.TestConfig.PriorAxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     def ++(that: izumi.distage.testkit.TestConfig.AxisDIKeys)(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
@@ -93,7 +93,7 @@ object TestConfig {
   sealed trait ParallelLevel
 
   object ParallelLevel {
-    final case class Fixed(val n: scala.Int) extends izumi.distage.testkit.TestConfig.ParallelLevel
+    final case class Fixed(n: scala.Int) extends izumi.distage.testkit.TestConfig.ParallelLevel
 
     case object Unlimited extends izumi.distage.testkit.TestConfig.ParallelLevel
 
