@@ -1,6 +1,6 @@
 package scala.concurrent
 
-trait Future[+T] extends scala.AnyRef with scala.concurrent.Awaitable[T] {
+trait Future[+T] extends scala.concurrent.Awaitable[T] {
   def onComplete[U](f: scala.Function1[scala.util.Try[T], U])(implicit executor: scala.concurrent.ExecutionContext): scala.Unit
 
   def isCompleted: scala.Boolean
@@ -44,10 +44,10 @@ trait Future[+T] extends scala.AnyRef with scala.concurrent.Awaitable[T] {
   def andThen[U](pf: scala.PartialFunction[scala.util.Try[T], U])(implicit executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[T] = ???
 }
 
-object Future extends scala.AnyRef {
+object Future {
   private[concurrent] val toBoxed: scala.collection.immutable.Map[java.lang.Class[_], java.lang.Class[_]] = ???
 
-  object never extends scala.AnyRef with scala.concurrent.Future[scala.Nothing] {
+  object never extends scala.concurrent.Future[scala.Nothing] {
     @scala.throws[scala.InterruptedException](classOf[scala.InterruptedException])
     @scala.throws[scala.concurrent.TimeoutException](classOf[scala.concurrent.TimeoutException])
     override def ready(atMost: scala.concurrent.duration.Duration)(implicit permit: scala.concurrent.CanAwait): never.this.type = ???
@@ -126,7 +126,7 @@ object Future extends scala.AnyRef {
 
   def traverse[A, B, M[X] <: scala.IterableOnce[X]](in: M[A])(fn: scala.Function1[A, scala.concurrent.Future[B]])(implicit bf: scala.collection.BuildFrom[M[A], B, M[B]], executor: scala.concurrent.ExecutionContext): scala.concurrent.Future[M[B]] = ???
 
-  private[concurrent] object InternalCallbackExecutor extends scala.AnyRef with scala.concurrent.ExecutionContext with scala.concurrent.BatchingExecutor {
+  private[concurrent] object InternalCallbackExecutor extends scala.concurrent.ExecutionContext with scala.concurrent.BatchingExecutor {
     protected override def unbatchedExecute(r: java.lang.Runnable): scala.Unit = ???
 
     override def reportFailure(t: scala.Throwable): scala.Unit = ???

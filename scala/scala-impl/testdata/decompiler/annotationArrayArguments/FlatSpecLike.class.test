@@ -1,7 +1,7 @@
 package org.scalatest
 
 @org.scalatest.Finders(value = Array("org.scalatest.finders.FlatSpecFinder"))
-trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalatest.words.ShouldVerb with org.scalatest.words.MustVerb with org.scalatest.words.CanVerb with org.scalatest.Informing with org.scalatest.Notifying with org.scalatest.Alerting with org.scalatest.Documenting {
+trait FlatSpecLike extends org.scalatest.Suite with org.scalatest.words.ShouldVerb with org.scalatest.words.MustVerb with org.scalatest.words.CanVerb with org.scalatest.Informing with org.scalatest.Notifying with org.scalatest.Alerting with org.scalatest.Documenting {
   protected def info: org.scalatest.Informer = ???
 
   protected def note: org.scalatest.Notifier = ???
@@ -10,13 +10,13 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
 
   protected def markup: org.scalatest.Documenter = ???
 
-  protected final class BehaviorWord extends scala.AnyRef {
+  protected final class BehaviorWord {
     def of(description: scala.Predef.String): scala.Unit = ???
   }
 
   protected val behavior: FlatSpecLike.this.BehaviorWord = ???
 
-  protected final class ItVerbStringTaggedAs(verb: scala.Predef.String, name: scala.Predef.String, tags: scala.List[org.scalatest.Tag]) extends scala.AnyRef {
+  protected final class ItVerbStringTaggedAs(verb: scala.Predef.String, name: scala.Predef.String, tags: scala.List[org.scalatest.Tag]) {
     def in(testFun: => scala.Unit): scala.Unit = ???
 
     def is(testFun: => org.scalatest.PendingNothing): scala.Unit = ???
@@ -24,7 +24,7 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
     def ignore(testFun: => scala.Unit): scala.Unit = ???
   }
 
-  protected final class ItVerbString(verb: scala.Predef.String, name: scala.Predef.String) extends scala.AnyRef {
+  protected final class ItVerbString(verb: scala.Predef.String, name: scala.Predef.String) {
     def in(testFun: => scala.Unit): scala.Unit = ???
 
     def is(testFun: => org.scalatest.PendingNothing): scala.Unit = ???
@@ -34,7 +34,7 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
     def taggedAs(firstTestTag: org.scalatest.Tag, otherTestTags: org.scalatest.Tag*): FlatSpecLike.this.ItVerbStringTaggedAs = ???
   }
 
-  protected final class ItWord extends scala.AnyRef {
+  protected final class ItWord {
     def should(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = ???
 
     def must(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = ???
@@ -50,13 +50,13 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
 
   protected val it: FlatSpecLike.this.ItWord = ???
 
-  protected final class IgnoreVerbStringTaggedAs(verb: scala.Predef.String, name: scala.Predef.String, tags: scala.List[org.scalatest.Tag]) extends scala.AnyRef {
+  protected final class IgnoreVerbStringTaggedAs(verb: scala.Predef.String, name: scala.Predef.String, tags: scala.List[org.scalatest.Tag]) {
     def in(testFun: => scala.Unit): scala.Unit = ???
 
     def is(testFun: => org.scalatest.PendingNothing): scala.Unit = ???
   }
 
-  protected final class IgnoreVerbString(verb: scala.Predef.String, name: scala.Predef.String) extends scala.AnyRef {
+  protected final class IgnoreVerbString(verb: scala.Predef.String, name: scala.Predef.String) {
     def in(testFun: => scala.Unit): scala.Unit = ???
 
     def is(testFun: => org.scalatest.PendingNothing): scala.Unit = ???
@@ -64,7 +64,7 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
     def taggedAs(firstTestTag: org.scalatest.Tag, otherTestTags: org.scalatest.Tag*): FlatSpecLike.this.IgnoreVerbStringTaggedAs = ???
   }
 
-  protected final class IgnoreWord extends scala.AnyRef {
+  protected final class IgnoreWord {
     def should(string: scala.Predef.String): FlatSpecLike.this.IgnoreVerbString = ???
 
     def must(string: scala.Predef.String): FlatSpecLike.this.IgnoreVerbString = ???
@@ -74,7 +74,7 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
 
   protected val ignore: FlatSpecLike.this.IgnoreWord = ???
 
-  protected final class TheyVerbStringTaggedAs(verb: scala.Predef.String, name: scala.Predef.String, tags: scala.List[org.scalatest.Tag]) extends scala.AnyRef {
+  protected final class TheyVerbStringTaggedAs(verb: scala.Predef.String, name: scala.Predef.String, tags: scala.List[org.scalatest.Tag]) {
     def in(testFun: => scala.Unit): scala.Unit = ???
 
     def is(testFun: => org.scalatest.PendingNothing): scala.Unit = ???
@@ -82,7 +82,7 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
     def ignore(testFun: => scala.Unit): scala.Unit = ???
   }
 
-  protected final class TheyVerbString(verb: scala.Predef.String, name: scala.Predef.String) extends scala.AnyRef {
+  protected final class TheyVerbString(verb: scala.Predef.String, name: scala.Predef.String) {
     def in(testFun: => scala.Unit): scala.Unit = ???
 
     def is(testFun: => org.scalatest.PendingNothing): scala.Unit = ???
@@ -92,7 +92,7 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
     def taggedAs(firstTestTag: org.scalatest.Tag, otherTestTags: org.scalatest.Tag*): FlatSpecLike.this.ItVerbStringTaggedAs = ???
   }
 
-  protected final class TheyWord extends scala.AnyRef {
+  protected final class TheyWord {
     def should(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = ???
 
     def must(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = ???
@@ -108,7 +108,7 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
 
   protected val they: FlatSpecLike.this.TheyWord = ???
 
-  protected final class InAndIgnoreMethods(resultOfStringPassedToVerb: org.scalatest.words.ResultOfStringPassedToVerb) extends scala.AnyRef {
+  protected final class InAndIgnoreMethods(resultOfStringPassedToVerb: org.scalatest.words.ResultOfStringPassedToVerb) {
     def in(testFun: => scala.Unit): scala.Unit = ???
 
     def ignore(testFun: => scala.Unit): scala.Unit = ???
@@ -116,7 +116,7 @@ trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalat
 
   protected implicit def convertToInAndIgnoreMethods(resultOfStringPassedToVerb: org.scalatest.words.ResultOfStringPassedToVerb): FlatSpecLike.this.InAndIgnoreMethods = ???
 
-  protected final class InAndIgnoreMethodsAfterTaggedAs(resultOfTaggedAsInvocation: org.scalatest.words.ResultOfTaggedAsInvocation) extends scala.AnyRef {
+  protected final class InAndIgnoreMethodsAfterTaggedAs(resultOfTaggedAsInvocation: org.scalatest.words.ResultOfTaggedAsInvocation) {
     def in(testFun: => scala.Unit): scala.Unit = ???
 
     def ignore(testFun: => scala.Unit): scala.Unit = ???

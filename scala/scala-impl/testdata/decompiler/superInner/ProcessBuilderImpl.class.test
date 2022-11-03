@@ -1,11 +1,11 @@
 package scala.sys.process
 
-private[process] trait ProcessBuilderImpl extends scala.AnyRef { this: scala.sys.process.ProcessBuilder.type =>
+private[process] trait ProcessBuilderImpl { this: scala.sys.process.ProcessBuilder.type =>
   private[process] class DaemonBuilder(underlying: scala.sys.process.ProcessBuilder) extends ProcessBuilderImpl.this.AbstractBuilder {
     final def run(io: scala.sys.process.ProcessIO): scala.sys.process.Process = ???
   }
 
-  private[scala] abstract class AbstractBuilder extends scala.AnyRef with scala.sys.process.ProcessBuilder with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Sink with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Source {
+  private[scala] abstract class AbstractBuilder extends scala.sys.process.ProcessBuilder with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Sink with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Source {
     protected def toSource: ProcessBuilderImpl.this.AbstractBuilder = ???
 
     protected def toSink: ProcessBuilderImpl.this.AbstractBuilder = ???
@@ -91,11 +91,11 @@ private[process] trait ProcessBuilderImpl extends scala.AnyRef { this: scala.sys
     override def canPipeTo: scala.Boolean = ???
   }
 
-  private[process] class URLImpl(url: scala.sys.process.processInternal.URL) extends scala.AnyRef with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].URLBuilder with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Source {
+  private[process] class URLImpl(url: scala.sys.process.processInternal.URL) extends ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].URLBuilder with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Source {
     protected def toSource: ProcessBuilderImpl.this.URLInput = ???
   }
 
-  private[process] class FileImpl(base: scala.sys.process.processInternal.File) extends scala.AnyRef with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].FileBuilder with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Sink with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Source {
+  private[process] class FileImpl(base: scala.sys.process.processInternal.File) extends ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].FileBuilder with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Sink with ProcessBuilderImpl.super[ProcessBuilder/*scala.sys.process.ProcessBuilder*/].Source {
     protected def toSource: ProcessBuilderImpl.this.FileInput = ???
 
     protected def toSink: ProcessBuilderImpl.this.FileOutput = ???

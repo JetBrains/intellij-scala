@@ -1,10 +1,10 @@
 package test
 
-trait BrokenUsage extends scala.AnyRef {
+trait BrokenUsage {
   @test.testAnnotation
   val field: scala.Int
 
-  object Foo extends scala.AnyRef {
+  object Foo {
     lazy val x: scala.Int = ???
   }
 

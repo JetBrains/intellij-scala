@@ -178,7 +178,7 @@ final abstract class Float extends scala.AnyVal {
   override def getClass(): _root_.scala.Predef.Class[scala.Float] = ???
 }
 
-object Float extends scala.AnyRef with scala.AnyValCompanion {
+object Float extends scala.AnyValCompanion {
   final val MinPositiveValue = 1.4E-45F
 
   final val NaN = java.lang.Float.NaN

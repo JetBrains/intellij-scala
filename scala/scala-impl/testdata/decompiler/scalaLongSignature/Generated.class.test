@@ -1,6 +1,6 @@
 package test
 
-class Generated extends scala.AnyRef {
+class Generated {
   type Foo1[_] = scala.Predef.Map[_, scala.Predef.String]
 
   def foo1[T, S](s: Generated.this.Foo1[T]): Generated.this.Foo1[S] = ???

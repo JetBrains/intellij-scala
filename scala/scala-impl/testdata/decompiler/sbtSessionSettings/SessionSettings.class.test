@@ -1,6 +1,6 @@
 package sbt
 
-final case class SessionSettings(val currentBuild: java.net.URI, val currentProject: scala.Predef.Map[java.net.URI, scala.Predef.String], val original: scala.Seq[sbt.Def.Setting[_]], val append: sbt.SessionSettings.SessionMap, val rawAppend: scala.Seq[sbt.Def.Setting[_]], val currentEval: scala.Function0[sbt.compiler.Eval]) extends scala.AnyRef with scala.Product with scala.Serializable {
+final case class SessionSettings(val currentBuild: java.net.URI, val currentProject: scala.Predef.Map[java.net.URI, scala.Predef.String], val original: scala.Seq[sbt.Def.Setting[_]], val append: sbt.SessionSettings.SessionMap, val rawAppend: scala.Seq[sbt.Def.Setting[_]], val currentEval: scala.Function0[sbt.compiler.Eval]) extends scala.Product with scala.Serializable {
   def setCurrent(build: java.net.URI, project: scala.Predef.String, eval: scala.Function0[sbt.compiler.Eval]): sbt.SessionSettings = ???
 
   def current: sbt.ProjectRef = ???
@@ -14,7 +14,7 @@ final case class SessionSettings(val currentBuild: java.net.URI, val currentProj
   def clearExtraSettings: sbt.SessionSettings = ???
 }
 
-object SessionSettings extends scala.AnyRef with scala.Serializable {
+object SessionSettings extends scala.Serializable {
   type SessionSetting = scala.Tuple2[sbt.Def.Setting[_], scala.Seq[scala.Predef.String]]
 
   type SessionMap = scala.Predef.Map[sbt.ProjectRef, scala.Seq[sbt.SessionSettings.SessionSetting]]
@@ -58,15 +58,15 @@ object SessionSettings extends scala.AnyRef with scala.Serializable {
 
   def Help: java.lang.String = ???
 
-  sealed trait SessionCommand extends scala.AnyRef
+  sealed trait SessionCommand
 
-  final class Clear(val all: scala.Boolean) extends scala.AnyRef with sbt.SessionSettings.SessionCommand
+  final class Clear(val all: scala.Boolean) extends sbt.SessionSettings.SessionCommand
 
-  final class Print(val all: scala.Boolean) extends scala.AnyRef with sbt.SessionSettings.SessionCommand
+  final class Print(val all: scala.Boolean) extends sbt.SessionSettings.SessionCommand
 
-  final class Remove(val ranges: scala.Seq[scala.Tuple2[scala.Int, scala.Int]]) extends scala.AnyRef with sbt.SessionSettings.SessionCommand
+  final class Remove(val ranges: scala.Seq[scala.Tuple2[scala.Int, scala.Int]]) extends sbt.SessionSettings.SessionCommand
 
-  final class Save(val all: scala.Boolean) extends scala.AnyRef with sbt.SessionSettings.SessionCommand
+  final class Save(val all: scala.Boolean) extends sbt.SessionSettings.SessionCommand
 
   lazy val parser: sbt.complete.Parser[sbt.SessionSettings.SessionCommand] = ???
 

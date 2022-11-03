@@ -1,6 +1,6 @@
 package com.twitter.finagle.http
 
-class RequestBuilder[HasUrl, HasForm] private[http] (config: com.twitter.finagle.http.RequestConfig) extends scala.AnyRef {
+class RequestBuilder[HasUrl, HasForm] private[http] (config: com.twitter.finagle.http.RequestConfig) {
   type This = com.twitter.finagle.http.RequestBuilder[HasUrl, HasForm]
 
   private[http] def this() = ???
@@ -52,21 +52,21 @@ class RequestBuilder[HasUrl, HasForm] private[http] (config: com.twitter.finagle
   private[http] def withContent(method: com.twitter.finagle.http.Method, content: com.twitter.io.Buf): com.twitter.finagle.http.Request = ???
 }
 
-object RequestBuilder extends scala.AnyRef {
-  sealed trait Valid extends scala.AnyRef
+object RequestBuilder {
+  sealed trait Valid
 
   @scala.annotation.implicitNotFound("Http RequestBuilder is not correctly configured: HasUrl (exp: Yes): ${HasUrl}, HasForm (exp: Nothing) ${HasForm}.")
-  trait RequestEvidence[HasUrl, HasForm] extends scala.AnyRef
+  trait RequestEvidence[HasUrl, HasForm]
 
-  private object RequestEvidence extends scala.AnyRef {
-    implicit object FullyConfigured extends scala.AnyRef with com.twitter.finagle.http.RequestBuilder.RequestEvidence[com.twitter.finagle.http.RequestBuilder.Valid, scala.Nothing]
+  private object RequestEvidence {
+    implicit object FullyConfigured extends com.twitter.finagle.http.RequestBuilder.RequestEvidence[com.twitter.finagle.http.RequestBuilder.Valid, scala.Nothing]
   }
 
   @scala.annotation.implicitNotFound("Http RequestBuilder is not correctly configured for form post: HasUrl (exp: Yes): ${HasUrl}, HasForm (exp: Yes): ${HasForm}.")
-  trait PostRequestEvidence[HasUrl, HasForm] extends scala.AnyRef
+  trait PostRequestEvidence[HasUrl, HasForm]
 
-  private object PostRequestEvidence extends scala.AnyRef {
-    implicit object FullyConfigured extends scala.AnyRef with com.twitter.finagle.http.RequestBuilder.PostRequestEvidence[com.twitter.finagle.http.RequestBuilder.Valid, com.twitter.finagle.http.RequestBuilder.Valid]
+  private object PostRequestEvidence {
+    implicit object FullyConfigured extends com.twitter.finagle.http.RequestBuilder.PostRequestEvidence[com.twitter.finagle.http.RequestBuilder.Valid, com.twitter.finagle.http.RequestBuilder.Valid]
   }
 
   type Complete = com.twitter.finagle.http.RequestBuilder[com.twitter.finagle.http.RequestBuilder.Valid, scala.Nothing]

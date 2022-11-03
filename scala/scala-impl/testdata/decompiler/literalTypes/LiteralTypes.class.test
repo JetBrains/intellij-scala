@@ -1,4 +1,4 @@
-class LiteralTypes extends scala.AnyRef {
+class LiteralTypes {
   val a: 1 = ???
 
   val b: 1L = ???
