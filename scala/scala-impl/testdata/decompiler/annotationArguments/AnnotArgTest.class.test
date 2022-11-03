@@ -1,7 +1,7 @@
 package mypack
 
 @mypack.MyTestAnnotation(value = "TestArg")
-class AnnotArgTest extends scala.AnyRef {
+class AnnotArgTest {
   def foo: scala.Int = ???
 
   def bar: java.lang.String = ???

@@ -1,6 +1,6 @@
 package akka.http.scaladsl.model
 
-object MediaTypes extends scala.AnyRef with akka.http.impl.util.ObjectRegistry[scala.Tuple2[_root_.scala.Predef.String, _root_.scala.Predef.String], akka.http.scaladsl.model.MediaType] {
+object MediaTypes extends akka.http.impl.util.ObjectRegistry[scala.Tuple2[_root_.scala.Predef.String, _root_.scala.Predef.String], akka.http.scaladsl.model.MediaType] {
   type FindCustom = scala.Function2[_root_.scala.Predef.String, _root_.scala.Predef.String, scala.Option[akka.http.scaladsl.model.MediaType]]
 
   def forExtensionOption(ext: _root_.scala.Predef.String): scala.Option[akka.http.scaladsl.model.MediaType] = ???
@@ -217,7 +217,7 @@ object MediaTypes extends scala.AnyRef with akka.http.impl.util.ObjectRegistry[s
 
   val `message/rfc822`: akka.http.scaladsl.model.MediaType.Binary = ???
 
-  object multipart extends scala.AnyRef {
+  object multipart {
     def mixed(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = ???
 
     def alternative(params: _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]): akka.http.scaladsl.model.MediaType.Multipart = ???

@@ -1,8 +1,8 @@
 package izumi.distage.testkit
 
-final case class TestConfig(val pluginConfig: izumi.distage.plugins.PluginConfig, val bootstrapPluginConfig: izumi.distage.plugins.PluginConfig = ???, val activation: distage.Activation = ???, val moduleOverrides: distage.Module = ???, val bootstrapOverrides: distage.BootstrapModule = ???, val memoizationRoots: izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???, val forcedRoots: izumi.distage.testkit.TestConfig.AxisDIKeys = ???, val parallelEnvs: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val parallelSuites: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val parallelTests: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val configBaseName: _root_.scala.Predef.String, val configOverrides: scala.Option[distage.config.AppConfig] = ???, val bootstrapFactory: izumi.distage.testkit.services.dstest.BootstrapFactory = ???, val planningOptions: izumi.distage.framework.config.PlanningOptions = ???, val logLevel: izumi.logstage.api.Log.Level = ???, val debugOutput: scala.Boolean = ???) extends scala.AnyRef with scala.Product with scala.Serializable
+final case class TestConfig(val pluginConfig: izumi.distage.plugins.PluginConfig, val bootstrapPluginConfig: izumi.distage.plugins.PluginConfig = ???, val activation: distage.Activation = ???, val moduleOverrides: distage.Module = ???, val bootstrapOverrides: distage.BootstrapModule = ???, val memoizationRoots: izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???, val forcedRoots: izumi.distage.testkit.TestConfig.AxisDIKeys = ???, val parallelEnvs: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val parallelSuites: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val parallelTests: izumi.distage.testkit.TestConfig.ParallelLevel = ???, val configBaseName: _root_.scala.Predef.String, val configOverrides: scala.Option[distage.config.AppConfig] = ???, val bootstrapFactory: izumi.distage.testkit.services.dstest.BootstrapFactory = ???, val planningOptions: izumi.distage.framework.config.PlanningOptions = ???, val logLevel: izumi.logstage.api.Log.Level = ???, val debugOutput: scala.Boolean = ???) extends scala.Product with scala.Serializable
 
-object TestConfig extends scala.AnyRef with java.io.Serializable {
+object TestConfig extends java.io.Serializable {
   def forSuite(clazz: _root_.scala.Predef.Class[`?$1`] forSome {type `?$1`}): izumi.distage.testkit.TestConfig = ???
 
   final case class AxisDIKeys(val keyMap: _root_.scala.Predef.Map[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], _root_.scala.Predef.Set[distage.DIKey]]) extends scala.AnyVal with scala.Product with scala.Serializable {
@@ -17,7 +17,7 @@ object TestConfig extends scala.AnyRef with java.io.Serializable {
     def +(setAxisKey: scala.Tuple2[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], distage.DIKey])(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
   }
 
-  object AxisDIKeys extends scala.AnyRef with java.io.Serializable {
+  object AxisDIKeys extends java.io.Serializable {
     def empty: izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
     @scala.inline
@@ -60,7 +60,7 @@ object TestConfig extends scala.AnyRef with java.io.Serializable {
     def addToLevel(level: scala.Int, keys: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
   }
 
-  object PriorAxisDIKeys extends scala.AnyRef with java.io.Serializable {
+  object PriorAxisDIKeys extends java.io.Serializable {
     def empty: izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     final val MaxLevel = 2147483647
@@ -90,13 +90,13 @@ object TestConfig extends scala.AnyRef with java.io.Serializable {
     final def addToLevel$extension($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(level: scala.Int, keys: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
   }
 
-  sealed trait ParallelLevel extends scala.AnyRef
+  sealed trait ParallelLevel
 
-  object ParallelLevel extends scala.AnyRef {
-    final case class Fixed(val n: scala.Int) extends scala.AnyRef with izumi.distage.testkit.TestConfig.ParallelLevel with scala.Product with scala.Serializable
+  object ParallelLevel {
+    final case class Fixed(val n: scala.Int) extends izumi.distage.testkit.TestConfig.ParallelLevel with scala.Product with scala.Serializable
 
-    case object Unlimited extends scala.AnyRef with izumi.distage.testkit.TestConfig.ParallelLevel with scala.Product with scala.Serializable
+    case object Unlimited extends izumi.distage.testkit.TestConfig.ParallelLevel with scala.Product with scala.Serializable
 
-    case object Sequential extends scala.AnyRef with izumi.distage.testkit.TestConfig.ParallelLevel with scala.Product with scala.Serializable
+    case object Sequential extends izumi.distage.testkit.TestConfig.ParallelLevel with scala.Product with scala.Serializable
   }
 }

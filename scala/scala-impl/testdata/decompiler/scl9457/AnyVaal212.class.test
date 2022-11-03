@@ -1,4 +1,4 @@
-abstract class AnyVaal212 extends scala.AnyRef {
+abstract class AnyVaal212 {
   val scala: scala.Int = ???
 
   def toStr: _root_.scala.Predef.String = ???

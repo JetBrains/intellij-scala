@@ -1,6 +1,6 @@
 package scala.collection.mutable
 
-final class DefaultEntry[A, B](val key: A, var value: B) extends scala.AnyRef with scala.collection.mutable.HashEntry[A, scala.collection.mutable.DefaultEntry[A, B]] with scala.Serializable {
+final class DefaultEntry[A, B](val key: A, var value: B) extends scala.collection.mutable.HashEntry[A, scala.collection.mutable.DefaultEntry[A, B]] with scala.Serializable {
   override def toString(): java.lang.String = ???
 
   def chainString: java.lang.String = ???

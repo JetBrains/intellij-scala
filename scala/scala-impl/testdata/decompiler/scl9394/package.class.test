@@ -1,7 +1,7 @@
 package nyaya
 
-package object prop extends scala.AnyRef {
-  case class Input(val a: scala.Any) extends scala.AnyRef with scala.Product with scala.Serializable {
+package object prop {
+  case class Input(val a: scala.Any) extends scala.Product with scala.Serializable {
     def show: scala.Predef.String = ???
   }
 

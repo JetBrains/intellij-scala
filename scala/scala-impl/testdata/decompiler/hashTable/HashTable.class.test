@@ -1,6 +1,6 @@
 package scala.collection.mutable
 
-trait HashTable[A, Entry >: scala.Null <: scala.collection.mutable.HashEntry[A, Entry]] extends scala.AnyRef with scala.collection.mutable.HashTable.HashUtils[A] {
+trait HashTable[A, Entry >: scala.Null <: scala.collection.mutable.HashEntry[A, Entry]] extends scala.collection.mutable.HashTable.HashUtils[A] {
   @scala.transient
   protected var _loadFactor: scala.Int = ???
 
@@ -84,7 +84,7 @@ trait HashTable[A, Entry >: scala.Null <: scala.collection.mutable.HashEntry[A, 
   private[collection] def hashTableContents: scala.collection.mutable.HashTable.Contents[A, Entry] = ???
 }
 
-private[collection] object HashTable extends scala.AnyRef {
+private[collection] object HashTable {
   private[collection] final def defaultLoadFactor: scala.Int = ???
 
   private[collection] final def loadFactorDenum: scala.Int = ???
@@ -95,7 +95,7 @@ private[collection] object HashTable extends scala.AnyRef {
 
   private[collection] final def capacity(expectedSize: scala.Int): scala.Int = ???
 
-  trait HashUtils[KeyType] extends scala.AnyRef {
+  trait HashUtils[KeyType] {
     protected final def sizeMapBucketBitSize: scala.Int = ???
 
     protected final def sizeMapBucketSize: scala.Int = ???
@@ -107,7 +107,7 @@ private[collection] object HashTable extends scala.AnyRef {
 
   private[collection] def powerOfTwo(target: scala.Int): scala.Int = ???
 
-  class Contents[A, Entry >: scala.Null <: scala.collection.mutable.HashEntry[A, Entry]](val loadFactor: scala.Int, val table: scala.Array[scala.collection.mutable.HashEntry[A, Entry]], val tableSize: scala.Int, val threshold: scala.Int, val seedvalue: scala.Int, val sizemap: scala.Array[scala.Int]) extends scala.AnyRef {
+  class Contents[A, Entry >: scala.Null <: scala.collection.mutable.HashEntry[A, Entry]](val loadFactor: scala.Int, val table: scala.Array[scala.collection.mutable.HashEntry[A, Entry]], val tableSize: scala.Int, val threshold: scala.Int, val seedvalue: scala.Int, val sizemap: scala.Array[scala.Int]) {
     private[collection] def debugInformation: scala.Predef.String = ???
   }
 }

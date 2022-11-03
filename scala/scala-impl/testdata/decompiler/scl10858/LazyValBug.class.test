@@ -1,5 +1,5 @@
 package scala.tools.scalap
 
-class LazyValBug extends scala.AnyRef {
+class LazyValBug {
   lazy val lzy: scala.Int = ???
 }

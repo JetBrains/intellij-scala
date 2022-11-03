@@ -8,7 +8,6 @@ import scala.util.control.NonFatal
 
 // TODO Prettify and unify Scala 2 decompiler output, SCL-20672
 
-// extends AnyRef
 // case calss with Product with Serializable
 // case class val
 // self type class with
@@ -140,8 +139,6 @@ class DecompilerTest2 extends TestCase {
       .replace("Predef.", "")
       .replaceAll("\\w+\\.this\\.", "")
       .replace("final override ", "override final ")
-      .replace(" extends AnyRef with", " extends")
-      .replace(" extends AnyRef", "")
       .replace(" extends Product with Serializable", "")
       .replace(" with Product with Serializable", "")
       .replaceAll("(?<=case class .+)(?<!private )val ", "")
