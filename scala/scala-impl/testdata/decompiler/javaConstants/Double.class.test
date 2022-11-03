@@ -178,7 +178,7 @@ final abstract class Double extends scala.AnyVal {
   override def getClass(): _root_.scala.Predef.Class[scala.Double] = ???
 }
 
-object Double extends scala.AnyRef with scala.AnyValCompanion {
+object Double extends scala.AnyValCompanion {
   final val MinPositiveValue = 4.9E-324D
 
   final val NaN = java.lang.Double.NaN

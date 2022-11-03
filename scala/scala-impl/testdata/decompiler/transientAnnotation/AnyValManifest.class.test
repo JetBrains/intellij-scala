@@ -1,7 +1,7 @@
 package scala.reflect
 
 @scala.SerialVersionUID(value = 1)
-abstract class AnyValManifest[T <: scala.AnyVal](override val toString: scala.Predef.String) extends scala.AnyRef with scala.reflect.Manifest[T] with scala.Equals {
+abstract class AnyValManifest[T <: scala.AnyVal](override val toString: scala.Predef.String) extends scala.reflect.Manifest[T] with scala.Equals {
   override def <:<(that: scala.reflect.ClassManifest[_]): scala.Boolean = ???
 
   override def canEqual(other: scala.Any): scala.Boolean = ???

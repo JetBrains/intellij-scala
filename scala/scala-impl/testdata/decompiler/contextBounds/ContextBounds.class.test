@@ -1,4 +1,4 @@
-class ContextBounds[T: scala.math.Ordering] extends scala.AnyRef {
+class ContextBounds[T: scala.math.Ordering] {
   def singleParameter[A: scala.math.Ordering]: scala.Unit = ???
 
   def multipleParameters[A: scala.math.Ordering, B: scala.math.PartialOrdering]: scala.Unit = ???

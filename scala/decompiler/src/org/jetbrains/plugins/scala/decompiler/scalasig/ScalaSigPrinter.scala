@@ -687,9 +687,12 @@ class ScalaSigPrinter(builder: StringBuilder) {
         }
         sep + typeRefs.map(toString(_, level)).mkString("", " with ", "") + classStr
       case RefinedType(_, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString("", " with ", "")
-      case ClassInfoType(_, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString(" extends ", " with ", "")
-      case ClassInfoTypeWithCons(_, typeRefs, cons) => sep + typeRefs.map(toString(_, level)).
-              mkString(cons + " extends ", " with ", "")
+      case ClassInfoType(_, typeRefs) =>
+        val parents = typeRefs.map(toString(_, level)).dropWhile(_ == "scala.AnyRef")
+        if (parents.nonEmpty) sep + parents.mkString(" extends ", " with ", "") else sep
+      case ClassInfoTypeWithCons(_, typeRefs, cons) =>
+        val parents = typeRefs.map(toString(_, level)).dropWhile(_ == "scala.AnyRef")
+        if (parents.nonEmpty) sep + parents.mkString(cons + " extends ", " with ", "") else sep + cons
 
       case ImplicitMethodType(resultType, _) => toString(resultType, sep, level)
       case MethodType(resultType, _) => toString(resultType, sep, level)

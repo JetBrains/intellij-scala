@@ -1,4 +1,4 @@
-object Constants extends scala.AnyRef {
+object Constants {
   final val a = 1
 
   final val b = 1L

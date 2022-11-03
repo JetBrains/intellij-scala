@@ -1,23 +1,23 @@
 package japgolly.scalajs.react
 
-package object vdom extends scala.AnyRef {
+package object vdom {
   val EmptyTag: japgolly.scalajs.react.vdom.TagMod = ???
 
-  trait Tags extends scala.AnyRef with japgolly.scalajs.react.vdom.HtmlTags with japgolly.scalajs.react.vdom.Extra.Tags
+  trait Tags extends japgolly.scalajs.react.vdom.HtmlTags with japgolly.scalajs.react.vdom.Extra.Tags
 
-  trait JustTags extends scala.AnyRef with japgolly.scalajs.react.vdom.Tags {
+  trait JustTags extends japgolly.scalajs.react.vdom.Tags {
     final def svg: japgolly.scalajs.react.vdom.SvgTags.type = ???
   }
 
-  object Tags extends scala.AnyRef with japgolly.scalajs.react.vdom.JustTags
+  object Tags extends japgolly.scalajs.react.vdom.JustTags
 
-  trait Attrs extends scala.AnyRef with japgolly.scalajs.react.vdom.HtmlAttrs with japgolly.scalajs.react.vdom.Extra.Attrs with japgolly.scalajs.react.vdom.HtmlStyles
+  trait Attrs extends japgolly.scalajs.react.vdom.HtmlAttrs with japgolly.scalajs.react.vdom.Extra.Attrs with japgolly.scalajs.react.vdom.HtmlStyles
 
-  trait JustAttrs extends scala.AnyRef with japgolly.scalajs.react.vdom.Attrs {
+  trait JustAttrs extends japgolly.scalajs.react.vdom.Attrs {
     final def svg: japgolly.scalajs.react.vdom.SvgAttrs.type = ???
   }
 
-  object Attrs extends scala.AnyRef with japgolly.scalajs.react.vdom.JustAttrs
+  object Attrs extends japgolly.scalajs.react.vdom.JustAttrs
 
   abstract class Base extends japgolly.scalajs.react.vdom.Implicits {
     final type ReactTag = japgolly.scalajs.react.vdom.ReactTag
@@ -29,7 +29,7 @@ package object vdom extends scala.AnyRef {
   }
 
   object all extends japgolly.scalajs.react.vdom.Base with japgolly.scalajs.react.vdom.Tags with japgolly.scalajs.react.vdom.Attrs {
-    object svg extends scala.AnyRef with japgolly.scalajs.react.vdom.SvgTags with japgolly.scalajs.react.vdom.SvgAttrs
+    object svg extends japgolly.scalajs.react.vdom.SvgTags with japgolly.scalajs.react.vdom.SvgAttrs
 
     @scala.inline
     def keyAttr: japgolly.scalajs.react.vdom.Attr = ???
@@ -46,7 +46,7 @@ package object vdom extends scala.AnyRef {
     def ^ : vdom.Attrs.type = ???
   }
 
-  object svg extends scala.AnyRef {
+  object svg {
     object all extends japgolly.scalajs.react.vdom.Base with japgolly.scalajs.react.vdom.SvgTags with japgolly.scalajs.react.vdom.SvgAttrs
 
     object prefix_<^ extends japgolly.scalajs.react.vdom.Base {

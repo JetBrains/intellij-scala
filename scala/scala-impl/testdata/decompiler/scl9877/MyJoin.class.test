@@ -1,5 +1,5 @@
-object MyJoin extends scala.AnyRef {
-  object Foo extends scala.AnyRef {
+object MyJoin {
+  object Foo {
     def foo(param: scala.List[MyJoin.Foo.type]): scala.Unit = ???
   }
 }
