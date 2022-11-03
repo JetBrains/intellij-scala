@@ -12,7 +12,7 @@ import org.junit.Assert._
 class ScalaCodeStyleSettingsTest extends LightJavaCodeInsightFixtureTestCase {
 
   override def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles(getTestRootDisposable)
+    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
   }
 
