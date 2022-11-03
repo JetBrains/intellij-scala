@@ -34,7 +34,6 @@ object Versions {
     val binary_0_13 = "0.13"
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
 
-    val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.18"
     val latest_1_0 = "1.7.3"
     val latest: String = latest_1_0
