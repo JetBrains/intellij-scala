@@ -215,10 +215,12 @@ class ScalaSigPrinter(builder: StringBuilder) {
   def printClass(level: Int, c: ClassSymbol): Unit = {
     if (c.name == "<local child>" /*scala.tools.nsc.symtab.StdNames.LOCALCHILD.toString()*/ ) {
       print("\n")
-    } else if (c.name == "<refinement>") { //todo: make it better to avoin '\n' char
-      print(" {\n")
+    } else if (c.name == "<refinement>") {
+      print(" { ")
+      val previousLength = builder.length
       printChildren(level, c)
-      printWithIndent(level, "}")
+      builder.replace(previousLength, builder.length, LineSeparator.replaceAllIn(builder.substring(previousLength, builder.length).trim, "; "))
+      print(" }")
     } else {
       printModifiers(c)
       val (contextBounds, defaultConstructor) = if (!c.isTrait) getPrinterByConstructor(c) else (Seq.empty, "")
@@ -254,6 +256,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
       }
     }
   }
+
+  private val LineSeparator = "\n\\s*".r
 
   def getClassString(level: Int, c: ClassSymbol): String = {
     val printer = new ScalaSigPrinter(new StringBuilder())
@@ -687,7 +691,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
           if (text.trim.stripPrefix("{").stripSuffix("}").trim.isEmpty) ""
           else text
         }
-        sep + typeRefs.map(toString(_, level)).mkString("", " with ", "") + classStr
+        val parents = typeRefs.map(toString(_, level)).dropWhile(_ == "scala.AnyRef").mkString("", " with ", "")
+        if (parents.nonEmpty) sep + parents + classStr else sep.stripSuffix(" ") + classStr
       case RefinedType(_, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString("", " with ", "")
       case ClassInfoType(symbol, typeRefs) =>
         val parents = simplify(symbol, typeRefs.map(toString(_, level)))
