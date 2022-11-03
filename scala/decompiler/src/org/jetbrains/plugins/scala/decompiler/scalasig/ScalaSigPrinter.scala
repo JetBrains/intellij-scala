@@ -687,11 +687,11 @@ class ScalaSigPrinter(builder: StringBuilder) {
         }
         sep + typeRefs.map(toString(_, level)).mkString("", " with ", "") + classStr
       case RefinedType(_, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString("", " with ", "")
-      case ClassInfoType(_, typeRefs) =>
-        val parents = typeRefs.map(toString(_, level)).dropWhile(_ == "scala.AnyRef")
+      case ClassInfoType(symbol, typeRefs) =>
+        val parents = simplify(typeRefs.map(toString(_, level)), symbol.isCase)
         if (parents.nonEmpty) sep + parents.mkString(" extends ", " with ", "") else sep
-      case ClassInfoTypeWithCons(_, typeRefs, cons) =>
-        val parents = typeRefs.map(toString(_, level)).dropWhile(_ == "scala.AnyRef")
+      case ClassInfoTypeWithCons(symbol, typeRefs, cons) =>
+        val parents = simplify(typeRefs.map(toString(_, level)), symbol.isCase)
         if (parents.nonEmpty) sep + parents.mkString(cons + " extends ", " with ", "") else sep + cons
 
       case ImplicitMethodType(resultType, _) => toString(resultType, sep, level)
@@ -711,6 +711,11 @@ class ScalaSigPrinter(builder: StringBuilder) {
         toString(typeRef, sep, level) + (if (refs.nonEmpty) refs.mkString(" forSome {", "; ", "}") else "")
       case _ => sep + t.toString
     }
+  }
+
+  private def simplify(parents: Seq[String], isCase: Boolean) = {
+    val parents0 = parents.dropWhile(_ == "scala.AnyRef")
+    if (isCase) parents0.filterNot(_ == "scala.Product").filterNot(_ == "scala.Serializable") else parents0
   }
 
   def getVariance(t: TypeSymbol): String = if (t.isCovariant) "+" else if (t.isContravariant) "-" else ""
