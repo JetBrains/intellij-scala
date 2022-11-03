@@ -101,7 +101,7 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
   }
 
   override protected def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles(getTestRootDisposable)
+    TestUtils.optimizeSearchingForIndexableFiles()
 
     Files.createDirectories(srcPath)
     Files.createDirectories(classFilesOutputPath)
