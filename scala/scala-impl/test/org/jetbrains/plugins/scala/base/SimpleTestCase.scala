@@ -23,7 +23,7 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions {
   implicit def ctx: ProjectContext = fixture.getProject
 
   override def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles(getTestRootDisposable)
+    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
     fixture = createFixture()
     fixture.setUp()

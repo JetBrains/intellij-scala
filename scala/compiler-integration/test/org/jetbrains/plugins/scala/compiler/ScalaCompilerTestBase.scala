@@ -56,7 +56,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
   }
 
   override protected def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles(getTestRootDisposable)
+    TestUtils.optimizeSearchingForIndexableFiles()
 
     super.setUp()
 

@@ -18,7 +18,7 @@ import scala.util.Using
 class SbtRunnerTest extends UsefulTestCase {
 
   override def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles(getTestRootDisposable)
+    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
   }
 

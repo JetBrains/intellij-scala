@@ -11,7 +11,7 @@ class IconsTest extends UsefulTestCase {
 
 
   override def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles(getTestRootDisposable)
+    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
   }
 

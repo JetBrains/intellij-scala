@@ -129,11 +129,11 @@ object TestUtils {
     ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable, "ProcessWaitFor")
   }
 
-  def optimizeSearchingForIndexableFiles(disposable: Disposable): Unit = {
+  def optimizeSearchingForIndexableFiles(): Unit = {
     // The test flag needs to be set _before_ calling super.setUp() in order to disable repeated searching
     // for indexable files before each test. Our test environment in light project tests does not change
     // between test runs and enabling this optimization cuts down test execution time considerably.
-    TestModeFlags.set(VfsData.ENABLE_IS_INDEXED_FLAG_KEY, java.lang.Boolean.TRUE, disposable)
+    TestModeFlags.set(VfsData.ENABLE_IS_INDEXED_FLAG_KEY, java.lang.Boolean.TRUE)
   }
 
   /**

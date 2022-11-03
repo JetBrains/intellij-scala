@@ -22,7 +22,7 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with Scal
   )
 
   override protected def setUp(): Unit = {
-    TestUtils.optimizeSearchingForIndexableFiles(getTestRootDisposable)
+    TestUtils.optimizeSearchingForIndexableFiles()
     super.setUp()
     setUpLibraries(myModule)
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
