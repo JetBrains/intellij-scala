@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package delegate
+package org.jetbrains.plugins.scala.codeInsight.delegate
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.generation._
@@ -24,7 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.overrideImplement
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
@@ -98,19 +97,18 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       val typeParams = prototype.typeParameters
       val parametersAndRetType = prototype.parameters ++ prototype.returnTypeElement
       if (typeParams.exists(!typeParameterUsedIn(_, parametersAndRetType))) {
-        typeParams.map(_.nameId.getText).mkString("[", ", ", "]")
+        typeParams.map(_.nameId.getText).commaSeparated(Model.SquareBrackets)
       }
       else ""
     }
     val dText: String = delegateText(delegate)
     val methodName = prototype.name
     def paramClauseApplicationText(paramClause: ScParameterClause) = {
-      paramClause.parameters.map(_.name).mkString("(", ", ", ")")
+      paramClause.parameters.map(_.name).commaSeparated(Model.Parentheses)
     }
     val params = prototype.effectiveParameterClauses.map(paramClauseApplicationText).mkString
     createExpressionFromText(s"$dText.$methodName$typeParamsForCall$params")(prototype.getManager)
   }
-
 
   private def delegateText(delegate: ClassMember): String = {
     val delegateText = (delegate match {
@@ -129,9 +127,9 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   private def chooseMethods(delegate: ClassMember, file: PsiFile, editor: Editor, project: Project): ArraySeq[ScMethodMember] = {
     val delegateType = delegate.asInstanceOf[ScalaTypedMember].scType
     val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
+    if (aClass == null) return null
     val tBody = aClass.extendsBlock.templateBody.get
     val place = createExpressionWithContextFromText(delegateText(delegate), tBody, tBody.getFirstChild)
-    if (aClass == null) return null
 
     val candidates = CompletionProcessor.variants(delegateType, place)
     val members = toMethodMembers(candidates, place)
@@ -219,5 +217,4 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
     closestClass.withParentsInFile.toSeq.collect {case td: ScTemplateDefinition => td}
   }
-
 }
