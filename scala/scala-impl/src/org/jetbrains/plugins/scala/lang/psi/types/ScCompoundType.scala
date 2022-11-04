@@ -141,9 +141,11 @@ object ScCompoundType {
   )(implicit
     projectContext: ProjectContext
   ): ScCompoundType = {
+    val components1 = if (components.isEmpty) Seq(projectContext.stdTypes.AnyRef) else components
+
     val signatureMapVal = signaturesFromPsi(decls)
 
-    ScCompoundType(components, signatureMapVal, typeDecls.map { typeDecl =>
+    ScCompoundType(components1, signatureMapVal, typeDecls.map { typeDecl =>
       (typeDecl.name, TypeAliasSignature(typeDecl))
     }.toMap)
   }
