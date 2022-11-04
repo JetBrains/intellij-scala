@@ -244,7 +244,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         case ScProjectionType.withActual(alias: ScTypeAliasDefinition, _) if alias.kindProjectorPluginEnabled =>
           proj.projected match {
             case ScCompoundType(comps, sigs, aliases) if
-            comps.isEmpty && sigs.isEmpty && aliases.contains(alias.name) =>
+              comps == Seq(projectContext.stdTypes.AnyRef) && sigs.isEmpty && aliases.contains(alias.name) =>
               Option(KindProjectorSimplifyTypeProjectionInspection.convertToKindProjectorSyntax(alias))
             case _ => None
           }
