@@ -13,7 +13,6 @@ import scala.util.control.NonFatal
 // infix parameterized types
 // function types
 // tuple types
-// HKTs: `n` -> _
 // order of annotations
 
 // fix: <empty> package
@@ -134,7 +133,6 @@ class DecompilerTest2 extends TestCase {
       .replace("Predef.", "")
       .replaceAll("\\w+\\.this\\.", "")
       .replace("final override ", "override final ")
-      .replaceAll("`\\d+`", "_")
       .trim
 
     assertEquals(s"Content for $path", expected, adjusted)
