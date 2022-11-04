@@ -1,5 +1,4 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch
-
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -35,15 +34,15 @@ private final class ElementUsageWithReference private(
     def getGrandParent(e: PsiElement): Option[PsiElement] =
       e.parent.flatMap(_.parent)
 
-    getGrandParent(reference.getElement) match {
+    getGrandParent(reference.getElement).exists {
 
-      case Some(f: ScFunction) if f.returnTypeElement.contains(directParent) =>
+      case f: ScFunction if f.returnTypeElement.contains(directParent) =>
         !isPrivate(f)
 
-      case Some(p: ScValueOrVariable) if p.typeElement.contains(directParent) =>
+      case p: ScValueOrVariable if p.typeElement.contains(directParent) =>
         !isPrivate(p)
 
-      case Some(c: ScConstructorInvocation) if c.typeElement == directParent =>
+      case c: ScConstructorInvocation if c.typeElement == directParent =>
 
         val extendsBlock = getGrandParent(c).collect { case e: ScExtendsBlock => e }
 
@@ -55,13 +54,13 @@ private final class ElementUsageWithReference private(
 
         newTemplateDefinition.isEmpty && !modifierListOwner.exists(isPrivate)
 
-      case Some(t: ScParameterType) => getGrandParent(t).flatMap(getGrandParent) match {
-        case Some(f: ScFunction) => !isPrivate(f)
+      case t: ScParameterType => getGrandParent(t).flatMap(getGrandParent).exists {
+        case f: ScFunction => !isPrivate(f)
         case _ => false
       }
 
-      case Some(t: ScTypeParam) => getGrandParent(t) match {
-        case Some(f: ScFunction) => !isPrivate(f)
+      case t: ScTypeParam => getGrandParent(t).exists {
+        case f: ScFunction => !isPrivate(f)
         case _ => false
       }
 
