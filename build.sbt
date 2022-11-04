@@ -25,6 +25,7 @@ import java.nio.file.Paths
 (Global / scalacOptions) := globalScalacOptions
 
 //todo remove after fixing leak in sbt.internal.inc.HashUtil.farmHash
+//UPD: this is probably about: https://github.com/sbt/sbt/issues/6029
 Global / concurrentRestrictions := Seq(Tags.limitAll(3))
 
 val intellijPluginsScopeFilter: ScopeFilter =
