@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.element.ScExpressionAnnotator.checkExpressionType
@@ -10,8 +11,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFunctionExpr, ScParenthesisedExpr, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType.isFunctionType
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.SAMUtil.toSAMType
 
 object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
@@ -35,7 +37,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
       case FunctionType(_, expectedTypes) =>
         missingParametersIn(literal, parameters, expectedTypes) ||
           tooManyParametersIn(literal, parameters, expectedTypes) ||
-          parameterTypeMismatchIn(parameters, expectedTypes)
+          parameterTypeMismatchIn(literal, parameters, expectedTypes)
       case _ => false
     } || missingParameterTypeIn(parameters)
 
@@ -74,9 +76,29 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
     missing
   }
 
-  private def tooManyParametersIn(literal: ScFunctionExpr, parameters: Seq[ScParameter], expectedTypes: Iterable[ScType])
-                                 (implicit holder: ScalaAnnotationHolder): Boolean = {
-    val tooMany = parameters.size > expectedTypes.size
+  private def untupledExpectedType(
+    ctx:           PsiElement,
+    parameters:    Iterable[ScParameter],
+    expectedTypes: Iterable[ScType]
+  ): Option[Seq[ScType]] =
+    if (ctx.isInScala3Module && expectedTypes.size == 1)
+      expectedTypes.head match {
+        case TupleType(components) if components.size == parameters.size => Option(components)
+        case _                                                           => None
+      }
+    else None
+
+  private def tooManyParametersIn(
+    literal: ScFunctionExpr,
+    parameters: Seq[ScParameter],
+    expectedTypes: Iterable[ScType]
+  )(implicit
+    holder: ScalaAnnotationHolder
+  ): Boolean = {
+    val tooMany =
+      parameters.size > expectedTypes.size &&
+        untupledExpectedType(literal, parameters, expectedTypes).isEmpty
+
     if (tooMany) {
       val message = ScalaBundle.message("annotator.error.too.many.parameters")
       if (!literal.hasParentheses) {
@@ -94,15 +116,29 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
     tooMany
   }
 
-  private def parameterTypeMismatchIn(parameters: Iterable[ScParameter], expectedTypes: Iterable[ScType])(implicit holder: ScalaAnnotationHolder): Boolean = {
-    var typeMismatch = false
-    parameters.zip(expectedTypes).iterator.takeWhile(_ => !typeMismatch).foreach { case (parameter, expectedType) =>
-      parameter.typeElement.flatMap(_.`type`().toOption).filter(!expectedType.conforms(_)).foreach { _ =>
-        val message = ScalaBundle.message("type.mismatch.expected", expectedType.presentableText(parameter), parameter.typeElement.get.getText)
-        val ranges = mismatchRangesIn(parameter.typeElement.get, expectedType)(parameter)
-        ranges.foreach(holder.createErrorAnnotation(_, message, ReportHighlightingErrorQuickFix))
-        typeMismatch = true
-      }
+  private def parameterTypeMismatchIn(
+    ctx:           PsiElement,
+    parameters:    Iterable[ScParameter],
+    expectedTypes: Iterable[ScType]
+  )(implicit
+    holder: ScalaAnnotationHolder
+  ): Boolean = {
+    var typeMismatch                = false
+    val expectedTypesAfterUntupling = untupledExpectedType(ctx, parameters, expectedTypes).getOrElse(expectedTypes)
+
+    parameters.zip(expectedTypesAfterUntupling).iterator.takeWhile(_ => !typeMismatch).foreach {
+      case (parameter, expectedType) =>
+        parameter.typeElement.flatMap(_.`type`().toOption).filter(!expectedType.conforms(_)).foreach { _ =>
+          val message = ScalaBundle.message(
+            "type.mismatch.expected",
+            expectedType.presentableText(parameter),
+            parameter.typeElement.get.getText
+          )
+
+          val ranges = mismatchRangesIn(parameter.typeElement.get, expectedType)(parameter)
+          ranges.foreach(holder.createErrorAnnotation(_, message, ReportHighlightingErrorQuickFix))
+          typeMismatch = true
+        }
     }
     typeMismatch
   }
