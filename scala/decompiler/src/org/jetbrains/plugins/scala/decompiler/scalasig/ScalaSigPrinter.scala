@@ -691,8 +691,11 @@ class ScalaSigPrinter(builder: StringBuilder) {
           if (text.trim.stripPrefix("{").stripSuffix("}").trim.isEmpty) ""
           else text
         }
-        val parents = typeRefs.map(toString(_, level)).dropWhile(_ == "scala.AnyRef").mkString("", " with ", "")
-        if (parents.nonEmpty) sep + parents + classStr else sep.stripSuffix(" ") + classStr
+        val parents = {
+          val parents0 = typeRefs.map(toString(_, level))
+          if (classStr.nonEmpty && parents0 == Seq("scala.AnyRef")) "" else parents0.mkString("", " with ", "")
+        }
+        if (parents.nonEmpty) sep + parents + classStr else sep + classStr.stripPrefix(" ")
       case RefinedType(_, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString("", " with ", "")
       case ClassInfoType(symbol, typeRefs) =>
         val parents = simplify(symbol, typeRefs.map(toString(_, level)))
