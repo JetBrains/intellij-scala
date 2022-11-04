@@ -62,4 +62,31 @@ class Scala3ParameterUntuplingTest extends TypeInferenceTestBase {
        |}
        |""".stripMargin
   )
+
+  def testUntuplingNoAnnotations(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  val xs: List[(Int, Int)] = ???
+      |  xs.map { (x, y) => x + y }
+      |}
+      |""".stripMargin
+  )
+
+  def testUntuplingCorrectAnnotations(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  val xs: List[(Int, Int)] = ???
+      |  xs.map { (x: Int, y: Int) => x + y }
+      |}
+      |""".stripMargin
+  )
+
+  def testUntuplingWrongAnnotations(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |object A {
+       |  val xs: List[(Int, Int)] = ???
+       |  xs.map { (x: S${CARET}tring, y: Int) => x + y }
+       |}
+       |""".stripMargin
+  )
 }
