@@ -26,7 +26,7 @@ import scala.collection.mutable
 import scala.reflect.ClassTag
 
 object ScalaInheritors {
-  private val defaultParents   : Array[String] = Array("Object")
+  private val defaultParents   : Array[String] = Array("AnyRef")
   private val caseClassDefaults: Array[String] = defaultParents :+ "Product" :+ "Serializable"
 
   def directSupersNames(extBlock: ScExtendsBlock): ArraySeq[String] = {
