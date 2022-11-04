@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterType, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 
@@ -40,7 +40,7 @@ private final class ElementUsageWithReference private(
       case Some(f: ScFunction) if f.returnTypeElement.contains(directParent) =>
         !isPrivate(f)
 
-      case Some(p: ScPatternDefinition) if p.typeElement.contains(directParent) =>
+      case Some(p: ScValueOrVariable) if p.typeElement.contains(directParent) =>
         !isPrivate(p)
 
       case Some(c: ScConstructorInvocation) if c.typeElement == directParent =>
