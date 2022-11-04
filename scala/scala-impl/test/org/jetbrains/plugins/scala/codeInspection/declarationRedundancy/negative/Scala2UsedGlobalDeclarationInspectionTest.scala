@@ -239,7 +239,7 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
   }
 
   def test_single_abstract_method(): Unit = {
-    addJavaFile(
+    addScalaFile(
       """import scala.annotation.unused
         |@unused class SamConsumer { @unused val samContainer: SamContainer = (i: Int) => println(i) }
         |""".stripMargin
