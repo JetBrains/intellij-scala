@@ -864,7 +864,7 @@ object ScalaSigPrinter {
 
   private val setterSuffix = "_$eq"
 
-  private val placeholderPattern = Pattern.compile("_\\$(\\d)+")
+  private val placeholderPattern = Pattern.compile("_\\$\\S?\\d+")
 
   private val defaultParamMarker = "$default$"
 
@@ -876,7 +876,7 @@ object ScalaSigPrinter {
 
     def fixRoot: String = StringUtils.replace(str, "<root>", "_root_")
 
-    def stripPrivatePrefix: String = {
+    def stripPrivatePrefix: String = if (placeholderPattern.matcher(str).matches) str else {
       val i = str.lastIndexOf("$$")
       if (i > 0) str.substring(i + 2) else str
     }
