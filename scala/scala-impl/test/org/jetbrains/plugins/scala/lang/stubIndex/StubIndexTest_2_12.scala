@@ -234,7 +234,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
     assertEquals(function2Inheritors, Seq("scala.runtime.AbstractFunction2"))
 
     assertTrue(elementsInScalaLibrary("AnyRef", SUPER_CLASS_NAME_KEY).size > 1000)
-    assertTrue(elementsInScalaLibrary("Object", SUPER_CLASS_NAME_KEY).size > 1000)
+    // assertTrue(elementsInScalaLibrary("Object", SUPER_CLASS_NAME_KEY).size > 1000) // TODO Do we need this for Java interop?
   }
 
   def testSelfType(): Unit = {
