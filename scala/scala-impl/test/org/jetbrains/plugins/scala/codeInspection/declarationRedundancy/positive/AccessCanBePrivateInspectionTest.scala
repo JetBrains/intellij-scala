@@ -38,6 +38,10 @@ class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestBase {
     checkTextHasError(s"object A { class ${START}B$END; private val c: B = ??? }", AllowAdditionalHighlights)
   }
 
+  def test_no_need_to_prevent_leaking_via_var(): Unit = {
+    checkTextHasError(s"object A { class ${START}B$END; private var c: B = ??? }", AllowAdditionalHighlights)
+  }
+
   def test_no_need_to_prevent_leaking_via_def_return_type(): Unit = {
     checkTextHasError(s"object A { class ${START}B$END; private def c: B = ??? }", AllowAdditionalHighlights)
   }

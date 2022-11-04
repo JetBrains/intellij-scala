@@ -28,8 +28,8 @@ private[cheapRefSearch] final class RefCountHolderSearch(override val shouldProc
     }
 
     val res = if (!success) {
-      // ElementUsageWithoutReference is used because ScalaRefCountHolder does not remember
-      // reference sources, only their targets.
+      // ElementUsageWithoutReference is used because ScalaRefCountHolder
+      // was not ready yet, so we assume the element is used.
       Seq(ElementUsageWithoutReference)
     } else {
       references.map(r => ElementUsageWithReference(r, ctx.element))
