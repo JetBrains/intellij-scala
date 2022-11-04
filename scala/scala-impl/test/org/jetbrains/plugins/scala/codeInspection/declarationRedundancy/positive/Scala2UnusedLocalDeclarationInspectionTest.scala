@@ -217,7 +217,7 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
   )
 
   def test_property_assignment(): Unit = checkTextHasError(
-    s"""object Test {
+    s"""@scala.annotation.unused object Test {
        |  private def data: Int = 0
        |  private def ${START}data_=$END(i: Int): Int = i
        |
