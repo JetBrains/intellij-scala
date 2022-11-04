@@ -47,35 +47,26 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
   }
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = {
-    // Structure to encapsulate the possibility to check a delegate element to determine
-    // usedness of the original PsiElement passed into `invoke`.
-    // When a ProblemInfo is created, we still want it to pertain to the original element under inspection,
-    // that was passed into `invoke`, and not to the delegate.
-    // So we use the delegate only to determine usedness, and the original for all other operations.
-    case class InspectedElement(original: ScNamedElement, delegate: ScNamedElement)
 
-    val elements: Seq[InspectedElement] = element match {
-      case functionDeclaration: ScFunctionDeclaration
-        if Option(functionDeclaration.containingClass).exists(_.isSAMable) =>
-        Option(functionDeclaration.containingClass).toSeq
-          .collect { case named: ScNamedElement => named }
-          .map(InspectedElement(functionDeclaration, _))
-      case named: ScNamedElement => Seq(InspectedElement(named, named))
-      case _ => Seq.empty
+    val pipeline = getPipeline(element.getProject, reportPublicDeclarations)
+
+    def isFunctionDeclarationOfUsedSAMableClass: Boolean = element match {
+      case functionDeclaration: ScFunctionDeclaration =>
+        val containingClass = functionDeclaration.containingClass
+        Option(containingClass).exists(c => c.isSAMable && pipeline.runSearchPipeline(c, isOnTheFly).nonEmpty)
+      case _ => false
     }
 
-    elements.flatMap {
-      case InspectedElement(_, _: ScTypeParam) if !isOnTheFly => Seq.empty
-      case InspectedElement(_, typeParam: ScTypeParam) if typeParam.hasBounds || typeParam.hasImplicitBounds => Seq.empty
-      case InspectedElement(_, inNameContext(holder: PsiAnnotationOwner)) if hasUnusedAnnotation(holder) =>
-        Seq.empty
-      case InspectedElement(original: ScNamedElement, delegate: ScNamedElement) =>
+    element match {
+      case _: ScTypeParam if !isOnTheFly => Seq.empty
+      case typeParam: ScTypeParam if typeParam.hasBounds || typeParam.hasImplicitBounds => Seq.empty
+      case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) => Seq.empty
+      case named: ScNamedElement =>
+        val usages = pipeline.runSearchPipeline(named, isOnTheFly)
 
-        val usages = getPipeline(element.getProject, reportPublicDeclarations).runSearchPipeline(delegate, isOnTheFly)
+        if (usages.isEmpty && !isFunctionDeclarationOfUsedSAMableClass) {
 
-        if (usages.isEmpty) {
-
-          val dontReportPublicDeclarationsQuickFix = if (isOnlyVisibleInLocalFile(original)) None
+          val dontReportPublicDeclarationsQuickFix = if (isOnlyVisibleInLocalFile(named)) None
           else Some(
             new SetInspectionOptionFix(
               this,
@@ -85,20 +76,20 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
             )
           )
 
-          val addScalaAnnotationUnusedQuickFix = if (delegate.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13) None
-          else Some(new AddScalaAnnotationUnusedQuickFix(original))
+          val addScalaAnnotationUnusedQuickFix = if (named.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13) None
+          else Some(new AddScalaAnnotationUnusedQuickFix(named))
 
           val message = if (isOnTheFly) {
             ScalaUnusedDeclarationInspection.annotationDescription
           } else {
-            UnusedDeclarationVerboseProblemInfoMessage(original)
+            UnusedDeclarationVerboseProblemInfoMessage(named)
           }
 
           Seq(
             ProblemInfo(
-              original.nameId,
+              named.nameId,
               message,
-              DeleteUnusedElementFix.quickfixesFor(original) ++
+              DeleteUnusedElementFix.quickfixesFor(named) ++
                 dontReportPublicDeclarationsQuickFix ++
                 addScalaAnnotationUnusedQuickFix
             )
