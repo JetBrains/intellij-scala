@@ -29,7 +29,7 @@
         </constraints>
         <properties>
           <selected value="false"/>
-          <text resource-bundle="messages/ScalaBundle" key="scala.debug.disable.specific.methods"/>
+          <text resource-bundle="messages/DebuggerBundle" key="scala.debug.disable.specific.methods"/>
         </properties>
       </component>
     </children>
