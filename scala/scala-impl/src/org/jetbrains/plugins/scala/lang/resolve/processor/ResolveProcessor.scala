@@ -81,7 +81,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     def update: Boolean = {
       val iterator = levelSet.iterator()
       while (iterator.hasNext) {
-        candidatesSet = candidatesSet union Set(iterator.next())
+        candidatesSet = candidatesSet + iterator.next()
       }
       uniqueNamesSet.addAll(levelUniqueNamesSet)
       levelSet.clear()
@@ -178,7 +178,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     var res = candidatesSet
     val iterator = levelSet.iterator()
     while (iterator.hasNext) {
-      res = res union Set(iterator.next())
+      res = res + iterator.next()
     }
 
     /*

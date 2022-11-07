@@ -341,7 +341,7 @@ class ImplicitCollector(
             filteredCandidates.filterInPlace(notMoreSpecific)
             //this filter was added to make result deterministic
             results = results.filter(c => notMoreSpecific(c))
-            results = results union Set(r)
+            results = results + r
           }
         case None => ()
       }

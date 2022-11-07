@@ -40,10 +40,10 @@ object BaseProcessor {
                                     visitedTypeParameter: Set[TypeParameterType]) {
 
     def add(projection: PsiNamedElement): RecursionState =
-      copy(visitedProjections = visitedProjections union Set(projection))
+      copy(visitedProjections = visitedProjections + projection)
 
     def add(tpt: TypeParameterType): RecursionState =
-      copy(visitedTypeParameter = visitedTypeParameter union Set(tpt))
+      copy(visitedTypeParameter = visitedTypeParameter + tpt)
   }
 
   private object RecursionState {

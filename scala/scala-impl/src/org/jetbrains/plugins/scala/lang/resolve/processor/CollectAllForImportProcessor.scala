@@ -22,7 +22,7 @@ class CollectAllForImportProcessor(override val kinds: Set[ResolveTargets.Value]
       }
 
       val result = new ScalaResolveResult(target, state.substitutor, state.importsUsed, fromType = fromType, isAccessible = true)
-      candidatesSet = candidatesSet union Set(result)
+      candidatesSet = candidatesSet + result
     }
 
     true
