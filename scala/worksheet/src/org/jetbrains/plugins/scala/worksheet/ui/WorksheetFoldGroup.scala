@@ -1,22 +1,19 @@
 package org.jetbrains.plugins.scala
 package worksheet.ui
 
-import java.util
-
 import com.intellij.openapi.editor.ex.{FoldingListener, FoldingModelEx}
 import com.intellij.openapi.editor.{Document, Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.{DiffMapping, SimpleWorksheetSplitter}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup._
 import org.jetbrains.plugins.scala.worksheet.utils.FileAttributeUtilCache
 
+import java.util
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 final class WorksheetFoldGroup(
   private val viewerEditor: Editor, // left editor
@@ -138,7 +135,6 @@ final class WorksheetFoldGroup(
     true
   }
 
-  @Measure
   private def traverseRegions(target: FoldRegion): (Iterable[DiffMapping], FoldRegionInfo, Int) = {
     val emptyResult: (Seq[DiffMapping], FoldRegionInfo, Int) = (Seq.empty, null, 0)
     if (_regions.synchronized(_regions.isEmpty)) return emptyResult
