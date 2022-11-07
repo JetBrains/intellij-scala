@@ -175,10 +175,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
   }
 
   private def createEntity(block: ScExtendsBlock, text: String): Option[PsiElement] = {
-    if (block.templateBody.isEmpty)
-      block.add(createTemplateBody(block.getManager))
-
-    val children = block.templateBody.get.children.toSeq
+    val templateBody = block.getOrCreateTemplateBody
+    val children = templateBody.children.toSeq
     for (anchor <- children.find(_.is[ScSelfTypeElement]).orElse(children.headOption)) yield {
       val holder = anchor.getParent
 
