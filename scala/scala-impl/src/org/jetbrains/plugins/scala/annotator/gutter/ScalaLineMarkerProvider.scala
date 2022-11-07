@@ -46,7 +46,6 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
     if (element.isValid) {
       val lineMarkerInfo =
         getOverridesImplementsMarkers(element)
-          .orElse(getImplementsSAMTypeMarker(element))
           .orElse(companionMarker(element))
           .orNull
 
@@ -188,6 +187,10 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
   override def collectSlowLineMarkers(elements: ju.List[_ <: PsiElement],
                                       result: ju.Collection[_ >: LineMarkerInfo[_]]): Unit = {
     import scala.jdk.CollectionConverters._
+
+    elements.asScala.filter(_.isValid).flatMap { element =>
+      getImplementsSAMTypeMarker(element).map(augmentSeparatorInfo(element, _))
+    }.foreach(result.add)
 
     if (!OverriddenOption.isEnabled && !ImplementedOption.isEnabled) {
       return
