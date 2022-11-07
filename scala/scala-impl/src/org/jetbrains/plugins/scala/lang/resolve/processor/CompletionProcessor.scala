@@ -130,7 +130,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     while (iterator.hasNext) {
       val next = iterator.next()
       postProcess(next)
-      candidatesSet = candidatesSet union Set(next)
+      candidatesSet = candidatesSet + next
     }
   }
 
