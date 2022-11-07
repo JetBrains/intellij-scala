@@ -563,6 +563,9 @@
         <registryKey key="scalafmt.min.time.between.format.on.save.action.ms" defaultValue="300" restartRequired="false"
                      description="Minimum allowed time between 'Format on Save' triggers (when Scalafmt formatter is enabled)"/>
 
+        <registryKey key="scala.valueused.hardpointer" defaultValue="false" restartRequired="true"
+                     description="Use hard pointer instead of SmartPsiElementPointer for ValueUsed, as well as for ElementUsage. Set it to true for diagnosing the issue we're having with many imports and declarations suddenly highlighted unused."/>
+
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
         <nameSuggestionProvider id="ScalaDictionarySuggestionProvider" implementation="org.jetbrains.plugins.scala.spellchecker.ScalaDictionarySuggestionProvider" order="first, before DictionarySuggestionProvider"/>
