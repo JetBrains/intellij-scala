@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 import scala.collection.mutable
 
@@ -46,7 +45,6 @@ private class MacroFinderImpl(
     findMacroValue(macroName)
   }
 
-  @Measure
   private def findMacroValue(macroName: String): Option[String] = {
     val comments: Iterator[ScDocComment] = for {
       owner       <- resolvableCommentOwners.iterator

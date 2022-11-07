@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
 import org.jetbrains.plugins.scala.testingSupport.test.munit.{MUnitTestFramework, MUnitTestLocationsFinder, MUnitUtils}
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestTestFramework, ScalaTestTestLocationsFinder}
@@ -86,7 +85,6 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
   // REMINDER: we shouldn't do any long resolve or some other heavy computation,
   // because we can't block UI thread, we already have a lag in a context menu on a single method (right click),
   // not talking about dozens of methods which should be resolved here
-  @Measure
   private def infoForMethod(method: PsiMethod): Option[RunLineMarkerContributor.Info] = {
 
     def findParentThatImplementsFramework: (Option[PsiClass], Option[TestFramework]) = {
