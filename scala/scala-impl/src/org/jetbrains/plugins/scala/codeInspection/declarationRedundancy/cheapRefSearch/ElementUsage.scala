@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch
+
+import com.intellij.model.Pointer
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement, SmartPsiElementPointer}
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -20,13 +22,13 @@ private object ElementUsageWithoutReference extends ElementUsage {
 }
 
 private final class ElementUsageWithReference private(
-  reference: SmartPsiElementPointer[PsiElement],
+  reference: Pointer[PsiElement],
   target: WeakReference[ScNamedElement]
 ) extends ElementUsage {
 
   private def referenceLeaksTargetType: Boolean = {
 
-    val directParent = reference.getElement.getParent
+    val directParent = reference.dereference().getParent
 
     def isPrivate(modifierListOwner: ScModifierListOwner): Boolean =
       modifierListOwner.getModifierList.accessModifier.exists(_.isPrivate)
@@ -34,8 +36,7 @@ private final class ElementUsageWithReference private(
     def getGrandParent(e: PsiElement): Option[PsiElement] =
       e.parent.flatMap(_.parent)
 
-    getGrandParent(reference.getElement).exists {
-
+    getGrandParent(reference.dereference()).exists {
       case f: ScFunction if f.returnTypeElement.contains(directParent) =>
         !isPrivate(f)
 
@@ -73,7 +74,7 @@ private final class ElementUsageWithReference private(
       false
     } else {
 
-      var refContainingClass = PsiTreeUtil.getParentOfType(reference.getElement, classOf[PsiClass])
+      var refContainingClass = PsiTreeUtil.getParentOfType(reference.dereference(), classOf[PsiClass])
       var counter = 0
 
       while (
@@ -102,6 +103,6 @@ private object ElementUsageWithReference {
   def apply(reference: PsiElement, target: ScNamedElement): ElementUsageWithReference =
     new ElementUsageWithReference(reference.createSmartPointer, WeakReference(target))
 
-  def apply(reference: SmartPsiElementPointer[PsiElement], target: ScNamedElement): ElementUsageWithReference =
+  def apply(reference: Pointer[PsiElement], target: ScNamedElement): ElementUsageWithReference =
     new ElementUsageWithReference(reference, WeakReference(target))
 }

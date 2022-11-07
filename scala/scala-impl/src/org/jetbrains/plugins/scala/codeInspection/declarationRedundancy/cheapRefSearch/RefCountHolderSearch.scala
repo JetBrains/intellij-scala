@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch
 
-import com.intellij.psi.{PsiElement, SmartPsiElementPointer}
+import com.intellij.model.Pointer
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.{Method, SearchMethodResult}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline.ShouldProcess
@@ -21,7 +22,7 @@ private[cheapRefSearch] final class RefCountHolderSearch(override val shouldProc
   override def searchForUsages(ctx: Search.Context): SearchMethodResult = {
     val refCountHolder: ScalaRefCountHolder = ScalaRefCountHolder(ctx.element)
 
-    var references: Seq[SmartPsiElementPointer[PsiElement]] = Seq.empty
+    var references: Seq[Pointer[PsiElement]] = Seq.empty
 
     val success = refCountHolder.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
       references = refCountHolder.getReadReferences(ctx.element) ++ refCountHolder.getWriteReferences(ctx.element)
