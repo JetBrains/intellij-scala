@@ -53,6 +53,7 @@ object TraceLogSelectionView {
     scrollPane.setViewportView(table)
 
     val mainPanel = new JPanel()
+    actionToolBar.setTargetComponent(mainPanel)
     mainPanel.setLayout(new BorderLayout)
     mainPanel.add(actionToolbarPanel, BorderLayout.WEST)
     mainPanel.add(scrollPane, BorderLayout.CENTER)
