@@ -9,6 +9,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 
 final class ScalaComponentTypeOfMacro extends ScalaMacro {
 
+  override def getNameShort: String = "componentTypeOf"
+
+  override def getPresentableName: String = JavaBundle.message("macro.component.type.of.array")
+
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params match {
     case Array(head) =>
       val maybeType = head.calculateResult(context) match {
@@ -37,6 +41,4 @@ final class ScalaComponentTypeOfMacro extends ScalaMacro {
       }
     case _ => null
   }
-
-  override def getPresentableName: String = JavaBundle.message("macro.component.type.of.array")
 }

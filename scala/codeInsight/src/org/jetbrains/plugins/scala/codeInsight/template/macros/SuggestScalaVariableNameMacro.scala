@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
-import com.intellij.ide.IdeDeprecatedMessagesBundle
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -18,6 +17,10 @@ final class SuggestScalaVariableNameMacro extends ScalaMacro {
 
   import SuggestScalaVariableNameMacro._
 
+  override def getNameShort: String = "suggestVariableName"
+
+  override def getDefaultValue: String = "value"
+
   override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] =
     getNames(params)(context) match {
       case names if names.length < 2 => null
@@ -32,10 +35,6 @@ final class SuggestScalaVariableNameMacro extends ScalaMacro {
       .map(new TextResult(_))
       .headOption
       .orNull
-
-  override def getPresentableName: String = IdeDeprecatedMessagesBundle.message("macro.suggest.variable.name")
-
-  override def getDefaultValue: String = "value"
 
   override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = null
 }

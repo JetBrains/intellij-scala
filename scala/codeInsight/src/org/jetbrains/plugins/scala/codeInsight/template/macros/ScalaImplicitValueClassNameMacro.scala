@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 
 final class ScalaImplicitValueClassNameMacro extends ScalaMacro {
 
+  override def getNameShort: String = "implicitValueClassName"
+
   override def getPresentableName: String = ScalaCodeInsightBundle.message("macro.implicit.value.class.name")
 
   import ScalaCodeStyleSettings.{DEFAULT_IMPLICIT_VALUE_CLASS_SUFFIX => DefaultSuffix}

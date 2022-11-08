@@ -12,5 +12,7 @@ final class ScalaExpressionTypeMacro extends ScalaMacro {
     case _            => null
   }
 
+  override def getNameShort: String = "expressionType"
+
   override def getPresentableName: String = JavaBundle.message("macro.expression.type")
 }

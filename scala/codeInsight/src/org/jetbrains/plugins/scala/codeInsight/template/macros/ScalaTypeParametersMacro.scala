@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.codeInsight.template.macros
+
 import com.intellij.codeInsight.template.{Expression, ExpressionContext, PsiElementResult, Result, TextResult}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 final class ScalaTypeParametersMacro extends ScalaMacro {
+
+  override def getNameShort: String = "typeParams"
 
   override def getPresentableName: String = ScalaCodeInsightBundle.message("marco.typeParameters")
 
@@ -32,6 +35,8 @@ object ScalaTypeParametersMacro {
 }
 
 final class ScalaTypeParametersWithoutBoundsMacro extends ScalaMacro {
+
+  override def getNameShort: String = "typeParamsWithoutBounds"
 
   override def getPresentableName: String = ScalaCodeInsightBundle.message("marco.typeParameters.without.bounds")
 

@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package macros
+package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.template.Result
 import com.intellij.openapi.editor.Document

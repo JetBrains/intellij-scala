@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package macros
+package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
@@ -9,6 +6,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.AnnotatedMembersSearch
 import com.intellij.psi.{PsiClass, PsiMember}
 import com.intellij.util.{EmptyQuery, Query}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 import scala.jdk.CollectionConverters._
@@ -27,6 +25,8 @@ final class ScalaAnnotatedMacro extends ScalaMacro {
                 getOrElse(EmptyQuery.getEmptyQuery[PsiMember])
     }
   }
+
+  override def getNameShort: String = "annotated"
 
   override def getPresentableName: String = ScalaCodeInsightBundle.message("macro.annotated")
 

@@ -1,16 +1,14 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package macros
+package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.template._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
-sealed abstract class ScalaPrimaryConstructorMacro(override final val getPresentableName: String) extends ScalaMacro {
+sealed abstract class ScalaPrimaryConstructorMacro extends ScalaMacro {
   protected def parametersText(parameters: ScParameters): Option[String]
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
@@ -20,7 +18,7 @@ sealed abstract class ScalaPrimaryConstructorMacro(override final val getPresent
       .orNull
   }
 
-  protected def findParameters(context: ExpressionContext): Option[ScParameters] =
+   private def findParameters(context: ExpressionContext): Option[ScParameters] =
     for {
       clazz       <- ScalaCompanionClassMacro.companionClass(context.getPsiElementAtStartOffset)
       constructor <- clazz.constructor
@@ -29,7 +27,12 @@ sealed abstract class ScalaPrimaryConstructorMacro(override final val getPresent
 
 
 object ScalaPrimaryConstructorMacro {
-  final class Params extends ScalaPrimaryConstructorMacro(ScalaCodeInsightBundle.message("macro.primaryConstructor.param.instances")) {
+  final class Params extends ScalaPrimaryConstructorMacro {
+
+    override def getNameShort: String = "primaryConstructorParams"
+
+    override def getPresentableName: String = ScalaCodeInsightBundle.message("macro.primaryConstructor.param.instances")
+
     override protected def parametersText(parameters: ScParameters): Option[String] = {
       val clauses: Seq[ScParameterClause] = parameters.clauses
       if (clauses.nonEmpty) {
@@ -55,7 +58,12 @@ object ScalaPrimaryConstructorMacro {
     }
   }
 
-  final class ParamNames extends ScalaPrimaryConstructorMacro(ScalaCodeInsightBundle.message("macro.primaryConstructor.param.names")) {
+  final class ParamNames extends ScalaPrimaryConstructorMacro {
+
+    override def getNameShort: String = "primaryConstructorParamNames"
+
+    override def getPresentableName: String = ScalaCodeInsightBundle.message("macro.primaryConstructor.param.names")
+
     override def calculateResult(expressions: Array[Expression], context: ExpressionContext): Result = {
       val argsVarResult: Option[TextResult] =
         expressions.headOption
@@ -101,7 +109,12 @@ object ScalaPrimaryConstructorMacro {
     }
   }
 
-  final class ParamTypes extends ScalaPrimaryConstructorMacro(ScalaCodeInsightBundle.message("macro.primaryConstructor.param.types")) {
+  final class ParamTypes extends ScalaPrimaryConstructorMacro {
+
+    override def getNameShort: String = "primaryConstructorParamTypes"
+
+    override def getPresentableName: String = ScalaCodeInsightBundle.message("macro.primaryConstructor.param.types")
+
     override protected def parametersText(parameters: ScParameters): Option[String] = {
       val firstParamClause = parameters.clauses.headOption.map(_.parameters)
       firstParamClause.map { params: Seq[ScParameter] =>

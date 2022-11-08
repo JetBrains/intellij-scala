@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package macros
+package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
@@ -16,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 
-sealed abstract class ScalaVariableOfTypeMacro(override final val getPresentableName: String) extends ScalaMacro {
+sealed abstract class ScalaVariableOfTypeMacro extends ScalaMacro {
 
   import ScalaVariableOfTypeMacro._
 
@@ -90,12 +87,18 @@ object ScalaVariableOfTypeMacro {
     * This class provides macros for live templates. Return elements
     * of given class type (or class types).
     */
-  final class RegularVariable extends ScalaVariableOfTypeMacro(JavaBundle.message("macro.variable.of.type")) {
+  final class RegularVariable extends ScalaVariableOfTypeMacro {
+
+    override def getNameShort: String = "variableOfType"
+
+    override def getPresentableName: String = JavaBundle.message("macro.variable.of.type")
 
     override def arrayIsValid(array: Array[_]): Boolean = array.nonEmpty
   }
 
-  final class ArrayVariable extends ScalaVariableOfTypeMacro(JavaBundle.message("macro.array.variable")) {
+  final class ArrayVariable extends ScalaVariableOfTypeMacro {
+
+    override def getNameShort: String = "arrayVariable"
 
     private val expressions = Array("scala.Array")
 
@@ -107,7 +110,9 @@ object ScalaVariableOfTypeMacro {
       super.typeText(this.expressions.map(new TextExpression(_)), `type`)
   }
 
-  final class IterableVariable extends ScalaVariableOfTypeMacro(JavaBundle.message("macro.iterable.variable")) {
+  final class IterableVariable extends ScalaVariableOfTypeMacro {
+
+    override def getNameShort: String = "iterableVariable"
 
     private val expressions = Array(IterableId)
 

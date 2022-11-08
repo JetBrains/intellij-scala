@@ -1,13 +1,16 @@
 package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.template._
-import com.intellij.ide.IdeDeprecatedMessagesBundle
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 import scala.jdk.CollectionConverters._
 
 final class ScalaMethodParametersMacro extends ScalaMacro {
+
+  override def getNameShort: String = "methodParameters"
+
+  override def getDefaultValue: String = ScalaMacro.DefaultValue
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     val maybeFunction = Option(context.getPsiElementAtStartOffset)
@@ -25,8 +28,4 @@ final class ScalaMethodParametersMacro extends ScalaMacro {
         new ListResult(seq.asInstanceOf[Seq[Result]].asJava)
     }
   }
-
-  override def getDefaultValue: String = ScalaMacro.DefaultValue
-
-  override def getPresentableName: String = IdeDeprecatedMessagesBundle.message("macro.method.parameters")
 }

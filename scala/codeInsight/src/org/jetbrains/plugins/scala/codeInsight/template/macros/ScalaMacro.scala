@@ -1,20 +1,21 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package macros
+package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.template._
+import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
 
 abstract class ScalaMacro extends Macro {
 
-  // 🔅 is added when -Didea.l10n=true flag is used
-  // TODO: better not to depend on presentable name, it can be localized in theory
-  override final def getName: String = "scala_" + getPresentableName.replaceAll("""\(.*\)""", "").replace("🔅", "")
+  def getNameShort: String
 
-  override final def isAcceptableInContext(context: TemplateContextType): Boolean = context match {
-    case _: template.impl.ScalaCodeContextType => true
-    case _ => false
-  }
+  override final def getName: String = "scala_" + getNameShort
+
+  override def getPresentableName: String = getNameShort + "()"
+
+  override final def isAcceptableInContext(context: TemplateContextType): Boolean =
+    context match {
+      case _: ScalaCodeContextType => true
+      case _ => false
+    }
 }
 
 object ScalaMacro {

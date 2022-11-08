@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 final class ScalaSuggestVariableNameByTypeMacro extends ScalaMacro {
 
+  override def getNameShort: String = "suggestVariableNameByTypeText"
+
   override def getPresentableName: String = ScalaCodeInsightBundle.message("macro.suggest.variable.name.by.type")
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {

@@ -8,12 +8,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 final class ScalaClassNameMacro extends ScalaMacro {
 
+  override def getNameShort: String = "className"
+
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     Option(PsiTreeUtil.getParentOfType(context.getPsiElementAtStartOffset, classOf[PsiClass])).map{
       case obj: ScObject => obj.fakeCompanionClassOrCompanionClass.getName
       case cl: PsiClass => cl.getName
     }.map(new TextResult(_)).orNull
   }
-
-  override def getPresentableName: String = IdeDeprecatedMessagesBundle.message("macro.classname")
 }

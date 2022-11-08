@@ -7,11 +7,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 final class ScalaMethodNameMacro extends ScalaMacro {
 
-  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result =
-    Option(PsiTreeUtil.getParentOfType(context.getPsiElementAtStartOffset, classOf[ScFunction])).
-            map(scFun => new TextResult(scFun.getName)).orNull
+  override def getNameShort: String = "methodName"
 
   override def getDefaultValue: String = ScalaMacro.DefaultValue
 
-  override def getPresentableName: String = IdeDeprecatedMessagesBundle.message("macro.methodname")
+  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
+    val parentFunction = Option(PsiTreeUtil.getParentOfType(context.getPsiElementAtStartOffset, classOf[ScFunction]))
+    parentFunction.map(fun => new TextResult(fun.getName)).orNull
+  }
 }
