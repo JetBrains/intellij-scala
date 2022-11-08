@@ -17,8 +17,6 @@ private final class LocallyImportableMembersFinder(place: ScReferenceExpression,
                                                    accessAll: Boolean)
   extends ByPlaceGlobalMembersFinder(place, accessAll) {
 
-  import LocallyImportableMembersFinder._
-
   override protected[global] def candidates: Iterable[GlobalMemberResult] =
     importableCandidates(LocallyImportableMemberResult) ++
       companionObjectCandidates
@@ -71,17 +69,12 @@ private final class LocallyImportableMembersFinder(place: ScReferenceExpression,
         case _ => super.createInsertHandler
       }
   }
-}
 
-private object LocallyImportableMembersFinder {
-
-  object ScalaObject {
-
+  private object ScalaObject {
     def unapply(element: PsiElement): Option[ScObject] = element match {
-      case `object`: ScObject => Some(`object`)
-      case `package`: ScPackage => `package`.findPackageObject(`package`.resolveScope)
-      case _ => None
+      case `object`: ScObject   => Some(`object`)
+      case `package`: ScPackage => `package`.findPackageObject(place.resolveScope)
+      case _                    => None
     }
   }
-
 }

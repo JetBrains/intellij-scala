@@ -1,11 +1,16 @@
 package org.jetbrains.plugins.scala.base
 
 import com.intellij.openapi.actionSystem.IdeActions
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-trait HelperFixtureEditorOps extends ScalaLightCodeInsightFixtureTestCase {
+trait HelperFixtureEditorOps {
+  protected def getFixture: JavaCodeInsightTestFixture
+
+  protected def getProject: Project
 
   protected final def commitDocumentInEditor(): Unit = {
     val documentManager = PsiDocumentManager.getInstance(getProject)
