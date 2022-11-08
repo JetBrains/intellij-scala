@@ -336,12 +336,14 @@ class ImplicitCollector(
           //because they might contain extensions
           val afterExtensionPredicate = compatible.filter(isValidImplicitResult).flatMap(applyExtensionPredicate)
 
-          afterExtensionPredicate.foreach { r =>
-            val notMoreSpecific = mostSpecificUtil.notMoreSpecificThan(r)
-            filteredCandidates.filterInPlace(notMoreSpecific)
-            //this filter was added to make result deterministic
-            results = results.filter(c => notMoreSpecific(c))
-            results = results union Set(r)
+          afterExtensionPredicate match {
+            case Some(r) =>
+              val notMoreSpecific = mostSpecificUtil.notMoreSpecificThan(r)
+              filteredCandidates.filterInPlace(notMoreSpecific)
+              //this filter was added to make result deterministic
+              results = results.filter(c => notMoreSpecific(c))
+              results = results + r
+            case _ =>
           }
         case None => ()
       }

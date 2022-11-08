@@ -46,20 +46,21 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
     if (element.isValid) {
       val lineMarkerInfo =
         getOverridesImplementsMarkers(element)
-          .orElse(getImplementsSAMTypeMarker(element))
           .orElse(companionMarker(element))
           .orNull
 
-      //Method separators can be enabled in
-      //File | Settings | Editor | General | Appearance | Show method separators
-      if (DaemonCodeAnalyzerSettings.getInstance().SHOW_METHOD_SEPARATORS && ScalaMethodSeparatorUtils.isMethodSeparatorNeeded(element)) {
-        val info = if (lineMarkerInfo == null) createMarkerInfo(element) else lineMarkerInfo
-        addSeparatorInfo(info)
-        info
-      }
-      else lineMarkerInfo
+      augmentSeparatorInfo(element, lineMarkerInfo)
     }
     else null
+
+  //Method separators can be enabled in
+  //File | Settings | Editor | General | Appearance | Show method separators
+  private def augmentSeparatorInfo(element: PsiElement, lineMarkerInfo: LineMarkerInfo[_ <: PsiElement]): LineMarkerInfo[_ <: PsiElement] =
+    if (DaemonCodeAnalyzerSettings.getInstance().SHOW_METHOD_SEPARATORS && ScalaMethodSeparatorUtils.isMethodSeparatorNeeded(element)) {
+      val info = if (lineMarkerInfo eq null) createMarkerInfo(element) else lineMarkerInfo
+      addSeparatorInfo(info)
+      info
+    } else lineMarkerInfo
 
   private[this] def createMarkerInfo(element: PsiElement): LineMarkerInfo[PsiElement] = {
     val leaf = PsiTreeUtil.firstChild(element).toOption.getOrElse(element)
@@ -186,6 +187,10 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
   override def collectSlowLineMarkers(elements: ju.List[_ <: PsiElement],
                                       result: ju.Collection[_ >: LineMarkerInfo[_]]): Unit = {
     import scala.jdk.CollectionConverters._
+
+    elements.asScala.filter(_.isValid).flatMap { element =>
+      getImplementsSAMTypeMarker(element).map(augmentSeparatorInfo(element, _))
+    }.foreach(result.add)
 
     if (!OverriddenOption.isEnabled && !ImplementedOption.isEnabled) {
       return
