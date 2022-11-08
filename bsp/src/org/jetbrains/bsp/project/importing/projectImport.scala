@@ -169,7 +169,7 @@ class BspOpenProjectProvider() extends AbstractOpenProjectProvider {
       }
 
       def importTask(): Unit = {
-        ProjectDataManager.getInstance().importData(externalProject, project, false)
+        ProjectDataManager.getInstance().importData(externalProject, project)
       }
 
       val showSelectiveImportDialog = BspSettings.getInstance(project).showSelectiveImportDialogOnInitialImport()
