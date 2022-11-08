@@ -4,9 +4,8 @@ import com.intellij.codeInsight.completion.ml.{ContextFeatures, ElementFeaturePr
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionLocation, CompletionType}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.{CompletionTests, ScalaLanguage}
-import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.{CompletionTests, ScalaLanguage}
 import org.junit.Assert
 import org.junit.experimental.categories.Category
 
