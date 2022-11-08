@@ -35,15 +35,16 @@ case class HeavyJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_11) e
 }
 
 abstract class SmartJDKLoader() extends LibraryLoader {
+  private lazy val instance: Sdk = createSdkInstance()
+
   override def init(implicit module: Module, version: ScalaVersion): Unit = {
-    ModuleRootModificationUtil.setModuleSdk(module, createSdkInstance())
+    ModuleRootModificationUtil.setModuleSdk(module, instance)
   }
 
   override def clean(implicit module: Module): Unit = {
     ModuleRootModificationUtil.setModuleSdk(module, null)
     val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
-    val allJdks = jdkTable.getAllJdks
-    inWriteAction { allJdks.foreach(jdkTable.removeJdk) }
+    inWriteAction(jdkTable.removeJdk(instance))
   }
 
   protected def createSdkInstance(): Sdk
