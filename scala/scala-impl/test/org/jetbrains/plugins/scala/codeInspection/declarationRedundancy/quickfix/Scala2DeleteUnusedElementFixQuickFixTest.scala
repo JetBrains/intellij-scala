@@ -359,14 +359,14 @@ class Scala2DeleteUnusedElementFixQuickFixTest extends ScalaUnusedDeclarationIns
   }
 
   def test_class_type_parameter1(): Unit = {
-    val text = "@scala.annotation.unused class Test[A]"
-    val expected = "@scala.annotation.unused class Test"
+    val text = "@scala.annotation.unused final class Test[A]"
+    val expected = "@scala.annotation.unused final class Test"
     testQuickFix(text, expected, removeUnusedElementHint)
   }
 
   def test_class_type_parameter2(): Unit = {
-    val text = "@scala.annotation.unused class Test[A, B] { Seq.empty[A] }"
-    val expected = "@scala.annotation.unused class Test[A] { Seq.empty[A] }"
+    val text = "@scala.annotation.unused final class Test[A, B] { Seq.empty[A] }"
+    val expected = "@scala.annotation.unused final class Test[A] { Seq.empty[A] }"
     testQuickFix(text, expected, removeUnusedElementHint)
   }
 
