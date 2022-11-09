@@ -77,8 +77,12 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
             )
           )
 
-          val addScalaAnnotationUnusedQuickFix = if (named.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13) None
-          else Some(new AddScalaAnnotationUnusedQuickFix(named))
+          val addScalaAnnotationUnusedQuickFix =
+            if (named.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13 || named.is[ScTypeParam]) {
+              None
+            } else {
+              Some(new AddScalaAnnotationUnusedQuickFix(named))
+            }
 
           val message = if (isOnTheFly) {
             ScalaUnusedDeclarationInspection.annotationDescription
