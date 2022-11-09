@@ -6,19 +6,22 @@ import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ex.InspectionProfileImpl
-import com.intellij.codeInspection.{LocalQuickFixAsIntentionAdapter, ProblemDescriptorUtil}
+import com.intellij.codeInspection.{LocalQuickFix, LocalQuickFixAsIntentionAdapter, ProblemDescriptor, ProblemDescriptorUtil}
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.util.Iconable
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.InspectionBasedHighlightingPass.LocalQuickFixAsIntentionIconableAdapter
 import org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import java.util.Collections
+import javax.swing.Icon
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -101,12 +104,11 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
         val highlightInfo = highlightingInfoBuilder.create()
 
         info.fixes.foreach { fix =>
+          lazy val problemDescriptor = ProblemDescriptorUtil.toProblemDescriptor(file, highlightInfo)
           val action = fix match {
-            case intention: IntentionAction =>
-              intention
-            case _ =>
-              val problemDescriptor = ProblemDescriptorUtil.toProblemDescriptor(file, highlightInfo)
-              new LocalQuickFixAsIntentionAdapter(fix, problemDescriptor)
+            case intention: IntentionAction => intention //no need to wrap - the fix is an intention at the same time
+            case iconable: Iconable         => new LocalQuickFixAsIntentionIconableAdapter(iconable, problemDescriptor)
+            case _                          => new LocalQuickFixAsIntentionAdapter(fix, problemDescriptor)
           }
           highlightInfo.registerFix(action, null, info.message, range, highlightKey)
         }
@@ -121,4 +123,13 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
 
 object InspectionBasedHighlightingPass {
   private val isUnitTest = ApplicationManager.getApplication.isUnitTestMode
+
+  private class LocalQuickFixAsIntentionIconableAdapter(
+    delegateFix: LocalQuickFix with Iconable,
+    problemDescriptor: ProblemDescriptor
+  ) extends LocalQuickFixAsIntentionAdapter(delegateFix, problemDescriptor)
+    with Iconable {
+
+    override def getIcon(flags: Int): Icon = delegateFix.getIcon(flags)
+  }
 }

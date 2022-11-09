@@ -81,4 +81,34 @@ class WikiPairedTagBackspaceTest extends EditorActionTestBase {
       s"/** ''${|}'' */",
       "/** ' */"
     )
+
+  def testDeleteHeader1(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"/** =${|}header text= */",
+      s"/** ${|}header text */",
+    )
+
+  def testDeleteHeader2(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"/** ==${|}header text== */",
+      s"/** =${|}header text= */",
+    )
+
+  def testDeleteHeader3(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"/** ===${|}header text=== */",
+      s"/** ==${|}header text== */",
+    )
+
+  def testDeleteHeader4(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"/** ====${|}header text==== */",
+      s"/** ===${|}header text=== */",
+    )
+
+  def testDeleteHeader4_in_the_middle(): Unit =
+    checkGeneratedTextAfterBackspace(
+      s"/** ==${|}==header text==== */",
+      s"/** =${|}==header text=== */",
+    )
 }

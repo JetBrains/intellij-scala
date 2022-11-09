@@ -12,8 +12,8 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.ui.{JBColor, SideBorder}
@@ -308,8 +308,14 @@ object ScalaLanguageConsole {
     object Terminated extends ConsoleState
   }
 
+  val ScalaConsoleFileMarkerKey: Key[Unit] = Key.create("ScalaConsoleFileMarkerKey")
+
   private class Helper(project: Project, title: String, language: Language)
     extends LanguageConsoleImpl.Helper(project, new LightVirtualFile(title, language, "")) {
+
+    locally {
+      this.virtualFile.putUserData(ScalaConsoleFileMarkerKey, ())
+    }
 
     /** HACK: we want the caret to be right after `scala>` prompt, but we actually have two separate editors:<br>
      * 1) view editor which we can't edit, it is in view-mode (this.getEditor)<br>

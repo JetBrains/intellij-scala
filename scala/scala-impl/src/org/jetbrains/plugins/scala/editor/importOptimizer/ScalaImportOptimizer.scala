@@ -17,6 +17,7 @@ import com.intellij.util.concurrency.annotations.RequiresWriteLock
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.annotator.usageTracker.RedundantImportUtils
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
@@ -217,7 +218,12 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       (IntentionPreviewUtils.isPreviewElement(file) || // show changed imports in intention preview
         (!file.getVirtualFile.getName.endsWith(".html") && {
           val vFile = file.getViewProvider.getVirtualFile
-          ProjectRootManager.getInstance(file.getProject).getFileIndex.isInSource(vFile) || ScratchUtil.isScratch(vFile)
+          //only process
+          // - files from sources and scratch files, this is a similar to Java & Kotlin (see IDEA-136712)
+          // - synthetic files created for Scala REPL (see SCL-20571)
+          ProjectRootManager.getInstance(file.getProject).getFileIndex.isInSource(vFile) ||
+            ScratchUtil.isScratch(vFile) ||
+            ScalaLanguageConsole.ScalaConsoleFileMarkerKey.isIn(vFile)
         }))
 
   def replaceWithNewImportInfos(
