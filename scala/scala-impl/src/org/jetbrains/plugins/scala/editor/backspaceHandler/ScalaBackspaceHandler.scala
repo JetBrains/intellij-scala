@@ -44,10 +44,15 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
         if (element.getParent.getLastChild != element) {
           val tagToDelete = element.getParent.getLastChild
 
-          if (ScalaDocSyntaxElementType.canClose(element.getNode.getElementType, tagToDelete.getNode.getElementType)) {
-            val textLength =
-              if (tagToDelete.getNode.getElementType != ScalaDocTokenType.DOC_BOLD_TAG) tagToDelete.getTextLength else 1
-            document.deleteString(tagToDelete.getTextOffset, tagToDelete.getTextOffset + textLength)
+          val elementType = element.getNode.getElementType
+          val closingElementType = tagToDelete.getNode.getElementType
+          if (ScalaDocSyntaxElementType.canClose(elementType, closingElementType)) {
+            val textLengthToDelete = closingElementType match {
+              case ScalaDocTokenType.DOC_BOLD_TAG | ScalaDocTokenType.DOC_HEADER => 1
+              case _ => tagToDelete.getTextLength
+            }
+            val closingElementOffset = tagToDelete.getTextOffset
+            document.deleteString(closingElementOffset, closingElementOffset + textLengthToDelete)
           }
         } else {
           document.deleteString(element.getTextOffset, element.getTextOffset + 2)
