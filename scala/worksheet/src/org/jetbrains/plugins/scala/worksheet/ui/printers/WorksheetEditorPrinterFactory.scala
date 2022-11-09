@@ -14,6 +14,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.ui.JBSplitter
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions.{StringExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -24,7 +25,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWor
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetDiffSplitters, WorksheetFoldGroup}
 import org.jetbrains.plugins.scala.worksheet.utils.FileAttributeUtilCache
 
-import java.awt.{BorderLayout, Dimension}
+import java.awt.{BorderLayout, Dimension, Rectangle}
 import java.util
 import javax.swing.{JComponent, JLayeredPane}
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
@@ -42,7 +43,8 @@ object WorksheetEditorPrinterFactory {
 
 
   val DEFAULT_WORKSHEET_VIEWERS_RATIO = 0.5f
-  val DIFF_SPLITTER_KEY: Key[SimpleWorksheetSplitter] = Key.create[SimpleWorksheetSplitter]("SimpleWorksheetViewerSplitter")
+  val DIFF_SPLITTER_KEY: Key[SimpleWorksheetSplitter] = Key.create("SimpleWorksheetViewerSplitter")
+  private val SYNC_SCROLL_SUPPORT_KEY: Key[TwosideSyncScrollSupport] = Key.create("SyncScrollSupport")
 
   private val LAST_WORKSHEET_RUN_RESULT = new FileAttribute("LastWorksheetRunResult", 2, false)
   private val LAST_WORKSHEET_RUN_RATIO = new FileAttribute("ScalaWorksheetLastRatio", 1, false)
@@ -95,7 +97,7 @@ object WorksheetEditorPrinterFactory {
       }
     }
 
-
+    //TODO: do this matching early, maybe even extract separate private method which would accept EditorImpl
     (originalEditor, worksheetViewer) match {
       case (originalImpl: EditorImpl, viewerImpl: EditorImpl) =>
         invokeLater {
@@ -106,8 +108,9 @@ object WorksheetEditorPrinterFactory {
 
           val syncSupport = new TwosideSyncScrollSupport(
             util.Arrays.asList(originalEditor, worksheetViewer),
-            NoopSyncScrollable
+            SynchronizingNoopScrollable
           )
+          originalEditor.putUserData(SYNC_SCROLL_SUPPORT_KEY, syncSupport)
 
           diffSplitter.foreach { splitter =>
             val listener: VisibleAreaListener = (e: VisibleAreaEvent) => {
@@ -123,9 +126,30 @@ object WorksheetEditorPrinterFactory {
     }
   }
 
-  private object NoopSyncScrollable extends BaseSyncScrollable {
+  private object SynchronizingNoopScrollable extends BaseSyncScrollable {
     override def processHelper(scrollHelper: BaseSyncScrollable.ScrollHelper): Unit = ()
     override def isSyncScrollEnabled: Boolean = true
+  }
+
+  /**
+   * Forces viewer editor scroll to be synchronized with main editor
+   */
+  @RequiresEdt
+  def synchronizeViewerScrollWithMainEditor(mainEditor: Editor): Unit = {
+    val syncScrollSupport = mainEditor.getUserData(SYNC_SCROLL_SUPPORT_KEY)
+
+    //NOTE: SyncScrollSupport.ScrollHelper.syncVerticalScroll is private
+    //So the only way to trigger proper synchronization is via visibleAreaChanged
+    //We need to invoke it twice with a +-1 y coordinate change because in SyncScrollSupport.ScrollHelper.visibleAreaChanged
+    //it's checked that coordinate is actually changed
+
+    val scrollModel = mainEditor.getScrollingModel
+    val visibleArea = scrollModel.getVisibleArea
+    val visibleAreaIntermediate = new Rectangle(visibleArea)
+    visibleAreaIntermediate.y -= 1
+
+    syncScrollSupport.visibleAreaChanged(new VisibleAreaEvent(mainEditor, visibleArea, visibleAreaIntermediate))
+    syncScrollSupport.visibleAreaChanged(new VisibleAreaEvent(mainEditor, visibleAreaIntermediate, visibleArea))
   }
 
   def saveWorksheetEvaluation(file: VirtualFile, result: String, ratio: Float): Unit = {
