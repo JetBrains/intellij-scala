@@ -1270,4 +1270,33 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
       checkGeneratedTextAfterEnter(before2, after2)
     }
   }
+
+  def testBeforeDefinitionInOneLineExtension_1(): Unit = doEnterTest(
+    s"""extension (s: String) ${CARET}def myExt1: String""",
+
+    s"""extension (s: String)
+       |  ${CARET}def myExt1: String""".stripMargin,
+
+    s"""extension (s: String)
+       |
+       |  ${CARET}def myExt1: String""".stripMargin
+  )
+
+  def testBeforeDefinitionInOneLineExtension_2_with_comment(): Unit = doEnterTest(
+    s"""extension (s: String) /*my comment*/${CARET}def myExt1: String""",
+
+    s"""extension (s: String) /*my comment*/
+       |  ${CARET}def myExt1: String""".stripMargin,
+
+    s"""extension (s: String) /*my comment*/
+       |
+       |  ${CARET}def myExt1: String""".stripMargin
+  )
+
+  def testBeforeDefinitionInOneLineExtension_3(): Unit = doEnterTest(
+    s"""extension (s: String)${CARET} def myExt1: String""",
+
+    s"""extension (s: String)
+       |  ${CARET}def myExt1: String""".stripMargin
+  )
 }
