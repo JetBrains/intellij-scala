@@ -22,8 +22,10 @@ class ToggleCompilerHighlightingScala3Action extends ToggleAction(
   CompilerIntegrationBundle.message("scala.project.settings.form.compiler.highlighting.tooltip"),
   /* icon = */ null
 ) {
-  override def update(e: AnActionEvent): Unit =
+  override def update(e: AnActionEvent): Unit = {
     e.getPresentation.setVisible(false) // Can still be found explicitly.
+    super.update(e)
+  }
 
   override def isSelected(e: AnActionEvent): Boolean =
     ScalaProjectSettings.getInstance(e.getProject).isCompilerHighlightingScala3
