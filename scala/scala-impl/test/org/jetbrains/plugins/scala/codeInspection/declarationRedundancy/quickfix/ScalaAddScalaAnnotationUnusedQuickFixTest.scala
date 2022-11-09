@@ -6,14 +6,12 @@ class ScalaAddScalaAnnotationUnusedQuickFixTest extends ScalaUnusedDeclarationIn
 
   def test_field(): Unit = {
     val before =
-      """
-        |@scala.annotation.unused class Foo {
+      """@scala.annotation.unused class Foo {
         |  val s = 0
         |}
       """.stripMargin
     val after =
-      """
-        |import scala.annotation.unused
+      """import scala.annotation.unused
         |
         |@scala.annotation.unused class Foo {
         |  @unused
@@ -24,24 +22,18 @@ class ScalaAddScalaAnnotationUnusedQuickFixTest extends ScalaUnusedDeclarationIn
   }
 
   def test_class(): Unit = {
-    val before =
-      """
-        |class Foo
-      """.stripMargin
+    val before = "class Foo"
     val after =
-      """
-        |import scala.annotation.unused
+      """import scala.annotation.unused
         |
         |@unused
-        |class Foo
-      """.stripMargin
+        |class Foo""".stripMargin
     testQuickFix(before, after, addScalaAnnotationUnusedHint)
   }
 
   def test_parameter(): Unit = {
     val before =
-      """
-        |import scala.annotation.unused
+      """import scala.annotation.unused
         |
         |@unused
         |object Foo {
@@ -50,8 +42,7 @@ class ScalaAddScalaAnnotationUnusedQuickFixTest extends ScalaUnusedDeclarationIn
         |}
         |""".stripMargin
     val after =
-      """
-        |import scala.annotation.unused
+      """import scala.annotation.unused
         |
         |@unused
         |object Foo {
@@ -61,4 +52,14 @@ class ScalaAddScalaAnnotationUnusedQuickFixTest extends ScalaUnusedDeclarationIn
         |""".stripMargin
     testQuickFix(before, after, addScalaAnnotationUnusedHint)
   }
+
+  // Keep class Foo final, else T will not be inspected for usage at all. See SCL-20704 discussion.
+  def test_type_parameter_never_fixable(): Unit = checkNotFixable(
+      """import scala.annotation.unused
+        |
+        |@unused
+        |final class Foo[T] {
+        |  @unused
+        |  def bar[U]() = ()
+        |}""".stripMargin, addScalaAnnotationUnusedHint)
 }
