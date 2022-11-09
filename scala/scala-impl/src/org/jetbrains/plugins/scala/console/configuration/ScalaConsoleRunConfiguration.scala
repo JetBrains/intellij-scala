@@ -12,11 +12,12 @@ import com.intellij.util.PathsList
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
 import org.jetbrains.annotations.{ApiStatus, Nls}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
+import org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.Scala2_13_2
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.{JlineResolveResult, showJLineMissingNotification}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
 
 import java.io.File
 import scala.beans.BeanProperty
@@ -55,6 +56,7 @@ class ScalaConsoleRunConfiguration(
   @BeanProperty var javaOptions: String = DefaultJavaOptions
 
   def consoleArgs: String = ensureUsesJavaCpByDefault(this.myConsoleArgs)
+
   def consoleArgs_=(s: String): Unit = this.myConsoleArgs = ensureUsesJavaCpByDefault(s)
 
   private def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) UseJavaCp else s
@@ -136,23 +138,25 @@ class ScalaConsoleRunConfiguration(
       val classPath = classPathList.getPathList.asScala.map(new File(_)).toSeq
       val result = ScalaSdkJLineFixer.validateJLineInClassPath(classPath, module)
       result match {
-        case JlineResolveResult.NotRequired         =>
+        case JlineResolveResult.NotRequired =>
           true
         case JlineResolveResult.RequiredFound(file) =>
           classPathList.add(file)
           true
-        case JlineResolveResult.RequiredNotFound    =>
+        case JlineResolveResult.RequiredNotFound =>
           showJLineMissingNotification(module, subsystemName)
           false
       }
     }
   }
 
-  private def disableJLineOption: String =
-    getModule.flatMap(_.scalaMinorVersion).map(_.minor) match {
-      case Some(version) if version >= "2.13.2" => "-Xjline:off" // https://github.com/scala/scala/pull/8906
-      case _                                    => "-Xnojline"
-    }
+  private def disableJLineOption: String = {
+    val scalaVersion: Option[ScalaVersion] = getModule.flatMap(_.scalaMinorVersion)
+    if (scalaVersion.exists(_ >= Scala2_13_2))
+      "-Xjline:off" // https://github.com/scala/scala/pull/8906
+    else
+      "-Xnojline"
+  }
 
   private def createParams: JavaParameters = {
     val module = requireModule
@@ -163,18 +167,20 @@ class ScalaConsoleRunConfiguration(
       throw CantRunException.noJdkForModule(module)
     }
 
-    val parameters: JavaParameters = new JavaParameters {{
-      configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
+    val parameters: JavaParameters = new JavaParameters {
+      {
+        configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
 
-      getVMParametersList.addParametersString(javaOptions)
-      getClassPath.addScalaCompilerClassPath(module)
-      setShortenCommandLine(getShortenCommandLineMethod(Option(getJdk)), project)
-      getClassPath.addRunners()
-      setWorkingDirectory(workingDirectory)
+        getVMParametersList.addParametersString(javaOptions)
+        getClassPath.addScalaCompilerClassPath(module)
+        setShortenCommandLine(getShortenCommandLineMethod(Option(getJdk)), project)
+        getClassPath.addRunners()
+        setWorkingDirectory(workingDirectory)
 
-      val mainClass = if (module.hasScala3) Scala3MainClass else Scala2MainClass
-      setMainClass(mainClass)
-    }}
+        val mainClass = if (module.hasScala3) Scala3MainClass else Scala2MainClass
+        setMainClass(mainClass)
+      }
+    }
     parameters
   }
 
@@ -184,9 +190,9 @@ class ScalaConsoleRunConfiguration(
    * @see [[com.intellij.execution.ShortenCommandLine.getDefaultMethod]]
    */
   private def getShortenCommandLineMethod(jdk: Option[Sdk]): ShortenCommandLine =
-    if(!JdkUtil.useDynamicClasspath(getProject)){
+    if (!JdkUtil.useDynamicClasspath(getProject)) {
       ShortenCommandLine.NONE
-    } else if(safeMap(jdk)(_.getHomePath).exists(JdkUtil.isModularRuntime)) {
+    } else if (safeMap(jdk)(_.getHomePath).exists(JdkUtil.isModularRuntime)) {
       ShortenCommandLine.ARGS_FILE
     } else {
       ShortenCommandLine.CLASSPATH_FILE
@@ -195,4 +201,8 @@ class ScalaConsoleRunConfiguration(
   @inline
   private def safeMap[A, B](oa: Option[A])(f: A => B): Option[B] =
     oa.flatMap(a => Option(f(a)))
+}
+
+object ScalaConsoleRunConfiguration {
+  private val Scala2_13_2 = ScalaVersion.Latest.Scala_2_13.withMinor(2)
 }
