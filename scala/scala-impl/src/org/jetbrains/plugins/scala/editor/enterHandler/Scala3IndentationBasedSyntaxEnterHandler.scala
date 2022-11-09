@@ -112,7 +112,7 @@ class Scala3IndentationBasedSyntaxEnterHandler extends EnterHandlerDelegateAdapt
       // looks like document commit is not required in this particular case
       val elementAtCaret = ScalaEditorUtils.findElementAtCaret_WithFixedEOF(file, document, caretOffset)
       if (elementAtCaret != null) {
-        indentCodeAfterCaseClauseArrow(document, elementAtCaret, caretOffset)
+        indentCodeToPreserveCorrectIndentationSyntax(document, elementAtCaret, caretOffset)
       }
       Result.Continue
     }
@@ -429,6 +429,9 @@ object Scala3IndentationBasedSyntaxEnterHandler {
   }
 
   /**
+   * There are multiple cases when we need to insert extra space before caret
+   * to preserve the correct code with indentation-based syntax
+   * =Example 1=
    * When the caret is just after case clause arrow `=>` and just before some code position {{{
    *   expr match
    *     case 42 => <caret>println("hello")
@@ -446,13 +449,24 @@ object Scala3IndentationBasedSyntaxEnterHandler {
    * case 2 =>
    * <CARET> 3
    * }}}
+   *
+   * ====Example 2====
+   * (see SCL-20723)
+   * When pressing enter just before `def` keyword: {{{
+   *   extension (s: String) <caret>def foo: String = ???
+   * }}}
+   * we need it to transform into: {{{
+   *   extension (s: String)
+   *     <caret>def foo: String = ???
+   * }}}
    */
-  private def indentCodeAfterCaseClauseArrow(
+  private def indentCodeToPreserveCorrectIndentationSyntax(
     document: Document,
     elementAtCaret: PsiElement,
     caretOffset: Int
   ): Unit =
-    if (isCaretAfterCaseClauseArrowBeforeCode(elementAtCaret, caretOffset)) {
+    if (isCaretAfterCaseClauseArrowBeforeCode(elementAtCaret, caretOffset) ||
+      isCaretBeforeOneLineExtensionDef(elementAtCaret)) {
       document.insertString(caretOffset, " ")
     }
 
@@ -464,6 +478,14 @@ object Scala3IndentationBasedSyntaxEnterHandler {
         true
       case _                                                                                                             =>
         false
+    }
+  }
+
+  private def isCaretBeforeOneLineExtensionDef(elementAtCaret: PsiElement): Boolean = {
+    elementAtCaret match {
+      case ElementType(ScalaTokenTypes.kDEF) && Parent(Parent(_: ScExtensionBody)) if !elementAtCaret.startsFromNewLine()=>
+        true
+      case _ => false
     }
   }
 
