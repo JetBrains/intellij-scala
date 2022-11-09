@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWor
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
 
+import scala.annotation.unused
+
 abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
                                           protected val worksheetViewer: Editor)
   extends WorksheetEditorPrinter {
@@ -153,7 +155,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     }
 
   // TODO: not used, but should, now instead org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory.BULK_COUNT is used
-  protected def getOutputLimit: Int = scalaSettings.getOutputLimit
+  @unused protected def getOutputLimit: Int = scalaSettings.getOutputLimit
 
   private def scalaSettings = ScalaProjectSettings.getInstance(project)
 }
