@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor.ServiceMarkers
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory.synchronizeViewerScrollWithMainEditor
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain._
 
 import javax.swing.Timer
@@ -57,6 +58,9 @@ final class WorksheetEditorPrinterPlain private[printers](
     //Thread.sleep(20) // for concurrency issue debugging
     if (isTerminationLine(line)) {
       flushBuffer()
+      invokeAndWait {
+        synchronizeViewerScrollWithMainEditor(editor)
+      }
       terminated = true
       return true
     }

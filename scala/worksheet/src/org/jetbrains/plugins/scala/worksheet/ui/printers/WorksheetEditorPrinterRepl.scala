@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerMessagesConsumer
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory.synchronizeViewerScrollWithMainEditor
 import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.{PrintChunk, QueuedPsi}
 
 import scala.collection.mutable
@@ -83,6 +84,9 @@ final class WorksheetEditorPrinterRepl private[printers](
       case ReplEnd   =>
         flushBuffer()
         updateLastLineMarker()
+        invokeAndWait {
+          synchronizeViewerScrollWithMainEditor(editor)
+        }
         true
 
       case ReplChunkStart =>
@@ -380,7 +384,7 @@ object WorksheetEditorPrinterRepl {
    *
    * Added support for 1 or 2 leading dollars
    * @note in scala 2.12.10 & 2.13.1 prefix is with two dollar  signs: '''`$$Lambda$`'''<br>
-   *        in scala 2.12.12 & 2.13.3 prefix is with one dolar  sign: '''`$Lambda$$`'''
+   *        in scala 2.12.12 & 2.13.3 prefix is with one dollar  sign: '''`$Lambda$$`'''
    */
   private val LambdaRegex= """\$\$?Lambda\$\d+/(?:0x[a-f0-9]{16}|\d+)(@[a-fA-F0-9]+)?""".r
 
