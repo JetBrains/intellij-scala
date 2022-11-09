@@ -8,11 +8,12 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
 import org.jetbrains.plugins.scala.codeInspection.ui.InspectionOptionsComboboxPanel
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 
@@ -58,8 +59,8 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     }
 
     element match {
-      case _: ScTypeParam if !isOnTheFly => Seq.empty
-      case typeParam: ScTypeParam if typeParam.hasBounds || typeParam.hasImplicitBounds => Seq.empty
+      case typeParam: ScTypeParam if !isOnTheFly || typeParam.hasBounds || typeParam.hasImplicitBounds ||
+        typeParam.owner.asOptionOf[ScTypeDefinition].exists(!_.getModifierList.isFinal) => Seq.empty
       case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) => Seq.empty
       case named: ScNamedElement =>
         val usages = pipeline.runSearchPipeline(named, isOnTheFly)
