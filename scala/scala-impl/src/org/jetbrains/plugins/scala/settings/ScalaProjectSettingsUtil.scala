@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 
 import java.util
 import javax.swing.{DefaultListModel, JComponent, JPanel}
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 
 object ScalaProjectSettingsUtil {
   def isValidPackage(packageName: String, checkPlaceholder: Boolean = true): Boolean = {
@@ -56,6 +56,7 @@ object ScalaProjectSettingsUtil {
     }
   }
 
+  @nowarn("cat=deprecation")
   def getPatternListPanel(parent: JComponent, patternJBList: JBList[String], @Nls inputMessage: String, @Nls inputTitle: String): JPanel = {
     def addPattern(pattern: String, patternJBList: JBList[String]): Unit = {
       if (pattern == null) return
@@ -78,6 +79,7 @@ object ScalaProjectSettingsUtil {
     }).disableUpDownActions.createPanel
   }
 
+  @nowarn("cat=deprecation")
   def getUnsortedPatternListPanel(parent: JComponent, patternJBList: JBList[String], @Nls inputMessage: String, @Nls inputTitle: String): JPanel = {
     def addPattern(pattern: String, patternJBList: JBList[String]): Unit = {
       if (pattern == null) return
