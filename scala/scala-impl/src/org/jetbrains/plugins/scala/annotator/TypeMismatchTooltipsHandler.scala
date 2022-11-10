@@ -7,15 +7,14 @@ import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseMotionLis
 import com.intellij.openapi.editor.impl.EditorMouseHoverPopupControl
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
-import com.intellij.openapi.startup.StartupActivity
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 // Annotation.setTooltip is shown both on mouse hover (EditorMouseHoverPopupManager), and on Ctrl / Cmd + F1 (ShowErrorDescriptionAction)
 // But when type mismatch hints are enabled, we don't want tooltips on mouse hover (on the expression), but still want tooltips on the explicit action.
 // https://youtrack.jetbrains.com/issue/SCL-15782
-private final class TypeMismatchTooltipsHandler extends StartupActivity {
-  override def runActivity(project: Project): Unit = {
+private final class TypeMismatchTooltipsHandler extends ProjectManagerListener {
+  override def projectOpened(project: Project): Unit = {
     val listener = new TypeMismatchTooltipsHandler.Listener(project)
     EditorFactory.getInstance().getEventMulticaster.addEditorMouseMotionListener(listener, project.unloadAwareDisposable)
   }
