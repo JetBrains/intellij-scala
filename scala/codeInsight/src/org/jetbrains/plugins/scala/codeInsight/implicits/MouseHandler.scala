@@ -9,12 +9,10 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
-import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.AncestorListenerAdapter
 import com.intellij.util.ui.UIUtil
-
 import javax.swing.event.AncestorEvent
 import javax.swing.SwingUtilities
 import org.jetbrains.plugins.scala.annotator.hints.ErrorTooltip
@@ -27,7 +25,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.jdk.CollectionConverters._
 
-private final class MouseHandler extends StartupActivity.DumbAware with ProjectManagerListener {
+private final class MouseHandler extends ProjectManagerListener {
 
   private var activeHyperlink = Option.empty[(Inlay, Text)]
   private var highlightedMatches = Set.empty[(Inlay, Text)]
@@ -119,7 +117,7 @@ private final class MouseHandler extends StartupActivity.DumbAware with ProjectM
     }
   }
 
-  override def runActivity(project: Project): Unit = {
+  override def projectOpened(project: Project): Unit = {
     val multicaster = EditorFactory.getInstance().getEventMulticaster
     multicaster.addEditorMouseListener(mousePressListener, project.unloadAwareDisposable)
     multicaster.addEditorMouseMotionListener(mouseMovedListener, project.unloadAwareDisposable)

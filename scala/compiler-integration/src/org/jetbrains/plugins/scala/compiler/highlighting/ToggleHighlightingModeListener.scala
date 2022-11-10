@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.startup.StartupActivity
+import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
@@ -16,9 +15,9 @@ import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, Scala
  * Toggling means that the value of 
  * [[ScalaHighlightingMode.isShowErrorsFromCompilerEnabled]] was changed.
  */
-private final class ToggleHighlightingModeListener extends StartupActivity.DumbAware {
+private final class ToggleHighlightingModeListener extends ProjectManagerListener {
   
-  override def runActivity(project: Project): Unit = if (!ApplicationManager.getApplication.isUnitTestMode) {
+  override def projectOpened(project: Project): Unit = if (!ApplicationManager.getApplication.isUnitTestMode) {
 
     project.subscribeToModuleRootChanged() { _ => compileOrEraseHighlightings(project) }
 
