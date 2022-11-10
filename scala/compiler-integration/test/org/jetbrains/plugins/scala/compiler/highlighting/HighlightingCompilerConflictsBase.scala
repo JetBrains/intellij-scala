@@ -6,6 +6,7 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi.PsiManager
 import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
@@ -96,9 +97,10 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
     val module = ScalaUtil.getModuleForFile(virtualFile)(project)
     val sourceScope = SourceScope.Production
     val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
+    val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
     module.foreach { m =>
       CompilerHighlightingService.get(project)
-        .triggerIncrementalCompilation(virtualFile, m, sourceScope, document, "manual trigger from tests")
+        .triggerIncrementalCompilation(virtualFile, m, sourceScope, document, psiFile, "manual trigger from tests")
     }
     Await.result(promise.future, 60.seconds)
   }

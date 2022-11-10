@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.module.Module
+import com.intellij.psi.PsiFile
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -17,8 +18,13 @@ private object CompilationRequest {
     override val priority: Int = 0
   }
 
-  final case class IncrementalRequest(module: Module, sourceScope: SourceScope, document: Document, debugReason: String)
-    extends CompilationRequest {
+  final case class IncrementalRequest(
+    module: Module,
+    sourceScope: SourceScope,
+    document: Document,
+    psiFile: PsiFile,
+    debugReason: String
+  ) extends CompilationRequest {
     override val priority: Int = 1
   }
 
