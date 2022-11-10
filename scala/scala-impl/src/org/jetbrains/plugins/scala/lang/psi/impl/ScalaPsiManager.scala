@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.startup.StartupActivity
 import com.intellij.openapi.util._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
@@ -522,9 +521,9 @@ private class ScalaPsiManagerHolder(implicit project: Project) {
 }
 
 @unused("registered in scala-plugin-common.xml")
-private final class ScalaPsiManagerListener extends StartupActivity with ProjectManagerListener {
+private final class ScalaPsiManagerListener extends ProjectManagerListener {
 
-  override def runActivity(project: Project): Unit = {
+  override def projectOpened(project: Project): Unit = {
     val holder = managerHolder(project)
     holder.get.projectOpened()
   }
