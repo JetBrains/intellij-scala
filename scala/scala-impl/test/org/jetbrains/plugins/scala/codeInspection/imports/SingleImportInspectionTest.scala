@@ -72,6 +72,11 @@ class SingleImportInspectionTest_3 extends SingleImportInspectionTestBase {
     "import test.*"
   )
 
+  def test_given_selector(): Unit = doTest(
+    s"import test.$START{given}$END",
+    "import test.given"
+  )
+
   def test_id_and_wildcard(): Unit = checkTextHasNoErrors(
     "import test.{x, *}"
   )
