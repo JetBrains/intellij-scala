@@ -17,6 +17,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
+import com.intellij.psi.PsiFile
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.scala.Client
@@ -85,6 +86,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     module: Module,
     sourceScope: SourceScope,
     document: Document,
+    psiFile: PsiFile,
     debugReason: String
   ): Unit = {
     if (platformAutomakeEnabled(project)) {
@@ -93,7 +95,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
       BuildManager.getInstance().scheduleAutoMake()
       // clearOutputDirectories is invoked in AutomakeBuildManagerListener
     } else {
-      schedule(virtualFile, CompilationRequest.IncrementalRequest(module, sourceScope, document, debugReason))
+      schedule(virtualFile, CompilationRequest.IncrementalRequest(module, sourceScope, document, psiFile, debugReason))
     }
   }
 
@@ -151,14 +153,16 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     virtualFile: VirtualFile,
     request: CompilationRequest.IncrementalRequest
   ): Unit = {
-    val CompilationRequest.IncrementalRequest(module, sourceScope, _, debugReason) = request
+    val CompilationRequest.IncrementalRequest(module, sourceScope, _, psiFile, debugReason) = request
     debug(s"incrementalCompilation: $debugReason")
     performCompilation(delayIndicator = false) { client =>
       val triggerService = TriggerCompilerHighlightingService.get(project)
       triggerService.beforeIncrementalCompilation()
       try IncrementalCompiler.compile(project, module, sourceScope, client)
       finally {
-        triggerService.enableDocumentCompiler(virtualFile)
+        if (psiFile.is[ScalaFile]) {
+          triggerService.enableDocumentCompiler(virtualFile)
+        }
       }
     }
   }
@@ -203,7 +207,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
 
   private def isReadyForExecution(request: CompilationRequest): Boolean = request match {
     case CompilationRequest.WorksheetRequest(_, document, _) => isDocumentReadyForCompilation(document)
-    case CompilationRequest.IncrementalRequest(_, _, _, _) => true
+    case CompilationRequest.IncrementalRequest(_, _, _, _, _) => true
     case CompilationRequest.DocumentRequest(document, _, _) => isDocumentReadyForCompilation(document)
   }
 

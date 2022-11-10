@@ -48,7 +48,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
 
           if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {
             val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
-            triggerIncrementalCompilation(debugReason, virtualFile, document)
+            triggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
           }
         }
       }
@@ -66,7 +66,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
           if (documentCompilerAvailable.contains(virtualFile)) {
             triggerDocumentCompilation(virtualFile, document, debugReason)
           } else {
-            triggerIncrementalCompilation(debugReason, virtualFile, document)
+            triggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
           }
         }
       }
@@ -85,7 +85,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
             if (psiFile.isScalaWorksheet)
               triggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
             else
-              triggerIncrementalCompilation(debugReason, virtualFile, document)
+              triggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
           }
         }
       }
@@ -110,12 +110,12 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
       ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project)
   }
 
-  private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile, document: Document): Unit = {
+  private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile, document: Document, psiFile: PsiFile): Unit = {
     val module = ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile)
     if (module ne null) {
       val sourceScope = calculateSourceScope(virtualFile)
       CompilerHighlightingService.get(project)
-        .triggerIncrementalCompilation(virtualFile, module, sourceScope, document, debugReason)
+        .triggerIncrementalCompilation(virtualFile, module, sourceScope, document, psiFile, debugReason)
     }
   }
 
