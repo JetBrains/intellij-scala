@@ -1862,8 +1862,6 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleStartupActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
 
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ShowDisclaimerStartupActivity"/>
-
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
 
         <iconMapper mappingFile="ScalaIconMappings.json" />
@@ -1877,6 +1875,9 @@
                   class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.DeregisterSyntheticClassesListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"/>
+
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>
 
         <!-- Formatter listeners -->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
