@@ -41,8 +41,14 @@ final class CodeStyleSettingsInferService(private val project: Project)
     if (state.done) {
       Log.info("settings inference skipped: already done")
     } else {
-      inferSettings()
-      state.done = true
+      StartupManagerEx.getInstanceEx(project).runWhenProjectIsInitialized { () =>
+        DumbService.getInstance(project).runWhenSmart { () =>
+          executeOnPooledThread {
+            inferSettings()
+          }
+          state.done = true
+        }
+      }
     }
   }
 
