@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.compiler.charts.ui
 
 import com.intellij.build.events.impl.AbstractBuildEvent
-import com.intellij.openapi.startup.StartupActivity
 //noinspection ApiStatus
 import com.intellij.build.events.{BuildEvent, BuildEventPresentationData, PresentableBuildEvent, StartBuildEvent}
 import com.intellij.build.{BuildProgressListener, BuildViewManager, DefaultBuildDescriptor}
 import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
@@ -18,11 +17,11 @@ import javax.swing.{Icon, JComponent}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 //noinspection ApiStatus,UnstableApiUsage
-private final class CompilationChartsBuildToolWindowNodeFactory extends StartupActivity {
+private final class CompilationChartsBuildToolWindowNodeFactory extends ProjectManagerListener {
 
   import CompilationChartsBuildToolWindowNodeFactory._
 
-  override def runActivity(project: Project): Unit = {
+  override def projectOpened(project: Project): Unit = {
     def isJpsBuild(event: BuildEvent): Boolean = {
       val jpsActionClass = "com.intellij.compiler.impl.CompilerPropertiesAction"
       val buildDescriptor = event.asOptionOf[StartBuildEvent].flatMap(_.getBuildDescriptor.asOptionOf[DefaultBuildDescriptor])
