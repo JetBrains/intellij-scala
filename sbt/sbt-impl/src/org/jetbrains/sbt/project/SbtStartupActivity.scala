@@ -11,6 +11,7 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 private final class SbtStartupActivity extends StartupActivity.DumbAware {
   override def runActivity(project: Project): Unit = invokeLater {
+    if (project.isDisposed) return
     SbtProjectSettings.forProject(project).foreach { settings =>
       if (settings.converterVersion < SbtProjectSettings.ConverterVersion) {
         if (project.hasScala3 && settings.preferScala2) { // TODO Remove (don't trigger the refresh unnecessarily)
