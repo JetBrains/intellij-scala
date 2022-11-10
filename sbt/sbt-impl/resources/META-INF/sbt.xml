@@ -139,9 +139,12 @@
         <orderEnumerationHandlerFactory implementation="org.jetbrains.sbt.execution.SbtOrderEnumeratorHandlerFactory"/>
 
         <sbt.internal.dynamicLinker implementation="org.jetbrains.sbt.internal.InternalDynamicLinkerImpl$"/>
-
-        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtStartupActivity"/>
     </extensions>
+
+    <applicationListeners>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.sbt.project.SbtProjectManagerListener"/>
+    </applicationListeners>
 
     <actions>
         <action id="Scala.Sbt.RunTask" class="org.jetbrains.sbt.shell.action.RunTaskAction"/>
