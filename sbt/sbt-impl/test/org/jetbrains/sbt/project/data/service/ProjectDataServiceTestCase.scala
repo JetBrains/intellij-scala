@@ -53,7 +53,7 @@ object ProjectDataServiceTestCase {
       override def execute(): Unit =
         ProjectRootManagerEx.getInstanceEx(project).mergeRootsChangesDuring(() => {
           val projectDataManager = ApplicationManager.getApplication.getService(classOf[ProjectDataManager])
-          projectDataManager.importData(projectData, project, new IdeModifiableModelsProviderImpl(project), true)
+          projectDataManager.importData(projectData, project, new IdeModifiableModelsProviderImpl(project))
         })
     })
 }

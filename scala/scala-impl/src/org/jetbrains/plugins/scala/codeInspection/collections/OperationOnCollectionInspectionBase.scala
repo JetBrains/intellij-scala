@@ -15,6 +15,7 @@ import java.awt.{Component, GridLayout}
 import java.util
 import javax.swing._
 import javax.swing.event.ChangeEvent
+import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
 
 object OperationOnCollectionInspectionBase {
@@ -121,6 +122,7 @@ abstract class OperationOnCollectionInspectionBase extends LocalInspectionTool {
         val newArray = listModel.toArray collect {case s: String => s}
         setPatternLists(patternListKey)(ArraySeq.unsafeWrapArray(newArray))
       }
+      @nowarn("cat=deprecation")
       val panel = ToolbarDecorator.createDecorator(patternJBList).setAddAction(new AnActionButtonRunnable {
         def addPattern(pattern: String): Unit = {
           if (pattern == null) return

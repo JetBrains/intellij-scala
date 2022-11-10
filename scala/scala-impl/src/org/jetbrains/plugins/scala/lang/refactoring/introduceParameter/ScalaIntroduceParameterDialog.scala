@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 import java.awt._
 import java.util
 import javax.swing._
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
@@ -97,6 +98,7 @@ class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
     table.setRowSelectionAllowed(true)
     table.getSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
     table.setSurrendersFocusOnKeystroke(true)
+    @nowarn("cat=deprecation")
     val buttonsPanel: JPanel =
       ToolbarDecorator.createDecorator(table)
               .setMoveUpAction(upAction)

@@ -77,7 +77,7 @@ class SbtOpenProjectProvider extends AbstractOpenProjectProvider {
       }
 
       def importTask(): Unit = {
-        ProjectDataManager.getInstance().importData(externalProject, project, false)
+        ProjectDataManager.getInstance().importData(externalProject, project)
       }
 
       val showSelectiveImportDialog = SbtSettings.getInstance(project).showSelectiveImportDialogOnInitialImport()
