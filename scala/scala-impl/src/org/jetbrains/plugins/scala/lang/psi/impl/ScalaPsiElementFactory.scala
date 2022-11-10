@@ -363,8 +363,11 @@ object ScalaPsiElementFactory {
                             (implicit context: ProjectContext): PsiElement =
     createScalaFileFromText(s"$modifier class a").typeDefinitions.head.getModifierList.getFirstChild
 
-  def createImportExprFromText(@NonNls name: String, context: PsiElement, @Nullable child: PsiElement = null): ScImportExpr = {
-    val importStmt = createImportFromText(s"import ${escapeKeywordsFqn(name)}", context, child)
+  def createImportExprFromText(@NonNls name: String,
+                               context: PsiElement,
+                               @Nullable child: PsiElement = null,
+                               escapeKeywords: Boolean = true): ScImportExpr = {
+    val importStmt = createImportFromText(s"import ${if (escapeKeywords) escapeKeywordsFqn(name) else name}", context, child)
     importStmt.getLastChild.asInstanceOf[ScImportExpr]
   }
 

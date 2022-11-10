@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportExprStub
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeywordsFqn
 
 class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, IMPORT_EXPR, node) with ScImportExpr {
@@ -100,8 +101,13 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
     this.selectors match {
       case Seq(selector: ScImportSelector) =>
         if (!selector.isScala2StyleAliasImport) {
-          val textWithoutBraces = this.qualifier.fold("")(_.getText + ".") + selector.getText
-          this.replace(ScalaPsiElementFactory.createImportExprFromText(textWithoutBraces, this))
+          val isGivenSelector = selector.isGivenSelector
+          val prefix = this.qualifier match {
+            case Some(qual) => qual.getText.pipeIf(_ => isGivenSelector)(escapeKeywordsFqn) + "."
+            case None       => ""
+          }
+          val textWithoutBraces = prefix + selector.getText
+          this.replace(ScalaPsiElementFactory.createImportExprFromText(textWithoutBraces, this, escapeKeywords = !isGivenSelector))
         }
       case _ =>
     }
