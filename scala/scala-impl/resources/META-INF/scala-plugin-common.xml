@@ -498,7 +498,6 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.bm4.BetterMonadicForSupport"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
