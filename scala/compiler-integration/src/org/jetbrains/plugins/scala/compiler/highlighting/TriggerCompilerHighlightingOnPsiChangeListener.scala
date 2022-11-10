@@ -1,15 +1,17 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.startup.StartupActivity
+import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.{PsiFile, PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import org.jetbrains.plugins.scala.compiler.highlighting.TriggerCompilerHighlightingOnPsiChangeListener.PsiChangeListener
 import org.jetbrains.plugins.scala.project.ProjectExt
 
-private final class TriggerCompilerHighlightingOnPsiChangeListener extends StartupActivity {
+import scala.annotation.unused
 
-  override def runActivity(project: Project): Unit = {
+@unused("registered in scala-plugin-common.xml")
+private final class TriggerCompilerHighlightingOnPsiChangeListener extends ProjectManagerListener {
+
+  override def projectOpened(project: Project): Unit = {
     val listener = new PsiChangeListener(project)
     PsiManager.getInstance(project).addPsiTreeChangeListener(listener, project.unloadAwareDisposable)
   }
