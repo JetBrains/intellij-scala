@@ -153,11 +153,11 @@ final class ScalaLanguageInjector extends MultiHostInjector {
     val langId: String = injection.getInjectedLanguageId
     if (StringUtils.isBlank(langId))
       return false
-    val language = Language.findLanguageByID(langId)
+    val language = injection.getInjectedLanguage
     if (language == null)
       return false
 
-    inject(host, literals, language)
+    inject(host, literals, language, injection.getPrefix, injection.getSuffix)
 
     true
   }
