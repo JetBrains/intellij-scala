@@ -85,7 +85,7 @@ object Dependencies {
   val junit: ModuleID = "junit" % "junit" % junitVersion
   val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion
 
-  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.0"
+  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.1"
 
   val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.5.1"
 
