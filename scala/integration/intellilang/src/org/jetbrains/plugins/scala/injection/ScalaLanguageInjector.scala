@@ -169,11 +169,27 @@ final class ScalaLanguageInjector extends MultiHostInjector {
     prefix: String = "",
     suffix: String = ""
   )(implicit support: ScalaLanguageInjectionSupport, registrar: MultiHostRegistrar): Unit = {
-    registrar.startInjecting(language)
+    val injectionInfos = new ju.ArrayList[InjectionInfo]()
+    collectInjectionInfos(literals, language, prefix, suffix)(injectionInfos)
+
+    InjectorUtils.registerInjection(language, host.getContainingFile, injectionInfos, registrar)
+    InjectorUtils.registerSupport(support, true, host, language)
+  }
+
+  private def collectInjectionInfos(
+    literals: Seq[StringLiteral],
+    language: Language,
+    prefix: String,
+    suffix: String
+  )(result: ju.ArrayList[InjectionInfo]): Unit = {
+    val languageId = language.getID
 
     literals.zipWithIndex.foreach { case (literal, literalIdx) =>
-      val litPrefix = if (literalIdx == 0) prefix else ""
-      val litSuffix = if (literalIdx == literals.size - 1) suffix else ""
+      val isFirstLiteral = literalIdx == 0
+      val isLastLiteral = literalIdx == literals.size - 1
+
+      val litPrefix = if (isFirstLiteral) prefix else ""
+      val litSuffix = if (isLastLiteral) suffix else ""
 
       if (literal.isMultiLineString) {
         val rangesCollected = extractMultiLineStringRanges(literal)
@@ -187,15 +203,15 @@ final class ScalaLanguageInjector extends MultiHostInjector {
 
           // capture new line symbol
           val rangeActual = if (isLastLine) lineRange else lineRange.grown(1)
-          registrar.addPlace(prefixActual, suffixActual, literal, rangeActual)
+          val injectedLanguage = InjectedLanguage.create(languageId, prefixActual, suffixActual, true)
+          result.add(new InjectionInfo(literal, injectedLanguage, rangeActual))
         }
       } else {
-        registrar.addPlace(litPrefix, litSuffix, literal, getRangeInElement(literal))
+        val range = getRangeInElement(literal)
+        val injectedLanguage = InjectedLanguage.create(languageId, prefix, suffix, true)
+        result.add(new InjectionInfo(literal, injectedLanguage, range))
       }
     }
-
-    registrar.doneInjecting()
-    InjectorUtils.registerSupport(support, true, host, language)
   }
 
   private def injectUsingAnnotation(
