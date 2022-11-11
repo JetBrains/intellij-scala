@@ -61,6 +61,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <statistics.projectUsagesCollector implementation="org.jetbrains.plugins.scala.collectors.ScalaProjectStateCollector"/>
+        <internal.statistic.libraryUsageImportProcessor language="Scala"
+                                                        implementationClass="org.jetbrains.plugins.scala.statistics.ScalaUsageImportProcessor"/>
 
         <annotator language="JAVA"
                    implementationClass="org.jetbrains.plugins.scala.annotator.template.SealedJavaInheritance"/>
@@ -1858,8 +1860,7 @@
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
 
         <iconMapper mappingFile="ScalaIconMappings.json" />
-
-    </extensions>
+   </extensions>
 
     <applicationListeners>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
