@@ -67,7 +67,7 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     file.depthFirst().filterByType[ScalaPsiElement].foreach {
-      ElementAnnotator.annotate(_)
+      ElementAnnotator.annotate(_, typeAware = true)
     }
     mock.annotations
   }

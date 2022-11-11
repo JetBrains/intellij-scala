@@ -69,7 +69,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScOverriddenVarAnnotator ::
       Nil
 
-  override def annotate(element: ScalaPsiElement, typeAware: Boolean = true)
+  override def annotate(element: ScalaPsiElement, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit =
     Instances.foreach {
       _.doAnnotate(element, typeAware)

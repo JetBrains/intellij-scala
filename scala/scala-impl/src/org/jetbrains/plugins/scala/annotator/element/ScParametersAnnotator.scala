@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 
 object ScParametersAnnotator extends ElementAnnotator[ScParameters] {
 
-  override def annotate(element: ScParameters, typeAware: Boolean = true)
+  override def annotate(element: ScParameters, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     def checkRepeatedParams(): Unit = {
       element.clauses.foreach { cl =>

@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 // TODO unify with ScMethodInvocationAnnotator and ScReferenceAnnotator
 object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorInvocation] {
 
-  override def annotate(element: ScConstructorInvocation, typeAware: Boolean = true)
+  override def annotate(element: ScConstructorInvocation, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
       ImplicitParametersAnnotator.annotate(element, typeAware)

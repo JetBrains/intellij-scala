@@ -45,7 +45,7 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement : reflect.ClassTag] extend
 
   protected def annotate(element: T)
                         (implicit holder: ScalaAnnotationHolder): Unit =
-    ElementAnnotator.annotate(element)
+    ElementAnnotator.annotate(element, typeAware = true)
 
   override protected def sharedProjectToken: SharedTestProjectToken =
     SharedTestProjectToken(classOf[AnnotatorTestBase[_]])

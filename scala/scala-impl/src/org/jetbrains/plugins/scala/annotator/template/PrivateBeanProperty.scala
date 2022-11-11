@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 object PrivateBeanProperty extends AnnotatorPart[ScAnnotation] {
 
-  override def annotate(annotation: ScAnnotation, typeAware: Boolean = false)
+  override def annotate(annotation: ScAnnotation, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit =
     if (isBeanPropertyAnnotation(annotation)) {
 

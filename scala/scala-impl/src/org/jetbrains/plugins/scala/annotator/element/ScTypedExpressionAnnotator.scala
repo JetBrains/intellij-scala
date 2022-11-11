@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePr
 
 object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
 
-  override def annotate(element: ScTypedExpression, typeAware: Boolean = true)
+  override def annotate(element: ScTypedExpression, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
       val isTypeAscriptionToFunctionLiteral = element.expr match {

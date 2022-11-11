@@ -22,7 +22,7 @@ import scala.collection.immutable.ArraySeq
 
 object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
 
-  override def annotate(element: ScPattern, typeAware: Boolean = true)
+  override def annotate(element: ScPattern, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
       checkPattern(element)

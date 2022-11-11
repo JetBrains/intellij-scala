@@ -39,7 +39,7 @@ class ConstructorParametersTest extends SimpleTestCase {
 
     try {
       file.depthFirst().filterByType[ScConstructorInvocation].foreach {
-        ScConstructorInvocationAnnotator.annotate(_)
+        ScConstructorInvocationAnnotator.annotate(_, typeAware = true)
       }
 
       mock.annotations

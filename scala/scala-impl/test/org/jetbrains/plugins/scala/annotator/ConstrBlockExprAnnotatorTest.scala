@@ -161,7 +161,7 @@ abstract class ConstrBlockExprAnnotatorTestBase extends SimpleTestCase {
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    file.depthFirst().filterByType[ScalaPsiElement].foreach(ElementAnnotator.annotate(_))
+    file.depthFirst().filterByType[ScalaPsiElement].foreach(ElementAnnotator.annotate(_, typeAware = true))
 
     val annotations = mock.annotations
     annotations.filterNot(a => Set(
