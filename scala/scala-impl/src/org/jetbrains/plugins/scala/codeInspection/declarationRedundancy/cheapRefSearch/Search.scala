@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRe
 
 import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
 import com.intellij.openapi.roots.TestSourcesFilter
-import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.caches.ModTracker.anyScalaPsiChange
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline.{Conditions, ShouldProcess}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isOnlyVisibleInLocalFile, superValsSignatures}
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScRefinement, ScSelfTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.project.ModuleExt
@@ -128,21 +128,21 @@ private[declarationRedundancy] object Search {
         isMemberOfUnusedTypeDefinition
       )
 
-      val elementAsPsiClass = element match {
-        case c: PsiClass => Some(c)
-        case _ => None
+      def isSelfReferentialTypeDefRef(usage: ElementUsage): Boolean = (usage, element.asOptionOf[ScTypeDefinition]) match {
+        case (usageWithReference: ElementUsageWithKnownReference, Some(typeDef)) =>
+          usageWithReference.referenceIsWithinPrivateScopeOfTypeDef(typeDef)
+        case _ => false
       }
 
-      def referenceCantBeRemovedWithoutBreakingCompilation(usage: ElementUsage): Boolean = (usage, elementAsPsiClass) match {
-        case (usageWithReference: ElementUsageWithReference, Some(c: PsiClass)) =>
-          !usageWithReference.referenceIsWithinPrivateScopeOfTypeDef(c)
-        case _ => true
+      def referenceCanBeRemovedWithoutBreakingCompilation(usage: ElementUsage): Boolean = usage match {
+        case ElementUsageWithUnknownReference => false
+        case _ => isSelfReferentialTypeDefRef(usage)
       }
 
       searchMethods.foreach { method =>
         if (method.shouldProcess(conditions) && !res.exists(ctx.canExit)) {
           method.getUsages(ctx)
-            .filter(referenceCantBeRemovedWithoutBreakingCompilation)
+            .filterNot(referenceCanBeRemovedWithoutBreakingCompilation)
             .foreach { usage =>
               res.addOne(usage)
             }
