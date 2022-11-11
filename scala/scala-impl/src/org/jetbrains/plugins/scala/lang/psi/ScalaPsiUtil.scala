@@ -1692,4 +1692,27 @@ object ScalaPsiUtil {
   def getEnclosingTopLevelContextCandidate(element: PsiElement) = {
     PsiTreeUtil.getContextOfType(element, true, classOf[ScPackaging], classOf[ScObject], classOf[ScalaFile])
   }
+
+
+  /**
+   * Use this instead of [[com.intellij.psi.util.PsiUtil.isLocalClass]] to determine class
+   * locality in Scala code.
+   *
+   * com.intellij.psi.util.PsiUtil.isLocalClass does not work for something basic like
+   * returning true against class B below:
+   * * <pre><code>
+   * object A { def foo = { class B } }
+   * </code></pre>
+   * Last tried on 11 Nov 2022.
+   */
+  @tailrec
+  def isLocalClass(td: PsiClass): Boolean = td.getParent match {
+    case _: ScTemplateBody =>
+      td.parentOfType(classOf[PsiClass]) match {
+        case Some(_: ScNewTemplateDefinition) | None => true
+        case Some(clazz) => isLocalClass(clazz)
+      }
+    case _: ScPackaging | _: ScalaFile => false
+    case _ => true
+  }
 }

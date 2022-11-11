@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, Sca
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLocalClass
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -20,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -31,7 +32,6 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.JvmUtil.getJVMStringForType
 
-import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -435,17 +435,6 @@ object DebuggerUtil {
         !o.getContext.is[ScTemplateBody] && PsiTreeUtil.getContextOfType(o, true, classOf[PsiClass]) != null
       case _ => false
     }
-  }
-
-  @tailrec
-  def isLocalClass(td: PsiClass): Boolean = td.getParent match {
-    case _: ScTemplateBody =>
-      td.parentOfType(classOf[PsiClass]) match {
-        case Some(_: ScNewTemplateDefinition) | None => true
-        case Some(clazz) => isLocalClass(clazz)
-      }
-    case _: ScPackaging | _: ScalaFile => false
-    case _ => true
   }
 
   def getContainingMethod(elem: PsiElement): Option[PsiElement] = {

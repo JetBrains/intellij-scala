@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLocalClass
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -486,7 +487,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       case Some(Some(_)) | None =>
         val found = findElementByReferenceTypeInner(refType)
         refTypeToElementCache.update(refType, found.map { element =>
-          implicit val manager: SmartPointerManager = SmartPointerManager.getInstance(debugProcess.getProject)
           element.createSmartPointer
         })
         found
