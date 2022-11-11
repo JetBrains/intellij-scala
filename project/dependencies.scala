@@ -15,8 +15,6 @@ object Versions {
   val zincVersion = "1.8.0"
   val intellijVersion = "223.7571.4"
 
-  val nailgunVersion = "1.2.1"
-
   val Utils.DataForManagedIntellijDependencies(
     intellijVersion_ForManagedIntellijDependencies,
     intellijRepository_ForManagedIntellijDependencies
@@ -89,12 +87,9 @@ object Dependencies {
 
   val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.5.1"
 
-  val fastparseVersion = "2.3.3"
-  val scalaMetaVersion = "4.5.13"
-  val scalafmtVersion = "3.6.1"
-  val scalafmtDynamic = "org.scalameta" %% "scalafmt-dynamic" % scalafmtVersion
-  val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
-  val fastparse: ModuleID = "com.lihaoyi" %% "fastparse" % fastparseVersion // transitive dependency of scalaMeta, needs explicit versioning
+  val scalafmtDynamic = "org.scalameta" %% "scalafmt-dynamic" % "3.6.1"
+  val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % "4.5.13" withSources() exclude("com.google.protobuf", "protobuf-java")
+  val fastparse: ModuleID = "com.lihaoyi" %% "fastparse" % "2.3.3" // transitive dependency of scalaMeta, needs explicit versioning
 
   val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.14"
   val scalaTest: ModuleID = scalaTestNotSpecified % Test
@@ -108,7 +103,7 @@ object Dependencies {
   //  2. update version in scala-plugin-common.xml compilerServer.plugin classpath setting
   val compilerIndicesProtocol: ModuleID = "org.jetbrains.scala" %% "scala-compiler-indices-protocol" % compilerIndicesVersion
 
-  val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % nailgunVersion
+  val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % "1.2.1"
 
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion excludeAll ExclusionRule(organization = "org.apache.logging.log4j")
   /** actually this is is compilerInterface (TODO: rename, cause naming difference is misleading) */
