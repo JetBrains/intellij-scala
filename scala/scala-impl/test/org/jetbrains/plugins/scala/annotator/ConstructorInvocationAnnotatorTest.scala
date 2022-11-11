@@ -375,7 +375,7 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
 
     try {
       file.depthFirst().filterByType[ScConstructorInvocation].foreach {
-        ScConstructorInvocationAnnotator.annotate(_)
+        ScConstructorInvocationAnnotator.annotate(_, typeAware = true)
       }
 
       mock.annotations

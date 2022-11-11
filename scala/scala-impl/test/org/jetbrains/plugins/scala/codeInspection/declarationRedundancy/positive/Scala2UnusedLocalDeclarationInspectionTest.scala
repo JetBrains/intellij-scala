@@ -226,15 +226,15 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
        |""".stripMargin
   )
 
-  def test_class_type_parameter1(): Unit = checkTextHasError(
+  def test_final_class_type_parameter1(): Unit = checkTextHasError(
     s"""
-       |@scala.annotation.unused class Test[${START}A$END]
+       |@scala.annotation.unused final class Test[${START}A$END]
        |""".stripMargin
   )
 
-  def test_class_type_parameter2(): Unit = checkTextHasError(
+  def test_final_class_type_parameter2(): Unit = checkTextHasError(
     s"""
-       |@scala.annotation.unused class Test[A, ${START}B$END] { Seq.empty[A] }
+       |@scala.annotation.unused final class Test[A, ${START}B$END] { Seq.empty[A] }
        |""".stripMargin
   )
 

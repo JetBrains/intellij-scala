@@ -64,7 +64,7 @@ class VariableDefinitionAnnotatorTest extends SimpleTestCase {
     val definition = file.depthFirst().findByType[ScVariableDefinition].get
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
-    ScVariableDefinitionAnnotator.annotate(definition)
+    ScVariableDefinitionAnnotator.annotate(definition, typeAware = true)
     mock.annotations
   }
   

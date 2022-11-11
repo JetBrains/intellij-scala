@@ -35,11 +35,11 @@ private[cheapRefSearch] final class TextSearch(override val shouldProcess: Shoul
             case Parent(_: ScReferencePattern) => None
             case Parent(_: ScTypeDefinition) => None
             case _: PsiIdentifier =>
-              Some(ElementUsageWithReference(e2, ctx.element))
+              Some(ElementUsageWithKnownReference(e2, ctx.element))
             case l: LeafPsiElement if l.isIdentifier =>
-              Some(ElementUsageWithReference(e2, ctx.element))
+              Some(ElementUsageWithKnownReference(e2, ctx.element))
             case _: ScStableCodeReference =>
-              Some(ElementUsageWithReference(e2, ctx.element))
+              Some(ElementUsageWithKnownReference(e2, ctx.element))
             case _ => None
           }
 

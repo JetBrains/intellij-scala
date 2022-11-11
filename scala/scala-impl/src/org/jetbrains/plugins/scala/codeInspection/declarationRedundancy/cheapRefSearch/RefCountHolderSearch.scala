@@ -30,9 +30,9 @@ private[cheapRefSearch] final class RefCountHolderSearch(override val shouldProc
     val res = if (!success) {
       // ElementUsageWithoutReference is used because ScalaRefCountHolder
       // was not ready yet, so we assume the element is used.
-      Seq(ElementUsageWithoutReference)
+      Seq(ElementUsageWithUnknownReference)
     } else {
-      references.map(r => ElementUsageWithReference(r, ctx.element))
+      references.map(r => ElementUsageWithKnownReference(r, ctx.element))
     }
 
     new SearchMethodResult(res, !success)

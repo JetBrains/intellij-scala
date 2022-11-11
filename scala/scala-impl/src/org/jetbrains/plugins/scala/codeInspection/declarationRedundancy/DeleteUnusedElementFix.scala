@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScReferencePattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtensionBody, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createWildcardNode, createWildcardPattern}
@@ -28,7 +28,8 @@ private class DeleteUnusedElementFix(e: ScNamedElement, override val getText: St
   override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
     if (FileModificationService.getInstance.prepareFileForWrite(startElement.getContainingFile)) {
       startElement match {
-        case p: ScParameter if !p.owner.is[ScFunctionExpr] => removeParameter(p, project)
+        case p: ScParameter if !p.owner.is[ScFunctionExpr] => safeDeleteElement(p, project)
+        case p: ScTypeParam => safeDeleteElement(p, project)
         case _ =>
           removeInWriteAction(startElement, project)
       }
@@ -65,10 +66,8 @@ private class DeleteUnusedElementFix(e: ScNamedElement, override val getText: St
     }
   }
 
-  private def removeParameter(p: ScParameter, project: Project): Unit = {
-    val processor = SafeDeleteProcessor.createInstance(project, null, Array(p), true, true)
-    processor.run()
-  }
+  private def safeDeleteElement(p: PsiElement, project: Project): Unit =
+    SafeDeleteProcessor.createInstance(project, null, Array(p), true, true).run()
 
   // show "Remove  whole definition" before "Remove only binding"
   override def compareTo(o: AnyRef): Int = o match {

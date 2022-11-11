@@ -32,7 +32,7 @@ object ScStringLiteralAnnotatorTest {
       val mock = new MyAnnotatorHolderMock(file)
 
       val literals = file.depthFirst().filterByType[ScStringLiteral].toSeq
-      literals.foreach(ElementAnnotator.annotate(_)(mock))
+      literals.foreach(ElementAnnotator.annotate(_, typeAware = true)(mock))
 
       mock.annotations
     }

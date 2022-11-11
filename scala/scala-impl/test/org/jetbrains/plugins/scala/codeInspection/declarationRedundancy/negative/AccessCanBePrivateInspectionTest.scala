@@ -11,20 +11,14 @@ final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestB
     myFixture.enableInspections(classOf[ScalaAccessCanBeTightenedInspection])
   }
 
-  def test_val(): Unit = {
-    val code = "private class A { val foo = 42 }; private class B { new A().foo }"
-    checkTextHasNoErrors(code)
-  }
+  def test_val(): Unit =
+    checkTextHasNoErrors("private class A { val foo = 42 }; private class B { new A().foo }")
 
-  def test_var(): Unit = {
-    val code = "private class A { var foo = 42 }; private class B { new A().foo }"
-    checkTextHasNoErrors(code)
-  }
+  def test_var(): Unit =
+    checkTextHasNoErrors("private class A { var foo = 42 }; private class B { new A().foo }")
 
-  def test_method(): Unit = {
-    val code = "private class A { def foo = {} }; private class B { new A().foo }"
-    checkTextHasNoErrors(code)
-  }
+  def test_method(): Unit =
+    checkTextHasNoErrors("private class A { def foo = {} }; private class B { new A().foo }")
 
   def test_class_used_by_public_class_in_other_file(): Unit = {
     val file = myFixture.addFileToProject("B.scala", "class B extends A")
@@ -54,39 +48,51 @@ final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestB
     checkTextHasNoErrors(code)
   }
 
-  def test_local_method_members_are_skipped(): Unit = {
+  def test_local_method_members_are_skipped(): Unit =
     checkTextHasNoErrors("private class A { private def foo() = { def bar() = {} } }")
-  }
 
-  def test_local_var_val_members_are_skipped(): Unit = {
+  def test_local_var_val_members_are_skipped(): Unit =
     checkTextHasNoErrors("private class A { private def foo() = { var x = 42; val y = 42; } }")
-  }
 
-  def test_unused_declarations_are_skipped(): Unit = {
+  def test_unused_declarations_are_skipped(): Unit =
     checkTextHasNoErrors("private class A { def foo() = {} }")
-  }
 
-  def test_prevent_leaking_via_val(): Unit = {
+  def test_prevent_leaking_via_val(): Unit =
     checkTextHasNoErrors("object A { class B; val c: B = ??? }")
-  }
 
-  def test_prevent_leaking_via_var(): Unit = {
+  def test_prevent_leaking_via_var(): Unit =
     checkTextHasNoErrors("object A { class B; var c: B = ??? }")
-  }
 
-  def test_prevent_leaking_via_def_return_type(): Unit = {
+  def test_prevent_leaking_via_def_return_type(): Unit =
     checkTextHasNoErrors("object A { class B; def c: B = ??? }")
-  }
 
-  def test_prevent_via_def_param(): Unit = {
+  def test_prevent_leaking_via_nested_def_return_type1(): Unit =
+    checkTextHasNoErrors("object A { class B; def c: Option[B] = ??? }")
+
+  def test_prevent_leaking_via_nested_def_return_type2(): Unit =
+    checkTextHasNoErrors("object A { class B; def c: Option[Seq[B]] = ??? }")
+
+  def test_prevent_leaking_via_nested_def_return_type3(): Unit =
+    checkTextHasNoErrors("object A { class B; def c: Either[B, String] = ??? }")
+
+  def test_prevent_leaking_via_package_qualified_private_def_return_type(): Unit =
+    checkTextHasNoErrors("package a; object A { class B; private[a] def c: B = ??? }")
+
+  def test_prevent_via_def_param(): Unit =
     checkTextHasNoErrors("object A { class B; def foo(b: B) = () }")
-  }
 
-  def test_prevent_via_def_type_param(): Unit = {
+  def test_prevent_leaking_via_nested_def_param1(): Unit =
+    checkTextHasNoErrors("object A { class B; def c(d: Option[B]) = () }")
+
+  def test_prevent_leaking_via_nested_def_param2(): Unit =
+    checkTextHasNoErrors("object A { class B; def c(d: Option[Seq[B]]) = () }")
+
+  def test_prevent_leaking_via_nested_def_param3(): Unit =
+    checkTextHasNoErrors("object A { class B; def c(d: Either[B, String]) = () }")
+
+  def test_prevent_via_def_type_param(): Unit =
     checkTextHasNoErrors("object A { class B; def foo[T <: B]() = () }")
-  }
 
-  def test_prevent_leaking_via_inheritance(): Unit = {
+  def test_prevent_leaking_via_inheritance(): Unit =
     checkTextHasNoErrors("object A { class B; class C extends B }")
-  }
 }

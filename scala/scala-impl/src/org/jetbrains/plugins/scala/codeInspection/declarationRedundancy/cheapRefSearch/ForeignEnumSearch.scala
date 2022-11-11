@@ -29,7 +29,7 @@ private[cheapRefSearch] final class ForeignEnumSearch(override val shouldProcess
           true
         } else {
 
-          val usage = ElementUsageWithReference(e2, ctx.element)
+          val usage = ElementUsageWithKnownReference(e2, ctx.element)
           result.addOne(usage)
 
           val continue = !ctx.canExit(usage)

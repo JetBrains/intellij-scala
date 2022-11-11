@@ -190,7 +190,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    ScAssignmentAnnotator.annotate(assignment)
+    ScAssignmentAnnotator.annotate(assignment, typeAware = true)
     mock.annotations
   }
 

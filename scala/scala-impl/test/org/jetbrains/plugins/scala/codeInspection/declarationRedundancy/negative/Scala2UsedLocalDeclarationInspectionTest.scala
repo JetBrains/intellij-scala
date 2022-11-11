@@ -247,16 +247,24 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
       |}
       |""".stripMargin)
 
-  def test_class_type_parameter1(): Unit = checkTextHasNoErrors(
-    "@scala.annotation.unused class Test[A] { Seq.empty[A] }"
+  def test_final_class_type_parameter1(): Unit = checkTextHasNoErrors(
+    "@scala.annotation.unused final class Test[A] { Seq.empty[A] }"
   )
 
-  def test_class_type_parameter2(): Unit = checkTextHasNoErrors(
-    "@scala.annotation.unused class Test[A, B] { Seq.empty[A]; Seq.empty[B] }"
+  def test_final_class_type_parameter2(): Unit = checkTextHasNoErrors(
+    "@scala.annotation.unused final class Test[A, B] { Seq.empty[A]; Seq.empty[B] }"
   )
 
-  def test_class_type_parameter3(): Unit = checkTextHasNoErrors(
-    "@scala.annotation.unused class Test[A <: java.lang.Object] { Seq.empty[A] }"
+  def test_final_class_type_parameter3(): Unit = checkTextHasNoErrors(
+    "@scala.annotation.unused final class Test[A <: java.lang.Object] { Seq.empty[A] }"
+  )
+
+  def test_non_final_class_type_parameter(): Unit = checkTextHasNoErrors(
+    "@scala.annotation.unused class Test[A]"
+  )
+
+  def test_trait_type_parameter(): Unit = checkTextHasNoErrors(
+    "@scala.annotation.unused trait Test[A]"
   )
 
   def test_function_type_parameter1(): Unit = checkTextHasNoErrors(

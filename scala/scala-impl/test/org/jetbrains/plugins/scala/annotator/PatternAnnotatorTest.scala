@@ -25,7 +25,7 @@ class PatternAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase {
     configureFromFileText("dummy.scala", text)
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(getFile)
     val patterns = getFile.depthFirst().filterByType[ScPattern]
-    patterns.foreach(ScPatternAnnotator.annotate(_))
+    patterns.foreach(ScPatternAnnotator.annotate(_, typeAware = true))
     mock.annotations
   }
 

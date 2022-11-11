@@ -37,7 +37,7 @@ private[cheapRefSearch] final class LocalRefSearch(override val shouldProcess: S
     val refProcessor = new Processor[PsiReference] {
       override def process(ref: PsiReference): Boolean = {
 
-        val usage = ElementUsageWithReference(ref.getElement, ctx.element)
+        val usage = ElementUsageWithKnownReference(ref.getElement, ctx.element)
 
         res.addOne(usage)
 

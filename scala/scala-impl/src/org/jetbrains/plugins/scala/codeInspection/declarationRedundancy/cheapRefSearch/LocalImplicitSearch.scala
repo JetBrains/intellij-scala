@@ -25,7 +25,7 @@ private[cheapRefSearch] final class LocalImplicitSearch(override val shouldProce
 
     val res = ctx.element.getContainingFile.depthFirst()
       .find(ctx.element.refOrImplicitRefIn(_).nonEmpty)
-      .map(_ => ElementUsageWithoutReference).toSeq
+      .map(_ => ElementUsageWithUnknownReference).toSeq
 
     new SearchMethodResult(res, didExitBeforeExhaustion = false)
   }

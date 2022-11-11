@@ -1,107 +1,83 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch
+
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, SmartPsiElementPointer}
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterType, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 
+import scala.annotation.tailrec
 import scala.ref.WeakReference
 
 trait ElementUsage {
   def targetCanBePrivate: Boolean
 }
 
-private object ElementUsageWithoutReference extends ElementUsage {
+private object ElementUsageWithUnknownReference extends ElementUsage {
   override val targetCanBePrivate: Boolean = false
 }
 
-private final class ElementUsageWithReference private(
+private final class ElementUsageWithKnownReference private(
   reference: SmartPsiElementPointer[PsiElement],
   target: WeakReference[ScNamedElement]
 ) extends ElementUsage {
 
-  private def referenceLeaksTargetType: Boolean = {
+  @tailrec
+  private def elementLeaksType(e: PsiElement): Boolean = {
 
-    val directParent = reference.getElement.getParent
+    def isUnqualifiedOrThisPrivate(modifierListOwner: ScModifierListOwner): Boolean =
+      modifierListOwner.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)
 
-    def isPrivate(modifierListOwner: ScModifierListOwner): Boolean =
-      modifierListOwner.getModifierList.accessModifier.exists(_.isPrivate)
-
-    def getGrandParent(e: PsiElement): Option[PsiElement] =
-      e.parent.flatMap(_.parent)
-
-    getGrandParent(reference.getElement).exists {
-
-      case f: ScFunction if f.returnTypeElement.contains(directParent) =>
-        !isPrivate(f)
-
-      case p: ScValueOrVariable if p.typeElement.contains(directParent) =>
-        !isPrivate(p)
-
-      case c: ScConstructorInvocation if c.typeElement == directParent =>
-
-        val extendsBlock = getGrandParent(c).collect { case e: ScExtendsBlock => e }
-
-        val modifierListOwner = extendsBlock.flatMap(_.parent)
-          .collect { case m: ScModifierListOwner => m }
-
-        val newTemplateDefinition = extendsBlock.flatMap(_.parent)
-          .collect { case n: ScNewTemplateDefinition => n }
-
-        newTemplateDefinition.isEmpty && !modifierListOwner.exists(isPrivate)
-
-      case t: ScParameterType => getGrandParent(t).flatMap(getGrandParent).exists {
-        case f: ScFunction => !isPrivate(f)
-        case _ => false
-      }
-
-      case t: ScTypeParam => getGrandParent(t).exists {
-        case f: ScFunction => !isPrivate(f)
-        case _ => false
-      }
-
-      case _ => false
+    e match {
+      case null => false
+      case f: ScFunction => !isUnqualifiedOrThisPrivate(f)
+      case v: ScValueOrVariable => !isUnqualifiedOrThisPrivate(v)
+      case c: ScClass => !isUnqualifiedOrThisPrivate(c)
+      case _ => elementLeaksType(e.getParent)
     }
   }
 
-  def referenceIsWithinPrivateScopeOfTypeDef(typeDef: PsiClass): Boolean =
-    if (typeDef == null) {
-      false
-    } else {
+  def referenceIsWithinPrivateScopeOfTypeDef(@NotNull typeDef: PsiClass): Boolean = {
+    var refContainingClass = PsiTreeUtil.getParentOfType(reference.getElement, classOf[PsiClass])
+    var counter = 0
 
-      var refContainingClass = PsiTreeUtil.getParentOfType(reference.getElement, classOf[PsiClass])
-      var counter = 0
-
-      while (
-        counter < ElementUsageWithReference.MaxSearchDepth &&
-          refContainingClass != null &&
-          refContainingClass != typeDef
-      ) {
-        refContainingClass = PsiTreeUtil.getParentOfType(refContainingClass, classOf[PsiClass])
-        counter += 1
-      }
-
-      refContainingClass == typeDef
+    while (
+      counter < ElementUsageWithKnownReference.MaxSearchDepth &&
+        refContainingClass != null &&
+        refContainingClass != typeDef
+    ) {
+      refContainingClass = PsiTreeUtil.getParentOfType(refContainingClass, classOf[PsiClass])
+      counter += 1
     }
+
+    refContainingClass == typeDef
+  }
 
   private def referenceIsWithinTargetPrivateScope: Boolean = {
-    val targetContainingClass =  PsiTreeUtil.getParentOfType(target.underlying.get, classOf[PsiClass])
-    referenceIsWithinPrivateScopeOfTypeDef(targetContainingClass)
+    val targetContainingClass = PsiTreeUtil.getParentOfType(target.underlying.get, classOf[PsiClass])
+    if (targetContainingClass == null) {
+      false
+    } else {
+      referenceIsWithinPrivateScopeOfTypeDef(targetContainingClass)
+    }
   }
 
-  override lazy val targetCanBePrivate: Boolean = !referenceLeaksTargetType && referenceIsWithinTargetPrivateScope
+  override lazy val targetCanBePrivate: Boolean =
+    if (target.underlying.get().isInstanceOf[ScTypeDefinition]) {
+      !elementLeaksType(reference.getElement)
+    } else {
+      referenceIsWithinTargetPrivateScope
+    }
 }
 
-private object ElementUsageWithReference {
+private object ElementUsageWithKnownReference {
   private val MaxSearchDepth = 10
 
-  def apply(reference: PsiElement, target: ScNamedElement): ElementUsageWithReference =
-    new ElementUsageWithReference(reference.createSmartPointer, WeakReference(target))
+  def apply(reference: PsiElement, target: ScNamedElement): ElementUsageWithKnownReference =
+    new ElementUsageWithKnownReference(reference.createSmartPointer, WeakReference(target))
 
-  def apply(reference: SmartPsiElementPointer[PsiElement], target: ScNamedElement): ElementUsageWithReference =
-    new ElementUsageWithReference(reference, WeakReference(target))
+  def apply(reference: SmartPsiElementPointer[PsiElement], target: ScNamedElement): ElementUsageWithKnownReference =
+    new ElementUsageWithKnownReference(reference, WeakReference(target))
 }

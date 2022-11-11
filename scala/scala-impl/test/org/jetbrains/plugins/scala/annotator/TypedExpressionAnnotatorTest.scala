@@ -43,7 +43,7 @@ class TypedExpressionAnnotatorTest extends SimpleTestCase {
     val expression = file.depthFirst().findByType[ScTypedExpression].get
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
-    ScTypedExpressionAnnotator.annotate(expression)
+    ScTypedExpressionAnnotator.annotate(expression, typeAware = true)
     mock.annotations
   }
 

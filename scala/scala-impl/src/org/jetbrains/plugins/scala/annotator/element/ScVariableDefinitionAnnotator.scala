@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 
 object ScVariableDefinitionAnnotator extends ElementAnnotator[ScVariableDefinition] {
 
-  override def annotate(element: ScVariableDefinition, typeAware: Boolean = true)
+  override def annotate(element: ScVariableDefinition, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware && element.pList.simplePatterns) {
       for {
