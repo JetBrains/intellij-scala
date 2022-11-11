@@ -264,17 +264,19 @@ final class ScalaLanguageInjector extends MultiHostInjector {
     host: PsiElement,
     literals: Seq[StringLiteral]
   )(implicit support: ScalaLanguageInjectionSupport, registrar: MultiHostRegistrar): Boolean = {
-    host match {
-      case injectionHost: PsiLanguageInjectionHost =>
-        val registry = TemporaryPlacesRegistry.getInstance(host.getProject)
-        registry.getLanguageFor(injectionHost, injectionHost.getContainingFile) match {
-          case lang: InjectedLanguage =>
-            performSimpleInjection(literals, lang, new BaseInjection(support.getId), injectionHost, registrar, support)
-            true
-          case _ => false
-        }
-      case _ => false
+    val stringHost = host match {
+      case s: ScStringLiteral => s
+      case _ =>
+        return false
     }
+
+    val registry = TemporaryPlacesRegistry.getInstance(host.getProject)
+    val language = registry.getLanguageFor(stringHost, stringHost.getContainingFile)
+    if (language == null)
+      return false
+
+    performSimpleInjection(literals, language, new BaseInjection(support.getId), stringHost, registrar, support)
+    true
   }
 }
 
