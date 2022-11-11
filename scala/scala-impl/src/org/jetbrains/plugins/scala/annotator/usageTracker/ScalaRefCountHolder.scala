@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.annotator.usageTracker
 
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzer, impl}
-import com.intellij.model.Pointer
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
@@ -48,28 +47,28 @@ final class ScalaRefCountHolder private (file: PsiFile) {
     myImportUsed.contains(used)
   }
 
-  def getWriteReferences(element: PsiNamedElement): Seq[Pointer[PsiElement]] =
+  def getWriteReferences(element: PsiNamedElement): Seq[SmartPsiElementPointer[PsiElement]] =
     myValueUsed.asScala.collect {
-      case w: WriteValueUsed if w.declaration.dereference() != null && w.declaration.dereference() == element => w
+      case w: WriteValueUsed if w.declaration.getElement != null && w.declaration.getElement == element => w
     }.map(_.reference).toSeq
 
-  def getReadReferences(element: PsiNamedElement): Seq[Pointer[PsiElement]] =
+  def getReadReferences(element: PsiNamedElement): Seq[SmartPsiElementPointer[PsiElement]] =
     myValueUsed.asScala.collect {
-      case r: ReadValueUsed if r.declaration.dereference() != null && r.declaration.dereference() == element => r
+      case r: ReadValueUsed if r.declaration.getElement != null && r.declaration.getElement == element => r
     }.map(_.reference).toSeq
 
   def isValueWriteUsed(element: PsiNamedElement): Boolean = {
     assertReady()
     myValueUsed.asScala.collect {
-      case w: WriteValueUsed if w.declaration.dereference() != null => w
-    }.exists(_.declaration.dereference() == element)
+      case w: WriteValueUsed if w.declaration.getElement != null => w
+    }.exists(_.declaration.getElement == element)
   }
 
   def isValueReadUsed(element: PsiNamedElement): Boolean = {
     assertReady()
     myValueUsed.asScala.collect {
-      case r: ReadValueUsed if r.declaration.dereference() != null => r
-    }.exists(_.declaration.dereference() == element)
+      case r: ReadValueUsed if r.declaration.getElement != null => r
+    }.exists(_.declaration.getElement == element)
   }
 
   def analyze(analyze: Runnable, file: PsiFile): Boolean = {
