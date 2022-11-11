@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRef
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLocalClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
@@ -65,7 +66,7 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
   @tailrec
   override def shouldProcessElement(element: PsiElement): Boolean =
     element match {
-      case m: ScMember => !m.isLocal
+      case m: ScMember => !m.isLocal && !Option(m.containingClass).exists(isLocalClass)
       case p: ScPatternList => shouldProcessElement(p.getContext)
       case _ => true
     }

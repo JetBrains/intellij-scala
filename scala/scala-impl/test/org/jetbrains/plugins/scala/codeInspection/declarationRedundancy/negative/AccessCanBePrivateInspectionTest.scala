@@ -78,7 +78,7 @@ final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestB
   def test_prevent_leaking_via_package_qualified_private_def_return_type(): Unit =
     checkTextHasNoErrors("package a; object A { class B; private[a] def c: B = ??? }")
 
-  def test_prevent_via_def_param(): Unit =
+  def test_prevent_leaking_via_def_param(): Unit =
     checkTextHasNoErrors("object A { class B; def foo(b: B) = () }")
 
   def test_prevent_leaking_via_nested_def_param1(): Unit =
@@ -90,9 +90,15 @@ final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestB
   def test_prevent_leaking_via_nested_def_param3(): Unit =
     checkTextHasNoErrors("object A { class B; def c(d: Either[B, String]) = () }")
 
-  def test_prevent_via_def_type_param(): Unit =
+  def test_prevent_leaking_via_def_type_param(): Unit =
     checkTextHasNoErrors("object A { class B; def foo[T <: B]() = () }")
 
   def test_prevent_leaking_via_inheritance(): Unit =
     checkTextHasNoErrors("object A { class B; class C extends B }")
+
+  def test_member_of_local_class(): Unit =
+    checkTextHasNoErrors("object A { def foo = { class B { val bar = 42; println(bar) } } }")
+
+  def test_member_of_a_surprisingly_nested_local_class(): Unit =
+    checkTextHasNoErrors("class A { def foo = { class B { class C { class D { def bar = {}; bar } } } } }")
 }
