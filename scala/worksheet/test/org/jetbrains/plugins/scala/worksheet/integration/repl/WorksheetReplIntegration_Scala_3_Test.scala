@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import com.intellij.openapi.editor.Editor
+import org.jetbrains.plugins.scala.base.FailableTest
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
@@ -10,7 +11,7 @@ import org.junit.Assert._
 import scala.language.postfixOps
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
-class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegration_Scala_3_BaseTest {
+class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegration_Scala_3_BaseTest with FailableTest {
   override def testAllInOne(): Unit = {
     val before =
       """import java.io.PrintStream
@@ -111,6 +112,18 @@ class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegrat
         |Empty
         |Cons(42,Empty)""".stripMargin
     doRenderTest(before, after)
+  }
+
+  override def testScalaConcurrentDurationInstantiation(): Unit = {
+    try {
+      // TODO: This test passes when the `super` test fails. This is a platform bug in Scala 3.2.1.
+      //       When the issue is fixed upstream, this test will fail and can be removed.
+      //       https://github.com/lampepfl/dotty/issues/16322
+      super.testScalaConcurrentDurationInstantiation()
+      fail(failingPassed)
+    } catch {
+      case _: AssertionError =>
+    }
   }
 }
 
@@ -263,6 +276,15 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
          |val res0: Int = 3
          |
          |val res1: Int = 5""".stripMargin
+    doRenderTest(before, after)
+  }
+
+  def testScalaConcurrentDurationInstantiation(): Unit = {
+    val before =
+      """val n = scala.concurrent.duration.DurationInt(5)
+        |""".stripMargin
+    val after =
+      s"""val n: scala.concurrent.duration.package.DurationInt = 5""".stripMargin
     doRenderTest(before, after)
   }
 
