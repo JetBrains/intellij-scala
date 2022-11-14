@@ -2,22 +2,23 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRe
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.{SearchMethodResult, Method}
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.{Method, SearchMethodResult}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline.ShouldProcess
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
 
-import scala.collection.mutable.ListBuffer
+import java.util.concurrent.ConcurrentLinkedQueue
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 private[cheapRefSearch] final class ForeignEnumSearch(override val shouldProcess: ShouldProcess) extends Method {
 
   private val CaseSensitive = true
   private val PsiSearchContext = (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort
 
-  override def searchForUsages(ctx: Search.Context): SearchMethodResult = {
+  private val buffer: ConcurrentLinkedQueue[ElementUsage] = new ConcurrentLinkedQueue()
 
-    val result = new ListBuffer[ElementUsage]()
+  override def searchForUsages(ctx: Search.Context): SearchMethodResult = {
 
     val scope = ctx.element.getUseScope
 
@@ -30,7 +31,7 @@ private[cheapRefSearch] final class ForeignEnumSearch(override val shouldProcess
         } else {
 
           val usage = ElementUsageWithKnownReference(e2, ctx.element)
-          result.addOne(usage)
+          buffer.add(usage)
 
           val continue = !ctx.canExit(usage)
 
@@ -58,7 +59,11 @@ private[cheapRefSearch] final class ForeignEnumSearch(override val shouldProcess
       }
     }
 
-    new SearchMethodResult(result.toSeq, didExitBeforeExhaustion)
+    val result = new SearchMethodResult(buffer.asScala.toSeq, didExitBeforeExhaustion)
+
+    buffer.clear()
+
+    result
   }
 
 }
