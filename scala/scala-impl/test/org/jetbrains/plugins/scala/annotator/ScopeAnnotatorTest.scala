@@ -633,8 +633,24 @@ class ScopeAnnotatorTest extends SimpleTestCase {
 
   }
 
-  def clashesOf(@Language(value = "Scala", prefix = Header) code: String) = {
-    messages(code).map {
+  def testExtensions(): Unit = {
+    assertFine(
+      """extension (n: Int)
+        |  def mySpecialToString: String = n.toString
+        |  def mySpecialMkString(prefix: String, separator: String, postfix: String): String =
+        |    List(n).mkString(prefix, separator, postfix)
+        |
+        |extension (n: Long)
+        |  def mySpecialToString: String = n.toString
+        |  def mySpecialMkString(prefix: String, separator: String, postfix: String): String =
+        |    List(n).mkString(prefix, separator, postfix)
+        """.stripMargin,
+      Scala3Language.INSTANCE
+    )
+  }
+
+  def clashesOf(@Language(value = "Scala", prefix = Header) code: String, lang: com.intellij.lang.Language = ScalaLanguage.INSTANCE) = {
+    messages(code, lang).map {
       case error: Error => error.element
       case message => Assert.fail("Unexpected message: " + message)
     }
@@ -645,13 +661,13 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     Assert.assertEquals("Incorrect clashed elements", expectation.mkString(", "), clashesOf(code).mkString(", "))
   }
   
-  def assertFine(@Language(value = "Scala", prefix = Header) code: String): Unit = {
-    val clashes = clashesOf(code)
+  def assertFine(@Language(value = "Scala", prefix = Header) code: String, lang: com.intellij.lang.Language = ScalaLanguage.INSTANCE): Unit = {
+    val clashes = clashesOf(code, lang)
     if(clashes.nonEmpty) Assert.fail("Unexpected clashes: " + clashes.mkString(", "))
   }
   
-  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val file = (Header + code).parse
+  def messages(@Language(value = "Scala", prefix = Header) code: String, lang: com.intellij.lang.Language = ScalaLanguage.INSTANCE): List[Message] = {
+    val file = (Header + code).parse(lang)
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
     file.depthFirst().foreach {
       ScopeAnnotator.annotateScope(_)

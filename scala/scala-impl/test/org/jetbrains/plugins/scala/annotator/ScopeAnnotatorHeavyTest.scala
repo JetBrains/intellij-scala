@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.runner.RunWith
 
 class ScopeAnnotatorHeavyTest extends ScalaHighlightingTestBase {
 
@@ -72,5 +74,23 @@ class ScopeAnnotatorHeavyTest extends ScalaHighlightingTestBase {
         |  }
         |}
       """.stripMargin)
+  )
+}
+
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
+@RunWith(classOf[MultipleScalaVersionsRunner])
+class ScopeAnnotatorHeavyTest_Scala_3 extends ScopeAnnotatorHeavyTest {
+  def testExtensionMethodsWithSameName(): Unit = assertNothing(
+    errorsFromScalaCode(
+      """extension (n: Int)
+        |  def mySpecialToString: String = n.toString
+        |  def mySpecialMkString(prefix: String, separator: String, postfix: String): String =
+        |    List(n).mkString(prefix, separator, postfix)
+        |
+        |extension (n: Long)
+        |  def mySpecialToString: String = n.toString
+        |  def mySpecialMkString(prefix: String, separator: String, postfix: String): String =
+        |    List(n).mkString(prefix, separator, postfix)
+        """.stripMargin)
   )
 }
