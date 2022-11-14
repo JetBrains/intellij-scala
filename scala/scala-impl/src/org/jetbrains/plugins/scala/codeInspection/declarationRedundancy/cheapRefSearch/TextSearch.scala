@@ -3,22 +3,22 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRe
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
 import com.intellij.psi.{PsiElement, PsiIdentifier}
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.{SearchMethodResult, Method}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline.ShouldProcess
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.{Method, SearchMethodResult}
 import org.jetbrains.plugins.scala.extensions.{Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 
-import scala.collection.mutable.ListBuffer
+import java.util.concurrent.ConcurrentLinkedQueue
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 private[cheapRefSearch] final class TextSearch(override val shouldProcess: ShouldProcess) extends Method {
 
-  override def searchForUsages(ctx: Search.Context): SearchMethodResult = {
+  private val buffer: ConcurrentLinkedQueue[ElementUsage] = new ConcurrentLinkedQueue()
 
-    val res = new ListBuffer[ElementUsage]()
+  override def searchForUsages(ctx: Search.Context): SearchMethodResult = {
 
     var didExitBeforeExhaustion = false
 
@@ -44,7 +44,7 @@ private[cheapRefSearch] final class TextSearch(override val shouldProcess: Shoul
           }
 
           val continue = maybeUsage.forall { usage =>
-            res.addOne(usage)
+            buffer.add(usage)
             !ctx.canExit(usage)
           }
 
@@ -61,6 +61,10 @@ private[cheapRefSearch] final class TextSearch(override val shouldProcess: Shoul
         (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort, true)
     }
 
-    new SearchMethodResult(res.toSeq, didExitBeforeExhaustion)
+    val result = new SearchMethodResult(buffer.asScala.toSeq, didExitBeforeExhaustion)
+
+    buffer.clear()
+
+    result
   }
 }
