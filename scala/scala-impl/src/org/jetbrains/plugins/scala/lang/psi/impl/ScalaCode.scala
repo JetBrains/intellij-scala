@@ -62,6 +62,8 @@ object ScalaCode {
     }
   }
 
+  //@TODO: refactor to take ScalaFeatures into account, the same way
+  //       ScalaPsiElementFactory does
   implicit class ScalaCodeContext(delegate: StringContext)(implicit project: ProjectContext) {
     def code(args: Any*)(implicit context: Context): ScalaPsiElement =
       context.select(code0(context.format(delegate.parts.head) +: delegate.parts.tail, args))
