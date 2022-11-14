@@ -54,7 +54,9 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
     projectSettings.setAddOverrideToImplementInConverter(oldValue)
   }
 
-//  def testSCL9434() = doTest()
+  //SCL-9434
+  //NOTE: it currently converts to AnyRef instead of Any
+  def testSCL9434(): Unit = doTest()
 
   def testSCL9421(): Unit = doTest()
 

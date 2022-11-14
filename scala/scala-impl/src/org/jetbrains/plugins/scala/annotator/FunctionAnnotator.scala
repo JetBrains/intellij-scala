@@ -24,7 +24,7 @@ trait FunctionAnnotator {
 
   import FunctionAnnotator._
 
-  def annotateFunction(function: ScFunctionDefinition, typeAware: Boolean = true)
+  def annotateFunction(function: ScFunctionDefinition, typeAware: Boolean)
                       (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val projectContext: ProjectContext = function.projectContext
 

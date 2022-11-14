@@ -5,17 +5,15 @@ import java.net.SocketTimeoutException
 
 object Versions {
   val scalaVersion: String = "2.13.10"
-  val scala3Version: String = "3.2.0"
+  val scala3Version: String = "3.2.1"
 
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.5.4"
-  val zincVersion = "1.7.2"
+  val zincVersion = "1.8.0"
   val intellijVersion = "231.890"
-
-  val nailgunVersion = "1.2.1"
 
   val Utils.DataForManagedIntellijDependencies(
     intellijVersion_ForManagedIntellijDependencies,
@@ -35,7 +33,7 @@ object Versions {
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
 
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.7.3"
+    val latest_1_0 = "1.8.0"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
@@ -85,16 +83,13 @@ object Dependencies {
   val junit: ModuleID = "junit" % "junit" % junitVersion
   val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion
 
-  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.0"
+  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.1"
 
   val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.5.1"
 
-  val fastparseVersion = "2.3.3"
-  val scalaMetaVersion = "4.5.13"
-  val scalafmtVersion = "3.5.9"
-  val scalafmtDynamic = "org.scalameta" %% "scalafmt-dynamic" % scalafmtVersion
-  val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
-  val fastparse: ModuleID = "com.lihaoyi" %% "fastparse" % fastparseVersion // transitive dependency of scalaMeta, needs explicit versioning
+  val scalafmtDynamic = "org.scalameta" %% "scalafmt-dynamic" % "3.6.1"
+  val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % "4.5.13" withSources() exclude("com.google.protobuf", "protobuf-java")
+  val fastparse: ModuleID = "com.lihaoyi" %% "fastparse" % "2.3.3" // transitive dependency of scalaMeta, needs explicit versioning
 
   val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.14"
   val scalaTest: ModuleID = scalaTestNotSpecified % Test
@@ -108,7 +103,7 @@ object Dependencies {
   //  2. update version in scala-plugin-common.xml compilerServer.plugin classpath setting
   val compilerIndicesProtocol: ModuleID = "org.jetbrains.scala" %% "scala-compiler-indices-protocol" % compilerIndicesVersion
 
-  val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % nailgunVersion
+  val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % "1.2.1"
 
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion excludeAll ExclusionRule(organization = "org.apache.logging.log4j")
   /** actually this is is compilerInterface (TODO: rename, cause naming difference is misleading) */
@@ -120,15 +115,15 @@ object Dependencies {
   val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13" % zincVersion classifier "sources"
   val sbtBridge_Scala_3_0 = "org.scala-lang" % "scala3-sbt-bridge" % "3.0.2"
   val sbtBridge_Scala_3_1 = "org.scala-lang" % "scala3-sbt-bridge" % "3.1.3"
-  val sbtBridge_Scala_3_2 = "org.scala-lang" % "scala3-sbt-bridge" % "3.2.0"
+  val sbtBridge_Scala_3_2 = "org.scala-lang" % "scala3-sbt-bridge" % "3.2.1"
 
   // "provided" danger: we statically depend on a single version, but need to support all the version
   // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
   object provided {
     val scalaTest = scalaTestNotSpecified % Provided
-    val utest = "com.lihaoyi" %% "utest" % "0.8.0" % Provided
+    val utest = "com.lihaoyi" %% "utest" % "0.8.1" % Provided
     val specs2_2x = "org.specs2" % "specs2-core_2.12" % "2.5" % Provided excludeAll ExclusionRule(organization = "org.ow2.asm")
-    val specs2_4x = "org.specs2" %% "specs2-core" % "4.16.1" % Provided excludeAll ExclusionRule(organization = "org.ow2.asm")
+    val specs2_4x = "org.specs2" %% "specs2-core" % "4.18.0" % Provided excludeAll ExclusionRule(organization = "org.ow2.asm")
   }
 
   /** The filtering function returns true for jars to be removed.

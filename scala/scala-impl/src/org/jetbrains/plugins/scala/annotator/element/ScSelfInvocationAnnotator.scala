@@ -12,7 +12,7 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
   // TODO unify using ConstructorInvocationLike
   import ScConstructorInvocationAnnotator._
 
-  override def annotate(element: ScSelfInvocation, typeAware: Boolean = true)
+  override def annotate(element: ScSelfInvocation, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 

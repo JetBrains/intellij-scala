@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
 
-  override def annotate(element: ScParameter, typeAware: Boolean = true)
+  override def annotate(element: ScParameter, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     element.owner match {
       case null =>

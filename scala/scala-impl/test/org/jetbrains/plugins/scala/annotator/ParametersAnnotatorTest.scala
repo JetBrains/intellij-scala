@@ -16,8 +16,8 @@ abstract class ParametersAnnotatorTestBase extends ScalaHighlightingTestBase {
 
   override def annotate(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit =
     element match {
-      case parameters: ScParameters => ScParametersAnnotator.annotate(parameters)
-      case param: ScParameter       => ScParameterAnnotator.annotate(param)
+      case parameters: ScParameters => ScParametersAnnotator.annotate(parameters, typeAware = true)
+      case param: ScParameter       => ScParameterAnnotator.annotate(param, typeAware = true)
       case _                        =>
     }
 }

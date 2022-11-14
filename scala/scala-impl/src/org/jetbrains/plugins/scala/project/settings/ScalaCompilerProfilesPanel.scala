@@ -24,6 +24,7 @@ import java.util.Objects
 import javax.swing._
 import javax.swing.event.TreeSelectionEvent
 import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
@@ -50,6 +51,7 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
     val splitter = new Splitter(false, 0.3f)
     add(splitter, BorderLayout.CENTER)
 
+    @nowarn("cat=deprecation")
     val treePanel = ToolbarDecorator.createDecorator(myTree)
       .addExtraAction(new MoveToAction)
       .createPanel
@@ -198,6 +200,7 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
     override def moveNodeTo(parentOrNeighbour: TreePath): Unit = ()
   }
 
+  @nowarn("cat=deprecation")
   private class MoveToAction
     extends AnActionButton(ScalaBundle.message("scala.compiler.profiles.panel.move.to"), AllIcons.Actions.Forward) {
 

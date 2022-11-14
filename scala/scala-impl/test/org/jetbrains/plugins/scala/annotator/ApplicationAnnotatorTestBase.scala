@@ -33,7 +33,7 @@ object B extends B
     try {
       // TODO use the general annotate() method
       file.depthFirst().filterByType[ScalaPsiElement].foreach {
-        ElementAnnotator.annotate(_)
+        ElementAnnotator.annotate(_, typeAware = true)
       }
 
       mock.annotations

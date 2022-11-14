@@ -39,6 +39,7 @@ import javax.swing._
 import javax.swing.border.MatteBorder
 import javax.swing.event.{ChangeEvent, HyperlinkEvent}
 import javax.swing.table.TableCellEditor
+import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -350,6 +351,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
     myParametersTableModel.getItems.asScala.toSeq
   }
 
+  @nowarn("cat=deprecation")
   protected def createAddClauseButton(): AnActionButton = {
     val addClauseButton = new AnActionButton(ScalaBundle.message("change.signature.add.parameter.clause"), null, Icons.ADD_CLAUSE) {
       override def actionPerformed(e: AnActionEvent): Unit = {
@@ -373,6 +375,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
     addClauseButton
   }
 
+  @nowarn("cat=deprecation")
   protected def createRemoveClauseButton(): AnActionButton = {
     val removeClauseButton = new AnActionButton(ScalaBundle.message("change.signature.remove.parameter.clause"), null, Icons.REMOVE_CLAUSE) {
       override def actionPerformed(e: AnActionEvent): Unit = {
@@ -397,6 +400,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   }
 
   protected def downAction: AnActionButtonRunnable = new AnActionButtonRunnable {
+    @nowarn("cat=deprecation")
     override def run(t: AnActionButton): Unit = {
       val table = parametersTable
       val selected = table.getSelectedRow
@@ -424,6 +428,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   }
 
   protected def upAction: AnActionButtonRunnable = new AnActionButtonRunnable {
+    @nowarn("cat=deprecation")
     override def run(t: AnActionButton): Unit = {
       val table = parametersTable
       val selected = table.getSelectedRow
@@ -457,6 +462,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
     table.getSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
     table.getSelectionModel.setSelectionInterval(0, 0)
     table.setSurrendersFocusOnKeystroke(true)
+    @nowarn("cat=deprecation")
     val buttonsPanel: JPanel =
       ToolbarDecorator.createDecorator(table)
               .setMoveUpAction(upAction)
