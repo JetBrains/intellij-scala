@@ -63,7 +63,7 @@ class ILoopWrapper312Impl(
   }
 
   override def processChunk(code: String): Boolean = {
-    state = driver.run(code)(state)
+    state = driver.run(code)(using state)
     true // TODO: get the result from the driver when it implements this
   }
 }
