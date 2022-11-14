@@ -11,10 +11,11 @@ import scala.language.postfixOps
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_0,
-  TestScalaVersion.Scala_3_1,
-  TestScalaVersion.Scala_3_Latest,
+  TestScalaVersion.Scala_3_1
 ))
-class WorksheetReplIntegration_Scala_3_Test extends WorksheetReplIntegrationBaseTest
+class WorksheetReplIntegration_Scala_3_Old_Versions_Test extends WorksheetReplIntegration_Scala_3_BaseTest
+
+abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_10
