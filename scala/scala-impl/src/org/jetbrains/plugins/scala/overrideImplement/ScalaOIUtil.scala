@@ -270,6 +270,7 @@ object ScalaOIUtil {
     val place = clazz.extendsBlock
 
     m match {
+      case _ if sign.exportedIn.nonEmpty                       => false
       case _ if isProductAbstractMethod(m, clazz)              => false
       case method if !ResolveUtils.isAccessible(method, place) => false
       case _ if name == "$tag" || name == "$init$"             => false

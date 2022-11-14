@@ -100,7 +100,7 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
         state: ResolveState
       ): Boolean = {
         val accesible    = isAccessible(namedElement, place)
-        val updatedSubst = subst.followed(state.substitutorWithThisType)
+        val updatedSubst = state.substitutorWithThisType.followed(subst)
 
         if (accesible) {
           process(TypeSignature(namedElement, updatedSubst, state.renamed, exportedIn = Option(cls)), sink)
@@ -174,7 +174,7 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
       ): Boolean = {
         val accesible    = isAccessible(namedElement, place)
         val renamed      = state.renamed
-        val updatedSubst = subst.followed(state.substitutorWithThisType)
+        val updatedSubst = state.substitutorWithThisType.followed(subst)
 
         if (accesible) {
           val signatures = namedElement match {
