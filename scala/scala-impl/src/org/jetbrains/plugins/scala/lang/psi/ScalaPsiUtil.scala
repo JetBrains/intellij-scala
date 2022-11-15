@@ -976,7 +976,7 @@ object ScalaPsiUtil {
     case scalaFile: ScalaFile => !scalaFile.isMultipleDeclarationsAllowed
     case _: ScBlock | _: ScTemplateBody | _: ScPackaging | _: ScParameters |
          _: ScTypeParamClause | _: ScCaseClause | _: ScFor | _: ScExistentialClause |
-         _: ScEarlyDefinitions | _: ScRefinement | _: ScExtension => true
+         _: ScEarlyDefinitions | _: ScRefinement => true
     case e: ScPatternDefinition if e.getContext.is[ScCaseClause] => true // {case a => val a = 1}
     case _ => false
   }

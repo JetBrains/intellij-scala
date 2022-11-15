@@ -189,15 +189,16 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
   }
 
   private def signatureOf(f: ScFunction, withReturnType: Boolean): String = {
-    if (f.parameters.isEmpty)
+    if (!f.isExtensionMethod && f.parameters.isEmpty)
       ""
     else {
       val isInStructuralType = f.getContext.is[ScRefinement]
-      val params = f.paramClauses.clauses.map(format(_, eraseParamType = !isInStructuralType)).mkString
+      val params = if (f.isExtensionMethod) f.parameterClausesWithExtension else f.paramClauses.clauses
+      val formattedParams = params.map(format(_, eraseParamType = !isInStructuralType)).mkString
       val returnType =
         if (withReturnType && !isInStructuralType) erasedReturnType(f, isInStructuralType)
         else ""
-      params + returnType
+      formattedParams + returnType
     }
   }
 
