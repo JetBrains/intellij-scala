@@ -86,7 +86,7 @@
 [447,453]: ValDef
 [450,453]: Ident
 [455,456]: ValDef
-[455,455]: TypeTree
+[456,456]: TypeTree
 [461,462]: Ident
 [466,500]: Apply
 [466,471]: Ident

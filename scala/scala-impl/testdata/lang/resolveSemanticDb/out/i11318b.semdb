@@ -1,6 +1,4 @@
 Document tests/pos/i11318b.scala
-(1:45..1:46) _empty_/i11318b$package.FunctionK#[B] -> 1:22
-(1:47..1:48) local5 -> 1:31
 (2:24..2:33) _empty_/i11318b$package.FunctionK# -> 1:6
 (2:34..2:35) _empty_/i11318b$package.`~>:`#[A] -> 2:10
 (2:37..2:38) _empty_/i11318b$package.`~>:`#[B] -> 2:16

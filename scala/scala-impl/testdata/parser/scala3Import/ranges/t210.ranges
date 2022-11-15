@@ -21,7 +21,7 @@
 [92,92]: DefDef
 [92,92]: TypeTree
 [92,99]: Ident
-[102,115]: ValDef
+[102,118]: ValDef
 [108,115]: Ident
 [123,144]: DefDef
 [129,138]: ValDef
@@ -34,9 +34,9 @@
 [172,172]: TypeTree
 [172,177]: Ident
 [182,228]: TypeDef
-[202,223]: Template
+[202,226]: Template
 [202,202]: DefDef
 [202,202]: TypeTree
 [202,207]: Ident
-[210,223]: ValDef
+[210,226]: ValDef
 [216,223]: Ident

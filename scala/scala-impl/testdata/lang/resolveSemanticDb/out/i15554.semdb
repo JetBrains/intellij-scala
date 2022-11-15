@@ -1,0 +1,13 @@
+Document tests/pos/i15554.scala
+(2:19..2:25) scala/Predef.String#
+(2:35..2:46) _empty_/PingMessage# -> 1:6
+(2:47..2:53) scala/Predef.String#
+(6:13..6:17) scala/Unit#
+(6:24..6:35) _empty_/PingMessage# -> 1:6
+(6:36..6:37) local4 -> 5:4
+(7:7..7:10) local6 -> 6:19
+(8:14..8:25) _empty_/PingMessage.
+(8:26..8:30) _empty_/PingMessage.Ping.
+(8:58..8:62) local7 -> 8:31
+(8:62..8:63) scala/StringContext#s().
+

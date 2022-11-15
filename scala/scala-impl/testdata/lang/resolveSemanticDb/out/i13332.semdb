@@ -1,0 +1,22 @@
+Document tests/pos/i13332.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/deriving/
+(1:23..1:29) scala/deriving/Mirror#
+(1:23..1:29) scala/deriving/Mirror.
+(3:21..3:30) _empty_/IListDefn# -> 12:7
+(5:13..5:19) scala/deriving/Mirror#
+(5:45..5:50) _empty_/IListDefn#IList# -> 13:16
+(5:51..5:52) local0 -> 5:40
+(5:79..5:84) _empty_/IListDefn#IList# -> 13:16
+(5:85..5:88) scala/Any#
+(5:121..5:126) scala/Tuple#
+(7:11..7:17) scala/Predef.summon().
+(7:18..7:20) _empty_/Scope#Of# -> 5:8
+(14:32..14:37) _empty_/IListDefn#IList# -> 13:16
+(14:38..14:39) _empty_/IListDefn#INil#[A] -> 14:19
+(15:26..15:27) _empty_/IListDefn#ICons#[A] -> 15:20
+(15:32..15:37) _empty_/IListDefn#IList# -> 13:16
+(15:38..15:39) _empty_/IListDefn#ICons#[A] -> 15:20
+(15:50..15:55) _empty_/IListDefn#IList# -> 13:16
+(15:56..15:57) _empty_/IListDefn#ICons#[A] -> 15:20
+

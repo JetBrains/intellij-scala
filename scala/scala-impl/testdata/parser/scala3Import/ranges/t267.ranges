@@ -20,7 +20,7 @@
 [331,334]: Ident
 [334,334]: TypeTree
 [344,347]: Ident
-[350,359]: ValDef
+[350,362]: ValDef
 [356,359]: Ident
 [367,380]: ValDef
 [376,376]: TypeTree
@@ -62,7 +62,7 @@
 [648,651]: Ident
 [651,651]: TypeTree
 [661,664]: Ident
-[667,676]: ValDef
+[667,679]: ValDef
 [673,676]: Ident
 [684,696]: ValDef
 [692,692]: TypeTree
@@ -105,7 +105,7 @@
 [960,963]: Ident
 [964,965]: Ident
 [972,976]: Ident
-[979,998]: ValDef
+[979,1001]: ValDef
 [985,998]: AppliedTypeTree
 [985,985]: TypedSplice
 [985,985]: TypeTree[TypeRef
@@ -137,7 +137,7 @@
 [1205,1206]: Ident
 [1208,1209]: Ident
 [1216,1220]: Ident
-[1223,1243]: ValDef
+[1223,1246]: ValDef
 [1229,1243]: AppliedTypeTree
 [1229,1229]: TypedSplice
 [1229,1229]: TypeTree[TypeRef

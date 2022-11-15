@@ -112,7 +112,7 @@
 [541,541]: TypeBoundsTree
 [542,542]: TypeTree
 [552,568]: Ident
-[571,575]: ValDef
+[571,578]: ValDef
 [571,571]: TypeTree
 [581,590]: TypeDef
 [581,581]: TypeBoundsTree

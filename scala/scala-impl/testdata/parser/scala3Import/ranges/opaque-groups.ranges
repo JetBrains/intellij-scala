@@ -100,7 +100,7 @@
 [395,745]: Template
 [395,395]: DefDef
 [395,395]: TypeTree
-[395,399]: ValDef
+[395,402]: ValDef
 [395,395]: TypeTree
 [407,416]: TypeDef
 [414,415]: LambdaTypeTree

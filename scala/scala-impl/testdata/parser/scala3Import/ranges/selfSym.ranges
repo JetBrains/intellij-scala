@@ -17,7 +17,7 @@
 [680,684]: New
 [680,684]: Ident
 [685,686]: Ident
-[690,699]: ValDef
+[690,702]: ValDef
 [696,699]: Ident
 [706,732]: DefDef
 [712,718]: ValDef

@@ -1,0 +1,6 @@
+Document tests/pos/annotationsJava/b.scala
+(1:2..1:8) _empty_/Annot1#
+(1:17..1:23) _empty_/Annot2#
+(1:24..1:31) scala/Predef.classOf().
+(1:32..1:38) scala/AnyRef#
+

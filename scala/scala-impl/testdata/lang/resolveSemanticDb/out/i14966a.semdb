@@ -1,0 +1,5 @@
+Document tests/pos/i14966a.scala
+(1:19..1:22) scala/Predef.Set#
+(1:23..1:24) _empty_/B#[T] -> 1:9
+(2:10..2:11) _empty_/B#s. -> 1:16
+

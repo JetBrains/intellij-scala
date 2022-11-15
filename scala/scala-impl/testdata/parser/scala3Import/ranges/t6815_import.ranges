@@ -21,11 +21,11 @@
 [111,122]: Ident
 [128,137]: Ident
 [140,198]: TypeDef
-[164,193]: Template
+[164,196]: Template
 [164,164]: DefDef
 [164,164]: TypeTree
 [164,178]: Ident
-[181,193]: ValDef
+[181,196]: ValDef
 [187,193]: Ident
 [201,224]: ValDef
 [218,224]: Ident

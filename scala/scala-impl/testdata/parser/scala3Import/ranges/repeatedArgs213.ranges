@@ -65,7 +65,7 @@
 [341,342]: Ident
 [344,351]: Typed
 [344,350]: Ident
-[350,350]: Ident
+[350,351]: Ident
 [352,352]: TypeTree
 [355,364]: Select
 [355,357]: Ident
@@ -114,7 +114,7 @@
 [621,622]: Ident
 [624,631]: Typed
 [624,630]: Ident
-[630,630]: Ident
+[630,631]: Ident
 [632,632]: TypeTree
 [635,644]: Select
 [635,637]: Ident

@@ -20,3 +20,9 @@ Document tests/pos/targetName-override.scala
 (10:39..10:40) _empty_/B#f().(x) -> 10:18
 (10:41..10:47) java/lang/String#length().
 
+Document tests/pos/targetName-override/A_1.scala
+(2:8..2:18) scala/annotation/
+(2:19..2:29) scala/annotation/targetName#
+(4:4..4:14) scala/annotation/targetName#
+(4:33..4:36) scala/Int#
+

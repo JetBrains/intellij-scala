@@ -22,7 +22,7 @@
 [135,149]: ValDef
 [143,149]: Ident
 [149,149]: TypeTree
-[153,163]: ValDef
+[153,166]: ValDef
 [158,163]: Ident
 [167,186]: Apply
 [167,174]: Ident
@@ -33,7 +33,7 @@
 [260,274]: ValDef
 [268,274]: Ident
 [274,274]: TypeTree
-[278,288]: ValDef
+[278,291]: ValDef
 [283,288]: Ident
 [292,308]: Apply
 [292,299]: Ident

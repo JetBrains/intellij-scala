@@ -289,7 +289,7 @@
 [1402,1409]: ValDef
 [1405,1409]: Ident
 [1411,1412]: ValDef
-[1411,1411]: TypeTree
+[1412,1412]: TypeTree
 [1417,1422]: InfixOp
 [1417,1418]: Ident
 [1419,1420]: Ident
@@ -305,7 +305,7 @@
 [1463,1472]: ValDef
 [1466,1472]: Ident
 [1474,1475]: ValDef
-[1474,1474]: TypeTree
+[1475,1475]: TypeTree
 [1480,1495]: InfixOp
 [1480,1481]: Ident
 [1482,1484]: Ident

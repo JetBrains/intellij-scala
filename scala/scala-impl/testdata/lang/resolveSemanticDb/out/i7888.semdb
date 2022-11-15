@@ -1,5 +1,4 @@
 Document tests/pos/i7888.scala
-(1:37..1:38) _empty_/i7888$package.usingSeq().[B] -> 1:14
 (1:41..1:42) _empty_/i7888$package.usingSeq().[B] -> 1:14
 (2:3..2:4) _empty_/i7888$package.usingSeq().(f) -> 1:17
 (2:5..2:8) scala/package.Nil.

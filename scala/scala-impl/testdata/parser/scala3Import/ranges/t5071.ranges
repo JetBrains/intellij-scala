@@ -1,14 +1,14 @@
 [12,290]: PackageDef
 [12,12]: Ident
 [12,63]: TypeDef
-[21,58]: Template
+[21,61]: Template
 [21,43]: DefDef
 [22,36]: TypeDef
 [22,22]: TypeBoundsTree
 [38,42]: TypeDef
 [38,38]: TypeBoundsTree
 [42,42]: TypeTree
-[48,58]: ValDef
+[48,61]: ValDef
 [54,58]: Ident
 [64,103]: TypeDef
 [73,99]: Template
@@ -43,7 +43,7 @@
 [200,214]: TypeDef
 [200,200]: TypeBoundsTree
 [214,214]: TypeTree
-[220,231]: ValDef
+[220,234]: ValDef
 [226,231]: Ident
 [238,243]: Apply
 [238,239]: Ident

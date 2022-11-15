@@ -21,7 +21,7 @@
 [81,82]: Ident
 [84,90]: Typed
 [84,85]: Ident
-[89,89]: Ident
+[89,90]: Ident
 [93,99]: Block
 [98,99]: Number
 [143,177]: CaseDef
@@ -31,7 +31,7 @@
 [156,157]: Ident
 [159,161]: Typed
 [159,160]: Ident
-[160,160]: Ident
+[160,161]: Ident
 [171,177]: Block
 [176,177]: Number
 [221,255]: CaseDef
@@ -40,7 +40,7 @@
 [231,232]: Ident
 [234,236]: Typed
 [234,235]: Ident
-[235,235]: Ident
+[235,236]: Ident
 [249,255]: Block
 [254,255]: Number
 [260,294]: CaseDef

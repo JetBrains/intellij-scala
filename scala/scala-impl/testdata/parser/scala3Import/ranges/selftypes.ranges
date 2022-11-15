@@ -8,7 +8,7 @@
 [32,86]: Template
 [32,32]: DefDef
 [32,32]: TypeTree
-[32,40]: ValDef
+[32,43]: ValDef
 [38,40]: Ident
 [49,72]: TypeDef
 [59,72]: AppliedTypeTree
@@ -23,7 +23,7 @@
 [105,148]: Template
 [105,105]: DefDef
 [105,105]: TypeTree
-[105,113]: ValDef
+[105,116]: ValDef
 [111,113]: Ident
 [122,134]: TypeDef
 [132,134]: Ident

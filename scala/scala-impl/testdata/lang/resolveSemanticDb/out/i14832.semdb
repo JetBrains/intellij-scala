@@ -1,0 +1,10 @@
+Document tests/pos/i14832.scala
+(1:25..1:26) _empty_/Box#[V] -> 1:11
+(4:14..4:17) _empty_/Box# -> 1:7
+(6:13..6:19) scala/Predef.String#
+(6:22..6:27) _empty_/Test#value(). -> 4:7
+(7:13..7:16) _empty_/Box# -> 1:7
+(7:22..7:28) scala/Predef.String#
+(7:33..7:34) local0 -> 7:10
+(7:35..7:40) _empty_/Box#value. -> 1:18
+

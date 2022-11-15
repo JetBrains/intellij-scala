@@ -17,7 +17,7 @@
 [63,162]: Template
 [63,63]: DefDef
 [63,63]: TypeTree
-[63,67]: ValDef
+[63,70]: ValDef
 [63,63]: TypeTree
 [75,91]: TypeDef
 [82,91]: TypeBoundsTree

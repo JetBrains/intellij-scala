@@ -1,0 +1,19 @@
+Document tests/pos/i15820.scala
+(3:34..3:40) _empty_/Domain# -> 1:14
+(3:41..3:42) _empty_/i15820$package.splitBounds().[D][X] -> 3:28
+(4:13..4:16) scala/package.Seq#
+(4:17..4:18) _empty_/i15820$package.splitBounds().[E] -> 3:23
+(5:20..5:21) _empty_/i15820$package.splitBounds().[D] -> 3:26
+(5:22..5:23) _empty_/i15820$package.splitBounds().[E] -> 3:23
+(5:27..5:30) scala/package.Seq#
+(5:31..5:32) _empty_/i15820$package.splitBounds().[E] -> 3:23
+(6:22..6:25) scala/package.Seq#
+(6:26..6:27) _empty_/i15820$package.splitBounds().[E] -> 3:23
+(6:31..6:34) scala/Predef.`???`().
+(7:7..7:18) _empty_/i15820$package.splitBounds(). -> 3:11
+(7:19..7:28) local0 -> 6:11
+(8:7..8:18) _empty_/i15820$package.splitBounds(). -> 3:11
+(8:19..8:20) _empty_/i15820$package.splitBounds().[E] -> 3:23
+(8:21..8:22) _empty_/i15820$package.splitBounds().[D] -> 3:26
+(8:24..8:33) local0 -> 6:11
+

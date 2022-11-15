@@ -2,9 +2,14 @@ Document tests/pos/fewer-braces.scala
 (1:8..1:16) scala/language.
 (1:17..1:29) scala/language.experimental.
 (1:30..1:41) scala/language.experimental.fewerBraces.
-(5:3..5:9) scala/Predef.assert(+1).
-(5:15..5:21) java/lang/Object#
-(5:23..5:26) scala/Any#
-(5:28..5:40) scala/Any#isInstanceOf().
-(5:41..5:47) java/lang/Object#
+(5:11..5:17) scala/Option#
+(5:18..5:21) scala/Int#
+(5:25..5:29) scala/Some.
+(8:5..8:7) local0 -> 5:7
+(8:8..8:12) scala/Option#fold().
+(10:6..10:11) scala/Function1#apply().
+(11:7..11:8) local2 -> 10:13
+(11:9..11:10) scala/Int#`+`(+4).
+(12:3..12:10) scala/Predef.println(+1).
+(12:11..12:12) local3 -> 7:7
 

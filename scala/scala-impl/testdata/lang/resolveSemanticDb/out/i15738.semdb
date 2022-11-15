@@ -1,0 +1,18 @@
+Document tests/pos/i15738.scala
+(3:31..3:42) _empty_/Test.Transaction# -> 2:9
+(3:48..3:49) _empty_/Test.Transactional#[T] -> 3:22
+(5:13..5:16) scala/Int#
+(5:19..5:32) _empty_/Test.Transactional# -> 3:8
+(5:33..5:36) scala/Int#
+(6:5..6:11) scala/Predef.summon().
+(6:12..6:23) _empty_/Test.Transaction# -> 2:9
+(7:5..7:6) _empty_/Test.ff().(x) -> 5:10
+(10:14..10:17) scala/Int#
+(10:20..10:33) _empty_/Test.Transactional# -> 3:8
+(10:34..10:37) scala/Int#
+(11:5..11:11) scala/Predef.summon().
+(11:12..11:23) _empty_/Test.Transaction# -> 2:9
+(12:14..12:16) _empty_/Test.ff(). -> 5:7
+(12:17..12:18) _empty_/Test.fff().(x) -> 10:11
+(13:5..13:7) local4 -> 12:9
+

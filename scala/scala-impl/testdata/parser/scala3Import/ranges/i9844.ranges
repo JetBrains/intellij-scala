@@ -20,7 +20,7 @@
 [70,111]: Template
 [70,70]: DefDef
 [70,70]: TypeTree
-[70,82]: ValDef
+[70,85]: ValDef
 [76,82]: AppliedTypeTree
 [76,79]: Ident
 [80,81]: Ident
@@ -55,7 +55,7 @@
 [246,246]: DefDef
 [246,246]: TypeTree
 [246,249]: Ident
-[258,267]: ValDef
+[258,270]: ValDef
 [264,267]: Ident
 [279,288]: ValDef
 [284,284]: TypeTree
@@ -107,7 +107,7 @@
 [584,674]: Template
 [584,584]: DefDef
 [584,584]: TypeTree
-[584,614]: ValDef
+[584,617]: ValDef
 [590,614]: AppliedTypeTree
 [590,610]: Select
 [590,603]: Ident

@@ -33,14 +33,11 @@ Document tests/pos/zipped.scala
 (16:31..16:34) scala/Int#
 (16:40..16:41) local8 -> 16:17
 (17:4..17:7) scala/collection/WithFilter#map().
-(17:13..17:16) scala/Int#
-(17:21..17:24) scala/Int#
-(17:29..17:32) scala/Int#
-(17:37..17:38) local13 -> 17:10
+(17:37..17:38) local13
 (17:39..17:40) scala/Int#`+`(+4).
-(17:41..17:42) local14 -> 17:18
+(17:41..17:42) local14
 (17:43..17:44) scala/Int#`+`(+4).
-(17:45..17:46) local15 -> 17:26
+(17:45..17:46) local15
 (22:3..22:5) _empty_/Test.xs. -> 3:7
 (22:6..22:13) scala/collection/Iterable#lazyZip().
 (22:14..22:16) _empty_/Test.xs. -> 3:7

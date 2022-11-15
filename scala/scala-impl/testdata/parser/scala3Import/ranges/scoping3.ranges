@@ -48,7 +48,7 @@
 [405,405]: DefDef
 [405,405]: TypeTree
 [405,416]: Ident
-[419,441]: ValDef
+[419,444]: ValDef
 [425,441]: Ident
 [449,499]: DefDef
 [464,468]: Ident

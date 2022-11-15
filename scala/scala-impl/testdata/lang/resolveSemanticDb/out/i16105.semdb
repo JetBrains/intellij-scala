@@ -1,0 +1,17 @@
+Document tests/pos/i16105.scala
+(3:40..3:56) _empty_/SQLSyntaxSupport# -> 1:7
+(3:57..3:58) _empty_/ResultNameSQLSyntaxProvider#[A] -> 3:61
+(4:35..4:51) _empty_/SQLSyntaxSupport# -> 1:7
+(4:52..4:53) _empty_/QuerySQLSyntaxProvider#[A] -> 4:56
+(5:19..5:46) _empty_/ResultNameSQLSyntaxProvider# -> 3:7
+(5:47..5:48) _empty_/QuerySQLSyntaxProvider#[S] -> 4:30
+(5:50..5:51) _empty_/QuerySQLSyntaxProvider#[A] -> 4:56
+(5:55..5:58) scala/Predef.`???`().
+(8:30..8:52) _empty_/QuerySQLSyntaxProvider# -> 4:7
+(9:3..9:9) _empty_/i16105$package.syntax(). -> 12:5
+(9:10..9:25) _empty_/i16105$package.include().(syntaxProviders) -> 8:13
+(9:26..9:29) scala/collection/IterableOps#map().
+(9:32..9:42) _empty_/QuerySQLSyntaxProvider#resultName(). -> 5:7
+(12:25..12:52) _empty_/ResultNameSQLSyntaxProvider# -> 3:7
+(12:63..12:66) scala/Predef.`???`().
+

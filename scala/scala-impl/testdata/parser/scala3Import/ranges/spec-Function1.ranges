@@ -9,7 +9,7 @@
 [1185,1185]: TypeBoundsTree
 [1200,1200]: TypeTree
 [1210,1216]: Ident
-[1219,1223]: ValDef
+[1219,1226]: ValDef
 [1219,1219]: TypeTree
 [1229,1248]: DefDef
 [1239,1244]: ValDef

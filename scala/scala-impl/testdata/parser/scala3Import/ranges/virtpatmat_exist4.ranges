@@ -18,7 +18,7 @@
 [81,162]: Template
 [81,81]: DefDef
 [81,81]: TypeTree
-[81,102]: ValDef
+[81,105]: ValDef
 [88,102]: Ident
 [108,126]: ValDef
 [120,126]: Ident

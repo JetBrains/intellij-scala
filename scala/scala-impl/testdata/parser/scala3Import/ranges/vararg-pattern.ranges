@@ -18,7 +18,7 @@
 [58,59]: Number
 [61,64]: Typed
 [61,63]: Ident
-[63,63]: Ident
+[63,64]: Ident
 [75,114]: Block
 [75,96]: ValDef
 [83,91]: AppliedTypeTree
@@ -35,7 +35,7 @@
 [134,135]: Number
 [137,139]: Typed
 [137,138]: Ident
-[138,138]: Ident
+[138,139]: Ident
 [140,140]: TypeTree
 [143,159]: Apply
 [143,147]: Ident

@@ -51,7 +51,7 @@
 [291,299]: AppliedTypeTree
 [291,296]: Ident
 [297,298]: Ident
-[305,323]: ValDef
+[305,326]: ValDef
 [311,323]: Ident
 [329,373]: DefDef
 [352,363]: ValDef
@@ -72,7 +72,7 @@
 [438,448]: AppliedTypeTree
 [438,443]: Ident
 [444,447]: Ident
-[454,472]: ValDef
+[454,475]: ValDef
 [460,472]: Ident
 [479,525]: DefDef
 [502,515]: ValDef

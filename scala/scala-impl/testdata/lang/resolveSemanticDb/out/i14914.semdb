@@ -1,0 +1,7 @@
+Document tests/pos/i14914.scala
+(2:13..2:20) scala/Boolean#
+(4:8..4:9) _empty_/i14914$package.Test().(b) -> 2:10
+(6:14..6:15) _empty_/i14914$package.Test().(b) -> 2:10
+(8:10..8:14) scala/Unit#
+(8:17..8:18) local0 -> 3:7
+
