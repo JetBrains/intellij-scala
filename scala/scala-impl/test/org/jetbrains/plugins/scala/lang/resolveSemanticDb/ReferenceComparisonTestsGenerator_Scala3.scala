@@ -67,7 +67,6 @@ object ReferenceComparisonTestsGenerator_Scala3  {
         testOutPath <- testOutPaths
         testName = testNameFromFilePath(testOutPath)
         if !excluded(testName)
-        if false
       } {
 
         val test: ReferenceComparisonTestBase = new ReferenceComparisonTestBase_Scala3 {
