@@ -117,7 +117,7 @@ object AfterUpdateDottyVersionScript {
 
     override protected val includeCompilerAsLibrary: Boolean = true
 
-    override def testProjectJdkVersion = LanguageLevel.JDK_1_8
+    override def testProjectJdkVersion = LanguageLevel.JDK_17
 
     private def log(msg: String): Unit =
       println(s"${this.getClass.getSimpleName}: $msg")
