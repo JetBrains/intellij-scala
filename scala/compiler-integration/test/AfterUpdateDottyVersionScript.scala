@@ -331,6 +331,27 @@ object AfterUpdateDottyVersionScript {
           |""".stripMargin
       )
 
+      // these files fail in dotty repository since 3.2
+      patchFile(
+        repoPath.resolve("compiler/test/dotc/pos-from-tasty.blacklist"),
+        """# Tree is huge and blows stack for printing Text
+          |i7034.scala""".stripMargin,
+        """# Tree is huge and blows stack for printing Text
+          |i7034.scala
+          |
+          |# class i15274.orig$package cannot be unpickled because no class file was found for denot: val <none>
+          |i15274.orig.scala
+          |
+          |# class i15743.moregadt$package cannot be unpickled because no class file was found for denot: val <none>
+          |i15743.moregadt.scala
+          |
+          |# class i15991.orig$package cannot be unpickled because no class file was found for denot: val <none>
+          |i15991.orig.scala
+          |
+          |# EnumValue[E] is not a class
+          |i15155.scala""".stripMargin
+      )
+
       runSbt(s"testCompilation --from-tasty pos", repoPath)
 
       copyRecursively(repoPath.resolve("tests/pos"), ComparisonTestBase.sourcePath)
