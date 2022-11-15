@@ -11,7 +11,7 @@
 [27,28]: Ident
 [30,33]: Typed
 [30,31]: Ident
-[31,31]: Ident
+[31,33]: Ident
 [37,37]: TypeTree
 [40,53]: Apply
 [40,44]: Ident

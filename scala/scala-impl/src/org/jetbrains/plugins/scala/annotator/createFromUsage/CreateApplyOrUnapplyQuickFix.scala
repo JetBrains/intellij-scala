@@ -38,10 +38,8 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
   override def startInWriteAction: Boolean = false
 
   protected def createEntity(block: ScExtendsBlock, text: String): PsiElement = {
-    if (block.templateBody.isEmpty)
-      block.add(createTemplateBody(block.getManager))
-
-    val anchor = block.templateBody.get.getFirstChild
+    val templateBody = block.getOrCreateTemplateBody
+    val anchor = templateBody.getFirstChild
     val holder = anchor.getParent
     val hasMembers = holder.children.containsInstanceOf[ScMember]
 

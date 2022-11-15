@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.actions
 import com.intellij.ide.IdeView
 import com.intellij.ide.actions.{CreateFileFromTemplateDialog, CreateTemplateInPackageAction}
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, JavaTemplateUtil}
+import com.intellij.ide.projectView.impl.ProjectRootsUtil
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
@@ -80,7 +81,7 @@ final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiEle
 
         // Specifically make sure that the input string doesn't repeat an existing package prefix (twice).
         // Technically, "org.example.application.org.example.application.Main" is not an error, but most likely it's so (and there's no way to display a warning).
-        for (sourceFolder <- Option(ProjectRootManager.getInstance(project).getFileIndex.getSourceFolder(directory.getVirtualFile));
+        for (sourceFolder <- Option(ProjectRootsUtil.getModuleSourceRoot(directory.getVirtualFile, project));
              packagePrefix = sourceFolder.getPackagePrefix if packagePrefix.nonEmpty
              if (inputString + ".").startsWith(packagePrefix + ".")) {
           return ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure.package.prefix", sourceFolder.getFile.getName, packagePrefix)

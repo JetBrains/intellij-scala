@@ -6,7 +6,7 @@
 [10,20]: ValDef
 [17,20]: Ident
 [20,20]: TypeTree
-[26,47]: ValDef
+[26,50]: ValDef
 [32,47]: AppliedTypeTree
 [32,32]: TypedSplice
 [32,32]: TypeTree[TypeRef

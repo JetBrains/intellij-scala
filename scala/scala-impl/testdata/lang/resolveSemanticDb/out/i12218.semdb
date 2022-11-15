@@ -8,6 +8,7 @@ Document tests/pos/i12218.scala
 (5:5..5:8) local0 -> 3:7
 (5:9..5:16) scala/collection/ArrayOps#isEmpty().
 (6:5..6:7) scala/Boolean#`||`().
+(6:8..6:15) scala/Predef.locally().
 (7:19..7:22) local0 -> 3:7
 (8:7..8:12) local1 -> 7:11
 (8:13..8:15) scala/Int#`!=`(+3).

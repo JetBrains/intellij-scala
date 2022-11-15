@@ -41,7 +41,7 @@
 [181,185]: Ident
 [187,191]: Typed
 [187,189]: Ident
-[189,189]: Ident
+[190,191]: Ident
 [193,237]: Block
 [196,237]: InfixOp
 [196,200]: Ident

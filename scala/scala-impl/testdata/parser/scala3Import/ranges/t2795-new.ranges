@@ -26,7 +26,7 @@
 [223,316]: Template
 [223,223]: DefDef
 [223,223]: TypeTree
-[223,235]: ValDef
+[223,238]: ValDef
 [229,235]: Ident
 [241,316]: DefDef
 [258,273]: ValDef

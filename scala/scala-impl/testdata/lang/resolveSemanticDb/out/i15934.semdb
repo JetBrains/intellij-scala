@@ -1,0 +1,70 @@
+Document tests/pos/i15934.scala
+(3:17..3:18) _empty_/ActorRef#[T] -> 2:17
+(3:21..3:25) scala/Unit#
+(3:28..3:31) scala/Predef.`???`().
+(7:27..7:41) _empty_/ReplicatedData# -> 1:7
+(11:43..11:57) _empty_/ReplicatedData# -> 1:7
+(12:14..12:17) _empty_/Key# -> 7:16
+(12:18..12:20) _empty_/dd.GetResponse#[A1] -> 11:37
+(14:31..14:45) _empty_/ReplicatedData# -> 1:7
+(14:52..14:55) _empty_/Key# -> 7:16
+(14:56..14:58) _empty_/dd.GetSuccess#[A2] -> 14:25
+(14:69..14:80) _empty_/dd.GetResponse# -> 11:25
+(14:81..14:83) _empty_/dd.GetSuccess#[A2] -> 14:25
+(15:31..15:45) _empty_/ReplicatedData# -> 1:7
+(15:52..15:55) _empty_/Key# -> 7:16
+(15:56..15:58) _empty_/dd.GetFailure#[A3] -> 15:25
+(15:69..15:80) _empty_/dd.GetResponse# -> 11:25
+(15:81..15:83) _empty_/dd.GetFailure#[A3] -> 15:25
+(20:30..20:44) _empty_/ReplicatedData# -> 1:7
+(21:12..21:15) _empty_/Key# -> 7:16
+(21:16..21:18) _empty_/JReplicator.Get#[A4] -> 20:24
+(22:16..22:24) _empty_/ActorRef# -> 2:7
+(22:25..22:36) _empty_/JReplicator.GetResponse# -> 24:25
+(22:37..22:39) _empty_/JReplicator.Get#[A4] -> 20:24
+(24:43..24:57) _empty_/ReplicatedData# -> 1:7
+(25:14..25:17) _empty_/Key# -> 7:16
+(25:18..25:20) _empty_/JReplicator.GetResponse#[A5] -> 24:37
+(27:31..27:45) _empty_/ReplicatedData# -> 1:7
+(27:52..27:55) _empty_/Key# -> 7:16
+(27:56..27:58) _empty_/JReplicator.GetSuccess#[A6] -> 27:25
+(27:69..27:80) _empty_/JReplicator.GetResponse# -> 24:25
+(27:81..27:83) _empty_/JReplicator.GetSuccess#[A6] -> 27:25
+(28:31..28:45) _empty_/ReplicatedData# -> 1:7
+(28:52..28:55) _empty_/Key# -> 7:16
+(28:56..28:58) _empty_/JReplicator.GetFailure#[A7] -> 28:25
+(28:69..28:80) _empty_/JReplicator.GetResponse# -> 24:25
+(28:81..28:83) _empty_/JReplicator.GetFailure#[A7] -> 28:25
+(31:14..31:26) scala/Any#asInstanceOf().
+(31:27..31:30) scala/Any#
+(32:13..32:24) _empty_/JReplicator. -> 19:8
+(32:25..32:28) _empty_/JReplicator.Get# -> 20:20
+(34:7..34:11) scala/util/
+(35:10..35:13) scala/util/Try.
+(35:14..35:16) _empty_/dd. -> 10:8
+(35:17..35:28) _empty_/dd.GetResponse# -> 11:25
+(35:29..35:30) local0 -> 32:29
+(35:33..35:36) scala/Predef.`???`().
+(36:10..36:13) scala/util/Try#map().
+(38:21..38:23) _empty_/dd. -> 10:8
+(38:24..38:34) _empty_/dd.GetSuccess# -> 14:14
+(38:43..38:54) _empty_/JReplicator. -> 19:8
+(38:55..38:65) _empty_/JReplicator.GetSuccess.
+(38:66..38:69) local4 -> 38:16
+(38:70..38:73) _empty_/dd.GetSuccess#key. -> 14:47
+(39:21..39:23) _empty_/dd. -> 10:8
+(39:24..39:35) _empty_/dd.GetResponse# -> 11:25
+(39:43..39:54) _empty_/JReplicator. -> 19:8
+(39:55..39:65) _empty_/JReplicator.GetFailure.
+(39:66..39:69) local6 -> 39:16
+(39:70..39:73) _empty_/dd.GetResponse#key(). -> 12:9
+(42:10..42:17) scala/util/Try#recover().
+(42:34..42:45) _empty_/JReplicator. -> 19:8
+(42:57..42:60) local1 -> 32:8
+(42:61..42:64) _empty_/JReplicator.Get#key. -> 21:7
+(43:5..43:10) local8 -> 33:9
+(43:11..43:18) scala/util/Try#foreach().
+(43:21..43:24) local1 -> 32:8
+(43:25..43:32) _empty_/JReplicator.Get#replyTo. -> 22:7
+(43:33..43:37) _empty_/ActorRef#tell(). -> 3:7
+

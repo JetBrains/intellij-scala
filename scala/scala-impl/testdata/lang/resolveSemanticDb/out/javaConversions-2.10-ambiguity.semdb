@@ -2,8 +2,9 @@ Document tests/pos/javaConversions-2.10-ambiguity.scala
 (1:8..1:18) scala/collection/
 (1:20..1:27) scala/collection/mutable/
 (1:29..1:39) scala/collection/concurrent/
-(2:8..2:18) scala/collection/
-(2:19..2:33) scala/collection/JavaConverters.
+(2:8..2:13) scala/
+(2:14..2:17) scala/jdk/
+(2:18..2:38) scala/jdk/CollectionConverters.
 (3:8..3:12) java/
 (3:13..3:17) java/util/
 (3:18..3:28) java/util/concurrent/
@@ -13,7 +14,7 @@ Document tests/pos/javaConversions-2.10-ambiguity.scala
 (7:15..7:18) java/util/concurrent/ConcurrentHashMap#
 (7:19..7:25) scala/Predef.String#
 (7:27..7:33) scala/Predef.String#
-(7:37..7:44) scala/collection/JavaConverters.AsScala#asScala().
+(7:37..7:44) scala/collection/convert/AsScalaExtensions#ConcurrentMapHasAsScala#asScala().
 (7:45..7:47) scala/collection/mutable/Growable#`+=`().
 (8:3..8:13) _empty_/Bar.assertType(). -> 6:7
 (8:14..8:24) scala/collection/concurrent/

@@ -1,0 +1,28 @@
+Document tests/pos/i15717.scala
+(3:16..3:20) java/
+(3:21..3:25) java/util/
+(3:26..3:32) java/util/Vector#
+(3:38..3:44) scala/Predef.String#
+(3:47..3:49) _empty_/Test#pmat().(xs) -> 3:12
+(3:50..3:53) java/util/Vector#get().
+(4:13..4:19) scala/Double#
+(4:23..4:24) local0 -> 4:10
+(4:25..4:33) scala/Any#toString().
+(7:17..7:21) java/
+(7:22..7:26) java/util/
+(7:27..7:33) java/util/Vector#
+(7:39..7:45) scala/Predef.String#
+(8:15..8:17) _empty_/Test#pmatR().(xs) -> 7:13
+(8:18..8:21) java/util/Vector#get().
+(10:12..10:17) local1 -> 8:9
+(10:21..10:24) local1 -> 8:9
+(10:25..10:33) scala/Any#toString().
+(14:17..14:21) java/
+(14:22..14:26) java/util/
+(14:27..14:33) java/util/Vector#
+(14:34..14:40) scala/Double#
+(15:5..15:6) local2 -> 14:9
+(15:7..15:10) java/util/Vector#add().
+(16:5..16:9) _empty_/Test#pmat(). -> 3:7
+(16:10..16:11) local2 -> 14:9
+

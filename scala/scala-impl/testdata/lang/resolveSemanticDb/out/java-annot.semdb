@@ -1,6 +1,6 @@
 Document tests/pos/java-annot/S.scala
 (6:4..6:5) _empty_/J#
 (6:6..6:7) _empty_/C. -> 1:8
-(6:8..6:10) _empty_/C.cs. -> 2:7
+(6:8..6:10) _empty_/C.cs. -> 2:13
 (7:12..7:15) scala/Int#
 

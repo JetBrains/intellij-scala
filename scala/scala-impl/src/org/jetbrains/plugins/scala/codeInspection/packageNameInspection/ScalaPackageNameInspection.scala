@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager}
+import com.intellij.ide.projectView.impl.ProjectRootsUtil
+import com.intellij.openapi.roots.JavaProjectRootsUtil
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtilCore
@@ -32,7 +33,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         val sourceFolder =
           for {
             virtualFile <- Option(file.getVirtualFile)
-            sourceFolder <- Option(ProjectRootManager.getInstance(file.getProject).getFileIndex.getSourceFolder(virtualFile))
+            sourceFolder <- Option(ProjectRootsUtil.getModuleSourceRoot(virtualFile, file.getProject))
           } yield sourceFolder
         val packagePrefix =
           for {

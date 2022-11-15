@@ -1,0 +1,14 @@
+Document tests/pos/i11713.scala
+(1:19..1:21) _empty_/i11713$package.combine().[T1] -> 1:12
+(1:19..1:21) _empty_/i11713$package.combine(+1).[T1] -> 1:12
+(1:29..1:36) scala/package.Numeric#
+(1:37..1:39) _empty_/i11713$package.combine().[T1] -> 1:12
+(1:37..1:39) _empty_/i11713$package.combine(+1).[T1] -> 1:12
+(2:22..2:24) _empty_/i11713$package.combine().[T2] -> 2:15
+(2:32..2:39) scala/package.Numeric#
+(2:40..2:42) _empty_/i11713$package.combine().[T2] -> 2:15
+(2:47..2:50) scala/Predef.`???`().
+(3:18..3:24) scala/Predef.String#
+(3:28..3:31) scala/Predef.`???`().
+(5:15..5:22) _empty_/i11713$package.combine(). -> 2:7
+

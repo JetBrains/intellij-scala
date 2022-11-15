@@ -13,6 +13,6 @@
 [49,54]: Parens
 [50,53]: Typed
 [50,52]: Ident
-[52,52]: Ident
+[52,53]: Ident
 [56,61]: Block
 [59,61]: Ident

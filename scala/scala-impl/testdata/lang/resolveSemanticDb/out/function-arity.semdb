@@ -25,14 +25,11 @@ Document tests/pos/function-arity.scala
 (11:54..11:55) _empty_/Test.unary().(a) -> 11:16
 (11:57..11:58) _empty_/Test.unary().(b) -> 11:22
 (12:3..12:8) _empty_/Test.unary(). -> 11:7
-(12:25..12:26) local6 -> 12:16
+(12:25..12:26) local6
 (13:3..13:8) _empty_/Test.unary(). -> 11:7
-(13:19..13:22) scala/Int#
-(13:30..13:31) local9 -> 13:16
+(13:30..13:31) local9
 (14:3..14:8) _empty_/Test.unary(). -> 11:7
-(14:19..14:22) scala/Int#
-(14:27..14:30) scala/Int#
-(14:35..14:36) local12 -> 14:16
+(14:35..14:36) local12
 (16:12..16:16) scala/package.List.
 (17:12..17:15) scala/Int#
 (17:20..17:23) scala/Int#

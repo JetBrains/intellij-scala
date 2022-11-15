@@ -9,12 +9,12 @@
 [9,9]: DefDef
 [9,9]: TypeTree
 [18,66]: TypeDef
-[36,61]: Template
+[36,64]: Template
 [36,36]: DefDef
 [36,36]: TypeTree
 [36,37]: Ident
 [43,44]: Ident
-[47,61]: ValDef
+[47,64]: ValDef
 [53,61]: AppliedTypeTree
 [53,53]: TypedSplice
 [53,53]: TypeTree[TypeRef

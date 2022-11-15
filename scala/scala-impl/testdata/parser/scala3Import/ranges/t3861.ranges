@@ -10,6 +10,6 @@
 [25,31]: ValDef
 [28,31]: Ident
 [31,31]: TypeTree
-[35,42]: ValDef
+[35,45]: ValDef
 [41,42]: Ident
 [46,47]: Ident

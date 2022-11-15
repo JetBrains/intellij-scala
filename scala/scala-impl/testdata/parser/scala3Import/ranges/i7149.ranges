@@ -10,7 +10,7 @@
 [18,20]: TypeDef
 [18,18]: TypeBoundsTree
 [20,20]: TypeTree
-[24,28]: ValDef
+[24,31]: ValDef
 [24,24]: TypeTree
 [35,269]: DefDef
 [49,51]: TypeDef

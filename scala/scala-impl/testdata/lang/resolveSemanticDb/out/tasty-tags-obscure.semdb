@@ -1,12 +1,8 @@
 Document tests/pos/tasty-tags-obscure.scala
-(3:21..3:25) scala/package.List#
-(3:26..3:27) local0 -> 3:15
-(3:33..3:37) scala/Unit#
 (3:41..3:44) scala/Predef.`???`().
 (4:15..4:18) _empty_/ObscureTasty.foo(). -> 3:7
 (4:30..4:34) scala/package.List#
 (4:35..4:36) local3 -> 4:20
-(5:32..5:36) scala/Unit#
 (5:40..5:43) scala/Predef.`???`().
 (6:15..6:18) _empty_/ObscureTasty.bar(). -> 5:7
 (6:30..6:34) scala/package.List#

@@ -1,0 +1,31 @@
+Document tests/pos/i14821.scala
+(2:26..2:35) _empty_/Statement# -> 1:7
+(4:24..4:34) _empty_/Definition# -> 2:7
+(5:20..5:26) _empty_/i14821$package.DefDef# -> 11:6
+(8:20..8:26) _empty_/i14821$package.DefDef# -> 11:6
+(8:29..8:37) _empty_/ClassDef# -> 4:7
+(8:40..8:43) scala/Predef.`???`().
+(11:16..11:26) _empty_/Definition# -> 2:7
+(12:13..12:25) _empty_/DefDefModule# -> 13:7
+(12:28..12:31) scala/Predef.`???`().
+(14:21..14:27) _empty_/i14821$package.DefDef# -> 11:6
+(14:31..14:37) scala/Predef.String#
+(14:39..14:43) scala/package.List#
+(14:44..14:50) scala/AnyRef#
+(16:7..16:12) scala/
+(16:13..16:20) scala/reflect/
+(16:21..16:29) scala/reflect/TypeTest#
+(16:30..16:39) _empty_/Statement# -> 1:7
+(16:41..16:47) _empty_/i14821$package.DefDef# -> 11:6
+(16:51..16:54) scala/Predef.`???`().
+(26:21..26:30) _empty_/Statement# -> 1:7
+(26:33..26:42) _empty_/Statement# -> 1:7
+(26:45..26:49) _empty_/i14821$package.transform().(tree) -> 26:15
+(27:14..27:22) _empty_/ClassDef# -> 4:7
+(28:38..28:47) _empty_/i14821$package.transform(). -> 26:5
+(28:48..28:52) local0 -> 27:8
+(28:53..28:64) _empty_/ClassDef#constructor(). -> 5:7
+(29:5..29:13) _empty_/ClassDef. -> 7:8
+(29:14..29:18) _empty_/ClassDef.copy(). -> 8:7
+(29:19..29:30) local1 -> 28:9
+

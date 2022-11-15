@@ -80,7 +80,7 @@
 [507,508]: Ident
 [508,508]: TypeTree
 [518,527]: Ident
-[530,534]: ValDef
+[530,537]: ValDef
 [530,530]: TypeTree
 [542,601]: TypeDef
 [554,601]: LambdaTypeTree

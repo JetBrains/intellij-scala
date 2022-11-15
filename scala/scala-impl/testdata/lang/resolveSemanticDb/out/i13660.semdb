@@ -1,7 +1,5 @@
 Document tests/pos/i13660.scala
 (1:25..1:26) _empty_/i13660$package.Const#[A] -> 1:12
-(2:45..2:46) _empty_/i13660$package.FunctionK#[B] -> 2:22
-(2:47..2:48) local0 -> 2:31
 (4:20..4:29) _empty_/i13660$package.FunctionK# -> 2:6
 (4:30..4:35) _empty_/i13660$package.Const# -> 1:6
 (4:36..4:37) _empty_/i13660$package.`#~>#:`#[T] -> 4:12

@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.Parent
+import org.jetbrains.plugins.scala.extensions.{Parent, PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -22,14 +22,15 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction {
 
   override def invoke(project: Project, editor: Editor, psiElement: PsiElement): Unit = {
     getClassIfAvailable(psiElement).foreach { clazz =>
-      val companion = ScalaPsiElementFactory.createObjectWithContext(
-        s"""|object ${clazz.name} {
-            |
-            |}""".stripMargin, psiElement.getContext, psiElement)
+      val name = clazz.name
+      val braceless = clazz.containingFile.exists(_.useIndentationBasedSyntax)
+      val block = if (braceless) s":\n \nend $name" else " {\n \n}"
+      val companion = ScalaPsiElementFactory
+        .createObjectWithContext(s"object $name$block", psiElement.getContext, psiElement)
       val parent = clazz.getParent
       val obj = parent.addAfter(companion, psiElement.getParent)
       if (ScalaCodeStyleSettings.getInstance(project).USE_SCALAFMT_FORMATTER)
-        parent.addAfter(ScalaPsiElementFactory.createWhitespace("\n")(project), psiElement.getParent)
+        parent.addAfter(ScalaPsiElementFactory.createNewLine()(project), psiElement.getParent)
 
       if (!IntentionPreviewUtils.isPreviewElement(psiElement))
         moveCaret(project, editor, obj)

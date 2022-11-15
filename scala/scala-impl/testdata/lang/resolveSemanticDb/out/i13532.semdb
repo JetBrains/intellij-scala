@@ -1,12 +1,12 @@
 Document tests/pos/i13532/Bar.scala
 (3:8..3:16) testcode/ -> 1:9
 (5:14..5:17) testcode/Foo# -> 3:7
-(6:1..6:10) testcode/TestMacro. -> 5:8
-(6:11..6:15) testcode/TestMacro.call(). -> 7:16
+(6:2..6:11) testcode/TestMacro. -> 5:8
+(6:12..6:16) testcode/TestMacro.call(). -> 7:16
 
 Document tests/pos/i13532/Foo.scala
-(4:1..4:10) testcode/TestMacro. -> 5:8
-(4:11..4:15) testcode/TestMacro.call(). -> 7:16
+(4:2..4:11) testcode/TestMacro. -> 5:8
+(4:12..4:16) testcode/TestMacro.call(). -> 7:16
 
 Document tests/pos/i13532/TestMacro.scala
 (3:8..3:13) scala/

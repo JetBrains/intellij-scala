@@ -1,0 +1,48 @@
+Document tests/pos/i15670.scala
+(2:29..2:33) _empty_/Read# -> 4:7
+(2:34..2:35) _empty_/JsonRowEntry#readAs().[E] -> 2:14
+(2:39..2:45) scala/Option#
+(2:46..2:47) _empty_/JsonRowEntry#readAs().[E] -> 2:14
+(2:51..2:54) scala/Predef.`???`().
+(5:24..5:28) _empty_/Read# -> 4:7
+(5:29..5:30) _empty_/Codec#[T] -> 5:13
+(8:27..8:46) _empty_/CodecTypeProjection# -> 6:7
+(8:49..8:54) scala/
+(8:55..8:65) scala/Conversion#
+(8:66..8:67) _empty_/JsonTransform.SetCodec().[C] -> 8:21
+(8:68..8:69) _empty_/JsonTransform.SetCodec().[T] -> 8:18
+(8:72..8:73) _empty_/JsonTransform.SetCodec().[C] -> 8:21
+(8:74..8:77) scala/Predef.Set#
+(8:78..8:79) _empty_/JsonTransform.SetCodec().[T] -> 8:18
+(8:85..8:88) scala/Predef.`???`().
+(9:30..9:49) _empty_/CodecTypeProjection# -> 6:7
+(9:64..9:65) _empty_/JsonTransform.SetCodecExp().[C] -> 9:24
+(9:66..9:67) _empty_/JsonTransform.SetCodecExp().[T] -> 9:21
+(9:71..9:72) _empty_/JsonTransform.SetCodecExp().[C] -> 9:24
+(9:73..9:76) scala/Predef.Set#
+(9:77..9:78) _empty_/JsonTransform.SetCodecExp().[T] -> 9:21
+(9:83..9:88) _empty_/JsonTransform.SetCodecExp().(codec) -> 9:57
+(10:9..10:14) _empty_/Codec# -> 5:7
+(10:15..10:21) scala/Predef.String#
+(10:25..10:28) scala/Predef.`???`().
+(11:9..11:28) _empty_/CodecTypeProjection# -> 6:7
+(11:37..11:40) scala/Predef.`???`().
+(14:2..14:6) scala/main#
+(15:10..15:23) _empty_/JsonTransform. -> 7:8
+(16:18..16:30) _empty_/JsonRowEntry# -> 1:7
+(17:3..17:7) local2 -> 16:7
+(17:8..17:14) _empty_/JsonRowEntry#readAs(). -> 2:7
+(17:15..17:18) scala/Predef.Set#
+(17:19..17:25) scala/Predef.String#
+(24:20..24:26) _empty_/Domain# -> 22:7
+(24:33..24:36) _empty_/Box# -> 20:7
+(24:37..24:38) _empty_/i15670$package.fun().[E] -> 24:9
+(24:58..24:59) _empty_/i15670$package.fun().[D] -> 24:12
+(24:60..24:61) _empty_/i15670$package.fun().[E] -> 24:9
+(24:65..24:69) scala/Unit#
+(26:15..26:18) _empty_/Box# -> 20:7
+(26:19..26:20) _empty_/i15670$package.fun().[E] -> 24:9
+(26:25..26:28) scala/Predef.`???`().
+(28:3..28:6) _empty_/i15670$package.fun(). -> 24:5
+(28:7..28:13) local3 -> 26:7
+

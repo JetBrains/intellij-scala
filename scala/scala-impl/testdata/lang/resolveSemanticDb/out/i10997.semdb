@@ -28,4 +28,11 @@ Document tests/pos/i10997.scala
 (21:29..21:35) scala/deriving/Mirror.
 (21:36..21:38) scala/deriving/Mirror.Of#
 (21:39..21:45) _empty_/Test2.Inner#Parent# -> 19:18
+(27:16..27:20) _empty_/Test# -> 1:7
+(28:22..28:28) scala/Predef.summon().
+(28:29..28:37) scala/deriving/
+(28:38..28:44) scala/deriving/Mirror.
+(28:45..28:47) scala/deriving/Mirror.Of#
+(28:48..28:50) _empty_/Test3.cw. -> 27:7
+(28:51..28:57) _empty_/Test#Parent# -> 3:16
 

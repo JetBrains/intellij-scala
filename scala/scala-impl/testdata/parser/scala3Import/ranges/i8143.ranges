@@ -6,7 +6,7 @@
 [17,48]: ValDef
 [31,48]: Ident
 [48,48]: TypeTree
-[52,56]: ValDef
+[52,59]: ValDef
 [52,52]: TypeTree
 [97,131]: TypeDef
 [117,131]: Select

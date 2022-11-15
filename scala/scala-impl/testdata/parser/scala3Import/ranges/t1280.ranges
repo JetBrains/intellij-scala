@@ -4,7 +4,7 @@
 [10,62]: Template
 [10,10]: DefDef
 [10,10]: TypeTree
-[10,11]: ValDef
+[10,14]: ValDef
 [10,10]: TypeTree
 [15,29]: TypeDef
 [22,29]: TypeBoundsTree

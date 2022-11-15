@@ -2,6 +2,5 @@ Document tests/pos/end-given.scala
 (1:7..1:17) scala/Conversion#
 (1:18..1:21) scala/Int#
 (1:23..1:29) scala/Predef.String#
-(2:8..3:10) _empty_/`end-given$package`.given_Conversion_Int_String.
 (2:16..2:19) scala/Int#
 

@@ -38,22 +38,20 @@ Document tests/pos/given-constrapps.scala
 (21:7..21:8) _empty_/C# -> 3:7
 (21:15..21:17) _empty_/`given-constrapps$package`.tc. -> 2:5
 (22:7..22:8) _empty_/C# -> 3:7
-(22:17..22:19) _empty_/`given-constrapps$package`.tc. -> 2:5
-(23:7..23:8) _empty_/C# -> 3:7
-(23:15..23:17) _empty_/`given-constrapps$package`.tc. -> 2:5
+(22:15..22:17) _empty_/`given-constrapps$package`.tc. -> 2:5
+(23:7..23:9) _empty_/C2# -> 6:7
+(23:19..23:21) _empty_/`given-constrapps$package`.tc. -> 2:5
+(23:29..23:33) scala/package.List.
+(23:34..23:36) _empty_/`given-constrapps$package`.tc. -> 2:5
 (24:7..24:9) _empty_/C2# -> 6:7
 (24:19..24:21) _empty_/`given-constrapps$package`.tc. -> 2:5
 (24:29..24:33) scala/package.List.
 (24:34..24:36) _empty_/`given-constrapps$package`.tc. -> 2:5
 (25:7..25:9) _empty_/C2# -> 6:7
-(25:19..25:21) _empty_/`given-constrapps$package`.tc. -> 2:5
-(25:29..25:33) scala/package.List.
-(25:34..25:36) _empty_/`given-constrapps$package`.tc. -> 2:5
-(26:7..26:9) _empty_/C2# -> 6:7
-(26:18..26:20) _empty_/`given-constrapps$package`.tc. -> 2:5
-(26:28..26:32) scala/package.List.
-(26:33..26:35) _empty_/`given-constrapps$package`.tc. -> 2:5
-(27:17..27:19) _empty_/TC# -> 1:7
-(28:3..28:6) _empty_/Test.foo(). -> 27:7
-(28:13..28:15) _empty_/`given-constrapps$package`.tc. -> 2:5
+(25:18..25:20) _empty_/`given-constrapps$package`.tc. -> 2:5
+(25:28..25:32) scala/package.List.
+(25:33..25:35) _empty_/`given-constrapps$package`.tc. -> 2:5
+(26:17..26:19) _empty_/TC# -> 1:7
+(27:3..27:6) _empty_/Test.foo(). -> 26:7
+(27:13..27:15) _empty_/`given-constrapps$package`.tc. -> 2:5
 

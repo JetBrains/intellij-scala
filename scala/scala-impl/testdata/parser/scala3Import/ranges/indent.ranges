@@ -286,7 +286,7 @@
 [1310,1488]: Template
 [1310,1310]: DefDef
 [1310,1310]: TypeTree
-[1310,1314]: ValDef
+[1310,1317]: ValDef
 [1310,1310]: TypeTree
 [1320,1412]: DefDef
 [1328,1334]: ValDef
@@ -324,7 +324,7 @@
 [1514,1535]: Template
 [1514,1514]: DefDef
 [1514,1514]: TypeTree
-[1514,1518]: ValDef
+[1514,1521]: ValDef
 [1514,1514]: TypeTree
 [1524,1535]: DefDef
 [1531,1531]: TypeTree

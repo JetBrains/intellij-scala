@@ -1,0 +1,17 @@
+Document tests/pos/i15595.scala
+(3:2..3:6) scala/main#
+(4:20..4:23) scala/package.Seq#
+(4:33..4:44) _empty_/MatchResult# -> 1:7
+(4:53..4:54) local0 -> 4:15
+(4:58..4:59) local1 -> 4:28
+(4:73..4:76) scala/package.Seq#
+(4:82..4:85) scala/package.Seq.
+(4:86..4:91) scala/collection/SeqFactory.Delegate#empty().
+(4:94..4:95) local1 -> 4:28
+(4:98..4:101) scala/Predef.`???`().
+(5:22..5:23) local6 -> 5:16
+(5:26..5:37) _empty_/MatchResult# -> 1:7
+(5:38..5:39) local6 -> 5:16
+(5:43..5:46) scala/Predef.`???`().
+(7:3..7:10) local4 -> 4:7
+

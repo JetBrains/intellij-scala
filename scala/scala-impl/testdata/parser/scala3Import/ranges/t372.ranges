@@ -5,10 +5,10 @@
 [0,0]: DefDef
 [0,0]: TypeTree
 [19,82]: TypeDef
-[41,77]: Template
+[41,80]: Template
 [41,41]: DefDef
 [41,41]: TypeTree
-[41,77]: ValDef
+[41,80]: ValDef
 [47,77]: AppliedTypeTree
 [47,47]: TypedSplice
 [47,47]: TypeTree[TypeRef

@@ -10,4 +10,8 @@ Document tests/pos/givenFallback.scala
 (13:21..13:23) _empty_/TC# -> 1:7
 (13:24..13:27) scala/Int#
 (13:30..13:31) _empty_/givenFallback$package.given_TC_Int.x. -> 8:14
+(14:14..14:20) scala/Predef.summon().
+(14:21..14:23) _empty_/TC# -> 1:7
+(14:24..14:27) scala/Int#
+(14:30..14:31) _empty_/givenFallback$package.given_TC_Int.y. -> 9:23
 

@@ -1,0 +1,6 @@
+Document tests/pos/i15514.scala
+(2:24..2:28) _empty_/Main. -> 2:8
+(2:35..2:36) scala/StringContext#s().
+(4:24..4:27) _empty_/Alt. -> 4:8
+(4:35..4:36) scala/StringContext#s().
+

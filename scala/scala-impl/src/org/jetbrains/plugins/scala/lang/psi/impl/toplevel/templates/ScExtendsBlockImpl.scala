@@ -50,6 +50,8 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     byPsiOrStub(lastChildTemplateBody)(childStubTemplate)
   }
 
+  override def getOrCreateTemplateBody: ScTemplateBody = templateBody.getOrElse(createEmptyTemplateBody)
+
   override def empty: Boolean = getNode.getFirstChildNode == null
 
   override def selfType: Option[ScType] =
@@ -226,6 +228,10 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   }
 
   private def templateBodies = templateBody.toSeq
+
+  // TODO: handle Scala 3 indentation-based syntax
+  private def createEmptyTemplateBody: ScTemplateBody =
+    add(ScalaPsiElementFactory.createTemplateBody).asInstanceOf[ScTemplateBody]
 }
 
 

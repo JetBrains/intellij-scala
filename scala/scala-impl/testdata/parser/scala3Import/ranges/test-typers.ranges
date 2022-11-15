@@ -281,7 +281,7 @@
 [1558,1568]: ValDef
 [1565,1568]: Ident
 [1568,1568]: TypeTree
-[1572,1576]: ValDef
+[1572,1579]: ValDef
 [1572,1572]: TypeTree
 [1587,1608]: DefDef
 [1597,1603]: ValDef
