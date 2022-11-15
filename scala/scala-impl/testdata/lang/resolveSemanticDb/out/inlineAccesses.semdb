@@ -1,11 +1,11 @@
 Document tests/pos/inlineAccesses.scala
 (6:20..6:21) _empty_/C# -> 5:7
-(10:5..10:6) _empty_/C#`inline$x_=`().
-(10:5..10:6) _empty_/C#inline$x().
-(11:5..11:6) _empty_/C#`inline$x_=`().
-(11:9..11:10) _empty_/C#inline$x().
+(10:5..10:6) _empty_/C#C$$inline$x().
+(10:5..10:6) _empty_/C#`C$$inline$x_=`().
+(11:5..11:6) _empty_/C#`C$$inline$x_=`().
+(11:9..11:10) _empty_/C#C$$inline$x().
 (11:11..11:12) scala/Int#`+`(+4).
-(12:5..12:6) _empty_/C#inline$x().
+(12:5..12:6) _empty_/C#C$$inline$x().
 (14:24..14:25) _empty_/C#T# -> 6:16
 (19:15..19:16) _empty_/C# -> 5:7
 (20:3..20:4) _empty_/Test.c. -> 19:7

@@ -28,7 +28,7 @@ Document tests/pos/i13859.scala
 (21:5..21:6) local10 -> 20:9
 (21:8..21:14) scala/deriving/Mirror.
 (21:15..21:22) scala/deriving/Mirror.Product#
-(22:36..22:37) local19 -> 22:30
+(22:36..22:37) local16 -> 22:30
 (22:39..22:46) scala/Boolean#
 (26:3..26:10) scala/Predef.locally().
 (27:13..27:19) scala/Predef.summon().
@@ -36,9 +36,27 @@ Document tests/pos/i13859.scala
 (27:26..27:32) scala/deriving/Mirror.
 (27:33..27:40) scala/deriving/Mirror.Product#
 (27:42..27:46) _empty_/Test.Swap# -> 17:8
-(28:5..28:6) local22 -> 27:9
+(28:5..28:6) local19 -> 27:9
 (28:8..28:14) scala/deriving/Mirror.
 (28:15..28:22) scala/deriving/Mirror.Product#
-(29:39..29:40) local32 -> 29:33
-(29:42..29:43) local31 -> 29:30
+(29:39..29:40) local26 -> 29:33
+(29:42..29:43) local25 -> 29:30
+(33:3..33:10) scala/Predef.locally().
+(34:13..34:19) scala/Predef.summon().
+(34:20..34:25) _empty_/Test.Kind2# -> 10:8
+(34:26..34:32) scala/deriving/Mirror.
+(34:33..34:40) scala/deriving/Mirror.Product#
+(34:54..34:55) local30 -> 34:46
+(34:57..34:58) local29 -> 34:43
+(34:60..34:61) scala/`&`#
+(34:63..34:64) local30 -> 34:46
+(34:65..34:67) scala/`*:`#
+(34:68..34:69) local29 -> 34:43
+(34:70..34:72) scala/`*:`#
+(34:73..34:83) scala/Tuple$package.EmptyTuple#
+(35:5..35:6) local31 -> 34:9
+(35:8..35:14) scala/deriving/Mirror.
+(35:15..35:22) scala/deriving/Mirror.Product#
+(36:39..36:40) local38 -> 36:33
+(36:42..36:43) local37 -> 36:30
 

@@ -1,0 +1,27 @@
+Document tests/pos/i15802.scala
+(3:22..3:23) _empty_/ZIO.fail().[E] -> 3:12
+(3:26..3:29) _empty_/ZIO# -> 1:14
+(3:30..3:33) scala/Any#
+(3:35..3:36) _empty_/ZIO.fail().[E] -> 3:12
+(3:38..3:45) scala/Nothing#
+(3:49..3:52) scala/Predef.`???`().
+(8:30..8:35) _empty_/Endpoint#[INPUT] -> 6:16
+(8:39..8:42) _empty_/ZIO# -> 1:14
+(8:43..8:44) _empty_/Endpoint#zServerLogic().[R] -> 8:20
+(8:46..8:58) _empty_/Endpoint#[ERROR_OUTPUT] -> 6:23
+(8:60..8:66) _empty_/Endpoint#[OUTPUT] -> 6:37
+(8:70..8:85) _empty_/Endpoint#ZServerEndpoint# -> 7:16
+(8:86..8:87) _empty_/Endpoint#zServerLogic().[R] -> 8:20
+(8:91..8:94) scala/Predef.`???`().
+(11:2..11:6) scala/main#
+(12:10..12:18) _empty_/Endpoint# -> 6:7
+(12:22..12:26) scala/Unit#
+(12:28..12:32) scala/Unit#
+(12:36..12:39) scala/Predef.`???`().
+(13:3..13:4) local0 -> 12:7
+(13:5..13:17) _empty_/Endpoint#zServerLogic(). -> 8:7
+(13:18..13:21) scala/Any#
+(13:28..13:31) _empty_/ZIO. -> 2:8
+(13:32..13:36) _empty_/ZIO.fail(). -> 3:7
+(13:41..13:57) scala/package.RuntimeException#
+

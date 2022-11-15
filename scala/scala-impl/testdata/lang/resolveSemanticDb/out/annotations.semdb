@@ -1,3 +1,10 @@
+Document tests/pos/Annotations.scala
+(1:9..1:12) foo/
+(3:23..3:33) scala/annotation/
+(3:34..3:44) scala/annotation/Annotation#
+(5:2..5:9) foo/bar/Enabled# -> 3:7
+(6:2..6:12) java/lang/Deprecated#
+
 Document tests/pos/annotations/MyClass.scala
 (2:4..2:16) _empty_/MyAnnotation#
 (2:17..2:21) _empty_/MyAnnotation#`<init>`(+1).(Name)

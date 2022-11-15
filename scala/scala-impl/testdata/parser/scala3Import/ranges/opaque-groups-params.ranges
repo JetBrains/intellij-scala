@@ -105,7 +105,7 @@
 [395,395]: TypeBoundsTree
 [396,396]: TypeBoundsTree
 [397,397]: TypeTree
-[401,405]: ValDef
+[401,408]: ValDef
 [401,401]: TypeTree
 [413,450]: DefDef
 [423,427]: TypeDef

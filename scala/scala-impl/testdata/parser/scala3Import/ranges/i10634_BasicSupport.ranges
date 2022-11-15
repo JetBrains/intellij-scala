@@ -4,7 +4,7 @@
 [44,185]: Template
 [44,44]: DefDef
 [44,44]: TypeTree
-[44,56]: ValDef
+[44,59]: ValDef
 [50,56]: Ident
 [63,106]: ModuleDef
 [85,106]: Template

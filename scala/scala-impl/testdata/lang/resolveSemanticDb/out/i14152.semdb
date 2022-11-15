@@ -24,8 +24,6 @@ Document tests/pos/i14152.scala
 (17:44..17:50) scala/AnyRef#
 (17:56..17:60) _empty_/i14152$package.aaa1. -> 13:5
 (22:17..22:18) _empty_/Inv#[T] -> 22:11
-(24:36..24:37) _empty_/i14152$package.foo().[F] -> 24:9
-(24:38..24:39) local9 -> 24:20
 (25:21..25:27) scala/AnyRef#
 (26:14..26:16) _empty_/i14152$package.foo().(fn) -> 24:15
 (26:25..26:27) _empty_/i14152$package.foo().(fn) -> 24:15

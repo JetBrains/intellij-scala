@@ -121,38 +121,48 @@ Document tests/pos/indent-colons.scala
 (121:38..121:39) _empty_/`indent-colons$package`.tryEither().[T] -> 121:15
 (121:42..121:45) scala/Predef.`???`().
 (124:3..124:12) _empty_/`indent-colons$package`.tryEither(). -> 121:5
-(127:12..127:13) local33 -> 127:7
-(127:14..127:22) scala/Any#toString().
+(126:4..126:9) scala/Function1#apply().
+(127:10..127:11) local34 -> 127:5
+(127:12..127:20) scala/Any#toString().
 (130:3..130:12) _empty_/`indent-colons$package`.tryEither(). -> 121:5
+(132:4..132:9) scala/Function1#apply().
 (133:7..133:15) scala/Any#toString().
 (137:3..137:7) scala/Some.
-(137:11..137:15) scala/Option#fold().
-(140:10..140:11) local34 -> 140:5
+(139:4..139:9) scala/Function1#apply().
+(140:10..140:11) local37 -> 140:5
 (140:12..140:20) scala/Any#toString().
-(143:13..143:14) scala/Int#`+`(+4).
-(146:13..146:14) scala/Int#`+`(+4).
-(149:13..149:15) scala/runtime/RichInt#to().
-(152:21..152:25) scala/package.List.
-(153:13..153:24) _empty_/Test23.credentials. -> 152:7
-(153:25..153:27) scala/collection/IterableOps#`++`().
-(155:8..155:12) local32 -> 154:9
-(155:13..155:20) java/lang/String#isEmpty().
-(156:10..156:13) scala/package.Seq.
-(157:10..157:13) scala/package.Seq.
-(157:14..157:18) local32 -> 154:9
-(159:15..159:22) scala/Boolean#
-(160:23..160:30) scala/Boolean#
-(160:34..160:35) _empty_/`indent-colons$package`.or().(x) -> 159:12
-(160:36..160:38) scala/Boolean#`||`().
-(160:39..160:40) _empty_/`indent-colons$package`.or().(y) -> 160:17
-(162:15..162:18) scala/Int#
-(162:23..162:26) scala/Int#
-(163:3..163:4) _empty_/`indent-colons$package`.test24().(x) -> 162:12
-(163:5..163:6) scala/Int#`<`(+3).
-(163:7..163:8) _empty_/`indent-colons$package`.test24().(y) -> 162:20
-(163:9..163:11) _empty_/`indent-colons$package`.or(). -> 160:13
-(164:5..164:6) _empty_/`indent-colons$package`.test24().(x) -> 162:12
-(164:7..164:8) scala/Int#`>`(+3).
-(164:9..164:10) _empty_/`indent-colons$package`.test24().(y) -> 162:20
-(165:3..165:5) _empty_/`indent-colons$package`.or(). -> 160:13
+(144:46..144:47) _empty_/Test23.nested().[T] -> 144:33
+(144:50..144:51) _empty_/Test23.nested().[T] -> 144:33
+(144:54..144:55) _empty_/Test23.nested().(x) -> 144:43
+(146:14..146:15) scala/Int#`+`(+4).
+(149:13..149:14) scala/Int#`+`(+4).
+(149:15..149:21) _empty_/Test23.nested(). -> 144:26
+(150:5..150:6) _empty_/Test23.x. -> 146:7
+(152:13..152:16) scala/Int#`+`(+4).
+(153:5..153:6) _empty_/Test23.x. -> 146:7
+(155:13..155:15) scala/runtime/RichInt#to().
+(158:21..158:25) scala/package.List.
+(159:13..159:24) _empty_/Test23.credentials. -> 158:7
+(159:25..159:27) scala/collection/IterableOps#`++`().
+(159:28..159:34) _empty_/Test23.nested(). -> 144:26
+(161:8..161:12) local32 -> 160:9
+(161:13..161:20) java/lang/String#isEmpty().
+(162:10..162:13) scala/package.Seq.
+(163:10..163:13) scala/package.Seq.
+(163:14..163:18) local32 -> 160:9
+(165:15..165:22) scala/Boolean#
+(166:23..166:30) scala/Boolean#
+(166:34..166:35) _empty_/`indent-colons$package`.or().(x) -> 165:12
+(166:36..166:38) scala/Boolean#`||`().
+(166:39..166:40) _empty_/`indent-colons$package`.or().(y) -> 166:17
+(168:15..168:18) scala/Int#
+(168:23..168:26) scala/Int#
+(169:3..169:4) _empty_/`indent-colons$package`.test24().(x) -> 168:12
+(169:5..169:6) scala/Int#`<`(+3).
+(169:7..169:8) _empty_/`indent-colons$package`.test24().(y) -> 168:20
+(169:9..169:11) _empty_/`indent-colons$package`.or(). -> 166:13
+(170:5..170:6) _empty_/`indent-colons$package`.test24().(x) -> 168:12
+(170:7..170:8) scala/Int#`>`(+3).
+(170:9..170:10) _empty_/`indent-colons$package`.test24().(y) -> 168:20
+(171:3..171:7) _empty_/`indent-colons$package`.or(). -> 166:13
 

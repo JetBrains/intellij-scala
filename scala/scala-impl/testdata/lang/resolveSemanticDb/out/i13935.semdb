@@ -1,0 +1,16 @@
+Document tests/pos/i13935.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/deriving/
+(1:23..1:29) scala/deriving/Mirror#
+(1:23..1:29) scala/deriving/Mirror.
+(3:63..3:66) _empty_/HasFoo#Foo# -> 3:36
+(3:68..3:74) scala/Predef.summon().
+(3:75..3:81) scala/deriving/Mirror.
+(3:82..3:87) scala/deriving/Mirror.SumOf#
+(3:88..3:91) _empty_/HasFoo#Foo# -> 3:36
+(6:29..6:35) _empty_/HasFoo# -> 3:14
+(6:38..6:44) scala/Predef.summon().
+(6:45..6:51) scala/deriving/Mirror.
+(6:52..6:57) scala/deriving/Mirror.SumOf#
+(6:58..6:61) _empty_/HasFoo#Foo# -> 3:36
+

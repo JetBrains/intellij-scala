@@ -19,7 +19,7 @@
 [99,102]: Literal
 [104,107]: Typed
 [104,105]: Ident
-[105,105]: Ident
+[106,107]: Ident
 [112,115]: Block
 [241,263]: CaseDef
 [246,256]: Apply

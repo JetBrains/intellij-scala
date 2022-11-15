@@ -22,11 +22,9 @@ Document tests/pos/t0438.scala
 (6:31..6:32) scala/Int#`+`(+4).
 (6:33..6:34) _empty_/Foo#bar().(y) -> 6:19
 (8:3..8:6) _empty_/Foo#foo(). -> 5:7
-(8:12..8:15) scala/Int#
-(8:20..8:23) scala/Int#
-(8:28..8:29) local2 -> 8:9
+(8:28..8:29) local2
 (8:30..8:31) scala/Int#`+`(+4).
-(8:32..8:33) local3 -> 8:17
+(8:32..8:33) local3
 (9:3..9:6) _empty_/Foo#foo(). -> 5:7
 (9:7..9:16) _empty_/Foo#pair2fun2(). -> 2:16
 (9:17..9:20) _empty_/Foo#bar(). -> 6:7

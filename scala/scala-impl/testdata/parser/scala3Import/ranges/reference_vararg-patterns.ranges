@@ -12,7 +12,7 @@
 [61,62]: Number
 [64,68]: Typed
 [64,66]: Ident
-[66,66]: Ident
+[67,68]: Ident
 [69,69]: TypeTree
 [72,85]: Apply
 [72,76]: Ident
@@ -29,7 +29,7 @@
 [114,115]: Number
 [117,120]: Typed
 [117,118]: Ident
-[118,118]: Ident
+[119,120]: Ident
 [121,121]: TypeTree
 [124,137]: Apply
 [124,128]: Ident
@@ -63,7 +63,7 @@
 [282,283]: Number
 [285,288]: Typed
 [285,287]: Ident
-[287,287]: Ident
+[287,288]: Ident
 [290,304]: Block
 [293,304]: Apply
 [293,300]: Ident
@@ -74,5 +74,5 @@
 [346,347]: Number
 [349,351]: Typed
 [349,350]: Ident
-[350,350]: Ident
+[350,351]: Ident
 [353,355]: Block

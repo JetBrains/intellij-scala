@@ -1,0 +1,55 @@
+Document tests/pos/i14770.scala
+(1:19..1:20) _empty_/i14770$package.UndefOr#[A] -> 1:14
+(1:21..1:22) scala/`|`#
+(1:23..1:27) scala/Unit#
+(3:22..3:29) _empty_/i14770$package.UndefOr# -> 1:6
+(3:30..3:31) _empty_/i14770$package.foreach().[A] -> 3:12
+(4:18..4:19) _empty_/i14770$package.foreach().[A] -> 3:12
+(4:23..4:27) scala/Unit#
+(4:30..4:34) scala/Unit#
+(5:5..5:10) _empty_/i14770$package.foreach().(maybe) -> 3:15
+(7:15..7:16) _empty_/i14770$package.foreach().[A] -> 3:12
+(7:20..7:21) _empty_/i14770$package.foreach().(f) -> 4:15
+(7:22..7:23) local0 -> 7:12
+(13:15..13:18) _empty_/Foo# -> 9:7
+(13:19..13:20) scala/`|`#
+(13:21..13:24) _empty_/Bar# -> 10:7
+(15:8..15:15) _empty_/i14770$package.UndefOr# -> 1:6
+(15:16..15:19) _empty_/Foo# -> 9:7
+(15:20..15:21) scala/`|`#
+(15:22..15:25) _empty_/Bar# -> 10:7
+(15:29..15:32) scala/Predef.`???`().
+(17:2..17:6) scala/main#
+(19:3..19:4) _empty_/i14770$package.z(). -> 15:5
+(19:5..19:12) _empty_/i14770$package.foreach(). -> 4:7
+(19:18..19:21) _empty_/Baz. -> 12:8
+(19:22..19:28) _empty_/Baz.`booBap_=`().
+(19:31..19:32) local1 -> 19:13
+(21:16..21:17) _empty_/i14770$package.test().[A] -> 21:10
+(21:18..21:19) scala/`|`#
+(21:20..21:24) scala/Unit#
+(21:27..21:28) _empty_/i14770$package.test().[A] -> 21:10
+(21:29..21:30) scala/`|`#
+(21:31..21:35) scala/Unit#
+(21:39..21:40) _empty_/i14770$package.test().(v) -> 21:13
+(22:10..22:14) _empty_/i14770$package.test(). -> 21:5
+(22:18..22:21) scala/Int#
+(22:22..22:23) scala/`|`#
+(22:24..22:28) scala/Unit#
+(23:10..23:14) _empty_/i14770$package.test(). -> 21:5
+(23:18..23:24) scala/Predef.String#
+(23:25..23:26) scala/`|`#
+(23:27..23:30) scala/Int#
+(23:31..23:32) scala/`|`#
+(23:33..23:37) scala/Unit#
+(24:8..24:11) scala/Int#
+(24:12..24:13) scala/`|`#
+(24:14..24:18) scala/Unit#
+(24:21..24:23) _empty_/i14770$package.x1. -> 22:5
+(25:8..25:14) scala/Predef.String#
+(25:15..25:16) scala/`|`#
+(25:17..25:20) scala/Int#
+(25:21..25:22) scala/`|`#
+(25:23..25:27) scala/Unit#
+(25:30..25:32) _empty_/i14770$package.x2. -> 23:5
+

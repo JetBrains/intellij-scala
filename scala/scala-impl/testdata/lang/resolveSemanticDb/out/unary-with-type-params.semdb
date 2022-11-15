@@ -1,0 +1,11 @@
+Document tests/pos/unary-with-type-params.scala
+(2:15..2:16) _empty_/Test.`+`().[T] -> 2:9
+(2:19..2:25) scala/Predef.String#
+(3:3..3:6) _empty_/Test.`+`(). -> 2:7
+(3:7..3:10) scala/Int#
+(3:16..3:22) scala/Predef.String#
+(4:3..4:6) _empty_/Test.`+`(). -> 2:7
+(4:11..4:17) scala/Predef.String#
+(5:6..5:7) scala/Int#`unary_+`().
+(5:9..5:12) scala/Int#
+

@@ -1,0 +1,18 @@
+Document tests/pos/i14776.scala
+(2:18..2:20) _empty_/T1# -> 1:7
+(4:27..4:28) _empty_/Expr#[T] -> 4:12
+(4:31..4:34) scala/Predef.`???`().
+(5:27..5:31) _empty_/Expr# -> 4:7
+(5:32..5:34) _empty_/T2# -> 2:7
+(7:11..7:18) scala/Boolean#
+(7:21..7:24) scala/Predef.`???`().
+(9:15..9:19) _empty_/Expr# -> 4:7
+(9:20..9:21) _empty_/i14776$package.foo().[T] -> 9:9
+(9:25..9:27) _empty_/T1# -> 1:7
+(9:30..9:31) _empty_/i14776$package.foo().(e) -> 9:12
+(10:8..10:12) _empty_/Tag2.
+(11:10..11:14) _empty_/i14776$package.flag(). -> 7:5
+(12:13..12:15) _empty_/T2# -> 2:7
+(14:9..14:10) _empty_/i14776$package.foo().(e) -> 9:12
+(14:11..14:15) _empty_/Expr#data. -> 4:21
+

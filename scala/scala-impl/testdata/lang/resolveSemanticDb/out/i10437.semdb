@@ -1,0 +1,30 @@
+Document tests/pos/i10437.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
+(3:27..3:33) scala/Predef.String#
+(5:27..5:36) scala/Function0#
+(5:37..5:40) scala/Any#
+(9:37..9:46) scala/Function0#
+(9:47..9:50) scala/Any#
+(9:54..9:58) _empty_/MyClass#Fun0# -> 5:15
+(9:65..9:69) _empty_/MyClass#Fun0# -> 5:15
+(9:70..9:71) _empty_/MyClass#Fun0.function0AsFun0().(f) -> 9:34
+(13:19..13:23) scala/Unit#
+(13:26..13:30) scala/Unit#
+(14:5..14:10) _empty_/MyClass#apply(+2). -> 22:7
+(14:17..14:18) _empty_/MyClass#apply().(f) -> 13:13
+(17:18..17:22) _empty_/MyClass#Fun0# -> 5:15
+(17:25..17:29) scala/Unit#
+(19:5..19:12) scala/Predef.println(+1).
+(19:27..19:30) _empty_/MyClass#apply(+1).(fun) -> 17:13
+(19:30..19:31) scala/StringContext#s().
+(22:21..22:23) _empty_/MyClass#apply(+2).[T1] -> 22:13
+(22:28..22:31) scala/Any#
+(22:46..22:54) scala/Predef.Manifest#
+(22:55..22:57) _empty_/MyClass#apply(+2).[T1] -> 22:13
+(22:61..22:65) scala/Unit#
+(24:5..24:12) scala/Predef.println(+1).
+(24:34..24:35) _empty_/MyClass#apply(+2).(f) -> 22:17
+(24:36..24:37) scala/StringContext#s().
+

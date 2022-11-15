@@ -1,5 +1,4 @@
 Document tests/pos/i8900-polyfunction.scala
-(2:27..2:28) _empty_/Test.f().[F] -> 2:9
 (2:31..2:35) scala/Unit#
 (4:3..4:4) _empty_/Test.f(). -> 2:7
 (4:16..4:17) local3 -> 4:6

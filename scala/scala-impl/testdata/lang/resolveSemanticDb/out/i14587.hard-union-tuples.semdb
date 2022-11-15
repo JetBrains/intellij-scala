@@ -9,5 +9,5 @@ Document tests/pos/i14587.hard-union-tuples.scala
 (8:14..8:18) scala/Some.
 (8:22..8:28) scala/Predef.String#
 (8:38..8:39) local0 -> 8:19
-(10:5..10:9) local1 -> 6:13
+(11:5..11:9) local1 -> 6:13
 

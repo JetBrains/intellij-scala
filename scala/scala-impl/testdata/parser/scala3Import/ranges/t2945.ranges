@@ -25,7 +25,7 @@
 [98,101]: Literal
 [103,109]: Typed
 [103,108]: Ident
-[108,108]: Ident
+[108,109]: Ident
 [111,129]: Block
 [124,129]: Ident
 [138,198]: CaseDef
@@ -38,7 +38,7 @@
 [167,170]: Literal
 [172,178]: Typed
 [172,177]: Ident
-[177,177]: Ident
+[177,178]: Ident
 [180,198]: Block
 [193,198]: Ident
 [207,228]: CaseDef

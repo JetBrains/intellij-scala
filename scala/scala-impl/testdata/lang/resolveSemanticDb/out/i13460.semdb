@@ -61,7 +61,7 @@ Document tests/pos/i13460.scala
 (35:9..35:27) local1 -> 31:9
 (37:12..37:24) scala/collection/IterableOps#zipWithIndex().
 (38:12..38:15) scala/collection/IterableOps#map().
-(39:22..39:25) local5 -> 38:17
+(39:22..39:25) local5
 (39:26..39:38) scala/Any#asInstanceOf().
 (39:39..39:43) _empty_/Lazy# -> 4:7
 (39:44..39:55) _empty_/MyTypeClass# -> 11:7
@@ -71,7 +71,7 @@ Document tests/pos/i13460.scala
 (40:16..40:26) _empty_/MyTypeClass#makeString(). -> 12:7
 (40:27..40:34) local3 -> 34:13
 (40:35..40:49) scala/Product#productElement().
-(40:50..40:51) local6 -> 38:22
+(40:50..40:51) local6
 (42:12..42:20) scala/collection/IterableOnceOps#mkString().
 (48:23..48:26) scala/Int#
 (48:31..48:34) scala/Int#

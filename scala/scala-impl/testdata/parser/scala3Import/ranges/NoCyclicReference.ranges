@@ -6,7 +6,7 @@
 [29,31]: TypeDef
 [29,29]: TypeBoundsTree
 [31,31]: TypeTree
-[35,39]: ValDef
+[35,42]: ValDef
 [35,35]: TypeTree
 [46,99]: TypeDef
 [54,99]: LambdaTypeTree

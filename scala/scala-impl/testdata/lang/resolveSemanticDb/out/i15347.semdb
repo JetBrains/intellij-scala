@@ -1,0 +1,9 @@
+Document tests/pos/i15347.scala
+(3:15..3:18) scala/Int#
+(5:10..5:11) _empty_/Test.E.
+(7:12..7:13) _empty_/Test.E# -> 2:8
+(7:14..7:17) scala/Int#
+(7:22..7:23) _empty_/Test.f().(x) -> 7:9
+(8:10..8:11) _empty_/Test.A.
+(8:18..8:19) local0 -> 8:12
+

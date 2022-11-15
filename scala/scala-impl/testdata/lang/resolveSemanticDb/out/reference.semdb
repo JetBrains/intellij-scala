@@ -725,35 +725,69 @@ Document tests/pos/reference/enums.scala
 (52:62..52:63) scala/StringContext#s().
 
 Document tests/pos/reference/exports.scala
-(6:21..6:27) _empty_/BitMap# -> 1:9
-(6:30..6:34) scala/Unit#
-(6:37..6:40) scala/Predef.`???`().
-(7:17..7:21) scala/package.List#
-(7:22..7:28) scala/Predef.String#
-(7:32..7:35) scala/Predef.`???`().
-(11:17..11:23) _empty_/BitMap# -> 1:9
-(11:26..11:29) scala/Predef.`???`().
-(12:17..12:21) scala/package.List#
-(12:22..12:28) scala/Predef.String#
-(12:32..12:35) scala/Predef.`???`().
-(16:33..16:40) _empty_/Printer# -> 4:9
-(16:62..16:68) _empty_/InkJet# -> 2:9
-(17:32..17:39) _empty_/Scanner# -> 10:9
-(19:12..19:20) _empty_/Copier#scanUnit. -> 17:17
-(20:12..20:21) _empty_/Copier#printUnit. -> 16:17
-(22:17..22:21) scala/package.List#
-(22:22..22:28) scala/Predef.String#
-(22:32..22:41) _empty_/Copier#printUnit. -> 16:17
-(22:42..22:48) _empty_/Printer#status(). -> 7:9
-(22:49..22:51) scala/collection/IterableOps#`++`().
-(22:52..22:60) _empty_/Copier#scanUnit. -> 17:17
-(22:61..22:67) _empty_/Scanner#status(). -> 12:9
-(26:23..26:26) _empty_/C22# -> 25:9
-(26:29..26:32) scala/Predef.`???`().
-(27:10..27:13) _empty_/O22. -> 26:10
-(28:12..28:13) _empty_/exports$package.c.
-(28:14..28:15) _empty_/C22#T# -> 25:20
-(28:18..28:21) scala/Predef.`???`().
+(7:21..7:27) _empty_/exports.BitMap# -> 2:9
+(7:30..7:34) scala/Unit#
+(7:37..7:40) scala/Predef.`???`().
+(8:17..8:21) scala/package.List#
+(8:22..8:28) scala/Predef.String#
+(8:32..8:35) scala/Predef.`???`().
+(12:17..12:23) _empty_/exports.BitMap# -> 2:9
+(12:26..12:29) scala/Predef.`???`().
+(13:17..13:21) scala/package.List#
+(13:22..13:28) scala/Predef.String#
+(13:32..13:35) scala/Predef.`???`().
+(17:33..17:40) _empty_/exports.Printer# -> 5:9
+(17:62..17:68) _empty_/exports.InkJet# -> 3:9
+(18:32..18:39) _empty_/exports.Scanner# -> 11:9
+(20:12..20:20) _empty_/exports.Copier#scanUnit. -> 18:17
+(21:12..21:21) _empty_/exports.Copier#printUnit. -> 17:17
+(23:17..23:21) scala/package.List#
+(23:22..23:28) scala/Predef.String#
+(23:32..23:41) _empty_/exports.Copier#printUnit. -> 17:17
+(23:42..23:48) _empty_/exports.Printer#status(). -> 8:9
+(23:49..23:51) scala/collection/IterableOps#`++`().
+(23:52..23:60) _empty_/exports.Copier#scanUnit. -> 18:17
+(23:61..23:67) _empty_/exports.Scanner#status(). -> 13:9
+(27:21..27:22) _empty_/exports.C# -> 26:9
+(27:25..27:28) scala/Predef.`???`().
+(28:10..28:11) _empty_/exports.O. -> 27:10
+(29:10..29:11) _empty_/exports.c.
+(29:12..29:13) _empty_/exports.C#T# -> 26:18
+(29:16..29:19) scala/Predef.`???`().
+(31:22..31:28) scala/Predef.String#
+(32:14..32:17) scala/Int#
+(32:20..32:26) scala/Predef.String#
+(32:29..32:32) scala/Predef.`???`().
+(33:15..33:19) scala/Char#
+(33:23..33:24) _empty_/exports.StringOps#`::`().(c) -> 33:12
+(33:25..33:33) scala/Any#toString().
+(33:34..33:35) java/lang/String#`+`().
+(33:36..33:37) _empty_/exports.StringOps#x. -> 31:19
+(34:21..34:27) scala/Predef.String#
+(34:30..34:33) scala/Predef.`???`().
+(36:17..36:23) scala/Predef.String#
+(37:17..37:20) scala/Int#
+(37:23..37:29) scala/Predef.String#
+(37:32..37:33) _empty_/exports.take().(x) -> 36:14
+(37:34..37:43) java/lang/String#substring(+1).
+(37:47..37:48) _empty_/exports.take().(n) -> 37:14
+(38:17..38:20) scala/Int#
+(38:23..38:29) scala/Predef.String#
+(38:32..38:33) _empty_/exports.drop().(x) -> 36:14
+(38:34..38:43) java/lang/String#substring().
+(38:44..38:45) _empty_/exports.drop().(n) -> 38:14
+(39:31..39:40) _empty_/exports.StringOps# -> 31:9
+(39:41..39:42) _empty_/exports.moreOps().(x) -> 36:14
+(40:12..40:19) _empty_/exports.moreOps(). -> 39:17
+(43:12..43:22) _empty_/exports.capitalize().
+(43:13..43:14) _empty_/exports.s. -> 42:7
+(43:15..43:19) _empty_/exports.take(). -> 37:9
+(43:23..43:24) java/lang/String#`+`().
+(43:25..43:26) _empty_/exports.s. -> 42:7
+(43:27..43:31) _empty_/exports.drop(). -> 38:9
+(43:47..43:48) _empty_/exports.`*`().
+(44:16..44:18) _empty_/exports.`::`().
+(44:19..44:20) _empty_/exports.s. -> 42:7
 
 Document tests/pos/reference/extension-methods.scala
 (3:24..3:30) scala/Double#

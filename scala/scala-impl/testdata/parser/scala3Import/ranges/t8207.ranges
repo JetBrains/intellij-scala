@@ -4,7 +4,7 @@
 [10,93]: Template
 [10,10]: DefDef
 [10,10]: TypeTree
-[10,12]: ValDef
+[10,15]: ValDef
 [10,10]: TypeTree
 [18,42]: Import
 [25,27]: Ident

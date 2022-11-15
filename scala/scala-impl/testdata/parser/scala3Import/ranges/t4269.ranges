@@ -16,6 +16,6 @@
 [58,62]: Ident
 [63,65]: Typed
 [63,64]: Ident
-[64,64]: Ident
+[64,65]: Ident
 [70,74]: Literal
 [75,77]: Block

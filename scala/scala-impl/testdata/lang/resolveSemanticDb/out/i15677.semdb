@@ -1,0 +1,15 @@
+Document tests/pos/i15677.scala
+(5:28..5:31) _empty_/Foo# -> 3:7
+(5:32..5:33) _empty_/Bar#[C] -> 5:11
+(5:35..5:36) _empty_/Bar#[N] -> 5:14
+(6:12..6:15) _empty_/Inv# -> 1:7
+(6:16..6:17) _empty_/Bar#[C] -> 5:11
+(8:15..8:18) _empty_/Foo# -> 3:7
+(8:19..8:22) scala/Int#
+(8:34..8:37) _empty_/Inv# -> 1:7
+(8:38..8:41) scala/Int#
+(8:45..8:48) _empty_/i15677$package.test().(foo) -> 8:10
+(9:13..9:16) _empty_/Bar# -> 5:7
+(9:26..9:29) local0 -> 9:8
+(9:30..9:33) _empty_/Bar#inv(). -> 6:7
+

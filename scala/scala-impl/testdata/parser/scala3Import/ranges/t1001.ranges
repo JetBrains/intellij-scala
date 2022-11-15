@@ -28,7 +28,7 @@
 [432,436]: Ident
 [437,438]: Ident
 [443,486]: TypeDef
-[450,481]: Template
+[450,484]: Template
 [450,461]: DefDef
 [451,460]: TypeDef
 [453,460]: TypeBoundsTree
@@ -37,7 +37,7 @@
 [458,459]: Ident
 [460,460]: TypeTree
 [470,471]: Ident
-[474,481]: ValDef
+[474,484]: ValDef
 [480,481]: Ident
 [488,630]: TypeDef
 [513,628]: Template

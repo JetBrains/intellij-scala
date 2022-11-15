@@ -1,0 +1,76 @@
+Document tests/pos/i14783.scala
+(2:20..2:23) _empty_/Ctx# -> 9:7
+(2:29..2:33) scala/package.List#
+(2:34..2:38) _empty_/Wrap# -> 5:7
+(2:39..2:40) _empty_/Wart.bar().(c) -> 2:17
+(2:50..2:54) scala/Unit#
+(3:5..3:7) _empty_/Wart.bar().(ws) -> 2:25
+(3:8..3:20) scala/collection/StrictOptimizedIterableOps#zipWithIndex().
+(3:21..3:28) scala/collection/immutable/List#foreach().
+(3:41..3:42) local1
+(3:43..3:44) _empty_/Wrap#x(). -> 7:7
+(5:17..5:20) _empty_/Ctx# -> 9:7
+(5:21..5:22) scala/`&`#
+(5:23..5:32) scala/Singleton#
+(6:12..6:13) _empty_/Wrap#[C] -> 5:12
+(7:10..7:13) _empty_/Wrap#ctx. -> 6:7
+(7:14..7:19) _empty_/Ctx#inner. -> 10:10
+(7:20..7:21) _empty_/Ctx#inner.X# -> 11:10
+(12:22..12:23) _empty_/Ctx#inner.X# -> 11:10
+(12:34..12:37) scala/Int#
+(12:40..12:43) scala/Predef.`???`().
+(16:24..16:37) _empty_/WartTraverser# -> 37:16
+(16:40..16:43) scala/Predef.`???`().
+(17:24..17:30) _empty_/Quotes# -> 45:7
+(17:40..17:44) scala/package.List#
+(17:45..17:50) _empty_/Tasty# -> 40:7
+(17:51..17:52) _empty_/WartInspector.inspect().(q) -> 17:21
+(17:62..17:66) scala/Unit#
+(18:19..18:31) _empty_/WartUniverse. -> 26:8
+(18:32..18:35) _empty_/WartUniverse.Aux# -> 27:8
+(18:36..18:37) _empty_/WartInspector.inspect().(q) -> 17:21
+(18:46..18:58) _empty_/WartUniverse. -> 26:8
+(18:59..18:60) _empty_/WartInspector.inspect().(q) -> 17:21
+(19:21..19:36) _empty_/WartInspector.myWartTraverser(). -> 16:7
+(19:37..19:40) _empty_/WartTraverser#get(). -> 38:7
+(19:41..19:49) local2 -> 18:9
+(20:5..20:11) _empty_/WartInspector.inspect().(tastys) -> 17:32
+(20:12..20:24) scala/collection/StrictOptimizedIterableOps#zipWithIndex().
+(20:25..20:32) scala/collection/immutable/List#foreach().
+(21:18..21:23) local5
+(21:24..21:27) _empty_/Tasty#ast(). -> 43:7
+(22:7..22:16) local3 -> 19:9
+(22:17..22:29) _empty_/Quotes#reflect.TreeTraverser#traverseTree(). -> 51:11
+(22:30..22:34) local7 -> 21:11
+(22:36..22:40) local7 -> 21:11
+(27:17..27:23) _empty_/Quotes# -> 45:7
+(27:27..27:39) _empty_/WartUniverse# -> 31:16
+(27:51..27:52) _empty_/WartUniverse.Aux#[X] -> 27:12
+(28:18..28:24) _empty_/Quotes# -> 45:7
+(28:34..28:35) _empty_/WartUniverse.apply().[Q] -> 28:13
+(28:38..28:41) _empty_/WartUniverse.Aux# -> 27:8
+(28:42..28:43) _empty_/WartUniverse.apply().[Q] -> 28:13
+(28:47..28:50) scala/Predef.`???`().
+(32:13..32:19) _empty_/Quotes# -> 45:7
+(33:15..33:16) _empty_/WartUniverse#Q# -> 32:8
+(34:36..34:42) _empty_/WartUniverse#quotes. -> 33:7
+(34:43..34:50) _empty_/Quotes#reflect. -> 46:10
+(34:51..34:64) _empty_/Quotes#reflect.TreeTraverser# -> 50:11
+(38:14..38:26) _empty_/WartUniverse# -> 31:16
+(38:29..38:30) _empty_/WartTraverser#get().(u) -> 38:11
+(38:31..38:40) _empty_/WartUniverse#Traverser# -> 34:18
+(40:18..40:24) _empty_/Quotes# -> 45:7
+(40:25..40:26) scala/`&`#
+(40:27..40:36) scala/Singleton#
+(41:15..41:16) _empty_/Tasty#[Q] -> 40:13
+(42:13..42:19) scala/Predef.String#
+(43:12..43:18) _empty_/Tasty#quotes. -> 41:7
+(43:19..43:26) _empty_/Quotes#reflect. -> 46:10
+(43:27..43:31) _empty_/Quotes#reflect.Tree# -> 47:10
+(48:22..48:26) _empty_/Quotes#reflect.Tree# -> 47:10
+(48:40..48:46) _empty_/Quotes#reflect.Symbol# -> 49:10
+(48:49..48:52) scala/Predef.`???`().
+(51:30..51:34) _empty_/Quotes#reflect.Tree# -> 47:10
+(51:44..51:50) _empty_/Quotes#reflect.Symbol# -> 49:10
+(51:53..51:57) scala/Unit#
+

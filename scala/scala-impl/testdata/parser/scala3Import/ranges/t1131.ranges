@@ -10,7 +10,7 @@
 [36,105]: Template
 [36,36]: DefDef
 [36,36]: TypeTree
-[36,61]: ValDef
+[36,64]: ValDef
 [42,61]: RefinedTypeTree
 [42,43]: Ident
 [46,59]: DefDef

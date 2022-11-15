@@ -40,7 +40,7 @@
 [308,824]: Template
 [308,308]: DefDef
 [308,308]: TypeTree
-[308,318]: ValDef
+[308,321]: ValDef
 [314,318]: Ident
 [327,346]: ValDef
 [338,342]: Ident

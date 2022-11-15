@@ -1,0 +1,27 @@
+Document tests/pos/i15652.scala
+(2:22..2:26) _empty_/Node# -> 1:7
+(2:30..2:31) _empty_/i15652$package.NodeParser#[T] -> 2:17
+(4:16..4:22) scala/Predef.String#
+(4:25..4:31) scala/Option#
+(4:32..4:36) _empty_/Node# -> 1:7
+(4:40..4:43) scala/Predef.`???`().
+(6:26..6:29) scala/Predef.Map#
+(6:30..6:36) scala/Predef.String#
+(6:38..6:48) _empty_/i15652$package.NodeParser# -> 2:6
+(6:54..6:55) _empty_/i15652$package.optionalOneOf().[T] -> 6:19
+(6:60..6:66) scala/Option#
+(6:67..6:68) _empty_/i15652$package.optionalOneOf().[T] -> 6:19
+(7:18..7:20) _empty_/i15652$package.optionalOneOf().(in) -> 6:22
+(7:21..7:28) scala/collection/MapOps#flatMap().
+(8:5..8:10) _empty_/i15652$package.child(). -> 4:5
+(8:11..8:14) local1
+(8:16..8:19) scala/Option#map().
+(9:7..9:10) local1
+(9:11..9:13) scala/Predef.ArrowAssoc#`->`().
+(9:21..9:27) local2
+(9:28..9:32) local3 -> 8:22
+(12:3..12:11) local4 -> 7:7
+(12:12..12:22) scala/collection/IterableOps#headOption().
+(12:23..12:26) scala/Option#map().
+(12:30..12:32) scala/Tuple2#_2.
+

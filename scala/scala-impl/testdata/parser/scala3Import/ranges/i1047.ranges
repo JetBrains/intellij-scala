@@ -42,7 +42,7 @@
 [279,279]: DefDef
 [279,279]: TypeTree
 [279,292]: Ident
-[295,296]: ValDef
+[295,299]: ValDef
 [295,295]: TypeTree
 [304,325]: TypeDef
 [318,325]: Ident
@@ -81,7 +81,7 @@
 [525,719]: Template
 [525,525]: DefDef
 [525,525]: TypeTree
-[525,527]: ValDef
+[525,530]: ValDef
 [525,525]: TypeTree
 [535,569]: TypeDef
 [544,569]: TypeBoundsTree
@@ -125,7 +125,7 @@
 [751,751]: DefDef
 [751,751]: TypeTree
 [751,761]: Ident
-[764,766]: ValDef
+[764,769]: ValDef
 [764,764]: TypeTree
 [774,807]: TypeDef
 [785,807]: InfixOp
