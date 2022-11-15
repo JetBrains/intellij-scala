@@ -5,7 +5,8 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 
 import java.util
 import scala.jdk.CollectionConverters.SeqHasAsJava
@@ -13,14 +14,11 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 class ScalaUsageImportProcessor extends LibraryUsageImportProcessor[ScImportExpr] {
   override def imports(psiFile: PsiFile): util.List[ScImportExpr] = psiFile match {
     case scalaFile: ScalaFile =>
-      scalaFile
-        .children
-        .filterByType[ScImportsHolder]
-        .flatMap(_.getImportStatements)
-        .flatMap(_.importExprs)
-        .toList.asJava
+      val importStatements = collectImportsStatements(scalaFile)
+      val importExpressions = importStatements.flatMap(_.importExprs)
+      importExpressions.asJava
     case _ =>
-      java.util.List.of()
+      util.List.of()
   }
 
   override def importQualifier(importExpr: ScImportExpr): String =
@@ -31,4 +29,9 @@ class ScalaUsageImportProcessor extends LibraryUsageImportProcessor[ScImportExpr
 
   override def resolve(importExpr: ScImportExpr): PsiElement =
     importExpr.qualifier.map(_.resolve()).orNull
+
+  private def collectImportsStatements(fileOrPackage: ScImportsHolder): Seq[ScImportStmt] = {
+    val nestedPackagings = fileOrPackage.children.filterByType[ScPackaging]
+    fileOrPackage.getImportStatements ++ nestedPackagings.flatMap(collectImportsStatements)
+  }
 }
