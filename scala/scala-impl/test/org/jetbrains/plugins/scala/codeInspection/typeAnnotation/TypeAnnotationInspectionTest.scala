@@ -108,7 +108,7 @@ class MembersTypeAnnotationInspectionTest_Scala3 extends TypeAnnotationInspectio
 }
 
 class SuperTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
-  
+
   def testImplementingMethod(): Unit = testQuickFix (
     text  =
       s"""
@@ -237,7 +237,7 @@ class SuperTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
          |
          |class MyReceiver extends Receiver {
          |  type MyReceive = PartialFunction[Any, Unit]
-         |  override def receive: Receive = null.asInstanceOf[MyReceive]
+         |  override def receive: MyReceive = null.asInstanceOf[MyReceive]
          |}
          |""".stripMargin
   )
