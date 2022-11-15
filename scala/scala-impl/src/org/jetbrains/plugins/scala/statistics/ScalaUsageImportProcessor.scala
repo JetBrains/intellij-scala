@@ -14,7 +14,7 @@ class ScalaUsageImportProcessor extends LibraryUsageImportProcessor[ScImportExpr
   override def imports(psiFile: PsiFile): util.List[ScImportExpr] = psiFile match {
     case scalaFile: ScalaFile =>
       scalaFile
-        .depthFirst()
+        .children
         .filterByType[ScImportsHolder]
         .flatMap(_.getImportStatements)
         .flatMap(_.importExprs)
