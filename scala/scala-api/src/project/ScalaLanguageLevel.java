@@ -20,10 +20,11 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel> {
     Scala_2_13("2.13"),
     Scala_3_0("3.0"),
     Scala_3_1("3.1"),
+    Scala_3_2("3.2"),
     //not yet released scala versions
     //(added in order Scala SDK is properly created for new major release candidate versions of the scala compiler)
-    Scala_3_2("3.2"),
     Scala_3_3("3.3"),
+    Scala_3_4("3.4"),
     ;
 
     public boolean isScala3() {
@@ -37,7 +38,7 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel> {
         return isScala3() ? Scala3Language.INSTANCE : ScalaLanguage.INSTANCE;
     }
 
-    public static final ScalaLanguageLevel latestPublishedVersion = Scala_3_1;
+    public static final ScalaLanguageLevel latestPublishedVersion = Scala_3_2;
     public static final ScalaLanguageLevel[] publishedVersions;
 
     static {
