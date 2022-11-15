@@ -348,21 +348,13 @@ object TypeCheckCanBeMatchInspection {
   }
 
   private def equiv: (PsiElement, PsiElement) => Boolean =
-    PsiEquivalenceUtil.areElementsEquivalent(
+    PsiEquivalenceUtil.areEquivalent(
       _: PsiElement,
       _: PsiElement, {
-        case (left: PsiElement, right: PsiElement) if left == right => 0
-        case (left: ScParameter, right: ScParameter) =>
-          left.name match {
-            case null => 1
-            case leftName =>
-              right.name match {
-                case null => 1
-                case rightName => leftName.compareTo(rightName)
-              }
-          }
-        case _ => 1
-      }: java.util.Comparator[PsiElement],
+        case (left: ScParameter, right: ScParameter) => left == right || left.name == right.name
+        case (left: PsiElement, right: PsiElement)   => left == right
+        case _                                       => false
+      }: java.util.function.BiPredicate[PsiElement, PsiElement],
       false
     )
 

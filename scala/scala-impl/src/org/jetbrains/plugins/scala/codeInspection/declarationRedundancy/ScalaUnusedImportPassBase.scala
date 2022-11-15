@@ -33,15 +33,14 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
         val qName = imp.qualName
 
         psiOption.toSeq.flatMap { psi =>
-          val highlightInfo =
+          val highlightInfoBuilder =
             HighlightInfo.newHighlightInfo(HighlightInfoType.UNUSED_SYMBOL)
               .range(psi.getTextRange)
               .descriptionAndTooltip(ScalaInspectionBundle.message("unused.import.statement"))
-              .create()
 
-          getFixes.foreach(action => highlightInfo.registerFix(action, null, null, null, null))
-          qName.foreach(name => highlightInfo.registerFix(new MarkImportAsAlwaysUsed(name), null, null, null, null))
-          Seq(highlightInfo)
+          getFixes.foreach(action => highlightInfoBuilder.registerFix(action, null, null, null, null))
+          qName.foreach(name => highlightInfoBuilder.registerFix(new MarkImportAsAlwaysUsed(name), null, null, null, null))
+          Seq(highlightInfoBuilder.create())
         }
       }
     }

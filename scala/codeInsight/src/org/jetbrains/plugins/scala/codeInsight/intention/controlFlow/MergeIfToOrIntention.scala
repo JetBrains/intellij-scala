@@ -3,7 +3,6 @@ package codeInsight
 package intention
 package controlFlow
 
-import java.util
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
@@ -40,19 +39,7 @@ final class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     val innerThenBranch = elseBranch.asInstanceOf[ScIf].thenExpression.orNull
     if (innerThenBranch == null) return false
 
-    val comparator = new util.Comparator[PsiElement]() {
-      override def compare(element1: PsiElement, element2: PsiElement): Int = {
-        (element1, element2) match {
-          case _ if element1 == element2 =>  0
-          case (block1: ScBlockExpr, block2: ScBlockExpr) if block1.exprs.size != block2.exprs.size => 1
-          case (block1: ScBlockExpr, block2: ScBlockExpr) if block1 == block2 => 0
-          case (expr1: ScExpression, expr2: ScExpression) if expr1 == expr2 => 0
-          case _ => 1
-        }
-      }
-    }
-
-    PsiEquivalenceUtil.areElementsEquivalent(thenBranch, innerThenBranch, comparator, false)
+    PsiEquivalenceUtil.areElementsEquivalent(thenBranch, innerThenBranch)
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {

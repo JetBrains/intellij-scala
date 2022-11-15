@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import java.util.Collections
 import javax.swing.Icon
+import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -104,13 +105,14 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
         val highlightInfo = highlightingInfoBuilder.create()
 
         info.fixes.foreach { fix =>
+          // TODO (SCL-20740): replace with new ProblemDescriptorBase(...), do not pass highlightInfo
           lazy val problemDescriptor = ProblemDescriptorUtil.toProblemDescriptor(file, highlightInfo)
           val action = fix match {
             case intention: IntentionAction => intention //no need to wrap - the fix is an intention at the same time
             case iconable: Iconable         => new LocalQuickFixAsIntentionIconableAdapter(iconable, problemDescriptor)
             case _                          => new LocalQuickFixAsIntentionAdapter(fix, problemDescriptor)
           }
-          highlightInfo.registerFix(action, null, info.message, range, highlightKey)
+          highlightInfo.registerFix(action, null, info.message, range, highlightKey): @nowarn("cat=deprecation")
         }
 
         highlightInfo

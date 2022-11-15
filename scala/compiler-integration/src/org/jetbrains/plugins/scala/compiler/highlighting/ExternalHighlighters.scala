@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
 
 import java.util.Collections
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 object ExternalHighlighters {
@@ -109,7 +110,8 @@ object ExternalHighlighters {
       executeOnPooledThread {
         inReadAction {
           val fixes = findQuickFixes(psiFile, highlightRange, highlighting.highlightType)
-          fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
+          // TODO (SCL-20741): replace with HighlightInfo.Builder#registerFix
+          fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null): @nowarn("cat=deprecation"))
         }
       }
       highlightInfo
