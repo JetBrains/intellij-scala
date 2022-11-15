@@ -49,10 +49,11 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     implicit val ctx: ProjectContext = pattern
     implicit val tpc: TypePresentationContext = TypePresentationContext(pattern)
 
-    val exTp = widen(ScalaType.expandAliases(exprType).getOrElse(exprType))
-    val patType = _patType.removeAliasDefinitions()
+    val dealiased = ScalaType.expandAliases(exprType).getOrElse(exprType)
+    val exTp      = widen(dealiased)
+    val patType   = _patType.removeAliasDefinitions()
 
-    def freeTypeParams = freeTypeParamsOfTerms(exTp)
+    def freeTypeParams = freeTypeParamsOfTerms(dealiased)
 
     def exTpMatchesPattp = matchesPattern(exTp, widen(patType))
 

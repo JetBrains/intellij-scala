@@ -1260,7 +1260,7 @@ object ScalaPsiElementFactory {
 
   def createScalaDocTagName(@NonNls name: String)(implicit ctx: ProjectContext): PsiElement =
     createScalaFileFromText("/**@" + name + " qwerty */", ScalaFeatures.default)
-      .findChildrenByClass(classOf[ScTypeDefinition])
+      .typeDefinitions
       .head
       .docComment
       .get
