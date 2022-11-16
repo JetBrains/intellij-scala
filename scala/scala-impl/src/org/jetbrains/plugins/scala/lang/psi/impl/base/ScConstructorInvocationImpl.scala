@@ -67,18 +67,21 @@ class ScConstructorInvocationImpl(node: ASTNode)
       case _ => None
   }
 
-  override def newTemplate: Option[ScNewTemplateDefinition] = getContext match {
+  override def templateDefinitionContext: Option[ScTemplateDefinition] = getContext match {
     case parents: ScTemplateParents =>
       parents.getContext match {
         case e: ScExtendsBlock =>
           e.getContext match {
-            case n: ScNewTemplateDefinition =>
-              Some(n)
+            case d: ScTemplateDefinition =>
+              Some(d)
             case _ => None
           }
       }
     case _ => None
   }
+
+  override def newTemplate: Option[ScNewTemplateDefinition] =
+    templateDefinitionContext.filterByType[ScNewTemplateDefinition]
 
   //todo: duplicate ScSimpleTypeElementImpl
   private def parameterize(tp: ScType, clazz: PsiClass): ScType =
