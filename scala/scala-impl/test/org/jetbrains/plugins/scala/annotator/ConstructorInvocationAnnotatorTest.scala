@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.ScConstructorInvocationAnnotator
@@ -363,6 +362,23 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
   //new AA(0)
   //new BB(0)
   //new AA[Int](0)
+
+  def testTraitCanExtendsClassWithoutPassingConstructorParameters(): Unit = {
+    val code =
+      """class BaseClass1
+        |abstract class BaseClass2
+        |class BaseClass3(val name: String)
+        |abstract class BaseClass4(val name: String)
+        |
+        |
+        |trait ChildTrait1 extends BaseClass1
+        |trait ChildTrait2 extends BaseClass2
+        |trait ChildTrait3 extends BaseClass3
+        |trait ChildTrait4 extends BaseClass4
+        |""".stripMargin
+
+    assertNothing(messages(code))
+  }
 
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {

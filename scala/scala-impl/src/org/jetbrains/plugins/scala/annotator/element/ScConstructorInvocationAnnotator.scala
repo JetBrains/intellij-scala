@@ -24,8 +24,11 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
   override def annotate(element: ScConstructorInvocation, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     if (typeAware) {
-      ImplicitParametersAnnotator.annotate(element, typeAware)
-      annotateConstructorInvocation(element)
+      val isInTraitDefinition = element.templateDefinitionContext.exists(_.is[ScTrait])
+      if (!isInTraitDefinition) {
+        ImplicitParametersAnnotator.annotate(element, typeAware)
+        annotateConstructorInvocation(element)
+      }
     }
   }
 
