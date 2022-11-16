@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project.structure
 
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
+import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -198,7 +199,9 @@ class SbtStructureDump {
     reporter.startTask(dumpTaskId, None, reportMessage, startTime)
 
     val resultMessages = Try {
-      val processBuilder = new ProcessBuilder(processCommands.asJava)
+      val generalCommandLine = new GeneralCommandLine(processCommands.asJava)
+        .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
+      val processBuilder = generalCommandLine.toProcessBuilder
       processBuilder.directory(directory)
       processBuilder.environment().putAll(environment.asJava)
       val procString = processBuilder.command().asScala.mkString(" ")
