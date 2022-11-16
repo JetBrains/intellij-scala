@@ -638,16 +638,23 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return result
     }
 
-    // no spaces before braceless template body
-    //   class Test:
-    //
-    // TODO: settings?
+    //1. no spaces before braceless template body (with empty extends list)
+    //   class A:
+    //2. no spaces before braceless template body (with non-empty extends list)
+    //   class A extends B:
+    //   class A extends B with C:
+    //3. add space between `:` and type in given-with (given structural instance)
+    //   given intOrd: Ord42[Int] with ...
     rightPsi match {
-      case eb@ScExtendsBlock.TemplateBody(body) =>
-        val hasExtendsKeyword = eb.firstChild.map(_.elementType).contains(ScalaTokenTypes.kEXTENDS)
-        val needsSpace = hasExtendsKeyword ||
-          body.isEnclosedByBraces || // indentation-based body doesn't need space, cause it already starts with whitesapce
-          leftElementType == ScalaTokenTypes.tCOLON // given with (braceless)
+      //NOTE: ScExtendsBlock with braces is handled before
+      case eb: ScExtendsBlock =>
+        val hasNonEmptyExtendsList = eb.firstChild.map(_.elementType).contains(ScalaTokenTypes.kEXTENDS)
+        val isExtendsBlockInGivenInstance = leftElementType == ScalaTokenTypes.tCOLON
+        val needsSpace = hasNonEmptyExtendsList || isExtendsBlockInGivenInstance
+        return if (needsSpace) WITH_SPACING else WITHOUT_SPACING
+
+      case tb: ScTemplateBody =>
+        val needsSpace = tb.isEnclosedByBraces
         return if (needsSpace) WITH_SPACING else WITHOUT_SPACING
       case _ =>
     }

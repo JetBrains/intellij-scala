@@ -375,13 +375,10 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
 
   override def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
     implicit val projectContext: ProjectContext = member.projectContext
-    extendsBlock.templateBody.map {
-      _.getNode
-    }.map { node =>
-      val beforeNode = anchor.map {
-        _.getNode
-      }.getOrElse {
-        val last = node.getLastChildNode
+    val templateBodyNode = extendsBlock.templateBody.map(_.getNode)
+    templateBodyNode.map { templateBody: ASTNode =>
+      val beforeNode = anchor.map(_.getNode).getOrElse {
+        val last = templateBody.getLastChildNode
         last.getTreePrev match {
           case result if isNullOrLineTerminator(result) => result
           case _ => last
@@ -389,25 +386,36 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       }
 
       if (isNullOrLineTerminator(beforeNode))
-        node.addChild(createNewLineNode(), beforeNode)
-      node.addChild(member.getNode, beforeNode)
+        templateBody.addChild(createNewLineNode(), beforeNode)
+      templateBody.addChild(member.getNode, beforeNode)
 
       if (beforeNode != null) {
         val newLineNode = createNewLineNode()
         if (isLineTerminator(beforeNode.getPsi)) {
-          node.replaceChild(beforeNode, newLineNode)
+          templateBody.replaceChild(beforeNode, newLineNode)
         } else {
-          node.addChild(newLineNode, beforeNode)
+          templateBody.addChild(newLineNode, beforeNode)
         }
       }
 
       member
     }.getOrElse {
-      val node = extendsBlock.getNode
+      //when class doesn't yet have body: `class A`
+      val extendsBlockNode = extendsBlock.getNode
       val useIndentationBasedSyntax = this.containingFile.fold(false)(_.useIndentationBasedSyntax)
-      if (!useIndentationBasedSyntax)
-        node.addChild(createWhitespace.getNode)
-      node.addChild(createBodyFromMember(member.getText, useIndentationBasedSyntax).getNode)
+      if (!useIndentationBasedSyntax) {
+        val whitespace = createWhitespace.getNode
+        //Add a whitespace before `{` to make it `class B {}` and not `class B{}
+        if (extendsBlock.getFirstChild == null) {
+          //When extends block is empty (e.g. in `class A`) we need to add a whitespace before it, because extends block must start with `{`
+          extendsBlockNode.getTreeParent.addChild(whitespace, extendsBlockNode)
+        }
+        else {
+          extendsBlockNode.addChild(whitespace)
+        }
+      }
+      val bodyElement = createBodyFromMember(member.getText, useIndentationBasedSyntax)
+      extendsBlockNode.addChild(bodyElement.getNode)
       members.head
     }
   }

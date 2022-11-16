@@ -54,7 +54,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         .map(e => new TextRange(e.getTextRange.getEndOffset - 1, call.argsElement.getTextRange.getEndOffset))
         .getOrElse(call.argsElement.getTextRange)
 
-      val message = ScalaBundle.message("annotator.error.unspecified.value.parameters.mkstring", missed.mkString(", "))
+      val message = ScalaBundle.message("annotator.error.unspecified.value.parameters", missed.mkString(", "))
       holder.createErrorAnnotation(range, message)
     }
 
