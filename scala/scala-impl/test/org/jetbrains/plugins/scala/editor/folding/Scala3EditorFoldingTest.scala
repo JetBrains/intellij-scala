@@ -546,6 +546,89 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  def testPackage_NestedPackages(): Unit = genericCheckRegions(
+    s"""package a.b.c$INDENT_REGION_WITH_COLON:
+       |  class A
+       |  class B
+       |
+       |  package d.e.f$INDENT_REGION_WITH_COLON:
+       |    class C
+       |    class D
+       |
+       |    package u.v.w$INDENT_REGION_WITH_COLON:
+       |      class E
+       |      class F$END$END$END
+       |""".stripMargin
+  )
+
+  def testPackage_NestedPackages_WithBraces(): Unit = genericCheckRegions(
+    s"""package a.b.c $BLOCK_ST{
+       |  class A
+       |  class B
+       |
+       |  package d.e.f $BLOCK_ST{
+       |    class C
+       |    class D
+       |
+       |    package u.v.w $BLOCK_ST{
+       |      class E
+       |      class F
+       |    }$END
+       |  }$END
+       |}$END
+       |""".stripMargin
+  )
+
+  def testPackage_MultipleTopLevelPackagesInFile(): Unit = genericCheckRegions(
+    s"""package aaa$INDENT_REGION_WITH_COLON:
+       |  class A
+       |  class B$END
+       |
+       |package bbb$INDENT_REGION_WITH_COLON:
+       |  class A
+       |  class B$END
+       |
+       |package ccc$INDENT_REGION_WITH_COLON:
+       |  class A
+       |  class B$END
+       |""".stripMargin
+  )
+
+  def testPackage_MultipleTopLevelPackagesInFile_WithBraces(): Unit = genericCheckRegions(
+    s"""package aaa $BLOCK_ST{
+       |  class A
+       |  class B
+       |}$END
+       |
+       |package bbb $BLOCK_ST{
+       |  class A
+       |  class B
+       |}$END
+       |
+       |package ccc $BLOCK_ST{
+       |  class A
+       |  class B
+       |}$END
+       |""".stripMargin
+  )
+
+
+  def testPackage_MultipleTopLevelPackagesInFile_WithBracesAndIndentationRegion(): Unit = genericCheckRegions(
+    s"""package aaa $INDENT_REGION_WITH_COLON:
+       |  class A
+       |  class B$END
+       |
+       |package bbb $BLOCK_ST{
+       |  class A
+       |  class B
+       |}$END
+       |
+       |package ccc $INDENT_REGION_WITH_COLON:
+       |  class A
+       |  class B$END
+       |""".stripMargin
+  )
+
   def testTopLevelFunctionAsFirstFileElement(): Unit = runWithModifiedScalaFoldingSettings { settings =>
     def codeExample(startMarker: String): String = {
       s"""@main
