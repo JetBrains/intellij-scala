@@ -52,28 +52,12 @@ class StepOverTest_2_12 extends StepOverTest {
 class StepOverTest_2_13 extends StepOverTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
-  override def testSkipStoreResult(): Unit = {
-    stepOverTest()(2, 3, 4, 5, 6, 11)
-  }
-
   override def testPartialFun(): Unit = {
-    stepOverTest()(4, 5, 6, 3, 4, 7, 8, 9, 3, 4, 7, 3, 11)
-  }
-
-  override def testMultilineExpr(): Unit = {
-    stepOverTest()(2, 4, 3, 4, 6, 7, 8, 9, 4)
+    stepOverTest()(4, 5, 6, 4, 7, 8, 9, 4, 7, 3, 11)
   }
 
   override def testCaseClausesReturn(): Unit = {
     stepOverTest()(6, 11, 6, 12, 6, 2)
-  }
-
-  override def testSimple(): Unit = {
-    stepOverTest()(2, 3, 4, 5, 6, 7, 8, 3)
-  }
-
-  override def testNestedMatch(): Unit = {
-    stepOverTest()(2, 3, 4, 5, 8, 9, 10, 4, 14)
   }
 }
 
