@@ -33,6 +33,7 @@ import scala.jdk.CollectionConverters._
 
 // TODO: do not use ASTNode.getText or PsiElement.getText
 // TODO: extract shared string literals, like "{...}"
+//noinspection InstanceOf
 class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   import ScalaElementType._
   import ScalaFoldingUtil._
@@ -73,15 +74,15 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       }
 
       psi match {
-        case p: ScPackaging if p.isExplicit =>
-          val identifier = p.findFirstChildByType(ScalaElementType.REFERENCE)
-          val body = identifier.flatMap(_.nextElementNotWhitespace)
-          val startOffset = body match {
-            case Some(el) => el.getStartOffsetInParent
-            case None     => nodeTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1
+        case p: ScPackaging  =>
+          p.findExplicitMarker match {
+            case Some(marker) => // `{` or `:`
+              val start = nodeTextRange.getStartOffset + marker.getStartOffsetInParent
+              val end = nodeTextRange.getEndOffset
+              val range = new TextRange(start, end)
+              descriptors.add(new FoldingDescriptor(node, range))
+            case _ =>
           }
-          val range = new TextRange(startOffset, nodeTextRange.getEndOffset)
-          descriptors add new FoldingDescriptor(node, range)
         case p: ScLiteral if p.isMultiLineString =>
           descriptors add new FoldingDescriptor(node, nodeTextRange)
         case _: ScArgumentExprList =>
