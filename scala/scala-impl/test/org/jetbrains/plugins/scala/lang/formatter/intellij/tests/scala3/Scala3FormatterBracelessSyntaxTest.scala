@@ -231,7 +231,7 @@ class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
       |
       |  object C:
       |    given C =
-      |      new C :
+      |      new C:
       |        def f = "!"
       |        end f
       |      end new

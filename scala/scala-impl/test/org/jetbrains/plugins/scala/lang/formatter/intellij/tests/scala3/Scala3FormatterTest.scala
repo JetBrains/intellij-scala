@@ -50,7 +50,6 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |  case B""".stripMargin
   )
 
-  // NOTE: space before colon after extends list is not a strict requirement yet!
   def testColon_AfterTypeDefinition_WithExtends(): Unit = doTextTest(
     """trait Test extends Object:
       |  def test = ()
@@ -58,46 +57,46 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |class Test extends Object :
       |  def test = ()
       |
-      |object Test extends Object  :
+      |object Test extends Object with T :
       |  def test = ()
       |
       |enum Enum extends Object   :
       |  case A
       |  case B
       |""".stripMargin,
-    """trait Test extends Object :
+    """trait Test extends Object:
       |  def test = ()
       |
-      |class Test extends Object :
+      |class Test extends Object:
       |  def test = ()
       |
-      |object Test extends Object :
+      |object Test extends Object with T:
       |  def test = ()
       |
-      |enum Enum extends Object :
+      |enum Enum extends Object:
       |  case A
       |  case B
       |""".stripMargin
   )
 
   def testColon_AfterTypeDefinition_WithParam_WithExtends(): Unit = doTextTest(
-    """trait Test()extends Object :
+    """trait Test(p: Int)extends Object :
       |  def test = ()
       |
-      |class Test()extends Object :
+      |class Test()extends Object  :
       |  def test = ()
       |
-      |enum Enum()extends Object :
+      |enum Enum()extends Object   :
       |  case A
       |  case B
       |""".stripMargin,
-    """trait Test() extends Object :
+    """trait Test(p: Int) extends Object:
       |  def test = ()
       |
-      |class Test() extends Object :
+      |class Test() extends Object:
       |  def test = ()
       |
-      |enum Enum() extends Object :
+      |enum Enum() extends Object:
       |  case A
       |  case B
       |""".stripMargin
@@ -239,10 +238,15 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
   )
 
   def testGivenInstance_5_WithIndentationBasedTemplateBody(): Unit = doTextTest(
-    """given intOrd: Ord42[Int] with
-      |  def compare(x: Int, y: Int): Int = 42""".stripMargin
+    """given intOrd: Ordering[Int] with
+      |  def compare(x: Int, y: Int): Int = 42
+      |
+      |trait MyTrait
+      |
+      |given intOrd: Ordering[Int] with MyTrait with
+      |  def compare(x: Int, y: Int): Int = 42
+      |""".stripMargin
   )
-
   def testPackagingWithColon(): Unit = {
     doTextTest(
       """package p1:
