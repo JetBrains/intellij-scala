@@ -4,8 +4,9 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
-import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
 import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
+import org.jetbrains.plugins.scala.project.ProjectPsiFileExt.enableFeaturesCheckInTests
 import org.jetbrains.plugins.scala.project._
 
 // TODO: now isScala3 is properly set only in org.jetbrains.plugins.scala.lang.parser.ScalaParser
@@ -61,8 +62,8 @@ class ScalaPsiBuilderImpl(
 
   override final def isTrailingComma: Boolean = getTokenType match {
     case `tCOMMA` => features.hasTrailingCommasEnabled ||
-      isAtLeast2_12 // hack for light tests, where features are not initialized correctly
-    case _        => false
+      (isUnitTestMode && !enableFeaturesCheckInTests)
+    case _ => false
   }
 
   override final def isIdBinding: Boolean =
