@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRef
 import org.jetbrains.plugins.scala.extensions.{Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 
@@ -34,6 +35,7 @@ private[cheapRefSearch] final class TextSearch(override val shouldProcess: Shoul
           val maybeUsage = e2 match {
             case Parent(_: ScReferencePattern) => None
             case Parent(_: ScTypeDefinition) => None
+            case Parent(_: ScFunctionDefinition) => None
             case _: PsiIdentifier =>
               Some(ElementUsageWithKnownReference(e2, ctx.element))
             case l: LeafPsiElement if l.isIdentifier =>
