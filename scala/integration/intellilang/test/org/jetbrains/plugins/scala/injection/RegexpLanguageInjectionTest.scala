@@ -16,7 +16,7 @@ class RegexpLanguageInjectionTest extends TestCase
 object RegexpLanguageInjectionTest {
 
   @Category(Array(classOf[FileSetTests]))
-  private final class ActualTest(
+  final class ActualTest(
     testFile: File,
     testName: String,
     testIdx: Int,
@@ -45,15 +45,17 @@ object RegexpLanguageInjectionTest {
     new File("./scala/integration/intellilang/testData/language_injection/regex")
 
   /**
-   * Can include optional test name. First test can be without any header.
-   * Example 1: {{{
+   * Can include optional test name. First test can be without any header<br>
+   * ==Example 1==
+   * {{{
    * test case data 1
    * #
    * test case data 2
    * ### test name
    * test case data 3
    * }}}
-   * Example 1: {{{
+   * ==Example 2==
+   * {{{
    * # test name 1
    * test case data 1
    * # test name 2

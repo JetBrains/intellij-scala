@@ -79,7 +79,14 @@ lazy val scalaCommunity: sbt.Project =
       ),
       packageLibraryMappings := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       packageMethod := PackagingMethod.Standalone(),
-      intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
+      intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct ++ Seq(
+        /*
+         * Uncomment if you want to add Kotlin plugin jar dependencies to inspect them
+         * Note: we don't have any dependencies on Kotlin plugin,
+         * however sometimes it might be useful to see how some features are implemented in Kotlin plugin.
+         */
+        //"org.jetbrains.kotlin".toPlugin
+      ),
       // all sub-project tests need to be run within main project's classpath
       Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten,
       Compile / pushRemoteCache := pushRemoteCache.all(remoteCacheCompileScopeFilter).value,
