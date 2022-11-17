@@ -28,10 +28,9 @@ private final class ScalaStackFrame(descriptor: StackFrameDescriptorImpl, update
 
     localVariables.forEach { variable =>
       val variableName = variable.name()
-      val variableType = variable.getType
 
       val descriptor =
-        if (variableName.endsWith("$lzy") && lazyRefClasses(variableType.name())) {
+        if (variableName.endsWith("$lzy") && lazyRefClasses(variable.typeName())) {
           val value = variable.getFrame.getValue(variable)
           val initialized =
             ScalaMethodEvaluator(new IdentityEvaluator(value), "initialized", JVMNameUtil.getJVMRawText("()Z"), Seq.empty, methodOnRuntimeRef = true)
@@ -41,6 +40,7 @@ private final class ScalaStackFrame(descriptor: StackFrameDescriptorImpl, update
           val allMethods = evaluationContext.computeThisObject().asInstanceOf[ObjectReference].referenceType().allMethods().asScala
           val initMethod = allMethods.find(_.name() == initName).get
 
+          val variableType = variable.getType
           if (initialized) new LocalLazyValDescriptor(evaluationContext.getProject, variable, variableType, initMethod)
           else new NotInitializedLocalLazyValDescriptor(evaluationContext.getProject, variable, variableType, initMethod)
         } else nodeManager.getLocalVariableDescriptor(null, variable)
