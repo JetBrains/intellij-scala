@@ -262,6 +262,9 @@ object ScalaPluginUpdater {
   }
 
   def askUpdatePluginBranchIfNeeded(): Unit = {
+    if (ApplicationManager.getApplication.isUnitTestMode)
+      return
+
     val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
     val applicationSettings = ScalaApplicationSettings.getInstance()
     if (infoImpl.isEAP
