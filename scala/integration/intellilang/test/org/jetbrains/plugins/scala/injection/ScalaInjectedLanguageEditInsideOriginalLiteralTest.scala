@@ -3,7 +3,10 @@ package org.jetbrains.plugins.scala.injection
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
-class ScalaInjectedLanguageEditTest extends EditorActionTestBase {
+/**
+ * Tests for editing code inside a string literal with an injected file
+ */
+class ScalaInjectedLanguageEditInsideOriginalLiteralTest extends EditorActionTestBase {
 
   import EditorTestUtil.{CARET_TAG => Caret}
   import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}

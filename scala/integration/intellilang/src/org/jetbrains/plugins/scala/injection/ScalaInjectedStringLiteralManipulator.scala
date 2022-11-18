@@ -16,10 +16,15 @@ final class ScalaInjectedStringLiteralManipulator extends AbstractElementManipul
   ): ScStringLiteral = {
     val text = literal.getText
 
-    val needEscape = !literal.isInstanceOf[ScInterpolatedStringLiteral] && !literal.isMultiLineString
-    val newText = text.substring(0, range.getStartOffset) +
-      (if (needEscape) StringUtil.escapeStringCharacters(newContent) else newContent) +
-      text.substring(range.getEndOffset)
+    val needEscape = literal match {
+      case s: ScInterpolatedStringLiteral => s.kind != ScInterpolatedStringLiteral.Raw
+      case _                              => !literal.isMultiLineString
+    }
+
+    val before = text.substring(0, range.getStartOffset)
+    val after = text.substring(range.getEndOffset)
+    val newContentEscaped = if (needEscape) StringUtil.escapeStringCharacters(newContent) else newContent
+    val newText = before + newContentEscaped + after
 
     replaceWith(literal, newText)
   }
