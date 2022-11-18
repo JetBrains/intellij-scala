@@ -29,6 +29,7 @@ object BspResolverDescriptors {
                                    testSourceDirs: Seq[SourceDirectory],
                                    resourceDirs: Seq[SourceDirectory],
                                    testResourceDirs: Seq[SourceDirectory],
+                                   outputPaths: Seq[File],
                                    classpath: Seq[File],
                                    classpathSources: Seq[File],
                                    testClasspath: Seq[File],
@@ -54,6 +55,7 @@ object BspResolverDescriptors {
   case class TargetData(sources: Try[SourcesResult],
                         dependencySources: Try[DependencySourcesResult],
                         resources: Try[ResourcesResult],
+                        outputPaths: Try[OutputPathsResult],
                         scalacOptions: Try[ScalacOptionsResult], // TODO should be optional
                         javacOptions: Try[JavacOptionsResult]
                        )
