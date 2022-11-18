@@ -10,8 +10,12 @@
   <extensions defaultExtensionNs="com.intellij">
     <multiHostInjector implementation="org.jetbrains.plugins.scala.injection.ScalaLanguageInjector"/>
     <!--<multiHostInjector implementation="org.jetbrains.plugins.scala.lang.scaladoc.injection.ScalaDocInnerCodeInjector"/>-->
-    <regExpLanguageHost forClass="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl"
-                        implementationClass="org.jetbrains.plugins.scala.injection.ScalaRegExpHost"/>
+    <regExpLanguageHost
+            forClass="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl"
+            implementationClass="org.jetbrains.plugins.scala.injection.ScalaRegExpHost"/>
+    <lang.elementManipulator
+            forClass="org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral"
+            implementationClass="org.jetbrains.plugins.scala.injection.ScalaInjectedStringLiteralManipulator"/>
   </extensions>
     
   <extensions defaultExtensionNs="org.intellij.scala">

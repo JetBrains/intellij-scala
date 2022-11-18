@@ -821,9 +821,6 @@
             <className>org.jetbrains.plugins.scala.codeInsight.intention.ImplementAbstractMethodIntention</className>
         </intentionAction>
 
-        <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral"
-                                 implementationClass="org.jetbrains.plugins.scala.injection.ScalaInjectedStringLiteralManipulator"/>
-
         <patterns.patternClass className="org.jetbrains.plugins.scala.patterns.ScalaPatterns" alias="scala"/>
 
         <!-- Inspections -->
