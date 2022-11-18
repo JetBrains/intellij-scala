@@ -98,11 +98,12 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             val sources = data.sources.map(_.getItems.asScala).getOrElse {List.empty[SourcesItem]}
             val depSources = data.dependencySources.map(_.getItems.asScala).getOrElse {List.empty[DependencySourcesItem]}
             val resources = data.resources.map(_.getItems.asScala).getOrElse {List.empty[ResourcesItem]}
+            val outputPaths = data.outputPaths.map(_.getItems.asScala).getOrElse {List.empty[OutputPathsItem]}
             val scalacOptions = data.scalacOptions.map(_.getItems.asScala).getOrElse {List.empty[ScalacOptionsItem]}
             val javacOptions = data.javacOptions.map(_.getItems.asScala).getOrElse {List.empty[JavacOptionsItem]}
 
             val descriptions = calculateModuleDescriptions(
-              targets, scalacOptions.toSeq, javacOptions.toSeq, sources.toSeq, resources.toSeq, depSources.toSeq
+              targets, scalacOptions.toSeq, javacOptions.toSeq, sources.toSeq, resources.toSeq, outputPaths.toSeq, depSources.toSeq
             )
             projectNode(workspace, descriptions, rootExclusions(workspace))
           }
@@ -296,12 +297,24 @@ object BspProjectResolver {
       CompletableFuture.completedFuture[Try[ResourcesResult]](Success(emptyResult))
     }
 
+    val outputPaths: CompletableFuture[Try[OutputPathsResult]] = if (isOutputPathsProvider) {
+      val params = new OutputPathsParams(targetIds)
+      val eventId = BuildMessages.randomEventId
+      val message = BspBundle.message("bsp.resolver.outputpaths")
+      bsp.buildTargetOutputPaths(params)
+        .catchBspErrors
+        .reportFinished(reporter, eventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.outputpaths"))
+    } else {
+      val emptyResult = new OutputPathsResult(Collections.emptyList())
+      CompletableFuture.completedFuture[Try[OutputPathsResult]](Success(emptyResult))
+    }
+
     val scalacOptions = fetchScalacOptions(targets, parentId)
     val javacOptions = fetchJavacOptions(targets, parentId)
 
     CompletableFuture
-      .allOf(sources, depSources, resources, scalacOptions, javacOptions)
-      .thenApply(_ => TargetData(sources.get, depSources.get, resources.get, scalacOptions.get, javacOptions.get))
+      .allOf(sources, depSources, resources, outputPaths, scalacOptions, javacOptions)
+      .thenApply(_ => TargetData(sources.get, depSources.get, resources.get, outputPaths.get, scalacOptions.get, javacOptions.get))
   }
 
   //noinspection ReferencePassedToNls
@@ -354,6 +367,9 @@ object BspProjectResolver {
   private def isResourcesProvider(implicit capabilities: BuildServerCapabilities) =
     Option(capabilities.getResourcesProvider).exists(_.booleanValue())
 
+  private def isOutputPathsProvider(implicit capabilities: BuildServerCapabilities) =
+    Option(capabilities.getOutputPathsProvider).exists(_.booleanValue())
+  
   private[importing] def rootExclusions(workspace: File): List[File] = List(
     new File(workspace, BspUtil.BloopConfigDirName),
     new File(workspace, BspConnectionConfig.BspWorkspaceConfigDirName),

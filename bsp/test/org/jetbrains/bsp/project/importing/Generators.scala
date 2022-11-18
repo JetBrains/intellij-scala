@@ -122,10 +122,28 @@ object Generators {
     classPathSources <- arbitrary[Seq[File]]
     testClassPath <- arbitrary[Seq[File]]
     testClassPathSources <- arbitrary[Seq[File]]
+    outputPaths <- arbitrary[Seq[File]]
     moduleKind <- genModuleKind
   } yield {
-    val data = ModuleDescriptionData(id, name, targets, targetDependencies, targetTestDependencies, basePath.map(_.toFile), output, testOutput,
-      sourceDirs, testSourceDirs, resourceDirs, testResourceDirs, classPath, classPathSources, testClassPath, testClassPathSources, None)
+    val data = ModuleDescriptionData(
+      id = id, 
+      name = name,
+      targets = targets,
+      targetDependencies = targetDependencies,
+      targetTestDependencies = targetTestDependencies,
+      basePath = basePath.map(_.toFile),
+      output = output, testOutput = testOutput,
+      sourceDirs = sourceDirs,
+      testSourceDirs = testSourceDirs,
+      resourceDirs = resourceDirs,
+      testResourceDirs = testResourceDirs,
+      outputPaths = outputPaths,
+      classpath = classPath,
+      classpathSources = classPathSources,
+      testClasspath = testClassPath,
+      testClasspathSources = testClassPathSources,
+      languageLevel = None
+    )
     ModuleDescription(data, moduleKind)
   }
 
