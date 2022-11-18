@@ -232,9 +232,6 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
       (2806, 2807), // Type mismatch, expected: Any => TailRec[NotInferredB], actual: Nothing => TailRec[A]
       (2871, 2872), // Type mismatch, expected: Any => TailRec[NotInferredB], actual: Nothing => TailRec[A]
       (2860, 2861), // Type mismatch, expected: Nothing, actual: Any
-    ),
-    "scala/util/matching/Regex.scala" -> Set(
-      (23224, 23229), // Cannot resolve overloaded constructor `Regex`
     )
   )
 }
