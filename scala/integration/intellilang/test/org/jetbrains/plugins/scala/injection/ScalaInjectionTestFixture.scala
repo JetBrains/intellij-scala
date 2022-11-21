@@ -3,54 +3,41 @@ package org.jetbrains.plugins.scala.injection
 import com.intellij.lang.Language
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.editor.{Caret, Editor}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiFile, PsiLanguageInjectionHost}
-import com.intellij.testFramework.fixtures.InjectionTestFixture
+import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, InjectionTestFixture}
 import org.intellij.plugins.intelliLang
-import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.injection.AbstractLanguageInjectionTestCase._
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt, StringExt}
+import org.jetbrains.plugins.scala.injection.ScalaInjectionTestFixture.{ExpectedInjection, ShredInfo, ensureCaretIsSet, pairToTuple}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.junit.Assert
-import org.junit.Assert._
+import org.junit.Assert.{assertEquals, assertNotNull, assertNull, fail}
 
 import java.util
 import scala.collection.mutable.ArrayBuffer
-import scala.jdk.CollectionConverters._
-import scala.language.implicitConversions
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-/** @see AbstractLanguageInjectionTestCase.kt in main IntelliJ repository */
-abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFixtureTestCase {
-
-  protected var injectionTestFixture: InjectionTestFixture = _
-  protected var intelliLangConfig: intelliLang.Configuration = _
-
-  protected def topLevelEditor: Editor = injectionTestFixture.getTopLevelEditor
-  protected def topLevelCaretPosition: Int = injectionTestFixture.getTopLevelCaretPosition
-  protected def topLevelFile: PsiFile = injectionTestFixture.getTopLevelFile
-
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_2_13
+class ScalaInjectionTestFixture(
+  project: Project,
+  codeInsightFixture: CodeInsightTestFixture
+) {
+  val injectionTestFixture: InjectionTestFixture = new InjectionTestFixture(codeInsightFixture)
 
   // using custom language annotation in order it is resolved during unit tests
-  protected val LanguageAnnotationName = "Language"
-  protected val LanguageAnnotationDef = s"class $LanguageAnnotationName(val value: String) extends scala.annotation.StaticAnnotation"
+  val LanguageAnnotationName = "Language"
+  val LanguageAnnotationDef = s"class $LanguageAnnotationName(val value: String) extends scala.annotation.StaticAnnotation"
+  val intelliLangConfig: intelliLang.Configuration = intelliLang.Configuration.getProjectInstance(project)
+  intelliLangConfig.getAdvancedConfiguration.setLanguageAnnotation(LanguageAnnotationName)
 
-  protected val JsonLangId = "JSON"
-  protected val JavaLangId = "JAVA"
-  protected val RegexpLangId = "RegExp"
+  protected def topLevelEditor: Editor = injectionTestFixture.getTopLevelEditor
 
-  override def setUp(): Unit = {
-    super.setUp()
-    intelliLangConfig = intelliLang.Configuration.getProjectInstance(getProject)
-    intelliLangConfig.getAdvancedConfiguration.setLanguageAnnotation(LanguageAnnotationName)
-    injectionTestFixture = new InjectionTestFixture(myFixture)
-  }
+  protected def topLevelCaretPosition: Int = injectionTestFixture.getTopLevelCaretPosition
+
+  protected def topLevelFile: PsiFile = injectionTestFixture.getTopLevelFile
+
 
   /**
    * Copy of [[injectionTestFixture.assertInjectedLangAtCaret]] with a small alteration:<br>
@@ -58,7 +45,7 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
    * For example injected regex in "\\".r literal contains single token
    * `PsiElement(INVALID_CHARACTER_ESCAPE_TOKEN)('\\')` but it's parent is `RegExpCharImpl: <\\>`
    */
-  private def assertInjectedLangAtCaret(expectedLanguage: String): Unit = {
+  protected def assertInjectedLangAtCaret(expectedLanguage: String): Unit = {
     val injectedElement = injectionTestFixture.getInjectedElement
     assertNotNull("Can't find injected element", injectedElement)
     if (expectedLanguage != null) {
@@ -74,7 +61,7 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
   private def injectedElementLanguage(injectedElement: PsiElement) = {
     val language = injectedElement.getLanguage match {
       case Language.ANY => injectedElement.getParent.getLanguage
-      case lang         => lang
+      case lang => lang
     }
     language
   }
@@ -119,7 +106,7 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
   ): Unit = {
     val expectedInjectionText = expectedInjection.injectedFileText
 
-    val manager = InjectedLanguageManager.getInstance(getProject)
+    val manager = InjectedLanguageManager.getInstance(project)
     // e.g. if we have a string literal `"\\d\u0025\\u0025".r` the actual regex text will be `\d%\u0025`
     val actualInjectionTextUnescaped = manager.getUnescapedText(actualInjectedFile)
 
@@ -157,36 +144,7 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
     }
   }
 
-  protected def doTestInBody(languageId: String, classBody: String, injectedFileExpectedText: String): Unit = {
-    val classBodyWithIndent = classBody.replaceAll("\n", "\n  ")
-    val text =
-      s"""class A {
-         |  $classBodyWithIndent
-         |}
-         |""".stripMargin
-    doTest(languageId, text, injectedFileExpectedText)
-  }
-
-  protected def doAnnotationTestInBody(languageId: String, classBody: String, injectedFileExpectedText: String): Unit = {
-    val classBodyWithIndent = classBody.replaceAll("\n", "\n  ")
-    val text =
-      s"""$LanguageAnnotationDef
-         |class A {
-         |  $classBodyWithIndent
-         |}
-         |""".stripMargin
-    doTest(languageId, text, injectedFileExpectedText)
-  }
-
-  protected def doAnnotationTest(languageId: String, text: String, injectedFileExpectedText: String): Unit = {
-    val textFinal =
-      s"""$LanguageAnnotationDef
-         |$text
-         |""".stripMargin
-    doTest(languageId, textFinal, injectedFileExpectedText)
-  }
-
-  protected def doTest(languageId: String, text: String, injectedFileExpectedText: String): Unit = {
+  def doTest(languageId: String, text: String, injectedFileExpectedText: String): Unit = {
     val expectedInjection = ExpectedInjection(
       injectedFileExpectedText.withNormalizedSeparator,
       languageId
@@ -194,15 +152,15 @@ abstract class AbstractLanguageInjectionTestCase extends ScalaLightCodeInsightFi
     doTest(text, expectedInjection)
   }
 
-  protected def doTest(text: String, expectedInjection: ExpectedInjection): Unit = {
-    myFixture.configureByText("A.scala", text)
+  def doTest(text: String, expectedInjection: ExpectedInjection): Unit = {
+    codeInsightFixture.configureByText("A.scala", text)
     val file = injectionTestFixture.getTopLevelFile
-    ensureCaretIsSet(myFixture.getEditor, file.asInstanceOf[ScFile])
+    ensureCaretIsSet(codeInsightFixture.getEditor, file.asInstanceOf[ScFile])
     assertInjected(expectedInjection)
   }
 }
 
-object AbstractLanguageInjectionTestCase {
+object ScalaInjectionTestFixture {
   private def pairToTuple[A, B](pair: kotlin.Pair[A, B]): (A, B) = (pair.getFirst, pair.getSecond)
 
   /**
@@ -252,4 +210,5 @@ object AbstractLanguageInjectionTestCase {
 
   private def findAllStringLiterals(scalaFile: ScFile): Seq[ScStringLiteral] =
     scalaFile.breadthFirst().filterByType[ScStringLiteral].toSeq
+
 }

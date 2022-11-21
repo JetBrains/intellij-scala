@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.injection
 
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.injection.AbstractLanguageInjectionTestCase.{ExpectedInjection, ShredInfo}
+import org.jetbrains.plugins.scala.injection.ScalaInjectionTestFixture.{ExpectedInjection, ShredInfo}
+import org.jetbrains.plugins.scala.injection.InjectionTestUtils.{JsonLangId, RegexpLangId}
 import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
 
-class InterpolatedStringWithInjectionsMultilineTest extends AbstractLanguageInjectionTestCase {
+class InterpolatedStringWithInjectionsMultilineTest extends ScalaLanguageInjectionTestBase {
 
   private def doInjectedViaCommentJsonTest(
     text: String,
@@ -29,7 +30,7 @@ class InterpolatedStringWithInjectionsMultilineTest extends AbstractLanguageInje
       languageId,
       Option(expectedShreds)
     )
-    doTest(textWithComment, expectedInjection)
+    scalaInjectionTestFixture.doTest(textWithComment, expectedInjection)
   }
 
   def testEmptyString(): Unit =
@@ -127,13 +128,13 @@ class InterpolatedStringWithInjectionsMultilineTest extends AbstractLanguageInje
         |InjectionPlaceholder
         |""".stripMargin,
       Seq(
-        ShredInfo((0,0), (4,4), "", ""),
-        ShredInfo((0,21), (10,11), "InjectionPlaceholder", ""),
-        ShredInfo((21,33), (11,23), "", ""),
-        ShredInfo((33,44), (23,34), "", ""),
-        ShredInfo((44,44), (35,35), "", ""),
-        ShredInfo((44,65), (40,41), "InjectionPlaceholder", ""),
-        ShredInfo((65,65), (42,42), "", ""),
+        ShredInfo((0,0), (4,4)),
+        ShredInfo((0,21), (10,11), "InjectionPlaceholder"),
+        ShredInfo((21,33), (11,23)),
+        ShredInfo((33,44), (23,34)),
+        ShredInfo((44,44), (35,35)),
+        ShredInfo((44,65), (40,41), "InjectionPlaceholder"),
+        ShredInfo((65,65), (42,42)),
       )
     )
 

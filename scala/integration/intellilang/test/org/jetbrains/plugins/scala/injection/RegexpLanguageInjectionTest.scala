@@ -20,7 +20,7 @@ object RegexpLanguageInjectionTest {
     testFile: File,
     testName: String,
     testIdx: Int,
-  ) extends AbstractLanguageInjectionTestCase {
+  ) extends ScalaLanguageInjectionTestBase {
 
     // Unused, but needed to suppress inspection that JUnit test class cannot be constructed.
     private[RegexpLanguageInjectionTest] def this() = this(null, null, 0)
@@ -37,7 +37,7 @@ object RegexpLanguageInjectionTest {
     }
 
     private def doRegexTest(text: String, injectedFileExpectedText: String): Unit = {
-      doTest(RegExpLanguage.INSTANCE.getID, text, injectedFileExpectedText)
+      scalaInjectionTestFixture.doTest(RegExpLanguage.INSTANCE.getID, text, injectedFileExpectedText)
     }
   }
 

@@ -4,16 +4,18 @@ import com.intellij.openapi.module.Module
 import com.intellij.patterns.compiler.PatternCompilerImpl.LazyPresentablePattern
 import com.intellij.testFramework.EditorTestUtil
 import org.intellij.plugins.intelliLang.inject.config.{BaseInjection, InjectionPlace}
+import org.jetbrains.plugins.scala.injection.InjectionTestUtils.{JsonLangId, RegexpLangId}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._
 
-class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
+class ScalaLanguageInjectorTest extends ScalaLanguageInjectionTestBase {
 
   import EditorTestUtil.{CARET_TAG => Caret}
 
   private val Quotes = "\"\"\""
+  private lazy val LanguageAnnotationDef = scalaInjectionTestFixture.LanguageAnnotationDef
 
   override def setUpLibraries(implicit module: Module): Unit = {
     super.setUpLibraries
@@ -22,6 +24,35 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
     val interpolatorToLangId = Map("json" -> JsonLangId).asJava
     settings.setIntInjectionMapping(interpolatorToLangId)
     settings.setDisableLangInjection(false)
+  }
+
+  protected def doTestInBody(languageId: String, classBody: String, injectedFileExpectedText: String): Unit = {
+    val classBodyWithIndent = classBody.replaceAll("\n", "\n  ")
+    val text =
+      s"""class A {
+         |  $classBodyWithIndent
+         |}
+         |""".stripMargin
+    scalaInjectionTestFixture.doTest(languageId, text, injectedFileExpectedText)
+  }
+
+  protected def doAnnotationTestInBody(languageId: String, classBody: String, injectedFileExpectedText: String): Unit = {
+    val classBodyWithIndent = classBody.replaceAll("\n", "\n  ")
+    val text =
+      s"""$LanguageAnnotationDef
+         |class A {
+         |  $classBodyWithIndent
+         |}
+         |""".stripMargin
+    scalaInjectionTestFixture.doTest(languageId, text, injectedFileExpectedText)
+  }
+
+  protected def doAnnotationTest(languageId: String, text: String, injectedFileExpectedText: String): Unit = {
+    val textFinal =
+      s"""$LanguageAnnotationDef
+         |$text
+         |""".stripMargin
+    scalaInjectionTestFixture.doTest(languageId, textFinal, injectedFileExpectedText)
   }
 
   ////////////////////////////////////////
@@ -79,7 +110,7 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
         |  "a" : 42
         |}""".stripMargin
 
-    doTest(JsonLangId, body, expected)
+    scalaInjectionTestFixture.doTest(JsonLangId, body, expected)
   }
 
   def testCommentInjection_Multiline_WithMargins(): Unit = {
@@ -165,7 +196,7 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
         |  "a" : 42
         |}""".stripMargin
 
-    doTest(JsonLangId, text, expected)
+    scalaInjectionTestFixture.doTest(JsonLangId, text, expected)
   }
 
   def testInterpolationInjection_MultilineWithMargins(): Unit = {
@@ -307,7 +338,7 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
       """[{ "a" : 42 },
         |{ "b" : 23 }]""".stripMargin
 
-    doTest(JsonLangId, body, expected)
+    scalaInjectionTestFixture.doTest(JsonLangId, body, expected)
   }
 
   def testCommentInjection_StringConcatOfMultilines(): Unit = {
@@ -329,7 +360,7 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
         |  "b" : 23
         |}]""".stripMargin
 
-    doTest(JsonLangId, body, expected)
+    scalaInjectionTestFixture.doTest(JsonLangId, body, expected)
   }
 
   def testCommentInjection_StringConcatOfMultilinesWithLineBreak(): Unit = {
@@ -358,7 +389,7 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
         |  }
         |]""".stripMargin
 
-    doTest(JsonLangId, body, expected)
+    scalaInjectionTestFixture.doTest(JsonLangId, body, expected)
   }
 
   // FIXME: string concat does not detect stripMargin for now
@@ -390,7 +421,7 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
   ////////////////////////////////////////
 
   def testThatAllInjectionPatternsAreCompiled(): Unit = {
-    val injections: Seq[BaseInjection] = intelliLangConfig.getInjections("scala").asScala.toSeq
+    val injections: Seq[BaseInjection] = scalaInjectionTestFixture.intelliLangConfig.getInjections("scala").asScala.toSeq
     for {
       injection <- injections
       place: InjectionPlace <- injection.getInjectionPlaces
@@ -438,7 +469,7 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
         |  world
         |!""".stripMargin
 
-    doTest(RegexpLangId, body, expected)
+    scalaInjectionTestFixture.doTest(RegexpLangId, body, expected)
   }
 
   //TODO: s trip margin + pattern not supported yet
