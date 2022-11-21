@@ -16,9 +16,9 @@ private[cheapRefSearch] final class ForeignEnumSearch(override val shouldProcess
   private val CaseSensitive = true
   private val PsiSearchContext = (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort
 
-  private val buffer: ConcurrentLinkedQueue[ElementUsage] = new ConcurrentLinkedQueue()
-
   override def searchForUsages(ctx: Search.Context): SearchMethodResult = {
+
+    val buffer = new ConcurrentLinkedQueue[ElementUsage]()
 
     val scope = ctx.element.getUseScope
 
@@ -59,11 +59,7 @@ private[cheapRefSearch] final class ForeignEnumSearch(override val shouldProcess
       }
     }
 
-    val result = new SearchMethodResult(buffer.asScala.toSeq, didExitBeforeExhaustion)
-
-    buffer.clear()
-
-    result
+    new SearchMethodResult(buffer.asScala.toSeq, didExitBeforeExhaustion)
   }
 
 }
