@@ -14,7 +14,7 @@ class SharedSourcesModuleType extends ModuleType[DummyModuleBuilder]("SHARED_SOU
 
   override def getDescription: String = SbtBundle.message("sbt.shared.source.module.description")
 
-  override def getNodeIcon(isOpened: Boolean): Icon = AllIcons.Nodes.Package
+  override def getNodeIcon(isOpened: Boolean): Icon = AllIcons.Nodes.ModuleGroup
 }
 
 object SharedSourcesModuleType {
