@@ -23,4 +23,24 @@ abstract class ScLiteralEscaperBase[T <: ScStringLiteral](literal: T)
       offsetFixed + rangeInsideHost.getStartOffset
     }
   }
+
+  /** ATTENTION: <br>
+   * This is a a hacky workaround for SCL-11710<br>
+   * For now this method is only used in one place:
+   * [[com.intellij.psi.impl.source.tree.injected.InjectionRegistrarImpl#createShred]] <br>
+   * It is used very indirectly to determine which handler to use on EnterAction: host file editor or injected file editor.
+   * Host handler is only used if isOneLine=true, otherwise injected file handler is used.
+   * For now we would like Enter action to be handled by [[org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler]]
+   *
+   * @see [[com.intellij.openapi.editor.actionSystem.EditorActionHandler#doIfEnabled]]
+   * @see [[com.intellij.codeInsight.editorActions.EnterHandler#isEnabledForCaret]]
+   */
+  override def isOneLine: Boolean = {
+    // TODO: fix platform in order to do enter handling for host file more directly
+    //myHost.getValue match {
+    //  case str: String => str.indexOf('\n') < 0
+    //  case _ => false
+    // }
+    true
+  }
 }

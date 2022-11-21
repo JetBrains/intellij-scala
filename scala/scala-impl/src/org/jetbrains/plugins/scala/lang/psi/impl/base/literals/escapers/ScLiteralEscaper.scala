@@ -17,10 +17,4 @@ class ScLiteralEscaper(val literal: ScStringLiteral) extends ScLiteralEscaperBas
     )
     parser.parse(chars, outChars)
   }
-
-  override def isOneLine: Boolean =
-    myHost.getValue match {
-      case str: String => str.indexOf('\n') < 0
-      case _ => false
-    }
 }

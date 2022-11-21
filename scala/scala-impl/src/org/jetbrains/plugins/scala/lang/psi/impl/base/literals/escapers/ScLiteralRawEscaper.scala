@@ -18,7 +18,4 @@ class ScLiteralRawEscaper(val literal: ScStringLiteral) extends ScLiteralEscaper
     )
     parser.parse(chars, outChars)
   }
-
-  /** @see [[org.jetbrains.plugins.scala.lang.psi.impl.base.PassthroughLiteralEscaper.isOneLine]] */
-  override def isOneLine: Boolean = true
 }
