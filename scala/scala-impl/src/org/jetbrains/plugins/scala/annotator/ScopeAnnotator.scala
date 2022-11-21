@@ -123,7 +123,7 @@ object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
   }
 
   private def containingClassParams(scope: PsiElement): List[ScClassParameter] = scope match {
-    case (_: ScTemplateBody) && Parent(Parent(aClass: ScClass)) =>
+    case (_: ScTemplateBody) & Parent(Parent(aClass: ScClass)) =>
       aClass.parameters.toList
     case _ => Nil
   }

@@ -19,7 +19,7 @@ class DerivesFilter extends ElementFilter {
     val errorBeforeDerivesStart = leaf.prevLeafs.filterNot(_.is[PsiComment, PsiWhiteSpace]).nextOption()
 
     errorBeforeDerivesStart match {
-      case Some((_: PsiErrorElement) && PrevSibling(typeDefBeforeError: ScTypeDefinition)) =>
+      case Some((_: PsiErrorElement) & PrevSibling(typeDefBeforeError: ScTypeDefinition)) =>
         if (typeDefBeforeError.extendsBlock.derivesClause.isDefined) false
         else {
           // Do not suggest `derives` before `extends` or another `derives`

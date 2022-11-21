@@ -190,7 +190,7 @@ object ScParameterizedType {
       case anyOrNothing@StdType(StdType.Name.Any | StdType.Name.Nothing, _) => anyOrNothing
       // Simplify application of "type-lambda-like" types
       // ((Compound {type S[x] = Type[x]}))#S[A] is replaced with Type[A]
-      case ScProjectionType(ScCompoundType(_, _, aliasMap), _) && ScProjectionType.withActual(alias: ScTypeAliasDefinition, _)
+      case ScProjectionType(ScCompoundType(_, _, aliasMap), _) & ScProjectionType.withActual(alias: ScTypeAliasDefinition, _)
         if aliasMap.contains(alias.name) =>
 
         val subst = ScSubstitutor.bind(alias.typeParameters, typeArgs)

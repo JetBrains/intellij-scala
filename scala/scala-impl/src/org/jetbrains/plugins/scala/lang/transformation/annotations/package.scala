@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.transformation
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
-import org.jetbrains.plugins.scala.extensions.{&&, FirstChild}
+import org.jetbrains.plugins.scala.extensions.{&, FirstChild}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -20,7 +20,7 @@ package object annotations {
     annotationsFor(`type`, ctx).headOption
       .map(function)
       .foreach {
-        case (t: ScSimpleTypeElement) && FirstChild(reference: ScReference) =>
+        case (t: ScSimpleTypeElement) & FirstChild(reference: ScReference) =>
           bindTo(reference, t.getText)
         case _ => // TODO support compound types
       }

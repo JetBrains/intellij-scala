@@ -26,9 +26,9 @@ class TypeAnnotationInspection extends LocalInspectionTool {
       inspect(variable, variable.bindings.head, variable.expr, holder)
     case method: ScFunctionDefinition if method.hasAssign && !method.hasExplicitType && !method.isConstructor =>
       inspect(method, method.nameId, method.body, holder)
-    case (parameter: ScParameter) && Parent(Parent(Parent(_: ScFunctionExpr))) if parameter.typeElement.isEmpty =>
+    case (parameter: ScParameter) & Parent(Parent(Parent(_: ScFunctionExpr))) if parameter.typeElement.isEmpty =>
       inspect(parameter, parameter.nameId, implementation = None, holder)
-    case (underscore: ScUnderscoreSection) && Parent(parent) if underscore.getTextRange.getLength == 1 &&
+    case (underscore: ScUnderscoreSection) & Parent(parent) if underscore.getTextRange.getLength == 1 &&
       !parent.isInstanceOf[ScTypedExpression] && !parent.isInstanceOf[ScFunctionDefinition] &&
       !parent.isInstanceOf[ScPatternDefinition] && !parent.isInstanceOf[ScVariableDefinition] =>
       inspect(underscore, underscore, implementation = None, holder)

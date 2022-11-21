@@ -152,7 +152,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
                                        options: ScalaTypeDefinitionFindUsagesOptions): Boolean = {
     val overriding = inReadAction {
       element match {
-        case (named: ScNamedElement) && inNameContext(member: ScMember) if member.isDefinedInClass =>
+        case (named: ScNamedElement) & inNameContext(member: ScMember) if member.isDefinedInClass =>
           ScalaOverridingMemberSearcher.search(named)
         case _ => Array.empty[PsiNamedElement]
       }

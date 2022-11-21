@@ -333,7 +333,7 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
           else if (count > 0) {
             element.getParent match {
               //case for infix expressions
-              case (ref: ScReferenceExpression) && Parent(inf: ScInfixExpr) if inf.operation == ref =>
+              case (ref: ScReferenceExpression) & Parent(inf: ScInfixExpr) if inf.operation == ref =>
                 if (count > 1) {
                   disableParenthesesCompletionChar()
                   if (!item.etaExpanded) {
@@ -372,7 +372,7 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
                       case '(' => (completionChar, ')', false)
                       case _ =>
                         val (openChar, withSpace) = element match {
-                          case Parent((ref: ScReferenceExpression) && Parent(call: ScMethodCall)) if call.getInvokedExpr == ref && !call.args.prevSibling.exists(s => s.is[PsiWhiteSpace] && s.textContains('\n')) =>
+                          case Parent((ref: ScReferenceExpression) & Parent(call: ScMethodCall)) if call.getInvokedExpr == ref && !call.args.prevSibling.exists(s => s.is[PsiWhiteSpace] && s.textContains('\n')) =>
                             val char = call.args.getNode.getFirstChildNode match {
                               case block: ScBlockExpr => block.getLBrace.fold('(')(_ => '{')
                               case node if node != null && node.getElementType == ScalaTokenTypes.tLBRACE => '{'

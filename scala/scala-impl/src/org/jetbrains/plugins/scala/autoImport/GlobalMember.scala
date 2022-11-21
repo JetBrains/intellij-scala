@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.autoImport
 
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.extensions.{&&, Parent}
+import org.jetbrains.plugins.scala.extensions.{&, Parent}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.{findAllInheritorObjectsForOwner, findInheritorObjectsForOwner, findPackageForTopLevelMember}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -58,7 +58,7 @@ object GlobalMember {
       val fromGivens = member match {
         case fn: ScFunction =>
           fn.extensionMethodOwner.toSet[ScExtension].collect {
-            case Parent((_: ScTemplateBody) && Parent((_: ScExtendsBlock) && Parent(givenDef: ScGivenDefinition))) =>
+            case Parent((_: ScTemplateBody) & Parent((_: ScExtendsBlock) & Parent(givenDef: ScGivenDefinition))) =>
               constructor(GlobalMemberOwner.GivenDefinition(givenDef), givenDef.qualifiedName, member)
           }
         case _ => Set.empty

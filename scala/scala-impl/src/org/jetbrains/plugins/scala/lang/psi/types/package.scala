@@ -456,10 +456,10 @@ package object types {
         case Some(cls: PsiClass) => cls.getTypeParameters.instantiate
         case _                   => Seq.empty
       }
-    case typeParameter: TypeParameterType                          => typeParameter.typeParameters
-    case u: UndefinedType                                          => u.typeParameter.typeParameters
-    case tpt: ScTypePolymorphicType                                => tpt.typeParameters
-    case (_: ScParameterizedType) && AliasType(_, Right(lower), _) => extractTypeParameters(lower)
-    case _                                                         => Seq.empty
+    case typeParameter: TypeParameterType                         => typeParameter.typeParameters
+    case u: UndefinedType                                         => u.typeParameter.typeParameters
+    case tpt: ScTypePolymorphicType                               => tpt.typeParameters
+    case (_: ScParameterizedType) & AliasType(_, Right(lower), _) => extractTypeParameters(lower)
+    case _                                                        => Seq.empty
   }
 }

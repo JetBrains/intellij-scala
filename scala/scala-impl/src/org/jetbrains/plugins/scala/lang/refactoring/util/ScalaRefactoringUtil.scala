@@ -1060,7 +1060,7 @@ object ScalaRefactoringUtil {
     prev match {
       case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
       case _: ScFunction => true
-      case (_: ScFunction) && (_ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
+      case (_: ScFunction) & (_ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
       case ifSt: ScIf if Seq(ifSt.thenExpression, ifSt.elseExpression) contains Option(parExpr) => true
       case forSt: ScFor if forSt.body.orNull == parExpr => true
       case _: ScFor => false

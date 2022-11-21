@@ -22,7 +22,7 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     element match {
-      case Parent((block: ScBlockExpr) && Parent(list: ScArgumentExprList))
+      case Parent((block: ScBlockExpr) & Parent(list: ScArgumentExprList))
         if list.exprs.size == 1 && block.caseClauses.isEmpty =>
         IntentionAvailabilityChecker.checkIntention(this, element) && singleExpressionStatement(block).isDefined
       case _ => false

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.externalLibraries
 
-import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, Parent, StubBasedExt}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScPattern, ScPatternArgumentList, ScTypedPattern}
 
@@ -28,8 +28,8 @@ package object bm4 {
     def unapply(e: ScTypedPattern): Boolean =
       if (e.betterMonadicForEnabled && !e.hasOnlyStub) { // patterns in for comprehensions and case clauses should never appear in stubs
         e match {
-          case ScTypedPattern(_) && Parent(Parent(Implicit0Pattern(_))) => true
-          case _                                                        => false
+          case ScTypedPattern(_) & Parent(Parent(Implicit0Pattern(_))) => true
+          case _                                                       => false
         }
       } else false
   }

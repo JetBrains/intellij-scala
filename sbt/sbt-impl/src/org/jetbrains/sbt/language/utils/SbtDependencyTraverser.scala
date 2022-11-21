@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.language.utils
 
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions.&&
+import org.jetbrains.plugins.scala.extensions.&
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -48,7 +48,7 @@ object SbtDependencyTraverser {
     if (!callback(refExpr)) return
 
     refExpr.resolve() match {
-      case (_: ScReferencePattern) && inNameContext(ScPatternDefinition.expr(expr)) => expr match {
+      case (_: ScReferencePattern) & inNameContext(ScPatternDefinition.expr(expr)) => expr match {
         case infix: ScInfixExpr =>
           traverseInfixExpr(infix)(callback)
         case re: ScReferenceExpression =>

@@ -56,11 +56,11 @@ class TemplateParentsEnterHandler extends EnterHandlerDelegateAdapter {
 object TemplateParentsEnterHandler {
 
   private def isBetweenParentsAndTemplateBody(elementAtCaret: PsiElement): Boolean = elementAtCaret match {
-    case (_: PsiWhiteSpace) && PrevSibling(_: ScTemplateParents) =>
+    case (_: PsiWhiteSpace) & PrevSibling(_: ScTemplateParents) =>
       true
     case (_: LeafPsiElement)
-      && ElementType(ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tCOLON)
-      && Parent((_: ScTemplateBody) && PrevSiblingNotWhitespace(_: ScTemplateParents)) =>
+      & ElementType(ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tCOLON)
+      & Parent((_: ScTemplateBody) & PrevSiblingNotWhitespace(_: ScTemplateParents)) =>
       true
     case _ =>
       false

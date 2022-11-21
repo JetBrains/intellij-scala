@@ -34,7 +34,7 @@ class LanguageFeatureInspection extends LocalInspectionTool {
       }
     },
     Feature(ScalaInspectionBundle.message("language.feature.dynamic.member.selection"), "scala.language", "dynamics", _.dynamics, _.copy(dynamics = true)) {
-      case e@ReferenceTarget(ClassQualifiedName("scala.Dynamic")) && Parent(Parent(Parent(_: ScTemplateParents))) => e
+      case e@ReferenceTarget(ClassQualifiedName("scala.Dynamic")) & Parent(Parent(Parent(_: ScTemplateParents))) => e
     },
     Feature(ScalaInspectionBundle.message("language.feature.implicit.conversion"), "scala.language", "implicitConversions", _.implicitConversions, _.copy(implicitConversions = true)) {
       case e: ScFunctionDefinition if e.getModifierList.isImplicit &&
@@ -44,8 +44,8 @@ class LanguageFeatureInspection extends LocalInspectionTool {
     },
     Feature(ScalaInspectionBundle.message("language.feature.higher.kinded.type"), "scala.language", "higherKinds", _.higherKinds, _.copy(higherKinds = true),
       isEnabledOn = _.scalaMinorVersionOrDefault < scalaVersionSinceWhichHigherKindsAreAlwaysEnabled) {
-      case (e: ScTypeParamClause) && Parent(Parent(_: ScTypeParamClause)) => e
-      case (e: ScTypeParamClause) && Parent(_: ScTypeAliasDeclaration) => e
+      case (e: ScTypeParamClause) & Parent(Parent(_: ScTypeParamClause)) => e
+      case (e: ScTypeParamClause) & Parent(_: ScTypeAliasDeclaration) => e
     },
     Feature(ScalaInspectionBundle.message("language.feature.existential.type"), "scala.language", "existentials", _.existentials, _.copy(existentials = true)) {
       case e: ScExistentialClause => e.firstChild.getOrElse(e) // TODO Exclude reducible existential types

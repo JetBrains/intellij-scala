@@ -106,7 +106,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
 object RenameScalaVariableProcessor {
   private object SyntheticCopyParameter {
     def unapply(p: ScParameter): Option[ScClassParameter] = p.owner match {
-      case (f: ScFunctionDefinition) && ContainingClass(c: ScClass) if c.isCase && f.isCopyMethod && f.isSynthetic =>
+      case (f: ScFunctionDefinition) & ContainingClass(c: ScClass) if c.isCase && f.isCopyMethod && f.isSynthetic =>
         c.parameters.find(_.name == p.name)
       case _ => None
     }

@@ -9,7 +9,7 @@ import com.intellij.psi.{PsiComment, PsiFile}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.editor.importOptimizer.{OptimizeImportSettings, ScalaImportOptimizer}
-import org.jetbrains.plugins.scala.extensions.{&&, ElementText, ElementType, StringExt, executeWriteActionCommand}
+import org.jetbrains.plugins.scala.extensions.{&, ElementText, ElementType, StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.optimize.OptimizeImportsTestBase.OptimizeImportNotificationMessage
@@ -112,7 +112,7 @@ abstract class OptimizeImportsTestBase extends ScalaLightCodeInsightFixtureTestC
 object OptimizeImportsTestBase {
   private object OptimizeImportNotificationMessage {
     def unapply(element: PsiComment): Option[Option[String]] = element match {
-      case ElementType(ScalaTokenTypes.tLINE_COMMENT) && ElementText(text) if text.startsWith(MESSAGE_COMMENT_START) =>
+      case ElementType(ScalaTokenTypes.tLINE_COMMENT) & ElementText(text) if text.startsWith(MESSAGE_COMMENT_START) =>
         val maybeMessage = text.substring(MESSAGE_COMMENT_START.length).trim match {
           case "null" => None
           case message => Some(message)

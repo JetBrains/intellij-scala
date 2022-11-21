@@ -45,9 +45,9 @@ object ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
       } yield new CompilerRef.JavaCompilerFieldRef(owner, name)
 
     element match {
-      case cParam: ScClassParameter                                                     => fieldLikeRef(cParam)
-      case (pat: ScBindingPattern) && inNameContext(v: ScValueOrVariable) if !v.isLocal => fieldLikeRef(pat)
-      case field: PsiField                                                              => fieldLikeRef(field)
+      case cParam: ScClassParameter                                                    => fieldLikeRef(cParam)
+      case (pat: ScBindingPattern) & inNameContext(v: ScValueOrVariable) if !v.isLocal => fieldLikeRef(pat)
+      case field: PsiField                                                             => fieldLikeRef(field)
       case method: PsiMethod =>
         def parametersCount(m: PsiMethod): Int = m match {
           case fn: ScFunction => fn.typeParameters.flatMap(_.contextBound).length + fn.parameters.length
@@ -101,7 +101,7 @@ object ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
 
     def unapply(e: PsiElement): Option[FakePsiMethod] = e match {
       case c: ScClassParameter if !c.isPrivateThis => syntheticGetter(c).toOption
-      case (bp: ScBindingPattern) && inNameContext(v: ScValueOrVariable) if !v.isLocal && !isPrivateThis(v) =>
+      case (bp: ScBindingPattern) & inNameContext(v: ScValueOrVariable) if !v.isLocal && !isPrivateThis(v) =>
         syntheticGetter(bp).toOption
       case _ => None
     }

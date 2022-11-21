@@ -7,7 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
-import org.jetbrains.plugins.scala.extensions.{&&, Parent, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.{isConstructorArgOrMemberFunctionParameter, shouldIndentAfterCaseClause}
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
@@ -183,11 +183,11 @@ class ScalaBlock(val parentBlock: ScalaBlock,
       case _: ScExtension =>
         new ChildAttributes(Indent.getNormalIndent, null)
       // given intOrd: Ord[Int] with <caret+Enter>
-      case (_: ScExtendsBlock) && Parent(_: ScGivenDefinition) =>
+      case (_: ScExtendsBlock) & Parent(_: ScGivenDefinition) =>
         new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
       // given intOrd: Ord[Int] with <caret+Enter> (top level definition, as a last element in file)
       // in this case `com.intellij.formatting.FormatProcessor.getParentFor` doesn't select ScExtendsBlock
-      case (_: ScTemplateParents) && Parent((_: ScExtendsBlock) && Parent(_: ScGivenDefinition)) if lastNode.getElementType == ScalaTokenTypes.kWITH =>
+      case (_: ScTemplateParents) & Parent((_: ScExtendsBlock) & Parent(_: ScGivenDefinition)) if lastNode.getElementType == ScalaTokenTypes.kWITH =>
         new ChildAttributes(Indent.getNormalIndent, null)
       case ElementType(ScalaTokenTypes.kEXTENDS) =>
         if (scalaSettings.ALIGN_EXTENDS_WITH == ScalaCodeStyleSettings.ALIGN_TO_EXTENDS)

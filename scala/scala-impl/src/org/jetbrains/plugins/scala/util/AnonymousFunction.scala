@@ -69,7 +69,7 @@ private[scala] object AnonymousFunction {
         case b: ScBlock if b.isPartialFunction => false //handled in isGenerateAnonfunSimple
         case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
         case ScalaPsiUtil.MethodValue(_) => true
-        case ChildOf(argExprs: ScArgumentExprList) && InsideAsync(call)
+        case ChildOf(argExprs: ScArgumentExprList) & InsideAsync(call)
           if call.args == argExprs => true
         case _ => false
       }

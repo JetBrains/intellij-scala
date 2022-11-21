@@ -8,7 +8,7 @@ import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiMemberExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScValueOrVariable, ScVariableDefinition}
@@ -102,7 +102,7 @@ object ScalaDocGenerator {
       case decl: ScValueOrVariable   => Some(decl)
       case pattern: ScBindingPattern =>
         pattern.nameContext match {
-          case (definition: ScValueOrVariable) && (_: ScPatternDefinition | _: ScVariableDefinition) =>
+          case (definition: ScValueOrVariable) & (_: ScPatternDefinition | _: ScVariableDefinition) =>
             Some(definition)
           case _ => None
         }

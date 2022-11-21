@@ -6,7 +6,7 @@ import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{&&, Parent, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTuplePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -57,7 +57,7 @@ final class UTestConfigurationProducer extends AbstractTestConfigurationProducer
 
   private def buildTestPath(testExpr: ScExpression, testScopeName: String): Option[String] = {
     testExpr match {
-      case (_: ScInfixExpr | _: ScMethodCall) && Parent(block: ScBlockExpr) => block.getParent match {
+      case (_: ScInfixExpr | _: ScMethodCall) & Parent(block: ScBlockExpr) => block.getParent match {
         case argList: ScArguments =>
           argList.getParent match {
             case call: ScMethodCall if TestNodeProvider.isUTestSuiteApplyCall(call) || TestNodeProvider.isUTestTestsCall(call) =>

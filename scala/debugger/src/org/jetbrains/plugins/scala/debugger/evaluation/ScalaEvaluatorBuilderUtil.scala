@@ -815,7 +815,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val isLocalValue = DebuggerUtil.isLocalV(resolve)
 
     resolve match {
-      case isInsideLocalFunction(fun) && (named: PsiNamedElement) if isLocalValue =>
+      case isInsideLocalFunction(fun) & (named: PsiNamedElement) if isLocalValue =>
         ScalaDuplexEvaluator(calcLocal(named), parameterEvaluator(fun, resolve))
       case p: ScParameter if p.isCallByNameParameter =>
         byNameParamEvaluator(ref, p, computeValue = true)
@@ -1731,7 +1731,7 @@ object ScalaEvaluatorBuilderUtil {
     def unapply(elem: PsiElement): Option[ScNamedElement] = {
       elem match {
         case c: ScClassParameter if c.isPrivateThis => Some(c)
-        case (bp: ScBindingPattern) && ScalaPsiUtil.inNameContext(v @ (_: ScVariable | _: ScValue)) =>
+        case (bp: ScBindingPattern) & ScalaPsiUtil.inNameContext(v @ (_: ScVariable | _: ScValue)) =>
           v match {
             case mo: ScModifierListOwner if mo.getModifierList.accessModifier.exists(am => am.isPrivate && am.isThis) => Some(bp)
             case _ => None

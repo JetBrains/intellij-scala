@@ -75,7 +75,7 @@ object AnnotatorUtils {
 
     def isResultOfFunctionLiteral = e match {
       case Parent(_: ScFunctionExpr) => true
-      case Parent(Parent((_: ScFunctionExpr) && Parent(_: ScBlockExpr))) => true
+      case Parent(Parent((_: ScFunctionExpr) & Parent(_: ScBlockExpr))) => true
       case _ => false
     }
 

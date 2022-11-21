@@ -64,7 +64,7 @@ object AbstractTypeAnnotationIntention {
   private[types] def underscoreSectionParent(element: PsiElement): Option[ScUnderscoreSection] = {
     element.withParentsInFile.collectFirst {
       case underscore: ScUnderscoreSection => underscore
-      case (_: ScTypedExpression) && FirstChild(underscore: ScUnderscoreSection) => underscore
+      case (_: ScTypedExpression) & FirstChild(underscore: ScUnderscoreSection) => underscore
     }
   }
 

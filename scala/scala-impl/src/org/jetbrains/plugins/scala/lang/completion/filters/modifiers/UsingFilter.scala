@@ -24,7 +24,7 @@ class UsingFilter extends ElementFilter {
         case param: ScParameter => isAfterLeftParen(param)
         case arg: ScReferenceExpression if arg.getParent.is[ScArgumentExprList] =>
           isAfterLeftParen(arg)
-        case (_: ScStableCodeReference) && Parent(tpe: ScSimpleTypeElement) if isAfterLeftParen(tpe) =>
+        case (_: ScStableCodeReference) & Parent(tpe: ScSimpleTypeElement) if isAfterLeftParen(tpe) =>
           isAfterGiven(tpe.getPrevSibling)
         case _ => false
       }

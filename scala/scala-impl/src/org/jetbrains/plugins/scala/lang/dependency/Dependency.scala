@@ -160,20 +160,20 @@ object Dependency {
           case e: PsiClass => create(e)
           case e: PsiPackage => create(e)
           case Constructor.ofClass(c) => create(c)
-          case (function: ScFunctionDefinition) && ContainingClass(obj: ScObject)
+          case (function: ScFunctionDefinition) & ContainingClass(obj: ScObject)
             if function.isSynthetic || function.name == "apply" || function.name == "unapply" => create(obj)
-          case (member: ScMember) && ContainingClass(obj: ScObject) =>
+          case (member: ScMember) & ContainingClass(obj: ScObject) =>
             val memberName = member match {
               case named: ScNamedElement => named.name
               case _ => member.getName
             }
             create(obj, Some(memberName))
-          case (pattern: ScReferencePattern) && Parent(Parent(ContainingClass(obj: ScObject))) =>
+          case (pattern: ScReferencePattern) & Parent(Parent(ContainingClass(obj: ScObject))) =>
             create(obj, Some(pattern.name))
-          case (method: PsiMember) && ContainingClass(e: PsiClass)
+          case (method: PsiMember) & ContainingClass(e: PsiClass)
             if method.getModifierList.hasModifierProperty("static") =>
             create(e, Some(method.getName))
-          case (member: PsiMember) && ContainingClass(e: PsiClass) =>
+          case (member: PsiMember) & ContainingClass(e: PsiClass) =>
             fromType.flatMap(_.extractClass) match {
               case Some(entity: ScObject) =>
                 val memberName = member match {

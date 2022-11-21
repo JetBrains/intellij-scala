@@ -7,7 +7,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix._
-import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, Parent}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -108,7 +108,7 @@ object FunctionAnnotator {
   val TailrecAnnotationFQN = "scala.annotation.tailrec"
 
   def canBeTailRecursive(function: ScFunctionDefinition): Boolean = function.getParent match {
-    case (_: ScTemplateBody) && Parent(Parent(owner: ScTypeDefinition)) =>
+    case (_: ScTemplateBody) & Parent(Parent(owner: ScTypeDefinition)) =>
       owner.is[ScObject] ||
         owner.getModifierList.isFinal || {
         function.getModifierList match {

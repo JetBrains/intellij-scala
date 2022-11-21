@@ -22,12 +22,12 @@ class ExtendsFilter extends ElementFilter {
     val errorBeforeExtendsStart = leaf.prevLeafs.filterNot(_.is[PsiComment, PsiWhiteSpace]).nextOption()
 
     errorBeforeExtendsStart match {
-      case Some((_: PsiErrorElement) && PrevSibling(typeDefBeforeError: ScTypeDefinition)) =>
+      case Some((_: PsiErrorElement) & PrevSibling(typeDefBeforeError: ScTypeDefinition)) =>
         !hasTemplateParents(typeDefBeforeError) &&
           // do not suggest if there is already an extends. i.e.:
           // class Test e<caret> extends
           !afterExtends(leaf)
-      case Some((_: PsiErrorElement) && PrevSibling(cases: ScEnumCases)) =>
+      case Some((_: PsiErrorElement) & PrevSibling(cases: ScEnumCases)) =>
         !cases.declaredElements.exists(hasTemplateParents) && !afterExtends(leaf)
       case _ =>
         false

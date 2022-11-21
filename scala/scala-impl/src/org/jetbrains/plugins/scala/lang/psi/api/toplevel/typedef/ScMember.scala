@@ -6,7 +6,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiModifier}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.ModTracker
-import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, Parent, StubBasedExt}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -176,7 +176,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   }
 
   private def getSourceMirrorMember: ScMember = getParent match {
-    case (_: ScTemplateBody) && Parent((_: ScExtendsBlock) && Parent(td: ScTypeDefinition)) =>
+    case (_: ScTemplateBody) & Parent((_: ScExtendsBlock) & Parent(td: ScTypeDefinition)) =>
       val navigationElement = td.getNavigationElement
       navigationElement match {
         case typeDefinition: ScTypeDefinition =>

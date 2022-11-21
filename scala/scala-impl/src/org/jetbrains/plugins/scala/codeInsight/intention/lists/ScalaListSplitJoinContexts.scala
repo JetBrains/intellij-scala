@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import kotlin.Pair
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{&&, Parent}
+import org.jetbrains.plugins.scala.extensions.{&, Parent}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScTypeArgs, ScTypes}
@@ -44,7 +44,7 @@ final class ScalaSplitJoinArgumentsContext extends AbstractScalaSplitJoinContext
 
   override def extractData(element: PsiElement): ListWithElements =
     element match {
-      case Parent((list: ScArgumentExprList) && Parent(_: ScMethodCall | _: ScConstructorInvocation)) =>
+      case Parent((list: ScArgumentExprList) & Parent(_: ScMethodCall | _: ScConstructorInvocation)) =>
         new ListWithElements(list, list.exprs.asJava)
       case _ => null
     }
@@ -79,7 +79,7 @@ final class ScalaSplitJoinTupleTypesContext extends AbstractScalaSplitJoinContex
 
   override def extractData(element: PsiElement): ListWithElements =
     element match {
-      case Parent((_: ScTypes) && Parent(tupleType: ScTupleTypeElement)) =>
+      case Parent((_: ScTypes) & Parent(tupleType: ScTupleTypeElement)) =>
         new ListWithElements(tupleType, tupleType.components.asJava)
       case Parent(tupleType: ScTupleTypeElement) =>
         new ListWithElements(tupleType, tupleType.components.asJava)

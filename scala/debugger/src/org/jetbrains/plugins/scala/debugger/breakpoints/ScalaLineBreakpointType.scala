@@ -210,7 +210,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
             val clazz = PsiTreeUtil.getParentOfType(ed, classOf[ScTypeDefinition])
             if (clazz != null) DebuggerBundle.message("breakpoint.location.early.definitions.of", clazz.name)
             else DebuggerBundle.message("breakpoint.location.line.in.containing.block")
-          case (_: ScFunction) && (named: ScNamedElement) => DebuggerBundle.message("breakpoint.location.line.in.function", named.name)
+          case (_: ScFunction) & (named: ScNamedElement) => DebuggerBundle.message("breakpoint.location.line.in.function", named.name)
           case _: ScalaFile => DebuggerBundle.message("breakpoint.location.line.in.containing.file")
           case _ => DebuggerBundle.message("breakpoint.location.line.in.containing.block")
         }

@@ -100,7 +100,7 @@ class Source3Inspection extends LocalInspectionTool {
                 .asInstanceOf[ScConstructorPattern].args.patterns.head
             }
           )
-        case withKw@ElementType(ScalaTokenTypes.kWITH) && Parent(compoundType: ScCompoundTypeElement) if convertCompoundTypes &&
+        case withKw@ElementType(ScalaTokenTypes.kWITH) & Parent(compoundType: ScCompoundTypeElement) if convertCompoundTypes &&
           features.`& instead of with` && !compoundType.getParent.is[ScTypePattern] =>
           holder.registerProblem(
             withKw,

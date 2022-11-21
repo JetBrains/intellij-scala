@@ -414,7 +414,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val macroEvaluator = ScalaMacroEvaluator.getInstance(fun.getProject)
         val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(qualifier, None))
         typeFromMacro.foreach(processor.processType(_, qualifier))
-      case ScalaResolveResult((_: ScTypedDefinition) && Typeable(tp), s) =>
+      case ScalaResolveResult((_: ScTypedDefinition) & Typeable(tp), s) =>
         val fromType = s(tp)
         val state = ScalaResolveState.withFromType(fromType)
         processor.processType(fromType, this, state)

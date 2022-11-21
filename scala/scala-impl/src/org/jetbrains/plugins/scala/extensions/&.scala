@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala.extensions
 
-object && {
+object & {
   def unapply[T](obj: T): Some[(T, T)] = Some((obj, obj))
 }

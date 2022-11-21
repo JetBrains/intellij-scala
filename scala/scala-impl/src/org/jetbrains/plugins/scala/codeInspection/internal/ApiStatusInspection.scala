@@ -13,7 +13,7 @@ class ApiStatusInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case fun: ScFunction =>
       fun.superMethod.collectFirst {
-        case Status(status) && sup if !fun.containingFile.exists(sup.containingFile.contains) =>
+        case Status(status) & sup if !fun.containingFile.exists(sup.containingFile.contains) =>
           val name = fun.name
           holder.registerProblem(fun.nameId, ScalaInspectionBundle.message("super.method.name.is.marked.as.status", name, status))
       }

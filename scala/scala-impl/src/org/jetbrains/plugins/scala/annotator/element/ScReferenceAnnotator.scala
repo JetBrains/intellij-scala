@@ -278,7 +278,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           td => new CreateApplyQuickFix(td, mc)
         ) =>
           return
-        case (p: ScPattern) && (_: ScConstructorPattern | _: ScInfixPattern) =>
+        case (p: ScPattern) & (_: ScConstructorPattern | _: ScInfixPattern) =>
           val errorWithRefName: String => String = ScalaBundle.message("cannot.resolve.unapply.method", _)
           if (addCreateApplyOrUnapplyFix(errorWithRefName, td => new CreateUnapplyQuickFix(td, p))) return
         case scalaDocTag: ScDocTag if scalaDocTag.getName == MyScaladocParsing.THROWS_TAG => return //see SCL-9490

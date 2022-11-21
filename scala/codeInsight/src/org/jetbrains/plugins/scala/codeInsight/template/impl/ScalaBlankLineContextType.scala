@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.template.impl
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
-import org.jetbrains.plugins.scala.extensions.{&&, Parent, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
@@ -14,7 +14,7 @@ final class ScalaBlankLineContextType
                                     (implicit file: ScalaFile): Boolean = {
     val element = file.findElementAt(offset)
     element match {
-      case (_: LeafPsiElement) && Parent(ref: ScReference) => // some prefix of `apply`
+      case (_: LeafPsiElement) & Parent(ref: ScReference) => // some prefix of `apply`
         ref.startsFromNewLine(false) && ref.followedByNewLine(false)
       case ws: PsiWhiteSpace =>
         // this check can be not enough when a user tries to search for some template
