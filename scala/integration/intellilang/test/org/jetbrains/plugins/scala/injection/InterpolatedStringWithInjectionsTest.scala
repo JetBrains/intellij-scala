@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.injection
 
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.injection.AbstractLanguageInjectionTestCase.{ExpectedInjection, ShredInfo}
+import org.jetbrains.plugins.scala.injection.ScalaInjectionTestFixture.{ExpectedInjection, ShredInfo}
+import org.jetbrains.plugins.scala.injection.InjectionTestUtils.{JsonLangId, RegexpLangId}
 import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
 
-class InterpolatedStringWithInjectionsTest extends AbstractLanguageInjectionTestCase {
+class InterpolatedStringWithInjectionsTest extends ScalaLanguageInjectionTestBase {
 
   private def doInjectedRegexpTest(
     text: String,
@@ -16,7 +17,7 @@ class InterpolatedStringWithInjectionsTest extends AbstractLanguageInjectionTest
       RegexpLangId,
       Option(expectedShreds)
     )
-    doTest(text, expectedInjection)
+    scalaInjectionTestFixture.doTest(text, expectedInjection)
   }
 
   def testEmptyString(): Unit =
@@ -27,7 +28,7 @@ class InterpolatedStringWithInjectionsTest extends AbstractLanguageInjectionTest
     )
 
   def testOnlyText(): Unit =
-    doTest(
+    scalaInjectionTestFixture.doTest(
       """s"abc".r""",
       ExpectedInjection(
         """abc""",
@@ -39,7 +40,7 @@ class InterpolatedStringWithInjectionsTest extends AbstractLanguageInjectionTest
 
   //With some plain content
   def testInjectionsInTheMiddle(): Unit = {
-    doTest(
+    scalaInjectionTestFixture.doTest(
       """s"aaa $foo bbb $foo ccc".r""",
       ExpectedInjection(
         """aaa InjectionPlaceholder bbb InjectionPlaceholder ccc""",
@@ -199,7 +200,7 @@ class InterpolatedStringWithInjectionsTest extends AbstractLanguageInjectionTest
   //Different ways of injections
   //
   def testInjectionViaComment(): Unit =
-    doTest(
+    scalaInjectionTestFixture.doTest(
       """//language=JSON
         |s"hello ${foo} world $foo !"""".stripMargin,
       ExpectedInjection(
@@ -214,7 +215,7 @@ class InterpolatedStringWithInjectionsTest extends AbstractLanguageInjectionTest
     )
 
   def testInjectionViaAnnotation(): Unit =
-    doTest(
+    scalaInjectionTestFixture.doTest(
       s"""class Language(val value: String) extends scala.annotation.StaticAnnotation
          |
          |class A {
@@ -234,7 +235,7 @@ class InterpolatedStringWithInjectionsTest extends AbstractLanguageInjectionTest
     )
 
   def testInjectionViaStringInterpolator(): Unit =
-    doTest(
+    scalaInjectionTestFixture.doTest(
       s"""json"hello $${foo} ${CARET}world $$foo !"
          |
          |implicit class StringContextOps(val sc: StringContext) {
@@ -257,7 +258,7 @@ class InterpolatedStringWithInjectionsTest extends AbstractLanguageInjectionTest
   //
 
   def testConcatenationOfInterpolatedStrings(): Unit =
-    doTest(
+    scalaInjectionTestFixture.doTest(
       s"""object Wrapper {
          |  val foo = 42
          |  //language=RegExp prefix=myPrefix suffix=mySuffix
