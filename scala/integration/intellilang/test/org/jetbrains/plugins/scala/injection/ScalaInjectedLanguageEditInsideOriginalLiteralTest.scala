@@ -11,6 +11,21 @@ class ScalaInjectedLanguageEditInsideOriginalLiteralTest extends EditorActionTes
   import EditorTestUtil.{CARET_TAG => Caret}
   import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
 
+  private var scalaInjectionTestFixture: ScalaInjectionTestFixture = _
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    scalaInjectionTestFixture = new ScalaInjectionTestFixture(getProject, getFixture)
+  }
+
+  private def doEnterTestInInjection(before: String, after: String): Unit = {
+    performTest(before, after) { () =>
+      scalaInjectionTestFixture.assertHasSomeInjectedLanguageAtCaret()
+      performEnterAction()
+    }
+  }
+
   def testInsertMarginCharOnEnterInsideInjectedFileInMultilineString(): Unit = {
     val before =
       s"""val x =
@@ -31,10 +46,7 @@ class ScalaInjectedLanguageEditInsideOriginalLiteralTest extends EditorActionTes
          |    |}$Quotes.stripMargin
          |""".stripMargin
 
-    // TODO: we should also test that language is actually injected, and we edit not just a common string
-    //  we can't mixin AbstractLanguageInjectionTestCase easily now
-    //  wait until we migrate to 192 branch, where tests hierarchy is refactored
-    checkGeneratedTextAfterEnter(before, after)
+    doEnterTestInInjection(before, after)
   }
 
   def testInsertMarginCharOnEnterInsideInjectedFileInMultilineStringWithNonDefaultMargin(): Unit = {
@@ -57,7 +69,7 @@ class ScalaInjectedLanguageEditInsideOriginalLiteralTest extends EditorActionTes
          |    #}$Quotes.stripMargin('#')
          |""".stripMargin
 
-    checkGeneratedTextAfterEnter(before, after)
+    doEnterTestInInjection(before, after)
   }
 
   def testInsertMarginCharOnEnterInsideInjectedFileInMultilineInterpolatedString(): Unit = {
@@ -80,7 +92,7 @@ class ScalaInjectedLanguageEditInsideOriginalLiteralTest extends EditorActionTes
          |     |}$Quotes.stripMargin
          |""".stripMargin
 
-    checkGeneratedTextAfterEnter(before, after)
+    doEnterTestInInjection(before, after)
   }
 
   def testInsertMarginCharOnEnterInsideInjectedFileInMultilineInterpolatedStringWithNonDefaultMargin(): Unit = {
@@ -103,7 +115,6 @@ class ScalaInjectedLanguageEditInsideOriginalLiteralTest extends EditorActionTes
          |     #}$Quotes.stripMargin('#')
          |""".stripMargin
 
-    checkGeneratedTextAfterEnter(before, after)
+    doEnterTestInInjection(before, after)
   }
-
 }
