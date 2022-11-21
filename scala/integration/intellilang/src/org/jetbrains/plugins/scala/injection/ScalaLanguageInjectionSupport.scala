@@ -1,11 +1,9 @@
-package org.jetbrains.plugins.scala
-package injection
+package org.jetbrains.plugins.scala.injection
 
 import com.intellij.psi.PsiLanguageInjectionHost
-import org.intellij.plugins.intelliLang.inject.AbstractLanguageInjectionSupport
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.intellij.plugins.intelliLang.inject.{AbstractLanguageInjectionSupport, TemporaryPlacesRegistry}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.patterns.ScalaPatterns
 
 final class ScalaLanguageInjectionSupport extends AbstractLanguageInjectionSupport {
@@ -18,4 +16,14 @@ final class ScalaLanguageInjectionSupport extends AbstractLanguageInjectionSuppo
   override def useDefaultInjector(host: PsiLanguageInjectionHost): Boolean = false
 
   override def useDefaultCommentInjector: Boolean = false
+
+  override def removeInjectionInPlace(host: PsiLanguageInjectionHost): Boolean = {
+    if (!host.isInstanceOf[ScExpression])
+      return false
+    val project = host.getProject
+    val registry = TemporaryPlacesRegistry.getInstance(project)
+    if (registry == null)
+      return false
+    registry.removeHostWithUndo(project, host)
+  }
 }
