@@ -51,11 +51,14 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
 
   //plugin example:
   // ~/Coursier/cache/v1/https/repo1.maven.org/maven2/org/scala-js/scalajs-compiler_2.13.6/1.7.1/scalajs-compiler_2.13.6-1.7.1.jar
-  val isScalaJs: Boolean = compilerPlugins.contains("scala-js") ||
+  val isScalaJs: Boolean = compilerPlugins.exists(p => p.contains("scalajs") || p.contains("scala-js")) ||
     //Scala 3 relies on the compiler flag
     additionalCompilerOptions.contains("-scalajs")
 
-  val isScalaNative: Boolean = compilerPlugins.contains("scala-native")
+  //plugin example:
+  //~/Coursier/cache/v1/https/repo1.maven.org/maven2/org/scala-native/nscplugin_3.2.1/0.4./nscplugin_3.2.1-0.4.7.jar
+  val isScalaNative: Boolean =
+    compilerPlugins.exists(p => p.contains("scala-native") || p.contains("nscplugin"))
 
   val sbtVersion: Option[Version] =
     SbtSettings.getInstance(module.getProject)
