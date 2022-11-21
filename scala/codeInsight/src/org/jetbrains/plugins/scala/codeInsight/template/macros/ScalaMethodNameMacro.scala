@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package macros
+package org.jetbrains.plugins.scala.codeInsight.template.macros
 
-import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.template._
+import com.intellij.ide.IdeDeprecatedMessagesBundle
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
@@ -16,5 +13,5 @@ final class ScalaMethodNameMacro extends ScalaMacro {
 
   override def getDefaultValue: String = ScalaMacro.DefaultValue
 
-  override def getPresentableName: String = CodeInsightBundle.message("macro.methodname")
+  override def getPresentableName: String = IdeDeprecatedMessagesBundle.message("macro.methodname")
 }

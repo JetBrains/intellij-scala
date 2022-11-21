@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.conversion.copy;
 
 import com.intellij.CommonBundle;
-import com.intellij.codeInsight.CodeInsightBundle;
 import com.intellij.ide.util.FQNameCellRenderer;
+import com.intellij.java.JavaBundle;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.VerticalFlowLayout;
@@ -20,7 +20,6 @@ import java.util.List;
 import static com.intellij.util.ui.UIUtil.ComponentStyle.SMALL;
 import static com.intellij.util.ui.UIUtil.FontColor.BRIGHTER;
 
-@SuppressWarnings(value = "unchecked")
 class RestoreReferencesDialog extends DialogWrapper {
   private final String[] myNamedElements;
   private JList<String> myList;
@@ -37,10 +36,10 @@ class RestoreReferencesDialog extends DialogWrapper {
       }
     }
     if (myContainsClassesOnly) {
-      setTitle(CodeInsightBundle.message("dialog.import.on.paste.title"));
+      setTitle(JavaBundle.message("dialog.import.on.paste.title"));
     }
     else {
-      setTitle(CodeInsightBundle.message("dialog.import.on.paste.title2"));
+      setTitle(JavaBundle.message("dialog.import.on.paste.title2"));
     }
     init();
 
@@ -61,8 +60,8 @@ class RestoreReferencesDialog extends DialogWrapper {
     panel.add(ScrollPaneFactory.createScrollPane(myList), BorderLayout.CENTER);
 
     panel.add(new JBLabel(myContainsClassesOnly ?
-                          CodeInsightBundle.message("dialog.paste.on.import.text") :
-                          CodeInsightBundle.message("dialog.paste.on.import.text2"), SMALL, BRIGHTER), BorderLayout.NORTH);
+                          JavaBundle.message("dialog.paste.on.import.text") :
+                          JavaBundle.message("dialog.paste.on.import.text2"), SMALL, BRIGHTER), BorderLayout.NORTH);
 
     final JPanel buttonPanel = new JPanel(new VerticalFlowLayout());
     final JButton okButton = new JButton(CommonBundle.getOkButtonText());

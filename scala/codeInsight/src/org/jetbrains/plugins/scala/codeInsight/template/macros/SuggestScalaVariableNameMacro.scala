@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package macros
+package org.jetbrains.plugins.scala.codeInsight.template.macros
 
-import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
+import com.intellij.ide.IdeDeprecatedMessagesBundle
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -36,7 +33,7 @@ final class SuggestScalaVariableNameMacro extends ScalaMacro {
       .headOption
       .orNull
 
-  override def getPresentableName: String = CodeInsightBundle.message("macro.suggest.variable.name")
+  override def getPresentableName: String = IdeDeprecatedMessagesBundle.message("macro.suggest.variable.name")
 
   override def getDefaultValue: String = "value"
 

@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package macros
+package org.jetbrains.plugins.scala.codeInsight.template.macros
 
-import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.template._
+import com.intellij.java.JavaBundle
 
 final class ScalaIterableComponentTypeMacro extends ScalaMacro {
 
@@ -24,5 +21,5 @@ final class ScalaIterableComponentTypeMacro extends ScalaMacro {
 
   override def getDefaultValue: String = ScalaMacro.DefaultValue
 
-  override def getPresentableName: String = CodeInsightBundle.message("macro.iterable.component.type")
+  override def getPresentableName: String = JavaBundle.message("macro.iterable.component.type")
 }

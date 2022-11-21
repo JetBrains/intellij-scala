@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala
-package testingSupport
+package org.jetbrains.plugins.scala.testingSupport
 
-import com.intellij.codeInsight.{CodeInsightBundle, CodeInsightUtil}
+import com.intellij.codeInsight.CodeInsightUtil
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, FileTemplateUtil}
+import com.intellij.java.JavaBundle
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
@@ -12,6 +12,7 @@ import com.intellij.psi._
 import com.intellij.refactoring.util.classMembers.MemberInfo
 import com.intellij.testIntegration.createTest.{CreateTestDialog, TestGenerator}
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil
@@ -43,8 +44,8 @@ class ScalaTestGenerator extends TestGenerator {
         } catch {
           case _: IncorrectOperationException =>
             invokeLater {
-              val message = CodeInsightBundle.message("intention.error.cannot.create.class.message", dialog.getClassName)
-              val title = CodeInsightBundle.message("intention.error.cannot.create.class.title")
+              val message = JavaBundle.message("intention.error.cannot.create.class.message", dialog.getClassName)
+              val title = JavaBundle.message("intention.error.cannot.create.class.title")
               Messages.showErrorDialog(project, message, title)
             }
             null
@@ -92,7 +93,6 @@ class ScalaTestGenerator extends TestGenerator {
       addSuperClass(typeDefinition, psiClass, fqName)
     }
     val positionElement = typeDefinition.extendsBlock.templateBody.map(_.getFirstChild).getOrElse(typeDefinition)
-    val editor: Editor = CodeInsightUtil.positionCursor(project, file, positionElement)
     addTestMethods(
       typeDefinition,
       dialog.getSelectedMethods.asScala.toSeq,

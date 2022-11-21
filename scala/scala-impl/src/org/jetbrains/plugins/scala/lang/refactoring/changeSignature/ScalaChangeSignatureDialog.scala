@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightLevelUtil}
+import com.intellij.java.refactoring.JavaRefactoringBundle
 import com.intellij.openapi.actionSystem.{AnActionEvent, CustomShortcutSet}
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.fileTypes.LanguageFileType
@@ -8,9 +9,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{util => _, _}
+import com.intellij.refactoring.BaseRefactoringProcessor
 import com.intellij.refactoring.changeSignature.{CallerChooserBase, ChangeSignatureDialogBase, ParameterTableModelItemBase}
 import com.intellij.refactoring.ui.{CodeFragmentTableCellEditorBase, StringTableCellEditor, VisibilityPanelBase}
-import com.intellij.refactoring.{BaseRefactoringProcessor, RefactoringBundle}
 import com.intellij.ui.table.{JBTable, TableView}
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{util => _, _}
@@ -18,7 +19,6 @@ import com.intellij.util.Consumer
 import com.intellij.util.ui.table.{JBListTable, JBTableRowEditor, JBTableRowRenderer}
 import com.intellij.util.ui.{StartupUiUtil, UIUtil}
 import org.jetbrains.plugins.scala.extensions.invokeLater
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMe
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel
 import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 
 import java.awt._
 import java.awt.event.ActionEvent
@@ -245,9 +246,9 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
     if (myReturnTypeCodeFragment != null) {
       if (myReturnTypeCodeFragment.getText.isEmpty)
-        problems += RefactoringBundle.message("changeSignature.no.return.type")
+        problems += JavaRefactoringBundle.message("changeSignature.no.return.type")
       else if (returnTypeText.isEmpty)
-        problems += RefactoringBundle.message("changeSignature.wrong.return.type", myReturnTypeCodeFragment.getText)
+        problems += JavaRefactoringBundle.message("changeSignature.wrong.return.type", myReturnTypeCodeFragment.getText)
     }
 
     val paramNames = paramItems.map(_.parameter.name)

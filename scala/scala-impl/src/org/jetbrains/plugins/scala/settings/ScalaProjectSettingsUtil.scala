@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.settings
 
+import com.intellij.java.JavaBundle
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.ui._
@@ -98,7 +98,7 @@ object ScalaProjectSettingsUtil {
       val validator: InputValidator = ScalaProjectSettingsUtil.getPackageValidator
       val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
       addPattern(pattern, patternJBList)
-    }).addExtraAction(new AnActionButton(ApplicationBundle.message("button.add.blank"), IconUtil.getAddBlankLineIcon) {
+    }).addExtraAction(new AnActionButton(JavaBundle.message("button.add.blank"), IconUtil.getAddBlankLineIcon) {
       override def actionPerformed(e: AnActionEvent): Unit = {
         addPattern(ScalaCodeStyleSettings.BLANK_LINE, patternJBList)
       }

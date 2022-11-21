@@ -1,21 +1,18 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package generation
-package ui
+package org.jetbrains.plugins.scala.codeInsight.generation.ui
 
-import java.util
-
-import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.generation.ui.AbstractGenerateEqualsWizard
+import com.intellij.java.JavaBundle
 import com.intellij.openapi.project.Project
 import com.intellij.refactoring.classMembers.AbstractMemberInfoModel
 import com.intellij.refactoring.ui.AbstractMemberSelectionPanel
-import com.intellij.util.containers.HashMap
+import org.jetbrains.plugins.scala.codeInsight.generation.{fields, isVar}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
+import java.util
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
+import com.intellij.util.containers.HashMap
 
 final class ScalaGenerateEqualsWizard(clazz: ScClass, needEquals: Boolean, needHashCode: Boolean)
                                      (implicit project: Project)
@@ -42,7 +39,7 @@ object ScalaGenerateEqualsWizard {
     }
 
     override protected val getEqualsPanel: AbstractMemberSelectionPanel[ScNamedElement, ScalaMemberInfo] =
-      if (needEquals) new ScalaMemberSelectionPanel(CodeInsightBundle.message("generate.equals.hashcode.equals.fields.chooser.title"), getClassFields)(ScalaEqualsMemberInfoModel)
+      if (needEquals) new ScalaMemberSelectionPanel(JavaBundle.message("generate.equals.hashcode.equals.fields.chooser.title"), getClassFields)(ScalaEqualsMemberInfoModel)
       else null
 
     override protected val getFieldsToHashCode: HashMap[ScNamedElement, ScalaMemberInfo] @nowarn("cat=deprecation") =
@@ -60,7 +57,7 @@ object ScalaGenerateEqualsWizard {
           case fields if needEquals => updateInfos(fields)
           case fields => fields
         }
-        new ScalaMemberSelectionPanel(CodeInsightBundle.message("generate.equals.hashcode.hashcode.fields.chooser.title"), classFields)(ScalaHashCodeMemberInfoModel)
+        new ScalaMemberSelectionPanel(JavaBundle.message("generate.equals.hashcode.hashcode.fields.chooser.title"), classFields)(ScalaHashCodeMemberInfoModel)
       }
       else null
 

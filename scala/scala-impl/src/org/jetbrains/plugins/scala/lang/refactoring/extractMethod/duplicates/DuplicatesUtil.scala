@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.find.FindManager
+import com.intellij.java.refactoring.JavaRefactoringBundle
 import com.intellij.openapi.application.{ApplicationManager, ApplicationNamesInfo}
 import com.intellij.openapi.editor.colors.EditorColors
 import com.intellij.openapi.editor.markup.RangeHighlighter
@@ -107,7 +108,7 @@ object DuplicatesUtil {
     }
 
   private def showPromptDialog(methodName: String, idx: Int, size: Int, project: Project) = {
-    val title = RefactoringBundle.message("process.methods.duplicates.title", Int.box(idx), Int.box(size), methodName)
+    val title = JavaRefactoringBundle.message("process.methods.duplicates.title", Int.box(idx), Int.box(size), methodName)
     val dialog: ReplacePromptDialog = new ReplacePromptDialog(false, title, project)
     dialog.show()
     dialog
