@@ -49,7 +49,11 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
 
   val isIdBindingEnabled: Boolean = scalaLanguageLevel >= Scala_2_12
 
-  val isScalaJs: Boolean = compilerPlugins.contains("scala-js")
+  //plugin example:
+  // ~/Coursier/cache/v1/https/repo1.maven.org/maven2/org/scala-js/scalajs-compiler_2.13.6/1.7.1/scalajs-compiler_2.13.6-1.7.1.jar
+  val isScalaJs: Boolean = compilerPlugins.contains("scala-js") ||
+    //Scala 3 relies on the compiler flag
+    additionalCompilerOptions.contains("-scalajs")
 
   val isScalaNative: Boolean = compilerPlugins.contains("scala-native")
 
