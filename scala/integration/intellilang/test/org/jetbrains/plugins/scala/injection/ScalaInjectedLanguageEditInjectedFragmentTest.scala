@@ -110,6 +110,26 @@ class ScalaInjectedLanguageEditInjectedFragmentTest extends ScalaLightCodeInsigh
     raw"""raw${qqq}text \w\s text2 \d \s \w $qqq.r""",
     CommonExpectedInjectedText
   )
+
+  //SCL-15461
+  def testTypeEnter_SimpleString(): Unit = doTypingTest(
+    "\n",
+    raw"""//language=JAVA
+         |"class A {$CARET}"""".stripMargin,
+    raw"""//language=JAVA
+         |"class A {\n    \n}"""".stripMargin,
+    "class A {}"
+  )
+
+  //SCL-15461
+  def testTypeEnter_IntepolatedString(): Unit = doTypingTest(
+    "\n",
+    raw"""//language=JAVA
+         |s"class A {$CARET}"""".stripMargin,
+    raw"""//language=JAVA
+         |s"class A {\n    \n}"""".stripMargin,
+    "class A {}"
+  )
 }
 
 object ScalaInjectedLanguageEditInjectedFragmentTest {
