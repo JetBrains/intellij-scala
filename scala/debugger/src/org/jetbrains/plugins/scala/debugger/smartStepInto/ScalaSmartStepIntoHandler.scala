@@ -192,7 +192,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
             case fun: ScFunctionDefinition if fun.name == "apply" && ref.refName != "apply" =>
               val prefix = s"${ref.refName}."
               result += new MethodSmartStepTarget(fun, prefix, ref.nameId, false, noStopAtLines)
-            case (f: ScFunctionDefinition) && ContainingClass(cl: ScClass) if cl.getModifierList.hasModifierProperty("implicit") =>
+            case (f: ScFunctionDefinition) & ContainingClass(cl: ScClass) if cl.getModifierList.hasModifierProperty("implicit") =>
               val isActuallyImplicit = ref.qualifier.flatMap(_.implicitElement()).isDefined
               val prefix = if (isActuallyImplicit) "implicit " else null
               result += new MethodSmartStepTarget(f, prefix, ref.nameId, false, noStopAtLines)

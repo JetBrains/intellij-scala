@@ -24,7 +24,7 @@ class ConvertToTypedPatternIntention extends PsiElementBaseIntentionAction {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
-      case Parent((_: ScStableCodeReference) && Parent(_: ScConstructorPattern)) => true
+      case Parent((_: ScStableCodeReference) & Parent(_: ScConstructorPattern)) => true
 
       case _ => false
     }

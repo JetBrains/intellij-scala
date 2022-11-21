@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiMemberExt, PsiNamedElementExt, Resolved, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiMemberExt, PsiNamedElementExt, Resolved, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
@@ -67,7 +67,7 @@ object SideEffectsUtil {
         if (hasImplicitConversion(ref)) false
         else {
           ref.qualifier.forall(hasNoSideEffectsInner) && (ref.resolve() match {
-            case (_: ScBindingPattern) && ScalaPsiUtil.inNameContext(pd: ScPatternDefinition)
+            case (_: ScBindingPattern) & ScalaPsiUtil.inNameContext(pd: ScPatternDefinition)
               if pd.hasModifierProperty("lazy") => false
             case bp: ScBindingPattern =>
               val tp = bp.`type`()

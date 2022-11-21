@@ -27,7 +27,7 @@ private final class WorksheetPsiGlue {
   }
 
   private def process(psi: PsiElement): Unit = psi match {
-    case (_: LeafPsiElement) && ElementType(ScalaTokenTypes.tSEMICOLON) =>
+    case (_: LeafPsiElement) & ElementType(ScalaTokenTypes.tSEMICOLON) =>
       afterSemicolon = true
     case _: PsiComment | _: PsiWhiteSpace =>
       afterSemicolon &&= !psi.textContains('\n')

@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
-import org.jetbrains.plugins.scala.extensions.{&&, ElementType, Parent}
+import org.jetbrains.plugins.scala.extensions.{&, ElementType, Parent}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 
@@ -33,7 +33,7 @@ final class CreateScalaDocStubIntentionAction extends IntentionAction {
     val element = file.findElementAt(caretOffset)
 
     element match {
-      case ElementType(ScalaTokenTypes.tIDENTIFIER) && Parent(docOwner: ScDocCommentOwner) =>
+      case ElementType(ScalaTokenTypes.tIDENTIFIER) & Parent(docOwner: ScDocCommentOwner) =>
         Some(docOwner)
       case _ =>
         None

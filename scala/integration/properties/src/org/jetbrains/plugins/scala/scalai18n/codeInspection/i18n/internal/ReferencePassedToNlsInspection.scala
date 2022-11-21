@@ -78,7 +78,7 @@ object ReferencePassedToNlsInspection {
     else ref match {
       case _ if isAnnotatedWithNls(ref) => false
       case _: PsiReference | _: MethodInvocation => resolveToNotNlsAnnotated(ref, found).isDefined
-      case (pattern: ScBindingPattern) && Parent(Parent(ScConstructorPattern(ResolvesTo(unapply: ScFunctionDefinition), ScPatternArgumentList(args@_*)))) if unapply.isSynthetic && args.contains(pattern) =>
+      case (pattern: ScBindingPattern) & Parent(Parent(ScConstructorPattern(ResolvesTo(unapply: ScFunctionDefinition), ScPatternArgumentList(args@_*)))) if unapply.isSynthetic && args.contains(pattern) =>
         val caseClassParam = originalCaseClassParameter(unapply, args.indexOf(pattern))
         !caseClassParam.exists(isAnnotatedWithNls)
       case pattern: ScBindingPattern => evaluatesNotToNls(pattern.nameContext, found)

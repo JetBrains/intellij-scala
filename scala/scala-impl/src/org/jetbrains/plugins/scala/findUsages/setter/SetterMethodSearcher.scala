@@ -5,7 +5,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{PsiSearchHelper, SearchScope, TextOccurenceProcessor, UsageSearchContext}
 import com.intellij.util.{Processor, QueryExecutor}
-import org.jetbrains.plugins.scala.extensions.{&&, Parent, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{&, Parent, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -29,7 +29,7 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
       element match {
         case _ if !element.isValid => None
         case f: ScFunction => Some((f, f.name))
-        case (rp: ScReferencePattern) && inNameContext(_: ScVariable) => Some((rp, rp.name))
+        case (rp: ScReferencePattern) & inNameContext(_: ScVariable) => Some((rp, rp.name))
         case _ => None
       }
     }

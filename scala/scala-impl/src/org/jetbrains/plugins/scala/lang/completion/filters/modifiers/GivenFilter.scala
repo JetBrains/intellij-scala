@@ -30,7 +30,7 @@ class GivenFilter extends ElementFilter {
           checkErrorInFor(context)
         case _: ScStableCodeReference =>
           parent.parentOfType[ScAnnotation] match {
-            case Some(annotation && PrevSiblingNotWhitespace(_: ScReferenceExpression | _: ScTuple)) =>
+            case Some(annotation & PrevSiblingNotWhitespace(_: ScReferenceExpression | _: ScTuple)) =>
               checkErrorInFor(annotation.getParent)
             case _ => false
           }

@@ -11,7 +11,7 @@ import scala.collection.immutable.ArraySeq
 class SourceNotClosedInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
-    case element@MethodRepr(_, Some(SourceCreatingMethod(_)), _, _) && NonClosingMethodOfSource() =>
+    case element@MethodRepr(_, Some(SourceCreatingMethod(_)), _, _) & NonClosingMethodOfSource() =>
       holder.registerProblem(element, ScalaInspectionBundle.message("source.not.closed"))
 
     case element@SourceCreatingMethod(expr) if expressionResultIsNotUsed(expr) =>

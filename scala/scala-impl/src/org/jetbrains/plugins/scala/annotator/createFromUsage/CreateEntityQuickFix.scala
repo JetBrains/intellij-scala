@@ -41,7 +41,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
     }
 
     ref match {
-      case Parent((_: ScAssignment) && Parent(_: ScArgumentExprList)) =>
+      case Parent((_: ScAssignment) & Parent(_: ScArgumentExprList)) =>
         false
       case exp@Parent(infix: ScInfixExpr) if infix.operation == exp => checkBlock(infix.getBaseExpr)
       case it =>
@@ -168,8 +168,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
           case Some(ScTemplateDefinition.ExtendsBlock(block)) => Success(block)
           case None => Failure(new IllegalStateException("Cannot find template definition for not-static super reference"))
         }
-      case (_: ScThisReference) && ParentExtendsBlock(block) => Success(block)
-      case ReferenceTarget(_: ScSelfTypeElement) && ParentExtendsBlock(block) => Success(block)
+      case (_: ScThisReference) & ParentExtendsBlock(block) => Success(block)
+      case ReferenceTarget(_: ScSelfTypeElement) & ParentExtendsBlock(block) => Success(block)
       case _ => Failure(new IllegalStateException("Cannot find a place to create definition"))
     }
   }

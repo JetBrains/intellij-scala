@@ -21,7 +21,7 @@ object InstanceOfShouldBeIsInspection extends SimplificationType() {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case _ if !expr.getProject.isIntellijScalaPluginProject && !isUnitTestMode => None
-    case `.isInstanceOf`(base) && ScGenericCall(_, Seq(castType)) if base.`type`().map(_.widen).exists(castType.calcType.conforms) =>
+    case `.isInstanceOf`(base) & ScGenericCall(_, Seq(castType)) if base.`type`().map(_.widen).exists(castType.calcType.conforms) =>
       Some(replace(expr).withText(invocationText(base, "is") + s"[${castType.getText}]").highlightRef)
     case _ =>
       None

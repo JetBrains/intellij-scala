@@ -39,7 +39,7 @@ object ImportMembersUtil {
     if (ref == null) return false
 
     ref.resolve() match {
-      case (member: PsiMember) && (named: PsiNamedElement) =>
+      case (member: PsiMember) & (named: PsiNamedElement) =>
         ScalaPsiUtil.hasStablePath(named) && (member.hasModifierProperty(PsiModifier.STATIC) || member.containingClass == null)
       case named: PsiNamedElement => ScalaPsiUtil.hasStablePath(named)
       case _ => false

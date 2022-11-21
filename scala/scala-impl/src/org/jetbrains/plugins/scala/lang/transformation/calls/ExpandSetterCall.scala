@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation.calls
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.{&&, Parent, ReferenceTarget}
+import org.jetbrains.plugins.scala.extensions.{&, Parent, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 class ExpandSetterCall extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
-    case e @ ScAssignment(l @ ReferenceTarget((_: ScReferencePattern | _: ScFieldId) &&
-      Parent(Parent((v: ScVariable) && Parent(_: ScTemplateBody)))), r)
+    case e @ ScAssignment(l @ ReferenceTarget((_: ScReferencePattern | _: ScFieldId) &
+      Parent(Parent((v: ScVariable) & Parent(_: ScTemplateBody)))), r)
       if !v.getModifierList.accessModifier.exists(it => it.isPrivate && it.isThis)=>
 
       e.replace(code"${l.getText + "_="}($r)")

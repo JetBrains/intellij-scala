@@ -5,7 +5,7 @@ import com.intellij.psi._
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
-import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
@@ -177,7 +177,7 @@ private class ScalaDocDefinitionGenerator private(
 
   private def appendBindingPattern(pattern: ScBindingPattern): Unit =
     pattern.nameContext match {
-      case (definition: ScValueOrVariable) && (_: ScPatternDefinition | _: ScVariableDefinition) =>
+      case (definition: ScValueOrVariable) & (_: ScPatternDefinition | _: ScVariableDefinition) =>
         appendDefinitionSection {
           appendContainingClass(definition)
           appendDeclMainSection2(pattern, definition)

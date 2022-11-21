@@ -197,7 +197,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 private object ScalaMethodChainInlayHintsPass {
   private object CallerAndCall {
     def unapply(expr: ScExpression): Option[(ScExpression, MethodInvocation)] = expr match {
-      case Parent((ref: ScReferenceExpression) && Parent(mc: ScMethodCall)) => Some(ref -> mc)
+      case Parent((ref: ScReferenceExpression) & Parent(mc: ScMethodCall)) => Some(ref -> mc)
       case Parent(call@ScInfixExpr(`expr`, _, _)) =>  Some(expr -> call)
       case _ => None
     }

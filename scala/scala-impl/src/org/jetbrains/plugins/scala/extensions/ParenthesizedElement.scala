@@ -179,7 +179,7 @@ object ParenthesizedElement {
   }
 
   private def isIndivisibleRepeatedParamType(parenthesized: ScParenthesizedElement): Boolean = parenthesized match {
-    case ScParenthesizedElement(inner) && ChildOf(pt: ScParameterType) =>
+    case ScParenthesizedElement(inner) & ChildOf(pt: ScParameterType) =>
       pt.isRepeatedParameter && !isIndivisible(inner)
     case _ => false
   }

@@ -157,7 +157,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
   private def resultTypeMismatchIn(literal: ScFunctionExpr)(implicit holder: ScalaAnnotationHolder): Unit = {
     val typeAscription = literal match {
-      case Parent((_: ScParenthesisedExpr | _: ScBlockExpr) && Parent(ta: ScTypedExpression)) => Some(ta)
+      case Parent((_: ScParenthesisedExpr | _: ScBlockExpr) & Parent(ta: ScTypedExpression)) => Some(ta)
       case _ => None
     }
 

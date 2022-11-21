@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
-import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, Parent}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -74,7 +74,7 @@ object NoTargetNameAnnotationForOperatorLikeDefinitionInspection {
     }
 
     def unapply(element: PsiElement): Option[ScModifierListOwner] = element.getParent.asOptionOf[ScModifierListOwner].collect {
-      case (enumCase: ScEnumCase) && Parent(enumCases: ScEnumCases) if accepts(element, enumCase) => enumCases
+      case (enumCase: ScEnumCase) & Parent(enumCases: ScEnumCases) if accepts(element, enumCase) => enumCases
       case td: ScTypeDefinition if accepts(element, td) => td
       case fn: ScFunction if accepts(element, fn) => fn
       case valOrVal: ScValueOrVariable if accepts(element, valOrVal) => valOrVal

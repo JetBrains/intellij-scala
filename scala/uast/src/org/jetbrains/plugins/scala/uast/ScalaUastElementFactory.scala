@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiType, PsiWhiteSpace}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.{&&, ElementType, NextSibling, ObjectExt, PsiElementExt, PsiTypeExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{&, ElementType, NextSibling, ObjectExt, PsiElementExt, PsiTypeExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{kVAL, kVAR}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -320,7 +320,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
   private def createCallExpressionTemplateRespectingChainStyle(@Nullable receiver: UExpression): String =
     if (receiver != null) receiver.getSourcePsi.toOption.flatMap(_.nextSibling) match {
       case Some(ws: PsiWhiteSpace) => s"a${ws.getText}.b()"
-      case Some(ElementType(ScalaTokenTypes.tDOT) && NextSibling(ws: PsiWhiteSpace)) =>
+      case Some(ElementType(ScalaTokenTypes.tDOT) & NextSibling(ws: PsiWhiteSpace)) =>
         s"a.${ws.getText}b()"
       case _ => "a.b()"
     } else "a()"

@@ -250,8 +250,8 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
   private def getTextForElement(method: ScMethodLike): String = {
     method match {
       case pc: ScPrimaryConstructor => s"${pc.containingClass.name} (primary constructor)"
-      case (f: ScFunctionDefinition) && ContainingClass(_: ScNewTemplateDefinition) => s"${f.name} (in anonymous class)"
-      case (f: ScFunctionDefinition) && ContainingClass(c) => s"${f.name} (in ${c.name})"
+      case (f: ScFunctionDefinition) & ContainingClass(_: ScNewTemplateDefinition) => s"${f.name} (in anonymous class)"
+      case (f: ScFunctionDefinition) & ContainingClass(c) => s"${f.name} (in ${c.name})"
       case f: ScFunctionDefinition => s"${f.name}"
     }
   }

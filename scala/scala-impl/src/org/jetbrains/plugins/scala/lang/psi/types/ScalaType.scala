@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.extensions.&&
+import org.jetbrains.plugins.scala.extensions.&
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
@@ -43,7 +43,7 @@ object ScalaType {
       case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty =>
         t.upperBound.flatMap(expandAliases(_, visited + tp))
       case t: ScTypeAliasDefinition if t.typeParameters.isEmpty => t.aliasedType
-      case (_: ScParameterizedType) && AliasType(_, upper, _) =>
+      case (_: ScParameterizedType) & AliasType(_, upper, _) =>
         upper.flatMap(expandAliases(_, visited + tp))
       case _ => Right(tp)
     }

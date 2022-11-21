@@ -101,7 +101,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
                 //   new Test {  }
                 // but not
                 //   new Test
-              case Parent(Parent((_: ScConstructorInvocation) && Parent(Parent(exb: ScExtendsBlock))))
+              case Parent(Parent((_: ScConstructorInvocation) & Parent(Parent(exb: ScExtendsBlock))))
                 if !exb.getParent.is[ScNewTemplateDefinition] || exb.isAnonymousClass =>
                 checkDeprecatedInheritance(rr, ref.nameId, ref.refName)
               case _ =>

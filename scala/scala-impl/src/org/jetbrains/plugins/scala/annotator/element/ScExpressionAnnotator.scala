@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{shouldIgnoreTypeMismatchIn, smartCheckConformance}
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeMismatchError}
 import org.jetbrains.plugins.scala.annotator.quickfix.{AddBreakoutQuickFix, ChangeTypeFix, WrapInOptionQuickFix}
-import org.jetbrains.plugins.scala.extensions.{&&, _}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -52,7 +52,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
 
       element match {
         // Highlight type ascription differently from type mismatch (handled in ScTypedExpressionAnnotator), SCL-15544
-        case Parent(_: ScTypedExpression) | Parent((_: ScParenthesisedExpr) && Parent(_: ScTypedExpression)) => ()
+        case Parent(_: ScTypedExpression) | Parent((_: ScParenthesisedExpr) & Parent(_: ScTypedExpression)) => ()
 
         // Highlight if-then with non-Unit expected type as incomplete rather than type mismatch, SCL-19447
         case it: ScIf if it.thenExpression.nonEmpty && it.elseExpression.isEmpty &&
@@ -98,7 +98,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
 
   def isAggregatePart(e: ScExpression): Boolean = e match {
     case Parent(it @ ScIf(_, thenExpr, elseExpr)) if thenExpr.contains(e) || elseExpr.contains(e) => isAggregate(it)
-    case Parent(Parent(ScCaseClause(_, _, block) && Parent(Parent(m: ScMatch)))) if block.exists(_.getFirstChild == e) => isAggregate(m)
+    case Parent(Parent(ScCaseClause(_, _, block) & Parent(Parent(m: ScMatch)))) if block.exists(_.getFirstChild == e) => isAggregate(m)
     case _ => false
   }
 

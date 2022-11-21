@@ -93,7 +93,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
   private object isCaseClassApply {
     def unapply(ref: ScReference): Option[ScClass] = {
       ref.resolve() match {
-        case (fun: ScFunctionDefinition) && ContainingClass(obj: ScObject) if fun.isApplyMethod && fun.isSynthetic =>
+        case (fun: ScFunctionDefinition) & ContainingClass(obj: ScObject) if fun.isApplyMethod && fun.isSynthetic =>
           Option(obj.fakeCompanionClassOrCompanionClass)
             .collect { case cls: ScClass if cls.isCase => cls }
         case _ => None

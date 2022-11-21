@@ -474,7 +474,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
   private def isCaretAfterCaseClauseArrowBeforeCode(elementAtCaret: PsiElement, caretOffset: Int): Boolean = {
     val prevLeaf = PsiTreeUtil.prevCodeLeaf(elementAtCaret)
     prevLeaf match {
-      case ElementType(ScalaTokenTypes.tFUNTYPE) && Parent(_: ScCaseClause) if caretOffset == elementAtCaret.startOffset =>
+      case ElementType(ScalaTokenTypes.tFUNTYPE) & Parent(_: ScCaseClause) if caretOffset == elementAtCaret.startOffset =>
         true
       case _                                                                                                             =>
         false
@@ -483,7 +483,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
 
   private def isCaretBeforeOneLineExtensionDef(elementAtCaret: PsiElement): Boolean = {
     elementAtCaret match {
-      case ElementType(ScalaTokenTypes.kDEF) && Parent(Parent(_: ScExtensionBody)) if !elementAtCaret.startsFromNewLine()=>
+      case ElementType(ScalaTokenTypes.kDEF) & Parent(Parent(_: ScExtensionBody)) if !elementAtCaret.startsFromNewLine()=>
         true
       case _ => false
     }
@@ -512,7 +512,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
         case el => el
       }
       prevLeaf match {
-        case ElementType(ScalaTokenTypes.tFUNTYPE) && Parent(clause: ScCaseClause) =>
+        case ElementType(ScalaTokenTypes.tFUNTYPE) & Parent(clause: ScCaseClause) =>
           val caretIsIndentedFromClause = elementIndentSize(clause, caretIndentSize, indentOptions.TAB_SIZE).isDefined
           if (caretIsIndentedFromClause) Some(clause)
           else None

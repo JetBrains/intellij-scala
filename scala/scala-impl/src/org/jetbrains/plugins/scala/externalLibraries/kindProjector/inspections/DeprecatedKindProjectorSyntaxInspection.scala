@@ -39,7 +39,7 @@ object DeprecatedKindProjectorSyntaxInspection {
       if (!e.kindProjectorPluginEnabled) None
       else
         e match {
-          case (ref: ScReference) && Parent(_: ScSimpleTypeElement)
+          case (ref: ScReference) & Parent(_: ScSimpleTypeElement)
               if kindProjectorDeprecatedNames.contains(ref.refName) =>
             val (msg, quickFix) = deprecationMessageAndQuickFix(ref)
             Option((ref.nameId, quickFix, msg))

@@ -263,9 +263,9 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           ref = findQualifier(ref)
 
           val cl = element match {
-            case clazz: PsiClass                             => ClassToImport(clazz)
-            case (ta: ScTypeAlias) && ContainingClass(clazz) => MemberToImport(ta, clazz)
-            case pack: ScPackage                             => PrefixPackageToImport(pack)
+            case clazz: PsiClass                            => ClassToImport(clazz)
+            case (ta: ScTypeAlias) & ContainingClass(clazz) => MemberToImport(ta, clazz)
+            case pack: ScPackage                            => PrefixPackageToImport(pack)
           }
 
           def nameToUse(qualifiedName: String = cl.qualifiedName) = ref match {

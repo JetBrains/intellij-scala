@@ -203,7 +203,7 @@ private object byNameParameterFunction {
       if (refText.endsWith(byNameFunctionSuffix)) {
         val paramName = refText.stripSuffix(byNameFunctionSuffix)
         createExpressionWithContextFromText(paramName, ref.getContext, ref) match {
-          case (ref: ScReferenceExpression) && ResolvesTo(p: ScParameter) if p.isCallByNameParameter => Some((p, ref))
+          case (ref: ScReferenceExpression) & ResolvesTo(p: ScParameter) if p.isCallByNameParameter => Some((p, ref))
           case _ => throw EvaluationException(DebuggerBundle.message("cannot.find.by.name.parameter.with.such.name", paramName))
         }
       }

@@ -25,14 +25,14 @@ class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(n
   override def inferredType: TypeResult = inferredType0
 
   private def inferredType0: TypeResult = getParent match {
-    case (_: ScTypeArgs) &&
-      Parent((_: ScParameterizedTypeElement) &&
-        Parent((_: ScTypePattern) &&
+    case (_: ScTypeArgs) &
+      Parent((_: ScParameterizedTypeElement) &
+        Parent((_: ScTypePattern) &
           Parent(typedPattern: ScTypedPatternLike))) => inferredType1(typedPattern)
 
-    case (_: ScInfixTypeElement) &&
-      Parent((_: ScParenthesisedTypeElement) &&
-        Parent((_: ScTypePattern) &&
+    case (_: ScInfixTypeElement) &
+      Parent((_: ScParenthesisedTypeElement) &
+        Parent((_: ScTypePattern) &
           Parent(typedPattern: ScTypedPatternLike))) => inferredType1(typedPattern)
 
     case _ => Right(existentialArgumentWith(None))

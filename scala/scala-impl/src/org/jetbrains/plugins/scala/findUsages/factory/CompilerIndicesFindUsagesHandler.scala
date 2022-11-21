@@ -46,7 +46,7 @@ class CompilerIndicesFindUsagesHandler(
     processor: Processor[_ >: UsageInfo],
     options:   FindUsagesOptions
   ): Boolean = element match {
-    case (named: PsiNamedElement) && ContainingClass(cls: ScTypeDefinition) if isInLibrary(element) =>
+    case (named: PsiNamedElement) & ContainingClass(cls: ScTypeDefinition) if isInLibrary(element) =>
       val res = searchInCompilerIndices(named, processor)
       // this inheritor-traversing logic is already present in ScalaCompilerReferenceReader,
       // but as library jars are not indexed, we have to partially rely on standard searchers instead.

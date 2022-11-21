@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection, PsiElementVisitorSimple}
-import org.jetbrains.plugins.scala.extensions.{&&, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{&, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -98,7 +98,7 @@ class SbtUpdateDependencyVersionQuickFix(elem: PsiElement, newVer: String)
         str.replace(createExpressionFromText("\"" + StringUtil.escapeStringCharacters(newVer) + "\"", features))
       case ref: ScReferenceExpression =>
         ref.resolve() match {
-          case (_: ScReferencePattern) && inNameContext(ScPatternDefinition.expr(expr)) => expr match {
+          case (_: ScReferencePattern) & inNameContext(ScPatternDefinition.expr(expr)) => expr match {
             case str: ScStringLiteral =>
               str.replace(createExpressionFromText("\"" + StringUtil.escapeStringCharacters(newVer) + "\"", features))
             case _ =>

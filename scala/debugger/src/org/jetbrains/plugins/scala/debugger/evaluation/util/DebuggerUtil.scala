@@ -191,7 +191,7 @@ object DebuggerUtil {
 
   def lambdaJVMSignature(lambda: PsiElement): Option[String] = {
     val (argumentTypes, returnType) = lambda match {
-      case (expr: ScExpression) && Typeable(tp) if ScalaPsiUtil.isByNameArgument(expr) => (Seq.empty, tp)
+      case (expr: ScExpression) & Typeable(tp) if ScalaPsiUtil.isByNameArgument(expr) => (Seq.empty, tp)
       case Typeable(FunctionType(retT, argTypes)) => (argTypes, retT)
       case _ => return None
     }

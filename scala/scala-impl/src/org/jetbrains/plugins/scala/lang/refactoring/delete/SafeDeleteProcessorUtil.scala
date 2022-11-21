@@ -325,10 +325,10 @@ object SafeDeleteProcessorUtil {
     val invocation = element match {
       case invocation: MethodInvocation => Some(invocation)
       case Parent(invocation: MethodInvocation) => Some(invocation)
-      case Parent((_: ScGenericCall) && Parent(invocation: MethodInvocation)) => Some(invocation)
+      case Parent((_: ScGenericCall) & Parent(invocation: MethodInvocation)) => Some(invocation)
       case invocation: ScSelfInvocation => Some(invocation)
       case Parent(Parent(invocation: ScConstructorInvocation)) => Some(invocation)
-      case Parent(Parent((_: ScParameterizedTypeElement) && Parent(invocation: ScConstructorInvocation))) => Some(invocation)
+      case Parent(Parent((_: ScParameterizedTypeElement) & Parent(invocation: ScConstructorInvocation))) => Some(invocation)
       case _ => None
     }
 

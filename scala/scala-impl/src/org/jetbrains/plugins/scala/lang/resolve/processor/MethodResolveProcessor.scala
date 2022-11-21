@@ -487,11 +487,11 @@ object MethodResolveProcessor {
               argumentClauses.isEmpty =>
         addExpectedTypeProblems()
       //eta expansion
-      case (fun: ScTypeParametersOwner) && (_: PsiNamedElement)
+      case (fun: ScTypeParametersOwner) & (_: PsiNamedElement)
           if (typeArgElements.isEmpty ||
             typeArgElements.length == fun.typeParameters.length) && argumentClauses.isEmpty =>
         checkFunction(fun, fun.typeParameters.nonEmpty)
-      case (fun: PsiTypeParameterListOwner) && (_: PsiNamedElement)
+      case (fun: PsiTypeParameterListOwner) & (_: PsiNamedElement)
           if (typeArgElements.isEmpty ||
             typeArgElements.length == fun.getTypeParameters.length) && argumentClauses.isEmpty =>
         checkFunction(fun, fun.getTypeParameters.nonEmpty)

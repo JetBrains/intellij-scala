@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation.functions
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.{&&, Parent, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
@@ -10,12 +10,12 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 class ExpandPlaceholderSyntax extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
-    case (e: ScUnderscoreSection) && Parent(_: ScExpression | _: ScArgumentExprList) =>
+    case (e: ScUnderscoreSection) & Parent(_: ScExpression | _: ScArgumentExprList) =>
       val enclosure = e.parents.to(LazyList).takeWhile(e => e.isInstanceOf[ScExpression] || e.isInstanceOf[ScArgumentExprList]).last
 
       val (placeholders, typeElements) = enclosure.depthFirst().collect {
-        case (_: ScUnderscoreSection) && Parent((typed: ScTypedExpression) && Parent(it: ScParenthesisedExpr)) => (it, typed.typeElement)
-        case (_: ScUnderscoreSection) && Parent(typed: ScTypedExpression) => (typed, typed.typeElement)
+        case (_: ScUnderscoreSection) & Parent((typed: ScTypedExpression) & Parent(it: ScParenthesisedExpr)) => (it, typed.typeElement)
+        case (_: ScUnderscoreSection) & Parent(typed: ScTypedExpression) => (typed, typed.typeElement)
         case it: ScUnderscoreSection => (it, None)
       }.toVector.unzip
 

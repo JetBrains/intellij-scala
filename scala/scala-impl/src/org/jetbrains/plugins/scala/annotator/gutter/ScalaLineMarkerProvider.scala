@@ -386,7 +386,7 @@ private object GutterUtil {
     // TODO Enable in tests when GutterMarkersTest will be able to separate different maker providers
     if (ApplicationManager.getApplication.isUnitTestMode) None
     else element match {
-      case identifier @ ElementType(ScalaTokenTypes.tIDENTIFIER) && Parent(_: ScClass | _: ScTrait | _: ScObject | _: ScEnum) =>
+      case identifier @ ElementType(ScalaTokenTypes.tIDENTIFIER) & Parent(_: ScClass | _: ScTrait | _: ScObject | _: ScEnum) =>
         val typeDefinition = identifier.getParent.asInstanceOf[ScTypeDefinition]
 
         typeDefinition.baseCompanion.map { companion =>

@@ -112,7 +112,7 @@ object ScalaI18nUtil {
         checkParam(argList.matchedParameters)
       case infix@ScInfixExpr(_, _, `element`) =>
         checkParam(infix.matchedParameters)
-      case (tuple: ScTuple) && Parent(infix@ScInfixExpr(_, _, arg)) if tuple == arg =>
+      case (tuple: ScTuple) & Parent(infix@ScInfixExpr(_, _, arg)) if tuple == arg =>
         checkParam(infix.matchedParameters)
       case assign: ScAssignment =>
         assign
