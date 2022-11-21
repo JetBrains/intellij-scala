@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package macros
+package org.jetbrains.plugins.scala.codeInsight.template.macros
 
-import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.template._
+import com.intellij.ide.IdeDeprecatedMessagesBundle
 import com.intellij.psi.PsiClass
 import com.intellij.psi.util.PsiTreeUtil
 
@@ -17,5 +14,5 @@ final class ScalaQualifiedClassNameMacro extends ScalaMacro {
 
   override def getDefaultValue: String = ScalaMacro.DefaultValue
 
-  override def getPresentableName: String = CodeInsightBundle.message("macro.qualified.class.name")
+  override def getPresentableName: String = IdeDeprecatedMessagesBundle.message("macro.qualified.class.name")
 }

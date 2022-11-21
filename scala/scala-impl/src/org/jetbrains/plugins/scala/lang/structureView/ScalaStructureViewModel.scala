@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.structureView
 
 import com.intellij.icons.AllIcons
-import com.intellij.ide.IdeBundle
 import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElement, TextEditorBasedStructureViewModel}
 import com.intellij.ide.util.treeView.smartTree._
+import com.intellij.openapi.editor.PlatformEditorBundle
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -67,11 +67,14 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
 
       override def getName: String = "ALPHA_SORTER_IGNORING_TEST_NODES"
 
-      override def getPresentation: ActionPresentation = new ActionPresentationData(
-        IdeBundle.message("action.sort.alphabetically"),
-        IdeBundle.message("action.sort.alphabetically"),
-        AllIcons.ObjectBrowser.Sorted
-      )
+      override def getPresentation: ActionPresentation = {
+        val sortAlphabetically = PlatformEditorBundle.message("action.sort.alphabetically")
+        new ActionPresentationData(
+          sortAlphabetically,
+          sortAlphabetically,
+          AllIcons.ObjectBrowser.Sorted
+        )
+      }
     }
     res(1) = new Sorter() {
       override def isVisible: Boolean = false

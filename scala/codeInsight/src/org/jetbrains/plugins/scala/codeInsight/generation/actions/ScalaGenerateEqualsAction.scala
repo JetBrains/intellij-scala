@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.generation.actions
 
-import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.hint.HintManager
+import com.intellij.java.JavaBundle
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -46,9 +46,9 @@ object ScalaGenerateEqualsAction {
 
       if (!needEquals && !needHashCode) {
         val text: String =
-          if (aClass.isInstanceOf[PsiAnonymousClass]) CodeInsightBundle.message("generate.equals.and.hashcode.already.defined.warning.anonymous")
-          else CodeInsightBundle.message("generate.equals.and.hashcode.already.defined.warning", aClass.qualifiedName)
-        if (Messages.showYesNoDialog(project, text, CodeInsightBundle.message("generate.equals.and.hashcode.already.defined.title"), Messages.getQuestionIcon) == DialogWrapper.OK_EXIT_CODE) {
+          if (aClass.isInstanceOf[PsiAnonymousClass]) JavaBundle.message("generate.equals.and.hashcode.already.defined.warning.anonymous")
+          else JavaBundle.message("generate.equals.and.hashcode.already.defined.warning", aClass.qualifiedName)
+        if (Messages.showYesNoDialog(project, text, JavaBundle.message("generate.equals.and.hashcode.already.defined.title"), Messages.getQuestionIcon) == DialogWrapper.OK_EXIT_CODE) {
           val deletedOk = inWriteAction {
             try {
               equalsMethod.get.delete()

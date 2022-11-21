@@ -1,11 +1,8 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package macros
+package org.jetbrains.plugins.scala.codeInsight.template.macros
 
-import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.template._
+import com.intellij.java.JavaBundle
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
@@ -41,5 +38,5 @@ final class ScalaComponentTypeOfMacro extends ScalaMacro {
     case _ => null
   }
 
-  override def getPresentableName: String = CodeInsightBundle.message("macro.component.type.of.array")
+  override def getPresentableName: String = JavaBundle.message("macro.component.type.of.array")
 }

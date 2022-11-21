@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package template
-package macros
+package org.jetbrains.plugins.scala.codeInsight.template.macros
 
-import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.template._
+import com.intellij.java.JavaBundle
 
 final class ScalaExpressionTypeMacro extends ScalaMacro {
 
@@ -15,5 +12,5 @@ final class ScalaExpressionTypeMacro extends ScalaMacro {
     case _            => null
   }
 
-  override def getPresentableName: String = CodeInsightBundle.message("macro.expression.type")
+  override def getPresentableName: String = JavaBundle.message("macro.expression.type")
 }
