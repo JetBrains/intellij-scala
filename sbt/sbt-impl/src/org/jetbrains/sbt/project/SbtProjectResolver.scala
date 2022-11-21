@@ -161,8 +161,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .orElse(SbtUtil.getSbtStructureJar(sbtVersion))
             .getOrElse(throw new ExternalSystemException(s"Could not find sbt-structure-extractor for sbt version $sbtVersion"))
 
-          val structureFilePath = normalizePath(structureFile)
-
           // TODO add error/warning messages during dump, report directly
           dumper.dumpFromProcess(
             projectRoot, structureFilePath, options,
@@ -220,7 +218,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
     else {
       val structureFilePath = getStructureFilePath(projectRoot)
-      val (readStructureFile, writeStructureFile) = getStructureFileReuseMode
+      val StructureFileReuseMode(readStructureFile, writeStructureFile) = getStructureFileReuseMode
 
       if (readStructureFile && structureFilePath.exists()) {
         log.warn(s"reused structure file: $structureFilePath")
@@ -245,17 +243,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     structureFileFolder / s"sbt-structure-reused-${projectRoot.getName}.xml"
   }
 
-  private def getStructureFileReuseMode: (Boolean, Boolean) = {
-    if (RegistryManager.getInstance().is("sbt.project.import.reuse.previous.structure.file")) {
-      (true, true)
-    } else if (java.lang.Boolean.parseBoolean(System.getProperty("sbt.project.structure.readWrite"))) {
-      (true, true)
-    } else if (java.lang.Boolean.parseBoolean(System.getProperty("sbt.project.structure.read"))) {
-      (true, false)
-    } else {
-      (false, false)
-    }
-  }
+  //noinspection NameBooleanParameters
+  private def getStructureFileReuseMode: StructureFileReuseMode =
+    if (RegistryManager.getInstance().is("sbt.project.import.reuse.previous.structure.file"))
+      StructureFileReuseMode(true, true)
+    else if (java.lang.Boolean.parseBoolean(System.getProperty("sbt.project.structure.readWrite")))
+      StructureFileReuseMode(true, true)
+    else if (java.lang.Boolean.parseBoolean(System.getProperty("sbt.project.structure.read")))
+      StructureFileReuseMode(true, false)
+    else
+      StructureFileReuseMode(false, false)
+
+  private case class StructureFileReuseMode(
+    readStructureFile: Boolean,
+    writeStructureFile: Boolean
+  )
 
   private def dumpOptions(settings: SbtExecutionSettings): Seq[String] = {
       Seq("download") ++
