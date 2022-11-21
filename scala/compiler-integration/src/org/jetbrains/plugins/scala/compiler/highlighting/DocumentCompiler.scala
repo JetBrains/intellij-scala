@@ -65,7 +65,15 @@ private final class DocumentCompiler(project: Project) extends Disposable {
     })
     try {
       Files.writeString(tempSourceFile.toPath, content)
-      new RemoteServerConnector(tempSourceFile, module, sourceScope, outputDir).compile(originalSourceFile, client)
+
+      import org.jetbrains.plugins.scala.project.ModuleExt
+      val moduleForCompilation = if (module.isSharedSourceModule) { //SCL-20762
+        val jvmModule = module.findJVMModule
+        jvmModule.getOrElse(module)
+      }
+      else module
+
+      new RemoteServerConnector(tempSourceFile, moduleForCompilation, sourceScope, outputDir).compile(originalSourceFile, client)
     } finally {
       FileUtil.delete(tempSourceFile)
     }
