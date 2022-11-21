@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 
 import java.lang
 
-// todo move to literals/escapers subpackage
+// todo: remove this class cause it's unused
 class PassthroughLiteralEscaper(val literal: ScStringLiteral) extends LiteralTextEscaper[ScStringLiteral](literal) {
   override def decode(rangeInsideHost: TextRange, outChars: lang.StringBuilder): Boolean = {
     TextRange.assertProperRange(rangeInsideHost)
@@ -22,6 +22,7 @@ class PassthroughLiteralEscaper(val literal: ScStringLiteral) extends LiteralTex
   }
 
   /** ATTENTION: <br>
+   * This is a a hacky workaround for SCL-11710<br>
    * For now this method is only used in one place:
    * [[com.intellij.psi.impl.source.tree.injected.InjectionRegistrarImpl#createShred]] <br>
    * It is used very indirectly to determine which handler to use on EnterAction: host file editor or injected file editor.
