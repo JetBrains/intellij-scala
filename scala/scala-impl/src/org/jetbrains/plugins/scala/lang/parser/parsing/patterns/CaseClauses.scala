@@ -23,13 +23,11 @@ sealed abstract class CaseClauses extends ParsingRule {
 }
 
 object CaseClauses extends CaseClauses {
-  override protected def parseCaseClause()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override protected def parseCaseClause()(implicit builder: ScalaPsiBuilder): Boolean =
     CaseClause()
-  }
 }
 
 object CaseClausesWithoutBraces extends CaseClauses {
-  override protected def parseCaseClause()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override protected def parseCaseClause()(implicit builder: ScalaPsiBuilder): Boolean =
     CaseClauseInBracelessCaseClauses()
-  }
 }

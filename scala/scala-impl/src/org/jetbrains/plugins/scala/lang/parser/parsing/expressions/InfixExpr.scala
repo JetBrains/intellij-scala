@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.PrecedenceClimbingInfixParsi
 /*
  * InfixExpr ::= PrefixExpr
  *             | InfixExpr id [TypeArgs] [nl] InfixExpr
+ *             | InfixExpr id ColonArgument -- scala 3 fewer braces
  *             | InfixExpr MatchClause -- scala 3 new match expr. parsing rule
  */
 object InfixExpr extends PrecedenceClimbingInfixParsingRule {
@@ -18,6 +19,7 @@ object InfixExpr extends PrecedenceClimbingInfixParsingRule {
   override protected def referenceElementType: IElementType = ScalaElementType.REFERENCE_EXPRESSION
   override protected def infixElementType: IElementType = ScalaElementType.INFIX_EXPR
   override protected def isMatchConsideredInfix: Boolean = true
+  override protected def isColonAfterOperatorConsideredArgumentListStart: Boolean = true
 
   override protected def parseAfterOperatorId(opMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit =
     if (TypeArgs(isPattern = false)) {

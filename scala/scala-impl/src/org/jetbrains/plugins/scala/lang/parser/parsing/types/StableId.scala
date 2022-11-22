@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ErrMsg
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.{InBracelessScala3, ParserUtils}
 
 import scala.annotation.tailrec
 
@@ -155,6 +156,7 @@ object StableId {
             builder.advanceLexer()
             builder.getTokenText == "as"
           })
+      case InBracelessScala3(`tIDENTIFIER`) => ParserUtils.isOutdent
       case _ => false
     }
   }

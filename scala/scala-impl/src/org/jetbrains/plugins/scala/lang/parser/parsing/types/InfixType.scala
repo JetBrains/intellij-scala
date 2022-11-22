@@ -143,6 +143,7 @@ trait InfixType {
       override protected def referenceElementType: IElementType = ScalaElementType.REFERENCE
       override protected def infixElementType: IElementType = ScalaElementType.INFIX_TYPE
       override protected def isMatchConsideredInfix: Boolean = false
+      override protected def isColonAfterOperatorConsideredArgumentListStart: Boolean = false
 
       override protected def parseFirstOperator()(implicit builder: ScalaPsiBuilder): Boolean =
         if (parseInfixWildcardType()) {
@@ -186,5 +187,4 @@ trait InfixType {
 
     infixParsingRule()
   }
-
 }

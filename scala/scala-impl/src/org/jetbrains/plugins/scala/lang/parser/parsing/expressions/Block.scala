@@ -91,10 +91,11 @@ object Block {
       val count = parseImpl(stopOnOutdent)
       if (count > 1 || needNode) {
         bm.done(ScalaElementType.BLOCK)
+        true
       } else {
         bm.drop()
+        count > 0
       }
-      true
     }
 
     private def parseImpl(stopOnOutdent: Boolean)(implicit builder: ScalaPsiBuilder): Int = {

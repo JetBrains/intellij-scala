@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.CompoundType
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
+
+import scala.util.chaining.scalaUtilChainingOps
 
 /*
  * ResultExpr ::=  Expr1
@@ -24,10 +25,15 @@ object ResultExpr {
     def parseFunctionEnd(): Boolean = builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
         builder.advanceLexer() //Ate => or ?=>
-        Block.Braceless(stopOnOutdent, needNode = true)
-        backupMarker.drop()
-        resultMarker.done(ScalaElementType.FUNCTION_EXPR)
-        true
+        Block.Braceless(stopOnOutdent, needNode = true).tap { parsedBlock =>
+          if (parsedBlock) {
+            backupMarker.drop()
+            resultMarker.done(ScalaElementType.FUNCTION_EXPR)
+          } else {
+            resultMarker.drop()
+            backupMarker.rollbackTo()
+          }
+        }
       case _ =>
         resultMarker.drop()
         backupMarker.rollbackTo()
@@ -35,21 +41,10 @@ object ResultExpr {
     }
 
     def parseFunction(paramsMarker: PsiBuilder.Marker): Boolean = {
-      val paramMarker = builder.mark()
-      builder.advanceLexer() //Ate id
-      if (ScalaTokenTypes.tCOLON == builder.getTokenType) {
-        builder.advanceLexer() // ate ':'
-        val pt = builder.mark()
-        CompoundType()
-        pt.done(ScalaElementType.PARAM_TYPE)
-      }
+      val paramMarker = parseParam()
       builder.getTokenType match {
         case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
-          val psm = paramsMarker.precede // 'parameter list'
-          paramMarker.done(ScalaElementType.PARAM)
-          paramsMarker.done(ScalaElementType.PARAM_CLAUSE)
-          psm.done(ScalaElementType.PARAM_CLAUSES)
-
+          completeParamClauses(paramMarker)(paramsMarker)
           return parseFunctionEnd()
         case _ =>
           builder error ErrMsg("fun.sign.expected")

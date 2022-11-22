@@ -252,9 +252,7 @@ object Expr1 extends ParsingRule {
             builder.advanceLexer() //Ate id
             builder.getTokenType match {
               case ScalaTokenTypes.tFUNTYPE =>
-                pmarker.done(ScalaElementType.PARAM)
-                ipmarker.done(ScalaElementType.PARAM_CLAUSE)
-                ipmarker.precede.done(ScalaElementType.PARAM_CLAUSES)
+                completeParamClauses(pmarker)(ipmarker)
 
                 builder.advanceLexer() //Ate =>
                 if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")
