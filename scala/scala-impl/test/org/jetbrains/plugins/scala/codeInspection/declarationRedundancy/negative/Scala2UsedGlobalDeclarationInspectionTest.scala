@@ -70,143 +70,129 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
 
   def test_auxiliary_constructors(): Unit = {
     addScalaFile(
-      """
-        | object UnusedConstructor {
-        |   val foo1 = new Foo()
-        |   val foo2 = new Foo("foo")
-        | }
-        |"""
-        .stripMargin)
+      """object UnusedConstructor {
+        |  val foo1 = new Foo()
+        |  val foo2 = new Foo("foo")
+        |}""".stripMargin)
+
     checkTextHasNoErrors(
-      """
-        |  import scala.annotation.unused
-        |  @unused class Foo(@unused foo: String, @unused n: Int) {
-        |    def this() = this("foo", 0)
-        |    def this(str: String) = this(str, 0)
-        |  }
-        |""".stripMargin)
+      """import scala.annotation.unused
+        |@unused class Foo(@unused foo: String, @unused n: Int) {
+        |  def this() = this("foo", 0)
+        |  def this(str: String) = this(str, 0)
+        |}""".stripMargin)
   }
 
   def test_overloaded_methods(): Unit = {
     addScalaFile(
-      """
-        | object UnusedConstructor {
-        |   val foo = new Foo()
-        |   foo.aaa()
-        |   foo.aaa("foo")
-        | }
-        |"""
-        .stripMargin)
+      """object UnusedConstructor {
+        |  val foo = new Foo()
+        |  foo.aaa()
+        |  foo.aaa("foo")
+        |}""".stripMargin)
+
     checkTextHasNoErrors(
-      """
-        |  import scala.annotation.unused
-        |  @unused class Foo{
-        |    def aaa(): Unit = {}
-        |    def aaa(@unused str: String): Unit = {}
-        |  }
-        |""".stripMargin)
+      """import scala.annotation.unused
+        |@unused class Foo{
+        |  def aaa(): Unit = {}
+        |  def aaa(@unused str: String): Unit = {}
+        |}""".stripMargin)
   }
 
-  private def testOperatorUsedFromJava(operatorName: String, javaMethodName: String): Unit = {
+  private def doTestOperatorUsedFromJava(operatorName: String, javaMethodName: String): Unit = {
     addJavaFile(
-      s"""
-         |public class UsedOperatorJava {
-         |     public static void main(String[] args) {
-         |         new Num(1).$javaMethodName(1);
-         |     }
-         |"""
-        .stripMargin, "UsedOperatorJava")
+      s"""public class UsedOperatorJava {
+         |  public static void main(String[] args) {
+         |    new Num(1).$javaMethodName(1);
+         |  }
+         |}""".stripMargin, "UsedOperatorJava")
+
     checkTextHasNoErrors(
-      s"""
-         | class Num(n: Int) {
-         |   def $operatorName(n: Int): Num = new Num(n + this.n)
-         | }
-         |""".stripMargin)
+      s"""class Num(n: Int) {
+         |  def $operatorName(n: Int): Num = new Num(n + this.n)
+         |}""".stripMargin)
   }
 
-  def test_plus_used_from_java(): Unit = testOperatorUsedFromJava("+", "$plus")
+  def test_plus_used_from_java(): Unit = doTestOperatorUsedFromJava("+", "$plus")
 
-  def test_minus_used_from_java(): Unit = testOperatorUsedFromJava("-", "$minus")
+  def test_minus_used_from_java(): Unit = doTestOperatorUsedFromJava("-", "$minus")
 
-  def test_tilde_used_from_java(): Unit = testOperatorUsedFromJava("~", "$tilde")
+  def test_tilde_used_from_java(): Unit = doTestOperatorUsedFromJava("~", "$tilde")
 
-  def test_eqeq_used_from_java(): Unit = testOperatorUsedFromJava("==", "$eq$eq")
+  def test_eqeq_used_from_java(): Unit = doTestOperatorUsedFromJava("==", "$eq$eq")
 
-  def test_less_used_from_java(): Unit = testOperatorUsedFromJava("<", "$less")
+  def test_less_used_from_java(): Unit = doTestOperatorUsedFromJava("<", "$less")
 
-  def test_lesseq_used_from_java(): Unit = testOperatorUsedFromJava("<=", "$less$eq")
+  def test_lesseq_used_from_java(): Unit = doTestOperatorUsedFromJava("<=", "$less$eq")
 
-  def test_greater_used_from_java(): Unit = testOperatorUsedFromJava(">", "$greater")
+  def test_greater_used_from_java(): Unit = doTestOperatorUsedFromJava(">", "$greater")
 
-  def test_greatereq_used_from_java(): Unit = testOperatorUsedFromJava(">=", "$greater$eq")
+  def test_greatereq_used_from_java(): Unit = doTestOperatorUsedFromJava(">=", "$greater$eq")
 
-  def test_bang_used_from_java(): Unit = testOperatorUsedFromJava("!", "$bang")
+  def test_bang_used_from_java(): Unit = doTestOperatorUsedFromJava("!", "$bang")
 
-  def test_percent_used_from_java(): Unit = testOperatorUsedFromJava("%", "$percent")
+  def test_percent_used_from_java(): Unit = doTestOperatorUsedFromJava("%", "$percent")
 
-  def test_up_used_from_java(): Unit = testOperatorUsedFromJava("^", "$up")
+  def test_up_used_from_java(): Unit = doTestOperatorUsedFromJava("^", "$up")
 
-  def test_amp_used_from_java(): Unit = testOperatorUsedFromJava("&", "$amp")
+  def test_amp_used_from_java(): Unit = doTestOperatorUsedFromJava("&", "$amp")
 
-  def test_bar_used_from_java(): Unit = testOperatorUsedFromJava("|", "$bar")
+  def test_bar_used_from_java(): Unit = doTestOperatorUsedFromJava("|", "$bar")
 
-  def test_times_used_from_java(): Unit = testOperatorUsedFromJava("*", "$times")
+  def test_times_used_from_java(): Unit = doTestOperatorUsedFromJava("*", "$times")
 
-  def test_div_used_from_java(): Unit = testOperatorUsedFromJava("/", "$div")
+  def test_div_used_from_java(): Unit = doTestOperatorUsedFromJava("/", "$div")
 
-  def test_bslash_used_from_java(): Unit = testOperatorUsedFromJava("\\", "$bslash")
+  def test_bslash_used_from_java(): Unit = doTestOperatorUsedFromJava("\\", "$bslash")
 
-  def test_qmark_used_from_java(): Unit = testOperatorUsedFromJava("?", "$qmark")
+  def test_qmark_used_from_java(): Unit = doTestOperatorUsedFromJava("?", "$qmark")
 
-  private def testOperatorUsedFromScala(operatorName: String): Unit = {
+  private def doTestOperatorUsedFromScala(operatorName: String): Unit = {
     addScalaFile(
-      s"""
-         |object UsedOperator {
+      s"""object UsedOperator {
          |  val num = new Num(1)
          |  num $operatorName 1
-         |"""
-        .stripMargin, "UsedOperator")
+         |}""".stripMargin, "UsedOperator")
+
     checkTextHasNoErrors(
-      s"""
-         | class Num(n: Int) {
+      s"""class Num(n: Int) {
          |   def $operatorName(n: Int): Num = new Num(n + this.n)
-         | }
-         |""".stripMargin)
+         |}""".stripMargin)
   }
 
-  def test_plus_used_from_scala(): Unit = testOperatorUsedFromScala("+")
+  def test_plus_used_from_scala(): Unit = doTestOperatorUsedFromScala("+")
 
-  def test_minus_used_from_scala(): Unit = testOperatorUsedFromScala("-")
+  def test_minus_used_from_scala(): Unit = doTestOperatorUsedFromScala("-")
 
-  def test_tilde_used_from_scala(): Unit = testOperatorUsedFromScala("~")
+  def test_tilde_used_from_scala(): Unit = doTestOperatorUsedFromScala("~")
 
-  def test_eqeq_used_from_scala(): Unit = testOperatorUsedFromScala("==")
+  def test_eqeq_used_from_scala(): Unit = doTestOperatorUsedFromScala("==")
 
-  def test_less_used_from_scala(): Unit = testOperatorUsedFromScala("<")
+  def test_less_used_from_scala(): Unit = doTestOperatorUsedFromScala("<")
 
-  def test_lesseq_used_from_scala(): Unit = testOperatorUsedFromScala("<=")
+  def test_lesseq_used_from_scala(): Unit = doTestOperatorUsedFromScala("<=")
 
-  def test_greater_used_from_scala(): Unit = testOperatorUsedFromScala(">")
+  def test_greater_used_from_scala(): Unit = doTestOperatorUsedFromScala(">")
 
-  def test_greatereq_used_from_scala(): Unit = testOperatorUsedFromScala(">=")
+  def test_greatereq_used_from_scala(): Unit = doTestOperatorUsedFromScala(">=")
 
-  def test_bang_used_from_scala(): Unit = testOperatorUsedFromScala("!")
+  def test_bang_used_from_scala(): Unit = doTestOperatorUsedFromScala("!")
 
-  def test_percent_used_from_scala(): Unit = testOperatorUsedFromScala("%")
+  def test_percent_used_from_scala(): Unit = doTestOperatorUsedFromScala("%")
 
-  def test_up_used_from_scala(): Unit = testOperatorUsedFromScala("^")
+  def test_up_used_from_scala(): Unit = doTestOperatorUsedFromScala("^")
 
-  def test_amp_used_from_scala(): Unit = testOperatorUsedFromScala("&")
+  def test_amp_used_from_scala(): Unit = doTestOperatorUsedFromScala("&")
 
-  def test_bar_used_from_scala(): Unit = testOperatorUsedFromScala("|")
+  def test_bar_used_from_scala(): Unit = doTestOperatorUsedFromScala("|")
 
-  def test_times_used_from_scala(): Unit = testOperatorUsedFromScala("*")
+  def test_times_used_from_scala(): Unit = doTestOperatorUsedFromScala("*")
 
-  def test_div_used_from_scala(): Unit = testOperatorUsedFromScala("/")
+  def test_div_used_from_scala(): Unit = doTestOperatorUsedFromScala("/")
 
-  def test_bslash_used_from_scala(): Unit = testOperatorUsedFromScala("\\")
+  def test_bslash_used_from_scala(): Unit = doTestOperatorUsedFromScala("\\")
 
-  def test_qmark_used_from_scala(): Unit = testOperatorUsedFromScala("?")
+  def test_qmark_used_from_scala(): Unit = doTestOperatorUsedFromScala("?")
 
   def test_literally_identified_function_declaration_used_from_scala(): Unit = {
     addScalaFile("object Ctx { new Foo().`bar`() }")
