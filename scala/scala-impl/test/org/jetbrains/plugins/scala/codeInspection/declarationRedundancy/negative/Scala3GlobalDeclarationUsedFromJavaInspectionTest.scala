@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.positive
+package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.negative
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedDeclarationInspectionTestBase

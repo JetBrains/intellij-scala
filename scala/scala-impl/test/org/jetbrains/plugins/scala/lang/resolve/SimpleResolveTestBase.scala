@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.resolve
 
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
@@ -15,12 +16,21 @@ import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 import java.io.File
+import scala.collection.mutable.ArrayBuffer
 import scala.util.{Failure, Success, Try}
 
 @Category(Array(classOf[TypecheckerTests]))
 abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   import SimpleResolveTestBase._
+
+  //keeping hard refs to AST nodes to avoid flaky tests (as a workaround for SCL-20527 (see solution proposals))
+  private val myASTHardRefs: ArrayBuffer[ASTNode] = ArrayBuffer.empty
+
+  override def tearDown(): Unit = {
+    super.tearDown()
+    myASTHardRefs.clear()
+  }
 
   protected def folderPath: String = TestUtils.getTestDataPath + "/resolve/"
 
@@ -51,7 +61,10 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestCas
     def configureFile(fileTextWithFileName: (String, String), configureFun: (String, String) => PsiFile): Unit = {
       val (source, fileName) = fileTextWithFileName
       val trimmed = source.trim.replace("\r", "")
+
       val psiFile = configureFun(fileName, trimmed.replaceAll(REFSRC, "").replaceAll(REFTGT, ""))
+      myASTHardRefs += psiFile.getNode
+
       if (src == null) src = getSrc(trimmed, psiFile)
       if (tgt == null) tgt = getTgt(trimmed, psiFile)
     }
