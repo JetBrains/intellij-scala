@@ -85,6 +85,11 @@ class Scala2UnusedGlobalDeclarationInspectionTest extends ScalaUnusedDeclaration
     checkTextHasError(s"@scala.annotation.unused object B { val ${START}bar$END = 42 }")
   }
 
+  def test_type_with_same_name_as_another_declaration(): Unit = {
+    addFile("object A { val Foo = 42 }")
+    checkTextHasError(s"@scala.annotation.unused object B { type ${START}Foo$END }")
+  }
+
   def test_class_that_is_only_used_by_itself_via_class_parameter_type(): Unit = checkTextHasError(
     s"class ${START}A$END(@scala.annotation.unused a: A)"
   )
