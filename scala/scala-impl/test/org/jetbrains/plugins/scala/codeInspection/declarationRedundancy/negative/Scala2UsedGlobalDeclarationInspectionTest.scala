@@ -238,4 +238,9 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
       |@unused object A { @unused val v: { def foo: Int } = ??? }
       |""".stripMargin
   )
+
+  def test_type_alias(): Unit = {
+    addScalaFile("object B { val f: A.Foo = 42 }")
+    checkTextHasNoErrors("@scala.annotation.unused object A { type Foo = Int }")
+  }
 }
