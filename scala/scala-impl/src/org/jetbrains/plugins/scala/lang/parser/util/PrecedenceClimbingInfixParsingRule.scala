@@ -3,19 +3,24 @@ package org.jetbrains.plugins.scala.lang.parser.util
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.ErrMsg
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{ColonArgument, Expr1}
 import org.jetbrains.plugins.scala.lang.parser.parsing.{Associativity, ParsingRule}
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr1
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.{isAssignmentOperator, isSymbolicIdentifier, operatorAssociativity, priority}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
 abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
   protected def parseFirstOperator()(implicit builder: ScalaPsiBuilder): Boolean = parseOperator()
+
   protected def parseOperator()(implicit builder: ScalaPsiBuilder): Boolean
 
   protected def referenceElementType: IElementType
+
   protected def infixElementType: IElementType
+
   protected def isMatchConsideredInfix: Boolean
+
+  protected def isColonAfterOperatorConsideredArgumentListStart: Boolean
 
   protected def parseAfterOperatorId(opMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = ()
 
@@ -72,15 +77,24 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
         exitOf = false
       } else {
         backupMarker.drop()
-        backupMarker = builder.mark()
-        if (!parseOperator()) {
-          setMarker.rollbackTo()
-          count = 0
-          exitOf = false
-        }
-        else {
+        if (isColonAfterOperatorConsideredArgumentListStart && markerStack.nonEmpty && ColonArgument()) {
           setMarker.drop()
-          count = count + 1
+          exitOf = false
+          val first :: rest = markerStack
+          first.done(ScalaElementType.METHOD_CALL)
+          markerStack = rest
+          count -= 1
+        } else {
+          backupMarker = builder.mark()
+          if (!parseOperator()) {
+            setMarker.rollbackTo()
+            count = 0
+            exitOf = false
+          }
+          else {
+            setMarker.drop()
+            count = count + 1
+          }
         }
       }
     }
@@ -169,5 +183,4 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
       false
     }
   }
-
 }

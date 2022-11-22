@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -10,7 +9,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplateBlock
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Path, TypeArgs}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.XmlExpr
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.util.{InBracelessScala3, ParserUtils}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
 import scala.annotation.tailrec
 
@@ -47,6 +47,7 @@ import scala.annotation.tailrec
  *                     |  SimpleExpr ‘.’ MatchClause
  *                     |  SimpleExpr TypeArgs
  *                     |  SimpleExpr ArgumentExprs
+ *                     |  SimpleExpr ColonArgument -- scala 3 fewer braces
  */
 object SimpleExpr extends ParsingRule {
 
@@ -147,6 +148,7 @@ object SimpleExpr extends ParsingRule {
         newMarker = simpleMarker.precede
         simpleMarker.drop()
     }
+
     @tailrec
     def subparse(marker: PsiBuilder.Marker): Unit = {
       builder.getTokenType match {
@@ -160,13 +162,22 @@ object SimpleExpr extends ParsingRule {
           else {
             marker.drop()
           }
+        case InBracelessScala3(`tCOLON`)
+          if state &&
+            builder.findPreviousNewLine.isEmpty &&
+            ColonArgument() =>
+          val tMarker = marker.precede
+          marker.done(ScalaElementType.METHOD_CALL)
+          subparse(tMarker)
+        case InBracelessScala3(`tDOT`) if ParserUtils.isOutdent =>
+          marker.drop()
         case `tDOT` =>
           state = true
           builder.advanceLexer() //Ate .
           builder.getTokenType match {
             case `tIDENTIFIER` =>
               builder.advanceLexer() //Ate id
-            val tMarker = marker.precede
+              val tMarker = marker.precede
               marker.done(ScalaElementType.REFERENCE_EXPRESSION)
               subparse(tMarker)
             case `kMATCH` =>
@@ -177,8 +188,10 @@ object SimpleExpr extends ParsingRule {
               builder error ScalaBundle.message("identifier.expected")
               marker.drop()
           }
-        case `tLPARENTHESIS` | `tLBRACE` if
-        builder.getTokenType != tLPARENTHESIS || !builder.newlineBeforeCurrentToken =>
+        case `tLPARENTHESIS` | `tLBRACE`
+          if builder.getTokenType != tLPARENTHESIS ||
+            !builder.newlineBeforeCurrentToken ||
+            (builder.isScala3 && builder.isScala3IndentationBasedSyntaxEnabled && ParserUtils.isIndent) =>
           if (state && ArgumentExprs()) {
             val tMarker = marker.precede
             marker.done(ScalaElementType.METHOD_CALL)
@@ -202,8 +215,8 @@ object SimpleExpr extends ParsingRule {
           marker.drop()
       }
     }
-    subparse(newMarker)
 
+    subparse(newMarker)
     true
   }
 }

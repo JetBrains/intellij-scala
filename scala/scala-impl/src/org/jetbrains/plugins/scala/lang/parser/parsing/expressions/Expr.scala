@@ -26,11 +26,7 @@ object Expr extends ParsingRule {
         builder.advanceLexer() //Ate id
         builder.getTokenType match {
           case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
-            val psm = pmarker.precede // 'parameter clause'
-            val pssm = psm.precede // 'parameter list'
-            pmarker.done(ScalaElementType.PARAM)
-            psm.done(ScalaElementType.PARAM_CLAUSE)
-            pssm.done(ScalaElementType.PARAM_CLAUSES)
+            completeParamClauses(pmarker)()
 
             builder.advanceLexer() //Ate =>
             if (!ExprInIndentationRegion()) builder error ErrMsg("wrong.expression")

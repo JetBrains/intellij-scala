@@ -5,11 +5,10 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ErrMsg, IndentationWidth, PsiBuilderExt, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.Letter
+import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ErrMsg, IndentationWidth, PsiBuilderExt, ScalaElementType}
 
 object ParserUtils {
   //Associations of operator
@@ -217,8 +216,20 @@ object ParserUtils {
     parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, expectedMessage)(rule)
   }
 
+  def isOutdent(baseIndentation: IndentationWidth)(implicit builder: ScalaPsiBuilder): Boolean =
+    builder.findPreviousIndent.exists(_ < baseIndentation) || builder.eof()
+
   def isOutdent(baseIndentation: Option[IndentationWidth])(implicit builder: ScalaPsiBuilder): Boolean =
-    baseIndentation.exists(cur => builder.findPreviousIndent.exists(_ < cur) || builder.eof())
+    baseIndentation.exists(isOutdent)
+
+  def isOutdent(implicit builder: ScalaPsiBuilder): Boolean =
+    isOutdent(builder.currentIndentationWidth)
+
+  def isIndent(baseIndentation: IndentationWidth)(implicit builder: ScalaPsiBuilder): Boolean =
+    builder.findPreviousIndent.exists(_ > baseIndentation)
+
+  def isIndent(implicit builder: ScalaPsiBuilder): Boolean =
+    isIndent(builder.currentIndentationWidth)
 
   private def skipSemicolon(blockIndentation: BlockIndentation)(implicit builder: ScalaPsiBuilder): Unit =
     while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {

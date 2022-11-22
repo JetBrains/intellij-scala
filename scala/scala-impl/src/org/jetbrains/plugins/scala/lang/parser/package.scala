@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang
 
 import com.intellij.lang.{PsiBuilder, WhitespacesAndCommentsBinder}
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 import scala.annotation.tailrec
 
@@ -196,6 +197,23 @@ package object parser {
           }
         case _ => acc
       }
+
+    /** Skip matching pairs of `(...)` or `[...]` parentheses.
+     *
+     *  The current token is `(` or `[`
+     */
+    def skipParensOrBrackets(multiple: Boolean = true): Unit = {
+      val opening = repr.getTokenType
+      assert(opening == ScalaTokenTypes.tLPARENTHESIS || opening == ScalaTokenTypes.tLSQBRACKET)
+      val closing = if (opening == ScalaTokenTypes.tLPARENTHESIS) ScalaTokenTypes.tRPARENTHESIS else ScalaTokenTypes.tRSQBRACKET
+      repr.advanceLexer()
+      while (repr.getTokenType != null && repr.getTokenType != closing) {
+        if (repr.getTokenType == opening && multiple)
+          skipParensOrBrackets()
+        else repr.advanceLexer()
+      }
+      if (repr.getTokenType != null) repr.advanceLexer()
+    }
   }
 
   private class SoftKeywordRollbackMarker(builder: PsiBuilder, oldTokenType: IElementType) extends PsiBuilder.Marker {

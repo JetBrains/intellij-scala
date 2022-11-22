@@ -138,6 +138,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_class_refinement(): Unit = doTest("class-refinement", true)
   def test_classtag_typetest(): Unit = doTest("classtag-typetest", true)
   def test_classWithCompObj(): Unit = doTest("classWithCompObj", true)
+  // `map` in `val ys1 = List(1) map: x =>` is not resolved
   def test_closure_args(): Unit = doTest("closure-args", false) // #extension
   def test_cls(): Unit = doTest("cls", true)
   def test_cls1(): Unit = doTest("cls1", true)
@@ -240,7 +241,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_factory_conversion(): Unit = doTest("factory-conversion", true)
   def test_false_companion(): Unit = doTest("false-companion", true)
   def test_fbounds(): Unit = doTest("fbounds", false) // #unionType
-  def test_fewer_braces(): Unit = doTest("fewer-braces", false)
+  def test_fewer_braces(): Unit = doTest("fewer-braces", true)
   def test_finalvals(): Unit = doTest("finalvals", true)
   def test_flatten(): Unit = doTest("flatten", true)
   def test_flow(): Unit = doTest("flow", true)
