@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRe
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, SmartPsiElementPointer}
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
@@ -39,7 +39,7 @@ private final class ElementUsageWithKnownReference private(
     }
   }
 
-  def referenceIsWithinPrivateScopeOfTypeDef(@NotNull typeDef: PsiClass): Boolean = {
+  def referenceToTypeDefIsWithinTheSameTypeDef(@NotNull typeDef: PsiClass): Boolean = {
     var refContainingClass = PsiTreeUtil.getParentOfType(reference.getElement, classOf[PsiClass])
     var counter = 0
 
@@ -57,10 +57,20 @@ private final class ElementUsageWithKnownReference private(
 
   private def referenceIsWithinTargetPrivateScope: Boolean = {
     val targetContainingClass = PsiTreeUtil.getParentOfType(target.underlying.get, classOf[PsiClass])
+
     if (targetContainingClass == null) {
       false
     } else {
-      referenceIsWithinPrivateScopeOfTypeDef(targetContainingClass)
+
+      def referenceIsInCompanionScope: Boolean =
+        (PsiTreeUtil.getParentOfType(reference.getElement, classOf[ScTypeDefinition]), targetContainingClass) match {
+          case (null, _) => false
+          case (refTypeDef: ScTypeDefinition, targetTypeDef: ScTypeDefinition) =>
+            refTypeDef.baseCompanion.contains(targetTypeDef)
+          case _ => false
+        }
+
+      referenceToTypeDefIsWithinTheSameTypeDef(targetContainingClass) || referenceIsInCompanionScope
     }
   }
 

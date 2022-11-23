@@ -64,4 +64,11 @@ class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestBase {
 
   def test_no_need_to_prevent_leaking_via_inheritance(): Unit =
     checkTextHasError(s"object A { class ${START}B$END; private class C extends B }", AllowAdditionalHighlights)
+
+  def test_usage_within_companion(): Unit = checkTextHasError(
+    s"""private class Foo { val ${START}a$END = 42 }
+       |private object Foo { new Foo().a }
+       |private class Bar { Bar.b }
+       |private object Bar { val ${START}b$END = 42 }
+       |""".stripMargin, AllowAdditionalHighlights)
 }

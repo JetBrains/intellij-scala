@@ -130,7 +130,7 @@ private[declarationRedundancy] object Search {
 
       def isSelfReferentialTypeDefRef(usage: ElementUsage): Boolean = (usage, element.asOptionOf[ScTypeDefinition]) match {
         case (usageWithReference: ElementUsageWithKnownReference, Some(typeDef)) =>
-          usageWithReference.referenceIsWithinPrivateScopeOfTypeDef(typeDef)
+          usageWithReference.referenceToTypeDefIsWithinTheSameTypeDef(typeDef)
         case _ => false
       }
 
