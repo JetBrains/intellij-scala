@@ -849,6 +849,46 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
+  def testRemove_FunctionBody_MethodInvocation_IndentedTooFarToTheLeft_After(): Unit = {
+    val before =
+      s"""{
+         |  def foo() = {${|}
+         |    someMethod1()
+         |    someMethod2()
+         |    // foo
+         |  }
+         |  // bar
+         |//baz
+         |.someMethod3()
+         |}
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""{
+         |  def foo() = ${|}
+         |    someMethod1()
+         |    someMethod2()
+         |    // foo
+         |
+         |  // bar
+         |//baz
+         |.someMethod3()
+         |}
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""{
+         |  def foo() = ${|}
+         |    someMethod1()
+         |    someMethod2()
+         |    // foo
+         |  }
+         |  // bar
+         |//baz
+         |.someMethod3()
+         |}
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
   def testNotRemove_FunctionBody_ExpressionsWithSameIndentation_Comment_After(): Unit = {
     val before =
       s"""def foo() = {${|}
@@ -1087,7 +1127,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |  }
          |  // bar
          |//baz
-         |.someMethod3()
+         |  .someMethod3()
          |}
          |""".stripMargin
     val afterWithEnabled =
@@ -1099,7 +1139,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |  }
          |  // bar
          |//baz
-         |.someMethod3()
+         |  .someMethod3()
          |}
          |""".stripMargin
     val afterWithDisabled =
@@ -1111,7 +1151,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |  }
          |  // bar
          |//baz
-         |.someMethod3()
+         |  .someMethod3()
          |}
          |""".stripMargin
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
