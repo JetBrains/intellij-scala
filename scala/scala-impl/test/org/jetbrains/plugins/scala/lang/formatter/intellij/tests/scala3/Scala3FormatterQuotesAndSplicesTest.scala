@@ -185,4 +185,15 @@ class Scala3FormatterQuotesAndSplicesTest extends Scala3FormatterBaseTest {
       |""".stripMargin
   )
 
+  //SCL-20764
+  def testSCL20764(): Unit = doTextTest(
+    """def forEach(start: Expr[Int], stop: Expr[Int], step: Expr[Int], f: Expr[Int => Unit])(using Quotes): Expr[Unit] =
+      |  '{
+      |    var i = $start
+      |    while i < $stop do
+      |      ${ betaReduceFixE('{ $f(i) }) }
+      |      i += $step
+      |  }""".stripMargin
+  )
+
 }

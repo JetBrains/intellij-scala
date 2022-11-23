@@ -5,22 +5,25 @@ import com.intellij.lang.Language
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
+import com.intellij.openapi.module
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{FileResolveScopeProvider, FileViewProvider, PsiClass, PsiComment, PsiDocumentManager, PsiElement, PsiReference, PsiWhiteSpace, ResolveState}
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, codeStyle}
 import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
+import com.intellij.psi.{FileResolveScopeProvider, FileViewProvider, PsiClass, PsiDocumentManager, PsiElement, PsiReference}
+import com.intellij.util.SystemProperties
 import com.intellij.util.indexing.FileBasedIndex
-import org.jetbrains.plugins.scala.{JavaArrayFactoryUtil, ScalaFileType}
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.{ResolveFilterScope, WorksheetResolveFilterScope}
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScFileViewProvider}
+import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -28,6 +31,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.util.ScalaPluginUtils
+import org.jetbrains.plugins.scala.{JavaArrayFactoryUtil, ScalaFileType}
 
 import java.{util => ju}
 import scala.annotation.{nowarn, tailrec}
@@ -250,13 +255,36 @@ class ScalaFileImpl(
     val file = getOriginalFile.getVirtualFile
     if (file != null && file.isValid) {
       val defaultResolveScope = defaultFileResolveScope(file)
-      if (isWorksheetFile)
+      val resolveScope = if (isWorksheetFile)
         WorksheetResolveFilterScope(defaultResolveScope, file)
       else
         ResolveFilterScope(defaultResolveScope)
+
+      val extraModuleForSharedSources =
+        if (ResolveToDependentModuleInSharedSources) findRepresentativeModuleForSharedSourceModule
+        else None
+      extraModuleForSharedSources match {
+        case Some(jvmModule) =>
+          resolveScope.union(jvmModule.getModuleWithDependenciesAndLibrariesScope(true))
+        case None =>
+          resolveScope
+      }
     }
     else
       GlobalSearchScope.allScope(project)
+  }
+
+  /** see comment for [[ResolveToDependentModuleInSharedSources]] */
+  @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
+  private def findRepresentativeModuleForSharedSourceModule: Option[module.Module] = {
+    val module = ModuleUtilCore.findModuleForPsiElement(this)
+    if (module == null)
+      return None
+    import org.jetbrains.plugins.scala.project.ModuleExt
+    if (module.isSharedSourceModule)
+      module.findRepresentativeModuleForSharedSourceModule
+    else
+      None
   }
 
   override final def getUseScope: SearchScope =
@@ -325,6 +353,14 @@ class ScalaFileImpl(
 object ScalaFileImpl {
   private val LOG = Logger.getInstance(getClass)
   private val QualifiedPackagePattern = "(.+)\\.(.+?)".r
+
+  /**
+   * Hacky partial workaround for https://youtrack.jetbrains.com/issue/SCL-19567/Support-of-CrossType.Full-wanted
+   * This workaround only solves the "Red code" issue, but most of the features, like rename, find usages, etc... don't work
+   */
+  private val ResolveToDependentModuleInSharedSources: Boolean =
+    SystemProperties.getBooleanProperty("scala.resolve.to.dependent.module.in.shared.sources", false) ||
+      ScalaPluginUtils.isRunningFromSources
 
   def pathIn(root: PsiElement): List[List[String]] =
     packagingsIn(root).map(packaging => toVector(packaging.packageName))

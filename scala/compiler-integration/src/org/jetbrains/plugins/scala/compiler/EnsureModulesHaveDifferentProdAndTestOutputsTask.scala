@@ -82,8 +82,8 @@ final class EnsureModulesHaveDifferentProdAndTestOutputsTask extends CompileTask
         if (splitAutomatically) {
           inWriteAction {
             modulesWithClashes.foreach(splitOutputs)
-            project.save()
           }
+          project.save()
         }
 
         mayProceedWithCompilation = splitAutomatically

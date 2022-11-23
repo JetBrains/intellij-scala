@@ -80,8 +80,12 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     sourceModuleNode
   }
 
-  // Selects an arbitrary project, preferable a JVM one.
-  private def representativeProjectIn(projects: Seq[ProjectData]) = {
+  /**
+   * Selects an arbitrary project, preferable a JVM one
+   *
+   * Also see [[org.jetbrains.plugins.scala.project.ModuleExt.findRepresentativeModuleForSharedSourceModule]]
+   */
+  private def representativeProjectIn(projects: Seq[ProjectData]): ProjectData = {
     val isNonJvmTitle = (title: String) =>
       title.endsWith("js") || title.endsWith("native")
 
