@@ -138,8 +138,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_class_refinement(): Unit = doTest("class-refinement", true)
   def test_classtag_typetest(): Unit = doTest("classtag-typetest", true)
   def test_classWithCompObj(): Unit = doTest("classWithCompObj", true)
-  // `map` in `val ys1 = List(1) map: x =>` is not resolved
-  def test_closure_args(): Unit = doTest("closure-args", false) // #extension
+  def test_closure_args(): Unit = doTest("closure-args", true) // #extension
   def test_cls(): Unit = doTest("cls", true)
   def test_cls1(): Unit = doTest("cls1", true)
   def test_clsrefine(): Unit = doTest("clsrefine", true)
