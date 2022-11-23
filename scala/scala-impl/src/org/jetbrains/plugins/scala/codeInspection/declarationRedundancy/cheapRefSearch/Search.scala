@@ -130,19 +130,14 @@ private[declarationRedundancy] object Search {
 
       def isSelfReferentialTypeDefRef(usage: ElementUsage): Boolean = (usage, element.asOptionOf[ScTypeDefinition]) match {
         case (usageWithReference: ElementUsageWithKnownReference, Some(typeDef)) =>
-          usageWithReference.referenceIsWithinPrivateScopeOfTypeDef(typeDef)
+          usageWithReference.referenceToTypeDefIsWithinTheSameTypeDef(typeDef)
         case _ => false
-      }
-
-      def referenceCanBeRemovedWithoutBreakingCompilation(usage: ElementUsage): Boolean = usage match {
-        case ElementUsageWithUnknownReference => false
-        case _ => isSelfReferentialTypeDefRef(usage)
       }
 
       searchMethods.foreach { method =>
         if (method.shouldProcess(conditions) && !res.exists(ctx.canExit)) {
           method.getUsages(ctx)
-            .filterNot(referenceCanBeRemovedWithoutBreakingCompilation)
+            .filterNot(isSelfReferentialTypeDefRef)
             .foreach { usage =>
               res.addOne(usage)
             }
