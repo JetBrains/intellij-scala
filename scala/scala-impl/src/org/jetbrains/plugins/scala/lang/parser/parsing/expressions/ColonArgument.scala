@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.ImplicitFunctionArr
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tFUNTYPE, tLSQBRACKET}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{ARG_EXPRS, FUNCTION_EXPR, POLY_FUNCTION_EXPR}
-import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClausesWithoutBraces
@@ -24,9 +23,9 @@ import scala.util.chaining.scalaUtilChainingOps
  *                  | HkTypeParamClause '=>'
  * }}}
  */
-object ColonArgument extends ParsingRule {
+object ColonArgument {
 
-  override def parse(implicit builder: ScalaPsiBuilder): Boolean =
+  def apply(needArgNode: Boolean)(implicit builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {
       case InBracelessScala3(ScalaTokenTypes.tCOLON) if builder.findPreviousNewLine.isEmpty =>
         val argMarker = builder.mark()
@@ -49,7 +48,9 @@ object ColonArgument extends ParsingRule {
 
         if (parsed) {
           blockExprMarker.done(ScCodeBlockElementType.BlockExpression)
-          argMarker.done(ARG_EXPRS)
+
+          if (needArgNode) argMarker.done(ARG_EXPRS)
+          else argMarker.drop()
         }
         else {
           blockExprMarker.drop()

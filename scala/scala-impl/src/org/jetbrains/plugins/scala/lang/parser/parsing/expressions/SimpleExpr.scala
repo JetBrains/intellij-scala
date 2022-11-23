@@ -165,7 +165,7 @@ object SimpleExpr extends ParsingRule {
         case InBracelessScala3(`tCOLON`)
           if state &&
             builder.findPreviousNewLine.isEmpty &&
-            ColonArgument() =>
+            ColonArgument(needArgNode = true) =>
           val tMarker = marker.precede
           marker.done(ScalaElementType.METHOD_CALL)
           subparse(tMarker)

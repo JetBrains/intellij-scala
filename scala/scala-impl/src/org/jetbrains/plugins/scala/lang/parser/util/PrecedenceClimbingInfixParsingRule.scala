@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.{isAssignmentOpe
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
 abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
-  protected def parseFirstOperator()(implicit builder: ScalaPsiBuilder): Boolean = parseOperator()
+  protected def parseFirstOperator()(implicit builder: ScalaPsiBuilder): Boolean
 
   protected def parseOperator()(implicit builder: ScalaPsiBuilder): Boolean
 
@@ -19,8 +19,6 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
   protected def infixElementType: IElementType
 
   protected def isMatchConsideredInfix: Boolean
-
-  protected def isColonAfterOperatorConsideredArgumentListStart: Boolean
 
   protected def parseAfterOperatorId(opMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = ()
 
@@ -77,24 +75,15 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
         exitOf = false
       } else {
         backupMarker.drop()
-        if (isColonAfterOperatorConsideredArgumentListStart && markerStack.nonEmpty && ColonArgument()) {
-          setMarker.drop()
+        backupMarker = builder.mark()
+        if (!parseOperator()) {
+          setMarker.rollbackTo()
+          count = 0
           exitOf = false
-          val first :: rest = markerStack
-          first.done(ScalaElementType.METHOD_CALL)
-          markerStack = rest
-          count -= 1
-        } else {
-          backupMarker = builder.mark()
-          if (!parseOperator()) {
-            setMarker.rollbackTo()
-            count = 0
-            exitOf = false
-          }
-          else {
-            setMarker.drop()
-            count = count + 1
-          }
+        }
+        else {
+          setMarker.drop()
+          count = count + 1
         }
       }
     }

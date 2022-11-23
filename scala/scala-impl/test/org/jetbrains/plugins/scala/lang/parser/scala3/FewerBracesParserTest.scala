@@ -207,7 +207,7 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin,
     """
       |ScalaFile
-      |  MethodCall
+      |  InfixExpression
       |    MethodCall
       |      ReferenceExpression: List
       |        PsiElement(identifier)('List')
@@ -219,27 +219,26 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    ReferenceExpression: map
       |      PsiElement(identifier)('map')
-      |    ArgumentList
-      |      BlockExpression
-      |        PsiElement(:)(':')
-      |        PsiWhiteSpace(' ')
-      |        FunctionExpression
-      |          Parameters
-      |            ParametersClause
-      |              Parameter: x
-      |                PsiElement(identifier)('x')
-      |          PsiWhiteSpace(' ')
-      |          PsiElement(=>)('=>')
-      |          PsiWhiteSpace('\n    ')
-      |          InfixExpression
-      |            ReferenceExpression: x
+      |    BlockExpression
+      |      PsiElement(:)(':')
+      |      PsiWhiteSpace(' ')
+      |      FunctionExpression
+      |        Parameters
+      |          ParametersClause
+      |            Parameter: x
       |              PsiElement(identifier)('x')
-      |            PsiWhiteSpace(' ')
-      |            ReferenceExpression: +
-      |              PsiElement(identifier)('+')
-      |            PsiWhiteSpace(' ')
-      |            IntegerLiteral
-      |              PsiElement(integer)('1')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        PsiWhiteSpace('\n    ')
+      |        InfixExpression
+      |          ReferenceExpression: x
+      |            PsiElement(identifier)('x')
+      |          PsiWhiteSpace(' ')
+      |          ReferenceExpression: +
+      |            PsiElement(identifier)('+')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('1')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
