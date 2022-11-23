@@ -154,6 +154,20 @@ package object project {
       }
     }
 
+    /**
+     * Selects dependent module for shared-sources module<br>
+     * It first search for JVM, then for Js and then for Native
+     */
+    def findRepresentativeModuleForSharedSourceModule: Option[Module] =
+      if (isSharedSourceModule) {
+        val moduleManager = ModuleManager.getInstance(module.getProject)
+        val dependents = moduleManager.getModuleDependentModules(module).asScala
+        dependents.find(_.isJvmModule)
+          .orElse(dependents.find(_.isScalaJs))
+          .orElse(dependents.find(_.isScalaNative))
+      }
+      else None
+
     def sharedSourceDependency: Option[Module] =
       ModuleRootManager.getInstance(module).getDependencies
         .find(_.isSharedSourceModule)
