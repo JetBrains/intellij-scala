@@ -5,10 +5,9 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.impl.PushedFilePropertiesUpdater
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{FilePropertyKey, FilePropertyKeyImpl, PsiFile}
 import com.intellij.util.indexing.IndexingDataKeys
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.project.ScalaFeaturePusher.{SerializedScalaFeatures, isScalaLike}
@@ -18,13 +17,7 @@ import scala.annotation.nowarn
 /**
  * Used [[com.intellij.openapi.roots.impl.JavaLanguageLevelPusher]] as a reference
  */
-class ScalaFeaturePusher extends com.intellij.FileIntPropertyPusher[SerializedScalaFeatures] {
-
-  override def getAttribute: FileAttribute = ScalaFeaturePusher.Persistence
-
-  override def toInt(features: SerializedScalaFeatures): Int = features
-
-  override def fromInt(value: Int): SerializedScalaFeatures = value
+class ScalaFeaturePusher extends com.intellij.FilePropertyPusherBase[SerializedScalaFeatures] {
 
   override def propertyChanged(project: Project, fileOrDir: VirtualFile, actualProperty: SerializedScalaFeatures): Unit = {
     PushedFilePropertiesUpdater.getInstance(project).filePropertiesChanged(fileOrDir, isScalaLike)
@@ -36,7 +29,7 @@ class ScalaFeaturePusher extends com.intellij.FileIntPropertyPusher[SerializedSc
       }
   }
 
-  override def getFileDataKey: Key[SerializedScalaFeatures] = ScalaFeaturePusher.key
+  override def getFileDataKey: FilePropertyKey[SerializedScalaFeatures] = ScalaFeaturePusher.key
 
   override def pushDirectoriesOnly(): Boolean = true
 
@@ -64,7 +57,7 @@ object ScalaFeaturePusher {
       }
 
   def getFeatures(file: VirtualFile): Option[ScalaFeatures] =
-    Option(file.getUserData(key)).map(ScalaFeatures.deserializeFromInt(_))
+    Option(key.getPersistentValue(file)).map(ScalaFeatures.deserializeFromInt(_))
 
   private val Persistence = new FileAttribute("scala_pushed_feature_persistence", ScalaFeatures.version, true)
 
@@ -78,5 +71,11 @@ object ScalaFeaturePusher {
       case _                     => false
     }
 
-  private val key: Key[SerializedScalaFeatures] = Key.create("Pushed Scala Features")
+  private val key: FilePropertyKey[SerializedScalaFeatures] =
+    FilePropertyKeyImpl.createPersistentStringKey[SerializedScalaFeatures](
+      "Pushed Scala Features",
+      Persistence,
+      _.toString,
+      _.toInt
+    )
 }

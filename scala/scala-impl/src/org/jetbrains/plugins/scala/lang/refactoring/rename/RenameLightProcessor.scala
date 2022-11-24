@@ -41,7 +41,7 @@ class RenameLightProcessor extends RenamePsiElementProcessor {
     } else null
   }
 
-  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]): Unit = {
+  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[_ >: PsiElement]): Unit = {
     val orig = originalElement(element)
     if (orig != null) {
       val processor = RenamePsiElementProcessor.forElement(orig)

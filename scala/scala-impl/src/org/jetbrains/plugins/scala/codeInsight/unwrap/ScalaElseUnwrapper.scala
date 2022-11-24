@@ -19,7 +19,7 @@ class ScalaElseUnwrapper extends ScalaElseUnwrapperBase {
 
   override def getDescription(e: PsiElement): String = CodeInsightBundle.message("unwrap.else")
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = elseBranch(e) match {
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[_ >: PsiElement]): PsiElement = elseBranch(e) match {
     case Some((ifStmt: ScIf, _)) =>
       super.collectAffectedElements(e, toExtract)
       maxIfStmt(ifStmt)

@@ -20,7 +20,7 @@ class ScalaInterpolatedStringUnwrapper extends ScalaUnwrapper {
   
   override def getDescription(e: PsiElement): String = ScalaBundle.message("unwrap.interpolated.string.injection")
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = forInjection[PsiElement](e) {
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[_ >: PsiElement]): PsiElement = forInjection[PsiElement](e) {
     (expr, lit) =>
       super.collectAffectedElements(expr, toExtract)
       lit

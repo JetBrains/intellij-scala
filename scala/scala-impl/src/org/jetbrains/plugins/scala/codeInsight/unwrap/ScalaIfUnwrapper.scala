@@ -21,7 +21,7 @@ class ScalaIfUnwrapper extends ScalaUnwrapper {
     case _ =>
   }
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = e.getParent match {
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[_ >: PsiElement]): PsiElement = e.getParent match {
     case ifSt @ ScIf(_, Some(`e`), _) =>
       super.collectAffectedElements(e, toExtract)
       ifSt

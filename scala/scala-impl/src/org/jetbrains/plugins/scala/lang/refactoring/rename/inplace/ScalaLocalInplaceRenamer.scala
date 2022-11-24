@@ -29,7 +29,7 @@ class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor,
     this(elementToRename, editor, elementToRename.getProject,
       ScalaNamesUtil.scalaName(elementToRename), ScalaNamesUtil.scalaName(elementToRename))
 
-  override def collectAdditionalElementsToRename(stringUsages: util.List[Pair[PsiElement, TextRange]]): Unit = {
+  override def collectAdditionalElementsToRename(stringUsages: util.List[_ >: Pair[PsiElement, TextRange]]): Unit = {
     val stringToSearch: String = ScalaNamesUtil.scalaName(elementToRename)
     if (stringToSearch == null)
       return

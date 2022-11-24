@@ -14,7 +14,7 @@ class ScalaCaseClauseRemover extends ScalaUnwrapper {
   override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit =
     forCaseClause(element)(context.delete(_)) {}
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement =
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[_ >: PsiElement]): PsiElement =
     forCaseClause[PsiElement](e){ cl =>
       super.collectAffectedElements(cl, toExtract)
       cl

@@ -9,7 +9,7 @@ import java.util
 class ScalaWhileUnwrapper extends ScalaUnwrapper {
   override def getDescription(e: PsiElement): String = CodeInsightBundle.message("unwrap.while")
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = e match {
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[_ >: PsiElement]): PsiElement = e match {
     case _: ScWhile | _: ScDo =>
       super.collectAffectedElements(e, toExtract)
       e

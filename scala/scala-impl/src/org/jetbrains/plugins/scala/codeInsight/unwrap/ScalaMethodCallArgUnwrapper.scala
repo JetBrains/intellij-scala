@@ -20,7 +20,7 @@ class ScalaMethodCallArgUnwrapper extends ScalaUnwrapper with ShortTextDescripti
     } {}
   }
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = {
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[_ >: PsiElement]): PsiElement = {
     forMethodCallArg[PsiElement](e) { (_, call) =>
       super.collectAffectedElements(e, toExtract)
       call

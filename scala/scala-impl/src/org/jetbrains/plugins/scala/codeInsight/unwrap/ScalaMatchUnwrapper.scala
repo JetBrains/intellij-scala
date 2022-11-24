@@ -17,7 +17,7 @@ class ScalaMatchUnwrapper extends ScalaUnwrapper {
     context.delete(m)
   } {}
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = forCaseClauseInMatch[PsiElement](e) { (_, m) =>
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[_ >: PsiElement]): PsiElement = forCaseClauseInMatch[PsiElement](e) { (_, m) =>
     super.collectAffectedElements(e, toExtract)
     m
   }(e)

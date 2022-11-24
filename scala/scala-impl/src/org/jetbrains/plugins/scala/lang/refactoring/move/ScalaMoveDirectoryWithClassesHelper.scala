@@ -21,9 +21,9 @@ import scala.jdk.CollectionConverters._
 
 class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper {
 
-  override def findUsages(filesToMove: ju.Collection[PsiFile],
+  override def findUsages(filesToMove: ju.Collection[_ <: PsiFile],
                           directoriesToMove: Array[PsiDirectory],
-                          usages: ju.Collection[UsageInfo],
+                          usages: ju.Collection[_ >: UsageInfo],
                           searchInComments: Boolean,
                           searchInNonJavaFiles: Boolean,
                           project: Project): Unit = {
@@ -76,7 +76,7 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
   override def move(file: PsiFile,
                     moveDestination: PsiDirectory,
                     oldToNewElementsMapping: ju.Map[PsiElement, PsiElement],
-                    movedFiles: ju.List[PsiFile],
+                    movedFiles: ju.List[_ >: PsiFile],
                     listener: RefactoringElementListener): Boolean = {
 
     def moveClass(clazz: PsiClass): Unit = {

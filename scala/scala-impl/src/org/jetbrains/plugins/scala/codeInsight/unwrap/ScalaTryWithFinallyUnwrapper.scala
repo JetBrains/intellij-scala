@@ -23,7 +23,7 @@ class ScalaTryWithFinallyUnwrapper extends ScalaUnwrapper {
 
   override def getDescription(e: PsiElement): String = ScalaBundle.message("unwrap.try.with.finally")
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = e.getParent match {
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[_ >: PsiElement]): PsiElement = e.getParent match {
     case stmt: ScTry =>
       super.collectAffectedElements(e, toExtract)
       stmt
