@@ -52,7 +52,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
           val (clazz, members) = membersOf(body)
 
           val lookupElements = members.map { member =>
-            createLookupElement(member, createText(member, clazz, full = true), hasOverride = false)
+            createLookupElement(member, createText(member, clazz, position, full = true), hasOverride = false)
           }
 
           resultSet.addAllElements(lookupElements.asJava)
@@ -76,9 +76,12 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
 
         val (clazz, members) = membersOf(position)
 
-        val lookupElements = members.collect {
-          case member@(_: ScValueMember | _: ScVariableMember) =>
-            createLookupElement(member, createText(member, clazz, full = !hasOverride, withBody = false), hasOverride)
+        val lookupElements = members.collect { case member @ (_: ScValueMember | _: ScVariableMember) =>
+          createLookupElement(
+            member,
+            createText(member, clazz, position, full = !hasOverride, withBody = false),
+            hasOverride
+          )
         }
 
         completionResultSet.addAllElements(lookupElements.asJava)
@@ -115,7 +118,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
           val (clazz, classMembers) = membersOf(body)
 
           val lookupElements = classMembers.filter(filterClass.isInstance).map { member =>
-            createLookupElement(member, createText(member, clazz), hasOverride)
+            createLookupElement(member, createText(member, clazz, position), hasOverride)
           }
 
           resultSet.addAllElements(lookupElements.asJava)
@@ -124,28 +127,50 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     }
   })
 
-  private def createText(classMember: ClassMember, clazz: ScTemplateDefinition, full: Boolean = false, withBody: Boolean = true): String = {
+  private def createText(classMember: ClassMember, clazz: ScTemplateDefinition, position: PsiElement, full: Boolean = false, withBody: Boolean = true): String = {
     import ScalaPsiElementFactory._
     import TypeAnnotationUtil._
     import clazz.projectContext
 
     val text: String = classMember match {
-      case member@ScMethodMember(signature, isOverride) =>
+      case member @ ScMethodMember(signature, isOverride) =>
         val mBody = if (isOverride) ScalaGenerationInfo.getMethodBody(member, clazz, isImplement = false) else "???"
         val fun =
-          if (full) createOverrideImplementMethod(signature, needsOverrideModifier = true, mBody, withComment = false, withAnnotation = false)
-          else createMethodFromSignature(signature, mBody, withComment = false, withAnnotation = false)
+          if (full)
+            createOverrideImplementMethod(
+              signature,
+              needsOverrideModifier = true,
+              mBody,
+              position,
+              withComment = false,
+              withAnnotation = false
+            )
+          else createMethodFromSignature(signature, mBody, position, withComment = false, withAnnotation = false)
 
         removeTypeAnnotationIfNeeded(fun)
         fun.getText
       case ScAliasMember(element, substitutor, _) =>
         getOverrideImplementTypeSign(element, substitutor, needsOverride = false)
       case member: ScValueMember =>
-        val variable = createOverrideImplementVariable(member.element, member.substitutor, needsOverrideModifier = false, isVal = true, withBody = withBody)
+        val variable = createOverrideImplementVariable(
+          member.element,
+          member.substitutor,
+          needsOverrideModifier = false,
+          isVal = true,
+          features = position,
+          withBody = withBody
+        )
         removeTypeAnnotationIfNeeded(variable)
         variable.getText
       case member: ScVariableMember =>
-        val variable = createOverrideImplementVariable(member.element, member.substitutor, needsOverrideModifier = false, isVal = false, withBody = withBody)
+        val variable = createOverrideImplementVariable(
+          member.element,
+          member.substitutor,
+          needsOverrideModifier = false,
+          isVal = false,
+          features = position,
+          withBody = withBody
+        )
         removeTypeAnnotationIfNeeded(variable)
         variable.getText
       case _ => " "

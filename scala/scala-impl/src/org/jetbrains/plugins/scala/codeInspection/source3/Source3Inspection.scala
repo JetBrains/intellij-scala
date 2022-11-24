@@ -54,7 +54,7 @@ class Source3Inspection extends LocalInspectionTool {
             pattern,
             getDisplayName,
             createReplacingQuickFix(gen, ScalaInspectionBundle.message("add.case")) { gen =>
-              ScalaPsiElementFactory.createExpressionFromText(s"for { case ${gen.getText} } ()")(gen)
+              ScalaPsiElementFactory.createExpressionFromText(s"for { case ${gen.getText} } ()", gen)(gen)
                 .asInstanceOf[ScFor].enumerators.head.generators.head
             }
           )

@@ -237,7 +237,7 @@ object ScalaClassNameCompletionContributor {
 
   private[this] def positionInString(place: PsiElement)
                                     (implicit parameters: CompletionParameters) =
-    ScalaPsiElementFactory.createExpressionFromText(
+    ScalaPsiElementFactory.createExpressionWithContextFromText(
       "s" + place.getText,
       place.getContext.getContext
     ).findElementAt(

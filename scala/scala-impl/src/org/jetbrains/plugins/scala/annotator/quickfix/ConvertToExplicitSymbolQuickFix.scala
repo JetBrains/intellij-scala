@@ -25,7 +25,7 @@ final class ConvertToExplicitSymbolQuickFix(symbolLiteral: ScSymbolLiteral) exte
     if (symbolLiteral.isValid) {
       val newText = s"""Symbol("$symbolText")"""
       symbolLiteral.replace {
-        ScalaPsiElementFactory.createExpressionFromText(newText)(symbolLiteral.getManager)
+        ScalaPsiElementFactory.createExpressionFromText(newText, symbolLiteral)(project)
       }
     }
 

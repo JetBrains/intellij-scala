@@ -144,7 +144,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     try {
       val project = head.getProject
       val concatText = elements.map(_.getText).mkString("{\n", "\n", "\n}")
-      val newExpr = createExpressionFromText(concatText)(head.getManager)
+      val newExpr = createExpressionFromText(concatText, head)(head.getManager)
 
       val prev = PsiTreeUtil.prevLeaf(head)
       val next = PsiTreeUtil.nextLeaf(elements.last)

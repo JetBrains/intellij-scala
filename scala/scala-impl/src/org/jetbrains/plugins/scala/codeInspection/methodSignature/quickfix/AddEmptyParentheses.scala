@@ -11,6 +11,6 @@ final class AddEmptyParentheses(function: ScFunction)
   override protected def doApplyFix(function: ScFunction)
                                    (implicit project: Project): Unit = {
     import ScalaPsiElementFactory.createClauseFromText
-    function.paramClauses.addClause(createClauseFromText())
+    function.paramClauses.addClause(createClauseFromText(features = function))
   }
 }

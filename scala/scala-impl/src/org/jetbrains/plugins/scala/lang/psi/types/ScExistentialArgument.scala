@@ -50,6 +50,9 @@ object ScExistentialArgument {
 
   //used for representing type parameters of a java raw class type
   //it may have a reference to itself in it's bounds, so it cannot be fully initialized in constructor
+  //NOTE: It doesn't/can't have a well defined equals/hashCode, so be extra careful and don't
+  //      create Deferred instances unless strictly needed, they can lead to tricky to find problems,
+  //      when ScTypes are used as keys in varius hash-based structures.
   private class Deferred(
     override val name:              String,
     override val typeParameters:    Seq[TypeParameter],

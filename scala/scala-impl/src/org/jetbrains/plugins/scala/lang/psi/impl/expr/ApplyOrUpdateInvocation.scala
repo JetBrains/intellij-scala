@@ -113,7 +113,7 @@ object ApplyOrUpdateInvocation {
     val newValueForUpdate = call.getContext match {
       case assign: ScAssignment if call.isUpdateCall =>
         val rightExpr = assign.rightExpression
-          .getOrElse(createExpressionFromText("scala.Predef.???")) //we can't to not add something => add Nothing expression
+          .getOrElse(createExpressionFromText("scala.Predef.???", call)) //we can't to not add something => add Nothing expression
         Seq(rightExpr)
       case _ =>
         Seq.empty
@@ -122,7 +122,7 @@ object ApplyOrUpdateInvocation {
 
     if (!isDynamic) List(arguments)
     else {
-      val emptyStringExpression = createExpressionFromText("\"\"")
+      val emptyStringExpression = createExpressionFromText("\"\"", call)
       List(Seq(emptyStringExpression), arguments)
     }
   }

@@ -177,4 +177,19 @@ class ExportsResolveTest extends SimpleResolveTestBase {
         |}
         |""".stripMargin
     )
+
+  def testSCL20702(): Unit =
+    checkTextHasNoErrors(
+      """
+        |class IMap[K, V] {
+        |  val m = Map.empty[K, V]
+        |  export m.*
+        |}
+        |
+        |object m extends IMap[String, String]()
+        |
+        |val xs: Iterable[String] = m.values // xs type hints is Iterable[V]
+        |
+        |""".stripMargin
+    )
 }

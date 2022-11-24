@@ -50,7 +50,7 @@ class ConvertToStableIdentifierPatternFix(r: ScReferencePattern)
 
   override protected def doApplyFix(ref: ScReferencePattern)
                                    (implicit project: Project): Unit = {
-    val stableIdPattern = createPatternFromText(s"`${ref.getText}`")
+    val stableIdPattern = createPatternFromText(s"`${ref.getText}`", ref)
     ref.replace(stableIdPattern)
   }
 }

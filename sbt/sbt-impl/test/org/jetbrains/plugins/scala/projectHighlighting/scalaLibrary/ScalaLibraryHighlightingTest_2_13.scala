@@ -30,8 +30,8 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
       (6377, 6386), // Cannot resolve symbol `package`
     ),
     "scala/StringContext.scala" -> Set(
-      (2941, 2963), // Cannot resolve symbol InvalidEscapeException
-      (7131, 7153), // Cannot resolve symbol InvalidEscapeException
+      (2986, 3008), // Cannot resolve symbol InvalidEscapeException
+      (7176, 7198), // Cannot resolve symbol InvalidEscapeException
     ),
     "scala/collection/Map.scala" -> Set(
       (4117, 4121), // Type mismatch, expected: MapView.SomeMapOps[NotInferredK, NotInferredV], actual: MapOps[K, V, CC, C]
@@ -46,12 +46,9 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
       (1873, 1879), // Cannot resolve symbol concat
     ),
     "scala/collection/concurrent/TrieMap.scala" -> Set(
-      (11330, 11332), // Type mismatch, expected: TNode[K, V], actual: (MainNode[K, V] with TNode[_$1, _$2]) forSome {type _$1; type _$2}
-      (26374, 26376), // Unspecified value parameters: hashf: Hashing[K], ef: Equiv[K]
-      (26343, 26358), // Type mismatch, expected: Hashing[K], actual: Hashing.Default[Nothing]
-    ),
-    "scala/collection/convert/AsScalaConverters.scala" -> Set(
-      (6799, 6813), // Expression of type Map[_, _] doesn't conform to expected type Map[A, B]
+      (11352, 11354), // Type mismatch, expected: TNode[K, V], actual: (MainNode[K, V] with TNode[_$1, _$2]) forSome {type _$1; type _$2}
+      (26365, 26380), // Unspecified value parameters: hashf: Hashing[K], ef: Equiv[K]
+      (26396, 26398), // Type mismatch, expected: Hashing[K], actual: Hashing.Default[Nothing]
     ),
     "scala/collection/immutable/ArraySeq.scala" -> Set(
       (10990, 11006), // Scrutinee is incompatible with pattern type, found: Array[AnyRef], required: Array[T]
@@ -78,7 +75,7 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
       (10790, 10795), // Method annotated with @tailrec contains no recursive calls
     ),
     "scala/collection/immutable/SortedMap.scala" -> Set(
-      (7345, 7439), // Expression of type mutable.Builder[(K, Nothing), WithDefault[K, V]] doesn't conform to expected type mutable.Builder[(K, V), WithDefault[K, V]]
+      (7418, 7512), // Expression of type mutable.Builder[(K, Nothing), WithDefault[K, V]] doesn't conform to expected type mutable.Builder[(K, V), WithDefault[K, V]]
     ),
     "scala/collection/mutable/HashMap.scala" -> Set(
       (17273, 17299), // No constructor accessible from here
@@ -173,24 +170,30 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
     "scala/runtime/ClassValueCompat.scala" -> Set(
       (503, 522), // Cannot resolve symbol classValueAvailable
     ),
+    "scala/collection/Set.scala" -> Set(
+      (7612,7654), //Pattern type is incompatible with expected type, found: Set.Set1[A], required: SetOps[A, CC, C]
+      (7657,7698), //Pattern type is incompatible with expected type, found: Set.Set2[A], required: SetOps[A, CC, C]
+      (7701,7742), //Pattern type is incompatible with expected type, found: Set.Set3[A], required: SetOps[A, CC, C]
+      (7745,7786) //Pattern type is incompatible with expected type, found: Set.Set4[A], required: SetOps[A, CC, C]
+    ),
     "scala/util/Sorting.scala" -> Set(
-      (8501, 8517), // Scrutinee is incompatible with pattern type, found: Array[AnyRef], required: Array[T]
-      (8799, 8812), // Scrutinee is incompatible with pattern type, found: Array[Int], required: Array[T]
-      (8906, 8909), // Type mismatch, expected: Ordering[Int], actual: Ordering[T]
-      (8920, 8936), // Scrutinee is incompatible with pattern type, found: Array[Double], required: Array[T]
-      (8975, 8978), // Type mismatch, expected: Ordering[Double], actual: Ordering[T]
-      (9054, 9068), // Scrutinee is incompatible with pattern type, found: Array[Long], required: Array[T]
-      (9163, 9166), // Type mismatch, expected: Ordering[Long], actual: Ordering[T]
-      (9177, 9192), // Scrutinee is incompatible with pattern type, found: Array[Float], required: Array[T]
-      (9231, 9234), // Type mismatch, expected: Ordering[Float], actual: Ordering[T]
-      (9311, 9325), // Scrutinee is incompatible with pattern type, found: Array[Char], required: Array[T]
-      (9420, 9423), // Type mismatch, expected: Ordering[Char], actual: Ordering[T]
-      (9434, 9448), // Scrutinee is incompatible with pattern type, found: Array[Byte], required: Array[T]
-      (9543, 9546), // Type mismatch, expected: Ordering[Byte], actual: Ordering[T]
-      (9557, 9572), // Scrutinee is incompatible with pattern type, found: Array[Short], required: Array[T]
-      (9668, 9671), // Type mismatch, expected: Ordering[Short], actual: Ordering[T]
-      (9682, 9699), // Scrutinee is incompatible with pattern type, found: Array[Boolean], required: Array[T]
-      (9787, 9790), // Type mismatch, expected: Ordering[Boolean], actual: Ordering[T]
+      (8542,8558), // Pattern type is incompatible with expected type, found: Array[AnyRef], required: Array[T]
+      (8840,8853), // Pattern type is incompatible with expected type, found: Array[Int], required: Array[T]
+      (8960,8963), // Type mismatch, expected: Ordering[Int], actual: Ordering[T]
+      (8974,8990), // Pattern type is incompatible with expected type, found: Array[Double], required: Array[T]
+      (9029,9032), // Type mismatch, expected: Ordering[Double], actual: Ordering[T]
+      (9108,9122), // Pattern type is incompatible with expected type, found: Array[Long], required: Array[T]
+      (9230,9233), // Type mismatch, expected: Ordering[Long], actual: Ordering[T]
+      (9244,9259), // Pattern type is incompatible with expected type, found: Array[Float], required: Array[T]
+      (9298,9301), // Type mismatch, expected: Ordering[Float], actual: Ordering[T]
+      (9378,9392), // Pattern type is incompatible with expected type, found: Array[Char], required: Array[T]
+      (9500,9503), // Type mismatch, expected: Ordering[Char], actual: Ordering[T]
+      (9514,9528), // Pattern type is incompatible with expected type, found: Array[Byte], required: Array[T]
+      (9636,9639), // Type mismatch, expected: Ordering[Byte], actual: Ordering[T]
+      (9650,9665), // Pattern type is incompatible with expected type, found: Array[Short], required: Array[T]
+      (9774,9777), // Type mismatch, expected: Ordering[Short], actual: Ordering[T]
+      (9788,9805), // Pattern type is incompatible with expected type, found: Array[Boolean], required: Array[T]
+      (9906,9909), // Type mismatch, expected: Ordering[Boolean], actual: Ordering[T]
     ),
     "scala/util/Using.scala" -> Set(
       (1216, 1221), // Cannot resolve symbol apply

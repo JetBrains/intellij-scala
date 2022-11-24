@@ -29,7 +29,7 @@ import scala.jdk.CollectionConverters._
 //noinspection InstanceOf
 object ScalaOIUtil {
 
-  private[this] def toClassMember(signature: Signature, isOverride: Boolean): Option[ClassMember] = {
+  private[this] def toClassMember(signature: Signature, isOverride: Boolean, context: PsiElement): Option[ClassMember] = {
     val Signature(named, substitutor) = signature
     val maybeContext = Option(named.nameContext)
 
@@ -41,7 +41,8 @@ object ScalaOIUtil {
         substitutor = substitutor,
         needsOverrideModifier = true,
         isVal = true,
-        clazz = parameter.containingClass
+        clazz = parameter.containingClass,
+        features = context
       ).asInstanceOf[ScValue]
     }
 
@@ -203,7 +204,7 @@ object ScalaOIUtil {
     val aliasesAndValues = (types ++ values).filter {
       case Signature(named, _) => named.isValid && f2(named)
     }.flatMap {
-      toClassMember(_, isOverride)
+      toClassMember(_, isOverride, definition)
     }
 
     (methods ++ aliasesAndValues).toSeq
@@ -269,6 +270,7 @@ object ScalaOIUtil {
     val place = clazz.extendsBlock
 
     m match {
+      case _ if sign.exportedIn.nonEmpty                       => false
       case _ if isProductAbstractMethod(m, clazz)              => false
       case method if !ResolveUtils.isAccessible(method, place) => false
       case _ if name == "$tag" || name == "$init$"             => false

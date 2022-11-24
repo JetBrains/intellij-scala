@@ -164,7 +164,8 @@ object MakeExplicitAction {
                               (onExpression: PartialFunction[(ScExpression, PsiElement), Unit])
                               (implicit project: Project, editor: Editor): Unit = {
     def doReplace(): Unit = {
-      val replacement = createExpressionFromText(replacementText)
+      val replacement = createExpressionFromText(replacementText, expression)
+
       IntentionPreviewUtils.write { () =>
         val methodCall = expression.replace(replacement).asInstanceOf[ScMethodCall]
         for {

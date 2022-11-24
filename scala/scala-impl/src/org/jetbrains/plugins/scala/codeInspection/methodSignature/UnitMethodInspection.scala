@@ -72,7 +72,7 @@ object UnitMethodInspection {
           import ScalaPsiElementFactory.{createColon, createTypeElementFromText, createWhitespace}
           addChildNode(createColon)
           addChildNode(createWhitespace)
-          addChildNode(createTypeElementFromText("Unit"))
+          addChildNode(createTypeElementFromText("Unit", function))
         }
       }
 

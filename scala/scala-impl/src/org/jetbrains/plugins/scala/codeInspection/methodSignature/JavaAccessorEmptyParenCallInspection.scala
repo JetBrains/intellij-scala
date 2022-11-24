@@ -47,7 +47,7 @@ object JavaAccessorEmptyParenCallInspection {
     new AbstractFixOnPsiElement(ScalaInspectionBundle.message("remove.call.parentheses"), call) {
       override protected def doApplyFix(call: ScMethodCall)(implicit project: Project): Unit = {
         val text = call.getInvokedExpr.getText
-        val replacement = ScalaPsiElementFactory.createExpressionFromText(text)
+        val replacement = ScalaPsiElementFactory.createExpressionFromText(text, call)
         call.replace(replacement)
       }
     }

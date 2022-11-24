@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
@@ -75,7 +75,7 @@ object TypeCheckCanBeMatchInspection {
         val matchedExprText = expr.getText
         val (caseClausesText, renameData) = buildCaseClausesText(ifStmt, isInstOfUnderFix, onlyFirst)
         val matchStmtText = s"$matchedExprText match { \n " + caseClausesText + "}"
-        val matchStmt = createExpressionFromText(matchStmtText).asInstanceOf[ScMatch]
+        val matchStmt = createExpressionFromText(matchStmtText, expr).asInstanceOf[ScMatch]
         (Some(matchStmt), renameData)
       case _ => (None, null)
     }
@@ -154,7 +154,7 @@ object TypeCheckCanBeMatchInspection {
             val text = suggestedNames.head
             for {
               expression <- asInstOfEverywhere
-              newExpr = createExpressionFromText(text)
+              newExpr = createExpressionFromText(text, expression)
             } IntentionPreviewUtils.write { () =>
               expression.replaceExpression(newExpr, removeParenthesis = true)
             }
@@ -165,7 +165,7 @@ object TypeCheckCanBeMatchInspection {
       } else {
         IntentionPreviewUtils.write(() => definition.get.delete())
         val text = definedName.get
-        val newExpr = createExpressionFromText(text)
+        val newExpr = createExpressionFromText(text, ifStmt)
         IntentionPreviewUtils.write { () =>
           for {
             expression <- asInstOfEverywhere
@@ -344,7 +344,7 @@ object TypeCheckCanBeMatchInspection {
     if (text.isEmpty)
       None
     else
-      Some(createExpressionFromText(text, condition))
+      Some(createExpressionWithContextFromText(text, condition))
   }
 
   private def equiv: (PsiElement, PsiElement) => Boolean =

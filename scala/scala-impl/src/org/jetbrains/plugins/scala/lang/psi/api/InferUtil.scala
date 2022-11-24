@@ -236,9 +236,10 @@ object InferUtil {
               else AmbiguousImplicitParameters(results)
 
             val psiParam = param.paramInCode.getOrElse {
-              ScalaPsiElementFactory.createParameterFromText {
-                param.name + " : Int"
-              }(place.getManager)
+              ScalaPsiElementFactory.createParameterFromText(
+                param.name + " : Int",
+                place
+              )(place.getManager)
             }
 
             new ScalaResolveResult(psiParam, problems = Seq(problem), implicitSearchState = Some(implicitState))

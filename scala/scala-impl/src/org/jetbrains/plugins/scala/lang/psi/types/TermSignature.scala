@@ -189,13 +189,16 @@ class TermSignature(
 
   override def toString = s"Signature($namedElement, $substitutor)"
 
-  override def isAbstract: Boolean = namedElement match {
-    case _: ScFunctionDeclaration                                                    => true
-    case _: ScFunctionDefinition                                                     => false
-    case _: ScFieldId                                                                => true
-    case m: PsiModifierListOwner if m.hasModifierPropertyScala(PsiModifier.ABSTRACT) => true
-    case _                                                                           => false
-  }
+  override def isAbstract: Boolean =
+    if (exportedIn.nonEmpty) false
+    else
+      namedElement match {
+        case _: ScFunctionDeclaration                                                    => true
+        case _: ScFunctionDefinition                                                     => false
+        case _: ScFieldId                                                                => true
+        case m: PsiModifierListOwner if m.hasModifierPropertyScala(PsiModifier.ABSTRACT) => true
+        case _                                                                           => false
+      }
 
   override def isImplicit: Boolean = ScalaPsiUtil.isImplicit(namedElement)
 

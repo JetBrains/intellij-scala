@@ -67,7 +67,10 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
             }
 
             override def handleInsert(context: InsertionContext): Unit = {
-              val artifactExpr = SbtDependencyUtils.generateArtifactPsiExpression(SbtArtifactInfo(depList(0), depList(1), depList(2), SbtDependencyCommon.defaultLibScope))
+                val artifactExpr = SbtDependencyUtils.generateArtifactPsiExpression(
+                  SbtArtifactInfo(depList(0), depList(1), depList(2), SbtDependencyCommon.defaultLibScope),
+                  context.getFile
+                )
               val caretModel = context.getEditor.getCaretModel
 
               val psiElement = context.getFile.findElementAt(context.getStartOffset)

@@ -22,7 +22,7 @@ class MakeTuplesExplicitFix(invoc: MethodInvocation) extends AbstractFixOnPsiEle
     case mc: ScMethodCall =>
       val newArgsText = s"(${mc.args.getText})"
       val invokedExprText = mc.getInvokedExpr.getText
-      val newCall = createExpressionFromText(s"$invokedExprText$newArgsText")
+      val newCall = createExpressionFromText(s"$invokedExprText$newArgsText", mc)
       mc.replaceExpression(newCall, removeParenthesis = false)
     case _ =>
 

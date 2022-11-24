@@ -386,7 +386,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         case _: CompletionProcessor =>
         case _ =>
           processor.execute(
-            createParameterFromText(refName + ": Any"),
+            createParameterFromText(refName + ": Any", ref),
             ScalaResolveState.withNamedParam
           )
       }
@@ -706,7 +706,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   }
 
   private def createRef(ref: ScReferenceExpression, text: String): ScReferenceExpression =
-    ScalaPsiElementFactory.createExpressionFromText(text, ref.getContext)
+    ScalaPsiElementFactory.createExpressionWithContextFromText(text, ref.getContext)
       .asInstanceOf[ScReferenceExpression]
 
   /**

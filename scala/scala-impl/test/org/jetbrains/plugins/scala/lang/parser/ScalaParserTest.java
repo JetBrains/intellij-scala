@@ -18,12 +18,10 @@ package org.jetbrains.plugins.scala.lang.parser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 
 public class ScalaParserTest extends TestCase {
     @NotNull
     public static Test suite() {
-        return new ScalaFileSetTestCase("/parser/data") {
-        };
+        return ScalaParserTestCase$.MODULE$;
     }
 }

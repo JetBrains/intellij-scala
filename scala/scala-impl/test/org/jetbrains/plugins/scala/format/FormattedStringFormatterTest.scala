@@ -4,6 +4,7 @@ package format
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.junit.Assert._
 
 class FormattedStringFormatterTest extends ScalaLightCodeInsightFixtureTestCase {
@@ -106,6 +107,6 @@ class FormattedStringFormatterTest extends ScalaLightCodeInsightFixtureTestCase 
     s""""$formatter".format($arguments)"""
 
   private def exp(s: String): ScExpression = {
-    createExpressionFromText(s)(getProject)
+    createExpressionFromText(s, ScalaFeatures.default)(getProject)
   }
 }

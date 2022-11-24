@@ -3,8 +3,7 @@ package codeInsight
 package template
 
 import com.intellij.codeInsight.template.{Expression, ExpressionContext, Result}
-import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -13,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import scala.util._
 
@@ -33,28 +33,28 @@ package object macros {
   private[macros] def resultToScExpr(result: Result)(implicit context: ExpressionContext): Option[ScType] =
     for {
       element <- findElementAtOffset
-      expression <- ScalaPsiElementFactory.safe(_.createExpressionFromText(result.toString, element))
+      expression <- ScalaPsiElementFactory.safe(_.createExpressionWithContextFromText(result.toString, element))
       typ <- expression.`type`().toOption
     } yield typ
 
   private[macros] def resolveScType(typeExpression: Expression)(implicit context: ExpressionContext): Option[ScType] = {
     val typeText = typeExpression.calculateResult(context).toString
-    resolveScType(typeText)(context.getProject)
+    resolveScType(typeText, context.getPsiElementAtStartOffset)
   }
 
-  private[macros] def resolveScType(typeText: String)(implicit project: Project): Option[ScType] =
+  private[macros] def resolveScType(typeText: String, context: PsiElement): Option[ScType] =
     for {
-      te: ScTypeElement <- scTypeElement(typeText)
-      t: ScType <- te.`type`().toOption
+      te: ScTypeElement <- scTypeElement(typeText, context)
+      t: ScType         <- te.`type`().toOption
     } yield t
 
   private[macros] def scTypeElement(typeExpression: Expression)(implicit context: ExpressionContext): Option[ScTypeElement] = {
     val typeText = typeExpression.calculateResult(context).toString
-    scTypeElement(typeText)(context.getProject)
+    scTypeElement(typeText, context.getPsiElementAtStartOffset)
   }
 
-  private[macros] def scTypeElement(typeText: String)(implicit project: Project): Option[ScTypeElement] =
-    ScalaPsiElementFactory.safe(_.createTypeElementFromText(typeText))
+  private[macros] def scTypeElement(typeText: String, context: PsiElement): Option[ScTypeElement] =
+    ScalaPsiElementFactory.safe(_.createTypeElementFromText(typeText, context.features)(context))
 
   private[macros] def arrayComponent(scType: ScType): Option[ScType] = scType match {
     case JavaArrayType(argument)                                         => Some(argument)

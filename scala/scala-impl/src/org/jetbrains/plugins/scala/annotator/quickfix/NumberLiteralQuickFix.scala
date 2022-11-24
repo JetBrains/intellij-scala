@@ -40,7 +40,7 @@ sealed abstract class NumberLiteralQuickFix[L <: Numeric](private[this] val lite
   private def replaceLiteral(literal: L): Unit = {
     val newText = transformText(literal.getText)
     literal.replace {
-      ScalaPsiElementFactory.createExpressionFromText(newText)(literal.getManager)
+      ScalaPsiElementFactory.createExpressionFromText(newText, literal)(literal)
     }
   }
 }

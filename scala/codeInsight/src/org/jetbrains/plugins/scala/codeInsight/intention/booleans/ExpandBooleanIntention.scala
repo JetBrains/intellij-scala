@@ -42,7 +42,7 @@ final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
 
     IntentionPreviewUtils.write { () =>
       implicit val context: ProjectContext = project
-      val replacement = createExpressionFromText(s"if ($expressionText) { return true } else { return false }")
+      val replacement = createExpressionFromText(s"if ($expressionText) { return true } else { return false }", element)
       statement.replaceExpression(replacement, removeParenthesis = true)
 
       editor.getCaretModel.moveToOffset(start)

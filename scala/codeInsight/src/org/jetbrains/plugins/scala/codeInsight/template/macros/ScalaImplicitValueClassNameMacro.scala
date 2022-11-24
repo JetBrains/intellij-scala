@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 
 final class ScalaImplicitValueClassNameMacro extends ScalaMacro {
 
@@ -15,8 +16,9 @@ final class ScalaImplicitValueClassNameMacro extends ScalaMacro {
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     val targetTypeName = params match {
       case Array(p) if p != null => p
-      case _ => return null
+      case _                     => return null
     }
+
     val name = calculateName(targetTypeName)(context)
     new TextResult(name)
   }

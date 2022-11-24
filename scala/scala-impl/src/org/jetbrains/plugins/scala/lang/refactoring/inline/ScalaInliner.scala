@@ -147,7 +147,7 @@ class ScalaInliner extends InlineHandler.Inliner {
           case p => p
         }
         val newText = InterpolatedStringFormatter.format(newParts)
-        createExpressionFromText(newText)
+        createExpressionFromText(newText, intrp)
       case _ =>
         intrp
     }

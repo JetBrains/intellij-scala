@@ -133,7 +133,7 @@ object ConvertParameterToUnderscoreIntention {
       buf.replace(offset, offset + p.name.length, newParam)
     }
 
-    val newExpr = createExpressionFromText(buf.toString())(expr.getManager)
+    val newExpr = createExpressionFromText(buf.toString(), expr)(expr.getManager)
 
     if (!isValidExpr(newExpr, expr.parameters.length))
       return Right(ScalaInspectionBundle.message("introduce.implicit.not.allowed.here"))

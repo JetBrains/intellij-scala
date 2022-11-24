@@ -4,7 +4,6 @@ package intention
 package argument
 
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 import scala.annotation.nowarn

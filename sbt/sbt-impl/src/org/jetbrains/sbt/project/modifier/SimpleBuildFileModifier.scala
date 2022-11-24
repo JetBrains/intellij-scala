@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.sbt.project.modifier.location._
 
 import scala.collection.mutable
@@ -78,7 +79,7 @@ object SimpleBuildFileModifier {
   def createSeqPsiExpr(project: Project, inName: Option[String], prefix: String, seq: Seq[String]): Option[PsiElement] =
     if (seq.isEmpty) None
     else Some(createExpressionFromText(prefix + inName.map(" in " + _).getOrElse("") + " ++= " +
-      createSeqString(FormatterUtil.getNormalIndentString(project), seq))(PsiManager.getInstance(project)))
+      createSeqString(FormatterUtil.getNormalIndentString(project), seq), ScalaFeatures.default)(PsiManager.getInstance(project)))
 
   def buildLibraryDependenciesPsi(project: Project, inName: Option[String], dependencies: Seq[String]): Option[PsiElement] =
     createSeqPsiExpr(project, inName, "libraryDependencies", dependencies)

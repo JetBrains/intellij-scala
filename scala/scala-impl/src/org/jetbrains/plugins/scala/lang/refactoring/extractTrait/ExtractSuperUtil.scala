@@ -50,10 +50,10 @@ object ExtractSuperUtil {
     val templParents = oldExtBlock.templateParents match {
       case Some(tp: ScTemplateParents) =>
         val tpText = s"${tp.getText} with $text"
-        val (_, newTp) = createClassTemplateParents(tpText)
+        val (_, newTp) = createClassTemplateParents(tpText, clazz)
         tp.replace(newTp).asInstanceOf[ScTemplateParents]
       case None =>
-        val (extKeyword, newTp) = createClassTemplateParents(text)
+        val (extKeyword, newTp) = createClassTemplateParents(text, clazz)
         oldExtBlock.addRangeBefore(extKeyword, newTp, oldExtBlock.getFirstChild)
         oldExtBlock.templateParents.get
     }

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createBlockWithGivenExpressions, createScalaElementFromText, createScalaElementFromTextWithContext}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createBlockWithGivenExpressions, createScalaElementFromTextWithContext}
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.uast.controlStructures.ScUIfExpression
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter.UConvertible
@@ -63,7 +63,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
 
   @Nullable
   override def createBlockExpression(expressions: util.List[_ <: UExpression], @Nullable context: PsiElement): UBlockExpression = {
-    val block = createBlockWithGivenExpressions(expressions.asScala.flatMap(_.getSourcePsi.toOption))
+    val block = createBlockWithGivenExpressions(expressions.asScala.flatMap(_.getSourcePsi.toOption), context)
     block.context = context
     new ScUBlockExpression(block, LazyUElement.Empty)
   }
@@ -197,7 +197,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
       }
     }.mkString(if (needsParensAroundParams) "(" else "", ", ", if (needsParensAroundParams) ")" else "")
 
-    ScalaPsiElementFactory.createScalaFileFromText(s"Option(???).map { $paramText => () }")
+    ScalaPsiElementFactory.createScalaFileFromText(s"Option(???).map { $paramText => () }", context)
       .getFirstChild
       .asInstanceOf[ScMethodCall]
       .argumentExpressions
@@ -210,7 +210,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
 
           val newBody =
             if (statements.sizeIs == 1) statements.head
-            else createBlockWithGivenExpressions(statements)
+            else createBlockWithGivenExpressions(statements, context)
 
           fn.result.foreach(_.replace(newBody))
           new ScULambdaExpression(fn, LazyUElement.Empty)

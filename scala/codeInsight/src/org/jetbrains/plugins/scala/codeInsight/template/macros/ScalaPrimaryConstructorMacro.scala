@@ -8,7 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 sealed abstract class ScalaPrimaryConstructorMacro(override final val getPresentableName: String) extends ScalaMacro {
   protected def parametersText(parameters: ScParameters): Option[String]
@@ -76,7 +76,13 @@ object ScalaPrimaryConstructorMacro {
     private def createScParametersFromText(paramsText: String, context: ExpressionContext): Option[ScParameters] = {
       implicit def projectContext: ProjectContext = context.getProject
 
-      Option(ScalaPsiElementFactory.createScalaFileFromText(s"def foo$paramsText: Unit = ???"))
+      val features =
+        context
+        .getPsiElementAtStartOffset
+        .toOption
+        .fold(ScalaFeatures.default: ScalaFeatures)(ScalaFeatures.forPsiOrDefault)
+
+      Option(ScalaPsiElementFactory.createScalaFileFromText(s"def foo$paramsText: Unit = ???", features))
         .flatMap(file => Option(PsiTreeUtil.findChildOfType(file, classOf[ScParameters])))
     }
 

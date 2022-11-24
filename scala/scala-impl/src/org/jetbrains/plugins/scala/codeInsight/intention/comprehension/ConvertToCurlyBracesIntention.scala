@@ -33,7 +33,7 @@ class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
     val statement = elementAndTouchingPrevElement(editor, element)
       .collectFirst { case Parent(f: ScFor) => f }
       .head
-    val block = createElementFromText("{}")
+    val block = createElementFromText[PsiElement]("{}", element)
 
     for (lParen <- statement.findFirstChildByType(ScalaTokenTypes.tLPARENTHESIS)) {
       val lBrace = lParen.replace(block.getFirstChild)

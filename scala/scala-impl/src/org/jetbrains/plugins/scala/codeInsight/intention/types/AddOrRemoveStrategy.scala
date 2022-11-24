@@ -29,7 +29,7 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
   override def patternWithType(pattern: ScTypedPattern): Boolean = {
     import pattern.projectContext
 
-    val newPattern = createPatternFromText(pattern.name)
+    val newPattern = createPatternFromText(pattern.name, pattern)
     pattern.replace(newPattern)
 
     true
@@ -47,7 +47,7 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
         val text = clause.getText
         text.startsWith("(") && text.endsWith(")")
       }.map {
-      (_, createClauseForFunctionExprFromText(newParameter.getText))
+      (_, createClauseForFunctionExprFromText(newParameter.getText, parameter))
     }
 
     val (element, replacement) = pair.getOrElse {

@@ -49,7 +49,7 @@ final class SplitIfIntention extends PsiElementBaseIntentionAction {
 
     import ifStmt.projectContext
     val start = ifStmt.getTextRange.getStartOffset
-    val newIfStmt = createExpressionFromText(prefix + suffix).asInstanceOf[ScIf]
+    val newIfStmt = createExpressionFromText(prefix + suffix, element).asInstanceOf[ScIf]
     val diff = newIfStmt.condition.get.getTextRange.getStartOffset - newIfStmt.getTextRange.getStartOffset
 
     IntentionPreviewUtils.write { () =>

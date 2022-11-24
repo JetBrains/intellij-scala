@@ -3,7 +3,10 @@ package org.jetbrains.plugins.scala.lang.completion3
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.runner.RunWith
 
 abstract class ScalaTypeAnnotationsCompletionTestBase extends ScalaCompletionTestBase {
   override protected def sharedProjectToken = SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
@@ -227,7 +230,12 @@ class ScalaTypeAnnotationsCompletionTest_with_2_13 extends ScalaTypeAnnotationsC
   )
 }
 
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12_12
+))
 class ScalaTypeAnnotationsCompletionTest_with_kind_projector extends ScalaTypeAnnotationsCompletionTestBase {
+
   override def setUp(): Unit = {
     super.setUp()
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile

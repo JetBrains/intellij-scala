@@ -43,7 +43,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
           if (isUpdate) curr.getContext.asInstanceOf[ScAssignment].rightExpression match {
             case Some(x) => Seq(x)
             case None =>
-              Seq[ScExpression](createExpressionFromText("{val x: Nothing = null; x}"))
+              Seq[ScExpression](createExpressionFromText("{val x: Nothing = null; x}", this))
             //we can't to not add something => add Nothing expression
           }
           else Seq.empty) :: Nil

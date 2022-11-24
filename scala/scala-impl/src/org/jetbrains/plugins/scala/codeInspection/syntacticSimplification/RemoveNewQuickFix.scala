@@ -15,6 +15,6 @@ final class RemoveNewQuickFix(param: ScNewTemplateDefinition) extends AbstractFi
   override protected def doApplyFix(p: ScNewTemplateDefinition)
                                    (implicit project: Project): Unit = {
     p.targetToken.delete()
-    p.replaceExpression(createExpressionFromText(p.getText), removeParenthesis = false)
+    p.replaceExpression(createExpressionFromText(p.getText, p), removeParenthesis = false)
   }
 }

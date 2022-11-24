@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScPsiDocToken
 
 import scala.collection.mutable.ListBuffer
@@ -46,7 +46,7 @@ private final class InterpolatedStringReferenceProvider extends PsiReferenceProv
     case _: ScInterpolatedStringLiteral => EMPTY_ARRAY
     case literal: ScLiteral if literal.isString && literal.textContains('$') => // TODO remove this hack
       try {
-        val interpolated = createExpressionFromText("s" + literal.getText, literal.getContext)
+        val interpolated = createExpressionWithContextFromText("s" + literal.getText, literal.getContext)
           .asInstanceOf[ScInterpolatedStringLiteral]
 
         for {

@@ -41,7 +41,11 @@ final class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIn
 
     import infixExpr.projectContext
     val start = infixExpr.getTextRange.getStartOffset
-    val newInfixExpr = createExpressionFromText(s"$baseText ${Replacement(operation.refName)} $argumentText").asInstanceOf[ScInfixExpr]
+
+    val newInfixExpr =
+      createExpressionFromText(s"$baseText ${Replacement(operation.refName)} $argumentText", element)
+        .asInstanceOf[ScInfixExpr]
+
     val size = newInfixExpr.operation.nameId.getTextRange.getStartOffset -
       newInfixExpr.getTextRange.getStartOffset
 
