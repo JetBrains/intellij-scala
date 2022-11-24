@@ -17,8 +17,9 @@ import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.InspectionBasedHighlightingPass.LocalQuickFixAsIntentionIconableAdapter
 import org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 
 import java.util.Collections
 import javax.swing.Icon
@@ -67,7 +68,9 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
     }
   }
 
-  private def shouldHighlightFile: Boolean = HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file)
+  private def shouldHighlightFile: Boolean =
+    HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) &&
+      (!file.is[ScalaCodeFragment] || !inspectionIsDisabledForScalaFragments)
 
   override def doApplyInformationToEditor(): Unit = {
     if (shouldHighlightFile) {
@@ -78,6 +81,9 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
         Collections.emptyList(), getColorsScheme, getId)
     }
   }
+
+  private val inspectionIsDisabledForScalaFragments =
+    Seq("ScalaUnusedSymbol", "ScalaWeakerAccess").contains(inspection.getShortName)
 
   private def processFile(): Unit = {
     if (isEnabled(file)) {
