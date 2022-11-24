@@ -98,6 +98,8 @@
         <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                  id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher"/>
 
+        <createDirectoryCompletionContributor implementation="org.jetbrains.sbt.SbtDirectoryCompletionContributor"/>
+
         <defaultLiveTemplates file="liveTemplates/sbt"/>
         <liveTemplateContext contextId="sbt"
                              implementation="org.jetbrains.sbt.codeInsight.template.SbtLiveTemplateContextType"/>

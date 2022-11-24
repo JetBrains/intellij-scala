@@ -6,25 +6,30 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelProjectExtension, ModuleRootModificationUtil}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi.PsiManager
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
+import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
+import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
-import org.jetbrains.plugins.scala.extensions.RichFile
+import org.jetbrains.plugins.scala.extensions.{RichFile, inWriteAction}
 import org.jetbrains.plugins.scala.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
-import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
+import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
+import org.jetbrains.sbt.SbtDirectoryCompletionContributor
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
 import java.net.URI
-import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
 
 @Category(Array(classOf[SlowTests]))
 final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingTestCase
@@ -63,15 +68,19 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
       expectedScalaLibrary("3.0.2", isSdk = true),
       expectedScalaLibrary("2.13.6", isSdk = false),
     )
-    runSimpleTest("simple-scala3", scalaLibraries)
+    runSimpleTest("simple-scala3", scalaLibraries, ExpectedDirectoryCompletionVariant.DefaultSbtContentRootsScala3)
   }
 
   def testSimpleDoNotUseCoursier(): Unit = {
     val scalaLibrary = expectedScalaLibraryFromIvy(ScalaVersion.fromString("2.12.10").get)
-    runSimpleTest("simpleDoNotUseCoursier", scalaLibrary :: Nil)
+    runSimpleTest("simpleDoNotUseCoursier", scalaLibrary :: Nil, ExpectedDirectoryCompletionVariant.DefaultSbtContentRootsScala212)
   }
 
-  private def runSimpleTest(projectName: String, expectedScalaLibraries: Seq[library]): Unit =
+  private def runSimpleTest(
+    projectName: String,
+    expectedScalaLibraries: Seq[library],
+    expectedSbtCompletionVariants: Seq[ExpectedDirectoryCompletionVariant] = ExpectedDirectoryCompletionVariant.DefaultSbtContentRootsScala213
+  ): Unit = {
     runTest(
       new project(projectName) {
         libraries := expectedScalaLibraries
@@ -93,6 +102,84 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
         )
       }
     )
+
+    val projectBaseDir = myProject.baseDir
+    assertSbtDirectoryCompletionContributorVariants(
+      projectBaseDir,
+      expectedSbtCompletionVariants
+    )
+  }
+
+  //NOTE: it doesn't test final ordering on UI, see IDEA-306694
+  private def assertSbtDirectoryCompletionContributorVariants(
+    directory: VirtualFile,
+    expectedVariants: Seq[ExpectedDirectoryCompletionVariant]
+  ): Unit = {
+    val psiDirectory = PsiManager.getInstance(myProject).findDirectory(directory)
+    val directoryPath = directory.getPath
+
+    val variants = new SbtDirectoryCompletionContributor().getVariants(psiDirectory).asScala.toSeq
+    val actualVariants = variants.map(v => ExpectedDirectoryCompletionVariant(
+      v.getPath.stripPrefix(directoryPath).stripPrefix("/"),
+      v.getRootType
+    ))
+
+    assertCollectionEquals(
+      "Wrong directory completion contributor variants",
+      expectedVariants,
+      actualVariants
+    )
+  }
+
+  private case class ExpectedDirectoryCompletionVariant(
+    projectRelativePath: String,
+    rootType: JpsModuleSourceRootType[_]
+  )
+
+  private object ExpectedDirectoryCompletionVariant {
+    val DefaultSbtContentRootsScala212: Seq[ExpectedDirectoryCompletionVariant] = Seq(
+      ("src/main/java", JavaSourceRootType.SOURCE),
+      ("src/main/scala", JavaSourceRootType.SOURCE),
+      ("src/main/scala-2", JavaSourceRootType.SOURCE),
+      ("src/main/scala-2.12", JavaSourceRootType.SOURCE),
+      ("src/test/java", JavaSourceRootType.TEST_SOURCE),
+      ("src/test/scala", JavaSourceRootType.TEST_SOURCE),
+      ("src/test/scala-2", JavaSourceRootType.TEST_SOURCE),
+      ("src/test/scala-2.12", JavaSourceRootType.TEST_SOURCE),
+      ("src/main/resources", JavaResourceRootType.RESOURCE),
+      ("target/scala-2.12/resource_managed/main", JavaResourceRootType.RESOURCE),
+      ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
+      ("target/scala-2.12/resource_managed/test", JavaResourceRootType.TEST_RESOURCE),
+    ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
+
+    val DefaultSbtContentRootsScala213: Seq[ExpectedDirectoryCompletionVariant] = Seq(
+      ("src/main/java", JavaSourceRootType.SOURCE),
+      ("src/main/scala", JavaSourceRootType.SOURCE),
+      ("src/main/scala-2", JavaSourceRootType.SOURCE),
+      ("src/main/scala-2.13", JavaSourceRootType.SOURCE),
+      ("src/test/java", JavaSourceRootType.TEST_SOURCE),
+      ("src/test/scala", JavaSourceRootType.TEST_SOURCE),
+      ("src/test/scala-2", JavaSourceRootType.TEST_SOURCE),
+      ("src/test/scala-2.13", JavaSourceRootType.TEST_SOURCE),
+      ("src/main/resources", JavaResourceRootType.RESOURCE),
+      ("target/scala-2.13/resource_managed/main", JavaResourceRootType.RESOURCE),
+      ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
+      ("target/scala-2.13/resource_managed/test", JavaResourceRootType.TEST_RESOURCE),
+    ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
+
+    val DefaultSbtContentRootsScala3: Seq[ExpectedDirectoryCompletionVariant] = Seq(
+      ("src/main/java", JavaSourceRootType.SOURCE),
+      ("src/main/scala", JavaSourceRootType.SOURCE),
+      ("src/main/scala-3", JavaSourceRootType.SOURCE),
+      ("src/test/java", JavaSourceRootType.TEST_SOURCE),
+      ("src/test/scala", JavaSourceRootType.TEST_SOURCE),
+      ("src/test/scala-3", JavaSourceRootType.TEST_SOURCE),
+      ("src/main/resources", JavaResourceRootType.RESOURCE),
+      ("target/scala-3.0.2/resource_managed/main", JavaResourceRootType.RESOURCE),
+      ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
+      ("target/scala-3.0.2/resource_managed/test", JavaResourceRootType.TEST_RESOURCE),
+    ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
+  }
 
   def testProjectWithUppercaseName(): Unit = runTest {
     new project("MyProjectWithUppercaseName") {
