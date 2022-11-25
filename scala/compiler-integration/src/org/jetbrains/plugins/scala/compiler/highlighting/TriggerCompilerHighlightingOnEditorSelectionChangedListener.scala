@@ -13,6 +13,6 @@ private final class TriggerCompilerHighlightingOnEditorSelectionChangedListener(
 
   override def selectionChanged(event: FileEditorManagerEvent): Unit = {
     event.getOldFile.nullSafe.foreach(triggerService.disableDocumentCompiler)
-    event.getNewEditor.nullSafe.foreach(triggerService.triggerOnSelectionChange)
+    event.getNewEditor.nullSafe.foreach(triggerService.triggerOnSelectedEditorChange)
   }
 }

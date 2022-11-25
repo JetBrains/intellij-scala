@@ -73,7 +73,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     }
   }
 
-  private[highlighting] def triggerOnSelectionChange(editor: FileEditor): Unit = {
+  private[highlighting] def triggerOnSelectedEditorChange(editor: FileEditor): Unit = {
     if (isHighlightingEnabled && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
       val virtualFile = editor.getFile
       if (virtualFile ne null) {
@@ -162,6 +162,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
       virtualFile,
       psiFile,
       document,
+      isFirstTimeHighlighting = documentCompilerAvailable.contains(virtualFile),
       debugReason
     )
 

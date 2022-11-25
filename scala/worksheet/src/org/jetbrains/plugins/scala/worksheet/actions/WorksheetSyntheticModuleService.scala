@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
-import org.jetbrains.plugins.scala.project.{UserDataHolderExt, UserDataKeys}
+import org.jetbrains.plugins.scala.project.{ModuleExt, UserDataHolderExt, UserDataKeys}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 import scala.collection.mutable
@@ -65,7 +65,7 @@ final class WorksheetSyntheticModuleService(project: Project) {
   }
 
   private def registerNewSyntheticModuleForFile(virtualFile: VirtualFile, currentCpModule: Module): WorksheetSyntheticModule = {
-    val module = new WorksheetSyntheticModule(virtualFile, currentCpModule)
+    val module = new WorksheetSyntheticModule(virtualFile, currentCpModule.findRepresentativeModuleForSharedSourceModuleOrSelf)
     Disposer.register(currentCpModule, module)
     modulesMap.put(virtualFile, module)
     module
