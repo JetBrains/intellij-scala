@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.search
 
-import org.jetbrains.plugins.scala.ScalaFileType
+import com.intellij.ide.scratch.ScratchRootType
+import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
+import org.junit.Assert.assertTrue
 
 class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTestCase with PsiSelectionUtil {
 
@@ -184,6 +187,16 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
       path("Impl2", "test")
     )
   )
+
+  def test_scratch_file(): Unit = {
+    val code = "trait A { def foo: String }; object B extends A { override def foo = \"\" }"
+    val scratchFile = ScratchRootType.getInstance.createScratchFile(getProject, "foo.sc", ScalaLanguage.INSTANCE, code)
+    myFixture.configureFromExistingVirtualFile(scratchFile)
+    val psiFile = PsiManager.getInstance(getProject).findFile(scratchFile)
+    val fooMethodElement = selectElement[ScNamedElement](psiFile, List("A", "foo"))
+    val res = ScalaOverridingMemberSearcher.search(fooMethodElement)
+    assertTrue(s"Found ${res.length} overriding members, whereas exactly 1 was expected", res.length == 1)
+  }
 
   // todo: fix this
   /*

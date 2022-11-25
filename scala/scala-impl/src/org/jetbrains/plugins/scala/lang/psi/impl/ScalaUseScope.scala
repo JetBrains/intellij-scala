@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, PackageScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiPackage, PsiReference}
@@ -30,17 +31,20 @@ private object ScalaUseScope {
     intersect(useScope, narrowScope)
   }
 
-
-  def apply(baseUseScope: SearchScope, file: ScalaFile): SearchScope = {
-    if (file.isWorksheetFile) {
-      // elements from worksheets (including scratch files) can only be used in that files
-      file match {
-        case ScFile.VirtualFile(virtualFile) => GlobalSearchScope.fileScope(file.getProject, virtualFile)
-        case _                               => baseUseScope
+  // Keep in mind that:
+  // 1. Elements in worksheets can only be used in those files
+  // 2. Elements in scratch files can only be used in those files
+  // 3. Scratch files can be configured to be treated like worksheets (enabled by default)
+  // 4. Scratch files have no concept of Project, so GlobalSearchScope should not be used
+  def apply(baseUseScope: SearchScope, file: ScalaFile): SearchScope = file match {
+    case ScFile.VirtualFile(virtualFile) if file.isWorksheetFile =>
+      if (ScratchUtil.isScratch(virtualFile)) {
+        new LocalSearchScope(file)
+      } else {
+        GlobalSearchScope.fileScope(file.getProject, virtualFile)
       }
-    } else {
-      baseUseScope
-    }
+
+    case _ => if (ScratchUtil.isScratch(file.getVirtualFile)) new LocalSearchScope(file) else baseUseScope
   }
 
   private def intersect(scope: SearchScope, scopeOption: Option[SearchScope]): SearchScope =
