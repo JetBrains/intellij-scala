@@ -9,10 +9,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 /**
- * This class can be used in two ways:
+ * This class can be used in three ways:
  * 1. foo(a, b, c)
  * 2. foo {expr}
- * In second way there is no parentheses, just one block expression.
+ * 3. foo: expr
+ * In last two there are no parentheses, just one block expression.
  */
 trait ScArgumentExprList extends ScArguments {
   /**
@@ -65,7 +66,13 @@ trait ScArgumentExprList extends ScArguments {
 
   def addExprAfter(expr: ScExpression, anchor: PsiElement): ScArgumentExprList
 
-  def isBraceArgs: Boolean = findChild[ScBlock].isDefined
+  def isBlockArgs: Boolean = findChild[ScBlock].isDefined
+
+  def isBraceArgs: Boolean = findChild[ScBlock].exists(_.isEnclosedByBraces)
+
+  def isColonArgs: Boolean = findChild[ScBlock].exists(_.isEnclosedByColon)
+
+  def isArgsInParens: Boolean = !isBlockArgs
 
   override def getArgsCount: Int = exprs.length
 
@@ -75,5 +82,5 @@ trait ScArgumentExprList extends ScArguments {
 }
 
 object ScArgumentExprList {
-  def unapplySeq(e: ScArgumentExprList): Some[Seq[ScExpression]] = Some(e.exprs.toSeq)
+  def unapplySeq(e: ScArgumentExprList): Some[Seq[ScExpression]] = Some(e.exprs)
 }

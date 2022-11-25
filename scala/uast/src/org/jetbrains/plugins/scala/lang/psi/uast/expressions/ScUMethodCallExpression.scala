@@ -110,7 +110,7 @@ final class ScUMethodCallExpression(
   // TODO add conversion of CBN-parameters to implicit lambdas
   override def getValueArguments: ju.List[UExpression] =
     scExpression match {
-      case bracedArguments if bracedArguments.args.isBraceArgs =>
+      case blockArguments if blockArguments.args.isBlockArgs =>
         scExpression.args.exprs.collect {
           case ScBlock(statement) =>
             statement.convertToUExpressionOrEmpty(parent = this)

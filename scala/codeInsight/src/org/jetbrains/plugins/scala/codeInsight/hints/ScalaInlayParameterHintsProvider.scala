@@ -140,7 +140,7 @@ object ScalaInlayParameterHintsProvider {
 
   private[this] def isNameable(argument: ScExpression) =
     argument.getParent match {
-      case list: ScArgumentExprList => !list.isBraceArgs
+      case list: ScArgumentExprList => list.isArgsInParens
       case _ => false
     }
 

@@ -820,9 +820,7 @@ object ScalaPsiUtil {
       element.getParent match {
         case block: ScBlock if block.hasRBrace => true
         case _: ScMatch | _: ScalaFile | null => true
-        case argList: ScArgumentExprList if argList.isBraceArgs => true
-
-        case argList: ScArgumentExprList if !argList.isBraceArgs => false
+        case argList: ScArgumentExprList => !argList.isArgsInParens
         case _: ScParenthesisedExpr | _: ScTuple |
              _: ScTypeArgs | _: ScPatternArgumentList |
              _: ScParameterClause | _: ScTypeParamClause => false

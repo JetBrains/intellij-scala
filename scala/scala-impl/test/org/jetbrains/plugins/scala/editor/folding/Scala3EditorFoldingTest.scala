@@ -629,6 +629,58 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  def testCallArgument_Parentheses(): Unit = {
+    val Start = PAR_ST
+    genericCheckRegions(
+      s"""println$Start(
+         |  "foo"
+         |)$END
+         |
+         |List(1).map$Start(
+         |  x =>
+         |    x * 2
+         |)$END
+         |.filter$Start(x =>
+         |  x > 0
+         |)$END(0)
+         |""".stripMargin
+    )
+  }
+
+  def testCallArgument_Braces(): Unit = {
+    val Start = BLOCK_ST
+    genericCheckRegions(
+      s"""println $Start{
+         |  "foo"
+         |}$END
+         |
+         |List(1).map $Start{
+         |  x =>
+         |    x * 2
+         |}$END
+         |.filter $Start{ x =>
+         |  x > 0
+         |}$END(0)
+         |""".stripMargin
+    )
+  }
+
+  def testCallArgument_FewerBraces(): Unit = {
+    val Start = INDENT_REGION_WITH_COLON
+    genericCheckRegions(
+      s"""println$Start:
+         |  "foo"$END
+         |
+         |List(1).map$Start:
+         |  x =>
+         |    x * 2$END
+         |.filter$Start: x =>
+         |  x > 0$END
+         |(0)
+         |""".stripMargin
+    )
+  }
+
   def testTopLevelFunctionAsFirstFileElement(): Unit = runWithModifiedScalaFoldingSettings { settings =>
     def codeExample(startMarker: String): String = {
       s"""@main

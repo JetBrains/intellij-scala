@@ -21,7 +21,7 @@ package object intention {
 
   def addNameToArgumentsFix(element: PsiElement, onlyBoolean: Boolean): Option[() => Unit] = {
     val argList: ScArgumentExprList = PsiTreeUtil.getParentOfType(element, classOf[ScArgumentExprList])
-    if (argList == null || argList.isBraceArgs) return None
+    if (argList == null || argList.isBlockArgs) return None
     val currentArg = argList.exprs.find { e =>
       PsiTreeUtil.isAncestor(e, element, /*strict =*/ false)
     }
