@@ -1,15 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch
 
-import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
-import com.intellij.psi.{PsiElement, PsiIdentifier}
+import com.intellij.psi.{PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline.ShouldProcess
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.{Method, SearchMethodResult}
-import org.jetbrains.plugins.scala.extensions.{Parent, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -32,16 +26,9 @@ private[cheapRefSearch] final class TextSearch(override val shouldProcess: Shoul
         if (ctx.element.getContainingFile == e2.getContainingFile) {
           true
         } else {
+
           val maybeUsage = e2 match {
-            case Parent(_: ScReferencePattern) => None
-            case Parent(_: ScTypeDefinition) => None
-            case Parent(_: ScFunctionDefinition) => None
-            case _: PsiIdentifier =>
-              Some(ElementUsageWithKnownReference(e2, ctx.element))
-            case l: LeafPsiElement if l.isIdentifier =>
-              Some(ElementUsageWithKnownReference(e2, ctx.element))
-            case _: ScStableCodeReference =>
-              Some(ElementUsageWithKnownReference(e2, ctx.element))
+            case r: PsiReference => Some(ElementUsageWithKnownReference(r, ctx.element))
             case _ => None
           }
 
