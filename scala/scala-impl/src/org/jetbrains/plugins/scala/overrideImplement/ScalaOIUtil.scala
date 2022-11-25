@@ -73,8 +73,8 @@ object ScalaOIUtil {
       case ws: PsiWhiteSpace if caretOffset == ws.getNode.getStartOffset =>
         // in case when caret is right after the error end offset
         PsiTreeUtil.prevLeaf(ws)
-      case (ws: PsiWhiteSpace) & PrevElement(colon @ ElementType(ScalaTokenTypes.tCOLON) & Parent(body: ScTemplateBody))
-        if ws.containingFile.exists(_.useIndentationBasedSyntax) && body.exprs.isEmpty =>
+      case (_: PsiWhiteSpace) & PrevElement(colon @ ElementType(ScalaTokenTypes.tCOLON) & Parent(body: ScTemplateBody))
+        if file.isScala3File && body.exprs.isEmpty =>
         // in case when caret is inside an empty template body in Scala 3 indentation-based syntax
         colon
       case e => e

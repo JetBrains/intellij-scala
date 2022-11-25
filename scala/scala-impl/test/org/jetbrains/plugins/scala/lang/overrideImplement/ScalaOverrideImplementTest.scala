@@ -1562,16 +1562,15 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
          |""".stripMargin
     val expectedText =
       s"""
-      |package test
-      |
-      |trait Foo:
-      |  def foo(x: Int): String
-      |
-      |class Bar extends Foo:
-      |  override def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
-      |""".stripMargin ++
-      // IDEA trims whitespaces in multiline strings
-      "  \n"
+         |package test
+         |
+         |trait Foo:
+         |  def foo(x: Int): String
+         |
+         |class Bar extends Foo:
+         |  override def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  ${""}
+         |""".stripMargin
     val methodName: String = "foo"
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement, settingsWithIndentationBasedSyntax)
