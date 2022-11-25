@@ -7,23 +7,22 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.tree.{IElementType, TokenSet}
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.TokenSets.{MEMBERS, TYPE_DEFINITIONS}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScBegin, ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaStubBasedElementImpl}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl.LeftBraceOrColon
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
 
 final class ScPackagingImpl private[psi](stub: ScPackagingStub,
                                          nodeType: ScStubElementType[ScPackagingStub, ScPackaging],
@@ -51,9 +50,15 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
   override def packagings: Seq[ScPackaging] =
     getStubOrPsiChildren(ScalaElementType.PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory).toSeq
 
+  override def getEnclosingStartElement: Option[PsiElement] =
+    this.getNode
+      .nullSafe
+      .map(_.findChildByType(ScalaTokenTypes.LBRACE_OR_COLON_TOKEN_SET))
+      .map(_.getPsi)
+      .toOption
+
   override def isExplicit: Boolean = byStubOrPsi(_.isExplicit)(findExplicitMarker.isDefined)
-  override def findExplicitMarker: Option[PsiElement] =
-    Option(findChildByFilter(LeftBraceOrColon))
+  override def findExplicitMarker: Option[PsiElement] = getEnclosingStartElement
 
   override def packageName: String = byStubOrPsi(_.packageName)(reference.fold("")(_.qualName))
 
@@ -166,8 +171,6 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
 
 object ScPackagingImpl {
 
-  private val LeftBraceOrColon = TokenSet.create(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tCOLON)
-
   private def getFullPackageName(parentPackageName: String, packageName: String): String =
     if (parentPackageName.isEmpty)
       packageName
@@ -184,4 +187,3 @@ object ScPackagingImpl {
       getParentPackageName(parent)
   }
 }
-

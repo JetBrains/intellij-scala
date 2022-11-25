@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 
 /**
@@ -18,5 +19,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 class ScBlockImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScBlock {
   override def toString: String = "BlockOfExpressions"
 
-  override def isEnclosedByBraces: Boolean = false
+  override def getEnclosingStartElement: Option[PsiElement] = None
 }

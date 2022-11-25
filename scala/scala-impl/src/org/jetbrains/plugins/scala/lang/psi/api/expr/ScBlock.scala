@@ -8,8 +8,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScBraceOwner
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLineNode
@@ -18,13 +17,14 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
 
 import scala.collection.mutable.ArrayBuffer
 
 trait ScBlock extends ScExpression
   with ScDeclarationSequenceHolder
   with ScImportsHolder
-  with ScBraceOwner
+  with ScOptionalBracesOwner
 {
   protected override def innerType: TypeResult = {
     if (hasCaseClauses) {
@@ -80,7 +80,7 @@ trait ScBlock extends ScExpression
   }
 
   def hasCaseClauses: Boolean = false
-  def isInCatchBlock: Boolean = getContext.isInstanceOf[ScCatchBlock]
+  def isInCatchBlock: Boolean = getContext.is[ScCatchBlock]
   def isPartialFunction: Boolean = hasCaseClauses && !isInCatchBlock
 
   def exprs: Seq[ScExpression] = findChildren[ScExpression]
@@ -94,9 +94,6 @@ trait ScBlock extends ScExpression
       case Array(node) => Option(node.getPsi)
       case _           => None
     }
-
-  def getLBrace: Option[PsiElement] =
-    this.findFirstChildByType(ScalaTokenTypes.tLBRACE)
 
   def resultExpression: Option[ScExpression] = lastStatement.flatMap(_.asOptionOf[ScExpression])
   def lastStatement: Option[ScBlockStatement] = findLastChild[ScBlockStatement]
@@ -115,8 +112,6 @@ trait ScBlock extends ScExpression
       processDeclarationsFromImports(processor, state, lastParent, place)
 
   def needCheckExpectedType = true
-
-  override def isEnclosedByBraces: Boolean = true
 }
 
 object ScBlock {

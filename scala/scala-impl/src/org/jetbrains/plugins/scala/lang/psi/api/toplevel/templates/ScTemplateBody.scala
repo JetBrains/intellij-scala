@@ -1,19 +1,19 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 package templates
 
-import org.jetbrains.plugins.scala.lang.psi.{ScExportsHolder, ScImportsHolder}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScBraceOwner
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.{ScExportsHolder, ScImportsHolder}
 
 trait ScTemplateBody extends ScalaPsiElement
   with ScControlFlowOwner
   with ScImportsHolder
   with ScExportsHolder
-  with ScBraceOwner {
+  with ScOptionalBracesOwner {
 
   def members: Seq[ScMember]
 

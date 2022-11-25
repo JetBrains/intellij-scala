@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaEndMarkerCompletionContributor._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScBraceOwner, ScEnd}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScEnd, ScOptionalBracesOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -186,7 +186,7 @@ object ScalaEndMarkerCompletionContributor {
   }
 
   private def isWithoutBraces(element: ScalaPsiElement): Boolean = element match {
-    case braceOwner: ScBraceOwner => !braceOwner.isEnclosedByBraces
+    case braceOwner: ScOptionalBracesOwner => !braceOwner.isEnclosedByBraces
     case _ => true
   }
 

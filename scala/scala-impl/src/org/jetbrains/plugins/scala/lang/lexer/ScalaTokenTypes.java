@@ -296,4 +296,6 @@ public interface ScalaTokenTypes {
     TokenSet LBRACE_LPARENT_TOKEN_SET = TokenSet.create(tLBRACE, tLPARENTHESIS);
 
     TokenSet YIELD_OR_DO = TokenSet.create(kYIELD, kDO);
+
+    TokenSet LBRACE_OR_COLON_TOKEN_SET = TokenSet.create(tLBRACE, tCOLON);
 }

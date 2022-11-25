@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.tree.ILazyParseableElementType
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 
@@ -37,7 +35,4 @@ class ScBlockExprImpl(elementType: ILazyParseableElementType, buffer: CharSequen
   }
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitBlockExpression(this)
-
-  override def isEnclosedByBraces: Boolean =
-    this.firstChild.exists(_.elementType == ScalaTokenTypes.tLBRACE)
 }
