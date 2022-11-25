@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 import java.util.concurrent.ScheduledExecutorService
@@ -100,11 +101,12 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
 
   def triggerDocumentCompilation(
     virtualFile: VirtualFile,
-    document: Document,
+    module: Module,
     sourceScope: SourceScope,
+    document: Document,
     debugReason: String
   ): Unit =
-    schedule(virtualFile, CompilationRequest.DocumentRequest(document, sourceScope, debugReason))
+    schedule(virtualFile, CompilationRequest.DocumentRequest(module, sourceScope, document, debugReason))
 
   def triggerWorksheetCompilation(
     virtualFile: VirtualFile,
@@ -137,7 +139,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
         case ir: CompilationRequest.IncrementalRequest =>
           executeIncrementalCompilationRequest(virtualFile, ir)
         case dr: CompilationRequest.DocumentRequest =>
-          executeDocumentCompilationRequest(dr)
+          executeDocumentCompilationRequest(virtualFile, dr)
       }
     }
   }
@@ -157,7 +159,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     performCompilation(delayIndicator = false) { client =>
       val triggerService = TriggerCompilerHighlightingService.get(project)
       triggerService.beforeIncrementalCompilation()
-      try IncrementalCompiler.compile(project, module, sourceScope, client)
+      try IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
       finally {
         if (psiFile.is[ScalaFile]) {
           triggerService.enableDocumentCompiler(virtualFile)
@@ -166,10 +168,10 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     }
   }
 
-  private def executeDocumentCompilationRequest(request: CompilationRequest.DocumentRequest): Unit = {
-    val CompilationRequest.DocumentRequest(document, sourceScope, debugReason) = request
+  private def executeDocumentCompilationRequest(virtualFile: VirtualFile, request: CompilationRequest.DocumentRequest): Unit = {
+    val CompilationRequest.DocumentRequest(module, sourceScope, document, debugReason) = request
     debug(s"documentCompilation: $debugReason")
-    performCompilation(delayIndicator = true)(DocumentCompiler.get(project).compile(document, sourceScope, _))
+    performCompilation(delayIndicator = true)(DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, _))
   }
 
   private def performCompilation(delayIndicator: Boolean)(compile: Client => Unit): Unit = {
@@ -206,7 +208,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   private def isReadyForExecution(request: CompilationRequest): Boolean = request match {
     case CompilationRequest.WorksheetRequest(_, document, _) => isDocumentReadyForCompilation(document)
     case CompilationRequest.IncrementalRequest(_, _, _, _, _) => true
-    case CompilationRequest.DocumentRequest(document, _, _) => isDocumentReadyForCompilation(document)
+    case CompilationRequest.DocumentRequest(_, _, document, _) => isDocumentReadyForCompilation(document)
   }
 
   private def isDocumentReadyForCompilation(document: Document): Boolean =

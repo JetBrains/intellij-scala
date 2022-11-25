@@ -43,8 +43,11 @@ package object project {
 
   object UserDataKeys {
 
-    // used to "attach" a module to some scala file, which is out of any module for some reason
-    // the primary purpose is to attach a module for a scala scratch file
+    /**
+     * This key is used to "attach" a module to some scala file, which doesn't belong to any module<br>
+     * The primary purpose is to attach a module to scala scratch files<br>
+     * Such files are located outside any module scope and behave as Scala Worksheets by default
+     */
     val SCALA_ATTACHED_MODULE = new Key[Reference[Module]]("ScalaAttachedModule")
   }
 
@@ -168,6 +171,9 @@ package object project {
           .orElse(dependents.find(_.isScalaNative))
       }
       else None
+
+    def findRepresentativeModuleForSharedSourceModuleOrSelf: Module =
+      findRepresentativeModuleForSharedSourceModule.getOrElse(module)
 
     def sharedSourceDependency: Option[Module] =
       ModuleRootManager.getInstance(module).getDependencies

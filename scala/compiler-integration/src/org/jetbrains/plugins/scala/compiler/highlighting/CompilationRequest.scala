@@ -13,7 +13,11 @@ private sealed trait CompilationRequest {
 }
 
 private object CompilationRequest {
-  final case class WorksheetRequest(file: ScalaFile, document: Document, debugReason: String)
+  final case class WorksheetRequest(
+    file: ScalaFile,
+    document: Document,
+    debugReason: String
+  )
     extends CompilationRequest {
     override val priority: Int = 0
   }
@@ -28,7 +32,12 @@ private object CompilationRequest {
     override val priority: Int = 1
   }
 
-  final case class DocumentRequest(document: Document, sourceScope: SourceScope, debugReason: String)
+  final case class DocumentRequest(
+    module: Module,
+    sourceScope: SourceScope,
+    document: Document,
+    debugReason: String
+  )
     extends CompilationRequest {
     override val priority: Int = 2
   }
