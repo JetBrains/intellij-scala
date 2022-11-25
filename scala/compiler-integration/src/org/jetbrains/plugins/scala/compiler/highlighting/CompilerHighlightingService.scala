@@ -14,6 +14,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.TestSourcesFilter
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
@@ -57,6 +58,11 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     if (Log.isDebugEnabled) {
       Log.debug(s"[${project.getName}] $message")
     }
+  }
+
+  //noinspection SameParameterValue
+  private def warn(message: => String): Unit = {
+    Log.warn(s"[${project.getName}] $message")
   }
 
   def cancel(): Unit = {
@@ -113,9 +119,10 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     virtualFile: VirtualFile,
     psiFile: ScalaFile,
     document: Document,
+    isFirstTimeHighlighting: Boolean,
     debugReason: String
   ): Unit =
-    schedule(virtualFile, CompilationRequest.WorksheetRequest(psiFile, document, debugReason))
+    schedule(virtualFile, CompilationRequest.WorksheetRequest(psiFile, document, isFirstTimeHighlighting, debugReason))
 
   private def schedule(virtualFile: VirtualFile, request: CompilationRequest): Unit = {
     val now = System.nanoTime()
@@ -146,9 +153,28 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   }
 
   private def executeWorksheetCompilationRequest(request: CompilationRequest.WorksheetRequest): Unit = {
-    val CompilationRequest.WorksheetRequest(file, document, debugReason) = request
-    debug(s"worksheetCompilation: $debugReason")
-    performCompilation(delayIndicator = true)(WorksheetHighlightingCompiler.compile(file, document, _))
+    val CompilationRequest.WorksheetRequest(file, document, isFirstTimeHighlighting, debugReason) = request
+    debug(s"worksheetCompilation: $debugReason (isFirstTimeHighlighting: ${isFirstTimeHighlighting})")
+
+    //Note, we don't need to invoke `findRepresentativeModuleForSharedSourceModuleOrSelf`
+    //because it's already called for all worksheets in WorksheetSyntheticModuleService
+    val module = file.module match {
+      case Some(m) => m
+      case None =>
+        warn(s"can't find module for worksheet ${file.name}")
+        return
+    }
+
+    if (isFirstTimeHighlighting) {
+      //If we have just opened worksheet we need to invoke incremental compilation to ensure that worksheet module is compiled to avoid red code
+      //Otherwise if you open non-compiled project and open worksheet it will contain red code
+      val virtualFile = file.getVirtualFile
+      val sourceScope = if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test else SourceScope.Production
+      val incrementalRequest = CompilationRequest.IncrementalRequest(module, sourceScope, document, file, debugReason)
+      executeIncrementalCompilationRequest(virtualFile, incrementalRequest)
+    }
+
+    performCompilation(delayIndicator = true)(WorksheetHighlightingCompiler.compile(file, document, module, _))
   }
 
   private def executeIncrementalCompilationRequest(
@@ -208,7 +234,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     if (!project.isDisposed || project.isDefault) project.save()
 
   private def isReadyForExecution(request: CompilationRequest): Boolean = request match {
-    case CompilationRequest.WorksheetRequest(_, document, _) => isDocumentReadyForCompilation(document)
+    case CompilationRequest.WorksheetRequest(_, document, _, _) => isDocumentReadyForCompilation(document)
     case CompilationRequest.IncrementalRequest(_, _, _, _, _) => true
     case CompilationRequest.DocumentRequest(_, _, document, _) => isDocumentReadyForCompilation(document)
   }

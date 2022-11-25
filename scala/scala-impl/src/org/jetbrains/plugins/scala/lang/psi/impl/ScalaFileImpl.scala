@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 import org.jetbrains.plugins.scala.{JavaArrayFactoryUtil, ScalaFileType}
 
@@ -260,12 +261,12 @@ class ScalaFileImpl(
       else
         ResolveFilterScope(defaultResolveScope)
 
-      val extraModuleForSharedSources =
+      val representativeModuleForSharedSources =
         if (ResolveToDependentModuleInSharedSources) findRepresentativeModuleForSharedSourceModule
         else None
-      extraModuleForSharedSources match {
-        case Some(jvmModule) =>
-          resolveScope.union(jvmModule.getModuleWithDependenciesAndLibrariesScope(true))
+      representativeModuleForSharedSources match {
+        case Some(representativeModule) =>
+          resolveScope.union(representativeModule.getModuleWithDependenciesAndLibrariesScope(true))
         case None =>
           resolveScope
       }
@@ -280,7 +281,6 @@ class ScalaFileImpl(
     val module = ModuleUtilCore.findModuleForPsiElement(this)
     if (module == null)
       return None
-    import org.jetbrains.plugins.scala.project.ModuleExt
     if (module.isSharedSourceModule)
       module.findRepresentativeModuleForSharedSourceModule
     else

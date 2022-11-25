@@ -13,10 +13,14 @@ private sealed trait CompilationRequest {
 }
 
 private object CompilationRequest {
+  /**
+   * @param isFirstTimeHighlighting whether worksheet editor has just been selected (is true every time when tabs are switched)
+   */
   final case class WorksheetRequest(
     file: ScalaFile,
     document: Document,
-    debugReason: String
+    isFirstTimeHighlighting: Boolean,
+    debugReason: String,
   )
     extends CompilationRequest {
     override val priority: Int = 0

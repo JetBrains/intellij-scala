@@ -12,7 +12,6 @@ import com.intellij.openapi.project.{DumbService, IndexNotReadyException, Projec
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
-import javax.swing.Icon
 import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, inWriteAction, invokeAndWait, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -24,6 +23,7 @@ import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, Works
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
+import javax.swing.Icon
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
@@ -164,9 +164,9 @@ object RunWorksheetAction {
         return
     }
 
-    val fileSettings = WorksheetFileSettings(psiFile)
-    fileSettings.getModule match {
+    psiFile.module match {
       case Some(module) =>
+        val fileSettings = WorksheetFileSettings(psiFile)
         doRunCompiler(project, editor, auto, psiFile.getVirtualFile, psiFile, fileSettings.isMakeBeforeRun, module)(promise)
       case None        =>
         promise.success(RunWorksheetActionResult.NoModuleError)
