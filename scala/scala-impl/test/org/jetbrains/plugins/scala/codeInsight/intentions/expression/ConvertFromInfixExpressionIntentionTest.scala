@@ -84,13 +84,26 @@ class ConvertFromInfixExpressionIntentionTest extends ScalaIntentionTestBase {
   }
 
   def testConvertFromInfixExpression11(): Unit = {
+    val text =
+      """x map<caret> { x =>
+        |  x + 1
+        |}""".stripMargin
+    val resultText =
+      """x.map<caret>({ x =>
+        |  x + 1
+        |})""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testConvertFromInfixExpression12(): Unit = {
     val text = "this <caret>foo 1"
     val resultText = "this.<caret>foo(1)"
 
     doTest(text, resultText)
   }
 
-  def testConvertFromInfixExpression12(): Unit = {
+  def testConvertFromInfixExpression13(): Unit = {
     val text =
       """
         |case class M[A](a: A) {
@@ -110,4 +123,24 @@ class ConvertFromInfixExpressionIntentionTest extends ScalaIntentionTestBase {
     doTest(text, resultText)
   }
 
+}
+
+class ConvertFromInfixExpressionIntentionTest_Scala3 extends ScalaIntentionTestBase {
+  override val familyName = ScalaBundle.message("family.name.convert.from.infix.expression")
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  def testConvertFromInfixExpressionFewerBraces(): Unit = {
+    val text =
+      """x map<caret>: x =>
+        |  x + 1
+        |""".stripMargin
+    val resultText =
+      """x.map<caret>(x =>
+        |  x + 1
+        |)
+        |""".stripMargin
+
+    doTest(text, resultText)
+  }
 }

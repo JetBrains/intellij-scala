@@ -8,7 +8,6 @@ import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
-import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.javadoc.PsiDocComment
@@ -26,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClauses
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -38,6 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, _}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -1291,7 +1290,10 @@ object ScalaPsiElementFactory {
 
     val clauseText = argument match {
       case _: ScTuple | _: ScParenthesisedExpr | _: ScUnitExpr => argument.getText
-      case ElementText(text)                                   => text.parenthesize()
+      case ElementText(text) & ScOptionalBracesOwner.withColon(colon) =>
+        val textAfterColon = text.substring(colon.getTextRangeInParent.getStartOffset + 1)
+        s"$textAfterColon\n".parenthesize()
+      case ElementText(text) => text.parenthesize()
     }
 
     val typeArgText = infix.typeArgs.map(_.getText).getOrElse("")

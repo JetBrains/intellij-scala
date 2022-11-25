@@ -37,3 +37,9 @@ trait ScOptionalBracesOwner extends ScalaPsiElement {
 
   def isEnclosedByColon: Boolean = getColon.isDefined
 }
+
+object ScOptionalBracesOwner {
+  object withColon {
+    def unapply(elem: ScOptionalBracesOwner): Option[PsiElement] = elem.getColon
+  }
+}
