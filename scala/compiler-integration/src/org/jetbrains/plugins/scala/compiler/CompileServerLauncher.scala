@@ -207,7 +207,11 @@ object CompileServerLauncher {
 
         val builder = new ProcessBuilder(commands.asJava)
 
-        if (settings.USE_PROJECT_HOME_AS_WORKING_DIR) {
+        val customWorkingDir = settings.CUSTOM_WORKING_DIR_FOR_TESTS
+        if (customWorkingDir != null) {
+          builder.directory(new File(customWorkingDir))
+        }
+        else if (settings.USE_PROJECT_HOME_AS_WORKING_DIR) {
           projectHome(project).foreach(dir => builder.directory(dir))
         }
 

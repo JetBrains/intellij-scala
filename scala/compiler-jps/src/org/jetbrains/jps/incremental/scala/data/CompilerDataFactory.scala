@@ -1,14 +1,10 @@
 package org.jetbrains.jps.incremental.scala.data
 
-import java.io.File
-import java.util
-
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.java.JavaBuilder
-import org.jetbrains.jps.incremental.scala.{ScalaBuilder, SettingsManager}
 import org.jetbrains.jps.incremental.scala.model.{CompilerSettings, LibrarySettings}
-import org.jetbrains.jps.incremental.scala.compilerVersionIn
+import org.jetbrains.jps.incremental.scala.{ScalaBuilder, SettingsManager, compilerVersionIn}
 import org.jetbrains.jps.model.JpsModel
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.jps.model.java.{JpsJavaExtensionService, JpsJavaSdkType}
@@ -21,6 +17,8 @@ import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, Co
 import org.jetbrains.plugins.scala.util.JarUtil
 import org.jetbrains.plugins.scala.util.JarUtil.JarFileWithName
 
+import java.io.File
+import java.util
 import scala.jdk.CollectionConverters._
 
 trait CompilerDataFactory {
@@ -129,18 +127,37 @@ object CompilerDataFactory
       Seq.empty
     }
 
-  // https://youtrack.jetbrains.com/issue/SCL-17519
-  private def semanticDbOptionsFor(configuredOptions: Seq[String], chunk: ModuleChunk): Seq[String] = {
-    val hasSemanticDbPlugin = configuredOptions.exists(s => s.startsWith("-Xplugin:") && s.contains("semanticdb-scalac") && new File(s.substring(9)).exists())
-    val hasSourceRootOption = configuredOptions.exists(_.startsWith("-P:semanticdb:sourceroot:"))
+  private val SourceRootOptionScala2 = "-P:semanticdb:sourceroot"
+  private val SourceRootOptionScala3 = "-sourceroot"
+  private val SemanticDbOptionScala3 = "-Xsemanticdb"
 
-    if (hasSemanticDbPlugin && !hasSourceRootOption) {
-      val project = chunk.representativeTarget.getModule.getProject
-      val baseDirectory = JpsModelSerializationDataService.getBaseDirectory(project).getAbsolutePath
-      Seq(s"-P:semanticdb:sourceroot:$baseDirectory")
-    } else {
+  /**
+   * When semantic db is enabled (via compiler plugin in Scala 2 or via compiler option in Scala3)
+   * See SCL-17519 and SCL-20779
+   */
+  private def semanticDbOptionsFor(configuredOptions: Seq[String], chunk: ModuleChunk): Seq[String] = {
+    val isSemanticDbEnabledScala2 = configuredOptions.exists(isSemanticDbPluginOption)
+    val hasSemanticDbPluginSourceRootOptionScala2 = configuredOptions.exists(_.startsWith(SourceRootOptionScala2))
+
+    val isSemanticDbEnabledScala3= configuredOptions.contains(SemanticDbOptionScala3)
+    val hasSemanticDbPluginSourceRootOptionScala3 = configuredOptions.contains(SourceRootOptionScala3)
+
+    lazy val project = chunk.representativeTarget.getModule.getProject
+    lazy val baseDirectory = JpsModelSerializationDataService.getBaseDirectory(project).getAbsolutePath
+
+    if (isSemanticDbEnabledScala2 && !hasSemanticDbPluginSourceRootOptionScala2)
+      Seq(s"$SourceRootOptionScala2:$baseDirectory")
+    else if (isSemanticDbEnabledScala3 && !hasSemanticDbPluginSourceRootOptionScala3)
+      Seq(s"$SourceRootOptionScala3:$baseDirectory")
+    else
       Seq.empty
-    }
+  }
+
+  private def isSemanticDbPluginOption(compilerOption: String): Boolean = {
+    val xPluginPrefix = "-Xplugin:"
+    compilerOption.startsWith(xPluginPrefix) &&
+      compilerOption.contains("semanticdb-scalac") &&
+      new File(compilerOption.substring(xPluginPrefix.length)).exists()
   }
 
   def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {

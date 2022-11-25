@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.UUID;
 
@@ -40,6 +41,9 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
   public boolean COMPILE_SERVER_SHUTDOWN_IDLE = true;
 
   public boolean USE_PROJECT_HOME_AS_WORKING_DIR = false;
+
+  @TestOnly
+  transient public String CUSTOM_WORKING_DIR_FOR_TESTS = null;
 
   @Override
   public ScalaCompileServerSettings getState() {
