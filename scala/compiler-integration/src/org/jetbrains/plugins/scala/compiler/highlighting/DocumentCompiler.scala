@@ -6,8 +6,8 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, SourceScope}
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
 import org.jetbrains.plugins.scala.compiler.{RemoteServerConnectorBase, RemoteServerRunner}
@@ -24,17 +24,21 @@ private final class DocumentCompiler(project: Project) extends Disposable {
 
   private val outputDirectories = new ConcurrentHashMap[Module, File]
 
-  def compile(document: Document, sourceScope: SourceScope, client: Client): Unit =
-    for {
-      virtualFile <- document.virtualFile
-      module <- Option(ProjectFileIndex.getInstance(project).getModuleForFile(virtualFile))
-    } compileDocumentContent(
+  def compile(
+    module: Module,
+    sourceScope: SourceScope,
+    document: Document,
+    virtualFile: VirtualFile,
+    client: Client
+  ): Unit = {
+    compileDocumentContent(
       originalSourceFile = virtualFile.toFile,
       content = document.textWithConvertedSeparators(virtualFile),
       module = module,
       sourceScope = sourceScope,
       client = client
     )
+  }
 
   def clearOutputDirectories(): Unit = {
     for {
@@ -65,15 +69,7 @@ private final class DocumentCompiler(project: Project) extends Disposable {
     })
     try {
       Files.writeString(tempSourceFile.toPath, content)
-
-      import org.jetbrains.plugins.scala.project.ModuleExt
-      val moduleForCompilation = if (module.isSharedSourceModule) { //SCL-20762
-        val jvmModule = module.findJVMModule
-        jvmModule.getOrElse(module)
-      }
-      else module
-
-      new RemoteServerConnector(tempSourceFile, moduleForCompilation, sourceScope, outputDir).compile(originalSourceFile, client)
+      new RemoteServerConnector(tempSourceFile, module, sourceScope, outputDir).compile(originalSourceFile, client)
     } finally {
       FileUtil.delete(tempSourceFile)
     }

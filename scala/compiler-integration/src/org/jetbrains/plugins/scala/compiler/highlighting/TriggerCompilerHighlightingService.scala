@@ -145,8 +145,11 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     document: Document,
     debugReason: String
   ): Unit = {
-    val sourceScope = calculateSourceScope(virtualFile)
-    CompilerHighlightingService.get(project).triggerDocumentCompilation(virtualFile, document, sourceScope, debugReason)
+    val module = ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile)
+    if (module ne null) {
+      val sourceScope = calculateSourceScope(virtualFile)
+      CompilerHighlightingService.get(project).triggerDocumentCompilation(virtualFile, module, sourceScope, document, debugReason)
+    }
   }
 
   private def triggerWorksheetCompilation(
