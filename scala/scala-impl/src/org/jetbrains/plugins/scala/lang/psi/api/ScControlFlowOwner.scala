@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 trait ScControlFlowOwner extends ScalaPsiElement {
 
-  @Cached(ModTracker.physicalPsiChange(getProject), this)
+  @Cached(ModTracker.physicalPsiChange(getProject))
   def getControlFlow: Seq[Instruction] = {
     val builder = new ScalaControlFlowBuilder(null, null)
     controlFlowScope match {

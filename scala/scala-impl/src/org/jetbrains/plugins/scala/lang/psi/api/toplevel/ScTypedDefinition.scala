@@ -32,13 +32,13 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
     case _ => true
   }
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   def getTypedDefinitionWrapper(isStatic: Boolean, isAbstract: Boolean, role: DefinitionRole,
                                 cClass: Option[PsiClass] = None): PsiTypedDefinitionWrapper = {
     new PsiTypedDefinitionWrapper(this, isStatic, isAbstract, role, cClass)
   }
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   def getStaticTypedDefinitionWrapper(role: DefinitionRole, cClass: PsiClassWrapper): StaticPsiTypedDefinitionWrapper = {
     new StaticPsiTypedDefinitionWrapper(this, role, cClass)
   }

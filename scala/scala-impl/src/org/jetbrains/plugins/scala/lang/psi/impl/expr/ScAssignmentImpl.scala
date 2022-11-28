@@ -33,13 +33,13 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
     }
   }
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   override def resolveAssignment: Option[ScalaResolveResult] = resolveAssignmentInner(shapeResolve = false)
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   override def shapeResolveAssignment: Option[ScalaResolveResult] = resolveAssignmentInner(shapeResolve = true)
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   override def mirrorMethodCall: Option[ScMethodCall] = {
     leftExpression match {
       case ref: ScReferenceExpression =>

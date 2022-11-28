@@ -81,7 +81,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     n.getPsi
   }
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   override def paramClauses: ScParameters = getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
 
   @CachedInUserData(this, BlockModificationTracker(this))
@@ -134,7 +134,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     !lastParent.isPhysical || isFromTypeParams || isReturnTypeElement
   }
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   override def returnTypeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
 
   // TODO unify with ScValue and ScVariable
@@ -249,7 +249,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   /**
     * @return Empty array, if containing class is null.
     */
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   override def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
     val builder = Seq.newBuilder[ScFunctionWrapper]
     if (cClass.isDefined || containingClass != null) {

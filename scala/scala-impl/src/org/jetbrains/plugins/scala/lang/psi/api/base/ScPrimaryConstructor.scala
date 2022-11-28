@@ -55,7 +55,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
 
   def effectiveFirstParameterSection: Seq[ScClassParameter] = effectiveParameterClauses.head.unsafeClassParameters
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   def getFunctionWrappers: Seq[ScPrimaryConstructorWrapper] = {
     val builder = ArraySeq.newBuilder[ScPrimaryConstructorWrapper]
 

@@ -54,7 +54,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     *
     * `object a { def foo { def bar = 0 }}`
     */
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   @Nullable
   def containingClass: ScTemplateDefinition = {
     this match {

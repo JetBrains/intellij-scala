@@ -106,7 +106,7 @@ class ScObjectImpl(
     place:      PsiElement
   ): Boolean = processDeclarationsImpl(processor, state, lastParent, place)
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   override def fakeCompanionClass: Option[PsiClass] = getCompanionModule(this) match {
     case Some(_) => None
     case None =>
@@ -120,7 +120,7 @@ class ScObjectImpl(
     case _ => getCompanionModule(this).get
   }
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   private def getModuleField: Option[PsiField] = {
     def hasJavaKeywords(qName: String) =
       qName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this.getProject)))
@@ -144,7 +144,7 @@ class ScObjectImpl(
 
   override def psiInnerClasses: Array[PsiClass] = Array.empty
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   override def getConstructors: Array[PsiMethod] = Array(new EmptyPrivateConstructor(this))
 
   override def isPhysical: Boolean = {

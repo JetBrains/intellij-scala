@@ -16,7 +16,7 @@ trait ConstructorInvocationLikeImpl extends ConstructorInvocationLike {
   @Nullable
   protected def resolveConstructor(): PsiElement
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   def matchedParametersByClauses: Seq[Seq[(ScExpression, Parameter)]] = {
     val paramClauses = resolveConstructor() match {
       case ScalaConstructor(constr) => constr.effectiveParameterClauses.map(_.effectiveParameters)

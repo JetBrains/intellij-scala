@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with PsiModifierListOwnerAdapter {
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   override def getModifierList: ScModifierList = {
     val child = this.stubOrPsiChild(ScalaElementType.MODIFIERS)
     child.getOrElse(ScalaPsiElementFactory.createEmptyModifierList(this))

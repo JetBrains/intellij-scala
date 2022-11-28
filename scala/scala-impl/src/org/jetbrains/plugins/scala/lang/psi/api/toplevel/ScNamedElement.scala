@@ -25,7 +25,7 @@ import scala.annotation.tailrec
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   def name: String = {
     this match {
       case st: StubBasedPsiElementBase[_] => st.getGreenStub match {
@@ -38,7 +38,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
 
   def nameInner: String = nameId.getText
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   def nameContext: PsiElement = {
     @tailrec
     def byStub(stub: StubElement[_]): PsiElement = {

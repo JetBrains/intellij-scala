@@ -7,7 +7,7 @@ import org.junit.Assert._
 class CachedTest extends CachedTestBase {
   def testNoParametersSingleThread(): Unit = {
     class Foo extends Managed {
-      @Cached(ModTracker.physicalPsiChange(getProject), this)
+      @Cached(ModTracker.physicalPsiChange(getProject))
       def currentTime(): Long = System.currentTimeMillis()
     }
 
@@ -29,7 +29,7 @@ class CachedTest extends CachedTestBase {
 
   def testModificationTrackers(): Unit = {
     object Foo extends Managed {
-      @Cached(ModTracker.physicalPsiChange(getProject), this)
+      @Cached(ModTracker.physicalPsiChange(getProject))
       def currentTime: Long = System.currentTimeMillis()
     }
 
@@ -42,7 +42,7 @@ class CachedTest extends CachedTestBase {
 
   def testWithParameters(): Unit = {
     object Foo extends Managed {
-      @Cached(ModTracker.physicalPsiChange(getProject), this)
+      @Cached(ModTracker.physicalPsiChange(getProject))
       def currentTime(a: Int, b: Int): Long = System.currentTimeMillis()
     }
 
@@ -60,7 +60,7 @@ class CachedTest extends CachedTestBase {
 
   def testTracer(): Unit = {
     object Foo extends Managed {
-      @Cached(ModTracker.physicalPsiChange(getProject), this)
+      @Cached(ModTracker.physicalPsiChange(getProject))
       def currentTime: Long = System.currentTimeMillis()
     }
 
@@ -77,7 +77,7 @@ class CachedTest extends CachedTestBase {
   def testTracerWithExpr(): Unit = {
     class Foo extends Managed {
       var myVar = 0
-      @Cached(ModTracker.physicalPsiChange(getProject), this, myVar)
+      @Cached(ModTracker.physicalPsiChange(getProject), myVar)
       def bar: Int = myVar
     }
 

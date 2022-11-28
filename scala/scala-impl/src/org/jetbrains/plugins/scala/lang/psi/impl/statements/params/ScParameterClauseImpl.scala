@@ -31,7 +31,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
   override def toString: String = "ParametersClause"
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   override def parameters: Seq[ScParameter] = {
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory).toSeq
   }
@@ -72,7 +72,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     getFirstChild.elementType == ScalaTokenTypes.tLPARENTHESIS &&
       getLastChild.elementType == ScalaTokenTypes.tRPARENTHESIS
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   override def isImplicit: Boolean = {
     import ScModifierList._
 
@@ -84,7 +84,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     byStubOrPsi(_.isImplicit)(hasImplicitKeyword)
   }
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   override def isUsing: Boolean = {
     def hasUsingKeyword =
       findChildByType(ScalaTokenType.UsingKeyword) != null
@@ -92,7 +92,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     byStubOrPsi(_.isUsing)(hasUsingKeyword)
   }
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   override def isInline: Boolean = {
     def hasInlineKeyword =
       parameters.exists(_.findFirstChildByTypeScala(ScalaTokenType.InlineKeyword).isDefined)

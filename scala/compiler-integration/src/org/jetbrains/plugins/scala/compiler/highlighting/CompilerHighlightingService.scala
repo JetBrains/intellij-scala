@@ -201,7 +201,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
 
   // SCL-17295
   @nowarn("msg=pure expression")
-  @Cached(ModificationTracker.NEVER_CHANGED, null)
+  @Cached(ModificationTracker.NEVER_CHANGED)
   private def saveProjectOnce(): Unit =
     if (!project.isDisposed || project.isDefault) project.save()
 

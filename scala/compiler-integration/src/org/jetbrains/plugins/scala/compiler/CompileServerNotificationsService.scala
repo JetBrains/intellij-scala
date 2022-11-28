@@ -31,7 +31,7 @@ final class CompileServerNotificationsService(project: Project) {
    * SCL-17817
    */
   @nowarn("msg=pure expression")
-  @Cached(modificationTracker, null)
+  @Cached(modificationTracker)
   def warnIfCompileServerJdkMayLeadToCompilationProblems(): Unit = if (project.hasScala) {
     def serverJdkIsOk(serverJdkVersion: JavaSdkVersion, recommendedJdkVersion: JavaSdkVersion): Boolean =
       if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))

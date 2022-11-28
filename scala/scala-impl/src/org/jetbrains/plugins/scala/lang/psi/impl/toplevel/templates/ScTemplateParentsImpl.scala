@@ -54,7 +54,7 @@ final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: AST
     builder.result()
   }
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   private def syntheticTypeElements: Seq[ScTypeElement] = getContext.getContext match {
     case td: ScTypeDefinition => SyntheticMembersInjector.injectSupers(td)
     case _ => Seq.empty

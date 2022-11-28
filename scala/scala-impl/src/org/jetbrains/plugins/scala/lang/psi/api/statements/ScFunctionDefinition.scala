@@ -16,7 +16,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner with ScDef
 
   override def controlFlowScope: Option[ScalaPsiElement] = body
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   def getStaticTraitFunctionWrapper(cClass: PsiClassWrapper): StaticTraitScFunctionWrapper =
     new StaticTraitScFunctionWrapper(this, cClass)
 }

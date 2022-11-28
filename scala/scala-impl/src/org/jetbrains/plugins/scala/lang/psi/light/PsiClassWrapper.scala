@@ -122,7 +122,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     }
   }
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   private def getEmptyConstructor: PsiMethod = new EmptyPrivateConstructor(this)
 
   override def getConstructors: Array[PsiMethod] = {

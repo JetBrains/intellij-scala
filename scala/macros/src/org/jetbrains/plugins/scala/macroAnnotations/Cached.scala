@@ -19,7 +19,7 @@ import scala.reflect.macros.whitebox
  * this parameter will not be used as part of the HashMap key,
  * but will change the caching behaviour. See [[org.jetbrains.plugins.scala.caches.CacheMode]]
  */
-class Cached(modificationTracker: Object, psiElement: Any, trackedExpressions: Any*) extends StaticAnnotation {
+class Cached(modificationTracker: Object, trackedExpressions: Any*) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro Cached.cachedImpl
 }
 
@@ -31,17 +31,17 @@ object Cached {
 
     def abort(@Nls message: String) = c.abort(c.enclosingPosition, message)
 
-    def parameters: (Tree, Tree, Seq[Tree]) = {
+    def parameters: (Tree, Seq[Tree]) = {
       c.prefix.tree match {
-        case q"new Cached(..$params)" if params.length >= 2 =>
-          val Seq(modificationTracker, psiElement, tracked @ _*) = params.map(_.asInstanceOf[c.universe.Tree])
-          (modificationTracker, psiElement, tracked)
+        case q"new Cached(..$params)" if params.nonEmpty =>
+          val Seq(modificationTracker, tracked @ _*) = params.map(_.asInstanceOf[c.universe.Tree])
+          (modificationTracker, tracked)
         case _ => abort(MacrosBundle.message("macros.cached.wrong.parameters"))
       }
     }
 
     //annotation parameters
-    val (modTracker, psiElement, trackedExprs) = parameters
+    val (modTracker, trackedExprs) = parameters
 
     annottees.toList match {
       case (dd@DefDef(mods, nameTerm, tpParams, paramss, retTp, rhs)) :: Nil =>

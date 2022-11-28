@@ -228,7 +228,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       }
     }
 
-  @Cached(ModTracker.libraryAware(this), this)
+  @Cached(ModTracker.libraryAware(this))
   private def calcFakeCompanionModule(): Option[ScObject] = {
     val accessModifier = getModifierList.accessModifier match {
       case None     => ""
@@ -257,7 +257,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   import ScTypeDefinitionImpl._
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   override final def getQualifiedName: String = {
     if (hasNoJavaFQName(this))
       return null
@@ -279,7 +279,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     }
   }
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   override def qualifiedName: String = {
     if (isLocalOrInsideAnonymous(this))
       return name

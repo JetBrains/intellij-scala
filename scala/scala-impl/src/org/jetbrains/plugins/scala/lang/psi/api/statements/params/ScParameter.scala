@@ -124,7 +124,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
 
   def getTypeNoResolve: PsiType = PsiType.VOID
 
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   def isDefaultParam: Boolean = calcIsDefaultParam(this, Set.empty)
 
 

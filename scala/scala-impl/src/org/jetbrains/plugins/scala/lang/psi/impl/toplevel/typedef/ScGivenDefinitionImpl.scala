@@ -52,7 +52,7 @@ class ScGivenDefinitionImpl(
       .getOrElse(ScalaPsiUtil.generateGivenOrExtensionName(typeElements: _*))
   }
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   override def clauses: Option[ScParameters] =
     getStubOrPsiChild(PARAM_CLAUSES).toOption
 

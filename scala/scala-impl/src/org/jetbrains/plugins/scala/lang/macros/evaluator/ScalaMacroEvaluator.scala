@@ -31,10 +31,10 @@ import scala.reflect.ClassTag
 class ScalaMacroEvaluator(project: Project) {
   import ScalaMacroEvaluator._
 
-  @Cached(LibraryExtensionsManager.MOD_TRACKER, null)
+  @Cached(LibraryExtensionsManager.MOD_TRACKER)
   private def typingRules:    Map[MacroImpl, ScalaMacroTypeable]    = loadRules(defaultTypeProviders)
 
-  @Cached(LibraryExtensionsManager.MOD_TRACKER, null)
+  @Cached(LibraryExtensionsManager.MOD_TRACKER)
   private def expansionRules: Map[MacroImpl, ScalaMacroExpandable]  = loadRules(defaultExprProviders)
 
   private def loadRules[T <: ScalaMacroBound](defaults: Seq[T])(implicit tag: ClassTag[T]) : Map[MacroImpl, T] = {

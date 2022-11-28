@@ -20,7 +20,7 @@ import scala.annotation.tailrec
 
 trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   def annotations: Seq[ScAnnotation] = this.stubOrPsiChild(ScalaElementType.ANNOTATIONS) match {
     case Some(ann) => ann.getAnnotations.toSeq
     case _ => Seq.empty

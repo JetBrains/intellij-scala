@@ -213,11 +213,11 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       case path => (if (checkDeep) superPathsDeep else superPaths).contains(path)
     }
 
-  @Cached(ModTracker.physicalPsiChange(getProject), this)
+  @Cached(ModTracker.physicalPsiChange(getProject))
   private def superPaths: Set[Path] =
     supers.map(Path.apply).toSet
 
-  @Cached(ModTracker.physicalPsiChange(getProject), this)
+  @Cached(ModTracker.physicalPsiChange(getProject))
   private def superPathsDeep: Set[Path] = {
     val collected = mutable.Set.empty[Path]
 

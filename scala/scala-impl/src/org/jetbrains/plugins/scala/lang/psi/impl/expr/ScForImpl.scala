@@ -85,7 +85,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
   private def compilerRewritesWithFilterToFilter: Boolean = this.scalaLanguageLevel.exists(_ < ScalaLanguageLevel.Scala_2_12)
 
   // we only really need to cache the version that is used by type inference
-  @Cached(BlockModificationTracker(this), this)
+  @Cached(BlockModificationTracker(this))
   private def getDesugaredExprWithMappings: Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.DesugaredEnumerator])] = {
     visitWithFilterExprs(this)(e => e.putUserData(explicitWithFilterKey, ()))
 

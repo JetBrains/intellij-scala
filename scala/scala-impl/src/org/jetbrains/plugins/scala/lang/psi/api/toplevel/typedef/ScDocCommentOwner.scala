@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable
 
 trait ScDocCommentOwner extends PsiDocCommentOwner {
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
+  @Cached(ModTracker.anyScalaPsiChange)
   final def docComment: Option[ScDocComment] =
     this.children.dropWhile(_.is[ScAnnotations, ScModifierList, PsiWhiteSpace])
       .nextOption()

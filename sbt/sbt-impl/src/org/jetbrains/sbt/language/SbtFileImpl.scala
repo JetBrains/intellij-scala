@@ -40,7 +40,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
         file.processDeclarations(processor, state, file.getLastChild, place)
       }
 
-  @Cached(ModTracker.physicalPsiChange(getProject), this)
+  @Cached(ModTracker.physicalPsiChange(getProject))
   private def syntheticFile: Option[ScalaFile] = {
     implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
     @NonNls val imports = importsFor(targetModule).map {

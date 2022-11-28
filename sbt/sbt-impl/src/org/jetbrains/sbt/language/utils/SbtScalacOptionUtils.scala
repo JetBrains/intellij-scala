@@ -71,17 +71,17 @@ object SbtScalacOptionUtils {
   private def isScalacOptionInternal(element: PsiElement): Boolean =
     getScalacOptionsSbtSettingParent(element).isDefined
 
-  @Cached(ModificationTracker.NEVER_CHANGED, null)
+  @Cached(ModificationTracker.NEVER_CHANGED)
   def scalacOptionsByFlag: Map[String, Seq[SbtScalacOptionInfo]] =
     getScalacOptions.groupBy(_.flag)
 
-  @Cached(ModificationTracker.NEVER_CHANGED, null)
+  @Cached(ModificationTracker.NEVER_CHANGED)
   private def scalacOptionFlagsWithPrefix: Seq[(String, String)] = getScalacOptions.collect {
     case SbtScalacOptionInfo(flag, _, _, ArgType.OneAfterPrefix(prefix), _, _) =>
       prefix -> flag
   }
 
-  @Cached(ModificationTracker.NEVER_CHANGED, null)
+  @Cached(ModificationTracker.NEVER_CHANGED)
   def getScalacOptions: Seq[SbtScalacOptionInfo] = {
     if (ApplicationManager.getApplication.isUnitTestMode) return scalacOptionsForUnitTests
 
