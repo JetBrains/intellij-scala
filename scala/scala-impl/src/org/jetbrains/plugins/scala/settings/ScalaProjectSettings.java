@@ -12,6 +12,7 @@ import com.intellij.util.xmlb.Converter;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.intellij.util.xmlb.annotations.OptionTag;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -625,4 +626,22 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     this.IVY2_INDEXING_MODE = IVY2_INDEXING_MODE;
   }
 
+  /**
+   * Setting for some workaround solutions for SCL-19567 (see usages of `isEnableBackReferencesFromSharedSources`)
+   * <br>
+   * NOTE: for now it's considered as a workaround solution because we don't use common approach of module dependencies
+   * Instead we patch "resolve scope" in shared-sources module and "use scope" in dependent modules (usually platform-specific modules)
+   * The workaround solve only some issues: go to definition, find usages should work, no red code expected
+   * But some features still might not work good because it's not 100% clear which features will work with our approach
+   */
+  @ApiStatus.Experimental
+  private boolean ENABLE_BACK_REFERENCES_FROM_SHARED_SOURCES = false;
+
+  public boolean isEnableBackReferencesFromSharedSources() {
+    return ENABLE_BACK_REFERENCES_FROM_SHARED_SOURCES;
+  }
+
+  public void setEnableBackReferencesFromSharedSources(boolean value) {
+    ENABLE_BACK_REFERENCES_FROM_SHARED_SOURCES = value;
+  }
 }

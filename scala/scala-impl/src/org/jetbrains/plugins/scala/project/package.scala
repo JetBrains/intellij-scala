@@ -179,6 +179,14 @@ package object project {
       ModuleRootManager.getInstance(module).getDependencies
         .find(_.isSharedSourceModule)
 
+    /**
+     * NOTE: for some projects there are multiple shared-source roots are created.<br>
+     * This is done even if some shared-source roots are actually empty (the structure is reported by SBT).
+     */
+    def sharedSourceDependencies: Seq[Module] =
+      ModuleRootManager.getInstance(module).getDependencies
+        .filter(_.isSharedSourceModule).toSeq
+
     def dependencyModules: Seq[Module] = {
       val manager = ModuleManager.getInstance(module.getProject)
       manager.getModules.filter(manager.isModuleDependent(module, _)).toSeq
