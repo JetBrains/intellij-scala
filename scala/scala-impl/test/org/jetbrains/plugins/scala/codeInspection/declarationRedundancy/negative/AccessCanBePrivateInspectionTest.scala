@@ -106,4 +106,7 @@ final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestB
     myFixture.addFileToProject("zzz.scala", "import foo._")
     checkTextHasNoErrors("package object foo")
   }
+
+  def test_inner_type_definition(): Unit =
+    checkTextHasNoErrors("private object A { object B }; object C { println(A.B) }")
 }
