@@ -229,5 +229,4 @@ class ConvertParameterToUnderscoreIntentionTest_Scala3 extends ScalaIntentionTes
 
     doTest(text, resultText)
   }
-
 }
