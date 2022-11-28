@@ -261,15 +261,16 @@ class ScalaFileImpl(
       else
         ResolveFilterScope(defaultResolveScope)
 
-      val representativeModuleForSharedSources =
-        if (ResolveToDependentModuleInSharedSources) findRepresentativeModuleForSharedSourceModule
-        else None
-      representativeModuleForSharedSources match {
-        case Some(representativeModule) =>
-          resolveScope.union(representativeModule.getModuleWithDependenciesAndLibrariesScope(true))
-        case None =>
-          resolveScope
+      if (ScalaProjectSettings.getInstance(project).isEnableBackReferencesFromSharedSources) {
+        val representativeModule = findRepresentativeModuleForSharedSourceModule
+        representativeModule match {
+          case Some(representativeModule) =>
+            resolveScope.union(representativeModule.getModuleWithDependenciesAndLibrariesScope(true))
+          case None =>
+            resolveScope
+        }
       }
+      else resolveScope
     }
     else
       GlobalSearchScope.allScope(project)
@@ -353,14 +354,6 @@ class ScalaFileImpl(
 object ScalaFileImpl {
   private val LOG = Logger.getInstance(getClass)
   private val QualifiedPackagePattern = "(.+)\\.(.+?)".r
-
-  /**
-   * Hacky partial workaround for https://youtrack.jetbrains.com/issue/SCL-19567/Support-of-CrossType.Full-wanted
-   * This workaround only solves the "Red code" issue, but most of the features, like rename, find usages, etc... don't work
-   */
-  private val ResolveToDependentModuleInSharedSources: Boolean =
-    SystemProperties.getBooleanProperty("scala.resolve.to.dependent.module.in.shared.sources", false) ||
-      ScalaPluginUtils.isRunningFromSources
 
   def pathIn(root: PsiElement): List[List[String]] =
     packagingsIn(root).map(packaging => toVector(packaging.packageName))
