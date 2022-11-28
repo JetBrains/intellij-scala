@@ -3,10 +3,10 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRe
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, SmartPsiElementPointer}
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 
 import scala.annotation.tailrec
 import scala.ref.WeakReference
@@ -75,11 +75,11 @@ private final class ElementUsageWithKnownReference private(
   }
 
   override lazy val targetCanBePrivate: Boolean =
-    if (target.underlying.get().isInstanceOf[ScTypeDefinition]) {
-      !elementLeaksType(reference.getElement)
-    } else {
-      referenceIsWithinTargetPrivateScope
-    }
+    referenceIsWithinTargetPrivateScope &&
+      (target.underlying.get() match {
+        case _: ScTypeDefinition if elementLeaksType(reference.getElement) => false
+        case _ => true
+      })
 }
 
 private object ElementUsageWithKnownReference {
