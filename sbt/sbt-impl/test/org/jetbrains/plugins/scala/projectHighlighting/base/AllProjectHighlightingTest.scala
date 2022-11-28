@@ -6,7 +6,7 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.{PsiFile, PsiManager}
@@ -64,30 +64,26 @@ trait AllProjectHighlightingTest {
       val fileRelativePath = relativePathOf(psiFile)
       reporter.notifyHighlightingProgress(fileIndex, filesTotal, fileRelativePath)
 
-      file.getFileType match {
-        case JavaFileType.INSTANCE =>
-          annotateJava(psiFile, getProjectFixture)
-        case _ =>
-          AllProjectHighlightingTest.annotateScalaFile(psiFile, reporter, Some(fileRelativePath))
-      }
+      highlightSingleFile(file, psiFile, reporter)
     }
 
     reporter.reportFinalResults()
   }
 
-  protected def scalaFileTypes: Seq[FileType] = Seq(ScalaFileType.INSTANCE)
-
-  private def annotateJava(psiFile: PsiFile, codeInsightFixture: CodeInsightTestFixture): Unit = {
-    codeInsightFixture.openFileInEditor(psiFile.getVirtualFile)
-    val allInfo = codeInsightFixture.doHighlighting()
-
-    import scala.jdk.CollectionConverters._
-    allInfo.asScala.toList.collect {
-      case highlightInfo if highlightInfo.`type`.getSeverity(null) == HighlightSeverity.ERROR =>
-        val range = TextRange.create(highlightInfo.getStartOffset, highlightInfo.getEndOffset)
-        reporter.reportError(relativePathOf(psiFile), range, highlightInfo.getDescription)
+  protected def highlightSingleFile(
+    virtualFile: VirtualFile,
+    psiFile: PsiFile,
+    reporter: HighlightingProgressReporter,
+  ): Unit = {
+    virtualFile.getFileType match {
+      case JavaFileType.INSTANCE =>
+        AllProjectHighlightingTest.annotateJava(psiFile, getProjectFixture, reporter)
+      case _ =>
+        AllProjectHighlightingTest.annotateScalaFile(psiFile, reporter)
     }
   }
+
+  protected def scalaFileTypes: Seq[FileType] = Seq(ScalaFileType.INSTANCE)
 }
 
 object AllProjectHighlightingTest {
@@ -110,7 +106,7 @@ object AllProjectHighlightingTest {
     projectDir.getUrl
   }
 
-  private def relativePathOf(psiFile: PsiFile): String = {
+  def relativePathOf(psiFile: PsiFile): String = {
     val fileUrl = psiFile.getVirtualFile.getUrl
     fileUrl match {
       case PathInTemporaryFileSystem(relative) =>
@@ -163,20 +159,27 @@ object AllProjectHighlightingTest {
   def annotateScalaFile(
     file: PsiFile,
     reporter: HighlightingProgressReporter,
-    fileRelativePath: Option[String] = None
+  ): Unit = {
+    annotateScalaFile(file, reporter, relativePathOf(file))
+  }
+
+  def annotateScalaFile(
+    file: PsiFile,
+    reporter: HighlightingProgressReporter,
+    fileRelativePath: String
   ): Unit = {
     val scalaFile = file.getViewProvider.getPsi(ScalaLanguage.INSTANCE) match {
       case f: ScalaFile => f
       case _ => return
     }
-    annotateScalaFile(scalaFile, reporter, fileRelativePath)
+    annotateScalaFile(scalaFile, reporter, Some(fileRelativePath))
   }
 
   //noinspection InstanceOf
   private def annotateScalaFile(
     scalaFile: ScalaFile,
     reporter: HighlightingProgressReporter,
-    fileRelativePathParam: Option[String],
+    fileRelativePathParam: Option[String] = None
   ): Unit = {
     val fileRelativePath = fileRelativePathParam.getOrElse(relativePathOf(scalaFile))
     val annotatorHolder: AnnotatorHolderMock = new AnnotatorHolderMock(scalaFile) {
@@ -210,6 +213,21 @@ object AllProjectHighlightingTest {
             throw ex
           }
       }
+    }
+  }
+
+  private def annotateJava(
+    psiFile: PsiFile,
+    codeInsightFixture: CodeInsightTestFixture,
+    reporter: HighlightingProgressReporter,
+  ): Unit = {
+    codeInsightFixture.openFileInEditor(psiFile.getVirtualFile)
+    val allInfo = codeInsightFixture.doHighlighting().asScala.toSeq
+
+    val errors = allInfo.filter(_.`type`.getSeverity(null) == HighlightSeverity.ERROR)
+    errors.foreach { error =>
+      val range = TextRange.create(error.getStartOffset, error.getEndOffset)
+      reporter.reportError(relativePathOf(psiFile), range, error.getDescription)
     }
   }
 }

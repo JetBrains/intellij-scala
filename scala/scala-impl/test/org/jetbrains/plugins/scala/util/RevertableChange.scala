@@ -3,9 +3,11 @@ package org.jetbrains.plugins.scala.util
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.registry.{Registry, RegistryValue}
 import com.intellij.testFramework.UsefulTestCase
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.RevertableChange.CompositeRevertableChange
 
 trait RevertableChange {
@@ -142,6 +144,25 @@ object RevertableChange {
     value: T
   ): RevertableChange = new RevertableChange {
     private def instance: CodeInsightSettings = CodeInsightSettings.getInstance
+
+    private var before: Option[T] = None
+
+    override def applyChange(): Unit = {
+      before = Some(get(instance))
+      set(instance, value)
+    }
+
+    override def revertChange(): Unit =
+      before.foreach(set(instance, _))
+  }
+
+  def withModifiedScalaProjectSettings[T](
+    project: Project,
+    get: ScalaProjectSettings => T,
+    set: (ScalaProjectSettings, T) => Unit,
+    value: T
+  ): RevertableChange = new RevertableChange {
+    private def instance: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
 
     private var before: Option[T] = None
 

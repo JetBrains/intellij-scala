@@ -61,7 +61,8 @@ class ConsoleHighlightingProgressReporter(
       val groupedByFileErrorsText = buildGroupedByFileErrorsText(allErrors)
       reportText.append(
         s"""Highlighted errors grouped by file (${allErrors.size} errors in ${allErrors.map(_.fileName).distinct.size} files):
-           |$groupedByFileErrorsText""".stripMargin
+           |import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
+           |override protected def filesWithProblems: Map[String, Set[TextRange]] = $groupedByFileErrorsText""".stripMargin
       )
     }
 
@@ -80,7 +81,7 @@ class ConsoleHighlightingProgressReporter(
   }
 
   private def buildGroupedByFileErrorsText(fileErrors: Seq[FileErrorDescriptor]): String = {
-    val maxErrorsPerTip = 7
+    val maxErrorsPerTip = 15
 
     def entryText(fileName: String, fileErrors: Seq[ErrorDescriptor]): String = {
       val errorsPresentation: String = {
@@ -94,8 +95,11 @@ class ConsoleHighlightingProgressReporter(
       s""""$fileName" -> $errorsPresentation"""
     }
 
-    val errorsPresentations = {
-      val entries = fileErrors.groupBy(_.fileName).view.mapValues(_.map(_.error)).toSeq.sortBy(_._1)
+    val errorsPresentations: Seq[String] = {
+      val entries = fileErrors.groupBy(_.fileName)
+        .view.mapValues(_.sortBy(_.error.range.getStartOffset)
+        .map(_.error)).toSeq
+        .sortBy(_._1)
       for {
         (fileName, fileErrors) <- entries
       } yield {
