@@ -73,32 +73,4 @@ class CachedTest extends CachedTestBase {
       Foo.currentTime
     }
   }
-
-  def testTracerWithExpr(): Unit = {
-    class Foo extends Managed {
-      var myVar = 0
-      @Cached(ModTracker.physicalPsiChange(getProject), myVar)
-      def bar: Int = myVar
-    }
-
-    Tracer.clearAll()
-
-    checkTracer("Foo.bar myVar == 0", totalCount = 2, actualCount = 1) {
-      val foo = new Foo
-      foo.bar
-      foo.bar
-      foo.myVar = 1
-      foo.bar
-    }
-
-    checkTracer("Foo.bar myVar == 1", totalCount = 1, actualCount = 0) {
-      val foo = new Foo
-      foo.bar
-      foo.bar
-      foo.myVar = 1
-      foo.bar
-    }
-
-  }
-
 }

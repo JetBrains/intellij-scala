@@ -19,7 +19,7 @@ import scala.reflect.macros.whitebox
  * this parameter will not be used as part of the HashMap key,
  * but will change the caching behaviour. See [[org.jetbrains.plugins.scala.caches.CacheMode]]
  */
-class Cached(modificationTracker: Object, trackedExpressions: Any*) extends StaticAnnotation {
+class Cached(modificationTracker: Object) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro Cached.cachedImpl
 }
 
@@ -31,17 +31,10 @@ object Cached {
 
     def abort(@Nls message: String) = c.abort(c.enclosingPosition, message)
 
-    def parameters: (Tree, Seq[Tree]) = {
-      c.prefix.tree match {
-        case q"new Cached(..$params)" if params.nonEmpty =>
-          val Seq(modificationTracker, tracked @ _*) = params.map(_.asInstanceOf[c.universe.Tree])
-          (modificationTracker, tracked)
-        case _ => abort(MacrosBundle.message("macros.cached.wrong.parameters"))
-      }
+    def modTracker: Tree = c.prefix.tree match {
+      case q"new Cached($param)" => param.asInstanceOf[c.universe.Tree]
+      case _ => abort(MacrosBundle.message("macros.cached.wrong.parameters"))
     }
-
-    //annotation parameters
-    val (modTracker, trackedExprs) = parameters
 
     annottees.toList match {
       case (dd@DefDef(mods, nameTerm, tpParams, paramss, retTp, rhs)) :: Nil =>
@@ -86,7 +79,7 @@ object Cached {
 
              val currModCount = $modTracker.getModificationCount()
 
-             val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, trackedExprs)}
+             val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, Seq.empty)}
              $tracerName.invocation()
 
              val key = (..$paramNames)
@@ -140,7 +133,7 @@ object Cached {
 
                val currModCount = $modTracker.getModificationCount()
 
-               val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, trackedExprs)}
+               val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, Seq.empty)}
                $tracerName.invocation()
 
                val timestamped = $timestampedDataRef.get
