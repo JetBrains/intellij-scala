@@ -41,7 +41,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   @MapAnnotation(surroundWithTag = false, entryTagName = "module", keyAttributeName = "name", valueAttributeName = "basePackage")
   public Map<String, String> CUSTOM_BASE_PACKAGES = new HashMap<>();
 
-  private String SCALATEST_DEFAULT_SUPERCLASS = "org.scalatest.FunSuite";
+  private String SCALATEST_DEFAULT_SUPERCLASS = "org.scalatest.funsuite.AnyFunSuiteLike";
 
   private boolean SEARCH_ALL_SYMBOLS = false;
 
