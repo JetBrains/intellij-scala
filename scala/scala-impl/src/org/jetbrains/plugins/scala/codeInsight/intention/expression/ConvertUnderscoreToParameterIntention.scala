@@ -125,7 +125,12 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
     val arrow = ScalaPsiUtil.functionArrow
     buf.append(s" $arrow ")
     val diff = buf.length
-    buf.append(expr.getText)
+
+    val newExpressionText = usedNames.foldLeft(expr.getText) { (text, un) =>
+      val regex = raw"\(\s*${un}\s*\:\s*\S+\s*\)" // looks for `(un: ...)`
+      text.replaceFirst(regex, un)
+    }
+    buf.append(newExpressionText)
 
     val newExpr = createExpressionFromText(buf.toString(), expr)
 
