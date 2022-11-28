@@ -148,11 +148,6 @@ object CachedMacroUtil {
     tq"_root_.java.util.concurrent.ConcurrentMap"
   }
 
-  def cacheModeFqn(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.CacheMode"
-  }
-
   def thisFunctionFQN(name: String)(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     q"""getClass.getName ++ "." ++ $name"""
@@ -184,21 +179,6 @@ object CachedMacroUtil {
   }
 
   def abort(@Nls s: String)(implicit c: whitebox.Context): Nothing = c.abort(c.enclosingPosition, s)
-
-  def extractCacheModeParameter(c: whitebox.Context)(paramClauses: List[List[c.universe.ValDef]]): (List[c.universe.ValDef], Boolean) = {
-    val params = paramClauses.flatten
-    val (cacheModeParams, keyParams) = params.partition(_.name.toString == "cacheMode")
-    assert(math.abs(cacheModeParams.size) <= 1)
-    (keyParams, cacheModeParams.nonEmpty)
-  }
-
-  def preventCacheModeParameter(c: whitebox.Context)(paramClauses: List[List[c.universe.ValDef]]): Unit = {
-    val params = paramClauses.flatten
-    val hasCacheMode = params.exists(_.name.toString == "cacheMode")
-    if (hasCacheMode) {
-      abort(MacrosBundle.message("macros.cached.macro.does.not.support.cachemode.parameter"))(c)
-    }
-  }
 
   @nowarn("cat=unchecked")
   def box(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {

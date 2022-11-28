@@ -60,12 +60,7 @@ object Cached {
         val timestampedDataRef = generateTermName(name,  "$valueAndCounter")
 
         //DefDef parameters
-        val (flatParams, hasCacheModeParam) = {
-          val params = paramss.flatten
-          val (keyParams, cacheModeParams) = params.partition(_.name.toString != "cacheMode")
-          assert(math.abs(cacheModeParams.size) <= 1)
-          (keyParams, cacheModeParams.nonEmpty)
-        }
+        val flatParams = paramss.flatten
         val paramNames = flatParams.map(_.name)
         val hasParameters: Boolean = flatParams.nonEmpty
 
@@ -86,32 +81,6 @@ object Cached {
               }
             """
 
-          val processCacheModeIfPresent =
-            if (hasCacheModeParam)
-              q"""
-                {
-                  def getCached = {
-                    val map = $mapAndCounterRef.get.data
-                    if (map == null) null
-                    else map.get(key)
-                  }
-                  cacheMode match {
-                    case $cacheModeFqn.ComputeIfOutdated =>
-                    case $cacheModeFqn.ComputeIfNotCached =>
-                      getCached match {
-                        case Some(v) => return v
-                        case null =>
-                      }
-                    case $cacheModeFqn.CachedOrDefault(default) =>
-                      return getCached match {
-                        case Some(v) => v
-                        case null => default
-                      }
-                  }
-                }
-               """
-            else q"()"
-
           def updatedRhs = q"""
              def $cachedFunName(): $retTp = $rhs
 
@@ -121,8 +90,6 @@ object Cached {
              $tracerName.invocation()
 
              val key = (..$paramNames)
-
-             $processCacheModeIfPresent
 
              val map = {
                val timestampedMap = $mapAndCounterRef.get
@@ -167,22 +134,6 @@ object Cached {
               }
             """
 
-          val processCacheModeIfPresent =
-            if (hasCacheModeParam)
-              q"""
-                {
-                  cacheMode match {
-                    case $cacheModeFqn.ComputeIfNotCached if timestamped.modCount >= 0 =>
-                      return timestamped.data
-                    case $cacheModeFqn.CachedOrDefault(default) =>
-                      return if (timestamped.modCount < 0) default
-                             else timestamped.data
-                    case _ =>
-                  }
-                }
-               """
-            else q"()"
-
           val updatedRhs =
             q"""
                def $cachedFunName(): $retTp = $rhs
@@ -193,7 +144,7 @@ object Cached {
                $tracerName.invocation()
 
                val timestamped = $timestampedDataRef.get
-               $processCacheModeIfPresent
+
                if (timestamped.modCount == currModCount) timestamped.data
                else {
                  val stackStamp = $recursionManagerFQN.markStack()

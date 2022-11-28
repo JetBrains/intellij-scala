@@ -33,7 +33,6 @@ object CachedWithRecursionGuard {
 
     annottees.toList match {
       case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
-        preventCacheModeParameter(c)(paramss)
         if (retTp.isEmpty) {
           abort(MacrosBundle.message("macros.cached.specify.return.type"))
         }
