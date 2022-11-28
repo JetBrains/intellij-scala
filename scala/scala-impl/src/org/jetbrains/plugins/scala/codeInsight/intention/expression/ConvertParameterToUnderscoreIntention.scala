@@ -127,14 +127,12 @@ object ConvertParameterToUnderscoreIntention {
     }
 
     for (p <- expr.parameters.reverse) {
-      val expectedType = p.expectedParamType
-      val declaredType = p.typeElement
-      val newParam = declaredType match {
-        case None => "_"
-        case _ if withoutParameterTypes => "_"
-        case Some(t) if expectedType.exists(_.equiv(t.`type`().getOrAny)) => "_"
-        case Some(_) => s"(_: ${p.typeElement.get.getText})"
-      }
+      val newParam =
+        if (withoutParameterTypes) "_"
+        else p.typeElement match {
+          case Some(tpe) => s"(_: ${tpe.getText})"
+          case None => "_"
+        }
 
       val offset = occurrences(p.name) - diff
       buf.replace(offset, offset + p.name.length, newParam)

@@ -222,4 +222,12 @@ class ConvertParameterToUnderscoreIntentionTest_Scala3 extends ScalaIntentionTes
 
     doTest(text, resultText)
   }
+
+  def testIntroduceImplicitParameterButDontRemoveTheType(): Unit = {
+    val text = "Seq(1).map((<caret>i: Int) => i + 1)"
+    val resultText = "Seq(1).map((_: Int) + 1)"
+
+    doTest(text, resultText)
+  }
+
 }
