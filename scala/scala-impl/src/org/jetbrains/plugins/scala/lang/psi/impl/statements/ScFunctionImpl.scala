@@ -12,7 +12,7 @@ import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import com.intellij.ui.{IconManager, PlatformIcons}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.contextApplied.{ContextApplied, ContextAppliedUtil}
 import org.jetbrains.plugins.scala.icons.Icons
@@ -42,7 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import javax.swing.Icon
 import scala.annotation.tailrec
@@ -81,8 +81,11 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     n.getPsi
   }
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  override def paramClauses: ScParameters = getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
+  override def paramClauses: ScParameters = _paramClauses()
+
+  private val _paramClauses = cached("ScFunctionImpl.paramClauses", ModTracker.anyScalaPsiChange, () => {
+    getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
+  })
 
   @CachedInUserData(this, BlockModificationTracker(this))
   override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] =
@@ -134,8 +137,11 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     !lastParent.isPhysical || isFromTypeParams || isReturnTypeElement
   }
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  override def returnTypeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
+  override def returnTypeElement: Option[ScTypeElement] = _returnTypeElement()
+
+  private val _returnTypeElement = cached("ScFunctionImpl.returnTypeElement", ModTracker.anyScalaPsiChange, () => {
+    byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
+  })
 
   // TODO unify with ScValue and ScVariable
   protected override final def baseIcon: Icon = {
@@ -249,8 +255,9 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   /**
     * @return Empty array, if containing class is null.
     */
-  @Cached(BlockModificationTracker(this))
-  override def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
+  override def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = _getFunctionWrappers(isStatic, isAbstract, cClass)
+
+  private val _getFunctionWrappers = cached("ScFunctionImpl.getFunctionWrappers", BlockModificationTracker(this), (isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass]) => {
     val builder = Seq.newBuilder[ScFunctionWrapper]
     if (cClass.isDefined || containingClass != null) {
       for {
@@ -262,7 +269,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       builder += new ScFunctionWrapper(this, isStatic, isAbstract, cClass)
     }
     builder.result()
-  }
+  })
 
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {

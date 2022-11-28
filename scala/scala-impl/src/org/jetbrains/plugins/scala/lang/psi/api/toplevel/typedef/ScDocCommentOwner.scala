@@ -1,23 +1,22 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
-import com.intellij.psi.PsiWhiteSpace
-import org.jetbrains.plugins.scala.caches.ModTracker
+import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.{PsiDocCommentOwner, PsiWhiteSpace}
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotations, ScAnnotationsHolder, ScModifierList}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
-
-import com.intellij.psi.PsiDocCommentOwner
-import com.intellij.psi.javadoc.PsiDocComment
-import org.jetbrains.annotations.Nullable
 
 trait ScDocCommentOwner extends PsiDocCommentOwner {
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  final def docComment: Option[ScDocComment] =
+  final def docComment: Option[ScDocComment] = _docComment()
+
+  private val _docComment = cached("ScDocCommentOwner.docComment", ModTracker.anyScalaPsiChange, () => {
     this.children.dropWhile(_.is[ScAnnotations, ScModifierList, PsiWhiteSpace])
       .nextOption()
       .filterByType[ScDocComment]
+  })
 
   @Nullable
   override def getDocComment: PsiDocComment = docComment.orNull

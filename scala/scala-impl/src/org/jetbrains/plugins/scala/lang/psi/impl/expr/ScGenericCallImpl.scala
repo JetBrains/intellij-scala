@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{CachedFunction0, ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.kindProjectorPolymorphicLambdaType
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScGenericCall {
 
@@ -81,20 +81,21 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       .map(substPolymorphicType)
   }
 
-  @Cached(ModTracker.physicalPsiChange(getProject))
-  private def polymorphicLambdaType: TypeResult = this match {
-    case PolymorphicLambda(des, lhs, rhs) => kindProjectorPolymorphicLambdaType(des, lhs, rhs).asTypeResult
-    case _                                => Failure(ScalaBundle.message("not.a.polymorphic.lambda"))
-  }
+  private val polymorphicLambdaType = cached("ScGenericCallImpl.polymorphicLambdaType", ModTracker.physicalPsiChange(getProject), () => {
+    this match {
+      case PolymorphicLambda(des, lhs, rhs) => kindProjectorPolymorphicLambdaType(des, lhs, rhs).asTypeResult
+      case _                                => Failure(ScalaBundle.message("not.a.polymorphic.lambda"))
+    }
+  })
 
   protected override def innerType: TypeResult =
-    polymorphicLambdaType.left.flatMap { _ =>
+    polymorphicLambdaType().left.flatMap { _ =>
       val typeResult = referencedExpr.getNonValueType()
       convertReferencedType(typeResult, isShape = false)
     }
 
   override def shapeType: TypeResult =
-    polymorphicLambdaType.left.flatMap { _ =>
+    polymorphicLambdaType().left.flatMap { _ =>
       val typeResult: TypeResult = referencedExpr match {
         case ref: ScReferenceExpression => ref.shapeType
         case expr => expr.getNonValueType()
@@ -103,7 +104,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     }
 
   override def shapeMultiType: Array[TypeResult] = {
-    val polyLambdaType = polymorphicLambdaType
+    val polyLambdaType = polymorphicLambdaType()
     if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {
         case ref: ScReferenceExpression => ref.shapeMultiType
@@ -121,7 +122,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
   }
 
   override def multiType: Array[TypeResult] = {
-    val polyLambdaType = polymorphicLambdaType
+    val polyLambdaType = polymorphicLambdaType()
     if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {
         case ref: ScReferenceExpression => ref.multiType

@@ -4,7 +4,7 @@ package params
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.TokenSets
@@ -22,8 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifi
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScType}
 
 import javax.swing.Icon
 import scala.annotation.tailrec
@@ -68,17 +67,23 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
 
   override def getContainingClass: ScTemplateDefinition = null
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  override def isCovariant: Boolean = byStubOrPsi(_.isCovariant) {
-    Option(findChildByType[PsiElement](tIDENTIFIER))
-      .exists(_.textMatches("+"))
-  }
+  override def isCovariant: Boolean = _isCovariant()
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  override def isContravariant: Boolean = byStubOrPsi(_.isContravariant) {
-    Option(findChildByType[PsiElement](tIDENTIFIER))
-      .exists(_.textMatches("-"))
-  }
+  private val _isCovariant = cached("ScTypeParamImpl.isCovariant", ModTracker.anyScalaPsiChange, () => {
+    byStubOrPsi(_.isCovariant) {
+      Option(findChildByType[PsiElement](tIDENTIFIER))
+        .exists(_.textMatches("+"))
+    }
+  })
+
+  override def isContravariant: Boolean = _isContravariant()
+
+  private val _isContravariant = cached("ScTypeParamImpl.isContravariant", ModTracker.anyScalaPsiChange, () => {
+    byStubOrPsi(_.isContravariant) {
+      Option(findChildByType[PsiElement](tIDENTIFIER))
+        .exists(_.textMatches("-"))
+    }
+  })
 
   override def typeParameterText: String = byStubOrPsi(_.text)(getText)
 

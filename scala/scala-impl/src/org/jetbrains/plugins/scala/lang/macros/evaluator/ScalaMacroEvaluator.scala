@@ -18,24 +18,26 @@ package org.jetbrains.plugins.scala.lang.macros.evaluator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.reflect.ClassTag
 
 class ScalaMacroEvaluator(project: Project) {
   import ScalaMacroEvaluator._
 
-  @Cached(LibraryExtensionsManager.MOD_TRACKER)
-  private def typingRules:    Map[MacroImpl, ScalaMacroTypeable]    = loadRules(defaultTypeProviders)
+  private val typingRules = cached("ScalaMacroEvaluator.typingRules", LibraryExtensionsManager.MOD_TRACKER, () => {
+    loadRules(defaultTypeProviders)
+  })
 
-  @Cached(LibraryExtensionsManager.MOD_TRACKER)
-  private def expansionRules: Map[MacroImpl, ScalaMacroExpandable]  = loadRules(defaultExprProviders)
+  private val expansionRules = cached("ScalaMacroEvaluator.expansionRules", LibraryExtensionsManager.MOD_TRACKER, () => {
+    loadRules(defaultExprProviders)
+  })
 
   private def loadRules[T <: ScalaMacroBound](defaults: Seq[T])(implicit tag: ClassTag[T]) : Map[MacroImpl, T] = {
     val external = LibraryExtensionsManager.getInstance(project).getExtensions[T]
@@ -44,7 +46,7 @@ class ScalaMacroEvaluator(project: Project) {
   }
 
   def checkMacro(named: PsiNamedElement, context: MacroContext): Option[ScType] = {
-    macroSupport(named, typingRules).flatMap {
+    macroSupport(named, typingRules()).flatMap {
       case (m, x) => x.checkMacro(m, context)
     }
   }
@@ -52,7 +54,7 @@ class ScalaMacroEvaluator(project: Project) {
   def expandMacro(named: PsiNamedElement, context: MacroInvocationContext): Option[ScExpression] = {
     if (isMacroExpansion(context.call)) return None //avoid recursive macro expansions
 
-    macroSupport(named, expansionRules).flatMap {
+    macroSupport(named, expansionRules()).flatMap {
       case (m, x) =>
         val expanded = x.expandMacro(m, context)
         expanded.foreach(markMacroExpansion)

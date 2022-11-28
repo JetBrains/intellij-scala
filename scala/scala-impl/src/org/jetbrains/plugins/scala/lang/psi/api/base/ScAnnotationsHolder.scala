@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.psi.{PsiAnnotation, PsiClass}
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -14,17 +14,19 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScType}
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.annotation.tailrec
 
 trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  def annotations: Seq[ScAnnotation] = this.stubOrPsiChild(ScalaElementType.ANNOTATIONS) match {
-    case Some(ann) => ann.getAnnotations.toSeq
-    case _ => Seq.empty
-  }
+  def annotations: Seq[ScAnnotation] = _annotations()
+
+  private val _annotations = cached("ScAnnotationsHolder.annotations", ModTracker.anyScalaPsiChange, () => {
+    this.stubOrPsiChild(ScalaElementType.ANNOTATIONS) match {
+      case Some(ann) => ann.getAnnotations.toSeq
+      case _ => Seq.empty
+    }
+  })
 
   override def hasAnnotation(qualifiedName: String): Boolean = annotations(qualifiedName).nonEmpty
 

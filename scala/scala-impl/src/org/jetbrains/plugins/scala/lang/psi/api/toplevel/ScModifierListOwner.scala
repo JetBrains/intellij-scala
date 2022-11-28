@@ -1,22 +1,21 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions.{StubBasedExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiModifierListOwnerAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with PsiModifierListOwnerAdapter {
+  override def getModifierList: ScModifierList = _getModifierList()
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  override def getModifierList: ScModifierList = {
+  private val _getModifierList = cached("ScModifierListOwner.getModifierList", ModTracker.anyScalaPsiChange, () => {
     val child = this.stubOrPsiChild(ScalaElementType.MODIFIERS)
     child.getOrElse(ScalaPsiElementFactory.createEmptyModifierList(this))
-  }
+  })
 
   override def hasAnnotation(fqn: String): Boolean = super[ScAnnotationsHolder].hasAnnotation(fqn)
 

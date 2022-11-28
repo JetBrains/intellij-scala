@@ -10,22 +10,20 @@ import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiUtil
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl.moduleFieldName
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper, ScLightField}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard}
 
 class ScObjectImpl(
   stub:      ScTemplateDefinitionStub[ScObject],
@@ -106,22 +104,24 @@ class ScObjectImpl(
     place:      PsiElement
   ): Boolean = processDeclarationsImpl(processor, state, lastParent, place)
 
-  @Cached(BlockModificationTracker(this))
-  override def fakeCompanionClass: Option[PsiClass] = getCompanionModule(this) match {
-    case Some(_) => None
-    case None =>
-      val qualName = Option(getQualifiedName).map(_.stripSuffix("$"))
-      val name = Option(getName).map(_.stripSuffix("$"))
-      name.map(new PsiClassWrapper(this, qualName.orNull, _))
-  }
+  override def fakeCompanionClass: Option[PsiClass] = _fakeCompanionClass()
+
+  private val _fakeCompanionClass = cached("ScObjectImpl.fakeCompanionClass", BlockModificationTracker(this), () => {
+    getCompanionModule(this) match {
+      case Some(_) => None
+      case None =>
+        val qualName = Option(getQualifiedName).map(_.stripSuffix("$"))
+        val name = Option(getName).map(_.stripSuffix("$"))
+        name.map(new PsiClassWrapper(this, qualName.orNull, _))
+    }
+  })
 
   override def fakeCompanionClassOrCompanionClass: PsiClass = fakeCompanionClass match {
     case Some(clazz) => clazz
     case _ => getCompanionModule(this).get
   }
 
-  @Cached(BlockModificationTracker(this))
-  private def getModuleField: Option[PsiField] = {
+  private val getModuleField: () => Option[PsiField] = cached("ScObjectImpl.getModuleField", BlockModificationTracker(this), () => {
     def hasJavaKeywords(qName: String) =
       qName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this.getProject)))
 
@@ -129,23 +129,26 @@ class ScObjectImpl(
       None
     else
       Some(ScLightField(moduleFieldName, ScDesignatorType(this), this, PUBLIC, FINAL, STATIC))
-  }
+  })
 
   override def psiFields: Array[PsiField] = {
-    getModuleField.toArray
+    getModuleField().toArray
   }
 
   override def findFieldByName(name: String, checkBases: Boolean): PsiField = {
     name match {
-      case `moduleFieldName` => getModuleField.orNull
+      case `moduleFieldName` => getModuleField().orNull
       case _ => null
     }
   }
 
   override def psiInnerClasses: Array[PsiClass] = Array.empty
 
-  @Cached(BlockModificationTracker(this))
-  override def getConstructors: Array[PsiMethod] = Array(new EmptyPrivateConstructor(this))
+  override def getConstructors: Array[PsiMethod] = _getConstructors()
+
+  private val _getConstructors: () => Array[PsiMethod] = cached("ScObjectImpl.getConstructors", BlockModificationTracker(this), () => {
+    Array(new EmptyPrivateConstructor(this))
+  })
 
   override def isPhysical: Boolean = {
     if (isSyntheticObject) false

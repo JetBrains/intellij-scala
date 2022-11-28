@@ -6,7 +6,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil._
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{EXTENSION, EnumCases, SELF_TYPE, TEMPLATE_BODY}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, TEMPLATE_BODY, node)
@@ -64,9 +63,11 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
     if (this.getStub != null) Seq.empty //we don't have stubbed expressions
     else findChildren[ScExpression]
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  override def selfTypeElement: Option[ScSelfTypeElement] =
+  override def selfTypeElement: Option[ScSelfTypeElement] = _selfTypeElement()
+
+  private val _selfTypeElement = cached("ScTemplateBodyImpl.selfTypeElement", ModTracker.anyScalaPsiChange, () => {
     Option(getStubOrPsiChild(SELF_TYPE))
+  })
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,

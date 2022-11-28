@@ -20,36 +20,6 @@ object CachedMacroUtil {
     q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
   }
 
-  def modTrackerFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.ModTracker"
-  }
-
-  def timestampedFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped"
-  }
-
-  def timestampedTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped"
-  }
-
-  def atomicReferenceTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.java.util.concurrent.atomic.AtomicReference"
-  }
-
-  def cacheTrackerFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.stats.CacheTracker"
-  }
-
-  def cacheCapabilitiesFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.CacheCapabilties"
-  }
-
   def cleanupSchedulerTypeFqn(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     tq"_root_.org.jetbrains.plugins.scala.caches.CleanupScheduler"
@@ -64,21 +34,6 @@ object CachedMacroUtil {
       case tq"Long" => q"0L"
       case _ => q"null"
     }
-  }
-
-  def cachedValueTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.com.intellij.psi.util.CachedValue"
-  }
-
-  def cachedValueProviderResultTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.com.intellij.psi.util.CachedValueProvider.Result"
-  }
-
-  def keyTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.com.intellij.openapi.util.Key"
   }
 
   private def internalTracer(implicit c: whitebox.Context): c.universe.Tree = {
@@ -141,16 +96,6 @@ object CachedMacroUtil {
   def psiElementType(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     tq"_root_.com.intellij.psi.PsiElement"
-  }
-
-  def concurrentMapTypeFqn(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.java.util.concurrent.ConcurrentMap"
-  }
-
-  def thisFunctionFQN(name: String)(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"""getClass.getName ++ "." ++ $name"""
   }
 
   def generateTermName(prefix: String = "", postfix: String = "")(implicit c: whitebox.Context): c.universe.TermName = {

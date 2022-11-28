@@ -10,7 +10,7 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -24,8 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScFunct
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createObjectWithContext
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifie
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName.withoutBackticks
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.projectView.FileKind
 
 import javax.swing.Icon
@@ -228,8 +228,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       }
     }
 
-  @Cached(ModTracker.libraryAware(this))
-  private def calcFakeCompanionModule(): Option[ScObject] = {
+  private val calcFakeCompanionModule: () => Option[ScObject] = cached("ScTypeDefinitionImpl.calcCompanionModule", ModTracker.libraryAware(this), () => {
     val accessModifier = getModifierList.accessModifier match {
       case None     => ""
       case Some(am) => AccessModifierRenderer.simpleTextHtmlEscaped(am) + " "
@@ -252,42 +251,41 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
         obj.syntheticNavigationElement = this
         Some(obj)
     }
-  }
+  })
 
 
   import ScTypeDefinitionImpl._
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  override final def getQualifiedName: String = {
-    if (hasNoJavaFQName(this))
-      return null
+  override final def getQualifiedName: String = _getQualifiedName()
 
-    byStubOrPsi(_.javaQualifiedName) {
-      val suffix = this match {
-        case o: ScObject if o.isPackageObject => ".package$"
-        case _: ScObject => "$"
-        case _ => ""
+  private val _getQualifiedName = cached("ScTypeDefinitionImpl.getQualifiedName", ModTracker.anyScalaPsiChange, () => {
+    if (hasNoJavaFQName(this)) null else {
+      byStubOrPsi(_.javaQualifiedName) {
+        val suffix = this match {
+          case o: ScObject if o.isPackageObject => ".package$"
+          case _: ScObject => "$"
+          case _ => ""
+        }
+
+        import ScalaNamesUtil.{isBacktickedName, toJavaName}
+        val result = qualifiedName(DefaultSeparator)(toJavaName)
+          .split('.')
+          .map(isBacktickedName(_).orNull)
+          .mkString(DefaultSeparator)
+
+        result + suffix
       }
-
-      import ScalaNamesUtil.{isBacktickedName, toJavaName}
-      val result = qualifiedName(DefaultSeparator)(toJavaName)
-        .split('.')
-        .map(isBacktickedName(_).orNull)
-        .mkString(DefaultSeparator)
-
-      result + suffix
     }
-  }
+  })
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  override def qualifiedName: String = {
-    if (isLocalOrInsideAnonymous(this))
-      return name
+  override def qualifiedName: String = _qualifiedName()
 
-    byStubOrPsi(_.getQualifiedName) {
+  private val _qualifiedName = cached("ScTypeDefinitionImpl.qualifiedName", ModTracker.anyScalaPsiChange, () => {
+    if (isLocalOrInsideAnonymous(this)) name
+    else byStubOrPsi(_.getQualifiedName) {
       qualifiedName(DefaultSeparator)(identity)
     }
-  }
+  })
 
   override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes
 

@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, JavaConstructor, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 trait ConstructorInvocationLikeImpl extends ConstructorInvocationLike {
   override def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersByClauses.flatten
@@ -16,8 +15,9 @@ trait ConstructorInvocationLikeImpl extends ConstructorInvocationLike {
   @Nullable
   protected def resolveConstructor(): PsiElement
 
-  @Cached(BlockModificationTracker(this))
-  def matchedParametersByClauses: Seq[Seq[(ScExpression, Parameter)]] = {
+  def matchedParametersByClauses: Seq[Seq[(ScExpression, Parameter)]] = _matchedParametersByClauses()
+
+  private val _matchedParametersByClauses = cached("ConstructorInvocationLikeImpl.matchedParametersByClauses", BlockModificationTracker(this), () => {
     val paramClauses = resolveConstructor() match {
       case ScalaConstructor(constr) => constr.effectiveParameterClauses.map(_.effectiveParameters)
       case JavaConstructor(constr)  => Seq(constr.parameters)
@@ -37,5 +37,5 @@ trait ConstructorInvocationLikeImpl extends ConstructorInvocationLike {
             paramClause.lift(paramIndex).map(p => (expr, Parameter(p))).toSeq
         }
     }).map(_.flatten)
-  }
+  })
 }

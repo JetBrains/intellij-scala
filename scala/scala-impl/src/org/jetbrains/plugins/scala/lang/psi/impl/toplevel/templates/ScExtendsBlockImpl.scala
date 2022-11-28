@@ -4,7 +4,7 @@ package templates
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScDerivesClauseFactory, ScTemplateParentsFactory}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
@@ -14,15 +14,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScExten
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.{result, _}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable.ArrayBuffer
@@ -36,8 +36,9 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   override def toString: String = "ExtendsBlock"
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  override def templateBody: Option[ScTemplateBody] = {
+  override def templateBody: Option[ScTemplateBody] = _templateBody()
+
+  private val _templateBody = cached("ScExtendsBlockImpl.templateBody", ModTracker.anyScalaPsiChange, () => {
     def childStubTemplate(stub: ScExtendsBlockStub) =
       Option(stub.findChildStubByType(TEMPLATE_BODY))
         .map(_.getPsi)
@@ -48,7 +49,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
 
     byPsiOrStub(lastChildTemplateBody)(childStubTemplate)
-  }
+  })
 
   override def getOrCreateTemplateBody: ScTemplateBody = templateBody.getOrElse(createEmptyTemplateBody)
 
@@ -135,14 +136,15 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       case _ => false
     }
 
-  @Cached(BlockModificationTracker(this))
-  def syntheticTypeElements: Seq[ScTypeElement] = {
-    if (templateParents.nonEmpty) return Seq.empty //will be handled separately
-    getContext match {
+  def syntheticTypeElements: Seq[ScTypeElement] = _syntheticTypeElements()
+
+  private val _syntheticTypeElements = cached("ScExtendsBlockImpl.syntheticTypeElements", BlockModificationTracker(this), () => {
+    if (templateParents.nonEmpty) Seq.empty //will be handled separately
+    else getContext match {
       case td: ScTypeDefinition => SyntheticMembersInjector.injectSupers(td)
       case _ => Seq.empty
     }
-  }
+  })
 
   @CachedInUserData(this, ModTracker.libraryAware(this))
   override def supers: Seq[PsiClass] = {

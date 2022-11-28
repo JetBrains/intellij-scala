@@ -5,14 +5,13 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClausesStub
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.PARAM_CLAUSES, node) with ScParameters {
@@ -22,10 +21,11 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
 
   override def toString: String = "Parameters"
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  override def clauses: Seq[ScParameterClause] = {
+  override def clauses: Seq[ScParameterClause] = _clauses()
+
+  private val _clauses = cached("ScParameterImpl.clauses", ModTracker.anyScalaPsiChange, () => {
     getStubOrPsiChildren(ScalaElementType.PARAM_CLAUSE, JavaArrayFactoryUtil.ScParameterClauseFactory).toSeq
-  }
+  })
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {

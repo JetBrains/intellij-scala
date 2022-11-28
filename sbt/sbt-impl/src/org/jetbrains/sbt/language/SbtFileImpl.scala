@@ -6,13 +6,12 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, searches}
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModule.{Build, Imports}
@@ -36,12 +35,11 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
                                    place: PsiElement): Boolean =
     super[ScalaFileImpl].processDeclarations(processor, state, lastParent, place) &&
       super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place) &&
-      syntheticFile.forall { file =>
+      syntheticFile().forall { file =>
         file.processDeclarations(processor, state, file.getLastChild, place)
       }
 
-  @Cached(ModTracker.physicalPsiChange(getProject))
-  private def syntheticFile: Option[ScalaFile] = {
+  private val syntheticFile = cached("SbtFileImpl.syntheticFile", ModTracker.physicalPsiChange(getProject), () => {
     implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
     @NonNls val imports = importsFor(targetModule).map {
       // TODO this is a workaround, we need to find out why references stopped resolving via the chained imports
@@ -56,7 +54,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
 
     if (imports.isEmpty) None
     else Some(ScalaPsiElementFactory.createScalaFileFromText(imports.mkString("import ", ", ", ";"), ScalaFeatures.default))
-  }
+  })
 
   override def getFileResolveScope: GlobalSearchScope = {
     val target = targetModule

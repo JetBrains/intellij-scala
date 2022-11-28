@@ -4,7 +4,7 @@ package types
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.annotation.tailrec
 
@@ -140,11 +139,14 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
   }
 
   //computes desugarized type either for existential type or one of kind projector types
-  @Cached(BlockModificationTracker(this))
-  override def computeDesugarizedType: Option[ScTypeElement] = Option(desugarizedText) match {
-    case Some(text) => Option(createTypeElementFromText(text, getContext, this))
-    case _ => None
-  }
+  override def computeDesugarizedType: Option[ScTypeElement] = _computeDesugarizedType()
+
+  private val _computeDesugarizedType = cached("ScParameterizedTypeElementImpl.computeDesugarizedType", BlockModificationTracker(this), () => {
+    Option(desugarizedText) match {
+      case Some(text) => Option(createTypeElementFromText(text, getContext, this))
+      case _ => None
+    }
+  })
 
   override protected def innerType: TypeResult = {
     computeDesugarizedType match {

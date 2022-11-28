@@ -2,22 +2,22 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 trait ScTypeParametersOwner extends ScalaPsiElement {
 
-  @Cached(ModTracker.anyScalaPsiChange)
-  def typeParameters: Seq[ScTypeParam] = {
+  def typeParameters: Seq[ScTypeParam] = _typeParameters()
+
+  private val _typeParameters = cached("ScTypeParametersOwner.typeParameters", ModTracker.anyScalaPsiChange, () => {
     typeParametersClause match {
       case Some(clause) => clause.typeParameters
       case _ => Seq.empty
     }
-  }
+  })
 
   def typeParametersClause: Option[ScTypeParamClause] = {
     this match {
