@@ -301,6 +301,7 @@ object BspProjectResolver {
       val params = new OutputPathsParams(targetIds)
       val eventId = BuildMessages.randomEventId
       val message = BspBundle.message("bsp.resolver.outputpaths")
+      reporter.startTask(eventId, Some(parentId), message)
       bsp.buildTargetOutputPaths(params)
         .catchBspErrors
         .reportFinished(reporter, eventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.outputpaths"))
