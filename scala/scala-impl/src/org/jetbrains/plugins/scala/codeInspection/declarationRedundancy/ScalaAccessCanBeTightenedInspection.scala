@@ -65,13 +65,18 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
     }
 
   @tailrec
-  override def shouldProcessElement(element: PsiElement): Boolean =
+  override def shouldProcessElement(element: PsiElement): Boolean = {
+
+    def isTypeDefThatShouldNotBeInspected(t: ScTypeDefinition): Boolean =
+      (t.getContainingFile.asOptionOf[ScalaFile].exists(_.isWorksheetFile) && t.isTopLevel) || t.isPackageObject
+
     element match {
-      case t: ScTypeDefinition if element.getContainingFile.asOptionOf[ScalaFile].exists(_.isWorksheetFile) && t.isTopLevel => false
+      case t: ScTypeDefinition if isTypeDefThatShouldNotBeInspected(t) => false
       case m: ScMember => !m.isLocal && !Option(m.containingClass).exists(isLocalClass)
       case p: ScPatternList => shouldProcessElement(p.getContext)
       case _ => true
     }
+  }
 }
 
 private object ScalaAccessCanBeTightenedInspection {
