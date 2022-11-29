@@ -9,7 +9,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.{Navigatable, NavigatableAdapter}
-import com.jetbrains.packagesearch.intellij.plugin.extensibility.{AsyncModuleTransformer, BuildSystemType, ProjectModule}
+import com.jetbrains.packagesearch.intellij.plugin.extensibility.{BuildSystemType, ModuleTransformer, ProjectModule}
 import com.jetbrains.packagesearch.intellij.plugin.ui.toolwindow.models.PackageVersion
 import org.jetbrains.plugins.scala.packagesearch.utils.{SbtProjectModuleType, ScalaKotlinHelper}
 import org.jetbrains.sbt.SbtUtil
@@ -17,11 +17,10 @@ import org.jetbrains.sbt.language.utils.{SbtDependencyCommon, SbtDependencyUtils
 
 import java.io.File
 import java.util
-import java.util.concurrent.CompletableFuture
-import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters._
 
-class SbtModuleTransformer(private val project: Project) extends AsyncModuleTransformer {
+//noinspection UnstableApiUsage,ApiStatus,ScalaDeprecation
+class SbtModuleTransformer(private val project: Project) extends ModuleTransformer {
   private val logger = Logger.getInstance(this.getClass)
 
   def findModulePaths(module: Module): Array[File] = {
@@ -34,7 +33,7 @@ class SbtModuleTransformer(private val project: Project) extends AsyncModuleTran
   }
 
   private def createNavigableDependencyCallback(project: Project,
-                                        module: Module): (String, String, PackageVersion) =>
+                                                module: Module): (String, String, PackageVersion) =>
     Navigatable = (groupId: String, artifactId: String, packageVersion: PackageVersion) => {
 
     val targetedLibDep = DumbService.getInstance(project).runReadActionInSmartMode { () =>
@@ -58,17 +57,18 @@ class SbtModuleTransformer(private val project: Project) extends AsyncModuleTran
   }
 
   private def obtainProjectModulesFor(module: Module, dumbMode: Boolean): Option[ProjectModule] = try {
+
     val sbtFileOpt = SbtDependencyUtils.getSbtFileOpt(module)
     sbtFileOpt match {
       case Some(buildFile: VirtualFile) =>
-          val projectModule = new ProjectModule(
-            module.getName,
-            module,
-            null,
-            buildFile,
-            buildFile.getParent.toNioPath.toFile,
-            SbtModuleTransformer.buildSystemType,
-            SbtProjectModuleType
+        val projectModule = new ProjectModule(
+          module.getName,
+          module,
+          null,
+          buildFile,
+          buildFile.getParent.toNioPath.toFile,
+          SbtModuleTransformer.buildSystemType,
+          SbtProjectModuleType
         )
         Some {
           if (!dumbMode)
@@ -86,27 +86,24 @@ class SbtModuleTransformer(private val project: Project) extends AsyncModuleTran
       None
   }
 
-  override def transformModules(project: Project, nativeModules: util.List[_ <: Module]): CompletableFuture[util.List[ProjectModule]] = {
+  override def transformModules(project: Project, nativeModules: util.List[_ <: Module]): util.List[ProjectModule] = {
     val dumbMode = DumbService.isDumb(project)
 
-    val futuresBuffer = ListBuffer.empty[CompletableFuture[Option[ProjectModule]]]
-    nativeModules.forEach { m =>
-      val acceptable = SbtUtil.isSbtModule(m) &&
-        SbtUtil.getBuildModuleData(project, ExternalSystemApiUtil.getExternalProjectId(m)).isDefined
-
-      if (acceptable) {
-        futuresBuffer += CompletableFuture.supplyAsync(() => obtainProjectModulesFor(m, dumbMode))
+    nativeModules.asScala
+      .filter { m =>
+        SbtUtil.isSbtModule(m) &&
+          SbtUtil.getBuildModuleData(project, ExternalSystemApiUtil.getExternalProjectId(m)).isDefined
       }
-    }
-
-    val futures = futuresBuffer.result()
-    CompletableFuture.allOf(futures: _*)
-      .thenApply[util.List[ProjectModule]](_ => futures.flatMap(_.join()).distinct.asJava)
+      .flatMap(m => obtainProjectModulesFor(m, dumbMode))
+      .distinct
+      .asJava
   }
 }
 
 private object SbtModuleTransformer {
+
   //noinspection UnstableApiUsage
   private val buildSystemType: BuildSystemType =
     new BuildSystemType("SBT", "scala", "sbt-scala")
 }
+
