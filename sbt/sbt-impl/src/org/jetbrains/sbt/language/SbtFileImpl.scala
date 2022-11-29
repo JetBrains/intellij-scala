@@ -56,6 +56,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
     else Some(ScalaPsiElementFactory.createScalaFileFromText(imports.mkString("import ", ", ", ";"), ScalaFeatures.default))
   })
 
+  /** NOTE: consider rewriting this using [[com.intellij.psi.ResolveScopeEnlarger]] */
   override def getFileResolveScope: GlobalSearchScope = {
     val target = targetModule
     target match {
