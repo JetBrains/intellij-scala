@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
  * by virtue of this class being registered as a project service in scala-plugin-common.xml.
  */
 
-private[declarationRedundancy] final class SearchMethodsWithProjectBoundCache private() {
+private[declarationRedundancy] final class SearchMethodsWithProjectBoundCache private(project: Project) {
   val LocalSearchMethods: Seq[Search.Method] = Seq(
     new LocalImplicitSearch(c => c.isOnlyVisibleInLocalFile && c.isImplicit),
     new RefCountHolderSearch(c => c.isOnTheFly && (c.isMemberOfUnusedTypeDefinition || (c.isOnlyVisibleInLocalFile && !c.isImplicit))),
@@ -16,7 +16,7 @@ private[declarationRedundancy] final class SearchMethodsWithProjectBoundCache pr
 
   val GlobalSearchMethods: Seq[Search.Method] = Seq(
     new ForeignEnumSearch(c => !c.isOnlyVisibleInLocalFile),
-    new TextSearch(c => !c.isMemberOfUnusedTypeDefinition && !c.isOnlyVisibleInLocalFile && !c.isImplicit)
+    new TextSearch(c => !c.isMemberOfUnusedTypeDefinition && !c.isOnlyVisibleInLocalFile && !c.isImplicit, project)
   )
 }
 
