@@ -9,7 +9,7 @@ import com.intellij.openapi.util.io.JarUtil.{containsEntry, getJarAttribute}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.CommonProcessors.{CollectProcessor, FindProcessor}
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
+import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
 import org.jetbrains.plugins.scala.project.ScalaModuleSettings._
@@ -247,18 +247,19 @@ private object ScalaModuleSettings {
     }
   }
 
-  @Cached(ModificationTracker.NEVER_CHANGED, null)
-  private def isMetaParadiseJar(pathname: String): Boolean = new File(pathname) match {
-    case file if containsEntry(file, "scalac-plugin.xml") =>
-      def hasAttribute(nameSuffix: String, value: String) = getJarAttribute(
-        file,
-        new Attributes.Name(s"Specification-$nameSuffix")
-      ) == value
+  private val isMetaParadiseJar = cached("ScalaModuleSettings.isMetaParadiseJar", ModificationTracker.NEVER_CHANGED, (pathname: String) => {
+    new File(pathname) match {
+      case file if containsEntry(file, "scalac-plugin.xml") =>
+        def hasAttribute(nameSuffix: String, value: String) = getJarAttribute(
+          file,
+          new Attributes.Name(s"Specification-$nameSuffix")
+        ) == value
 
-      hasAttribute("Vendor", "org.scalameta") &&
-        hasAttribute("Title", "paradise")
-    case _ => false
-  }
+        hasAttribute("Vendor", "org.scalameta") &&
+          hasAttribute("Title", "paradise")
+      case _ => false
+    }
+  })
 
 }
 

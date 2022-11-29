@@ -20,36 +20,6 @@ object CachedMacroUtil {
     q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
   }
 
-  def modTrackerFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.ModTracker"
-  }
-
-  def timestampedFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped"
-  }
-
-  def timestampedTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.Timestamped"
-  }
-
-  def atomicReferenceTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.java.util.concurrent.atomic.AtomicReference"
-  }
-
-  def cacheTrackerFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.stats.CacheTracker"
-  }
-
-  def cacheCapabilitiesFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.CacheCapabilties"
-  }
-
   def cleanupSchedulerTypeFqn(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     tq"_root_.org.jetbrains.plugins.scala.caches.CleanupScheduler"
@@ -64,21 +34,6 @@ object CachedMacroUtil {
       case tq"Long" => q"0L"
       case _ => q"null"
     }
-  }
-
-  def cachedValueTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.com.intellij.psi.util.CachedValue"
-  }
-
-  def cachedValueProviderResultTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.com.intellij.psi.util.CachedValueProvider.Result"
-  }
-
-  def keyTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.com.intellij.openapi.util.Key"
   }
 
   private def internalTracer(implicit c: whitebox.Context): c.universe.Tree = {
@@ -143,21 +98,6 @@ object CachedMacroUtil {
     tq"_root_.com.intellij.psi.PsiElement"
   }
 
-  def concurrentMapTypeFqn(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.java.util.concurrent.ConcurrentMap"
-  }
-
-  def cacheModeFqn(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.CacheMode"
-  }
-
-  def thisFunctionFQN(name: String)(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"""getClass.getName ++ "." ++ $name"""
-  }
-
   def generateTermName(prefix: String = "", postfix: String = "")(implicit c: whitebox.Context): c.universe.TermName = {
     c.universe.TermName(prefix + "$" + postfix)
   }
@@ -184,21 +124,6 @@ object CachedMacroUtil {
   }
 
   def abort(@Nls s: String)(implicit c: whitebox.Context): Nothing = c.abort(c.enclosingPosition, s)
-
-  def extractCacheModeParameter(c: whitebox.Context)(paramClauses: List[List[c.universe.ValDef]]): (List[c.universe.ValDef], Boolean) = {
-    val params = paramClauses.flatten
-    val (cacheModeParams, keyParams) = params.partition(_.name.toString == "cacheMode")
-    assert(math.abs(cacheModeParams.size) <= 1)
-    (keyParams, cacheModeParams.nonEmpty)
-  }
-
-  def preventCacheModeParameter(c: whitebox.Context)(paramClauses: List[List[c.universe.ValDef]]): Unit = {
-    val params = paramClauses.flatten
-    val hasCacheMode = params.exists(_.name.toString == "cacheMode")
-    if (hasCacheMode) {
-      abort(MacrosBundle.message("macros.cached.macro.does.not.support.cachemode.parameter"))(c)
-    }
-  }
 
   @nowarn("cat=unchecked")
   def box(c: whitebox.Context)(tp: c.universe.Tree): c.universe.Tree = {

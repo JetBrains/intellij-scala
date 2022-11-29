@@ -8,12 +8,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdkVersion
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.CompositeModificationTracker
+import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
 
-import scala.annotation.nowarn
 import scala.concurrent.duration.DurationLong
 
 @Service
@@ -30,20 +29,22 @@ final class CompileServerNotificationsService(project: Project) {
    * SCL-18187
    * SCL-17817
    */
-  @nowarn("msg=pure expression")
-  @Cached(modificationTracker, null)
-  def warnIfCompileServerJdkMayLeadToCompilationProblems(): Unit = if (project.hasScala) {
-    def serverJdkIsOk(serverJdkVersion: JavaSdkVersion, recommendedJdkVersion: JavaSdkVersion): Boolean =
-      if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
-        serverJdkVersion == recommendedJdkVersion
-      else
-        serverJdkVersion isAtLeast recommendedJdkVersion
-    for {
-      (serverSdk, serverJdkVersion) <- CompileServerJdkManager.compileServerJdk(project)
-      (recommendedSdk, recommendedJdkVersion) <- CompileServerJdkManager.recommendedJdk(project)
-      if !serverJdkIsOk(serverJdkVersion, recommendedJdkVersion)
-    } showWarning(serverSdk.getName, recommendedSdk.getName)
-  }
+  def warnIfCompileServerJdkMayLeadToCompilationProblems(): Unit = _warnIfCompileServerJdkMayLeadToCompilationProblems()
+
+  private val _warnIfCompileServerJdkMayLeadToCompilationProblems = cached("CompileServerNotificationService.warnIfCompileServerJdkMayLeadToCompilationProblems", modificationTracker, () => {
+    if (project.hasScala) {
+      def serverJdkIsOk(serverJdkVersion: JavaSdkVersion, recommendedJdkVersion: JavaSdkVersion): Boolean =
+        if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
+          serverJdkVersion == recommendedJdkVersion
+        else
+          serverJdkVersion isAtLeast recommendedJdkVersion
+      for {
+        (serverSdk, serverJdkVersion) <- CompileServerJdkManager.compileServerJdk(project)
+        (recommendedSdk, recommendedJdkVersion) <- CompileServerJdkManager.recommendedJdk(project)
+        if !serverJdkIsOk(serverJdkVersion, recommendedJdkVersion)
+      } showWarning(serverSdk.getName, recommendedSdk.getName)
+    }
+  })
 
   private def showWarning(serverSdk: String, recommendedSdk: String): Unit = {
     val text = s"""We recommend using JDK '$recommendedSdk' to prevent compilation issues (current JDK is '$serverSdk')""".stripMargin

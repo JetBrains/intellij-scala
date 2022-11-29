@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElement, PsiField}
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScAssignment {
 
@@ -33,14 +32,21 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
     }
   }
 
-  @Cached(BlockModificationTracker(this), this)
-  override def resolveAssignment: Option[ScalaResolveResult] = resolveAssignmentInner(shapeResolve = false)
+  override def resolveAssignment: Option[ScalaResolveResult] = _resolveAssignment()
 
-  @Cached(BlockModificationTracker(this), this)
-  override def shapeResolveAssignment: Option[ScalaResolveResult] = resolveAssignmentInner(shapeResolve = true)
+  private val _resolveAssignment = cached("ScAssignmentImpl.resolveAssignment", BlockModificationTracker(this), () => {
+    resolveAssignmentInner(shapeResolve = false)
+  })
 
-  @Cached(BlockModificationTracker(this), this)
-  override def mirrorMethodCall: Option[ScMethodCall] = {
+  override def shapeResolveAssignment: Option[ScalaResolveResult] = _shapeResolveAssignment()
+
+  private val _shapeResolveAssignment = cached("ScAssignmentImpl.shareResolveAssignment", BlockModificationTracker(this), () => {
+    resolveAssignmentInner(shapeResolve = true)
+  })
+
+  override def mirrorMethodCall: Option[ScMethodCall] = _mirrorMethodCall()
+
+  private val _mirrorMethodCall = cached("ScAssignmentImpl.mirrorMethodCall", BlockModificationTracker(this), () => {
     leftExpression match {
       case ref: ScReferenceExpression =>
         val text = s"${ref.getText}_=(${rightExpression.map(_.getText).getOrElse("")})"
@@ -64,7 +70,7 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
         }
       case _ => None
     }
-  }
+  })
 
   // TODO: maybe it could extracted to some utility method
   // Workaround for Scala3 braceless syntax:

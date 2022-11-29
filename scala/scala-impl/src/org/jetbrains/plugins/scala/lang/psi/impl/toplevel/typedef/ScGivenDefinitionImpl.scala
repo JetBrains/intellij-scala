@@ -6,7 +6,7 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, StringsExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.ScalaPsi
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import javax.swing.Icon
 
@@ -52,9 +52,11 @@ class ScGivenDefinitionImpl(
       .getOrElse(ScalaPsiUtil.generateGivenOrExtensionName(typeElements: _*))
   }
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
-  override def clauses: Option[ScParameters] =
+  override def clauses: Option[ScParameters] = _clauses()
+
+  private val _clauses = cached("ScGivenDefinitionImpl.clauses", ModTracker.anyScalaPsiChange, () => {
     getStubOrPsiChild(PARAM_CLAUSES).toOption
+  })
 
   override def parameters: Seq[ScParameter] =
     clauses.fold(Seq.empty[ScParameter])(_.params)

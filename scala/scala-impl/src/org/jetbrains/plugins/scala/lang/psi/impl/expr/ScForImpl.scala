@@ -6,7 +6,7 @@ import com.intellij.psi._
 import com.intellij.psi.scope._
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, PsiElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
 import scala.annotation.tailrec
@@ -43,20 +42,20 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
   override def desugared(forDisplay: Boolean): Option[ScExpression] = {
     val result =
       if (forDisplay) generateDesugaredExprWithMappings(forDisplay = true)
-      else getDesugaredExprWithMappings
+      else getDesugaredExprWithMappings()
 
     result map { case (expr, _, _) => expr }
   }
 
   override def desugarPattern(pattern: ScPattern): Option[ScPattern] = {
-    getDesugaredExprWithMappings flatMap {
+    getDesugaredExprWithMappings() flatMap {
       case (_, patternMapping, _) =>
         patternMapping.get(pattern)
     }
   }
 
   override def desugarEnumerator(enumerator: ScEnumerator): Option[ScEnumerator.DesugaredEnumerator] = {
-    getDesugaredExprWithMappings flatMap {
+    getDesugaredExprWithMappings() flatMap {
       case (_, _, enumMapping) =>
         enumMapping.get(enumerator)
     }
@@ -85,8 +84,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
   private def compilerRewritesWithFilterToFilter: Boolean = this.scalaLanguageLevel.exists(_ < ScalaLanguageLevel.Scala_2_12)
 
   // we only really need to cache the version that is used by type inference
-  @Cached(BlockModificationTracker(this), this)
-  private def getDesugaredExprWithMappings: Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.DesugaredEnumerator])] = {
+  private val getDesugaredExprWithMappings = cached("ScForImpl.getDesugaredExprWithMappings", BlockModificationTracker(this), () => {
     visitWithFilterExprs(this)(e => e.putUserData(explicitWithFilterKey, ()))
 
     generateDesugaredExprWithMappings(forDisplay = false).map {
@@ -101,7 +99,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
         }
         result
     }
-  }
+  }: Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.DesugaredEnumerator])])
 
 
 

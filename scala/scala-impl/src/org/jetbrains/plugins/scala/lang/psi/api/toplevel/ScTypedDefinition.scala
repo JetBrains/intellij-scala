@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.DefinitionRole
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiTypedDefinitionWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 /**
  * Member definitions, classes, named patterns which have types
@@ -32,14 +31,15 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
     case _ => true
   }
 
-  @Cached(BlockModificationTracker(this), this)
-  def getTypedDefinitionWrapper(isStatic: Boolean, isAbstract: Boolean, role: DefinitionRole,
-                                cClass: Option[PsiClass] = None): PsiTypedDefinitionWrapper = {
-    new PsiTypedDefinitionWrapper(this, isStatic, isAbstract, role, cClass)
-  }
+  def getTypedDefinitionWrapper(isStatic: Boolean, isAbstract: Boolean, role: DefinitionRole, cClass: Option[PsiClass] = None): PsiTypedDefinitionWrapper = _getTypedDefinitionWrapper(isStatic, isAbstract, role, cClass)
 
-  @Cached(BlockModificationTracker(this), this)
-  def getStaticTypedDefinitionWrapper(role: DefinitionRole, cClass: PsiClassWrapper): StaticPsiTypedDefinitionWrapper = {
+  private val _getTypedDefinitionWrapper = cached("ScTypedDefinition.getTypedDefinitionWrapper", BlockModificationTracker(this), (isStatic: Boolean, isAbstract: Boolean, role: DefinitionRole, cClass: Option[PsiClass]) => {
+    new PsiTypedDefinitionWrapper(this, isStatic, isAbstract, role, cClass)
+  })
+
+  def getStaticTypedDefinitionWrapper(role: DefinitionRole, cClass: PsiClassWrapper): StaticPsiTypedDefinitionWrapper = _getStaticTypedDefinitionWrapper(role, cClass)
+
+  private val _getStaticTypedDefinitionWrapper = cached("ScTypedDefinition.getStaticTypedDefinitionWrapper", BlockModificationTracker(this), (role: DefinitionRole, cClass: PsiClassWrapper) => {
     new StaticPsiTypedDefinitionWrapper(this, role, cClass)
-  }
+  })
 }

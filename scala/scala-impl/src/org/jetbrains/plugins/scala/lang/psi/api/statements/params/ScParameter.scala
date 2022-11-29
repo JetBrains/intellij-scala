@@ -3,18 +3,17 @@ package params
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiParameterAdapter
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import javax.swing.Icon
 import scala.annotation.tailrec
@@ -124,8 +123,11 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
 
   def getTypeNoResolve: PsiType = PsiType.VOID
 
-  @Cached(BlockModificationTracker(this), this)
-  def isDefaultParam: Boolean = calcIsDefaultParam(this, Set.empty)
+  def isDefaultParam: Boolean = _isDefaultParam()
+
+  private val _isDefaultParam = cached("ScParamerer.isDefaultParam", BlockModificationTracker(this), () => {
+    calcIsDefaultParam(this, Set.empty)
+  })
 
 
   @tailrec

@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.ScalaControlFlowBuilder
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 /**
  * Represents elements with control flow cached
@@ -11,14 +10,15 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 trait ScControlFlowOwner extends ScalaPsiElement {
 
-  @Cached(ModTracker.physicalPsiChange(getProject), this)
-  def getControlFlow: Seq[Instruction] = {
+  def getControlFlow: Seq[Instruction] = _getControlFlow()
+
+  private val _getControlFlow = cached("ScControlFlowOwner.getControlFlow", ModTracker.physicalPsiChange(getProject), () => {
     val builder = new ScalaControlFlowBuilder(null, null)
     controlFlowScope match {
       case Some(elem) => builder.buildControlflow(elem)
       case None => Seq.empty
     }
-  }
+  })
 
   def controlFlowScope: Option[ScalaPsiElement]
 }

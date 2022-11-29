@@ -13,13 +13,11 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import org.jetbrains.plugins.scala.caches.{ModTracker, ScalaShortNamesCacheManager}
+import org.jetbrains.plugins.scala.caches.{ModTracker, ScalaShortNamesCacheManager, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}
@@ -34,9 +32,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScalaType, TermSignature, TypeSignature}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import java.{util => ju}
@@ -210,15 +209,14 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       case Path.JavaObject => true // These doesn't appear in the superTypes at the moment, so special case required.
       case Path(_, _, kind) if kind.isFinal => false
       case _ if DumbService.getInstance(getProject).isDumb => false
-      case path => (if (checkDeep) superPathsDeep else superPaths).contains(path)
+      case path => (if (checkDeep) superPathsDeep() else superPaths()).contains(path)
     }
 
-  @Cached(ModTracker.physicalPsiChange(getProject), this)
-  private def superPaths: Set[Path] =
+  private val superPaths = cached("ScTemplateDefinitionImpl.superPaths", ModTracker.physicalPsiChange(getProject), () => {
     supers.map(Path.apply).toSet
+  })
 
-  @Cached(ModTracker.physicalPsiChange(getProject), this)
-  private def superPathsDeep: Set[Path] = {
+  private val superPathsDeep = cached("ScTemplateDefinitionImpl.superPathsDeep", ModTracker.physicalPsiChange(getProject), () => {
     val collected = mutable.Set.empty[Path]
 
     def dfs(clazz: PsiClass): Unit = {
@@ -247,7 +245,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
 
     collected.remove(Path(this))
     collected.toSet
-  }
+  })
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    oldState: ResolveState,

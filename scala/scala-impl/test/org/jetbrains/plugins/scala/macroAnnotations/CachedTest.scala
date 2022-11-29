@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
-import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.caches.stats.Tracer
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.junit.Assert._
 
 class CachedTest extends CachedTestBase {
   def testNoParametersSingleThread(): Unit = {
     class Foo extends Managed {
-      @Cached(ModTracker.physicalPsiChange(getProject), this)
-      def currentTime(): Long = System.currentTimeMillis()
+      val currentTime: () => Long = cached("Foo.currentTime", ModTracker.physicalPsiChange(getProject), () => {
+        System.currentTimeMillis()
+      })
     }
 
     val foo = new Foo
@@ -29,21 +30,23 @@ class CachedTest extends CachedTestBase {
 
   def testModificationTrackers(): Unit = {
     object Foo extends Managed {
-      @Cached(ModTracker.physicalPsiChange(getProject), this)
-      def currentTime: Long = System.currentTimeMillis()
+      val currentTime: () => Long = cached("Foo.currentTime", ModTracker.physicalPsiChange(getProject), () => {
+        System.currentTimeMillis()
+      })
     }
 
-    val firstRes = Foo.currentTime
+    val firstRes = Foo.currentTime()
     Thread.sleep(1)
-    assertEquals(firstRes, Foo.currentTime)
+    assertEquals(firstRes, Foo.currentTime())
     Foo.dropCaches()
-    assertTrue(firstRes < Foo.currentTime)
+    assertTrue(firstRes < Foo.currentTime())
   }
 
   def testWithParameters(): Unit = {
     object Foo extends Managed {
-      @Cached(ModTracker.physicalPsiChange(getProject), this)
-      def currentTime(a: Int, b: Int): Long = System.currentTimeMillis()
+      val currentTime: (Int, Int) => Long = cached("Foo.currentTime", ModTracker.physicalPsiChange(getProject), (a, b) => {
+        System.currentTimeMillis()
+      })
     }
 
     val firstRes = Foo.currentTime(0, 0)
@@ -60,45 +63,18 @@ class CachedTest extends CachedTestBase {
 
   def testTracer(): Unit = {
     object Foo extends Managed {
-      @Cached(ModTracker.physicalPsiChange(getProject), this)
-      def currentTime: Long = System.currentTimeMillis()
+      val currentTime: () => Long = cached("Foo.currentTime", ModTracker.physicalPsiChange(getProject), () => {
+        System.currentTimeMillis()
+      })
     }
 
     Tracer.clearAll()
 
     checkTracer("Foo.currentTime", totalCount = 3, actualCount = 2) {
-      Foo.currentTime
-      Foo.currentTime
+      Foo.currentTime()
+      Foo.currentTime()
       Foo.dropCaches()
-      Foo.currentTime
+      Foo.currentTime()
     }
   }
-
-  def testTracerWithExpr(): Unit = {
-    class Foo extends Managed {
-      var myVar = 0
-      @Cached(ModTracker.physicalPsiChange(getProject), this, myVar)
-      def bar: Int = myVar
-    }
-
-    Tracer.clearAll()
-
-    checkTracer("Foo.bar myVar == 0", totalCount = 2, actualCount = 1) {
-      val foo = new Foo
-      foo.bar
-      foo.bar
-      foo.myVar = 1
-      foo.bar
-    }
-
-    checkTracer("Foo.bar myVar == 1", totalCount = 1, actualCount = 0) {
-      val foo = new Foo
-      foo.bar
-      foo.bar
-      foo.myVar = 1
-      foo.bar
-    }
-
-  }
-
 }

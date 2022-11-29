@@ -22,15 +22,14 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
+import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.atomic.AtomicReference
-import scala.annotation.nowarn
 import scala.collection.concurrent.TrieMap
 import scala.collection.immutable.SortedSet
 import scala.concurrent.duration._
@@ -200,10 +199,9 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   }
 
   // SCL-17295
-  @nowarn("msg=pure expression")
-  @Cached(ModificationTracker.NEVER_CHANGED, null)
-  private def saveProjectOnce(): Unit =
+  private val saveProjectOnce = cached("CompilerHighlightingService.saveProjectOnce", ModificationTracker.NEVER_CHANGED, () => {
     if (!project.isDisposed || project.isDefault) project.save()
+  })
 
   private def isReadyForExecution(request: CompilationRequest): Boolean = request match {
     case CompilationRequest.WorksheetRequest(_, document, _) => isDocumentReadyForCompilation(document)

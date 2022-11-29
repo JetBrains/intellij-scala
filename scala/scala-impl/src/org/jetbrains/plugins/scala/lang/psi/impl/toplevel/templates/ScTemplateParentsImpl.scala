@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 package templates
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembe
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateParentsStub
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.collection.immutable.ArraySeq
 
@@ -28,7 +27,7 @@ final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: AST
 
   override def toString: String = "TemplateParents"
 
-  override def allTypeElements: Seq[ScTypeElement] = typeElements ++ syntheticTypeElements
+  override def allTypeElements: Seq[ScTypeElement] = typeElements ++ syntheticTypeElements()
 
   override def typeElements: Seq[ScTypeElement] =
     byPsiOrStub(
@@ -42,7 +41,7 @@ final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: AST
 
     val elements =
       byStubOrPsi(
-        _.parentClauses.map(_.typeElement) ++ syntheticTypeElements
+        _.parentClauses.map(_.typeElement) ++ syntheticTypeElements()
       )(allTypeElements)
 
     //for reduced stack size
@@ -54,11 +53,12 @@ final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: AST
     builder.result()
   }
 
-  @Cached(BlockModificationTracker(this), this)
-  private def syntheticTypeElements: Seq[ScTypeElement] = getContext.getContext match {
-    case td: ScTypeDefinition => SyntheticMembersInjector.injectSupers(td)
-    case _ => Seq.empty
-  }
+  private val syntheticTypeElements = cached("ScTemplateParentsImpl.synteticTypeElements", BlockModificationTracker(this), () => {
+    getContext.getContext match {
+      case td: ScTypeDefinition => SyntheticMembersInjector.injectSupers(td)
+      case _ => Seq.empty
+    }
+  })
 
   override def supersText: String = byStubOrPsi(_.supersText)(getText)
 }

@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.PsiImplUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiv
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.PARAM_CLAUSE, node) with ScParameterClause {
@@ -31,10 +31,11 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
   override def toString: String = "ParametersClause"
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
-  override def parameters: Seq[ScParameter] = {
+  override def parameters: Seq[ScParameter] = _parameters()
+
+  private val _parameters = cached("ScParameterClauseImpl.parameters", ModTracker.anyScalaPsiChange, () => {
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory).toSeq
-  }
+  })
 
   @CachedInUserData(this, BlockModificationTracker(this))
   override def effectiveParameters: Seq[ScParameter] = {
@@ -72,8 +73,9 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     getFirstChild.elementType == ScalaTokenTypes.tLPARENTHESIS &&
       getLastChild.elementType == ScalaTokenTypes.tRPARENTHESIS
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
-  override def isImplicit: Boolean = {
+  override def isImplicit: Boolean = _isImplicit()
+
+  private val _isImplicit = cached("ScParameterClauseImpl.isImplicit", ModTracker.anyScalaPsiChange, () => {
     import ScModifierList._
 
     def hasImplicitKeyword =
@@ -82,22 +84,25 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
           .exists(_.getModifierList.isImplicit)
 
     byStubOrPsi(_.isImplicit)(hasImplicitKeyword)
-  }
+  })
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
-  override def isUsing: Boolean = {
+  override def isUsing: Boolean = _isUsing()
+
+  private val _isUsing = cached("ScParameterClauseImpl.isUsing", ModTracker.anyScalaPsiChange, () => {
     def hasUsingKeyword =
       findChildByType(ScalaTokenType.UsingKeyword) != null
 
     byStubOrPsi(_.isUsing)(hasUsingKeyword)
-  }
+  })
 
-  @Cached(ModTracker.anyScalaPsiChange, this)
-  override def isInline: Boolean = {
+  override def isInline: Boolean = _isInline()
+
+  private val _isInline = cached("ScParameterClauseImpl.isInline", ModTracker.anyScalaPsiChange, () => {
     def hasInlineKeyword =
       parameters.exists(_.findFirstChildByTypeScala(ScalaTokenType.InlineKeyword).isDefined)
+
     byStubOrPsi(_.isInline)(hasInlineKeyword)
-  }
+  })
 
   override def addParameter(param: ScParameter): ScParameterClause = {
     val params = parameters
