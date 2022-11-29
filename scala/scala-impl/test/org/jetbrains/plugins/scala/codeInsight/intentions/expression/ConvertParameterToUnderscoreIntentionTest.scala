@@ -3,7 +3,7 @@ package codeInsight.intentions.expression
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
-class ConvertParameterToUnderscoreIntentionTest  extends ScalaIntentionTestBase{
+class ConvertParameterToUnderscoreIntentionTest extends ScalaIntentionTestBase {
   override def familyName = ScalaBundle.message("family.name.convert.parameter.to.underscore.section")
 
   def testIntroduceImplicitParameter(): Unit = {
@@ -136,6 +136,90 @@ class ConvertParameterToUnderscoreIntentionTest  extends ScalaIntentionTestBase{
 
     doTest(text, resultText)
   }
+}
 
+class ConvertParameterToUnderscoreIntentionTest_Scala3 extends ScalaIntentionTestBase {
+  override def familyName = ScalaBundle.message("family.name.convert.parameter.to.underscore.section")
 
+  override def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  def testFewerBraces(): Unit = {
+    val text =
+      s"""some.map: ${CARET}x =>
+         |  x > 5
+         |""".stripMargin
+    val resultText =
+      s"""some.map:
+         |  ${CARET}_ > 5
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testFewerBraces2(): Unit = {
+    val text =
+      s"""some.map:
+         |  ${CARET}x => x > 5
+         |""".stripMargin
+    val resultText =
+      s"""some.map:
+         |  ${CARET}_ > 5
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testFewerBraces3(): Unit = {
+    val text =
+      s"""some.map:
+         |  ${CARET}x =>
+         |    x > 5
+         |""".stripMargin
+    val resultText =
+      s"""some.map:
+         |  ${CARET}_ > 5
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testFewerBraces4(): Unit = {
+    val text =
+      s"""some.map: (${CARET}x: Int) =>
+         |  x > 5
+         |""".stripMargin
+    val resultText =
+      s"""some.map:
+         |  $CARET(_: Int) > 5
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testFewerBraces5(): Unit = {
+    val text =
+      s"""some.map:
+         |  (x: ${CARET}Int) => x > 5
+         |""".stripMargin
+    val resultText =
+      s"""some.map:
+         |  $CARET(_: Int) > 5
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testFewerBraces6(): Unit = {
+    val text =
+      s"""some.map:
+         |  (x: Int)$CARET =>
+         |    x > 5
+         |""".stripMargin
+    val resultText =
+      s"""some.map:
+         |  $CARET(_: Int) > 5
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
 }

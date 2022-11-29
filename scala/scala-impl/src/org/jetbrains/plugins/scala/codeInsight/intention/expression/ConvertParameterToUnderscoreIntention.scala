@@ -12,16 +12,19 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertParameterToUnderscoreIntention._
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createNewLine}
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.util.chaining.scalaUtilChainingOps
 
 class ConvertParameterToUnderscoreIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.convert.parameter.to.underscore.section")
@@ -49,13 +52,17 @@ class ConvertParameterToUnderscoreIntention extends PsiElementBaseIntentionActio
     val expr: ScFunctionExpr = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr], false)
     if (expr == null || !expr.isValid) return
 
-    val startOffset = expr.getTextRange.getStartOffset
-
     createExpressionToIntroduce(expr, withoutParameterTypes = false) match {
       case Left(newExpr) =>
         IntentionPreviewUtils.write { () =>
-          expr.replace(newExpr)
-          editor.getCaretModel.moveToOffset(startOffset)
+          val added = expr.getParent match {
+            case parent: ScOptionalBracesOwner if !expr.startsFromNewLine() && parent.isEnclosedByColon =>
+              parent.addAfter(newExpr, expr).tap { _ =>
+                expr.replace(createNewLine()(project))
+              }
+            case _ => expr.replace(newExpr)
+          }
+          editor.getCaretModel.moveToOffset(added.getTextOffset)
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
         }
       case Right(message) =>
