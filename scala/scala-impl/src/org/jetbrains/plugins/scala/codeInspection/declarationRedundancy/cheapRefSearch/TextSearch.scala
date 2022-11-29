@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
 import com.intellij.psi.{PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline.ShouldProcess
@@ -9,7 +10,12 @@ import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 import java.util.concurrent.ConcurrentLinkedQueue
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-private[cheapRefSearch] final class TextSearch(override val shouldProcess: ShouldProcess) extends Method {
+private[cheapRefSearch] final class TextSearch(
+  override val shouldProcess: ShouldProcess,
+  project: Project
+) extends Method {
+
+  private val psiSearchHelper: PsiSearchHelper = PsiSearchHelper.getInstance(project)
 
   override def searchForUsages(ctx: Search.Context): SearchMethodResult = {
 
@@ -17,18 +23,18 @@ private[cheapRefSearch] final class TextSearch(override val shouldProcess: Shoul
 
     var didExitBeforeExhaustion = false
 
-    val helper = PsiSearchHelper.getInstance(ctx.element.getProject)
+    val psiElement = ctx.element
 
     val processor = new TextOccurenceProcessor {
 
       override def execute(e2: PsiElement, offsetInElement: Int): Boolean = {
 
-        if (ctx.element.getContainingFile == e2.getContainingFile) {
+        if (psiElement.getContainingFile == e2.getContainingFile) {
           true
         } else {
 
           val maybeUsage = e2 match {
-            case r: PsiReference => Some(ElementUsageWithKnownReference(r, ctx.element))
+            case r: PsiReference => Some(ElementUsageWithKnownReference(r, psiElement))
             case _ => None
           }
 
@@ -43,10 +49,10 @@ private[cheapRefSearch] final class TextSearch(override val shouldProcess: Shoul
       }
     }
 
-    val stringsToSearch = ScalaUsageNamesUtil.getStringsToSearch(ctx.element).asScala.toSeq
-
+    val useScope = psiSearchHelper.getUseScope(psiElement)
+    val stringsToSearch = ScalaUsageNamesUtil.getStringsToSearch(psiElement).asScala.toSeq
     stringsToSearch.foreach { name =>
-      helper.processElementsWithWord(processor, ctx.element.getUseScope, name,
+      psiSearchHelper.processElementsWithWord(processor, useScope, name,
         (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort, true)
     }
 
