@@ -270,6 +270,7 @@
         <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
 
         <useScopeEnlarger implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaSharedSourcesUseScopeEnlarger"/>
+        <resolveScopeEnlarger implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaSharedSourcesResolveScopeEnlarger"/>
 
         <usageTypeProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaUsageTypeProvider"
                            id="scalaUsageTypeProvider" order="first"/>

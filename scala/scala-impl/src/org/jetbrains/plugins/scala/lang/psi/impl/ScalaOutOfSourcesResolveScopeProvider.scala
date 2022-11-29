@@ -12,7 +12,11 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider._
 import org.jetbrains.plugins.scala.project._
 
-/** see [[com.intellij.psi.impl.file.impl.ResolveScopeManagerImpl]] */
+/**
+ * See [[com.intellij.psi.impl.file.impl.ResolveScopeManagerImpl]]
+ *
+ * Also see related (but different) entity: [[org.jetbrains.plugins.scala.lang.psi.impl.ScalaSharedSourcesResolveScopeEnlarger]]
+ */
 class ScalaOutOfSourcesResolveScopeProvider extends ResolveScopeProvider {
 
   /** @return null to rely on [[com.intellij.psi.impl.file.impl.ResolveScopeManagerImpl#getDefaultResolveScope]] logic */

@@ -161,6 +161,7 @@ package object project {
      * Selects dependent module for shared-sources module<br>
      * It first search for JVM, then for Js and then for Native
      */
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def findRepresentativeModuleForSharedSourceModule: Option[Module] =
       if (isSharedSourceModule) {
         val moduleManager = ModuleManager.getInstance(module.getProject)
