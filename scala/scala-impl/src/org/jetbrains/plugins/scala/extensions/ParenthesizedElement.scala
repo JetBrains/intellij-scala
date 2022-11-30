@@ -164,11 +164,11 @@ object ParenthesizedElement {
   }
 
   private def patternPrecedence(pattern: ScPattern): Int = pattern match {
-    case _: ScCompositePattern => 13
-    case _: ScTypedPattern     => 12
-    case _: ScNamingPattern    => 11
-    case i: ScInfixPattern     => 1 + infixOperationPriority(i)
-    case _                     => 0
+    case _: ScCompositePattern                  => 13
+    case _: ScTypedPattern | _: Sc3TypedPattern => 12
+    case _: ScNamingPattern                     => 11
+    case i: ScInfixPattern                      => 1 + infixOperationPriority(i)
+    case _                                      => 0
   }
 
   @tailrec

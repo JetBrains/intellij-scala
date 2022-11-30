@@ -576,4 +576,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala3 extends ScalaUnnecessaryP
     checkTextHasNoErrors(s"type T[A] = (A match { case Int => Char }) => Any")
     checkTextHasNoErrors(s"type T[A] = [X] => (A match { case Int => Char }) => Any")
   }
+
+  def test_case_clause_with_destructuring(): Unit =
+    checkTextHasNoErrors(s"object A { 1 match { case (_: _) *: _ => } }")
 }
