@@ -1,15 +1,20 @@
 package org.jetbrains.plugins.scala.packagesearch.utils;
 
-import com.intellij.pom.Navigatable;
+import com.intellij.buildsystem.model.DeclaredDependency;
+import com.jetbrains.packagesearch.intellij.plugin.extensibility.DependencyDeclarationIndexes;
 import com.jetbrains.packagesearch.intellij.plugin.extensibility.ProjectModule;
-import com.jetbrains.packagesearch.intellij.plugin.ui.toolwindow.models.PackageVersion;
+
+import java.util.concurrent.CompletableFuture;
 
 import static java.util.Collections.emptyList;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ScalaKotlinHelper {
 
-    public static ProjectModule createNavigatableProjectModule(ProjectModule projectModule, scala.Function3<String, String, PackageVersion, Navigatable> navigatableDependency) {
+    public static ProjectModule createNavigatableProjectModule(
+            ProjectModule projectModule,
+            scala.Function1<DeclaredDependency, CompletableFuture<DependencyDeclarationIndexes>> dependencyDeclarationCallback
+    ) {
         return new ProjectModule(
                 projectModule.getName(),
                 projectModule.getNativeModule(),
@@ -18,8 +23,8 @@ public class ScalaKotlinHelper {
                 projectModule.getProjectDir(),
                 projectModule.getBuildSystemType(),
                 projectModule.getModuleType(),
-                emptyList()
-                //TODO: use navigatableDependency, see SCL-20365
+                emptyList(),
+                dependencyDeclarationCallback::apply
         );
     }
 }
