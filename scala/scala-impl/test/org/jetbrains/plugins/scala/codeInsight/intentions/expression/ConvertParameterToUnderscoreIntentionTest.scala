@@ -50,23 +50,23 @@ class ConvertParameterToUnderscoreIntentionTest extends ScalaIntentionTestBase {
 
   def testIntroduceImplicitParameter7(): Unit = {
     val text = """
-    | val x: Int => Int = i<caret> => {
-    |   i + {
-    |     1 + {
-    |       i
-    |     }
-    |   }
-    | }
-    """.stripMargin
+    |val x: Int => Int = i<caret> => {
+    |  i + {
+    |    1 + {
+    |      i
+    |    }
+    |  }
+    |}
+    """.stripMargin.trim
     val resultText= """
-    | val x: Int => Int = i => {
-    |   i + {
-    |     1 + {
-    |       i
-    |     }
-    |   }
-    | }
-    """.stripMargin
+    |val x: Int => Int = i => {
+    |  i + {
+    |    1 + {
+    |      i
+    |    }
+    |  }
+    |}
+    """.stripMargin.trim
 
     try {
       doTest(text, resultText)
