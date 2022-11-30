@@ -1,20 +1,11 @@
 package org.jetbrains.plugins.scala.injection
 
 import com.intellij.codeInsight.intention.impl.QuickEditAction
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiFile
-import com.intellij.psi.impl.source.tree.injected.{InjectedLanguageUtil, InjectedLanguageUtilBase}
-import com.intellij.testFramework.fixtures.EditorTestFixture
+import com.intellij.testFramework.fixtures.InjectionTestFixture
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.injection.ScalaInjectedLanguageEditInjectedFragmentTest.createEditorForInjectedFragment
-import org.junit.Assert.{assertEquals, assertTrue}
-
-import scala.annotation.nowarn
+import org.junit.Assert.assertEquals
 
 /**
  * Tests for editing injected code fragment via:<br>
@@ -57,9 +48,9 @@ class ScalaInjectedLanguageEditInjectedFragmentTest extends ScalaLightCodeInsigh
       injectedFile.getText
     )
 
-    val injectedEditor = createEditorForInjectedFragment(getProject, getFile, getEditor, injectedVirtualFile)
-    val injectedEditorFixture = new EditorTestFixture(getProject, injectedEditor, injectedVirtualFile)
-    injectedEditorFixture.`type`(textToType)
+    val injectionTestFixture = new InjectionTestFixture(myFixture)
+    val injectedEditorTestFixture = injectionTestFixture.openInFragmentEditor()
+    injectedEditorTestFixture.`type`(textToType)
 
     myFixture.checkResult(fileTextAfter.withNormalizedSeparator)
   }
@@ -130,32 +121,4 @@ class ScalaInjectedLanguageEditInjectedFragmentTest extends ScalaLightCodeInsigh
          |s"class A {\n    \n}"""".stripMargin,
     "class A {}"
   )
-}
-
-object ScalaInjectedLanguageEditInjectedFragmentTest {
-
-  //noinspection ScalaDeprecation,ApiStatus,UnstableApiUsage
-  //NOTE: we need to use deprecated `InjectedLanguageUtil` because there is no alternative in [[InjectedLanguageManager]]
-  //This method is used in `com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.setupEditorForInjectedLanguage`
-  //But in this text class it's not invoked because we invoke `setCaresAboutInjection(false)` (see `setUp` method)
-  @nowarn("cat=deprecation")
-  /*private*/ def createEditorForInjectedFragment(
-    project: Project,
-    hostFile: PsiFile,
-    hostEditor: Editor,
-    injectedVirtualFile: VirtualFile
-  ): Editor = {
-    val caretOffset = hostEditor.getCaretModel.getOffset
-
-    //NOTE: for some reason this `injectedFile` is different from what is returned from `QuickEditHandler.getNewFile`
-    //this one is needed to find `documentWindow`
-    val injectedFile = InjectedLanguageUtilBase.findInjectedPsiNoCommit(hostFile, caretOffset)
-    val documentWindow = InjectedLanguageUtil.getDocumentWindow(injectedFile)
-    val injectedOffset = InjectedLanguageUtil.hostToInjectedUnescaped(documentWindow, caretOffset)
-    val fileEditorManager = FileEditorManager.getInstance(project)
-
-    val injectedFragmentEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, injectedVirtualFile, injectedOffset), true)
-    assertTrue("Expected editor for injected fragment, not the host editor", injectedFragmentEditor != hostEditor)
-    injectedFragmentEditor
-  }
 }
