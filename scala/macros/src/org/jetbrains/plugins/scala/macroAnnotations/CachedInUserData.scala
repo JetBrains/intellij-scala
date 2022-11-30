@@ -11,7 +11,7 @@ import scala.reflect.macros.whitebox
   *
   * Caches are invalidated on change of `dependencyItem`.
   */
-class CachedInUserData(userDataHolder: Any, modificationTracker: Object, tracked: Any*) extends StaticAnnotation {
+class CachedInUserData(userDataHolder: Any, modificationTracker: Object) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedInUserData.cachedInsideUserDataImpl
 }
 
@@ -20,16 +20,15 @@ object CachedInUserData {
     import CachedMacroUtil._
     import c.universe._
     implicit val x: c.type = c
-    def parameters: (Tree, Tree, Seq[Tree]) = {
+    def parameters: (Tree, Tree) = {
       c.prefix.tree match {
-        case q"new CachedInUserData(..$params)" if params.length >= 2 =>
-          (params.head, params(1), params.drop(2))
+        case q"new CachedInUserData($param1, $param2)" => (param1, param2)
         case _ => abort(MacrosBundle.message("macros.cached.wrong.annotation.parameters"))
       }
     }
 
     //annotation parameters
-    val (elem, modTracker, trackedExprs) = parameters
+    val (elem, modTracker) = parameters
 
     annottees.toList match {
       case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
@@ -81,7 +80,7 @@ object CachedInUserData {
         val updatedRhs = q"""
           def $cachedFunName(): $retTp = $actualCalculation
 
-          val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, trackedExprs)}
+          val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, Seq.empty)}
           $tracerName.invocation()
 
           val $dataName = $dataValue

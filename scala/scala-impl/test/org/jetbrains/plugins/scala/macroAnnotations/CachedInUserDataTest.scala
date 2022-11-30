@@ -84,36 +84,4 @@ class CachedInUserDataTest extends CachedWithRecursionGuardTestBase {
     }
   }
 
-  def testTracerWithExpr(): Unit = {
-    class Foo extends CachedMockPsiElement {
-      @CachedInUserData(this, PsiModificationTracker.MODIFICATION_COUNT, int)
-      def twice(int: Int): Int = int * 2
-    }
-
-    checkTracer("Foo.twice int == 1", totalCount = 3, actualCount = 2) {
-      val foo = new Foo
-      foo.twice(1)
-      foo.twice(1)
-      foo.twice(2)
-      foo.twice(2)
-
-      incModCount(getProject)
-
-      foo.twice(1)
-    }
-
-    checkTracer("Foo.twice int == 2", totalCount = 2, actualCount = 1) {
-      val foo = new Foo
-      foo.twice(1)
-      foo.twice(1)
-      foo.twice(2)
-      foo.twice(2)
-
-      incModCount(getProject)
-
-      foo.twice(1)
-    }
-
-  }
-
 }
