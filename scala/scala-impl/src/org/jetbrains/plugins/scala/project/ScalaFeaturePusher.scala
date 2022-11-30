@@ -29,7 +29,7 @@ class ScalaFeaturePusher extends com.intellij.FilePropertyPusherBase[SerializedS
       }
   }
 
-  override def getFileDataKey: FilePropertyKey[SerializedScalaFeatures] = ScalaFeaturePusher.key
+  override def getFilePropertyKey: FilePropertyKey[SerializedScalaFeatures] = ScalaFeaturePusher.key
 
   override def pushDirectoriesOnly(): Boolean = true
 
@@ -59,8 +59,6 @@ object ScalaFeaturePusher {
   def getFeatures(file: VirtualFile): Option[ScalaFeatures] =
     Option(key.getPersistentValue(file)).map(ScalaFeatures.deserializeFromInt(_))
 
-  private val Persistence = new FileAttribute("scala_pushed_feature_persistence", ScalaFeatures.version, true)
-
   @inline
   private def isScalaLike(file: VirtualFile): Boolean =
     isScalaLike(file.getFileType)
@@ -72,10 +70,9 @@ object ScalaFeaturePusher {
     }
 
   private val key: FilePropertyKey[SerializedScalaFeatures] =
-    FilePropertyKeyImpl.createPersistentStringKey[SerializedScalaFeatures](
+    FilePropertyKeyImpl.createPersistentIntKey(
       "Pushed Scala Features",
-      Persistence,
-      _.toString,
-      _.toInt
+      "scala_pushed_feature_persistence",
+      ScalaFeatures.version
     )
 }

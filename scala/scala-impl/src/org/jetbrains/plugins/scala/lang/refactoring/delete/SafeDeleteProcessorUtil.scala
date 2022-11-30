@@ -45,7 +45,7 @@ object SafeDeleteProcessorUtil {
 
   private def referenceSearch(element: PsiElement) = ReferencesSearch.search(element, element.getUseScope)
   
-  def findClassUsages(psiClass: PsiClass, allElementsToDelete: Array[PsiElement], usages: util.List[UsageInfo]): Unit = {
+  def findClassUsages(psiClass: PsiClass, allElementsToDelete: Array[PsiElement], usages: util.List[_ >: UsageInfo]): Unit = {
     val justPrivates: Boolean = containsOnlyPrivates(psiClass)
     referenceSearch(psiClass).forEach(new Processor[PsiReference] {
       override def process(reference: PsiReference): Boolean = {
@@ -93,7 +93,7 @@ object SafeDeleteProcessorUtil {
     false // TODO
   }
 
-  def findTypeParameterExternalUsages(typeParameter: PsiTypeParameter, usages: util.Collection[UsageInfo]): Unit = {
+  def findTypeParameterExternalUsages(typeParameter: PsiTypeParameter, usages: util.Collection[_ >: UsageInfo]): Unit = {
     val owner: PsiTypeParameterListOwner = typeParameter.getOwner
     if (owner != null) {
       val index: Int = owner.getTypeParameterList.getTypeParameterIndex(typeParameter)
@@ -129,7 +129,7 @@ object SafeDeleteProcessorUtil {
     }
   }
 
-  @Nullable def findMethodUsages(psiMethod: PsiMethod, allElementsToDelete: Array[PsiElement], usages: util.List[UsageInfo]): Condition[PsiElement] = {
+  @Nullable def findMethodUsages(psiMethod: PsiMethod, allElementsToDelete: Array[PsiElement], usages: util.List[_ >: UsageInfo]): Condition[PsiElement] = {
     val references: util.Collection[PsiReference] = referenceSearch(psiMethod).findAll
     if (psiMethod.isConstructor) {
       return findConstructorUsages(psiMethod, references, usages, allElementsToDelete)
@@ -168,7 +168,7 @@ object SafeDeleteProcessorUtil {
     }
   }
 
-  @Nullable def findConstructorUsages(constructor: PsiMethod, originalReferences: util.Collection[PsiReference], usages: util.List[UsageInfo], allElementsToDelete: Array[PsiElement]): Condition[PsiElement] = {
+  @Nullable def findConstructorUsages(constructor: PsiMethod, originalReferences: util.Collection[PsiReference], usages: util.List[_ >: UsageInfo], allElementsToDelete: Array[PsiElement]): Condition[PsiElement] = {
     val constructorsToRefs: util.HashMap[PsiMethod, util.Collection[PsiReference]] = new util.HashMap[PsiMethod, util.Collection[PsiReference]]
     val newConstructors: util.HashSet[PsiMethod] = new util.HashSet[PsiMethod]
     if (isTheOnlyEmptyDefaultConstructor(constructor)) return null
@@ -209,7 +209,7 @@ object SafeDeleteProcessorUtil {
 
   def validateOverridingMethods(originalMethod: PsiMethod, originalReferences: util.Collection[PsiReference],
                                 overridingMethods: util.Collection[PsiMethod], methodToReferences: util.HashMap[PsiMethod, util.Collection[PsiReference]],
-                                usages: util.List[UsageInfo], allElementsToDelete: Array[PsiElement]): util.Set[PsiMethod] = {
+                                usages: util.List[_ >: UsageInfo], allElementsToDelete: Array[PsiElement]): util.Set[PsiMethod] = {
     val validOverriding: util.Set[PsiMethod] = new util.LinkedHashSet[PsiMethod](overridingMethods)
     val multipleInterfaceImplementations: util.Set[PsiMethod] = new util.HashSet[PsiMethod]
     var anyNewBadRefs: Boolean = false
@@ -338,7 +338,7 @@ object SafeDeleteProcessorUtil {
     }
   }
 
-  def findParameterUsages(parameter: ScParameter, usages: util.List[UsageInfo]): Unit = {
+  def findParameterUsages(parameter: ScParameter, usages: util.List[_ >: UsageInfo]): Unit = {
     val owner = parameter.owner
     val namedArguments = mutable.Set.empty[PsiElement]
     def searchMethodOrConstructorUsages(methodLike: PsiElement, parameter: ScParameter): Unit =
