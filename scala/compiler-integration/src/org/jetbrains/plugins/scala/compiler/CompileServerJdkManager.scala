@@ -28,7 +28,7 @@ object CompileServerJdkManager {
     getBuildProcessRuntimeJdk(project).first
 
   final def getBuildProcessJdkVersion(project: Project): JavaSdkVersion =
-    getBuildProcessRuntimeJdk(project).second
+    compileServerJdk(project).map(_._2).getOrElse(getBuildProcessRuntimeJdk(project).second)
 
   /**
    * Returns the Build Process runtime SDK.
