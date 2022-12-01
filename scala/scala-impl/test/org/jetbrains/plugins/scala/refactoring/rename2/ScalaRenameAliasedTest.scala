@@ -1,295 +1,273 @@
-package org.jetbrains.plugins.scala
-package refactoring.rename2
+package org.jetbrains.plugins.scala.refactoring.rename2
 
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.junit.Assert
 
 /**
- * Tests functionality in [[org.jetbrains.plugins.scala.findUsages.ScalaAliasedImportedElementSearcher]]
- * and [[org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil.filterAliasedReferences]]
+ * Tests functionality in:
+ *  - [[org.jetbrains.plugins.scala.findUsages.ScalaAliasedImportedElementSearcher]]
+ *  - [[org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil.filterAliasedReferences]]
  */
 class ScalaRenameAliasedTest extends ScalaRenameTestBase {
-  def testRenameValAliased(): Unit = {
-    val fileText =
-      """
-      |object test {
-      |
-      |  object A {
-      |    val oldValueName<caret> = 1
-      |  }
-      |
-      |  A.oldValueName
-      |
-      |  import A.{oldValueName => aliasedValueName}
-      |
-      |  aliasedValueName
-      |}
-      |""".stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    val valElement = myFixture.getElementAtCaret
-    val usages = myFixture.findUsages(valElement)
-    Assert.assertEquals(3, usages.size())
-    myFixture.renameElementAtCaret("newValueName")
 
-    val resultText =
+  //noinspection SameParameterValue
+  protected def doRenameTestWithUsagesCheck(
+    newName: String,
+    fileText: String,
+    resultText: String,
+    expectedUsagesCount: Int
+  ): Unit = {
+    myFixture.configureByText("dummy2.scala", fileText.withNormalizedSeparator.trim)
+    val elementAtCaret = myFixture.getElementAtCaret
+
+    val usages = myFixture.findUsages(elementAtCaret)
+    Assert.assertEquals("Usages count is wrong", expectedUsagesCount, usages.size)
+
+    myFixture.renameElementAtCaret(newName)
+    myFixture.checkResult(resultText.withNormalizedSeparator.trim)
+  }
+
+  def testRenameValAliased(): Unit = {
+    doRenameTestWithUsagesCheck(
+      "newNameForDefinition",
+      s"""
+         |object test {
+         |
+         |  object A {
+         |    val oldValueName$CARET = 1
+         |  }
+         |
+         |  A.oldValueName
+         |
+         |  import A.{oldValueName => aliasedValueName}
+         |
+         |  aliasedValueName
+         |}
+         |""".stripMargin,
       """object test {
         |
         |  object A {
-        |    val newValueName = 1
+        |    val newNameForDefinition = 1
         |  }
         |
-        |  A.newValueName
+        |  A.newNameForDefinition
         |
-        |  import A.{newValueName => aliasedValueName}
+        |  import A.{newNameForDefinition => aliasedValueName}
         |
         |  aliasedValueName
-        |}""".stripMargin('|').replaceAll("\r", "").trim()
-
-    myFixture.checkResult(resultText)
+        |}""".stripMargin,
+      3
+    )
   }
 
   def testRenameDefAliased(): Unit = {
-    val fileText =
+    doRenameTestWithUsagesCheck(
+      "newNameForDefinition",
+      s"""
+         |object test {
+         |
+         |  object A {
+         |    def oldDefName$CARET = 1
+         |  }
+         |
+         |  A.oldDefName
+         |
+         |  import A.{oldDefName => aliasedDefName}
+         |
+         |  aliasedDefName
+         |}
+         |""".stripMargin,
       """
-      |object test {
-      |
-      |  object A {
-      |    def oldDefName<caret> = 1
-      |  }
-      |
-      |  A.oldDefName
-      |
-      |  import A.{oldDefName => aliasedDefName}
-      |
-      |  aliasedDefName
-      |}
-      |""".stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    val defElement = myFixture.getElementAtCaret
-    val usages = myFixture.findUsages(defElement)
-    Assert.assertEquals(3, usages.size())
-    myFixture.renameElementAtCaret("newDefName")
-
-    val resultText =
-      """
-      |object test {
-      |
-      |  object A {
-      |    def newDefName = 1
-      |  }
-      |
-      |  A.newDefName
-      |
-      |  import A.{newDefName => aliasedDefName}
-      |
-      |  aliasedDefName
-      |}""".stripMargin('|').replaceAll("\r", "").trim()
-
-    myFixture.checkResult(resultText)
+        |object test {
+        |
+        |  object A {
+        |    def newNameForDefinition = 1
+        |  }
+        |
+        |  A.newNameForDefinition
+        |
+        |  import A.{newNameForDefinition => aliasedDefName}
+        |
+        |  aliasedDefName
+        |}""".stripMargin,
+      3
+    )
   }
 
   def testRenameObjectAliased(): Unit = {
-    val fileText =
+    doRenameTestWithUsagesCheck(
+      "newNameForDefinition",
+      s"""
+         |object test {
+         |
+         |  object A {
+         |
+         |    object oldObjectName$CARET
+         |
+         |  }
+         |
+         |  A.oldObjectName
+         |
+         |  import A.{oldObjectName => aliasedObjectName}
+         |
+         |  aliasedObjectName
+         |}
+         |""".stripMargin,
       """
-      |object test {
-      |
-      |  object A {
-      |
-      |    object oldObjectName<caret>
-      |
-      |  }
-      |
-      |  A.oldObjectName
-      |
-      |  import A.{oldObjectName => aliasedObjectName}
-      |
-      |  aliasedObjectName
-      |}
-      |""".stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    val objectElement = myFixture.getElementAtCaret
-    val usages = myFixture.findUsages(objectElement).toArray.distinct
-    Assert.assertEquals(3, usages.length)
-    myFixture.renameElementAtCaret("newObjectName")
-
-    val resultText =
-      """
-      |object test {
-      |
-      |  object A {
-      |
-      |    object newObjectName
-      |
-      |  }
-      |
-      |  A.newObjectName
-      |
-      |  import A.{newObjectName => aliasedObjectName}
-      |
-      |  aliasedObjectName
-      |}""".stripMargin('|').replaceAll("\r", "").trim()
-
-    myFixture.checkResult(resultText)
+        |object test {
+        |
+        |  object A {
+        |
+        |    object newNameForDefinition
+        |
+        |  }
+        |
+        |  A.newNameForDefinition
+        |
+        |  import A.{newNameForDefinition => aliasedObjectName}
+        |
+        |  aliasedObjectName
+        |}""".stripMargin,
+      //FIXME: for some reason it shows results for same object 2 times in the "Find usages" toolwindow
+      // (this test used to test `.distinct` values before, which was 3)
+      6
+    )
   }
 
   def testRenameClassAliased(): Unit = {
-    val fileText =
+    doRenameTestWithUsagesCheck(
+      "newNameForDefinition",
+      s"""
+         |object test {
+         |
+         |  object A {
+         |
+         |    class oldClassName$CARET
+         |
+         |  }
+         |
+         |  new A.oldClassName: A.oldClassName
+         |
+         |  import A.{oldClassName => aliasedClassName}
+         |
+         |  new aliasedClassName: aliasedClassName
+         |}
+         |""".stripMargin,
       """
-      |object test {
-      |
-      |  object A {
-      |
-      |    class oldClassName<caret>
-      |
-      |  }
-      |
-      |  new A.oldClassName: A.oldClassName
-      |
-      |  import A.{oldClassName => aliasedClassName}
-      |
-      |  new aliasedClassName: aliasedClassName
-      |}
-      |""".stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    val objectElement = myFixture.getElementAtCaret
-    val usages = myFixture.findUsages(objectElement)
-    Assert.assertEquals(usages.size(), 5)
-    myFixture.renameElementAtCaret("newClassName")
-
-    val resultText =
-      """
-      |object test {
-      |
-      |  object A {
-      |
-      |    class newClassName
-      |
-      |  }
-      |
-      |  new A.newClassName: A.newClassName
-      |
-      |  import A.{newClassName => aliasedClassName}
-      |
-      |  new aliasedClassName: aliasedClassName
-      |}""".stripMargin('|').replaceAll("\r", "").trim()
-
-    myFixture.checkResult(resultText)
+        |object test {
+        |
+        |  object A {
+        |
+        |    class newNameForDefinition
+        |
+        |  }
+        |
+        |  new A.newNameForDefinition: A.newNameForDefinition
+        |
+        |  import A.{newNameForDefinition => aliasedClassName}
+        |
+        |  new aliasedClassName: aliasedClassName
+        |}""".stripMargin,
+      5
+    )
   }
 
   def testRenameAliasOfTypeAliasToClass(): Unit = {
-    val fileText =
-      """
-      |object test {
-      |
-      |  class X
-      |
-      |  object A {
-      |    type oldAliasName<caret> = X
-      |  }
-      |
-      |  new A.oldAliasName: A.oldAliasName
-      |
-      |  import A.{oldAliasName => aliasedAliasName}
-      |
-      |  new aliasedAliasName: aliasedAliasName
-      |}
-      |""".stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    val objectElement = myFixture.getElementAtCaret
-    val usages = myFixture.findUsages(objectElement)
-    Assert.assertEquals(5, usages.size())
-    myFixture.renameElementAtCaret("newAliasName")
-
-    val resultText =
+    doRenameTestWithUsagesCheck(
+      "newNameForDefinition",
+      s"""
+         |object test {
+         |
+         |  class X
+         |
+         |  object A {
+         |    type oldAliasName$CARET = X
+         |  }
+         |
+         |  new A.oldAliasName: A.oldAliasName
+         |
+         |  import A.{oldAliasName => aliasedAliasName}
+         |
+         |  new aliasedAliasName: aliasedAliasName
+         |}
+         |""".stripMargin,
       """
         |object test {
         |
         |  class X
         |
         |  object A {
-        |    type newAliasName = X
+        |    type newNameForDefinition = X
         |  }
         |
-        |  new A.newAliasName: A.newAliasName
+        |  new A.newNameForDefinition: A.newNameForDefinition
         |
-        |  import A.{newAliasName => aliasedAliasName}
+        |  import A.{newNameForDefinition => aliasedAliasName}
         |
         |  new aliasedAliasName: aliasedAliasName
-        |}""".stripMargin('|').replaceAll("\r", "").trim()
-
-    myFixture.checkResult(resultText)
+        |}""".stripMargin,
+      5
+    )
   }
 
   def testRenameTypeAliasToClass(): Unit = {
-    val fileText =
+    doRenameTestWithUsagesCheck(
+      "newNameForDefinition",
+      s"""
+         |object test {
+         |
+         |  class X
+         |
+         |  object A {
+         |    type oldAliasName$CARET = X
+         |  }
+         |
+         |  new A.oldAliasName: A.oldAliasName
+         |}
+         |""".stripMargin,
       """
-      |object test {
-      |
-      |  class X
-      |
-      |  object A {
-      |    type oldAliasName<caret> = X
-      |  }
-      |
-      |  new A.oldAliasName: A.oldAliasName
-      |}
-      |""".stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    val objectElement = myFixture.getElementAtCaret
-    val usages = myFixture.findUsages(objectElement)
-    Assert.assertEquals(2, usages.size())
-    myFixture.renameElementAtCaret("newAliasName")
-
-    val resultText =
-      """
-      |object test {
-      |
-      |  class X
-      |
-      |  object A {
-      |    type newAliasName = X
-      |  }
-      |
-      |  new A.newAliasName: A.newAliasName
-      |}""".stripMargin('|').replaceAll("\r", "").trim()
-
-    myFixture.checkResult(resultText)
+        |object test {
+        |
+        |  class X
+        |
+        |  object A {
+        |    type newNameForDefinition = X
+        |  }
+        |
+        |  new A.newNameForDefinition: A.newNameForDefinition
+        |}""".stripMargin,
+      2
+    )
   }
 
   def testRenameClassWithSameNameTypeAlias(): Unit = {
-    val fileText =
+    doRenameTestWithUsagesCheck(
+      "newNameForDefinition",
+      s"""
+         |class oldName$CARET
+         |
+         |object A {
+         |
+         |  object B {
+         |    type oldName = _root_.oldName
+         |  }
+         |
+         |  new B.oldName: B.oldName
+         |  new _root_.oldName: _root_.oldName
+         |}""".stripMargin,
       """
-        |class oldName<caret>
+        |class newNameForDefinition
         |
         |object A {
         |
         |  object B {
-        |    type oldName = _root_.oldName
+        |    type oldName = _root_.newNameForDefinition
         |  }
         |
         |  new B.oldName: B.oldName
-        |  new _root_.oldName: _root_.oldName
-        |}""".stripMargin('|').replaceAll("\r", "").trim()
-    myFixture.configureByText("dummy.scala", fileText)
-    val objectElement = myFixture.getElementAtCaret
-    val usages = myFixture.findUsages(objectElement)
-    Assert.assertEquals(5, usages.size())
-    myFixture.renameElementAtCaret("newName")
-
-    val resultText =
-      """
-        |class newName
-        |
-        |object A {
-        |
-        |  object B {
-        |    type oldName = _root_.newName
-        |  }
-        |
-        |  new B.oldName: B.oldName
-        |  new _root_.newName: _root_.newName
-        |}""".stripMargin('|').replaceAll("\r", "").trim()
-
-    myFixture.checkResult(resultText)
+        |  new _root_.newNameForDefinition: _root_.newNameForDefinition
+        |}""".stripMargin,
+      5
+    )
   }
-  // TODO packages.
 }
