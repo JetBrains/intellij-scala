@@ -10,7 +10,6 @@ import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
 import com.intellij.ui.components.JBList
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, invokeLaterInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScEnd, ScReference}
@@ -22,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScEndImpl.Target
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiMethodWrapper}
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 import scala.annotation.nowarn
 
@@ -29,7 +29,7 @@ trait ScalaInplaceRenameHandler {
 
   def isAvailable(element: PsiElement, editor: Editor, file: PsiFile): Boolean
 
-  def renameProcessor(element: PsiElement): RenamePsiElementProcessor = {
+  protected final def renameProcessor(element: PsiElement): RenamePsiElementProcessor = {
     val isScalaElement = element match {
       case null => false
       case _: PsiMethodWrapper[_] | _: PsiClassWrapper => true
@@ -39,17 +39,17 @@ trait ScalaInplaceRenameHandler {
     if (processor != RenamePsiElementProcessor.DEFAULT) processor else null
   }
 
-  def isLocal(element: PsiElement): Boolean =
+  protected final def isLocal(element: PsiElement): Boolean =
     element.asOptionOf[PsiNamedElement] match {
       case Some(inNameContext(m: ScMember)) => m.isLocal || m.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)
       case _ => false
     }
 
-  protected def doDialogRename(element: PsiElement, project: Project, nameSuggestionContext: PsiElement, editor: Editor): Unit = {
+  private def doDialogRename(element: PsiElement, project: Project, nameSuggestionContext: PsiElement, editor: Editor): Unit = {
     PsiElementRenameHandler.rename(element, project, nameSuggestionContext, editor)
   }
 
-  def afterElementSubstitution(elementToRename: PsiElement, editor: Editor)(inplaceRename: PsiElement => InplaceRefactoring): InplaceRefactoring = {
+  protected final def afterElementSubstitution(elementToRename: PsiElement, editor: Editor)(inplaceRename: PsiElement => InplaceRefactoring): InplaceRefactoring = {
     def showSubstitutePopup(@Nls title: String, positive: String, subst: => PsiNamedElement): Unit = {
       val cancel = ScalaBundle.message("rename.cancel")
       val list = new JBList[String](positive, cancel)
