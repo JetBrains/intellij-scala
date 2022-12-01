@@ -4,9 +4,8 @@ import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.Nls
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
+import org.jetbrains.jps.incremental.scala.{Client, MessageKind}
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.util.CompilationId
 
@@ -22,7 +21,7 @@ class CompilerEventReporter(project: Project,
 
   private val files = mutable.Set[File]()
 
-  private def publish(kind: Kind, @Nls text: String, position: Option[FilePosition]): Unit =
+  private def publish(kind: MessageKind, @Nls text: String, position: Option[FilePosition]): Unit =
     position.foreach { pos =>
       val from = PosInfo(
         line = Some(pos.getStartLine),
@@ -63,13 +62,13 @@ class CompilerEventReporter(project: Project,
   override def finishCanceled(): Unit = finishFiles()
 
   override def warning(@Nls message: String, position: Option[FilePosition]): Unit =
-    publish(Kind.WARNING, message, position)
+    publish(MessageKind.Warning, message, position)
 
   override def error(@Nls message: String, position: Option[FilePosition]): Unit =
-    publish(Kind.ERROR, message, position)
+    publish(MessageKind.Error, message, position)
 
   override def info(@Nls message: String, position: Option[FilePosition]): Unit =
-    publish(Kind.INFO, message, position)
+    publish(MessageKind.Info, message, position)
 
   override def log(message: String): Unit = ()
   override def startTask(eventId: BuildMessages.EventId, parent: Option[BuildMessages.EventId], message: String, time: Long): Unit = ()

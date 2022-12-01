@@ -6,7 +6,7 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.MessageKind
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.{Pos, PosRange}
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.editor.DocumentExt
@@ -85,14 +85,14 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     }
   }
 
-  private def kindToHighlightInfoType(kind: Kind, text: String): HighlightInfoType = kind match {
-    case Kind.ERROR if isErrorMessageAboutWrongRef(text) =>
+  private def kindToHighlightInfoType(kind: MessageKind, text: String): HighlightInfoType = kind match {
+    case MessageKind.Error if isErrorMessageAboutWrongRef(text) =>
       HighlightInfoType.WRONG_REF
-    case Kind.ERROR =>
+    case MessageKind.Error =>
       HighlightInfoType.ERROR
-    case Kind.WARNING =>
+    case MessageKind.Warning =>
       HighlightInfoType.WARNING
-    case Kind.INFO =>
+    case MessageKind.Info =>
       HighlightInfoType.WEAK_WARNING
     case _ =>
       HighlightInfoType.INFORMATION

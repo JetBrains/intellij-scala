@@ -1,19 +1,17 @@
 package org.jetbrains.jps.incremental.scala.local
 
-import java.io.File
-import java.nio.file.Path
-import java.util
-import java.util.Optional
-
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
+import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.local.zinc.Utils
-import org.jetbrains.jps.incremental.scala.{Client, ZincLogFilter}
 import org.jetbrains.plugins.scala.compiler.data.CompilationData
-import sbt.internal.inc.{AnalyzingCompiler, CompileOutput, CompilerArguments}
+import sbt.internal.inc.{AnalyzingCompiler, CompileOutput}
 import xsbti._
 import xsbti.api.{ClassLike, DependencyContext}
 import xsbti.compile.DependencyChanges
 
+import java.io.File
+import java.nio.file.Path
+import java.util
+import java.util.Optional
 import scala.jdk.CollectionConverters._
 
 class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
@@ -22,10 +20,7 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
   override def compile(compilationData: CompilationData, client: Client): Unit = {
     val progress = getProgress(client, compilationData.sources.size)
     val reporter = getReporter(client)
-    val logFilter = new ZincLogFilter {
-      override def shouldLog(serverity: Kind, msg: String): Boolean = true
-    }
-    val logger = getLogger(client, logFilter)
+    val logger = getLogger(client, (_, _) => true)
     val clientCallback = new ClientCallback(client, compilationData.output.toPath)
 
     val outputDirsCount = compilationData.outputGroups.map(_._2).distinct.size

@@ -3,7 +3,6 @@ package org.jetbrains.jps.incremental.scala
 import java.io.File
 
 import org.jetbrains.annotations.Nls
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.plugins.scala.compiler.data.CompilationData
 
 import scala.util.Try
@@ -28,7 +27,7 @@ object CachedCompilationService {
 case class CacheResult(@Nls description: String, content: Option[CachedCompilationService.AnalysisContent])
 
 trait ZincLogFilter {
-  def shouldLog(serverity: Kind, msg: String): Boolean
+  def shouldLog(serverity: MessageKind, msg: String): Boolean
 }
 
 abstract class CachedCompilationService {

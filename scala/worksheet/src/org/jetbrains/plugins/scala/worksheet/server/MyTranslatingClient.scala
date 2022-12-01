@@ -6,17 +6,13 @@ import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.jps.incremental.messages.BuildMessage
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
-import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
+import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
 import org.jetbrains.plugins.scala.worksheet.server.MyTranslatingClient.Log
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.WorksheetEvaluation
-
-import scala.collection.mutable
 
 import scala.collection.mutable
 
@@ -86,13 +82,13 @@ private class MyTranslatingClient(
     worksheetEvaluation.message(message)
   }
 
-  private def toCompilerMessageCategory(kind: Kind): CompilerMessageCategory = {
-    import BuildMessage.Kind._
+  private def toCompilerMessageCategory(kind: MessageKind): CompilerMessageCategory = {
+    import MessageKind._
     kind match {
-      case INFO | JPS_INFO | OTHER        => CompilerMessageCategory.INFORMATION
-      case ERROR | INTERNAL_BUILDER_ERROR => CompilerMessageCategory.ERROR
-      case PROGRESS                       => CompilerMessageCategory.STATISTICS
-      case WARNING                        => CompilerMessageCategory.WARNING
+      case Info | JpsInfo | Other       => CompilerMessageCategory.INFORMATION
+      case Error | InternalBuilderError => CompilerMessageCategory.ERROR
+      case Progress                     => CompilerMessageCategory.STATISTICS
+      case Warning                      => CompilerMessageCategory.WARNING
     }
   }
 

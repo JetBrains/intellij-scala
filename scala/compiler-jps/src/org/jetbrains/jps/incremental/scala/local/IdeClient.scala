@@ -4,8 +4,7 @@ package local
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.messages.{CompilerMessage, FileDeletedEvent, ProgressMessage}
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, FileDeletedEvent, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent}
@@ -24,7 +23,7 @@ abstract class IdeClient(compilerName: String,
 
   override def message(msg: Client.ClientMsg): Unit = {
     val Client.ClientMsg(kind, text, source, PosInfo(line, column, _), _) = msg
-    if (kind == Kind.ERROR) {
+    if (kind == MessageKind.Error) {
       hasErrors = true
     }
 
@@ -33,7 +32,17 @@ abstract class IdeClient(compilerName: String,
     val sourcePath = source.map(file => file.getPath)
 
     if (LogFilter.shouldLog(kind, text, source, line, column)) {
-      context.processMessage(new CompilerMessage(name, kind, text, sourcePath.orNull,
+      val jpsKind = kind match {
+        case MessageKind.Error => BuildMessage.Kind.ERROR
+        case MessageKind.Warning => BuildMessage.Kind.WARNING
+        case MessageKind.Info => BuildMessage.Kind.INFO
+        case MessageKind.Progress => BuildMessage.Kind.PROGRESS
+        case MessageKind.JpsInfo => BuildMessage.Kind.JPS_INFO
+        case MessageKind.InternalBuilderError => BuildMessage.Kind.INTERNAL_BUILDER_ERROR
+        case MessageKind.Other => BuildMessage.Kind.OTHER
+      }
+
+      context.processMessage(new CompilerMessage(name, jpsKind, text, sourcePath.orNull,
         -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
       context.processMessage(CompilerEvent.MessageEmitted(compilationId, compilationUnitId, msg).toCustomMessage)
     }

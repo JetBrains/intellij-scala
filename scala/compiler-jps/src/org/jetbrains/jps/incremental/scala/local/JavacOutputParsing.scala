@@ -3,7 +3,6 @@ package local
 
 import java.io.File
 
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.local.JavacOutputParsing._
 import xsbti.Logger
 import java.util.function.Supplier
@@ -13,7 +12,7 @@ import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import scala.util.matching.Regex
 
 trait JavacOutputParsing extends Logger {
-  private case class Header(file: File, line: Long, kind: Kind)
+  private case class Header(file: File, line: Long, kind: MessageKind)
 
   private var header: Option[Header] = None
   private var lines: Vector[String] = Vector.empty
@@ -21,18 +20,18 @@ trait JavacOutputParsing extends Logger {
   protected def client: Client
 
   abstract override def error(msg: Supplier[String]): Unit = {
-    process(msg.get(), Kind.ERROR)
+    process(msg.get(), MessageKind.Error)
   }
 
   abstract override def warn(msg: Supplier[String]): Unit = {
-    process(msg.get(), Kind.PROGRESS)
+    process(msg.get(), MessageKind.Progress)
   }
 
   // Move Javac output parsing to sbt compiler
-  private def process(line: String, kind: Kind): Unit = {
+  private def process(line: String, kind: MessageKind): Unit = {
     line match {
       case HeaderPattern(path, row, modifier, message) =>
-        header = Some(Header(new File(path), row.toLong, if (modifier == null) kind else Kind.WARNING))
+        header = Some(Header(new File(path), row.toLong, if (modifier == null) kind else MessageKind.Warning))
         lines :+= message
       case PointerPattern(prefix) if header.isDefined =>
         val text = (lines :+ line).mkString("\n")
@@ -45,7 +44,7 @@ trait JavacOutputParsing extends Logger {
         header = None
         lines = Vector.empty
       case NotePattern(message) =>
-        client.message(Kind.WARNING, message)
+        client.message(MessageKind.Warning, message)
       case TotalsPattern() =>
         // do nothing
       case _ =>
