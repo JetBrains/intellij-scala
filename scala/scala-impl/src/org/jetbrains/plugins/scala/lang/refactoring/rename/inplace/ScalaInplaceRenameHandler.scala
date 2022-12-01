@@ -5,7 +5,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.psi.util.PsiUtilBase.getElementAtCaret
-import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
 import com.intellij.ui.components.JBList
@@ -26,8 +26,6 @@ import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import scala.annotation.nowarn
 
 trait ScalaInplaceRenameHandler {
-
-  def isAvailable(element: PsiElement, editor: Editor, file: PsiFile): Boolean
 
   protected final def renameProcessor(element: PsiElement): RenamePsiElementProcessor = {
     val isScalaElement = element match {

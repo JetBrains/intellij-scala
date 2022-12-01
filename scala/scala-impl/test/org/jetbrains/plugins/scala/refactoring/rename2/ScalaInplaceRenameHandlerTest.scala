@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.refactoring.rename2
 
+import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.refactoring.rename.inplace.VariableInplaceRenameHandler
+import com.intellij.testFramework.MapDataContext
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.{ScalaInplaceRenameHandler, ScalaLocalInplaceRenameHandler, ScalaMemberInplaceRenameHandler}
@@ -10,15 +13,19 @@ class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
   private def memberHandler = new ScalaMemberInplaceRenameHandler
   private def localHandler = new ScalaLocalInplaceRenameHandler
 
-  private def isAvailable(handler: ScalaInplaceRenameHandler): Boolean = {
-    handler.isAvailable(myFixture.getElementAtCaret, myFixture.getEditor, myFixture.getFile)
+  private def isAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Boolean = {
+    val dataContext = new MapDataContext()
+    dataContext.put(CommonDataKeys.PSI_ELEMENT, myFixture.getElementAtCaret)
+    dataContext.put(CommonDataKeys.EDITOR, myFixture.getEditor)
+    dataContext.put(CommonDataKeys.PSI_FILE, myFixture.getFile)
+    handler.isAvailableOnDataContext(dataContext)
   }
 
-  private def checkIsAvailable(handler: ScalaInplaceRenameHandler): Unit = {
+  private def checkIsAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Unit = {
     Assert.assertTrue(s"$handler is not available", isAvailable(handler))
   }
 
-  private def checkIsNotAvailable(handler: ScalaInplaceRenameHandler): Unit = {
+  private def checkIsNotAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Unit = {
     Assert.assertTrue(s"$handler is available", !isAvailable(handler))
   }
 
