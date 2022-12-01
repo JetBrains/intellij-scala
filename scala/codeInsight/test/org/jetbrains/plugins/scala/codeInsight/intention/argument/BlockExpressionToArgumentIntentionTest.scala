@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 class BlockExpressionToArgumentIntentionTest extends ScalaIntentionTestBase {
   override def familyName: String = ScalaCodeInsightBundle.message("family.name.convert.to.argument.in.parentheses")
 
-  private val AFTER_SINGLE_EXPRESSION =
+  protected val AFTER_SINGLE_EXPRESSION =
     s"""object Test {
        |  Some(1).foreach(${CARET}one => println(one))
        |}
@@ -339,5 +339,44 @@ class BlockExpressionToArgumentIntentionTest extends ScalaIntentionTestBase {
          |}
          |""".stripMargin
     checkIntentionIsNotAvailable(before)
+  }
+}
+
+class BlockExpressionToArgumentIntentionTest_Scala3 extends BlockExpressionToArgumentIntentionTest {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
+
+  def testActionShouldBeUnavailableForFewerBracesBlocksWithMultipleExpressions(): Unit = {
+    val text =
+      s"""Some(1).foreach:$CARET
+         |  print("out of lambda")
+         |  one =>
+         |    println(one)
+         |    val two = one + 1
+         |    println(two)
+      """.stripMargin
+    checkIntentionIsNotAvailable(text)
+  }
+
+  def testFewerBracesBlockWithSingleExpression_1(): Unit = {
+    val before =
+      s"""object Test {
+         |  Some(1).foreach:$CARET
+         |    one =>
+         |      println(one)
+         |}
+       """.stripMargin
+    doTest(before, AFTER_SINGLE_EXPRESSION)
+  }
+
+  def testFewerBracesBlockWithSingleExpression_2(): Unit = {
+    val before =
+      s"""object Test {
+         |  Some(1).foreach:$CARET one =>
+         |    println(one)
+         |}
+       """.stripMargin
+    doTest(before, AFTER_SINGLE_EXPRESSION)
   }
 }

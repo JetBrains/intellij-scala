@@ -89,7 +89,7 @@ object Block {
     def apply(stopOnOutdent: Boolean, needNode: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
       val bm = builder.mark()
       val count = parseImpl(stopOnOutdent)
-      if (count > 1 || needNode) {
+      if (needNode) {
         bm.done(ScalaElementType.BLOCK)
         true
       } else {
