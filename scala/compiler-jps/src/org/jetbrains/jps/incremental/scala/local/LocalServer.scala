@@ -1,8 +1,6 @@
 package org.jetbrains.jps.incremental.scala.local
 
-import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
-import org.jetbrains.jps.incremental.scala.{Client, DelegateClient, Server}
+import org.jetbrains.jps.incremental.scala.{Client, DelegateClient, ExitCode, Server}
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, SbtData}
 import sbt.internal.inc.FileAnalysisStore
 import xsbti.compile.AnalysisStore
@@ -50,7 +48,7 @@ final class LocalServer extends Server {
       client.compilationEnd(collectingSourcesClient.sources ++ compilationData.sources)
     }
 
-    ExitCode.OK
+    ExitCode.Ok
   }
 
   // NOTE: `LocalServer` can be used both in JPS process (when can't connect to the scala compile server)

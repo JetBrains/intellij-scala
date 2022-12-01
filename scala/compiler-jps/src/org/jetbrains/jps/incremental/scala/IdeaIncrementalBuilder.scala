@@ -4,9 +4,9 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
-import org.jetbrains.jps.incremental.{java => _, scala => _, _}
 import org.jetbrains.jps.incremental.fs.CompilationRound
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
+import org.jetbrains.jps.incremental.{java => _, scala => _, _}
 import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, IncrementalityType}
 
 import java.io.File
@@ -17,17 +17,17 @@ import scala.jdk.CollectionConverters._
 
 class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuilder(category) {
 
-  import ModuleLevelBuilder._
+  import ModuleLevelBuilder.{ExitCode => JpsExitCode}
 
   override def getPresentableName: String = "Scala IDEA builder"
 
   override def build(context: CompileContext,
                      chunk: ModuleChunk,
                      dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
-                     outputConsumer: ModuleLevelBuilder.OutputConsumer): ExitCode = {
+                     outputConsumer: ModuleLevelBuilder.OutputConsumer): JpsExitCode = {
 
     if (isDisabled(context, chunk) || ChunkExclusionService.isExcluded(chunk))
-      return ExitCode.NOTHING_DONE
+      return JpsExitCode.NOTHING_DONE
 
     context.processMessage(new ProgressMessage(JpsBundle.message("searching.for.compilable.files.0", chunk.getPresentableShortName)))
 
@@ -37,18 +37,18 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
         sourceDependencies.map(_.getName).mkString(", ") +
         ".\nPlease enable sbt incremental compiler for the project."
       context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.ERROR, message))
-      return ExitCode.ABORT
+      return JpsExitCode.ABORT
     }
 
     val sources = collectSources(context, chunk, dirtyFilesHolder)
-    if (sources.isEmpty) return ExitCode.NOTHING_DONE
+    if (sources.isEmpty) return JpsExitCode.NOTHING_DONE
 
-    if (ScalaBuilder.hasBuildModules(chunk)) return ExitCode.NOTHING_DONE // *.scala files in sbt "build" modules are rightly excluded from compilation
+    if (ScalaBuilder.hasBuildModules(chunk)) return JpsExitCode.NOTHING_DONE // *.scala files in sbt "build" modules are rightly excluded from compilation
 
     if (!InitialScalaBuilder.hasScalaModules(context, chunk)) {
       val message = "skipping Scala files without a Scala SDK in module(s) " + chunk.getPresentableShortName
       context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
-      return ExitCode.NOTHING_DONE
+      return JpsExitCode.NOTHING_DONE
     }
 
     val packageObjectsData = local.PackageObjectsData.getFor(context)
@@ -59,7 +59,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
       val additionalFiles = packageObjectsData.invalidatedPackageObjects(sources).filter(_.exists)
       if (additionalFiles.nonEmpty) {
         (sources ++ additionalFiles).foreach(f => FSOperations.markDirty(context, CompilationRound.NEXT, f))
-        return ExitCode.ADDITIONAL_PASS_REQUIRED
+        return JpsExitCode.ADDITIONAL_PASS_REQUIRED
       }
     }
 
@@ -80,14 +80,20 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     ScalaBuilder.compile(context, chunk, sources, Seq.empty, modules, client) match {
       case Left(error) =>
         client.error(error)
-        ExitCode.ABORT
-      case _ if client.hasReportedErrors || client.isCanceled => ExitCode.ABORT
+        JpsExitCode.ABORT
+      case _ if client.hasReportedErrors || client.isCanceled => JpsExitCode.ABORT
       case Right(code) =>
         if (delta != null && JavaBuilderUtil.updateMappings(context, delta, dirtyFilesHolder, chunk, scalaSources, successfullyCompiled.asJava): @nowarn("cat=deprecation"))
-          ExitCode.ADDITIONAL_PASS_REQUIRED
+          JpsExitCode.ADDITIONAL_PASS_REQUIRED
         else {
           client.progress("Compilation completed", Some(1.0F))
-          code
+          code match {
+            case ExitCode.NothingDone => JpsExitCode.NOTHING_DONE
+            case ExitCode.Ok => JpsExitCode.OK
+            case ExitCode.Abort => JpsExitCode.ABORT
+            case ExitCode.AdditionalPassRequired => JpsExitCode.ADDITIONAL_PASS_REQUIRED
+            case ExitCode.ChunkRebuildRequired => JpsExitCode.CHUNK_REBUILD_REQUIRED
+          }
         }
     }
   }

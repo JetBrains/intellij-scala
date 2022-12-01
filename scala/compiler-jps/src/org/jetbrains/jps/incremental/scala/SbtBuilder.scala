@@ -4,7 +4,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java._
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget}
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.{ExitCode => JpsExitCode}
 
 import java.io.File
 import org.jetbrains.jps.incremental._
@@ -33,12 +33,12 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   override def build(context: CompileContext,
                      chunk: ModuleChunk,
                      dirtyFilesHolder: DirtyFilesHolder,
-                     outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
+                     outputConsumer: ModuleLevelBuilder.OutputConsumer): JpsExitCode = {
 
     val modules = chunk.getModules.asScala.toSet
 
     if (isDisabled(context) || ChunkExclusionService.isExcluded(chunk))
-      return ExitCode.NOTHING_DONE
+      return JpsExitCode.NOTHING_DONE
 
     updateSharedResources(context, chunk)
 
@@ -54,13 +54,13 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
       !ModulesFedToZincStore.checkIfAnyModuleDependencyWasFedToZinc(context, chunk) &&
       !compilerOptionsChanged
     ) {
-      return ExitCode.NOTHING_DONE
+      return JpsExitCode.NOTHING_DONE
     }
 
 
     val sourceToBuildTarget = collectCompilableFiles(context, chunk)
     if (sourceToBuildTarget.isEmpty)
-      return ExitCode.NOTHING_DONE
+      return JpsExitCode.NOTHING_DONE
 
     val allSources = sourceToBuildTarget.keySet.toSeq
 
@@ -74,13 +74,19 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     compile(context, chunk, dirtyFilesFromIntellij, allSources, modules, client) match {
       case Left(error) =>
         client.error(error)
-        ExitCode.ABORT
+        JpsExitCode.ABORT
       case Right(code) =>
         if (client.hasReportedErrors || client.isCanceled) {
-          ExitCode.ABORT
+          JpsExitCode.ABORT
         } else {
           client.progress("Compilation completed", Some(1.0F))
-          code
+          code match {
+            case ExitCode.NothingDone => JpsExitCode.NOTHING_DONE
+            case ExitCode.Ok => JpsExitCode.OK
+            case ExitCode.Abort => JpsExitCode.ABORT
+            case ExitCode.AdditionalPassRequired => JpsExitCode.ADDITIONAL_PASS_REQUIRED
+            case ExitCode.ChunkRebuildRequired => JpsExitCode.CHUNK_REBUILD_REQUIRED
+          }
         }
     }
   }
