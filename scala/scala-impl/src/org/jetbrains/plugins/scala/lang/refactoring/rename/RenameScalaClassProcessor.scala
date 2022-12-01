@@ -58,19 +58,6 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
         if (file != null && isTop(element.getContext) && file.name == td.name + ".scala") {
           allRenames.put(file, newName + ".scala")
         }
-      case docTagParam: ScTypeParam =>
-        docTagParam.owner match {
-          case commentOwner: ScDocCommentOwner =>
-            commentOwner.getDocComment match {
-              case comment: ScDocComment =>
-                comment.findTagsByName(MyScaladocParsing.TYPE_PARAM_TAG).foreach {
-                  b => if (b.getValueElement != null && b.getValueElement.textMatches(docTagParam.name))
-                    allRenames.put(b.getValueElement, newName)
-                }
-              case _ =>
-            }
-          case _ =>
-        }
       case _ =>
     }
 

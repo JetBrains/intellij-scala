@@ -391,4 +391,88 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |""".stripMargin
   )
 
+  def testRenameClassTypeParameter_WithReferenceInScalaDoc(): Unit = doRenameTest(
+    "BBB",
+    s"""/**
+       | * @tparam AAA description 1
+       | */
+       |class A[${CARET}AAA](param1: String) extends MyTrait[AAA] {
+       |
+       |  def foo(param2: String): AAA = {
+       |    val x: AAA = ???
+       |    ???
+       |  }
+       |
+       |  /**
+       |   * @tparam AAA description 2
+       |   */
+       |  def bar[AAA](param2: String): AAA = {
+       |    val x: AAA = ???
+       |    ???
+       |  }
+       |}
+       |""".stripMargin,
+    """/**
+      | * @tparam BBB description 1
+      | */
+      |class A[BBB](param1: String) extends MyTrait[BBB] {
+      |
+      |  def foo(param2: String): BBB = {
+      |    val x: BBB = ???
+      |    ???
+      |  }
+      |
+      |  /**
+      |   * @tparam AAA description 2
+      |   */
+      |  def bar[AAA](param2: String): AAA = {
+      |    val x: AAA = ???
+      |    ???
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testRenameFunctionTypeParameter_WithReferenceInScalaDoc(): Unit = doRenameTest(
+    "BBB",
+    s"""/**
+       | * @tparam AAA description 1
+       | */
+       |class A[AAA](param1: String) extends MyTrait[AAA] {
+       |
+       |  def foo(param2: String): AAA = {
+       |    val x: AAA = ???
+       |    ???
+       |  }
+       |
+       |  /**
+       |   * @tparam AAA description 2
+       |   */
+       |  def bar[${CARET}AAA](param2: String): AAA = {
+       |    val x: AAA = ???
+       |    ???
+       |  }
+       |}
+       |""".stripMargin,
+    """/**
+      | * @tparam AAA description 1
+      | */
+      |class A[AAA](param1: String) extends MyTrait[AAA] {
+      |
+      |  def foo(param2: String): AAA = {
+      |    val x: AAA = ???
+      |    ???
+      |  }
+      |
+      |  /**
+      |   * @tparam BBB description 2
+      |   */
+      |  def bar[BBB](param2: String): BBB = {
+      |    val x: BBB = ???
+      |    ???
+      |  }
+      |}
+      |""".stripMargin
+  )
+
 }
