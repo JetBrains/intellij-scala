@@ -2,7 +2,6 @@ package org.jetbrains.jps.incremental.scala.remote
 
 import com.facebook.nailgun.NGConstants
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala._
 
 import java.io._
@@ -67,7 +66,7 @@ trait RemoteResourceOwner {
                 val s = new String(data)
                 if (s.length > 50) s.substring(0, 50) + "..." else s
               }
-              client.message(Kind.ERROR, "Unable to read an event from: " + chars)
+              client.error("Unable to read an event from: " + chars)
               client.trace(e)
           }
         // Main server class redirects all (unexpected) stdout data to stderr.
@@ -82,10 +81,10 @@ trait RemoteResourceOwner {
           val message = fromBytes(data)
           if (StringUtils.isNotBlank(message)) {
             val messageClean = RemoteResourceOwner.ansiColorCodePattern.replaceAllIn(message, "")
-            client.message(Kind.WARNING, messageClean)
+            client.warning(messageClean)
           }
         case Chunk(kind, data) =>
-          client.message(Kind.ERROR, s"Unexpected server output of kind $kind: ${new String(data, StandardCharsets.UTF_8)}")
+          client.error(s"Unexpected server output of kind $kind: ${new String(data, StandardCharsets.UTF_8)}")
       }
     }
   }

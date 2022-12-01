@@ -1,12 +1,11 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import java.io.{File, PrintStream}
-import java.util.Base64
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.EncodingEventGeneratingClient._
+import org.jetbrains.jps.incremental.scala.{Client, MessageKind}
 
+import java.io.PrintStream
 import java.nio.charset.StandardCharsets
+import java.util.Base64
 
 final class EncodingEventGeneratingClient(out: PrintStream, standalone: Boolean)
   extends EventGeneratingClient(eventHandler(out, standalone), out.checkError) {
@@ -16,7 +15,7 @@ final class EncodingEventGeneratingClient(out: PrintStream, standalone: Boolean)
   def hasErrors: Boolean = _hasErrors
 
   override def message(msg: Client.ClientMsg): Unit = {
-    if (msg.kind == Kind.ERROR)
+    if (msg.kind == MessageKind.Error)
       _hasErrors = true
     super.message(msg)
   }

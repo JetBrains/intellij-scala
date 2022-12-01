@@ -12,14 +12,12 @@ import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.annotations.Nls
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
+import org.jetbrains.jps.incremental.scala.{Client, DelegateClient, MessageKind}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, JDK}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaSdkNotConfiguredException}
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaProjectSettings}
-import org.jetbrains.plugins.scala.worksheet.{WorksheetBundle, WorksheetUtils}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{CompileServerIsNotRunningError, Precondition, PreconditionError}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest._
@@ -30,6 +28,7 @@ import org.jetbrains.plugins.scala.worksheet.server._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.WorksheetPreprocessError
 import org.jetbrains.plugins.scala.worksheet.settings._
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterFactory, WorksheetEditorPrinterRepl}
+import org.jetbrains.plugins.scala.worksheet.{WorksheetBundle, WorksheetUtils}
 
 import java.io.{File, FileWriter}
 import scala.collection.mutable
@@ -466,7 +465,7 @@ object WorksheetCompiler {
     // you will get:
     // "Double definition: val x: Int in class WorksheetWrapper at line 7 and val x: Int in class WorksheetWrapper at line 8"
     private def needToHandleMessage(msg: Client.ClientMsg): Boolean =
-      msg.kind == Kind.ERROR
+      msg.kind == MessageKind.Error
 
     // note that messages text will contain positions from the wrapped code
     private def fixMessage(msg: Client.ClientMsg): Client.ClientMsg = {

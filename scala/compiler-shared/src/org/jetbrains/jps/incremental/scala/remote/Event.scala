@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.util.ObjectSerialization
 
@@ -17,8 +16,8 @@ object Event {
     ObjectSerialization.fromBytes(bytes)
 }
 
-@SerialVersionUID(-284506638701953916L)
-case class MessageEvent(kind: Kind,
+@SerialVersionUID(1L)
+case class MessageEvent(kind: MessageKind,
                         text: String,
                         source: Option[File],
                         from: PosInfo,

@@ -6,9 +6,8 @@ import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
-import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
+import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
@@ -94,7 +93,7 @@ private class ServerConnector(module: Module, filesToCompile: Seq[File], outputD
 
   private val client: Client = new DummyClient {
     override def message(msg: Client.ClientMsg): Unit =
-      if (msg.kind == Kind.ERROR) errors += NlsString(msg.text)
+      if (msg.kind == MessageKind.Error) errors += NlsString(msg.text)
   }
 
   @tailrec
