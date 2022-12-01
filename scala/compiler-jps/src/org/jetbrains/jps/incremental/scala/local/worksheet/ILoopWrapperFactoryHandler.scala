@@ -1,10 +1,9 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
 import org.jetbrains.jps.incremental.scala.local.worksheet.util.IOUtils
 import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
-import org.jetbrains.jps.incremental.scala.{Client, compilerVersion}
+import org.jetbrains.jps.incremental.scala.{Client, MessageKind, compilerVersion}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.compiler.data.{CompilerJars, SbtData}
 import org.jetbrains.plugins.scala.project.Version
@@ -213,11 +212,11 @@ object ILoopWrapperFactoryHandler {
     override def success(message: => String): Unit = client.info(s"success: $message")
     override def log(level: Level.Value, message: => String): Unit = client.message(toMessageKind(level), message)
 
-    private def toMessageKind(level: Level.Value): Kind = level match {
-      case sbt.util.Level.Debug => Kind.INFO
-      case sbt.util.Level.Info  => Kind.INFO
-      case sbt.util.Level.Warn  => Kind.WARNING
-      case Level.Error          => Kind.ERROR
+    private def toMessageKind(level: Level.Value): MessageKind = level match {
+      case sbt.util.Level.Debug => MessageKind.Info
+      case sbt.util.Level.Info  => MessageKind.Info
+      case sbt.util.Level.Warn  => MessageKind.Warning
+      case Level.Error          => MessageKind.Error
     }
   }
 

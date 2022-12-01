@@ -2,13 +2,12 @@ package org.jetbrains.jps.incremental.scala
 
 import java.io.File
 
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.service.JpsServiceManager
 
 import scala.jdk.CollectionConverters._
 
 abstract class LogFilterService {
-  def shouldLog(kind: Kind,
+  def shouldLog(kind: MessageKind,
                 text: String,
                 source: Option[File],
                 line: Option[Long],
@@ -20,7 +19,7 @@ object LogFilter extends LogFilterService {
           .getExtensions(classOf[LogFilterService]).asScala
 
 
-  override def shouldLog(kind: Kind,
+  override def shouldLog(kind: MessageKind,
                          text: String,
                          source: Option[File],
                          line: Option[Long],
