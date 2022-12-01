@@ -41,15 +41,16 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |            PsiWhiteSpace(' ')
       |            PsiElement(=>)('=>')
       |            PsiWhiteSpace('\n  ')
-      |            InfixExpression
-      |              ReferenceExpression: x
-      |                PsiElement(identifier)('x')
-      |              PsiWhiteSpace(' ')
-      |              ReferenceExpression: +
-      |                PsiElement(identifier)('+')
-      |              PsiWhiteSpace(' ')
-      |              IntegerLiteral
-      |                PsiElement(integer)('1')
+      |            BlockOfExpressions
+      |              InfixExpression
+      |                ReferenceExpression: x
+      |                  PsiElement(identifier)('x')
+      |                PsiWhiteSpace(' ')
+      |                ReferenceExpression: +
+      |                  PsiElement(identifier)('+')
+      |                PsiWhiteSpace(' ')
+      |                IntegerLiteral
+      |                  PsiElement(integer)('1')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -94,15 +95,16 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |            PsiWhiteSpace(' ')
       |            PsiElement(=>)('=>')
       |            PsiWhiteSpace('\n    ')
-      |            InfixExpression
-      |              ReferenceExpression: x
-      |                PsiElement(identifier)('x')
-      |              PsiWhiteSpace(' ')
-      |              ReferenceExpression: >
-      |                PsiElement(identifier)('>')
-      |              PsiWhiteSpace(' ')
-      |              IntegerLiteral
-      |                PsiElement(integer)('0')
+      |            BlockOfExpressions
+      |              InfixExpression
+      |                ReferenceExpression: x
+      |                  PsiElement(identifier)('x')
+      |                PsiWhiteSpace(' ')
+      |                ReferenceExpression: >
+      |                  PsiElement(identifier)('>')
+      |                PsiWhiteSpace(' ')
+      |                IntegerLiteral
+      |                  PsiElement(integer)('0')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -230,15 +232,16 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |        PsiWhiteSpace(' ')
       |        PsiElement(=>)('=>')
       |        PsiWhiteSpace('\n    ')
-      |        InfixExpression
-      |          ReferenceExpression: x
-      |            PsiElement(identifier)('x')
-      |          PsiWhiteSpace(' ')
-      |          ReferenceExpression: +
-      |            PsiElement(identifier)('+')
-      |          PsiWhiteSpace(' ')
-      |          IntegerLiteral
-      |            PsiElement(integer)('1')
+      |        BlockOfExpressions
+      |          InfixExpression
+      |            ReferenceExpression: x
+      |              PsiElement(identifier)('x')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: +
+      |              PsiElement(identifier)('+')
+      |            PsiWhiteSpace(' ')
+      |            IntegerLiteral
+      |              PsiElement(integer)('1')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -296,15 +299,16 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |            PsiWhiteSpace(' ')
       |            PsiElement(=>)('=>')
       |            PsiWhiteSpace('\n  ')
-      |            InfixExpression
-      |              ReferenceExpression: x
-      |                PsiElement(identifier)('x')
-      |              PsiWhiteSpace(' ')
-      |              ReferenceExpression: +
-      |                PsiElement(identifier)('+')
-      |              PsiWhiteSpace(' ')
-      |              ReferenceExpression: y
-      |                PsiElement(identifier)('y')
+      |            BlockOfExpressions
+      |              InfixExpression
+      |                ReferenceExpression: x
+      |                  PsiElement(identifier)('x')
+      |                PsiWhiteSpace(' ')
+      |                ReferenceExpression: +
+      |                  PsiElement(identifier)('+')
+      |                PsiWhiteSpace(' ')
+      |                ReferenceExpression: y
+      |                  PsiElement(identifier)('y')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -531,15 +535,16 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |                  PsiWhiteSpace(' ')
       |                  PsiElement(=>)('=>')
       |                  PsiWhiteSpace('\n    ')
-      |                  InfixExpression
-      |                    ReferenceExpression: x
-      |                      PsiElement(identifier)('x')
-      |                    PsiWhiteSpace(' ')
-      |                    ReferenceExpression: *
-      |                      PsiElement(identifier)('*')
-      |                    PsiWhiteSpace(' ')
-      |                    ReferenceExpression: x
-      |                      PsiElement(identifier)('x')
+      |                  BlockOfExpressions
+      |                    InfixExpression
+      |                      ReferenceExpression: x
+      |                        PsiElement(identifier)('x')
+      |                      PsiWhiteSpace(' ')
+      |                      ReferenceExpression: *
+      |                        PsiElement(identifier)('*')
+      |                      PsiWhiteSpace(' ')
+      |                      ReferenceExpression: x
+      |                        PsiElement(identifier)('x')
       |          PsiWhiteSpace('\n  ')
       |          PsiElement(.)('.')
       |          PsiElement(identifier)('filter')
@@ -565,15 +570,16 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |              PsiWhiteSpace(' ')
       |              PsiElement(=>)('=>')
       |              PsiWhiteSpace('\n    ')
-      |              InfixExpression
-      |                ReferenceExpression: y
-      |                  PsiElement(identifier)('y')
-      |                PsiWhiteSpace(' ')
-      |                ReferenceExpression: >
-      |                  PsiElement(identifier)('>')
-      |                PsiWhiteSpace(' ')
-      |                IntegerLiteral
-      |                  PsiElement(integer)('0')
+      |              BlockOfExpressions
+      |                InfixExpression
+      |                  ReferenceExpression: y
+      |                    PsiElement(identifier)('y')
+      |                  PsiWhiteSpace(' ')
+      |                  ReferenceExpression: >
+      |                    PsiElement(identifier)('>')
+      |                  PsiWhiteSpace(' ')
+      |                  IntegerLiteral
+      |                    PsiElement(integer)('0')
       |      PsiWhiteSpace('\n  ')
       |      ArgumentList
       |        PsiElement(()('(')
@@ -661,15 +667,16 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |            PsiWhiteSpace(' ')
       |            PsiElement(=>)('=>')
       |            PsiWhiteSpace('\n    ')
-      |            InfixExpression
-      |              ReferenceExpression: x
-      |                PsiElement(identifier)('x')
-      |              PsiWhiteSpace(' ')
-      |              ReferenceExpression: >
-      |                PsiElement(identifier)('>')
-      |              PsiWhiteSpace(' ')
-      |              IntegerLiteral
-      |                PsiElement(integer)('0')
+      |            BlockOfExpressions
+      |              InfixExpression
+      |                ReferenceExpression: x
+      |                  PsiElement(identifier)('x')
+      |                PsiWhiteSpace(' ')
+      |                ReferenceExpression: >
+      |                  PsiElement(identifier)('>')
+      |                PsiWhiteSpace(' ')
+      |                IntegerLiteral
+      |                  PsiElement(integer)('0')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -934,15 +941,16 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |                PsiWhiteSpace(' ')
       |                PsiElement(=>)('=>')
       |                PsiWhiteSpace('\n    ')
-      |                InfixExpression
-      |                  ReferenceExpression: x
-      |                    PsiElement(identifier)('x')
-      |                  PsiWhiteSpace(' ')
-      |                  ReferenceExpression: +
-      |                    PsiElement(identifier)('+')
-      |                  PsiWhiteSpace(' ')
-      |                  IntegerLiteral
-      |                    PsiElement(integer)('2')
+      |                BlockOfExpressions
+      |                  InfixExpression
+      |                    ReferenceExpression: x
+      |                      PsiElement(identifier)('x')
+      |                    PsiWhiteSpace(' ')
+      |                    ReferenceExpression: +
+      |                      PsiElement(identifier)('+')
+      |                    PsiWhiteSpace(' ')
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('2')
       |        PsiWhiteSpace('\n\n  ')
       |        MethodCall
       |          ReferenceExpression: xo.map
@@ -962,15 +970,16 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |                PsiWhiteSpace(' ')
       |                PsiElement(=>)('=>')
       |                PsiWhiteSpace('\n    ')
-      |                InfixExpression
-      |                  ReferenceExpression: x
-      |                    PsiElement(identifier)('x')
-      |                  PsiWhiteSpace(' ')
-      |                  ReferenceExpression: -
-      |                    PsiElement(identifier)('-')
-      |                  PsiWhiteSpace(' ')
-      |                  IntegerLiteral
-      |                    PsiElement(integer)('2')
+      |                BlockOfExpressions
+      |                  InfixExpression
+      |                    ReferenceExpression: x
+      |                      PsiElement(identifier)('x')
+      |                    PsiWhiteSpace(' ')
+      |                    ReferenceExpression: -
+      |                      PsiElement(identifier)('-')
+      |                    PsiWhiteSpace(' ')
+      |                    IntegerLiteral
+      |                      PsiElement(integer)('2')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )

@@ -43,7 +43,7 @@ object ColonArgument {
 
           // if there is no lambda after ':' then there must be a newline
           builder.findPreviousNewLine.isDefined &&
-            parseCaseClausesOrBlock(builder.findPreviousIndent)
+            parseCaseClausesOrBlock(builder.findPreviousIndent, needBlockNode = false)
         }
 
         if (parsed) {
@@ -65,7 +65,7 @@ object ColonArgument {
   /**
    * {{{ CaseClauses | Block }}}
    */
-  private def parseCaseClausesOrBlock(indentation: Option[IndentationWidth])
+  private def parseCaseClausesOrBlock(indentation: Option[IndentationWidth], needBlockNode: Boolean)
                                      (implicit builder: ScalaPsiBuilder): Boolean =
     builder.withEnabledNewlines {
       builder.maybeWithIndentationWidth(indentation) {
@@ -76,13 +76,13 @@ object ColonArgument {
             builder.getTokenType match {
               case ScalaTokenType.ClassKeyword | ScalaTokenType.ObjectKeyword =>
                 backMarker.rollbackTo()
-                Block.Braceless(stopOnOutdent = true)
+                Block.Braceless(stopOnOutdent = true, needNode = needBlockNode)
               case _ =>
                 backMarker.rollbackTo()
                 CaseClausesWithoutBraces()
             }
           case _ =>
-            Block.Braceless(stopOnOutdent = true)
+            Block.Braceless(stopOnOutdent = true, needNode = needBlockNode)
         }
       }
     }
@@ -110,7 +110,7 @@ object ColonArgument {
 
         // TODO: if not isOk add "newline expected" error and parse block
         if (isOk) {
-          parseCaseClausesOrBlock(indentAfterArrow).tap { parsedBlock =>
+          parseCaseClausesOrBlock(indentAfterArrow, needBlockNode = nodeType != POLY_FUNCTION_EXPR).tap { parsedBlock =>
             if (parsedBlock) funExprMarker.done(nodeType)
             else rollback()
           }
