@@ -101,4 +101,12 @@ final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestB
 
   def test_member_of_a_surprisingly_nested_local_class(): Unit =
     checkTextHasNoErrors("class A { def foo = { class B { class C { class D { def bar = {}; bar } } } } }")
+
+  def test_package_object(): Unit = {
+    myFixture.addFileToProject("zzz.scala", "import foo._")
+    checkTextHasNoErrors("package object foo")
+  }
+
+  def test_inner_type_definition(): Unit =
+    checkTextHasNoErrors("private object A { object B }; object C { println(A.B) }")
 }
