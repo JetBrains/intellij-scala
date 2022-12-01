@@ -4,11 +4,10 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import com.intellij.openapi.util.Key
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.Server.ServerError
 import org.jetbrains.jps.incremental.scala.local.LocalServer
-import org.jetbrains.jps.incremental.{CompileContext, ModuleLevelBuilder}
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerProperties
@@ -16,8 +15,8 @@ import org.jetbrains.plugins.scala.server.CompileServerProperties
 import java.io._
 import java.net.InetAddress
 import java.util.ServiceLoader
-import scala.jdk.CollectionConverters._
 import scala.concurrent.duration.DurationInt
+import scala.jdk.CollectionConverters._
 
 // TODO: use a proper naming. Scala builder of what? Strings? Code? Psi trees?
 object ScalaBuilder {
@@ -37,7 +36,7 @@ object ScalaBuilder {
     allSources: Seq[File],
     modules: Set[JpsModule],
     client: Client
-  ): Either[String, ModuleLevelBuilder.ExitCode] = {
+  ): Either[String, ExitCode] = {
     context.processMessage(new ProgressMessage(JpsBundle.message("reading.compilation.settings.0", chunk.getPresentableShortName)))
 
     for {
@@ -75,7 +74,7 @@ object ScalaBuilder {
               val message = unknownHostErrorMessage(address)
               client.error(message)
               Log.error(message, cause)
-              ExitCode.ABORT
+              ExitCode.Abort
             case MissingScalaCompileServerSystemDirectory(cause) =>
               fallbackToLocalServer(missingScalaCompileServerSystemDir(), cause)
           }
