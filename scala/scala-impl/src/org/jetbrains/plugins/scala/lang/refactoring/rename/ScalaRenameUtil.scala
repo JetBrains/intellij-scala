@@ -24,6 +24,22 @@ import java.util
 import scala.jdk.CollectionConverters._
 
 object ScalaRenameUtil {
+
+  /**
+   * Suppose we have import alias:
+   * {{{
+   *   object Wrapper {
+   *      object Context {
+   *         class MyDefinition<Caret>
+   *      }
+   *      import Context.{MyDefinition => MyDefinitionAliased}
+   *      new MyDefinitionAliased
+   *   }
+   * }}}
+   * If we rename `MyDefinition` we shouldn't rename `MyDefinitionAliased`.
+   * Without this filtering it will be renamed because currently references to import aliases are transparent:
+   * they resolve directly to the original definition name.
+   */
   def filterAliasedReferences(allReferences: util.Collection[PsiReference]): util.Collection[PsiReference] = {
     val filtered = allReferences.asScala.filterNot(isAliased)
     filtered.asJavaCollection
