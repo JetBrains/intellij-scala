@@ -102,31 +102,37 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
   }
 }
 
-class ScalaClassRenameDialog(project: Project, psiElement: PsiElement, nameSuggestionContext: PsiElement, editor: Editor)
-        extends RenameDialog(project: Project, psiElement: PsiElement, nameSuggestionContext: PsiElement, editor: Editor) {
+class ScalaClassRenameDialog(
+  project: Project,
+  psiElement: PsiElement,
+  nameSuggestionContext: PsiElement,
+  editor: Editor,
+) extends RenameDialog(
+  project,
+  psiElement,
+  nameSuggestionContext,
+  editor,
+) {
 
   // must be lazy, because it is used by super's constructor
   private lazy val chbRenameCompanion: JCheckBox = new JCheckBox("", true)
-  
-  override def createCenterPanel(): JComponent = {
-    val companion = psiElement.asOptionOf[ScTypeDefinition].flatMap(_.baseCompanion)
 
-    companion.collect {
-      case _: ScObject => "object"
-      case _: ScTrait => "trait"
-      case _: ScClass => "class"
-    }.foreach { text =>
-      chbRenameCompanion.setText(ScalaBundle.message("rename.companion.module", text))
-      chbRenameCompanion.setSelected(true)
+  override def createCenterPanel(): JComponent = {
+    val companion = psiElement.asOptionOf[ScTypeDefinition].flatMap(_.baseCompanion) match {
+      case Some(c) => c
+      case None =>
+        return null
     }
 
-    companion.map { _ =>
-      val panel = Option(super.createCenterPanel()).getOrElse {
-        new JPanel(new BorderLayout())
-      }
-      panel.add(chbRenameCompanion, BorderLayout.WEST)
-      panel
-    }.orNull
+    val panel = Option(super.createCenterPanel()).getOrElse {
+      new JPanel(new BorderLayout())
+    }
+
+    chbRenameCompanion.setText(ScalaBundle.message("rename.companion.module", companion.keywordPrefix))
+    chbRenameCompanion.setSelected(true)
+    panel.add(chbRenameCompanion, BorderLayout.WEST)
+
+    panel
   }
 
   override def performRename(newName: String): Unit = {
