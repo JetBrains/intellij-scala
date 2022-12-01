@@ -1,9 +1,8 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.scala.Server.ServerError
 import org.jetbrains.jps.incremental.scala.Server.ServerError.MissingScalaCompileServerSystemDirectoryException
-import org.jetbrains.jps.incremental.scala.{Client, Server}
+import org.jetbrains.jps.incremental.scala.{Client, ExitCode, Server}
 import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilationData, CompilerData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
@@ -37,7 +36,7 @@ final class RemoteServer(
       val token = CompileServerToken.tokenForPort(Paths.get(scalaCompileServerSystemDir), port).getOrElse("NO_TOKEN")
       send(CommandIds.Compile, token +: arguments, client)
       // client.compilationEnd() is meant to be sent by remote server
-      Right(ExitCode.OK)
+      Right(ExitCode.Ok)
     } catch {
       case e: SocketTimeoutException => Left(ServerError.SocketConnectTimeout(address, port, socketConnectTimeout, e))
       case e: SocketException => Left(ServerError.ConnectionError(address, port, e))

@@ -2,15 +2,13 @@ package org.jetbrains.jps.incremental.scala
 package local
 package zinc
 
-import java.io.{PrintWriter, StringWriter}
-import java.util.ServiceLoader
-
 import org.jetbrains.annotations.Nls
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc.Analysis
 import xsbti.compile.{AnalysisContents, AnalysisStore, CompileResult, MiniSetup}
 
+import java.io.{PrintWriter, StringWriter}
+import java.util.ServiceLoader
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 import scala.util.Try
@@ -22,7 +20,7 @@ case class CompilationMetadata(previousAnalysis: Analysis,
                               )(providers: Seq[CachedCompilationProvider]) {
   val zincLogFilter: ZincLogFilter = {
     val filters = providers.flatMap(_.zincLogFilter())
-    (severity: Kind, msg: String) => filters.forall(_.shouldLog(severity, msg))
+    (severity, msg) => filters.forall(_.shouldLog(severity, msg))
   }
 
   def compilationFinished(compilationData: CompilationData,

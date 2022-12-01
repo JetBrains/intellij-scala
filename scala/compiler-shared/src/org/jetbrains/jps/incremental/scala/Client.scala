@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
 import org.jetbrains.annotations.Nls
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, PosInfo}
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
 
@@ -14,7 +13,7 @@ trait Client {
 
   def message(msg: ClientMsg): Unit
 
-  final def message(kind: Kind,
+  final def message(kind: MessageKind,
                     @Nls text: String,
                     source: Option[File] = None,
                     from: PosInfo = PosInfo.Empty,
@@ -25,19 +24,19 @@ trait Client {
                   source: Option[File] = None,
                   from: PosInfo = PosInfo.Empty,
                   to: PosInfo = PosInfo.Empty): Unit =
-    message(Kind.ERROR, text, source, from, to)
+    message(MessageKind.Error, text, source, from, to)
 
   final def warning(@Nls text: String,
                     source: Option[File] = None,
                     from: PosInfo = PosInfo.Empty,
                     to: PosInfo = PosInfo.Empty): Unit =
-    message(Kind.WARNING, text, source, from, to)
+    message(MessageKind.Warning, text, source, from, to)
 
   final def info(@Nls text: String,
                  source: Option[File] = None,
                  from: PosInfo = PosInfo.Empty,
                  to: PosInfo = PosInfo.Empty): Unit =
-    message(Kind.INFO, text, source, from, to)
+    message(MessageKind.Info, text, source, from, to)
 
   def trace(exception: Throwable): Unit
 
@@ -82,7 +81,7 @@ trait Client {
 
 object Client {
 
-  final case class ClientMsg(kind: Kind,
+  final case class ClientMsg(kind: MessageKind,
                              @Nls text: String,
                              source: Option[File],
                              from: PosInfo,

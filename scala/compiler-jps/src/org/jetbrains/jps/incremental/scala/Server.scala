@@ -1,6 +1,5 @@
 package org.jetbrains.jps.incremental.scala
 
-import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, SbtData}
 
 import java.net.{InetAddress, SocketException, SocketTimeoutException, UnknownHostException}

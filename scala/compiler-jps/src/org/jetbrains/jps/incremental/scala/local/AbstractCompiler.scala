@@ -4,7 +4,6 @@ package local
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Supplier
 
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import xsbti._
 import xsbti.compile._
@@ -23,22 +22,22 @@ abstract class AbstractCompiler extends Compiler {
   private class ClientLogger(val client: Client, logFilter: ZincLogFilter) extends Logger {
     override def error(msg: Supplier[String]): Unit = {
       val txt = msg.get()
-      if (logFilter.shouldLog(Kind.ERROR, txt)) client.error(txt)
+      if (logFilter.shouldLog(MessageKind.Error, txt)) client.error(txt)
     }
 
     override def warn(msg: Supplier[String]): Unit = {
       val txt = msg.get()
-      if (logFilter.shouldLog(Kind.WARNING, txt)) client.warning(txt)
+      if (logFilter.shouldLog(MessageKind.Warning, txt)) client.warning(txt)
     }
 
     override def info(msg: Supplier[String]): Unit = {
       val txt = msg.get()
-      if (logFilter.shouldLog(Kind.INFO, txt)) client.info(txt)
+      if (logFilter.shouldLog(MessageKind.Info, txt)) client.info(txt)
     }
 
     override def debug(msg: Supplier[String]): Unit = {
       val txt = msg.get()
-      if (logFilter.shouldLog(Kind.PROGRESS, txt)) client.internalInfo(txt)
+      if (logFilter.shouldLog(MessageKind.Progress, txt)) client.internalInfo(txt)
     }
 
     override def trace(exception: Supplier[Throwable]): Unit = {
@@ -96,20 +95,20 @@ abstract class AbstractCompiler extends Compiler {
 
     override def problems: Array[Problem] = entries.asScala.toArray.reverse
 
-    override def comment(position: Position, msg: String): Unit = logInClient(msg, position, Kind.PROGRESS)
+    override def comment(position: Position, msg: String): Unit = logInClient(msg, position, MessageKind.Progress)
 
     override def log(problem: Problem): Unit = {
       entries.add(problem)
 
       val kind = problem.severity() match {
         case Severity.Info =>
-          Kind.INFO
+          MessageKind.Info
         case Severity.Warn =>
           warningSeen = true
-          Kind.WARNING
+          MessageKind.Warning
         case Severity.Error =>
           errorSeen = true
-          Kind.ERROR
+          MessageKind.Error
       }
 
       val pos = problem.position
@@ -118,7 +117,7 @@ abstract class AbstractCompiler extends Compiler {
       logInClient(resultMsg, pos, kind)
     }
 
-    private def logInClient(msg: String, pos: Position, kind: Kind): Unit = {
+    private def logInClient(msg: String, pos: Position, kind: MessageKind): Unit = {
       val source = pos.sourceFile.toScala
       val from = PosInfo(
         line = pos.line().toScala.map(_.toLong),
