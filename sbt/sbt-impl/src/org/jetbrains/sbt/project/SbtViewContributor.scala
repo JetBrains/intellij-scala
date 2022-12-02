@@ -63,7 +63,7 @@ private object SbtViewContributor {
   class SbtTasksGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtTasks)) {
     override def update(presentation: PresentationData): Unit = {
       super.update(presentation)
-      setNameAndTooltip(getName, SbtBundle.message("sbt.tasks.defined.in.this.project"))
+      setNameAndTooltip(presentation, getName, SbtBundle.message("sbt.tasks.defined.in.this.project"))
       // presentation.setIcon(sbtIcon) TODO
     }
 
@@ -73,7 +73,7 @@ private object SbtViewContributor {
   class SbtSettingsGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtSettings)) {
     override def update(presentation: PresentationData): Unit = {
       super.update(presentation)
-      setNameAndTooltip(getName, SbtBundle.message("sbt.settings.defined.in.this.project"))
+      setNameAndTooltip(presentation, getName, SbtBundle.message("sbt.settings.defined.in.this.project"))
       // presentation.setIcon(sbtIcon) TODO
     }
 
@@ -83,7 +83,7 @@ private object SbtViewContributor {
   class SbtCommandsGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtCommands)) {
     override def update(presentation: PresentationData): Unit = {
       super.update(presentation)
-      setNameAndTooltip(getName, SbtBundle.message("sbt.named.sbt.commands.defined.in.this.project"))
+      setNameAndTooltip(presentation, getName, SbtBundle.message("sbt.named.sbt.commands.defined.in.this.project"))
       // presentation.setIcon(sbtIcon) TODO
     }
 
@@ -96,7 +96,7 @@ private object SbtViewContributor {
     override def update(presentation: PresentationData): Unit = {
       super.update(presentation)
       // presentation.setIcon(sbtIcon) TODOsetNameAndTooltip(dataNode.getData.name, dataNode.getData.description)
-      setNameAndTooltip(dataNode.getData.name, dataNode.getData.description)
+      setNameAndTooltip(presentation, dataNode.getData.name, dataNode.getData.description)
     }
 
     override def getName: String = dataNode.getData.name
@@ -111,7 +111,7 @@ private object SbtViewContributor {
     override def update(presentation: PresentationData): Unit = {
       super.update(presentation)
       // presentation.setIcon(sbtIcon) TODO
-      setNameAndTooltip(dataNode.getData.name, dataNode.getData.description)
+      setNameAndTooltip(presentation, dataNode.getData.name, dataNode.getData.description)
     }
 
     override def getName: String = dataNode.getData.name
@@ -132,7 +132,7 @@ private object SbtViewContributor {
     override def update(presentation: PresentationData): Unit = {
       super.update(presentation)
       // presentation.setIcon(sbtIcon) TODO
-      setNameAndTooltip(getName, helpString)
+      setNameAndTooltip(presentation, getName, helpString)
     }
 
     override def getName: String = dataNode.getData.name
