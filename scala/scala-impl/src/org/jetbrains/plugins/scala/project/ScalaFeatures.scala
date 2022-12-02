@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project
 
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.util.{Key, Ref}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaVersion
@@ -215,7 +216,9 @@ object ScalaFeatures {
       //It may happen that `psi`, that is being passed as a context to some
       //ScalaPsiElementFactory method is already synthetic, in this case just use
       //ScalaFeatures stored in containing file userdata.
-      if (!file.isPhysical) getAttachedScalaFeatures(file).getOrElse(default)
+      //Preview elements are not physical but they most probably don't have attached features
+      if (!file.isPhysical && !IntentionPreviewUtils.isPreviewElement(file))
+        getAttachedScalaFeatures(file).getOrElse(default)
       else {
         val module = file.module
 
