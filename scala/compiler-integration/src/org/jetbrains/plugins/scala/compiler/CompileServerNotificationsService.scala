@@ -66,7 +66,7 @@ final class CompileServerNotificationsService(project: Project) {
       }
       invokeAndWait(ApplicationManager.getApplication.saveSettings())
       CompileServerLauncher.stop(timeoutMs = 3.seconds.toMillis)
-      CompileServerLauncher.tryToStart(project)
+      CompileServerLauncher.ensureServerRunning(project)
     }
   }
 }
