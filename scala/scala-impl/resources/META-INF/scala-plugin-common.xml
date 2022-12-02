@@ -1772,6 +1772,12 @@
                          groupPathKey="grouppath.scala.collections" groupKey="group.options"
                          shortName="IfElseToFilterdOption" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OptionToStringInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.change.tostring.on.option"
+                         groupPathKey="grouppath.scala.collections" groupKey="group.options"
+                         shortName="OptionToString" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SomeToOptionInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.some.to.option"

@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
+import org.junit.Assert.assertEquals
+
 class MakeArrayToStringInspectionTest extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
@@ -112,6 +114,110 @@ class MakeArrayToStringInspectionTest extends OperationsOnCollectionInspectionTe
       """
         |val a = Array(3)
         |"test" + a.mkString("Array(", ", ", ")")
+      """.stripMargin)
+  }
+
+  def testStringFormat(): Unit = {
+    doTest(
+      s"""
+         |String.format("formatted: %s", ${START}Array(1)$END)
+       """.stripMargin,
+      """
+        |String.format("formatted: %s", Array(1))
+      """.stripMargin,
+      """
+        |String.format("formatted: %s", Array(1).mkString("Array(", ", ", ")"))
+      """.stripMargin)
+  }
+
+  def testFormatOnString(): Unit = {
+    doTest(
+      s"""
+         |"formatted: %s".format(${START}Array(1)$END)
+       """.stripMargin,
+      """
+        |"formatted: %s".format(Array(1))
+      """.stripMargin,
+      """
+        |"formatted: %s".format(Array(1).mkString("Array(", ", ", ")"))
+      """.stripMargin)
+  }
+
+  def testFormattedOnString(): Unit = {
+    doTest(
+      s"""
+         |"formatted: %s".formatted(${START}Array(1)$END)
+       """.stripMargin,
+      """
+        |"formatted: %s".formatted(Array(1))
+      """.stripMargin,
+      """
+        |"formatted: %s".formatted(Array(1).mkString("Array(", ", ", ")"))
+      """.stripMargin)
+  }
+
+  def testFormatted(): Unit = {
+    doTest(
+      s"""
+         |${START}Array(1)$END.formatted("formatted: %s")
+       """.stripMargin,
+      """
+        |Array(1).formatted("formatted: %s")
+      """.stripMargin,
+      """
+        |"formatted: %s".format(Array(1).mkString("Array(", ", ", ")"))
+      """.stripMargin)
+  }
+
+  def testAppendNotAnyOnJavaStringBuilder(): Unit = {
+    try {
+      doTest(
+        s"""
+           |val b = new java.lang.StringBuilder
+           |b.append(${START}Array('1')$END)
+       """.stripMargin,
+        """
+          |val b = new java.lang.StringBuilder
+          |b.append(Array('1'))
+      """.stripMargin,
+        """
+          |val b = new java.lang.StringBuilder
+          |b.append(Array('1'))
+      """.stripMargin)
+    } catch {
+      case e: AssertionError => assertEquals(e.getMessage, """Highlights not found: Format with .mkString("Array(", ", ", ")")""")
+    }
+  }
+
+  def testAppendAnyOnJavaStringBuilder(): Unit = {
+    doTest(
+      s"""
+         |val b = new java.lang.StringBuilder
+         |b.append(${START}Array(1)$END)
+       """.stripMargin,
+      """
+        |val b = new java.lang.StringBuilder
+        |b.append(Array(1))
+      """.stripMargin,
+      """
+        |val b = new java.lang.StringBuilder
+        |b.append(Array(1).mkString("Array(", ", ", ")"))
+      """.stripMargin)
+  }
+
+  def testAppendOnScalaStringBuilder(): Unit = {
+    doTest(
+      s"""
+         |val b = new scala.collection.mutable.StringBuilder
+         |b.append(${START}Array(1)$END)
+       """.stripMargin,
+      """
+        |val b = new scala.collection.mutable.StringBuilder
+        |b.append(Array(1))
+      """.stripMargin,
+      """
+        |val b = new scala.collection.mutable.StringBuilder
+        |b.append(Array(1).mkString("Array(", ", ", ")"))
       """.stripMargin)
   }
 }

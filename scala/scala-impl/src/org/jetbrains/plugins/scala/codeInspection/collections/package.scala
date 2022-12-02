@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScVariable}
@@ -511,6 +511,68 @@ package object collections {
   implicit class PsiElementRange(private val elem: PsiElement) extends AnyVal {
     def start: Int = elem.getTextRange.getStartOffset
     def end: Int = elem.getTextRange.getEndOffset
+  }
+
+  private val `print` = unqualifed(Set("print", "println")).from(ArraySeq("scala.Predef", "java.io.PrintStream"))
+  private val `.print` = invocation(Set("print", "println")).from(ArraySeq("scala.Predef", "java.io.PrintStream"))
+  private val `.formatted` = invocation("formatted").from(ArraySeq("scala.Predef.StringFormat", "java.lang.String"))
+  private val `.format` = invocation("format").from(ArraySeq("java.lang.String", "scala.collection.StringOps"))
+  private val `.appendOnStringBuilder` = invocation("append").from(ArraySeq("java.lang.StringBuilder", "scala.collection.mutable.StringBuilder"))
+
+  private[collections] def getToStringSimplification(expr: ScExpression, isThing: ScExpression => Boolean, thingToString: ScExpression => String, replace: ScExpression => SimplificationBuilder): Option[Simplification] = {
+    expr match {
+      // TODO infix notation?
+      case `.toString`(thing) if isThing(thing) =>
+        // thing.toString
+        Some(replace(expr).withText(invocationText(thing, thingToString(thing))).highlightFrom(thing))
+      case someString `+` thing if isString(someString) && isThing(thing) =>
+        // "string" + thing
+        Some(replace(thing).withText(invocationText(thing, thingToString(thing))).highlightFrom(thing))
+      case thing `+` someString if isString(someString) && isThing(thing) =>
+        // thing + "string"
+        Some(replace(thing).withText(invocationText(thing, thingToString(thing))).highlightFrom(thing))
+      case thing `.formatted` someString if isString(someString) && isThing(thing) =>
+        // thing.formatted("%s")
+        val thingText = thing.getText
+        val toStringThing = thingToString(thing)
+        Some(replace(expr).withText(invocationText(someString, s"format($thingText.$toStringThing)")).highlightElem(thing))
+      case _ if isThing(expr) =>
+        def result: SimplificationBuilder = replace(expr).withText(invocationText(expr, thingToString(expr))).highlightFrom(expr)
+
+        expr.getParent match {
+          case _: ScInterpolatedStringLiteral =>
+            // s"start $thing end"
+            Some(result.wrapInBlock())
+          case null => None
+          case parent =>
+            parent.getParent match {
+              case `.print`(_, args@_*) if args.contains(expr) =>
+                // System.out.println(thing)
+                Some(result)
+              case `print`(args@_*) if args.contains(expr) =>
+                // println(thing)
+                Some(result)
+              case `.format`(_, args@_*) if args.contains(expr) =>
+                // String.format("%s", thing)
+                // "%s".format(thing)
+                Some(result)
+              case `.formatted`(_, args@_*) if args.contains(expr) =>
+                // "%s".formatted(thing)
+                Some(result)
+              case `.appendOnStringBuilder`(_, args@_*) if args.contains(expr)
+                && args.exists(_.smartExpectedType().exists(_.isAny)) =>
+                // new java.lang.StringBuilder.append(thing)
+                // new scala.collection.mutable.StringBuilder.append(thing)
+                Some(result)
+              case _: ScInterpolatedStringLiteral =>
+                // s"start ${thing} end"
+                Some(result)
+              case _ => None
+            }
+        }
+      case _ =>
+        None
+    }
   }
 }
 
