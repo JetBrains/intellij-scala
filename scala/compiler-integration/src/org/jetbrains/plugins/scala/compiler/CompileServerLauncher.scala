@@ -368,7 +368,7 @@ object CompileServerLauncher {
     val reasons = restartReasons(project)
     if (reasons.nonEmpty) {
       val stopped = stop(timeoutMs = 3000L, debugReason = Some(s"needs to restart: ${reasons.mkString(", ")}"))
-      if (!stopped && ApplicationManager.getApplication.isUnitTestMode) {
+      if (!stopped && isUnitTestMode) {
         LOG.error("couldn't stop compile server")
       }
     }
