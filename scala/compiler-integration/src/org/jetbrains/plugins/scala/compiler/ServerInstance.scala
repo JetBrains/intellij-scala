@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.compiler
 
+import com.intellij.openapi.project.Project
+
 import java.io.File
 
 private final class ServerInstance(
+  val project: Project,
   val watcher: ProcessWatcher,
   val port: Int,
   val workingDir: File,
