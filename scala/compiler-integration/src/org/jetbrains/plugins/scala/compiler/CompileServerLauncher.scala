@@ -69,6 +69,7 @@ object CompileServerLauncher {
     ensureServerNotRunning()
   })
 
+  @deprecated("Please use `org.jetbrains.plugins.scala.compiler.CompileServerLauncher.ensureServerRunning` as a replacement. This method will be removed in a future release.")
   def tryToStart(project: Project): Boolean = serverStartLock.synchronized {
     if (running) true
     else start(project)
@@ -372,7 +373,7 @@ object CompileServerLauncher {
       }
     }
 
-    running || tryToStart(project)
+    running || start(project)
   }
 
   private def restartReasons(project: Project): Seq[String] = {
