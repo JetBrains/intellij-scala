@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
 
 import java.{util => ju}
 import scala.collection.mutable
@@ -400,8 +400,8 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     }.getOrElse {
       //when class doesn't yet have body: `class A`
       val extendsBlockNode = extendsBlock.getNode
-      val useIndentationBasedSyntax = this.containingFile.fold(false)(_.useIndentationBasedSyntax)
-      if (!useIndentationBasedSyntax) {
+      val features: ScalaFeatures = extendsBlockNode.getPsi
+      if (!projectContext.project.indentationBasedSyntaxEnabled(features)) {
         val whitespace = createWhitespace.getNode
         //Add a whitespace before `{` to make it `class B {}` and not `class B{}
         if (extendsBlock.getFirstChild == null) {
@@ -412,7 +412,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
           extendsBlockNode.addChild(whitespace)
         }
       }
-      val bodyElement = createBodyFromMember(member.getText, extendsBlockNode.getPsi, useIndentationBasedSyntax)
+      val bodyElement = createBodyFromMember(member.getText, features)
       extendsBlockNode.addChild(bodyElement.getNode)
       members.head
     }

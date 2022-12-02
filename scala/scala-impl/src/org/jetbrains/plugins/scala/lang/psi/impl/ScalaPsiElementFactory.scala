@@ -46,7 +46,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocParagraph, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.project.ProjectContext.toManager
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 import java.{util => ju}
@@ -633,19 +633,18 @@ object ScalaPsiElementFactory {
     }
 
   def createBodyFromMember(
-    @NonNls memberText:        String,
-    scalaFeatures:             ScalaFeatures,
-    useIndentationBasedSyntax: Boolean = false
+    @NonNls memberText: String,
+    scalaFeatures:      ScalaFeatures,
   )(implicit
     ctx: ProjectContext
   ): ScTemplateBody =
-    createClassWithBody(memberText, scalaFeatures, useIndentationBasedSyntax)
+    createClassWithBody(memberText, scalaFeatures)
       .extendsBlock
       .templateBody
       .orNull
 
-  def createTemplateBody(implicit ctx: ProjectContext): ScTemplateBody =
-    createBodyFromMember("", ScalaFeatures.default)
+  def createTemplateBody(features: ScalaFeatures)(implicit ctx: ProjectContext): ScTemplateBody =
+    createBodyFromMember("", features)
 
   def createClassTemplateParents(
     @NonNls superName: String,
@@ -1324,14 +1323,13 @@ object ScalaPsiElementFactory {
   }
 
   private[this] def createClassWithBody(
-    @NonNls body:              String,
-    scalaFeatures:             ScalaFeatures,
-    useIndentationBasedSyntax: Boolean = false
+    @NonNls body:  String,
+    scalaFeatures: ScalaFeatures,
   )(implicit ctx: ProjectContext
   ): ScTypeDefinition = {
     // ATTENTION!  Do not use `stripMargin` here!
     // If the injected `body` contains multiline string with margins '|' they will be whipped out (see SCL-14585)
-    val fileText = if (useIndentationBasedSyntax) s"class a:\n  $body" else s"class a {\n  $body\n}"
+    val fileText = if (ctx.project.indentationBasedSyntaxEnabled(scalaFeatures)) s"class a:\n  $body" else s"class a {\n  $body\n}"
     createElementFromText[ScTypeDefinition](fileText, scalaFeatures)
   }
 

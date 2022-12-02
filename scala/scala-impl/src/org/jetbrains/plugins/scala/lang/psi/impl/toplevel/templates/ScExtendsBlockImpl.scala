@@ -231,11 +231,9 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   private def templateBodies = templateBody.toSeq
 
-  // TODO: handle Scala 3 indentation-based syntax
   private def createEmptyTemplateBody: ScTemplateBody =
-    add(ScalaPsiElementFactory.createTemplateBody).asInstanceOf[ScTemplateBody]
+    add(ScalaPsiElementFactory.createTemplateBody(this)).asInstanceOf[ScTemplateBody]
 }
-
 
 object ScExtendsBlockImpl {
   private val ScalaProduct      = "scala.Product"

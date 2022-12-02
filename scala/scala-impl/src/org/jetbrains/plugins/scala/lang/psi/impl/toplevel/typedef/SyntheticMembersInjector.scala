@@ -211,7 +211,7 @@ object SyntheticMembersInjector {
 
     @CachedInUserData(td, ModTracker.libraryAware(td))
     def syntheticTemplateBody: ScTemplateBody = {
-      val body = ScalaPsiElementFactory.createTemplateBody(td.getProject)
+      val body = ScalaPsiElementFactory.createTemplateBody(extendsBlock)(td.getProject)
       body.context = extendsBlock
       body.child = extendsBlock.getLastChild
       body
