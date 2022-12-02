@@ -34,7 +34,18 @@
       ]]>
     </description>
     <version>VERSION</version>
-    <change-notes><!-- CHANGE_NOTES --></change-notes>
+    <change-notes>
+        <![CDATA[
+        <ul>
+            <li>Better Scala 3 support</li>
+            <li>Parameter types and context bounds</li>
+            <li>New <i>Can be private</i> inspection</li>
+            <li>Create parameter from usage</li>
+        </ul>
+        <br/>
+        <a href="https://blog.jetbrains.com/scala/2022/11/30/intellij-scala-plugin-2022-3-is-out/">Read more on our blog</a>
+        ]]>
+    </change-notes>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
     <idea-version since-build="223.7571" until-build="231.*"/>
     <depends>com.intellij.modules.java</depends>
