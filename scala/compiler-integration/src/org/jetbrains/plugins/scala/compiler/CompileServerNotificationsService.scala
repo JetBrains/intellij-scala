@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdkVersion
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.CompositeModificationTracker
-import org.jetbrains.plugins.scala.extensions.invokeAndWait
+import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeAndWait}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
@@ -64,9 +64,11 @@ final class CompileServerNotificationsService(project: Project) {
         settings.USE_DEFAULT_SDK = false
         settings.COMPILE_SERVER_SDK = fixedSdk
       }
-      invokeAndWait(ApplicationManager.getApplication.saveSettings())
-      CompileServerLauncher.stop(timeoutMs = 3.seconds.toMillis)
-      CompileServerLauncher.ensureServerRunning(project)
+      ApplicationManager.getApplication.saveSettings()
+      executeOnPooledThread {
+        CompileServerLauncher.stop(timeoutMs = 3.seconds.toMillis)
+        CompileServerLauncher.ensureServerRunning(project)
+      }
     }
   }
 }
