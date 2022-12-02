@@ -421,7 +421,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         if (isSymbolic) elements.mkString(" " + simple(base) + " ")
         else if (base == "scala.<repeated>") textOfType(arguments.head, parensRequired = true) + "*" // TODO why repeated parameters in aliases are encoded differently?
         else {
-          if (base.startsWith("scala.Tuple") && !base.substring(11).contains(".")) { // TODO use regex
+          if (base.startsWith("scala.Tuple") && base != "scala.Tuple1" && !base.substring(11).contains(".")) { // TODO use regex
             elements.mkString("(", ", ", ")")
           } else if (base.startsWith("scala.Function") || base.startsWith("scala.ContextFunction")) {
             val arrow = if (base.startsWith("scala.Function")) " => " else " ?=> "
