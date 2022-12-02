@@ -19,6 +19,7 @@ import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
@@ -341,6 +342,11 @@ package object project {
     // TODO Generalize: hasScala(Version => Boolean), hasScala(_ >= Scala3)
     @CachedInUserData(project, ProjectRootManager.getInstance(project))
     def hasScala3: Boolean = modulesWithScala.exists(_.hasScala3)
+
+    def indentationBasedSyntaxEnabled(features: ScalaFeatures): Boolean =
+      features.isScala3 &&
+        features.indentationBasedSyntaxEnabled &&
+        ScalaCodeStyleSettings.getInstance(project).USE_SCALA3_INDENTATION_BASED_SYNTAX
 
     /**
      * @return list of modules with Scala SDK setup
