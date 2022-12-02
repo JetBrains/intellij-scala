@@ -228,7 +228,7 @@ object CompileServerLauncher {
             }
 
             val watcher = new ProcessWatcher(project, process, "scalaCompileServer")
-            val instance = new ServerInstance(watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
+            val instance = new ServerInstance(project, watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
             LOG.assertTrue(serverInstance.isEmpty, "serverInstance is expected to be None")
             serverInstance = Some(instance)
             // initialize the compile server manager service instance for the project which holds the widget state
