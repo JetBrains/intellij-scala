@@ -388,6 +388,7 @@ object CompileServerLauncher {
       val jvmParametersChanged = jvmParameters.toSet != instance.jvmParameters
 
       val reasons = mutable.ArrayBuffer.empty[String]
+      if (instance.project.isDisposed) reasons += "running instance project disposed"
       if (workingDirChanged) reasons += "working dir changed"
       if (jdkChanged) reasons += "jdk changed"
       if (jvmParametersChanged) reasons += "jvm parameters changed"
