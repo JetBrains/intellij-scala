@@ -44,10 +44,7 @@ final class ScalaPullUpProcessor(project: Project,
 
     implicit val projectContext: ProjectContext = targetClass.projectContext
     val extendsBlock = targetClass.extendsBlock
-    val templateBody = extendsBlock.templateBody match {
-      case Some(tb) => tb
-      case None => extendsBlock.add(createTemplateBody)
-    }
+    val templateBody = extendsBlock.getOrCreateTemplateBody
     val anchor = templateBody.getLastChild
 
     memberInfos.collect {

@@ -134,10 +134,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
         val selfTypeElem = dummyTrait.extendsBlock.selfTypeElement.get
         val extendsBlock = trt.extendsBlock
 
-        val templateBody = extendsBlock.templateBody match {
-          case Some(tb) => tb
-          case None => extendsBlock.add(createTemplateBody)
-        }
+        val templateBody = extendsBlock.getOrCreateTemplateBody
 
         val lBrace = templateBody.getFirstChild
         val ste = templateBody.addAfter(selfTypeElem, lBrace)

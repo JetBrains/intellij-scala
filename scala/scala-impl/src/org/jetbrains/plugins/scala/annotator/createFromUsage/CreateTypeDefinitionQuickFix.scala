@@ -107,8 +107,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
 
   private def createInnerClassIn(target: ScTemplateDefinition): Unit = {
     val extBlock = target.extendsBlock
-    val targetBody = extBlock.templateBody.getOrElse(
-      extBlock.add(createTemplateBody(target.getManager)))
+    val targetBody = extBlock.getOrCreateTemplateBody
     createClassIn(targetBody, Some(targetBody.getLastChild))
   }
 
