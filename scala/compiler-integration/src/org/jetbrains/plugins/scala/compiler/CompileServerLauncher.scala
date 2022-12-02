@@ -389,7 +389,12 @@ object CompileServerLauncher {
       val jvmParametersChanged = jvmParameters.toSet != instance.jvmParameters
 
       val reasons = mutable.ArrayBuffer.empty[String]
-      if (instance.project.isDisposed) reasons += "running instance project disposed"
+      if (!isUnitTestMode && instance.project.isDisposed) {
+        // We intentionally reuse the compile server in worksheet tests. This check would
+        // otherwise stop and start the compile server before each test, since each test
+        // spawns a new instance (JVM object instance) of the same project on disk.
+        reasons += "running instance project disposed"
+      }
       if (workingDirChanged) reasons += "working dir changed"
       if (jdkChanged) reasons += "jdk changed"
       if (jvmParametersChanged) reasons += "jvm parameters changed"
