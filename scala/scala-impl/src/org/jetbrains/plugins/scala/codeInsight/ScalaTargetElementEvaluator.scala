@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala.codeInsight
 
 import com.intellij.codeInsight.{TargetElementEvaluatorEx, TargetElementEvaluatorEx2}
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.editor.ScalaEditorUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAliasDefinition, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
@@ -113,5 +115,91 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
   override def isIdentifierPart(file: PsiFile, text: CharSequence, offset: Int): Boolean = {
     val child: PsiElement = file.findElementAt(offset)
     child != null && child.getNode != null && ScalaTokenTypes.IDENTIFIER_TOKEN_SET.contains(child.getNode.getElementType )
+  }
+
+  override def adjustElement(editor: Editor, flags: Int, element: PsiElement, contextElement: PsiElement): PsiElement =
+    super.adjustElement(editor, flags, element, contextElement)
+
+  override def adjustReference(ref: PsiReference): PsiElement =
+    super.adjustReference(ref)
+
+  override def adjustReferenceOrReferencedElement(file: PsiFile, editor: Editor, offset: Int, flags: Int, refElement: PsiElement): PsiElement =
+    super.adjustReferenceOrReferencedElement(file, editor, offset, flags, refElement)
+
+  override def adjustTargetElement(editor: Editor, offset: Int, flags: Int, targetElement: PsiElement): PsiElement = {
+    findReferencedTypeAliasDefinition(editor, offset, targetElement) match {
+      case Some(typeAlias) =>
+        typeAlias
+      case None =>
+        super.adjustTargetElement(editor, offset, flags, targetElement)
+    }
+  }
+
+  /**
+   * This is a solution for SCL-20826
+   *
+   * Suppose we have this code: {{{
+   *   class MyClass
+   *   type MyAlias = MyClass
+   *   new MyAlias
+   *   val x: MyAlias
+   * }}}
+   *
+   * When the caret is located at `: MyAlias` and we try to rename the alias it works fine
+   * because the reference is resolved to the type alias definition.
+   *
+   * However when the caret is located at `new MyAlias` then the reference will be resolved to `MyClass` primary constructor.
+   * (this logic is located in [[org.jetbrains.plugins.scala.lang.resolve.processor.ConstructorResolveProcessor]])
+   * This will break rename refactoring, because it will think that we want to rename `MyClass`, not `MyAlias`.
+   * In order to workaround this we detect such cases and adjust target element to the type alias definition instead of constructor
+   *
+   */
+  private def findReferencedTypeAliasDefinition(
+    editor: Editor,
+    offset: Int,
+    targetElement: PsiElement,
+  ): Option[ScTypeAliasDefinition] = {
+    targetElement match {
+      case m: PsiMethod if m.isConstructor =>
+      case _ =>
+        return None
+    }
+
+    val project = targetElement.getProject
+    val document = editor.getDocument
+    val file = PsiDocumentManager.getInstance(project).getPsiFile(document)
+    if (file == null)
+      return None
+
+    val reference = findReferencesAtCaret(file, document, offset) match {
+      case Some(ref) => ref
+      case None =>
+        return None
+    }
+
+    val referenceResolved = reference.bind()
+    referenceResolved match {
+      case Some(resolveResult) =>
+        val actualElement = resolveResult.getActualElement
+        actualElement match {
+          case alias: ScTypeAliasDefinition =>
+            Some(alias)
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
+  private def findReferencesAtCaret(file: PsiFile, document: Document, offset: Int): Option[ScStableCodeReference] = {
+    val elementAtCaret = ScalaEditorUtils.findElementAtCaret_WithFixedEOFAndWhiteSpace(file, document: Document, offset)
+    if (elementAtCaret == null)
+      return None
+
+    val parent = elementAtCaret.getParent
+    parent match {
+      case ref: ScStableCodeReference => Some(ref)
+      case _ =>
+        None
+    }
   }
 }

@@ -270,4 +270,98 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
       5
     )
   }
+
+  def testRenameTypeAliasToClass_AtDefinitionPosition(): Unit = doRenameTest(
+    "MyAliasRenamed",
+    s"""object Wrapper {
+       |  class MyClass
+       |  type ${CARET}MyAlias = MyClass
+       |  new MyAlias
+       |  Option.empty[MyAlias]
+       |  val x: MyAlias = null
+       |}
+       |""".stripMargin,
+    """object Wrapper {
+      |  class MyClass
+      |  type MyAliasRenamed = MyClass
+      |  new MyAliasRenamed
+      |  Option.empty[MyAliasRenamed]
+      |  val x: MyAliasRenamed = null
+      |}
+      |""".stripMargin,
+  )
+
+  def testRenameTypeAliasToClass_AtConstructorInvocationPosition(): Unit = doRenameTest(
+    "MyAliasRenamed",
+    s"""object Wrapper {
+       |  class MyClass
+       |  type MyAlias = MyClass
+       |  new ${CARET}MyAlias
+       |  Option.empty[MyAlias]
+       |  val x: MyAlias = null
+       |}
+       |""".stripMargin,
+    """object Wrapper {
+      |  class MyClass
+      |  type MyAliasRenamed = MyClass
+      |  new MyAliasRenamed
+      |  Option.empty[MyAliasRenamed]
+      |  val x: MyAliasRenamed = null
+      |}
+      |""".stripMargin,
+  )
+
+  def testRenameTypeAliasToClass_AtConstructorInvocationPosition_InTheEndOfAliasName(): Unit = doRenameTest(
+    "MyAliasRenamed",
+    s"""object Wrapper {
+       |  class MyClass
+       |  type MyAlias = MyClass
+       |  new MyAlias$CARET
+       |  Option.empty[MyAlias]
+       |  val x: MyAlias = null
+       |}
+       |""".stripMargin,
+    """object Wrapper {
+      |  class MyClass
+      |  type MyAliasRenamed = MyClass
+      |  new MyAliasRenamed
+      |  Option.empty[MyAliasRenamed]
+      |  val x: MyAliasRenamed = null
+      |}
+      |""".stripMargin,
+  )
+
+  def testRenameTypeAliasToClass_AtConstructorInvocationPosition_InTheEndOfAliasName_InTheEndOfFile(): Unit = doRenameTest(
+    "MyAliasRenamed",
+    s"""class MyClass
+       |type MyAlias = MyClass
+       |Option.empty[MyAlias]
+       |val x: MyAlias = null
+       |new MyAlias$CARET""".stripMargin,
+    """class MyClass
+      |type MyAliasRenamed = MyClass
+      |Option.empty[MyAliasRenamed]
+      |val x: MyAliasRenamed = null
+      |new MyAliasRenamed""".stripMargin,
+  )
+
+  def testRenameTypeAliasToClass_AtTypeElementPosition(): Unit = doRenameTest(
+    "MyAliasRenamed",
+    s"""object Wrapper {
+       |  class MyClass
+       |  type MyAlias = MyClass
+       |  new MyAlias
+       |  Option.empty[MyAlias]
+       |  val x: ${CARET}MyAlias = null
+       |}
+       |""".stripMargin,
+    """object Wrapper {
+      |  class MyClass
+      |  type MyAliasRenamed = MyClass
+      |  new MyAliasRenamed
+      |  Option.empty[MyAliasRenamed]
+      |  val x: MyAliasRenamed = null
+      |}
+      |""".stripMargin,
+  )
 }
