@@ -69,6 +69,7 @@ object CompileServerLauncher {
     ensureServerNotRunning()
   })
 
+  @deprecated("Please use `org.jetbrains.plugins.scala.compiler.CompileServerLauncher.ensureServerRunning` as a replacement. This method will be removed in a future release.")
   def tryToStart(project: Project): Boolean = serverStartLock.synchronized {
     if (running) true
     else start(project)
@@ -228,7 +229,7 @@ object CompileServerLauncher {
             }
 
             val watcher = new ProcessWatcher(project, process, "scalaCompileServer")
-            val instance = new ServerInstance(watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
+            val instance = new ServerInstance(project, watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
             LOG.assertTrue(serverInstance.isEmpty, "serverInstance is expected to be None")
             serverInstance = Some(instance)
             // initialize the compile server manager service instance for the project which holds the widget state
@@ -367,12 +368,12 @@ object CompileServerLauncher {
     val reasons = restartReasons(project)
     if (reasons.nonEmpty) {
       val stopped = stop(timeoutMs = 3000L, debugReason = Some(s"needs to restart: ${reasons.mkString(", ")}"))
-      if (!stopped && ApplicationManager.getApplication.isUnitTestMode) {
+      if (!stopped && isUnitTestMode) {
         LOG.error("couldn't stop compile server")
       }
     }
 
-    running || tryToStart(project)
+    running || start(project)
   }
 
   private def restartReasons(project: Project): Seq[String] = {
@@ -388,6 +389,12 @@ object CompileServerLauncher {
       val jvmParametersChanged = jvmParameters.toSet != instance.jvmParameters
 
       val reasons = mutable.ArrayBuffer.empty[String]
+      if (!isUnitTestMode && instance.project.isDisposed) {
+        // We intentionally reuse the compile server in worksheet tests. This check would
+        // otherwise stop and start the compile server before each test, since each test
+        // spawns a new instance (JVM object instance) of the same project on disk.
+        reasons += "running instance project disposed"
+      }
       if (workingDirChanged) reasons += "working dir changed"
       if (jdkChanged) reasons += "jdk changed"
       if (jvmParametersChanged) reasons += "jvm parameters changed"

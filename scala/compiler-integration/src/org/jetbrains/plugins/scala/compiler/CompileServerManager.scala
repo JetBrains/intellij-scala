@@ -151,7 +151,7 @@ final class CompileServerManager(project: Project) extends Disposable with Compi
       e.getPresentation.setEnabled(!launcher.running)
 
     override def actionPerformed(e: AnActionEvent): Unit =
-      launcher.tryToStart(project)
+      launcher.ensureServerRunning(project)
   }
 
   private object Stop extends AnAction(CompilerIntegrationBundle.message("action.stop"), CompilerIntegrationBundle.message("shutdown.compile.server"), AllIcons.Actions.Suspend) with DumbAware {

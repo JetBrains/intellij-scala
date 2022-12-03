@@ -1,12 +1,17 @@
 package org.jetbrains.plugins.scala.compiler
 
+import com.intellij.openapi.project.Project
+
 import java.io.File
 
-private final class ServerInstance(val watcher: ProcessWatcher,
-                             val port: Int,
-                             val workingDir: File,
-                             val jdk: JDK,
-                             val jvmParameters: Set[String]) extends CompileServerManager.ErrorListener {
+private final class ServerInstance(
+  val project: Project,
+  val watcher: ProcessWatcher,
+  val port: Int,
+  val workingDir: File,
+  val jdk: JDK,
+  val jvmParameters: Set[String]
+) extends CompileServerManager.ErrorListener {
 
   private var _stopped: Boolean = false
   private val errorBuffer: StringBuffer = new StringBuffer()
