@@ -2,11 +2,12 @@ package org.jetbrains.jps.incremental.scala.local.worksheet
 
 import java.io._
 import java.nio.{Buffer, ByteBuffer}
-
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.ReplContext
 import org.jetbrains.jps.incremental.scala.{Client, JpsBundle}
 import org.jetbrains.plugins.scala.compiler.data.worksheet._
 import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilerJars}
+
+import java.nio.charset.StandardCharsets
 
 class WorksheetServer {
   import WorksheetServer._
@@ -84,7 +85,7 @@ object WorksheetServer {
     override def flush(): Unit = {
       if (buffer.position() == 0) return
 
-      val worksheetOutputText = new String(buffer.array(), 0, buffer.position())
+      val worksheetOutputText = new String(buffer.array(), 0, buffer.position(), StandardCharsets.UTF_8)
       client.worksheetOutput(worksheetOutputText)
 
       clearBuffer(buffer)

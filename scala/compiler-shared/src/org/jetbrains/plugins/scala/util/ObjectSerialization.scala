@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.util
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 import java.util.Base64
-
 import com.intellij.openapi.util.io.FileUtil
 
+import java.nio.charset.StandardCharsets
 import scala.util.Using
 object ObjectSerialization {
 
@@ -28,9 +28,13 @@ object ObjectSerialization {
       }
     }
 
-  def toBase64(obj: Any): String =
-    Base64.getEncoder.encodeToString(toBytes(obj))
+  def toBase64(obj: Any): String = {
+    val encodedBytes = Base64.getEncoder.encode(toBytes(obj))
+    new String(encodedBytes, StandardCharsets.UTF_8)
+  }
 
-  def fromBase64[A](base64: String): A =
-    fromBytes(Base64.getDecoder.decode(base64))
+  def fromBase64[A](base64: String): A = {
+    val decodedBytes = Base64.getDecoder.decode(base64.getBytes(StandardCharsets.UTF_8))
+    fromBytes(decodedBytes)
+  }
 }

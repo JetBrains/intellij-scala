@@ -41,7 +41,8 @@ object WorksheetIncrementalSourcePreprocessor {
       (additionalCommands ++ codeCommands).mkString(ReplDelimiter)
     }
     // Necessary to encode to Base64 because the code can contain newline characters, which can be lost upon reconstruction.
-    val commandsEncoded = Base64.getEncoder.encodeToString(commands.getBytes(StandardCharsets.UTF_8))
+    val encodedBytes = Base64.getEncoder.encode(commands.getBytes(StandardCharsets.UTF_8))
+    val commandsEncoded = new String(encodedBytes, StandardCharsets.UTF_8)
     Right(PreprocessResult(commandsEncoded, elementsToEvaluate))
   }
 
