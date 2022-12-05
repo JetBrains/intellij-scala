@@ -36,7 +36,7 @@ import scala.language.postfixOps
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
 ))
-@RunWithJdkVersions(Array(TestJdkVersion.JDK_11, TestJdkVersion.JDK_17))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11, TestJdkVersion.JDK_17))
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @Category(Array(classOf[WorksheetEvaluationTests]))
 abstract class WorksheetIntegrationBaseTest
