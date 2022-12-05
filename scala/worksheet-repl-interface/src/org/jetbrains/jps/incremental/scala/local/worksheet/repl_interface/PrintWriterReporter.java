@@ -36,12 +36,14 @@ public class PrintWriterReporter implements ILoopWrapperReporter {
 
     public static String encode(String text) {
         byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
-        return Base64.getEncoder().encodeToString(bytes);
+        byte[] encodedBytes = Base64.getEncoder().encode(bytes);
+        return new String(encodedBytes, StandardCharsets.UTF_8);
     }
 
     public static String decode(String text) {
-        byte[] bytes = Base64.getDecoder().decode(text);
-        return new String(bytes, StandardCharsets.UTF_8);
+        byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+        byte[] decodedBytes = Base64.getDecoder().decode(bytes);
+        return new String(decodedBytes, StandardCharsets.UTF_8);
     }
 
     public static class MessageLineParsed {

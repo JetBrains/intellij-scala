@@ -66,7 +66,8 @@ class ILoopWrapperFactory {
         e.printStackTrace()
     }
 
-    val code = new String(Base64.getDecoder.decode(args.codeChunk), StandardCharsets.UTF_8)
+    val codeChunkBytes = args.codeChunk.getBytes(StandardCharsets.UTF_8)
+    val code = new String(Base64.getDecoder.decode(codeChunkBytes), StandardCharsets.UTF_8)
     // note: do not remove String generic parameter, it will fail in JVM 11
     val statements = if (code.isEmpty) Array.empty[String] else code.split(Pattern.quote(ReplDelimiter))
     for  { (statement, idx) <- statements.zipWithIndex if statement.trim.nonEmpty } {

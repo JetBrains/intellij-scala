@@ -381,6 +381,20 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
     assertLastLine(editor, 9)
   }
 
+  def testCyrillic(): Unit = {
+    val left =
+      """val здраво = "Hello"
+        |
+        |s"$здраво, world!"""".stripMargin
+
+    val right =
+      s"""val здраво: String = Hello
+         |
+         |val res0: String = Hello, world!""".stripMargin
+
+    doRenderTest(left, right)
+  }
+
   private def assertLastLine(editor: Editor, line: Int): Unit = {
     val printer = worksheetCache.getPrinter(editor).get.asInstanceOf[WorksheetEditorPrinterRepl]
     assertEquals(
