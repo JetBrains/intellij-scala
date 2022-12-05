@@ -142,8 +142,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
 
   private def materializeSyntheticObject(obj: ScObject): ScObject = {
     val clazz = obj.fakeCompanionClassOrCompanionClass
-    val objText = s"object ${clazz.name} {}"
-    val fromText = ScalaPsiElementFactory.createTemplateDefinitionFromText(objText, clazz.getParent, clazz)
+    val builder = TemplateDefinitionBuilder(kind = TemplateDefKind.Object, context = clazz.getParent, child = clazz, name = clazz.name)
+    val fromText = builder.createTemplateDefinition()
     clazz.getParent.addAfter(fromText, clazz).asInstanceOf[ScObject]
   }
 

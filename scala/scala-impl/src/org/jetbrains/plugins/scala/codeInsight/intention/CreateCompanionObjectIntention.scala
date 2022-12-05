@@ -7,11 +7,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{Parent, PsiElementExt, PsiFileExt}
+import org.jetbrains.plugins.scala.codeInsight.intention.CreateCompanionObjectIntention.createCompanionObject
+import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-
 
 /**
   * mattfowler
@@ -22,11 +22,7 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction {
 
   override def invoke(project: Project, editor: Editor, psiElement: PsiElement): Unit = {
     getClassIfAvailable(psiElement).foreach { clazz =>
-      val name = clazz.name
-      val braceless = clazz.containingFile.exists(_.useIndentationBasedSyntax)
-      val block = if (braceless) s":\n \nend $name" else " {\n \n}"
-      val companion = ScalaPsiElementFactory
-        .createObjectWithContext(s"object $name$block", psiElement.getContext, psiElement)
+      val companion = createCompanionObject(clazz)
       val parent = clazz.getParent
       val obj = parent.addAfter(companion, psiElement.getParent)
       if (ScalaCodeStyleSettings.getInstance(project).USE_SCALAFMT_FORMATTER)
@@ -59,4 +55,18 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction {
   }
 
   override def getFamilyName: String = ScalaBundle.message("family.name.create.companion.object")
+}
+
+object CreateCompanionObjectIntention {
+  import ScalaPsiElementFactory.TemplateDefKind
+
+  private[codeInsight] def createCompanionObject(clazz: ScTypeDefinition): ScObject =
+    ScalaPsiElementFactory.TemplateDefinitionBuilder(
+      kind = TemplateDefKind.Object,
+      name = clazz.name,
+      body = "\n \n",
+      context = clazz.getContext,
+      child = clazz,
+      needsBlock = true
+    ).createTemplateDefinition().asInstanceOf[ScObject]
 }

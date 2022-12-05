@@ -7,9 +7,9 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.ScalaCodeInsightActionHandler
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.generation.elementOfTypeAtCaret
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt}
+import org.jetbrains.plugins.scala.codeInsight.intention.CreateCompanionObjectIntention
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createObjectWithContext}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLine
 
 final class ScalaGenerateCompanionObjectAction extends ScalaBaseGenerateAction(
   new ScalaGenerateCompanionObjectAction.Handler,
@@ -56,10 +56,7 @@ object ScalaGenerateCompanionObjectAction {
 
     private def createCompanionObject(clazz: ScTypeDefinition): ScObject = {
       if (canAddCompanionObject(clazz)) {
-        val name = clazz.name
-        val braceless = clazz.containingFile.exists(_.useIndentationBasedSyntax)
-        val block = if (braceless) s":\n \nend $name" else " {\n \n}"
-        createObjectWithContext(s"object $name$block", clazz.getContext, clazz)
+        CreateCompanionObjectIntention.createCompanionObject(clazz)
       }
       else throw new IllegalArgumentException("Cannot create companion object")
     }

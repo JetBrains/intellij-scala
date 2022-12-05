@@ -17,9 +17,10 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
+import org.apache.commons.lang3.ObjectUtils
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaModifier, ScalaTokenType}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
@@ -139,6 +140,102 @@ final class ScalaPsiElementFactoryImpl(project: Project) extends JVMElementFacto
 }
 
 object ScalaPsiElementFactory {
+
+  sealed abstract class TemplateDefKind(val keyword: ScalaKeywordTokenType)
+  object TemplateDefKind {
+    // Add more if needed
+    case object Class extends TemplateDefKind(ScalaTokenType.ClassKeyword)
+    case object Trait extends TemplateDefKind(ScalaTokenType.TraitKeyword)
+    case object Object extends TemplateDefKind(ScalaTokenType.ObjectKeyword)
+  }
+
+  final class TemplateDefinitionBuilder private (
+    kind: TemplateDefKind,
+    @Nullable context:   PsiElement,
+    @Nullable child:     PsiElement,
+    name:                String,
+    body:                String,
+    needsBlock:          Boolean,
+    scalaFeatures:       Option[ScalaFeatures] = None,
+    projectContext:      Option[ProjectContext] = None,
+  ) {
+    private def copy(
+      kind:                TemplateDefKind        = this.kind,
+      @Nullable context:   PsiElement             = this.context,
+      @Nullable child:     PsiElement             = this.child,
+      name:                String                 = this.name,
+      body:                String                 = this.body,
+      needsBlock:          Boolean                = this.needsBlock,
+      scalaFeatures:       Option[ScalaFeatures]  = this.scalaFeatures,
+      projectContext:      Option[ProjectContext] = this.projectContext,
+    ): TemplateDefinitionBuilder =
+      new TemplateDefinitionBuilder(
+        kind,
+        context,
+        child,
+        name,
+        body,
+        needsBlock,
+        scalaFeatures,
+        projectContext
+      )
+
+    def withScalaFeatures(features: ScalaFeatures): TemplateDefinitionBuilder =
+      copy(scalaFeatures = Some(features))
+
+    def withProjectContext(projectContext: ProjectContext): TemplateDefinitionBuilder =
+      copy(projectContext = Some(projectContext))
+
+    def createTemplateDefinition(): ScTemplateDefinition = {
+      val textBuilder = new StringBuilder()
+        .append(kind.keyword)
+        .append(" ")
+        .append(name)
+
+      val firstNonNullOfContextAndChild = ObjectUtils.firstNonNull(context, child)
+      implicit val ctx: ProjectContext = projectContext.getOrElse(firstNonNullOfContextAndChild)
+      val features: ScalaFeatures = scalaFeatures.getOrElse(firstNonNullOfContextAndChild)
+
+      if (needsBlock || body.nonEmpty) {
+        val braceless = ctx.project.indentationBasedSyntaxEnabled(features)
+        textBuilder
+          .append(if (braceless) ":" else " {")
+          .append(body)
+        if (!braceless)
+          textBuilder.append("}")
+        else {
+          if (!body.endsWith('\n'))
+            textBuilder.append("\n")
+          if (needsBlock) {
+            textBuilder
+              .append("end ")
+              .append(name)
+          }
+        }
+      }
+
+      createTemplateDefinitionFromText(textBuilder.result(), context, child, features)
+    }
+  }
+
+  object TemplateDefinitionBuilder {
+    def apply(
+      kind: TemplateDefKind,
+      @Nullable context: PsiElement = null,
+      @Nullable child: PsiElement = null,
+      name: String = "td",
+      body: String = "",
+      needsBlock: Boolean = false,
+    ): TemplateDefinitionBuilder =
+      new TemplateDefinitionBuilder(
+        kind,
+        context,
+        child,
+        name,
+        body,
+        needsBlock,
+      )
+  }
 
   import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
   import org.jetbrains.plugins.scala.lang.parser.parsing.{base => parsingBase, statements => parsingStat, _}
@@ -1021,14 +1118,15 @@ object ScalaPsiElementFactory {
   def createElementWithContext[E <: ScalaPsiElement](
     @NonNls text: String,
     context:      PsiElement,
-    child:        PsiElement
+    child:        PsiElement,
+    features:     ScalaFeatures,
   )(parse:        ScalaPsiBuilder => AnyVal
   )(implicit
-    tag: ClassTag[E]
+    tag: ClassTag[E],
+    ctx: ProjectContext
   ): E = {
-    implicit val project: Project = (if (context == null) child else context).getProject
     val instance =
-      createFromTextImpl[PsiElement](text, ScalaFeatures.forPsiOrDefault(context), checkLength = true)(parse)(_.getFirstChild)
+      createFromTextImpl[PsiElement](text, features, checkLength = true)(parse)(_.getFirstChild)
 
     instance match {
       case element: E =>
@@ -1042,6 +1140,15 @@ object ScalaPsiElementFactory {
           context
         )
     }
+  }
+
+  def createElementWithContext[E <: ScalaPsiElement : ClassTag](
+    @NonNls text: String,
+    context:      PsiElement,
+    child:        PsiElement
+  )(parse:        ScalaPsiBuilder => AnyVal): E = {
+    implicit val project: Project = (if (context == null) child else context).getProject
+    createElementWithContext[E](text, context, child, ScalaFeatures.forPsiOrDefault(context))(parse)
   }
 
   def createEmptyModifierList(context: PsiElement): ScModifierList =
@@ -1184,6 +1291,10 @@ object ScalaPsiElementFactory {
 
   def createTemplateDefinitionFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTemplateDefinition =
     createElementWithContext[ScTemplateDefinition](text, context, child)(TmplDef.parse(_))
+
+  def createTemplateDefinitionFromText(@NonNls text: String, context: PsiElement, child: PsiElement, features: ScalaFeatures)
+                                      (implicit ctx: ProjectContext): ScTemplateDefinition =
+    createElementWithContext[ScTemplateDefinition](text, context, child, features)(TmplDef.parse(_))
 
   def createDeclarationFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScDeclaration =
     createElementWithContext[ScDeclaration](text, context, child)(parsingStat.Dcl.parse(_))
@@ -1329,8 +1440,11 @@ object ScalaPsiElementFactory {
   ): ScTypeDefinition = {
     // ATTENTION!  Do not use `stripMargin` here!
     // If the injected `body` contains multiline string with margins '|' they will be whipped out (see SCL-14585)
-    val fileText = if (ctx.project.indentationBasedSyntaxEnabled(scalaFeatures)) s"class a:\n  $body" else s"class a {\n  $body\n}"
-    createElementFromText[ScTypeDefinition](fileText, scalaFeatures)
+    TemplateDefinitionBuilder(kind = TemplateDefKind.Class, body = s"\n  $body\n")
+      .withScalaFeatures(scalaFeatures)
+      .withProjectContext(ctx)
+      .createTemplateDefinition()
+      .asInstanceOf[ScClass]
   }
 
   private[this] def createMemberFromText(
