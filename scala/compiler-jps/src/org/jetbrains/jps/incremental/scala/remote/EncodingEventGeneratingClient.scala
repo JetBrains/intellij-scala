@@ -25,8 +25,7 @@ object EncodingEventGeneratingClient {
 
   private def eventHandler(out: PrintStream, standalone: Boolean): Event => Unit =
     event => {
-      val encodedBytes = Base64.getEncoder.encode(event.toBytes)
-      val encoded = new String(encodedBytes, StandardCharsets.UTF_8)
+      val encoded = Base64.getEncoder.encodeToString(event.toBytes)
       val encodedNormalized = if (standalone && !encoded.endsWith("=")) encoded + "=" else encoded
       val bytes = encodedNormalized.getBytes(StandardCharsets.UTF_8)
       out.write(bytes)

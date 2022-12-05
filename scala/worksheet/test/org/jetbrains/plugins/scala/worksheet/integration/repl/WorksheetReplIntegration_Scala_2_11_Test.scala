@@ -163,20 +163,6 @@ class WorksheetReplIntegration_Scala_2_11_Test
     doRenderTest(left, right)
   }
 
-  def testCyrillic(): Unit = {
-    val left =
-      """val здраво = "Hello"
-        |
-        |s"$здраво, world!"""".stripMargin
-
-    val right =
-      s"""здраво: String = Hello
-         |
-         |res0: String = Hello, world!""".stripMargin
-
-    doRenderTest(left, right)
-  }
-
   def testDisplayFirstRuntimeException(): Unit = {
     val left =
       """println("1\n2")
