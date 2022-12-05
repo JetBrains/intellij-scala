@@ -63,7 +63,7 @@ trait RemoteResourceOwner {
           } catch {
             case e: Exception =>
               val chars = {
-                val s = new String(data, StandardCharsets.UTF_8)
+                val s = new String(data)
                 if (s.length > 50) s.substring(0, 50) + "..." else s
               }
               client.error("Unable to read an event from: " + chars)
@@ -95,9 +95,9 @@ trait RemoteResourceOwner {
       Chunk(NGConstants.CHUNKTYPE_COMMAND.toChar, toBytes(command))
   }
 
-  private def toBytes(s: String) = s.getBytes(StandardCharsets.UTF_8)
+  private def toBytes(s: String) = s.getBytes
 
-  private def fromBytes(bytes: Array[Byte]) = new String(bytes, StandardCharsets.UTF_8)
+  private def fromBytes(bytes: Array[Byte]) = new String(bytes)
 }
 
 object RemoteResourceOwner {
