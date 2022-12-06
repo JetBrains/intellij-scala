@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMac
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamIdOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
@@ -129,8 +129,26 @@ class ImplicitCollector(
 
   private def isExtensionConversion: Boolean = extensionData.isDefined
 
-  private def canContainExtension(srr: ScalaResolveResult): Boolean =
-    withExtensions && !srr.isExtension && !hasExplicitClause(srr)
+  @Measure
+  private def canContainTargetMethod(srr: ScalaResolveResult): Boolean =
+    withExtensions && !srr.isExtension && !hasExplicitClause(srr) && {
+      val targetType = srr.element match {
+        case param: ScParameter => param.typeElement.flatMap(_.`type`().toOption)
+        case fun: ScFunction    => fun.returnType.toOption
+        case _                  => None
+      }
+
+      val hasTargetMethod =
+        for {
+          data       <- extensionData
+          targetName = data.refName
+          rtpe       <- targetType
+          cls        <- rtpe.extractClass
+          tdef       <- cls.asOptionOf[ScTypeDefinition]
+        } yield tdef.methodsByName(targetName).nonEmpty
+
+      hasTargetMethod.getOrElse(true)
+    }
 
   def collect(): Seq[ScalaResolveResult] = TraceLogger.func {
     def calc(): Seq[ScalaResolveResult] = {
@@ -305,7 +323,7 @@ class ImplicitCollector(
     while (iterator.hasNext) {
       val c = iterator.next()
 
-      if (withExtensions) {
+      if (canContainTargetMethod(c)) {
         //no point in filtering candidates by type if they are potentially holding
         //extensions, that we are looking for
         filteredCandidates += c
@@ -437,7 +455,7 @@ class ImplicitCollector(
     expectedTypeConstraints: ConstraintSystem
   ): Option[ScalaResolveResult] = /* TraceLogger.func */ {
     val fun            = c.element.asInstanceOf[ScFunction]
-    val canContainExts = canContainExtension(c)
+    val canContainExts = canContainTargetMethod(c)
 
     def wrongTypeParam(nonValueType: ScType, result: ImplicitResult): Some[ScalaResolveResult] = {
       val (valueType, typeParams) = inferValueType(nonValueType)
@@ -584,7 +602,9 @@ class ImplicitCollector(
         case _: SafeCheckException => wrongTypeParam(nonValueType, CantInferTypeParameterResult)
       }
     } else {
-      noImplicitParametersResult(nonValueType)
+      failedPtAdapt.orElse(
+        noImplicitParametersResult(nonValueType)
+      )
     }
   }
 
@@ -689,7 +709,7 @@ class ImplicitCollector(
         if (undefinedConforms.isRight) {
           if (checkFast) Option(c)
           else           checkFunctionType(c, nonValueFunctionTypes, undefinedConforms.constraints)
-        } else if (canContainExtension(c)) {
+        } else if (canContainTargetMethod(c)) {
           //With the addition of extensions in Scala 3,
           //we now cannot discard implicits based by their type right away,
           //because they might contain extensions, defined on their "return type".
@@ -762,7 +782,7 @@ class ImplicitCollector(
 
   private def hasExplicitClause(srr: ScalaResolveResult): Boolean = srr.element match {
     case fun: ScFunction => fun.parameterClausesWithExtension.exists(!_.isImplicitOrUsing)
-    case _ => false
+    case _               => false
   }
 
   private def abstractsToUpper(tp: ScType): ScType = {
