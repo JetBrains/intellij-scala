@@ -6,9 +6,9 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.{findCommonContext, findFirstContext}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.highlightImplicitView
-import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, UnresolvedReferenceFixProvider}
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, UnresolvedReferenceFixProvider}
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ReferenceExpressionResolver, Sc
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
 
+//noinspection InstanceOf
 // TODO unify with ScMethodInvocationAnnotator and ScConstructorInvocationAnnotator
 object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
@@ -44,11 +45,15 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   def qualifierPart(element: ScReference, typeAware: Boolean)
                    (implicit holder: ScalaAnnotationHolder): Unit =
-    if (!element.getUserData(ReferenceExpressionResolver.ConstructorProxyHolderKey))
-      element.qualifier match {
-        case None => checkNotQualifiedReferenceElement(element, typeAware)
-        case Some(_) => checkQualifiedReferenceElement(element, typeAware)
+    if (!element.getUserData(ReferenceExpressionResolver.ConstructorProxyHolderKey)) {
+      val qualifier = element.qualifier
+      qualifier match {
+        case None =>
+          checkNotQualifiedReferenceElement(element, typeAware)
+        case Some(_) =>
+          checkQualifiedReferenceElement(element, typeAware)
       }
+    }
 
   def annotateReference(reference: ScReference)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
@@ -128,14 +133,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     val resolve = refElement.multiResolveScala(false)
 
     refElement match {
-      case _: ScDocResolvableCodeReference =>
-        if (resolve.isEmpty) {
-          holder.createWarningAnnotation(
-            refElement,
-            ScalaBundle.message("cannot.resolve", refElement.refName),
-            ScalaImportTypeFix(refElement)
-          )
-        }
+      case scalaDocRef: ScDocResolvableCodeReference =>
+        annotateScalaDocReference(scalaDocRef, resolve)
         return
       case _ =>
     }
@@ -298,7 +297,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   private def createUnknownSymbolProblem(reference: ScReference)
-                                        (implicit holder: ScalaAnnotationHolder) = {
+                                        (implicit holder: ScalaAnnotationHolder): Unit = {
     val identifier = reference.nameId
     val fixes =
       UnresolvedReferenceFixProvider.fixesFor(reference) :+
@@ -312,6 +311,20 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       fixes
     )
   }
+
+  private def annotateScalaDocReference(scalaDocRef: ScDocResolvableCodeReference, resolveResult: Array[ScalaResolveResult])
+                                       (implicit holder: ScalaAnnotationHolder): Unit = {
+    val isRootRef = !scalaDocRef.getParent.is[ScDocResolvableCodeReference]
+    if (resolveResult.isEmpty && isRootRef) {
+      val elementToAnnotate = scalaDocRef.nameId
+      holder.createWarningAnnotation(
+        elementToAnnotate,
+        ScalaBundle.message("cannot.resolve", elementToAnnotate.getText),
+        ScalaImportTypeFix(scalaDocRef)
+      )
+    }
+  }
+
 
   private def checkQualifiedReferenceElement(refElement: ScReference, typeAware: Boolean)
                                             (implicit holder: ScalaAnnotationHolder): Unit = {
@@ -328,20 +341,31 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       }
     }
 
-    if (refElement.isInstanceOf[ScDocResolvableCodeReference] && resolveCount > 0 || refElement.isSoft) return
+    refElement match {
+      case scalaDocRef: ScDocResolvableCodeReference =>
+        annotateScalaDocReference(scalaDocRef, resolve)
+        return
+      case _ =>
+    }
+
+    if (refElement.isSoft)
+      return
+
     if (typeAware && resolveCount != 1) {
 
       refElement.getParent match {
-        case _: ScImportSelector | _: ScImportExpr if resolveCount > 0 => return
+        case _: ScImportSelector | _: ScImportExpr if resolveCount > 0 =>
+          return
         case _: ScMethodCall if resolveCount > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
           holder.createErrorAnnotation(refElement.nameId, error)
-        case _ => createUnknownSymbolProblem(refElement)
+        case _ =>
+          createUnknownSymbolProblem(refElement)
       }
     }
   }
 
-  def nameWithSignature(f: PsiNamedElement) = nameOf(f) + signatureOf(f)
+  def nameWithSignature(f: PsiNamedElement): String = nameOf(f) + signatureOf(f)
 
   private def nameOf(f: PsiNamedElement) = f match {
     case m: ScMethodLike if m.isConstructor => m.containingClass.name
@@ -395,7 +419,14 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReference)
                                      (implicit holder: ScalaAnnotationHolder): Unit = {
-    if (resolve.length != 1 || refElement.isSoft || refElement.isInstanceOf[ScDocResolvableCodeReference]) return
+    if (refElement.isInstanceOf[ScDocResolvableCodeReference]) { //TODO
+      return
+    }
+    if (refElement.isSoft)
+      return
+    if (resolve.length != 1)
+      return
+
     resolve(0) match {
       case r if !r.isAccessible =>
         val error = ScalaBundle.message("symbol.is.inaccessible.from.this.place", r.element.name)
