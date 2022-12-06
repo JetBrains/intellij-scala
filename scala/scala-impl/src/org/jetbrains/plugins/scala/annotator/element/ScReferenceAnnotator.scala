@@ -157,11 +157,20 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           }
         case _ =>
           parent match {
-            case ScInfixPattern(_, `refElement`, _) if refElement.isInstanceOf[ScStableCodeReference] => // todo: this is hide A op B in patterns
+            case ScInfixPattern(_, `refElement`, _) if refElement.isInstanceOf[ScStableCodeReference] =>
+              // todo: this is hide A op B in patterns
+              () //skip
             case _: ScImportSelector if resolve.length > 0 =>
-            case _: ScDocTag =>
-              holder.createWeakWarningAnnotation(refElement, ScalaBundle.message("cannot.resolve", refElement.refName))
-            case _ => addUnknownSymbolProblem()
+              () //skip
+            case tag: ScDocTag =>
+              if (MyScaladocParsing.ParamOrTParamTags.contains(tag.name)) {
+                //skip, references to parameters in ScalaDoc tags are handled in [[org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocReferenceInspection]]
+              }
+              else {
+                holder.createWeakWarningAnnotation(refElement, ScalaBundle.message("cannot.resolve", refElement.refName))
+              }
+            case _ =>
+              addUnknownSymbolProblem()
           }
       }
     } else {
@@ -281,7 +290,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         case (p: ScPattern) && (_: ScConstructorPattern | _: ScInfixPattern) =>
           val errorWithRefName: String => String = ScalaBundle.message("cannot.resolve.unapply.method", _)
           if (addCreateApplyOrUnapplyFix(errorWithRefName, td => new CreateUnapplyQuickFix(td, p))) return
-        case scalaDocTag: ScDocTag if scalaDocTag.getName == MyScaladocParsing.THROWS_TAG => return //see SCL-9490
+        case scalaDocTag: ScDocTag if scalaDocTag.getName == MyScaladocParsing.THROWS_TAG =>
+          return //see SCL-9490
         case _ =>
       }
     }
