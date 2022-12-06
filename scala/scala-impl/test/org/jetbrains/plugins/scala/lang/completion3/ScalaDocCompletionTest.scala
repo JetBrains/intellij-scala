@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.junit.Assert.assertEquals
 
 class ScalaDocCompletionTest extends ScalaCompletionTestBase {
 
@@ -44,6 +45,55 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
       """.stripMargin,
     item = "param",
     invocationCount = DefaultInvocationCount
+  )
+
+  private def assertCompletionItemsEqual(
+    code: String,
+    expectedLookups: Seq[String]
+  ): Unit = {
+    val (_, items) = activeLookupWithItems(code)
+    val actualLookups = items.map(_.getLookupString)
+    assertEquals("Completion lookup items don't match", expectedLookups, actualLookups)
+  }
+
+  def testParameterTagAvailableItems(): Unit = assertCompletionItemsEqual(
+    s"""/**
+       | * @param $CARET
+       | */
+       |def bar[TypeParam1, TypeParam2, TypeParam3](param1: AnyRef, param2: AnyRef, param3: AnyRef): Unit = ()
+       |""".stripMargin,
+    Seq("param1", "param2", "param3")
+  )
+
+  def testTypeParameterTagAvailableItems(): Unit = assertCompletionItemsEqual(
+    s"""/**
+       | * @tparam $CARET
+       | */
+       |def bar[TypeParam1, TypeParam2, TypeParam3](param1: AnyRef, param2: AnyRef, param3: AnyRef): Unit = ()
+       |""".stripMargin,
+    Seq("TypeParam1", "TypeParam2", "TypeParam3")
+  )
+
+  def testParameterTagAvailableItems_DontIncludeParamsWithAlreadyExistingTag(): Unit = assertCompletionItemsEqual(
+    s"""/**
+       | * @param param1
+       | * @param param3  dummy description
+       | * @param $CARET
+       | */
+       |def bar[TypeParam1, TypeParam2, TypeParam3](param1: AnyRef, param2: AnyRef, param3: AnyRef): Unit = ()
+       |""".stripMargin,
+    Seq("param2")
+  )
+
+  def testTypeParameterTagAvailableItems_DontIncludeParamsWithAlreadyExistingTag(): Unit = assertCompletionItemsEqual(
+    s"""/**
+       | * @tparam TypeParam1
+       | * @tparam TypeParam3 dummy description
+       | * @tparam $CARET
+       | */
+       |def bar[TypeParam1, TypeParam2, TypeParam3](param1: AnyRef, param2: AnyRef, param3: AnyRef): Unit = ()
+       |""".stripMargin,
+    Seq("TypeParam2")
   )
 
   def testLinkCodeCompletion(): Unit = doRawCompletionTest(
