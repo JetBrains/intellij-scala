@@ -36,7 +36,7 @@ final class WorksheetFileDeclarationsContributor extends FileDeclarationsContrib
       case _ => false
     }
 
-  override def processAdditionalDeclarations(processor: PsiScopeProcessor, holder: PsiElement, state: ResolveState): Unit = {
+  override def processAdditionalDeclarations(processor: PsiScopeProcessor, holder: PsiElement, state: ResolveState, lastParent: PsiElement): Unit = {
     //Offset of the most top-level parent of the element which is being resolved
     //This is needed to restrict the scope of resolve to avoid SOE, see SCL-20478
     val topLevelExpressionOffset: Int = {
