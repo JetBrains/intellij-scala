@@ -5,15 +5,15 @@ class a {
   var ccc = null
 
   /**
-   * @param <testref>a
-   * @param <testref>aa
-   * @param b<testref>b bbb
-   * @param cc<testref>c sdfnb
-   * @param <testref>d sehf
-   * @param <testref>c
-   * @param <testref>c
+   * @param <caret>a
+   * @param <caret>aa
+   * @param b<caret>b bbb
+   * @param cc<caret>c sdfnb
+   * @param <caret>d sehf
+   * @param <caret>c
+   * @param <caret>c
    * @param d
-   * @param <testref>a
+   * @param <caret>a
    */
   def f (a: Int, b: String, c: String, d: Int) {
     

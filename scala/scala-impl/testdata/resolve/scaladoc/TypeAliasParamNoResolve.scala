@@ -3,22 +3,22 @@ import collection.mutable.HashMap
 class a {
 
   /**
-   * @tparam <testref>H
+   * @tparam <caret>H
    * @tparam T sret ert re
-   * @tparam <testref>Q      fgsdfgn ergh erjhg hrlsejkfnerilkhfsdfn ert rtsert sert
+   * @tparam <caret>Q      fgsdfgn ergh erjhg hrlsejkfnerilkhfsdfn ert rtsert sert
    * @tparam U
-   * @tparam X<testref>Z
+   * @tparam X<caret>Z
    * @tparam Z
-   * @tparam <testref>Q
+   * @tparam <caret>Q
    *
    */
   type aaa[T, U, P, Q >: U, Z <: U]
 
   /**
    * @tparam A
-   * @tparam <testref>B sdhfkljrhefoiuhe fouhwe iofuheoi ufowsasdf
-   * @tparam <testref>B
-   * @tparam <testref>J
+   * @tparam <caret>B sdhfkljrhefoiuhe fouhwe iofuheoi ufowsasdf
+   * @tparam <caret>B
+   * @tparam <caret>J
    */
   type bbb[A, B] = HashMap[A, B]
 
