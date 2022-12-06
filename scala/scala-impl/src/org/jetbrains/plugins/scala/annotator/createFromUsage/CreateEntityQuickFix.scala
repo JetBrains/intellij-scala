@@ -108,9 +108,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
   }
 
   override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
-    withRef(PsiTreeUtil.findSameElementInCopy(ref, file))
-      .invokeInner(project, editor, file)
-    IntentionPreviewInfo.DIFF
+    // TODO: SCL-20799
+    IntentionPreviewInfo.EMPTY
   }
 
   protected def withRef(newRef: ScReferenceExpression): CreateEntityQuickFix
