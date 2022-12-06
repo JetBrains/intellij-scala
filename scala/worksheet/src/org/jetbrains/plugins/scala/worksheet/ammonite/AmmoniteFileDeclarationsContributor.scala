@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsContributor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -16,6 +17,11 @@ final class AmmoniteFileDeclarationsContributor extends FileDeclarationsContribu
   }
 
   override def processAdditionalDeclarations(processor: PsiScopeProcessor, holder: PsiElement, state: ResolveState, lastParent: PsiElement): Unit = {
+    lastParent match {
+      case file: ScalaFile if file.name == "dummy.scala" => return
+      case _ =>
+    }
+
     holder match {
       case ammoniteFile: ScalaFile =>
         AmmoniteFileDeclarationsContributor.DEFAULT_BUILTINS.foreach {
