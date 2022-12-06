@@ -599,6 +599,11 @@ object MyScaladocParsing {
     DEFINE_TAG, PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG
   )
 
+  val ParamOrTParamTags: Set[String] = Set(
+    PARAM_TAG,
+    TYPE_PARAM_TAG,
+  )
+
   private val nonDataTokens: TokenSet = TokenSet.create(
     DOC_COMMENT_END, DOC_WHITESPACE, DOC_COMMENT_LEADING_ASTERISKS
   )
