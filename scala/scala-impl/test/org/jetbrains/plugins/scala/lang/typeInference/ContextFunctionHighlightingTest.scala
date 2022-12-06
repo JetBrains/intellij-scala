@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package lang.typeInference
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
@@ -11,8 +9,7 @@ class ContextFunctionHighlightingTest extends ScalaLightCodeInsightFixtureTestCa
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
-  private def doTest(code: String): Unit =
-    runWithErrorsFromCompiler(getProject)(checkTextHasNoErrors(code))
+  private def doTest(code: String): Unit = checkTextHasNoErrors(code)
 
   def testContextFunctionResolve(): Unit = doTest(
     """import scala.concurrent.ExecutionContext
@@ -107,5 +104,13 @@ class ContextFunctionHighlightingTest extends ScalaLightCodeInsightFixtureTestCa
       |
       |val s = List(1, 2, 3).sum.ensuring(result == 6)
       |""".stripMargin
+  )
+
+  def testSCL20797(): Unit = doTest(
+    """
+      |object A {
+      |  val foo: Ordering[Int] ?=> List[Int] = ???
+      |  foo.sorted // valid syntax, highlighting fails
+      |}""".stripMargin
   )
 }
