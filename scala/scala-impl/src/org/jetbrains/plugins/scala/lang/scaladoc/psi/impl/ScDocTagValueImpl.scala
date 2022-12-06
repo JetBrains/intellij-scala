@@ -3,24 +3,26 @@ package org.jetbrains.plugins.scala.lang.scaladoc.psi.impl
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, ResolveState}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, ScTypeParamClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocReference, ScDocTag, ScDocTagValue}
 
-final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with ScDocTagValue with ScDocReference {
+final class ScDocTagValueImpl(node: ASTNode)
+  extends ScReferenceImpl(node)
+    with ScDocTagValue
+    with ScDocReference {
 
   import ResolveTargets._
 
@@ -45,9 +47,12 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
     )
 
   override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean): Array[ScalaResolveResult] = {
-    if (!accessibilityCheck) processor.doNotCheckAccessibility()
+    if (!accessibilityCheck)
+      processor.doNotCheckAccessibility()
 
-    getParametersVariants.foreach {
+    val isInsideCompletion = processor.is[CompletionProcessor]
+    val parameters = getParametersScalaDocOwnerParametersOfMyTagKind(isInsideCompletion)
+    parameters.foreach {
       processor.execute(_, ResolveState.initial)
     }
     processor.candidates
@@ -81,10 +86,11 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
     getElement
   }
 
-  override def completionVariants(withImplicitConversions: Boolean): Array[ScalaResolveResult] =
-    getParametersVariants.map { element =>
-      new ScalaResolveResult(element)
-    }
+  //NOTE: Looks like this is not used in completion, I am not sure when exactly this is used
+  override def completionVariants(withImplicitConversions: Boolean): Array[ScalaResolveResult] = {
+    val parameters = getParametersScalaDocOwnerParametersOfMyTagKind(excludeAlreadyMentioned = true)
+    parameters.map(new ScalaResolveResult(_)).toArray
+  }
 
   override def isSoft: Boolean = !isParamTag
 
@@ -96,62 +102,27 @@ final class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with 
     case _ => false
   }
 
-  private def getParametersVariants: Array[ScNamedElement] = {
+  private def getParametersScalaDocOwnerParametersOfMyTagKind(excludeAlreadyMentioned: Boolean): Seq[ScNamedElement] = {
     val parentTagType = parentTagName
-    val scalaDocParent = PsiTreeUtil.getParentOfType(this, classOf[ScDocComment])
+    val scalaDocComment = PsiTreeUtil.getParentOfType(this, classOf[ScDocComment])
 
-    if (scalaDocParent == null || !isParamTag)
-      return Array.empty[ScNamedElement]
+    if (scalaDocComment == null || !isParamTag)
+      return Nil
 
-    def filterParamsByName(tagName: String, params: Iterable[ScNamedElement]): Array[ScNamedElement] = {
-      val paramsSet =
-        (for {
-          tag <- scalaDocParent.asInstanceOf[ScDocComment].findTagsByName(tagName)
-          if tag.getValueElement != null && tag != getParent
-        } yield tag.getValueElement.getText).toSet
-
-      params
-        .iterator
-        .filter(param => !paramsSet.contains(param.name))
-        .to(Array)
+    val scalaDocOwner = scalaDocComment.getOwner
+    val scalaDocOwnerParameters = (parentTagType, scalaDocOwner) match {
+      case (PARAM_TAG, paramsOwner: ScParameterOwner) =>
+        paramsOwner.parameters
+      case (TYPE_PARAM_TAG, typeParamsOwner: ScTypeParametersOwner) =>
+        typeParamsOwner.typeParameters
+      case _ =>
+        Nil
     }
-
-    scalaDocParent.getParent match {
-      case func: ScFunction =>
-        if (parentTagType == PARAM_TAG) {
-          filterParamsByName(PARAM_TAG, func.parameters)
-        } else {
-          filterParamsByName(TYPE_PARAM_TAG, func.typeParameters)
-        }
-      case clazz: ScClass =>
-        val constr = clazz.constructor
-        
-        constr match {
-          case primaryConstr: Some[ScPrimaryConstructor] =>
-            if (parentTagType == PARAM_TAG) {
-              filterParamsByName(PARAM_TAG, primaryConstr.get.parameters)
-            } else {
-              primaryConstr.get.getClassTypeParameters match {
-                case tParam: Some[ScTypeParamClause] =>
-                  filterParamsByName(TYPE_PARAM_TAG, tParam.get.typeParameters)
-                case _ => Array.empty[ScNamedElement]
-              }
-            }
-          case None => Array.empty[ScNamedElement]
-        }
-      case traitt: ScTrait => 
-        if (parentTagType == TYPE_PARAM_TAG) {
-          filterParamsByName(TYPE_PARAM_TAG, traitt.typeParameters)
-        } else {
-          Array.empty[ScNamedElement]
-        }
-      case typeAlias: ScTypeAlias =>
-        if (parentTagType == TYPE_PARAM_TAG) {
-          filterParamsByName(TYPE_PARAM_TAG, typeAlias.typeParameters)
-        } else {
-          Array.empty[ScNamedElement]
-        }
-      case _ => Array.empty[ScNamedElement]
+    if (excludeAlreadyMentioned) {
+      val existingParamTags: Array[PsiDocTag] = scalaDocComment.findTagsByName(parentTagName)
+      val paramNamesAlreadyMentionedInTags: Array[String] = existingParamTags.flatMap(_.getValueElement.toOption).map(_.getText)
+      scalaDocOwnerParameters.filterNot(p => paramNamesAlreadyMentionedInTags.contains(p.name))
     }
+    else scalaDocOwnerParameters
   }
 }
