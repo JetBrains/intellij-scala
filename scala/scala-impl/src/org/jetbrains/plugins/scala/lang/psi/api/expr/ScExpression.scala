@@ -545,14 +545,14 @@ object ScExpression {
       }
     }
 
-    private def isContextFunctionExpected(pt: ScType): Boolean =
+    private def shouldApplyContextParameters(pt: ScType): Boolean =
       (scType, pt) match {
         case (ContextFunctionType(_, _), ContextFunctionType(_, _)) => false
         case _                                                      => true
       }
 
     def updateWithExpected(expr: ScExpression, expectedType: Option[ScType], fromUnderscore: Boolean): ScType =
-      if (shouldUpdateImplicitParams(expr) && expectedType.forall(isContextFunctionExpected)) {
+      if (shouldUpdateImplicitParams(expr) && expectedType.forall(shouldApplyContextParameters)) {
         try {
           val updatedWithExpected =
             InferUtil.updateAccordingToExpectedType(
