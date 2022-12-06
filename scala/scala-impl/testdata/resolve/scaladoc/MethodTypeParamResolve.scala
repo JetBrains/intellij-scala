@@ -4,10 +4,10 @@ class a {
 
   /**
    *
-   * @tparam <testref>T T
-   * @tparam <testref>U U
-   * @tparam <testref>Q Q
-   * @tparam <testref>E E
+   * @tparam <caret>T T
+   * @tparam <caret>U U
+   * @tparam <caret>Q Q
+   * @tparam <caret>E E
    */
   def f[T, U, Q <: HashMap, E >: U]() {
 

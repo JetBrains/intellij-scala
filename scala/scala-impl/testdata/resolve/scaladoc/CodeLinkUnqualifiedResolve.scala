@@ -7,11 +7,11 @@ import collection.mutable.HashSet
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.HashMap
 /**
- *       [[Hash<testref>Map]]
+ *       [[Hash<caret>Map]]
  *
- *                [[Hash<testref>Set]]
+ *                [[Hash<caret>Set]]
  *
- *   [[AtomicInt<testref>eger]] [[JavaTo<testref>kenParsers]]
+ *   [[AtomicInt<caret>eger]] [[JavaTo<caret>kenParsers]]
  */
 class A {
 

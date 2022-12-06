@@ -30,6 +30,9 @@ import java.io.File
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
+/**
+ * Also see [[org.jetbrains.plugins.scala.lang.resolve2.ResolveTestBase]]
+ */
 @Category(Array(classOf[TypecheckerTests]))
 abstract class ScalaResolveTestCase extends ScalaLightCodeInsightFixtureTestCase {
   def folderPath: String =
@@ -51,6 +54,8 @@ abstract class ScalaResolveTestCase extends ScalaLightCodeInsightFixtureTestCase
     }
   }
 
+  protected var testFilePath: String = _ //for debugging
+
   override def setUp(): Unit = {
     super.setUp()
 
@@ -61,6 +66,8 @@ abstract class ScalaResolveTestCase extends ScalaLightCodeInsightFixtureTestCase
       fileName = fileName.substring("JavaFileWithName".length())
     }
     val filePath = folderPath + File.separator + fileName + extention
+    testFilePath = filePath
+
     val ioFile = new File(filePath)
     val fileTextRaw = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
     val fileTextOriginal = StringUtil.convertLineSeparators(fileTextRaw)

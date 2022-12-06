@@ -1,7 +1,7 @@
 /**
  *
- *      [[scala.collection.mutable.Ha<testref>shMap]]
+ *      [[scala.collection.mutable.Ha<caret>shMap]]
  *
- *      [[scala.util.matching.<testref>Regex]]
+ *      [[scala.util.matching.<caret>Regex]]
  */
 
