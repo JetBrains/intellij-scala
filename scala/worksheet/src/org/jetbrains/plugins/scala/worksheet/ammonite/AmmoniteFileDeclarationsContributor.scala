@@ -15,7 +15,7 @@ final class AmmoniteFileDeclarationsContributor extends FileDeclarationsContribu
     case _ => false
   }
 
-  override def processAdditionalDeclarations(processor: PsiScopeProcessor, holder: PsiElement, state: ResolveState): Unit = {
+  override def processAdditionalDeclarations(processor: PsiScopeProcessor, holder: PsiElement, state: ResolveState, lastParent: PsiElement): Unit = {
     holder match {
       case ammoniteFile: ScalaFile =>
         AmmoniteFileDeclarationsContributor.DEFAULT_BUILTINS.foreach {

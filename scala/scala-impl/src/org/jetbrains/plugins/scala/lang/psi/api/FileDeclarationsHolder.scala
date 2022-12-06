@@ -131,7 +131,7 @@ trait FileDeclarationsHolder
     }
 
     FileDeclarationsContributor.getAllFor(this).foreach(
-      _.processAdditionalDeclarations(processor, this, state)
+      _.processAdditionalDeclarations(processor, this, state, lastParent)
     )
 
     val checkPredefinedClassesAndPackages = processor match {
