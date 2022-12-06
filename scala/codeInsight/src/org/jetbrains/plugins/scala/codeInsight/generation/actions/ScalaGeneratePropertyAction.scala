@@ -9,8 +9,10 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.OptionalBracesCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createDefinitionWithContext, createNewLine}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 final class ScalaGeneratePropertyAction extends ScalaBaseGenerateAction(
   new ScalaGeneratePropertyAction.Handler,
@@ -45,6 +47,9 @@ object ScalaGeneratePropertyAction {
       definition.isSimple && definition.containingClass != null
 
     private def addPropertyMembers(definition: ScVariableDefinition): Unit = {
+      implicit val ctx: ProjectContext = definition.getManager
+      implicit val features: ScalaFeatures = definition
+
       val name = definition.bindings.head.name
       val typeText = definition.`type`().getOrAny.canonicalText
       val defaultValue = definition.expr.fold("???")(_.getText)
@@ -60,14 +65,13 @@ object ScalaGeneratePropertyAction {
       val getter_0 = createDefinition(getterText)
 
       val setterText =
-        s"""$modifiers def ${name}_=(value: $typeText): Unit = {
-           |  _$name = value
-           |}""".stripMargin.replace("\r", "")
+        optBraces"""$modifiers def ${name}_=(value: $typeText): Unit =$BlockStart
+                   |  _$name = value$BlockEnd""".stripMargin.replace("\r", "")
       val setter_0 = createDefinition(setterText)
 
       val parent = definition.getParent
       val added = Seq(backingVar_0, getter_0, setter_0).map { elem =>
-        parent.addBefore(createNewLine()(definition.getManager), definition)
+        parent.addBefore(createNewLine(), definition)
         parent.addBefore(elem, definition)
       }
       TypeAdjuster.adjustFor(added)

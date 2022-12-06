@@ -70,3 +70,66 @@ class GeneratePropertyTest extends ScalaGenerateTestBase {
     performTest(text, result, checkAvailability = true)
   }
 }
+
+class GeneratePropertyTest_Scala3 extends ScalaGenerateTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
+
+  override protected val handler: LanguageCodeInsightActionHandler =
+    new ScalaGeneratePropertyAction.Handler
+
+  def testSimple(): Unit = {
+    val text =
+      s"""class A {
+         |  ${CARET}var a: Int = 0
+         |}""".stripMargin
+
+    val result =
+      s"""class A {
+         |  private[this] var _a: Int = 0
+         |
+         |  def a: Int = _a
+         |
+         |  def a_=(value: Int): Unit =
+         |    _a = value
+         |}""".stripMargin
+    performTest(text, result, checkAvailability = true)
+  }
+
+  def testWithoutType(): Unit = {
+    val text =
+      s"""object A {
+         |  ${CARET}var a = 0
+         |}""".stripMargin
+
+    val result =
+      s"""object A {
+         |  private[this] var _a: Int = 0
+         |
+         |  def a: Int = _a
+         |
+         |  def a_=(value: Int): Unit =
+         |    _a = value
+         |}""".stripMargin
+    performTest(text, result, checkAvailability = true)
+  }
+
+  def testWithModifiers(): Unit = {
+    val text =
+      s"""class A {
+         |  protected ${CARET}var a = 0
+         |}""".stripMargin
+
+    val result =
+      s"""class A {
+         |  private[this] var _a: Int = 0
+         |
+         |  protected def a: Int = _a
+         |
+         |  protected def a_=(value: Int): Unit =
+         |    _a = value
+         |}""".stripMargin
+    performTest(text, result, checkAvailability = true)
+  }
+}

@@ -18,11 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.OptionalBracesCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodWithContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 final class ScalaGenerateEqualsAction extends ScalaBaseGenerateAction(
   new ScalaGenerateEqualsAction.Handler,
@@ -94,7 +95,7 @@ object ScalaGenerateEqualsAction {
       myHashCodeFields.clear()
     }
 
-    private def createHashCode(aClass: ScClass): ScFunction = {
+    private def createHashCode(aClass: ScClass)(implicit ctx: ProjectContext, features: ScalaFeatures): ScFunction = {
       val declText = "def hashCode(): Int"
       val signature = new PhysicalMethodSignature(
         createMethodWithContext(declText + " = 0", aClass, aClass.extendsBlock),
@@ -103,19 +104,16 @@ object ScalaGenerateEqualsAction {
       val usedFields = superCall ++ myHashCodeFields.map(_.name)
       val stateText = usedFields.mkString("Seq(", ", ", ")")
       val firstStmtText = s"val state = $stateText"
-      val arrow = ScalaPsiUtil.functionArrow(aClass.getProject)
+      val arrow = ScalaPsiUtil.functionArrow(ctx)
       val calculationText = s"state.map(_.hashCode()).foldLeft(0)((a, b) $arrow 31 * a + b)"
       val methodText =
-        s"""override $declText = {
-           |  $firstStmtText
-           |  $calculationText
-           |}""".stripMargin.replace("\r", "")
+        optBraces"""override $declText =$BlockStart
+                   |  $firstStmtText
+                   |  $calculationText$BlockEnd""".stripMargin.replace("\r", "")
       createMethodWithContext(methodText, aClass, aClass.extendsBlock)
     }
 
-    private def createCanEqual(aClass: ScClass, project: Project): ScFunction = {
-      implicit val ctx: ProjectContext = project
-
+    private def createCanEqual(aClass: ScClass): ScFunction = {
       val declText = "def canEqual(other: Any): Boolean"
       val sign = new PhysicalMethodSignature(
         createMethodWithContext(declText + " = true", aClass, aClass.extendsBlock),
@@ -125,7 +123,7 @@ object ScalaGenerateEqualsAction {
       createMethodWithContext(text, aClass, aClass.extendsBlock)
     }
 
-    private def createEquals(aClass: ScClass, project: Project): ScFunction = {
+    private def createEquals(aClass: ScClass)(implicit ctx: ProjectContext, features: ScalaFeatures): ScFunction = {
       val fieldComparisons = myEqualsFields.map(_.name).map(name => s"$name == that.$name")
       val declText = "def equals(other: Any): Boolean"
       val signature = new PhysicalMethodSignature(
@@ -135,13 +133,12 @@ object ScalaGenerateEqualsAction {
       val canEqualCheck = Option(if (aClass.hasFinalModifier) null else "(that canEqual this)")
       val allChecks = superCheck ++ canEqualCheck ++ fieldComparisons
       val checksText = allChecks.mkString(" &&\n")
-      val arrow = ScalaPsiUtil.functionArrow(project)
+      val arrow = ScalaPsiUtil.functionArrow(ctx)
       val text =
-        s"""override $declText = other match {
-           |  case that: ${aClass.name} $arrow
-           |    $checksText
-           |  case _ $arrow false
-           |}""".stripMargin.replace("\r", "")
+        optBraces"""override $declText = other match$BlockStart
+                   |  case that: ${aClass.name} $arrow
+                   |    $checksText
+                   |  case _ $arrow false$BlockEnd""".stripMargin.replace("\r", "")
       createMethodWithContext(text, aClass, aClass.extendsBlock)
     }
 
@@ -153,6 +150,9 @@ object ScalaGenerateEqualsAction {
         val isOk = chooseOriginalMembers(aClass)(project, editor)
         if (!isOk) return
 
+        implicit val projectContext: ProjectContext = project
+        implicit val features: ScalaFeatures = aClass
+
         inWriteAction {
           val needHashCode = hasHashCode(aClass).isEmpty
           val hashCodeMethod = Option(
@@ -160,11 +160,11 @@ object ScalaGenerateEqualsAction {
 
           val needEquals = hasEquals(aClass).isEmpty
           val equalsMethod = Option(
-            if (needEquals) createEquals(aClass, project) else null)
+            if (needEquals) createEquals(aClass) else null)
 
           val needCanEqual = needEquals && hasCanEqual(aClass).isEmpty && !aClass.hasFinalModifier
           val canEqualMethod = Option(
-            if (needCanEqual) createCanEqual(aClass, project) else null)
+            if (needCanEqual) createCanEqual(aClass) else null)
 
           val newMethods = hashCodeMethod ++: equalsMethod ++: canEqualMethod ++: Nil
           addMembers(aClass, newMethods, editor.getDocument)
