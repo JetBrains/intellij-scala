@@ -11,9 +11,10 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScParenthesisedExpr, ScReturn}
+import org.jetbrains.plugins.scala.lang.psi.impl.OptionalBracesCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
 
@@ -25,7 +26,7 @@ final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
       val offset = editor.getCaretModel.getOffset
       range.getStartOffset <= offset && offset <= range.getEndOffset
     }.collect {
-      case ScReturn(Typeable(scType)) => scType.canonicalText
+      case ScReturn(Typeable(scType)) => scType.widen.canonicalText
     }.contains("Boolean")
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
@@ -42,7 +43,10 @@ final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
 
     IntentionPreviewUtils.write { () =>
       implicit val context: ProjectContext = project
-      val replacement = createExpressionFromText(s"if ($expressionText) { return true } else { return false }", element)
+      implicit val features: ScalaFeatures = element
+      val replacementText =
+        optBraces"if ${IfCondition(expressionText)} $IfThenBlockStart return true $IfBlockEnd else $BlockStart return false $BlockEnd"
+      val replacement = createExpressionFromText(replacementText, features)
       statement.replaceExpression(replacement, removeParenthesis = true)
 
       editor.getCaretModel.moveToOffset(start)
