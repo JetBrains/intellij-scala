@@ -42,7 +42,7 @@ abstract class DirtyScopeHolder[Scope](
 
   protected val lock: Lock = new ReentrantLock()
   protected val fileTypeRegistry: FileTypeRegistry = FileTypeRegistry.getInstance()
-  protected val vfsChangedScopes: util.Set[Scope] = ContainerUtil.set[Scope]()
+  protected val vfsChangedScopes: util.Set[Scope] = new util.HashSet()
   protected val modifiedDuringIndexing: util.HashMap[Scope, Int] = new util.HashMap[Scope, Int]()
   protected val compilationAffectedScopes: util.Set[Scope] = ContainerUtil.newConcurrentSet[Scope]()
   protected var indexingPhases: Int = 0
