@@ -9,7 +9,8 @@ import org.junit.Assert.{assertEquals, assertTrue}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class ScaladocLinkResolveTest extends ScalaResolveTestCase {
+/** Also see [[org.jetbrains.plugins.scala.lang.resolve2.ScalaDocLinkResolveTest]] */
+class ScaladocLinkResolveTest_Old extends ScalaResolveTestCase {
 
   override def folderPath: String = super.folderPath + "resolve/scaladoc"
 

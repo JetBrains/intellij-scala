@@ -24,18 +24,6 @@ final class ScDocCommentImpl(buffer: CharSequence,
     case _ => null
   }
 
-  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
-    super.processDeclarations(processor, state, lastParent, place) && !Option(getOwner).exists {
-      case owner: ScClass =>
-        owner.membersWithSynthetic.exists {
-          case named: PsiNamedElement => !processor.execute(named, state)
-          case _ => false
-        }
-      case _ => false
-    }
-  }
-
   override def toString: String = "DocComment"
 
   //todo: implement me

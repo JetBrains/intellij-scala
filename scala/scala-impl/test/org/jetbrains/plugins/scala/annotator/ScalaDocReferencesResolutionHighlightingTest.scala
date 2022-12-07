@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.annotator
 
+/**
+ * NOTE: For the more detailed resolution tests see [[org.jetbrains.plugins.scala.lang.resolve2.ScalaDocLinkResolveTest]]
+ */
 class ScalaDocReferencesResolutionHighlightingTest extends ScalaHighlightingTestBase {
 
   //SCL-15288
@@ -51,6 +54,111 @@ class ScalaDocReferencesResolutionHighlightingTest extends ScalaHighlightingTest
         |Warning(unknown13,Cannot resolve symbol unknown13)
         |Warning(unknown15,Cannot resolve symbol unknown15)
         |Warning(unknown18,Cannot resolve symbol unknown18)
+        |""".stripMargin
+    )
+  }
+
+  def testReferencesToObjects(): Unit = {
+    val code =
+      """/**
+        | *  - [[MyClassWithoutCompanion]]
+        | *  - [[MyClassWithoutCompanion$]]
+        | *
+        | *  - [[MyObjectWithoutCompanion]]
+        | *  - [[MyObjectWithoutCompanion$]]
+        | *
+        | *  - [[MyClassWithCompanion]]
+        | *  - [[MyClassWithCompanion$]]
+        | *
+        | *  - [[MyClassWithoutCompanion.fooInClass]]
+        | *  - [[MyClassWithoutCompanion$.fooInClass]]
+        | *
+        | *  - [[MyObjectWithoutCompanion.fooInObject]]
+        | *  - [[MyObjectWithoutCompanion$.fooInObject]]
+        | *
+        | *  - [[MyClassWithCompanion.fooInClass]]
+        | *  - [[MyClassWithCompanion.fooInObject]]
+        | *
+        | *  - [[MyClassWithCompanion$.fooInClass]]
+        | *  - [[MyClassWithCompanion$.fooInObject]]
+        | */
+        |object Example
+        |
+        |class MyClassWithoutCompanion {
+        |  def fooInClass: String = null
+        |}
+        |
+        |object MyObjectWithoutCompanion {
+        |  def fooInObject: String = null
+        |}
+        |
+        |class MyClassWithCompanion {
+        |  def fooInClass: String = null
+        |}
+        |
+        |object MyClassWithCompanion {
+        |  def fooInObject: String = null
+        |}
+        |""".stripMargin
+    assertMessagesText(
+      code,
+      """Warning(MyClassWithoutCompanion$,Cannot resolve symbol MyClassWithoutCompanion$)
+        |Warning(fooInClass,Cannot resolve symbol fooInClass)
+        |Warning(fooInClass,Cannot resolve symbol fooInClass)
+        |""".stripMargin
+    )
+  }
+
+  def testReferencesToObjects_FullyQualified(): Unit = {
+    val code =
+      """package org
+        |package example
+        |
+        |/**
+        | *  - [[org.example.MyClassWithoutCompanion]]
+        | *  - [[org.example.MyClassWithoutCompanion$]]
+        | *
+        | *  - [[org.example.MyObjectWithoutCompanion]]
+        | *  - [[org.example.MyObjectWithoutCompanion$]]
+        | *
+        | *  - [[org.example.MyClassWithCompanion]]
+        | *  - [[org.example.MyClassWithCompanion$]]
+        | *
+        | *  - [[org.example.MyClassWithoutCompanion.fooInClass]]
+        | *  - [[org.example.MyClassWithoutCompanion$.fooInClass]]
+        | *
+        | *  - [[org.example.MyObjectWithoutCompanion.fooInObject]]
+        | *  - [[org.example.MyObjectWithoutCompanion$.fooInObject]]
+        | *
+        | *  - [[org.example.MyClassWithCompanion.fooInClass]]
+        | *  - [[org.example.MyClassWithCompanion.fooInObject]]
+        | *
+        | *  - [[org.example.MyClassWithCompanion$.fooInClass]]
+        | *  - [[org.example.MyClassWithCompanion$.fooInObject]]
+        | */
+        |object Example
+        |
+        |class MyClassWithoutCompanion {
+        |  def fooInClass: String = null
+        |}
+        |
+        |object MyObjectWithoutCompanion {
+        |  def fooInObject: String = null
+        |}
+        |
+        |class MyClassWithCompanion {
+        |  def fooInClass: String = null
+        |}
+        |
+        |object MyClassWithCompanion {
+        |  def fooInObject: String = null
+        |}
+        |""".stripMargin
+    assertMessagesText(
+      code,
+      """Warning(MyClassWithoutCompanion$,Cannot resolve symbol MyClassWithoutCompanion$)
+        |Warning(fooInClass,Cannot resolve symbol fooInClass)
+        |Warning(fooInClass,Cannot resolve symbol fooInClass)
         |""".stripMargin
     )
   }
