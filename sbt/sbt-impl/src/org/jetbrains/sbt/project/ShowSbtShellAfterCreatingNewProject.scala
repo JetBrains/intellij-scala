@@ -31,7 +31,9 @@ final class ShowSbtShellAfterCreatingNewProject extends ExternalSystemSettingsLi
     externalSystemManager: ExternalSystemManager[_, _, _, _, _],
     collection: util.Collection[_ <: ExternalProjectSettings]
   ): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode)
+    // This method is also called on the "default" project instance, before the new project is created.
+    // `StartupManager#runAfterOpened` throws an exception if called on the default project instance.
+    if (ApplicationManager.getApplication.isUnitTestMode || project.isDefault)
       return
 
     import scala.language.existentials
