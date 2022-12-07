@@ -1,16 +1,18 @@
 package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractFixOnTwoPsiElements, PsiElementVisitorSimple, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -71,8 +73,9 @@ object MatchToPartialFunctionInspection {
   }
 
   private def registerProblem(statement: ScMatch, expression: ScExpression, holder: ProblemsHolder): Unit = {
-    findLeftBrace(statement).map { token =>
-      token.getTextRange.getStartOffset - expression.getTextRange.getStartOffset
+    findLeftBraceOrMatchKeyword(statement).map { token =>
+      val tokenOffset = if (token.elementType == ScalaTokenTypes.tLBRACE) token.startOffset else token.endOffset
+      tokenOffset - expression.getTextRange.getStartOffset
     }.map(new TextRange(0, _)).foreach { range =>
       val fix = MatchToPartialFunctionQuickFix(statement, expression)
 
@@ -81,8 +84,14 @@ object MatchToPartialFunctionInspection {
     }
   }
 
+  private[this] def findLeftBraceOrMatchKeyword(statement: ScMatch): Option[PsiElement] =
+    findLeftBrace(statement).orElse(findMatchKeyword(statement))
+
   private[this] def findLeftBrace(statement: ScMatch): Option[PsiElement] =
     statement.findFirstChildByType(ScalaTokenTypes.tLBRACE)
+
+  private[this] def findMatchKeyword(statement: ScMatch): Option[PsiElement] =
+    statement.findFirstChildByType(ScalaTokenTypes.kMATCH)
 
   object MatchToPartialFunctionQuickFix {
 
@@ -103,14 +112,25 @@ object MatchToPartialFunctionInspection {
     private def doApplyFix(statement: ScMatch, expression: ScExpression)
                           (implicit project: Project): Unit = {
       val matchStmtCopy = statement.copy.asInstanceOf[ScMatch]
-      val leftBrace = findLeftBrace(matchStmtCopy).getOrElse(return)
 
-      addNamingPatterns(matchStmtCopy, needNamingPattern(statement))
-      matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
-      val newBlock = createExpressionFromText(matchStmtCopy.getText, expression)
+      val newBlock = findLeftBrace(matchStmtCopy) match {
+        case Some(leftBrace) =>
+          addNamingPatterns(matchStmtCopy, needNamingPattern(statement))
+          matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
+          createExpressionFromText(matchStmtCopy.getText, expression)
+        case None =>
+          findMatchKeyword(matchStmtCopy) match {
+            case Some(matchKw) =>
+              addNamingPatterns(matchStmtCopy, needNamingPattern(statement))
+              matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, matchKw)
+              createExpressionFromText("{" + matchStmtCopy.getText + "\n}", expression)
+            case None => return
+          }
+      }
+
       CodeEditUtil.setOldIndentation(newBlock.getNode.asInstanceOf[TreeElement], CodeEditUtil.getOldIndentation(matchStmtCopy.getNode))
 
-      inWriteAction {
+      IntentionPreviewUtils.write { () =>
         expression.getParent match {
           case (argList: ScArgumentExprList) childOf (call@ScMethodCall(ElementText(invoked), _)) if argList.exprs.size == 1 =>
             val replacement = createExpressionFromText(invoked + " " + newBlock.getText, call)
@@ -120,7 +140,7 @@ object MatchToPartialFunctionInspection {
           case _ =>
             expression.replace(newBlock)
         }
-        PsiDocumentManager.getInstance(project).commitAllDocuments()
+        statement.getContainingFile.getViewProvider.getDocument.commit(project)
       }
     }
 
