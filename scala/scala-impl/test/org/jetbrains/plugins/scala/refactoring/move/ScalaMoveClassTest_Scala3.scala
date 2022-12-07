@@ -10,8 +10,14 @@ class ScalaMoveClassTest_Scala3 extends ScalaMoveClassTestBase {
 
   override protected def testDataRoot: String = super.testDataRoot + "/scala3/"
 
-  def testKeepImports(): Unit = {
-    runWithErrorsFromCompiler(getProject)(doTest(Seq("com.A"), "org"))
+  def testKeepImportsWhenCBHIsEnabled(): Unit = {
+    runWithErrorsFromCompiler(getProject) {
+      doTest(Seq("com.A"), "org")
+    }
+  }
+
+  def testDontKeepImportsWhenCBHIsDisabled(): Unit = {
+    doTest(Seq("com.A"), "org")
   }
 
   def testWithTopLevelDefsInFile_MoveClass(): Unit = {
