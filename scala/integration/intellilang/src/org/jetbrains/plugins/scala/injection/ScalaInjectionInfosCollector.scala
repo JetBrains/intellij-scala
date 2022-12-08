@@ -7,9 +7,10 @@ import org.intellij.plugins.intelliLang.inject.InjectorUtils.InjectionInfo
 import org.intellij.plugins.intelliLang.inject._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScCodeBlockElementType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.ScExpressionElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.collection.mutable
@@ -114,28 +115,27 @@ private object ScalaInjectionInfosCollector {
     var childIdx = 0
     var prevChild: ASTNode = null
     while (childIdx < children.length) {
-      val child = children(childIdx)
-
-      val childTextLength = child.getTextLength
-
       //0-th child represents interpolator and 1-th represents first content child
       val isFirstPart = childIdx == 1
       //last children represents closing quotes, so last content children is before it
       val isLastPart = childIdx == children.length - 2
 
-      val partPrefix = if (isFirstPart) prefix else InjectionPlaceholder
+      val partPrefix = if (isFirstPart) prefix else InjectionPlaceholder //use placeholder between all injections
       val partSuffix = if (isLastPart) suffix else ""
       val injectedLanguageForPart = newInjectedLanguage(languageId, partPrefix, partSuffix)
 
+      val child = children(childIdx)
+      val childTextLength = child.getTextLength
+
       //NOTE: for the first content child parser also captures opening quote(s), `"` or `"""` (for multiline strings)
       //we need to exclude them from the range
-      val firstPartShift = if (isFirstPart) child.getElementType match {
+      val leadingQuotesShift = if (isFirstPart) child.getElementType match {
         case `tINTERPOLATED_STRING` => 1
         case `tINTERPOLATED_MULTILINE_STRING` => 3
         case _ => 0
       } else 0
 
-      val start = baseOffset + firstPartShift
+      val start = baseOffset + leadingQuotesShift
       val end = baseOffset + childTextLength
 
       //NOTE: for the first content child parser also captures opening quote(s), `"` or `"""` (for multiline strings)
@@ -147,15 +147,34 @@ private object ScalaInjectionInfosCollector {
           collectInjectionInfosForMultilineString(literal, ranges, languageId, partPrefix, partSuffix)(result)
         case `tINTERPOLATED_STRING` =>
           result += new InjectionInfo(literal, injectedLanguageForPart, TextRange.create(start, end))
-        case _ if prevChild != null && prevChild.getPsi.is[ScExpression] =>
-          //we are just right after injection (in the end of the string or between two injections with no content between them)
-          result += new InjectionInfo(literal, injectedLanguageForPart, TextRange.from(baseOffset, 0))
         case _ =>
+          if (prevChild != null) {
+            val prevElementType = prevChild.getElementType
+            //NOTE: `$$` is currently treated as a expression injection even though it's technically an escaped text
+            //This leads to the fact that escaped `$` character can't be edited in the "edit injected fragment" action
+            //We could treat it as a text, but quite completed.
+            //The resulting algorithm would require a complete rewrite
+            //Currently it relies on the fact that the can't be disjointed content parts in string
+            //However parser parses $$ as separate child so "aaa $$ bbb $$ ccc" is actually 5 parts, not 1
+            val addEmptyRange = prevElementType.is[ScExpressionElementType] ||
+              prevElementType.is[ScCodeBlockElementType] ||
+              prevElementType == tINTERPOLATED_STRING_ESCAPE // dollar escape: `$$`
+            if (addEmptyRange) {
+              //We are just right after injection (in the end of the string or between two injections with no content between them)
+              //Examples:
+              //s"$InjectedValue<CARET>"
+              //s"$InjectedValue<CARET>$InjectedValue"
+              //s"$$<CARET>"
+              //s"$$<CARET>$$"
+              val emptyRange = TextRange.create(baseOffset, baseOffset)
+              result += new InjectionInfo(literal, injectedLanguageForPart, emptyRange)
+            }
+          }
       }
 
       hasInjection |= child.getElementType == tINTERPOLATED_STRING_INJECTION
       prevChild = child
-      baseOffset += child.getTextLength
+      baseOffset += childTextLength
       childIdx += 1
     }
 

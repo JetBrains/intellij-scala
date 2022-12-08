@@ -113,12 +113,47 @@ class ScalaInjectedLanguageEditInjectedFragmentTest extends ScalaLightCodeInsigh
   )
 
   //SCL-15461
-  def testTypeEnter_IntepolatedString(): Unit = doTypingTest(
+  def testTypeEnter_InterpolatedString(): Unit = doTypingTest(
     "\n",
     raw"""//language=JAVA
          |s"class A {$CARET}"""".stripMargin,
     raw"""//language=JAVA
          |s"class A {\n    \n}"""".stripMargin,
     "class A {}"
+  )
+
+  def testTypeDollar_InSimpleString(): Unit = doTypingTest(
+    "$",
+    s""""start $CARET end".r""".stripMargin,
+    s""""start $$ end".r""".stripMargin,
+    "start  end"
+  )
+
+  def testTypeDollar_InMultilineString(): Unit = doTypingTest(
+    "$",
+    s"""${qqq}start $CARET end$qqq.r""".stripMargin,
+    s"""${qqq}start $$ end$qqq.r""".stripMargin,
+    "start  end"
+  )
+
+  def testTypeDollar_InInterpolatedString(): Unit = doTypingTest(
+    "$",
+    s"""s"start $CARET end".r""".stripMargin,
+    s"""s"start $$$$ end".r""".stripMargin,
+    "start  end"
+  )
+
+  def testTypeDollar_InInterpolatedString_WithExistingDollars(): Unit = doTypingTest(
+    "$",
+    s"""s"start $$value $CARET $$value end".r""".stripMargin,
+    s"""s"start $$value $$$$ $$value end".r""".stripMargin,
+    "start InjectionPlaceholder  InjectionPlaceholder end"
+  )
+
+  def testTypeDollar_InMultilineInterpolatedString(): Unit = doTypingTest(
+    "$",
+    s"""s${qqq}start $CARET end$qqq.r""".stripMargin,
+    s"""s${qqq}start $$$$ end$qqq.r""".stripMargin,
+    "start  end"
   )
 }

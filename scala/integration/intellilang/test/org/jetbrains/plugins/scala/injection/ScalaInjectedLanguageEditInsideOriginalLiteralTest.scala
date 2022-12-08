@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.injection
 
 import com.intellij.testFramework.EditorTestUtil
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
 /**
@@ -12,6 +13,9 @@ class ScalaInjectedLanguageEditInsideOriginalLiteralTest extends EditorActionTes
   import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
 
   private var scalaInjectionTestFixture: ScalaInjectionTestFixture = _
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= ScalaVersion.Latest.Scala_2_13
 
   override protected def setUp(): Unit = {
     super.setUp()

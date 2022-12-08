@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.injection
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.AbstractElementManipulator
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl._
@@ -20,11 +21,13 @@ final class ScalaInjectedStringLiteralManipulator extends AbstractElementManipul
       case s: ScInterpolatedStringLiteral => s.kind != ScInterpolatedStringLiteral.Raw
       case _                              => !literal.isMultiLineString
     }
+    val isInterpolated = literal.is[ScInterpolatedStringLiteral]
 
     val before = text.substring(0, range.getStartOffset)
     val after = text.substring(range.getEndOffset)
-    val newContentEscaped = if (needEscape) StringUtil.escapeStringCharacters(newContent) else newContent
-    val newText = before + newContentEscaped + after
+    val newContentEscaped0 = if (needEscape) StringUtil.escapeStringCharacters(newContent) else newContent
+    val newContentEscaped1 = if (isInterpolated && newContentEscaped0.contains('$')) newContentEscaped0.replace("$", "$$") else newContentEscaped0
+    val newText = before + newContentEscaped1 + after
 
     replaceWith(literal, newText)
   }
