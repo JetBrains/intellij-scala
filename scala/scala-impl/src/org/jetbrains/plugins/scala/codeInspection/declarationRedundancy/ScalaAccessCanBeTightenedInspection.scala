@@ -9,7 +9,8 @@ import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.getPipeline
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.{elementIsTypeDefWhichEscapesDirectParent, getPipeline}
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.TypeDefEscaping.getEscapeInfosOfTypeDefMembers
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection
@@ -21,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 
 import scala.annotation.tailrec
 
@@ -33,7 +35,8 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
 
       val usages = getPipeline(element.getProject).runSearchPipeline(element, isOnTheFly)
 
-      if (usages.nonEmpty && usages.forall(_.targetCanBePrivate)) {
+      if (usages.nonEmpty && usages.forall(_.targetCanBePrivate) && !elementIsTypeDefWhichEscapesDirectParent(element)) {
+
         val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(modifierListOwner)
 
         Seq(
@@ -155,5 +158,29 @@ private object ScalaAccessCanBeTightenedInspection {
       val typeAnnotationReason = TypeAnnotationInspection.getReasonForTypeAnnotationOn(modifierListOwner, expression)
       typeAnnotationReason.isDefined
     }
+  }
+
+  private def elementIsTypeDefWhichEscapesDirectParent(element: ScNamedElement): Boolean = element match {
+    case td: ScTypeDefinition =>
+
+      td.`type`() match {
+
+        case Right(tdType) =>
+
+          val designatorType = tdType.asOptionOf[ScParameterizedType].map(_.designator).getOrElse(tdType)
+
+          val containingTypeDef = Option(td.containingClass).flatMap(_.asOptionOf[ScTypeDefinition])
+          val containingTypeDefCompanion = containingTypeDef.flatMap(_.baseCompanion)
+
+          val escapeInfos = (containingTypeDef ++ containingTypeDefCompanion).flatMap(getEscapeInfosOfTypeDefMembers)
+
+          escapeInfos.exists { info =>
+            info.member != td && info.escapingType.conforms(designatorType)
+          }
+
+        case _ => false
+      }
+
+    case _ => false
   }
 }
