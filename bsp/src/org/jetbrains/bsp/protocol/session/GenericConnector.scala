@@ -33,6 +33,6 @@ class GenericConnector(base: File, compilerOutput: File, capabilities: BspCapabi
     val compilerOutputUri = compilerOutput.getCanonicalFile.toURI
     val initializeBuildParams = BspServerConnector.createInitializeBuildParams(rootUri, compilerOutputUri, capabilities)
 
-    BspSession.builder(process.getInputStream, process.getErrorStream, process.getOutputStream, initializeBuildParams, cleanup)
+    BspSession.builder(process.pid(), process.getInputStream, process.getErrorStream, process.getOutputStream, initializeBuildParams, cleanup)
   }
 }
