@@ -1,7 +1,12 @@
 package org.jetbrains.plugins.scala.uast
 
+import com.intellij.uast.UastHintedVisitorAdapter
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inReadAction}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
+import org.jetbrains.plugins.scala.lang.psi.uast.withPossibleSourceTypesCheck
 import org.jetbrains.plugins.scala.uast.AbstractUastFixtureTest._
-import org.jetbrains.uast.{UAnnotation, UFile, ULiteralExpression}
+import org.jetbrains.uast.visitor.{AbstractUastNonRecursiveVisitor, AbstractUastVisitor}
+import org.jetbrains.uast.{UAnnotation, UElement, UFile, ULambdaExpression, ULiteralExpression}
 import org.junit.Assert
 
 import scala.jdk.CollectionConverters._
@@ -25,7 +30,7 @@ class ScalaUastApiTest extends AbstractUastFixtureTest {
     })
 
   def testAnnotationAnchor(): Unit =
-    doTest("SimpleClass",  { (_, file) =>
+    doTest("SimpleClass", { (_, file) =>
       val uAnnotation = findElementByText[UAnnotation](file, "@java.lang.Deprecated")
       Assert.assertEquals("Deprecated", uAnnotation.getUastAnchor ?> (_.getSourcePsi) ?> (_.getText) orNull)
     })
@@ -40,6 +45,39 @@ class ScalaUastApiTest extends AbstractUastFixtureTest {
       Assert.assertFalse(literal2.isString)
       Assert.assertEquals(123, literal2.getValue)
     })
+
+  def test_SCL20739(): Unit = {
+    val psiFile = myFixture.configureByText(
+      "Foo.scala",
+      s"""
+         |object Foo {
+         |  1 match { case _ => ${CARET}_ }
+         |}
+         |""".stripMargin
+    )
+
+    val underscoreLeafPsi =
+      psiFile.findElementAt(inReadAction(myFixture.getCaretOffset))
+
+    val psiVisitor = UastHintedVisitorAdapter.create(
+      psiFile.getLanguage,
+      new AbstractUastNonRecursiveVisitor {
+        override def visitElement(element: UElement): Boolean = {
+          element.accept(new AbstractUastVisitor {})
+          super.visitElement(element)
+        }
+      },
+      Array(classOf[ULambdaExpression])
+    )
+
+    withPossibleSourceTypesCheck {
+      inReadAction {
+        underscoreLeafPsi.withParents
+          .takeWhile(!_.is[ScCaseClauses])
+          .foreach(_.accept(psiVisitor))
+      }
+    }
+  }
 }
 
 object ScalaUastApiTest {

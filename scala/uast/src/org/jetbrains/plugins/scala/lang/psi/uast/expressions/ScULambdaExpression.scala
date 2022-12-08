@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.declarations.ScULambdaParameter
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.util.SAMUtil
-import org.jetbrains.uast.{UExpression, ULambdaExpression, ULambdaExpressionAdapter, UParameter}
+import org.jetbrains.uast.{UBlockExpression, UExpression, ULambdaExpression, ULambdaExpressionAdapter, UParameter}
 
 import java.{util => ju}
 import scala.jdk.CollectionConverters._
@@ -32,7 +32,9 @@ trait ScUGenLambda
   override def getBody: UExpression =
     body
       .collect {
-        case block: ScBlock => block.convertToUExpressionOrEmpty(parent = this)
+        case block: ScBlock =>
+          block.convertTo[UBlockExpression](parent = this)
+            .getOrElse(Scala2UastConverter.createUEmptyExpression(parent = this))
         case expressionBody =>
           ScUImplicitBlockExpression.convertAndWrapIntoBlock(
             expressionBody,
