@@ -2,6 +2,7 @@ package org.jetbrains.bsp.protocol.session
 
 import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j.{BuildServerCapabilities, InitializeBuildResult}
+import com.intellij.execution.process.OSProcessUtil
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
@@ -26,7 +27,8 @@ import scala.io.Source
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
-class BspSession private(bspIn: InputStream,
+class BspSession private(bspPID: Long,
+                         bspIn: InputStream,
                          bspErr: InputStream,
                          bspOut: OutputStream,
                          initializeBuildParams: bsp4j.InitializeBuildParams,
@@ -269,8 +271,13 @@ class BspSession private(bspIn: InputStream,
     import org.jetbrains.plugins.scala.extensions.executionContext.appExecutionContext
 
     def whenDone: CompletableFuture[Unit] = {
+      // Query all child processes of the BSP server recursively.
+      // The sbt BSP server spawns a separate sbt process which needs to be manually shut down. #SCL-19315
+      // These remaining child processes are manually terminated after the server has been stopped.
+      val descendants = ProcessHandle.of(bspPID).stream().flatMap(_.descendants()).toList
       serverConnection.server.buildShutdown()
         .thenApply[Unit](_=> serverConnection.server.onBuildExit())
+        .thenApply[Unit](_ => descendants.stream().filter(_.isAlive).forEach(BspSession.terminateProcessGracefully(_, sessionTimeout)))
         .whenComplete {(_, error) =>
           error match {
             case err: ResponseErrorException =>
@@ -386,16 +393,18 @@ object BspSession {
   trait BspClient extends bsp4j.BuildClient
 
   private[protocol] def builder(
+    bspPID: Long,
     bspIn: InputStream,
     bspErr: InputStream,
     bspOut: OutputStream,
     initializeBuildParams: bsp4j.InitializeBuildParams,
     cleanup: ()=>Unit): Builder = {
 
-    new Builder(bspIn, bspErr, bspOut, initializeBuildParams, cleanup)
+    new Builder(bspPID, bspIn, bspErr, bspOut, initializeBuildParams, cleanup)
   }
 
   private[protocol] class Builder private[BspSession](
+     bspPID: Long,
      bspIn: InputStream,
      bspErr: InputStream,
      bspOut: OutputStream,
@@ -422,6 +431,7 @@ object BspSession {
     }
 
     def create = new BspSession(
+      bspPID,
       bspIn,
       bspErr,
       bspOut,
@@ -436,4 +446,17 @@ object BspSession {
 
   private case class ServerConnection(server: BspServer, cancelable: Cancelable, listening: java.util.concurrent.Future[Void])
 
+  /**
+   * Calls [[com.intellij.execution.process.OSProcessUtil#terminateProcessGracefully(int)]]. Falls back to
+   * [[java.lang.ProcessHandle#destroy()]] if graceful termination cannot be attempted.
+   *
+   * Then waits for the process to exit until the supplied timeout argument.
+   */
+  private[session] def terminateProcessGracefully(handle: ProcessHandle, timeout: FiniteDuration): Unit = {
+    try OSProcessUtil.terminateProcessGracefully(handle.pid().toInt)
+    catch {
+      case _: UnsupportedOperationException => handle.destroy()
+    }
+    handle.onExit().get(timeout.length, timeout.unit)
+  }
 }
