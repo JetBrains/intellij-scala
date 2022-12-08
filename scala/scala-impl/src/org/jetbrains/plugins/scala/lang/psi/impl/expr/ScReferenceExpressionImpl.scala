@@ -159,15 +159,22 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     })
 
   override def getKinds(incomplete: Boolean, completion: Boolean = false): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = {
-    getContext match {
-      case _ if completion => StdKinds.refExprQualRef // SC-3092
-      case _: ScReferenceExpression => StdKinds.refExprQualRef
-      case postf: ScPostfixExpr if this == postf.operation || this == postf.getBaseExpr => StdKinds.refExprQualRef
-      case pref: ScPrefixExpr if this == pref.operation || this == pref.getBaseExpr => StdKinds.refExprQualRef
-      case inf: ScInfixExpr if this == inf.operation || this == inf.getBaseExpr => StdKinds.refExprQualRef
-      case _ => StdKinds.refExprLastRef
+    val context = getContext
+    context match {
+      case _ if completion =>
+        StdKinds.refExprQualRef // SCL-3092
+      case _: ScReferenceExpression =>
+        StdKinds.refExprQualRef
+      case postf: ScPostfixExpr if this == postf.operation || this == postf.getBaseExpr =>
+        StdKinds.refExprQualRef
+      case pref: ScPrefixExpr if this == pref.operation || this == pref.getBaseExpr =>
+        StdKinds.refExprQualRef
+      case inf: ScInfixExpr if this == inf.operation || this == inf.getBaseExpr =>
+        StdKinds.refExprQualRef
+      case _ =>
+        StdKinds.refExprLastRef
     }
-  } // See SCL-3092
+  }
 
   override def multiType: Array[TypeResult] = {
     val buffer = mutable.ArrayBuffer[TypeResult]()
