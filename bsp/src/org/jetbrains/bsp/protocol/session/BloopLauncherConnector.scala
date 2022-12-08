@@ -63,7 +63,7 @@ class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: Bsp
     val compilerOutputUri = compilerOutput.getCanonicalFile.toURI
     val initializeBuildParams = BspServerConnector.createInitializeBuildParams(rootUri, compilerOutputUri, capabilities)
 
-    BspSession.builder(process.getInputStream, process.getErrorStream, process.getOutputStream, initializeBuildParams, cleanup)
+    BspSession.builder(process.pid(), process.getInputStream, process.getErrorStream, process.getOutputStream, initializeBuildParams, cleanup)
   }
 
 }
