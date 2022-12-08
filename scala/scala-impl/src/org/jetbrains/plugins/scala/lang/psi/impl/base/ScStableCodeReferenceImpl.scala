@@ -364,8 +364,9 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         }
         processor.candidates
       case Some(q: ScDocResolvableCodeReference) =>
-        q.multiResolveScala(incomplete = true)
-          .flatMap(processQualifierResolveResult(q, _, processor))
+        val result = q.multiResolveScala(incomplete = true)
+        val result2 = result.flatMap(processQualifierResolveResult(q, _, processor))
+        result2
       case Some(q: ScStableCodeReference) =>
         q.bind() match {
           case Some(res) =>

@@ -1,4 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve2
+
 import org.jetbrains.plugins.scala.ScalaVersion
 
 /** Also see [[org.jetbrains.plugins.scala.lang.resolve.ScaladocLinkResolveTest_Old]] */
@@ -18,6 +19,13 @@ class ScalaDocLinkResolveTest extends ResolveTestBaseWithAlternativeExpectedData
     myFixture.openFileInEditor(newFile.getVirtualFile)
   }
 
-  def testLinksToObjects(): Unit = doTest()
-  def testLinksToObjectsFullyQualified(): Unit = doTest()
+  def testLinksToClassesAndObjects(): Unit = doTest()
+
+  def testLinksToClassesAndObjects_FullyQualified(): Unit = doTest()
+
+  def testLinksToMembersOfClassesAndObjects(): Unit = doTest()
+
+  def testLinksToMembersOfClassesAndObjects_FullyQualified(): Unit = doTest()
+
+  def testLinksToMembersOfScalaDocOwnerTypeDefinition(): Unit = doTest()
 }
