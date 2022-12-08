@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala
-package base
+package org.jetbrains.plugins.scala.base
 
 import junit.framework.{AssertionFailedError, Test, TestListener, TestResult}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 import scala.collection.immutable.SortedSet
 
@@ -12,14 +12,17 @@ trait ScalaSdkOwner extends Test
 
   import ScalaSdkOwner._
 
-  @deprecatedOverriding(
-    "Consider using supportedIn instead to run with the latest possible scala version.\n" +
-      "Override this method only if you want to run test with a specific version which is for some reason not listed in ScalaSdkOwner.allTestVersion"
-  )
-  override implicit def version: ScalaVersion = {
-    val supportedVersions = allTestVersions.filter(supportedIn)
-    val configuredVersion = configuredScalaVersion.orElse(defaultVersionOverride).getOrElse(defaultSdkVersion)
-    selectVersion(configuredVersion, supportedVersions)
+  override final implicit def version: ScalaVersion = {
+    val configuredOpt = configuredScalaVersion
+    configuredOpt match {
+      case Some(exactVersion) =>
+        exactVersion
+      case None =>
+        val supportedVersions = allTestVersions.filter(supportedIn)
+        val defaultVersion = defaultVersionOverride.getOrElse(defaultSdkVersion)
+        val selectedVersion = selectVersion(defaultVersion, supportedVersions)
+        selectedVersion
+    }
   }
 
   private var _injectedScalaVersion: Option[ScalaVersion] = None
@@ -88,8 +91,26 @@ object ScalaSdkOwner {
   }
 
 
-  private def selectVersion(wantedVersion: ScalaVersion, possibleVersions: SortedSet[ScalaVersion]): ScalaVersion =
-    possibleVersions.iteratorFrom(wantedVersion).nextOption().getOrElse(possibleVersions.last)
+  private def selectVersion(wantedVersion: ScalaVersion, possibleVersions0: SortedSet[ScalaVersion]): ScalaVersion = {
+    val possibleVersions = possibleVersions0.iteratorFrom(wantedVersion).toSeq
+    if (possibleVersions.nonEmpty) {
+      val first = possibleVersions.head
+      if (first.isScala3) {
+        // choose latest possible Scala 3 version
+        //e.g. `supportedIn >= 3.0.2` -> 3.2.1
+        //e.g. `supportedIn == 3.0.2` -> 3.0.2
+        possibleVersions.last
+      }
+      else {
+        //otherwise choose version closes to the "supportedIn"
+        //e.g. `supportedIn >= 2.12.10` -> 2.12.10
+        //TODO: unify this with Scala 3, test failures are expected
+        first
+      }
+    }
+    else
+      possibleVersions0.last
+  }
 
   lazy val globalConfiguredScalaVersion: Option[ScalaVersion] = {
     val property = scala.util.Properties.propOrNone("scala.sdk.test.version")
