@@ -10,21 +10,18 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
 
   import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
 
-  override protected val filesWithProblems: Map[String, Set[TextRange]] = Map(
+  override protected def filesWithProblems: Map[String, Set[TextRange]] = Map(
     "scala/Array.scala" -> Set(
-      (4316, 4335), // Scrutinee is incompatible with pattern type, found: Array[BoxedUnit], required: Array[A]
-      (4396, 4412), // Scrutinee is incompatible with pattern type, found: Array[AnyRef], required: Array[A]
-      (4467, 4480), // Scrutinee is incompatible with pattern type, found: Array[Int], required: Array[A]
-      (4538, 4554), // Scrutinee is incompatible with pattern type, found: Array[Double], required: Array[A]
-      (4609, 4623), // Scrutinee is incompatible with pattern type, found: Array[Long], required: Array[A]
-      (4680, 4695), // Scrutinee is incompatible with pattern type, found: Array[Float], required: Array[A]
-      (4751, 4765), // Scrutinee is incompatible with pattern type, found: Array[Char], required: Array[A]
-      (4822, 4836), // Scrutinee is incompatible with pattern type, found: Array[Byte], required: Array[A]
-      (4893, 4908), // Scrutinee is incompatible with pattern type, found: Array[Short], required: Array[A]
-      (4964, 4981), // Scrutinee is incompatible with pattern type, found: Array[Boolean], required: Array[A]
-    ),
-    "scala/Console.scala" -> Set(
-      (577, 583), // Cannot resolve symbol StdIn$
+      (4316, 4335), // Pattern type is incompatible with expected type, found: Array[BoxedUnit], required: Array[A]
+      (4396, 4412), // Pattern type is incompatible with expected type, found: Array[AnyRef], required: Array[A]
+      (4467, 4480), // Pattern type is incompatible with expected type, found: Array[Int], required: Array[A]
+      (4538, 4554), // Pattern type is incompatible with expected type, found: Array[Double], required: Array[A]
+      (4609, 4623), // Pattern type is incompatible with expected type, found: Array[Long], required: Array[A]
+      (4680, 4695), // Pattern type is incompatible with expected type, found: Array[Float], required: Array[A]
+      (4751, 4765), // Pattern type is incompatible with expected type, found: Array[Char], required: Array[A]
+      (4822, 4836), // Pattern type is incompatible with expected type, found: Array[Byte], required: Array[A]
+      (4893, 4908), // Pattern type is incompatible with expected type, found: Array[Short], required: Array[A]
+      (4964, 4981), // Pattern type is incompatible with expected type, found: Array[Boolean], required: Array[A]
     ),
     "scala/Predef.scala" -> Set(
       (6377, 6386), // Cannot resolve symbol `package`
@@ -38,29 +35,35 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
       (10363, 10367), // Type mismatch, expected: MapView.SomeMapOps[NotInferredK, NotInferredV], actual: MapOps[K, V, CC, C]
       (10908, 10912), // Type mismatch, expected: MapView.SomeMapOps[NotInferredK, NotInferredV], actual: MapOps[K, V, CC, C]
     ),
+    "scala/collection/Set.scala" -> Set(
+      (7612, 7654), // Pattern type is incompatible with expected type, found: Set.Set1[A], required: SetOps[A, CC, C]
+      (7657, 7698), // Pattern type is incompatible with expected type, found: Set.Set2[A], required: SetOps[A, CC, C]
+      (7701, 7742), // Pattern type is incompatible with expected type, found: Set.Set3[A], required: SetOps[A, CC, C]
+      (7745, 7786), // Pattern type is incompatible with expected type, found: Set.Set4[A], required: SetOps[A, CC, C]
+    ),
     "scala/collection/StrictOptimizedSortedMapOps.scala" -> Set(
+      (1785, 1797), // Cannot resolve symbol asInstanceOf
       (1809, 1810), // Cannot resolve symbol +
       (1818, 1830), // Cannot resolve symbol asInstanceOf
-      (1785, 1797), // Cannot resolve symbol asInstanceOf
-      (1887, 1899), // Cannot resolve symbol asInstanceOf
       (1873, 1879), // Cannot resolve symbol concat
+      (1887, 1899), // Cannot resolve symbol asInstanceOf
     ),
     "scala/collection/concurrent/TrieMap.scala" -> Set(
       (11352, 11354), // Type mismatch, expected: TNode[K, V], actual: (MainNode[K, V] with TNode[_$1, _$2]) forSome {type _$1; type _$2}
-      (26365, 26380), // Unspecified value parameters: hashf: Hashing[K], ef: Equiv[K]
-      (26396, 26398), // Type mismatch, expected: Hashing[K], actual: Hashing.Default[Nothing]
+      (26365, 26380), // Type mismatch, expected: Hashing[K], actual: Hashing.Default[Nothing]
+      (26396, 26398), // Unspecified value parameters: hashf: Hashing[K], ef: Equiv[K]
     ),
     "scala/collection/immutable/ArraySeq.scala" -> Set(
-      (10990, 11006), // Scrutinee is incompatible with pattern type, found: Array[AnyRef], required: Array[T]
-      (11041, 11054), // Scrutinee is incompatible with pattern type, found: Array[Int], required: Array[T]
-      (11084, 11100), // Scrutinee is incompatible with pattern type, found: Array[Double], required: Array[T]
-      (11130, 11144), // Scrutinee is incompatible with pattern type, found: Array[Long], required: Array[T]
-      (11174, 11189), // Scrutinee is incompatible with pattern type, found: Array[Float], required: Array[T]
-      (11219, 11233), // Scrutinee is incompatible with pattern type, found: Array[Char], required: Array[T]
-      (11263, 11277), // Scrutinee is incompatible with pattern type, found: Array[Byte], required: Array[T]
-      (11307, 11322), // Scrutinee is incompatible with pattern type, found: Array[Short], required: Array[T]
-      (11352, 11369), // Scrutinee is incompatible with pattern type, found: Array[Boolean], required: Array[T]
-      (11399, 11413), // Scrutinee is incompatible with pattern type, found: Array[Unit], required: Array[T]
+      (10990, 11006), // Pattern type is incompatible with expected type, found: Array[AnyRef], required: Array[T]
+      (11041, 11054), // Pattern type is incompatible with expected type, found: Array[Int], required: Array[T]
+      (11084, 11100), // Pattern type is incompatible with expected type, found: Array[Double], required: Array[T]
+      (11130, 11144), // Pattern type is incompatible with expected type, found: Array[Long], required: Array[T]
+      (11174, 11189), // Pattern type is incompatible with expected type, found: Array[Float], required: Array[T]
+      (11219, 11233), // Pattern type is incompatible with expected type, found: Array[Char], required: Array[T]
+      (11263, 11277), // Pattern type is incompatible with expected type, found: Array[Byte], required: Array[T]
+      (11307, 11322), // Pattern type is incompatible with expected type, found: Array[Short], required: Array[T]
+      (11352, 11369), // Pattern type is incompatible with expected type, found: Array[Boolean], required: Array[T]
+      (11399, 11413), // Pattern type is incompatible with expected type, found: Array[Unit], required: Array[T]
     ),
     "scala/collection/immutable/HashMap.scala" -> Set(
       (1612, 1625), // Type mismatch, expected: BitmapIndexedMapNode[K, V], actual: BitmapIndexedMapNode[Nothing, Nothing]
@@ -78,8 +81,8 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
       (7418, 7512), // Expression of type mutable.Builder[(K, Nothing), WithDefault[K, V]] doesn't conform to expected type mutable.Builder[(K, V), WithDefault[K, V]]
     ),
     "scala/collection/mutable/HashMap.scala" -> Set(
-      (17273, 17299), // No constructor accessible from here
       (17245, 17267), // Cannot resolve symbol DeserializationFactory
+      (17273, 17299), // No constructor accessible from here
     ),
     "scala/collection/mutable/SortedMap.scala" -> Set(
       (2271, 2277), // Cannot resolve symbol addOne
@@ -91,26 +94,6 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
     ),
     "scala/collection/mutable/TreeSet.scala" -> Set(
       (1714, 1727), // Type mismatch, expected: mutable.RedBlackTree.Tree[A, Null], actual: mutable.RedBlackTree.Tree[Nothing, Null]
-    ),
-    "scala/concurrent/ExecutionContext.scala" -> Set(
-      (11690, 11696), // Cannot resolve symbol global
-      (11672, 11689), // Cannot resolve symbol ExecutionContext$
-      (12151, 12166), // Cannot resolve symbol defaultReporter
-      (12133, 12150), // Cannot resolve symbol ExecutionContext$
-      (12658, 12664), // Cannot resolve symbol global
-      (12640, 12657), // Cannot resolve symbol ExecutionContext$
-      (13085, 13091), // Cannot resolve symbol global
-      (13067, 13084), // Cannot resolve symbol ExecutionContext$
-      (13504, 13519), // Cannot resolve symbol defaultReporter
-      (13486, 13503), // Cannot resolve symbol ExecutionContext$
-      (13664, 13670), // Cannot resolve symbol global
-      (13646, 13663), // Cannot resolve symbol ExecutionContext$
-    ),
-    "scala/concurrent/duration/Duration.scala" -> Set(
-      (4345, 4350), // Cannot resolve symbol apply
-      (15427, 15433), // Cannot resolve symbol toUnit
-      (15479, 15488), // Cannot resolve symbol fromNanos
-      (15734, 15737), // Cannot resolve symbol Inf
     ),
     "scala/concurrent/duration/DurationConversions.scala" -> Set(
       (1748, 1762), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
@@ -130,9 +113,6 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
     "scala/concurrent/impl/Promise.scala" -> Set(
       (6498, 6506), // Type mismatch, expected: T, actual: Any
       (6913, 6922), // Type mismatch, expected: U, actual: Any
-    ),
-    "scala/math/Ordering.scala" -> Set(
-      (830, 832), // Cannot resolve symbol on
     ),
     "scala/package.scala" -> Set(
       (3804, 3812), // Cannot resolve symbol nonEmpty
@@ -155,13 +135,6 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
       (8066, 8088), // Pattern type is incompatible with expected type, found: Class[Boolean], required: Class[T]
       (8142, 8161), // Pattern type is incompatible with expected type, found: Class[Void], required: Class[T]
     ),
-    "scala/reflect/ClassTag.scala" -> Set(
-      (799, 806), // Cannot resolve symbol TypeTag
-      (790, 798), // Cannot resolve symbol TypeTags
-      (786, 789), // Cannot resolve symbol api
-      (1542, 1550), // Cannot resolve symbol TypeTags
-      (1538, 1541), // Cannot resolve symbol api
-    ),
     "scala/reflect/Manifest.scala" -> Set(
       (7469, 7477), // Overriding type Int does not conform to base type () => Int
       (16810, 16818), // Overriding type String does not conform to base type () => String
@@ -170,46 +143,36 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
     "scala/runtime/ClassValueCompat.scala" -> Set(
       (503, 522), // Cannot resolve symbol classValueAvailable
     ),
-    "scala/collection/Set.scala" -> Set(
-      (7612,7654), //Pattern type is incompatible with expected type, found: Set.Set1[A], required: SetOps[A, CC, C]
-      (7657,7698), //Pattern type is incompatible with expected type, found: Set.Set2[A], required: SetOps[A, CC, C]
-      (7701,7742), //Pattern type is incompatible with expected type, found: Set.Set3[A], required: SetOps[A, CC, C]
-      (7745,7786) //Pattern type is incompatible with expected type, found: Set.Set4[A], required: SetOps[A, CC, C]
-    ),
     "scala/util/Sorting.scala" -> Set(
-      (8542,8558), // Pattern type is incompatible with expected type, found: Array[AnyRef], required: Array[T]
-      (8840,8853), // Pattern type is incompatible with expected type, found: Array[Int], required: Array[T]
-      (8960,8963), // Type mismatch, expected: Ordering[Int], actual: Ordering[T]
-      (8974,8990), // Pattern type is incompatible with expected type, found: Array[Double], required: Array[T]
-      (9029,9032), // Type mismatch, expected: Ordering[Double], actual: Ordering[T]
-      (9108,9122), // Pattern type is incompatible with expected type, found: Array[Long], required: Array[T]
-      (9230,9233), // Type mismatch, expected: Ordering[Long], actual: Ordering[T]
-      (9244,9259), // Pattern type is incompatible with expected type, found: Array[Float], required: Array[T]
-      (9298,9301), // Type mismatch, expected: Ordering[Float], actual: Ordering[T]
-      (9378,9392), // Pattern type is incompatible with expected type, found: Array[Char], required: Array[T]
-      (9500,9503), // Type mismatch, expected: Ordering[Char], actual: Ordering[T]
-      (9514,9528), // Pattern type is incompatible with expected type, found: Array[Byte], required: Array[T]
-      (9636,9639), // Type mismatch, expected: Ordering[Byte], actual: Ordering[T]
-      (9650,9665), // Pattern type is incompatible with expected type, found: Array[Short], required: Array[T]
-      (9774,9777), // Type mismatch, expected: Ordering[Short], actual: Ordering[T]
-      (9788,9805), // Pattern type is incompatible with expected type, found: Array[Boolean], required: Array[T]
-      (9906,9909), // Type mismatch, expected: Ordering[Boolean], actual: Ordering[T]
-    ),
-    "scala/util/Using.scala" -> Set(
-      (1216, 1221), // Cannot resolve symbol apply
-      (1207, 1215), // Cannot resolve symbol Manager$
+      (8542, 8558), // Pattern type is incompatible with expected type, found: Array[AnyRef], required: Array[T]
+      (8840, 8853), // Pattern type is incompatible with expected type, found: Array[Int], required: Array[T]
+      (8960, 8963), // Type mismatch, expected: Ordering[Int], actual: Ordering[T]
+      (8974, 8990), // Pattern type is incompatible with expected type, found: Array[Double], required: Array[T]
+      (9029, 9032), // Type mismatch, expected: Ordering[Double], actual: Ordering[T]
+      (9108, 9122), // Pattern type is incompatible with expected type, found: Array[Long], required: Array[T]
+      (9230, 9233), // Type mismatch, expected: Ordering[Long], actual: Ordering[T]
+      (9244, 9259), // Pattern type is incompatible with expected type, found: Array[Float], required: Array[T]
+      (9298, 9301), // Type mismatch, expected: Ordering[Float], actual: Ordering[T]
+      (9378, 9392), // Pattern type is incompatible with expected type, found: Array[Char], required: Array[T]
+      (9500, 9503), // Type mismatch, expected: Ordering[Char], actual: Ordering[T]
+      (9514, 9528), // Pattern type is incompatible with expected type, found: Array[Byte], required: Array[T]
+      (9636, 9639), // Type mismatch, expected: Ordering[Byte], actual: Ordering[T]
+      (9650, 9665), // Pattern type is incompatible with expected type, found: Array[Short], required: Array[T]
+      (9774, 9777), // Type mismatch, expected: Ordering[Short], actual: Ordering[T]
+      (9788, 9805), // Pattern type is incompatible with expected type, found: Array[Boolean], required: Array[T]
+      (9906, 9909), // Type mismatch, expected: Ordering[Boolean], actual: Ordering[T]
     ),
     "scala/util/control/TailCalls.scala" -> Set(
-      (2042, 2043), // Type mismatch, expected: b1 => TailRec[NotInferredB], actual: A => TailRec[B]
       (2031, 2032), // Type mismatch, expected: a1, actual: Any
+      (2042, 2043), // Type mismatch, expected: b1 => TailRec[NotInferredB], actual: A => TailRec[B]
       (2383, 2384), // Type mismatch, expected: Nothing, actual: Any
       (2440, 2441), // Type mismatch, expected: Any => TailRec[NotInferredB], actual: Nothing => TailRec[A]
-      (2499, 2500), // Type mismatch, expected: Any => TailRec[NotInferredB], actual: Nothing => TailRec[A]
       (2488, 2489), // Type mismatch, expected: Nothing, actual: Any
+      (2499, 2500), // Type mismatch, expected: Any => TailRec[NotInferredB], actual: Nothing => TailRec[A]
       (2768, 2769), // Type mismatch, expected: Nothing, actual: Any
       (2814, 2815), // Type mismatch, expected: Any => TailRec[NotInferredB], actual: Nothing => TailRec[A]
-      (2879, 2880), // Type mismatch, expected: Any => TailRec[NotInferredB], actual: Nothing => TailRec[A]
       (2868, 2869), // Type mismatch, expected: Nothing, actual: Any
+      (2879, 2880), // Type mismatch, expected: Any => TailRec[NotInferredB], actual: Nothing => TailRec[A]
     )
   )
 }

@@ -4,6 +4,7 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.{findCommonContext, findFirstContext}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.highlightImplicitView
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
@@ -34,6 +35,10 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeRef
 //noinspection InstanceOf
 // TODO unify with ScMethodInvocationAnnotator and ScConstructorInvocationAnnotator
 object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
+
+  //By default unresolved scaladoc links are marked as Warnings, which wont be detected in project highlighting tests
+  //This flag allows us to automatically test ScalaDoc links resolution during project highlights tests
+  @TestOnly var HighlightUnresolvedScalaDocLinksAsErrors = false
 
   override def annotate(element: ScReference, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
@@ -317,11 +322,13 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     val isRootRef = !scalaDocRef.getParent.is[ScDocResolvableCodeReference]
     if (resolveResult.isEmpty && isRootRef) {
       val elementToAnnotate = scalaDocRef.nameId
-      holder.createWarningAnnotation(
-        elementToAnnotate,
-        ScalaBundle.message("cannot.resolve", elementToAnnotate.getText),
-        ScalaImportTypeFix(scalaDocRef)
-      )
+      val message = ScalaBundle.message("cannot.resolve", elementToAnnotate.getText)
+      val fix = ScalaImportTypeFix(scalaDocRef)
+      if (HighlightUnresolvedScalaDocLinksAsErrors) {
+        holder.createErrorAnnotation(elementToAnnotate, message, fix)
+      } else {
+        holder.createWarningAnnotation(elementToAnnotate, message, fix)
+      }
     }
   }
 
