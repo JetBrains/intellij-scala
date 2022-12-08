@@ -81,12 +81,12 @@ class ConsoleHighlightingProgressReporter(
   }
 
   private def buildGroupedByFileErrorsText(fileErrors: Seq[FileErrorDescriptor]): String = {
-    val maxErrorsPerTip = 15
+    val maxErrorsPerTip = 20
 
     def entryText(fileName: String, fileErrors: Seq[ErrorDescriptor]): String = {
       val errorsPresentation: String = {
         val fileErrorsFirst = fileErrors.take(maxErrorsPerTip)
-        val extraSyntheticMessageLine = if (fileErrors.length > maxErrorsPerTip) Some("...") else None
+        val extraSyntheticMessageLine = if (fileErrors.length > maxErrorsPerTip) Some(s"... (${fileErrors.length - maxErrorsPerTip} more)") else None
         val fileErrorsTexts = fileErrorsFirst.map { err => s"${err.range}, // ${err.message}" } ++ extraSyntheticMessageLine
         s"""Set(
            |${fileErrorsTexts.mkString("\n").indented(2)}
