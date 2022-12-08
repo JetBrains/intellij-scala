@@ -6,7 +6,8 @@ import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
@@ -25,6 +26,29 @@ final class ScDocCommentImpl(buffer: CharSequence,
   }
 
   override def toString: String = "DocComment"
+
+  override def processDeclarations(
+    processor: PsiScopeProcessor,
+    state: ResolveState,
+    lastParent: PsiElement,
+    place: PsiElement
+  ): Boolean = {
+    val owner = getOwner
+    owner match {
+      case typeDef: ScTemplateDefinition =>
+        val members = typeDef.membersWithSynthetic.filterNot(_.is[ScPrimaryConstructor])
+        val stops: Seq[Boolean] = members.map {
+          case named: PsiNamedElement =>
+            !processor.execute(named, state)
+          case _ =>
+            false
+        }
+        stops.exists(identity)
+      case _ =>
+    }
+
+    true
+  }
 
   //todo: implement me
   override def getTags: Array[PsiDocTag] = findTagsByName(_ => true)

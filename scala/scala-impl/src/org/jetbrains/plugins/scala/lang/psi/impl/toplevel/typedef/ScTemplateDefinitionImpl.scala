@@ -36,6 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScalaType, TermSignature, TypeSignature}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -264,8 +265,10 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     case _: BaseProcessor =>
       extendsBlock.templateBody match {
         case Some(ancestor)
-          if isContextAncestor(ancestor, place, false) && lastParent != null => true
-        case _ => processDeclarationsForTemplateBody(processor, oldState, lastParent, place)
+          if isContextAncestor(ancestor, place, false) && lastParent != null =>
+          true
+        case _ =>
+          processDeclarationsForTemplateBody(processor, oldState, lastParent, place)
       }
     case _ =>
       val languageLevel = processor match {
@@ -300,7 +303,8 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
 
     // Process selftype reference
     selfTypeElement match {
-      case Some(se) if se.name != "_" => if (!processor.execute(se, oldState)) return false
+      case Some(se) if se.name != "_" => if (!processor.execute(se, oldState))
+        return false
       case _ =>
     }
 
@@ -319,11 +323,13 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
             m match {
               case _var: ScVariable => for (declared <- _var.declaredElements) {
                 ProgressManager.checkCanceled()
-                if (!processor.execute(declared, state)) return false
+                if (!processor.execute(declared, state))
+                  return false
               }
               case _val: ScValue => for (declared <- _val.declaredElements) {
                 ProgressManager.checkCanceled()
-                if (!processor.execute(declared, state)) return false
+                if (!processor.execute(declared, state))
+                  return false
               }
             }
           }
@@ -343,9 +349,16 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
                     else                                       false
                   }
 
-                if (isUnderExtendsBlock ||
+                val magicCondition1 = isUnderExtendsBlock ||
                   ScalaPsiUtil.isSyntheticContextAncestor(e, place) ||
-                  !isContextAncestor(this, place, true)) {
+                  !isContextAncestor(this, place, true) ||
+                  //This is a workaround for referencing type definition member from a link in the ScalaDoc of that type definition:
+                  ///** [[Example.myMethod]] */class Example { def myMethod: Int = 42 }
+                  //The issue is that ScalaDoc element is attached to the definition
+                  //so `isContextAncestor(this, place, true)` returns true and magicCondition1 becomes false
+                  place.isInstanceOf[ScDocResolvableCodeReference]
+
+                if (magicCondition1) {
                   this match {
                     case t: ScTypeDefinition if selfTypeElement.isDefined &&
                       !isContextAncestor(selfTypeElement.get, place, true) &&

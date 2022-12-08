@@ -19,6 +19,10 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
   //noinspection RedundantDefaultArgument
   @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this))
   override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = {
+    multiResolveScalaImpl()
+  }
+
+  private def multiResolveScalaImpl(): Array[ScalaResolveResult] = {
     val ref = this
 
     val refName = ref.refName
@@ -31,20 +35,35 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
         (refName, stableImportSelector)
 
     val processor = new ResolveProcessor(kinds, ref, refNameAdjusted)
-    val resolveResult0: Array[ScalaResolveResult] = ref.doResolve(processor)
 
-    val resolveResult1: Array[ScalaResolveResult] =
-      if (referenceToObject && resolveResult0.exists(_.element.is[ScObject]))
-        resolveResult0.filter(_.element.is[ScObject])
+    val resolveResult0: Array[ScalaResolveResult] =
+      ref.doResolve(processor)
+
+    //De-duplicating resolve results.
+    //DETAILS: When we have a reference to a class method: [[org.MyClass.myMethod]] for a class with a companion object
+    //qualifier `org.MyClass` is resolved to 2 targets: the class and it's companion object.
+    //Then for every resolved qualifier `myMethod` is resolved to the same member of the class (yes, even for the object ¯\_(ツ)_/¯)
+    //(search for `ScDocResolvableCodeReference` usages in `org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl.processQualifier
+    val resolveResult1 = resolveResult0.distinctBy(_.element)
+
+    val resolveResult2 =
+      if (referenceToObject && resolveResult1.exists(_.element.is[ScObject]))
+        resolveResult1.filter(_.element.is[ScObject])
       else
-        resolveResult0
+        resolveResult1
 
-    resolveResult1.map {
+    //If we resolved to multiple references: class and it's companion, move companion object to the end
+    //NOTE: it's not correct behaviour, but it will be incorrect until SCL-13263 is implemented
+    //With this quick fix at least tests will be deterministic
+    val resolveResult3 = resolveResult2.sortBy(r => if (r.element.is[ScObject]) 1 else 0)
+
+    val resolveResult4 = resolveResult3.map {
       case ScalaResolveResult(constructor: ScPrimaryConstructor, _) if constructor.containingClass != null =>
         new ScalaResolveResult(constructor.containingClass)
       case result =>
         result
     }
+    resolveResult4
   }
 
   override def getKinds(incomplete: Boolean, completion: Boolean): ResolveTargets.ValueSet =
