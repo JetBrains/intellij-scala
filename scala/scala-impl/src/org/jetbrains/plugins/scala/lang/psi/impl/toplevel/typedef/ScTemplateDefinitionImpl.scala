@@ -360,18 +360,28 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
 
                 if (magicCondition1) {
                   this match {
-                    case t: ScTypeDefinition if selfTypeElement.isDefined &&
-                      !isContextAncestor(selfTypeElement.get, place, true) &&
-                      isContextAncestor(e.templateBody.orNull, place, true) &&
-                      processor.isInstanceOf[BaseProcessor] && !t.isInstanceOf[ScObject] =>
+                    case t: ScTypeDefinition =>
                       selfTypeElement match {
-                        case Some(_) => processor.asInstanceOf[BaseProcessor].processType(ScThisType(t), place, state)
+                        case Some(selfTypeElementValue) =>
+                          val magicCondition2 =
+                            !isContextAncestor(selfTypeElementValue, place, true) &&
+                              isContextAncestor(e.templateBody.orNull, place, true) &&
+                              !t.isInstanceOf[ScObject]
+                          if (magicCondition2) {
+                            processor match {
+                              case baseProcessor: BaseProcessor =>
+                                baseProcessor.processType(ScThisType(t), place, state)
+                                return true
+                              case _ =>
+                            }
+                          }
                         case _ =>
-                          if (!processClassDeclarations(this, processor, state, lastParent, place)) return false
                       }
                     case _ =>
-                      if (!processClassDeclarations(this, processor, state, lastParent, place)) return false
                   }
+
+                  if (!processClassDeclarations(this, processor, state, lastParent, place))
+                    return false
                 }
               case _ =>
             }
