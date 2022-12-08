@@ -57,43 +57,49 @@ final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestB
   def test_unused_declarations_are_skipped(): Unit =
     checkTextHasNoErrors("private class A { def foo() = {} }")
 
-  def test_prevent_leaking_via_val(): Unit =
+  def test_prevent_escaping_via_val(): Unit =
     checkTextHasNoErrors("object A { class B; val c: B = ??? }")
 
-  def test_prevent_leaking_via_var(): Unit =
+  def test_prevent_escaping_via_var(): Unit =
     checkTextHasNoErrors("object A { class B; var c: B = ??? }")
 
-  def test_prevent_leaking_via_def_return_type(): Unit =
+  def test_prevent_escaping_via_def_return_type(): Unit =
     checkTextHasNoErrors("object A { class B; def c: B = ??? }")
 
-  def test_prevent_leaking_via_nested_def_return_type1(): Unit =
+  def test_prevent_escaping_via_nested_def_return_type1(): Unit =
     checkTextHasNoErrors("object A { class B; def c: Option[B] = ??? }")
 
-  def test_prevent_leaking_via_nested_def_return_type2(): Unit =
+  def test_prevent_escaping_via_nested_def_return_type2(): Unit =
     checkTextHasNoErrors("object A { class B; def c: Option[Seq[B]] = ??? }")
 
-  def test_prevent_leaking_via_nested_def_return_type3(): Unit =
+  def test_prevent_escaping_via_nested_def_return_type3(): Unit =
     checkTextHasNoErrors("object A { class B; def c: Either[B, String] = ??? }")
 
-  def test_prevent_leaking_via_package_qualified_private_def_return_type(): Unit =
+  def test_prevent_escaping_via_package_qualified_private_def_return_type(): Unit =
     checkTextHasNoErrors("package a; object A { class B; private[a] def c: B = ??? }")
 
-  def test_prevent_leaking_via_def_param(): Unit =
+  def test_prevent_escaping_via_def_param(): Unit =
     checkTextHasNoErrors("object A { class B; def foo(b: B) = () }")
 
-  def test_prevent_leaking_via_nested_def_param1(): Unit =
+  def test_prevent_escaping_via_nested_def_param1(): Unit =
     checkTextHasNoErrors("object A { class B; def c(d: Option[B]) = () }")
 
-  def test_prevent_leaking_via_nested_def_param2(): Unit =
+  def test_prevent_escaping_via_nested_def_param2(): Unit =
     checkTextHasNoErrors("object A { class B; def c(d: Option[Seq[B]]) = () }")
 
-  def test_prevent_leaking_via_nested_def_param3(): Unit =
+  def test_prevent_escaping_via_nested_def_param3(): Unit =
     checkTextHasNoErrors("object A { class B; def c(d: Either[B, String]) = () }")
 
-  def test_prevent_leaking_via_def_type_param(): Unit =
+  def test_prevent_escaping_via_def_type_param(): Unit =
     checkTextHasNoErrors("object A { class B; def foo[T <: B]() = () }")
 
-  def test_prevent_leaking_via_inheritance(): Unit =
+  def test_prevent_escaping_via_trait_type_param(): Unit =
+    checkTextHasNoErrors("object A { class B; trait C[T <: B] }")
+
+  def test_prevent_escaping_via_class_type_param(): Unit =
+    checkTextHasNoErrors("object A { class B; class C[T <: B] }")
+
+  def test_prevent_escaping_via_inheritance(): Unit =
     checkTextHasNoErrors("object A { class B; class C extends B }")
 
   def test_member_of_local_class(): Unit =
@@ -109,4 +115,45 @@ final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestB
 
   def test_inner_type_definition(): Unit =
     checkTextHasNoErrors("private object A { object B }; object C { println(A.B) }")
+
+  def test_prevent_escaping_via_local_method(): Unit =
+    checkTextHasNoErrors(
+      """object A {
+        |  class B
+        |  def foo = { def bar = Some(new B); bar }
+        |  def fizz() = { def buzz() = Some(new B); buzz() }
+        |}
+        |""".stripMargin)
+
+  def test_prevent_escaping_via_companion_class(): Unit =
+    checkTextHasNoErrors(
+      """object Foo { class Aaa }
+        |class Foo { def getAaa() = new Foo.Aaa }
+        |""".stripMargin)
+
+  def test_prevent_escaping_via_nested_method(): Unit =
+    checkTextHasNoErrors("object A { trait B; object C { def bar: B = ??? } }")
+
+  def test_prevent_parameterized_typedef_escaping(): Unit =
+    checkTextHasNoErrors("object A { class B[T]; def foo: B[Int] = ??? }")
+
+  def test_prevent_escaping_via_primary_constructor1(): Unit =
+    checkTextHasNoErrors("object A { class B }; class A (val b: A.B)")
+
+  def test_prevent_escaping_via_primary_constructor2(): Unit =
+    checkTextHasNoErrors("object A { class B }; class A (b: A.B = ???)")
+
+  def test_prevent_escaping_via_primary_constructor3(): Unit =
+    checkTextHasNoErrors("object A { class B }; class A (private val b: A.B = ???)")
+
+  def test_prevent_escaping_via_primary_constructor4(): Unit =
+    checkTextHasNoErrors("object A { class B }; class A private (val b: A.B)")
+
+  def test_prevent_escaping_via_primary_constructor5(): Unit =
+    checkTextHasNoErrors("object A { class B }; class A private (val b: A.B = ???)")
+
+  def test_prevent_escaping_via_type_alias(): Unit =
+    checkTextHasNoErrors("object A { class B; type C = B }")
+
+  def test_that_fails_to_prevent_merge(): Unit = throw new Exception
 }
