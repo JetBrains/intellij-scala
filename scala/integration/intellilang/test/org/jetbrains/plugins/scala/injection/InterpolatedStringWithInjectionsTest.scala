@@ -130,7 +130,7 @@ class InterpolatedStringWithInjectionsTest extends ScalaLanguageInjectionTestBas
     )
   }
 
-  //Some edge cases when there string consists from injections only
+  //Some edge cases when the string consists from injections only
   def testOnlyInjections_Single(): Unit =
     doInjectedRegexpTest(
       """s"$foo".r""",
@@ -207,7 +207,7 @@ class InterpolatedStringWithInjectionsTest extends ScalaLanguageInjectionTestBas
         "hello InjectionPlaceholder world InjectionPlaceholder !",
         JsonLangId,
         Some(Seq(
-          ShredInfo((0, 6), (2, 8), ""),
+          ShredInfo((0, 6), (2, 8)),
           ShredInfo((6, 33), (14, 21), "InjectionPlaceholder"),
           ShredInfo((33, 55), (25, 27), "InjectionPlaceholder"),
         ))
@@ -246,7 +246,7 @@ class InterpolatedStringWithInjectionsTest extends ScalaLanguageInjectionTestBas
         "hello InjectionPlaceholder world InjectionPlaceholder !",
         JsonLangId,
         Some(Seq(
-          ShredInfo((0, 6), (5, 11), ""),
+          ShredInfo((0, 6), (5, 11)),
           ShredInfo((6, 33), (17, 24), "InjectionPlaceholder"),
           ShredInfo((33, 55), (28, 30), "InjectionPlaceholder"),
         ))
@@ -270,8 +270,67 @@ class InterpolatedStringWithInjectionsTest extends ScalaLanguageInjectionTestBas
         "myPrefixaaa InjectionPlaceholder bbb InjectionPlaceholder ccc InjectionPlaceholder dddmySuffix",
         RegexpLangId,
         Some(Seq(
-          ShredInfo((0, 0), (0, 0), ""),
+          ShredInfo((0, 0), (0, 0)),
         ))
       )
     )
+
+
+  //
+  // Dollar sign escape: $$
+  //
+  def testEscapedDollarSign_OnlyDollar(): Unit = {
+    doInjectedRegexpTest(
+      """raw"$$ $$ $$".r""".stripMargin,
+      """InjectionPlaceholder InjectionPlaceholder InjectionPlaceholder""",
+      Seq(
+        ShredInfo((0, 0), (4, 4)),
+        ShredInfo((0, 21), (6, 7), "InjectionPlaceholder"),
+        ShredInfo((21, 42), (9, 10), "InjectionPlaceholder"),
+        ShredInfo((42, 62), (12, 12), "InjectionPlaceholder"),
+      )
+    )
+  }
+
+  def testEscapedDollarSign_ManyDollars(): Unit = {
+    doInjectedRegexpTest(
+      """raw"$$$$ $$$$ $$$$".r""".stripMargin,
+      """InjectionPlaceholderInjectionPlaceholder InjectionPlaceholderInjectionPlaceholder InjectionPlaceholderInjectionPlaceholder""",
+      Seq(
+        ShredInfo((0, 0), (4, 4)),
+        ShredInfo((0, 20), (6, 6), "InjectionPlaceholder"),
+        ShredInfo((20, 41), (8, 9), "InjectionPlaceholder"),
+        ShredInfo((41, 61), (11, 11), "InjectionPlaceholder"),
+        ShredInfo((61, 82), (13, 14), "InjectionPlaceholder"),
+        ShredInfo((82, 102), (16, 16), "InjectionPlaceholder"),
+        ShredInfo((102, 122), (18, 18), "InjectionPlaceholder"),
+      )
+    )
+  }
+
+  def testEscapedDollarSign_WithText(): Unit = {
+    doInjectedRegexpTest(
+      """raw"start $$ middle $$ end".r""".stripMargin,
+      """start InjectionPlaceholder middle InjectionPlaceholder end""",
+      Seq(
+        ShredInfo((0, 6), (4, 10)),
+        ShredInfo((6, 34), (12, 20), "InjectionPlaceholder"),
+        ShredInfo((34, 58), (22, 26), "InjectionPlaceholder"),
+      )
+    )
+  }
+
+  def testEscapedDollarSign_ManyDollarsWithText(): Unit = {
+    doInjectedRegexpTest(
+      """raw"start $$$$ middle $$$$ end".r""".stripMargin,
+      """start InjectionPlaceholderInjectionPlaceholder middle InjectionPlaceholderInjectionPlaceholder end""",
+      Seq(
+        ShredInfo((0, 6), (4, 10)),
+        ShredInfo((6, 26), (12, 12), "InjectionPlaceholder"),
+        ShredInfo((26, 54), (14, 22), "InjectionPlaceholder"),
+        ShredInfo((54, 74), (24, 24), "InjectionPlaceholder"),
+        ShredInfo((74, 98), (26, 30), "InjectionPlaceholder"),
+      )
+    )
+  }
 }
