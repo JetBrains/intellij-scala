@@ -81,7 +81,7 @@ object InferUtil {
     var resInner    = res
     var constraints = ConstraintSystem.empty
 
-    res match {
+    res.widen match {
       case t @ ScTypePolymorphicType(mt @ ScMethodType(retType, _, isImplicit), _) if !isImplicit =>
         // See SCL-3516
         val (updatedType, ps, constraintsRec) =
