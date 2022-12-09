@@ -635,7 +635,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
    * But some features still might not work good because it's not 100% clear which features will work with our approach
    */
   @ApiStatus.Experimental
-  private boolean ENABLE_BACK_REFERENCES_FROM_SHARED_SOURCES = false;
+  private boolean ENABLE_BACK_REFERENCES_FROM_SHARED_SOURCES = true;
 
   public boolean isEnableBackReferencesFromSharedSources() {
     return ENABLE_BACK_REFERENCES_FROM_SHARED_SOURCES;
