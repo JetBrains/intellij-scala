@@ -33,6 +33,18 @@ abstract class SbtCrossBuildProjectHighlightingTestBase extends SbtProjectHighli
     InspectionsKt.enableInspectionTool(getProject, javaUnusedDeclarationInspection, getTestRootDisposable)
   }
 
+  protected def withEnabledBackReferencesFromSharedSources(enabled: Boolean)(body: => Any): Unit = {
+    val revertible = RevertableChange.withModifiedScalaProjectSettings[Boolean](
+      getProject,
+      _.isEnableBackReferencesFromSharedSources,
+      _.setEnableBackReferencesFromSharedSources(_),
+      enabled
+    )
+    revertible.run {
+      body
+    }
+  }
+
   override protected def highlightSingleFile(
     virtualFile: VirtualFile,
     psiFile: PsiFile,
@@ -52,22 +64,17 @@ abstract class SbtCrossBuildProjectHighlightingTestBase extends SbtProjectHighli
 class SbtCrossBuildProjectHighlightingTest_BackReferencesEnabled extends SbtCrossBuildProjectHighlightingTestBase {
 
   override def testHighlighting(): Unit = {
-    val enableBackReferencesFromSharedSources = RevertableChange.withModifiedScalaProjectSettings[Boolean](
-      getProject,
-      _.isEnableBackReferencesFromSharedSources,
-      _.setEnableBackReferencesFromSharedSources(_),
-      true
-    )
-    enableBackReferencesFromSharedSources.run {
+    withEnabledBackReferencesFromSharedSources(enabled = true) {
       super.testHighlighting()
-    }
-  }
+    }}
 }
 
 class SbtCrossBuildProjectHighlightingTest_BackReferencesDisabled extends SbtCrossBuildProjectHighlightingTestBase {
 
   override def testHighlighting(): Unit = {
-    super.testHighlighting()
+    withEnabledBackReferencesFromSharedSources(enabled = false) {
+      super.testHighlighting()
+    }
   }
 
   import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
