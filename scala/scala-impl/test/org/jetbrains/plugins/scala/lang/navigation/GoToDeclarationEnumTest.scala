@@ -35,6 +35,19 @@ class GoToDeclarationEnumTest extends GotoDeclarationTestBase {
     expected = (is[ScEnumCase], "Option.Some")
   )
 
+  def testClassCase_NestedScope(): Unit = doTest(
+    s"""object Wrapper1:
+       |  class Wrapper2:
+       |     enum Option[+T]:
+       |       case Some(x: T)
+       |       case None
+       |
+       |     object Test:
+       |       val someInt = Option.S${CARET}ome(123)
+       |""".stripMargin,
+    expected = (is[ScEnumCase], "Wrapper1.Wrapper2.Option.Some")
+  )
+
   def testWithExplicitCompanion(): Unit = doTest(
     s"""
        |enum Option[+T] {

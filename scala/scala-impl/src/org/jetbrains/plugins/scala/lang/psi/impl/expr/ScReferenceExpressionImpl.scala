@@ -106,7 +106,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         }
       case c: PsiClass =>
         val kinds = getKinds(incomplete = false)
-        if (!ResolveUtils.kindMatches(element, kinds))
+        val kindMatches = ResolveUtils.kindMatches(element, kinds) ||
+          kinds.contains(ResolveTargets.OBJECT) && element.is[ScEnum]
+        if (!kindMatches)
           throw new IncorrectOperationException(s"class $c does not match expected kind,\nexpected: ${kinds.mkString(", ")}")
         if (!ScalaNamesUtil.equivalent(refName, c.name) &&
           refName != ScFunction.CommonNames.Apply)
