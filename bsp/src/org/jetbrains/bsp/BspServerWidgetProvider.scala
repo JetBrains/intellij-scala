@@ -1,9 +1,9 @@
 package org.jetbrains.bsp
 
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.extensions.LoadingOrder
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.IconLoader
-import com.intellij.openapi.wm.StatusBar.Anchors
 import com.intellij.openapi.wm.{StatusBarWidget, StatusBarWidgetProvider}
 import com.intellij.util.messages.Topic
 
@@ -22,7 +22,7 @@ private final class BspServerWidgetProvider extends StatusBarWidgetProvider {
     else null
   }
 
-  override def getAnchor: String = Anchors.before("Position")
+  override def getAnchor: String = LoadingOrder.before("Position").toString
 }
 
 private object BspServerWidgetProvider {

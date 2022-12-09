@@ -27,7 +27,7 @@ import java.util
 import java.util.Collections.emptyList
 import scala.jdk.CollectionConverters._
 
-class SbtDependencyModifier extends ExternalDependencyModificator{
+class SbtDependencyModifier extends ExternalDependencyModificator {
   private val logger = Logger.getInstance(this.getClass)
 
   override def supports(module: OpenapiModule.Module): Boolean = SbtUtil.isSbtModule(module)

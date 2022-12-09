@@ -6,6 +6,7 @@ import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.extensions.LoadingOrder
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.Balloon.Position
@@ -20,7 +21,7 @@ import com.intellij.util.messages.{MessageBusConnection, Topic}
 import com.intellij.util.ui.PositionTracker
 import com.intellij.util.ui.update.{MergingUpdateQueue, Update}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.compiler.CompileServerManager._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
@@ -82,7 +83,7 @@ final class CompileServerManager(project: Project) extends Disposable with Compi
       case (true, false) =>
         statusBar.foreach { b =>
           //noinspection ApiStatus
-          b.addWidget(Widget, StatusBar.Anchors.before("Position"), project.unloadAwareDisposable)
+          b.addWidget(Widget, LoadingOrder.before("Position").toString, project.unloadAwareDisposable)
           installed = true
         }
       case (false, true) =>

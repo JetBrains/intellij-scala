@@ -414,7 +414,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testReturnExpression(): Unit = {
     val expr = uastExpressionFromText("a + b")
-    val returnExpr = uastElementFactory.createReturnExpresion(expr, false, null)
+    val returnExpr = uastElementFactory.createReturnExpression(expr, false, null)
     assertEquals("return a + b", returnExpr.getSourcePsi.getText)
   }
 

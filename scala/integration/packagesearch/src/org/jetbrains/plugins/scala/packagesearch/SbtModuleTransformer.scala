@@ -10,7 +10,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.NavigatableAdapter
-import com.jetbrains.packagesearch.intellij.plugin.extensibility.{BuildSystemType, DependencyDeclarationIndexes, ModuleTransformer, ProjectModule}
+import com.jetbrains.packagesearch.intellij.plugin.extensibility.{AsyncModuleTransformer, BuildSystemType, DependencyDeclarationIndexes, PackageSearchModule}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.packagesearch.utils.{SbtProjectModuleType, ScalaKotlinHelper}
 import org.jetbrains.sbt.SbtUtil
@@ -18,11 +18,13 @@ import org.jetbrains.sbt.language.utils.{SbtDependencyCommon, SbtDependencyUtils
 
 import java.io.File
 import java.util
+import java.util.Collections.emptyList
 import java.util.concurrent.CompletableFuture
+import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters._
 
 //noinspection UnstableApiUsage,ApiStatus,ScalaDeprecation
-class SbtModuleTransformer(private val project: Project) extends ModuleTransformer {
+class SbtModuleTransformer(private val project: Project) extends AsyncModuleTransformer {
   private val logger = Logger.getInstance(this.getClass)
 
   //TODO: delete unused before next release
@@ -68,18 +70,20 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
       CompletableFuture.completedFuture(dependencyIndexes)
     }
 
-  private def obtainProjectModulesFor(module: Module, dumbMode: Boolean): Option[ProjectModule] = try {
+  private def obtainProjectModulesFor(module: Module, dumbMode: Boolean): Option[PackageSearchModule] = try {
     val sbtFileOpt = SbtDependencyUtils.getSbtFileOpt(module)
     sbtFileOpt match {
       case Some(buildFile: VirtualFile) =>
-        val projectModule = new ProjectModule(
+        val projectModule = new PackageSearchModule(
           module.getName,
           module,
           null,
           buildFile,
           buildFile.getParent.toNioPath.toFile,
           SbtModuleTransformer.buildSystemType,
-          SbtProjectModuleType
+          SbtProjectModuleType,
+          emptyList(),
+          (_: DeclaredDependency) => CompletableFuture.completedFuture(null)
         )
         Some {
           if (!dumbMode) {
@@ -99,24 +103,27 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
       None
   }
 
-  override def transformModules(project: Project, nativeModules: util.List[_ <: Module]): util.List[ProjectModule] = {
+  override def transformModules(project: Project, nativeModules: util.List[_ <: Module]): CompletableFuture[util.List[PackageSearchModule]] = {
     val dumbMode = DumbService.isDumb(project)
 
-    nativeModules.asScala
-      .filter { m =>
-        SbtUtil.isSbtModule(m) &&
-          SbtUtil.getBuildModuleData(project, ExternalSystemApiUtil.getExternalProjectId(m)).isDefined
+    val futuresBuffer = ListBuffer.empty[CompletableFuture[Option[PackageSearchModule]]]
+    nativeModules.forEach { m =>
+      val acceptable = SbtUtil.isSbtModule(m) &&
+        SbtUtil.getBuildModuleData(project, ExternalSystemApiUtil.getExternalProjectId(m)).isDefined
+
+      if (acceptable) {
+        futuresBuffer += CompletableFuture.supplyAsync(() => obtainProjectModulesFor(m, dumbMode))
       }
-      .flatMap(m => obtainProjectModulesFor(m, dumbMode))
-      .distinct
-      .asJava
+    }
+    val futures = futuresBuffer.result()
+    CompletableFuture.allOf(futures: _*)
+      .thenApply[util.List[PackageSearchModule]](_ => futures.flatMap(_.join()).distinct.asJava)
   }
 }
 
 private object SbtModuleTransformer {
 
   //noinspection UnstableApiUsage
-  private val buildSystemType: BuildSystemType =
-    new BuildSystemType("SBT", "scala", "sbt-scala")
+  private[packagesearch] val buildSystemType: BuildSystemType =
+    new BuildSystemType("SBT", "scala", null)
 }
-

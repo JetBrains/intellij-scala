@@ -2,9 +2,9 @@
     <depends>com.jetbrains.packagesearch.intellij-plugin</depends>
     <extensions defaultExtensionNs="com.intellij">
         <externalSystem.dependencyModifier implementation="org.jetbrains.plugins.scala.packagesearch.SbtDependencyModifier"/>
-        <packagesearch.moduleTransformer implementation="org.jetbrains.plugins.scala.packagesearch.SbtModuleTransformer"/>
-        <packagesearch.asyncProjectModuleOperationProvider implementation="org.jetbrains.plugins.scala.packagesearch.SbtProjectModuleOperationProvider"/>
+        <packagesearch.asyncModuleTransformer implementation="org.jetbrains.plugins.scala.packagesearch.SbtModuleTransformer"/>
         <packagesearch.configurableContributor implementation="org.jetbrains.plugins.scala.packagesearch.SbtConfigurableContributor"/>
+        <packagesearch.resolvedDependenciesProvider implementation="org.jetbrains.plugins.scala.packagesearch.SbtResolvedDependenciesProvider"/>
         <search.optionContributor implementation="org.jetbrains.plugins.scala.packagesearch.configuration.SbtSearchableOptionContributor"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.packagesearch.configuration.PackageSearchSbtConfiguration"/>
     </extensions>

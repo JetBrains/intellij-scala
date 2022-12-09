@@ -278,9 +278,9 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
       .orNull
 
   @Nullable
-  override def createReturnExpresion(@Nullable expression: UExpression,
-                                     isLambda: Boolean,
-                                     @Nullable context: PsiElement): UReturnExpression = {
+  override def createReturnExpression(@Nullable expression: UExpression,
+                                      isLambda: Boolean,
+                                      @Nullable context: PsiElement): UReturnExpression = {
     val returnExpr = createScalaElementFromTextWithContext[ScReturn]("return 1", context).orNull
     val sourcePsi = if (expression == null) null else expression.getSourcePsi
     if (sourcePsi == null) returnExpr.expr.foreach(_.delete())
@@ -303,6 +303,10 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
   @Nullable
   override def createStringLiteralExpression(text: String, @Nullable context: PsiElement): ULiteralExpression =
     toUElement(createScalaElementFromTextWithContext[ScStringLiteral](StringUtil.wrapWithDoubleQuote(text), context).orNull, classOf[ULiteralExpression])
+
+  @Nullable
+  override def createMethodFromText(methodText: String, @Nullable context: PsiElement): UMethod =
+    toUElement(ScalaPsiElementFactory.createMethodFromText(methodText, context), classOf[UMethod])
 
   private def createInfixExpr(leftOperand: UExpression,
                               rightOperand: UExpression,

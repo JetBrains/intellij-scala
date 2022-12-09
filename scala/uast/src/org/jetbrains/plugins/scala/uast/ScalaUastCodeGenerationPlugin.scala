@@ -65,12 +65,12 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
     toUElement(e, classOf[UReferenceExpression])
   }
 
-  override def initializeField(uField: UField, uParameter: UParameter): Unit = {
+  override def initializeField(uField: UField, uParameter: UParameter): UExpression = {
     val uMethod = UastUtils.getParentOfType(uParameter, classOf[UMethod], false)
-    if (uMethod == null) return
+    if (uMethod == null) return null
 
     uMethod.getSourcePsi match {
-      case null =>
+      case null => null
       case constructor: ScPrimaryConstructor =>
         implicit val ctx: ProjectContext = constructor.getProject
 
@@ -82,28 +82,30 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
 
         if (uField.getName == uParameter.getName) {
           val paramPsi = uParameter.getSourcePsi
-          if (paramPsi == null) return
+          if (paramPsi == null) return null
 
-          fieldSourceVariable.foreach { fieldPsi =>
+          val psiElement = fieldSourceVariable.map { fieldPsi =>
             val scParam = ScalaPsiElementFactory.createClassParameterFromText(fieldPsi.getText, constructor)
             scParam.getModifierList.setModifierProperty(ScalaTokenTypes.kFINAL.text, false)
             scParam.getActualDefaultExpression.foreach(_.delete())
             scParam.getNode.findChildByType(ScalaTokenTypes.tASSIGN).toOption.foreach(_.getPsi.delete())
             fieldPsi.delete()
             paramPsi.replace(scParam)
-          }
+          }.orNull
+          toUElement(psiElement, classOf[UExpression])
         } else {
-          fieldSourceVariable.foreach {
+          val psiElement = fieldSourceVariable.flatMap {
             case definition: ScValueOrVariableDefinition =>
-              definition.expr.foreach(_.replace(createReferenceFromText(uParameter.getName)))
+              definition.expr.map(_.replace(createReferenceFromText(uParameter.getName)))
             case declaration@(_: ScValueDeclaration | _: ScVariableDeclaration) =>
               declaration.replace(
                 createElementFromText[ScValueOrVariableDefinition](
                   s"${declaration.getText} = ${uParameter.getName}", constructor
                 )
-              )
-            case _ =>
-          }
+              ).toOption
+            case _ => None
+          }.orNull
+          toUElement(psiElement, classOf[UExpression])
         }
       case fn: ScFunctionDefinition =>
         implicit val ctx: ProjectContext = fn.getProject
@@ -122,25 +124,27 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
           createElementFromText[ScAssignment](assignmentBuilder.result(), fn)
         }
 
-        fn.body.foreach {
+        val psiElement = fn.body.map {
           case block: ScBlockExpr =>
             addToBlock(block, createAssignment)
           case bodyExpr =>
-            val newBody = ScalaPsiElementFactory.createBlockWithGivenExpression(bodyExpr, bodyExpr) match {
+            ScalaPsiElementFactory.createBlockWithGivenExpression(bodyExpr, bodyExpr) match {
               case block: ScBlockExpr =>
-                addToBlock(block, createAssignment)
-                block
-              case _ => return
+                val assignment = addToBlock(block, createAssignment)
+                bodyExpr.replace(block)
+                assignment
+              case _ => return null
             }
-            bodyExpr.replace(newBody)
-        }
-      case _ =>
+        }.orNull
+        toUElement(psiElement, classOf[UExpression])
+      case _ => null
     }
   }
 
-  private def addToBlock(block: ScBlockExpr, element: PsiElement)(implicit pc: ProjectContext): Unit = {
+  private def addToBlock(block: ScBlockExpr, element: PsiElement)(implicit pc: ProjectContext): PsiElement = {
     val rBrace = block.getRBrace.orNull
-    block.addBefore(element, rBrace)
+    val added = block.addBefore(element, rBrace)
     block.addBefore(createNewLine(), rBrace)
+    added
   }
 }
