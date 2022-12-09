@@ -77,7 +77,8 @@ object ScalaImportTypeFix {
   @annotation.tailrec
   private[this] def notInner(clazz: PsiClass, ref: PsiElement): Boolean = clazz match {
     case o: ScObject if o.isSyntheticObject =>
-      getCompanionModule(o) match {
+      val companion = getCompanionModule(o)
+      companion match {
         case Some(cl) => notInner(cl, ref)
         case _ => true
       }
@@ -116,25 +117,18 @@ object ScalaImportTypeFix {
     }
 
     val referenceName = ref.refName
-    val classes = for {
-      clazz <- manager.getClassesByName(referenceName, ref.resolveScope)
-      classOrCompanion <- clazz match {
-        case clazz: ScTypeDefinition => clazz.fakeCompanionModule match {
-          case Some(companion) => companion :: clazz :: Nil
-          case _ => clazz :: Nil
-        }
-        case _ => clazz :: Nil
-      }
 
-      if classOrCompanion != null &&
-        classOrCompanion.qualifiedName != null &&
-        kindMatchesAndIsAccessible(classOrCompanion) &&
-        notInner(classOrCompanion, ref) &&
-        predicate(classOrCompanion)
+    val classesWithName = manager.getClassesByName(referenceName, ref.resolveScope)
+    val classesWithNameFiltered = classesWithName.filter { clazz =>
+      clazz != null &&
+        clazz.qualifiedName != null &&
+        kindMatchesAndIsAccessible(clazz) &&
+        notInner(clazz, ref) &&
+        predicate(clazz)
+    }
+    val classesToImport = classesWithNameFiltered.map(ClassToImport.apply)
 
-    } yield ClassToImport(classOrCompanion)
-
-    val aliases = for {
+    val aliasesToImport: Iterable[MemberToImport] = for {
       alias  <- manager.getTypeAliasesByName(referenceName, ref.resolveScope)
       global <- GlobalMember.findGlobalMembers(alias, ref.resolveScope)(GlobalTypeAlias)
 
@@ -143,7 +137,8 @@ object ScalaImportTypeFix {
     } yield MemberToImport(alias, global.owner, global.pathToOwner)
 
     //it's possible to have same qualified name with different owners in case of val overriding
-    val distinctAliases = aliases.iterator.distinctBy(_.qualifiedName)
+    val distinctAliasesToImport: Iterator[MemberToImport] =
+      aliasesToImport.iterator.distinctBy(_.qualifiedName)
 
     val packagesList = importsWithPrefix(referenceName).map { s =>
       s.reverse.dropWhile(_ != '.').tail.reverse
@@ -155,9 +150,10 @@ object ScalaImportTypeFix {
       if kindMatches(pack, kinds)
     } yield PrefixPackageToImport(pack)
 
-    (classes ++ distinctAliases ++ packages)
-      .filterNot(e => isExcluded(e.qualifiedName, project))
-      .sorted(defaultImportOrdering(ref))
+    val elementsAll = classesToImport ++ distinctAliasesToImport ++ packages
+    val elementsFiltered = elementsAll.filterNot(e => isExcluded(e.qualifiedName, project))
+    val elementsSorted = elementsFiltered.sorted(defaultImportOrdering(ref))
+    elementsSorted
   }
 
   private def hasApplyMethod(`class`: PsiClass): Boolean = `class` match {

@@ -55,6 +55,7 @@ trait ScTypeDefinition extends ScTemplateDefinition
 
   def typeParameters: Seq[ScTypeParam]
 
+  //TODO: add ScalaDoc: what is it, how it's different from baseCompanion?
   def fakeCompanionModule: Option[ScObject]
 
   override def showAsInheritor: Boolean = true

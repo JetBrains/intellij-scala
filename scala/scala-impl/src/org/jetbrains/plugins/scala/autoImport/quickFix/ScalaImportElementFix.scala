@@ -36,7 +36,8 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
   private val isComputationScheduled = new AtomicBoolean(false)
 
   if (isUnitTestMode) {
-    computedElements.set(findElementsToImport())
+    val elementsToImport = findElementsToImport()
+    computedElements.set(elementsToImport)
   }
 
   final def elements: Seq[Element] = Option(computedElements.get()).getOrElse(Seq.empty)
@@ -158,7 +159,8 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
 
       if (shouldSchedule && isComputationScheduled.compareAndSet(false, true)) {
         val computationRunnable: Runnable = () => {
-          computedElements.set(findElementsToImport())
+          val elementsToImport = findElementsToImport()
+          computedElements.set(elementsToImport)
           scheduleShowHint(editor)
         }
 
