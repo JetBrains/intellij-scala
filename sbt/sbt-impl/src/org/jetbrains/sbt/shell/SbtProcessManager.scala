@@ -2,7 +2,7 @@ package org.jetbrains.sbt.shell
 
 import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.execution.configurations._
-import com.intellij.execution.process.ColoredProcessHandler
+import com.intellij.execution.process.{ColoredProcessHandler, OSProcessUtil}
 import com.intellij.notification.{Notification, NotificationAction, NotificationType}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -12,6 +12,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.options.newEditor.SettingsDialog
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener, ProjectUtil}
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
@@ -39,6 +40,8 @@ import org.jetbrains.sbt.shell.SbtProcessManager._
 import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtCompilationSupervisorPort, SbtUtil}
 
 import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
+import java.util.concurrent.TimeUnit
+import scala.concurrent.TimeoutException
 import scala.jdk.CollectionConverters._
 
 /**
@@ -420,11 +423,43 @@ final class SbtProcessManager(project: Project) extends Disposable {
     updateProcessData()
   }
 
+  private def terminateProcessGracefully(process: Process): Unit = {
+    def attemptTermination(): Unit = {
+      try OSProcessUtil.terminateProcessGracefully(process)
+      catch {
+        case _: UnsupportedOperationException => process.destroy()
+      }
+    }
+
+    // 1 try and 4 retries, will wait 3 seconds, 6 seconds, 9 seconds and 12 seconds between each retry
+    // before finally giving up and stopping the process by force
+    var tries = 5
+    var success = false
+    var timeout = 3L
+
+    while (!success && tries > 0) {
+      attemptTermination()
+      try {
+        process.onExit().get(timeout, TimeUnit.SECONDS)
+        success = true
+      } catch {
+        case _: TimeoutException =>
+          timeout += 3L
+          tries -= 1
+      }
+    }
+
+    if (!success) {
+      process.destroyForcibly()
+    }
+  }
+
   def destroyProcess(): Unit = processData.synchronized {
     log.debug("destroyProcess")
     processData match {
       case Some(ProcessData(handler, _)) =>
-        handler.destroyProcess()
+        val runnable: Runnable = () => terminateProcessGracefully(handler.getProcess)
+        ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, SbtBundle.message("sbt.shell.stopping.process"), false, project)
         processData = None
       case None => // nothing to do
     }
