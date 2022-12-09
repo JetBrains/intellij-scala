@@ -164,12 +164,16 @@ object DependencyGroups {
     scalafmtDynamic
   )
 
+  //These libraries are already included in IDEA platform
+  private val bspExclusions: Seq[InclusionRule] = Seq(
+    ExclusionRule("com.google.code.gson", "gson"),
+    ExclusionRule("com.google.guava", "guava"),
+    ExclusionRule("org.eclipse.lsp4j", "org.eclipse.lsp4j.jsonrpc")
+  )
+
   val bsp: Seq[ModuleID] = Seq(
-    ("ch.epfl.scala" % "bsp4j" % bspVersion)
-      .exclude("com.google.code.gson", "gson") // included in IDEA platform
-      .exclude("com.google.guava", "guava") // included in IDEA platform
-    ,
-    "ch.epfl.scala" %% "bsp-testkit" % bspVersion % Test,
+    ("ch.epfl.scala" % "bsp4j" % bspVersion).excludeAll(bspExclusions: _*),
+    ("ch.epfl.scala" %% "bsp-testkit" % bspVersion).excludeAll(bspExclusions: _*) % Test,
     scalaTest,
     scalaCheck,
     "org.scalatestplus" %% "junit-4-13" % "3.2.14.0" % Test,
