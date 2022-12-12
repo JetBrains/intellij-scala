@@ -13,12 +13,17 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class WorksheetInspectionTest extends ScalaLightCodeInsightFixtureTestCase {
 
-  private def getInfos(code: String): Seq[HighlightInfo] = {
+  override def setUp(): Unit = {
+    super.setUp()
     myFixture.enableInspections(classOf[ScalaAccessCanBeTightenedInspection])
+  }
+
+  private def getInfos(code: String): Seq[HighlightInfo] = {
     val vFile = ScratchRootType.getInstance.createScratchFile(getProject, "foo.sc", ScalaLanguage.INSTANCE, code)
     ScratchFileService.getInstance.getScratchesMapping.setMapping(vFile, WorksheetLanguage.INSTANCE)
-    myFixture.openFileInEditor(vFile)
-    myFixture.doHighlighting().asScala.filter(_.getDescription == ScalaInspectionBundle.message("access.can.be.private")).toSeq
+    myFixture.configureFromExistingVirtualFile(vFile)
+    val allHighlightInfos = myFixture.doHighlighting().asScala
+    allHighlightInfos.filter(_.getDescription == ScalaInspectionBundle.message("access.can.be.private")).toSeq
   }
 
   def test_top_level_definition(): Unit = {
