@@ -6,8 +6,8 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.plugins.scala.worksheet.WorksheetLanguage
-import org.junit.Assert.assertTrue
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -26,13 +26,30 @@ class WorksheetInspectionTest extends ScalaLightCodeInsightFixtureTestCase {
     allHighlightInfos.filter(_.getDescription == ScalaInspectionBundle.message("access.can.be.private")).toSeq
   }
 
+  private def assertHighlightedElementsTexts(
+    code: String,
+    expectedHighlightedElementsTexts: Seq[String]
+  ): Unit = {
+    val infos = getInfos(code)
+
+    val actualHighlightedElementsTexts = infos.map(_.getText)
+
+    assertCollectionEquals(
+      "Highlighted element texts are different",
+      expectedHighlightedElementsTexts.sorted,
+      actualHighlightedElementsTexts.sorted
+    )
+  }
+
   def test_top_level_definition(): Unit = {
-    val infos = getInfos("class Bar; new Bar()")
-    assertTrue(s"${infos.size} highlights were found, expected 0", infos.isEmpty)
+    assertHighlightedElementsTexts(
+      "class Bar; new Bar()",
+      Nil
+    )
   }
 
   def test_non_top_level_definition(): Unit = {
-    val code =
+    assertHighlightedElementsTexts(
       """object WorksheetInspectionTest {
         |  object WorksheetInspectionTestInner {
         |    val iCouldEasilyBePrivate = 42
@@ -40,19 +57,8 @@ class WorksheetInspectionTest extends ScalaLightCodeInsightFixtureTestCase {
         |  }
         |  println(WorksheetInspectionTestInner)
         |}
-        |""".stripMargin
-
-    val infos = getInfos(code)
-
-    assertTrue(s"${infos.size} highlights were found, expected 2", infos.size == 2)
-
-    val highlightedDeclarations = infos.map(_.getText)
-
-    val expectedDeclarations = Seq("WorksheetInspectionTestInner", "iCouldEasilyBePrivate")
-
-    val msg = s"Highlighted element texts are ${highlightedDeclarations.mkString(" and ")}, expected " +
-      expectedDeclarations.mkString(" and ")
-
-    assertTrue(msg, expectedDeclarations.forall(highlightedDeclarations.contains))
+        |""".stripMargin,
+      Seq("WorksheetInspectionTestInner", "iCouldEasilyBePrivate")
+    )
   }
 }
