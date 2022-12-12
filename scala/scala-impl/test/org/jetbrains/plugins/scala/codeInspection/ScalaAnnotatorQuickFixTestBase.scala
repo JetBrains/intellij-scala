@@ -84,8 +84,8 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
 
   protected def description: String
 
-  protected val fileType: LanguageFileType = ScalaFileType.INSTANCE
-  protected val isScratchFile: Boolean = false
+  protected def fileType: LanguageFileType = ScalaFileType.INSTANCE
+  protected def isScratchFile: Boolean = false
 
   override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
 
