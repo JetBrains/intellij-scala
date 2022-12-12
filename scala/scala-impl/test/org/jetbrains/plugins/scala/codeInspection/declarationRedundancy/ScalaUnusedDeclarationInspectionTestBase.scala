@@ -15,4 +15,10 @@ abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaInspectionT
   val addScalaAnnotationUnusedHint = ScalaInspectionBundle.message("annotate.declaration.with.unused")
   val hintWholeDefinition = "Remove whole definition"
   val hintOnlyXBinding = "Remove only x binding"
+
+  protected override def setUp(): Unit = {
+    super.setUp()
+
+    deleteAllGlobalScratchFiles()
+  }
 }
