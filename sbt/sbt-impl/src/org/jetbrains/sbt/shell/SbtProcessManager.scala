@@ -436,6 +436,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     var tries = 5
     var success = false
     var timeout = 3L
+    val backoff = 3L // Back off for additional 3 seconds before each retry.
 
     while (!success && tries > 0) {
       attemptTermination()
@@ -444,7 +445,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
         success = true
       } catch {
         case _: TimeoutException =>
-          timeout += 3L
+          timeout += backoff
           tries -= 1
       }
     }
