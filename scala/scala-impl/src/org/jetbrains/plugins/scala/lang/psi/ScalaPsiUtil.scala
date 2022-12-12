@@ -1717,7 +1717,7 @@ object ScalaPsiUtil {
 
   /**
    * Convert {{{
-   *   if (cond) { ifTrue } else { ifFalse
+   *   if (cond) { ifTrue } else { ifFalse }
    * }}} to {{{
    *   if cond then ifTrue else ifFalse
    * }}}
@@ -1752,10 +1752,22 @@ object ScalaPsiUtil {
       cond.prevSiblingNotWhitespaceComment.filter(_.elementType == ScalaTokenTypes.tLPARENTHESIS).foreach(_.delete())
     }
 
-    def removeBraces(block: ScBlockExpr): Unit = {
-      block.getRBrace.foreach(r => block.getNode.removeChild(r.getNode)) // remove only '}', keep whitespaces
-      block.getLBrace.foreach(_.delete())
-    }
+    def removeBraces(block: ScBlockExpr): Unit =
+      if (block.statements.nonEmpty) { // do not remove braces from empty blocks to prevent compilation errors
+        block.getRBrace.foreach { rBrace =>
+          if (rBrace.startsFromNewLine(ignoreComments = false) &&
+            (rBrace.followedByNewLine(ignoreComments = false) || PsiTreeUtil.nextLeaf(rBrace) == null)) {
+            // if '}' is the only element on its line, delete an empty line along with the brace
+            rBrace.prevSibling.filterByType[PsiWhiteSpace].foreach { ws =>
+              val newWsText = ws.getText.split('\n').dropRight(1).mkString("\n")
+              if (newWsText.isEmpty) ws.delete()
+              else ws.replace(createWhitespace(newWsText))
+            }
+          }
+          block.getNode.removeChild(rBrace.getNode)
+        }
+        block.getLBrace.foreach(_.delete())
+      }
 
     statement.thenExpression.foreach {
       case block: ScBlockExpr => removeBraces(block)

@@ -407,8 +407,7 @@ class SimplifyBooleanMatchInspectionTest_Scala3 extends SimplifyBooleanMatchInsp
     val result =
       """val a = true
         |val b = if a then
-        |  1
-        |""".stripMargin
+        |  1""".stripMargin
 
     testQuickFix(text, result)
   }
@@ -433,8 +432,7 @@ class SimplifyBooleanMatchInspectionTest_Scala3 extends SimplifyBooleanMatchInsp
     val result =
       """val a = true
         |val b = if a then
-        |  1
-        |""".stripMargin
+        |  1""".stripMargin
 
     testQuickFix(text, result)
   }
@@ -455,8 +453,7 @@ class SimplifyBooleanMatchInspectionTest_Scala3 extends SimplifyBooleanMatchInsp
     val result =
       """val a = true
         |val b = if !a then
-        |  1
-        |""".stripMargin
+        |  1""".stripMargin
 
     testQuickFix(text, result)
   }
@@ -481,8 +478,7 @@ class SimplifyBooleanMatchInspectionTest_Scala3 extends SimplifyBooleanMatchInsp
         |val b = if a then
         |  4
         |else
-        |  1
-        |""".stripMargin
+        |  1""".stripMargin
 
     testQuickFix(text, result)
   }
@@ -507,8 +503,7 @@ class SimplifyBooleanMatchInspectionTest_Scala3 extends SimplifyBooleanMatchInsp
         |val b = if a then
         |  1
         |else
-        |  4
-        |""".stripMargin
+        |  4""".stripMargin
 
     testQuickFix(text, result)
   }
@@ -527,14 +522,16 @@ class SimplifyBooleanMatchInspectionTest_Scala3 extends SimplifyBooleanMatchInsp
         |val b = a match
         | case false => 1
         | case _ => 4
-        |""".stripMargin
+        |
+        |val c = b - 1""".stripMargin
     val result =
       """val a = true
         |val b = if a then
         |  4
         |else
         |  1
-        |""".stripMargin
+        |
+        |val c = b - 1""".stripMargin
 
     testQuickFix(text, result)
   }
@@ -570,8 +567,7 @@ class SimplifyBooleanMatchInspectionTest_Scala3 extends SimplifyBooleanMatchInsp
         |  1
         |else
         |  val t = 1
-        |  t + 2
-        |""".stripMargin
+        |  t + 2""".stripMargin
 
     testQuickFix(text, result)
   }
@@ -589,8 +585,7 @@ class SimplifyBooleanMatchInspectionTest_Scala3 extends SimplifyBooleanMatchInsp
         |""".stripMargin
     val result =
       """val b = if 1 + 2 == 3 then
-        |  1
-        |""".stripMargin
+        |  1""".stripMargin
 
     testQuickFix(text, result)
   }
@@ -608,8 +603,7 @@ class SimplifyBooleanMatchInspectionTest_Scala3 extends SimplifyBooleanMatchInsp
         |""".stripMargin
     val result =
       """val b = if !(1 + 2 == 3) then
-        |  1
-        |""".stripMargin
+        |  1""".stripMargin
 
     testQuickFix(text, result)
   }
