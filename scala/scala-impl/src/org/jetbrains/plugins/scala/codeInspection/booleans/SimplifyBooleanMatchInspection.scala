@@ -2,13 +2,15 @@ package org.jetbrains.plugins.scala.codeInspection.booleans
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil.isOfBooleanType
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
 
 import scala.language.implicitConversions
 
@@ -58,23 +60,27 @@ object SimpleBooleanMatchUtil {
     getFirstBooleanClauseAndValue(stmt) match {
       case None => stmt
       case Some((clause, value)) =>
+        import stmt.projectContext
         val exprText = if (value) stmt.expression.get.getText else "!" + getParenthesisedText(stmt.expression.get)
-        createExpressionFromText(s"if ($exprText){ ${getTextWithoutBraces(clause)} }", stmt)(stmt.projectContext)
+        val ifStmt = createElementFromText[ScIf](s"if ($exprText){ ${getTextWithoutBraces(clause)} }", stmt)
+        ScalaPsiUtil.convertIfToBracelessIfNeeded(ifStmt)
     }
   }
 
   def simplifyDualBranchedStmt(stmt: ScMatch): ScExpression = {
     getPartitionedClauses(stmt) match {
       case Some((trueClause, falseClause)) if trueClause.expr.nonEmpty && falseClause.expr.nonEmpty =>
+        import stmt.projectContext
         val exprText = stmt.expression.get.getText
-        createExpressionFromText(
+        val ifStmt = createElementFromText[ScIf](
           s"""
              |if ($exprText) {
              |${getTextWithoutBraces(trueClause)}
              |} else {
              |${getTextWithoutBraces(falseClause)}
              |}
-           """.stripMargin, stmt)(stmt.projectContext)
+           """.stripMargin, stmt)
+        ScalaPsiUtil.convertIfToBracelessIfNeeded(ifStmt)
       case _ => stmt
     }
   }
@@ -127,7 +133,7 @@ object SimpleBooleanMatchUtil {
     expr match {
       case e: ScInfixExpr => e match {
         case ScParenthesisedExpr(expr: ScExpression) => expr.getText
-        case _ => s"(${e.getText})"
+        case _ => e.getText.parenthesize()
       }
       case _ => expr.getText
     }

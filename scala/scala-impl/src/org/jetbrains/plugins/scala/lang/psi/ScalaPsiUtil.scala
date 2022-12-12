@@ -13,6 +13,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiModifier.STATIC
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
@@ -58,7 +59,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt, ScalaFeatures}
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 
 import java.{util => ju}
@@ -1712,5 +1713,62 @@ object ScalaPsiUtil {
       }
     case _: ScPackaging | _: ScalaFile => false
     case _ => true
+  }
+
+  /**
+   * Convert {{{
+   *   if (cond) { ifTrue } else { ifFalse
+   * }}} to {{{
+   *   if cond then ifTrue else ifFalse
+   * }}}
+   * if Scala 3 indentation-based syntax is enabled.
+   *
+   * Doesn't modify given statement, returns a modified copy.
+   */
+  def convertIfToBracelessIfNeeded(ifStmt: ScIf)(implicit ctx: ProjectContext): ScIf = {
+    val features: ScalaFeatures = ifStmt
+    if (!ctx.project.indentationBasedSyntaxEnabled(features)) return ifStmt
+
+    val statement = ifStmt.copy().asInstanceOf[ScIf]
+    CodeStyleManager.getInstance(ctx.project).reformat(statement)
+
+    def addThenKw(anchor: PsiElement): Unit =
+      createExpressionFromText("if true then ()", features)
+        .findFirstChildByType(ScalaTokenType.ThenKeyword)
+        .foreach { thenKw =>
+          val addedThen = statement.addAfter(thenKw, anchor)
+          statement.addBefore(createWhitespace, addedThen)
+          statement.addAfter(createWhitespace, addedThen)
+        }
+
+    statement.condition.foreach { cond =>
+      cond.nextSiblingNotWhitespaceComment.filter(_.elementType == ScalaTokenTypes.tRPARENTHESIS) match {
+        case Some(rParen) =>
+          addThenKw(rParen)
+          rParen.delete()
+        case _ =>
+          addThenKw(cond)
+      }
+      cond.prevSiblingNotWhitespaceComment.filter(_.elementType == ScalaTokenTypes.tLPARENTHESIS).foreach(_.delete())
+    }
+
+    def removeBraces(block: ScBlockExpr): Unit = {
+      block.getRBrace.foreach(r => block.getNode.removeChild(r.getNode)) // remove only '}', keep whitespaces
+      block.getLBrace.foreach(_.delete())
+    }
+
+    statement.thenExpression.foreach {
+      case block: ScBlockExpr => removeBraces(block)
+      case _ =>
+    }
+
+    statement.elseExpression.foreach {
+      case block: ScBlockExpr => removeBraces(block)
+      case anotherIf: ScIf =>
+        anotherIf.replace(convertIfToBracelessIfNeeded(anotherIf))
+      case _ =>
+    }
+
+    statement
   }
 }
