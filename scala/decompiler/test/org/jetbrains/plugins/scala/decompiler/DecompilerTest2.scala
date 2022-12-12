@@ -8,6 +8,8 @@ import scala.util.control.NonFatal
 
 // TODO Prettify and unify Scala 2 decompiler output, SCL-20672
 
+// companion object extends Foo (with Serializable)
+// trailing line separator
 // self type class with
 // final override -> override final
 // infix parameterized types
@@ -16,6 +18,7 @@ import scala.util.control.NonFatal
 // order of annotations
 
 // fix: <empty> package
+// fix: private val parameters in value classes
 // fix: implicit implicit val x: Int, implicit val y: Int
 // fix: annotation on value parameters, primary constructors, types
 // fix: qualified private abstract type is decompiled, without access modifier
