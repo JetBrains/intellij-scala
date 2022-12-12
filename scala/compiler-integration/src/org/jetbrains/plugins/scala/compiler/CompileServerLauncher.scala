@@ -13,6 +13,7 @@ import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.util.net.NetUtils
 import org.apache.commons.lang3.StringUtils
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
@@ -70,6 +71,8 @@ object CompileServerLauncher {
   })
 
   @deprecated("Please use `org.jetbrains.plugins.scala.compiler.CompileServerLauncher.ensureServerRunning` as a replacement. This method will be removed in a future release.")
+  @ScheduledForRemoval(inVersion = "2023.1")
+  @Deprecated(forRemoval = true)
   def tryToStart(project: Project): Boolean = serverStartLock.synchronized {
     if (running) true
     else start(project)
