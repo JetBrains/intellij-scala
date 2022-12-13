@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRef
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLocalClass
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.isBeanProperty
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -70,7 +71,7 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
 
     element match {
       case t: ScTypeDefinition if isTypeDefThatShouldNotBeInspected(t) => false
-      case m: ScMember => !m.isLocal && !Option(m.containingClass).exists(isLocalClass)
+      case m: ScMember => !m.isLocal && !Option(m.containingClass).exists(isLocalClass) && !isBeanProperty(m)
       case p: ScPatternList => shouldProcessElement(p.getContext)
       case _ => true
     }

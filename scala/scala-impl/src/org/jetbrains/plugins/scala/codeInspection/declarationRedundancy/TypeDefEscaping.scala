@@ -4,11 +4,11 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 private[declarationRedundancy] object TypeDefEscaping {
