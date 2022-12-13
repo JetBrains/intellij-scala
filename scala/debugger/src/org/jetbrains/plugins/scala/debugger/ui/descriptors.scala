@@ -86,7 +86,7 @@ private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: 
   OnDemandRenderer.ON_DEMAND_CALCULATED.set(this, false)
   setOnDemandPresentationProvider { node =>
     node.setFullValueEvaluator(OnDemandRenderer.createFullValueEvaluator(DebuggerBundle.message("initialize.lazy.val")))
-    val typeName = getType.name()
+    val typeName = field.typeName()
     node.setPresentation(icon, typeName, DebuggerBundle.message("lazy.val.not.initialized"), false)
   }
 
