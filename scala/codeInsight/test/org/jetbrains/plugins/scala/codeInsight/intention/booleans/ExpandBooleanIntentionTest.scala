@@ -127,7 +127,10 @@ class ExpandBooleanIntentionTest_Scala3 extends intentions.ScalaIntentionTestBas
       s"""
          |class X:
          |  def f(a: Int): Boolean =
-         |    ${CARET}if a > 0 then return true else return false
+         |    ${CARET}if a > 0 then
+         |      return true
+         |    else
+         |      return false
          |""".stripMargin
 
     doTest(text, resultText)
@@ -144,7 +147,10 @@ class ExpandBooleanIntentionTest_Scala3 extends intentions.ScalaIntentionTestBas
       s"""
          |class X:
          |  def f(a: Int): Boolean =
-         |    ${CARET}if a > 0 then return true else return false
+         |    ${CARET}if a > 0 then
+         |      return true
+         |    else
+         |      return false
          |""".stripMargin
 
     doTest(text, resultText)
@@ -161,7 +167,10 @@ class ExpandBooleanIntentionTest_Scala3 extends intentions.ScalaIntentionTestBas
       s"""
          |class X:
          |  def f(a: Int, b: Int): Boolean =
-         |    ${CARET}if a > 0 || b < 7 then return true else return false
+         |    ${CARET}if a > 0 || b < 7 then
+         |      return true
+         |    else
+         |      return false
          |""".stripMargin
 
     doTest(text, resultText)
@@ -182,7 +191,10 @@ class ExpandBooleanIntentionTest_Scala3 extends intentions.ScalaIntentionTestBas
          |class X:
          |  def f(a: Int, b: Int): Boolean =
          |    if a > 0 || b < 7 then
-         |      ${CARET}if true then return true else return false
+         |      ${CARET}if true then
+         |        return true
+         |      else
+         |        return false
          |    else
          |      return false
          |""".stripMargin

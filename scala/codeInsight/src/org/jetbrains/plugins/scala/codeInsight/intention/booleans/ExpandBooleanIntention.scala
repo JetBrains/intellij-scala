@@ -10,9 +10,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScParenthesisedExpr, ScReturn}
-import org.jetbrains.plugins.scala.lang.psi.impl.OptionalBracesCode._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScIf, ScParenthesisedExpr, ScReturn}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
@@ -44,9 +44,8 @@ final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
     IntentionPreviewUtils.write { () =>
       implicit val context: ProjectContext = project
       implicit val features: ScalaFeatures = element
-      val replacementText =
-        optBraces"if ${IfCondition(expressionText)} $IfThenBlockStart return true $IfBlockEnd else $BlockStart return false $BlockEnd"
-      val replacement = createExpressionFromText(replacementText, features)
+      val replacementText = s"if ($expressionText) { return true } else { return false }"
+      val replacement = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](replacementText, features))
       statement.replaceExpression(replacement, removeParenthesis = true)
 
       editor.getCaretModel.moveToOffset(start)

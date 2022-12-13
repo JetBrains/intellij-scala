@@ -30,10 +30,6 @@ object OptionalBracesCode {
   case object BlockStart
   case object BlockEnd extends BlockEndLike
 
-  final case class IfCondition(cond: Any)
-  case object IfThenBlockStart
-  case object IfBlockEnd extends BlockEndLike
-
   implicit final class ScalaOptionalBracesCodeContext(delegate: StringContext)
                                                      (implicit ctx: ProjectContext, features: ScalaFeatures) {
     def optBraces(args0: Any*): String = {
@@ -48,11 +44,7 @@ object OptionalBracesCode {
           case BlockStart         => if (isBraceless) "" else " {"
           case TemplateBodyStart  => if (isBraceless) ":" else " {"
           case _: BlockEndLike    => if (isBraceless) "" else "\n}"
-
-          case IfCondition(cond)  => if (isBraceless) cond else s"($cond)"
-          case IfThenBlockStart   => if (isBraceless) "then" else "{"
-
-          case x                          => x
+          case x                  => x
         }
         sb.append(next)
         sb.append(parts.next())
