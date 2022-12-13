@@ -1729,7 +1729,7 @@ object ScalaPsiUtil {
     if (!ctx.project.indentationBasedSyntaxEnabled(features)) return ifStmt
 
     val statement = ifStmt.copy().asInstanceOf[ScIf]
-    CodeStyleManager.getInstance(ctx.project).reformat(statement)
+    CodeStyleManager.getInstance(ctx.project).reformat(statement, true)
 
     def addThenKw(anchor: PsiElement): Unit =
       createExpressionFromText("if true then ()", features)
