@@ -1751,7 +1751,8 @@ object ScalaPsiUtil {
       cond.prevSiblingNotWhitespaceComment.filter(_.elementType == ScalaTokenTypes.tLPARENTHESIS).foreach(_.delete())
     }
 
-    def removeBraces(block: ScBlockExpr): Unit =
+    def processBlock(block: ScBlockExpr): Unit = {
+      // remove braces
       if (block.statements.nonEmpty) { // do not remove braces from empty blocks to prevent compilation errors
         block.getRBrace.foreach { rBrace =>
           if (rBrace.startsFromNewLine(ignoreComments = false) &&
@@ -1768,13 +1769,19 @@ object ScalaPsiUtil {
         block.getLBrace.foreach(_.delete())
       }
 
+      // process inner ifs
+      block.children
+        .filterByType[ScIf]
+        .foreach(innerIf => innerIf.replace(convertIfToBracelessIfNeeded(innerIf)))
+    }
+
     statement.thenExpression.foreach {
-      case block: ScBlockExpr => removeBraces(block)
+      case block: ScBlockExpr => processBlock(block)
       case _ =>
     }
 
     statement.elseExpression.foreach {
-      case block: ScBlockExpr => removeBraces(block)
+      case block: ScBlockExpr => processBlock(block)
       case anotherIf: ScIf =>
         anotherIf.replace(convertIfToBracelessIfNeeded(anotherIf))
       case _ =>
