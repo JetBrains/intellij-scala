@@ -19,7 +19,6 @@ object StdKinds {
 
   val noPackagesClassCompletion: ResolveTargets.ValueSet = ValueSet(OBJECT, VAL, CLASS)
   val stableImportSelector: ResolveTargets.ValueSet      = ValueSet(OBJECT, VAL, VAR, METHOD, PACKAGE, CLASS)
-  val stableImportSelector_WithoutClass: ResolveTargets.ValueSet      = ValueSet(OBJECT, VAL, VAR, METHOD, PACKAGE)
   val stableClass: ResolveTargets.ValueSet               = ValueSet(CLASS)
 
   val stableClassOrObject: ResolveTargets.ValueSet = ValueSet(CLASS, OBJECT)
