@@ -168,7 +168,10 @@ object DependencyGroups {
   private val bspExclusions: Seq[InclusionRule] = Seq(
     ExclusionRule("com.google.code.gson", "gson"),
     ExclusionRule("com.google.guava", "guava"),
-    ExclusionRule("org.eclipse.lsp4j", "org.eclipse.lsp4j.jsonrpc")
+    //NOTE: lsp4j is present in IDEA Ultimate jars: it's bundled into app.jar (NOTE: it has a higher version) then bsp4j uses
+    //but it's not available in IDEA Community
+    //So we can't simply exclude this library from the dependencies
+    //ExclusionRule("org.eclipse.lsp4j", "org.eclipse.lsp4j.jsonrpc")
   )
 
   val bsp: Seq[ModuleID] = Seq(
