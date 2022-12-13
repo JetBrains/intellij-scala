@@ -1,15 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.negative
 
-import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionBundle}
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBePrivateInspectionTestBase
 
-final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestBase {
-  override protected val description = ScalaInspectionBundle.message("access.can.be.private")
-
-  override def setUp(): Unit = {
-    super.setUp()
-    myFixture.enableInspections(classOf[ScalaAccessCanBeTightenedInspection])
-  }
+final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspectionTestBase {
 
   def test_val(): Unit =
     checkTextHasNoErrors("private class A { val foo = 42 }; private class B { new A().foo }")
