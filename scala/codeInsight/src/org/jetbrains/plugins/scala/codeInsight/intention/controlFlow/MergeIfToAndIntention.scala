@@ -11,8 +11,10 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 import scala.collection.mutable
 
@@ -23,8 +25,8 @@ final class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
     if (ifStmt == null) return false
 
     val offset = editor.getCaretModel.getOffset
-    val thenBranch =  ifStmt.thenExpression.orNull
-    val elseBranch =  ifStmt.elseExpression.orNull
+    val thenBranch = ifStmt.thenExpression.orNull
+    val elseBranch = ifStmt.elseExpression.orNull
     if (thenBranch == null || elseBranch != null) return false
 
     val condition = ifStmt.condition.orNull
@@ -53,10 +55,9 @@ final class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    val ifStmt : ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
+    val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
-    val expr = new mutable.StringBuilder
     val outerCondition = ifStmt.condition.get.getText
     val innerIfStmt = ifStmt.thenExpression.get match {
       case c: ScBlockExpr => c.exprs.head.asInstanceOf[ScIf]
@@ -65,11 +66,15 @@ final class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
     val innerThenBranch = innerIfStmt.thenExpression.get
     val innerCondition = innerIfStmt.condition.get.getText
 
-    expr.append("if (").append(outerCondition).append(" && ").append(innerCondition).append(") ").
-      append(innerThenBranch.getText)
+    val expr = new mutable.StringBuilder()
+      .append("if (").append(outerCondition).append(" && ").append(innerCondition).append(") ")
+      .append(innerThenBranch.getText)
 
     IntentionPreviewUtils.write { () =>
-      ifStmt.replaceExpression(createExpressionFromText(expr.toString(), element)(element.getManager), removeParenthesis = true)
+      implicit val ctx: ProjectContext = project
+      implicit val features: ScalaFeatures = element
+      val newIf = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](expr.toString(), element))
+      ifStmt.replaceExpression(newIf, removeParenthesis = true)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }
