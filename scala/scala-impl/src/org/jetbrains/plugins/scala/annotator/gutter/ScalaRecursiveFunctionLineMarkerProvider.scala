@@ -10,9 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import javax.swing.Icon
 
-final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
+final class ScalaRecursiveFunctionLineMarkerProvider extends LineMarkerProvider {
 
-  import RecursiveCallLineMarkerProvider._
+  import ScalaRecursiveFunctionLineMarkerProvider._
 
   override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
     if (!GutterUtil.RecursionOption.isEnabled) {
@@ -42,7 +42,7 @@ final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
   }
 }
 
-object RecursiveCallLineMarkerProvider {
+object ScalaRecursiveFunctionLineMarkerProvider {
   private def createLineMarkerInfo(icon: Icon, psiElemToTooltip: String => String, element: PsiElement): LineMarkerInfo[PsiElement] =
     new LineMarkerInfo(
       element,
