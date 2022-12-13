@@ -4,9 +4,10 @@ import com.intellij.codeInsight.daemon.GutterMark
 import com.intellij.codeInsight.daemon.LineMarkerInfo.LineMarkerGutterIconRenderer
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
+import org.jetbrains.plugins.scala.{ScalaBundle, TypecheckerTests}
+import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue, fail}
 import org.junit.experimental.categories.Category
 
@@ -43,6 +44,8 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
   protected def recursionTooltip(methodName: String, isTailRecursive: Boolean) =
     s"Method '$methodName' is ${if (isTailRecursive) "tail recursive" else "recursive"}"
 
+  protected def recursiveCallTooltip: String = ScalaBundle.message("call.is.recursive")
+
   // TODO: why using callback? we could just call it "prepareFile" and call as usual
   protected def doTest(fileText: String, fileExtension: String = "scala")(testFn: => Any): Unit = {
     val name = getTestName(false)
@@ -68,6 +71,23 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
         case markers =>
           fail(s"Expected single gutter at caret, but got:\n${guttersDebugText(markers)}")
       }
+    }
+  }
+
+  protected def doTestAllTooltipsAtCaret(fileText: String, expectedTooltips: String*): Unit = {
+    assertTrue("Tooltips expected", expectedTooltips.nonEmpty)
+
+    doTest(fileText) {
+      val markers = myFixture.findGuttersAtCaret().asScala.toSeq
+      val actualTooltips = markers.map(_.getTooltipText)
+
+      val errorMsg =
+        if (markers.isEmpty)
+          s"Expected ${expectedTooltips.length} ${StringUtil.pluralize("marker", expectedTooltips.length)} at caret, but no markers found"
+        else
+          s"Expected tooltips do not match actual markers:\n${guttersDebugText(markers)}"
+
+      Assert.assertEquals(errorMsg, actualTooltips.toList.sorted, expectedTooltips.toList.sorted)
     }
   }
 
