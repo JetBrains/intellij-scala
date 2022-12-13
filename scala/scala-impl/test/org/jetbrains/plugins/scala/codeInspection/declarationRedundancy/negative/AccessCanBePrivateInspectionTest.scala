@@ -155,5 +155,6 @@ final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestB
   def test_prevent_escaping_via_type_alias(): Unit =
     checkTextHasNoErrors("object A { class B; type C = B }")
 
-  def test_that_fails_to_prevent_merge(): Unit = throw new Exception
+  def test_skip_bean_property(): Unit =
+    checkTextHasNoErrors("object A { @scala.beans.BeanProperty var x = 1; println(x) }")
 }
