@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIf, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
 
@@ -79,6 +79,7 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
 
     IntentionPreviewUtils.write { () =>
       implicit val ctx: ProjectContext = element.getManager
+      implicit val features: ScalaFeatures = element
       val newIfStmtDummy = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](newIfElseText, element))
       val newIfStmt = ifStmt.replaceExpression(newIfStmtDummy, removeParenthesis = true)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)

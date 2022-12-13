@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 import scala.language.implicitConversions
 
@@ -29,7 +30,8 @@ class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatch) extends AbstractFixOnP
   override protected def doApplyFix(scStmt: ScMatch)
                                    (implicit project: Project): Unit = {
     if (SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(scStmt)) {
-      scStmt.replaceExpression(SimpleBooleanMatchUtil.simplifyMatchStmt(scStmt), removeParenthesis = false)
+      val newExpr = SimpleBooleanMatchUtil.simplifyMatchStmt(scStmt)(project, scStmt)
+      scStmt.replaceExpression(newExpr, removeParenthesis = false)
     }
   }
 }
@@ -47,7 +49,7 @@ object SimpleBooleanMatchUtil {
     }
   }
 
-  def simplifyMatchStmt(stmt: ScMatch): ScExpression = {
+  def simplifyMatchStmt(stmt: ScMatch)(implicit project: Project, features: ScalaFeatures): ScExpression = {
     if (!isSimpleBooleanMatchStmt(stmt) || stmt.expression.isEmpty) return stmt
     stmt.clauses.size match {
       case 1 => simplifySingleBranchedStmt(stmt)
@@ -56,21 +58,19 @@ object SimpleBooleanMatchUtil {
     }
   }
 
-  private def simplifySingleBranchedStmt(stmt: ScMatch): ScExpression = {
+  private def simplifySingleBranchedStmt(stmt: ScMatch)(implicit project: Project, features: ScalaFeatures): ScExpression = {
     getFirstBooleanClauseAndValue(stmt) match {
       case None => stmt
       case Some((clause, value)) =>
-        import stmt.projectContext
         val exprText = if (value) stmt.expression.get.getText else "!" + getParenthesisedText(stmt.expression.get)
         val ifStmt = createElementFromText[ScIf](s"if ($exprText){ ${getTextWithoutBraces(clause)} }", stmt)
         ScalaPsiUtil.convertIfToBracelessIfNeeded(ifStmt)
     }
   }
 
-  def simplifyDualBranchedStmt(stmt: ScMatch): ScExpression = {
+  def simplifyDualBranchedStmt(stmt: ScMatch)(implicit project: Project, features: ScalaFeatures): ScExpression = {
     getPartitionedClauses(stmt) match {
       case Some((trueClause, falseClause)) if trueClause.expr.nonEmpty && falseClause.expr.nonEmpty =>
-        import stmt.projectContext
         val exprText = stmt.expression.get.getText
         val ifStmt = createElementFromText[ScIf](
           s"""

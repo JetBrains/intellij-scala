@@ -1725,8 +1725,7 @@ object ScalaPsiUtil {
    *
    * Doesn't modify given statement, returns a modified copy.
    */
-  def convertIfToBracelessIfNeeded(ifStmt: ScIf)(implicit ctx: ProjectContext): ScIf = {
-    val features: ScalaFeatures = ifStmt
+  def convertIfToBracelessIfNeeded(ifStmt: ScIf)(implicit ctx: ProjectContext, features: ScalaFeatures): ScIf = {
     if (!ctx.project.indentationBasedSyntaxEnabled(features)) return ifStmt
 
     val statement = ifStmt.copy().asInstanceOf[ScIf]
