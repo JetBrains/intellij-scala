@@ -4,7 +4,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
@@ -28,12 +28,8 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
     val refName = ref.refName
 
     val referenceToObject = refName.endsWith("$")
-    val (refNameAdjusted, kinds) =
-      if (referenceToObject)
-        (refName.stripSuffix("$"), stableImportSelector_WithoutClass)
-      else
-        (refName, stableImportSelector)
-
+    val refNameAdjusted = if (referenceToObject) refName.stripSuffix("$") else refName
+    val kinds = stableImportSelector
     val processor = new ResolveProcessor(kinds, ref, refNameAdjusted)
 
     val resolveResult0: Array[ScalaResolveResult] =
@@ -47,7 +43,7 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
     val resolveResult1 = resolveResult0.distinctBy(_.element)
 
     val resolveResult2 =
-      if (referenceToObject && resolveResult1.exists(_.element.is[ScObject]))
+      if (referenceToObject && resolveResult1.forall(_.element.is[ScTypeDefinition])) // check if no methods were resolved
         resolveResult1.filter(_.element.is[ScObject])
       else
         resolveResult1
