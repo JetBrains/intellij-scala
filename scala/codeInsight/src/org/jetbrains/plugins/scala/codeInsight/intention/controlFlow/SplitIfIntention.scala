@@ -11,8 +11,10 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf, ScInfixExpr, ScParenthesisedExpr}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 final class SplitIfIntention extends PsiElementBaseIntentionAction {
 
@@ -48,8 +50,9 @@ final class SplitIfIntention extends PsiElementBaseIntentionAction {
     }
 
     import ifStmt.projectContext
+    implicit val features: ScalaFeatures = element
     val start = ifStmt.getTextRange.getStartOffset
-    val newIfStmt = createExpressionFromText(prefix + suffix, element).asInstanceOf[ScIf]
+    val newIfStmt = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](prefix + suffix, element))
     val diff = newIfStmt.condition.get.getTextRange.getStartOffset - newIfStmt.getTextRange.getStartOffset
 
     IntentionPreviewUtils.write { () =>

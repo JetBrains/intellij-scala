@@ -1751,6 +1751,8 @@ object ScalaPsiUtil {
       cond.prevSiblingNotWhitespaceComment.filter(_.elementType == ScalaTokenTypes.tLPARENTHESIS).foreach(_.delete())
     }
 
+    def convertIf(scIf: ScIf): Unit = scIf.replace(convertIfToBracelessIfNeeded(scIf))
+
     def processBlock(block: ScBlockExpr): Unit = {
       // remove braces
       if (block.statements.nonEmpty) { // do not remove braces from empty blocks to prevent compilation errors
@@ -1772,18 +1774,18 @@ object ScalaPsiUtil {
       // process inner ifs
       block.children
         .filterByType[ScIf]
-        .foreach(innerIf => innerIf.replace(convertIfToBracelessIfNeeded(innerIf)))
+        .foreach(convertIf)
     }
 
     statement.thenExpression.foreach {
       case block: ScBlockExpr => processBlock(block)
+      case innerIf: ScIf => convertIf(innerIf)
       case _ =>
     }
 
     statement.elseExpression.foreach {
       case block: ScBlockExpr => processBlock(block)
-      case anotherIf: ScIf =>
-        anotherIf.replace(convertIfToBracelessIfNeeded(anotherIf))
+      case innerIf: ScIf => convertIf(innerIf)
       case _ =>
     }
 
