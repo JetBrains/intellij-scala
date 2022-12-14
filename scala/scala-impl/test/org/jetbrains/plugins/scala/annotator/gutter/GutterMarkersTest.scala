@@ -100,12 +100,31 @@ class GutterMarkersTest extends GutterMarkersTestBase {
   def testRecursiveCallOneTooltipPerLine(): Unit = doTestSingleTooltipAtCaret(
     s"""
        |object C {
-       |  def fn(a: Int, b: Int, c: Int): Unit =
+       |  def fn(a: Int, b: Int, c: Int): Unit = {
        |    if (a > 0) fn(-a, b, c) else if (b > 0) fn(a, -b, c) else if (c > 0) fn(a, b, -c) else fn(-a, -b, -c)$caret
+       |
+       |    fn(1, 2, 3)
+       |  }
        |}
     """.stripMargin,
 
     // add gutter marker only once
+    recursiveCallTooltip
+  )
+
+  @Test
+  def testRecursiveCallOneTooltipPerLine2(): Unit = doTestAllTooltipsAtCaret(
+    s"""
+       |object C {
+       |  def fn(a: Int, b: Int, c: Int): Unit = {
+       |    if (a > 0) fn(-a, b, c) else if (b > 0) fn(a, -b, c) else if (c > 0) fn(a, b, -c) else fn(-a, -b, -c)
+       |
+       |    fn(1, 2, 3)$caret
+       |  }
+       |}
+    """.stripMargin,
+
+    // add gutter marker only once **per line**
     recursiveCallTooltip
   )
 

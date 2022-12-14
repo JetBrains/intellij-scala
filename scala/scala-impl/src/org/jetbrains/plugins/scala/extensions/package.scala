@@ -60,9 +60,9 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 
+import java.io.File
 import java.lang.ref.Reference
 import java.lang.reflect.InvocationTargetException
-import java.io.File
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
@@ -940,6 +940,11 @@ package object extensions {
       fileEditorManager = FileEditorManager.getInstance(project)
       editor <- fileEditorManager.openTextEditor(descriptor, true).toOption
     } yield editor
+
+    def getLineNumber: Int =
+      PsiDocumentManager.getInstance(element.getProject)
+        .getDocument(element.getContainingFile)
+        .getLineNumber(startOffset)
   }
 
   implicit class PsiTypeExt(@Nullable val `type`: PsiType) extends AnyVal {
