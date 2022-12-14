@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 final class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+    if (element.isInScala3File) return false
+
     for {
       whileStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScWhile], false))
       condition <- whileStmt.condition

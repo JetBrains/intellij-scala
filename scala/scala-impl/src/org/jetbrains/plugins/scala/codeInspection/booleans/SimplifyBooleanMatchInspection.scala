@@ -2,13 +2,16 @@ package org.jetbrains.plugins.scala.codeInspection.booleans
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil.isOfBooleanType
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 import scala.language.implicitConversions
 
@@ -27,7 +30,8 @@ class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatch) extends AbstractFixOnP
   override protected def doApplyFix(scStmt: ScMatch)
                                    (implicit project: Project): Unit = {
     if (SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(scStmt)) {
-      scStmt.replaceExpression(SimpleBooleanMatchUtil.simplifyMatchStmt(scStmt), removeParenthesis = false)
+      val newExpr = SimpleBooleanMatchUtil.simplifyMatchStmt(scStmt)(project, scStmt)
+      scStmt.replaceExpression(newExpr, removeParenthesis = false)
     }
   }
 }
@@ -45,7 +49,7 @@ object SimpleBooleanMatchUtil {
     }
   }
 
-  def simplifyMatchStmt(stmt: ScMatch): ScExpression = {
+  def simplifyMatchStmt(stmt: ScMatch)(implicit project: Project, features: ScalaFeatures): ScExpression = {
     if (!isSimpleBooleanMatchStmt(stmt) || stmt.expression.isEmpty) return stmt
     stmt.clauses.size match {
       case 1 => simplifySingleBranchedStmt(stmt)
@@ -54,27 +58,29 @@ object SimpleBooleanMatchUtil {
     }
   }
 
-  private def simplifySingleBranchedStmt(stmt: ScMatch): ScExpression = {
+  private def simplifySingleBranchedStmt(stmt: ScMatch)(implicit project: Project, features: ScalaFeatures): ScExpression = {
     getFirstBooleanClauseAndValue(stmt) match {
       case None => stmt
       case Some((clause, value)) =>
         val exprText = if (value) stmt.expression.get.getText else "!" + getParenthesisedText(stmt.expression.get)
-        createExpressionFromText(s"if ($exprText){ ${getTextWithoutBraces(clause)} }", stmt)(stmt.projectContext)
+        val ifStmt = createElementFromText[ScIf](s"if ($exprText){ ${getTextWithoutBraces(clause)} }", stmt)
+        ScalaPsiUtil.convertIfToBracelessIfNeeded(ifStmt)
     }
   }
 
-  def simplifyDualBranchedStmt(stmt: ScMatch): ScExpression = {
+  def simplifyDualBranchedStmt(stmt: ScMatch)(implicit project: Project, features: ScalaFeatures): ScExpression = {
     getPartitionedClauses(stmt) match {
       case Some((trueClause, falseClause)) if trueClause.expr.nonEmpty && falseClause.expr.nonEmpty =>
         val exprText = stmt.expression.get.getText
-        createExpressionFromText(
+        val ifStmt = createElementFromText[ScIf](
           s"""
              |if ($exprText) {
              |${getTextWithoutBraces(trueClause)}
              |} else {
              |${getTextWithoutBraces(falseClause)}
              |}
-           """.stripMargin, stmt)(stmt.projectContext)
+           """.stripMargin, stmt)
+        ScalaPsiUtil.convertIfToBracelessIfNeeded(ifStmt)
       case _ => stmt
     }
   }
@@ -127,7 +133,7 @@ object SimpleBooleanMatchUtil {
     expr match {
       case e: ScInfixExpr => e match {
         case ScParenthesisedExpr(expr: ScExpression) => expr.getText
-        case _ => s"(${e.getText})"
+        case _ => e.getText.parenthesize()
       }
       case _ => expr.getText
     }

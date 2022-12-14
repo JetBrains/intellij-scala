@@ -23,10 +23,12 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFea
  * }}}
  */
 object OptionalBracesCode {
+  sealed trait BlockEndLike
+
   case object TemplateBodyStart
-  case object TemplateBodyEnd
+  case object TemplateBodyEnd extends BlockEndLike
   case object BlockStart
-  case object BlockEnd
+  case object BlockEnd extends BlockEndLike
 
   implicit final class ScalaOptionalBracesCodeContext(delegate: StringContext)
                                                      (implicit ctx: ProjectContext, features: ScalaFeatures) {
@@ -39,10 +41,10 @@ object OptionalBracesCode {
       val sb = new StringBuilder(parts.next())
       while (args.hasNext) {
         val next = args.next() match {
-          case BlockStart                 => if (isBraceless) "" else " {"
-          case TemplateBodyStart          => if (isBraceless) ":" else " {"
-          case BlockEnd | TemplateBodyEnd => if (isBraceless) "" else "\n}"
-          case x                          => x
+          case BlockStart         => if (isBraceless) "" else " {"
+          case TemplateBodyStart  => if (isBraceless) ":" else " {"
+          case _: BlockEndLike    => if (isBraceless) "" else "\n}"
+          case x                  => x
         }
         sb.append(next)
         sb.append(parts.next())

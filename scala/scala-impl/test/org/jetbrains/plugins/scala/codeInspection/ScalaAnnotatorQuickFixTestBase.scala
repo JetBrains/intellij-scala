@@ -8,7 +8,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase.{ExpectedHighlight, TestPrepareResult, checkOffset}
-import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, StringExt, executeWriteActionCommand}
+import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, ObjectExt, StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.{EditorTests, ScalaFileType}
 import org.junit.Assert.{assertFalse, assertTrue, fail}
@@ -21,7 +21,7 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
 
   import ScalaAnnotatorQuickFixTestBase.quickFixes
 
-  protected def testQuickFix(text: String, expected: String, hint: String): Unit = {
+  protected def testQuickFix(text: String, expected: String, hint: String, trimExpectedText: Boolean = true): Unit = {
     val action = doFindQuickFix(text, hint)
 
     executeWriteActionCommand() {
@@ -29,7 +29,7 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
     }(getProject)
 
     val expectedFileText = createTestText(expected)
-    myFixture.checkResult(expectedFileText.withNormalizedSeparator.trim, true)
+    myFixture.checkResult(expectedFileText.withNormalizedSeparator.pipeIf(_ => trimExpectedText)(_.trim), true)
   }
 
   protected def testQuickFixAllInFile(text: String, expected: String, hint: String): Unit = {

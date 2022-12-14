@@ -12,8 +12,10 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 import scala.collection.mutable
 
@@ -53,14 +55,18 @@ final class MergeElseIfIntention extends PsiElementBaseIntentionAction {
     val diff = editor.getCaretModel.getOffset - ifStmt.thenExpression.get.getTextRange.getEndOffset - elseIndex
     val newlineBeforeElse = ifStmt.children.find(_.getNode.getElementType == ScalaTokenTypes.kELSE).
       exists(_.getPrevSibling.getText.contains("\n"))
-    val expr = new mutable.StringBuilder
-    expr.append("if (").append(ifStmt.condition.get.getText).append(") ").
-    append(ifStmt.thenExpression.get.getText).append(if (newlineBeforeElse) "\n" else " ").append("else ").
-    append(ifStmt.elseExpression.get.getText.trim.drop(1).dropRight(1))
+    val expr = new mutable.StringBuilder()
+      .append("if (").append(ifStmt.condition.get.getText).append(") ")
+      .append(ifStmt.thenExpression.get.getText)
+      .append(if (newlineBeforeElse) "\n" else " ")
+      .append("else ")
+      .append(ifStmt.elseExpression.get.getText.trim.drop(1).dropRight(1))
 
-    val newIfStmt = createExpressionFromText(expr.toString(), element)(element.getManager)
-    val size = newIfStmt.asInstanceOf[ScIf].thenExpression.get.getTextRange.getEndOffset -
-    newIfStmt.asInstanceOf[ScIf].getTextRange.getStartOffset
+    implicit val ctx: ProjectContext = element.getManager
+    implicit val features: ScalaFeatures = element
+    val newIfStmt = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](expr.toString(), element))
+    val size = newIfStmt.thenExpression.get.getTextRange.getEndOffset -
+      newIfStmt.getTextRange.getStartOffset
 
     IntentionPreviewUtils.write { () =>
       ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)

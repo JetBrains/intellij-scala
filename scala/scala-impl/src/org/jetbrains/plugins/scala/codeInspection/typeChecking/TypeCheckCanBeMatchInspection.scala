@@ -6,6 +6,7 @@ import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, P
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, PsiElementVisitorSimple, ScalaInspectionBundle}
@@ -19,14 +20,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createElementFromText, createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.{InplaceRenameHelper, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.util.chaining.scalaUtilChainingOps
 
 final class TypeCheckCanBeMatchInspection extends LocalInspectionTool {
 
@@ -68,16 +71,24 @@ object TypeCheckCanBeMatchInspection {
       replaceTypeCheckWithMatch(isInstOf, ifSt, onlyFirst = true)
   }
 
-  def buildMatchStmt(ifStmt: ScIf, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean)
-                    (implicit project: Project): (Option[ScMatch], RenameData) =
+  private def buildMatchStmt(ifStmt: ScIf, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean)
+                            (implicit project: Project): (Option[ScMatch], RenameData) =
     baseExpr(isInstOfUnderFix) match {
       case Some(expr: ScExpression) =>
         val matchedExprText = expr.getText
         val (caseClausesText, renameData) = buildCaseClausesText(ifStmt, isInstOfUnderFix, onlyFirst)
         val matchStmtText = s"$matchedExprText match { \n " + caseClausesText + "}"
-        val matchStmt = createExpressionFromText(matchStmtText, expr).asInstanceOf[ScMatch]
+        val matchStmt = createElementFromText[ScMatch](matchStmtText, expr)
+
         (Some(matchStmt), renameData)
       case _ => (None, null)
+    }
+
+  private def adjustMatch(matchStmt: ScMatch)(implicit project: Project): Unit =
+    if (project.indentationBasedSyntaxEnabled(matchStmt)) {
+      CodeStyleManager.getInstance(project).reformat(matchStmt)
+      matchStmt.findFirstChildByType(ScalaTokenTypes.tLBRACE).foreach(_.delete())
+      matchStmt.findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tRBRACE).foreach(_.delete())
     }
 
   def replaceTypeCheckWithMatch(isInstOfCall: ScGenericCall, ifStmt: ScIf, onlyFirst: Boolean)
@@ -85,7 +96,9 @@ object TypeCheckCanBeMatchInspection {
     val (matchStmtOption, renameData) = buildMatchStmt(ifStmt, isInstOfCall, onlyFirst)
     for (matchStmt <- matchStmtOption) {
       val newMatch = IntentionPreviewUtils.writeAndCompute { () =>
-        ifStmt.replaceExpression(matchStmt, removeParenthesis = true).asInstanceOf[ScMatch]
+        ifStmt.replaceExpression(matchStmt, removeParenthesis = true)
+          .asInstanceOf[ScMatch]
+          .tap(adjustMatch(_))
       }
       if (!ApplicationManager.getApplication.isUnitTestMode && !IntentionPreviewUtils.isIntentionPreviewActive) {
         val renameHelper = new InplaceRenameHelper(newMatch)

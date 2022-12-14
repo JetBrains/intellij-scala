@@ -11,8 +11,10 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIf, ScInfixExpr}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
 
@@ -76,7 +78,9 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     val oldCaretWasOnElse = isCaretOnElse(thenExpression, elseExpression, caretModel.getOffset)
 
     IntentionPreviewUtils.write { () =>
-      val newIfStmtDummy = createExpressionFromText(newIfElseText, element)(element.getManager)
+      implicit val ctx: ProjectContext = element.getManager
+      implicit val features: ScalaFeatures = element
+      val newIfStmtDummy = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](newIfElseText, element))
       val newIfStmt = ifStmt.replaceExpression(newIfStmtDummy, removeParenthesis = true)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
 
@@ -84,7 +88,10 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
         for {
           newIf <- newIfStmt.toOption.filterByType[ScIf]
           newThen <- newIf.thenExpression
-        } caretModel.moveToOffset(newThen.getTextRange.getEndOffset)
+          lastChild <- newThen.lastChild
+          // move caret either after '}' or after last statement in braceless block
+          offset = if (lastChild.isWhitespace) lastChild.startOffset else lastChild.endOffset
+        } caretModel.moveToOffset(offset)
       }
     }
   }
