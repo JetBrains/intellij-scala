@@ -3,6 +3,9 @@ package compiler.highlighting
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
+
+import scala.annotation.nowarn
 
 class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
@@ -38,7 +41,9 @@ class ScalaCompilerHighlightingTest_3_2 extends ScalaCompilerHighlightingTest_3 
 }
 
 class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_3_Nightly
+  @nowarn("cat=deprecation")
+  override implicit def version: ScalaVersion =
+    new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "0-RC1-bin-20221213-5929a50-NIGHTLY")
 }
 
 abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
