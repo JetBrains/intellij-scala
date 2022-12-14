@@ -76,7 +76,8 @@ lazy val scalaCommunity: sbt.Project =
         javaDecompilerIntegration,
         runtimeDependencies,
         runtimeDependencies2,
-        runtimeDependencies3
+        runtimeDependencies3,
+        runtimeDependencies4
       ),
       packageLibraryMappings := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       packageMethod := PackagingMethod.Standalone(),
@@ -659,6 +660,15 @@ lazy val runtimeDependencies3 =
       libraryDependencies := DependencyGroups.runtime3,
       packageLibraryMappings := Seq(
         Dependencies.sbtBridge_Scala_3_2 -> Some("lib/jps/scala3-sbt-bridge_3.2.jar")
+      )
+    )
+
+lazy val runtimeDependencies4 =
+  runtimeDependenciesProject("runtimeDependencies4", file("target/tools/runtime-dependencies4"))
+    .settings(
+      libraryDependencies := DependencyGroups.runtime4,
+      packageLibraryMappings := Seq(
+        Dependencies.sbtBridge_Scala_3_3 -> Some("lib/jps/scala3-sbt-bridge_3.3.jar")
       )
     )
 
