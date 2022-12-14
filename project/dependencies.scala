@@ -116,6 +116,7 @@ object Dependencies {
   val sbtBridge_Scala_3_0 = "org.scala-lang" % "scala3-sbt-bridge" % "3.0.2"
   val sbtBridge_Scala_3_1 = "org.scala-lang" % "scala3-sbt-bridge" % "3.1.3"
   val sbtBridge_Scala_3_2 = "org.scala-lang" % "scala3-sbt-bridge" % "3.2.1"
+  val sbtBridge_Scala_3_3 = "org.scala-lang" % "scala3-sbt-bridge" % "3.3.0-RC1-bin-20221213-5929a50-NIGHTLY"
 
   // "provided" danger: we statically depend on a single version, but need to support all the version
   // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
@@ -213,6 +214,10 @@ object DependencyGroups {
 
   val runtime3: Seq[ModuleID] = Seq(
     sbtBridge_Scala_3_2
+  )
+
+  val runtime4: Seq[ModuleID] = Seq(
+    sbtBridge_Scala_3_3
   )
 }
 

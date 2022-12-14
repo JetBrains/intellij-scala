@@ -138,8 +138,10 @@ object CompilerFactoryImpl {
       compilerBridges.scala3._3_0
     else if (is3_1(scalaVersion))
       compilerBridges.scala3._3_1
-    else if (isLatest3(scalaVersion))
+    else if (is3_2(scalaVersion))
       compilerBridges.scala3._3_2
+    else if (isLatest3(scalaVersion))
+      compilerBridges.scala3._3_3
     else {
       val sourceJar: File =
         if (isBefore_2_11(scalaVersion)) compilerBridges.scala._2_10
@@ -170,8 +172,8 @@ object CompilerFactoryImpl {
   private def isBefore_2_11(version: String): Boolean = version.startsWith("2.10") || !version.startsWith("2.1")
   private def isBefore_2_13(version: String): Boolean = version.startsWith("2.11") || version.startsWith("2.12")
   private def is3_0(version: String): Boolean = version.startsWith("3.0")
-
   private def is3_1(version: String): Boolean = version.startsWith("3.1")
+  private def is3_2(version: String): Boolean = version.startsWith("3.2")
   private def isLatest3(version: String): Boolean = version.startsWith("3.")
 }
 

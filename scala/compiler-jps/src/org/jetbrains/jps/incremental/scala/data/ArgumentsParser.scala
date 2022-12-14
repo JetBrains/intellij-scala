@@ -29,6 +29,7 @@ object ArgumentsParser
       PathToFile(scalaBridgeJar_3_0),
       PathToFile(scalaBridgeJar_3_1),
       PathToFile(scalaBridgeJar_3_2),
+      PathToFile(scalaBridgeJar_3_3),
       PathToFile(interfacesHome),
       javaClassVersion,
       StringToOption(compilerJarPaths),
@@ -41,9 +42,9 @@ object ArgumentsParser
       order,
       PathToFile(cacheFile),
       PathsToFiles(outputs),
-      PathsToFiles(caches),
-      incrementalTypeName
-    ) :+ PathsToFiles(sourceRoots)
+      PathsToFiles(caches)
+    ) :+ incrementalTypeName
+      :+ PathsToFiles(sourceRoots)
       :+ PathsToFiles(outputDirs)
       :+ StringToSequence(worksheetArgsRaw)
       :+ PathsToFiles(allSources)
@@ -61,7 +62,8 @@ object ArgumentsParser
       val dottyBridges = SbtData.Scala3Jars(
         _3_0 = scalaBridgeJar_3_0,
         _3_1 = scalaBridgeJar_3_1,
-        _3_2 = scalaBridgeJar_3_2
+        _3_2 = scalaBridgeJar_3_2,
+        _3_3 = scalaBridgeJar_3_3
       )
       val compilerBridges = SbtData.CompilerBridges(scalaBridgeSources, dottyBridges)
       val sbtData = SbtData(sbtInterfaceJar, compilerInterfaceJar, compilerBridges, interfacesHome, javaClassVersion)
