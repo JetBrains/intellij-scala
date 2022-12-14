@@ -112,7 +112,7 @@ private[declarationRedundancy] object TypeDefEscaping {
           typeDefAndCompanionMembersEscapeInfos ++ typeDefEscapeInfo
 
         case typeAlias: ScTypeAliasDefinition if !isPrivate(typeAlias) =>
-          typeAlias.aliasedType.toSeq.map(EscapeInfo(typeAlias, _))
+          (getTypeParameterTypes(typeAlias) ++ typeAlias.aliasedType.toSeq).map(EscapeInfo(typeAlias, _))
 
         case primaryConstructor: ScPrimaryConstructor =>
 
