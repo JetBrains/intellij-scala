@@ -38,6 +38,16 @@ class ScalaCompilerHighlightingTest_3_1 extends ScalaCompilerHighlightingTest_3 
 }
 
 @Category(Array(classOf[SlowTests]))
+class ScalaCompilerHighlightingTest_3_2 extends ScalaCompilerHighlightingTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_2
+}
+
+@Category(Array(classOf[SlowTests]))
+class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_3_Nightly
+}
+
+@Category(Array(classOf[SlowTests]))
 abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
 
   def testImportTypeFix(): Unit = runTestCase(

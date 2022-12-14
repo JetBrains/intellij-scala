@@ -87,7 +87,7 @@ object ScalaSdkOwner {
       minor <- 0 to latestVersion.minorSuffix.toInt
     } yield latestVersion.withMinor(minor)
 
-    SortedSet.from(allScalaMinorVersions)
+    SortedSet.from(allScalaMinorVersions ++ LatestScalaVersions.nightlies)
   }
 
 
