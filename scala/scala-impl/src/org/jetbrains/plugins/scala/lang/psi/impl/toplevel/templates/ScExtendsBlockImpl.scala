@@ -4,7 +4,7 @@ package templates
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScDerivesClauseFactory, ScTemplateParentsFactory}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable.ArrayBuffer
@@ -62,8 +61,9 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       _.`type`().toOption
     }
 
-  @CachedInUserData(this, ModTracker.libraryAware(this))
-  override def superTypes: List[ScType] = {
+  override def superTypes: List[ScType] = _superTypes()
+
+  private val _superTypes = cachedInUserData("ScExtendsBlockImpl.superTypes", this, ModTracker.libraryAware(this), () => {
     val buffer = ArrayBuffer.empty[ScType]
 
     val stdTypes = projectContext.stdTypes
@@ -115,7 +115,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
         buffer ++= javaObject
     }
     buffer.toList
-  }
+  })
 
   private def cachedClass(name: String): Option[PsiClass] =
     ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, name)
@@ -146,8 +146,9 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
   })
 
-  @CachedInUserData(this, ModTracker.libraryAware(this))
-  override def supers: Seq[PsiClass] = {
+  override def supers: Seq[PsiClass] = _supers()
+
+  private val _supers = cachedInUserData("ScExtendsBlockImpl.supers", this, ModTracker.libraryAware(this), () => {
     val typeElements = templateParents.fold(syntheticTypeElements) {
       _.allTypeElements
     }
@@ -179,7 +180,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
         buffer ++= javaObjectClass
     }
     buffer.toSeq
-  }
+  })
 
   def nameId: Null = null
 

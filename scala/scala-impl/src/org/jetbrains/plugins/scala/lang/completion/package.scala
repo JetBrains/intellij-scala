@@ -12,7 +12,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType}
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker.hasStableType
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.{CachesUtil, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
@@ -29,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 package object completion {
 
@@ -212,8 +211,7 @@ package object completion {
         case element => locallyStableParent(element.getParent)
       }
 
-    @CachedInUserData(originalFile, CachesUtil.fileModTracker(originalFile))
-    def cachedFor(positionInCompletionFile: PsiElement): Option[PsiElement] = {
+    val cachedFor = cachedInUserData("completion.mirrorPosition.cachedFor", originalFile, CachesUtil.fileModTracker(originalFile), (positionInCompletionFile: PsiElement) => {
       val placeOffset = positionInCompletionFile match {
         case ElementType(ScalaTokenTypes.tIDENTIFIER) => positionInCompletionFile.getParent.startOffset
         case _                                        => positionInCompletionFile.startOffset
@@ -233,8 +231,7 @@ package object completion {
         val newOffset = positionInCompletionFile.startOffset - expressionToCopy.startOffset + copy.startOffset
         copy.getContainingFile.findElementAt(newOffset)
       }
-
-    }
+    })
 
     cachedFor(positionInCompletionFile)
   }

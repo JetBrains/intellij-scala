@@ -11,7 +11,7 @@ import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import com.intellij.util.{AstLoadingFilter, SmartList}
 import it.unimi.dsi.fastutil.Hash
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypePa
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithRecursionGuard}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.{RichThreadLocal, ScEquivalenceUtil}
 
@@ -99,8 +99,9 @@ object MixinNodes {
 
   private object SuperTypesData {
 
-    @CachedInUserData(thisClass, ModTracker.libraryAware(thisClass))
-    def apply(thisClass: PsiClass): SuperTypesData = {
+    def apply(thisClass: PsiClass): SuperTypesData = _apply(thisClass)
+
+    private val _apply = (holder: PsiClass) => cachedInUserData("MixinNodes.SuperTypesData.apply", holder, ModTracker.libraryAware(holder), (thisClass: PsiClass) => {
       val superTypes = thisClass match {
         case syn: ScSyntheticClass          => syn.getSuperTypes.map(_.toScType()(syn)).toSeq
         case newTd: ScNewTemplateDefinition => MixinNodes.linearization(newTd)
@@ -111,7 +112,7 @@ object MixinNodes {
         case _                        => ScSubstitutor.empty
       }
       SuperTypesData(superTypes, thisTypeSubst)
-    }
+    }).apply(holder)
 
     def apply(cp: ScCompoundType, compoundThisType: Option[ScType]): SuperTypesData = {
       val superTypes = MixinNodes.linearization(cp)

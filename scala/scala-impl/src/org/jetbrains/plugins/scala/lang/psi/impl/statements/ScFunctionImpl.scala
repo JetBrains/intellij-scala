@@ -12,7 +12,7 @@ import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import com.intellij.ui.{IconManager, PlatformIcons}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.contextApplied.{ContextApplied, ContextAppliedUtil}
 import org.jetbrains.plugins.scala.icons.Icons
@@ -42,7 +42,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import javax.swing.Icon
 import scala.annotation.tailrec
@@ -87,9 +86,11 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
   })
 
-  @CachedInUserData(this, BlockModificationTracker(this))
-  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] =
+  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] = _syntheticContextAppliedDefs()
+
+  private val _syntheticContextAppliedDefs = cachedInUserData("ScFunctionImpl.syntheticContextAppliedDefs", this, BlockModificationTracker(this), () => {
     ContextAppliedUtil.createSyntheticElementsFor(this, this.containingClass, parameters, typeParameters)
+  })
 
   override def processDeclarations(
     processor:  PsiScopeProcessor,
@@ -172,18 +173,17 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     if(isConstructor) {
       null
     } else {
-      getReturnTypeImpl
+      getReturnTypeImpl()
     }
   }
 
-  @CachedInUserData(this, BlockModificationTracker(this))
-  private def getReturnTypeImpl: PsiType = {
+  private def getReturnTypeImpl = cachedInUserData("ScFunctionImpl.getReturnTypeImpl", this, BlockModificationTracker(this), () => {
     val resultType = `type`().getOrAny match {
       case FunctionType(rt, _) => rt
       case tp => tp
     }
     resultType.toPsiType
-  }
+  })
 
   override def definedReturnType: TypeResult = {
     def renameTypeParams(superM: PsiMethod): ScSubstitutor = {
@@ -237,8 +237,9 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   override def isExtensionMethod: Boolean =
     byStubOrPsi(_.isExtensionMethod)(extensionMethodOwner.nonEmpty)
 
-  @CachedInUserData(this, BlockModificationTracker(this))
-  override def effectiveParameterClauses: Seq[ScParameterClause] = {
+  override def effectiveParameterClauses: Seq[ScParameterClause] = _effectiveParameterClauses()
+
+  private val _effectiveParameterClauses = cachedInUserData("ScFunctionImpl.effectiveParameterClauses", this, BlockModificationTracker(this), () => {
     val maybeOwner = if (isConstructor) {
       containingClass match {
         case owner: ScTypeParametersOwner => Some(owner)
@@ -250,7 +251,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       maybeOwner.flatMap {
         ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()
       }
-  }
+  })
 
   /**
     * @return Empty array, if containing class is null.

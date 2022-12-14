@@ -2,25 +2,26 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Invariant, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 trait ScTypeAliasDefinition extends ScTypeAlias {
   override def isDefinition: Boolean = true
 
   def aliasedTypeElement: Option[ScTypeElement]
 
-  @CachedInUserData(this, BlockModificationTracker(this))
-  def aliasedType: TypeResult =
+  def aliasedType: TypeResult = _aliasedType()
+
+  private val _aliasedType = cachedInUserData("ScTypeAliasDefinition.aliasedType", this, BlockModificationTracker(this), () => {
     aliasedTypeElement.map {
       _.`type`()
     }.getOrElse(Failure(ScalaBundle.message("no.alias.type")))
+  })
 
   override def lowerBound: TypeResult = aliasedType
 

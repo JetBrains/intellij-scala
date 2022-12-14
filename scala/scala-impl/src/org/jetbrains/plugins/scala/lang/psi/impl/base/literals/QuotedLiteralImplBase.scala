@@ -4,7 +4,7 @@ package literals
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.caches.cachedInUserData
 
 abstract class QuotedLiteralImplBase(node: ASTNode,
                                      override val toString: String)
@@ -16,19 +16,22 @@ abstract class QuotedLiteralImplBase(node: ASTNode,
 
   protected def toValue(text: String): V
 
-  @CachedInUserData(this, util.PsiModificationTracker.MODIFICATION_COUNT)
-  override final def getValue: V = getText match {
-    case text if text.startsWith(startQuote) =>
-      val trimLeft = startQuote.length
-      val beginIndex = trimLeft
+  override final def getValue: V = _getValue()
 
-      val trimRight = if (text.endsWith(endQuote)) endQuote.length else 0
-      val endIndex = text.length - trimRight
+  private val _getValue = cachedInUserData("QuotedLiteralImplBase.getValue", this, util.PsiModificationTracker.MODIFICATION_COUNT, () => {
+    getText match {
+      case text if text.startsWith(startQuote) =>
+        val trimLeft = startQuote.length
+        val beginIndex = trimLeft
 
-      if (trimLeft == 0 && trimRight == 0 || endIndex < beginIndex) null
-      else toValue(text.substring(beginIndex, endIndex))
-    case _ => null
-  }
+        val trimRight = if (text.endsWith(endQuote)) endQuote.length else 0
+        val endIndex = text.length - trimRight
+
+        if (trimLeft == 0 && trimRight == 0 || endIndex < beginIndex) null
+        else toValue(text.substring(beginIndex, endIndex))
+      case _ => null
+    }
+  })
 
   override final def contentRange: TextRange = {
     val range = super.contentRange

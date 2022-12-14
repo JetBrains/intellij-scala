@@ -4,7 +4,7 @@ import com.intellij.lang.{ASTNode, LanguageNamesValidation}
 import com.intellij.psi.LiteralTextEscaper
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.{ScLiteralEscaper, ScLiteralRawEscaper}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.StringContextCanonical
 
 import scala.meta.intellij.QuasiquoteInferUtil._
@@ -64,37 +63,40 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
   override protected def endQuote: String = super.startQuote
 
-  @CachedInUserData(this, BlockModificationTracker(this))
-  override def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)] = (referenceText, getContext) match {
-    case (methodName, context) if context != null &&
-      isString &&
-      isValidIdentifier(methodName) =>
-      val quote = endQuote
+  override def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)] = _desugaredExpression()
 
-      // NOTE: we don't need to actually extract all the string parts content during resolve,
-      // some dummy placeholders is enough
-      val constructorParameters = getStringPartsDummies.map(quote + _ + quote)
-        .commaSeparated(Model.Parentheses)
+  private val _desugaredExpression = cachedInUserData("ScInterpolatedStringLiteralImpl.desugaredExpression", this, BlockModificationTracker(this), () => {
+    (referenceText, getContext) match {
+      case (methodName, context) if context != null &&
+        isString &&
+        isValidIdentifier(methodName) =>
+        val quote = endQuote
 
-      val injectionsValues = getInjections.map { injection =>
-        val text = injection.getText
-        val isInvalidRef = injection.is[ScReferenceExpression] && !isValidIdentifier(text)
-        if (isInvalidRef) "???" else text
-      }
-      val methodParameters = injectionsValues.commaSeparated(Model.Parentheses)
+        // NOTE: we don't need to actually extract all the string parts content during resolve,
+        // some dummy placeholders is enough
+        val constructorParameters = getStringPartsDummies.map(quote + _ + quote)
+          .commaSeparated(Model.Parentheses)
 
-      val expression =
-        try {
-          // FIXME: fails on s"aaa /* ${s"ccc s${s"/*"} ddd"} bbb" (SCL-17625, SCL-18706)
-          val text = s"$StringContextCanonical$constructorParameters.$methodName$methodParameters"
-          ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, this).asInstanceOf[ScMethodCall]
-        } catch {
-          case e: IncorrectOperationException =>
-            throw new IncorrectOperationException(s"Couldn't desugar interpolated string ${this.getText}", e: Throwable)
+        val injectionsValues = getInjections.map { injection =>
+          val text = injection.getText
+          val isInvalidRef = injection.is[ScReferenceExpression] && !isValidIdentifier(text)
+          if (isInvalidRef) "???" else text
         }
-      Some(expression.getInvokedExpr.asInstanceOf[ScReferenceExpression], expression)
-    case _ => None
-  }
+        val methodParameters = injectionsValues.commaSeparated(Model.Parentheses)
+
+        val expression =
+          try {
+            // FIXME: fails on s"aaa /* ${s"ccc s${s"/*"} ddd"} bbb" (SCL-17625, SCL-18706)
+            val text = s"$StringContextCanonical$constructorParameters.$methodName$methodParameters"
+            ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, this).asInstanceOf[ScMethodCall]
+          } catch {
+            case e: IncorrectOperationException =>
+              throw new IncorrectOperationException(s"Couldn't desugar interpolated string ${this.getText}", e: Throwable)
+          }
+        Some(expression.getInvokedExpr.asInstanceOf[ScReferenceExpression], expression)
+      case _ => None
+    }
+  })
 
   private def referenceText: String = firstNode.getText
 

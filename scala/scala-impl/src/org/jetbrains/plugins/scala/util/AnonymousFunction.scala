@@ -4,7 +4,7 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.util.TopLevelMembers.hasTopLevelMembers
 
 import scala.collection.mutable
@@ -62,8 +61,7 @@ private[scala] object AnonymousFunction {
 
   def isGenerateAnonfun211(elem: PsiElement): Boolean = {
 
-    @CachedInUserData(elem, BlockModificationTracker(elem))
-    def isAnonfunCached: Boolean = {
+    val isAnonfunCached = cachedInUserData("AnonymousFunction.isGenerateAnonfun211.isAnonfunCached", elem, BlockModificationTracker(elem), () => {
       elem match {
         case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
         case b: ScBlock if b.isPartialFunction => false //handled in isGenerateAnonfunSimple
@@ -73,11 +71,11 @@ private[scala] object AnonymousFunction {
           if call.args == argExprs => true
         case _ => false
       }
-    }
+    }: java.lang.Boolean)
 
     def isGenerateAnonfunWithCache: Boolean = {
       if (elem == null || !elem.isValid || DumbService.isDumb(elem.getProject)) false
-      else isAnonfunCached
+      else isAnonfunCached()
     }
 
     def isGenerateAnonfunSimple: Boolean = {

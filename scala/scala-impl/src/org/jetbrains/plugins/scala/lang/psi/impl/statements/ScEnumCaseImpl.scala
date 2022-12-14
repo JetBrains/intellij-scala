@@ -7,7 +7,7 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import javax.swing.Icon
 import scala.util.control.NonFatal
@@ -85,8 +84,9 @@ final class ScEnumCaseImpl(
 
   def physicalTypeParameters: Seq[ScTypeParam] = super.typeParameters
 
-  @CachedInUserData(this, BlockModificationTracker(this))
-  override def typeParameters: Seq[ScTypeParam] =
+  override def typeParameters: Seq[ScTypeParam] = _typeParameters()
+
+  private val _typeParameters = cachedInUserData("ScEnumCaseImpl.typeParameters", this, BlockModificationTracker(this), () => {
     if (super.typeParameters.isEmpty) {
       try {
         val syntheticClause =
@@ -102,6 +102,7 @@ final class ScEnumCaseImpl(
         case NonFatal(_)                 => Seq.empty
       }
     } else super.typeParameters
+  })
 
   private def syntheticEnumClass: Option[ScTypeDefinition] =
     enumParent.syntheticClass

@@ -5,7 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 
@@ -124,8 +123,7 @@ object ImplicitConversionData {
     }
 
 
-  @CachedInUserData(function, ModTracker.libraryAware(function))
-  private def rawCheck(function: ScFunction): Option[ImplicitConversionData] = {
+  private val rawCheck = (holder: ScFunction) => cachedInUserData("ImplicitConversionData.rawCheck", holder, ModTracker.libraryAware(holder), (function: ScFunction) => {
     for {
       retType   <- function.returnType.toOption
       param <- function.parameters.headOption
@@ -133,10 +131,9 @@ object ImplicitConversionData {
     } yield {
       new RegularImplicitConversionData(function, paramType, retType, ScSubstitutor.empty)
     }
-  }
+  }).apply(holder)
 
-  @CachedInUserData(named, ModTracker.libraryAware(named))
-  private def rawElementWithFunctionTypeCheck(named: PsiNamedElement with Typeable): Option[ImplicitConversionData] = {
+  private val rawElementWithFunctionTypeCheck = (holder: PsiNamedElement with Typeable) => cachedInUserData("ImplicitConversionData.rawElementWithFunctionTypeCheck", holder, ModTracker.libraryAware(holder), (named: PsiNamedElement with Typeable) => {
     for {
       function1Type <- named.elementScope.cachedFunction1Type
       elementType   <- named.`type`().toOption
@@ -144,7 +141,7 @@ object ImplicitConversionData {
     } yield {
       new ElementWithFunctionTypeData(named, elementType, ScSubstitutor.empty)
     }
-  }
+  }).apply(holder)
 
   private def fromRegularImplicitConversion(function: ScFunction,
                                             substitutor: ScSubstitutor): Option[ImplicitConversionData] = {

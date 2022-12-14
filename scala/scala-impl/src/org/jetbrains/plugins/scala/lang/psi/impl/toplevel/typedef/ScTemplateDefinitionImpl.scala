@@ -13,7 +13,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import org.jetbrains.plugins.scala.caches.{ModTracker, ScalaShortNamesCacheManager, cached}
+import org.jetbrains.plugins.scala.caches.{ModTracker, ScalaShortNamesCacheManager, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -36,7 +36,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
 
 import java.{util => ju}
@@ -201,9 +200,11 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   override final def findInnerClassByName(name: String, checkBases: Boolean): PsiClass =
     PsiClassImplUtil.findInnerByName(this, name, checkBases)
 
-  @CachedInUserData(this, ModTracker.libraryAware(this))
-  override final def getVisibleSignatures: ju.Collection[HierarchicalMethodSignature] =
+  override final def getVisibleSignatures: ju.Collection[HierarchicalMethodSignature] = _getVisibleSignatures()
+
+  private val _getVisibleSignatures = cachedInUserData("ScTemplateDefinitionImpl.getVisibleSignatures", this, ModTracker.libraryAware(this), () => {
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
+  })
 
   override final def isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean =
     Path(baseClass) match {

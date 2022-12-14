@@ -10,12 +10,12 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.{PsiClassOwner, PsiElement, PsiManager, SingleRootFileViewProvider}
 import com.intellij.util.CommonProcessors.FindProcessor
+import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ObjectExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import java.{util => ju}
 import scala.annotation.tailrec
@@ -50,22 +50,23 @@ object ScClsFileViewProvider {
     override def getVirtualFile: VirtualFile = getViewProvider.getVirtualFile
 
     override def getNavigationElement: PsiElement =
-      findSourceForCompiledFile
+      findSourceForCompiledFile()
         .flatMap(findPsiFile)
         .getOrElse(super.getNavigationElement)
 
-    @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
-    override protected def defaultFileResolveScope(file: VirtualFile): GlobalSearchScope = {
+    override protected def defaultFileResolveScope(file: VirtualFile): GlobalSearchScope = _defaultFileResolveScope(file)
+
+    private val _defaultFileResolveScope = cachedInUserData("ScClsFileImpl.defaultFileResolveScope",  this, ProjectRootManager.getInstance(getProject), (file: VirtualFile) => {
       // this cache is very inefficient when orderEntries.size is large
       LibraryScopeCache.getInstance(manager.getProject)
         .getLibraryScope(orderEntries(file))
-    }
+    })
 
-    @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
-    private def findSourceForCompiledFile: Option[VirtualFile] =
+    private val findSourceForCompiledFile = cachedInUserData("ScClsFileImpl.findSourceForCompiledFile", this, ProjectRootManager.getInstance(getProject), () => {
       findSourceByRelativePath.orElse {
         findSourceByQualifiedName
       }
+    })
 
     def findSourceByRelativePath: Option[VirtualFile] = {
       val relPath = relativePath(typeDefinitions)

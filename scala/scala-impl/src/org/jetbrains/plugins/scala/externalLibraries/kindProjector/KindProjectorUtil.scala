@@ -5,6 +5,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.psi.PsiElement
 import org.apache.maven.artifact.versioning.ComparableVersion
+import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -14,9 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScalaType}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project._
 
 /**
@@ -163,7 +163,7 @@ object KindProjectorUtil {
     }
   }
 
-  implicit class `synthetic poly-lambda builder ext`(private val tdef: ScTypeDefinition) extends AnyVal {
+  private implicit class `synthetic poly-lambda builder ext`(private val tdef: ScTypeDefinition) {
 
     /**
     * Creates an intermidiate "Builder" trait which represents the type of an
@@ -185,8 +185,7 @@ object KindProjectorUtil {
     *
     * Returns parameterized type designated to generated trait, with `f` and `g` as it's type arguments.
     */
-    @CachedInUserData(tdef, containingFileModTracker(tdef))
-    def synhteticPolyLambdaBuilder(f: ScTypeElement, g: ScTypeElement): Option[ScType] = {
+    private[KindProjectorUtil] val synhteticPolyLambdaBuilder = cachedInUserData("KindProjectorUtil.syntheticPolyLambdaBuilder", tdef, containingFileModTracker(tdef), (f: ScTypeElement, g: ScTypeElement) => {
       val tparams = tdef.typeParameters
       val methods = tdef.functions.filter(canBeRewritten(_, tparams))
 
@@ -210,7 +209,7 @@ object KindProjectorUtil {
           Seq(f.`type`().getOrAny, g.`type`().getOrAny)
         )
       }
-    }
+    })
   }
 
   def kindProjectorPolymorphicLambdaType(

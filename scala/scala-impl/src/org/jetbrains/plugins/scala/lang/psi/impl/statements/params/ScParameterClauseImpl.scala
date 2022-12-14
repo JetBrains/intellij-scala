@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.PsiImplUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiv
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.PARAM_CLAUSE, node) with ScParameterClause {
@@ -37,37 +36,38 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory).toSeq
   })
 
-  @CachedInUserData(this, BlockModificationTracker(this))
-  override def effectiveParameters: Seq[ScParameter] = {
-    if (!isImplicit) return parameters
+  override def effectiveParameters: Seq[ScParameter] = _effectiveParameters()
 
-    //getParent is sufficient (not getContext), for synthetic clause, getParent will return other PSI,
-    //which is ok, it will not add anything more
-    val maybeSyntheticClause = getParent match {
-      case clauses: ScParameters =>
-        val maybeOwner = clauses.getParent match {
-          case f: ScFunction => Some((f, false))
-          case p: ScPrimaryConstructor =>
-            p.containingClass match {
-              case c: ScClass => Some((c, true))
-              case _ => None
-            }
-          case _ => None
-        }
-        maybeOwner.flatMap {
-          case (owner, isClassParameter) =>
-            ScalaPsiUtil.syntheticParamClause(owner, clauses, isClassParameter)(hasImplicit = false)
-        }
-      case _ => None
+  private val _effectiveParameters = cachedInUserData("ScParameterClauseImpl.effectiveParameters", this, BlockModificationTracker(this), () => {
+    if (!isImplicit) parameters else {
+      //getParent is sufficient (not getContext), for synthetic clause, getParent will return other PSI,
+      //which is ok, it will not add anything more
+      val maybeSyntheticClause = getParent match {
+        case clauses: ScParameters =>
+          val maybeOwner = clauses.getParent match {
+            case f: ScFunction => Some((f, false))
+            case p: ScPrimaryConstructor =>
+              p.containingClass match {
+                case c: ScClass => Some((c, true))
+                case _ => None
+              }
+            case _ => None
+          }
+          maybeOwner.flatMap {
+            case (owner, isClassParameter) =>
+              ScalaPsiUtil.syntheticParamClause(owner, clauses, isClassParameter)(hasImplicit = false)
+          }
+        case _ => None
+      }
+
+      val syntheticParameters = maybeSyntheticClause.toSeq.flatMap(_.parameters)
+      syntheticParameters.foreach {
+        _.context = this
+      }
+
+      syntheticParameters ++ parameters
     }
-
-    val syntheticParameters = maybeSyntheticClause.toSeq.flatMap(_.parameters)
-    syntheticParameters.foreach {
-      _.context = this
-    }
-
-    syntheticParameters ++ parameters
-  }
+  })
 
   override def hasParenthesis: Boolean =
     getFirstChild.elementType == ScalaTokenTypes.tLPARENTHESIS &&

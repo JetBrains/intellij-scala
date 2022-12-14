@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import java.util.regex.{Matcher, Pattern}
 
@@ -272,13 +271,11 @@ object ScalaCompletionUtil {
     !checkErrors(dummyFile)
   }
 
-  @CachedInUserData(clazz, BlockModificationTracker(clazz))
-  private def inheritorObjectsInProject(clazz: ScTemplateDefinition): Set[ScObject] = {
+  private val inheritorObjectsInProject = (holder: ScTemplateDefinition) => cachedInUserData("ScalaCompletionUtil.inheritorObjectsInProject", holder, BlockModificationTracker(holder), (clazz: ScTemplateDefinition) => {
     ScalaInheritors.allInheritorObjects(clazz)
-  }
+  }).apply(holder)
 
-  @CachedInUserData(clazz, ModTracker.libraryAware(clazz))
-  private def inheritorObjectsInLibraries(clazz: ScTemplateDefinition): Set[ScObject] = {
+  private val inheritorObjectsInLibraries = (holder: ScTemplateDefinition) => cachedInUserData("ScalaCompletionUtil.inheritorObjectsInLibraries", holder, ModTracker.libraryAware(holder), (clazz: ScTemplateDefinition) => {
     ScalaInheritors.allInheritorObjects(clazz)
-  }
+  }).apply(holder)
 }

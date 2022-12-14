@@ -8,7 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.OverridingAnnotator
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionE
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import javax.swing.Icon
 
@@ -137,12 +136,11 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
 
   override def desugaredApply: Option[ScExpression] = {
     if (firstConstructorInvocation.forall(_.arguments.size <= 1)) None
-    else cachedDesugaredApply
+    else cachedDesugaredApply()
   }
 
   //It's very rare case, when we need to desugar `.apply` first.
-  @CachedInUserData(this, BlockModificationTracker(this))
-  private def cachedDesugaredApply: Option[ScExpression] = {
+  private val cachedDesugaredApply = cachedInUserData("ScNewTemplateDefinitionImpl.cachedDesugaredApply", this, BlockModificationTracker(this), () => {
     val resolvedConstructor = firstConstructorInvocation.flatMap(_.reference).flatMap(_.resolve().toOption)
     val constrParamLength = resolvedConstructor.map {
       case ScalaConstructor(constr)         => constr.effectiveParameterClauses.length
@@ -174,7 +172,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
         createExpressionWithContextFromText(desugaredText, getContext, this).toOption
       case _ => None
     }
-  }
+  })
 
  override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor, state: ResolveState,
                                           lastParent: PsiElement, place: PsiElement): Boolean =
@@ -214,8 +212,11 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
 
   override protected def isInterface(namedElement: PsiNamedElement): Boolean = false
 
-  @CachedInUserData(this, ModTracker.libraryAware(this))
-  override def psiMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)
+  override def psiMethods: Array[PsiMethod] = _psiMethods()
+  
+  private val _psiMethods = cachedInUserData("ScNewTemplateDefinitionImpl.psiMethods", this, ModTracker.libraryAware(this), () => {
+    getAllMethods.filter(_.containingClass == this)
+  })
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.NewKeyword
 

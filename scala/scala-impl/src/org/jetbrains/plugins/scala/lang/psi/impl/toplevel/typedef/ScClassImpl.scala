@@ -7,7 +7,7 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.contextApplied.{ContextApplied, ContextAppliedUtil}
 import org.jetbrains.plugins.scala.icons.Icons
@@ -29,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import javax.swing.Icon
 
@@ -59,14 +58,16 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}
 
-  @CachedInUserData(this, BlockModificationTracker(this))
-  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] =
+  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] = _syntheticContextAppliedDefs()
+
+  private val _syntheticContextAppliedDefs = cachedInUserData("ScClassImpl.syntheticContextAppliedDefs", this, BlockModificationTracker(this), () => {
     ContextAppliedUtil.createSyntheticElementsFor(
       this,
       this,
       this.constructor.fold(Seq.empty[ScParameter])(_.parameters),
       this.typeParameters
     )
+  })
 
   override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                                   state: ResolveState,
@@ -146,12 +147,11 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
 
   override def getSyntheticImplicitMethod: Option[ScFunction] = {
     if (hasModifierProperty("implicit") && constructor.nonEmpty)
-      syntheticImplicitMethod
+      syntheticImplicitMethod()
     else None
   }
 
-  @CachedInUserData(this, ModTracker.libraryAware(this))
-  private def syntheticImplicitMethod: Option[ScFunction] = {
+  private def syntheticImplicitMethod = cachedInUserData("ScClassImpl.syntheticImplicitMethod", this, ModTracker.libraryAware(this), () => {
     try {
       val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
       method.syntheticNavigationElement = this
@@ -160,7 +160,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
       case p: ProcessCanceledException         => throw p
       case _: ScalaPsiElementCreationException => None
     }
-  }
+  })
 
   override def psiFields: Array[PsiField] = {
     val fields = constructor match {

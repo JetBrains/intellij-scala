@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiTypeParametersOwnerAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 /**
  * A member, that can have ScMethodType, i.e. a method or a constructor.
@@ -18,8 +17,7 @@ trait ScMethodLike
     with PsiTypeParametersOwnerAdapter
     with ScParameterOwner.WithContextBounds {
 
-  @CachedInUserData(this, BlockModificationTracker(this))
-  def getConstructorTypeParameterClause: Option[ScTypeParamClause] = {
+  private val getConstructorTypeParameterClause = cachedInUserData("ScMethodLike.getConstructorTypeParameterClause", this, BlockModificationTracker(this), () => {
     ScMethodLike.this match {
       case constructor @ ScalaConstructor.in(c: ScTypeDefinition) =>
         c.typeParametersClause.map { clause =>
@@ -28,10 +26,10 @@ trait ScMethodLike
         }
       case _ => None
     }
-  }
+  })
 
   def getConstructorTypeParameters: Seq[ScTypeParam] =
-    getConstructorTypeParameterClause.fold(Seq.empty[ScTypeParam])(_.typeParameters)
+    getConstructorTypeParameterClause().fold(Seq.empty[ScTypeParam])(_.typeParameters)
 
   /** If this is a primary or auxilliary constructor, return the containing classes type parameter clause */
   def getClassTypeParameters: Option[ScTypeParamClause] = {

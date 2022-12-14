@@ -4,7 +4,7 @@ package typedef
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.EnumKeyword
@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
                        nodeType: ScTemplateDefinitionElementType[ScEnum],
@@ -42,13 +41,14 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
        |""".stripMargin
   }
 
-  @CachedInUserData(this, ModTracker.libraryAware(this))
-  override def syntheticClass: Option[ScTypeDefinition] = {
+  override def syntheticClass: Option[ScTypeDefinition] = _syntheticClass()
+
+  private val _syntheticClass = cachedInUserData("ScEnumImpl.syntheticClass", this, ModTracker.libraryAware(this), () => {
     val cls = ScalaPsiElementFactory.createTypeDefinitionWithContext(syntheticClassText, this.getContext, this)
     cls.originalEnumElement        = this
     cls.syntheticNavigationElement = this
     Option(cls)
-  }
+  })
 
   //noinspection TypeAnnotation
   override protected def targetTokenType = EnumKeyword

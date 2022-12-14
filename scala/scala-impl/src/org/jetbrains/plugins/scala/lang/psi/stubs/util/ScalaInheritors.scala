@@ -6,7 +6,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.{ALIASED_CLASS_NAME_KEY, ALIASED_IMPORT_KEY, SUPER_CLASS_NAME_KEY, StubIndexKeyExt}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -143,8 +142,7 @@ object ScalaInheritors {
   }
 
   def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {
-    @CachedInUserData(clazz, BlockModificationTracker(clazz))
-    def selfTypeInheritorsInner(): Seq[ScTemplateDefinition] = {
+    val selfTypeInheritorsInner = cachedInUserData("ScalaInheritors.selfTypeInheritorsInner", clazz, BlockModificationTracker(clazz), () => {
       if (clazz.name == null) {
         return Seq.empty
       }
@@ -192,7 +190,7 @@ object ScalaInheritors {
         }
       })
       inheritorsBuilder.result()
-    }
+    })
 
     inReadAction {
       if (clazz.isEffectivelyFinal) Seq.empty

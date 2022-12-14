@@ -3,15 +3,16 @@ package org.jetbrains.plugins.scala.macroAnnotations
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.UserDataHolder
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder
+import org.jetbrains.plugins.scala.caches.{ProjectUserDataHolder, cachedInUserData}
 import org.junit.Assert._
 
 class CachedInUserDataTest extends CachedWithRecursionGuardTestBase {
 
   def testSimple(): Unit = {
     object Foo extends CachedMockPsiElement {
-      @CachedInUserData(this, PsiModificationTracker.MODIFICATION_COUNT)
-      def currentTime(): Long = System.currentTimeMillis()
+      val currentTime: () => java.lang.Long = cachedInUserData("Foo.currentTime", this, PsiModificationTracker.MODIFICATION_COUNT, () => {
+        System.currentTimeMillis()
+      })
     }
 
     val firstRes: Long = Foo.currentTime()
@@ -26,8 +27,9 @@ class CachedInUserDataTest extends CachedWithRecursionGuardTestBase {
 
   def testWithParameters(): Unit = {
     object Foo extends CachedMockPsiElement {
-      @CachedInUserData(this, PsiModificationTracker.MODIFICATION_COUNT)
-      def currentTime(s: String): Long = System.currentTimeMillis()
+      val currentTime: String => java.lang.Long = cachedInUserData("Foo.currentTime", this, PsiModificationTracker.MODIFICATION_COUNT, s => {
+        System.currentTimeMillis()
+      })
     }
 
     val firstRes = Foo.currentTime("1")
@@ -53,8 +55,9 @@ class CachedInUserDataTest extends CachedWithRecursionGuardTestBase {
     }
 
     class Foo {
-      @CachedInUserData(this, PsiModificationTracker.MODIFICATION_COUNT)
-      def currentTime(): Long = System.currentTimeMillis()
+      val currentTime: () => java.lang.Long = cachedInUserData("Foo.currentTime", this, PsiModificationTracker.MODIFICATION_COUNT, () => {
+        System.currentTimeMillis()
+      })
     }
 
     val foo = new Foo
@@ -70,8 +73,9 @@ class CachedInUserDataTest extends CachedWithRecursionGuardTestBase {
 
   def testTracer(): Unit = {
     object Foo extends CachedMockPsiElement {
-      @CachedInUserData(this, PsiModificationTracker.MODIFICATION_COUNT)
-      def currentTime(): Long = System.currentTimeMillis()
+      val currentTime: () => java.lang.Long = cachedInUserData("Foo.currentTime", this, PsiModificationTracker.MODIFICATION_COUNT, () => {
+        System.currentTimeMillis()
+      })
     }
 
     checkTracer("Foo.currentTime", totalCount = 3, actualCount = 2) {

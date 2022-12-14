@@ -6,10 +6,10 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.{PsiComment, PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}
 
 import scala.collection.mutable
@@ -57,8 +57,7 @@ object HighlightingAdvisor {
   }
 
   private def isInIgnoredRange(element: PsiElement, file: PsiFile): Boolean = {
-    @CachedInUserData(file, file.getManager.getModificationTracker)
-    def ignoredRanges(): Set[TextRange] = {
+    val ignoredRanges = cachedInUserData("HighlightingAdvisor.isInIgnoredRange.ignoredRanges", file, file.getManager.getModificationTracker, () => {
       val chars = file.charSequence
       val indexes = mutable.ArrayBuffer.empty[Int]
       var lastIndex = 0
@@ -66,16 +65,16 @@ object HighlightingAdvisor {
         lastIndex = chars.indexOf("/*_*/", lastIndex) + 5
         indexes += lastIndex
       }
-      if (indexes.isEmpty) return Set.empty
+      if (indexes.isEmpty) Set.empty[TextRange] else {
+        if (indexes.length % 2 != 0) indexes += chars.length
 
-      if (indexes.length % 2 != 0) indexes += chars.length
-
-      var res = Set.empty[TextRange]
-      for (i <- indexes.indices by 2) {
-        res += new TextRange(indexes(i), indexes(i + 1))
+        var res = Set.empty[TextRange]
+        for (i <- indexes.indices by 2) {
+          res += new TextRange(indexes(i), indexes(i + 1))
+        }
+        res
       }
-      res
-    }
+    })
 
     val ignored = ignoredRanges()
     if (ignored.isEmpty || element.isInstanceOf[PsiFile]) false
