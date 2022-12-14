@@ -24,7 +24,7 @@ private[declarationRedundancy] object TypeDefEscaping {
    * This member will have 2 [[EscapeInfo]]s associated with it:
    * {{{(foo, A) and (foo, Bar)}}}
    *
-   * Note that [[EscapeInfo]]s for `Seq` and `T` are initially instantiated by [[getEscapeInfosOfTypeDefMembers]],
+   * Note that [[EscapeInfo]]s for `Seq` and `A` are initially instantiated by [[getEscapeInfosOfTypeDefMembers]],
    * but ultimately discarded by [[isScTypeDefinedInFile]] and `is[TypeParameterType]` respectively.
    */
   sealed case class EscapeInfo(member: ScMember, escapingType: ScType)
