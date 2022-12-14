@@ -18,7 +18,7 @@ import scala.collection.mutable
 
 class ScalaRecursiveCallLineMarkerProvider extends LineMarkerProvider {
 
-  import ScalaRecursiveCallLineMarkerProvider.{PossibleMethodCall, createLineMarkerInfo}
+  import ScalaRecursiveCallLineMarkerProvider.{PossibleMethodCall, createLineMarkerInfo, isRecursiveCall}
 
   override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_] = null // do nothing
 
@@ -26,22 +26,14 @@ class ScalaRecursiveCallLineMarkerProvider extends LineMarkerProvider {
                                       result: util.Collection[_ >: LineMarkerInfo[_]]): Unit = {
     if (!GutterUtil.RecursionOption.isEnabled) return
 
-    val visited = mutable.HashSet.empty[PsiElement]
+    val visitedLines = mutable.HashSet.empty[Int]
     elements.forEach { element =>
       ProgressManager.checkCanceled()
+      val lineNumber = element.getLineNumber
       element match {
-        case PossibleMethodCall(ref) =>
-          val callee = ref.parents.collectFirst {
-            case fn: ScFunctionDefinition if fn.recursiveReferences.contains(ref) =>
-              fn
-          }
-
-          callee
-            .filterNot(visited.contains)
-            .foreach { fn =>
-              visited.add(fn)
-              result.add(createLineMarkerInfo(element))
-            }
+        case PossibleMethodCall(ref) if !visitedLines(lineNumber) && isRecursiveCall(ref) =>
+          visitedLines.add(lineNumber)
+          result.add(createLineMarkerInfo(element))
         case _ =>
       }
     }
@@ -61,6 +53,11 @@ object ScalaRecursiveCallLineMarkerProvider {
       GutterIconRenderer.Alignment.LEFT,
       () => tooltip
     )
+  }
+
+  private def isRecursiveCall(ref: ScReference): Boolean = ref.parents.exists {
+    case fn: ScFunctionDefinition => fn.recursiveReferences.contains(ref)
+    case _ => false
   }
 
   private object PossibleMethodCall {
