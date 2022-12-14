@@ -17,14 +17,14 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
 
     val tests = testsFromTestCase(klass)
     tests.foreach {
-      case (test: ScalaSdkOwner, method, scalaVersion, jdkVersion) =>
+      case (test: ScalaSdkOwner, _, scalaVersion, jdkVersion) =>
         val scalaVersionProd = scalaVersion.toProductionVersion
         val jdkVersionProd = jdkVersion.toProductionVersion
 
         test.injectedScalaVersion = scalaVersionProd // !! should be set before calling test.skip
         test.injectedJdkVersion = jdkVersionProd
 
-        if (isScalaVersionSupported(test, method, scalaVersion) && scalaVersion.supportsJdk(jdkVersion)) {
+        if (!test.skip && scalaVersion.supportsJdk(jdkVersion)) {
           result.append((test, scalaVersion, jdkVersion))
         }
       case (warningTest, _, scalaVersion, jdkVersion) =>
@@ -32,17 +32,6 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
     }
 
     result.map(t => (t._1.asInstanceOf[TestCase], t._2, t._3)).toSeq
-  }
-
-  private def isScalaVersionSupported(test: ScalaSdkOwner, method: Method, scalaVersion: TestScalaVersion): Boolean = {
-    val supportedVersions    = Option(method.getAnnotation(classOf[SupportedScalaVersions])).map(_.value)
-    val notSupportedVersions = Option(method.getAnnotation(classOf[NotSupportedScalaVersions])).map(_.value)
-    assert(supportedVersions.isEmpty || notSupportedVersions.isEmpty, "both annotations can not go together")
-
-    // TODO: later "supported in" mechanism should be unified to only use annotations
-    !test.skip &&
-      supportedVersions.forall(v => v.contains(scalaVersion)) &&
-      notSupportedVersions.forall(v => !v.contains(scalaVersion))
   }
 
   // warning test or collection of tests (each test method is multiplied by the amount of versions it is run with)
