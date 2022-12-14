@@ -148,6 +148,9 @@ final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInsp
   def test_prevent_escaping_via_type_alias(): Unit =
     checkTextHasNoErrors("object A { class B; type C = B }")
 
+  def test_prevent_escaping_via_type_alias_type_parameter(): Unit =
+    checkTextHasNoErrors("object A { class B; type C[T <: B] = Seq[T] }")
+
   def test_skip_bean_property(): Unit =
     checkTextHasNoErrors("object A { @scala.beans.BeanProperty var x = 1; println(x) }")
 }
