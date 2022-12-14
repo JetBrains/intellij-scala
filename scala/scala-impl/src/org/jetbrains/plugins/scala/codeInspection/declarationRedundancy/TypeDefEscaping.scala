@@ -3,10 +3,13 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
@@ -18,8 +21,11 @@ private[declarationRedundancy] object TypeDefEscaping {
    *
    * {{{def foo[T <: A]: Seq[Bar]}}}
    *
-   * This member will have 3 [[EscapeInfo]]s associated with it:
-   * {{{(foo, A), (foo, Seq) and (foo, Bar)}}}
+   * This member will have 2 [[EscapeInfo]]s associated with it:
+   * {{{(foo, A) and (foo, Bar)}}}
+   *
+   * Note that [[EscapeInfo]]s for `Seq` and `T` are initially instantiated by [[getEscapeInfosOfTypeDefMembers]],
+   * but ultimately discarded by [[isScTypeDefinedInFile]] and `is[TypeParameterType]` respectively.
    */
   sealed case class EscapeInfo(member: ScMember, escapingType: ScType)
 
@@ -64,7 +70,7 @@ private[declarationRedundancy] object TypeDefEscaping {
   }
 
   /**
-   * Since we're only interested in whether a type escapes from its definining
+   * Since we're only interested in whether a type escapes from its defining
    * scope, we can safely filter out any scraped types that are defined in
    * another file, including Scala Standard Library definitions.
    */
@@ -73,6 +79,14 @@ private[declarationRedundancy] object TypeDefEscaping {
 
   private def isPrivate(member: ScMember): Boolean =
     member.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)
+
+  private def getTypeParameterTypes(owner: ScTypeParametersOwner): Seq[ScType] =
+    owner.typeParameters.flatMap { typeParam =>
+      typeParam.viewTypeElement ++
+        typeParam.upperTypeElement ++
+        typeParam.lowerTypeElement ++
+        typeParam.contextBoundTypeElement
+    }.flatMap(_.`type`().toSeq)
 
   /**
    * Get the [[EscapeInfo]]s of a given `typeDef`'s members. See [[EscapeInfo]].
@@ -89,7 +103,8 @@ private[declarationRedundancy] object TypeDefEscaping {
       val escapeInfos = member match {
 
         case typeDef: ScTypeDefinition if !isPrivate(typeDef) =>
-          val typeDefEscapeInfo = typeDef.`type`().toSeq.map(EscapeInfo(typeDef, _))
+
+          val typeDefEscapeInfo = (typeDef.`type`().toSeq ++ getTypeParameterTypes(typeDef)).map(EscapeInfo(typeDef, _))
 
           val typeDefAndCompanion = typeDef +: typeDef.baseCompanion.toSeq
           val typeDefAndCompanionMembersEscapeInfos = typeDefAndCompanion.flatMap(getEscapeInfosOfTypeDefMembers)
@@ -113,17 +128,10 @@ private[declarationRedundancy] object TypeDefEscaping {
           parametersThroughWhichTypeDefsCanEscape.flatMap(p => p.`type`().toSeq.map(EscapeInfo(p, _)))
 
         case function: ScFunction if !isPrivate(function) =>
+
           val returnAndParameterTypes: Seq[ScType] = function.`type`().toSeq
 
-          val typeParameterTypes: Seq[ScType] =
-            function.typeParameters.flatMap { typeParam =>
-              typeParam.viewTypeElement ++
-                typeParam.upperTypeElement ++
-                typeParam.lowerTypeElement ++
-                typeParam.contextBoundTypeElement
-            }.flatMap(_.`type`().toSeq)
-
-          (returnAndParameterTypes ++ typeParameterTypes).map(EscapeInfo(function, _))
+          (returnAndParameterTypes ++ getTypeParameterTypes(function)).map(EscapeInfo(function, _))
 
         case typeable: Typeable if !isPrivate(typeable) =>
           typeable.`type`().toSeq.map(EscapeInfo(typeable, _))
@@ -138,6 +146,11 @@ private[declarationRedundancy] object TypeDefEscaping {
       }.filter { escapeInfo =>
         val typeIsDefinedInSameFileAsTypeDef = isScTypeDefinedInFile(escapeInfo.escapingType, typeDefFile)
         typeIsDefinedInSameFileAsTypeDef
+      }.filterNot { info =>
+        // Here we filter out type variables like `T` in `T <: Foo`, because a conformance check between
+        // a given type definition and `T` yields the same results as a conformance check between that same
+        // type definition and `Foo`.
+        info.escapingType.is[TypeParameterType]
       }
     }
   }
