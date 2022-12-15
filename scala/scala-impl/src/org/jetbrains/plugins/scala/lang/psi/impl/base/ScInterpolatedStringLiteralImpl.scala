@@ -63,39 +63,35 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
   override protected def endQuote: String = super.startQuote
 
-  override def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)] = _desugaredExpression()
+  override def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)] = cachedInUserData("ScInterpolatedStringLiteralImpl.desugaredExpression", this, BlockModificationTracker(this), (referenceText, getContext) match {
+    case (methodName, context) if context != null &&
+      isString &&
+      isValidIdentifier(methodName) =>
+      val quote = endQuote
 
-  private val _desugaredExpression = cachedInUserData("ScInterpolatedStringLiteralImpl.desugaredExpression", this, BlockModificationTracker(this), () => {
-    (referenceText, getContext) match {
-      case (methodName, context) if context != null &&
-        isString &&
-        isValidIdentifier(methodName) =>
-        val quote = endQuote
+      // NOTE: we don't need to actually extract all the string parts content during resolve,
+      // some dummy placeholders is enough
+      val constructorParameters = getStringPartsDummies.map(quote + _ + quote)
+        .commaSeparated(Model.Parentheses)
 
-        // NOTE: we don't need to actually extract all the string parts content during resolve,
-        // some dummy placeholders is enough
-        val constructorParameters = getStringPartsDummies.map(quote + _ + quote)
-          .commaSeparated(Model.Parentheses)
+      val injectionsValues = getInjections.map { injection =>
+        val text = injection.getText
+        val isInvalidRef = injection.is[ScReferenceExpression] && !isValidIdentifier(text)
+        if (isInvalidRef) "???" else text
+      }
+      val methodParameters = injectionsValues.commaSeparated(Model.Parentheses)
 
-        val injectionsValues = getInjections.map { injection =>
-          val text = injection.getText
-          val isInvalidRef = injection.is[ScReferenceExpression] && !isValidIdentifier(text)
-          if (isInvalidRef) "???" else text
+      val expression =
+        try {
+          // FIXME: fails on s"aaa /* ${s"ccc s${s"/*"} ddd"} bbb" (SCL-17625, SCL-18706)
+          val text = s"$StringContextCanonical$constructorParameters.$methodName$methodParameters"
+          ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, this).asInstanceOf[ScMethodCall]
+        } catch {
+          case e: IncorrectOperationException =>
+            throw new IncorrectOperationException(s"Couldn't desugar interpolated string ${this.getText}", e: Throwable)
         }
-        val methodParameters = injectionsValues.commaSeparated(Model.Parentheses)
-
-        val expression =
-          try {
-            // FIXME: fails on s"aaa /* ${s"ccc s${s"/*"} ddd"} bbb" (SCL-17625, SCL-18706)
-            val text = s"$StringContextCanonical$constructorParameters.$methodName$methodParameters"
-            ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, this).asInstanceOf[ScMethodCall]
-          } catch {
-            case e: IncorrectOperationException =>
-              throw new IncorrectOperationException(s"Couldn't desugar interpolated string ${this.getText}", e: Throwable)
-          }
-        Some(expression.getInvokedExpr.asInstanceOf[ScReferenceExpression], expression)
-      case _ => None
-    }
+      Some(expression.getInvokedExpr.asInstanceOf[ScReferenceExpression], expression)
+    case _ => None
   })
 
   private def referenceText: String = firstNode.getText

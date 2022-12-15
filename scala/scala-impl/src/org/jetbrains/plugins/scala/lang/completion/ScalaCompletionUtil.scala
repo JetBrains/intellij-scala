@@ -271,11 +271,11 @@ object ScalaCompletionUtil {
     !checkErrors(dummyFile)
   }
 
-  private val inheritorObjectsInProject = (holder: ScTemplateDefinition) => cachedInUserData("ScalaCompletionUtil.inheritorObjectsInProject", holder, BlockModificationTracker(holder), (clazz: ScTemplateDefinition) => {
+  private def inheritorObjectsInProject(clazz: ScTemplateDefinition): Set[ScObject] = cachedInUserData("ScalaCompletionUtil.inheritorObjectsInProject", clazz, BlockModificationTracker(clazz), Tuple1(clazz), {
     ScalaInheritors.allInheritorObjects(clazz)
-  }).apply(holder)
+  })
 
-  private val inheritorObjectsInLibraries = (holder: ScTemplateDefinition) => cachedInUserData("ScalaCompletionUtil.inheritorObjectsInLibraries", holder, ModTracker.libraryAware(holder), (clazz: ScTemplateDefinition) => {
+  private def inheritorObjectsInLibraries(clazz: ScTemplateDefinition): Set[ScObject] = cachedInUserData("ScalaCompletionUtil.inheritorObjectsInLibraries", clazz, ModTracker.libraryAware(clazz), Tuple1(clazz), {
     ScalaInheritors.allInheritorObjects(clazz)
-  }).apply(holder)
+  })
 }

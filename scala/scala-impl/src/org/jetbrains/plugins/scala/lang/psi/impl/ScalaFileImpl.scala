@@ -311,9 +311,7 @@ class ScalaFileImpl(
 
   override val allowsForwardReferences: Boolean = false
 
-  override protected final def shouldNotProcessDefaultImport(fqn: String): Boolean = _shouldNotProcessDefaultImport(fqn)
-
-  private val _shouldNotProcessDefaultImport = cachedInUserData("ScalaFileImpl.shouldNotProcessDefaultImport", this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker, (fqn: String) => {
+  override protected final def shouldNotProcessDefaultImport(fqn: String): Boolean = cachedInUserData("ScalaFileImpl.shouldNotProcessDefaultImport", this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker, Tuple1(fqn), {
     typeDefinitions match {
       case Seq(head) => head.qualifiedName == fqn
       case _         => false

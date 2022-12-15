@@ -443,14 +443,9 @@ class ScalaPsiManager(implicit val project: Project) {
       ModTracker.libraryAware(clazz) match {
         case `rootManager`               => forLibraryClasses(clazz, withSupers)
         case TopLevelModificationTracker => forTopLevelClasses(clazz, withSupers)
-        case tracker =>
-
-          val cached = cachedInUserData("ScalaPsiManager.SignatureCaches.cachedMap.cached", clazz, tracker, (clazz: PsiClass, _: MixinNodes[T], withSupers: Boolean) => {
-            nodes.build(clazz, withSupers)
-          })
-
-          //cachedInUserData creates a single map for all 3 cases, so we need to pass `nodes` as a parameter to have different keys
-          cached(clazz, nodes, withSupers)
+        case tracker => cachedInUserData("ScalaPsiManager.SignatureCaches.cachedMap", clazz, tracker, (clazz, nodes, withSupers), {
+          nodes.build(clazz, withSupers)
+        })
       }
     }
   }

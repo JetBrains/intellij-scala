@@ -51,8 +51,11 @@ object ScPattern {
 
     import pattern.{elementScope, projectContext}
 
-    def expectedType: Option[ScType] = cachedInUserData("ScPattern.expectedType", pattern, BlockModificationTracker(pattern), () => _expectedType).apply()
+    def expectedType: Option[ScType] = cachedInUserData("ScPattern.expectedType", pattern, BlockModificationTracker(pattern), {
+      _expectedType
+    })
 
+    // TODO Don't use the return keyword
     private def _expectedType: Option[ScType] = {
       val psiManager = ScalaPsiManager.instance
 

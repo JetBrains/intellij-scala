@@ -163,7 +163,7 @@ object KindProjectorUtil {
     }
   }
 
-  private implicit class `synthetic poly-lambda builder ext`(private val tdef: ScTypeDefinition) {
+  implicit class `synthetic poly-lambda builder ext`(private val tdef: ScTypeDefinition) extends AnyVal {
 
     /**
     * Creates an intermidiate "Builder" trait which represents the type of an
@@ -185,7 +185,7 @@ object KindProjectorUtil {
     *
     * Returns parameterized type designated to generated trait, with `f` and `g` as it's type arguments.
     */
-    private[KindProjectorUtil] val synhteticPolyLambdaBuilder = cachedInUserData("KindProjectorUtil.syntheticPolyLambdaBuilder", tdef, containingFileModTracker(tdef), (f: ScTypeElement, g: ScTypeElement) => {
+    def synhteticPolyLambdaBuilder(f: ScTypeElement, g: ScTypeElement): Option[ScType] = cachedInUserData("KindProjectorUtil.syntheticPolyLambdaBuilder", tdef, containingFileModTracker(tdef), (f, g), {
       val tparams = tdef.typeParameters
       val methods = tdef.functions.filter(canBeRewritten(_, tparams))
 

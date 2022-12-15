@@ -86,9 +86,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
   })
 
-  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] = _syntheticContextAppliedDefs()
-
-  private val _syntheticContextAppliedDefs = cachedInUserData("ScFunctionImpl.syntheticContextAppliedDefs", this, BlockModificationTracker(this), () => {
+  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] = cachedInUserData("ScFunctionImpl.syntheticContextAppliedDefs", this, BlockModificationTracker(this), {
     ContextAppliedUtil.createSyntheticElementsFor(this, this.containingClass, parameters, typeParameters)
   })
 
@@ -173,11 +171,11 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     if(isConstructor) {
       null
     } else {
-      getReturnTypeImpl()
+      getReturnTypeImpl
     }
   }
 
-  private def getReturnTypeImpl = cachedInUserData("ScFunctionImpl.getReturnTypeImpl", this, BlockModificationTracker(this), () => {
+  private def getReturnTypeImpl: PsiType = cachedInUserData("ScFunctionImpl.getReturnTypeImpl", this, BlockModificationTracker(this), {
     val resultType = `type`().getOrAny match {
       case FunctionType(rt, _) => rt
       case tp => tp
@@ -237,9 +235,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   override def isExtensionMethod: Boolean =
     byStubOrPsi(_.isExtensionMethod)(extensionMethodOwner.nonEmpty)
 
-  override def effectiveParameterClauses: Seq[ScParameterClause] = _effectiveParameterClauses()
-
-  private val _effectiveParameterClauses = cachedInUserData("ScFunctionImpl.effectiveParameterClauses", this, BlockModificationTracker(this), () => {
+  override def effectiveParameterClauses: Seq[ScParameterClause] = cachedInUserData("ScFunctionImpl.effectiveParameterClauses", this, BlockModificationTracker(this), {
     val maybeOwner = if (isConstructor) {
       containingClass match {
         case owner: ScTypeParametersOwner => Some(owner)

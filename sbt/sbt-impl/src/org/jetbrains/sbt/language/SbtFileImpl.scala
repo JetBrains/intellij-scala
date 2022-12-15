@@ -40,7 +40,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
 
   private val syntheticFile = cached("SbtFileImpl.syntheticFile", ModTracker.physicalPsiChange(getProject), () => {
     implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
-    @NonNls val imports = importsFor(targetModule()).map {
+    @NonNls val imports = importsFor(targetModule).map {
       // TODO this is a workaround, we need to find out why references stopped resolving via the chained imports
       case "Keys._" => "sbt.Keys._"
       case "Build._" => "sbt.Build._"
@@ -57,7 +57,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
 
   /** NOTE: consider rewriting this using [[com.intellij.psi.ResolveScopeEnlarger]] */
   override def getFileResolveScope: GlobalSearchScope = {
-    val target = targetModule()
+    val target = targetModule
     target match {
       case SbtModuleWithScope(_, moduleWithDependenciesAndLibrariesScope) =>
         moduleWithDependenciesAndLibrariesScope
@@ -66,34 +66,32 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
     }
   }
 
-  private val targetModule = cachedInUserData("SbtFileImpl.targetModule", this, ProjectRootManager.getInstance(getProject), () => {
-    ModuleUtilCore.findModuleForPsiElement(this) match {
-      case null => ModuleLess
-      case module =>
-        val manager = ModuleManager.getInstance(getProject)
+  private def targetModule: TargetModule = cachedInUserData("SbtFileImpl.targetModule", this, ProjectRootManager.getInstance(getProject), ModuleUtilCore.findModuleForPsiElement(this) match {
+    case null => ModuleLess
+    case module =>
+      val manager = ModuleManager.getInstance(getProject)
 
-        val moduleByUri = for {
-          SbtModuleData(_, buildURI) <- SbtUtil.getSbtModuleData(module)
+      val moduleByUri = for {
+        SbtModuleData(_, buildURI) <- SbtUtil.getSbtModuleData(module)
 
-          module <- manager.getModules.find { module =>
-            Build(module) == buildURI.uri
-          }
-        } yield module
-
-        val moduleFinal = moduleByUri.orElse {
-          //(original issue which Justin fixed: SCL-13600)
-          //This is the old way of finding a build module which breaks if the way the module name is assigned changes
-          // This branch should be non-actual for SBT projects (imported as SBT)
-          // TODO: improve it for BSP projects (in particular BSP projects with SBT server)
-          Option(manager.findModuleByName(module.getName + Sbt.BuildModuleSuffix))
+        module <- manager.getModules.find { module =>
+          Build(module) == buildURI.uri
         }
-        moduleFinal
-          .map { module =>
-            val moduleWithDepsAndLibsScope = module.getModuleWithDependenciesAndLibrariesScope(false)
-            SbtModuleWithScope(module, moduleWithDepsAndLibsScope)
-          }
-          .getOrElse(DefinitionModule(module))
-    }
+      } yield module
+
+      val moduleFinal = moduleByUri.orElse {
+        //(original issue which Justin fixed: SCL-13600)
+        //This is the old way of finding a build module which breaks if the way the module name is assigned changes
+        // This branch should be non-actual for SBT projects (imported as SBT)
+        // TODO: improve it for BSP projects (in particular BSP projects with SBT server)
+        Option(manager.findModuleByName(module.getName + Sbt.BuildModuleSuffix))
+      }
+      moduleFinal
+        .map { module =>
+          val moduleWithDepsAndLibsScope = module.getModuleWithDependenciesAndLibrariesScope(false)
+          SbtModuleWithScope(module, moduleWithDepsAndLibsScope)
+        }
+        .getOrElse(DefinitionModule(module))
   })
 }
 

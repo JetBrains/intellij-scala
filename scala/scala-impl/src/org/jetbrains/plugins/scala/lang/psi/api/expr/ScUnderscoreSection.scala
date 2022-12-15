@@ -105,9 +105,7 @@ object ScUnderScoreSectionUtil {
   def isUnderscoreFunction(expr: ScExpression): Boolean = underscores(expr).nonEmpty
 
   /**Collects parameters of anonymous functions in placeholder syntax*/
-  def underscores(expr: ScExpression): Seq[ScUnderscoreSection] = _underscores(expr)
-
-  private val _underscores = (holder: ScExpression) => cachedInUserData("ScUnderScoreSectionUtil.underscores", holder, ModTracker.anyScalaPsiChange, (expr: ScExpression) => {
+  def underscores(expr: ScExpression): Seq[ScUnderscoreSection] = cachedInUserData("ScUnderScoreSectionUtil.underscores", expr, ModTracker.anyScalaPsiChange, Tuple1(expr: ScExpression), {
     if (!expr.isValid) Nil else {
       val underscores = ArrayBuffer.empty[ScUnderscoreSection]
       collectUnderscoreNodes(expr.getNode, underscores)
@@ -116,7 +114,7 @@ object ScUnderScoreSectionUtil {
         .filter(u => u.bindingExpr.isEmpty && u.overExpr.contains(expr))
         .toList
     }
-  }).apply(holder)
+  })
 
   private def collectUnderscoreNodes(node: ASTNode, result: ArrayBuffer[ScUnderscoreSection]): Unit = {
     node match {

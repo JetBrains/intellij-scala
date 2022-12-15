@@ -84,9 +84,7 @@ final class ScEnumCaseImpl(
 
   def physicalTypeParameters: Seq[ScTypeParam] = super.typeParameters
 
-  override def typeParameters: Seq[ScTypeParam] = _typeParameters()
-
-  private val _typeParameters = cachedInUserData("ScEnumCaseImpl.typeParameters", this, BlockModificationTracker(this), () => {
+  override def typeParameters: Seq[ScTypeParam] = cachedInUserData("ScEnumCaseImpl.typeParameters", this, BlockModificationTracker(this), {
     if (super.typeParameters.isEmpty) {
       try {
         val syntheticClause =

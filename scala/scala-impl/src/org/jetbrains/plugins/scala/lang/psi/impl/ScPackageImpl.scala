@@ -62,9 +62,7 @@ final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
       true
   }
 
-  override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] = _findPackageObject(scope)
-
-  private val _findPackageObject = cachedInUserData("ScPackageImpl.findPackageObject", this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker, (scope: GlobalSearchScope) => {
+  override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] = cachedInUserData("ScPackageImpl.findPackageObject", this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker, Tuple1(scope: GlobalSearchScope), {
     ScalaShortNamesCacheManager.getInstance(getProject).findPackageObjectByName(getQualifiedName, scope)
   })
 

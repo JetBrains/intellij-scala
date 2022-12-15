@@ -76,11 +76,9 @@ object PrecedenceTypes {
       case _                               => false
     }
 
-  def forModule(module: Module): PrecedenceTypes = _forModule(module)
-  
-  private val _forModule = (holder: Module) => cachedInUserData("PrecedenceTypes.forModule", holder, ScalaCompilerConfiguration.modTracker(holder.getProject), (module: Module) => {
+  def forModule(module: Module): PrecedenceTypes = cachedInUserData("PrecedenceTypes.forModule", module, ScalaCompilerConfiguration.modTracker(module.getProject), Tuple1(module), {
     module.customDefaultImports.fold(defaultPrecedenceTypes)(new PrecedenceTypes(_))
-  }).apply(holder)
+  })
 
   def forElement(e: PsiElement): PrecedenceTypes =
     e.module.fold(defaultPrecedenceTypes) { m =>

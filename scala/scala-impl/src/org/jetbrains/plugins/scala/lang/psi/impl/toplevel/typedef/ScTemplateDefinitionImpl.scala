@@ -200,9 +200,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   override final def findInnerClassByName(name: String, checkBases: Boolean): PsiClass =
     PsiClassImplUtil.findInnerByName(this, name, checkBases)
 
-  override final def getVisibleSignatures: ju.Collection[HierarchicalMethodSignature] = _getVisibleSignatures()
-
-  private val _getVisibleSignatures = cachedInUserData("ScTemplateDefinitionImpl.getVisibleSignatures", this, ModTracker.libraryAware(this), () => {
+  override final def getVisibleSignatures: ju.Collection[HierarchicalMethodSignature] = cachedInUserData("ScTemplateDefinitionImpl.getVisibleSignatures", this, ModTracker.libraryAware(this), {
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
   })
 

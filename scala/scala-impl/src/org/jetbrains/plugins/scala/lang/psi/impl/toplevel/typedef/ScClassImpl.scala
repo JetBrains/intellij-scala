@@ -58,9 +58,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}
 
-  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] = _syntheticContextAppliedDefs()
-
-  private val _syntheticContextAppliedDefs = cachedInUserData("ScClassImpl.syntheticContextAppliedDefs", this, BlockModificationTracker(this), () => {
+  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] = cachedInUserData("ScClassImpl.syntheticContextAppliedDefs", this, BlockModificationTracker(this), {
     ContextAppliedUtil.createSyntheticElementsFor(
       this,
       this,
@@ -147,11 +145,11 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
 
   override def getSyntheticImplicitMethod: Option[ScFunction] = {
     if (hasModifierProperty("implicit") && constructor.nonEmpty)
-      syntheticImplicitMethod()
+      syntheticImplicitMethod
     else None
   }
 
-  private def syntheticImplicitMethod = cachedInUserData("ScClassImpl.syntheticImplicitMethod", this, ModTracker.libraryAware(this), () => {
+  private def syntheticImplicitMethod: Option[ScFunction] = cachedInUserData("ScClassImpl.syntheticImplicitMethod", this, ModTracker.libraryAware(this), {
     try {
       val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
       method.syntheticNavigationElement = this

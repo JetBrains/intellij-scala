@@ -20,14 +20,12 @@ import org.scalatest.finders._
 object ScalaTestTestLocationsFinder {
 
   @RequiresReadLock
-  def calculateTestLocations(definition: ScTypeDefinition): Seq[PsiElement] = _calculateTestLocations(definition)
-
-  private val _calculateTestLocations = (holder: ScTypeDefinition) => cachedInUserData("ScalaTestTestLocationsFinder", holder, CachesUtil.fileModTracker(holder.getContainingFile), (definition: ScTypeDefinition) => {
+  def calculateTestLocations(definition: ScTypeDefinition): Seq[PsiElement] = cachedInUserData("ScalaTestTestLocationsFinder", definition, CachesUtil.fileModTracker(definition.getContainingFile), Tuple1(definition), {
     //Thread.sleep(5000) // uncomment to test long resolve
     val module = definition.module
     val finder = module.flatMap(ScalaTestAstTransformer.getFinder(definition, _))
     finder.toSeq.flatMap(doCalculateScalaTestTestLocations(definition, _))
-  }).apply(holder)
+  })
 
   // NOTE 1:
   //   ScalaTestAstTransformer.getFinder is only used to determine which scalatest style is used

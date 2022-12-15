@@ -17,7 +17,7 @@ trait ScMethodLike
     with PsiTypeParametersOwnerAdapter
     with ScParameterOwner.WithContextBounds {
 
-  private val getConstructorTypeParameterClause = cachedInUserData("ScMethodLike.getConstructorTypeParameterClause", this, BlockModificationTracker(this), () => {
+  def getConstructorTypeParameterClause: Option[ScTypeParamClause] = cachedInUserData("ScMethodLike.getConstructorTypeParameterClause", this, BlockModificationTracker(this), {
     ScMethodLike.this match {
       case constructor @ ScalaConstructor.in(c: ScTypeDefinition) =>
         c.typeParametersClause.map { clause =>
@@ -29,7 +29,7 @@ trait ScMethodLike
   })
 
   def getConstructorTypeParameters: Seq[ScTypeParam] =
-    getConstructorTypeParameterClause().fold(Seq.empty[ScTypeParam])(_.typeParameters)
+    getConstructorTypeParameterClause.fold(Seq.empty[ScTypeParam])(_.typeParameters)
 
   /** If this is a primary or auxilliary constructor, return the containing classes type parameter clause */
   def getClassTypeParameters: Option[ScTypeParamClause] = {

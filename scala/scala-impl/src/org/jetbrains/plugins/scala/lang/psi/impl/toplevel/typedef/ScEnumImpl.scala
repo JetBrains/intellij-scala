@@ -41,9 +41,7 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
        |""".stripMargin
   }
 
-  override def syntheticClass: Option[ScTypeDefinition] = _syntheticClass()
-
-  private val _syntheticClass = cachedInUserData("ScEnumImpl.syntheticClass", this, ModTracker.libraryAware(this), () => {
+  override def syntheticClass: Option[ScTypeDefinition] = cachedInUserData("ScEnumImpl.syntheticClass", this, ModTracker.libraryAware(this), {
     val cls = ScalaPsiElementFactory.createTypeDefinitionWithContext(syntheticClassText, this.getContext, this)
     cls.originalEnumElement        = this
     cls.syntheticNavigationElement = this

@@ -57,7 +57,7 @@ object HighlightingAdvisor {
   }
 
   private def isInIgnoredRange(element: PsiElement, file: PsiFile): Boolean = {
-    val ignoredRanges = cachedInUserData("HighlightingAdvisor.isInIgnoredRange.ignoredRanges", file, file.getManager.getModificationTracker, () => {
+    def ignoredRanges(): Set[TextRange] = cachedInUserData("HighlightingAdvisor.isInIgnoredRange.ignoredRanges", file, file.getManager.getModificationTracker, {
       val chars = file.charSequence
       val indexes = mutable.ArrayBuffer.empty[Int]
       var lastIndex = 0

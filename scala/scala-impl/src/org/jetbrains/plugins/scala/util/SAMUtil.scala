@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.project._
 
 
 object SAMUtil {
-  private implicit class ScExpressionExt(private val expr: ScExpression) extends AnyVal {
-    private[SAMUtil] def samTypeParent = cachedInUserData("SAMUtil.samTypeParent", expr, ModTracker.physicalPsiChange(expr.getProject), () => {
+  implicit class ScExpressionExt(private val expr: ScExpression) extends AnyVal {
+    def samTypeParent: Option[PsiClass] = cachedInUserData("SAMUtil.samTypeParent", expr, ModTracker.physicalPsiChange(expr.getProject), {
       if (expr.isSAMEnabled && isFunctionalExpression(expr)) {
         for {
           pt  <- expr.expectedType(fromUnderscore = false)
@@ -31,7 +31,7 @@ object SAMUtil {
   }
 
   object SAMTypeImplementation {
-    def unapply(e: ScExpression): Option[PsiClass] = e.samTypeParent()
+    def unapply(e: ScExpression): Option[PsiClass] = e.samTypeParent
   }
 
   def isFunctionalExpression(e: ScExpression): Boolean = {
@@ -91,7 +91,7 @@ object SAMUtil {
     }
   }
 
-  def singleAbstractMethod(cls: PsiClass): Option[PsiMethod] = cls.singleAbstractMethodWithSubstitutor().map(_._1)
+  def singleAbstractMethod(cls: PsiClass): Option[PsiMethod] = cls.singleAbstractMethodWithSubstitutor.map(_._1)
 
   // TODO We should probably (optionally) adjust the .expectedType of corresponding element instead of adding the uitlity method
   /**
@@ -115,7 +115,7 @@ object SAMUtil {
           if (!hasValidConstructorAndSelfType(cls)) None
           else {
             for {
-              (method, methodSubst) <- cls.singleAbstractMethodWithSubstitutor()
+              (method, methodSubst) <- cls.singleAbstractMethodWithSubstitutor
               funType               <- method.functionType
             } yield {
               val substituted = methodSubst.followed(subst)(funType)
@@ -131,14 +131,12 @@ object SAMUtil {
     case _             => true
   }
 
-  implicit class PsiClassToSAMExt(private val cls: PsiClass) {
-    def isSAMable: Boolean = _isSAMable()
-
-    private val _isSAMable = cachedInUserData("PsiClassToSAMExt.isSAMable", cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker, () => {
+  implicit class PsiClassToSAMExt(private val cls: PsiClass) extends AnyVal {
+    def isSAMable: Boolean = cachedInUserData("PsiClassToSAMExt.isSAMable", cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker, {
       hasValidConstructorAndSelfType(cls) && singleAbstractMethod(cls).isDefined
     }: java.lang.Boolean)
 
-    private[SAMUtil] val singleAbstractMethodWithSubstitutor = cachedInUserData("PsiClassToSAMExt.isSAMable", cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker, () => {
+    private[SAMUtil] def singleAbstractMethodWithSubstitutor: Option[(PsiMethod, ScSubstitutor)] = cachedInUserData("PsiClassToSAMExt.isSAMable", cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker, {
       val abstractMembers = TypeDefinitionMembers.getSignatures(cls).allSignatures.filter(_.isAbstract).toSeq
       abstractMembers match {
         case Seq(PhysicalMethodSignature(m: PsiMethod, subst))

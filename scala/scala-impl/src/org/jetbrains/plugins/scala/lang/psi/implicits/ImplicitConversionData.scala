@@ -123,7 +123,7 @@ object ImplicitConversionData {
     }
 
 
-  private val rawCheck = (holder: ScFunction) => cachedInUserData("ImplicitConversionData.rawCheck", holder, ModTracker.libraryAware(holder), (function: ScFunction) => {
+  private def rawCheck(function: ScFunction): Option[ImplicitConversionData] = cachedInUserData("ImplicitConversionData.rawCheck", function, ModTracker.libraryAware(function), Tuple1(function), {
     for {
       retType   <- function.returnType.toOption
       param <- function.parameters.headOption
@@ -131,9 +131,9 @@ object ImplicitConversionData {
     } yield {
       new RegularImplicitConversionData(function, paramType, retType, ScSubstitutor.empty)
     }
-  }).apply(holder)
+  })
 
-  private val rawElementWithFunctionTypeCheck = (holder: PsiNamedElement with Typeable) => cachedInUserData("ImplicitConversionData.rawElementWithFunctionTypeCheck", holder, ModTracker.libraryAware(holder), (named: PsiNamedElement with Typeable) => {
+  private def rawElementWithFunctionTypeCheck(named: PsiNamedElement with Typeable): Option[ImplicitConversionData] = cachedInUserData("ImplicitConversionData.rawElementWithFunctionTypeCheck", named, ModTracker.libraryAware(named), Tuple1(named), {
     for {
       function1Type <- named.elementScope.cachedFunction1Type
       elementType   <- named.`type`().toOption
@@ -141,7 +141,7 @@ object ImplicitConversionData {
     } yield {
       new ElementWithFunctionTypeData(named, elementType, ScSubstitutor.empty)
     }
-  }).apply(holder)
+  })
 
   private def fromRegularImplicitConversion(function: ScFunction,
                                             substitutor: ScSubstitutor): Option[ImplicitConversionData] = {

@@ -10,7 +10,7 @@ class CachedInUserDataTest extends CachedWithRecursionGuardTestBase {
 
   def testSimple(): Unit = {
     object Foo extends CachedMockPsiElement {
-      val currentTime: () => java.lang.Long = cachedInUserData("Foo.currentTime", this, PsiModificationTracker.MODIFICATION_COUNT, () => {
+      def currentTime(): java.lang.Long = cachedInUserData("Foo.currentTime", this, PsiModificationTracker.MODIFICATION_COUNT, {
         System.currentTimeMillis()
       })
     }
@@ -27,7 +27,7 @@ class CachedInUserDataTest extends CachedWithRecursionGuardTestBase {
 
   def testWithParameters(): Unit = {
     object Foo extends CachedMockPsiElement {
-      val currentTime: String => java.lang.Long = cachedInUserData("Foo.currentTime", this, PsiModificationTracker.MODIFICATION_COUNT, s => {
+      def currentTime(s: String): java.lang.Long = cachedInUserData("Foo.currentTime", this, PsiModificationTracker.MODIFICATION_COUNT, Tuple1(s), {
         System.currentTimeMillis()
       })
     }
@@ -55,7 +55,7 @@ class CachedInUserDataTest extends CachedWithRecursionGuardTestBase {
     }
 
     class Foo {
-      val currentTime: () => java.lang.Long = cachedInUserData("Foo.currentTime", this, PsiModificationTracker.MODIFICATION_COUNT, () => {
+      def currentTime(): java.lang.Long = cachedInUserData("Foo.currentTime", this, PsiModificationTracker.MODIFICATION_COUNT, {
         System.currentTimeMillis()
       })
     }
@@ -73,7 +73,7 @@ class CachedInUserDataTest extends CachedWithRecursionGuardTestBase {
 
   def testTracer(): Unit = {
     object Foo extends CachedMockPsiElement {
-      val currentTime: () => java.lang.Long = cachedInUserData("Foo.currentTime", this, PsiModificationTracker.MODIFICATION_COUNT, () => {
+      def currentTime(): java.lang.Long = cachedInUserData("Foo.currentTime", this, PsiModificationTracker.MODIFICATION_COUNT, {
         System.currentTimeMillis()
       })
     }

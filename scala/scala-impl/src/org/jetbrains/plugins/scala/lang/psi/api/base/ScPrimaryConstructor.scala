@@ -37,9 +37,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
    *
    * In addition, view and context bounds generate an additional implicit parameter section.
    */
-  override def effectiveParameterClauses: Seq[ScParameterClause] = _effectiveParameterClauses()
-
-  private val _effectiveParameterClauses = cachedInUserData("ScPrimaryConstructor.effectiveParameterClauses", this, BlockModificationTracker(this), () => {
+  override def effectiveParameterClauses: Seq[ScParameterClause] = cachedInUserData("ScPrimaryConstructor.effectiveParameterClauses", this, BlockModificationTracker(this), {
     def emptyParameterList: ScParameterClause =
       ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(parameterList)
 

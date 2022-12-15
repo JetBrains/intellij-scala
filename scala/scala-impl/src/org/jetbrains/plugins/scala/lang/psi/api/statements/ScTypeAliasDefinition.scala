@@ -15,9 +15,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   def aliasedTypeElement: Option[ScTypeElement]
 
-  def aliasedType: TypeResult = _aliasedType()
-
-  private val _aliasedType = cachedInUserData("ScTypeAliasDefinition.aliasedType", this, BlockModificationTracker(this), () => {
+  def aliasedType: TypeResult = cachedInUserData("ScTypeAliasDefinition.aliasedType", this, BlockModificationTracker(this), {
     aliasedTypeElement.map {
       _.`type`()
     }.getOrElse(Failure(ScalaBundle.message("no.alias.type")))

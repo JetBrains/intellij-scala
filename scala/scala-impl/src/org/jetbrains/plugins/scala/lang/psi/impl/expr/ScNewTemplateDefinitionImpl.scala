@@ -136,11 +136,11 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
 
   override def desugaredApply: Option[ScExpression] = {
     if (firstConstructorInvocation.forall(_.arguments.size <= 1)) None
-    else cachedDesugaredApply()
+    else cachedDesugaredApply
   }
 
   //It's very rare case, when we need to desugar `.apply` first.
-  private val cachedDesugaredApply = cachedInUserData("ScNewTemplateDefinitionImpl.cachedDesugaredApply", this, BlockModificationTracker(this), () => {
+  private def cachedDesugaredApply: Option[ScExpression] = cachedInUserData("ScNewTemplateDefinitionImpl.cachedDesugaredApply", this, BlockModificationTracker(this), {
     val resolvedConstructor = firstConstructorInvocation.flatMap(_.reference).flatMap(_.resolve().toOption)
     val constrParamLength = resolvedConstructor.map {
       case ScalaConstructor(constr)         => constr.effectiveParameterClauses.length
@@ -212,9 +212,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
 
   override protected def isInterface(namedElement: PsiNamedElement): Boolean = false
 
-  override def psiMethods: Array[PsiMethod] = _psiMethods()
-  
-  private val _psiMethods = cachedInUserData("ScNewTemplateDefinitionImpl.psiMethods", this, ModTracker.libraryAware(this), () => {
+  override def psiMethods: Array[PsiMethod] = cachedInUserData("ScNewTemplateDefinitionImpl.psiMethods", this, ModTracker.libraryAware(this), {
     getAllMethods.filter(_.containingClass == this)
   })
 

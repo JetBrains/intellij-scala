@@ -17,9 +17,7 @@ trait ScParameterOwner extends ScalaPsiElement {
 
 object ScParameterOwner {
   trait WithContextBounds extends ScParameterOwner with ScTypeParametersOwner {
-    def effectiveParameterClauses: Seq[ScParameterClause] = _effectiveParameterClauses()
-
-    private val _effectiveParameterClauses = cachedInUserData("ScParameterOwner.effectiveParameterClauses", this, BlockModificationTracker(this), () => {
+    def effectiveParameterClauses: Seq[ScParameterClause] = cachedInUserData("ScParameterOwner.effectiveParameterClauses", this, BlockModificationTracker(this), {
       allClauses ++ clauses.flatMap(
         ScalaPsiUtil.syntheticParamClause(this, _, isClassParameter = false)()
       )

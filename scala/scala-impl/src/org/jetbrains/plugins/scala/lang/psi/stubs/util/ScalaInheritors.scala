@@ -142,7 +142,7 @@ object ScalaInheritors {
   }
 
   def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {
-    val selfTypeInheritorsInner = cachedInUserData("ScalaInheritors.selfTypeInheritorsInner", clazz, BlockModificationTracker(clazz), () => {
+    def selfTypeInheritorsInner(): Seq[ScTemplateDefinition] = cachedInUserData("ScalaInheritors.selfTypeInheritorsInner", clazz, BlockModificationTracker(clazz), {
       if (clazz.name == null) {
         return Seq.empty
       }

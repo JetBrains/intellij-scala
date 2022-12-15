@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.search
 
+import com.intellij.openapi.module
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope, UseScopeEnlarger}
 import com.intellij.psi.{PsiElement, PsiFile, PsiMember}
@@ -38,11 +39,11 @@ class ScalaSharedSourcesUseScopeEnlarger extends UseScopeEnlarger {
     GlobalSearchScope.union(sharedModuleScopes)
   }
 
-  private val findSharedSourceModuleDependencies = (holder: PsiFile) => cachedInUserData("ScalaSharedSourcesUseScopeEnlarger.findSharedSourceModuleDependencies", holder, ScalaPsiManager.instance(holder.getProject).TopLevelModificationTracker, (file: PsiFile) => {
+  private def findSharedSourceModuleDependencies(file: PsiFile): Array[module.Module] = cachedInUserData("ScalaSharedSourcesUseScopeEnlarger.findSharedSourceModuleDependencies", file, ScalaPsiManager.instance(file.getProject).TopLevelModificationTracker, Tuple1(file), {
     val module = ModuleUtilCore.findModuleForPsiElement(file)
     if (module == null)
       Array.empty
     else
       module.sharedSourceDependencies.toArray
-  }).apply(holder)
+  })
 }

@@ -61,9 +61,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       _.`type`().toOption
     }
 
-  override def superTypes: List[ScType] = _superTypes()
-
-  private val _superTypes = cachedInUserData("ScExtendsBlockImpl.superTypes", this, ModTracker.libraryAware(this), () => {
+  override def superTypes: List[ScType] = cachedInUserData("ScExtendsBlockImpl.superTypes", this, ModTracker.libraryAware(this), {
     val buffer = ArrayBuffer.empty[ScType]
 
     val stdTypes = projectContext.stdTypes
@@ -146,9 +144,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
   })
 
-  override def supers: Seq[PsiClass] = _supers()
-
-  private val _supers = cachedInUserData("ScExtendsBlockImpl.supers", this, ModTracker.libraryAware(this), () => {
+  override def supers: Seq[PsiClass] = cachedInUserData("ScExtendsBlockImpl.supers", this, ModTracker.libraryAware(this), {
     val typeElements = templateParents.fold(syntheticTypeElements) {
       _.allTypeElements
     }

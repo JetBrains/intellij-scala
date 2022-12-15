@@ -36,9 +36,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory).toSeq
   })
 
-  override def effectiveParameters: Seq[ScParameter] = _effectiveParameters()
-
-  private val _effectiveParameters = cachedInUserData("ScParameterClauseImpl.effectiveParameters", this, BlockModificationTracker(this), () => {
+  override def effectiveParameters: Seq[ScParameter] = cachedInUserData("ScParameterClauseImpl.effectiveParameters", this, BlockModificationTracker(this), {
     if (!isImplicit) parameters else {
       //getParent is sufficient (not getContext), for synthetic clause, getParent will return other PSI,
       //which is ok, it will not add anything more
