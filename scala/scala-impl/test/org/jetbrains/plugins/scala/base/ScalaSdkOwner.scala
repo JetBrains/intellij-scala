@@ -12,7 +12,7 @@ trait ScalaSdkOwner extends Test
 
   import ScalaSdkOwner._
 
-  override final implicit def version: ScalaVersion = {
+  override implicit def version: ScalaVersion = {
     val configuredOpt = configuredScalaVersion
     configuredOpt match {
       case Some(exactVersion) =>
