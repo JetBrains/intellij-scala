@@ -27,7 +27,7 @@ private[declarationRedundancy] object TypeDefEscaping {
    * Note that [[EscapeInfo]]s for `Seq` and `A` are initially instantiated by [[getEscapeInfosOfTypeDefMembers]],
    * but ultimately discarded by [[isScTypeDefinedInFile]] and `is[TypeParameterType]` respectively.
    */
-  sealed case class EscapeInfo(member: ScMember, escapingType: ScType)
+  final case class EscapeInfo(member: ScMember, escapingType: ScType)
 
   /**
    * If an `EscapeInfo`'s `escapingType` is parameterized, this method will destructure it into a list of
