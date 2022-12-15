@@ -173,11 +173,10 @@ private object ScalaAccessCanBeTightenedInspection {
           val containingTypeDef = Option(td.containingClass).flatMap(_.asOptionOf[ScTypeDefinition])
           val containingTypeDefCompanion = containingTypeDef.flatMap(_.baseCompanion)
 
-          val escapeInfos = (containingTypeDef ++ containingTypeDefCompanion).flatMap(getEscapeInfosOfTypeDefMembers)
+          val escapeInfos = (containingTypeDef ++ containingTypeDefCompanion)
+            .flatMap(getEscapeInfosOfTypeDefMembers).groupMapReduce(_._1)(_._2)(_ ++ _)
 
-          escapeInfos.exists { info =>
-            info.member != td && info.escapingType.conforms(designatorType)
-          }
+          escapeInfos.exists(kv => kv._1 != td && kv._2.exists(_.conforms(designatorType)))
 
         case _ => false
       }
