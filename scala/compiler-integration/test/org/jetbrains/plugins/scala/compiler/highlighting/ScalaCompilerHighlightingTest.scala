@@ -42,8 +42,7 @@ class ScalaCompilerHighlightingTest_3_2 extends ScalaCompilerHighlightingTest_3 
 
 class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 {
   @nowarn("cat=deprecation")
-  override implicit def version: ScalaVersion =
-    new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "0-RC1-bin-20221213-5929a50-NIGHTLY")
+  override implicit def version: ScalaVersion = ScalaVersion.Latest.Scala_3_3_Nightly
 }
 
 abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
