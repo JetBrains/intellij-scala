@@ -70,6 +70,7 @@ object LatestScalaVersions {
   val Scala_3_0  = new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "2")
   val Scala_3_1  = new ScalaVersion(ScalaLanguageLevel.Scala_3_1, "3")
   val Scala_3_2  = new ScalaVersion(ScalaLanguageLevel.Scala_3_2, "1")
+  val Scala_3_3_Nightly = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "0-RC1-bin-20221213-5929a50-NIGHTLY")
 
   val Scala_3: ScalaVersion = Scala_3_2
 
