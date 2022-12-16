@@ -105,9 +105,9 @@ package object project {
 
   implicit class ModuleExt(private val module: Module) extends AnyVal {
 
-    private def scalaModuleSettings: Option[ScalaModuleSettings] = cachedInUserData("ModuleExt.scalaModuleSettings", module, ScalaCompilerConfiguration.modTracker(module.getProject), {
+    private def scalaModuleSettings: Option[ScalaModuleSettings] = cachedInUserData("ModuleExt.scalaModuleSettings", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
       ScalaModuleSettings(module)
-    })
+    }
 
     def isBuildModule: Boolean =
       module.getName.endsWith(Sbt.BuildModuleSuffix)
@@ -162,7 +162,7 @@ package object project {
      * Selects dependent module for shared-sources module<br>
      * It first search for JVM, then for Js and then for Native
      */
-    def findRepresentativeModuleForSharedSourceModule: Option[Module] = cachedInUserData("ModuleExt.findRepresentativeModuleForSharedSourceModule", module, ScalaCompilerConfiguration.modTracker(module.getProject), {
+    def findRepresentativeModuleForSharedSourceModule: Option[Module] = cachedInUserData("ModuleExt.findRepresentativeModuleForSharedSourceModule", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
       if (isSharedSourceModule) {
         val moduleManager = ModuleManager.getInstance(module.getProject)
         val dependents = moduleManager.getModuleDependentModules(module).asScala
@@ -171,7 +171,7 @@ package object project {
           .orElse(dependents.find(_.isScalaNative))
       }
       else None
-    })
+    }
 
     def findRepresentativeModuleForSharedSourceModuleOrSelf: Module =
       findRepresentativeModuleForSharedSourceModule.getOrElse(module)
@@ -355,9 +355,9 @@ package object project {
     def hasScala: Boolean = modulesWithScala.nonEmpty
 
     // TODO Generalize: hasScala(Version => Boolean), hasScala(_ >= Scala3)
-    def hasScala3: Boolean = cachedInUserData("ProjectExt.hasScala3", project, ProjectRootManager.getInstance(project), {
+    def hasScala3: Boolean = cachedInUserData("ProjectExt.hasScala3", project, ProjectRootManager.getInstance(project)) {
       modulesWithScala.exists(_.hasScala3)
-    }: java.lang.Boolean)
+    }
 
     def indentationBasedSyntaxEnabled(features: ScalaFeatures): Boolean =
       features.isScala3 &&
@@ -372,9 +372,9 @@ package object project {
       if (project.isDisposed) Seq.empty
       else modulesWithScalaCached
 
-    private def modulesWithScalaCached: Seq[Module] = cachedInUserData("ProjectExt.modulesWithScalaCached", project, ProjectRootManager.getInstance(project), {
+    private def modulesWithScalaCached: Seq[Module] = cachedInUserData("ProjectExt.modulesWithScalaCached", project, ProjectRootManager.getInstance(project)) {
       modules.filter(m => m.hasScala && !m.isBuildModule)
-    })
+    }
 
     def anyScalaModule: Option[Module] =
       modulesWithScala.headOption
@@ -438,7 +438,7 @@ package object project {
       module2
     }
 
-    private def projectModule: Option[Module] = cachedInUserData("ProjectPsiFileExt.projectModule", file, ProjectRootManager.getInstance(file.getProject), {
+    private def projectModule: Option[Module] = cachedInUserData("ProjectPsiFileExt.projectModule", file, ProjectRootManager.getInstance(file.getProject)) {
       inReadAction { // assuming that most of the time it will be read from cache
         val module = ModuleUtilCore.findModuleForPsiElement(file)
         // for build.sbt files the appropriate module is the one with `-build` suffix
@@ -448,7 +448,7 @@ package object project {
         else
           Option(module)
       }
-    })
+    }
 
     def scratchFileModule: Option[Module] =
       attachedFileModule

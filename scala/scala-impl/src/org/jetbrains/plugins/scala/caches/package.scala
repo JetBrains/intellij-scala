@@ -25,11 +25,11 @@ package object caches {
 
   // TODO Factory method instead of the ProjectUserDataHolder type class
 
-  def cachedInUserData[E: ProjectUserDataHolder, R >: Null](name: String, dataHolder: E, dependency: => AnyRef, f: => R): R = {
+  def cachedInUserData[E: ProjectUserDataHolder, R](name: String, dataHolder: E, dependency: => AnyRef)(f: => R): R = {
     cacheInUserData0((() => f).getClass.getName, name, dataHolder, dependency, f)
   }
 
-  def cachedInUserData[E: ProjectUserDataHolder, T <: Product, R >: Null](name: String, dataHolder: E, dependency: => AnyRef, v: T, f: => R): R = {
+  def cachedInUserData[E: ProjectUserDataHolder, T <: Product, R](name: String, dataHolder: E, dependency: => AnyRef, v: T)(f: => R): R = {
     cacheInUserDataN[E, T, R]((() => f).getClass.getName, name, dataHolder, dependency, v, f)
   }
 }

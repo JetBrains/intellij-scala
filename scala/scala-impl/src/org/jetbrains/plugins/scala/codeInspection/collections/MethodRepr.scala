@@ -19,7 +19,7 @@ object MethodRepr {
     }
 
   //it is invoked very often in inspection, so BlockModificationTracker would be to heavy
-  private def unapplyInner(expr: ScExpression): Option[(ScExpression, Option[ScExpression], Option[ScReferenceExpression], Seq[ScExpression])] = cachedInUserData("MethodRepr.unapplyInner", expr, ModTracker.anyScalaPsiChange, Tuple1(expr), {
+  private def unapplyInner(expr: ScExpression): Option[(ScExpression, Option[ScExpression], Option[ScReferenceExpression], Seq[ScExpression])] = cachedInUserData("MethodRepr.unapplyInner", expr, ModTracker.anyScalaPsiChange, Tuple1(expr)) {
     expr match {
       case call: ScMethodCall =>
         val args = call.args match {
@@ -65,7 +65,7 @@ object MethodRepr {
         }
       case _ => None
     }
-  })
+  }
 
   def apply(itself: ScExpression, optionalBase: Option[ScExpression], args: Seq[ScExpression]): MethodRepr = {
     new MethodRepr(itself, optionalBase, args)

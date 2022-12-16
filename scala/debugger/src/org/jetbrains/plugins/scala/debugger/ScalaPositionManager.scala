@@ -707,9 +707,9 @@ object ScalaPositionManager {
 
   def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     //stored in `file`, invalidated on `file` change
-    def cachedMap: ConcurrentIntObjectMap[Seq[PsiElement]] = cachedInUserData("ScalaPositionManager.positionsOnLine.cachedMap", file, file, {
+    def cachedMap: ConcurrentIntObjectMap[Seq[PsiElement]] = cachedInUserData("ScalaPositionManager.positionsOnLine.cachedMap", file, file) {
       ConcurrentCollectionFactory.createConcurrentIntObjectMap()
-    })
+    }
 
     if (lineNumber < 0) return Seq.empty
 

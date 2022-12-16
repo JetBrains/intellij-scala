@@ -208,12 +208,12 @@ object SyntheticMembersInjector {
   private def templateBodyOrSynthetic(td: ScTypeDefinition): ScTemplateBody = {
     val extendsBlock = td.extendsBlock
 
-    def syntheticTemplateBody: ScTemplateBody = cachedInUserData("SyntheticMemberInjector.templateBodyOrSynthetic.syntheticTemplateBody", td, ModTracker.libraryAware(td), {
+    def syntheticTemplateBody: ScTemplateBody = cachedInUserData("SyntheticMemberInjector.templateBodyOrSynthetic.syntheticTemplateBody", td, ModTracker.libraryAware(td)) {
       val body = ScalaPsiElementFactory.createTemplateBody(extendsBlock)(td.getProject)
       body.context = extendsBlock
       body.child = extendsBlock.getLastChild
       body
-    })
+    }
 
     extendsBlock.templateBody.getOrElse(syntheticTemplateBody)
   }

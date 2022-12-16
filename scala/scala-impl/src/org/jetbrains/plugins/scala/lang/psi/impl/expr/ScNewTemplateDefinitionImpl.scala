@@ -140,7 +140,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   }
 
   //It's very rare case, when we need to desugar `.apply` first.
-  private def cachedDesugaredApply: Option[ScExpression] = cachedInUserData("ScNewTemplateDefinitionImpl.cachedDesugaredApply", this, BlockModificationTracker(this), {
+  private def cachedDesugaredApply: Option[ScExpression] = cachedInUserData("ScNewTemplateDefinitionImpl.cachedDesugaredApply", this, BlockModificationTracker(this)) {
     val resolvedConstructor = firstConstructorInvocation.flatMap(_.reference).flatMap(_.resolve().toOption)
     val constrParamLength = resolvedConstructor.map {
       case ScalaConstructor(constr)         => constr.effectiveParameterClauses.length
@@ -172,7 +172,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
         createExpressionWithContextFromText(desugaredText, getContext, this).toOption
       case _ => None
     }
-  })
+  }
 
  override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor, state: ResolveState,
                                           lastParent: PsiElement, place: PsiElement): Boolean =
@@ -212,9 +212,9 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
 
   override protected def isInterface(namedElement: PsiNamedElement): Boolean = false
 
-  override def psiMethods: Array[PsiMethod] = cachedInUserData("ScNewTemplateDefinitionImpl.psiMethods", this, ModTracker.libraryAware(this), {
+  override def psiMethods: Array[PsiMethod] = cachedInUserData("ScNewTemplateDefinitionImpl.psiMethods", this, ModTracker.libraryAware(this)) {
     getAllMethods.filter(_.containingClass == this)
-  })
+  }
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.NewKeyword
 

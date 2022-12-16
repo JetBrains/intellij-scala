@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.project._
 
 object SAMUtil {
   implicit class ScExpressionExt(private val expr: ScExpression) extends AnyVal {
-    def samTypeParent: Option[PsiClass] = cachedInUserData("SAMUtil.samTypeParent", expr, ModTracker.physicalPsiChange(expr.getProject), {
+    def samTypeParent: Option[PsiClass] = cachedInUserData("SAMUtil.samTypeParent", expr, ModTracker.physicalPsiChange(expr.getProject)) {
       if (expr.isSAMEnabled && isFunctionalExpression(expr)) {
         for {
           pt  <- expr.expectedType(fromUnderscore = false)
@@ -27,7 +27,7 @@ object SAMUtil {
           if cls.isSAMable
         } yield cls
       } else None
-    })
+    }
   }
 
   object SAMTypeImplementation {
@@ -132,11 +132,11 @@ object SAMUtil {
   }
 
   implicit class PsiClassToSAMExt(private val cls: PsiClass) extends AnyVal {
-    def isSAMable: Boolean = cachedInUserData("PsiClassToSAMExt.isSAMable", cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker, {
+    def isSAMable: Boolean = cachedInUserData("PsiClassToSAMExt.isSAMable", cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker) {
       hasValidConstructorAndSelfType(cls) && singleAbstractMethod(cls).isDefined
-    }: java.lang.Boolean)
+    }
 
-    private[SAMUtil] def singleAbstractMethodWithSubstitutor: Option[(PsiMethod, ScSubstitutor)] = cachedInUserData("PsiClassToSAMExt.isSAMable", cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker, {
+    private[SAMUtil] def singleAbstractMethodWithSubstitutor: Option[(PsiMethod, ScSubstitutor)] = cachedInUserData("PsiClassToSAMExt.isSAMable", cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker) {
       val abstractMembers = TypeDefinitionMembers.getSignatures(cls).allSignatures.filter(_.isAbstract).toSeq
       abstractMembers match {
         case Seq(PhysicalMethodSignature(m: PsiMethod, subst))
@@ -144,7 +144,7 @@ object SAMUtil {
           Option((m, subst))
         case _ => None
       }
-    })
+    }
   }
 
   /**

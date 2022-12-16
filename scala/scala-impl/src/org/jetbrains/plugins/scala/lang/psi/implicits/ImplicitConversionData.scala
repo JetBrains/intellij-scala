@@ -123,7 +123,7 @@ object ImplicitConversionData {
     }
 
 
-  private def rawCheck(function: ScFunction): Option[ImplicitConversionData] = cachedInUserData("ImplicitConversionData.rawCheck", function, ModTracker.libraryAware(function), Tuple1(function), {
+  private def rawCheck(function: ScFunction): Option[ImplicitConversionData] = cachedInUserData("ImplicitConversionData.rawCheck", function, ModTracker.libraryAware(function), Tuple1(function)) {
     for {
       retType   <- function.returnType.toOption
       param <- function.parameters.headOption
@@ -131,9 +131,9 @@ object ImplicitConversionData {
     } yield {
       new RegularImplicitConversionData(function, paramType, retType, ScSubstitutor.empty)
     }
-  })
+  }
 
-  private def rawElementWithFunctionTypeCheck(named: PsiNamedElement with Typeable): Option[ImplicitConversionData] = cachedInUserData("ImplicitConversionData.rawElementWithFunctionTypeCheck", named, ModTracker.libraryAware(named), Tuple1(named), {
+  private def rawElementWithFunctionTypeCheck(named: PsiNamedElement with Typeable): Option[ImplicitConversionData] = cachedInUserData("ImplicitConversionData.rawElementWithFunctionTypeCheck", named, ModTracker.libraryAware(named), Tuple1(named)) {
     for {
       function1Type <- named.elementScope.cachedFunction1Type
       elementType   <- named.`type`().toOption
@@ -141,7 +141,7 @@ object ImplicitConversionData {
     } yield {
       new ElementWithFunctionTypeData(named, elementType, ScSubstitutor.empty)
     }
-  })
+  }
 
   private def fromRegularImplicitConversion(function: ScFunction,
                                             substitutor: ScSubstitutor): Option[ImplicitConversionData] = {

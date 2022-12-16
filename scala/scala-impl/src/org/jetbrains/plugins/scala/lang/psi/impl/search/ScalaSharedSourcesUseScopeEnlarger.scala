@@ -39,11 +39,11 @@ class ScalaSharedSourcesUseScopeEnlarger extends UseScopeEnlarger {
     GlobalSearchScope.union(sharedModuleScopes)
   }
 
-  private def findSharedSourceModuleDependencies(file: PsiFile): Array[module.Module] = cachedInUserData("ScalaSharedSourcesUseScopeEnlarger.findSharedSourceModuleDependencies", file, ScalaPsiManager.instance(file.getProject).TopLevelModificationTracker, Tuple1(file), {
+  private def findSharedSourceModuleDependencies(file: PsiFile): Array[module.Module] = cachedInUserData("ScalaSharedSourcesUseScopeEnlarger.findSharedSourceModuleDependencies", file, ScalaPsiManager.instance(file.getProject).TopLevelModificationTracker, Tuple1(file)) {
     val module = ModuleUtilCore.findModuleForPsiElement(file)
     if (module == null)
       Array.empty
     else
       module.sharedSourceDependencies.toArray
-  })
+  }
 }

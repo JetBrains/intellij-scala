@@ -43,7 +43,7 @@ private final class Scala3MainMethodSyntheticClassFinder(project: Project)
     else null
   }
 
-  private def syntheticClassForFunction(function: ScFunction, qualifiedName: String): Scala3MainMethodSyntheticClass = cachedInUserData("Scala3MainMethodSyntheticClassFinder.syntheticClassForFunction", function, ModTracker.anyScalaPsiChange, (function, qualifiedName), {
+  private def syntheticClassForFunction(function: ScFunction, qualifiedName: String): Scala3MainMethodSyntheticClass = cachedInUserData("Scala3MainMethodSyntheticClassFinder.syntheticClassForFunction", function, ModTracker.anyScalaPsiChange, (function, qualifiedName)) {
     val params = function.parameterList.params
 
     val mainParams = if (isDefaultMainVarargs(params))
@@ -61,7 +61,7 @@ private final class Scala3MainMethodSyntheticClassFinder(project: Project)
       qualifiedName,
       mainParams
     )
-  })
+  }
 
   private def isDefaultMainVarargs(params: Seq[ScParameter]): Boolean = {
     if (params.size == 1) {

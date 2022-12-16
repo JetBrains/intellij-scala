@@ -86,9 +86,9 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
   })
 
-  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] = cachedInUserData("ScFunctionImpl.syntheticContextAppliedDefs", this, BlockModificationTracker(this), {
+  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] = cachedInUserData("ScFunctionImpl.syntheticContextAppliedDefs", this, BlockModificationTracker(this)) {
     ContextAppliedUtil.createSyntheticElementsFor(this, this.containingClass, parameters, typeParameters)
-  })
+  }
 
   override def processDeclarations(
     processor:  PsiScopeProcessor,
@@ -175,13 +175,13 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  private def getReturnTypeImpl: PsiType = cachedInUserData("ScFunctionImpl.getReturnTypeImpl", this, BlockModificationTracker(this), {
+  private def getReturnTypeImpl: PsiType = cachedInUserData("ScFunctionImpl.getReturnTypeImpl", this, BlockModificationTracker(this)) {
     val resultType = `type`().getOrAny match {
       case FunctionType(rt, _) => rt
       case tp => tp
     }
     resultType.toPsiType
-  })
+  }
 
   override def definedReturnType: TypeResult = {
     def renameTypeParams(superM: PsiMethod): ScSubstitutor = {
@@ -235,7 +235,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   override def isExtensionMethod: Boolean =
     byStubOrPsi(_.isExtensionMethod)(extensionMethodOwner.nonEmpty)
 
-  override def effectiveParameterClauses: Seq[ScParameterClause] = cachedInUserData("ScFunctionImpl.effectiveParameterClauses", this, BlockModificationTracker(this), {
+  override def effectiveParameterClauses: Seq[ScParameterClause] = cachedInUserData("ScFunctionImpl.effectiveParameterClauses", this, BlockModificationTracker(this)) {
     val maybeOwner = if (isConstructor) {
       containingClass match {
         case owner: ScTypeParametersOwner => Some(owner)
@@ -247,7 +247,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       maybeOwner.flatMap {
         ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()
       }
-  })
+  }
 
   /**
     * @return Empty array, if containing class is null.

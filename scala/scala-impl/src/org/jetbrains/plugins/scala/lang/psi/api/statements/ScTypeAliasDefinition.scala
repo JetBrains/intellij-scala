@@ -15,11 +15,11 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   def aliasedTypeElement: Option[ScTypeElement]
 
-  def aliasedType: TypeResult = cachedInUserData("ScTypeAliasDefinition.aliasedType", this, BlockModificationTracker(this), {
+  def aliasedType: TypeResult = cachedInUserData("ScTypeAliasDefinition.aliasedType", this, BlockModificationTracker(this)) {
     aliasedTypeElement.map {
       _.`type`()
     }.getOrElse(Failure(ScalaBundle.message("no.alias.type")))
-  })
+  }
 
   override def lowerBound: TypeResult = aliasedType
 

@@ -109,10 +109,12 @@ object ExtensionMethodData {
       }
     } else Map.empty
 
-  private def rawExtensionMethodCheck(function: ScFunction): Option[ExtensionMethodData] = cachedInUserData("ExtensionMethodData.rawExtensionMethodCheck", function, ModTracker.libraryAware(function), Tuple1(function), for {
-    retType <- function.returnType.toOption
-    ext <- function.extensionMethodOwner
-    targetTypeElem <- ext.targetTypeElement
-    targetType <- targetTypeElem.`type`().toOption
-  } yield new ExtensionMethodData(function, targetType, retType, ScSubstitutor.empty))
+  private def rawExtensionMethodCheck(function: ScFunction): Option[ExtensionMethodData] = cachedInUserData("ExtensionMethodData.rawExtensionMethodCheck", function, ModTracker.libraryAware(function), Tuple1(function)) {
+    for {
+      retType <- function.returnType.toOption
+      ext <- function.extensionMethodOwner
+      targetTypeElem <- ext.targetTypeElement
+      targetType <- targetTypeElem.`type`().toOption
+    } yield new ExtensionMethodData(function, targetType, retType, ScSubstitutor.empty)
+  }
 }

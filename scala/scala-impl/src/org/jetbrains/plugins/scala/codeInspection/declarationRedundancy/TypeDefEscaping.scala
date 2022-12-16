@@ -90,7 +90,7 @@ private[declarationRedundancy] object TypeDefEscaping {
   /**
    * Get the [[EscapeInfo]]s of a given `typeDef`'s members. See [[EscapeInfo]].
    */
-  def getEscapeInfosOfTypeDefMembers(typeDef: ScTypeDefinition): Seq[EscapeInfo] = cachedInUserData("TypeDefEscaping.getEscapeInfosOfTypeDefMembers", typeDef, ModTracker.anyScalaPsiChange, Tuple1(typeDef), {
+  def getEscapeInfosOfTypeDefMembers(typeDef: ScTypeDefinition): Seq[EscapeInfo] = cachedInUserData("TypeDefEscaping.getEscapeInfosOfTypeDefMembers", typeDef, ModTracker.anyScalaPsiChange, Tuple1(typeDef)) {
 
     val typeDefFile = typeDef.getContainingFile
 
@@ -151,5 +151,5 @@ private[declarationRedundancy] object TypeDefEscaping {
         info.escapingType.is[TypeParameterType]
       }
     }
-  })
+  }
 }

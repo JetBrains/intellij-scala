@@ -443,9 +443,9 @@ class ScalaPsiManager(implicit val project: Project) {
       ModTracker.libraryAware(clazz) match {
         case `rootManager`               => forLibraryClasses(clazz, withSupers)
         case TopLevelModificationTracker => forTopLevelClasses(clazz, withSupers)
-        case tracker => cachedInUserData("ScalaPsiManager.SignatureCaches.cachedMap", clazz, tracker, (clazz, nodes, withSupers), {
+        case tracker => cachedInUserData("ScalaPsiManager.SignatureCaches.cachedMap", clazz, tracker, (clazz, nodes, withSupers)) {
           nodes.build(clazz, withSupers)
-        })
+        }
       }
     }
   }

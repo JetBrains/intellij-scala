@@ -60,7 +60,7 @@ class ScGivenDefinitionImpl(
   override def parameters: Seq[ScParameter] =
     clauses.fold(Seq.empty[ScParameter])(_.params)
 
-  override def desugaredDefinitions: Seq[ScMember] = cachedInUserData("ScGivenDefinitionImpl.desugaredDefinitions", this, ModTracker.libraryAware(this), {
+  override def desugaredDefinitions: Seq[ScMember] = cachedInUserData("ScGivenDefinitionImpl.desugaredDefinitions", this, ModTracker.libraryAware(this)) {
     try {
       val supersText = extendsBlock.templateParents.fold("")(_.supersText)
 
@@ -96,7 +96,7 @@ class ScGivenDefinitionImpl(
       case p: ProcessCanceledException         => throw p
       case _: ScalaPsiElementCreationException => Seq.empty
     }
-  })
+  }
 
   override def processDeclarations(
     processor:  PsiScopeProcessor,
