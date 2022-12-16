@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
@@ -13,15 +13,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project._
 
 
 object SAMUtil {
   implicit class ScExpressionExt(private val expr: ScExpression) extends AnyVal {
-    @CachedInUserData(expr, ModTracker.physicalPsiChange(expr.getProject))
-    def samTypeParent: Option[PsiClass] =
+    def samTypeParent: Option[PsiClass] = cachedInUserData("SAMUtil.samTypeParent", expr, ModTracker.physicalPsiChange(expr.getProject)) {
       if (expr.isSAMEnabled && isFunctionalExpression(expr)) {
         for {
           pt  <- expr.expectedType(fromUnderscore = false)
@@ -29,6 +27,7 @@ object SAMUtil {
           if cls.isSAMable
         } yield cls
       } else None
+    }
   }
 
   object SAMTypeImplementation {
@@ -133,12 +132,11 @@ object SAMUtil {
   }
 
   implicit class PsiClassToSAMExt(private val cls: PsiClass) extends AnyVal {
-    @CachedInUserData(cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker)
-    def isSAMable: Boolean =
+    def isSAMable: Boolean = cachedInUserData("PsiClassToSAMExt.isSAMable", cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker) {
       hasValidConstructorAndSelfType(cls) && singleAbstractMethod(cls).isDefined
+    }
 
-    @CachedInUserData(cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker)
-    private[SAMUtil] def singleAbstractMethodWithSubstitutor: Option[(PsiMethod, ScSubstitutor)] = {
+    private[SAMUtil] def singleAbstractMethodWithSubstitutor: Option[(PsiMethod, ScSubstitutor)] = cachedInUserData("PsiClassToSAMExt.isSAMable", cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker) {
       val abstractMembers = TypeDefinitionMembers.getSignatures(cls).allSignatures.filter(_.isAbstract).toSeq
       abstractMembers match {
         case Seq(PhysicalMethodSignature(m: PsiMethod, subst))

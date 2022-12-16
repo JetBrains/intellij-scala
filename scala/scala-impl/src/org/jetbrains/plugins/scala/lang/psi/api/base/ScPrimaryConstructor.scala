@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.collection.immutable.ArraySeq
 
@@ -38,8 +37,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
    *
    * In addition, view and context bounds generate an additional implicit parameter section.
    */
-  @CachedInUserData(this, BlockModificationTracker(this))
-  override def effectiveParameterClauses: Seq[ScParameterClause] = {
+  override def effectiveParameterClauses: Seq[ScParameterClause] = cachedInUserData("ScPrimaryConstructor.effectiveParameterClauses", this, BlockModificationTracker(this)) {
     def emptyParameterList: ScParameterClause =
       ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(parameterList)
 

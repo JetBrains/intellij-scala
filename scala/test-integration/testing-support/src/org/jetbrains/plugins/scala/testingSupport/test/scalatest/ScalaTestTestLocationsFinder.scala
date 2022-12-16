@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala.testingSupport.test.scalatest
 
 import com.intellij.psi.PsiElement
 import com.intellij.util.concurrency.annotations.RequiresReadLock
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.{CachesUtil, cachedInUserData}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.testingSupport.test.utils.ScalaTestLocationsFinderUtils
 import org.jetbrains.plugins.scala.testingSupport.test.utils.ScalaTestLocationsFinderUtils.collectTestLocationsForRefSpec
 import org.scalatest.finders._
@@ -21,8 +20,7 @@ import org.scalatest.finders._
 object ScalaTestTestLocationsFinder {
 
   @RequiresReadLock
-  @CachedInUserData(definition, CachesUtil.fileModTracker(definition.getContainingFile))
-  def calculateTestLocations(definition: ScTypeDefinition): Seq[PsiElement] = {
+  def calculateTestLocations(definition: ScTypeDefinition): Seq[PsiElement] = cachedInUserData("ScalaTestTestLocationsFinder", definition, CachesUtil.fileModTracker(definition.getContainingFile), Tuple1(definition)) {
     //Thread.sleep(5000) // uncomment to test long resolve
     val module = definition.module
     val finder = module.flatMap(ScalaTestAstTransformer.getFinder(definition, _))

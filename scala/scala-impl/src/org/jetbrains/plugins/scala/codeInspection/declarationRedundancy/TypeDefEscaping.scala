@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 private[declarationRedundancy] object TypeDefEscaping {
 
@@ -91,8 +90,7 @@ private[declarationRedundancy] object TypeDefEscaping {
   /**
    * Get the [[EscapeInfo]]s of a given `typeDef`'s members. See [[EscapeInfo]].
    */
-  @CachedInUserData(typeDef, ModTracker.anyScalaPsiChange)
-  def getEscapeInfosOfTypeDefMembers(typeDef: ScTypeDefinition): Seq[EscapeInfo] = {
+  def getEscapeInfosOfTypeDefMembers(typeDef: ScTypeDefinition): Seq[EscapeInfo] = cachedInUserData("TypeDefEscaping.getEscapeInfosOfTypeDefMembers", typeDef, ModTracker.anyScalaPsiChange, Tuple1(typeDef)) {
 
     val typeDefFile = typeDef.getContainingFile
 

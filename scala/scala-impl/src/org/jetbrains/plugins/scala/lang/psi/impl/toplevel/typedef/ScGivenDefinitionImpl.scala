@@ -6,7 +6,7 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
-import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, StringsExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.ScalaPsi
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import javax.swing.Icon
 
@@ -61,8 +60,7 @@ class ScGivenDefinitionImpl(
   override def parameters: Seq[ScParameter] =
     clauses.fold(Seq.empty[ScParameter])(_.params)
 
-  @CachedInUserData(this, ModTracker.libraryAware(this))
-  override def desugaredDefinitions: Seq[ScMember] =
+  override def desugaredDefinitions: Seq[ScMember] = cachedInUserData("ScGivenDefinitionImpl.desugaredDefinitions", this, ModTracker.libraryAware(this)) {
     try {
       val supersText = extendsBlock.templateParents.fold("")(_.supersText)
 
@@ -98,6 +96,7 @@ class ScGivenDefinitionImpl(
       case p: ProcessCanceledException         => throw p
       case _: ScalaPsiElementCreationException => Seq.empty
     }
+  }
 
   override def processDeclarations(
     processor:  PsiScopeProcessor,

@@ -3,13 +3,12 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.CompositeElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscore
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -106,17 +105,15 @@ object ScUnderScoreSectionUtil {
   def isUnderscoreFunction(expr: ScExpression): Boolean = underscores(expr).nonEmpty
 
   /**Collects parameters of anonymous functions in placeholder syntax*/
-  @CachedInUserData(expr, ModTracker.anyScalaPsiChange)
-  def underscores(expr: ScExpression): Seq[ScUnderscoreSection] = {
-    if (!expr.isValid)
-      return Nil
+  def underscores(expr: ScExpression): Seq[ScUnderscoreSection] = cachedInUserData("ScUnderScoreSectionUtil.underscores", expr, ModTracker.anyScalaPsiChange, Tuple1(expr: ScExpression)) {
+    if (!expr.isValid) Nil else {
+      val underscores = ArrayBuffer.empty[ScUnderscoreSection]
+      collectUnderscoreNodes(expr.getNode, underscores)
 
-    val underscores = ArrayBuffer.empty[ScUnderscoreSection]
-    collectUnderscoreNodes(expr.getNode, underscores)
-
-    underscores
-      .filter(u => u.bindingExpr.isEmpty && u.overExpr.contains(expr))
-      .toList
+      underscores
+        .filter(u => u.bindingExpr.isEmpty && u.overExpr.contains(expr))
+        .toList
+    }
   }
 
   private def collectUnderscoreNodes(node: ASTNode, result: ArrayBuffer[ScUnderscoreSection]): Unit = {

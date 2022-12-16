@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
@@ -13,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, Parame
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.{ProjectContext, _}
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
@@ -289,14 +289,11 @@ package object types {
     }
   }
 
-  implicit class ScalaSeqExt(private val context: PsiElement) extends AnyVal {
-    @CachedInUserData(
-      context,
-      ScalaPsiManager.instance(context.getProject()).TopLevelModificationTracker
-    )
-    def scalaSeqFqn: String =
+  implicit class ScalaSeqExt(private val context: PsiElement) {
+    def scalaSeqFqn: String = cachedInUserData("ScalaSeqExt.scalaSeqFqn", context, ScalaPsiManager.instance(context.getProject).TopLevelModificationTracker) {
       if (context.newCollectionsFramework) "scala.collection.immutable.Seq"
-      else                                 "scala.collection.Seq"
+      else "scala.collection.Seq"
+    }
   }
 
   implicit class ScTypesExt(private val types: IterableOnce[ScType]) extends AnyVal {

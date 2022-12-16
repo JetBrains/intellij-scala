@@ -12,7 +12,7 @@ import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import com.intellij.ui.{IconManager, PlatformIcons}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.contextApplied.{ContextApplied, ContextAppliedUtil}
 import org.jetbrains.plugins.scala.icons.Icons
@@ -42,7 +42,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import javax.swing.Icon
 import scala.annotation.tailrec
@@ -87,9 +86,9 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
   })
 
-  @CachedInUserData(this, BlockModificationTracker(this))
-  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] =
+  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] = cachedInUserData("ScFunctionImpl.syntheticContextAppliedDefs", this, BlockModificationTracker(this)) {
     ContextAppliedUtil.createSyntheticElementsFor(this, this.containingClass, parameters, typeParameters)
+  }
 
   override def processDeclarations(
     processor:  PsiScopeProcessor,
@@ -166,23 +165,16 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   }
 
   override def getReturnType: PsiType = {
-    if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
+    if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered || isConstructor) {
       return null //no resolve during dumb mode or while synthetic classes is not registered
     }
-    if(isConstructor) {
-      null
-    } else {
-      getReturnTypeImpl
+    cachedInUserData("ScFunctionImpl.getReturnType", this, BlockModificationTracker(this)) {
+      val resultType = `type`().getOrAny match {
+        case FunctionType(rt, _) => rt
+        case tp => tp
+      }
+      resultType.toPsiType
     }
-  }
-
-  @CachedInUserData(this, BlockModificationTracker(this))
-  private def getReturnTypeImpl: PsiType = {
-    val resultType = `type`().getOrAny match {
-      case FunctionType(rt, _) => rt
-      case tp => tp
-    }
-    resultType.toPsiType
   }
 
   override def definedReturnType: TypeResult = {
@@ -237,8 +229,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   override def isExtensionMethod: Boolean =
     byStubOrPsi(_.isExtensionMethod)(extensionMethodOwner.nonEmpty)
 
-  @CachedInUserData(this, BlockModificationTracker(this))
-  override def effectiveParameterClauses: Seq[ScParameterClause] = {
+  override def effectiveParameterClauses: Seq[ScParameterClause] = cachedInUserData("ScFunctionImpl.effectiveParameterClauses", this, BlockModificationTracker(this)) {
     val maybeOwner = if (isConstructor) {
       containingClass match {
         case owner: ScTypeParametersOwner => Some(owner)

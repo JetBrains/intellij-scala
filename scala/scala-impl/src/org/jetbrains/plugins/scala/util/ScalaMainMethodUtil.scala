@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala.util
 
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.util.PsiMethodUtil
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 object ScalaMainMethodUtil {
 
@@ -55,16 +54,10 @@ object ScalaMainMethodUtil {
         case funDef: ScFunctionDefinition if isScala2MainMethod(funDef) => funDef
       }
 
-    @CachedInUserData(obj, BlockModificationTracker(obj))
-    def findMainMethodInner(): Option[PsiMethod] = {
+    if (!obj.isTopLevel) None else cachedInUserData("ScalaMainMethodUtil.findScala2MainMethod", obj, BlockModificationTracker(obj)) {
       val declared = declaredScala2Main(obj)
       val res = declared.orElse(Option(PsiMethodUtil.findMainMethod(new PsiClassWrapper(obj, obj.qualifiedName, obj.name))))
       res
     }
-
-    if (obj.isTopLevel)
-      findMainMethodInner()
-    else
-      None
   }
 }

@@ -17,13 +17,13 @@ import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -105,9 +105,9 @@ package object project {
 
   implicit class ModuleExt(private val module: Module) extends AnyVal {
 
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
-    private def scalaModuleSettings: Option[ScalaModuleSettings] =
+    private def scalaModuleSettings: Option[ScalaModuleSettings] = cachedInUserData("ModuleExt.scalaModuleSettings", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
       ScalaModuleSettings(module)
+    }
 
     def isBuildModule: Boolean =
       module.getName.endsWith(Sbt.BuildModuleSuffix)
@@ -162,8 +162,7 @@ package object project {
      * Selects dependent module for shared-sources module<br>
      * It first search for JVM, then for Js and then for Native
      */
-    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
-    def findRepresentativeModuleForSharedSourceModule: Option[Module] =
+    def findRepresentativeModuleForSharedSourceModule: Option[Module] = cachedInUserData("ModuleExt.findRepresentativeModuleForSharedSourceModule", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
       if (isSharedSourceModule) {
         val moduleManager = ModuleManager.getInstance(module.getProject)
         val dependents = moduleManager.getModuleDependentModules(module).asScala
@@ -172,6 +171,7 @@ package object project {
           .orElse(dependents.find(_.isScalaNative))
       }
       else None
+    }
 
     def findRepresentativeModuleForSharedSourceModuleOrSelf: Module =
       findRepresentativeModuleForSharedSourceModule.getOrElse(module)
@@ -355,8 +355,9 @@ package object project {
     def hasScala: Boolean = modulesWithScala.nonEmpty
 
     // TODO Generalize: hasScala(Version => Boolean), hasScala(_ >= Scala3)
-    @CachedInUserData(project, ProjectRootManager.getInstance(project))
-    def hasScala3: Boolean = modulesWithScala.exists(_.hasScala3)
+    def hasScala3: Boolean = cachedInUserData("ProjectExt.hasScala3", project, ProjectRootManager.getInstance(project)) {
+      modulesWithScala.exists(_.hasScala3)
+    }
 
     def indentationBasedSyntaxEnabled(features: ScalaFeatures): Boolean =
       features.isScala3 &&
@@ -371,9 +372,9 @@ package object project {
       if (project.isDisposed) Seq.empty
       else modulesWithScalaCached
 
-    @CachedInUserData(project, ProjectRootManager.getInstance(project))
-    private def modulesWithScalaCached: Seq[Module] =
+    private def modulesWithScalaCached: Seq[Module] = cachedInUserData("ProjectExt.modulesWithScalaCached", project, ProjectRootManager.getInstance(project)) {
       modules.filter(m => m.hasScala && !m.isBuildModule)
+    }
 
     def anyScalaModule: Option[Module] =
       modulesWithScala.headOption
@@ -431,23 +432,19 @@ package object project {
 
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {
 
-    def module: Option[Module] = {
-      val module1 = attachedFileModule
-      val module2 = module1.orElse(projectModule)
-      module2
-    }
-
-    @CachedInUserData(file, ProjectRootManager.getInstance(file.getProject))
-    private def projectModule: Option[Module] =
-      inReadAction { // assuming that most of the time it will be read from cache
-        val module = ModuleUtilCore.findModuleForPsiElement(file)
-        // for build.sbt files the appropriate module is the one with `-build` suffix
-        //noinspection ApiStatus
-        if (module != null && file.isInstanceOf[SbtFile])
-          findBuildModule(module)
-        else
-          Option(module)
+    def module: Option[Module] = attachedFileModule.orElse {
+      cachedInUserData("ProjectPsiFileExt.module", file, ProjectRootManager.getInstance(file.getProject)) {
+        inReadAction { // assuming that most of the time it will be read from cache
+          val module = ModuleUtilCore.findModuleForPsiElement(file)
+          // for build.sbt files the appropriate module is the one with `-build` suffix
+          //noinspection ApiStatus
+          if (module != null && file.isInstanceOf[SbtFile])
+            findBuildModule(module)
+          else
+            Option(module)
+        }
       }
+    }
 
     def scratchFileModule: Option[Module] =
       attachedFileModule

@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import java.util.regex.{Matcher, Pattern}
 
@@ -247,8 +246,15 @@ object ScalaCompletionUtil {
     member.containingClass match {
       case null => Set.empty
       case clazz =>
-        (inheritorObjectsInLibraries(clazz) ++ inheritorObjectsInProject(clazz))
-          .filterNot(o => isInExcludedPackage(o.qualifiedName, member.getProject))
+        val inheritorObjectsInProject: Set[ScObject] = cachedInUserData("ScalaCompletionUtil.findAllInheritorObjectsForOwner.inheritorObjectsInProject", clazz, BlockModificationTracker(clazz), Tuple1(clazz)) {
+          ScalaInheritors.allInheritorObjects(clazz)
+        }
+
+        val inheritorObjectsInLibraries: Set[ScObject] = cachedInUserData("ScalaCompletionUtil.findAllInheritorObjectsForOwner.inheritorObjectsInLibraries", clazz, ModTracker.libraryAware(clazz), Tuple1(clazz)) {
+          ScalaInheritors.allInheritorObjects(clazz)
+        }
+
+        (inheritorObjectsInLibraries ++ inheritorObjectsInProject).filterNot(o => isInExcludedPackage(o.qualifiedName, member.getProject))
     }
 
   def findPackageForTopLevelMember(member: ScMember): Option[ScPackaging] =
@@ -270,15 +276,5 @@ object ScalaCompletionUtil {
       createFileFromText(fileName, language, fileText)
       .asInstanceOf[ScalaFile]
     !checkErrors(dummyFile)
-  }
-
-  @CachedInUserData(clazz, BlockModificationTracker(clazz))
-  private def inheritorObjectsInProject(clazz: ScTemplateDefinition): Set[ScObject] = {
-    ScalaInheritors.allInheritorObjects(clazz)
-  }
-
-  @CachedInUserData(clazz, ModTracker.libraryAware(clazz))
-  private def inheritorObjectsInLibraries(clazz: ScTemplateDefinition): Set[ScObject] = {
-    ScalaInheritors.allInheritorObjects(clazz)
   }
 }

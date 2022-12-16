@@ -5,7 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 
@@ -123,39 +122,33 @@ object ImplicitConversionData {
           .toMap
     }
 
-
-  @CachedInUserData(function, ModTracker.libraryAware(function))
-  private def rawCheck(function: ScFunction): Option[ImplicitConversionData] = {
-    for {
-      retType   <- function.returnType.toOption
-      param <- function.parameters.headOption
-      paramType <- param.`type`().toOption
-    } yield {
-      new RegularImplicitConversionData(function, paramType, retType, ScSubstitutor.empty)
+  private def fromRegularImplicitConversion(function: ScFunction, substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
+    val rawCheck: Option[ImplicitConversionData] = cachedInUserData("ImplicitConversionData.fromRegularImplicitConversion.rawCheck", function, ModTracker.libraryAware(function), Tuple1(function)) {
+      for {
+        retType   <- function.returnType.toOption
+        param <- function.parameters.headOption
+        paramType <- param.`type`().toOption
+      } yield {
+        new RegularImplicitConversionData(function, paramType, retType, ScSubstitutor.empty)
+      }
     }
+
+    rawCheck.map(_.withSubstitutor(substitutor))
   }
 
-  @CachedInUserData(named, ModTracker.libraryAware(named))
-  private def rawElementWithFunctionTypeCheck(named: PsiNamedElement with Typeable): Option[ImplicitConversionData] = {
-    for {
-      function1Type <- named.elementScope.cachedFunction1Type
-      elementType   <- named.`type`().toOption
-      if elementType.conforms(function1Type)
-    } yield {
-      new ElementWithFunctionTypeData(named, elementType, ScSubstitutor.empty)
+  private def fromElementWithFunctionType(named: PsiNamedElement with Typeable, substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
+    val rawCheck: Option[ImplicitConversionData] = cachedInUserData("ImplicitConversionData.fromElementWithFunctionType.rawCheck", named, ModTracker.libraryAware(named), Tuple1(named)) {
+      for {
+        function1Type <- named.elementScope.cachedFunction1Type
+        elementType   <- named.`type`().toOption
+        if elementType.conforms(function1Type)
+      } yield {
+        new ElementWithFunctionTypeData(named, elementType, ScSubstitutor.empty)
+      }
     }
-  }
 
-  private def fromRegularImplicitConversion(function: ScFunction,
-                                            substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
-    rawCheck(function).map(_.withSubstitutor(substitutor))
+    rawCheck.map(_.withSubstitutor(substitutor))
   }
-
-  private def fromElementWithFunctionType(named: PsiNamedElement with Typeable,
-                                          substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
-    rawElementWithFunctionTypeCheck(named).map(_.withSubstitutor(substitutor))
-  }
-
 
   private class RegularImplicitConversionData(override val element: PsiNamedElement,
                                               rawParamType: ScType,

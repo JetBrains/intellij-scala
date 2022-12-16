@@ -6,12 +6,11 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, searches}
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModule.{Build, Imports}
@@ -67,33 +66,34 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
     }
   }
 
-  @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
-  private def targetModule: TargetModule = ModuleUtilCore.findModuleForPsiElement(this) match {
-    case null => ModuleLess
-    case module =>
-      val manager = ModuleManager.getInstance(getProject)
+  private def targetModule: TargetModule = cachedInUserData("SbtFileImpl.targetModule", this, ProjectRootManager.getInstance(getProject)) {
+    ModuleUtilCore.findModuleForPsiElement(this) match {
+      case null => ModuleLess
+      case module =>
+        val manager = ModuleManager.getInstance(getProject)
 
-      val moduleByUri = for {
-        SbtModuleData(_, buildURI) <- SbtUtil.getSbtModuleData(module)
+        val moduleByUri = for {
+          SbtModuleData(_, buildURI) <- SbtUtil.getSbtModuleData(module)
 
-        module <- manager.getModules.find { module =>
-          Build(module) == buildURI.uri
+          module <- manager.getModules.find { module =>
+            Build(module) == buildURI.uri
+          }
+        } yield module
+
+        val moduleFinal = moduleByUri.orElse {
+          //(original issue which Justin fixed: SCL-13600)
+          //This is the old way of finding a build module which breaks if the way the module name is assigned changes
+          // This branch should be non-actual for SBT projects (imported as SBT)
+          // TODO: improve it for BSP projects (in particular BSP projects with SBT server)
+          Option(manager.findModuleByName(module.getName + Sbt.BuildModuleSuffix))
         }
-      } yield module
-
-      val moduleFinal = moduleByUri.orElse {
-        //(original issue which Justin fixed: SCL-13600)
-        //This is the old way of finding a build module which breaks if the way the module name is assigned changes
-        // This branch should be non-actual for SBT projects (imported as SBT)
-        // TODO: improve it for BSP projects (in particular BSP projects with SBT server)
-        Option(manager.findModuleByName(module.getName + Sbt.BuildModuleSuffix))
-      }
-      moduleFinal
-        .map { module =>
-          val moduleWithDepsAndLibsScope = module.getModuleWithDependenciesAndLibrariesScope(false)
-          SbtModuleWithScope(module, moduleWithDepsAndLibsScope)
-        }
-        .getOrElse(DefinitionModule(module))
+        moduleFinal
+          .map { module =>
+            val moduleWithDepsAndLibsScope = module.getModuleWithDependenciesAndLibrariesScope(false)
+            SbtModuleWithScope(module, moduleWithDepsAndLibsScope)
+          }
+          .getOrElse(DefinitionModule(module))
+    }
   }
 }
 

@@ -76,11 +76,7 @@ object CachesUtil {
   }
 
   @unused("used in caching macro annotations")
-  def getOrCreateCachedRef[Dom: ProjectUserDataHolder, Result >: Null](elem: Dom,
-                                                                       key: Key[CachedRef[Result]],
-                                                                       cacheTypeId: String,
-                                                                       cacheTypeName: String,
-                                                                       dependencyItem: () => Object): AtomicReference[Result] = {
+  def getOrCreateCachedRef[Dom: ProjectUserDataHolder, Result](elem: Dom, key: Key[CachedRef[Result]], cacheTypeId: String, cacheTypeName: String, dependencyItem: () => Object): AtomicReference[Result] = {
     import CacheCapabilties._
     val cachedValue = elem.getUserData(key) match {
       case null =>
@@ -152,13 +148,13 @@ object CachesUtil {
         override def clear(cache: CacheType): Unit = realCache(cache).foreach(_.clear())
       }
 
-    implicit def atomicRefCacheCapabilities[Data, Result >: Null]: CacheCapabilities[CachedValue[AtomicReference[Result]]] =
+    implicit def atomicRefCacheCapabilities[Data, Result]: CacheCapabilities[CachedValue[AtomicReference[Result]]] =
       new CacheCapabilities[CachedValue[AtomicReference[Result]]] {
         private def realCache(cache: CacheType) = cache.getUpToDateOrNull.nullSafe.map(_.get())
 
         override def cachedEntitiesCount(cache: CacheType): Int = realCache(cache).fold(0)(c => if (c.get() == null) 0 else 1)
 
-        override def clear(cache: CacheType): Unit = realCache(cache).foreach(_.set(null))
+        override def clear(cache: CacheType): Unit = realCache(cache).foreach(_.set(null.asInstanceOf[Result]))
       }
 
     implicit def timestampedMapCacheCapabilities[M >: Null <: ConcurrentMap[_, _]]: CacheCapabilities[AtomicReference[Timestamped[M]]] =

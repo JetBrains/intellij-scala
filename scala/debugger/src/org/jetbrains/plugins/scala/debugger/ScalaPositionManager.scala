@@ -24,7 +24,7 @@ import com.intellij.xdebugger.frame.XStackFrame
 import com.sun.jdi._
 import com.sun.jdi.request.ClassPrepareRequest
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.caches.{ScalaShortNamesCacheManager, cachedInUserData}
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
@@ -43,7 +43,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.util.AnonymousFunction._
 import org.jetbrains.plugins.scala.util.TopLevelMembers.{findFileWithTopLevelMembers, topLevelMemberClassName}
 
@@ -707,11 +706,6 @@ object ScalaPositionManager {
   }
 
   def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
-    //stored in `file`, invalidated on `file` change
-    @CachedInUserData(file, file)
-    def cachedMap: ConcurrentIntObjectMap[Seq[PsiElement]] =
-      ConcurrentCollectionFactory.createConcurrentIntObjectMap()
-
     if (lineNumber < 0) return Seq.empty
 
     val scFile: ScalaFile = file match {
@@ -719,7 +713,10 @@ object ScalaPositionManager {
       case _ => return Seq.empty
     }
 
-    val map = cachedMap
+    //stored in `file`, invalidated on `file` change
+    val map: ConcurrentIntObjectMap[Seq[PsiElement]] = cachedInUserData("ScalaPositionManager.positionsOnLine.map", file, file) {
+      ConcurrentCollectionFactory.createConcurrentIntObjectMap()
+    }
 
     Option(map.get(lineNumber))
       .getOrElse(map.cacheOrGet(lineNumber, positionsOnLineInner(scFile, lineNumber)))

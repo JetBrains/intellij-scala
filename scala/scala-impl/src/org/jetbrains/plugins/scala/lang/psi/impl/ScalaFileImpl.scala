@@ -14,7 +14,7 @@ import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.psi.{FileResolveScopeProvider, FileViewProvider, PsiClass, PsiDocumentManager, PsiElement, PsiReference}
 import com.intellij.util.indexing.FileBasedIndex
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.{ResolveFilterScope, WorksheetResolveFilterScope}
 import org.jetbrains.plugins.scala.lang.TokenSets._
@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.{JavaArrayFactoryUtil, ScalaFileType}
 
 import java.{util => ju}
@@ -312,12 +311,12 @@ class ScalaFileImpl(
 
   override val allowsForwardReferences: Boolean = false
 
-  @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
-  override protected final def shouldNotProcessDefaultImport(fqn: String): Boolean =
+  override protected final def shouldNotProcessDefaultImport(fqn: String): Boolean = cachedInUserData("ScalaFileImpl.shouldNotProcessDefaultImport", this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker, Tuple1(fqn)) {
     typeDefinitions match {
       case Seq(head) => head.qualifiedName == fqn
       case _         => false
     }
+  }
 
   private var myContextModificationStamp: Long = 0
 

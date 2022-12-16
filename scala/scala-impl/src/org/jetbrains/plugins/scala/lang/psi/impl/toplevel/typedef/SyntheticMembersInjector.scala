@@ -4,7 +4,7 @@ import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.components.libextensions.DynamicExtensionPoint
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.collection.immutable.ArraySeq
 import scala.util.control.ControlThrowable
@@ -209,14 +208,13 @@ object SyntheticMembersInjector {
   private def templateBodyOrSynthetic(td: ScTypeDefinition): ScTemplateBody = {
     val extendsBlock = td.extendsBlock
 
-    @CachedInUserData(td, ModTracker.libraryAware(td))
-    def syntheticTemplateBody: ScTemplateBody = {
-      val body = ScalaPsiElementFactory.createTemplateBody(extendsBlock)(td.getProject)
-      body.context = extendsBlock
-      body.child = extendsBlock.getLastChild
-      body
+    extendsBlock.templateBody.getOrElse {
+      cachedInUserData("SyntheticMemberInjector.templateBodyOrSynthetic", td, ModTracker.libraryAware(td)) {
+        val body = ScalaPsiElementFactory.createTemplateBody(extendsBlock)(td.getProject)
+        body.context = extendsBlock
+        body.child = extendsBlock.getLastChild
+        body
+      }
     }
-
-    extendsBlock.templateBody.getOrElse(syntheticTemplateBody)
   }
 }

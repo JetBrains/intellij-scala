@@ -8,7 +8,7 @@ import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaLowerCase}
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.caches.{ScalaShortNamesCacheManager, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGivenDefinition, ScObject}
@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
   pack.getManager.asInstanceOf[PsiManagerEx],
@@ -63,9 +62,9 @@ final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
       true
   }
 
-  @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
-  override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] =
+  override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] = cachedInUserData("ScPackageImpl.findPackageObject", this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker, Tuple1(scope: GlobalSearchScope)) {
     ScalaShortNamesCacheManager.getInstance(getProject).findPackageObjectByName(getQualifiedName, scope)
+  }
 
   override def fqn: String = getQualifiedName
 

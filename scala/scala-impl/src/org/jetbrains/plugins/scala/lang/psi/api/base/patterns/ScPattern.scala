@@ -3,7 +3,7 @@ package patterns
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.FakeCompanionClassOrCompanionClass
@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
 import scala.meta.intellij.QuasiquoteInferUtil
@@ -52,8 +51,12 @@ object ScPattern {
 
     import pattern.{elementScope, projectContext}
 
-    @CachedInUserData(pattern, BlockModificationTracker(pattern))
-    def expectedType: Option[ScType] = {
+    def expectedType: Option[ScType] = cachedInUserData("ScPattern.expectedType", pattern, BlockModificationTracker(pattern)) {
+      _expectedType
+    }
+
+    // TODO Don't use the return keyword
+    private def _expectedType: Option[ScType] = {
       val psiManager = ScalaPsiManager.instance
 
       pattern.getContext match {

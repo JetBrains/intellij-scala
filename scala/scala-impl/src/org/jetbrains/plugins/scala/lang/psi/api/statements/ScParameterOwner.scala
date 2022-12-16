@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 trait ScParameterOwner extends ScalaPsiElement {
   def parameters: Seq[ScParameter]
@@ -18,10 +17,10 @@ trait ScParameterOwner extends ScalaPsiElement {
 
 object ScParameterOwner {
   trait WithContextBounds extends ScParameterOwner with ScTypeParametersOwner {
-    @CachedInUserData(this, BlockModificationTracker(this))
-    def effectiveParameterClauses: Seq[ScParameterClause] =
+    def effectiveParameterClauses: Seq[ScParameterClause] = cachedInUserData("ScParameterOwner.effectiveParameterClauses", this, BlockModificationTracker(this)) {
       allClauses ++ clauses.flatMap(
         ScalaPsiUtil.syntheticParamClause(this, _, isClassParameter = false)()
       )
+    }
   }
 }

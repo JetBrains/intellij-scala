@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.autoImport.GlobalExtensionMethod
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
-import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 
@@ -82,7 +81,16 @@ object ExtensionMethodData {
   def apply(function: ScFunction, substitutor: ScSubstitutor): Option[ExtensionMethodData] = {
     ProgressManager.checkCanceled()
 
-    rawExtensionMethodCheck(function).map(_.withSubstitutor(substitutor))
+    val rawCheck: Option[ExtensionMethodData] = cachedInUserData("ExtensionMethodData.apply.rawExtensionMethodCheck", function, ModTracker.libraryAware(function), Tuple1(function)) {
+      for {
+        retType <- function.returnType.toOption
+        ext <- function.extensionMethodOwner
+        targetTypeElem <- ext.targetTypeElement
+        targetType <- targetTypeElem.`type`().toOption
+      } yield new ExtensionMethodData(function, targetType, retType, ScSubstitutor.empty)
+    }
+
+    rawCheck.map(_.withSubstitutor(substitutor))
   }
 
   def getPossibleExtensionMethods(expr: ScExpression): Map[GlobalExtensionMethod, ExtensionMethodApplication] =
@@ -109,12 +117,4 @@ object ExtensionMethodData {
             .toMap
       }
     } else Map.empty
-
-  @CachedInUserData(function, ModTracker.libraryAware(function))
-  private def rawExtensionMethodCheck(function: ScFunction): Option[ExtensionMethodData] = for {
-    retType <- function.returnType.toOption
-    ext <- function.extensionMethodOwner
-    targetTypeElem <- ext.targetTypeElement
-    targetType <- targetTypeElem.`type`().toOption
-  } yield new ExtensionMethodData(function, targetType, retType, ScSubstitutor.empty)
 }
