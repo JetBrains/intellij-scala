@@ -49,21 +49,20 @@ object ScClsFileViewProvider {
 
     override def getVirtualFile: VirtualFile = getViewProvider.getVirtualFile
 
-    override def getNavigationElement: PsiElement =
-      findSourceForCompiledFile
+    override def getNavigationElement: PsiElement = {
+      val sourceForCompiledFile: Option[VirtualFile] = cachedInUserData("ScClsFileImpl.getNavigationElement.sourceForCompiledFile", this, ProjectRootManager.getInstance(getProject)) {
+        findSourceByRelativePath.orElse(findSourceByQualifiedName)
+      }
+
+      sourceForCompiledFile
         .flatMap(findPsiFile)
         .getOrElse(super.getNavigationElement)
+    }
 
     override protected def defaultFileResolveScope(file: VirtualFile): GlobalSearchScope = cachedInUserData("ScClsFileImpl.defaultFileResolveScope",  this, ProjectRootManager.getInstance(getProject), Tuple1(file)) {
       // this cache is very inefficient when orderEntries.size is large
       LibraryScopeCache.getInstance(manager.getProject)
         .getLibraryScope(orderEntries(file))
-    }
-
-    private def findSourceForCompiledFile: Option[VirtualFile] = cachedInUserData("ScClsFileImpl.findSourceForCompiledFile", this, ProjectRootManager.getInstance(getProject)) {
-      findSourceByRelativePath.orElse {
-        findSourceByQualifiedName
-      }
     }
 
     def findSourceByRelativePath: Option[VirtualFile] = {

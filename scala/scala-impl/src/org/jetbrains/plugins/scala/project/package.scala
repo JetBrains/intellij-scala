@@ -432,21 +432,17 @@ package object project {
 
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {
 
-    def module: Option[Module] = {
-      val module1 = attachedFileModule
-      val module2 = module1.orElse(projectModule)
-      module2
-    }
-
-    private def projectModule: Option[Module] = cachedInUserData("ProjectPsiFileExt.projectModule", file, ProjectRootManager.getInstance(file.getProject)) {
-      inReadAction { // assuming that most of the time it will be read from cache
-        val module = ModuleUtilCore.findModuleForPsiElement(file)
-        // for build.sbt files the appropriate module is the one with `-build` suffix
-        //noinspection ApiStatus
-        if (module != null && file.isInstanceOf[SbtFile])
-          findBuildModule(module)
-        else
-          Option(module)
+    def module: Option[Module] = attachedFileModule.orElse {
+      cachedInUserData("ProjectPsiFileExt.module", file, ProjectRootManager.getInstance(file.getProject)) {
+        inReadAction { // assuming that most of the time it will be read from cache
+          val module = ModuleUtilCore.findModuleForPsiElement(file)
+          // for build.sbt files the appropriate module is the one with `-build` suffix
+          //noinspection ApiStatus
+          if (module != null && file.isInstanceOf[SbtFile])
+            findBuildModule(module)
+          else
+            Option(module)
+        }
       }
     }
 

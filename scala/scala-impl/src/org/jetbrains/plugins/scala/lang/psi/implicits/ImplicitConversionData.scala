@@ -122,37 +122,33 @@ object ImplicitConversionData {
           .toMap
     }
 
-
-  private def rawCheck(function: ScFunction): Option[ImplicitConversionData] = cachedInUserData("ImplicitConversionData.rawCheck", function, ModTracker.libraryAware(function), Tuple1(function)) {
-    for {
-      retType   <- function.returnType.toOption
-      param <- function.parameters.headOption
-      paramType <- param.`type`().toOption
-    } yield {
-      new RegularImplicitConversionData(function, paramType, retType, ScSubstitutor.empty)
+  private def fromRegularImplicitConversion(function: ScFunction, substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
+    val rawCheck: Option[ImplicitConversionData] = cachedInUserData("ImplicitConversionData.fromRegularImplicitConversion.rawCheck", function, ModTracker.libraryAware(function), Tuple1(function)) {
+      for {
+        retType   <- function.returnType.toOption
+        param <- function.parameters.headOption
+        paramType <- param.`type`().toOption
+      } yield {
+        new RegularImplicitConversionData(function, paramType, retType, ScSubstitutor.empty)
+      }
     }
+
+    rawCheck.map(_.withSubstitutor(substitutor))
   }
 
-  private def rawElementWithFunctionTypeCheck(named: PsiNamedElement with Typeable): Option[ImplicitConversionData] = cachedInUserData("ImplicitConversionData.rawElementWithFunctionTypeCheck", named, ModTracker.libraryAware(named), Tuple1(named)) {
-    for {
-      function1Type <- named.elementScope.cachedFunction1Type
-      elementType   <- named.`type`().toOption
-      if elementType.conforms(function1Type)
-    } yield {
-      new ElementWithFunctionTypeData(named, elementType, ScSubstitutor.empty)
+  private def fromElementWithFunctionType(named: PsiNamedElement with Typeable, substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
+    val rawCheck: Option[ImplicitConversionData] = cachedInUserData("ImplicitConversionData.fromElementWithFunctionType.rawCheck", named, ModTracker.libraryAware(named), Tuple1(named)) {
+      for {
+        function1Type <- named.elementScope.cachedFunction1Type
+        elementType   <- named.`type`().toOption
+        if elementType.conforms(function1Type)
+      } yield {
+        new ElementWithFunctionTypeData(named, elementType, ScSubstitutor.empty)
+      }
     }
-  }
 
-  private def fromRegularImplicitConversion(function: ScFunction,
-                                            substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
-    rawCheck(function).map(_.withSubstitutor(substitutor))
+    rawCheck.map(_.withSubstitutor(substitutor))
   }
-
-  private def fromElementWithFunctionType(named: PsiNamedElement with Typeable,
-                                          substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
-    rawElementWithFunctionTypeCheck(named).map(_.withSubstitutor(substitutor))
-  }
-
 
   private class RegularImplicitConversionData(override val element: PsiNamedElement,
                                               rawParamType: ScType,

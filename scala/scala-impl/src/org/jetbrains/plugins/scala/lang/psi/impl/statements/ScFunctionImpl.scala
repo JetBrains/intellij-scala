@@ -165,22 +165,16 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   }
 
   override def getReturnType: PsiType = {
-    if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
+    if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered || isConstructor) {
       return null //no resolve during dumb mode or while synthetic classes is not registered
     }
-    if(isConstructor) {
-      null
-    } else {
-      getReturnTypeImpl
+    cachedInUserData("ScFunctionImpl.getReturnType", this, BlockModificationTracker(this)) {
+      val resultType = `type`().getOrAny match {
+        case FunctionType(rt, _) => rt
+        case tp => tp
+      }
+      resultType.toPsiType
     }
-  }
-
-  private def getReturnTypeImpl: PsiType = cachedInUserData("ScFunctionImpl.getReturnTypeImpl", this, BlockModificationTracker(this)) {
-    val resultType = `type`().getOrAny match {
-      case FunctionType(rt, _) => rt
-      case tp => tp
-    }
-    resultType.toPsiType
   }
 
   override def definedReturnType: TypeResult = {

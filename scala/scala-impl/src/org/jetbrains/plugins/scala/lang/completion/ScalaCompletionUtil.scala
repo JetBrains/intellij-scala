@@ -246,8 +246,15 @@ object ScalaCompletionUtil {
     member.containingClass match {
       case null => Set.empty
       case clazz =>
-        (inheritorObjectsInLibraries(clazz) ++ inheritorObjectsInProject(clazz))
-          .filterNot(o => isInExcludedPackage(o.qualifiedName, member.getProject))
+        val inheritorObjectsInProject: Set[ScObject] = cachedInUserData("ScalaCompletionUtil.findAllInheritorObjectsForOwner.inheritorObjectsInProject", clazz, BlockModificationTracker(clazz), Tuple1(clazz)) {
+          ScalaInheritors.allInheritorObjects(clazz)
+        }
+
+        val inheritorObjectsInLibraries: Set[ScObject] = cachedInUserData("ScalaCompletionUtil.findAllInheritorObjectsForOwner.inheritorObjectsInLibraries", clazz, ModTracker.libraryAware(clazz), Tuple1(clazz)) {
+          ScalaInheritors.allInheritorObjects(clazz)
+        }
+
+        (inheritorObjectsInLibraries ++ inheritorObjectsInProject).filterNot(o => isInExcludedPackage(o.qualifiedName, member.getProject))
     }
 
   def findPackageForTopLevelMember(member: ScMember): Option[ScPackaging] =
@@ -269,13 +276,5 @@ object ScalaCompletionUtil {
       createFileFromText(fileName, language, fileText)
       .asInstanceOf[ScalaFile]
     !checkErrors(dummyFile)
-  }
-
-  private def inheritorObjectsInProject(clazz: ScTemplateDefinition): Set[ScObject] = cachedInUserData("ScalaCompletionUtil.inheritorObjectsInProject", clazz, BlockModificationTracker(clazz), Tuple1(clazz)) {
-    ScalaInheritors.allInheritorObjects(clazz)
-  }
-
-  private def inheritorObjectsInLibraries(clazz: ScTemplateDefinition): Set[ScObject] = cachedInUserData("ScalaCompletionUtil.inheritorObjectsInLibraries", clazz, ModTracker.libraryAware(clazz), Tuple1(clazz)) {
-    ScalaInheritors.allInheritorObjects(clazz)
   }
 }

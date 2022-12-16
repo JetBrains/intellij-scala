@@ -211,7 +211,7 @@ package object completion {
         case element => locallyStableParent(element.getParent)
       }
 
-    def cachedFor(positionInCompletionFile: PsiElement): Option[PsiElement] = cachedInUserData("completion.mirrorPosition.cachedFor", originalFile, CachesUtil.fileModTracker(originalFile), Tuple1(positionInCompletionFile)) {
+    cachedInUserData("completion.mirrorPosition", originalFile, CachesUtil.fileModTracker(originalFile), Tuple1(positionInCompletionFile)) {
       val placeOffset = positionInCompletionFile match {
         case ElementType(ScalaTokenTypes.tIDENTIFIER) => positionInCompletionFile.getParent.startOffset
         case _                                        => positionInCompletionFile.startOffset
@@ -232,8 +232,6 @@ package object completion {
         copy.getContainingFile.findElementAt(newOffset)
       }
     }
-
-    cachedFor(positionInCompletionFile)
   }
 
   private[completion] def dummyIdentifier(file: PsiFile, offset: Int): String = {

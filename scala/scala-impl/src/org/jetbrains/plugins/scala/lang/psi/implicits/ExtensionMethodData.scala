@@ -81,7 +81,16 @@ object ExtensionMethodData {
   def apply(function: ScFunction, substitutor: ScSubstitutor): Option[ExtensionMethodData] = {
     ProgressManager.checkCanceled()
 
-    rawExtensionMethodCheck(function).map(_.withSubstitutor(substitutor))
+    val rawCheck: Option[ExtensionMethodData] = cachedInUserData("ExtensionMethodData.apply.rawExtensionMethodCheck", function, ModTracker.libraryAware(function), Tuple1(function)) {
+      for {
+        retType <- function.returnType.toOption
+        ext <- function.extensionMethodOwner
+        targetTypeElem <- ext.targetTypeElement
+        targetType <- targetTypeElem.`type`().toOption
+      } yield new ExtensionMethodData(function, targetType, retType, ScSubstitutor.empty)
+    }
+
+    rawCheck.map(_.withSubstitutor(substitutor))
   }
 
   def getPossibleExtensionMethods(expr: ScExpression): Map[GlobalExtensionMethod, ExtensionMethodApplication] =
@@ -108,13 +117,4 @@ object ExtensionMethodData {
             .toMap
       }
     } else Map.empty
-
-  private def rawExtensionMethodCheck(function: ScFunction): Option[ExtensionMethodData] = cachedInUserData("ExtensionMethodData.rawExtensionMethodCheck", function, ModTracker.libraryAware(function), Tuple1(function)) {
-    for {
-      retType <- function.returnType.toOption
-      ext <- function.extensionMethodOwner
-      targetTypeElem <- ext.targetTypeElement
-      targetType <- targetTypeElem.`type`().toOption
-    } yield new ExtensionMethodData(function, targetType, retType, ScSubstitutor.empty)
-  }
 }

@@ -706,11 +706,6 @@ object ScalaPositionManager {
   }
 
   def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
-    //stored in `file`, invalidated on `file` change
-    def cachedMap: ConcurrentIntObjectMap[Seq[PsiElement]] = cachedInUserData("ScalaPositionManager.positionsOnLine.cachedMap", file, file) {
-      ConcurrentCollectionFactory.createConcurrentIntObjectMap()
-    }
-
     if (lineNumber < 0) return Seq.empty
 
     val scFile: ScalaFile = file match {
@@ -718,7 +713,10 @@ object ScalaPositionManager {
       case _ => return Seq.empty
     }
 
-    val map = cachedMap
+    //stored in `file`, invalidated on `file` change
+    val map: ConcurrentIntObjectMap[Seq[PsiElement]] = cachedInUserData("ScalaPositionManager.positionsOnLine.map", file, file) {
+      ConcurrentCollectionFactory.createConcurrentIntObjectMap()
+    }
 
     Option(map.get(lineNumber))
       .getOrElse(map.cacheOrGet(lineNumber, positionsOnLineInner(scFile, lineNumber)))

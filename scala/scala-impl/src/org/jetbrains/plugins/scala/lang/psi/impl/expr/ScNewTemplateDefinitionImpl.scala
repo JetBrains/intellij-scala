@@ -135,44 +135,41 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   }
 
   override def desugaredApply: Option[ScExpression] = {
-    if (firstConstructorInvocation.forall(_.arguments.size <= 1)) None
-    else cachedDesugaredApply
-  }
-
-  //It's very rare case, when we need to desugar `.apply` first.
-  private def cachedDesugaredApply: Option[ScExpression] = cachedInUserData("ScNewTemplateDefinitionImpl.cachedDesugaredApply", this, BlockModificationTracker(this)) {
-    val resolvedConstructor = firstConstructorInvocation.flatMap(_.reference).flatMap(_.resolve().toOption)
-    val constrParamLength = resolvedConstructor.map {
-      case ScalaConstructor(constr)         => constr.effectiveParameterClauses.length
-      case JavaConstructor(_)               => 1
-      case _                                => -1
-    }
-    val excessArgs =
-      for {
-        arguments   <- firstConstructorInvocation.map(_.arguments)
-        paramLength <- constrParamLength
-        if paramLength >= 0
-      } yield {
-        arguments.drop(paramLength)
+    if (firstConstructorInvocation.forall(_.arguments.size <= 1)) None else cachedInUserData("ScNewTemplateDefinitionImpl.desugaredApply", this, BlockModificationTracker(this)) {
+      //It's very rare case, when we need to desugar `.apply` first.
+      val resolvedConstructor = firstConstructorInvocation.flatMap(_.reference).flatMap(_.resolve().toOption)
+      val constrParamLength = resolvedConstructor.map {
+        case ScalaConstructor(constr)         => constr.effectiveParameterClauses.length
+        case JavaConstructor(_)               => 1
+        case _                                => -1
       }
-
-    excessArgs match {
-      case Some(args) if args.nonEmpty =>
-        val desugaredText = {
-          val firstArgListOfApply = args.head
-          val startOffsetInThis   = firstArgListOfApply.getTextRange.getStartOffset - this.getTextRange.getStartOffset
-
-          val thisText            = getText
-          val newTemplateDefText  = thisText.substring(0, startOffsetInThis)
-          val applyArgsText       = thisText.substring(startOffsetInThis)
-
-          s"($newTemplateDefText)$applyArgsText"
+      val excessArgs =
+        for {
+          arguments   <- firstConstructorInvocation.map(_.arguments)
+          paramLength <- constrParamLength
+          if paramLength >= 0
+        } yield {
+          arguments.drop(paramLength)
         }
 
-        createExpressionWithContextFromText(desugaredText, getContext, this).toOption
-      case _ => None
+      excessArgs match {
+        case Some(args) if args.nonEmpty =>
+          val desugaredText = {
+            val firstArgListOfApply = args.head
+            val startOffsetInThis   = firstArgListOfApply.getTextRange.getStartOffset - this.getTextRange.getStartOffset
+
+            val thisText            = getText
+            val newTemplateDefText  = thisText.substring(0, startOffsetInThis)
+            val applyArgsText       = thisText.substring(startOffsetInThis)
+
+            s"($newTemplateDefText)$applyArgsText"
+          }
+
+          createExpressionWithContextFromText(desugaredText, getContext, this).toOption
+        case _ => None
+      }
     }
-  }
+ }
 
  override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor, state: ResolveState,
                                           lastParent: PsiElement, place: PsiElement): Boolean =

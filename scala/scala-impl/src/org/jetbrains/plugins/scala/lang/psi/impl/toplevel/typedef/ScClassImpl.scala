@@ -144,19 +144,15 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
   }
 
   override def getSyntheticImplicitMethod: Option[ScFunction] = {
-    if (hasModifierProperty("implicit") && constructor.nonEmpty)
-      syntheticImplicitMethod
-    else None
-  }
-
-  private def syntheticImplicitMethod: Option[ScFunction] = cachedInUserData("ScClassImpl.syntheticImplicitMethod", this, ModTracker.libraryAware(this)) {
-    try {
-      val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
-      method.syntheticNavigationElement = this
-      Some(method)
-    } catch {
-      case p: ProcessCanceledException         => throw p
-      case _: ScalaPsiElementCreationException => None
+    if (!hasModifierProperty("implicit") || constructor.isEmpty) None else cachedInUserData("ScClassImpl.getSyntheticImplicitMethod", this, ModTracker.libraryAware(this)) {
+      try {
+        val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
+        method.syntheticNavigationElement = this
+        Some(method)
+      } catch {
+        case p: ProcessCanceledException         => throw p
+        case _: ScalaPsiElementCreationException => None
+      }
     }
   }
 

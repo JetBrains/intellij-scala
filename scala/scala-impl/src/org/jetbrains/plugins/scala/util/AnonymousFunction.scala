@@ -60,22 +60,19 @@ private[scala] object AnonymousFunction {
   }
 
   def isGenerateAnonfun211(elem: PsiElement): Boolean = {
-
-    def isAnonfunCached: Boolean = cachedInUserData("AnonymousFunction.isGenerateAnonfun211.isAnonfunCached", elem, BlockModificationTracker(elem)) {
-      elem match {
-        case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
-        case b: ScBlock if b.isPartialFunction => false //handled in isGenerateAnonfunSimple
-        case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
-        case ScalaPsiUtil.MethodValue(_) => true
-        case ChildOf(argExprs: ScArgumentExprList) & InsideAsync(call)
-          if call.args == argExprs => true
-        case _ => false
-      }
-    }
-
     def isGenerateAnonfunWithCache: Boolean = {
       if (elem == null || !elem.isValid || DumbService.isDumb(elem.getProject)) false
-      else isAnonfunCached
+      else cachedInUserData("AnonymousFunction.isGenerateAnonfun211.isAnonfunCached", elem, BlockModificationTracker(elem)) {
+        elem match {
+          case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
+          case b: ScBlock if b.isPartialFunction => false //handled in isGenerateAnonfunSimple
+          case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
+          case ScalaPsiUtil.MethodValue(_) => true
+          case ChildOf(argExprs: ScArgumentExprList) & InsideAsync(call)
+            if call.args == argExprs => true
+          case _ => false
+        }
+      }
     }
 
     def isGenerateAnonfunSimple: Boolean = {

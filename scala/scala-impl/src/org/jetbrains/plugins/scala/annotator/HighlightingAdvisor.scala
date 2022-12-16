@@ -57,7 +57,7 @@ object HighlightingAdvisor {
   }
 
   private def isInIgnoredRange(element: PsiElement, file: PsiFile): Boolean = {
-    def ignoredRanges(): Set[TextRange] = cachedInUserData("HighlightingAdvisor.isInIgnoredRange.ignoredRanges", file, file.getManager.getModificationTracker) {
+    val ignoredRanges = cachedInUserData("HighlightingAdvisor.isInIgnoredRange.ignoredRanges", file, file.getManager.getModificationTracker) {
       val chars = file.charSequence
       val indexes = mutable.ArrayBuffer.empty[Int]
       var lastIndex = 0
@@ -75,9 +75,7 @@ object HighlightingAdvisor {
         res
       }
     }
-
-    val ignored = ignoredRanges()
-    if (ignored.isEmpty || element.isInstanceOf[PsiFile]) false
+    if (ignoredRanges.isEmpty || element.isInstanceOf[PsiFile]) false
     else {
       val noCommentWhitespace = element.children.find {
         case _: PsiComment | _: PsiWhiteSpace => false
@@ -87,7 +85,7 @@ object HighlightingAdvisor {
         noCommentWhitespace
           .map(_.getTextOffset)
           .getOrElse(element.getTextOffset)
-      ignored.exists(_.contains(offset))
+      ignoredRanges.exists(_.contains(offset))
     }
   }
 }

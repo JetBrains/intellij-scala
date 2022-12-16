@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.search
 import com.intellij.openapi.module
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope, UseScopeEnlarger}
-import com.intellij.psi.{PsiElement, PsiFile, PsiMember}
+import com.intellij.psi.{PsiElement, PsiMember}
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -26,7 +26,11 @@ class ScalaSharedSourcesUseScopeEnlarger extends UseScopeEnlarger {
     if (!ScalaProjectSettings.getInstance(psiFile.getProject).isEnableBackReferencesFromSharedSources)
       return null
 
-    val sharedModules = findSharedSourceModuleDependencies(psiFile)
+    val sharedModules: Array[module.Module] = cachedInUserData("ScalaSharedSourcesUseScopeEnlarger.getAdditionalUseScope.sharedModules", psiFile, ScalaPsiManager.instance(psiFile.getProject).TopLevelModificationTracker, Tuple1(psiFile)) {
+      val module = ModuleUtilCore.findModuleForPsiElement(psiFile)
+      if (module == null) Array.empty else module.sharedSourceDependencies.toArray
+    }
+
     if (sharedModules.isEmpty)
       return null
 
@@ -37,13 +41,5 @@ class ScalaSharedSourcesUseScopeEnlarger extends UseScopeEnlarger {
 
     val sharedModuleScopes = sharedModules.map(_.getModuleScope(true))
     GlobalSearchScope.union(sharedModuleScopes)
-  }
-
-  private def findSharedSourceModuleDependencies(file: PsiFile): Array[module.Module] = cachedInUserData("ScalaSharedSourcesUseScopeEnlarger.findSharedSourceModuleDependencies", file, ScalaPsiManager.instance(file.getProject).TopLevelModificationTracker, Tuple1(file)) {
-    val module = ModuleUtilCore.findModuleForPsiElement(file)
-    if (module == null)
-      Array.empty
-    else
-      module.sharedSourceDependencies.toArray
   }
 }
