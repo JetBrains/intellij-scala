@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.{elementIsTypeDefWhichEscapesDirectParent, getPipeline}
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.TypeDefEscaping.getEscapeInfosOfTypeDefMembers
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.TypeDefEscaping.getEscapingTypes
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection
@@ -173,11 +173,9 @@ private object ScalaAccessCanBeTightenedInspection {
           val containingTypeDef = Option(td.containingClass).flatMap(_.asOptionOf[ScTypeDefinition])
           val containingTypeDefCompanion = containingTypeDef.flatMap(_.baseCompanion)
 
-          val escapeInfos = (containingTypeDef ++ containingTypeDefCompanion).flatMap(getEscapeInfosOfTypeDefMembers)
+          val escapingTypes = (containingTypeDef ++ containingTypeDefCompanion).flatMap(getEscapingTypes)
 
-          escapeInfos.exists { info =>
-            info.member != td && info.escapingType.conforms(designatorType)
-          }
+          escapingTypes.exists(info => info._1 != td && info._2.exists(_.conforms(designatorType)))
 
         case _ => false
       }
