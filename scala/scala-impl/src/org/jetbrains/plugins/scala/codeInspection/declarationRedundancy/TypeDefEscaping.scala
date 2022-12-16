@@ -13,26 +13,20 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
+
+/**
+ * Utility to scrape all types that escape through public members of a given type definition. The current use
+ * case is to assist in [[ScalaAccessCanBeTightenedInspection]], but maybe it could also be used to improve
+ * our error highlighting. See SCL-20855.
+ *
+ * [[getEscapeInfos]] is the main and only entrypoint.
+ */
 private[declarationRedundancy] object TypeDefEscaping {
 
   /**
-   * A member and a type that escapes through it. For example:
-   *
-   * {{{def foo[T <: A]: Seq[Bar]}}}
-   *
-   * This member will have 2 [[EscapeInfo]]s associated with it:
-   * {{{(foo, A) and (foo, Bar)}}}
-   *
-   * Note that [[EscapeInfo]]s for `Seq` and `A` are initially instantiated by [[getEscapeInfosOfTypeDefMembers]],
-   * but ultimately discarded by [[isScTypeDefinedInFile]] and `is[TypeParameterType]` respectively.
-   */
-  final case class EscapeInfo(member: ScMember, escapingType: ScType)
-
-  /**
-   * If an `EscapeInfo`'s `escapingType` is parameterized, this method will destructure it into a list of
-   * `EscapeInfo`s with non-parameterized types. Note that there are at least 2 seemingly different forms
-   * I'm currently aware of that are both handled here, and that both are crucial in detecting escaping
-   * type definitions.
+   * If any of the scraped [[ScType]] instances are parameterized, this method will destructure those into a list of
+   * non-parameterized [[ScType]] instances. Note that there are at least 2 seemingly different forms I'm currently
+   * aware of, that are both handled here, and that are equally crucial in detecting escaping type definitions.
    *
    * Form 1: A => B.
    * Let's take the below example:
@@ -53,19 +47,12 @@ private[declarationRedundancy] object TypeDefEscaping {
    * If the return type is a parameterized type of the form `A[B]`, this type is also destructured
    * into a list of its non-parameterized constituents. So `Option[Seq[B]]` becomes `Option, Seq, B`.
    *
-   * The resulting [[EscapeInfo]]s will all have the same member associated with them as this recursive
-   * method's root input does.
-   *
-   * If `info.escapingType` is not a parameterized type, the same info is returned, wrapped in a `Seq`.
+   * Any types that are not parameterized are returned in their original form.
    */
-  private def destructureParameterizedTypes(info: EscapeInfo): Seq[EscapeInfo] = info match {
-    case EscapeInfo(member: ScMember, parameterizedType: ScParameterizedType) =>
-
-      val outerTypeEscapeInfo = Seq(EscapeInfo(member, parameterizedType.designator))
-
-      outerTypeEscapeInfo ++ parameterizedType.typeArguments.flatMap(t => destructureParameterizedTypes(EscapeInfo(member, t)))
-
-    case escapeInfo => Seq(escapeInfo)
+  private def destructureParameterizedTypes(types: Seq[ScType]): Seq[ScType] = types.flatMap {
+    case parameterizedType: ScParameterizedType =>
+      parameterizedType.designator +: destructureParameterizedTypes(parameterizedType.typeArguments)
+    case t => Seq(t)
   }
 
   /**
@@ -87,30 +74,62 @@ private[declarationRedundancy] object TypeDefEscaping {
         typeParam.contextBoundTypeElement
     }.flatMap(_.`type`().toSeq)
 
+  final class EscapeInfo(val member: ScMember, val types: Seq[ScType])
+
+  private final object EscapeInfo {
+    def apply(member: ScMember, types: Seq[ScType]) = new EscapeInfo(member, types)
+  }
+
   /**
-   * Get the [[EscapeInfo]]s of a given `typeDef`'s members. See [[EscapeInfo]].
+   * Recursively scrape all types that escape through public members of `typeDef`.
+   *
+   * The result is a list of [[EscapeInfo]]s, associating a public member with a list of the types that escape through it.
+   *
+   * Keep in mind that it's the client code's responsibility to exclude irrelevant members when consuming the results.
+   * For example:
+   * {{{
+   * object Foo {
+   *   class Bar
+   *   def f(): Bar = new Bar
+   * }
+   * }}}
+   * Let's say you want to figure out if `Bar` can be private. In that case you want to get the types that
+   * escape through members of `Bar`'s direct parent, which is `Foo`. Naturally the `Foo`'s collection of members
+   * includes `Bar`, so when you iterate through `getEscapeInfos`'s results, you have to skip `Bar`.
+   *
+   * The reason `getEscapeInfos` caches and returns all public members of `Foo` and not just `Bar`'s siblings, is so
+   * we can reuse cached results when we're running the same inspection against a sibling type definition of `Bar`.
+   *
+   * Another caveat is that when you ask for escaping types of members of `Foo`, you will also want to do that for
+   * `Foo`'s companion (if it has one). Again, this is the responsibility of client code, and again this design is
+   * the result of the fact that we want to cache any reusable results.
+   *
+   * See [[ScalaAccessCanBeTightenedInspection]] for example usage.
    */
-  def getEscapeInfosOfTypeDefMembers(typeDef: ScTypeDefinition): Seq[EscapeInfo] = cachedInUserData("TypeDefEscaping.getEscapeInfosOfTypeDefMembers", typeDef, ModTracker.anyScalaPsiChange, Tuple1(typeDef)) {
+  def getEscapeInfos(typeDef: ScTypeDefinition): Seq[EscapeInfo] = cachedInUserData("TypeDefEscaping.getEscapeInfosOfTypeDefMembers", typeDef, ModTracker.anyScalaPsiChange, Tuple1(typeDef)) {
 
     val typeDefFile = typeDef.getContainingFile
 
-    typeDef.members.flatMap { member =>
+    def destructureAndFilter(types: Seq[ScType]): Seq[ScType] =
+      destructureParameterizedTypes(types)
+        .filter(t => isScTypeDefinedInFile(t, typeDefFile))
+        .filterNot(_.is[TypeParameterType])
+
+    typeDef.members.collect { member =>
 
       ProgressManager.checkCanceled()
 
-      val escapeInfos = member match {
-
+      member match {
         case typeDef: ScTypeDefinition if !isPrivate(typeDef) =>
 
-          val typeDefEscapeInfo = (typeDef.`type`().toSeq ++ getTypeParameterTypes(typeDef)).map(EscapeInfo(typeDef, _))
+          val types = typeDef.`type`().toSeq ++ getTypeParameterTypes(typeDef)
+          val childTypes = (typeDef +: typeDef.baseCompanion.toSeq).flatMap(getEscapeInfos)
 
-          val typeDefAndCompanion = typeDef +: typeDef.baseCompanion.toSeq
-          val typeDefAndCompanionMembersEscapeInfos = typeDefAndCompanion.flatMap(getEscapeInfosOfTypeDefMembers)
-
-          typeDefAndCompanionMembersEscapeInfos ++ typeDefEscapeInfo
+          EscapeInfo(typeDef, destructureAndFilter(types)) +: childTypes
 
         case typeAlias: ScTypeAliasDefinition if !isPrivate(typeAlias) =>
-          (getTypeParameterTypes(typeAlias) ++ typeAlias.aliasedType.toSeq).map(EscapeInfo(typeAlias, _))
+          val types = getTypeParameterTypes(typeAlias) ++ typeAlias.aliasedType.toSeq
+          Seq(EscapeInfo(typeAlias, destructureAndFilter(types)))
 
         case primaryConstructor: ScPrimaryConstructor =>
 
@@ -123,33 +142,23 @@ private[declarationRedundancy] object TypeDefEscaping {
             primaryConstructor.parameters.filterNot(p => isPrivateOrNonMember(p) && p.getDefaultExpression.isEmpty)
           }
 
-          parametersThroughWhichTypeDefsCanEscape.flatMap(p => p.`type`().toSeq.map(EscapeInfo(p, _)))
+          val types = parametersThroughWhichTypeDefsCanEscape.flatMap(p => p.`type`().toSeq)
+
+          Seq(EscapeInfo(primaryConstructor, destructureAndFilter(types)))
 
         case function: ScFunction if !isPrivate(function) =>
 
-          val returnAndParameterTypes: Seq[ScType] = function.`type`().toSeq
+          val returnAndParameterTypes = function.`type`().toSeq
+          val types = returnAndParameterTypes ++ getTypeParameterTypes(function)
 
-          (returnAndParameterTypes ++ getTypeParameterTypes(function)).map(EscapeInfo(function, _))
+          Seq(EscapeInfo(function, destructureAndFilter(types)))
 
         case typeable: Typeable if !isPrivate(typeable) =>
-          typeable.`type`().toSeq.map(EscapeInfo(typeable, _))
+          val types = typeable.`type`().toSeq
+          Seq(EscapeInfo(typeable, destructureAndFilter(types)))
 
-        case _ =>
-          Seq.empty
+        case _ => Seq.empty
       }
-
-      escapeInfos.flatMap { escapeInfo =>
-        val destructuredTypes = destructureParameterizedTypes(escapeInfo)
-        destructuredTypes
-      }.filter { escapeInfo =>
-        val typeIsDefinedInSameFileAsTypeDef = isScTypeDefinedInFile(escapeInfo.escapingType, typeDefFile)
-        typeIsDefinedInSameFileAsTypeDef
-      }.filterNot { info =>
-        // Here we filter out type variables like `T` in `T <: Foo`, because a conformance check between
-        // a given type definition and `T` yields the same results as a conformance check between that same
-        // type definition and `Foo`.
-        info.escapingType.is[TypeParameterType]
-      }
-    }
+    }.flatten
   }
 }
