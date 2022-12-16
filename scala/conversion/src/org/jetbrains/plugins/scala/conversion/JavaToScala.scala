@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
-import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import com.intellij.psi.util.{JavaPsiPatternUtil, PsiTreeUtil, PsiUtil}
 import com.siyeh.ig.psiutils.{ControlFlowUtils, CountingLoop, ExpressionUtils}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.conversion.ast.CommentsCollector.UsedComments
@@ -264,7 +264,14 @@ object JavaToScala {
 
         val iteratedValue = Option(f.getIteratedValue).map(convertPsiToIntermediate(_, externalProperties))
         val body = Option(f.getBody).map(convertPsiToIntermediate(_, externalProperties))
-        val name = convertPsiToIntermediate(f.getIterationParameter.getNameIdentifier, externalProperties)
+        val nameIdentifier = f.getIterationDeclaration match {
+          case param: PsiParameter => param.getNameIdentifier
+          case pattern: PsiPattern =>
+            val variable = JavaPsiPatternUtil.getPatternVariable(pattern)
+            if (variable != null) variable.getNameIdentifier else null
+          case _ => null
+        }
+        val name = convertPsiToIntermediate(nameIdentifier, externalProperties)
         ForeachStatement(name, iteratedValue, body, isJavaCollection)
       case r: PsiReferenceExpression =>
         val args = Option(r.getParameterList).map(convertPsiToIntermediate(_, externalProperties))
