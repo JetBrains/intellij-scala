@@ -126,7 +126,7 @@ class ScalaInjectionTestFixture(
         val host = manager.getInjectionHost(actualInjectedFile.getViewProvider)
 
         val actualShreds = new ArrayBuffer[ShredInfo]
-        manager.enumerate(host, (_, places: util.List[PsiLanguageInjectionHost.Shred]) => {
+        manager.enumerate(host, (_, places: util.List[_ <: PsiLanguageInjectionHost.Shred]) => {
           actualShreds ++= places.asScala.map(it => ShredInfo(it.getRange, it.getRangeInsideHost, it.getPrefix, it.getSuffix))
         })
 
