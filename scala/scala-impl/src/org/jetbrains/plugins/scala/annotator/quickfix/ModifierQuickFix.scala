@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
+import java.util.Collections
+
 sealed abstract class ModifierQuickFix(listOwner: ScModifierListOwner)
                                       (@Nls modifierToText: String => String)
                                       (modifier: ScalaModifier, value: Boolean = false)
@@ -66,11 +68,11 @@ object ModifierQuickFix {
 
       // Should be handled by auto formatting
       val textRange = modifierList.getTextRange
-      CodeStyleManager.getInstance(project).reformatText(
-        file,
-        textRange.getStartOffset,
-        textRange.getEndOffset
-      )
+      val codeStyleManager = CodeStyleManager.getInstance(project)
+      if (textRange.isEmpty)
+        codeStyleManager.adjustLineIndent(file, textRange)
+      else
+        codeStyleManager.reformatText(file, Collections.singleton(textRange))
     }
 
     override protected def withListOwner(newListOwner: ScModifierListOwner): Remove =
