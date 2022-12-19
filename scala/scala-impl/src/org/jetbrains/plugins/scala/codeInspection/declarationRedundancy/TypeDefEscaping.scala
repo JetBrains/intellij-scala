@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
  * case is to assist in [[ScalaAccessCanBeTightenedInspection]], but maybe it could also be used to improve
  * our error highlighting. See SCL-20855.
  *
- * [[getEscapeInfos]] is the main and only entrypoint.
+ * [[elementIsTypeDefWhichEscapesItsDefiningScopeWhenItIsPrivate]] is the main and only entrypoint.
  */
 private[declarationRedundancy] object TypeDefEscaping {
 
@@ -85,7 +85,7 @@ private[declarationRedundancy] object TypeDefEscaping {
    *
    * The result is a list of [[EscapeInfo]]s, associating a public member with a list of the types that escape through it.
    *
-   * Keep in mind that it's the client code's responsibility to exclude irrelevant members when consuming the results.
+   * Keep in mind that the caller of this method is responsible for excluding irrelevant members when consuming the results.
    * For example:
    * {{{
    * object Foo {
@@ -101,12 +101,11 @@ private[declarationRedundancy] object TypeDefEscaping {
    * we can reuse cached results when we're running the same inspection against a sibling type definition of `Bar`.
    *
    * Another caveat is that when you ask for escaping types of members of `Foo`, you will also want to do that for
-   * `Foo`'s companion (if it has one). Again, this is the responsibility of client code, and again this design is
-   * the result of the fact that we want to cache any reusable results.
+   * `Foo`'s companion (if it has one). Again, this is the responsibility of callers of this method, which is what.
    *
-   * See [[ScalaAccessCanBeTightenedInspection]] for example usage.
+   * For a typical usage example, see [[elementIsTypeDefWhichEscapesItsDefiningScopeWhenItIsPrivate]].
    */
-  def getEscapeInfos(typeDef: ScTypeDefinition): Seq[EscapeInfo] = cachedInUserData("TypeDefEscaping.getEscapeInfosOfTypeDefMembers", typeDef, ModTracker.anyScalaPsiChange, Tuple1(typeDef)) {
+  private def getEscapeInfos(typeDef: ScTypeDefinition): Seq[EscapeInfo] = cachedInUserData("TypeDefEscaping.getEscapeInfosOfTypeDefMembers", typeDef, ModTracker.anyScalaPsiChange, Tuple1(typeDef)) {
 
     val typeDefFile = typeDef.getContainingFile
 
@@ -160,5 +159,27 @@ private[declarationRedundancy] object TypeDefEscaping {
         case _ => Seq.empty
       }
     }.flatten
+  }
+
+  def elementIsTypeDefWhichEscapesItsDefiningScopeWhenItIsPrivate(element: ScNamedElement): Boolean = element match {
+    case td: ScTypeDefinition =>
+
+      td.`type`() match {
+
+        case Right(tdType) =>
+
+          val designatorType = tdType.asOptionOf[ScParameterizedType].map(_.designator).getOrElse(tdType)
+
+          val containingTypeDef = Option(td.containingClass).flatMap(_.asOptionOf[ScTypeDefinition])
+          val containingTypeDefCompanion = containingTypeDef.flatMap(_.baseCompanion)
+
+          val escapeInfos = (containingTypeDef ++ containingTypeDefCompanion).flatMap(getEscapeInfos)
+
+          escapeInfos.exists(info => info.member != td && info.types.exists(_.conforms(designatorType)))
+
+        case _ => false
+      }
+
+    case _ => false
   }
 }
