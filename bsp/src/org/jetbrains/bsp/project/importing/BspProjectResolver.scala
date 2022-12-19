@@ -1,9 +1,5 @@
 package org.jetbrains.bsp.project.importing
 
-import java.io.File
-import java.util.Collections
-import java.util.concurrent.CompletableFuture
-
 import ch.epfl.scala.bsp4j._
 import com.intellij.build.events.impl.SuccessResultImpl
 import com.intellij.openapi.externalSystem.model.project._
@@ -23,10 +19,13 @@ import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspTaskCancelled, BspUtil}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
 
+import java.io.File
+import java.util.Collections
+import java.util.concurrent.CompletableFuture
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
 import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
@@ -170,31 +169,47 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
   // special handling for sbt projects: run bloopInstall first
   // TODO support other bloop-enabled build tools as well
-  private def preImport(executionSettings: BspExecutionSettings, workspace: File)(implicit reporter: BuildReporter): Try[BuildMessages] = {
-    import BspProjectSettings._
-
-    val emptySuccess = Success(BuildMessages.empty.status(BuildMessages.OK))
-    def isSbtProject = new File(workspace, "build.sbt").exists()
-
+  private def preImport(
+    executionSettings: BspExecutionSettings,
+    workspace: File
+  )(implicit reporter: BuildReporter): Try[BuildMessages] = {
     if (executionSettings.runPreImportTask) {
-      executionSettings.preImportTask match {
-        case BspProjectSettings.NoPreImport =>
-          emptySuccess
-        case BspProjectSettings.AutoPreImport =>
-          if (executionSettings.config == AutoConfig && bloopConfigDir(workspace).isDefined && isSbtProject)
-            runBloopInstall(workspace)
-          else if (MillProjectImportProvider.canImport(workspace))
-            MillProjectImportProvider.bspInstall(workspace)
-          else emptySuccess
-        case BspProjectSettings.BloopSbtPreImport =>
-          runBloopInstall(workspace)
-        case BspProjectSettings.MillBspPreImport =>
-          MillProjectImportProvider.bspInstall(workspace)
-      }
-    } else emptySuccess
+      val preImportTask = executionSettings.preImportTask
+      val config = executionSettings.config
+      installBSP(workspace, preImportTask, config)
+    }
+    else EmptyBuildMessagesSuccess
   }
 
-  @tailrec private def waitForProjectCancelable[T](projectJob: BspJob[(DataNode[ProjectData], BuildMessages)]): Try[(DataNode[ProjectData], BuildMessages)] =
+  private val EmptyBuildMessagesSuccess: Success[BuildMessages] = Success(BuildMessages.empty.status(BuildMessages.OK))
+
+  private def installBSP(
+    workspace: File,
+    preImportTask: BspProjectSettings.PreImportConfig,
+    bspServerConfig: BspProjectSettings.BspServerConfig
+  )(implicit reporter: BuildReporter): Try[BuildMessages] = {
+    def isSbtProject(workspace: File) = new File(workspace, "build.sbt").exists()
+
+    //TODO: runBloopInstall changes `importState` inside
+    // however `MillProjectImportProvider.bspInstall(workspace)`
+    // The latter was added by contributor, so this might be just a bug?
+    preImportTask match {
+      case BspProjectSettings.NoPreImport =>
+        EmptyBuildMessagesSuccess
+      case BspProjectSettings.AutoPreImport =>
+        if (bspServerConfig == BspProjectSettings.AutoConfig && bloopConfigDir(workspace).isDefined && isSbtProject(workspace))
+          runBloopInstall(workspace)
+        else if (MillProjectImportProvider.canImport(workspace))
+          MillProjectImportProvider.bspInstall(workspace)
+        else EmptyBuildMessagesSuccess
+      case BspProjectSettings.BloopSbtPreImport =>
+        runBloopInstall(workspace)
+      case BspProjectSettings.MillBspPreImport =>
+        MillProjectImportProvider.bspInstall(workspace)
+    }
+  }
+
+  @tailrec private def waitForProjectCancelable(projectJob: BspJob[(DataNode[ProjectData], BuildMessages)]): Try[(DataNode[ProjectData], BuildMessages)] =
 
     importState match {
       case Active | PreImportTask(_) | BspTask(_) =>
