@@ -1,8 +1,5 @@
 package org.jetbrains.bsp.project.importing
 
-import java.awt.BorderLayout
-import java.io.File
-import java.nio.file.{Path, Paths}
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
@@ -11,18 +8,22 @@ import com.intellij.ui.TitledSeparator
 import com.intellij.ui.components.JBList
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.ui.UI
-import javax.swing.{DefaultListModel, JComponent, JPanel, ListSelectionModel}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.bsp.{BspBundle, BspUtil}
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.ConfigSetupTask
 import org.jetbrains.bsp.project.importing.bspConfigSteps._
 import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, FastpassConfigSetup, NoConfigSetup, SbtConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
+import org.jetbrains.bsp.{BspBundle, BspUtil}
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectImportProvider
+
+import java.awt.BorderLayout
+import java.io.File
+import java.nio.file.Path
+import javax.swing.{DefaultListModel, JComponent, JPanel, ListSelectionModel}
 
 object bspConfigSteps {
 
@@ -80,39 +81,57 @@ object bspConfigSteps {
     else List(NoSetup)
   }
 
-  def configureBuilder(builder: BspProjectImportBuilder, workspace: File, configSetup: ConfigSetup): BspConfigSetup = {
+  def configureBuilder(
+    builder: BspProjectImportBuilder,
+    workspace: File,
+    configSetup: ConfigSetup
+  ): BspConfigSetup = {
+    val BuilderConfigurationParameters(
+      setup: BspConfigSetup,
+      preImportConfig: Option[PreImportConfig],
+      serverConfig: Option[BspServerConfig],
+      externalBspWorkspace: Option[Path]
+    ) = getBuilderConfigurationParameters(workspace, configSetup)
+
+    preImportConfig.foreach(builder.setPreImportConfig)
+    serverConfig.foreach(builder.setServerConfig)
+    externalBspWorkspace.foreach(builder.setExternalBspWorkspace)
+
+    setup
+  }
+
+  case class BuilderConfigurationParameters(
+    bspConfigSetup: BspConfigSetup,
+    preImportConfig: Option[PreImportConfig],
+    serverConfig: Option[BspServerConfig],
+    externalBspWorkspace: Option[Path]
+  )
+
+  def getBuilderConfigurationParameters(
+    workspace: File,
+    configSetup: ConfigSetup
+  ): BuilderConfigurationParameters = {
     val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(workspace)
-    if (workspaceBspConfigs.size == 1) {
-      builder.setPreImportConfig(NoPreImport)
-      builder.setServerConfig(BspConfigFile(workspaceBspConfigs.head._1.toPath))
-      NoConfigSetup
-    } else configSetup match {
-        case bspConfigSteps.NoSetup =>
-          builder.setPreImportConfig(AutoPreImport)
-          builder.setServerConfig(AutoConfig)
-          NoConfigSetup
-        case bspConfigSteps.BloopSetup =>
-          builder.setPreImportConfig(NoPreImport)
-          builder.setServerConfig(BloopConfig)
-          NoConfigSetup
-        case bspConfigSteps.BloopSbtSetup =>
-          builder.setPreImportConfig(BloopSbtPreImport)
-          builder.setServerConfig(BloopConfig)
-          NoConfigSetup
-        case bspConfigSteps.SbtSetup =>
-          builder.setPreImportConfig(NoPreImport)
-          // server config to be set in next step
-          SbtConfigSetup(workspace)
-        case bspConfigSteps.MillSetup =>
-          builder.setPreImportConfig(MillBspPreImport)
-          builder.setServerConfig(AutoConfig)
-          NoConfigSetup
-        case bspConfigSteps.FastpassSetup =>
-          builder.setPreImportConfig(NoPreImport)
-          val bspWorkspace = FastpassConfigSetup.computeBspWorkspace(workspace)
-          builder.setExternalBspWorkspace(bspWorkspace)
-          FastpassConfigSetup.create(workspace).fold(throw _, identity)
-      }
+
+    val tuple = if (workspaceBspConfigs.size == 1)
+      (NoConfigSetup, Some(NoPreImport), Some(BspConfigFile(workspaceBspConfigs.head._1.toPath)), None)
+    else configSetup match {
+      case bspConfigSteps.NoSetup =>
+        (NoConfigSetup, Some(AutoPreImport), Some(AutoConfig), None)
+      case bspConfigSteps.BloopSetup =>
+        (NoConfigSetup, Some(NoPreImport), Some(BloopConfig), None)
+      case bspConfigSteps.BloopSbtSetup =>
+        (NoConfigSetup, Some(BloopSbtPreImport), Some(BloopConfig), None)
+      case bspConfigSteps.SbtSetup =>
+        (SbtConfigSetup(workspace), Some(NoPreImport), None, None) // server config to be set in next step
+      case bspConfigSteps.MillSetup =>
+        (NoConfigSetup, Some(MillBspPreImport), Some(AutoConfig), None)
+      case bspConfigSteps.FastpassSetup =>
+        val bspWorkspace = FastpassConfigSetup.computeBspWorkspace(workspace)
+        val configSetup: BspConfigSetup = FastpassConfigSetup.create(workspace).fold(throw _, identity)
+        (configSetup, Some(NoPreImport), None, Some(bspWorkspace))
+    }
+    BuilderConfigurationParameters.tupled.apply(tuple)
   }
 
   def workspaceSetupChoices(workspace: File): List[ConfigSetup] = {
@@ -155,7 +174,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
   private val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(setupTaskWorkspace)
   private lazy val workspaceSetupConfigs: List[ConfigSetup] = workspaceSetupChoices(setupTaskWorkspace)
 
-  private val configSetupChoices = {
+  private val configSetupChoices: Seq[ConfigSetup] = {
     if (workspaceBspConfigs.size == 1) List(NoSetup)
     else if (workspaceSetupConfigs.nonEmpty) workspaceSetupConfigs
     else List(NoSetup)
