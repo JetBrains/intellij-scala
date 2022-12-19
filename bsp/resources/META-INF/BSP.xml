@@ -73,6 +73,8 @@
     </projectListeners>
 
     <actions>
+        <action id="BSP.RegenerateBspConfigurationFile"
+                class="org.jetbrains.bsp.project.importing.experimental.GenerateBspConfigurationFile"/>
     </actions>
 
 
