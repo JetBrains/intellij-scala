@@ -1,10 +1,9 @@
 package org.jetbrains.bsp.protocol
 
-import java.io.File
-import java.util.concurrent.atomic.AtomicReference
-
 import com.google.gson.Gson
+import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
@@ -13,6 +12,7 @@ import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.project.BspExternalSystemManager
+import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspServerConnector._
@@ -22,10 +22,13 @@ import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.plugins.scala.build.BuildReporter
+import org.jetbrains.plugins.scala.util.NotificationUtil
 
-import scala.jdk.CollectionConverters._
+import java.io.File
+import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 class BspCommunication private[protocol](base: File, config: BspServerConfig) extends Disposable {
@@ -45,8 +48,7 @@ class BspCommunication private[protocol](base: File, config: BspServerConfig) ex
     }
     argvExitCommands
   }
-  private def acquireSessionAndRun(job: BspSessionJob[_,_])(implicit reporter: BuildReporter):
-  Either[BspError, BspSession] = session.synchronized {
+  private def acquireSessionAndRun(job: BspSessionJob[_,_])(implicit reporter: BuildReporter): Either[BspError, BspSession] = session.synchronized {
     session.get() match {
       case Some(currentSession) =>
         if (currentSession.isAlive) Right(currentSession)
@@ -65,6 +67,14 @@ class BspCommunication private[protocol](base: File, config: BspServerConfig) ex
         val procLogMsg = BspBundle.message("bsp.protocol.connection.failed", error.getMessage)
         job.log(procLogMsg)
         log.warn("BSP connection failed", error)
+
+        error match {
+          case BspConnectionFileError(_, _) =>
+            val project = findProject
+            project.foreach(showRegenerateBspConnectionFileNotification)
+          case _ =>
+        }
+
         Left(error)
       case Right(newSessionBuilder) =>
         newSessionBuilder
@@ -77,7 +87,45 @@ class BspCommunication private[protocol](base: File, config: BspServerConfig) ex
     }
   }
 
-  private def findProject: Option[Project] =
+  //see SCL-20865
+  private def showRegenerateBspConnectionFileNotification(project: Project): Unit = {
+    val RegenerateFileAndReloadAction = new NotificationAction(BspBundle.message("regenerate.file.and.reload")) {
+      override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+        generateBspCommunicationFile(project)
+        refreshProject(project)
+
+        notification.hideBalloon()
+      }
+    }
+    val RegenerateFileAction = new NotificationAction(BspBundle.message("regenerate.file")) {
+      override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+        generateBspCommunicationFile(project)
+
+        notification.hideBalloon()
+      }
+    }
+    NotificationUtil
+      .builder(project, BspBundle.message("unable.to.read.bsp.connection.file"))
+      .addAction(RegenerateFileAndReloadAction)
+      .addAction(RegenerateFileAction)
+      .show()
+  }
+
+  private def generateBspCommunicationFile(project: Project): Unit = {
+    val generateBspConfig = new GenerateBspConfig(project, base)
+    generateBspConfig.runSynchronously()
+  }
+
+  private def refreshProject(project: Project): Unit = {
+    // We save all documents because there is a possible case that there is an external system config file changed inside the ide
+    FileDocumentManager.getInstance.saveAllDocuments()
+    val systemId = BSP.ProjectSystemId
+    if (ExternalSystemUtil.confirmLoadingUntrustedProject(project, systemId)) {
+      ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, systemId))
+    }
+  }
+
+  private def findProject =
     for {
       vfsPath <- Option(VfsUtil.findFileByIoFile(base, false))
       project <- Option(ProjectUtil.guessProjectForFile(vfsPath))
@@ -163,7 +211,10 @@ object BspCommunication {
   }
 
 
-  private def prepareSession(base: File, config: BspServerConfig)(implicit reporter: BuildReporter): Either[BspError, Builder] = {
+  private def prepareSession(
+    base: File,
+    config: BspServerConfig
+  )(implicit reporter: BuildReporter): Either[BspError, Builder] = {
 
     // TODO supported languages should be extendable
     val supportedLanguages = List("scala","java")
@@ -175,7 +226,7 @@ object BspCommunication {
     val connector: Either[BspError, BspServerConnector] = config match {
 
       case BspProjectSettings.AutoConfig =>
-        // only use workspace configs for autodetection, system configs might not be applicable
+        // only use workspace configs for auto-detection, system configs might not be applicable
         val connectionDetails = BspConnectionConfig.workspaceBspConfigs(base)
         val configuredMethods = connectionDetails.map(_._2).map(ProcessBsp)
         if (connectionDetails.nonEmpty)
@@ -197,7 +248,7 @@ object BspCommunication {
             val method = ProcessBsp(details)
             new GenericConnector(base, compilerOutputDir, capabilities, List(method))
           }.toEither.left
-          .map(cause => BspConnectionError(s"Unable to read BSP connection file at $path", cause))
+          .map(cause => BspConnectionFileError(path, cause))
     }
 
     connector.flatMap(_.connect(reporter))

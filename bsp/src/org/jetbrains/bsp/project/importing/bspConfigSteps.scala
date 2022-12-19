@@ -3,13 +3,14 @@ package org.jetbrains.bsp.project.importing
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
+import com.intellij.openapi.util.NlsContexts
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.TitledSeparator
 import com.intellij.ui.components.JBList
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.ui.UI
 import org.jetbrains.annotations.Nls
-import org.jetbrains.bsp.project.importing.BspSetupConfigStep.ConfigSetupTask
+import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
 import org.jetbrains.bsp.project.importing.bspConfigSteps._
 import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, FastpassConfigSetup, NoConfigSetup, SbtConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
@@ -174,49 +175,34 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
   private val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(setupTaskWorkspace)
   private lazy val workspaceSetupConfigs: List[ConfigSetup] = workspaceSetupChoices(setupTaskWorkspace)
 
-  private val configSetupChoices: Seq[ConfigSetup] = {
+  private val configSetupChoices: List[ConfigSetup] = {
     if (workspaceBspConfigs.size == 1) List(NoSetup)
     else if (workspaceSetupConfigs.nonEmpty) workspaceSetupConfigs
     else List(NoSetup)
   }
 
-  private val myComponent = new JPanel()
-  private val chooseBspSetupModel = new DefaultListModel[String]
-  private val chooseBspSetup = new JBList[String](chooseBspSetupModel)
+  private val bspSetupConfigStepUi = new BspSetupConfigStepUi(BspBundle.message("bsp.config.steps.setup.config.choose.tool"), configSetupChoices)
 
-  {
-    val chooseSetupTitle = new TitledSeparator(BspBundle.message("bsp.config.steps.setup.config.choose.tool"))
-    val titleWithTip = withTooltip(chooseSetupTitle, BspBundle.message("bsp.config.steps.setup.config.choose.tool.tooltip"))
-    addTitledList(myComponent, titleWithTip, chooseBspSetup)
-  }
 
-  override def getComponent: JComponent = myComponent
+  override def getComponent: JComponent = bspSetupConfigStepUi.mainComponent
 
-  override def getPreferredFocusedComponent: JComponent = chooseBspSetup
+  override def getPreferredFocusedComponent: JComponent = bspSetupConfigStepUi.chooseBspSetupList
 
   override def validate(): Boolean = {
     workspaceBspConfigs.nonEmpty ||
       configSetupChoices.size == 1 ||
-      chooseBspSetup.getSelectedIndex >= 0
+      bspSetupConfigStepUi.chooseBspSetupList.getSelectedIndex >= 0
   }
 
   override def updateStep(): Unit = {
-    chooseBspSetupModel.clear()
-    val recommendedSuffix = BspBundle.message("bsp.config.steps.choose.config.recommended.suffix")
-    val choiceStrings = configSetupChoices
-      .map(configChoiceName) match {
-      case h :: t => s"$h ($recommendedSuffix)" :: t
-      case Nil => Nil
-    }
-    choiceStrings.foreach(choice => chooseBspSetupModel.addElement(choice))
-    chooseBspSetup.setSelectedIndex(0)
+    bspSetupConfigStepUi.updateChooseBspSetupComponent(configSetupChoices)
   }
 
   override def updateDataModel(): Unit = {
 
     val configIndex =
       if (configSetupChoices.size == 1) 0
-      else chooseBspSetup.getSelectedIndex
+      else bspSetupConfigStepUi.chooseBspSetupList.getSelectedIndex
 
     runSetupTask =
       if (configSetupChoices.size > configIndex && configIndex >= 0)
@@ -238,7 +224,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
       builder.prepare(wizardContext)
       //this will use DefaultProject, which will lead to exception IDEA-289729
       //builder.ensureProjectIsDefined(wizardContext)
-      val task = new ConfigSetupTask(runSetupTask)
+      val task = new BspConfigSetupTask(runSetupTask)
       task.queue()
     }
   }
@@ -246,7 +232,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
 }
 object BspSetupConfigStep {
 
-  private class ConfigSetupTask(setup: BspConfigSetup)
+  private[importing] class BspConfigSetupTask(setup: BspConfigSetup)
     extends Task.Modal(null, BspBundle.message("bsp.config.steps.setup.config.task.title"), true) {
 
     override def run(indicator: ProgressIndicator): Unit = {
@@ -257,7 +243,43 @@ object BspSetupConfigStep {
     override def onCancel(): Unit =
       setup.cancel()
   }
+}
 
+final class BspSetupConfigStepUi(
+  @NlsContexts.Separator title: String,
+  configSetups: Seq[ConfigSetup]
+) {
+
+  val mainComponent = new JPanel()
+  private val chooseBspSetupModel = new DefaultListModel[String]
+  val chooseBspSetupList = new JBList[String](chooseBspSetupModel)
+
+  locally {
+    val chooseSetupTitle = new TitledSeparator(title)
+    val titleWithTip = withTooltip(chooseSetupTitle, BspBundle.message("bsp.config.steps.setup.config.choose.tool.tooltip"))
+    addTitledList(mainComponent, titleWithTip, chooseBspSetupList)
+  }
+
+  def selectedConfigSetup: ConfigSetup =
+    configSetups(chooseBspSetupList.getSelectedIndex)
+
+  def updateChooseBspSetupComponent(configSetupChoices: Seq[ConfigSetup]): Unit = {
+    val setupChoicesStrings = getConfigSetupChoicesStrings(configSetupChoices)
+    chooseBspSetupModel.clear()
+    setupChoicesStrings.foreach(chooseBspSetupModel.addElement)
+    chooseBspSetupList.setSelectedIndex(0)
+  }
+
+  private def getConfigSetupChoicesStrings(configSetupChoices: Seq[ConfigSetup]): Seq[String] = {
+    val recommendedSuffix = BspBundle.message("bsp.config.steps.choose.config.recommended.suffix")
+    val configChoiceName = configSetupChoices.map(bspConfigSteps.configChoiceName)
+    configChoiceName match {
+      case Seq(head, tail@_*) =>
+        s"$head ($recommendedSuffix)" +: tail
+      case Nil =>
+        Nil
+    }
+  }
 }
 
 class BspChooseConfigStep(context: WizardContext, builder: BspProjectImportBuilder)
