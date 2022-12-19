@@ -83,7 +83,9 @@ class ExternalSystemNotificationReporter(workingDir: String,
     log(message, isStdOut = false)
 
   private def log(message: String, isStdOut: Boolean): Unit = synchronized {
-    notifications.onTaskOutput(taskId, message + "\n", isStdOut)
+    //NOTE: new lines are also added in BspSession.BspProcessMessageHandler.call
+    val messageWithNewLine = if (message.endsWith("\n")) message else message + "\n"
+    notifications.onTaskOutput(taskId, messageWithNewLine, isStdOut)
   }
 
   override def startTask(eventId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
