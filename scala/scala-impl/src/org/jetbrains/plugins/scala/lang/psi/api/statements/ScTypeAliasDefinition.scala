@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 trait ScTypeAliasDefinition extends ScTypeAlias {
   override def isDefinition: Boolean = true
 
+  def isOpaque: Boolean = hasModifierProperty("opaque")
+
   def aliasedTypeElement: Option[ScTypeElement]
 
   def aliasedType: TypeResult = cachedInUserData("ScTypeAliasDefinition.aliasedType", this, BlockModificationTracker(this)) {
