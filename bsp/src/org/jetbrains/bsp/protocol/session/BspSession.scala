@@ -78,7 +78,10 @@ class BspSession private(bspPID: Long,
         val msg = BspBundle.message("bsp.protocol.problem.connecting.to.bsp.server", error.getMessage)
         val bspError = BspException(msg, error)
         logger.warn(bspError)
-        shutdown(Some(bspError))
+        if (this.isAlive) {
+          //the session could be explicitly shutdown already (e.g. via "Stop" action in BSP Connection widget)
+          shutdown(Some(bspError))
+        }
         Failure(error)
     }
 
