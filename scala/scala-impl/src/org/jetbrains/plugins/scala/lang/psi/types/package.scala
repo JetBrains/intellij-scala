@@ -194,7 +194,7 @@ package object types {
     }
 
     def removeAliasDefinitions(expandableOnly: Boolean = false): ScType = {
-      def needExpand(ta: ScTypeAliasDefinition) = !expandableOnly || shouldExpand(ta)
+      def needExpand(ta: ScTypeAliasDefinition) = !ta.isOpaque && (!expandableOnly || shouldExpand(ta))
 
       def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
         tp.recursiveUpdate {

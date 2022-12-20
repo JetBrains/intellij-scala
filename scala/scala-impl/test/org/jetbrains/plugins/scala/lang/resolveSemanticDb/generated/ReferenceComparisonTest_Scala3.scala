@@ -1286,7 +1286,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_implicit_lower_bound(): Unit = doTest("implicit-lower-bound", false)
   def test_implicit_match_and_inline_match(): Unit = doTest("implicit-match-and-inline-match", true)
   def test_implicit_match_nested(): Unit = doTest("implicit-match-nested", true) // #transparentInline
-  def test_implicit_scope(): Unit = doTest("implicit-scope", false) // #opaque, #extension
+  def test_implicit_scope(): Unit = doTest("implicit-scope", true) // #opaque, #extension
   def test_implicit_scope_loop(): Unit = doTest("implicit-scope-loop", true)
   def test_implicit_shadowing(): Unit = doTest("implicit-shadowing", false)
   def test_implicit_unwrap_tc(): Unit = doTest("implicit-unwrap-tc", true)
