@@ -40,6 +40,10 @@ class BspSession private(bspPID: Long,
 
   private val logger = Logger.getInstance(classOf[BspSession])
 
+  {
+    logger.debug(s"new BspSession(bspPID: $bspPID)")
+  }
+
   private val jobs = new LinkedBlockingQueue[BspSessionJob[_,_]]
 
   private var currentJob: BspSessionJob[_,_] = initialJob
