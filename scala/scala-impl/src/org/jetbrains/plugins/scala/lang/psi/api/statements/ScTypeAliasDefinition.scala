@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 trait ScTypeAliasDefinition extends ScTypeAlias {
   override def isDefinition: Boolean = true
 
+  def isOpaque: Boolean = hasModifierProperty("opaque")
+
   def aliasedTypeElement: Option[ScTypeElement]
 
   @CachedInUserData(this, BlockModificationTracker(this))
