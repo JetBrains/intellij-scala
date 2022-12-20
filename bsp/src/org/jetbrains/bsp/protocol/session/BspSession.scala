@@ -38,7 +38,7 @@ class BspSession private(bspPID: Long,
                          traceLogPredicate: () => Boolean
                         ) {
 
-  private val logger = Logger.getInstance(classOf[BspCommunication])
+  private val logger = Logger.getInstance(classOf[BspSession])
 
   private val jobs = new LinkedBlockingQueue[BspSessionJob[_,_]]
 
