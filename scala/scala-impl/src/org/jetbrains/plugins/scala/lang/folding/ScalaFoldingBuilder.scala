@@ -52,7 +52,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     if (nodeTextRange.getStartOffset + 1 >= nodeTextRange.getEndOffset) return
 
     val psi = node.getPsi
-    if (isMultiline(node) || isMultilineImport(node)) {
+    if (isMultiline(node) || isMultilineImport(node) || isNonEmptyExtensionBodyOnNewLine(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT |  ScalaDocElementTypes.SCALA_DOC_COMMENT =>
           descriptors add new FoldingDescriptor(node, nodeTextRange)
@@ -238,7 +238,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     }
 
   override def getLanguagePlaceholderText(node: ASTNode, textRange: TextRange): String = {
-    if (isMultiline(node) || isMultilineImport(node)) {
+    if (isMultiline(node) || isMultilineImport(node) || isNonEmptyExtensionBodyOnNewLine(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
         case ScalaDocElementTypes.SCALA_DOC_COMMENT => return "/**...*/"
@@ -379,6 +379,9 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       else None
     }
   }
+
+  private def isNonEmptyExtensionBodyOnNewLine(node: ASTNode): Boolean = node.getElementType == EXTENSION_BODY &&
+    node.getPsi.startsFromNewLine()
 
   private def isMultilineImport(node: ASTNode): Boolean = {
     if (node.getElementType != ImportStatement) return false
