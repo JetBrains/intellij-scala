@@ -1,4 +1,5 @@
 package org.jetbrains.plugins.scala.editor.folding
+
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert.{assertFalse, fail}
 
@@ -8,7 +9,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
   protected val INDENT_REGION_WITH_COLON = ST(":...")
-  protected val INDENT_EXPR_ST           = ST(" ...")
+  protected val INDENT_EXPR_ST = ST(" ...")
 
   // `isFoldingForAllBlocks` setting should not affect the behaviour of block foldings
   // that are already folded without this setting
@@ -56,6 +57,27 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  def testTemplateBody_SingleExpression_IndentationRegion(): Unit = {
+    val Start = INDENT_REGION_WITH_COLON
+    genericCheckRegions(
+      s"""class Test$Start:
+         |  def test = 0$END
+         |
+         |trait Test$Start:
+         |  def test = 0$END
+         |
+         |object Test$Start:
+         |  def test = 0$END
+         |
+         |enum Test$Start:
+         |  case A$END
+         |
+         |new C $Start:
+         |  println("test")$END
+         |""".stripMargin
+    )
+  }
+
   def testTemplateBody_IndentationRegion_WithEndMarker(): Unit = {
     val Start = INDENT_REGION_WITH_COLON
     genericCheckRegions(
@@ -92,6 +114,17 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |  def f1: String = x.toString + "_1"
        |
        |  def f2: String = x.toString + "_2"$END
+       |""".stripMargin
+  )
+
+  def testExtension_SingleMethod_IndentationRegion(): Unit = genericCheckRegions(
+    s"""extension (x: String)$INDENT_REGION
+       |  def f1: String = x.toString + "_1"$END
+       |""".stripMargin
+  )
+
+  def testExtension_OneLine_IndentationRegion(): Unit = checkNoFoldingRegions(
+    s"""extension (x: String) def f1: String = x.toString + "_1"
        |""".stripMargin
   )
 
@@ -611,7 +644,6 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |}$END
        |""".stripMargin
   )
-
 
   def testPackage_MultipleTopLevelPackagesInFile_WithBracesAndIndentationRegion(): Unit = genericCheckRegions(
     s"""package aaa $INDENT_REGION_WITH_COLON:

@@ -3,8 +3,11 @@ package org.jetbrains.plugins.scala.lang.refactoring
 import com.intellij.codeInsight.editorActions.moveUpDown.StatementUpDownMover.MoveInfo
 import com.intellij.codeInsight.editorActions.moveUpDown.{LineMover, LineRange}
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -15,11 +18,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 class ScalaStatementMover extends LineMover {
   private type ElementClass = Class[_ <: PsiElement]
 
-  override def checkAvailable(editor: Editor, file: PsiFile, info: MoveInfo, down: Boolean): Boolean = {
-    if(!super.checkAvailable(editor, file, info, down)) return false
-    if(editor.getSelectionModel.hasSelection) return false
+  override def afterMove(editor: Editor, file: PsiFile, info: MoveInfo, down: Boolean): Unit = {
+    super.afterMove(editor, file, info, down)
 
-    if(!file.isInstanceOf[ScalaFile]) return false
+    if (info.indentTarget) {
+      info.indentTarget = false
+      val project = file.getProject
+      val manager = CodeStyleManager.getInstance(project)
+      val targetRange = trimWhiteSpacesRight(editor, info.range2.getTextRange)
+      manager.adjustLineIndent(file, targetRange)
+      editor.getDocument.commit(project)
+    }
+  }
+
+  override def checkAvailable(editor: Editor, file: PsiFile, info: MoveInfo, down: Boolean): Boolean = {
+    if (!super.checkAvailable(editor, file, info, down)) return false
+    if (editor.getSelectionModel.hasSelection) return false
+
+    if (!file.is[ScalaFile]) return false
 
     def aim(sourceClass: ElementClass, predicate: PsiElement => Boolean, canUseLineAsTarget: Boolean = true): Option[(PsiElement, LineRange)] = {
       findSourceOf(sourceClass).map { source =>
@@ -30,14 +46,15 @@ class ScalaStatementMover extends LineMover {
       }
     }
 
-    def findSourceOf(aClass: ElementClass) = findElementAt(aClass, editor, file, info.toMove.startLine)
+    def findSourceOf(aClass: ElementClass): Option[PsiElement] =
+      findElementAt(aClass, editor, file, info.toMove.startLine)
 
     def findTargetRangeFor(source: PsiElement, predicate: PsiElement => Boolean): Option[LineRange] = {
-      val siblings = if(down) source.nextSiblings else source.prevSiblings
-      siblings.filter(!_.isInstanceOf[PsiComment] )
-              .takeWhile(it => it.isInstanceOf[PsiWhiteSpace] || it.isInstanceOf[PsiComment] || it.isInstanceOf[ScImportStmt] || predicate(it))
-              .find(predicate)
-              .map(rangeOf(_, editor))
+      val siblings = if (down) source.nextSiblings else source.prevSiblings
+      siblings.filterNot(_.is[PsiComment])
+        .takeWhile(it => it.is[PsiWhiteSpace, PsiComment, ScImportStmt] || predicate(it))
+        .find(predicate)
+        .map(rangeOf(_, editor))
     }
 
     def nextLineRangeFor(source: PsiElement): LineRange = {
@@ -50,13 +67,13 @@ class ScalaStatementMover extends LineMover {
       }
     }
 
-    val pair = aim(classOf[ScCaseClause], _.isInstanceOf[ScCaseClause], canUseLineAsTarget = false)
-            .orElse(aim(classOf[ScMember], it => it.isInstanceOf[ScMember] || it.isInstanceOf[ScImportStmt]))
-            .orElse(aim(classOf[ScIf], _ => false))
-            .orElse(aim(classOf[ScFor], _ => false))
-            .orElse(aim(classOf[ScMatch], _ => false))
-            .orElse(aim(classOf[ScTry], _ => false))
-            .orElse(aim(classOf[ScMethodCall], isControlStructureLikeCall).filter(p => isControlStructureLikeCall(p._1)))
+    val pair = aim(classOf[ScCaseClause], _.is[ScCaseClause], canUseLineAsTarget = false)
+      .orElse(aim(classOf[ScMember], it => it.is[ScMember, ScImportStmt]))
+      .orElse(aim(classOf[ScIf], _ => false))
+      .orElse(aim(classOf[ScFor], _ => false))
+      .orElse(aim(classOf[ScMatch], _ => false))
+      .orElse(aim(classOf[ScTry], _ => false))
+      .orElse(aim(classOf[ScMethodCall], isControlStructureLikeCall).filter(p => isControlStructureLikeCall(p._1)))
 
     pair.foreach { it =>
       info.toMove = rangeOf(it._1, editor)
@@ -66,8 +83,19 @@ class ScalaStatementMover extends LineMover {
     pair.isDefined
   }
 
+  private def trimWhiteSpacesRight(editor: Editor, range: TextRange): TextRange = {
+    val cs = editor.getDocument.getImmutableCharSequence
+    val offset = range.getEndOffset
+    if (cs.length() <= offset) return range
+
+    var i = 0
+    while (i < offset && cs.charAt(offset - i).isWhitespace)
+      i += 1
+    range.grown(-i)
+  }
+
   private def isControlStructureLikeCall(element: PsiElement): Boolean = element match {
-    case call: ScMethodCall => call.argumentExpressions.lastOption.exists(_.isInstanceOf[ScBlockExpr])
+    case call: ScMethodCall => call.argumentExpressions.lastOption.exists(_.is[ScBlockExpr])
     case _ => false
   }
 
@@ -97,7 +125,7 @@ class ScalaStatementMover extends LineMover {
     val span = start.to(end)
 
     def firstLeafOf(seq: Seq[Int]) = seq.view.flatMap(file.getNode.findLeafElementAt(_).toOption.toSeq)
-            .filter(!_.getPsi.isInstanceOf[PsiWhiteSpace]).map(_.getPsi).headOption
+      .filterNot(_.getPsi.is[PsiWhiteSpace]).map(_.getPsi).headOption
 
     (firstLeafOf(span), firstLeafOf(span.reverse))
   }
