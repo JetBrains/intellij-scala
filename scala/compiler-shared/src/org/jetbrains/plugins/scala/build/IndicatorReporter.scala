@@ -2,11 +2,15 @@ package org.jetbrains.plugins.scala.build
 
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
+import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.progress.ProgressIndicator
 
 import java.io.File
 
 class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
+  //text with ANSI escape sequences can come from sbt output (see SCL-20873)
+  private val myAnsiEscapeDecoder = new AnsiEscapeDecoder
+
   override def start(): Unit = {
     indicator.setText(CompilerSharedBuildBundle.message("report.build.running"))
   }
@@ -42,11 +46,17 @@ class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
 
   override def log(message: String): Unit = {
     indicator.setText(CompilerSharedBuildBundle.message("report.building"))
-    indicator.setText2(message)
+    myAnsiEscapeDecoder.escapeText(message, ProcessOutputTypes.STDOUT, (messageUnescaped, _) => {
+      //noinspection ReferencePassedToNls
+      indicator.setText2(messageUnescaped)
+    })
   }
 
   override def info(message: String, position: Option[FilePosition]): Unit = {
-    indicator.setText(message)
+    myAnsiEscapeDecoder.escapeText(message, ProcessOutputTypes.STDOUT, (messageUnescaped, _) => {
+      //noinspection ReferencePassedToNls
+      indicator.setText(messageUnescaped)
+    })
     indicator.setText2(positionString(position))
   }
 
