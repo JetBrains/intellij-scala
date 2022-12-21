@@ -6,7 +6,22 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 
 package object types {
 
-  def startTemplate(elem: PsiElement, context: PsiElement, expression: Expression, editor: Editor): Unit = {
+  def startTemplate(
+    elem: PsiElement,
+    context: PsiElement,
+    expression: Expression,
+    editor: Editor
+  ): Unit = {
+    startTemplate(elem, context, expression, editor, null)
+  }
+
+  def startTemplate(
+    elem: PsiElement,
+    context: PsiElement,
+    expression: Expression,
+    editor: Editor,
+    listener: TemplateEditingListener,
+  ): Unit = {
     val project = context.getProject
     val manager = PsiDocumentManager.getInstance(project)
     manager.commitAllDocuments()
@@ -14,7 +29,10 @@ package object types {
 
     val builder = new TemplateBuilderImpl(elem)
     builder.replaceElement(elem, expression)
+
     editor.getCaretModel.moveToOffset(elem.getNode.getStartOffset)
-    TemplateManager.getInstance(project).startTemplate(editor, builder.buildInlineTemplate())
+
+    val templateManager = TemplateManager.getInstance(project)
+    templateManager.startTemplate(editor, builder.buildInlineTemplate(), listener)
   }
 }

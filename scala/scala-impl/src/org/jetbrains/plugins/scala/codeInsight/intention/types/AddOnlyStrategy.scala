@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
 import com.intellij.codeInsight.intention.impl.preview.IntentionPreviewEditor
+import com.intellij.codeInsight.template.{Template, TemplateEditingAdapter}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiMethod}
@@ -105,25 +106,45 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
       case Some(e) if validVariants.size > 1
         // skip starting template in intention preview - it requires EDT and write thread so there will be an exception
         && !e.is[IntentionPreviewEditor] =>
-        val expr = new ChooseTypeTextExpression(validVariants)
-        // TODO Invoke the simplification
-        startTemplate(added, context, expr, e)
+        val chooseTypeTextExpression = new ChooseTypeTextExpression(validVariants)
+        val templateListener = new TemplateEditingAdapter {
+          override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
+            executeUndoTransparentAction {
+              inWriteAction {
+                removeTypeParameterFromEmptyCollectionFactoryCall(context)
+              }
+            }
+          }
+        }
+        startTemplate(added, context, chooseTypeTextExpression, e, templateListener)
       case _ =>
         ScalaPsiUtil.adjustTypes(added)
 
-        val maybeExpression = context match {
-          case variable: ScVariableDefinition => variable.expr
-          case pattern: ScPatternDefinition => pattern.expr
-          case function: ScFunctionDefinition => function.body
-          case _ => None
-        }
+        removeTypeParameterFromEmptyCollectionFactoryCall(context)
+    }
+  }
 
-        maybeExpression.foreach {
-          case call@Implementation.EmptyCollectionFactoryCall(ref) =>
-            val replacement = createPsiElementFromText(ref.getText, ref)(ref.projectContext)
-            call.replace(replacement)
-          case _ =>
-        }
+  /**
+   * When we add type annotation to a value with collection in the right hand side: {{{
+   *   val value = List.empty[String]
+   * }}}
+   * we can remove redundant `[String]` after `empty`: {{{
+   *   val value: List[String] = List.empty
+   * }}}
+   */
+  private def removeTypeParameterFromEmptyCollectionFactoryCall(context: PsiElement): Unit = {
+    val maybeExpression = context match {
+      case variable: ScVariableDefinition => variable.expr
+      case pattern: ScPatternDefinition => pattern.expr
+      case function: ScFunctionDefinition => function.body
+      case _ => None
+    }
+
+    maybeExpression.foreach {
+      case call@Implementation.EmptyCollectionFactoryCall(ref) if true =>
+        val replacement = createPsiElementFromText(ref.getText, ref)(ref.projectContext)
+        call.replace(replacement)
+      case _ =>
     }
   }
 }

@@ -3,8 +3,13 @@ package codeInsight
 package intention
 package types
 
+import com.intellij.codeInsight.template.TemplateManager
+import com.intellij.codeInsight.template.impl.TemplateManagerImpl
+import com.intellij.testFramework.TestModeFlags
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.extensions.{executeUndoTransparentAction, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.junit.Assert.{assertNotNull, assertTrue, fail}
 
 class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
@@ -24,6 +29,31 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
     "val v = Seq.empty[String]",
     "val v: Seq[String] = Seq.empty"
   )
+
+  //for example for `val myValue = List.empty[String]` two options are shown: Seq[String] and List[String]
+  def testCollectionFactorySimplification_MoreThenSingleValidTypeAnnotationCandidate(): Unit = {
+    TemplateManagerImpl.setTemplateTesting(getTestRootDisposable)
+
+    val text = "val v = List.empty[String]"
+    myFixture.configureByText(fileType, text)
+    val intention = findIntentionByName(familyName).getOrElse {
+      fail("Intention is not found").asInstanceOf[Nothing]
+    }
+
+    executeWriteActionCommand("Test Intention Command") ({
+      intention.invoke(getProject, getEditor, getFile)
+    })(getProject)
+
+    val templateManager = TemplateManager.getInstance(getProject)
+    val activeTemplate = templateManager.getActiveTemplate(getEditor)
+    assertNotNull("Expected to find some active template but found none", activeTemplate)
+
+    val success = templateManager.finishTemplate(getEditor)
+    assertTrue("Expected template to finish", success)
+
+    val expectedResultText = "val v: Seq[String] = List.empty"
+    myFixture.checkResult(expectedResultText)
+  }
 
   def testCollectionFactoryNoSimplification(): Unit = doTest(
     "val v = Seq.empty[String].to[Seq]",
