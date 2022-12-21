@@ -118,4 +118,15 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
 
   def test_no_need_to_prevent_escaping_via_type_alias(): Unit =
     checkTextHasError(s"object A { class ${START}B$END; private type C = B }", AllowAdditionalHighlights)
+
+  def test_macro_impl_that_is_not_referenced_by_a_macro_definition(): Unit = checkTextHasError(
+      s"""import scala.reflect.macros.whitebox
+         |object Foo {
+         |  def ${START}defMacroImpl$END(c: whitebox.Context): c.Tree = {
+         |    import c.universe._
+         |    q"1"
+         |  }
+         |  def foo(): Unit = defMacroImpl(null)
+         |}
+         |""".stripMargin, AllowAdditionalHighlights)
 }
