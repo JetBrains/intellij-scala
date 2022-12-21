@@ -11,6 +11,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.format.{StringConcatenationParser, _}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -68,7 +69,7 @@ object FormatConversionIntention {
   final class FormattedToInterpolated extends FormatConversionIntention(
     ConvertToInterpolated,
     FormattedStringParser,
-    InterpolatedStringFormatter
+    InterpolatedStringFormatter(ScInterpolatedStringLiteral.Standard)
   )
 
   final class InterpolatedToFormatted extends FormatConversionIntention(
@@ -87,7 +88,7 @@ object FormatConversionIntention {
   final class StringConcatenationToInterpolated extends FormatConversionIntention(
     ConvertToInterpolated,
     StringConcatenationParser,
-    InterpolatedStringFormatter
+    InterpolatedStringFormatter(ScInterpolatedStringLiteral.Standard)
   ) with StringConcatenationToAnyBase
 
   trait StringConcatenationToAnyBase {

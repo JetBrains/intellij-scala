@@ -21,4 +21,20 @@ class InlineRefactoringSimpleTest extends InlineRefactoringTestBase {
   def testStringInterpolation2(): Unit = doTest()
 
   def testStringInterpolation3(): Unit = doTest()
+
+  def testCustomInterpolationSimple(): Unit = doTest()
+
+  def testCustomInterpolationLast(): Unit = doTest()
+
+  def testFormatInterpolationSimple(): Unit = doTest()
+
+  def testFormatInterpolationLast(): Unit = doTest()
+
+  def testRawInterpolationSimple(): Unit = doTest()
+
+  def testRawInterpolationLast(): Unit = doTest()
+
+  def testStandardInterpolationSimple(): Unit = doTest()
+
+  def testStandardInterpolationLast(): Unit = doTest()
 }

@@ -6,8 +6,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.format.LegacyStringFormattingInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.format._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-
 
 class LegacyStringFormattingInspection extends LocalInspectionTool {
 
@@ -29,7 +29,7 @@ object LegacyStringFormattingInspection {
   private class FormattingQuickFix(e: PsiElement) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("convert.to.interpolated.string"), e) {
     override protected def doApplyFix(elem: PsiElement)(implicit project: Project): Unit = {
       AnyStringParser.parse(elem).foreach { parts =>
-        val expression = createExpressionFromText(InterpolatedStringFormatter.format(parts), e)
+        val expression = createExpressionFromText(InterpolatedStringFormatter(ScInterpolatedStringLiteral.Standard).format(parts), e)
         elem.replace(expression)
       }
     }

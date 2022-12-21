@@ -177,15 +177,8 @@ class InterpolatedStringParserTest extends ScalaLightCodeInsightFixtureTestCase 
 
   private def literal(s: String, kind: ScInterpolatedStringLiteral.Kind, multiline: Boolean): ScInterpolatedStringLiteral = {
     val text = {
-      // TODO: move to method of kind, but how to handle "Pattern"?
-      val prefix = kind match {
-        case ScInterpolatedStringLiteral.Standard => "s"
-        case ScInterpolatedStringLiteral.Format   => "f"
-        case ScInterpolatedStringLiteral.Raw      => "raw"
-        case ScInterpolatedStringLiteral.Pattern  => ""
-      }
       val quote = if (multiline) "\"\"\"" else "\""
-      prefix + quote + s + quote
+      kind.prefix + quote + s + quote
     }
     val file = createLightFile(ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
     file.getFirstChild.asInstanceOf[ScInterpolatedStringLiteral]
