@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
+import com.intellij.codeInsight.intention.impl.preview.IntentionPreviewEditor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiMethod}
@@ -101,7 +102,9 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
     val added = addActualType(annotation, anchor)
 
     editor match {
-      case Some(e) if validVariants.size > 1 =>
+      case Some(e) if validVariants.size > 1
+        // skip starting template in intention preview - it requires EDT and write thread so there will be an exception
+        && !e.is[IntentionPreviewEditor] =>
         val expr = new ChooseTypeTextExpression(validVariants)
         // TODO Invoke the simplification
         startTemplate(added, context, expr, e)
