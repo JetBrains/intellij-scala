@@ -3,7 +3,9 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRe
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, SmartPsiElementPointer}
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
@@ -38,7 +40,10 @@ private final class ElementUsageWithKnownReference private(
     refContainingClass == typeDef
   }
 
-  override lazy val targetCanBePrivate: Boolean = {
+  private def isReferenceToDefMacroImpl: Boolean =
+    reference.getElement.asOptionOf[ScStableCodeReference].exists(ScMacroDefinition.isMacroImplReference)
+
+  override lazy val targetCanBePrivate: Boolean = !isReferenceToDefMacroImpl && {
     val targetContainingClass = PsiTreeUtil.getParentOfType(target.underlying.get, classOf[PsiClass])
 
     if (targetContainingClass == null) {

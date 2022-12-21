@@ -153,4 +153,16 @@ final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInsp
 
   def test_skip_bean_property(): Unit =
     checkTextHasNoErrors("object A { @scala.beans.BeanProperty var x = 1; println(x) }")
+
+  def test_macro_impl_that_is_referenced_by_a_macro_definition(): Unit = checkTextHasNoErrors(
+    s"""import scala.reflect.macros.whitebox
+       |import scala.language.experimental.macros
+       |object Foo {
+       |  def defMacro: Int = macro defMacroImpl
+       |  def defMacroImpl(c: whitebox.Context): c.Tree = {
+       |    import c.universe._
+       |    q"1"
+       |  }
+       |}
+       |""".stripMargin)
 }
