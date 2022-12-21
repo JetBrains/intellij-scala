@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 class ScalaPackageNameInspection extends LocalInspectionTool {
@@ -29,6 +30,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         val members = file.members
         if (members.isEmpty) return null
 
+        @nowarn("cat=deprecation")
         val sourceFolder =
           for {
             virtualFile <- Option(file.getVirtualFile)

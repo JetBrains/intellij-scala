@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.sbt.project.module.SbtModuleType
 
 import java.util.Properties
+import scala.annotation.nowarn
 
 final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiElement](
   () => actionText,
@@ -73,6 +74,7 @@ final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiEle
         ScalaBundle.message("create.new.scala.class")
     )
     builder.setValidator(new InputValidatorEx {
+      @nowarn("cat=deprecation")
       override def getErrorText(inputString: String): String = {
         if (inputString.nonEmpty && !ScalaNamesUtil.isQualifiedName(inputString)) {
           return ScalaBundle.message("this.is.not.a.valid.scala.qualified.name")
