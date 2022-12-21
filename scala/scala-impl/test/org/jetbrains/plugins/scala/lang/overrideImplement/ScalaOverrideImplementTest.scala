@@ -1604,4 +1604,62 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement, settingsWithoutIndentationBasedSyntax)
   }
+
+  def testImplementWithUsingParameters(): Unit = {
+    val fileText =
+      s"""
+         |package test
+         |
+         |trait Context
+         |trait Foo:
+         |  def foo(x: Int)(using String)(y: Double)(using ctx: Context): String
+         |
+         |class Bar extends Foo:
+         |  $CARET_TAG
+         |""".stripMargin
+    val expectedText =
+      s"""
+         |package test
+         |
+         |trait Context
+         |trait Foo:
+         |  def foo(x: Int)(using String)(y: Double)(using ctx: Context): String
+         |
+         |class Bar extends Foo:
+         |  override def foo(x: Int)(using String)(y: Double)(using ctx: Context): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |  ${""}
+         |""".stripMargin
+    val methodName: String = "foo"
+    val isImplement = true
+    runTest(methodName, fileText, expectedText, isImplement, settingsWithIndentationBasedSyntax)
+  }
+
+  def testOverrideWithUsingParameters(): Unit = {
+    val fileText =
+      s"""
+         |package test
+         |
+         |trait Context
+         |class Foo:
+         |  def foo(x: Int)(using String)(y: Double)(using ctx: Context): String = summon[String]
+         |
+         |class Bar extends Foo:
+         |  $CARET_TAG
+         |""".stripMargin
+    val expectedText =
+      s"""
+         |package test
+         |
+         |trait Context
+         |class Foo:
+         |  def foo(x: Int)(using String)(y: Double)(using ctx: Context): String = summon[String]
+         |
+         |class Bar extends Foo:
+         |  override def foo(x: Int)(using String)(y: Double)(using ctx: Context): String = ${SELECTION_START_TAG}super.foo(x)(y)$SELECTION_END_TAG
+         |  ${""}
+         |""".stripMargin
+    val methodName: String = "foo"
+    val isImplement = false
+    runTest(methodName, fileText, expectedText, isImplement, settingsWithIndentationBasedSyntax)
+  }
 }
