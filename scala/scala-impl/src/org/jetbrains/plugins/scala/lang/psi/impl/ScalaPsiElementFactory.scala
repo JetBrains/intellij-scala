@@ -950,10 +950,13 @@ object ScalaPsiElementFactory {
             val name = param.name
             val tpe = param.`type`().map(substitutor).getOrAny
 
-            s"$name${colon(name)} $arrow${tpe.canonicalText}$asterisk"
+            val isAnonymous = param.typeElement.contains(param.nameId)
+
+            if (isAnonymous) s"$arrow${tpe.canonicalText}"
+            else s"$name${colon(name)} $arrow${tpe.canonicalText}$asterisk"
           }
 
-          myBuilder.append(parameters.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")"))
+          myBuilder.append(parameters.mkString(if (paramClause.isImplicit) "(implicit " else if (paramClause.isUsing) "(using " else "(", ", ", ")"))
         }
       case _ if !method.isParameterless || !method.hasQueryLikeName =>
         val params = for (param <- method.parameters) yield {

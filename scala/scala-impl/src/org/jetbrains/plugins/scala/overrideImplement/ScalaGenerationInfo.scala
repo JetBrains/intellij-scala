@@ -146,7 +146,7 @@ object ScalaGenerationInfo {
     val parametersText: String = {
       method match {
         case fun: ScFunction =>
-          val clauses = fun.paramClauses.clauses.filter(!_.isImplicit)
+          val clauses = fun.paramClauses.clauses.filter(!_.isImplicitOrUsing)
           clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
         case method: PsiMethod =>
           if (method.isAccessor && method.getParameterList.getParametersCount == 0) ""
