@@ -24,7 +24,7 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
        |}""".stripMargin)
 
   def testIntRef(): Unit = {
-    testRuntimeRef("n", "Int", "0")
+    testRuntimeRef("n$1", "Int", "0")
   }
 
   addSourceFile("VolatileIntRef.scala",
@@ -38,7 +38,7 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
        |}""".stripMargin)
 
   def testVolatileIntRef(): Unit = {
-    testRuntimeRef("n", "volatile Int", "0")
+    testRuntimeRef("n$1", "volatile Int", "0")
   }
 
   addSourceFile("ObjectRef.scala",
@@ -52,7 +52,7 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
        |}""".stripMargin)
 
   def testObjectRef(): Unit = {
-    testRuntimeRef("n", "Object", """"abc"""")
+    testRuntimeRef("n$1", "Object", """"abc"""")
   }
 
   addSourceFile("VolatileObjectRef.scala",
@@ -66,13 +66,12 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
        |}""".stripMargin)
 
   def testVolatileObjectRef(): Unit = {
-    testRuntimeRef("n", "volatile Object", """"abc"""")
+    testRuntimeRef("n$1", "volatile Object", """"abc"""")
   }
 
   private def testRuntimeRef(varName: String, refType: String, afterTypeLabel: String): Unit = {
     rendererTest() { implicit ctx =>
-      val (label, _) =
-        renderLabelAndChildren(varName, renderChildren = false, parameter(0))
+      val (label, _) = renderLabelAndChildren(varName, renderChildren = false)
       val expectedLabel = s"{unwrapped Scala runtime $refType reference}$afterTypeLabel"
       org.junit.Assert.assertTrue(label.contains(expectedLabel))
     }
