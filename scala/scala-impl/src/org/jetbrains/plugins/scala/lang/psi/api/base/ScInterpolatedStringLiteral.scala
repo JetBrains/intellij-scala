@@ -21,13 +21,21 @@ object ScInterpolatedStringLiteral {
   def unapply(literal: ScInterpolatedStringLiteral): Option[ScReferenceExpression] =
     literal.reference
 
-  sealed trait Kind
+  sealed abstract class Kind(val prefix: String)
 
-  case object Standard extends Kind
+  object Kind {
+    val stdLibKinds: Set[Kind] = Set(Standard, Format, Raw)
 
-  case object Format extends Kind
+    def fromPrefix(prefix: String): Kind =
+      stdLibKinds.find(_.prefix == prefix).getOrElse(Pattern(prefix))
+  }
 
-  case object Pattern extends Kind
+  case object Standard extends Kind("s")
 
-  case object Raw extends Kind
+  case object Format extends Kind("f")
+
+  case object Raw extends Kind("raw")
+
+  case class Pattern(override val prefix: String) extends Kind(prefix)
+
 }

@@ -26,13 +26,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
   import ScInterpolatedStringLiteral._
   import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 
-  override def kind: Kind = referenceText match {
-    case "s" => Standard
-    case "f" => Format
-    case "id" => Pattern
-    case "raw" => Raw
-    case _ => null
-  }
+  override def kind: Kind = Kind.fromPrefix(referenceText)
 
   protected override def innerType: TypeResult =
     desugaredExpression.fold(Failure(ScalaBundle.message("cannot.find.method.of.stringcontext", referenceText)): TypeResult) {

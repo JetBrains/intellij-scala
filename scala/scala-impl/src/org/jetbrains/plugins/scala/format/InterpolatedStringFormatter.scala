@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.format
 
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.format.InterpolatedStringFormatter.{formatContent, injectByValue}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 
-object InterpolatedStringFormatter extends StringFormatter {
+class InterpolatedStringFormatter(val kind: ScInterpolatedStringLiteral.Kind) extends StringFormatter {
   override def format(parts: Seq[StringPart]): String = {
     val toMultiline = parts.exists {
       case Text(s)      => s.contains("\n")
@@ -17,23 +19,30 @@ object InterpolatedStringFormatter extends StringFormatter {
 
   private def format(parts: Seq[StringPart], toMultiline: Boolean): String = {
     val prefix = {
-      val injections = parts.filterByType[Injection]
+      if (!kind.is[ScInterpolatedStringLiteral.Pattern]) {
+        val injections = parts.filterByType[Injection]
 
-      if (injections.forall(injectByValue)) ""
-      else if (injections.exists(_.isFormattingRequired)) "f"
-      else "s"
+        if (injections.forall(injectByValue)) ""
+        else if (injections.exists(_.isFormattingRequired)) ScInterpolatedStringLiteral.Format.prefix
+        else kind.prefix
+      } else kind.prefix
     }
     val content = formatContent(parts, prefix, toMultiline)
     val quote = if (toMultiline) MultilineQuotes else "\""
     s"$prefix$quote$content$quote"
   }
+}
+
+object InterpolatedStringFormatter {
+  def apply(kind: ScInterpolatedStringLiteral.Kind): InterpolatedStringFormatter =
+    new InterpolatedStringFormatter(kind)
 
   def formatContent(parts: Seq[StringPart], prefix: String, toMultiline: Boolean): String = {
     val strings = parts.collect {
       case text: Text                         =>
         ScalaStringUtils.escapePlainText(text.value, toMultiline, prefix)
       case textFormatted: SpecialFormatEscape =>
-        val isFormat = prefix == "f"
+        val isFormat = prefix == ScInterpolatedStringLiteral.Format.prefix
         val content = if (isFormat) textFormatted.originalText else textFormatted.unescapedText
         ScalaStringUtils.escapePlainText(content, toMultiline, prefix)
       case it: Injection =>
@@ -58,7 +67,7 @@ object InterpolatedStringFormatter extends StringFormatter {
   private def injectByValue(it: Injection) = it.isLiteral && !it.isFormattingRequired
 
   // TODO: WTF naming
-  private def noBraces(parts: Seq[StringPart], it: Injection): Boolean =  {
+  private def noBraces(parts: Seq[StringPart], it: Injection): Boolean = {
     val ind = parts.indexOf(it)
     if (ind + 1 < parts.size) {
       parts(ind + 1) match {

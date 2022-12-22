@@ -146,7 +146,13 @@ class ScalaInliner extends InlineHandler.Inliner {
           case Injection(ref: ScReferenceExpression, s) => Injection(refToReplacement.getOrElse(ref, ref), s)
           case p => p
         }
-        val newText = InterpolatedStringFormatter.format(newParts)
+
+        val kind = intrp.asOptionOf[ScInterpolatedStringLiteral]
+          .flatMap(_.reference)
+          .map(ref => ScInterpolatedStringLiteral.Kind.fromPrefix(ref.refName))
+          .getOrElse(ScInterpolatedStringLiteral.Standard)
+
+        val newText = InterpolatedStringFormatter(kind).format(newParts)
         createExpressionFromText(newText, intrp)
       case _ =>
         intrp
