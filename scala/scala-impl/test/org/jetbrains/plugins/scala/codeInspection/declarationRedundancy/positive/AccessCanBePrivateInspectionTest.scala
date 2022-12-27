@@ -209,4 +209,17 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
        |""".stripMargin,
     AllowAdditionalHighlights
   )
+
+  def test_implicit_class_extension_method_used_directly_from_within_itself(): Unit = checkTextHasError(
+    s"""object foo {
+       |  implicit class IntExt1(i: Int) { self =>
+       |    def ${START}addOne$END = i + 1
+       |    def addOneCanBePrivate1 = addOne
+       |    def addOneCanBePrivate2 = addOne.bar
+       |    def addOneCanBePrivate3 = this.addOne
+       |    def addOneCanBePrivate4 = self.addOne
+       |  }
+       |  implicit class IntExt2(i: Int) { def bar = 42 }
+       |}
+       |""".stripMargin, AllowAdditionalHighlights)
 }
