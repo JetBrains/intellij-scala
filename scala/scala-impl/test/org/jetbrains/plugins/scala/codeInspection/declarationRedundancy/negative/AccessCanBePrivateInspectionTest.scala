@@ -245,4 +245,19 @@ final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInsp
        |}
        |""".stripMargin
   )
+
+  def test_implicit_class_extension_method_used_indirectly_from_within_itself(): Unit = checkTextHasNoErrors(
+    """object bar {
+      |  implicit class IntExt1(i: Int) {
+      |    def addOne1 = i + 1; def addOne2 = i + 1; def addOne3 = i + 1; def addOne4 = i + 1
+      |    def addOne1CanNotBePrivate = i.bar.addOne1
+      |    def addOne2CanNotBePrivate = 1.addOne2
+      |    def addOne3CanNotBePrivate = Seq(1).map(_.addOne3)
+      |    private val anInt = 42
+      |    def addOne4CanNotBePrivate = anInt.addOne4
+      |  }
+      |  implicit class IntExt2(i: Int) { def bar = 42 }
+      |}
+      |""".stripMargin
+  )
 }
