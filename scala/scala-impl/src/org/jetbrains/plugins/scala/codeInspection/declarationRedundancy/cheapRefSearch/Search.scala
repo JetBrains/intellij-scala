@@ -130,7 +130,7 @@ private[declarationRedundancy] object Search {
 
       def isSelfReferentialTypeDefRef(usage: ElementUsage): Boolean = (usage, element.asOptionOf[ScTypeDefinition]) match {
         case (usageWithReference: ElementUsageWithKnownReference, Some(typeDef)) =>
-          usageWithReference.referenceToTypeDefIsWithinTheSameTypeDef(typeDef)
+          usageWithReference.referenceIsInMemberThatHasTypeDefAsAncestor(typeDef)
         case _ => false
       }
 
@@ -337,7 +337,7 @@ private[declarationRedundancy] object Search {
             case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
             case f: ScFunction if f.isSpecial || isOverridingFunction(f) || f.isConstructor => false
             case p: ScClassParameter if p.isCaseClassVal || p.isEnumVal || p.isEnumCaseVal || isImplicit(p.containingClass) => false
-            case m: ScMember if m.getContext.isInstanceOf[ScRefinement] => false
+            case m: ScMember if m.getContext.is[ScRefinement] => false
             case p: ScParameter =>
               p.parent.flatMap(_.parent.flatMap(_.parent)) match {
                 case Some(_: ScFunctionDeclaration) => false
