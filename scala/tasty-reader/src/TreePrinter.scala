@@ -25,13 +25,31 @@ class TreePrinter(privateMembers: Boolean = false) {
   private val sharedTypes = mutable.Map[Addr, String]()
   private val sourceFiles = mutable.Buffer[String]()
 
-  private def isGivenObject0(typedef: Node): Boolean =
-    typedef.contains(OBJECT) && typedef.previousSibling.exists(prev => prev.is(VALDEF) && prev.contains(OBJECT) && prev.contains(GIVEN))
+  // The use of SYNTHETIC, GIVEN, and IMPLICIT modifiers in `given` and `implicit class` differs in 3.0.0+
 
-  private def isGivenImplicitClass0(typedef: Node): Boolean = {
-    def isImplicitConversion(node: Node) = node.is(DEFDEF) && node.contains(SYNTHETIC) && node.contains(GIVEN) && node.name == typedef.name
-    typedef.contains(SYNTHETIC) &&
-      (typedef.nextSibling.exists(isImplicitConversion) || typedef.nextSibling.exists(_.nextSibling.exists(_.nextSibling.exists(isImplicitConversion))))
+  private def isGivenObject0(typeDef: Node): Boolean = {
+    def isGivenModule(node: Node) = node.is(VALDEF) && node.contains(OBJECT) && node.contains(GIVEN) && node.name + "$" == typeDef.name
+    typeDef.contains(OBJECT) && typeDef.prevSibling.exists(isGivenModule)
+  }
+
+  private def isGivenClass0(typeDef: Node): Boolean = {
+    def isGivenConversion(node: Node) = node.is(DEFDEF) && node.contains(GIVEN) && node.name == typeDef.name
+    typeDef.contains(SYNTHETIC) && typeDef.nextSibling.exists(it => isGivenConversion(it) || it.nextSibling.exists(_.nextSibling.exists(isGivenConversion)))
+  }
+
+  private def isGivenConversion(defDef: Node) = {
+    def isGivenClass(node: Node) = node.is(TYPEDEF) && node.contains(SYNTHETIC) && node.name == defDef.name
+    defDef.contains(GIVEN) && defDef.prevSibling.exists(it => isGivenClass(it) || it.prevSibling.exists(_.prevSibling.exists(isGivenClass)))
+  }
+
+  private def isImplicitClass0(typeDef: Node): Boolean = {
+    def isImplicitConversion(node: Node) = node.is(DEFDEF) && node.contains(SYNTHETIC) && node.contains(IMPLICIT) && node.name == typeDef.name
+    typeDef.nextSibling.exists(isImplicitConversion)
+  }
+
+  private def isImplicitConversion(defDef: Node): Boolean = {
+    def isImplicitClass(node: Node) = node.is(TYPEDEF) && node.contains(IMPLICIT) && node.name == defDef.name
+    defDef.contains(IMPLICIT) && defDef.prevSibling.exists(isImplicitClass)
   }
 
   def fileAndTextOf(node: Node): (String, String) = {
@@ -87,11 +105,11 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   private def textOfMember(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
-    case node @ Node1(TYPEDEF) if (privateMembers || !node.contains(PRIVATE)) && (!node.contains(SYNTHETIC) || isGivenImplicitClass0(node)) => // TODO why both are synthetic?
+    case node @ Node1(TYPEDEF) if (privateMembers || !node.contains(PRIVATE)) && (!node.contains(SYNTHETIC) || isGivenClass0(node)) => // TODO why both are synthetic?
       sb ++= prefix
       textOfTypeDef(sb, indent, node, definition)
 
-    case node @ Node2(DEFDEF, Seq(name)) if (privateMembers || !node.contains(PRIVATE)) && !node.contains(SYNTHETIC) && !node.contains(FIELDaccessor) && !node.contains(ARTIFACT) && !name.contains("$default$") =>
+    case node @ Node2(DEFDEF, Seq(name)) if (privateMembers || !node.contains(PRIVATE)) && !node.contains(SYNTHETIC) && !node.contains(FIELDaccessor) && !node.contains(ARTIFACT) && !name.contains("$default$") && !isGivenConversion(node) && !isImplicitConversion(node) =>
       sb ++= prefix
       textOfDefDef(sb, indent: String, node)
 
@@ -108,16 +126,16 @@ class TreePrinter(privateMembers: Boolean = false) {
     val isEnum = node.contains(ENUM)
     val isObject = node.contains(OBJECT)
     val isGivenObject = isGivenObject0(node)
-    val isImplicitClass = node.nextSibling.exists(it => it.is(DEFDEF) && it.contains(SYNTHETIC) && it.contains(IMPLICIT) && it.name == name)
-    val isGivenImplicitClass = isGivenImplicitClass0(node)
+    val isGivenClass = isGivenClass0(node)
+    val isImplicitClass = isImplicitClass0(node)
     val isTypeMember = !template.is(TEMPLATE)
-    val isAnonymousGiven = (isGivenObject || isGivenImplicitClass) && name.startsWith("given_") // TODO common method
+    val isAnonymousGiven = (isGivenObject || isGivenClass) && name.startsWith("given_") // TODO common method
     val isPackageObject = isObject && definition.exists(_.is(PACKAGE))
     readSourceFileAnnotationIn(node)
     textOfAnnotationIn(sb, indent, node, "\n")
     sb ++= indent
-    modifiersIn(sb, if (isObject) node.previousSibling.getOrElse(node) else node,
-      if (isGivenImplicitClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))), isParameter = false)
+    modifiersIn(sb, if (isObject) node.prevSibling.getOrElse(node) else node,
+      if (isGivenClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))), isParameter = false)
     if (isImplicitClass) {
       sb ++= "implicit "
     }
@@ -139,7 +157,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       sb ++= "trait "
     } else if (isTypeMember) {
       sb ++= "type "
-    } else if (isGivenImplicitClass) {
+    } else if (isGivenClass) {
       sb ++= "given "
     } else {
       sb ++= "class "
@@ -149,7 +167,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         sb ++= id(definition.get.children.headOption.flatMap(_.name.split('.').lastOption).getOrElse("")) // TODO check
       } else {
         if (isObject) {
-          sb ++= id(node.previousSibling.fold(name)(_.name)) // TODO check type
+          sb ++= id(node.prevSibling.fold(name)(_.name)) // TODO check type
         } else {
           sb ++= id(name)
         }
@@ -205,7 +223,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     }.filter(s => s.nonEmpty && s != "java.lang.Object" && s != "_root_.scala.runtime.EnumValue" &&
       !(isInCaseClass && s == "_root_.scala.Product" || s == "_root_.scala.Serializable"))
       .map(simple)
-    val isInGiven = definition.exists(it => isGivenObject0(it) || isGivenImplicitClass0(it))
+    val isInGiven = definition.exists(it => isGivenObject0(it) || isGivenClass0(it))
     val isInAnonymousGiven = isInGiven && definition.exists(_.name.startsWith("given_")) // TODO common method
 
     val previousLength = sb.length
@@ -672,7 +690,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           sb ++= "inline "
         }
         val templateValueParam = templateValueParams.map(_.next())
-        if (!definition.exists(isGivenImplicitClass0)) {
+        if (!definition.exists(isGivenClass0)) {
           templateValueParam.foreach { valueParam =>
             if (!valueParam.contains(LOCAL)) {
               val sb1 = new StringBuilder() // TODO reuse

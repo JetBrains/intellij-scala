@@ -39,7 +39,7 @@ private class TreeReader(nameAtRef: NameTable) {
           val trees = in.until(end)(readTree(in))
           trees.zip(trees.drop(1)).foreach { case (a, b) =>
             a.nextSibling = Some(b)
-            b.previousSibling = Some(a)
+            b.prevSibling = Some(a)
           }
           trees
         }
