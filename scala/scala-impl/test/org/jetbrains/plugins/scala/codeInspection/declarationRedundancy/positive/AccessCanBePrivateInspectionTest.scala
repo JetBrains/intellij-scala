@@ -230,4 +230,7 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
        |  implicit class IntExt2(i: Int) { def bar = 42 }
        |}
        |""".stripMargin, AllowAdditionalHighlights)
+
+  def test_inner_class_accessed_by_companion(): Unit =
+    checkTextHasError(s"object A { class ${START}B$END }; class A { private def foo: A.B = ??? }")
 }
