@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 import scala.ref.WeakReference
 
@@ -23,9 +24,9 @@ private final class ElementUsageWithKnownReference private(
   target: WeakReference[ScNamedElement]
 ) extends ElementUsage {
 
-  def referenceIsInMemberThatHasTypeDefAsAncestor(typeDefs: ScTypeDefinition*): Boolean = {
+  def referenceIsInMemberThatHasTypeDefAsAncestor(typeDef: ScTypeDefinition): Boolean = {
     val memberThatReferenceIsPartOf = reference.getElement.parentOfType[ScMember]
-    memberThatReferenceIsPartOf.exists(m => typeDefs.exists(typeDef => m == typeDef || typeDef.isAncestorOf(m)))
+    memberThatReferenceIsPartOf.exists(m => m == typeDef || typeDef.isAncestorOf(m))
   }
 
   private def isReferenceToDefMacroImpl: Boolean =
@@ -98,15 +99,38 @@ private final class ElementUsageWithKnownReference private(
         refExpr.children.size != 1 && firstChildIsNonThisTypedExpression(refExpr)
       }
   }
+  private def referenceIsInCompanionScope: Boolean = {
+    val targetContainer = target.underlying.get().parentOfType[ScTypeDefinition]
+    val targetContainerCompanion = targetContainer.flatMap(_.baseCompanion)
+    val referenceContainer = reference.getElement.parentOfType[ScTypeDefinition]
+    val referenceContainerIsTargetContainerCompanion = targetContainerCompanion.exists(referenceContainer.contains)
 
-  override def targetCanBePrivate: Boolean = {
+    val referenceIsExpressionWhoseFirstChildHasTargetContainerType = reference.getElement match {
+      case refExpr: ScReferenceExpression if refExpr.children.size > 1 =>
+        val firstChild = refExpr.children.toSeq.head
+        val firstChildType = firstChild.asOptionOfUnsafe[Typeable].toSeq.flatMap(_.`type`().toSeq).headOption
+        val targetContainerType = targetContainer.toSeq.flatMap(_.`type`().toSeq).headOption
+
+        (firstChildType, targetContainerType) match {
+          case (Some(t1), Some(t2)) => t1.equiv(t2)
+          case _ => false
+        }
+
+      case _ => false
+    }
+
+    referenceContainerIsTargetContainerCompanion &&
+      (reference.getElement.is[ScStableCodeReference] || referenceIsExpressionWhoseFirstChildHasTargetContainerType)
+  }
+
+
+  override lazy val targetCanBePrivate: Boolean = {
     val parentTypeDef = target.underlying.get().parentOfType[ScTypeDefinition]
 
     !isReferenceToDefMacroImpl &&
       !parentTypeDef.exists(isIndirectReferenceToImplicitClassExtensionMethodFromWithinThatClass) &&
       parentTypeDef.exists { typeDef =>
-        val typeDefAndCompanion = typeDef +: typeDef.baseCompanion.toSeq
-        referenceIsInMemberThatHasTypeDefAsAncestor(typeDefAndCompanion: _*)
+        referenceIsInMemberThatHasTypeDefAsAncestor(typeDef) || referenceIsInCompanionScope
       }
   }
 }
