@@ -260,4 +260,13 @@ final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInsp
       |}
       |""".stripMargin
   )
+
+  def test_method_defined_in_subclass_of_companion(): Unit = checkTextHasNoErrors(
+    """class Foo { def getInt = 1 }
+      |class FooBar extends Foo
+      |object Foo { new FooBar().getInt }
+      |""".stripMargin
+  )
+
+  def test_that_fails_in_order_to_prevent_merge(): Unit = throw new Exception
 }
