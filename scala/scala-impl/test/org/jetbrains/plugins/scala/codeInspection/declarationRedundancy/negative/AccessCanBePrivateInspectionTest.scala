@@ -165,4 +165,84 @@ final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInsp
        |  }
        |}
        |""".stripMargin)
+
+  def test_prevent_escaping_via_projection_type_in_companion(): Unit = checkTextHasNoErrors(
+    """object A {
+      |  object B {
+      |    class C
+      |  }
+      |}
+      |
+      |class A {
+      |  def foo: A.B.C = ???
+      |}
+      |""".stripMargin)
+
+  def test_prevent_escaping_via_projection_type1(): Unit = checkTextHasNoErrors(
+    s"""object A {
+       |  object B {
+       |    object C {
+       |      object D {
+       |        class E
+       |      }
+       |      println(D)
+       |    }
+       |    println(C)
+       |  }
+       |  def foo: A.B.C.D.E = ???
+       |  println(B)
+       |}
+       |""".stripMargin
+  )
+
+  def test_prevent_escaping_via_projection_type2(): Unit = checkTextHasNoErrors(
+    s"""object A {
+       |  object B {
+       |    object C {
+       |      object D {
+       |        class E
+       |      }
+       |      println(D)
+       |    }
+       |    def foo: A.B.C.D.E = ???
+       |    println(C)
+       |  }
+       |  println(B)
+       |}
+       |""".stripMargin
+  )
+
+  def test_prevent_escaping_via_projection_type3(): Unit = checkTextHasNoErrors(
+    s"""object A {
+       |  object B {
+       |    object C {
+       |      object D {
+       |        class E
+       |      }
+       |      def foo: A.B.C.D.E = ???
+       |      println(D)
+       |    }
+       |    println(C)
+       |  }
+       |  println(B)
+       |}
+       |""".stripMargin
+  )
+
+  def test_prevent_escaping_via_projection_type4(): Unit = checkTextHasNoErrors(
+    s"""object A {
+       |  object B {
+       |    object C {
+       |      object D {
+       |        class E
+       |        def foo: A.B.C.D.E = ???
+       |      }
+       |      println(D)
+       |    }
+       |    println(C)
+       |  }
+       |  println(B)
+       |}
+       |""".stripMargin
+  )
 }

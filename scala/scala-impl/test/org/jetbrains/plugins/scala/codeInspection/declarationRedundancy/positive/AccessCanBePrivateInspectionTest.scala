@@ -129,4 +129,84 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
          |  def foo(): Unit = defMacroImpl(null)
          |}
          |""".stripMargin, AllowAdditionalHighlights)
+
+  def test_no_need_to_prevent_escaping_via_projection_type_in_companion1(): Unit = checkTextHasError(
+    s"object A { object ${START}B$END { class C } }; class A { private def foo: A.B.C = ???}",
+    AllowAdditionalHighlights)
+
+  def test_no_need_to_prevent_escaping_via_projection_type_in_companion2(): Unit = checkTextHasError(
+    s"object A { object ${START}B$END { object C { class D } } }; class A { private def foo: A.B.C.D = ???}",
+    AllowAdditionalHighlights)
+
+  def test_no_need_to_prevent_escaping_via_projection_type1(): Unit = checkTextHasError(
+    s"""object A {
+       |  object ${START}B$END {
+       |    object C {
+       |      object D {
+       |        class E
+       |      }
+       |      println(D)
+       |    }
+       |    println(C)
+       |  }
+       |  private def foo: A.B.C.D.E = ???
+       |  println(B)
+       |}
+       |""".stripMargin,
+    AllowAdditionalHighlights
+  )
+
+  def test_no_need_to_prevent_escaping_via_projection_type2(): Unit = checkTextHasError(
+    s"""object A {
+       |  object ${START}B$END {
+       |    object ${START}C$END {
+       |      object D {
+       |        class E
+       |      }
+       |      println(D)
+       |    }
+       |    private def foo: A.B.C.D.E = ???
+       |    println(C)
+       |  }
+       |  println(B)
+       |}
+       |""".stripMargin,
+    AllowAdditionalHighlights
+  )
+
+  def test_no_need_to_prevent_escaping_via_projection_type3(): Unit = checkTextHasError(
+    s"""object A {
+       |  object ${START}B$END {
+       |    object ${START}C$END {
+       |      object ${START}D$END {
+       |        class E
+       |      }
+       |      private def foo: A.B.C.D.E = ???
+       |      println(D)
+       |    }
+       |    println(C)
+       |  }
+       |  println(B)
+       |}
+       |""".stripMargin,
+    AllowAdditionalHighlights
+  )
+
+  def test_no_need_to_prevent_escaping_via_projection_type4(): Unit = checkTextHasError(
+    s"""object A {
+       |  object ${START}B$END {
+       |    object ${START}C$END {
+       |      object ${START}D$END {
+       |        class ${START}E$END
+       |        private def foo: A.B.C.D.E = ???
+       |      }
+       |      println(D)
+       |    }
+       |    println(C)
+       |  }
+       |  println(B)
+       |}
+       |""".stripMargin,
+    AllowAdditionalHighlights
+  )
 }
