@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
@@ -53,6 +54,8 @@ private[declarationRedundancy] object TypeDefEscaping {
   private def destructureParameterizedTypes(types: Seq[ScType]): Seq[ScType] = types.flatMap {
     case parameterizedType: ScParameterizedType =>
       parameterizedType.designator +: destructureParameterizedTypes(parameterizedType.typeArguments)
+    case projectionType: ScProjectionType =>
+      projectionType +: destructureParameterizedTypes(Seq(projectionType.projected))
     case t => Seq(t)
   }
 
@@ -123,7 +126,10 @@ private[declarationRedundancy] object TypeDefEscaping {
       member match {
         case typeDef: ScTypeDefinition if !isPrivate(typeDef) =>
 
-          val types = typeDef.`type`().toSeq ++ getTypeParameterTypes(typeDef)
+          val templateParentTypes = Option(typeDef.extendsBlock).flatMap(_.templateParents)
+            .toSeq.flatMap(_.typeElements).flatMap(_.`type`().toSeq)
+
+          val types = templateParentTypes ++ getTypeParameterTypes(typeDef)
           val childTypes = (typeDef +: typeDef.baseCompanion.toSeq).flatMap(getEscapeInfos)
 
           EscapeInfo(typeDef, destructureAndFilter(types)) +: childTypes
