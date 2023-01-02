@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.getPipeline
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.TypeDefEscaping.elementIsTypeDefWhichEscapesItsDefiningScopeWhenItIsPrivate
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.SymbolEscaping.elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection
@@ -31,7 +31,7 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
   private def computeCanBePrivate(element: ScNamedElement, isOnTheFly: Boolean): Boolean =
     Search.Util.shouldProcessElement(element) && {
       val usages = getPipeline(element.getProject).runSearchPipeline(element, isOnTheFly)
-      usages.nonEmpty && usages.forall(_.targetCanBePrivate) && !elementIsTypeDefWhichEscapesItsDefiningScopeWhenItIsPrivate(element)
+      usages.nonEmpty && usages.forall(_.targetCanBePrivate) && !elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate(element)
     }
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] =

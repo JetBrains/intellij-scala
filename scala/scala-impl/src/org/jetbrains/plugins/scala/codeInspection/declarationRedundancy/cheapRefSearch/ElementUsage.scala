@@ -99,6 +99,7 @@ private final class ElementUsageWithKnownReference private(
         refExpr.children.size != 1 && firstChildIsNonThisTypedExpression(refExpr)
       }
   }
+
   private def referenceIsInCompanionScope: Boolean = {
     val targetContainer = target.underlying.get().parentOfType[ScTypeDefinition]
     val targetContainerCompanion = targetContainer.flatMap(_.baseCompanion)
