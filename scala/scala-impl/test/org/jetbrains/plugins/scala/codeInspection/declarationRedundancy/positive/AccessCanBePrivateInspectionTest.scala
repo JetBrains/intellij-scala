@@ -210,6 +210,9 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
     AllowAdditionalHighlights
   )
 
+  def test_no_need_to_prevent_escaping_via_path_dependent_type(): Unit =
+    checkTextHasError(s"class A { private class B; val ${START}a$END = new A; private def b = new a.B }", AllowAdditionalHighlights)
+
   def test_implicit_class_extension_method_used_directly_from_within_itself(): Unit = checkTextHasError(
     s"""object foo {
        |  implicit class IntExt1(i: Int) { self =>
