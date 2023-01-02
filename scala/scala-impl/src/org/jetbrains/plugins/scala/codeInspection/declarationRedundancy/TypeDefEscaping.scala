@@ -26,7 +26,10 @@ private[declarationRedundancy] object TypeDefEscaping {
 
   /**
    * If any of the scraped [[ScType]] instances are parameterized, this method will destructure those into a list of
-   * non-parameterized [[ScType]] instances. Note that there are at least 2 seemingly different forms I'm currently
+   * non-parameterized [[ScType]] instances. If any of the instances are projection types, those too will be
+   * destructured into non-projection types.
+   *
+   * Regarding parameterized types, there are at least 2 seemingly different forms I'm currently
    * aware of, that are both handled here, and that are equally crucial in detecting escaping type definitions.
    *
    * Form 1: A => B.
@@ -49,12 +52,20 @@ private[declarationRedundancy] object TypeDefEscaping {
    * into a list of its non-parameterized constituents. So `Option[Seq[B]]` becomes `Option, Seq, B`.
    *
    * Any types that are not parameterized are returned in their original form.
+   *
+   * Regarding projection types, let's use the below code as an example:
+   * {{{
+   * object A { object B { class C } }
+   * class A { def foo: A.B.C = ??? }
+   * }}}
+   * To understand whether `A.B` can be private, the inspection must be aware that the return type of `foo`,
+   * `A.B.C`, includes type `A.B`. So a type like `A.B.C` will be destructured into `A.B.C`, `A.B` and `A`.
    */
-  private def destructureParameterizedTypes(types: Seq[ScType]): Seq[ScType] = types.flatMap {
+  private def destructureParameterizedAndProjectionTypes(types: Seq[ScType]): Seq[ScType] = types.flatMap {
     case parameterizedType: ScParameterizedType =>
-      parameterizedType.designator +: destructureParameterizedTypes(parameterizedType.typeArguments)
+      parameterizedType.designator +: destructureParameterizedAndProjectionTypes(parameterizedType.typeArguments)
     case projectionType: ScProjectionType =>
-      projectionType +: destructureParameterizedTypes(Seq(projectionType.projected))
+      projectionType +: destructureParameterizedAndProjectionTypes(Seq(projectionType.projected))
     case t => Seq(t)
   }
 
@@ -113,7 +124,7 @@ private[declarationRedundancy] object TypeDefEscaping {
     val typeDefFile = typeDef.getContainingFile
 
     def destructureAndFilter(types: Seq[ScType]): Seq[ScType] =
-      destructureParameterizedTypes(types)
+      destructureParameterizedAndProjectionTypes(types)
         .filter(t => isScTypeDefinedInFile(t, typeDefFile))
         .filterNot(_.is[TypeParameterType])
 
