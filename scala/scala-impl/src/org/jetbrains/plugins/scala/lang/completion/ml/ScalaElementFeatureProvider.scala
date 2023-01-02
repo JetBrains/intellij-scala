@@ -90,7 +90,7 @@ final class ScalaElementFeatureProvider extends ElementFeatureProvider {
 
 object ScalaElementFeatureProvider {
 
-  private val ExpectedTypeAndNameWords = NotNullLazyKey.create[(Array[String], Array[String]), CompletionLocation]("scala.feature.element.expected.type.and.name.words", location => {
+  private val ExpectedTypeAndNameWords = NotNullLazyKey.createLazyKey[(Array[String], Array[String]), CompletionLocation]("scala.feature.element.expected.type.and.name.words", location => {
     val position = location.getCompletionParameters.getPosition
 
     val expectedTypeAndName = definitionByPosition(position).flatMap {
@@ -115,7 +115,7 @@ object ScalaElementFeatureProvider {
     expectedTypeWords -> expectedNameWords
   })
 
-  private val Context = NotNullLazyKey.create[util.HashMap[String, MLFeatureValue], CompletionLocation]("scala.feature.element.context", location => {
+  private val Context = NotNullLazyKey.createLazyKey[util.HashMap[String, MLFeatureValue], CompletionLocation]("scala.feature.element.context", location => {
     val position = location.getCompletionParameters.getPosition
     val processingContext = location.getProcessingContext
 

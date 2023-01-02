@@ -38,6 +38,7 @@ object ScalaEditorFileSwapper {
 
 class ScalaEditorFileSwapper extends EditorFileSwapper {
   override def getFileToSwapTo(project: Project, editorComposite: EditorComposite): Pair[VirtualFile, Integer] = {
-    new Pair(ScalaEditorFileSwapper.findSourceFile(project, editorComposite.getFile), null)
+    val sourceFile = ScalaEditorFileSwapper.findSourceFile(project, editorComposite.getFile)
+    if (sourceFile ne null) new Pair(sourceFile, null) else null
   }
 }

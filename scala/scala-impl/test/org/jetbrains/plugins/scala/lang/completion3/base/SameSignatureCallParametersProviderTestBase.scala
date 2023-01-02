@@ -6,6 +6,7 @@ import com.intellij.ui.icons.RowIcon
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.{createPresentation, hasItemText, hasLookupString}
 
 import javax.swing.Icon
+import scala.jdk.CollectionConverters._
 
 abstract class SameSignatureCallParametersProviderTestBase extends ScalaCompletionTestBase {
 
@@ -41,7 +42,7 @@ abstract class SameSignatureCallParametersProviderTestBase extends ScalaCompleti
         .reverse
         .toSeq
         .flatMap {
-          case layer: RowIcon => layer.getAllIcons
+          case layer: RowIcon => layer.getAllIcons.asScala
           case layer => Seq(layer)
         }
     case _ => Seq(icon)
