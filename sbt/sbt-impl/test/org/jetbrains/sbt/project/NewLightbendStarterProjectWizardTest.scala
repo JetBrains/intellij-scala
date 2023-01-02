@@ -54,7 +54,7 @@ class NewLightbendStarterProjectWizardTest extends NewScalaProjectWizardTestBase
 
           sources := Seq("src/main/scala")
           testSources := Seq("src/test/scala")
-          excluded := Seq("project/target", "target")
+          excluded := Seq("target")
         },
         new module(s"$projectName-build") {
           sources := Seq("")

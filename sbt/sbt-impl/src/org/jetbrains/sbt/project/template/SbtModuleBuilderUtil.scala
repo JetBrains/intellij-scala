@@ -111,7 +111,7 @@ object SbtModuleBuilderUtil {
     folders: DefaultModuleContentEntryFolders,
   ): Unit = {
     def url(relativePath: String): String =
-      vContentRootDir.toString + "/" + relativePath
+      vContentRootDir.toString + File.separator + relativePath
 
     folders.sources.map(url).foreach(entry.addSourceFolder(_, JavaSourceRootType.SOURCE))
     folders.testSources.map(url).foreach(entry.addSourceFolder(_, JavaSourceRootType.TEST_SOURCE))
