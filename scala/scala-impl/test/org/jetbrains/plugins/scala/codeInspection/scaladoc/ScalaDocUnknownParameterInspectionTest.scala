@@ -2,17 +2,22 @@ package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.lang.annotation.HighlightSeverity
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase.TestPrepareResult
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 
-class ScalaDocUnknownParameterInspectionTest extends ScalaInspectionTestBase {
+abstract class ScalaDocUnknownParameterInspectionTestBase extends ScalaInspectionTestBase {
 
   override protected val classOfInspection = classOf[ScalaDocUnknownParameterInspection]
 
-  override protected def description: String = ??? // unused
+  //noinspection NotImplementedCode (unused)
+  override protected def description: String = ???
 
   override protected def descriptionMatches(s: String): Boolean = s != null
+}
+
+class ScalaDocUnknownParameterInspectionTest extends ScalaDocUnknownParameterInspectionTestBase {
 
   def testDeleteUnresolvedParamTag(): Unit = {
     testQuickFix(
@@ -232,6 +237,29 @@ class ScalaDocUnknownParameterInspectionTest extends ScalaInspectionTestBase {
       Seq(
         ExpectedHighlight(HighlightSeverity.WEAK_WARNING, "@tparam", "Scaladoc can't process tparams for type alias now"),
       )
+    )
+  }
+}
+
+class ScalaDocUnknownParameterInspectionTest_Scala3 extends ScalaDocUnknownParameterInspectionTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  def testEnumWithCases(): Unit = {
+    checkTextHasNoErrors(
+      """/**
+        | * @param myParameter parameter description
+        | * @tparam MyTypeParameter type parameter description
+        | */
+        |enum TestEnum [MyTypeParameter](myParameter: Int) {
+        |  /**
+        |   * @param myParameterInner parameter description
+        |   * @tparam MyTypeParameterInner type parameter description
+        |   */
+        |  case EnumMember[MyTypeParameterInner](myParameterInner: Int)
+        |    extends TestEnum[MyTypeParameterInner](myParameterInner)
+        |}
+        |""".stripMargin
     )
   }
 }

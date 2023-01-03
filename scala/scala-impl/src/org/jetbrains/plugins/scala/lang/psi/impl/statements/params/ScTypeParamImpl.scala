@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -94,7 +94,35 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
     }
   }
 
-  override def getUseScope: SearchScope = new LocalSearchScope(owner).intersectWith(super.getUseScope)
+  override def getUseScope: SearchScope = {
+    val typeParamOwner = owner
+
+    val superSearchScope = super.getUseScope
+    val ownerSearchScope = new LocalSearchScope(typeParamOwner)
+
+
+    val result0 = ownerSearchScope.intersectWith(superSearchScope)
+
+    /**
+     * In case of scala 3 enum case the scaladoc is attached to ScEnumCases, not ScEnumCase
+     * (see comment to [[org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCases]])
+     * so we need to add it's scope as well.
+     * In all other cases the document is attached to the owner and is included into ownerSearchScope
+     */
+    val extraScaladocScope = typeParamOwner match {
+      case enumCase: ScEnumCase =>
+        enumCase.getParent.asInstanceOf[ScEnumCases].docComment.map(new LocalSearchScope(_))
+      case _ =>
+        None
+    }
+
+    extraScaladocScope match {
+      case Some(scope) =>
+        result0.union(scope)
+      case None =>
+        result0
+    }
+  }
 
   override def nameId: PsiElement = findLastChildByType(TokenSets.ID_SET).orNull
 
@@ -117,7 +145,7 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
   }
 
   override def getSuperTypes: Array[PsiClassType] =
-    // For Java
+  // For Java
     upperBound.toOption.map {
       case ParameterizedType(des, _) if hasTypeParameters => des
       case t => t

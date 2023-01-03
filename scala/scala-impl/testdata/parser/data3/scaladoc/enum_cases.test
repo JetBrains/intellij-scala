@@ -1,0 +1,137 @@
+enum TestEnum [MyTypeParameter](myParameter: Int) {
+  /**
+   * @param myParameterInner42 parameter description
+   * @tparam MyTypeParameterInner type parameter description
+   */
+  case EnumMember[MyTypeParameterInner](myParameterInner42: Int)
+    extends TestEnum[MyTypeParameterInner](myParameterInner42)
+}
+
+------
+ScalaFile
+  ScEnum: TestEnum
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestEnum')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: MyTypeParameter
+        PsiElement(identifier)('MyTypeParameter')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: myParameter
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('myParameter')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: EnumMember
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+            ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+            DocTag
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_TAG_NAME)('@param')
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScalaDocTagValue: myParameterInner42
+                ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('myParameterInner42')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('parameter description')
+                ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+            DocTag
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_TAG_NAME)('@tparam')
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScalaDocTagValue: MyTypeParameterInner
+                ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('MyTypeParameterInner')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('type parameter description')
+                ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumCase: EnumMember
+            PsiElement(identifier)('EnumMember')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: MyTypeParameterInner
+                PsiElement(identifier)('MyTypeParameterInner')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: myParameterInner42
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('myParameterInner42')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: TestEnum[MyTypeParameterInner]
+                    SimpleType: TestEnum
+                      CodeReferenceElement: TestEnum
+                        PsiElement(identifier)('TestEnum')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleType: MyTypeParameterInner
+                        CodeReferenceElement: MyTypeParameterInner
+                          PsiElement(identifier)('MyTypeParameterInner')
+                      PsiElement(])(']')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: myParameterInner42
+                      PsiElement(identifier)('myParameterInner42')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')

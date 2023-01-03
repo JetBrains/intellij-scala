@@ -1,15 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import org.jetbrains.plugins.scala.extensions.OptionExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScEnum, ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 import scala.annotation.tailrec
 
-trait ScEnumCase extends ScConstructorOwner {
+trait ScEnumCase extends ScConstructorOwner
+  with ScParameterOwner
+  with ScTypeParametersOwner {
+
   def enumParent: ScEnum
 
   /**

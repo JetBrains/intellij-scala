@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.parser.ScalaTokenBinders
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -20,8 +21,9 @@ object EnumCase extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
+    marker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
 
-    Annotations()
+    Annotations.parseAndBindToLeft()
 
     val modifierMarker = builder.mark()
     while (Modifier()) {}

@@ -1255,11 +1255,16 @@ object ScalaPsiElementFactory {
     createScalaDocComment(s"/**$text*/").getNode.getChildren(null)(1).getPsi
 
   def createScalaDocTagValue(@NonNls text: String)
-                            (implicit ctx: ProjectContext): PsiElement =
-    createClassWithBody(
+                            (implicit ctx: ProjectContext): PsiElement = {
+    val definition = createClassWithBody(
       s"""/**@param $text
-         |*/""".stripMargin, ScalaFeatures.default).docComment.orNull
-      .getNode.getChildren(null)(1).getChildren(null)(2).getPsi
+         |*/""".stripMargin,
+      ScalaFeatures.default
+    )
+    val docComment = definition.docComment.orNull
+    assert(docComment != null, s"Can't find any scaladoc comment in definition: ${definition.getText}")
+    docComment.getNode.getChildren(null)(1).getChildren(null)(2).getPsi
+  }
 
   def createScalaDocTagName(@NonNls name: String)(implicit ctx: ProjectContext): PsiElement =
     createScalaFileFromText("/**@" + name + " qwerty */", ScalaFeatures.default)
