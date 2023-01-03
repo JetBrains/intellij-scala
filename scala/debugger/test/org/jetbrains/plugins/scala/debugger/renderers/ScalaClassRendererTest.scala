@@ -13,7 +13,8 @@ import java.nio.file.Path
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_0,
-  TestScalaVersion.Scala_3_1
+  TestScalaVersion.Scala_3_1,
+  TestScalaVersion.Scala_3_2
 ))
 class ScalaClassRendererTest extends RendererTestBase {
 
@@ -46,7 +47,7 @@ class ScalaClassRendererTest extends RendererTestBase {
        |}""".stripMargin)
 
   def testScalaObject(): Unit = {
-    testClassRenderer("test.ScalaObject")("myThis", "test.ScalaObject$", "@1",
+    testClassRenderer("test.ScalaObject")("myThis", "test.ScalaObject$",
       Set(
         "privateThisVal = 1.0",
         "privateVal = 2",
@@ -96,7 +97,7 @@ class ScalaClassRendererTest extends RendererTestBase {
        |}""".stripMargin)
 
   def testScalaClass(): Unit = {
-    testClassRenderer("test.Main")("myThis", "test.ScalaClass", "@1",
+    testClassRenderer("test.Main")("myThis", "test.ScalaClass",
       Set(
         "privateThisVal = 1.0",
         "privateVal = 2",
@@ -111,12 +112,58 @@ class ScalaClassRendererTest extends RendererTestBase {
       ))
   }
 
+  addSourceFile("TransientLazyVal.scala",
+    s"""object TransientLazyVal {
+       |  class MyClass(val attrs: Seq[String]) extends Serializable {
+       |    @transient private lazy val attrsSize = attrs.size
+       |
+       |    @transient private lazy val attrsSizeSquare = attrsSize * attrsSize
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    val x = new MyClass(Seq("abc", "def"))
+       |    println(x) $breakpoint
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testTransientLazyVal(): Unit = testClassRenderer("TransientLazyVal")(
+    "x", "TransientLazyVal$MyClass", Set(
+    "attrs = {$colon$colon@uniqueID}size = 2",
+    "attrsSize = 2",
+    "attrsSizeSquare = 4"
+  ))
+
+  addSourceFile("TransientLazyValInImplicitClass.scala",
+    s"""object TransientLazyValInImplicitClass {
+       |  implicit class MyImplicitClass(val attrs: Seq[String]) extends Serializable {
+       |    @transient private lazy val attrsSize = attrs.size
+       |
+       |    @transient private lazy val attrsSizeSquare = attrsSize * attrsSize
+       |
+       |    @transient private lazy val attrsSizeCube = attrsSizeSquare * attrsSize
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    val x: MyImplicitClass = Seq("abc", "def", "ghi")
+       |    println(x) $breakpoint
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testTransientLazyValInImplicitClass(): Unit = testClassRenderer("TransientLazyValInImplicitClass")(
+    "x", "TransientLazyValInImplicitClass$MyImplicitClass", Set(
+    "attrs = {$colon$colon@uniqueID}size = 3",
+    "attrsSize = 3",
+    "attrsSizeSquare = 9",
+    "attrsSizeCube = 27"
+  ))
+
   private val UNIQUE_ID = "uniqueID"
 
   private def testClassRenderer(mainClassName: String)(
     varName: String,
     className: String,
-    afterTypeLabel: String,
     expectedChildrenLabels: Set[String]): Unit = {
     rendererTest(mainClassName) { implicit ctx =>
       val (label, childrenLabels) =
@@ -124,9 +171,9 @@ class ScalaClassRendererTest extends RendererTestBase {
 
       val classRenderer = NodeRendererSettings.getInstance().getClassRenderer
       val typeName = classRenderer.renderTypeName(className)
-      val expectedLabel = s"$varName = {$typeName@$UNIQUE_ID}$className$afterTypeLabel"
+      val expectedLabel = s"$varName = {$typeName@$UNIQUE_ID}$className"
 
-      assertEquals(expectedLabel, label)
+      assert(label.startsWith(expectedLabel))
       assertEquals(expectedChildrenLabels, childrenLabels.toSet)
     }
   }

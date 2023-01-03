@@ -39,7 +39,8 @@ private object LazyValDescriptor {
     val index = lazyValFields.indexOf(field)
     val bitmapNumber = index / 64
     val bitmapExponent = index % 64
-    val bitmapName = s"bitmap$$$bitmapNumber"
+    val transient = if (field.isTransient) "trans$" else ""
+    val bitmapName = s"bitmap$$$transient$bitmapNumber"
     val bitmapField = allFields.find(_.name() == bitmapName).getOrElse(throw EvaluationException(DebuggerBundle.message("could.not.find.bitmap.field", bitmapName)))
     val bitmapValue = ref.getValue(bitmapField).asInstanceOf[PrimitiveValue].longValue()
     val bitmapMask = 1L << bitmapExponent
