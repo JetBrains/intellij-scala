@@ -9,8 +9,8 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, ResolveState}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
@@ -109,7 +109,17 @@ final class ScDocTagValueImpl(node: ASTNode)
     if (scalaDocComment == null || !isParamTag)
       return Nil
 
-    val scalaDocOwner = scalaDocComment.getOwner
+    val scalaDocOwner = scalaDocComment.getOwner match {
+      case enumCases: ScEnumCases =>
+        enumCases.declaredElements.headOption match {
+          case Some(firstEnumCase) => firstEnumCase
+          case _ =>
+            //ScalaDoc comment for a enum case makes sense only when there is a single case,
+            //if there are multiple cases then ScalaDoc will be ignored and no documentation will be generated
+            return Nil
+        }
+      case owner => owner
+    }
     val scalaDocOwnerParameters = (parentTagType, scalaDocOwner) match {
       case (PARAM_TAG, paramsOwner: ScParameterOwner) =>
         paramsOwner.parameters
