@@ -1,6 +1,6 @@
 package A.B.C
 
-public class Foo {
+class Foo {
     public fun Foo() : void = UastEmptyExpression
 }
 
@@ -9,7 +9,7 @@ public class FooWithParam {
     public fun FooWithParam() : void = UastEmptyExpression
 }
 
-public class Bar {
+class Bar {
     public fun Bar() : void = UastEmptyExpression
     public fun getFoo() : A.B.C.Foo {
         FooWithParam()
@@ -17,5 +17,8 @@ public class Bar {
         FooWithParam(num = 8)
         A.B.C.Foo()
         return Foo()
+    }
+    private class BarInner {
+        public fun BarInner() : void = UastEmptyExpression
     }
 }

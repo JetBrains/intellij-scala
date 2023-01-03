@@ -29,3 +29,5 @@ UFile (package = A.B.C)
                 UReturnExpression
                     UCallExpression (kind = UastCallKind(name='constructor_call'), argCount = 0))
                         USimpleNameReferenceExpression (identifier = Foo)
+        UClass (name = BarInner)
+            UMethod (name = BarInner)

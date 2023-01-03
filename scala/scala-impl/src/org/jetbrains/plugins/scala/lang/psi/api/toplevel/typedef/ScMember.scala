@@ -151,18 +151,29 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {
-    def thisAccessModifier = getModifierList.accessModifier
-      .filter(_.isThis)
-
     import PsiModifier._
-    name match {
-      case STATIC => containingClass.isInstanceOf[ScObject]
-      case PUBLIC =>
-        !hasModifierProperty(PRIVATE) &&
-          !hasModifierProperty(PROTECTED)
-      case PRIVATE => thisAccessModifier.exists(_.isPrivate)
-      case PROTECTED => thisAccessModifier.exists(_.isProtected)
-      case _ => getModifierList.hasModifierProperty(name)
+    if (name == STATIC)
+      containingClass.isInstanceOf[ScObject]
+    else {
+      val modifierList = getModifierList
+      name match {
+        case PUBLIC =>
+          val hasPrivateOrProtected = modifierList.accessModifier.exists(_.isPrivate) ||
+            modifierList.accessModifier.exists(_.isProtected)
+          !hasPrivateOrProtected
+        case PRIVATE =>
+          //private modifier at top level in Scala is equivalent to package private visibility scope in Java
+          //This can matter e.g. when printing UAST tree as Java code
+          //(see `PsiModifierListOwner.renderModifiers` in `org.jetbrains.uast/internalUastUtils.kt`)
+          if (isTopLevel)
+            false
+          else
+            modifierList.accessModifier.exists(_.isPrivate)
+        case PROTECTED =>
+          modifierList.accessModifier.exists(_.isProtected)
+        case _ =>
+          modifierList.hasModifierProperty(name)
+      }
     }
   }
 

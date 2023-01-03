@@ -13,4 +13,6 @@ private class Bar {
     new A.B.C.Foo
     new Foo
   }
+
+  private class BarInner
 }

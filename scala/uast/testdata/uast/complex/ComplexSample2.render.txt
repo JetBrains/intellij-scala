@@ -29,10 +29,10 @@ public class Tape {
     public var cell: T
     public var right: scala.collection.immutable.List<T>
     public fun Tape(func: Func<T>) : void = UastEmptyExpression
-    public fun headOf(list: scala.collection.immutable.List<T>) : T {
+    private fun headOf(list: scala.collection.immutable.List<T>) : T {
         return if (list.isEmpty()) func.zero else list.head()
     }
-    public fun tailOf(list: scala.collection.immutable.List<T>) : scala.collection.immutable.List<T> {
+    private fun tailOf(list: scala.collection.immutable.List<T>) : scala.collection.immutable.List<T> {
         return if (list.isEmpty()) Nil else list.tail()
     }
     public fun isZero() : boolean {
@@ -81,7 +81,7 @@ public class Brainfuck {
     private var close2open: scala.collection.immutable.Map<java.lang.Object,java.lang.Object> = _
     public fun Brainfuck(func: Func<T>) : void = UastEmptyExpression
     @scala.annotation.tailrec
-    public fun braceMatcher(pos: int, stack: scala.collection.immutable.List<java.lang.Object>, o2c: scala.collection.immutable.Map<java.lang.Object,java.lang.Object>) : scala.collection.immutable.Map<java.lang.Object,java.lang.Object> {
+    private fun braceMatcher(pos: int, stack: scala.collection.immutable.List<java.lang.Object>, o2c: scala.collection.immutable.Map<java.lang.Object,java.lang.Object>) : scala.collection.immutable.Map<java.lang.Object,java.lang.Object> {
         return if (pos == prog.length()) o2c else switch (prog(pos))
             UastEmptyExpression -> {
                 braceMatcher(pos + 1, pos :: stack, o2c)
@@ -95,7 +95,7 @@ public class Brainfuck {
 
     }
     @scala.annotation.tailrec
-    public fun ex(pos: int, tape: Tape<T>) : void {
+    private fun ex(pos: int, tape: Tape<T>) : void {
         if (pos < prog.length()) ex(switch (prog(pos))
             UastEmptyExpression -> {
                 open2close(pos)
