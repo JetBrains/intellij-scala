@@ -99,7 +99,7 @@ private object ScalaClassRenderer {
       val allMethods = ref.referenceType().allMethods().asScala
       allMethods.exists { m =>
         val methodName = m.name()
-        methodName.contains(fieldName) && methodName.contains("lzycompute")
+        methodName.contains(s"$fieldName$$lzycompute")
       }
     }
   }
