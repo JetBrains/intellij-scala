@@ -11,14 +11,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings}
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
 import org.jetbrains.plugins.scala.editor.{AutoBraceAdvertiser, DocumentExt, ScalaEditorUtils, indentElement, indentKeyword}
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt, _}
-import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
@@ -32,10 +30,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
 
@@ -49,13 +43,17 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
 {
 
   override def charTyped(c: Char, project: Project, editor: Editor, file: PsiFile): Result = {
-    if (!file.is[ScalaFile]) return Result.CONTINUE
+    if (!file.is[ScalaFile])
+      return Result.CONTINUE
 
     val offset = editor.getCaretModel.getOffset
     val document = editor.getDocument
 
     val element = ScalaEditorUtils.findElementAtCaret_WithFixedEOF(file, document.getTextLength - 1, offset - 1)
     if (element == null)
+      return Result.CONTINUE
+
+    if (ScalaDocTypedHandler.isInDocComment(element))
       return Result.CONTINUE
 
     val documentText = document.getImmutableCharSequence
@@ -77,9 +75,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
       prefix.length <= offset && offset <= documentText.length &&
         documentText.substring(offset - prefix.length, offset) == prefix
 
-    val myTask: Task = if (isInDocComment(element)) {
-      return handleScalaDoc(c, project, editor, file, element)
-    } else if (c == ' ' && hasPrefix(" case ")) {
+    val myTask: Task = if (c == ' ' && hasPrefix(" case ")) {
       indentKeyword[ScCaseClause](ScalaTokenTypes.kCASE, file)
     } else if (c == ' ' && hasPrefix("else ")) {
       indentKeyword[ScIf](ScalaTokenTypes.kELSE, file)
@@ -148,7 +144,8 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
   }
 
   override def beforeCharTyped(c: Char, project: Project, editor: Editor, file: PsiFile, fileType: FileType): Result = {
-    if (!file.is[ScalaFile]) return Result.CONTINUE
+    if (!file.is[ScalaFile])
+      return Result.CONTINUE
 
     implicit val e: Editor = editor
     implicit val p: Project = project
@@ -156,7 +153,10 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
     val offset = editor.getCaretModel.getOffset
     val prevElement = file.findElementAt(offset - 1)
     val element = file.findElementAt(offset)
-    if (element == null) return Result.CONTINUE
+    if (element == null)
+      return Result.CONTINUE
+    if (ScalaDocTypedHandler.isInDocComment(element))
+      return Result.CONTINUE
 
     val elementType = element.getNode.getElementType
 
@@ -169,14 +169,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
     }
 
-    if (c == ' ' && prevElement != null && needClosingScaladocTag(element, prevElement)) {
-      insertClosingScaladocTag(offset)
-      moveCaret()
-      Result.STOP
-    } else if (isClosingScaladocTagOrMarkup(c, element, elementType)) {
-      moveCaret()
-      Result.STOP
-    } else if (c == '"' && elementType == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
+    if (c == '"' && elementType == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
       moveCaret()
       Result.STOP
     } else if ((c == '>' || c == '/') && elementType == ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END) {
@@ -219,42 +212,14 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
     } else Result.CONTINUE
   }
 
-  @inline
-  private def isClosingScaladocTagOrMarkup(c: Char, element: PsiElement, elementType: IElementType) = {
-    (elementType.is[ScalaDocSyntaxElementType] || elementType == ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG) &&
-      isInDocComment(element) &&
-      element.getParent.getLastChild == element && element.getText.startsWith("" + c) &&
-      // handling case when '`' was type right after second '`' inside "````" to enable bold syntax ("```bold text```)"
-      !(elementType == ScalaDocTokenType.DOC_ITALIC_TAG &&
-        element.getPrevSibling.nullSafe.map(_.getNode.getElementType).get == ScalaDocTokenType.DOC_ITALIC_TAG)
-  }
-
-  @inline
-  private def isInDocComment(element: PsiElement): Boolean = isInPlace(element, classOf[ScDocComment])
-
-  private def needClosingScaladocTag(element: PsiElement, prevElement: PsiElement)(implicit editor: Editor): Boolean =
-    prevElement.elementType == ScalaDocTokenType.DOC_COMMENT_START && (prevElement.getParent match {
-      case comment: ScDocComment =>
-        val isAtNewLine = element match {
-          case DocWhitespace(ws) => ws.contains("\n")
-          case _ => false
-        }
-        isAtNewLine && !ScalaIsCommentComplete.isCommentComplete(comment, ScalaCommenter, editor)
-      case _ =>
-        false
-    })
-
-  private def insertClosingScaladocTag(offset: Int)(implicit editor: Editor): Unit = {
-    val docEnd = ScalaCommenter.getDocumentationCommentSuffix
-    insertAndCommit(offset, "  " + docEnd, editor.getDocument, editor.getProject)
-  }
-
   private def isInPlace(element: PsiElement, place: Class[_ <: PsiElement]*): Boolean = {
-    if (element == null || place == null) return false
+    if (element == null || place == null)
+      return false
 
     var nextParent = element.getParent
     while (nextParent != null) {
-      if (place.exists(_.isAssignableFrom(nextParent.getClass))) return true
+      if (place.exists(_.isAssignableFrom(nextParent.getClass)))
+        return true
       nextParent = nextParent.getParent
     }
     false
@@ -308,126 +273,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
   private def insertAndCommit(offset: Int, text: String, document: Document, project: Project): Unit = {
     document.insertString(offset, text)
     document.commit(project)
-  }
-
-  //NOTE: we could extract this logic to ScaladocTypedHandler like in JavadocTypedHandler.java
-  // together with `isClosingScaladocTagOrMarkup` method
-  private def handleScalaDoc(
-    charTyped: Char,
-    project: Project,
-    editor: Editor,
-    file: PsiFile,
-    element: PsiElement
-  ): Result = {
-    val document = editor.getDocument
-    val offset = editor.getCaretModel.getOffset
-    val documentText = document.getImmutableCharSequence
-
-    //ensure that we are after `/**`
-    if (offset < 3 || documentText.length <= offset)
-      return Result.CONTINUE
-
-    val SingleQuote = '\''
-
-    val chatAtOffset = documentText.charAt(offset)
-    chatAtOffset match {
-      case ' ' | '\n' | '\t' | '\r' | SingleQuote =>
-      case _ =>
-        return Result.CONTINUE
-    }
-
-    val parentElementType = element.getParent.elementType
-    val isInsideCodeFragment = parentElementType == ScalaDocTokenType.DOC_INNER_CODE_TAG
-    if (isInsideCodeFragment) {
-      return Result.CONTINUE
-    }
-
-    if (charTyped == '@') {
-      adjustStartTagIndent(document, file, offset)
-      return Result.STOP
-    }
-
-    def completeScalaDocWikiSyntax(tagToInsert: String): Unit = {
-      insertAndCommit(offset, tagToInsert, document, project)
-    }
-
-    //Special handling of Italic & Bold syntax: ''italic text'', '''bold text'''
-    //Examples:
-    //type:   'CARET      result: 'CARET      (do nothing)
-    //type:   ''CARET     result: ''CARET''   (close "italic" tag)
-    //type:   '''CARET    result: '''CARET''' (extend "italic" tag to "bold" tag)
-    if (charTyped == SingleQuote) {
-      //reminder: the document text already has the typed `'` symbol
-      val singleQuoteCountLeft = countChars(SingleQuote, documentText, offset - 1, -1)
-      val singleQuoteCountRight = countChars(SingleQuote, documentText, offset, +1)
-      val lackingClosingSingleQuotesCount =
-        if (singleQuoteCountLeft == 2  || singleQuoteCountLeft == 3)
-          singleQuoteCountLeft - singleQuoteCountRight
-        else
-          0
-
-      if (lackingClosingSingleQuotesCount > 0) {
-        val closingChars = SingleQuote.toString * lackingClosingSingleQuotesCount
-        completeScalaDocWikiSyntax(closingChars)
-      }
-      return Result.STOP
-    }
-
-    val prevText1 = documentText.substring(offset - 1, offset)
-    wikiOpenTagToCloseTag1.get(prevText1) match {
-      case Some(closingTag) =>
-        completeScalaDocWikiSyntax(closingTag)
-        return Result.STOP
-      case _ =>
-    }
-
-    val prevText2 = documentText.substring(offset - 2, offset)
-    wikiOpenTagToCloseTag2.get(prevText2) match {
-      case Some(closingTag) =>
-        completeScalaDocWikiSyntax(closingTag)
-        return Result.STOP
-      case _ =>
-    }
-
-    val prevText3 = documentText.substring(offset - 3, offset)
-    wikiOpenTagToCloseTag3.get(prevText3) match {
-      case Some(closingTag) =>
-        completeScalaDocWikiSyntax(closingTag)
-        return Result.STOP
-      case _ =>
-    }
-
-    Result.CONTINUE
-  }
-
-  //inspired by com.intellij.codeInsight.editorActions.JavadocTypedHandler.adjustStartTagIndent
-  private def adjustStartTagIndent(
-    document: Document,
-    file: PsiFile,
-    offset: Int
-  ): Unit = {
-    val elementAtCaret = file.findElementAt(offset)
-
-    val caretIsAtEmptyScaladocContentLine =
-      if (elementAtCaret.elementType == ScalaDocTokenType.DOC_WHITESPACE) {
-        val prevLeaf = PsiTreeUtil.prevLeaf(elementAtCaret)
-        prevLeaf != null && prevLeaf.elementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS && {
-          val nextLeaf = PsiTreeUtil.nextLeaf(elementAtCaret)
-          nextLeaf.elementType match {
-            case ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS | ScalaDocTokenType.DOC_COMMENT_END => true
-            case _ => false
-          }
-        }
-      }
-      else false
-
-    if (caretIsAtEmptyScaladocContentLine) {
-      //we typed `@` right after `*` followed by some whitespace without any content after it
-      //(* and @ are the only chars on the line)
-      val whitespaceStart = elementAtCaret.getTextRange.getStartOffset
-      val whitespaceEnd = offset - 1
-      document.replaceString(whitespaceStart, whitespaceEnd, " ")
-    }
   }
 
   private val NoMatter: PsiElement => Boolean = _ => true
@@ -651,20 +496,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
 }
 
 object ScalaTypedHandler {
-  private val wikiOpenTagToCloseTag1 = Map(
-    "^" -> "^",
-    "`" -> "`"
-  )
-  private val wikiOpenTagToCloseTag2 = Map(
-    "__" -> "__",
-    //"''" -> "''", //`'` symbol has special handling
-    ",," -> ",,",
-    "[[" -> "]]"
-  )
-  private val wikiOpenTagToCloseTag3 = Map(
-    //"'''" -> "'''", //`'` symbol has special handling
-    "{{{" -> "}}}",
-  )
 
   val unicodeCaseArrow = "⇒"
   val unicodeMapArrow = "→"
@@ -751,25 +582,4 @@ object ScalaTypedHandler {
       }
     }
 
-
-  /**
-   *  @return number of chars in a row equal to `charToCount` in given `text` moving index left or right depending on step (e.g. -1 or +1)
-   */
-  private def countChars(charToCount: Char, text: CharSequence, offset: Int, step: Int): Int = {
-    var result = 0
-
-    val textLength = text.length()
-    var idx = offset
-    var continue = true
-    while (idx > 0 && idx < textLength && continue) {
-      val charAt = text.charAt(idx)
-      if (charAt == charToCount)
-        result += 1
-      else
-        continue = false
-      idx += step
-    }
-
-    result
-  }
 }
