@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
@@ -63,6 +63,7 @@ private[declarationRedundancy] object SymbolEscaping {
    * `A.B.C`, includes type `A.B`. So a type like `A.B.C` will be destructured into `A.B.C`, `A.B` and `A`.
    */
   private def destructureParameterizedAndProjectionTypes(types: Seq[ScType]): Seq[ScType] = types.flatMap {
+    case _: ScThisType => Seq.empty
     case parameterizedType: ScParameterizedType =>
       parameterizedType.designator +: destructureParameterizedAndProjectionTypes(parameterizedType.typeArguments)
     case projectionType: ScProjectionType =>
