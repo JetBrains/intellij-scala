@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.lang.scaladoc
+package org.jetbrains.plugins.scala.lang.scaladoc.editor.typing
 
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
-class WikiClosingTagTypedTest extends EditorActionTestBase {
+class ScalaDocWikiClosingTagTypedTest extends EditorActionTestBase {
 
   def testCodeLinkClosingTagInput(): Unit =
     checkGeneratedTextAfterTyping(

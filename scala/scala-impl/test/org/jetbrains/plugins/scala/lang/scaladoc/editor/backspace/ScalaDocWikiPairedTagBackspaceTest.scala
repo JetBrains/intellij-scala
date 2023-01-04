@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.lang.scaladoc
+package org.jetbrains.plugins.scala.lang.scaladoc.editor.backspace
 
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
-class WikiPairedTagBackspaceTest extends EditorActionTestBase {
+class ScalaDocWikiPairedTagBackspaceTest extends EditorActionTestBase {
 
   def testDeleteUnderlinedTag(): Unit =
     checkGeneratedTextAfterBackspace(

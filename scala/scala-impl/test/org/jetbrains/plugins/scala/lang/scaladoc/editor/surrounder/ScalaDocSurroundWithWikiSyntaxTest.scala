@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.scaladoc
+package org.jetbrains.plugins.scala.lang.scaladoc.editor.surrounder
 
 import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler
 import com.intellij.lang.surroundWith.SurroundDescriptor
@@ -9,9 +9,9 @@ import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDe
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
 import org.junit.Assert.{assertFalse, assertTrue}
 
-class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestCase {
+class ScalaDocSurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestCase {
 
-  import SurroundWithWikiSyntaxTest._
+  import ScalaDocSurroundWithWikiSyntaxTest._
 
   private def configureByText(text: String, stripTrailingSpaces: Boolean): Seq[PsiElement] = {
     val normalizedText = if (stripTrailingSpaces) text.withNormalizedSeparator.trim else text.withNormalizedSeparator
@@ -168,7 +168,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestCase {
     )
 }
 
-object SurroundWithWikiSyntaxTest {
+object ScalaDocSurroundWithWikiSyntaxTest {
   private val descriptor: SurroundDescriptor = ScalaSurroundDescriptors.getSurroundDescriptors()(1)
 
   private val surrounders: Seq[ScalaDocWithSyntaxSurrounder] = descriptor.getSurrounders

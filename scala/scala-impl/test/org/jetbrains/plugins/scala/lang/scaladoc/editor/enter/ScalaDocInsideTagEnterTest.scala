@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang.scaladoc
+package org.jetbrains.plugins.scala.lang.scaladoc.editor.enter
 
 import com.intellij.openapi.util.text.StringUtil
 
-class ScalaDocTagEnterHandlerDelegateTest extends ScalaDocEnterActionTestBase {
+class ScalaDocInsideTagEnterTest extends ScalaDocEnterTestBase {
 
   private val spaces = StringUtil.repeat(" ", 4)
 
