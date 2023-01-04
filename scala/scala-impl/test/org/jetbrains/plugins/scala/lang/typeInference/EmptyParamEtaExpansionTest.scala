@@ -3,7 +3,7 @@ package lang.typeInference
 
 import org.jetbrains.plugins.scala.LatestScalaVersions.{Scala_2_11, Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -26,6 +26,8 @@ abstract class EmptyParamEtaExpansionTestBase extends ScalaLightCodeInsightFixtu
 }
 
 abstract class EmptyParamEtaExpansionTest_Since_2_11 extends EmptyParamEtaExpansionTestBase {
+  import Message._
+
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= Scala_2_11
 
   protected val SCL18172_Code = """

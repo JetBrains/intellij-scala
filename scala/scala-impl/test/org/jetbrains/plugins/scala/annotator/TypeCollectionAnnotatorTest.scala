@@ -12,6 +12,7 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 final class TypeCollectionAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase {
+  import Message._
 
   private val immutableCollectionMessage = ScalaBundle.message("scala.immutable.collection")
   private val mutableCollectionMessage = ScalaBundle.message("scala.mutable.collection")

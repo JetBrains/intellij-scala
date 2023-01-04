@@ -10,6 +10,7 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 class PatternAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase {
+  import Message._
 
   private def fruitless(exprType: String, patType: String) = ScalaBundle.message("fruitless.type.test", exprType, patType)
   private def incompatible(exprType: String, patType: String) = ScalaBundle.message("scrutinee.incompatible.pattern.type", exprType, patType)

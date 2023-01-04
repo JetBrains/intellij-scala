@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.extensions.IterableOnceExt
 import scala.annotation.nowarn
 
 class AnnotatorHolderMock(file: PsiFile) extends AnnotatorHolderMockBase[Message](file) {
+  import Message._
 
   def errorAnnotations: List[Error] = annotations.filterByType[Error]
 

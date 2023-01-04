@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotat
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 class MultipleInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition] {
+  import Message._
 
   def testMultipleTraitInheritance(): Unit = {
     assertNothing(messages("trait T; new T {}"))

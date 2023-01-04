@@ -4,6 +4,7 @@ package annotator
 import com.intellij.psi.PsiElement
 
 class ScalaLibVarianceTest extends VarianceTestBase {
+  import Message._
 
   override def annotateFun(element: PsiElement, annotator: ScalaAnnotator, mock: AnnotatorHolderMock): Unit =
     annotator.annotate(element)(mock)

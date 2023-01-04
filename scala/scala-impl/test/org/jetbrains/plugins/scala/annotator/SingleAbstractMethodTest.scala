@@ -28,6 +28,7 @@ import org.junit.experimental.categories.Category
 //  in prod only 2nd variant can be observed
 @Category(Array(classOf[TypecheckerTests]))
 abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with MatcherAssertions {
+  import Message._
 
   protected def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None): Unit =
     assertNothing(messages(scalaCode, javaCode))
@@ -91,6 +92,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with Ma
 //  Would be nice to validate that actual scala compiler does not or does produce errors.
 //  (this is not only about tests but about any other type-inference/resolve-related tests)
 abstract class SingleAbstractMethodTest_Since_2_11_experimental extends SingleAbstractMethodTestBase {
+  import Message._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_11
 
@@ -1282,6 +1284,7 @@ abstract class SingleAbstractMethodTest_Since_2_11_experimental extends SingleAb
 }
 
 abstract class SingleAbstractMethodTest_Since_2_12 extends SingleAbstractMethodTest_Since_2_11_experimental {
+  import Message._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
@@ -1586,6 +1589,7 @@ abstract class SingleAbstractMethodTest_Since_2_12 extends SingleAbstractMethodT
 }
 
 abstract class SingleAbstractMethodTest_Since_2_13 extends SingleAbstractMethodTest_Since_2_12 {
+  import Message._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
@@ -1637,6 +1641,8 @@ abstract class SingleAbstractMethodTest_Since_2_13 extends SingleAbstractMethodT
 }
 
 class SingleAbstractMethodTest_2_13 extends SingleAbstractMethodTest_Since_2_13 {
+  import Message._
+
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 

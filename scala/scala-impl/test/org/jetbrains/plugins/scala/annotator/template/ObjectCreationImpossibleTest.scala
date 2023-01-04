@@ -3,10 +3,12 @@ package org.jetbrains.plugins.scala.annotator.template
 import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator._
-import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error, ScalaAnnotationHolder}
+import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Message, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinition] {
+  import Message._
+
   def testFineNew(): Unit = {
     assertNothing(messages("class C; new C"))
     assertNothing(messages("class C; new C {}"))
@@ -88,6 +90,8 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinitio
 }
 
 class EnumCaseCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinition] {
+  import Message._
+
   def testEnumCaseWithoutExplicitExtends(): Unit = {
     val message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
 

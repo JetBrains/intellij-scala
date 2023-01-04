@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.annotator.element.{ScParameterAnnotator, ScPa
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 
 abstract class ParametersAnnotatorTestBase extends ScalaHighlightingTestBase {
+  import Message._
+
   final val Header = "class A; class B; class C;\n"
 
   protected def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
@@ -23,6 +25,8 @@ abstract class ParametersAnnotatorTestBase extends ScalaHighlightingTestBase {
 }
 
 class ParametersAnnotatorTest extends ParametersAnnotatorTestBase {
+  import Message._
+
   def testFine1(): Unit = assertNothing(messages("def f(a: A) {}"))
   def testFine2(): Unit = assertNothing(messages("def f(a: A*) {}"))
   def testFine3(): Unit = assertNothing(messages("def f(a: A, b: B) {}"))
@@ -87,6 +91,8 @@ class ParametersAnnotatorTest extends ParametersAnnotatorTestBase {
 }
 
 class ParametersAnnotatorTest_without_callByName_implicit_parameter extends ParametersAnnotatorTestBase {
+  import Message._
+
   override protected def supportedIn(version: ScalaVersion): Boolean = version < LatestScalaVersions.Scala_2_13
 
   def testByName_ImplicitParam(): Unit = {

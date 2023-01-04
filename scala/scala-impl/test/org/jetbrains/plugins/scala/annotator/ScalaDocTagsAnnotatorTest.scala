@@ -5,6 +5,7 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 class ScalaDocTagsAnnotatorTest extends ScalaHighlightingTestBase {
+  import Message._
 
   def testDefineAndResolvedParamTags(): Unit = {
     assertNoMessages(

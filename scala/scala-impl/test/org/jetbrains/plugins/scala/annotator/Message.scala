@@ -9,8 +9,10 @@ sealed abstract class Message extends Ordered[Message] {
   override def compare(that: Message): Int =
     (this.element, this.message) compare (that.element, that.message)
 }
-// TODO: move it to Message companion object
-case class Info(override val element: String, override val message: String) extends Message
-case class Warning(override val element: String, override val message: String) extends Message
-case class Error(override val element: String, override val message: String) extends Message
-case class Hint(override val element: String, text: String, override val message: String = "", offsetDelta: Int = 0) extends Message
+
+object Message {
+  case class Info(override val element: String, override val message: String) extends Message
+  case class Warning(override val element: String, override val message: String) extends Message
+  case class Error(override val element: String, override val message: String) extends Message
+  case class Hint(override val element: String, text: String, override val message: String = "", offsetDelta: Int = 0) extends Message
+}

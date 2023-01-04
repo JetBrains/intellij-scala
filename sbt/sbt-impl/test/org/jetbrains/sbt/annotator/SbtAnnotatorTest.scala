@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.{HeavyPlatformTestCase, UsefulTestCase}
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.annotator.{Error, _}
+import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.Version
@@ -129,6 +129,8 @@ class SbtAnnotatorTest_latest extends SbtAnnotatorTestBase with MockSbt_1_0 {
   * Expected error messages for specific sbt versions. Newer versions usually allow more syntactic constructs in the sbt files
   */
 object Expectations {
+  import Message._
+
   val sbtAll: Seq[Error] = Seq(
     Error("object Bar", SbtBundle.message("sbt.annotation.sbtFileMustContainOnlyExpressions"))
   )

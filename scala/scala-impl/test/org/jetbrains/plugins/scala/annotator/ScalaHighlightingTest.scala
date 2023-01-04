@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.annotator
 
 class ScalaHighlightingTest extends ScalaHighlightingTestBase {
+  import Message._
+
   def testSCL4717(): Unit = {
     val scalaText = """
       |object SCL4717 {

@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.annotator
 
 class IfConditionHighlightingTest extends ScalaHighlightingTestBase {
+  import Message._
+
   def testSCL16304(): Unit = {
     val code =
       """

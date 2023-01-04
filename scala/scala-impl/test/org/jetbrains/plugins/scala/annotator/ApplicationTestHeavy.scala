@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class ApplicationTestHeavy extends ScalaHighlightingTestBase {
+  import Message._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_13
 

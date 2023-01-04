@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.annotator
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class EnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
+  import Message._
+
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 

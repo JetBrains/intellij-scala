@@ -5,6 +5,7 @@ import com.intellij.codeInsight.daemon.JavaErrorBundle
 import org.jetbrains.plugins.scala.annotator._
 
 class JavaHighlightingTest extends JavaHighlightingTestBase {
+  import Message._
 
   def testSignatures(): Unit = {
     val scala =

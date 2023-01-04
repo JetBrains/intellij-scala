@@ -36,6 +36,8 @@ object ScParameterizedTypeElementAnnotatorTestBase {
 }
 
 class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTypeElementAnnotatorTestBase {
+  import Message._
+
   override protected val language: Language = ScalaLanguage.INSTANCE
 
   def testTooFewTypeParameter(): Unit = {

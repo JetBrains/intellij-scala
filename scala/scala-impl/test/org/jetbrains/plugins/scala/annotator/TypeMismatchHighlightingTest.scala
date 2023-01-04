@@ -23,6 +23,8 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 // See also: ScFunctionExprAnnotatorTest
 class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
+  import Message._
+
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13 // Literal types
 
   override protected def withHints = true

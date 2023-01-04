@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
+  import Message._
 
   def testEmpty(): Unit = {
     assertNothing(messages("()"))

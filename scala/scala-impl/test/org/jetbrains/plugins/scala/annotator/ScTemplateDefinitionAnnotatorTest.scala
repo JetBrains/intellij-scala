@@ -10,6 +10,8 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 class ScTemplateDefinitionAnnotatorTest extends SimpleTestCase {
+  import Message._
+
   def testTraitPassingConstructorParameters(): Unit =
     assertMessages(messages(
       """

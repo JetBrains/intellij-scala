@@ -10,6 +10,8 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 class TypedExpressionAnnotatorTest extends SimpleTestCase {
+  import Message._
+
   private final val Header = "class A; class B; object A extends A; object B extends B\n"
 
   def testFine(): Unit = {

@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 
 class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
+  import Message._
+
   final val Header = """
   class A; class B
   object A extends A; object B extends B

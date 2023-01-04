@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotat
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 class FinalClassInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition] {
+  import Message._
 
   def testOrdinaryClass(): Unit = {
     assertNothing(messages("class C; new C"))

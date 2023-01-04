@@ -4,6 +4,8 @@ package annotator
 abstract class TraitConstructorHighlightingTestBase extends ScalaHighlightingTestBase
 
 class TraitConstructorHighlightingTest_Scala2 extends TraitConstructorHighlightingTestBase {
+  import Message._
+
   override protected def supportedIn(version: ScalaVersion): Boolean = version < LatestScalaVersions.Scala_3_0
 
   def test_trait_params(): Unit = {

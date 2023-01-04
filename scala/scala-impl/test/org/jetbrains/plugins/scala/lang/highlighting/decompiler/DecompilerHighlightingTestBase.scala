@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.highlighting.decompiler
 
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaReflectLibraryLoader}
 import org.jetbrains.plugins.scala.decompiler.DecompilerTestBase
@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase with DecompilerTestBase with MatcherAssertions {
+  import Message._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_11
 

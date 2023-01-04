@@ -12,6 +12,7 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 class SelfInvocationAnnotatorTest extends SimpleTestCase {
+  import Message._
 
   def messagesForNonGeneric(auxConstr: String): List[Message] = messages(
     s"""

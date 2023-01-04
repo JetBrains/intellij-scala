@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.annotator
 
 class OverrideHighlightingTest extends ScalaHighlightingTestBase {
+  import Message._
+
   def testScl13051(): Unit = {
     val code =
       s"""

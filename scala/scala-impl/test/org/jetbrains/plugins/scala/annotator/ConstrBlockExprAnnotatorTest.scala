@@ -12,6 +12,7 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 abstract class ConstrBlockExprAnnotatorTestBase extends SimpleTestCase {
+  import Message._
 
   protected def language: Language
 

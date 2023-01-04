@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
 class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
+  import Message._
+
   final val Header = """
   class Seq[+A] 
   object Seq { def apply[A](a: A) = new Seq[A] }
@@ -403,6 +405,8 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
 }
 
 class JavaConstructorInvocationAnnotatorTest extends ScalaHighlightingTestBase with MatcherAssertions {
+  import Message._
+
   val javaCode =
     """
       |public class JavaClass {

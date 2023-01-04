@@ -13,6 +13,8 @@ import org.junit.experimental.categories.Category
  */
 @Category(Array(classOf[TypecheckerTests]))
 abstract class ModifierCheckerTestBase extends SimpleTestCase {
+  import Message._
+
   protected def scalaLanguage: com.intellij.lang.Language
 
   protected def messages(code: String) = {
@@ -98,6 +100,8 @@ abstract class ModifierCheckerTestBase extends SimpleTestCase {
 
 @Category(Array(classOf[TypecheckerTests]))
 class ModifierCheckerTest_Scala_2 extends ModifierCheckerTestBase {
+  import Message._
+
   override protected def scalaLanguage: com.intellij.lang.Language = ScalaLanguage.INSTANCE
 
   def testInnerObject(): Unit = {
@@ -231,6 +235,8 @@ class ModifierCheckerTest_Scala_2 extends ModifierCheckerTestBase {
 
 @Category(Array(classOf[TypecheckerTests]))
 class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
+  import Message._
+
   override protected def scalaLanguage = Scala3Language.INSTANCE
 
   override protected def messages(@Language(value = "Scala 3") code: String) =

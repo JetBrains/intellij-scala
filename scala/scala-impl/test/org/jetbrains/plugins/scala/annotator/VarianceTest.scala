@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package annotator
 
 class VarianceTest extends VarianceTestBase {
+  import Message._
+
   def testVarianceParameter(): Unit = {
     assertMatches(messages("trait Agent[+S] { def nextAction(state: S) }")) {
       case Error("state", ContravariantPosition()) :: Nil =>

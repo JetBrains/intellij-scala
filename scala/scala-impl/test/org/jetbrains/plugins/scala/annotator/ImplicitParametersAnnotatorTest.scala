@@ -15,6 +15,7 @@ abstract class ImplicitParametersAnnotatorTestBase extends AnnotatorTestBase[Imp
 }
 
 class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBase {
+  import Message._
 
   def testCorrectImplicits(): Unit = assertNothing(messages(
     """def implicitly[T](implicit e: T) = e
@@ -524,6 +525,7 @@ class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestCase 
 }
 
 class ImplicitParametersAnnotatorFailingTest extends ImplicitParametersAnnotatorTestBase {
+  import Message._
 
   override protected def shouldPass = false
 

@@ -9,6 +9,7 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 class ValueClassAnnotatorTest extends SimpleTestCase {
+  import Message._
 
   def testPrimaryConstructorParameters(): Unit = {
     val code =

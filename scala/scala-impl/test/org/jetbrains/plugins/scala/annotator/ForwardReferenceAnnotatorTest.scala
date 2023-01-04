@@ -6,6 +6,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
 class ForwardReferenceAnnotatorTest extends AnnotatorSimpleTestCase {
+  import Message._
+
   final val Header = ""
 
   def testFine(): Unit = {

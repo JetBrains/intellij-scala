@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.annotator
 
 class AnnotatorHeavyTest extends ScalaHighlightingTestBase {
+  import Message._
+
   def testScl8684(): Unit =
     assertErrors(
       """

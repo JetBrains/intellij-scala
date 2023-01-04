@@ -11,6 +11,7 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with MatcherAssertions {
+  import Message._
 
   private var filesCreated: Boolean = false
 

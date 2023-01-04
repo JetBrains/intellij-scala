@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 
 
 class ScTypeBoundsOwnerAnnotatorTest extends AnnotatorSimpleTestCase {
+  import Message._
+
   def testNoErrors(): Unit = assertNothing(
     messages(
       """

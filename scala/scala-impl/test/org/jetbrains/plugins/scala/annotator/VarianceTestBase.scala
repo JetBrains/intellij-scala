@@ -15,6 +15,8 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 abstract class VarianceTestBase extends SimpleTestCase {
+  import Message._
+
   // needs to be constant :( .stripMargin is not constant
   final val Header = """
 trait Fun1[-T, +R]    // T => R syntax doesn't work here because _root_.scala.Function1 is not loaded

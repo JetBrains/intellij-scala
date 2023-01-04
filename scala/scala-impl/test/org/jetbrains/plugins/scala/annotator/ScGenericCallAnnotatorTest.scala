@@ -11,6 +11,8 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 class ScGenericCallAnnotatorTest extends SimpleTestCase {
+  import Message._
+
   def testTooFewTypeParameter(): Unit = {
     assertMessages(messages("test[Int]"))(
       Error("t]", "Unspecified type parameters: Y")

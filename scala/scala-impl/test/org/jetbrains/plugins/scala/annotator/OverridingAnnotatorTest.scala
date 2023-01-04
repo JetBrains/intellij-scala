@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
+  import Message._
 
   def testSyntheticUnapply(): Unit = {
     assertNothing(messages(

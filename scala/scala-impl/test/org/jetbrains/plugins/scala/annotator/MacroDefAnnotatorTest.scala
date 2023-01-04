@@ -3,6 +3,8 @@ package annotator
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaReflectLibraryLoader}
 
 class MacroDefAnnotatorTest extends ScalaHighlightingTestBase {
+  import Message._
+
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
   override def librariesLoaders: Seq[LibraryLoader] =

@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 abstract class ForComprehensionHighlightingTestBase extends ScalaHighlightingTestBase
 
-
 class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestBase {
+  import Message._
 
   def test_guard_type(): Unit = {
     val code =
@@ -276,6 +276,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
 }
 
 class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHighlightingTestBase {
+  import Message._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
@@ -301,6 +302,7 @@ class ForComprehensionHighlightingTest_with_cats_2_12 extends ForComprehensionHi
 }
 
 class ForComprehensionHighlightingTest_without_filter extends ForComprehensionHighlightingTestBase {
+  import Message._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_11
 
@@ -327,6 +329,7 @@ class ForComprehensionHighlightingTest_without_filter extends ForComprehensionHi
 }
 
 class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighlightingTestBase {
+  import Message._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_11
 
@@ -448,6 +451,7 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
 }
 
 class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehensionHighlightingTestBase {
+  import Message._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
@@ -481,6 +485,7 @@ class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehe
 }
 
 class ForComprehensionSemicolonTest extends ForComprehensionHighlightingTestBase {
+  import Message._
 
   import org.junit.Assert.assertEquals
   val errorText = ScalaBundle.message("semicolon.not.allowed.here")

@@ -6,6 +6,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle, ScalaLanguage}
 
 abstract class AbsentTypeArgumentAnnotatorTestBase extends AnnotatorSimpleTestCase {
+  import Message._
+
   private final val Prefix =
     """
        object Test {
@@ -33,6 +35,7 @@ abstract class AbsentTypeArgumentAnnotatorTestBase extends AnnotatorSimpleTestCa
 }
 
 class AbsentTypeArgumentAnnotatorTest_Scala2 extends AbsentTypeArgumentAnnotatorTestBase {
+  import Message._
 
   override protected def scalaLanguage: com.intellij.lang.Language = ScalaLanguage.INSTANCE
 
@@ -160,6 +163,7 @@ class AbsentTypeArgumentAnnotatorTest_Scala2 extends AbsentTypeArgumentAnnotator
 }
 
 class AbsentTypeArgumentAnnotatorTest_Scala3 extends AbsentTypeArgumentAnnotatorTest_Scala2 {
+  import Message._
 
   override protected def scalaLanguage: com.intellij.lang.Language = Scala3Language.INSTANCE
 

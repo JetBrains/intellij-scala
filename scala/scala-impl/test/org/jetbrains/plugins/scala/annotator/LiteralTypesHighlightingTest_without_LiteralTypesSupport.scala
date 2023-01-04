@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package annotator
 
 class LiteralTypesHighlightingTest_without_LiteralTypesSupport extends LiteralTypesHighlightingTestBase {
+  import Message._
+
   override protected def supportedIn(version: ScalaVersion): Boolean = version < LatestScalaVersions.Scala_2_13
 
   private def messageNoSupport(typeText: String): String = ScalaBundle.message("wrong.type.no.literal.types", typeText)

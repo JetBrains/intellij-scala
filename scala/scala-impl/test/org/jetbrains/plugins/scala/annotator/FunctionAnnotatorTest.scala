@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturn
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 class FunctionAnnotatorTest extends AnnotatorSimpleTestCase {
+  import Message._
+
   final val Header = "class A; class B\n"
 
   def testAssignReturn(): Unit = {
@@ -96,6 +98,8 @@ class FunctionAnnotatorTest extends AnnotatorSimpleTestCase {
 }
 
 class ReturnExpressionAnnotatorTest extends AnnotatorSimpleTestCase {
+  import Message._
+
   final val Header = "class A; class B\n"
 
   def testTypeAbsolutelyEmpty(): Unit = {

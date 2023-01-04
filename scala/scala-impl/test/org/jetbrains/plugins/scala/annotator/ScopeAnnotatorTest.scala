@@ -9,6 +9,8 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 class ScopeAnnotatorTest extends SimpleTestCase {
+  import Message._
+
   // TODO List of explicit clash groups, report scope 
   // ("Foo is already defined as class Foo, object Foo in object Holder")
   // TODO Suggest "rename" quick fix 

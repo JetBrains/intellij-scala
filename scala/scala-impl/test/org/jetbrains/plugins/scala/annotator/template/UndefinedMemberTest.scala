@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotat
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 class UndefinedMemberTest extends AnnotatorTestBase[ScTemplateDefinition] {
+  import Message._
 
   def testValidHolders(): Unit = {
     assertNothing(messages("class C { def f }"))
@@ -14,30 +15,30 @@ class UndefinedMemberTest extends AnnotatorTestBase[ScTemplateDefinition] {
 
   def testHolderNew(): Unit = {
     assertMatches(messages("new { def f }")) {
-      case Error("def f", Message) :: Nil =>
+      case Error("def f", IllegalUndefinedMember) :: Nil =>
     }
 
     assertMatches(messages("new Object { def f }")) {
-      case Error("def f", Message) :: Nil =>
+      case Error("def f", IllegalUndefinedMember) :: Nil =>
     }
   }
 
   def testHolderObject(): Unit = {
     assertMatches(messages("object O { def f }")) {
-      case Error("def f", Message) :: Nil =>
+      case Error("def f", IllegalUndefinedMember) :: Nil =>
     }
 
     assertMatches(messages("object O extends Object { def f }")) {
-      case Error("def f", Message) :: Nil =>
+      case Error("def f", IllegalUndefinedMember) :: Nil =>
     }
   }
 
   def testDeclarations(): Unit = {
     assertMatches(messages("new { def f }")) {
-      case Error("def f", Message) :: Nil =>
+      case Error("def f", IllegalUndefinedMember) :: Nil =>
     }
     assertMatches(messages("new { var v: Object }")) {
-      case Error("var v: Object", Message) :: Nil =>
+      case Error("var v: Object", IllegalUndefinedMember) :: Nil =>
     }
     assertMatches(messages("new { type T }")) {
       case Nil =>
@@ -57,5 +58,5 @@ class UndefinedMemberTest extends AnnotatorTestBase[ScTemplateDefinition] {
                                  (implicit holder: ScalaAnnotationHolder): Unit =
     ScTemplateDefinitionAnnotator.annotateUndefinedMember(element)
 
-  private val Message = ScalaBundle.message("illegal.undefined.member")
+  private val IllegalUndefinedMember = ScalaBundle.message("illegal.undefined.member")
 }

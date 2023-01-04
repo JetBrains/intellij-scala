@@ -6,6 +6,8 @@ import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotat
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 class NeedsToBeMixinTest extends AnnotatorTestBase[ScTemplateDefinition] {
+  import Message._
+
   def testProblem(): Unit = {
     val message = ScalaBundle.message("mixin.required", "Class", "C", "base", "T")
 

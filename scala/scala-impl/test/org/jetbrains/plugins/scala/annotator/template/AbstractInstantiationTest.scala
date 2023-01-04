@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.annotator.element.ScNewTemplateDefinitionAnno
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 
 class AbstractInstantiationTest extends AnnotatorTestBase[ScNewTemplateDefinition] {
+  import Message._
 
   def testOrdinaryClass(): Unit = {
     assertNothing(messages("class C; new C"))
@@ -56,6 +57,6 @@ class AbstractInstantiationTest extends AnnotatorTestBase[ScNewTemplateDefinitio
                                  (implicit holder: ScalaAnnotationHolder): Unit =
     ScNewTemplateDefinitionAnnotator.annotateAbstractInstantiation(element)
 
-  private def message(params: String*) =
-    ScalaBundle.message("illegal.instantiation", params: _*)
+  private def message(definitionType: String, name: String) =
+    ScalaBundle.message("illegal.instantiation", definitionType, name)
 }

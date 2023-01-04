@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotat
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 class NeedsToBeTraitTest extends AnnotatorTestBase[ScTemplateDefinition] {
+  import Message._
 
   def testNeedsToBeTrait(): Unit = {
     assertNothing(messages("class C; trait T; new C with T"))

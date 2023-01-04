@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClause
 
 class ScDerivesClauseAnnotatorTest extends AnnotatorSimpleTestCase {
+  import Message._
+
   def testImplicitMissing(): Unit =
     assertMessages(
       messages(

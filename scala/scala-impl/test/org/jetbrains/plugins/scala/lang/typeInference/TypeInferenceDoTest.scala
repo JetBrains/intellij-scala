@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.typeInference
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import junit.framework.TestCase
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotationHolder, ScalaAnnotator}
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotationHolder, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.{FailableTest, ScalaSdkOwner}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -20,6 +20,8 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner {
+  import Message._
+
   protected val START = "/*start*/"
   protected val END = "/*end*/"
 

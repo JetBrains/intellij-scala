@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 // Technically, it's "type mismatch", but we can do better than the scalac, SCL-16904
 // See also: TypeMismatchHighlightingTest
 class ScFunctionExprAnnotatorTest extends ScalaHighlightingTestBase {
+  import Message._
+
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12 // SAMs
 
   override protected def withHints = true

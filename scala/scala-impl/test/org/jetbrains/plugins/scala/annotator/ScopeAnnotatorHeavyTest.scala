@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, Ru
 import org.junit.runner.RunWith
 
 class ScopeAnnotatorHeavyTest extends ScalaHighlightingTestBase {
+  import Message._
 
   override def annotate(element: PsiElement)
                        (implicit holder: ScalaAnnotationHolder): Unit =

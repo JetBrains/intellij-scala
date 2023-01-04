@@ -19,6 +19,7 @@ abstract class NeedsToBeAbstractTestBase extends AnnotatorTestBase[ScTemplateDef
 }
 
 class NeedsToBeAbstractTest extends NeedsToBeAbstractTestBase {
+  import Message._
 
   def testFine(): Unit = {
     assertNothing(messages("class C"))
@@ -110,6 +111,8 @@ class NeedsToBeAbstractTest extends NeedsToBeAbstractTestBase {
 }
 
 class NeedsToBeAbstractTest_WithScalaSdk extends NeedsToBeAbstractTestBase with ScalaSdkOwner {
+  import Message._
+
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(ScalaSDKLoader())
 
   override def setUp(): Unit = {
@@ -143,6 +146,8 @@ class NeedsToBeAbstractTest_WithScalaSdk extends NeedsToBeAbstractTestBase with 
 }
 
 class NeedsToBeAbstractTest_Scala3 extends NeedsToBeAbstractTestBase {
+  import Message._
+
   def testClassWithMultipleParents(): Unit = {
     val message = this.message("Class", "C", "f: Unit", "Holder.T")
 
