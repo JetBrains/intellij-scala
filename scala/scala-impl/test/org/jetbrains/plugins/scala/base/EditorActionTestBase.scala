@@ -91,7 +91,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase
       PsiDocumentManager.getInstance(getProject).commitAllDocuments()
       EditorUtil.fillVirtualSpaceUntilCaret(InjectedLanguageEditorUtil.getTopLevelEditor(getEditor))
 
-      checkCaretOffsets(expectedCarets, expectedText, stripTrailingSpacesAfterAction)
+      checkTextWithCaretOffsets(expectedCarets, expectedText, stripTrailingSpacesAfterAction)
     }
   } catch {
     case cf: org.junit.ComparisonFailure =>
@@ -123,6 +123,19 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase
       performTypingAction(textTyped)
     }
 
+  protected def checkGeneratedTextAfterTypingTextCharByChar(
+    textBefore: String,
+    textAfter: String,
+    textTyped: String,
+    fileName: String = defaultFileName
+  ): Unit =
+    performTest(textBefore, textAfter, fileName) { () =>
+      textTyped.foreach { char: Char =>
+        performTypingAction(char)
+        getEditor.getDocument.commit(getProject)
+      }
+    }
+
   protected def performBackspaceAction(): Unit =
     performEditorAction(ACTION_EDITOR_BACKSPACE)
 
@@ -152,7 +165,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase
       myFixture.performEditorAction(action)
     }(getProject)
 
-  protected def checkCaretOffsets(
+  protected def checkTextWithCaretOffsets(
     expectedCarets: Seq[Int],
     expectedText: String,
     stripTrailingSpaces: Boolean
@@ -165,7 +178,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase
     val allCaretOffsets =
       myFixture.getEditor.getCaretModel.getAllCarets.asScala.iterator.map(_.getOffset).toSeq
 
-    checkCaretOffsets(
+    checkTextWithCaretOffsets(
       expectedCarets,
       allCaretOffsets,
       expectedText,
@@ -174,7 +187,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase
     )
   }
 
-  private def checkCaretOffsets(
+  private def checkTextWithCaretOffsets(
     expectedCarets: Seq[Int],
     actualCarets: Seq[Int],
     expectedText: String,
@@ -187,13 +200,15 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase
     def patchTextWithCarets(text: String, caretOffsets: Seq[Int]): String =
       caretOffsets
         .sorted(Ordering.Int.reverse)
-        .foldLeft(text)(_.patch(_, "<caret>", 0))
+        .foldLeft(text)(_.patch(_, CARET, 0))
 
-    if (expectedCarets.nonEmpty) {
-      val expected0 = patchTextWithCarets(expectedText, expectedCarets)
-      val expected = if (stripTrailingSpaces) doStripTrailingSpaces(expected0) else expected0
-      val actual = patchTextWithCarets(actualText, actualCarets)
-      assertEquals(expected, actual)
-    }
+    val expected0 = patchTextWithCarets(expectedText, expectedCarets)
+    val expected = if (stripTrailingSpaces) doStripTrailingSpaces(expected0) else expected0
+
+    val actual = if (expectedCarets.nonEmpty)
+      patchTextWithCarets(actualText, actualCarets)
+    else
+      actualText //if expected text doesn't contain any carets, just don't assert carets positions then
+    assertEquals(expected, actual)
   }
 }

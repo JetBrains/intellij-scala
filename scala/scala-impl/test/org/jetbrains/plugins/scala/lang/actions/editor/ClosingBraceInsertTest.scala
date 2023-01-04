@@ -347,7 +347,7 @@ class ClosingBraceInsertTest extends EditorActionTestBase {
          |""".stripMargin
     val after =
       s"""val (x, y) = {
-         |  (42, 23)
+         |  $CARET(42, 23)
          |}
          |
          |someUnrelatedCode()
