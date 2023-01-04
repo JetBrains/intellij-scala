@@ -227,5 +227,11 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
        |""".stripMargin, AllowAdditionalHighlights)
 
   def test_inner_class_accessed_by_companion(): Unit =
-    checkTextHasError(s"object A { class ${START}B$END }; class A { private def foo: A.B = ??? }")
+    checkTextHasError(s"object A { class ${START}B$END }; class A { private def foo: A.B = ??? }", AllowAdditionalHighlights)
+
+  def test_imported_companion_object_method(): Unit =
+    checkTextHasError(s"class A { import A._; println(a) }; object A { def ${START}a$END = 1 }", AllowAdditionalHighlights)
+
+  def test_indirect_companion_object_method(): Unit =
+    checkTextHasError(s"class A { private def foo = A; println(foo.a) }; object A { def ${START}a$END = 1 }", AllowAdditionalHighlights)
 }
