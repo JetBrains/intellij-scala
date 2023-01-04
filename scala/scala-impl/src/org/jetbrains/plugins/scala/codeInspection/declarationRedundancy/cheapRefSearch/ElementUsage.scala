@@ -106,7 +106,7 @@ private final class ElementUsageWithKnownReference private(
     val referenceContainer = reference.getElement.parentOfType[ScTypeDefinition]
     val referenceContainerIsTargetContainerCompanion = targetContainerCompanion.exists(referenceContainer.contains)
 
-    val referenceIsExpressionWhoseFirstChildHasTargetContainerType = reference.getElement match {
+    def referenceIsExpressionWhoseFirstChildHasTargetContainerType = reference.getElement match {
       case refExpr: ScReferenceExpression if refExpr.children.size > 1 =>
         val firstChild = refExpr.children.toSeq.head
         val firstChildType = firstChild.asOptionOfUnsafe[Typeable].toSeq.flatMap(_.`type`().toSeq).headOption
@@ -120,8 +120,12 @@ private final class ElementUsageWithKnownReference private(
       case _ => false
     }
 
+    def isReferenceToImportedCompanionObjectMember: Boolean =
+      reference.getElement.is[ScReferenceExpression] && reference.getElement.children.size == 1
+
     referenceContainerIsTargetContainerCompanion &&
-      (reference.getElement.is[ScStableCodeReference] || referenceIsExpressionWhoseFirstChildHasTargetContainerType)
+      (reference.getElement.is[ScStableCodeReference] || referenceIsExpressionWhoseFirstChildHasTargetContainerType ||
+        isReferenceToImportedCompanionObjectMember)
   }
 
 
