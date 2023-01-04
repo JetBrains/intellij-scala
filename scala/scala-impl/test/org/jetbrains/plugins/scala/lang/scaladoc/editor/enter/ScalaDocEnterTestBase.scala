@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.scaladoc
+package org.jetbrains.plugins.scala.lang.scaladoc.editor.enter
 
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.actions.ActionTestBase.MyDataContext
 import org.jetbrains.plugins.scala.util.{ShortCaretMarker, WriteCommandActionEx}
 
 // TODO: unify with org.jetbrains.plugins.scala.lang.actions.AbstractActionTestBase ?
-abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureTestCase
+abstract class ScalaDocEnterTestBase extends ScalaLightCodeInsightFixtureTestCase
   with ShortCaretMarker{
 
   protected def editor = getEditor

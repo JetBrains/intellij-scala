@@ -1,7 +1,6 @@
-package org.jetbrains.plugins.scala
-package lang.scaladoc
+package org.jetbrains.plugins.scala.lang.scaladoc.editor.enter
 
-class ScalaDocStubGenerationTest extends ScalaDocEnterActionTestBase {
+class ScalaDocStubGenerationEnterTest extends ScalaDocEnterTestBase {
 
   private val || = s"/**${|}"
 
