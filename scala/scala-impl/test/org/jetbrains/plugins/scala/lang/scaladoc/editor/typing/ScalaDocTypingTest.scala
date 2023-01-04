@@ -121,4 +121,37 @@ class ScalaDocTypingTest extends EditorActionTestBase {
       "@"
     )
   }
+
+
+  def testCompleteScaladocOnSpace(): Unit = {
+    checkGeneratedTextAfterTyping(
+      s"""class X {
+         |  /**$CARET
+         |  def foo: Unit
+         |}
+         |""".stripMargin,
+      s"""class X {
+         |  /** $CARET */
+         |  def foo: Unit
+         |}
+         |""".stripMargin,
+      ' '
+    )
+  }
+
+  def testNotCompleteScaladocOnSpaceIfLineIsNotEmpty(): Unit = {
+    checkGeneratedTextAfterTyping(
+      s"""class X {
+         |  /**$CARET some text
+         |  def foo: Unit
+         |}
+         |""".stripMargin,
+      s"""class X {
+         |  /** $CARET some text
+         |  def foo: Unit
+         |}
+         |""".stripMargin,
+      ' '
+    )
+  }
 }

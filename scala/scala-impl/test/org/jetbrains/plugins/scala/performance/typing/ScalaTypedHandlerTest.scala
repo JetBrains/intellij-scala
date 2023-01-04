@@ -10,8 +10,6 @@ import scala.language.postfixOps
 class ScalaTypedHandlerTest extends TypingTestWithPerformanceTestBase {
   implicit val typingTimeout: Duration = 150 milliseconds
 
-  private val SPACE: Char = ' '
-
   override protected def folderPath: String = super.folderPath + "/typedHandler/"
 
   def testCase(): Unit = doFileTest("case _")
@@ -23,34 +21,4 @@ class ScalaTypedHandlerTest extends TypingTestWithPerformanceTestBase {
   def testDefinitionAssignBeforeNewline(): Unit = doFileTest("a")
 
   def testParametersComaBeforeNewline(): Unit = doFileTest("a")
-
-  def testCompleteScaladocOnSpace(): Unit = {
-    doTest(SPACE)(
-      s"""class X {
-         |  /**$CARET
-         |  def foo: Unit
-         |}
-      """.stripMargin,
-      s"""class X {
-         |  /** $CARET */
-         |  def foo: Unit
-         |}
-      """.stripMargin
-    )
-  }
-
-  def testNotCompleteScaladocOnSpaceIfLineIsNotEmpty(): Unit = {
-    doTest(SPACE)(
-      s"""class X {
-         |  /**$CARET some text
-         |  def foo: Unit
-         |}
-         |""".stripMargin,
-      s"""class X {
-         |  /** $CARET some text
-         |  def foo: Unit
-         |}
-         |""".stripMargin
-    )
-  }
 }
