@@ -177,7 +177,7 @@ private[declarationRedundancy] object SymbolEscaping {
 
         case _ => Seq.empty
       }
-    }.flatten
+    }.flatten.filterNot(_.types.isEmpty)
   }
 
   def elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate(element: ScNamedElement): Boolean = {
