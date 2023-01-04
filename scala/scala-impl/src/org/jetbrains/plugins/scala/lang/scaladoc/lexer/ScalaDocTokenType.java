@@ -58,19 +58,42 @@ public interface ScalaDocTokenType {
   IElementType DOC_COMMENT_BAD_CHARACTER = new ScalaDocElementType("DOC_COMMENT_BAD_CHARACTER");
 
   TokenSet ALL_SCALADOC_SYNTAX_ELEMENTS = TokenSet.create(
-          ScalaDocTokenType.DOC_BOLD_TAG, ScalaDocTokenType.DOC_ITALIC_TAG, ScalaDocTokenType.DOC_MONOSPACE_TAG,
-          ScalaDocTokenType.DOC_SUBSCRIPT_TAG, ScalaDocTokenType.DOC_SUPERSCRIPT_TAG, ScalaDocTokenType.DOC_UNDERLINE_TAG,
-          ScalaDocTokenType.DOC_LINK_TAG, ScalaDocTokenType.DOC_LINK_CLOSE_TAG, ScalaDocTokenType.DOC_HTTP_LINK_TAG,
-          ScalaDocTokenType.DOC_INNER_CODE_TAG, ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG,
-          ScalaDocTokenType.VALID_DOC_HEADER, ScalaDocTokenType.DOC_HEADER,
+          ScalaDocTokenType.DOC_BOLD_TAG,
+          ScalaDocTokenType.DOC_ITALIC_TAG,
+          ScalaDocTokenType.DOC_MONOSPACE_TAG,
+          ScalaDocTokenType.DOC_SUBSCRIPT_TAG,
+          ScalaDocTokenType.DOC_SUPERSCRIPT_TAG,
+          ScalaDocTokenType.DOC_UNDERLINE_TAG,
+          ScalaDocTokenType.DOC_LINK_TAG,
+          ScalaDocTokenType.DOC_LINK_CLOSE_TAG,
+          ScalaDocTokenType.DOC_HTTP_LINK_TAG,
+          ScalaDocTokenType.DOC_INNER_CODE_TAG,
+          ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG,
+          ScalaDocTokenType.VALID_DOC_HEADER,
+          ScalaDocTokenType.DOC_HEADER,
           ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG
   );
 
   TokenSet ALL_SCALADOC_TOKENS = TokenSet.orSet(ALL_SCALADOC_SYNTAX_ELEMENTS, TokenSet.create(
-          DOC_COMMENT_START, DOC_COMMENT_END, DOC_COMMENT_DATA, DOC_WHITESPACE, DOC_COMMENT_LEADING_ASTERISKS, DOC_TAG_NAME,
-          DOC_INLINE_TAG_START, DOC_INLINE_TAG_END, DOC_TAG_VALUE_TOKEN, DOC_TAG_VALUE_DOT, DOC_TAG_VALUE_COMMA,
-          DOC_TAG_VALUE_LPAREN, DOC_TAG_VALUE_RPAREN, DOC_TAG_VALUE_SHARP_TOKEN, DOC_MARKED_ELEMENT,
-          DOC_INNER_CODE, DOC_MACROS, DOC_CODE_LINK_VALUE, DOC_HTTP_LINK_VALUE,
+          DOC_COMMENT_START,
+          DOC_COMMENT_END,
+          DOC_COMMENT_DATA,
+          DOC_WHITESPACE,
+          DOC_COMMENT_LEADING_ASTERISKS,
+          DOC_TAG_NAME,
+          DOC_INLINE_TAG_START,
+          DOC_INLINE_TAG_END,
+          DOC_TAG_VALUE_TOKEN,
+          DOC_TAG_VALUE_DOT,
+          DOC_TAG_VALUE_COMMA,
+          DOC_TAG_VALUE_LPAREN,
+          DOC_TAG_VALUE_RPAREN,
+          DOC_TAG_VALUE_SHARP_TOKEN,
+          DOC_MARKED_ELEMENT,
+          DOC_INNER_CODE,
+          DOC_MACROS,
+          DOC_CODE_LINK_VALUE,
+          DOC_HTTP_LINK_VALUE,
           DOC_LIST_ITEM_HEAD
   ));
 }
