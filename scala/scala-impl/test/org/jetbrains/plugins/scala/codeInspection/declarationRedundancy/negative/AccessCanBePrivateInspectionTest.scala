@@ -270,6 +270,4 @@ final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInsp
       |object Foo { new FooBar().getInt }
       |""".stripMargin
   )
-
-  def test_that_fails_in_order_to_prevent_merge(): Unit = throw new Exception
 }
