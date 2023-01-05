@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.conversion
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.notification.{NotificationDisplayType, NotificationType}
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, PlatformCoreDataKeys}
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.project.Project
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.NotificationUtil
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 
 class ConvertJavaToScalaAction extends AnAction(
   ScalaConversionBundle.message("convert.java.to.scala.action.text"),
@@ -117,12 +117,13 @@ object ConvertJavaToScalaAction {
   }
 
   private def showFileAlreadyExistsNotification(project: Project, scalaFileName: String): Unit =  {
-    NotificationUtil.builder(project, ScalaConversionBundle.message("file.already.exists", scalaFileName))
-      .setDisplayType(NotificationDisplayType.BALLOON)
-      .setNotificationType(NotificationType.ERROR)
-      .setGroup("rename.java.to.scala")
-      .setTitle(ScalaConversionBundle.message("cannot.create.file"))
-      .show()
+    ScalaNotificationGroups.balloonGroup
+      .createNotification(
+        ScalaConversionBundle.message("cannot.create.file"),
+        ScalaConversionBundle.message("file.already.exists", scalaFileName),
+        NotificationType.ERROR
+      )
+      .notify(project)
   }
 
   private def updateDocumentTextAndCommit(scalaFile: PsiFile, convertedScalaText: String): Unit = {

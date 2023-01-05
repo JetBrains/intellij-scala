@@ -2,12 +2,11 @@ package org.jetbrains.plugins.scala
 package worksheet
 package ammonite
 
-import java.util.function.BiFunction
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DaemonListener
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType}
 import com.intellij.codeInspection.ex.QuickFixWrapper
-import com.intellij.notification.{Notification, NotificationAction}
+import com.intellij.notification.{Notification, NotificationAction, NotificationType}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.ex.{MarkupModelEx, RangeHighlighterEx}
@@ -22,10 +21,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
+import org.jetbrains.plugins.scala.worksheet.utils.notifications.WorksheetNotificationsGroup
 
+import java.util.function.BiFunction
 import scala.collection.mutable
 
 class AmmoniteScriptWrappersHolder(project: Project) {
@@ -176,12 +176,16 @@ class AmmoniteScriptWrappersHolder(project: Project) {
         setFileState(vFile, AlwaysDisabled)
       }
     }
-    NotificationUtil
-      .builder(project, WorksheetBundle.message("ammonite.import.ivy.dependencies.message", vFile.getName))
-      .setTitle(WorksheetBundle.message("notification.title.ammonite.imports.found"))
+
+    WorksheetNotificationsGroup
+      .createNotification(
+        WorksheetBundle.message("notification.title.ammonite.imports.found"),
+        WorksheetBundle.message("ammonite.import.ivy.dependencies.message", vFile.getName),
+        NotificationType.WARNING
+      )
       .addAction(ImportAction)
       .addAction(IgnoreAction)
-      .show()
+      .notify(project)
   }
 
   private def getFile(vFile: VirtualFile) = {

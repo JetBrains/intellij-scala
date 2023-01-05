@@ -1,7 +1,7 @@
 package org.jetbrains.bsp.protocol
 
 import com.google.gson.Gson
-import com.intellij.notification.{Notification, NotificationAction}
+import com.intellij.notification.{Notification, NotificationAction, NotificationType}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
@@ -23,7 +23,6 @@ import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.plugins.scala.build.BuildReporter
-import org.jetbrains.plugins.scala.util.NotificationUtil
 
 import java.io.File
 import java.util.concurrent.atomic.AtomicReference
@@ -106,11 +105,15 @@ class BspCommunication private[protocol](base: File, config: BspServerConfig) ex
         notification.hideBalloon()
       }
     }
-    NotificationUtil
-      .builder(project, BspBundle.message("unable.to.read.bsp.connection.file"))
+
+    BSP.balloonNotification
+      .createNotification(
+        BspBundle.message("unable.to.read.bsp.connection.file"),
+        NotificationType.WARNING
+      )
       .addAction(RegenerateFileAndReloadAction)
       .addAction(RegenerateFileAction)
-      .show()
+      .notify(project)
   }
 
   private def generateBspCommunicationFile(project: Project): Unit = {

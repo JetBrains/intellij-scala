@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.ammonite
 
-import com.intellij.notification.{Notification, NotificationAction}
+import com.intellij.notification.{Notification, NotificationAction, NotificationType}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress._
@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.template.Artifact
 import org.jetbrains.plugins.scala.project.{Version, Versions}
-import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaUtil}
+import org.jetbrains.plugins.scala.util.{ScalaNotificationGroups, ScalaUtil}
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 
 import java.io.File
@@ -247,11 +247,15 @@ object ImportAmmoniteDependenciesFix {
         AmmoniteScriptWrappersHolder.getInstance(project).setIgnoreImports()
       }
     }
-    NotificationUtil
-      .builder(project, WorksheetBundle.message("ammonite.add.all.dependencies.to.project.message"))
-      .setTitle(ammoniteName)
+
+    WorksheetNotificationsGroup
+      .createNotification(
+        ammoniteName,
+        WorksheetBundle.message("ammonite.add.all.dependencies.to.project.message"),
+        NotificationType.WARNING
+      )
       .addAction(AddImportsAction)
       .addAction(IgnoreAction)
-      .show()
+      .notify(project)
   }
 }

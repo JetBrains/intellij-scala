@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.project
 import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaPluginUtils}
+import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerMessagesConsumer
@@ -162,10 +162,9 @@ final class WorksheetEditorPrinterRepl private[printers](
 
   private def popCurrentQueuedPsi(): Option[QueuedPsi] = {
     if (psiToProcess.isEmpty) {
-      // not expecting to be empty, elements count in original psiToProcess should be equal to number of executed  commands in REPL
-      //noinspection ScalaExtractStringToBundle
-      if (ScalaPluginUtils.isRunningFromSources)
-        NotificationUtil.showMessage(project, "psiToProcess is empty")
+      if (ScalaPluginUtils.isRunningFromSources) {
+        Log.error(s"`psiToProcess` is empty (it's not expected to be empty, elements count in original psiToProcess should be equal to number of executed  commands in REPL)")
+      }
       return None
     }
 

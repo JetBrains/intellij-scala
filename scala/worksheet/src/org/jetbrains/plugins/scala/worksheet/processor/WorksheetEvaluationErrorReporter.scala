@@ -9,12 +9,12 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.compiler.{CompileServerManager, ScalaCompileServerForm}
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer
-import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{Precondition, WorksheetCompilerError}
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetEvaluationErrorReporter.{errorNotification, showConfigErrorNotification, warningNotification}
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetEvaluationErrorReporter.showConfigErrorNotification
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.RemoteServerConnectorResult
+import org.jetbrains.plugins.scala.worksheet.utils.notifications.WorksheetNotificationsGroup
 
 class WorksheetEvaluationErrorReporter(
   project: Project,
@@ -30,8 +30,15 @@ class WorksheetEvaluationErrorReporter(
       case WCR.PreprocessError(error)            => showCompilationError(error.message, error.position)
       case WCR.PreconditionError(precondition)   =>
         precondition match {
-          case Precondition.ReplRequiresCompileServerProcess => showReplRequiresCompileServerNotification()
-          case Precondition.ProjectShouldBeInSmartState      => warningNotification(project, WorksheetBundle.message("worksheet.configuration.errors.project.indexing.not.finished")).show()
+          case Precondition.ReplRequiresCompileServerProcess =>
+            showReplRequiresCompileServerNotification()
+          case Precondition.ProjectShouldBeInSmartState =>
+            WorksheetNotificationsGroup
+              .createNotification(
+                WorksheetBundle.message("worksheet.configuration.errors.project.indexing.not.finished"),
+                NotificationType.WARNING
+              )
+              .notify(project)
         }
       case WCR.UnknownError(exception)           => reportUnexpectedError(exception)
       case WCR.CompilationError                  => // assuming that compilation errors are already reported by CompilerTask in WorksheetCompiler
@@ -63,8 +70,12 @@ class WorksheetEvaluationErrorReporter(
   private def reportUnexpectedError(exception: Throwable): Unit =
     log.error("Unexpected error occurred during worksheet evaluation", exception)
 
-  private def showReplRequiresCompileServerNotification(): Unit =
-    errorNotification(project, WorksheetBundle.message("worksheet.configuration.errors.repl.is.available.only.in.compile.server.process"))
+  private def showReplRequiresCompileServerNotification(): Unit = {
+    WorksheetNotificationsGroup
+      .createNotification(
+        WorksheetBundle.message("worksheet.configuration.errors.repl.is.available.only.in.compile.server.process"),
+        NotificationType.ERROR
+      )
       .addAction(new NotificationAction(WorksheetBundle.message("worksheet.configuration.errors.enable.compile.server")) {
         override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
           notification.expire()
@@ -78,7 +89,8 @@ class WorksheetEvaluationErrorReporter(
           CompileServerManager.showCompileServerSettingsDialog(project, filter)
         }
       })
-      .show()
+      .notify(project)
+  }
 
   private def showCompilationError(message: String, position: LogicalPosition): Unit =
     WorksheetCompilerUtil.showCompilationError(
@@ -89,23 +101,17 @@ class WorksheetEvaluationErrorReporter(
 
 object WorksheetEvaluationErrorReporter {
 
-  def ConfigErrorHeader: String = WorksheetBundle.message("worksheet.configuration.errors.base")
-  def NotificationsGroup: String = "Scala"
 
-  def showConfigErrorNotification(project: Project, @Nls msg: String): Unit =
-    if (!project.isDisposed)
-      configErrorNotification(project, msg).show()
+  def showConfigErrorNotification(project: Project, @Nls msg: String): Unit = {
+    if (project.isDisposed)
+      return
 
-  private def configErrorNotification(project: Project, @Nls msg: String): NotificationUtil.NotificationBuilder =
-    errorNotification(project, msg).setTitle(ConfigErrorHeader)
-
-  private def warningNotification(project: Project, @Nls message: String): NotificationUtil.NotificationBuilder =
-    NotificationUtil.builder(project, message)
-      .setGroup(NotificationsGroup)
-      .setNotificationType(NotificationType.WARNING)
-
-  private def errorNotification(project: Project, @Nls msg: String): NotificationUtil.NotificationBuilder =
-    NotificationUtil.builder(project, msg)
-      .setGroup(NotificationsGroup)
-      .setNotificationType(NotificationType.ERROR)
+    WorksheetNotificationsGroup
+      .createNotification(
+        WorksheetBundle.message("worksheet.configuration.errors.base"),
+        msg,
+        NotificationType.ERROR
+      )
+      .notify(project)
+  }
 }

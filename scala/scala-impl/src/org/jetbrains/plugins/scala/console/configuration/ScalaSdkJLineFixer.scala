@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.console.configuration
 
-import com.intellij.notification.{Notification, NotificationAction}
+import com.intellij.notification.{Notification, NotificationAction, NotificationType}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.util.NotificationUtil
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 
 import java.io.File
 
@@ -70,10 +70,10 @@ object ScalaSdkJLineFixer {
       }
     }
 
-    NotificationUtil.builder(project, message)
+    ScalaNotificationGroups.balloonGroup
+      .createNotification(message, NotificationType.WARNING)
       .addAction(goToSdkSettingsAction)
-      .setTitle(null)
-      .show()
+      .notify(project)
   }
 
 
