@@ -13,7 +13,7 @@ import scala.reflect.macros.whitebox
  * `org.jetbrains.plugins.scala.caches.CachesUtil.handleRecursiveCall`
  * `org.jetbrains.plugins.scala.macroAnnotations.CachedMacroUtil.handleProbablyRecursiveException`
  */
-class CachedWithRecursionGuard(element: Any, defaultValue: => Any, dependecyItem: Object, tracked: Any*) extends StaticAnnotation {
+class CachedWithRecursionGuard(element: Any, defaultValue: => Any, dependecyItem: Object) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedWithRecursionGuard.cachedWithRecursionGuardImpl
 }
 
@@ -23,13 +23,12 @@ object CachedWithRecursionGuard {
     import c.universe._
     implicit val x: c.type = c
 
-    def parameters: (Tree, Tree, Tree, Seq[Tree]) = c.prefix.tree match {
-      case q"new CachedWithRecursionGuard(..$params)" if params.length >= 3 =>
-        (params.head, params(1), params(2), params.drop(3))
+    def parameters: (Tree, Tree, Tree) = c.prefix.tree match {
+      case q"new CachedWithRecursionGuard($param1, $param2, $param3)" => (param1, param2, param3)
       case _ => abort(MacrosBundle.message("macros.cached.wrong.annotation.parameters"))
     }
 
-    val (element, defaultValue, modTracker, trackedExprs) = parameters
+    val (element, defaultValue, modTracker) = parameters
 
     annottees.toList match {
       case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
@@ -97,7 +96,7 @@ object CachedWithRecursionGuard {
           val $keyVarName = ${getOrCreateKey(c, hasParams)(q"$keyId", dataType, resultType)}
           def $defValueName: $resultType = $defaultValue
 
-          val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, trackedExprs)}
+          val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, Seq.empty)}
           $tracerName.invocation()
 
           val $holderName = $getOrCreateCachedHolder

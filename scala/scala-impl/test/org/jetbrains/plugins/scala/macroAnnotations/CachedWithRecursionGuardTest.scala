@@ -78,34 +78,4 @@ class CachedWithRecursionGuardTest extends CachedWithRecursionGuardTestBase {
       elem.rec(false)
     }
   }
-
-  def testTracerWithExpr(): Unit = {
-    class Elem extends CachedMockPsiElement {
-      @CachedWithRecursionGuard(this, "error", PsiModificationTracker.MODIFICATION_COUNT, int)
-      def rec(int: Int): String = {
-        if (int > 0) rec(int - 1) + int
-        else "0"
-      }
-    }
-
-    checkTracer("Elem.rec int == 2", totalCount = 2, actualCount = 1) {
-      val elem = new Elem
-      elem.rec(2)
-      elem.rec(2)
-    }
-
-    checkTracer("Elem.rec int == 1", totalCount = 1, actualCount = 1) {
-      val elem = new Elem
-      elem.rec(2)
-      elem.rec(2)
-    }
-
-    checkTracer("Elem.rec int == 0", totalCount = 1, actualCount = 1) {
-      val elem = new Elem
-      elem.rec(2)
-      elem.rec(2)
-    }
-
-
-  }
 }
