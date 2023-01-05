@@ -6,6 +6,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.service.project.trusted.ExternalSystemTrustedProjectDialog
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectUtil}
@@ -122,7 +123,12 @@ class BspCommunication private[protocol](base: File, config: BspServerConfig) ex
     // We save all documents because there is a possible case that there is an external system config file changed inside the ide
     FileDocumentManager.getInstance.saveAllDocuments()
     val systemId = BSP.ProjectSystemId
-    if (ExternalSystemUtil.confirmLoadingUntrustedProject(project, systemId)) {
+
+    //can't call async version `confirmLoadingUntrustedProjectAsync` from Scala (or Java)
+    //because it uses Kotlin coroutines
+    @nowarn("cat=deprecation")
+    val confirmed = ExternalSystemTrustedProjectDialog.confirmLoadingUntrustedProject(project, systemId)
+    if (confirmed) {
       ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, systemId))
     }
   }
