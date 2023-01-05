@@ -9,10 +9,10 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.eclipse.lsp4j.jsonrpc.{Launcher, ResponseErrorException}
 import org.jetbrains.bsp._
+import org.jetbrains.bsp.protocol.BspJob
 import org.jetbrains.bsp.protocol.BspNotifications._
 import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
-import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 
 import java.io._
 import java.lang.reflect.{InvocationHandler, Method}
@@ -290,7 +290,7 @@ class BspSession private(bspPID: Long,
             case err: ResponseErrorException =>
               val msg = err.getMessage
               val errorObject = err.getResponseError
-              BSP.balloonNotification.createNotification(msg, NotificationType.ERROR)
+              BSP.NotificationGroup.createNotification(msg, NotificationType.ERROR)
               val fullMessage = s"$msg (code ${errorObject.getCode}). Data: ${errorObject.getData}"
               logger.error(fullMessage)
           }

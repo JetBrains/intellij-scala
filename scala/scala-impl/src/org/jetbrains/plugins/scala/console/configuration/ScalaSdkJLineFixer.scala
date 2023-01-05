@@ -70,7 +70,7 @@ object ScalaSdkJLineFixer {
       }
     }
 
-    ScalaNotificationGroups.balloonGroup
+    ScalaNotificationGroups.scalaGeneral
       .createNotification(message, NotificationType.WARNING)
       .addAction(goToSdkSettingsAction)
       .notify(project)

@@ -15,8 +15,9 @@ import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.template.Artifact
 import org.jetbrains.plugins.scala.project.{Version, Versions}
-import org.jetbrains.plugins.scala.util.{ScalaNotificationGroups, ScalaUtil}
+import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
+import org.jetbrains.plugins.scala.worksheet.utils.notifications.WorksheetNotificationsGroup
 
 import java.io.File
 import scala.collection.mutable

@@ -36,7 +36,8 @@ class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware
 //noinspection ScalaExtractStringToBundle
 object InternalProfilerToolWindowFactory {
   val ID = "internal-profiler"
-  def notificationGroup: NotificationGroup = ScalaNotificationGroups.balloonGroup
+
+  private def NotificationGroup: NotificationGroup = ScalaNotificationGroups.scalaGeneral
 
   lazy val timingsModel: DataByIdTableModel[TracerData] = {
     val dataById = new DataById[TracerData](_.id)
@@ -191,7 +192,7 @@ object InternalProfilerToolWindowFactory {
       val totalFreed = preFreed + cacheFreed
       val total = toMB(runtime.totalMemory.toDouble)
 
-      notificationGroup.createNotification(
+      NotificationGroup.createNotification(
         s"Cache cleared ($cacheEntityCount entities)",
         f"""<html>
            |<body>

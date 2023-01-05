@@ -107,7 +107,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           // notify user if project exists already
           val projectOpt = ProjectManager.getInstance().getOpenProjects.find(p => FileUtil.pathsEqual(p.getBasePath, projectRoot.getCanonicalPath))
           projectOpt.foreach { p =>
-            val notification = ScalaNotificationGroups.balloonGroup.createNotification(SbtBundle.message("sbt.import.cancelled", causeMessage), NotificationType.INFORMATION)
+            val notification = ScalaNotificationGroups.sbtProjectImport.createNotification(SbtBundle.message("sbt.import.cancelled", causeMessage), NotificationType.INFORMATION)
             notification.notify(p)
           }
 

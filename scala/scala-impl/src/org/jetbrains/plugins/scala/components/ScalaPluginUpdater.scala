@@ -70,7 +70,8 @@ object ScalaPluginUpdater {
 
   private val updGroupId = "Scala Plugin Update"
   private val title = updGroupId
-  private def GROUP = ScalaNotificationGroups.stickyBalloonGroup
+
+  private def NotificationGroup = ScalaNotificationGroups.scalaPluginUpdater
 
   // save plugin version before patching to restore it when switching back
   private var savedPluginVersion = ""
@@ -198,9 +199,10 @@ object ScalaPluginUpdater {
       return
 
     def createPlatformUpdateSuggestPopup(): Notification = {
-      GROUP.createNotification(
+      NotificationGroup.createNotification(
         ScalaBundle.message("idea.is.outdated.please.update", branch, suggestedVersion),
-        NotificationType.WARNING)
+        NotificationType.WARNING
+      )
     }
 
     def getPlatformUpdateResult: Option[PlatformUpdates] = {
@@ -290,7 +292,7 @@ object ScalaPluginUpdater {
           }
         }
       }
-      val notification = GROUP.createNotification(title, message, NotificationType.INFORMATION).setListener(listener): @nowarn("cat=deprecation")
+      val notification = NotificationGroup.createNotification(title, message, NotificationType.INFORMATION).setListener(listener): @nowarn("cat=deprecation")
       val project = ProjectManager.getInstance().getOpenProjects.headOption.orNull
       Notifications.Bus.notify(notification, project)
     }

@@ -1,10 +1,10 @@
 package org.jetbrains.bsp
 
-import com.intellij.notification.NotificationGroup
+import com.intellij.notification.{NotificationGroup, NotificationGroupManager}
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
-import javax.swing.Icon
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
+
+import javax.swing.Icon
 
 object BSP {
   @Nls
@@ -14,5 +14,5 @@ object BSP {
 
   val ProjectSystemId = new ProjectSystemId("BSP", Name)
 
-  val balloonNotification: NotificationGroup = ScalaNotificationGroups.balloonGroup
+  val NotificationGroup: NotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("BSP")
 }

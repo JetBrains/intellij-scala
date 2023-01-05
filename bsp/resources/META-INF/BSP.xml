@@ -65,6 +65,8 @@
 
         <registryKey key="BSP.system.in.process" defaultValue="true" restartRequired="true"
                      description="Internal, do not change"/>
+
+        <notificationGroup id="BSP" displayType="BALLOON" bundle="messages.ScalaBspBundle" key="scala.notification.group.id.bsp"/>
     </extensions>
 
     <projectListeners>

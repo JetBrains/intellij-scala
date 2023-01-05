@@ -106,7 +106,7 @@ class BspCommunication private[protocol](base: File, config: BspServerConfig) ex
       }
     }
 
-    BSP.balloonNotification
+    BSP.NotificationGroup
       .createNotification(
         BspBundle.message("unable.to.read.bsp.connection.file"),
         NotificationType.WARNING

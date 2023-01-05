@@ -44,7 +44,7 @@ object Scala3Disclaimer {
 
   private def showDisclaimerIn(message: String, actions: AnAction*): Unit = {
     val notification =
-      ScalaNotificationGroups.stickyBalloonGroup
+      ScalaNotificationGroups.scala3Disclaimer
         .createNotification(message, NotificationType.INFORMATION)
 
     actions.foreach(notification.addAction)

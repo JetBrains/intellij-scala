@@ -9,12 +9,23 @@ import com.intellij.notification.{NotificationGroup, NotificationGroupManager}
  * IDs must correspond to ones declared in `scala-plugin-common.xml`
  */
 object ScalaNotificationGroups {
-  private val BALLOON_GROUP_ID        = "Scala Balloon Notifications"
-  private val STICKY_BALLOON_GROUP_ID = "Persistent Scala Notifications"
+  private def manager = NotificationGroupManager.getInstance()
 
-  def balloonGroup: NotificationGroup =
-    NotificationGroupManager.getInstance().getNotificationGroup(BALLOON_GROUP_ID)
+  /**
+   * General notification group for any scala-related notification.
+   *
+   * NOTE: please use custom notification group for every semantically-grouped features instead of scalaGeneral
+   */
+  def scalaGeneral: NotificationGroup = manager.getNotificationGroup("scala.general")
 
-  def stickyBalloonGroup: NotificationGroup =
-    NotificationGroupManager.getInstance().getNotificationGroup(STICKY_BALLOON_GROUP_ID)
+  //Balloon (by default)
+  def javaToScalaConverter: NotificationGroup = manager.getNotificationGroup("java.to.scala.converter")
+  def sbtProjectImport: NotificationGroup = manager.getNotificationGroup("sbt.project.import")
+  def sbtShell: NotificationGroup = manager.getNotificationGroup("sbt.shell")
+
+  //Sticky Balloon (by default)
+  def scalaPluginVerifier: NotificationGroup = manager.getNotificationGroup("scala.plugin.verifier")
+  def scalaPluginUpdater: NotificationGroup = manager.getNotificationGroup("scala.plugin.updater")
+  def scala3Disclaimer: NotificationGroup = manager.getNotificationGroup("scala3.disclaimer")
+  def scalaFeaturesAdvertiser: NotificationGroup = manager.getNotificationGroup("scala.features.advertiser")
 }

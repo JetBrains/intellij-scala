@@ -8,9 +8,9 @@ import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.PathUtil
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.{ExtensionPointDeclaration, ScalaBundle}
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
+import org.jetbrains.plugins.scala.{ExtensionPointDeclaration, ScalaBundle}
 
 import java.io.File
 import javax.swing.event.HyperlinkEvent
@@ -135,7 +135,7 @@ class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
     if (ApplicationManager.getApplication.isUnitTestMode) {
       ScalaPluginVersionVerifier.LOG.error(message)
     } else {
-      val notification = ScalaNotificationGroups.stickyBalloonGroup.createNotification(ScalaBundle.message("incompatible.plugin.detected"), message, NotificationType.ERROR)
+      val notification = ScalaNotificationGroups.scalaPluginVerifier.createNotification(ScalaBundle.message("incompatible.plugin.detected"), message, NotificationType.ERROR)
       //TODO
       notification.setListener((notification: Notification, event: HyperlinkEvent) => {
         notification.expire()

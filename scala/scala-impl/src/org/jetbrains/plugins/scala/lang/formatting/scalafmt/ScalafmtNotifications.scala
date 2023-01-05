@@ -12,13 +12,9 @@ import scala.ref.WeakReference
 private[formatting]
 object ScalafmtNotifications {
 
-  private val ScalafmtInfoBalloonGroupId        = "Scalafmt Notifications"
-  private val ScalafmtErrorBalloonGroupId       = "Scalafmt Error Notifications"
-  private val ScalafmtFormatErrorBalloonGroupId = "Scalafmt Format Error Notifications"
-
-  private def scalafmtInfoBalloonGroup        = NotificationGroupManager.getInstance().getNotificationGroup(ScalafmtInfoBalloonGroupId)
-  private def scalafmtErrorBalloonGroup       = NotificationGroupManager.getInstance().getNotificationGroup(ScalafmtErrorBalloonGroupId)
-  private def scalafmtFormatErrorBalloonGroup = NotificationGroupManager.getInstance().getNotificationGroup(ScalafmtFormatErrorBalloonGroupId)
+  private def scalafmtInfoBalloonGroup        = NotificationGroupManager.getInstance().getNotificationGroup("scalafmt")
+  private def scalafmtFatalErrorBalloonGroup  = NotificationGroupManager.getInstance().getNotificationGroup("scalafmt.fatal.errors")
+  private def scalafmtFormatErrorBalloonGroup = NotificationGroupManager.getInstance().getNotificationGroup("scalafmt.format.errors")
 
   // do not display notification with same content several times
   private val messagesShown: concurrent.Map[String, WeakReference[Notification]] =
@@ -77,7 +73,7 @@ object ScalafmtNotifications {
     message: String,
     actions: Seq[NotificationAction] = Nil
   )(implicit project: Project = null): Unit = {
-    displayNotification(message, NotificationType.ERROR, scalafmtErrorBalloonGroup, actions)
+    displayNotification(message, NotificationType.ERROR, scalafmtFatalErrorBalloonGroup, actions)
   }
 
   def displayFormatError(message: String,
@@ -91,7 +87,7 @@ object ScalafmtNotifications {
     for {
       notificationRef <- messagesShown.valuesIterator
       notification <- notificationRef.get
-      if notification.getGroupId == ScalafmtFormatErrorBalloonGroupId
+      if notification.getGroupId == "Scalafmt Format Error Notifications"
     } notification.hideBalloon()
   }
 

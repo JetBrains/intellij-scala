@@ -117,7 +117,7 @@ object ConvertJavaToScalaAction {
   }
 
   private def showFileAlreadyExistsNotification(project: Project, scalaFileName: String): Unit =  {
-    ScalaNotificationGroups.balloonGroup
+    ScalaNotificationGroups.javaToScalaConverter
       .createNotification(
         ScalaConversionBundle.message("cannot.create.file"),
         ScalaConversionBundle.message("file.already.exists", scalaFileName),

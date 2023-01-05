@@ -174,13 +174,18 @@
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
 
         <!-- Notification groups -->
-        <notificationGroup id="Scala Balloon Notifications" displayType="BALLOON"  key=""/>
-        <notificationGroup id="Persistent Scala Notifications" displayType="STICKY_BALLOON" />
-
-        <notificationGroup id="Scalafmt Notifications" displayType="BALLOON"/>
-        <notificationGroup id="Scalafmt Error Notifications" displayType="STICKY_BALLOON"/>
-        <!-- format errors (e.g. parse error) shouldn't be sticky -->
-        <notificationGroup id="Scalafmt Format Error Notifications" displayType="BALLOON"/>
+        <notificationGroup id="scala.general" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.general"/>
+        <notificationGroup id="java.to.scala.converter" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.java.to.scala.converter"/>
+        <notificationGroup id="sbt.project.import" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.sbt.project.import"/>
+        <notificationGroup id="sbt.shell" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.sbt.shell"/>
+        <notificationGroup id="scala.plugin.verifier" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.plugin.verifier"/>
+        <notificationGroup id="scala.plugin.updater" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.plugin.updater"/>
+        <notificationGroup id="scala3.disclaimer" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scala3.disclaimer"/>
+        <notificationGroup id="scala.features.advertiser" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.features.advertiser"/>
+        <!-- scalafmt notification groups -->
+        <notificationGroup id="scalafmt" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scalafmt"/>
+        <notificationGroup id="scalafmt.fatal.errors" displayType="STICKY_BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scalafmt.fatal.errors"/>
+        <notificationGroup id="scalafmt.format.errors" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scalafmt.format.errors"/>
 
         <toolWindow id="internal-profiler" anchor="bottom" canCloseContents="false" doNotActivateOnStart="true"
                     factoryClass="org.jetbrains.plugins.scala.caches.stats.InternalProfilerToolWindowFactory"/>

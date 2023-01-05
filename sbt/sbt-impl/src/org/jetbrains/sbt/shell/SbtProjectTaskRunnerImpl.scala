@@ -78,7 +78,7 @@ final class SbtProjectTaskRunnerImpl
       // sometimes external system loses information about sbt modules
       // since it is very confusing to users, when build task silently does nothing
       // we detect such cases and suggest project refresh
-      val notification = ScalaNotificationGroups.balloonGroup.createNotification(
+      val notification = ScalaNotificationGroups.sbtShell.createNotification(
         SbtBundle.message("sbt.shell.sbt.build.failed"),
         SbtBundle.message("sbt.shell.unable.to.build.sbt.project", project.getName),
         NotificationType.ERROR

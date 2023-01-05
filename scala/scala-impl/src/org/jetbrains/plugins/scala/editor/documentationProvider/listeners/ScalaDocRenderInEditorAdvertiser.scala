@@ -65,7 +65,7 @@ object ScalaDocRenderInEditorAdvertiser {
   private def suggestInEditorDocRendering(project: Project): Unit = {
     val notification = {
       ScalaNotificationGroups
-        .stickyBalloonGroup
+        .scalaFeaturesAdvertiser
         .createNotification(ScalaEditorBundle.message("doc.rendering.advertiser.title"), NotificationType.INFORMATION)
     }
 

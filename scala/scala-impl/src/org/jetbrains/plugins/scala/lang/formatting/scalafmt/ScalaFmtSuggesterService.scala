@@ -94,5 +94,5 @@ object ScalaFmtSuggesterService {
     var enableForCurrentProject: Boolean = true
   }
 
-  private def suggesterNotificationGroup: NotificationGroup = ScalaNotificationGroups.balloonGroup
+  private def suggesterNotificationGroup: NotificationGroup = ScalaNotificationGroups.scalaFeaturesAdvertiser
 }

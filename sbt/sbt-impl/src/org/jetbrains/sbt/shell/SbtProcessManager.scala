@@ -210,7 +210,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   private def notifyVersionUpgrade(projectSbtVersion: String, upgradedSbtVersion: Version, projectPath: File): Unit = {
     val message = SbtBundle.message("sbt.shell.started.sbt.shell.with.sbt.version", upgradedSbtVersion.presentation, projectSbtVersion)
-    val notification = ScalaNotificationGroups.balloonGroup.createNotification(message, MessageType.INFO)
+    val notification = ScalaNotificationGroups.sbtShell.createNotification(message, MessageType.INFO)
 
     notification.addAction(new UpdateSbtVersionAction(projectPath))
     notification.addAction(DisableSbtVersionOverrideAction)
@@ -241,7 +241,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
       if (path.isFile) true
       else {
         val badCustomVMNotification =
-          ScalaNotificationGroups.balloonGroup
+          ScalaNotificationGroups.sbtShell
             .createNotification(SbtBundle.message("sbt.shell.no.jre.found.at.path", sbtSettings.vmExecutable), NotificationType.WARNING)
         badCustomVMNotification.addAction(ConfigureSbtAction)
         badCustomVMNotification.notify(project)
@@ -268,7 +268,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
       else {
         val message = SbtBundle.message("sbt.shell.no.project.jdk.configured")
         val noProjectSdkNotification =
-          ScalaNotificationGroups.balloonGroup.createNotification(message, NotificationType.ERROR)
+          ScalaNotificationGroups.sbtShell.createNotification(message, NotificationType.ERROR)
         noProjectSdkNotification.addAction(ConfigureProjectJdkAction)
         noProjectSdkNotification.notify(project)
         throw new RuntimeException(message)
