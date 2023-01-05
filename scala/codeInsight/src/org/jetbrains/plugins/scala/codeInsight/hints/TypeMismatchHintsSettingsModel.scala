@@ -48,7 +48,7 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
       val link = new LinkLabel[Any](ScalaCodeInsightBundle.message("link.label.more.info"), null)
       val url = "https://blog.jetbrains.com/scala/2019/07/02/functional-highlighting-for-functional-programming/"
       link.setToolTipText(url)
-      link.setListener((_, _) => DesktopUtils.browse(url), null)
+      link.setListener((_, _) => DesktopUtils.browse(project, url), null)
       val linePanel = {
         val layout = new FlowLayout()
         layout.setHgap(0)
