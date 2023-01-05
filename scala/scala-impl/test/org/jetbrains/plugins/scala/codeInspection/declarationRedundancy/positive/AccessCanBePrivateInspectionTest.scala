@@ -129,4 +129,119 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
          |  def foo(): Unit = defMacroImpl(null)
          |}
          |""".stripMargin, AllowAdditionalHighlights)
+
+  def test_no_need_to_prevent_escaping_via_projection_type_in_companion1(): Unit = checkTextHasError(
+    s"object A { object ${START}B$END { class C } }; class A { private def foo: A.B.C = ???}",
+    AllowAdditionalHighlights)
+
+  def test_no_need_to_prevent_escaping_via_projection_type_in_companion2(): Unit = checkTextHasError(
+    s"object A { object ${START}B$END { object C { class D } } }; class A { private def foo: A.B.C.D = ???}",
+    AllowAdditionalHighlights)
+
+  def test_no_need_to_prevent_escaping_via_projection_type1(): Unit = checkTextHasError(
+    s"""object A {
+       |  object ${START}B$END {
+       |    object C {
+       |      object D {
+       |        class E
+       |      }
+       |      println(D)
+       |    }
+       |    println(C)
+       |  }
+       |  private def foo: A.B.C.D.E = ???
+       |  println(B)
+       |}
+       |""".stripMargin,
+    AllowAdditionalHighlights
+  )
+
+  def test_no_need_to_prevent_escaping_via_projection_type2(): Unit = checkTextHasError(
+    s"""object A {
+       |  object ${START}B$END {
+       |    object ${START}C$END {
+       |      object D {
+       |        class E
+       |      }
+       |      println(D)
+       |    }
+       |    private def foo: A.B.C.D.E = ???
+       |    println(C)
+       |  }
+       |  println(B)
+       |}
+       |""".stripMargin,
+    AllowAdditionalHighlights
+  )
+
+  def test_no_need_to_prevent_escaping_via_projection_type3(): Unit = checkTextHasError(
+    s"""object A {
+       |  object ${START}B$END {
+       |    object ${START}C$END {
+       |      object ${START}D$END {
+       |        class E
+       |      }
+       |      private def foo: A.B.C.D.E = ???
+       |      println(D)
+       |    }
+       |    println(C)
+       |  }
+       |  println(B)
+       |}
+       |""".stripMargin,
+    AllowAdditionalHighlights
+  )
+
+  def test_no_need_to_prevent_escaping_via_projection_type4(): Unit = checkTextHasError(
+    s"""object A {
+       |  object ${START}B$END {
+       |    object ${START}C$END {
+       |      object ${START}D$END {
+       |        class ${START}E$END
+       |        private def foo: A.B.C.D.E = ???
+       |      }
+       |      println(D)
+       |    }
+       |    println(C)
+       |  }
+       |  println(B)
+       |}
+       |""".stripMargin,
+    AllowAdditionalHighlights
+  )
+
+  def test_no_need_to_prevent_escaping_via_path_dependent_type(): Unit =
+    checkTextHasError(s"class A { private class B; val ${START}a$END = new A; private def b = new a.B }", AllowAdditionalHighlights)
+
+  def test_no_need_to_prevent_escaping_via_this_type(): Unit =
+    checkTextHasError(
+      s"""object AA {
+         |  class Foo { object Bar }
+         |  class ${START}BB$END extends Foo { val b = Bar }
+         |  new BB
+         |}
+         |""".stripMargin,
+        AllowAdditionalHighlights)
+
+  def test_implicit_class_extension_method_used_directly_from_within_itself(): Unit = checkTextHasError(
+    s"""object foo {
+       |  implicit class IntExt1(i: Int) { self =>
+       |    def ${START}addOne$END = i + 1
+       |    def addOneCanBePrivate1 = addOne
+       |    def addOneCanBePrivate2 = addOne.bar
+       |    def addOneCanBePrivate3 = this.addOne
+       |    def addOneCanBePrivate4 = self.addOne
+       |  }
+       |  implicit class IntExt2(i: Int) { def bar = 42 }
+       |}
+       |""".stripMargin, AllowAdditionalHighlights)
+
+  def test_inner_class_accessed_by_companion(): Unit =
+    checkTextHasError(s"object A { class ${START}B$END }; class A { private def foo: A.B = ??? }", AllowAdditionalHighlights)
+
+  def test_imported_companion_object_method(): Unit =
+    checkTextHasError(s"class A { import A._; println(a) }; object A { def ${START}a$END = 1 }", AllowAdditionalHighlights)
+
+  def test_indirect_companion_object_method(): Unit =
+    checkTextHasError(s"class A { private def foo = A; println(foo.a) }; object A { def ${START}a$END = 1 }", AllowAdditionalHighlights)
 }

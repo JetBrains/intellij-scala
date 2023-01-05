@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection.getPipeline
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.TypeDefEscaping.elementIsTypeDefWhichEscapesItsDefiningScopeWhenItIsPrivate
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.SymbolEscaping.elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection
@@ -36,7 +36,7 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
       val usages = getPipeline(element.getProject).runSearchPipeline(element, isOnTheFly)
 
       if (usages.nonEmpty && usages.forall(_.targetCanBePrivate) &&
-          !elementIsTypeDefWhichEscapesItsDefiningScopeWhenItIsPrivate(element)) {
+          !elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate(element)) {
 
         val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(modifierListOwner)
 

@@ -5,11 +5,13 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
@@ -19,13 +21,16 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
  * case is to assist in [[ScalaAccessCanBeTightenedInspection]], but maybe it could also be used to improve
  * our error highlighting. See SCL-20855.
  *
- * [[elementIsTypeDefWhichEscapesItsDefiningScopeWhenItIsPrivate]] is the main and only entrypoint.
+ * [[elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate]] is the main and only entrypoint.
  */
-private[declarationRedundancy] object TypeDefEscaping {
+private[declarationRedundancy] object SymbolEscaping {
 
   /**
    * If any of the scraped [[ScType]] instances are parameterized, this method will destructure those into a list of
-   * non-parameterized [[ScType]] instances. Note that there are at least 2 seemingly different forms I'm currently
+   * non-parameterized [[ScType]] instances. If any of the instances are projection types, those too will be
+   * destructured into non-projection types.
+   *
+   * Regarding parameterized types, there are at least 2 seemingly different forms I'm currently
    * aware of, that are both handled here, and that are equally crucial in detecting escaping type definitions.
    *
    * Form 1: A => B.
@@ -48,10 +53,21 @@ private[declarationRedundancy] object TypeDefEscaping {
    * into a list of its non-parameterized constituents. So `Option[Seq[B]]` becomes `Option, Seq, B`.
    *
    * Any types that are not parameterized are returned in their original form.
+   *
+   * Regarding projection types, let's use the below code as an example:
+   * {{{
+   * object A { object B { class C } }
+   * class A { def foo: A.B.C = ??? }
+   * }}}
+   * To understand whether `A.B` can be private, the inspection must be aware that the return type of `foo`,
+   * `A.B.C`, includes type `A.B`. So a type like `A.B.C` will be destructured into `A.B.C`, `A.B` and `A`.
    */
-  private def destructureParameterizedTypes(types: Seq[ScType]): Seq[ScType] = types.flatMap {
+  private def destructureParameterizedAndProjectionTypes(types: Seq[ScType]): Seq[ScType] = types.flatMap {
+    case _: ScThisType => Seq.empty
     case parameterizedType: ScParameterizedType =>
-      parameterizedType.designator +: destructureParameterizedTypes(parameterizedType.typeArguments)
+      parameterizedType.designator +: destructureParameterizedAndProjectionTypes(parameterizedType.typeArguments)
+    case projectionType: ScProjectionType =>
+      projectionType +: destructureParameterizedAndProjectionTypes(Seq(projectionType.projected))
     case t => Seq(t)
   }
 
@@ -103,14 +119,14 @@ private[declarationRedundancy] object TypeDefEscaping {
    * Another caveat is that when you ask for escaping types of members of `Foo`, you will also want to do that for
    * `Foo`'s companion (if it has one). Again, this is the responsibility of callers of this method, which is what.
    *
-   * For a typical usage example, see [[elementIsTypeDefWhichEscapesItsDefiningScopeWhenItIsPrivate]].
+   * For a typical usage example, see [[elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate]].
    */
   private def getEscapeInfos(typeDef: ScTypeDefinition): Seq[EscapeInfo] = cachedInUserData("TypeDefEscaping.getEscapeInfosOfTypeDefMembers", typeDef, ModTracker.anyScalaPsiChange, Tuple1(typeDef)) {
 
     val typeDefFile = typeDef.getContainingFile
 
     def destructureAndFilter(types: Seq[ScType]): Seq[ScType] =
-      destructureParameterizedTypes(types)
+      destructureParameterizedAndProjectionTypes(types)
         .filter(t => isScTypeDefinedInFile(t, typeDefFile))
         .filterNot(_.is[TypeParameterType])
 
@@ -121,7 +137,10 @@ private[declarationRedundancy] object TypeDefEscaping {
       member match {
         case typeDef: ScTypeDefinition if !isPrivate(typeDef) =>
 
-          val types = typeDef.`type`().toSeq ++ getTypeParameterTypes(typeDef)
+          val templateParentTypes = Option(typeDef.extendsBlock).flatMap(_.templateParents)
+            .toSeq.flatMap(_.typeElements).flatMap(_.`type`().toSeq)
+
+          val types = templateParentTypes ++ getTypeParameterTypes(typeDef)
           val childTypes = (typeDef +: typeDef.baseCompanion.toSeq).flatMap(getEscapeInfos)
 
           EscapeInfo(typeDef, destructureAndFilter(types)) +: childTypes
@@ -158,28 +177,38 @@ private[declarationRedundancy] object TypeDefEscaping {
 
         case _ => Seq.empty
       }
-    }.flatten
+    }.flatten.filterNot(_.types.isEmpty)
   }
 
-  def elementIsTypeDefWhichEscapesItsDefiningScopeWhenItIsPrivate(element: ScNamedElement): Boolean = element match {
-    case td: ScTypeDefinition =>
+  def elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate(element: ScNamedElement): Boolean = {
 
-      td.`type`() match {
+    def getEscapeInfosOfContainingClassAndCompanion(containingClass: Option[ScTemplateDefinition]) = {
+      val containingTypeDef = containingClass.flatMap(_.asOptionOf[ScTypeDefinition])
+      val containingTypeDefCompanion = containingTypeDef.flatMap(_.baseCompanion)
+      (containingTypeDef ++ containingTypeDefCompanion).flatMap(getEscapeInfos)
+    }
 
-        case Right(tdType) =>
+    element match {
+      case td: ScTypeDefinition =>
 
-          val designatorType = tdType.asOptionOf[ScParameterizedType].map(_.designator).getOrElse(tdType)
+        td.`type`() match {
 
-          val containingTypeDef = Option(td.containingClass).flatMap(_.asOptionOf[ScTypeDefinition])
-          val containingTypeDefCompanion = containingTypeDef.flatMap(_.baseCompanion)
+          case Right(tdType) =>
+            val designatorType = tdType.asOptionOf[ScParameterizedType].map(_.designator).getOrElse(tdType)
+            val escapeInfos = getEscapeInfosOfContainingClassAndCompanion(Option(td.containingClass))
+            escapeInfos.exists(info => info.member != td && info.types.exists(_.conforms(designatorType)))
 
-          val escapeInfos = (containingTypeDef ++ containingTypeDefCompanion).flatMap(getEscapeInfos)
+          case _ => false
+        }
 
-          escapeInfos.exists(info => info.member != td && info.types.exists(_.conforms(designatorType)))
+      case r: ScReferencePattern if r.isVal =>
+        val escapeInfos = getEscapeInfosOfContainingClassAndCompanion(Option(r.containingClass))
+        escapeInfos.exists { info =>
+          info.member != r &&
+            info.types.collect { case p: ScProjectionType if p.element == r => p }.nonEmpty
+        }
 
-        case _ => false
-      }
-
-    case _ => false
+      case _ => false
+    }
   }
 }

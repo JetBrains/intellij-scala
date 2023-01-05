@@ -165,4 +165,109 @@ final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInsp
        |  }
        |}
        |""".stripMargin)
+
+  def test_prevent_escaping_via_projection_type_in_companion(): Unit = checkTextHasNoErrors(
+    """object A {
+      |  object B {
+      |    class C
+      |  }
+      |}
+      |
+      |class A {
+      |  def foo: A.B.C = ???
+      |}
+      |""".stripMargin)
+
+  def test_prevent_escaping_via_projection_type1(): Unit = checkTextHasNoErrors(
+    s"""object A {
+       |  object B {
+       |    object C {
+       |      object D {
+       |        class E
+       |      }
+       |      println(D)
+       |    }
+       |    println(C)
+       |  }
+       |  def foo: A.B.C.D.E = ???
+       |  println(B)
+       |}
+       |""".stripMargin
+  )
+
+  def test_prevent_escaping_via_projection_type2(): Unit = checkTextHasNoErrors(
+    s"""object A {
+       |  object B {
+       |    object C {
+       |      object D {
+       |        class E
+       |      }
+       |      println(D)
+       |    }
+       |    def foo: A.B.C.D.E = ???
+       |    println(C)
+       |  }
+       |  println(B)
+       |}
+       |""".stripMargin
+  )
+
+  def test_prevent_escaping_via_projection_type3(): Unit = checkTextHasNoErrors(
+    s"""object A {
+       |  object B {
+       |    object C {
+       |      object D {
+       |        class E
+       |      }
+       |      def foo: A.B.C.D.E = ???
+       |      println(D)
+       |    }
+       |    println(C)
+       |  }
+       |  println(B)
+       |}
+       |""".stripMargin
+  )
+
+  def test_prevent_escaping_via_projection_type4(): Unit = checkTextHasNoErrors(
+    s"""object A {
+       |  object B {
+       |    object C {
+       |      object D {
+       |        class E
+       |        def foo: A.B.C.D.E = ???
+       |      }
+       |      println(D)
+       |    }
+       |    println(C)
+       |  }
+       |  println(B)
+       |}
+       |""".stripMargin
+  )
+
+  def test_prevent_escaping_via_path_dependent_type(): Unit =
+    checkTextHasNoErrors("class A { class B; val a = new A; def b = new a.B }")
+
+  def test_implicit_class_extension_method_used_indirectly_from_within_itself(): Unit = checkTextHasNoErrors(
+    """object bar {
+      |  implicit class IntExt1(i: Int) {
+      |    def addOne1 = i + 1; def addOne2 = i + 1; def addOne3 = i + 1; def addOne4 = i + 1
+      |    def addOne1CanNotBePrivate = i.bar.addOne1
+      |    def addOne2CanNotBePrivate = 1.addOne2
+      |    def addOne3CanNotBePrivate = Seq(1).map(_.addOne3)
+      |    private val anInt = 42
+      |    def addOne4CanNotBePrivate = anInt.addOne4
+      |  }
+      |  implicit class IntExt2(i: Int) { def bar = 42 }
+      |}
+      |""".stripMargin
+  )
+
+  def test_method_defined_in_subclass_of_companion(): Unit = checkTextHasNoErrors(
+    """class Foo { def getInt = 1 }
+      |class FooBar extends Foo
+      |object Foo { new FooBar().getInt }
+      |""".stripMargin
+  )
 }
