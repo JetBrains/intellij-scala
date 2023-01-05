@@ -176,7 +176,6 @@
         <!-- Notification groups -->
         <notificationGroup id="Scala Balloon Notifications" displayType="BALLOON"  key=""/>
         <notificationGroup id="Persistent Scala Notifications" displayType="STICKY_BALLOON" />
-        <notificationGroup id="Scala ToolWindow Notifications" displayType="TOOL_WINDOW" toolWindowId="Messages"/>
 
         <notificationGroup id="Scalafmt Notifications" displayType="BALLOON"/>
         <notificationGroup id="Scalafmt Error Notifications" displayType="STICKY_BALLOON"/>
