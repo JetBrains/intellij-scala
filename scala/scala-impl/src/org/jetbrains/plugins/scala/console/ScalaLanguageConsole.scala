@@ -113,7 +113,12 @@ class ScalaLanguageConsole(module: Module, language: Language)
         }
       case SYSTEM_OUTPUT =>
         state match {
-          case Init => PrintingSystemOutput
+          //system output can be printed multiple times in the very beginning:
+          //line 1 contains command line:
+          //"java.exe ... dotty.tools.repl.Main -usejavacp"
+          //line 2 can contain debug information if someone starts Scala REPL in debug mode:
+          //"Connected to the target VM, address: '127.0.0.1:62877', transport: 'socket'"
+          case Init | PrintingSystemOutput => PrintingSystemOutput
           case _    => Terminated
         }
       case _ =>
