@@ -16,7 +16,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.LightVirtualFile
-import com.intellij.ui.{JBColor, SideBorder}
+import com.intellij.ui.{Gray, JBColor, SideBorder}
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole._
 import org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
@@ -154,7 +154,7 @@ class ScalaLanguageConsole(module: Module, language: Language)
 
   private val TransparentAttributes: TextAttributes = {
     val attrs = new TextAttributes()
-    attrs.setForegroundColor(new Color(0, 0, 0, 0))
+    attrs.setForegroundColor(Gray.TRANSPARENT)
     attrs
   }
 
@@ -367,14 +367,14 @@ object ScalaLanguageConsole {
       val mask = SideBorder.ALL
       val thickness = 2
 
-      consoleView.getComponent.setBorder(new SideBorder(Color.RED, mask, thickness))
+      consoleView.getComponent.setBorder(new SideBorder(JBColor.RED, mask, thickness))
 
       val viewEditor = consoleView.getEditor
-      viewEditor.getComponent.setBorder(new SideBorder(Color.GREEN, mask, thickness))
+      viewEditor.getComponent.setBorder(new SideBorder(JBColor.GREEN, mask, thickness))
       //viewEditor.getContentComponent.setBorder(new SideBorder(Color.ORANGE, mask, thickness))
 
       val consoleEditor = consoleView.getConsoleEditor
-      consoleEditor.getComponent.setBorder(new SideBorder(Color.BLUE, mask, 2 * thickness))
+      consoleEditor.getComponent.setBorder(new SideBorder(JBColor.BLUE, mask, 2 * thickness))
     }
   }
 }
