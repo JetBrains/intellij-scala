@@ -270,4 +270,11 @@ final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInsp
       |object Foo { new FooBar().getInt }
       |""".stripMargin
   )
+
+  def test_overriding_type_alias(): Unit =
+    checkTextHasNoErrors(
+      s"""trait A { type Foo }; trait B extends A {}
+         |class C extends B { type Foo = Int; val x: Foo = 1 }
+         |""".stripMargin)
+
 }
