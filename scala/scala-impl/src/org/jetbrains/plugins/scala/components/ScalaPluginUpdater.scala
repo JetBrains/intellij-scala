@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.components
 import com.intellij.ide.plugins.{org => _, _}
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.application.impl.ApplicationInfoImpl
 import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager, PermanentInstallationID}
@@ -12,6 +13,7 @@ import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.updateSettings.impl._
+import com.intellij.openapi.util.NlsActions.ActionText
 import com.intellij.openapi.util.{BuildNumber, JDOMUtil, SystemInfo}
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.util.io.HttpRequests
@@ -25,8 +27,6 @@ import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, extensions}
 
 import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
-import javax.swing.event.HyperlinkEvent
-import scala.annotation.nowarn
 import scala.xml.XML
 
 class InvalidRepoException(what: String) extends Exception(what)
@@ -67,9 +67,6 @@ object ScalaPluginUpdater {
   private val currentVersion: String = FOURTEEN_ONE
 
   private def currentRepo: Map[pluginBranch, String] = knownVersions(currentVersion)
-
-  private val updGroupId = "Scala Plugin Update"
-  private val title = updGroupId
 
   private def NotificationGroup = ScalaNotificationGroups.scalaPluginUpdater
 
@@ -267,34 +264,41 @@ object ScalaPluginUpdater {
     if (ApplicationManager.getApplication.isUnitTestMode)
       return
 
-    val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
-    val applicationSettings = ScalaApplicationSettings.getInstance()
-    if (infoImpl.isEAP
-      && applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS
-      && ScalaPluginUpdater.pluginIsRelease) {
-      val selectUpdateChannel = ScalaBundle.message("please.select.scala.plugin.update.channel")
-      val stableReleases = ScalaBundle.message("channel.stable.releases")
-      val eap = ScalaBundle.message("channel.early.access.program")
-      val nightlyBuilds = ScalaBundle.message("channel.nightly.builds")
-      val links =
-        s"""<a href="Release">$stableReleases</a> | <a href="EAP">$eap</a> | <a href="Nightly">$nightlyBuilds</a>"""
-      val message = selectUpdateChannel + "<p/>" + links
+    val ideaApplicationInfo = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoEx]
+    val scalaApplicationSettings = ScalaApplicationSettings.getInstance()
 
-      val listener = new NotificationListener {
-        override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
+    val isEapIdeaInstallation = ideaApplicationInfo.isEAP
+    val showSelectScalaPluginUpdateChannelNotification =
+      isEapIdeaInstallation &&
+        scalaApplicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS &&
+        ScalaPluginUpdater.pluginIsRelease
+
+    if (showSelectScalaPluginUpdateChannelNotification) {
+      val notification = NotificationGroup
+        .createNotification(
+          ScalaBundle.message("scala.plugin.update"),
+          ScalaBundle.message("please.select.scala.plugin.update.channel"),
+          NotificationType.INFORMATION
+        )
+
+      class SelectChannelAction(
+        @ActionText channelDisplayName: String,
+        pluginBranch: pluginBranch
+      ) extends AnAction(channelDisplayName) {
+        override def actionPerformed(e: AnActionEvent): Unit = {
+          scalaApplicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false
+          doUpdatePluginHostsAndCheck(pluginBranch)
           notification.expire()
-          applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false
-          event.getDescription match {
-            case "Release" => doUpdatePluginHostsAndCheck(Release)
-            case "EAP" => doUpdatePluginHostsAndCheck(EAP)
-            case "Nightly" => doUpdatePluginHostsAndCheck(Nightly)
-            case _ => applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = true
-          }
         }
       }
-      val notification = NotificationGroup.createNotification(title, message, NotificationType.INFORMATION).setListener(listener): @nowarn("cat=deprecation")
+
+      notification
+        .addAction(new SelectChannelAction(ScalaBundle.message("channel.stable.releases"), Release))
+        .addAction(new SelectChannelAction(ScalaBundle.message("channel.early.access.program"), EAP))
+        .addAction(new SelectChannelAction(ScalaBundle.message("channel.nightly.builds"), Nightly))
+
       val project = ProjectManager.getInstance().getOpenProjects.headOption.orNull
-      Notifications.Bus.notify(notification, project)
+      notification.notify(project)
     }
   }
 
