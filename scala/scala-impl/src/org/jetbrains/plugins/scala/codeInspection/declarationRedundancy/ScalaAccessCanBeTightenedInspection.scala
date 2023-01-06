@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.isBeanProperty
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScTypeAliasDefinition, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 
@@ -38,6 +38,7 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
     element match {
       case member: ScMember if !member.hasModifierPropertyScala("private") =>
         val canBePrivate = member match {
+          case t: ScTypeAliasDefinition if !t.isOpaque => computeCanBePrivate(t, isOnTheFly)
           case d: ScFunctionDefinition => computeCanBePrivate(d, isOnTheFly)
           case d: ScTypeDefinition => computeCanBePrivate(d, isOnTheFly)
           case v: ScValueOrVariableDefinition =>

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRef
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isOnlyVisibleInLocalFile, superValsSignatures}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isOnlyVisibleInLocalFile, superTypeSignatures, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScRefinement, ScSelfTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -314,7 +314,8 @@ private[declarationRedundancy] object Search {
         member.hasModifierPropertyScala(ScalaModifier.OVERRIDE)
 
       def isOverridingOrOverridden(element: PsiNamedElement): Boolean =
-        superValsSignatures(element, withSelfType = true).nonEmpty || isOverridden(element)
+        superValsSignatures(element, withSelfType = true).nonEmpty || isOverridden(element) ||
+          superTypeSignatures(element).nonEmpty
 
       def isOverridingFunction(func: ScFunction): Boolean =
         hasOverrideModifier(func) || func.superSignatures.nonEmpty || isOverridden(func)
