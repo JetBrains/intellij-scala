@@ -483,6 +483,7 @@
 
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAsteriskAlignStyleIndexer"/>
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.autoImport.ImportOrderingIndexer"/>
+        <fileBasedIndex implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.FilesWithMacrosIndexer"/>
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask"/>
 
