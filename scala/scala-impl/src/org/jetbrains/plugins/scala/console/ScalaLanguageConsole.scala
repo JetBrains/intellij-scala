@@ -97,20 +97,6 @@ class ScalaLanguageConsole(module: Module, language: Language)
       return state
 
     contentType match {
-      case NORMAL_OUTPUT =>
-        // expecting only first process output line to be args
-        // welcome text is considered to be everything between first line and first prompt occurrence
-        text.trim match {
-          case ScalaPromptIdleText                   => Ready
-          case ScalaPromptInputInProgressTextTrimmed => InputIsInProgress
-          case _                                     =>
-            state match {
-              case Init | PrintingSystemOutput => PrintingWelcomeMessage
-              case Ready                       => Evaluating // consider REPL to be in Evaluating state until `scala>` prompt is printed
-              case InputIsInProgress           => Ready
-              case state                       => state
-            }
-        }
       case SYSTEM_OUTPUT =>
         state match {
           //system output can be printed multiple times in the very beginning:
@@ -119,10 +105,29 @@ class ScalaLanguageConsole(module: Module, language: Language)
           //line 2 can contain debug information if someone starts Scala REPL in debug mode:
           //"Connected to the target VM, address: '127.0.0.1:62877', transport: 'socket'"
           case Init | PrintingSystemOutput => PrintingSystemOutput
-          case _    => Terminated
+          case _ => Terminated
         }
       case _ =>
-        state
+        // expecting only first process output line to be args
+        // welcome text is considered to be everything between first line and first prompt occurrence
+        val textTrimmed = text.trim
+        textTrimmed match {
+          case ScalaPromptIdleText  =>
+            //In Scala 3 colors are not disabled even in JLine dumb mode, so we update prompt color to be consistent with REPL output
+            //see https://youtrack.jetbrains.com/issue/SCL-20177
+            //see https://github.com/jline/jline3/issues/814
+            this.setPromptAttributes(contentType)
+            Ready
+          case ScalaPromptInputInProgressTextTrimmed =>
+            InputIsInProgress
+          case _ =>
+            state match {
+              case Init | PrintingSystemOutput => PrintingWelcomeMessage
+              case Ready                       => Evaluating // consider REPL to be in Evaluating state until `scala>` prompt is printed
+              case InputIsInProgress           => Ready
+              case state                       => state
+            }
+        }
     }
   }
 
@@ -302,7 +307,7 @@ object ScalaLanguageConsole {
     /**
      * in Scala2 REPL prints some system output info before showing the prompt: {{{
      *   Welcome to Scala 2.13.2 (OpenJDK 64-Bit Server VM, Java 11.0.9).
-     *  Type in expressions for objectuation. Or try :help.
+     *   Type in expressions for objectuation. Or try :help.
      * }}}
      */
     object PrintingWelcomeMessage extends ConsoleState
