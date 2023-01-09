@@ -8,22 +8,15 @@ import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.PathUtil
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
-import org.jetbrains.plugins.scala.{ExtensionPointDeclaration, ScalaBundle}
 
 import java.io.File
 import javax.swing.event.HyperlinkEvent
 import scala.annotation.nowarn
 
-abstract class ScalaPluginVersionVerifier {
-  def getSinceVersion: String
-
-  def getUntilVersion: String
-}
-
-object ScalaPluginVersionVerifier
-  extends ExtensionPointDeclaration[ScalaPluginVersionVerifier]("org.intellij.scala.scalaPluginVersionVerifier") {
+object ScalaPluginVersionVerifier {
 
   class Version(private val major: Int, private val minor: Int, private val build: Int) extends Ordered[Version] with Serializable {
     override def compare(that: Version): Int = implicitly[Ordering[(Int, Int, Int)]]
@@ -74,7 +67,7 @@ class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
   override def doRunActivity(): Unit = {
     invokeLater {
       ScalaPluginUpdater.upgradeRepo()
-      checkVersion()
+      ScalaPluginUpdater.askUpdatePluginBranchIfNeeded()
       checkHaskForcePlugin()
       ScalaPluginUpdater.postCheckIdeaCompatibility()
       ScalaPluginUpdater.setupReporter()
@@ -82,54 +75,6 @@ class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
   }
 
   override protected def doCleanup(): Unit = {}
-
-  private def checkVersion(): Unit = {
-    import ScalaPluginVersionVerifier._
-
-    ScalaPluginVersionVerifier.getPluginVersion match {
-      case Some(version) =>
-        val extensions = ScalaPluginVersionVerifier.implementations
-
-        for (extension <- extensions) {
-          var failed = false
-          def wrongVersion(): Unit = {
-            failed = true
-            extension.getClass.getClassLoader match {
-              case pluginLoader: PluginClassLoader =>
-                val plugin = PluginManagerCore.getPlugin(pluginLoader.getPluginId)
-                val message =
-                  s"""Plugin ${plugin.getName} of version ${plugin.getVersion} is incompatible with Scala plugin of version $version. Do you want to disable ${plugin.getName} plugin?
-                     |<p/><a href="Yes">Yes, disable it</a>
-                     |<p/><a href="No">No, leave it enabled</a>""".stripMargin
-
-                showIncompatiblePluginNotification(message) {
-                  case "Yes" =>
-                    disablePlugin(plugin.getPluginId)
-                  case "No" => //do nothing it seems all is ok for the user
-                  case _ => //do nothing it seems all is ok for the user
-                }
-            }
-          }
-          Version.parse(extension.getSinceVersion) match {
-            case Some(sinceVersion) =>
-              if (sinceVersion != version && version < sinceVersion) {
-                wrongVersion()
-              }
-            case _                  =>
-          }
-
-          Version.parse(extension.getUntilVersion) match {
-            case Some(untilVersion) =>
-              if (untilVersion != version && untilVersion < version) {
-                wrongVersion()
-              }
-            case _                  =>
-          }
-        }
-      case None          =>
-    }
-    ScalaPluginUpdater.askUpdatePluginBranchIfNeeded()
-  }
 
   private def showIncompatiblePluginNotification(@Nls message: String)(callback: String => Unit): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) {

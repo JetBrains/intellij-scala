@@ -3,7 +3,6 @@
 
     <extensionPoints>
         <extensionPoint qualifiedName="org.intellij.scala.scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.scalaPluginVersionVerifier" interface="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.dependencyAwareInjectionSettings" interface="org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.scalaLanguageDerivative" interface="org.jetbrains.plugins.scala.finder.ScalaLanguageDerivative" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension" dynamic="true"/>
