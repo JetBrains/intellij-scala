@@ -43,12 +43,10 @@ class ScalaConsoleRunConfiguration(
 
   //language=Scala
   private val Scala2MainClass = "scala.tools.nsc.MainGenericRunner"
+  //language=Scala
   private val Scala3MainClass = "dotty.tools.repl.Main"
 
-  // TODO: looks like it isn't required for Scala3 and also for Scala2
-  //  in Scala3 JLine is always used, there is not option to disable it
-  //  in Scala2 we disable it with `org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.disableJLineOption`
-  private val DefaultJavaOptions = "-Djline.terminal=NONE"
+  private val DefaultJavaOptions = ""
   private val UseJavaCp = "-usejavacp"
 
   @BeanProperty var myConsoleArgs: String = ""
@@ -59,7 +57,9 @@ class ScalaConsoleRunConfiguration(
 
   def consoleArgs_=(s: String): Unit = this.myConsoleArgs = ensureUsesJavaCpByDefault(s)
 
-  private def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) UseJavaCp else s
+  private def ensureUsesJavaCpByDefault(args: String): String =
+    if (args == null || args.isEmpty) UseJavaCp
+    else args
 
   private def getModule: Option[Module] = Option(getConfigurationModule.getModule)
 
@@ -112,8 +112,10 @@ class ScalaConsoleRunConfiguration(
       val module = requireModule
       params.getProgramParametersList.addParametersString(consoleArgs)
 
-      // see dotty.tools.repl.JLineTerminal.dumbTerminal (in scala3-compiler_3-3.0.0.jar)
-      // also related IDEA-183619
+      //Without this option JLine won't be able to create a terminal
+      //And in Scala 3 there is no way to disable JLine like in Scala so we just set it in "dumb" mode
+      //see dotty.tools.repl.JLineTerminal.dumbTerminal (in scala3-compiler_3-3.0.0.jar)
+      //Also see related: IDEA-183619
       if (module.hasScala3)
         params.addEnv("TERM", "dumb")
       else

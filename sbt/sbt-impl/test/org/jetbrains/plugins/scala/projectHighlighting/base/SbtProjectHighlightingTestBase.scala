@@ -112,6 +112,7 @@ abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImporting
         """!!!
           |!!! Project caching enabled:
           |!!! Skipping sbt project import and reusing results of previous import
+          |!!! (you can disable caching by passing -Dproject.highlighting.disable.cache=true VM option)
           |!!! """.stripMargin
       )
     } else {
