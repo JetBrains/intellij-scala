@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.util.NotificationUtil
 
 import java.io.File
 import java.util.concurrent.atomic.AtomicReference
+import scala.annotation.nowarn
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
@@ -116,6 +117,7 @@ class BspCommunication private[protocol](base: File, config: BspServerConfig) ex
     generateBspConfig.runSynchronously()
   }
 
+  @nowarn("cat=deprecation")
   private def refreshProject(project: Project): Unit = {
     // We save all documents because there is a possible case that there is an external system config file changed inside the ide
     FileDocumentManager.getInstance.saveAllDocuments()
