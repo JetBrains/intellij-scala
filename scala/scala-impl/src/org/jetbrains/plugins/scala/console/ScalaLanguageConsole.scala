@@ -7,6 +7,7 @@ import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.keymap.KeymapUtil
@@ -27,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle, ScalaLanguage}
 
-import java.awt.{Color, Font}
+import java.awt.Font
 import scala.collection.mutable
 
 class ScalaLanguageConsole(module: Module, language: Language)
@@ -70,10 +71,11 @@ class ScalaLanguageConsole(module: Module, language: Language)
   private def updateState(text: String, contentType: ConsoleViewContentType): Unit = {
     val newState = stateFor(text, contentType)
 
-    // print some debug info
-    //val tid = Thread.currentThread().getId
-    //val stateTransferMessage = f"$state%23s -> $newState%-23s"
-    //println(f"# $tid%5s $stateTransferMessage content type: $contentType%-25s text: $text".stripTrailing())
+    if (Log.isDebugEnabled) {
+      val tid = Thread.currentThread().getId
+      val stateTransferMessage = f"${state.getClass.getSimpleName}%23s -> ${newState.getClass.getSimpleName}%-23s"
+      Log.debug(f"# $tid%5s $stateTransferMessage content type: $contentType%-25s text: $text".stripTrailing())
+    }
 
     // TODO: override `LanguageConsoleImpl.getMinHistoryLineCount` and return `1` when it's made `protected
     //  Details: Scala 3 doesn't print any welcome message and prints prompt right after the system output.
@@ -272,6 +274,8 @@ class ScalaLanguageConsole(module: Module, language: Language)
 }
 
 object ScalaLanguageConsole {
+  private val Log = Logger.getInstance(classOf[ScalaLanguageConsole])
+
   private[console] val ScalaConsoleTitle: String = ScalaBundle.message("scala.console.config.display.name")
 
   def isScalaConsoleFile(file: PsiFile): Boolean = file.name == ScalaConsoleTitle
