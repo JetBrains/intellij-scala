@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
+import org.jetbrains.plugins.scala.caches.cachedWithRecursionGuard
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
@@ -22,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
@@ -115,18 +115,13 @@ trait ScExpression extends ScBlockStatement
     inner(this)
   }
 
-  @CachedWithRecursionGuard(
-    this,
-    ExpressionTypeResult(Failure(NlsString.force("Recursive getTypeAfterImplicitConversion"))),
-    BlockModificationTracker(this)
-  )
   override def getTypeAfterImplicitConversion(
     checkImplicits:  Boolean        = true,
     isShape:         Boolean        = false,
     expectedOption:  Option[ScType] = None,
     ignoreBaseTypes: Boolean        = false,
     fromUnderscore:  Boolean        = false
-  ): ExpressionTypeResult = {
+  ): ExpressionTypeResult = cachedWithRecursionGuard("ScExpression.getTypeAfterImplicitConversion", this, ExpressionTypeResult(Failure(NlsString.force("Recursive getTypeAfterImplicitConversion"))), BlockModificationTracker(this), (checkImplicits, isShape, expectedOption, ignoreBaseTypes, fromUnderscore)) {
     def isJavaReflectPolymorphic =
       this.scalaLanguageLevelOrDefault >= Scala_2_11 &&
         ScalaPsiUtil.isJavaReflectPolymorphicSignature(this)
@@ -191,19 +186,18 @@ object ScExpression {
 
     def expectedTypes(fromUnderscore: Boolean = true): Seq[ScType] = expectedTypesEx(fromUnderscore).map(_._1).toSeq
 
-    @CachedWithRecursionGuard(expr, Array.empty[ParameterType], BlockModificationTracker(expr))
-    def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] = {
+    def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] = cachedWithRecursionGuard("ScExpression.Ext.expectedTypesEx", expr, Array.empty[ParameterType], BlockModificationTracker(expr), Tuple1(fromUnderscore)) {
       ExpectedTypes.instance().expectedExprTypes(expr, fromUnderscore = fromUnderscore)
     }
 
-    @CachedWithRecursionGuard(expr, None, BlockModificationTracker(expr))
-    def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
+    def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = cachedWithRecursionGuard("ScExpression.Ext.smartExpectedType", expr, Option.empty[ScType], BlockModificationTracker(expr), Tuple1(fromUnderscore)) {
+      ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
+    }
 
     def getTypeIgnoreBaseType: TypeResult = expr.getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
-    @CachedWithRecursionGuard(expr, Failure(NlsString.force("Recursive getNonValueType")), BlockModificationTracker(expr))
     def getNonValueType(ignoreBaseType: Boolean = false,
-                        fromUnderscore: Boolean = false): TypeResult = {
+                        fromUnderscore: Boolean = false): TypeResult = cachedWithRecursionGuard("ScExpression.Ext.getNonValueType", expr, Failure(NlsString.force("Recursive getNonValueType")), BlockModificationTracker(expr), (ignoreBaseType, fromUnderscore)) {
       ProgressManager.checkCanceled()
       if (fromUnderscore) expr.innerType
       else {
@@ -232,12 +226,10 @@ object ScExpression {
       }
     }
 
-    @CachedWithRecursionGuard(expr, Failure(NlsString.force("Recursive getTypeWithoutImplicits")),
-      BlockModificationTracker(expr))
     def getTypeWithoutImplicits(
       ignoreBaseType: Boolean = false,
       fromUnderscore: Boolean = false
-    ): TypeResult = {
+    ): TypeResult = cachedWithRecursionGuard("ScExpression.Ext.getTypeWithoutImplicits", expr, Failure(NlsString.force("Recursive getTypeWithoutImplicits")), BlockModificationTracker(expr), (ignoreBaseType, fromUnderscore)) {
       ProgressManager.checkCanceled()
 
       expr match {

@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 /**
   * Utility class for implicit conversions.
@@ -24,8 +23,7 @@ object ScImplicitlyConvertible {
     place.getTypeWithoutImplicits(fromUnderscore = fromUnderscore).toOption
       .map(_.tryExtractDesignatorSingleton)
 
-  @CachedWithRecursionGuard(place, Set.empty, BlockModificationTracker(place))
-  private def collectRegulars(place: ScExpression, placeType: ScType): Set[ImplicitConversionResolveResult] = {
+  private def collectRegulars(place: ScExpression, placeType: ScType): Set[ImplicitConversionResolveResult] = cachedWithRecursionGuard("ScImplicitlyConvertible.collectRegulars", place, Set.empty[ImplicitConversionResolveResult], BlockModificationTracker(place), (place, placeType)) {
     placeType match {
       case _: UndefinedType => Set.empty
       case _ if placeType.isNothing => Set.empty
@@ -36,8 +34,7 @@ object ScImplicitlyConvertible {
     }
   }
 
-  @CachedWithRecursionGuard(place, Set.empty, BlockModificationTracker(place))
-  private def collectCompanions(placeType: ScType, argumentTypes: Seq[ScType], place: PsiElement): Set[ImplicitConversionResolveResult] = {
+  private def collectCompanions(placeType: ScType, argumentTypes: Seq[ScType], place: PsiElement): Set[ImplicitConversionResolveResult] = cachedWithRecursionGuard("ScImplicitlyConvertible.collectCompanions", place, Set.empty[ImplicitConversionResolveResult], BlockModificationTracker(place), (placeType, argumentTypes, place)) {
     val expandedType = argumentTypes match {
       case Seq() => placeType
       case seq => TupleType(Seq(placeType) ++ seq)(place.elementScope)

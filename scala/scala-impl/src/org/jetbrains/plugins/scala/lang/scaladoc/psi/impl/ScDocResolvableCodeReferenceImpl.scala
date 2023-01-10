@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.psi.impl
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -10,15 +10,13 @@ import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceImpl(node) with ScDocResolvableCodeReference {
 
   override protected def debugKind: Option[String] = Some("scalaDoc")
 
   //noinspection RedundantDefaultArgument
-  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this))
-  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = {
+  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = cachedWithRecursionGuard("ScDocResolvableCodeReferenceImpl.multiResolveScala", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this), Tuple1(incomplete)) {
     multiResolveScalaImpl()
   }
 

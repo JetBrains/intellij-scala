@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.caches
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
 
@@ -51,8 +50,7 @@ case class CachedRecursiveFunction(name: String)(implicit projectContext: Projec
     innerCall
   }
 
-  @CachedWithRecursionGuard(psi, "#" + name, ModTracker.physicalPsiChange(psi.getProject))
-  private[this] def internal_cached_call(): String = {
+  private[this] def internal_cached_call(): String = cachedWithRecursionGuard("CachedRecursiveFunction.internal_cached_call", psi, "#" + name, ModTracker.physicalPsiChange(psi.getProject)) {
     calcCounter += 1
     innerCalls.map(_.apply()).mkString(name + "(", "+", ")")
   }

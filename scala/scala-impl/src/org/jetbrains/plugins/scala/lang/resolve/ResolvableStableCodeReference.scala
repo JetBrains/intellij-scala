@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.openapi.progress.ProgressManager
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 trait ResolvableStableCodeReference
 
@@ -11,8 +10,7 @@ object ResolvableStableCodeReference {
 
   implicit class Ext(private val stableRef: ScStableCodeReference) extends AnyVal {
 
-    @CachedWithRecursionGuard(stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef))
-    def resolveTypesOnly(incomplete: Boolean): Array[ScalaResolveResult] = {
+    def resolveTypesOnly(incomplete: Boolean): Array[ScalaResolveResult] = cachedWithRecursionGuard("ResolvableStableCodeReference.Ext.resolveTypesOnly", stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef), Tuple1(incomplete)) {
       val importResolverNoMethods = new StableCodeReferenceResolver(stableRef, false, false, false) {
         override protected def getKindsFor(ref: ScStableCodeReference): Set[ResolveTargets.Value] = {
           ref.getKinds(incomplete = false) diff StdKinds.methodRef
@@ -21,8 +19,7 @@ object ResolvableStableCodeReference {
       importResolverNoMethods.resolve()
     }
 
-    @CachedWithRecursionGuard(stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef))
-    def resolveMethodsOnly(incomplete: Boolean): Array[ScalaResolveResult] = {
+    def resolveMethodsOnly(incomplete: Boolean): Array[ScalaResolveResult] = cachedWithRecursionGuard("ResolvableStableCodeReference.Ext.resolveMethodsOnly", stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef), Tuple1(incomplete)) {
       val importResolverNoTypes = new StableCodeReferenceResolver(stableRef, false, false, false) {
         override protected def getKindsFor(ref: ScStableCodeReference): Set[ResolveTargets.Value] = {
           ref.getKinds(incomplete = false) diff StdKinds.stableClass
@@ -32,29 +29,25 @@ object ResolvableStableCodeReference {
       importResolverNoTypes.resolve()
     }
 
-    @CachedWithRecursionGuard(stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef))
-    def resolveNoConstructor: Array[ScalaResolveResult] = {
+    def resolveNoConstructor: Array[ScalaResolveResult] = cachedWithRecursionGuard("ResolvableStableCodeReference.Ext.resolveNoConstructor", stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef)) {
       ProgressManager.checkCanceled()
       val noConstructorResolver = new StableCodeReferenceResolver(stableRef, false, false, true)
       noConstructorResolver.resolve()
     }
 
-    @CachedWithRecursionGuard(stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef))
-    def resolveAllConstructors: Array[ScalaResolveResult] = {
+    def resolveAllConstructors: Array[ScalaResolveResult] = cachedWithRecursionGuard("ResolvableStableCodeReference.Ext.ResolveAllConstructors", stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef)) {
       ProgressManager.checkCanceled()
       val resolverAllConstructors = new StableCodeReferenceResolver(stableRef, false, true, false)
       resolverAllConstructors.resolve()
     }
 
-    @CachedWithRecursionGuard(stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef))
-    def shapeResolve: Array[ScalaResolveResult] = {
+    def shapeResolve: Array[ScalaResolveResult] = cachedWithRecursionGuard("ResolvableStableCodeReference.Ext.shapeResolve", stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef)) {
       ProgressManager.checkCanceled()
       val shapesResolver = new StableCodeReferenceResolver(stableRef, true, false, false)
       shapesResolver.resolve()
     }
 
-    @CachedWithRecursionGuard(stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef))
-    def shapeResolveConstr: Array[ScalaResolveResult] = {
+    def shapeResolveConstr: Array[ScalaResolveResult] = cachedWithRecursionGuard("ResolvableStableCodeReference.Ext.shareResolveConstr", stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef)) {
       ProgressManager.checkCanceled()
       val shapesResolverAllConstructors = new StableCodeReferenceResolver(stableRef, true, true, false)
       shapesResolverAllConstructors.resolve()

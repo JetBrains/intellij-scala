@@ -22,7 +22,7 @@ final class Failure(private[result] val cause: NlsString)
 object Failure {
 
   def apply(@Nls cause: String)
-           (implicit context: ProjectContext): Left[Failure, ScType] =
+           (implicit context: ProjectContext): TypeResult =
     Left(new Failure(NlsString(cause)))
 
   def unapply(result: Left[Failure, ScType]): Some[NlsString] =

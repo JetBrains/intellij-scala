@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
@@ -15,21 +15,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScMem
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project._
 
 case class ImplicitSearchScope(representative: PsiElement) {
 
-  @CachedWithRecursionGuard(representative, Set.empty, BlockModificationTracker(representative))
-  def cachedVisibleImplicits: Set[ScalaResolveResult] = {
+  def cachedVisibleImplicits: Set[ScalaResolveResult] = cachedWithRecursionGuard("ImplicitSearchScope.cachedVisibleImplicits", representative, Set.empty[ScalaResolveResult], BlockModificationTracker(representative)) {
     new ImplicitParametersProcessor(representative, withoutPrecedence = false)
       .candidatesByPlace
   }
 
-  @CachedWithRecursionGuard(representative, Set.empty, BlockModificationTracker(representative))
-  def cachedImplicitsByType(scType: ScType): Set[ScalaResolveResult] =
+
+  def cachedImplicitsByType(scType: ScType): Set[ScalaResolveResult] = cachedWithRecursionGuard("ImplicitSearchScope.cachedImplicitsByType", representative, Set.empty[ScalaResolveResult], BlockModificationTracker(representative), Tuple1(scType)) {
     new ImplicitParametersProcessor(representative, withoutPrecedence = true)
-      .candidatesByType(scType)
+    .candidatesByType(scType)
+  }
 }
 
 object ImplicitSearchScope {

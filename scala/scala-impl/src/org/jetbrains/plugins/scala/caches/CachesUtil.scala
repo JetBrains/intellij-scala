@@ -17,11 +17,6 @@ import scala.annotation.unused
 import scala.util.control.ControlThrowable
 
 object CachesUtil {
-  /**
-   * Do not delete this type alias, it is used by [[org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard]]
-    *
-    * @see [[CachesUtil.getOrCreateKey]] for more info
-   */
   type CachedMap[Data, Result] = CachedValue[ConcurrentMap[Data, Result]]
   type CachedRef[Result] = CachedValue[AtomicReference[Result]]
   private val keys = new ConcurrentHashMap[String, Key[_]]()

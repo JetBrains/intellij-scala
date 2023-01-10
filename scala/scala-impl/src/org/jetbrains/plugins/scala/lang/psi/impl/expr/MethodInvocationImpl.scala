@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroInvocationContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with MethodInvocation {
@@ -64,11 +63,12 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   }
 
   //noinspection ScalaExtractStringToBundle
-  @CachedWithRecursionGuard(this, FailureCase(Failure("Recursive innerTypeExt"), Seq.empty), BlockModificationTracker(this))
-  private def innerTypeExt: InvocationData = try {
-    tryToGetInnerTypeExt(useExpectedType = true)
-  } catch {
-    case _: SafeCheckException => tryToGetInnerTypeExt(useExpectedType = false)
+  private def innerTypeExt: InvocationData = cachedWithRecursionGuard("MethodInvocationImpl.innerTypeExt", this, FailureCase(Failure("Recursive innerTypeExt"), Seq.empty): InvocationData, BlockModificationTracker(this)) {
+    try {
+      tryToGetInnerTypeExt(useExpectedType = true)
+    } catch {
+      case _: SafeCheckException => tryToGetInnerTypeExt(useExpectedType = false)
+    }
   }
 
   //this method works for ScInfixExpression and ScMethodCall
@@ -406,7 +406,7 @@ object MethodInvocationImpl {
   }
 
   private case class FailureCase(
-    override val typeResult: Left[Failure, ScType],
+    override val typeResult: TypeResult,
     problems:                Seq[ApplicabilityProblem] = Seq.empty
   ) extends InvocationData {
     override def target: Option[ScalaResolveResult] = None

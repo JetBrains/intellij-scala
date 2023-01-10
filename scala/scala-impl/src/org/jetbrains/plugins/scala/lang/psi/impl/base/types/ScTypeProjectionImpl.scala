@@ -5,7 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceImpl(node) with ScTypeProjection {
   override protected def innerType: TypeResult = {
@@ -32,9 +31,9 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceImpl(node) with ScT
 
   override def getKinds(incomplete: Boolean, completion: Boolean): ResolveTargets.ValueSet = StdKinds.stableClass
 
-  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this))
-  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] =
+  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = cachedWithRecursionGuard("ScTypeProjectionImpl.multiResolveScala", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this), Tuple1(incomplete)) {
     doResolve(new ResolveProcessor(getKinds(incomplete), ScTypeProjectionImpl.this, refName))
+  }
 
   override def bindToElement(p1: PsiElement) = throw new IncorrectOperationException("NYI")
   override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)

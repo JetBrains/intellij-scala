@@ -4,7 +4,7 @@ import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.JavaResolveUtil
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
@@ -30,7 +30,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.conformsToDynamic
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import scala.annotation.tailrec
@@ -426,12 +425,11 @@ object ResolveUtils {
   }
 
   implicit class ScExpressionForExpectedTypesEx(private val expr: ScExpression) extends AnyVal {
-    @CachedWithRecursionGuard(expr, Array.empty[ScalaResolveResult], BlockModificationTracker(expr))
     def shapeResolveApplyMethod(
       tp:    ScType,
       exprs: Seq[ScExpression],
       call:  Option[MethodInvocation]
-    ): Array[ScalaResolveResult] = {
+    ): Array[ScalaResolveResult] = cachedWithRecursionGuard("ScExpressionForExpectedTypesEx.shapreResolveApplyMethod", expr, Array.empty[ScalaResolveResult], BlockModificationTracker(expr), (tp, exprs, call)) {
       val applyProc =
         new MethodResolveProcessor(
           expr,

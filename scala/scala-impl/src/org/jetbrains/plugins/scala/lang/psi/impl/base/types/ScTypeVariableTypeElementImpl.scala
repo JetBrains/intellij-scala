@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScTypePattern, ScTypedPatternLike}
@@ -14,15 +14,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeVariableTypeElement {
   override protected def innerType: TypeResult =
     Right(ScExistentialArgument(name, List.empty, Nothing, Any))
 
   // https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#type-parameter-inference-in-patterns
-  @CachedWithRecursionGuard(this, Failure(ScalaBundle.message("recursive.type.of.type.element")), BlockModificationTracker(this))
-  override def inferredType: TypeResult = inferredType0
+  override def inferredType: TypeResult = cachedWithRecursionGuard("ScTypeVariableTypeElementImpl.inferredType", this, Failure(ScalaBundle.message("recursive.type.of.type.element")), BlockModificationTracker(this)) {
+    inferredType0
+  }
 
   private def inferredType0: TypeResult = getParent match {
     case (_: ScTypeArgs) &

@@ -6,7 +6,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
@@ -94,21 +93,17 @@ object Compatibility {
           else                            typeAfterConversion(e, tpe, expectedOption)
         }
 
-      @CachedWithRecursionGuard(
-        e,
-        ExpressionTypeResult(Right(tpe)),
-        BlockModificationTracker(e)
-      )
       private def typeAfterConversion(
         e:            PsiElement,
         tpe:          ScType,
         expectedType: Option[ScType]
-      ): ExpressionTypeResult =
+      ): ExpressionTypeResult = cachedWithRecursionGuard("Compatibility.typeAfterConversion", e, ExpressionTypeResult(Right(tpe)), BlockModificationTracker(e), (e, tpe, expectedType)) {
         expectedType.collect {
           case etpe if !tpe.conforms(etpe) =>
             e.tryAdaptTypeToSAM(tpe, etpe, fromUnderscore = false, checkResolve = false)
               .getOrElse(e.updateTypeWithImplicitConversion(tpe, etpe))
         }.getOrElse(default)
+      }
     }
 
   }

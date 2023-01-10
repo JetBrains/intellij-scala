@@ -7,7 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
@@ -30,7 +30,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
 
@@ -38,10 +37,9 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   override def getTypeNoConstructor: TypeResult = innerNonValueType(inferValueType = true, noConstructor = true)
 
-  @CachedWithRecursionGuard(this, Failure(ScalaBundle.message("recursive.non.value.type.of.type.element")),
-    BlockModificationTracker(this))
-  override def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult =
+  override def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult = cachedWithRecursionGuard("ScSimpleTypeElementImpl.getNonValueType", this, Failure(ScalaBundle.message("recursive.non.value.type.of.type.element")), BlockModificationTracker(this), Tuple1(withUnnecessaryImplicitsUpdate)) {
     innerNonValueType(inferValueType = false, withUnnecessaryImplicitsUpdate = withUnnecessaryImplicitsUpdate)
+  }
 
   private def innerNonValueType(inferValueType: Boolean, noConstructor: Boolean = false, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult = {
     ProgressManager.checkCanceled()

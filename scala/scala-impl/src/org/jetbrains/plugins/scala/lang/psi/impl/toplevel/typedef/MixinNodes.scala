@@ -11,7 +11,7 @@ import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import com.intellij.util.{AstLoadingFilter, SmartList}
 import it.unimi.dsi.fastutil.Hash
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap
-import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
+import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypePa
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.{RichThreadLocal, ScEquivalenceUtil}
 
@@ -384,8 +383,7 @@ object MixinNodes {
   }
 
   def linearization(clazz: PsiClass): Seq[ScType] = {
-    @CachedWithRecursionGuard(clazz, Seq.empty, ModTracker.libraryAware(clazz))
-    def inner(): Seq[ScType] = {
+    def inner(): Seq[ScType] = cachedWithRecursionGuard("MixinNodes.linearization", clazz, Seq.empty[ScType], ModTracker.libraryAware(clazz)) {
       implicit val ctx: ProjectContext = clazz
 
       clazz match {

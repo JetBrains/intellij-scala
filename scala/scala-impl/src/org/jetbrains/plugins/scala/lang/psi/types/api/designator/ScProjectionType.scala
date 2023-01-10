@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 package designator
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, RecursionManager}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, RecursionManager, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -82,8 +81,7 @@ final class ScProjectionType private(val projected: ScType,
 
   override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst)
 
-  @CachedWithRecursionGuard(element, None, BlockModificationTracker(element))
-  private def actualImpl(projected: ScType, updateWithProjectionSubst: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {
+  private def actualImpl(projected: ScType, updateWithProjectionSubst: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = cachedWithRecursionGuard("ScProjectionType.actualImpl", element, Option.empty[(PsiNamedElement, ScSubstitutor)], BlockModificationTracker(element), (projected, updateWithProjectionSubst)) {
     val resolvePlace = {
       def fromClazz(definition: ScTypeDefinition): PsiElement =
         definition.extendsBlock.templateBody

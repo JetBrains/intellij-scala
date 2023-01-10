@@ -10,6 +10,7 @@ import scala.jdk.CollectionConverters._
 package object macroAnnotations {
   def incModCount(project: Project): Unit = {
     val manager = PsiManager.getInstance(project)
+    // TODO manager.getModificationTracker.asInstanceOf[PsiModificationTrackerImpl].incCounter()
     manager.dropPsiCaches()
   }
 

@@ -6,7 +6,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
@@ -33,7 +33,6 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import scala.collection.mutable
@@ -574,11 +573,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
   private def resolveFailure = Failure(ScalaBundle.message("cannot.resolve.expression"))
 
-  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this))
-  private[this] def multiResolveImpl(incomplete: Boolean): Array[ScalaResolveResult] =
+  private[this] def multiResolveImpl(incomplete: Boolean): Array[ScalaResolveResult] = cachedWithRecursionGuard("ScReferenceExpressionImpl.multiResolveImpl", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this), Tuple1(incomplete)) {
     new ReferenceExpressionResolver().resolve(this, shapesOnly = false, incomplete)
+  }
 
-  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this))
-  private[this] def shapeResolveImpl: Array[ScalaResolveResult] =
+  private[this] def shapeResolveImpl: Array[ScalaResolveResult] = cachedWithRecursionGuard("ScReferenceExpressionImpl.shapeResolveImpl", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this)) {
     new ReferenceExpressionResolver().resolve(this, shapesOnly = true, incomplete = false)
+  }
 }

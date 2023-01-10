@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
 import com.intellij.psi.util.PsiModificationTracker
+import org.jetbrains.plugins.scala.caches.cachedWithRecursionGuard
 import org.junit.Assert._
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -9,8 +10,7 @@ class CachedWithRecursionGuardTest extends CachedWithRecursionGuardTestBase {
   def testWithoutParameters(): Unit = {
     class Elem extends CachedMockPsiElement {
       var depth = 0
-      @CachedWithRecursionGuard(this, Right("Failure"), PsiModificationTracker.MODIFICATION_COUNT)
-      def recursiveFunction: Either[Long, String] = {
+      def recursiveFunction: Either[Long, String] = cachedWithRecursionGuard("Elem.recursiveFunction", this, Right("Failure"): Either[Long, String], PsiModificationTracker.MODIFICATION_COUNT) {
         if (depth > 0) recursiveFunction
         else Left(System.currentTimeMillis())
       }
@@ -33,12 +33,20 @@ class CachedWithRecursionGuardTest extends CachedWithRecursionGuardTestBase {
     assertEquals(secondRes, elem.recursiveFunction)
   }
 
+  def testMultipleKeys(): Unit = {
+    val element = new CachedMockPsiElement()
+
+    val value1 = cachedWithRecursionGuard("testMultipleKeys.method1", element, 0, PsiModificationTracker.MODIFICATION_COUNT)(1)
+    val value2 = cachedWithRecursionGuard("testMultipleKeys.method2", element, 0, PsiModificationTracker.MODIFICATION_COUNT)(2)
+
+    assertNotEquals(value1, value2)
+  }
+
   def testWithParameters(): Unit = {
     object Elem extends CachedMockPsiElement {
       val counter = new AtomicInteger(0)
 
-      @CachedWithRecursionGuard(this, "Failure", PsiModificationTracker.MODIFICATION_COUNT)
-      def recursiveFunction(d: Option[Int], depth: Int = 0): String = {
+      def recursiveFunction(d: Option[Int], depth: Int = 0): String = cachedWithRecursionGuard("Elem.recursiveFunction", this, "Failure", PsiModificationTracker.MODIFICATION_COUNT, (d, depth)) {
         d match {
           case Some(value) => (counter.getAndIncrement() + value).toString
           case _ if depth > 2 => "Blargle"
@@ -61,8 +69,7 @@ class CachedWithRecursionGuardTest extends CachedWithRecursionGuardTestBase {
 
   def testTracer(): Unit = {
     class Elem extends CachedMockPsiElement {
-      @CachedWithRecursionGuard(this, Right("Failure"), PsiModificationTracker.MODIFICATION_COUNT)
-      def rec(isRecursive: Boolean): Either[Long, String] = {
+      def rec(isRecursive: Boolean): Either[Long, String] = cachedWithRecursionGuard("Elem.rec", this, Right("Failure"): Either[Long, String], PsiModificationTracker.MODIFICATION_COUNT, Tuple1(isRecursive)) {
         if (isRecursive) rec(isRecursive)
         else Left(System.currentTimeMillis())
       }

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 trait ScTypeElement extends ScalaPsiElement with Typeable {
   protected val typeName: String
@@ -30,9 +29,9 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
 
   def isSingleton: Boolean = false
 
-  @CachedWithRecursionGuard(this, Failure(ScalaBundle.message("recursive.type.of.type.element")),
-    BlockModificationTracker(this))
-  private[types] def getType: TypeResult = innerType
+  private[types] def getType: TypeResult = cachedWithRecursionGuard("ScTypeElement.getType", this, Failure(ScalaBundle.message("recursive.type.of.type.element")), BlockModificationTracker(this)) {
+    innerType
+  }
 
   def getTypeNoConstructor: TypeResult = getType
 
