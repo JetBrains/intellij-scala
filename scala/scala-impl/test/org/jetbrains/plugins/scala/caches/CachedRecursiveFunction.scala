@@ -50,14 +50,12 @@ case class CachedRecursiveFunction(name: String)(implicit projectContext: Projec
     innerCall
   }
 
-  private[this] def internal_cached_call(): String = cachedWithRecursionGuard("CachedRecursiveFunction.internal_cached_call", psi, "#" + name, ModTracker.physicalPsiChange(psi.getProject)) {
-    calcCounter += 1
-    innerCalls.map(_.apply()).mkString(name + "(", "+", ")")
-  }
-
   def apply(): String = {
     val oldCount = calcCounter
-    val result = internal_cached_call()
+    val result = cachedWithRecursionGuard("CachedRecursiveFunction.apply.result", psi, "#" + name, ModTracker.physicalPsiChange(psi.getProject)) {
+      calcCounter += 1
+      innerCalls.map(_.apply()).mkString(name + "(", "+", ")")
+    }
 
     val wasCached = oldCount == calcCounter && !result.startsWith("#")
 

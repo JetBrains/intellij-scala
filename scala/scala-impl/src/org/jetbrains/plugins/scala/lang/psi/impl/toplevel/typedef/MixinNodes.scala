@@ -382,57 +382,48 @@ object MixinNodes {
     def empty[T <: Signature]: NodesMap[T] = new Object2ObjectOpenCustomHashMap[T, Node[T]](2, hashingStrategy[T])
   }
 
-  def linearization(clazz: PsiClass): Seq[ScType] = {
-    def inner(): Seq[ScType] = cachedWithRecursionGuard("MixinNodes.linearization", clazz, Seq.empty[ScType], ModTracker.libraryAware(clazz)) {
-      implicit val ctx: ProjectContext = clazz
+  def linearization(clazz: PsiClass): Seq[ScType] = cachedWithRecursionGuard("MixinNodes.linearization", clazz, Seq.empty[ScType], ModTracker.libraryAware(clazz)) {
+    clazz match {
+      case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" =>
+        Seq(ScalaType.designator(obj))
+      case newTd: ScNewTemplateDefinition =>
+        generalLinearization(None, newTd.superTypes)
+      case _ =>
+        ProgressManager.checkCanceled()
+        def default =
+          if (clazz.getTypeParameters.isEmpty)
+            ScalaType.designator(clazz)
+          else
+            ScParameterizedType(ScalaType.designator(clazz), clazz.getTypeParameters.map(TypeParameterType(_)).toSeq)
 
-      clazz match {
-        case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" =>
-          Seq(ScalaType.designator(obj))
-        case newTd: ScNewTemplateDefinition =>
-          generalLinearization(None, newTd.superTypes)
-        case _ =>
-          ProgressManager.checkCanceled()
-          def default =
-            if (clazz.getTypeParameters.isEmpty)
-              ScalaType.designator(clazz)
-            else
-              ScParameterizedType(ScalaType.designator(clazz), clazz.getTypeParameters.map(TypeParameterType(_)).toSeq)
-
-          val classType = clazz match {
-            case td: ScTypeDefinition => td.`type`().getOrElse(default)
-            case _ => default
+        val classType = clazz match {
+          case td: ScTypeDefinition => td.`type`().getOrElse(default)
+          case _ => default
+        }
+        val supers: Seq[ScType] = {
+          implicit val ctx: ProjectContext = clazz
+          clazz match {
+            case td: ScTemplateDefinition => td.superTypes
+            case clazz: PsiClass => clazz.getSuperTypes.map {
+              case ctp: PsiClassType =>
+                //noinspection ScalaRedundantCast
+                val cl = ctp.resolve().asInstanceOf[PsiClass]
+                if (cl != null && cl.qualifiedName == "java.lang.Object") ScDesignatorType(cl)
+                else ctp.toScType()
+              case ctp => ctp.toScType()
+            }.toSeq
           }
-          val supers: Seq[ScType] = {
-            clazz match {
-              case td: ScTemplateDefinition => td.superTypes
-              case clazz: PsiClass => clazz.getSuperTypes.map {
-                case ctp: PsiClassType =>
-                  //noinspection ScalaRedundantCast
-                  val cl = ctp.resolve().asInstanceOf[PsiClass]
-                  if (cl != null && cl.qualifiedName == "java.lang.Object") ScDesignatorType(cl)
-                  else ctp.toScType()
-                case ctp => ctp.toScType()
-              }.toSeq
-            }
-          }
+        }
 
-          generalLinearization(Some(classType), supers)
-      }
-
+        generalLinearization(Some(classType), supers)
     }
-
-    val res = inner()
-    res
   }
-
 
   def linearization(compound: ScCompoundType, addTp: Boolean = false): Seq[ScType] = {
     val comps = compound.components
     val classType = if (addTp) Some(compound) else None
     generalLinearization(classType, comps)
   }
-
 
   private def generalLinearization(classType: Option[ScType], supers: Iterable[ScType]): Seq[ScType] = {
     val buffer = mutable.ArrayBuffer.empty[ScType]

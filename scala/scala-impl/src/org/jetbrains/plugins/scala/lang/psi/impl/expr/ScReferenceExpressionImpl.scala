@@ -63,8 +63,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     maybeAssignmentResult match {
       case Some(value) =>
         value.resolveAssignment.toArray
-      case None =>
-        multiResolveImpl(incomplete)
+      case None => cachedWithRecursionGuard("ScReferenceExpressionImpl.multiResolveScala", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this), Tuple1(incomplete)) {
+        new ReferenceExpressionResolver().resolve(this, shapesOnly = false, incomplete)
+      }
     }
   }
 
@@ -76,8 +77,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     maybeAssignmentResult match {
       case Some(value) =>
         value.shapeResolveAssignment.toArray
-      case None =>
-        shapeResolveImpl
+      case None => cachedWithRecursionGuard("ScReferenceExpressionImpl.shapeResolve", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this)) {
+        new ReferenceExpressionResolver().resolve(this, shapesOnly = true, incomplete = false)
+      }
     }
   }
 
@@ -572,12 +574,4 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   }
 
   private def resolveFailure = Failure(ScalaBundle.message("cannot.resolve.expression"))
-
-  private[this] def multiResolveImpl(incomplete: Boolean): Array[ScalaResolveResult] = cachedWithRecursionGuard("ScReferenceExpressionImpl.multiResolveImpl", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this), Tuple1(incomplete)) {
-    new ReferenceExpressionResolver().resolve(this, shapesOnly = false, incomplete)
-  }
-
-  private[this] def shapeResolveImpl: Array[ScalaResolveResult] = cachedWithRecursionGuard("ScReferenceExpressionImpl.shapeResolveImpl", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this)) {
-    new ReferenceExpressionResolver().resolve(this, shapesOnly = true, incomplete = false)
-  }
 }

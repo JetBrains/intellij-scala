@@ -90,22 +90,15 @@ object Compatibility {
       ): ExpressionTypeResult =
         place.fold(default) { e =>
           if (isShape || !checkImplicits) default
-          else                            typeAfterConversion(e, tpe, expectedOption)
+          else cachedWithRecursionGuard("Compatibility.getTypeAfterImplicitConversion", e, ExpressionTypeResult(Right(tpe)), BlockModificationTracker(e), (e, tpe, expectedOption)) {
+            expectedOption.collect {
+              case etpe if !tpe.conforms(etpe) =>
+                e.tryAdaptTypeToSAM(tpe, etpe, fromUnderscore = false, checkResolve = false)
+                  .getOrElse(e.updateTypeWithImplicitConversion(tpe, etpe))
+            }.getOrElse(default)
+          }
         }
-
-      private def typeAfterConversion(
-        e:            PsiElement,
-        tpe:          ScType,
-        expectedType: Option[ScType]
-      ): ExpressionTypeResult = cachedWithRecursionGuard("Compatibility.typeAfterConversion", e, ExpressionTypeResult(Right(tpe)), BlockModificationTracker(e), (e, tpe, expectedType)) {
-        expectedType.collect {
-          case etpe if !tpe.conforms(etpe) =>
-            e.tryAdaptTypeToSAM(tpe, etpe, fromUnderscore = false, checkResolve = false)
-              .getOrElse(e.updateTypeWithImplicitConversion(tpe, etpe))
-        }.getOrElse(default)
-      }
     }
-
   }
 
   implicit class ExpressionExt(private val expr: Expression) extends AnyVal {
