@@ -61,7 +61,7 @@ case class CachedRecursiveFunction(name: String)(implicit projectContext: Projec
 
     if (wasCached) {
       import RecursionManager.RecursionGuard
-      val Seq(id) = RecursionGuard.allGuardNames.filter(_.contains("internal_cached_call")).toSeq
+      val Seq(id) = RecursionGuard.ids.filter(_.startsWith(classOf[CachedRecursiveFunction].getName)).toSeq
       val localResult = RecursionGuard[PsiElement, String](id).getFromLocalCache(psi)
       if (localResult == null) {
         "@" + result

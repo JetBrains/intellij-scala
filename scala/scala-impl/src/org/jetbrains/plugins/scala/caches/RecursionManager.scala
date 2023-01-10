@@ -103,14 +103,14 @@ object RecursionManager {
   }
 
   object RecursionGuard {
-    private val guards: ConcurrentMap[String, RecursionGuard[_, _]] =
-      new ConcurrentHashMap[String, RecursionGuard[_, _]]()
+    private val idToGuard = new ConcurrentHashMap[String, RecursionGuard[_, _]]()
 
     def apply[Data >: Null <: AnyRef, LocalCacheValue](id: String): RecursionGuard[Data, LocalCacheValue] =
-      guards.computeIfAbsent(id, new RecursionGuard[Data, LocalCacheValue](_))
+      idToGuard.computeIfAbsent(id, new RecursionGuard[Data, LocalCacheValue](_))
         .asInstanceOf[RecursionGuard[Data, LocalCacheValue]]
 
-    def allGuardNames: Set[String] = guards.keySet().iterator().asScala.toSet
+    // TODO find(predicate) method
+    def ids: Set[String] = idToGuard.keySet().iterator().asScala.toSet // TODO don't create Set and then filter
   }
 
   class MyKey[Data >: Null <: AnyRef](val guardId: String, val userObject: Data, val myCallEquals: Boolean) {
