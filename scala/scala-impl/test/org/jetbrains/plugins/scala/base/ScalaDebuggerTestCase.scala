@@ -4,7 +4,7 @@ package base
 import com.intellij.debugger.impl.OutputChecker
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.breakpoints.{BreakpointManager, JavaLineBreakpointType}
-import com.intellij.debugger.{DebuggerInvocationUtil, DebuggerTestCase}
+import com.intellij.debugger.{BreakpointComment, DebuggerInvocationUtil, DebuggerTestCase}
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
@@ -29,6 +29,7 @@ import java.security.MessageDigest
 import javax.swing.SwingUtilities
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
+import scala.util.chaining.scalaUtilChainingOps
 import scala.util.{Try, Using}
 
 /**
@@ -229,10 +230,13 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
           val virtualFile = psiFile.getVirtualFile
           if (bpType.canPutAt(virtualFile, lineNumber, getProject)) {
             val props = bpType.createBreakpointProperties(virtualFile, lineNumber)
-            val comment = text.substring(document.getLineStartOffset(lineNumber), document.getLineEndOffset(lineNumber))
+            val commentText = text.substring(document.getLineStartOffset(lineNumber), document.getLineEndOffset(lineNumber))
+            val comment = BreakpointComment.parse(commentText, virtualFile.getName, lineNumber)
             val lambdaOrdinal: Integer =
-              if (comment.contains(lambdaOrdinalString)) readValue(comment, lambdaOrdinalString).toInt
-              else null
+              comment.readValue(lambdaOrdinalString).pipe { ordinalStr =>
+                if (ordinalStr == null) null
+                else ordinalStr.toInt
+              }
             props.setLambdaOrdinal(lambdaOrdinal)
             val xbp = inWriteAction(breakpointManager.addLineBreakpoint(bpType, virtualFile.getUrl, lineNumber, props))
             BreakpointManager.addBreakpoint(BreakpointManager.getJavaBreakpoint(xbp))

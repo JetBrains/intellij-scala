@@ -34,7 +34,7 @@ class ExactBreakpointsTest_2_12 extends ExactBreakpointsTestWithEarlyDefinitions
        |
        |    test.parse(string) $breakpoint
        |
-       |    parse(string)(firstChar) $breakpoint, ${lambdaOrdinal(0)}
+       |    parse(string)(firstChar) $breakpoint ${lambdaOrdinal(0)}
        |  }
        |
        |  def parse[T](s: String)(p: Parser[T]) = p.parse(s)
@@ -249,8 +249,8 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
   addSourceFile("SeveralLines2.scala",
     s"""object SeveralLines2 {
        |  def main(args: Array[String]): Unit = {
-       |    Option("aaa").flatMap(_.headOption) $breakpoint, ${lambdaOrdinal(-1)}
-       |      .find(c => c.isDigit).getOrElse('0') $breakpoint, ${lambdaOrdinal(-1)}
+       |    Option("aaa").flatMap(_.headOption) $breakpoint ${lambdaOrdinal(-1)}
+       |      .find(c => c.isDigit).getOrElse('0') $breakpoint ${lambdaOrdinal(-1)}
        |  }
        |}""".stripMargin.trim
   )
@@ -265,8 +265,8 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
   addSourceFile("SeveralLines3.scala",
     s"""object SeveralLines3 {
        |  def main(args: Array[String]): Unit = {
-       |    Option("aaa").flatMap(_.headOption) $breakpoint, ${lambdaOrdinal(0)}
-       |      .find(c => c.isDigit).getOrElse('0') $breakpoint, ${lambdaOrdinal(0)}
+       |    Option("aaa").flatMap(_.headOption) $breakpoint ${lambdaOrdinal(0)}
+       |      .find(c => c.isDigit).getOrElse('0') $breakpoint ${lambdaOrdinal(0)}
        |  }
        |}""".stripMargin.trim
   )
@@ -360,8 +360,8 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
     s"""object LineStartsWithDot {
        |  def main(args: Array[String]): Unit = {
        |    Some(1) $breakpoint
-       |      .map(_ + 1) $breakpoint, ${lambdaOrdinal(-1)}
-       |      .filter(i => i % 2 == 0) $breakpoint, ${lambdaOrdinal(0)}
+       |      .map(_ + 1) $breakpoint ${lambdaOrdinal(-1)}
+       |      .filter(i => i % 2 == 0) $breakpoint ${lambdaOrdinal(0)}
        |      .foreach(println) $breakpoint
        |  }
        |}""".stripMargin.trim

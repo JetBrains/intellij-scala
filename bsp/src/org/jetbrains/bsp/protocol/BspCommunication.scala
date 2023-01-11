@@ -121,7 +121,6 @@ class BspCommunication private[protocol](base: File, config: BspServerConfig) ex
     generateBspConfig.runSynchronously()
   }
 
-  @nowarn("cat=deprecation")
   private def refreshProject(project: Project): Unit = {
     // We save all documents because there is a possible case that there is an external system config file changed inside the ide
     FileDocumentManager.getInstance.saveAllDocuments()
