@@ -2,20 +2,17 @@ package org.jetbrains.sbt.lang.completion
 
 import com.intellij.codeInsight.editorActions.CompletionAutoPopupHandler
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.testFramework.fixtures.CompletionAutoPopupTester
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
-import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
 import org.jetbrains.sbt.language.SbtFileType
 import org.junit.Assert.assertNull
 
 import scala.jdk.CollectionConverters._
 
-class SbtAutoPopupInScalacOptionsStringsTest extends EditorActionTestBase {
-  protected var myTester: CompletionAutoPopupTester = _
+class SbtAutoPopupInScalacOptionsStringsTest extends ScalaCompletionAutoPopupTestCase {
 
   override def setUp(): Unit = {
     super.setUp()
-    myTester = new CompletionAutoPopupTester(myFixture)
     TestModeFlags.set[java.lang.Boolean](
       CompletionAutoPopupHandler.ourTestingAutopopup, true, getTestRootDisposable
     )
@@ -23,11 +20,9 @@ class SbtAutoPopupInScalacOptionsStringsTest extends EditorActionTestBase {
 
   override protected def fileType: FileType = SbtFileType
 
-  override def runInDispatchThread() = false
-
   private def doTest(textToType: String, expectedLookupItems: Seq[String])(src: String): Unit = {
-    myFixture.configureByText(defaultFileName, src)
-    myTester.typeWithPauses(textToType)
+    configureByText(src)
+    doType(textToType)
 
     val actualLookupItems = myFixture.getLookupElementStrings
 
@@ -35,10 +30,10 @@ class SbtAutoPopupInScalacOptionsStringsTest extends EditorActionTestBase {
   }
 
   private def doTestNoAutoCompletion(textToType: String)(src: String): Unit = {
-    myFixture.configureByText(defaultFileName, src)
-    myTester.typeWithPauses(textToType)
+    configureByText(src)
+    doType(textToType)
 
-    assertNull("Lookup shouldn't be shown", myTester.getLookup)
+    assertNull("Lookup shouldn't be shown", getLookup)
   }
 
   /// SCALAC OPTIONS

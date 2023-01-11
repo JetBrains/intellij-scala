@@ -3,42 +3,39 @@ package org.jetbrains.plugins.scala.lang.actions.editor
 import com.intellij.codeInsight.completion.CompletionPhase
 import com.intellij.codeInsight.completion.impl.CompletionServiceImpl
 import com.intellij.codeInsight.editorActions.CompletionAutoPopupHandler
-import com.intellij.testFramework.fixtures.CompletionAutoPopupTester
 import com.intellij.testFramework.{EdtTestUtil, TestModeFlags}
 import com.intellij.util.TimeoutUtil
-import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
 import org.junit.Assert._
 
 import scala.concurrent.duration.{Duration, DurationInt}
 
-/** see [[com.intellij.codeInsight.completion.JavaCompletionAutoPopupTestCase]] */
-class InterpolatedStringAutopopupTypingTest extends EditorActionTestBase {
+class InterpolatedStringAutoPopupTypingTest extends ScalaCompletionAutoPopupTestCase {
 
   private val Dot = "."
   private val NegativeTestsTimeout = 5.seconds
 
-  protected var myTester: CompletionAutoPopupTester = _
+  private val q: String = "\""
+  private val qq: String = "\"\""
+  private val qqq: String = "\"\"\""
 
   override protected def setUp(): Unit = {
     super.setUp()
-    myTester = new CompletionAutoPopupTester(myFixture)
     TestModeFlags.set[java.lang.Boolean](
       CompletionAutoPopupHandler.ourTestingAutopopup, true, getTestRootDisposable
     )
   }
 
-  override protected def runInDispatchThread = false
-
   private def doTest(text: String): Unit = {
-    myFixture.configureByText(defaultFileName, text)
-    myTester.typeWithPauses(Dot)
+    configureByText(text)
+    doType(Dot)
     val lookupItems = myFixture.getLookupElementStrings
     assertTrue("Autopopup completion list must contain some injected reference methods", lookupItems.contains("charAt"))
   }
 
   private def doTestNoAutoCompletion(text: String): Unit = {
-    myFixture.configureByText(defaultFileName, text)
-    myFixture.`type`(Dot)
+    configureByText(text)
+    doType(Dot)
     val maybePhase = waitPhase(NegativeTestsTimeout) {
       case CompletionPhase.NoCompletion |
            _: CompletionPhase.CommittingDocuments |

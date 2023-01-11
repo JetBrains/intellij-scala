@@ -1,29 +1,24 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.editorActions.CompletionAutoPopupHandler
-import com.intellij.testFramework.fixtures.CompletionAutoPopupTester
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
-import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
 import org.junit.Assert.assertNull
 
 import scala.jdk.CollectionConverters._
 
-class ScalaAutoPopupCompletionHandlerTest extends EditorActionTestBase {
-  private[this] var myTester: CompletionAutoPopupTester = _
-
-  override def runInDispatchThread() = false
+class ScalaAutoPopupCompletionHandlerTest extends ScalaCompletionAutoPopupTestCase {
 
   override def setUp(): Unit = {
     super.setUp()
-    myTester = new CompletionAutoPopupTester(myFixture)
     TestModeFlags.set[java.lang.Boolean](
       CompletionAutoPopupHandler.ourTestingAutopopup, true, getTestRootDisposable
     )
   }
 
   private def doTest(textToType: String, expectedLookupItems: String*)(src: String): Unit = {
-    myFixture.configureByText(defaultFileName, src)
-    myTester.typeWithPauses(textToType)
+    configureByText(src)
+    doType(textToType)
 
     val actualLookupItems = myFixture.getLookupElementStrings
 
@@ -31,10 +26,10 @@ class ScalaAutoPopupCompletionHandlerTest extends EditorActionTestBase {
   }
 
   private def doTestNoAutoCompletion(textToType: String)(src: String): Unit = {
-    myFixture.configureByText(defaultFileName, src)
-    myTester.typeWithPauses(textToType)
+    configureByText(src)
+    doType(textToType)
 
-    assertNull("Lookup shouldn't be shown", myTester.getLookup)
+    assertNull("Lookup shouldn't be shown", getLookup)
   }
 
   def testAutoPopupInTypeAnnotation_patternDefinition(): Unit = doTest(":", "Seq[String]") {
