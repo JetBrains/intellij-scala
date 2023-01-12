@@ -355,13 +355,18 @@ object CompileServerLauncher {
     ScalaPluginJars.replInterface,
   ).distinct
 
-  @deprecated(message = "Please use CompileServerLauncher.jvmParameters(JDK).", since = "2023.1")
+  @deprecated(message = "Will be removed in a future release. There is no replacement.", since = "2023.1")
   @Deprecated(forRemoval = true)
   @ScheduledForRemoval(inVersion = "2023.2")
   def jvmParameters: Seq[String] = jvmParameters(None)
 
-  def jvmParameters(jdk: JDK): Seq[String] = jvmParameters(Some(jdk))
+  private[scala] def jvmParameters(jdk: JDK): Seq[String] = jvmParameters(Some(jdk))
 
+  /**
+   * Prepares the JVM parameters for the Scala Compile Server.
+   *
+   * @note This method does heavy I/O which can block for several seconds. It must not be called on the UI thread.
+   */
   private def jvmParameters(jdkOpt: Option[JDK]): Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance()
     val size = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE
