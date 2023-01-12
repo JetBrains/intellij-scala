@@ -33,8 +33,6 @@ class NonServerRunner(project: Project) {
     jarPaths.mkString(File.pathSeparator)
   }
 
-  private val jvmParameters = CompileServerLauncher.jvmParameters
-
   def buildProcess(args: Seq[String], client: Client): CompilationProcess = {
     CompileServerLauncher.compileServerJars.foreach(p => assert(p.exists(), p.getPath))
 
@@ -54,6 +52,7 @@ class NonServerRunner(project: Project) {
           val runnerClassPath = classPathArg(jdk.tools.toSeq :+ ScalaPluginJars.scalaNailgunRunnerJar)
           val mainClassPath = classPathArg(jdk.tools.toSeq ++ CompileServerLauncher.compileServerJars)
           val scalaCompileServerSystemDir = CompileServerLauncher.scalaCompileServerSystemDir
+          val jvmParameters = CompileServerLauncher.jvmParameters(jdk)
           (jdkPath +: "-cp" +: runnerClassPath +: jvmParameters) ++
             (SERVER_CLASS_NAME +: mainClassPath +: scalaCompileServerSystemDir.toString +: argsEncoded)
         }

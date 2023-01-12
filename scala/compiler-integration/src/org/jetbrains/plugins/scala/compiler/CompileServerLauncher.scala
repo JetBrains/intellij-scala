@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
+
+import scala.annotation.{nowarn, unused}
 //noinspection ApiStatus,UnstableApiUsage
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 
@@ -192,7 +194,7 @@ object CompileServerLauncher {
         else
           Seq.empty
 
-        val userJvmParameters = jvmParameters
+        val userJvmParameters = jvmParameters(jdk)
         val commands =
           jdk.executable.canonicalPath +:
             "-cp" +: nailgunClasspath +:
@@ -348,6 +350,9 @@ object CompileServerLauncher {
     ScalaPluginJars.replInterface,
   ).distinct
 
+  @deprecated(message = "Please use CompileServerLauncher.jvmParameters(JDK).", since = "2023.1")
+  @Deprecated(forRemoval = true)
+  @ScheduledForRemoval(inVersion = "2023.2")
   def jvmParameters: Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance
     val xmx = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
@@ -365,6 +370,9 @@ object CompileServerLauncher {
 
     xmx ++ otherParams ++ debugAgent
   }
+
+  @nowarn("cat=deprecation")
+  def jvmParameters(@unused jdk: JDK): Seq[String] = jvmParameters
 
   private val serverStartLock = new Object
 
@@ -389,11 +397,10 @@ object CompileServerLauncher {
     currentInstance.map { instance =>
       val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
       val workingDirChanged = useProjectHome && projectHome(project) != currentInstance.map(_.workingDir)
-      val jdkChanged = compileServerJdk(project) match {
-        case Right(projectJdk) => projectJdk != instance.jdk
-        case _ => false
+      val (jdkChanged, jvmParametersChanged) = compileServerJdk(project) match {
+        case Right(projectJdk) => (projectJdk != instance.jdk, jvmParameters(projectJdk).toSet != instance.jvmParameters)
+        case _ => (false, false)
       }
-      val jvmParametersChanged = jvmParameters.toSet != instance.jvmParameters
 
       val reasons = mutable.ArrayBuffer.empty[String]
       if (!isUnitTestMode && instance.project.isDisposed) {
