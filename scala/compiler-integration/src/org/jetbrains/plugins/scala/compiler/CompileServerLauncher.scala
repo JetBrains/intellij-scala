@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServe
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
 
-import scala.annotation.{nowarn, unused}
+import scala.annotation.unused
 //noinspection ApiStatus,UnstableApiUsage
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 
@@ -353,26 +353,26 @@ object CompileServerLauncher {
   @deprecated(message = "Please use CompileServerLauncher.jvmParameters(JDK).", since = "2023.1")
   @Deprecated(forRemoval = true)
   @ScheduledForRemoval(inVersion = "2023.2")
-  def jvmParameters: Seq[String] = {
-    val settings = ScalaCompileServerSettings.getInstance
-    val xmx = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
-      if (size.isEmpty) Nil else List("-Xmx%sm".format(size))
-    }
+  def jvmParameters: Seq[String] = jvmParameters(None)
+
+  def jvmParameters(jdk: JDK): Seq[String] = jvmParameters(Some(jdk))
+
+  private def jvmParameters(@unused jdkOpt: Option[JDK]): Seq[String] = {
+    val settings = ScalaCompileServerSettings.getInstance()
+    val size = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE
+    val xmx = if (size.isEmpty) Nil else List(s"-Xmx${size}m")
 
     val paramsParsed = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").filter(StringUtils.isNotBlank)
     val (_, otherParams) = paramsParsed.partition(_.contains("-XX:MaxPermSize"))
 
     val debugAgent: Option[String] =
       if (attachDebugAgent) {
-        val suspend = if(waitUntilDebuggerAttached) "y" else "n"
+        val suspend = if (waitUntilDebuggerAttached) "y" else "n"
         Some(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=$debugAgentPort")
       } else None
 
     xmx ++ otherParams ++ debugAgent
   }
-
-  @nowarn("cat=deprecation")
-  def jvmParameters(@unused jdk: JDK): Seq[String] = jvmParameters
 
   private val serverStartLock = new Object
 
