@@ -364,7 +364,35 @@ object CompileServerLauncher {
     val paramsParsed = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").filter(StringUtils.isNotBlank)
     val (_, otherParams) = paramsParsed.partition(_.contains("-XX:MaxPermSize"))
 
+    /*
+     * The following code is the same workaround that sbt applies that allows unpatched versions of Scala
+     * (before Scala 2.10.7, before Scala 2.11.12, before Scala 2.12.17) to be compilable on JDK 9+.
+     *
+     * This workaround is necessary because old versions of Scala that were published before JDK 9 became public
+     * expected the existence of `rt.jar`, a jar containing the runtime classes of the Java Virtual Machine
+     * (this includes java.lang.Object, java.lang.String, etc...).
+     *
+     * With Java 9, the JDK was modularized, and `rt.jar` does not exist anymore. Instead, the JDK is split into
+     * modules, which contain the packages and classes of the runtime. So, classes like java.lang.Object and
+     * java.lang.String became part of the java.base module, and they can be referred to as
+     * java.base/java.lang.Object and java.base/java.lang.String (slightly simplified). In any case, old versions
+     * of the Scala compiler do not expect this change, and cannot handle it. By providing the `rt.jar`, we are
+     * providing a compatible environment for those old versions of the compiler.
+     *
+     * https://github.com/sbt/zinc/issues/641#issuecomment-588589420
+     *
+     * If JDK 8 or lower is used as the runtime for the Scala compiler, no workaround is needed, this is legacy mode.
+     *
+     * When JDK 9+ is used as the runtime for the Scala compiler, the JVM parameter `-Dscala.ext.dirs` is populated with
+     * the artificially produced `rt.jar`, extracted from the runtime JDK.
+     *
+     * The sbt `java9-rt-export` tool is used to produce the `rt.jar` file, and is unique to each JDK runtime.
+     */
     val java9rtParams = jdkOpt.filter(_.version.exists(_.isAtLeast(JavaSdkVersion.JDK_1_9))).fold(Seq.empty[String]) { jdk =>
+      // We are running JDK 9+ as the runtime JDK for the Scala compiler.
+
+      // The path of the `java9-rt-export.jar` tool packaged as `<plugin root>/java9-rt-export/java9-rt-export.jar`
+      // and distributed with the Scala plugin.
       val java9rtExportJar =
         Path.of(PathUtil.getJarPathForClass(getClass))
           .getParent
@@ -373,15 +401,36 @@ object CompileServerLauncher {
           .resolve(s"$java9rtExportString.jar")
 
       import scala.sys.process._
+      // The command
+      // `java -Dsbt.global.base=<IDEA system directory>/scala-compile-server/jvm-rt -jar <plugin root>/java9-rt-export/java9-rt-export.jar --rt-ext-dir`
+      // is executed to obtain a directory for exporting the rt.jar. The directory (and jar) is unique for each JDK
+      // runtime, but needs to be exported only once and can be reused on subsequent invocations using the same JDK.
+      // The output of the command is a path like the following:
+      // <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5
+      // for Eclipse Adoptium 17.0.5
       val exportDirectoryPath =
         Path.of(s"${jdk.executable.canonicalPath} -Dsbt.global.base=$jvmRtDir -jar $java9rtExportJar --rt-ext-dir".!!.trim)
+
+      // The full path of the produced `rt.jar`.
+      // Example: <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5/rt.jar
       val rtJarPath = exportDirectoryPath.resolve("rt.jar")
 
-      exportDirectoryPath.toFile.mkdirs()
+      // Create the export directory if it doesn't exist.
+      val exportDirectory = exportDirectoryPath.toFile
+      if (!exportDirectory.exists()) {
+        exportDirectory.mkdirs()
+      }
+
+      // Create the `rt.jar` if it doesn't exist.
       if (!rtJarPath.toFile.exists()) {
+        // The command
+        // `java -jar <plugin root>/java9-rt-export/java9-rt-export.jar <IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
+        // is executed and creates the `rt.jar`.
         s"${jdk.executable.canonicalPath} -jar $java9rtExportJar $rtJarPath".!
       }
 
+      // The path of the directory with the exported `rt.jar` is provided as a JVM parameter
+      // `-Dscala.ext.dirs=<plugin root>/java9-rt-export/java9-rt-export.jar <IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
       Seq(s"-Dscala.ext.dirs=$exportDirectoryPath")
     }
 
