@@ -143,7 +143,9 @@ public class ScalaCompileServerForm implements Configurable {
     public void apply() {
         mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
         if (!mySettings.COMPILE_SERVER_ENABLED) {
-            CompileServerLauncher.stop(0, Some$.MODULE$.apply("compile server disabled from settings"));
+            ApplicationManager.getApplication().executeOnPooledThread(() ->
+                    CompileServerLauncher.stop(0, Some$.MODULE$.apply("compile server disabled from settings"))
+            );
         }
 
         Sdk sdk = myCompilationServerSdk.getSelectedJdk();

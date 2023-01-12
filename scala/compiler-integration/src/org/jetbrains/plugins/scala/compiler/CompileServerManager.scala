@@ -23,6 +23,7 @@ import com.intellij.util.ui.update.{MergingUpdateQueue, Update}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.compiler.CompileServerManager._
+import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ShowSettingsUtilImplExt}
@@ -152,7 +153,7 @@ final class CompileServerManager(project: Project) extends Disposable with Compi
       e.getPresentation.setEnabled(!launcher.running)
 
     override def actionPerformed(e: AnActionEvent): Unit =
-      launcher.ensureServerRunning(project)
+      executeOnPooledThread(launcher.ensureServerRunning(project))
   }
 
   private object Stop extends AnAction(CompilerIntegrationBundle.message("action.stop"), CompilerIntegrationBundle.message("shutdown.compile.server"), AllIcons.Actions.Suspend) with DumbAware {
@@ -160,7 +161,7 @@ final class CompileServerManager(project: Project) extends Disposable with Compi
       e.getPresentation.setEnabled(launcher.running)
 
     override def actionPerformed(e: AnActionEvent): Unit =
-      launcher.stop()
+      executeOnPooledThread(launcher.stop())
   }
 
   private object Configure extends AnAction(CompilerIntegrationBundle.message("action.configure"), CompilerIntegrationBundle.message("configure.compile.server"), AllIcons.General.Settings) with DumbAware {
