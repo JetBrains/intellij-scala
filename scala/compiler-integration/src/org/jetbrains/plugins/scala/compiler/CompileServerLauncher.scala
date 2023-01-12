@@ -441,8 +441,8 @@ object CompileServerLauncher {
       }
 
       // The path of the directory with the exported `rt.jar` is provided as a JVM parameter
-      // `-Dscala.ext.dirs=<plugin root>/java9-rt-export/java9-rt-export.jar <IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
-      Seq(s"-Dscala.ext.dirs=$exportDirectoryPath")
+      // `-Dscala.ext.dirs=<IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
+      Seq(s"$scalaExtDirsParameterString=$exportDirectoryPath")
     }
 
     val debugAgent: Option[String] =
@@ -483,7 +483,16 @@ object CompileServerLauncher {
       val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
       val workingDirChanged = useProjectHome && projectHome(project) != currentInstance.map(_.workingDir)
       val (jdkChanged, jvmParametersChanged) = compileServerJdk(project) match {
-        case Right(projectJdk) => (projectJdk != instance.jdk, jvmParameters(projectJdk).toSet != instance.jvmParameters)
+        case Right(projectJdk) =>
+          val jdkChanged = projectJdk != instance.jdk
+          // Avoids running the `rt.jar` production process.
+          val parametersWithoutRtJar = jvmParameters(None).toSet
+          val oldInstanceParametersWithoutRtJar = instance.jvmParameters.filterNot { p =>
+            // Heuristic for removing the `-Dscala.ext.dirs=<IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>` jvm parameter
+            p.startsWith(scalaExtDirsParameterString) && p.contains("scala-compile-server/jvm-rt")
+          }
+
+          (jdkChanged, parametersWithoutRtJar != oldInstanceParametersWithoutRtJar)
         case _ => (false, false)
       }
 
@@ -573,4 +582,6 @@ object CompileServerLauncher {
   private def jvmRtDir: Path = scalaCompileServerSystemDir.resolve("jvm-rt")
 
   private val java9rtExportString: String = "java9-rt-export"
+
+  private val scalaExtDirsParameterString: String = "-Dscala.ext.dirs"
 }
