@@ -288,7 +288,13 @@ object CompileServerLauncher {
     Try(Files.delete(CompileServerToken.tokenPathForPort(scalaCompileServerSystemDir, freePort)))
 
   // TODO stop server more gracefully
-  def stop(timeoutMs: Long = 0, debugReason: Option[String] = None): Boolean = {
+
+  /**
+   * Signals the Scala Compile Server to stop.
+   *
+   * @note This method is blocking. It should not be called on the UI thread.
+   */
+  def stop(timeoutMs: Long = 0, debugReason: Option[String] = None): Boolean = serverStartLock.synchronized {
     LOG.info(s"compile server process stop: ${serverInstance.map(_.summary).getOrElse("<no info>")}")
     serverInstance.forall { it =>
       val bool = it.destroyAndWait(timeoutMs)
@@ -447,6 +453,11 @@ object CompileServerLauncher {
 
   // TODO: make it thread safe, call from a single thread OR use some locking mechanism
 
+  /**
+   * Starts the Scala Compile Server.
+   *
+   * @note This method is blocking. It should not be called on the UI thread.
+   */
   def ensureServerRunning(project: Project): Boolean = serverStartLock.synchronized {
     LOG.traceWithDebugInDev(s"ensureServerRunning [thread:${Thread.currentThread.getId}]")
     val reasons = restartReasons(project)
@@ -485,6 +496,11 @@ object CompileServerLauncher {
     }.getOrElse(Seq.empty)
   }
 
+  /**
+   * Stops the Scala Compile Server.
+   *
+   * @note This method is blocking. It should not be called on the UI thread.
+   */
   def ensureServerNotRunning(): Unit = serverStartLock.synchronized {
     if (running) stop(debugReason = Some("ensureServerNotRunning"))
   }
