@@ -11,6 +11,7 @@ import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
+import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
@@ -21,8 +22,6 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
-
-import scala.annotation.unused
 //noinspection ApiStatus,UnstableApiUsage
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 
@@ -357,7 +356,7 @@ object CompileServerLauncher {
 
   def jvmParameters(jdk: JDK): Seq[String] = jvmParameters(Some(jdk))
 
-  private def jvmParameters(@unused jdkOpt: Option[JDK]): Seq[String] = {
+  private def jvmParameters(jdkOpt: Option[JDK]): Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance()
     val size = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE
     val xmx = if (size.isEmpty) Nil else List(s"-Xmx${size}m")
@@ -365,13 +364,34 @@ object CompileServerLauncher {
     val paramsParsed = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").filter(StringUtils.isNotBlank)
     val (_, otherParams) = paramsParsed.partition(_.contains("-XX:MaxPermSize"))
 
+    val java9rtParams = jdkOpt.filter(_.version.exists(_.isAtLeast(JavaSdkVersion.JDK_1_9))).fold(Seq.empty[String]) { jdk =>
+      val java9rtExportJar =
+        Path.of(PathUtil.getJarPathForClass(getClass))
+          .getParent
+          .getParent
+          .resolve(java9rtExportString)
+          .resolve(s"$java9rtExportString.jar")
+
+      import scala.sys.process._
+      val exportDirectoryPath =
+        Path.of(s"${jdk.executable.canonicalPath} -Dsbt.global.base=$jvmRtDir -jar $java9rtExportJar --rt-ext-dir".!!.trim)
+      val rtJarPath = exportDirectoryPath.resolve("rt.jar")
+
+      exportDirectoryPath.toFile.mkdirs()
+      if (!rtJarPath.toFile.exists()) {
+        s"${jdk.executable.canonicalPath} -jar $java9rtExportJar $rtJarPath".!
+      }
+
+      Seq(s"-Dscala.ext.dirs=$exportDirectoryPath")
+    }
+
     val debugAgent: Option[String] =
       if (attachDebugAgent) {
         val suspend = if (waitUntilDebuggerAttached) "y" else "n"
         Some(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=$debugAgentPort")
       } else None
 
-    xmx ++ otherParams ++ debugAgent
+    xmx ++ otherParams ++ java9rtParams ++ debugAgent
   }
 
   private val serverStartLock = new Object
@@ -479,4 +499,8 @@ object CompileServerLauncher {
 
   def scalaCompileServerSystemDir: Path =
     PathManagerEx.getAppSystemDir.resolve("scala-compile-server")
+
+  private def jvmRtDir: Path = scalaCompileServerSystemDir.resolve("jvm-rt")
+
+  private val java9rtExportString: String = "java9-rt-export"
 }
