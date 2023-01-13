@@ -375,6 +375,23 @@ object CompileServerLauncher {
     val paramsParsed = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").filter(StringUtils.isNotBlank)
     val (_, otherParams) = paramsParsed.partition(_.contains("-XX:MaxPermSize"))
 
+    val java9rtParams = jdkOpt.fold(Seq.empty[String])(prepareJava9rtJar)
+
+    val debugAgent: Option[String] =
+      if (attachDebugAgent) {
+        val suspend = if (waitUntilDebuggerAttached) "y" else "n"
+        Some(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=$debugAgentPort")
+      } else None
+
+    xmx ++ otherParams ++ java9rtParams ++ debugAgent
+  }
+
+  /**
+   * Prepares the Java 9+ `rt.jar` workaround for compiling old versions of Scala with modern JDK versions.
+   *
+   * @note This method does heavy I/O which can block for several seconds. It must not be called on the UI thread.
+   */
+  private[compiler] def prepareJava9rtJar(jdk: JDK): Seq[String] = {
     /*
      * The following code is the same workaround that sbt applies that allows unpatched versions of Scala
      * (before Scala 2.10.7, before Scala 2.11.12, before Scala 2.12.17) to be compilable on JDK 9+.
@@ -399,7 +416,7 @@ object CompileServerLauncher {
      *
      * The sbt `java9-rt-export` tool is used to produce the `rt.jar` file, and is unique to each JDK runtime.
      */
-    val java9rtParams = jdkOpt.filter(_.version.exists(_.isAtLeast(JavaSdkVersion.JDK_1_9))).fold(Seq.empty[String]) { jdk =>
+    Option(jdk).filter(_.version.exists(_.isAtLeast(JavaSdkVersion.JDK_1_9))).fold(Seq.empty[String]) { jdk =>
       // We are running JDK 9+ as the runtime JDK for the Scala compiler.
 
       // The path of the `java9-rt-export.jar` tool packaged as `<plugin root>/java9-rt-export/java9-rt-export.jar`
@@ -444,14 +461,6 @@ object CompileServerLauncher {
       // `-Dscala.ext.dirs=<IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
       Seq(s"$scalaExtDirsParameterString=$exportDirectoryPath")
     }
-
-    val debugAgent: Option[String] =
-      if (attachDebugAgent) {
-        val suspend = if (waitUntilDebuggerAttached) "y" else "n"
-        Some(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=$debugAgentPort")
-      } else None
-
-    xmx ++ otherParams ++ java9rtParams ++ debugAgent
   }
 
   private val serverStartLock = new Object
