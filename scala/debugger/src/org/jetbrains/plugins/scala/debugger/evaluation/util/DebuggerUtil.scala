@@ -133,7 +133,8 @@ object DebuggerUtil {
     }
   }
 
-  def getFunctionJVMSignature(function: ScMethodLike): JVMName = {
+  // TODO Either propagate features or determine Scala version of libraries without using module, SCL-20935
+  def getFunctionJVMSignature(function: ScMethodLike, place: PsiElement = null): JVMName = {
     val typeParams = function match {
       case fun: ScFunction if !fun.isConstructor => fun.typeParameters
       case _: ScFunction | _: ScPrimaryConstructor =>
@@ -161,7 +162,7 @@ object DebuggerUtil {
     }
     val simpleParameters = function.effectiveParameterClauses.flatMap(_.effectiveParameters)
     val parameters = valueClassParameter ++: simpleParameters ++: localParameters
-    val paramTypes = parameters.map(parameterForJVMSignature(_, subst)).mkString("(", "", ")")
+    val paramTypes = parameters.map(p => parameterForJVMSignature(p, subst, Option(place).getOrElse(p))).mkString("(", "", ")")
     val resultType = function match {
       case fun: ScFunction if !fun.isConstructor =>
         getJVMStringForType(subst(fun.returnType.getOrAny), isParam = false)
@@ -205,9 +206,9 @@ object DebuggerUtil {
     Some(paramText + returnTypeText)
   }
 
-  private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor): String = param match {
+  private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor, place: PsiElement): String = param match {
     case p: ScParameter if p.isRepeatedParameter =>
-      if (p.newCollectionsFramework) "Lscala/collection/immutable/Seq;" else "Lscala/collection/Seq;"
+      if (place.newCollectionsFramework) "Lscala/collection/immutable/Seq;" else "Lscala/collection/Seq;"
     case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
     case _ => getJVMStringForType(subst(param.`type`().getOrAny))
   }
