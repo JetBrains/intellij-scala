@@ -193,11 +193,13 @@ object CompileServerLauncher {
         else
           Seq.empty
 
-        val userJvmParameters = jvmParameters(jdk)
+        val userJvmParameters = jvmParameters
+        val java9rtJarParams = prepareJava9rtJar(jdk)
         val commands =
           jdk.executable.canonicalPath +:
             "-cp" +: nailgunClasspath +:
             userJvmParameters ++:
+            java9rtJarParams ++:
             shutdownDelayArg ++:
             isScalaCompileServer +:
             addOpensOptions ++:
@@ -355,19 +357,7 @@ object CompileServerLauncher {
     ScalaPluginJars.replInterface,
   ).distinct
 
-  @deprecated(message = "Will be removed in a future release. There is no replacement.", since = "2023.1")
-  @Deprecated(forRemoval = true)
-  @ScheduledForRemoval(inVersion = "2023.2")
-  def jvmParameters: Seq[String] = jvmParameters(None)
-
-  private[scala] def jvmParameters(jdk: JDK): Seq[String] = jvmParameters(Some(jdk))
-
-  /**
-   * Prepares the JVM parameters for the Scala Compile Server.
-   *
-   * @note This method does heavy I/O which can block for several seconds. It must not be called on the UI thread.
-   */
-  private def jvmParameters(jdkOpt: Option[JDK]): Seq[String] = {
+  def jvmParameters: Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance()
     val size = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE
     val xmx = if (size.isEmpty) Nil else List(s"-Xmx${size}m")
@@ -375,15 +365,13 @@ object CompileServerLauncher {
     val paramsParsed = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").filter(StringUtils.isNotBlank)
     val (_, otherParams) = paramsParsed.partition(_.contains("-XX:MaxPermSize"))
 
-    val java9rtParams = jdkOpt.fold(Seq.empty[String])(prepareJava9rtJar)
-
     val debugAgent: Option[String] =
       if (attachDebugAgent) {
         val suspend = if (waitUntilDebuggerAttached) "y" else "n"
         Some(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=$debugAgentPort")
       } else None
 
-    xmx ++ otherParams ++ java9rtParams ++ debugAgent
+    xmx ++ otherParams ++ debugAgent
   }
 
   /**
@@ -391,7 +379,7 @@ object CompileServerLauncher {
    *
    * @note This method does heavy I/O which can block for several seconds. It must not be called on the UI thread.
    */
-  private[compiler] def prepareJava9rtJar(jdk: JDK): Seq[String] = {
+  private[scala] def prepareJava9rtJar(jdk: JDK): Seq[String] = {
     /*
      * The following code is the same workaround that sbt applies that allows unpatched versions of Scala
      * (before Scala 2.10.7, before Scala 2.11.12, before Scala 2.12.17) to be compilable on JDK 9+.
@@ -491,20 +479,11 @@ object CompileServerLauncher {
     currentInstance.map { instance =>
       val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
       val workingDirChanged = useProjectHome && projectHome(project) != currentInstance.map(_.workingDir)
-      val (jdkChanged, jvmParametersChanged) = compileServerJdk(project) match {
-        case Right(projectJdk) =>
-          val jdkChanged = projectJdk != instance.jdk
-          // Avoids running the `rt.jar` production process.
-          val parametersWithoutRtJar = jvmParameters(None).toSet
-          val oldInstanceParametersWithoutRtJar = instance.jvmParameters.filterNot { p =>
-            // Heuristic for removing the `-Dscala.ext.dirs=<IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>` jvm parameter
-            p.startsWith(scalaExtDirsParameterString) && p.contains("scala-compile-server/jvm-rt")
-          }
-
-          (jdkChanged, parametersWithoutRtJar != oldInstanceParametersWithoutRtJar)
-        case _ => (false, false)
+      val jdkChanged = compileServerJdk(project) match {
+        case Right(projectJdk) => projectJdk != instance.jdk
+        case _ => false
       }
-
+      val jvmParametersChanged = jvmParameters.toSet != instance.jvmParameters
       val reasons = mutable.ArrayBuffer.empty[String]
       if (!isUnitTestMode && instance.project.isDisposed) {
         // We intentionally reuse the compile server in worksheet tests. This check would
