@@ -11,10 +11,10 @@ import com.intellij.openapi.observable.util.BindUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.DependentSdkType
 import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk, SdkTypeId}
-import com.intellij.openapi.roots.ui.configuration.{JdkComboBox, JdkComboBoxKt, ProjectStructureConfigurable}
+import com.intellij.openapi.roots.ui.configuration.{JdkComboBox, ProjectStructureConfigurable}
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.UIBundle
-import com.intellij.ui.components.{JBCheckBox, JBTextField}
+import com.intellij.ui.components.JBTextField
 import com.intellij.ui.dsl.builder._
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.ui.layout.ValidationInfoBuilder
@@ -22,7 +22,7 @@ import kotlin.Unit.{INSTANCE => KUnit}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.sbt.project.template.wizard.kotlin_interop.{ComboBoxKt_Wrapper, JdkComboBoxKt_Interop}
-import org.jetbrains.sbt.project.template.wizard.{SbtModuleStepLike, ScalaNewProjectWizard, ScalaNewProjectWizardStep}
+import org.jetbrains.sbt.project.template.wizard.{SbtModuleStepLike, ScalaNewProjectWizardStep}
 import org.jetbrains.sbt.project.template.{SbtModuleBuilder, SbtModuleBuilderSelections}
 
 import javax.swing.JLabel
@@ -56,14 +56,6 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   override protected lazy val availableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(availableSbtVersions)
 
   locally {
-    // detect when scala language is selected in the "New Project Wizard"
-    parent.getPropertyGraph.afterPropagation({() =>
-      if (parent.getLanguage == ScalaNewProjectWizard.ScalaLanguageText) {
-        initSelectionsAndUi()
-      }
-      KUnit
-    })
-
     moduleNameProperty.dependsOn(parent.getNameProperty: ObservableProperty[String], (() => parent.getName): kotlin.jvm.functions.Function0[_ <: String])
   }
 
@@ -140,6 +132,8 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       }
       KUnit
     })
+
+    initSelectionsAndUi()
   }
 
   private def validateModuleName(builder: ValidationInfoBuilder, field: JBTextField): ValidationInfo = {
