@@ -118,7 +118,7 @@ private[declarationRedundancy] object SymbolEscaping {
    * we can reuse cached results when we're running the same inspection against a sibling type definition of `Bar`.
    *
    * Another caveat is that when you ask for escaping types of members of `Foo`, you will also want to do that for
-   * `Foo`'s companion (if it has one). Again, this is the responsibility of callers of this method, which is what.
+   * `Foo`'s companion (if it has one). Again, this is the responsibility of callers of this method.
    *
    * For a typical usage example, see [[elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate]].
    */
