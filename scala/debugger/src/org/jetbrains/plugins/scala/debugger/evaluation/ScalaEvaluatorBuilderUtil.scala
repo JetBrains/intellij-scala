@@ -675,14 +675,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         ScalaDuplexEvaluator(withTraitImpl, withDefault)
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.isTopLevel =>
         val objectEval = stableObjectEvaluator(topLevelMemberClassName(fun))
-        val signature = DebuggerUtil.getFunctionJVMSignature(fun)
+        val signature = DebuggerUtil.getFunctionJVMSignature(fun, ref)
         ScalaMethodEvaluator(objectEval, name, signature, argEvaluators,
           None, DebuggerUtil.getSourcePositions(fun.getNavigationElement))
       case Some(r) =>
         val resolve = r.element
         val qualEval = qualEvaluator(r)
         val signature = resolve match {
-          case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
+          case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun, ref)
           case _ => null
         }
         ScalaMethodEvaluator(qualEval, name, signature, argEvaluators,

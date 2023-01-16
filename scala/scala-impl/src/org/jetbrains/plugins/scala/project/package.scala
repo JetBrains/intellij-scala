@@ -430,12 +430,16 @@ package object project {
       new File(file.getCanonicalPath)
   }
 
+  // TODO May also be a library file (source or compiled), SCL-20935
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {
 
     def module: Option[Module] = attachedFileModule.orElse {
       cachedInUserData("ProjectPsiFileExt.module", file, ProjectRootManager.getInstance(file.getProject)) {
         inReadAction { // assuming that most of the time it will be read from cache
-          val module = ModuleUtilCore.findModuleForPsiElement(file)
+          val module = {
+            val virtualFile = if (file.getVirtualFile != null) file.getVirtualFile else file.getOriginalFile.getVirtualFile
+            if (virtualFile != null && ProjectFileIndex.getInstance(file.getProject).isInLibrary(virtualFile)) null else ModuleUtilCore.findModuleForPsiElement(file)
+          }
           // for build.sbt files the appropriate module is the one with `-build` suffix
           //noinspection ApiStatus
           if (module != null && file.isInstanceOf[SbtFile])
@@ -489,12 +493,17 @@ package object project {
   private def moduleByName(project: Project, name: String): Option[Module] =
     ModuleManager.getInstance(project).getModules.find(_.getName == name)
 
+  // TODO The same as ScalaFeatures (Scala versions, isSource3Enabled vs hasSource3Flag, etc.), SCL-20935
   implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
     def module: Option[Module] = Option(element.getContainingFile).flatMap(_.module)
 
     def isInScalaModule: Boolean = module.exists(_.hasScala)
 
-    def isInScala3Module: Boolean = module.exists(_.hasScala3)
+    // TODO Used as isInScala3File, but library files have no module, SCL-20935
+    // TODO Library source files are not compiled, SCL-20935
+    def isInScala3Module: Boolean =
+      Option(element.getContainingFile).exists(file => file.getName.endsWith(".tasty")) ||
+        module.exists(_.hasScala3)
 
     def isCompilerStrictMode: Boolean = module.exists(_.isCompilerStrictMode)
 
@@ -545,6 +554,7 @@ package object project {
 
     def partialUnificationEnabled: Boolean = isDefinedInModuleOrProject(_.isPartialUnificationEnabled)
 
+    // TODO Determine Scala version of libraries without using module, SCL-20935
     def newCollectionsFramework: Boolean = module.exists(_.hasNewCollectionsFramework)
 
     def isMetaEnabled: Boolean =
@@ -558,10 +568,11 @@ package object project {
     private[ProjectPsiElementExt] def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =
       inThisModuleOrProject(predicate).getOrElse(false)
 
+    // TODO Predicates are not applicable to library files, because they have neither module nor project, SCL-20935
+    // TODO Library source files are not compiled, SCL-20935
     private def inThisModuleOrProject[T](predicate: Module => T): Option[T] =
-      module
-        .orElse(element.getProject.anyScalaModule)
-        .map(predicate)
+      if (element.getContainingFile.asOptionOf[ScalaFile].exists(_.isCompiled)) None
+      else module.orElse(element.getProject.anyScalaModule).map(predicate)
   }
 
   implicit class PathsListExt(private val list: PathsList) extends AnyVal {

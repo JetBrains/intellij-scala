@@ -392,7 +392,7 @@ object MethodResolveProcessor {
         case _ =>
       }
 
-      val functionLikeType = FunctionLikeType(fun)
+      val functionLikeType = FunctionLikeType(ref)
 
       expectedOption().map {
         case abs: ScAbstractType => abs.simplifyType
