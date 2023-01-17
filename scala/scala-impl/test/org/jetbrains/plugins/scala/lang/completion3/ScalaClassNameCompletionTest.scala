@@ -224,6 +224,38 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
   ) {
     predicate(_, "scala.collection.immutable.ListSet")
   }
+
+  def testClassWithoutNew(): Unit = doCompletionTest(
+    fileText =
+      s"""package com.example
+         |
+         |class MyUniversalApplyClass(val ctx: String)
+         |
+         |object Test:
+         |  val x: MyUniversalApplyClass = MyUnAp$CARET
+         |""".stripMargin,
+    resultText =
+      """package com.example
+        |
+        |class MyUniversalApplyClass(val ctx: String)
+        |
+        |object Test:
+        |  val x: MyUniversalApplyClass = MyUniversalApplyClass
+        |""".stripMargin,
+    item = "MyUniversalApplyClass"
+  )
+
+  def testDoNotSuggestTraitWithoutNew(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""package com.example
+         |
+         |trait MyUniversalApplyTrait
+         |
+         |object Test:
+         |  val x: MyUniversalApplyTrait = MyUnAp$CARET
+         |""".stripMargin,
+    item = "MyUniversalApplyTrait"
+  )
 }
 
 class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {

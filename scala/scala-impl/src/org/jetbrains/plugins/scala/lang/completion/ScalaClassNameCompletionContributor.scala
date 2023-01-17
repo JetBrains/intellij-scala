@@ -115,8 +115,8 @@ object ScalaClassNameCompletionContributor {
         isAccessible(member, invocationCount)(place)
 
     private[this] def isApplicable(clazz: PsiClass): Boolean = clazz match {
-      case _: ScClass |
-           _: ScTrait => isInImport || classesOnly
+      case _: ScClass => isInImport || classesOnly || place.isInScala3File
+      case _: ScTrait => isInImport || classesOnly
       case _: ScObject => isInImport || !classesOnly
       case c: ScEnumCase => isInImport || (classesOnly && c.constructor.isDefined)
       case _ => true
