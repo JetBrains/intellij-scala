@@ -17,9 +17,9 @@ class DecompileScalaToJavaActionProvider extends AttachSourcesProvider {
     classFile match {
       case file: ScFile if file.isCompiled =>
         val action = new AttachSourcesAction {
-          override def getName: String = JavaDecompilerBundle.message("decompile.to.java")
+          override def getName: String = ScalaJavaDecompilerBundle.message("decompile.to.java")
 
-          override def getBusyText: String = JavaDecompilerBundle.message("scala.classfile")
+          override def getBusyText: String = ScalaJavaDecompilerBundle.message("scala.classfile")
 
           override def perform(list: ju.List[_ <: LibraryOrderEntry]): ActionCallback = {
             ScalaBytecodeDecompileTask.showDecompiledJavaCode(file)

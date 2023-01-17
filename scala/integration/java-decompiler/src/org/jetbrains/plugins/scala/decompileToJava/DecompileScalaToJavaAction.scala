@@ -4,7 +4,7 @@ package decompileToJava
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, DataKey}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 
-class DecompileScalaToJavaAction extends AnAction(JavaDecompilerBundle.message("decompile.scala.to.java")) {
+class DecompileScalaToJavaAction extends AnAction(ScalaJavaDecompilerBundle.message("decompile.scala.to.java")) {
   override def actionPerformed(event: AnActionEvent): Unit =
     getClassfile(event).foreach(ScalaBytecodeDecompileTask.showDecompiledJavaCode)
 

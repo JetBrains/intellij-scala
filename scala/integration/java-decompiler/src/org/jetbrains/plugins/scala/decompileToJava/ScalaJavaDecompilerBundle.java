@@ -6,13 +6,13 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public final class JavaDecompilerBundle extends DynamicBundle {
+public final class ScalaJavaDecompilerBundle extends DynamicBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaJavaDecompilerBundle";
 
-    private static final JavaDecompilerBundle INSTANCE = new JavaDecompilerBundle();
+    private static final ScalaJavaDecompilerBundle INSTANCE = new ScalaJavaDecompilerBundle();
 
-    private JavaDecompilerBundle() {
+    private ScalaJavaDecompilerBundle() {
         super(BUNDLE);
     }
 

@@ -16,12 +16,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import scala.util.{Failure, Success}
 
 class ScalaBytecodeDecompileTask(file: ScFile)
-    extends Task.Backgroundable(file.getProject, JavaDecompilerBundle.message("decompile.scala.bytecode")) {
+    extends Task.Backgroundable(file.getProject, ScalaJavaDecompilerBundle.message("decompile.scala.bytecode")) {
 
   import ScalaBytecodeDecompileTask._
 
   override def run(indicator: ProgressIndicator): Unit = {
-    indicator.setText(JavaDecompilerBundle.message("decompiling.file", file.getName))
+    indicator.setText(ScalaJavaDecompilerBundle.message("decompiling.file", file.getName))
 
     val tryDecompile = ScalaDecompilerService().decompile(file)
 
@@ -30,8 +30,8 @@ class ScalaBytecodeDecompileTask(file: ScFile)
         tryDecompile match {
           case Failure(exception) =>
             Messages.showErrorDialog(
-              JavaDecompilerBundle.message("cannot.decompile.filename.colon.message", file.getName, exception.getMessage),
-              JavaDecompilerBundle.message("decompiler.error")
+              ScalaJavaDecompilerBundle.message("cannot.decompile.filename.colon.message", file.getName, exception.getMessage),
+              ScalaJavaDecompilerBundle.message("decompiler.error")
             )
           case Success(text) =>
             inWriteAction {
