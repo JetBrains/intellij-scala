@@ -136,15 +136,10 @@ public class NailgunRunner {
   private static NGServer createServer(InetAddress address, int port, String id, Path scalaCompileServerSystemDir, URLClassLoader classLoader)
           throws Exception {
 
-    final String nailgunDefault = Integer.toString(NGServer.DEFAULT_SESSIONPOOLSIZE);
-    // Add another thread to the nailgun pool for our metrics calls.
-    final int sessionPoolSize =
-            Integer.parseInt(System.getProperty(JPS_COMPILATION_MAX_THREADS_KEY, nailgunDefault)) + 1;
-
     NGServer server = new NGServer(
             address,
             port,
-            sessionPoolSize,
+            0,
             NGConstants.HEARTBEAT_TIMEOUT_MILLIS
     );
 
