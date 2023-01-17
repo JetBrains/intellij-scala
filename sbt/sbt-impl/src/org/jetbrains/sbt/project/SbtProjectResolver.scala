@@ -221,7 +221,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val StructureFileReuseMode(readStructureFile, writeStructureFile) = getStructureFileReuseMode
 
       if (readStructureFile && structureFilePath.exists()) {
-        log.warn(s"reused structure file: $structureFilePath")
+        val reuseWarning = s"sbt reload skipped: using existing structure file: $structureFilePath"
+        log.warn(reuseWarning)
+        //noinspection ReferencePassedToNls (this branch is only triggered when registry was explicitly modified, so it's not i18-ed)
+        reporter.log(reuseWarning)
         val elem = XML.load(structureFilePath.toURI.toURL)
         Try((elem, BuildMessages.empty))
       } else if (writeStructureFile) {
@@ -260,16 +263,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   )
 
   private def dumpOptions(settings: SbtExecutionSettings): Seq[String] = {
-      Seq("download") ++
+    Seq("download") ++
       settings.resolveClassifiers.seq("resolveClassifiers") ++
       settings.resolveJavadocs.seq("resolveJavadocs") ++
       settings.resolveSbtClassifiers.seq("resolveSbtClassifiers")
   }
 
   /**
-    * Create project preview without using sbt, since sbt import can fail and users would have to do a manual edit of the project.
-    * Also sbt boot makes the whole process way too slow.
-    */
+   * Create project preview without using sbt, since sbt import can fail and users would have to do a manual edit of the project.
+   * Also sbt boot makes the whole process way too slow.
+   */
   private def dummyProject(projectRoot: File, settings: SbtExecutionSettings, sbtVersion: String): Node[ESProjectData] = {
 
     // TODO add default scala sdk and sbt libs (newest versions or so)
@@ -308,10 +311,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   /**
-    * This implementation is the same as in sbt.Project.normalizeModuleId to avoid inconsistencies in the import process.
-    * Normalize a String so that it is suitable for use as a dependency management module identifier.
-    * This is a best effort implementation, since valid characters are not documented or consistent.
-    */
+   * This implementation is the same as in sbt.Project.normalizeModuleId to avoid inconsistencies in the import process.
+   * Normalize a String so that it is suitable for use as a dependency management module identifier.
+   * This is a best effort implementation, since valid characters are not documented or consistent.
+   */
   private def normalizeModuleId(s: String) =
     s.toLowerCase(Locale.ENGLISH)
       .replaceAll("""\W+""", "-")
@@ -361,9 +364,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   /** Choose a project jdk based on information from sbt settings and IDE.
-    * More specific settings from sbt are preferred over IDE settings, on the assumption that the sbt project definition
-    * is what is more likely to be under source control.
-    */
+   * More specific settings from sbt are preferred over IDE settings, on the assumption that the sbt project definition
+   * is what is more likely to be under source control.
+   */
   private def chooseJdk(project: sbtStructure.ProjectData, defaultJdk: Option[String]): Option[SdkReference] = {
     // TODO put some of this logic elsewhere in resolving process?
     val androidSdk = project.android.map(android => AndroidJdk(android.targetVersion))
@@ -441,7 +444,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
     val (modulesWithoutBinaries, modulesWithBinaries) = repositoryModules.partition(_.binaries.isEmpty)
     val otherModuleIds = projects.flatMap(_.dependencies.modules.map(_.id)).toSet --
-            repositoryModules.map(_.id).toSet
+      repositoryModules.map(_.id).toSet
 
     val libs = modulesWithBinaries.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
 
@@ -488,7 +491,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createCommandData(project: sbtStructure.ProjectData) = {
-     project.commands.map { c =>
+    project.commands.map { c =>
       new SbtCommandNode(SbtCommandData(c.name, c.help))
     }
   }
@@ -588,9 +591,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       return extractedExcludes.distinct
 
     val managedDirectories = project.configurations
-            .flatMap(configuration => configuration.sources ++ configuration.resources)
-            .filter(_.managed)
-            .map(_.file)
+      .flatMap(configuration => configuration.sources ++ configuration.resources)
+      .filter(_.managed)
+      .map(_.file)
 
     val defaultNames = Set("main", "test")
 
@@ -691,10 +694,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def validRootPathsIn(project: sbtStructure.ProjectData, scope: String)
                               (selector: sbtStructure.ConfigurationData => Seq[sbtStructure.DirectoryData]): Seq[sbtStructure.DirectoryData] = {
     project.configurations
-            .find(_.id == scope)
-            .map(selector)
-            .getOrElse(Seq.empty)
-            .filterNot(_.file.isOutsideOf(project.base))
+      .find(_.id == scope)
+      .map(selector)
+      .getOrElse(Seq.empty)
+      .filterNot(_.file.isOutsideOf(project.base))
   }
 
   protected def createLibraryDependencies(dependencies: Seq[sbtStructure.ModuleDependencyData])
@@ -711,7 +714,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createUnmanagedDependencies(dependencies: Seq[sbtStructure.JarDependencyData])
-      (moduleData: ModuleData): Seq[LibraryDependencyNode] = {
+                                         (moduleData: ModuleData): Seq[LibraryDependencyNode] = {
     dependencies.groupBy(it => scopeFor(it.configurations)).toSeq.map { case (scope, dependency) =>
       val name = scope match {
         case DependencyScope.COMPILE => Sbt.UnmanagedLibraryName
@@ -759,7 +762,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   override def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean =
-    //noinspection UnitInMap
+  //noinspection UnitInMap
     activeProcessDumper
       .map(_.cancel())
       .isDefined
