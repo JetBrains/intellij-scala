@@ -3,7 +3,7 @@ package decompileToJava
 
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightLevelUtil}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import com.intellij.openapi.fileEditor.{FileDocumentManager, OpenFileDescriptor}
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.io.FileUtil
@@ -38,7 +38,10 @@ class ScalaBytecodeDecompileTask(file: ScFile)
                 case null =>
                 case psiFile => HighlightLevelUtil.forceRootHighlighting(psiFile, FileHighlightingSetting.SKIP_HIGHLIGHTING)
               }
-              VfsUtil.saveText(result, text)
+              val document = FileDocumentManager.getInstance().getDocument(result)
+              if (document != null) {
+                document.setText(text)
+              }
               new OpenFileDescriptor(file.getProject, result).navigate(true)
             }
           )
