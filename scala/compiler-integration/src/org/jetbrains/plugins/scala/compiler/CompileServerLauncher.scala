@@ -71,14 +71,6 @@ object CompileServerLauncher {
     ensureServerNotRunning()
   })
 
-  @deprecated("Please use `org.jetbrains.plugins.scala.compiler.CompileServerLauncher.ensureServerRunning` as a replacement. This method will be removed in a future release.")
-  @ScheduledForRemoval(inVersion = "2023.1")
-  @Deprecated(forRemoval = true)
-  def tryToStart(project: Project): Boolean = serverStartLock.synchronized {
-    if (running) true
-    else start(project)
-  }
-
   private def isUnitTestMode: Boolean =
     ApplicationManager.getApplication.isUnitTestMode
 
