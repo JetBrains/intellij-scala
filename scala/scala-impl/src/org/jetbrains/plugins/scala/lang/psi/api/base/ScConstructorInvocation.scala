@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -8,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocationLike {
   def typeElement: ScTypeElement
@@ -53,6 +55,22 @@ object ScConstructorInvocation {
         case c if c.reference.contains(ref) => Some(c)
         case _ => None
       }
+    }
+  }
+
+  object byUniversalApply {
+    def unapply(ref: ScReference): Option[ScMethodCall] = ref.getParent match {
+      case call: ScMethodCall if call.isInScala3File =>
+        call.target match {
+          case Some(srr: ScalaResolveResult) =>
+            val realResolveResult = srr.innerResolveResult.getOrElse(srr)
+            realResolveResult.element match {
+              case Constructor(_) => Some(call)
+              case _ => None
+            }
+          case None => None
+        }
+      case _ => None
     }
   }
 }

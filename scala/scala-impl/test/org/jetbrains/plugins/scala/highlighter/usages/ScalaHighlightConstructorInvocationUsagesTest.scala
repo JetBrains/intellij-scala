@@ -8,11 +8,40 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.Markers
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
-class ScalaHighlightConstructorInvocationUsagesTest extends ScalaLightCodeInsightFixtureTestCase with AssertionMatchers with Markers {
-  val | = CARET
-  val |< = startMarker
-  val >| = endMarker
+abstract class ScalaHighlightConstructorInvocationUsagesTestBase
+  extends ScalaLightCodeInsightFixtureTestCase
+    with AssertionMatchers
+    with Markers {
+  protected val | = CARET
+  protected val |< = startMarker
+  protected val >| = endMarker
 
+  protected def doTest(fileText: String): Unit = {
+    val (fileTextWithoutMarkers, expectedRanges) = extractMarker(fileText, caretMarker = Some(CARET))
+    val file = myFixture.configureByText("dummy.scala", fileTextWithoutMarkers)
+    val finalFileText = file.getText
+
+    val editor = myFixture.getEditor
+    HighlightUsagesHandler.invoke(myFixture.getProject, editor, file)
+
+    val highlighters = editor.getMarkupModel.getAllHighlighters
+    val actualRanges = highlighters.map(hr => TextRange.create(hr.getStartOffset, hr.getEndOffset)).toSeq
+
+    val expected = rangeSeqToComparableString(expectedRanges, finalFileText)
+    val actual = rangeSeqToComparableString(actualRanges, finalFileText)
+
+    actual shouldBe expected
+  }
+
+  private def rangeSeqToComparableString(ranges: Seq[TextRange], fileText: String): String =
+    ranges.sortBy(_.getStartOffset).map { range =>
+      val start = range.getStartOffset
+      val end = range.getEndOffset
+      s"($start, $end): " + fileText.substring(start, end)
+    }.mkString("\n")
+}
+
+class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstructorInvocationUsagesTestBase {
   def testClassDefinitionUsage(): Unit = {
     val code =
       s"""
@@ -39,7 +68,7 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaLightCodeInsigh
   def testAuxiliaryConstructorUsage(): Unit = {
     val code =
       s"""
-         |obejct Obj {
+         |object Obj {
          |  class ${|<}Test${>|} {
          |    def ${|<}this${>|}(i: Int) = this()
          |  }
@@ -50,10 +79,10 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaLightCodeInsigh
     doTest(code)
   }
 
-  def testAuxiliaryConstructorInvoctionUsage(): Unit = {
+  def testAuxiliaryConstructorInvocationUsage(): Unit = {
     val code =
       s"""
-         |obejct Obj {
+         |object Obj {
          |  class Test {
          |    def ${|<}th${|}is${>|}(i: Int) = this()
          |  }
@@ -87,28 +116,73 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaLightCodeInsigh
        """.stripMargin
     doTest(code)
   }
+}
 
-  def doTest(fileText: String): Unit = {
-    val (fileTextWithoutMarkers, expectedRanges) = extractMarker(fileText, caretMarker = Some(CARET))
-    val file = myFixture.configureByText("dummy.scala", fileTextWithoutMarkers)
-    val finalFileText = file.getText
+class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends ScalaHighlightConstructorInvocationUsagesTestBase {
 
-    val editor = myFixture.getEditor
-    HighlightUsagesHandler.invoke(myFixture.getProject, editor, file)
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
-    val highlighters = editor.getMarkupModel.getAllHighlighters
-    val actualRanges = highlighters.map(hr => TextRange.create(hr.getStartOffset, hr.getEndOffset)).toSeq
-
-    val expected = rangeSeqToComparableString(expectedRanges, finalFileText)
-    val actual = rangeSeqToComparableString(actualRanges, finalFileText)
-
-    actual shouldBe expected
+  def testClassDefinitionUsage(): Unit = {
+    val code =
+      s"""
+         |object Obj {
+         |  class ${|<}Te${|}st${>|}
+         |  val x: ${|<}Test${>|} = ${|<}Test${>|}()
+         |}
+       """.stripMargin
+    doTest(code)
   }
 
-  private def rangeSeqToComparableString(ranges: Seq[TextRange], fileText: String): String =
-    ranges.sortBy(_.getStartOffset).map { range =>
-      val start = range.getStartOffset
-      val end = range.getEndOffset
-      s"($start, $end): " + fileText.substring(start, end)
-    }.mkString("\n")
+  def testClassConstructorInvocationUsage(): Unit = {
+    val code =
+      s"""
+         |object Obj {
+         |  class ${|<}Test${>|}
+         |  val x: ${|<}Test${>|} = ${|<}Te${|}st${>|}()
+         |  ${|<}Test${>|}()
+         |  new ${|<}Test${>|}
+         |}
+       """.stripMargin
+    doTest(code)
+  }
+
+  def testAuxiliaryConstructorUsage(): Unit = {
+    val code =
+      s"""
+         |object Obj {
+         |  class ${|<}Test${>|} {
+         |    def ${|<}this${>|}(i: Int) = this()
+         |  }
+         |  val x: ${|<}Test${>|} = ${|<}Te${|}st${>|}(3)
+         |  ${|<}Test${>|}()
+         |}
+         |""".stripMargin
+    doTest(code)
+  }
+
+  def testAuxiliaryConstructorInvocationUsage(): Unit = {
+    val code =
+      s"""
+         |object Obj {
+         |  class Test {
+         |    def ${|<}th${|}is${>|}(i: Int) = this()
+         |  }
+         |  val x: Test = ${|<}Test${>|}(3)
+         |  Test()
+         |}
+         |""".stripMargin
+    doTest(code)
+  }
+
+  def testClassTypeAnnotationUsage(): Unit = {
+    val code =
+      s"""
+         |object Obj {
+         |  class ${|<}Test${>|}
+         |  val x: ${|<}Te${|}st${>|} = ${|<}Test${>|}()
+         |  ${|<}Test${>|}()
+         |}
+       """.stripMargin
+    doTest(code)
+  }
 }
