@@ -7,22 +7,25 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import java.util
 
-class ScalaHighlightConstructorInvocationUsages(invoc: ScConstructorInvocation, file: PsiFile, editor: Editor)
+class ScalaHighlightConstructorInvocationUsages(reference: Option[ScReference], file: PsiFile, editor: Editor)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file)
 {
-  private val elementsToHighlight = invoc.reference
+
+  def this(invoc: ScConstructorInvocation, file: PsiFile, editor: Editor) = this(invoc.reference, file, editor)
+
+  private val elementsToHighlight = reference
     .flatMap(_.bind())
     .collect {
       case ScalaResolveResult(clazz: PsiClass, _) => (clazz, None)
       case ScalaResolveResult(Constructor(constructor), _) => (constructor.containingClass, Some(constructor))
     }
 
-  override def getTargets: util.List[PsiElement] = invoc.reference.fold(util.Collections.emptyList[PsiElement])(util.Collections.singletonList)
+  override def getTargets: util.List[PsiElement] = reference.fold(util.Collections.emptyList[PsiElement])(util.Collections.singletonList)
 
   override def selectTargets(targets: util.List[_ <: PsiElement], selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit =
     selectionConsumer.consume(targets)

@@ -123,6 +123,7 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
       case `tIDENTIFIER` =>
         element.getParent match {
           case ScConstructorInvocation.byReference(constr) => return new ScalaHighlightConstructorInvocationUsages(constr, file, editor)
+          case ref@ScConstructorInvocation.byUniversalApply(_) => return new ScalaHighlightConstructorInvocationUsages(Option(ref), file, editor)
           case named: ScNamedElement => return implicitHighlighter(editor, file, named)
           case ref: ScReference => return implicitHighlighter(editor, file, ref)
           case _ =>
