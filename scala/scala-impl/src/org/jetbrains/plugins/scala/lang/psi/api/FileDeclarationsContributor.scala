@@ -10,15 +10,8 @@ import scala.annotation.nowarn
 abstract class FileDeclarationsContributor {
   def accept(holder: PsiElement): Boolean
 
-  @deprecated("Please override and use processAdditionalDeclarations(PsiScopeProcessor, PsiElement, ResolveState, PsiElement)")
-  @ScheduledForRemoval(inVersion = "2023.1")
-  @Deprecated(forRemoval = true)
-  def processAdditionalDeclarations(processor: PsiScopeProcessor, holder: PsiElement, state: ResolveState): Unit =
-    throw new IllegalStateException("Please override processAdditionalDeclarations(PsiScopeProcessor, PsiElement, ResolveState, PsiElement)")
-
   @nowarn("cat=deprecation")
-  def processAdditionalDeclarations(processor: PsiScopeProcessor, holder: PsiElement, state: ResolveState, lastParent: PsiElement): Unit =
-    processAdditionalDeclarations(processor, holder, state)
+  def processAdditionalDeclarations(processor: PsiScopeProcessor, holder: PsiElement, state: ResolveState, lastParent: PsiElement): Unit
 }
 
 object FileDeclarationsContributor
