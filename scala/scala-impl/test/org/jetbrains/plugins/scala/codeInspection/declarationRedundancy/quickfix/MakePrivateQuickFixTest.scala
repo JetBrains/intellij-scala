@@ -31,4 +31,10 @@ class MakePrivateQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
     val expected = "private class Foo { private var bar = 42; bar }"
     testQuickFix(code, expected, hint)
   }
+
+  def test_protected_symbol(): Unit = {
+    val code = "private class Foo { protected var bar = 42; bar }"
+    val expected = "private class Foo { private var bar = 42; bar }"
+    testQuickFix(code, expected, hint)
+  }
 }
