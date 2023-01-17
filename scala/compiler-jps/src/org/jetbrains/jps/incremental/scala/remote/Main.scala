@@ -86,6 +86,7 @@ object Main {
    *      [[com.facebook.nailgun.NGSession:153]]<br>
    *      [[com.facebook.nailgun.NGServer:198]]<br>
    */
+  //noinspection ScalaUnusedSymbol
   def nailMain(context: NGContext): Unit = {
     cancelShutdownTimer()
     try
