@@ -99,10 +99,32 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
 
     if (isReferenceTo(element)) return this
+
+    def bindToClass(c: PsiClass): PsiElement = {
+      if (!ScalaNamesUtil.equivalent(refName, c.name) &&
+        refName != ScFunction.CommonNames.Apply)
+        throw new IncorrectOperationException(s"class $c does not match expected name $refName")
+      val qualName = c.qualifiedName
+      if (qualName != null) {
+        tail(qualName) {
+          ScImportsHolder(this).addImportForClass(c, ref = this)
+          //need to use unqualified reference with new import
+          if (!this.isQualified) this
+          else this.replace(createReferenceExpressionFromText(this.refName))
+          //todo: conflicts with other classes with same name?
+        }
+      } else this
+    }
+
     element match {
       case _: ScTrait | _: ScClass =>
         ScalaPsiUtil.getCompanionModule(element.asInstanceOf[ScTypeDefinition]) match {
           case Some(obj: ScObject) => bindToElement(obj, containingClass)
+          case None // Universal Apply Methods
+            if element.is[ScClass] &&
+              element.isInScala3File &&
+              getKinds(incomplete = false).contains(ResolveTargets.OBJECT) =>
+            bindToClass(element.asInstanceOf[ScClass])
           case _ => this
         }
       case c: PsiClass =>
@@ -111,20 +133,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           kinds.contains(ResolveTargets.OBJECT) && element.is[ScEnum]
         if (!kindMatches)
           throw new IncorrectOperationException(s"class $c does not match expected kind,\nexpected: ${kinds.mkString(", ")}")
-        if (!ScalaNamesUtil.equivalent(refName, c.name) &&
-          refName != ScFunction.CommonNames.Apply)
-          throw new IncorrectOperationException(s"class $c does not match expected name $refName")
-        val qualName = c.qualifiedName
-        if (qualName != null) {
-          return tail(qualName) {
-            ScImportsHolder(this).addImportForClass(c, ref = this)
-            //need to use unqualified reference with new import
-            if (!this.isQualified) this
-            else this.replace(createReferenceExpressionFromText(this.refName))
-            //todo: conflicts with other classes with same name?
-          }
-        }
-        this
+        bindToClass(c)
       case _: ScTypeAlias =>
         throw new IncorrectOperationException("type does not match expected kind")
       case fun: ScFunction if ScalaPsiUtil.hasStablePath(fun) && fun.isApplyMethod =>

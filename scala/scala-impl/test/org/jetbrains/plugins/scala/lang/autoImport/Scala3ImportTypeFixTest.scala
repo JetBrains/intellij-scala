@@ -11,16 +11,27 @@ class Scala3ImportTypeFixTest extends ImportElementFixTestBase[ScReference] {
   override def createFix(ref: ScReference) =
     Option(ref).map(ScalaImportTypeFix(_))
 
-  def testClass(): Unit = checkElementsToImport(
-    s"""object Source:
-       |  class Foo
-       |
-       |object Target:
-       |  val foo = ${CARET}Foo()
-       |""".stripMargin,
+  def testClass(): Unit = {
+    val fileText =
+      s"""object Source:
+         |  class Foo
+         |
+         |object Target:
+         |  val foo = ${CARET}Foo()
+         |""".stripMargin
+    val qNameToImport = "Source.Foo"
 
-    "Source.Foo"
-  )
+    checkElementsToImport(
+      fileText,
+      qNameToImport
+    )
+
+    doTest(
+      fileText,
+      expectedText = s"import $qNameToImport\n\n${fileText.replace(CARET, "")}",
+      selected = qNameToImport
+    )
+  }
 
   def testClassInsideGivenImport(): Unit = doTest(
     fileText =
