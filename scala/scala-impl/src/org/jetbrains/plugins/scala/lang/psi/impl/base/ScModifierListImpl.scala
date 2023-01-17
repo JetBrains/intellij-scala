@@ -69,6 +69,9 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
       }
     }
 
+    val isReplacement = (hasExplicitModifier(PsiModifier.PROTECTED) && name == PsiModifier.PRIVATE) ||
+      (hasExplicitModifier(PsiModifier.PRIVATE) && name == PsiModifier.PROTECTED)
+
     val mod = ScalaModifier.byText(name)
 
     if (mod == ScalaModifier.Private || mod == ScalaModifier.Protected) {
@@ -78,7 +81,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     }
 
     if (value) {
-      addModifierProperty(name)
+      addModifierProperty(name, isReplacement)
     } else {
       val elemToRemove: Option[PsiElement] = mod match {
         case ScalaModifier.Private if accessModifier.exists(_.isPrivate)     => accessModifier
@@ -149,7 +152,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
 
   override def checkSetModifierProperty(name: String, value: Boolean): Unit = {}
 
-  private def addModifierProperty(name: String): Unit = {
+  private def addModifierProperty(name: String, isReplacement: Boolean): Unit = {
     val node = getNode
     val modifierNode = createModifierFromText(name).getNode
 
@@ -158,19 +161,27 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
 
     getFirstChild match {
       case null if addAfter =>
+
         val parentNode = getParent.getNode
         var nextSibling = getNextSibling
-        while (nextSibling != null && ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(nextSibling.getNode.getElementType)) {
-          val currentNode = nextSibling.getNode
-          nextSibling = nextSibling.getNextSibling
 
-          parentNode.removeChild(currentNode)
-          parentNode.addChild(currentNode, node)
+        if (!isReplacement) {
+
+          while (nextSibling != null &&
+            ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(nextSibling.getNode.getElementType)) {
+            val currentNode = nextSibling.getNode
+            nextSibling = nextSibling.getNextSibling
+
+            parentNode.removeChild(currentNode)
+            parentNode.addChild(currentNode, node)
+          }
         }
 
         node.addChild(modifierNode)
-        if (nextSibling != null)
+
+        if (!isReplacement && nextSibling != null)
           parentNode.addChild(spaceNode, nextSibling.getNode)
+
       case null =>
         node.addChild(modifierNode)
         node.addChild(spaceNode)
