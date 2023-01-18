@@ -77,10 +77,6 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "CompilerSharedBuildBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "macros/",
-      bundleMessagesRelativePath = "ScalaMacrosBundle.properties",
-    ),
-    ModuleWithBundleInfo(
       rootPath = sbtModDir + "sbt-api/",
       bundleMessagesRelativePath = "SbtApiBundle.properties"
     ),
