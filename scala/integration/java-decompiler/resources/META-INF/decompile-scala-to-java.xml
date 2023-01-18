@@ -8,9 +8,11 @@
 
     <actions>
         <action id="Scala.DecompileToJava"
-              class="org.jetbrains.plugins.scala.decompileToJava.DecompileScalaToJavaAction"
-              description="Run FernFlower decompiler on given classfile">
-        <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
-      </action>
+                class="org.jetbrains.plugins.scala.decompileToJava.ShowDecompiledClassAsJavaAction"
+                description="Run FernFlower decompiler on given classfile">
+            <add-to-group group-id="idea.java.decompiler.action.group" anchor="after" relative-to-action="ByteCodeDecompiler"/>
+            <!--Leaving the action in RunContextPopupGroup as well for easy access from Project Tree view -->
+            <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
+        </action>
     </actions>
 </idea-plugin>
