@@ -17,8 +17,7 @@ import scala.reflect.macros.whitebox
   * right outside the cached function and if this function is inner it won't work.
   */
 class CachedWithoutModificationCount(valueWrapper: ValueWrapper,
-                                     cleanupScheduler: Any,
-                                     tracked: Any*) extends StaticAnnotation {
+                                     cleanupScheduler: Any) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedWithoutModificationCount.cachedWithoutModificationCountImpl
 }
 
@@ -28,7 +27,7 @@ object CachedWithoutModificationCount {
     import c.universe._
     implicit val x: c.type = c
 
-    def parameters: (ValueWrapper, Tree, Seq[Tree]) = {
+    def parameters: (ValueWrapper, Tree) = {
       @tailrec
       def valueWrapperParam(valueWrapper: Tree): ValueWrapper = valueWrapper match {
         case q"valueWrapper = $v" => valueWrapperParam(v)
@@ -37,16 +36,14 @@ object CachedWithoutModificationCount {
       }
 
       c.prefix.tree match {
-        case q"new CachedWithoutModificationCount(..$params)" if params.nonEmpty =>
-          val valueWrapper = valueWrapperParam(params.head)
-          val cleanupScheduler = params(1)
-          (valueWrapper, q"$cleanupScheduler.asInstanceOf[$cleanupSchedulerTypeFqn]", params.drop(2))
+        case q"new CachedWithoutModificationCount($valueWrapper, $cleanupScheduler)" =>
+          (valueWrapperParam(valueWrapper), q"$cleanupScheduler.asInstanceOf[$cleanupSchedulerTypeFqn]")
         case _ => abort(MacrosBundle.message("macros.cached.wrong.parameters"))
       }
     }
 
     //annotation parameters
-    val (valueWrapper, cleanupScheduler, trackedExprs) = parameters
+    val (valueWrapper, cleanupScheduler) = parameters
 
     annottees.toList match {
       case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
@@ -122,7 +119,7 @@ object CachedWithoutModificationCount {
           q"""
             ..${if (hasParameters) getValuesFromMap else EmptyTree}
 
-            val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, trackedExprs)}
+            val $tracerName = ${internalTracerInstance(c)(keyId, cacheName, Seq.empty)}
             $tracerName.invocation()
 
             val resultFromCache = $getFromCache
