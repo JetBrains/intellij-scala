@@ -12,6 +12,8 @@ package object scala {
 
   def isUnitTestMode: Boolean = application.isUnitTestMode
 
+  //TODO: deduplicate utilities with org.jetbrains.plugins.scala.extensions#inWriteAction
+  // This should be done within a bigger refactor of all our utilities
   def inWriteAction[T](body: => T): T = application match {
     case application if application.isWriteAccessAllowed => body
     case application => application.runWriteAction(body)

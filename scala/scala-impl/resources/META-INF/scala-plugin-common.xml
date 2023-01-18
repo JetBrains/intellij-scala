@@ -434,9 +434,8 @@
         <lang.importOptimizer language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer"/>
         <lang.namesValidator language="Scala"
                              implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator"/>
-        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaAttachSourcesNotificationProvider"/>
-        <editorFileSwapper implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaEditorFileSwapper"/>
-        <projectStructureDetector implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaSourceRootFinder"/>
+        <editorFileSwapper implementation="org.jetbrains.plugins.scala.editor.ScalaEditorFileSwapper"/>
+        <projectStructureDetector implementation="org.jetbrains.plugins.scala.project.template.importSources.ScalaSourceRootFinder"/>
 
         <configurationType implementation="org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.console.actions.ScalaConsoleActionsPromoter"/>

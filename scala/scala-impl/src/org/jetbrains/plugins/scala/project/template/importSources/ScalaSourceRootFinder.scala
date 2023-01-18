@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.project.notification.source
+package org.jetbrains.plugins.scala.project.template.importSources
 
 import com.intellij.ide.util.projectWizard.importSources.JavaSourceRootDetector
 import com.intellij.openapi.util.text.StringUtil
@@ -7,14 +7,13 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenType, Scala
 
 import scala.annotation.tailrec
 
-//noinspection TypeAnnotation
 final class ScalaSourceRootFinder extends JavaSourceRootDetector {
 
   import org.jetbrains.plugins.scala.ScalaFileType.{INSTANCE => scalaFileType}
 
-  override def getLanguageName = scalaFileType.getName
+  override def getLanguageName: String = scalaFileType.getName
 
-  override def getFileExtension = scalaFileType.getDefaultExtension
+  override def getFileExtension: String = scalaFileType.getDefaultExtension
 
   override def getPackageNameFetcher: NullableFunction[CharSequence, String] =
     ScalaSourceRootFinder.packageStatement(_: CharSequence)
@@ -22,8 +21,8 @@ final class ScalaSourceRootFinder extends JavaSourceRootDetector {
 
 object ScalaSourceRootFinder {
 
-  import StringUtil._
   import ScalaTokenTypes._
+  import StringUtil._
 
   def packageStatement(buf: CharSequence): String = {
     implicit val lexer: ScalaLexer = new ScalaLexer(false, null)
