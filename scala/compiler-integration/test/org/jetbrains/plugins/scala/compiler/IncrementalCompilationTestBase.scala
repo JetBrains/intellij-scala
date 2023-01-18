@@ -1,14 +1,17 @@
 package org.jetbrains.plugins.scala.compiler
 
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.VfsTestUtil
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.everyValueGreaterThanIn
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
-import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
+import org.jetbrains.plugins.scala.{CompilationTests, ScalaVersion}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
@@ -16,16 +19,24 @@ import java.io.File
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_10_6,
   TestScalaVersion.Scala_2_10,
+  TestScalaVersion.Scala_2_11_0,
   TestScalaVersion.Scala_2_11,
+  TestScalaVersion.Scala_2_12_0,
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_0
+  TestScalaVersion.Scala_3_0,
+  TestScalaVersion.Scala_3_1,
+  TestScalaVersion.Scala_3_2,
+  TestScalaVersion.Scala_3_3_Nightly
 ))
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[CompilationTests]))
 abstract class IncrementalCompilationTestBase(override protected val incrementalityType: IncrementalityType,
                                               override protected val useCompileServer: Boolean = false)
   extends ScalaCompilerTestBase {
+
+  override protected def buildProcessJdk: Sdk = CompileServerJdkManager.getBuildProcessRuntimeSdk(getProject)
 
   def testRecompileOnlyAffectedFiles(): Unit = {
     val sources = initBuildProject(
@@ -220,7 +231,12 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
   }
 }
 
-class IncrementalOnServerCompilationTest
+@RunWithJdkVersions(Array(
+  TestJdkVersion.JDK_1_8,
+  TestJdkVersion.JDK_11,
+  TestJdkVersion.JDK_17
+))
+class IncrementalIdeaOnServerCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = true)
 
 class IncrementalIdeaCompilationTest
@@ -270,4 +286,13 @@ class IncrementalSbtCompilationTest
     assertThat("Sealed recompiled", sealedTsAfter, everyValueGreaterThanIn(sealedTsBeforeWithoutB))
     assertThat("App recompiled", appTsAfter, everyValueGreaterThanIn(appTsBefore))
   }
+}
+
+@RunWithJdkVersions(Array(
+  TestJdkVersion.JDK_1_8,
+  TestJdkVersion.JDK_11,
+  TestJdkVersion.JDK_17
+))
+class IncrementalSbtOnServerCompilationTest extends IncrementalSbtCompilationTest {
+  override protected val useCompileServer: Boolean = true
 }

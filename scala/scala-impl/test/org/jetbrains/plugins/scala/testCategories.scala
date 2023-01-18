@@ -42,3 +42,5 @@ trait CompletionTests
  * `org.jetbrains.plugins.scala.codeInsight.InlayHintsTestBase`.
  */
 trait EditorTests
+
+trait CompilationTests
