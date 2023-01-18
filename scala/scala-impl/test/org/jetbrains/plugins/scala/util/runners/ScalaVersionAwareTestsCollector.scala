@@ -24,7 +24,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
         test.injectedScalaVersion = scalaVersionProd // !! should be set before calling test.skip
         test.injectedJdkVersion = jdkVersionProd
 
-        if (!test.skip && scalaVersion.supportsJdk(jdkVersion)) {
+        if (!test.skip) {
           result.append((test, scalaVersion, jdkVersion))
         }
       case (warningTest, _, scalaVersion, jdkVersion) =>
