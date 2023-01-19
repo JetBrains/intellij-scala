@@ -86,13 +86,17 @@ object MultilineStringUtil {
     }
   }
 
-  def getMarginChar(element: PsiElement): Char = findAllMethodCallsOnMLString(element, "stripMargin") match {
-    case Seq(Seq(literals.ScCharLiteral(value), _*), _*) => value
-    case Seq(Seq(), _*)                                  => DefaultMarginChar
-    case _                                                   =>
-      CodeStyle.getSettings(element.getProject)
-        .getCustomSettings(classOf[ScalaCodeStyleSettings])
-        .getMarginChar
+  def getMarginChar(element: PsiElement): Char = {
+    val stripMarginCall = findAllMethodCallsOnMLString(element, "stripMargin")
+    stripMarginCall match {
+      case Seq(Seq(literals.ScCharLiteral(value), _*), _*) => //custom margin char: `"""...""".stripMargin('#')`
+        value
+      case Seq(Seq(), _*) =>
+        DefaultMarginChar
+      case _ =>
+        val scalaCodeStyle = CodeStyle.getSettings(element.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
+        scalaCodeStyle.getMarginChar
+    }
   }
 
   def findAllMethodCallsOnMLString(stringElement: PsiElement, methodName: String): Seq[Seq[ScExpression]] = {

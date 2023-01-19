@@ -14,14 +14,13 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
   import EditorTestUtil.{CARET_TAG => Caret}
 
   private val Quotes = "\"\"\""
-  private val JsonLangId = "JSON"
 
   override def setUpLibraries(implicit module: Module): Unit = {
     super.setUpLibraries
 
     val settings = ScalaProjectSettings.getInstance(module.getProject)
-    val interpToLangId = Map("json" -> JsonLangId).asJava
-    settings.setIntInjectionMapping(interpToLangId)
+    val interpolatorToLangId = Map("json" -> JsonLangId).asJava
+    settings.setIntInjectionMapping(interpolatorToLangId)
     settings.setDisableLangInjection(false)
   }
 
@@ -29,9 +28,21 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
   // Comment injection tests
   ////////////////////////////////////////
 
-  def testCommentInjection_SingleLine(): Unit = {
+  def testCommentInjection_SingleLine_UpperCaseLanguageId(): Unit = {
     val body =
       raw"""//language=JSON
+           |"{$Caret \"a\" : 42 }"
+           |""".stripMargin
+
+    val expected =
+      """{ "a" : 42 }"""
+
+    doTestInBody(JsonLangId, body, expected)
+  }
+
+  def testCommentInjection_SingleLine_LowerCaseLanguageId(): Unit = {
+    val body =
+      raw"""//language=json
            |"{$Caret \"a\" : 42 }"
            |""".stripMargin
 
@@ -375,7 +386,7 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
   //  }
 
   ////////////////////////////////////////
-  // String concatenation injection tests
+  // other
   ////////////////////////////////////////
 
   def testThatAllInjectionPatternsAreCompiled(): Unit = {
@@ -398,4 +409,51 @@ class ScalaLanguageInjectorTest extends AbstractLanguageInjectionTestCase {
     }
   }
 
+  ///////////////////////////////////
+  // Injections via patterns defined in `scalaInjections.xml`
+  ///////////////////////////////////
+
+
+  def testPatternInjection_Regexp_MultilineOnSingleLine(): Unit = {
+    val body =
+      s"""$Quotes hello world$Quotes.r""".stripMargin
+
+    val expected =
+      """ hello world"""
+
+    doTestInBody(RegexpLangId, body, expected)
+  }
+
+  def testPatternInjection_Regexp_Multiline(): Unit = {
+    val body =
+      s"""class A {
+         |  ${Quotes}hello
+         |  world
+         |!$Quotes.r
+         |}
+         |""".stripMargin
+
+    val expected =
+      """hello
+        |  world
+        |!""".stripMargin
+
+    doTest(RegexpLangId, body, expected)
+  }
+
+  //TODO: s trip margin + pattern not supported yet
+//  def test PatternInjection_Multiline_WithMargins(): Unit = {
+//    val body =
+//      s"""${Quotes}hello
+//         |  |  world
+//         |  |!$Quotes.stripMargin.r
+//         |""".stripMargin
+//
+//    val expected =
+//      """hello
+//        |  world
+//        |!""".stripMargin
+//
+//    doTestInBody(RegexpLangId, body, expected)
+//  }
 }
