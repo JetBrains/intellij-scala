@@ -5,8 +5,10 @@ import com.intellij.ide.util.treeView.AbstractTreeNode
 import com.intellij.ide.util.treeView.smartTree.{NodeProvider, TreeElement, TreeElementWrapper}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiManager
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
@@ -121,7 +123,7 @@ trait FileStructureTest {
     inReadAction {
       val virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(Path.of(filePath))
       val file = PsiManager.getInstance(getProject).findFile(virtualFile)
-      val treeViewModel: TestStructureViewModel = new TestStructureViewModel(file.asInstanceOf[ScalaFile]) {
+      val treeViewModel: ScalaStructureViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
         override def isEnabled(provider: NodeProvider[_]): Boolean = provider.isInstanceOf[TestNodeProvider]
       }
       val wrapper = StructureViewComponent.createWrapper(getProject, treeViewModel.getRoot, treeViewModel)
