@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
@@ -421,6 +422,13 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
       resultDir = "subdir/something wrong",
       hint      = "Move to package 'subdir.`something wrong`'",
     )
+  }
+  
+  def test_package_prefix(): Unit = {
+    ModuleRootModificationUtil.updateModel(myFixture.getModule, model => {
+      model.getContentEntries.flatMap(_.getSourceFolders).foreach(_.setPackagePrefix("org.example"))
+    })
+    checkTextHasNoErrors("package org.example\nclass Foo")
   }
 }
 
