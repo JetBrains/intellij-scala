@@ -143,7 +143,7 @@ object ScalaRefCountHolder {
       case document =>
         DaemonCodeAnalyzer.getInstance(project) match {
           case analyzerImpl: impl.DaemonCodeAnalyzerImpl =>
-            Some(Option(analyzerImpl.getFileStatusMap.getFileDirtyScope(document, Pass.UPDATE_ALL)))
+            Some(Option(analyzerImpl.getFileStatusMap.getFileDirtyScope(document, file, Pass.UPDATE_ALL)))
           case _ => None
         }
     }

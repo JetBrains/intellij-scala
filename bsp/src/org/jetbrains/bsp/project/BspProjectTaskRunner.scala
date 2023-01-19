@@ -62,7 +62,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       val targetIds = for {
         projectPath <- Option(ES.getExternalProjectPath(task.getModule))
         projectData <- Option(ES.findProjectNode(project, BSP.ProjectSystemId, projectPath))
-        moduleDataNode <- Option(ES.find(
+        moduleDataNode <- Option(ES.findChild(
           projectData, ProjectKeys.MODULE,
           (node: DataNode[ModuleData]) => node.getData.getId == moduleId))
         metadata <- Option(ES.find(moduleDataNode, BspMetadata.Key))

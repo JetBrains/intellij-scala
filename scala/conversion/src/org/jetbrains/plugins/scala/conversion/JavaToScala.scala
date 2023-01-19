@@ -258,15 +258,16 @@ object JavaToScala {
         val body2 = if (hasEmptyStatement) Some(defaultStatement) else body
         SwitchBlock(expr, body2)
       case p: PsiPackageStatement => PackageStatement(convertPsiToIntermediate(p.getPackageReference, externalProperties))
-      case f: PsiForeachStatement =>
+      case f: PsiForeachStatementBase =>
         val tp = Option(f.getIteratedValue).flatMap((e: PsiExpression) => Option(e.getType))
         val isJavaCollection = if (tp.isEmpty) true else !tp.get.isInstanceOf[PsiArrayType]
 
         val iteratedValue = Option(f.getIteratedValue).map(convertPsiToIntermediate(_, externalProperties))
         val body = Option(f.getBody).map(convertPsiToIntermediate(_, externalProperties))
-        val nameIdentifier = f.getIterationDeclaration match {
-          case param: PsiParameter => param.getNameIdentifier
-          case pattern: PsiPattern =>
+        val nameIdentifier = f match {
+          case statement: PsiForeachStatement => statement.getIterationParameter.getNameIdentifier
+          case patternStatement: PsiForeachPatternStatement =>
+            val pattern = patternStatement.getIterationPattern
             val variable = JavaPsiPatternUtil.getPatternVariable(pattern)
             if (variable != null) variable.getNameIdentifier else null
           case _ => null

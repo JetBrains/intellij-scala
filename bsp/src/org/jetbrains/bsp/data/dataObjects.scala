@@ -94,7 +94,7 @@ object BspMetadata {
         .toRight(BspMetadataError(BspBundle.message("bsp.metadata.error.project.info", project.getName)))
       projectStructure <- Option(projectInfo.getExternalProjectStructure)
         .toRight(BspMetadataError(BspBundle.message("bsp.metadata.error.project.structure", projectInfo.getExternalProjectPath)))
-      moduleDataNode <- Option(ES.find(projectStructure, ProjectKeys.MODULE, predicate))
+      moduleDataNode <- Option(ES.findChild(projectStructure, ProjectKeys.MODULE, predicate))
         .toRight(BspMetadataError(BspBundle.message("bsp.metadata.error.data.node", project.getName)))
       metadata <- Option(ES.find(moduleDataNode, BspMetadata.Key))
         .toRight(BspMetadataError(BspBundle.message("bsp.metadata.error.module.metadata", module.getName)))

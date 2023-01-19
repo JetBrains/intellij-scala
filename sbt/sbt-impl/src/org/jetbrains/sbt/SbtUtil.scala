@@ -195,7 +195,7 @@ object SbtUtil {
     val maybeNodes: Either[String, Iterable[K]] = for {
       projectInfo      <- projectDataEither.toRight(s"can't detect sbt external project data for project $project)")
       projectStructure <- Option(projectInfo.getExternalProjectStructure).toRight(s"no external project structure for project $project, $projectInfo")
-      moduleDataNode   <- Option(ExternalSystemApiUtil.find(projectStructure, ProjectKeys.MODULE,  (node: DataNode[ModuleData]) => {
+      moduleDataNode   <- Option(ExternalSystemApiUtil.findChild(projectStructure, ProjectKeys.MODULE,  (node: DataNode[ModuleData]) => {
         // seems hacky. but apparently there isn't yet any better way to get the data for selected module?
         node.getData.getId == moduleId
       }))
