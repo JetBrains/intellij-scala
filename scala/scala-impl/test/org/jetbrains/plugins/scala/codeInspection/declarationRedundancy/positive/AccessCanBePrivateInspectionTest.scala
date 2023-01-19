@@ -247,4 +247,12 @@ class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspection
 
   def test_type_alias(): Unit =
     checkTextHasError(s"object A { type ${START}B$END = Int; def foo: B = 1", AllowAdditionalHighlights)
+
+  def test_multiple_val_assignment(): Unit = checkTextHasError(
+    s"private object Foo { val ${START}x, y$END = 1; println(x + y) }"
+  )
+
+  def test_untupled_val_assignment(): Unit = checkTextHasError(
+    s"private object Foo { val $START(x, y)$END = (1, 2); println(x + y) }"
+  )
 }
