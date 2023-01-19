@@ -14,13 +14,13 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.SymbolEs
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiModifierListOwnerExt}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLocalClass
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.isBeanProperty
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScTypeAliasDefinition, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 
@@ -28,45 +28,39 @@ import scala.annotation.tailrec
 
 final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspection {
 
-  private def getProblemInfos(element: ScNamedElement,
-                              modifierListOwner: ScModifierListOwner,
-                              isOnTheFly: Boolean): Seq[ProblemInfo] =
-    if (Search.Util.shouldProcessElement(element)) {
-
+  private def computeCanBePrivate(element: ScNamedElement, isOnTheFly: Boolean): Boolean =
+    Search.Util.shouldProcessElement(element) && {
       val usages = getPipeline(element.getProject).runSearchPipeline(element, isOnTheFly)
-
-      if (usages.nonEmpty && usages.forall(_.targetCanBePrivate) &&
-          !elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate(element)) {
-
-        val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(modifierListOwner)
-
-        Seq(
-          ProblemInfo(
-            element.nameId,
-            ScalaInspectionBundle.message("access.can.be.private"),
-            Seq(fix)
-          )
-        )
-      } else Seq.empty
-    } else Seq.empty
+      usages.nonEmpty && usages.forall(_.targetCanBePrivate) &&
+        !elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate(element)
+    }
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] =
     element match {
-      case n: ScNamedElement with ScModifierListOwner if !n.hasModifierPropertyScala("private") =>
-        n match {
-          case _: ScFunctionDefinition | _: ScTypeDefinition =>
-            getProblemInfos(n, n, isOnTheFly)
-          case t: ScTypeAliasDefinition if !t.isOpaque =>
-            getProblemInfos(n, n, isOnTheFly)
-          case _ => Seq.empty
+      case member: ScMember if !member.hasModifierPropertyScala("private") =>
+        val canBePrivate = member match {
+          case d: ScFunctionDefinition => computeCanBePrivate(d, isOnTheFly)
+          case d: ScTypeDefinition => computeCanBePrivate(d, isOnTheFly)
+          case t: ScTypeAliasDefinition if !t.isOpaque => computeCanBePrivate(t, isOnTheFly)
+          case v: ScValueOrVariableDefinition =>
+            val allRefPatterns = v.pList.depthFirst().filterByType[ScReferencePattern]
+            allRefPatterns.forall(computeCanBePrivate(_, isOnTheFly))
+          case _ => false
         }
-      case patternList@ScPatternList(Seq(pattern: ScReferencePattern)) =>
-        val modifierListOwner = patternList.getParent.asInstanceOf[ScModifierListOwner]
-        if (!modifierListOwner.hasModifierPropertyScala("private")) {
-          getProblemInfos(pattern, modifierListOwner, isOnTheFly)
-        } else {
-          Seq.empty
-        }
+
+        if (canBePrivate) {
+          val fix = new ScalaAccessCanBeTightenedInspection.MakePrivateQuickFix(member)
+          val elementToHighlight = member match {
+            case n: ScNamedElement => n.nameId
+            case v: ScValueOrVariableDefinition => v.pList
+          }
+          Seq(ProblemInfo(
+            elementToHighlight,
+            ScalaInspectionBundle.message("access.can.be.private"),
+            Seq(fix)
+          ))
+        } else Seq.empty
+
       case _ => Seq.empty
     }
 
