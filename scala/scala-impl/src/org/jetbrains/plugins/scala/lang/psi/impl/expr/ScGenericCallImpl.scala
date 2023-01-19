@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.{CachedFunction0, ModTracker, cached}
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.kindProjectorPolymorphicLambdaType
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda

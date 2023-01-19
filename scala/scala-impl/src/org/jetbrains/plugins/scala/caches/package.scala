@@ -9,21 +9,30 @@ package object caches {
 
   // TODO Detect control flow exceptions
 
-  def cached[R](name: String, modificationTracker: => ModificationTracker, f: () => R): () => R =
-    new CachedFunction0[R](name, modificationTracker)(f)
+  def cached[R](name: String, modificationTracker: => ModificationTracker, f: () => R): () => R = {
+    val cache = new Cache0[R](f.getClass.getName, name, modificationTracker)
+    () => cache { f() }
+  }
 
-  def cached[T1, R](name: String, modificationTracker: => ModificationTracker, f: T1 => R): T1 => R =
-    new CachedFunction1[T1, R](name, modificationTracker)(f)
+  def cached[T1, R](name: String, modificationTracker: => ModificationTracker, f: T1 => R): T1 => R = {
+    val cache = new CacheN[Tuple1[T1], R](f.getClass.getName, name, modificationTracker)
+    v1 => cache(Tuple1(v1)) { f(v1) }
+  }
 
-  def cached[T1, T2, R](name: String, modificationTracker: => ModificationTracker, f: (T1, T2) => R): (T1, T2) => R =
-    new CachedFunction2[T1, T2, R](name, modificationTracker)(f)
+  def cached[T1, T2, R](name: String, modificationTracker: => ModificationTracker, f: (T1, T2) => R): (T1, T2) => R = {
+    val cache = new CacheN[(T1, T2), R](f.getClass.getName, name, modificationTracker)
+    (v1, v2) => cache((v1, v2)) { f(v1, v2) }
+  }
 
-  def cached[T1, T2, T3, R](name: String, modificationTracker: => ModificationTracker, f: (T1, T2, T3) => R): (T1, T2, T3) => R =
-    new CachedFunction3[T1, T2, T3, R](name, modificationTracker)(f)
+  def cached[T1, T2, T3, R](name: String, modificationTracker: => ModificationTracker, f: (T1, T2, T3) => R): (T1, T2, T3) => R = {
+    val cache = new CacheN[(T1, T2, T3), R](f.getClass.getName, name, modificationTracker)
+    (v1, v2, v3) => cache((v1, v2, v3)) { f(v1, v2, v3) }
+  }
 
-  def cached[T1, T2, T3, T4, R](name: String, modificationTracker: => ModificationTracker, f: (T1, T2, T3, T4) => R): (T1, T2, T3, T4) => R =
-    new CachedFunction4[T1, T2, T3, T4, R](name, modificationTracker)(f)
-
+  def cached[T1, T2, T3, T4, R](name: String, modificationTracker: => ModificationTracker, f: (T1, T2, T3, T4) => R): (T1, T2, T3, T4) => R = {
+    val cache = new CacheN[(T1, T2, T3, T4), R](f.getClass.getName, name, modificationTracker)
+    (v1, v2, v3, v4) => cache((v1, v2, v3, v4)) { f(v1, v2, v3, v4) }
+  }
 
   // TODO Factory method instead of the ProjectUserDataHolder type class
 
