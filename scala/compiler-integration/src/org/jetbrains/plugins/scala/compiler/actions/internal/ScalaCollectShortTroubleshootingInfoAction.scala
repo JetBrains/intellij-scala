@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler.actions.internal
 import com.intellij.ide.nls.NlsMessages
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.ProjectRootManager
@@ -73,8 +74,15 @@ class ScalaCollectShortTroubleshootingInfoAction extends AnAction(
         } yield version
     }.getOrElse("<unknown>")
 
+    val appName = appInfo.getFullApplicationName
+    val edition = ApplicationNamesInfo.getInstance.getEditionName
+    //User-readable IDEA name+version
+    //Example: IntelliJ IDEA 2023.1 EAP (Ultimate Edition)
+    val appNameWithEdition = if (edition == null) appName else s"$appName ($edition)"
+
     s"""Scala Plugin : $scalaPluginVersion
-       |IDEA Build   : $ideaBuildNumber $ideaBuildDate
+       |$appNameWithEdition
+       |Build        : $ideaBuildNumber $ideaBuildDate
        |JRE          : $javaRuntime ($javaVmName)
        |OS           : $osInfo
        |Project JDK  : $projectJdkVersion
