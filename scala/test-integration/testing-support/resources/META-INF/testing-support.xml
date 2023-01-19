@@ -10,8 +10,6 @@
         <testFinder implementation="org.jetbrains.plugins.scala.testingSupport.ScalaTestFinder"/>
         <testGenerator language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestGenerator"/>
 
-        <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.TestStructureViewFactory"/>
-
         <exceptionFilter implementation="org.jetbrains.plugins.scala.testingSupport.util.scalatest.ScalaTestFailureLocationFilterFactory"/>
 
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.testingSupport.test.ui.ScalaTestRunLineMarkerProvider" language="Scala"/>
@@ -30,5 +28,10 @@
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer"/>
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitConfigurationProducer"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <!--suppress PluginXmlValidity -->
+        <structureViewModelProvider implementation="org.jetbrains.plugins.scala.testingSupport.TestStructureViewModelProvider"/>
     </extensions>
 </idea-plugin>
