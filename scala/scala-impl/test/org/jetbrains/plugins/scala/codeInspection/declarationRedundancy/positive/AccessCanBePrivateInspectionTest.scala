@@ -71,4 +71,12 @@ class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestBase {
        |private class Bar { Bar.b }
        |private object Bar { val ${START}b$END = 42 }
        |""".stripMargin, AllowAdditionalHighlights)
+
+  def test_multiple_val_assignment(): Unit = checkTextHasError(
+    s"private object Foo { val ${START}x, y$END = 1; println(x + y) }"
+  )
+
+  def test_untupled_val_assignment(): Unit = checkTextHasError(
+    s"private object Foo { val $START(x, y)$END = (1, 2); println(x + y) }"
+  )
 }
