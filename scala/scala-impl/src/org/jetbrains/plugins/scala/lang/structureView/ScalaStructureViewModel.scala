@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.structureView.element.{Element, Test}
 
 import java.util
 import java.util.Comparator
+import scala.jdk.CollectionConverters._
 
 class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLanguageConsole] = None)
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
@@ -94,7 +95,7 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
   }
 
   override def getNodeProviders: util.Collection[NodeProvider[_ <: TreeElement]] =
-    util.Arrays.asList(new ScalaInheritedMembersNodeProvider)
+    (new ScalaInheritedMembersNodeProvider() +: StructureViewModelProvider.nodeProvidersFor(myRootElement)).asJava
 
   override def isSuitable(element: PsiElement): Boolean = element match {
     case t: ScTypeDefinition => t.getParent match {
