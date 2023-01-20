@@ -18,6 +18,10 @@ private[declarationRedundancy] final class SearchMethodsWithProjectBoundCache pr
     new ForeignEnumSearch(c => !c.isOnlyVisibleInLocalFile),
     new TextSearch(c => !c.isMemberOfUnusedTypeDefinition && !c.isOnlyVisibleInLocalFile && !c.isImplicit, project)
   )
+
+  // Any Scala class maybe implements an extension point. Note that such implementations may be private, hence
+  // this search method is only used in unused-declaration inspection and not in can-be-private.
+  val IJExtensionPointImplementationSearch = new IJExtensionPointImplementationSearch(_.isScalaClass)
 }
 
 object SearchMethodsWithProjectBoundCache {

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.negative
 
+import com.intellij.ide.highlighter.XmlFileType
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedDeclarationInspectionTestBase
 
 class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
@@ -242,5 +243,10 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
   def test_type_alias(): Unit = {
     addScalaFile("object B { val f: A.Foo = 42 }")
     checkTextHasNoErrors("@scala.annotation.unused object A { type Foo = Int }")
+  }
+
+  def test_extension_point_implementation(): Unit = {
+    configureFromFileText(XmlFileType.INSTANCE, "org.foo.Bar")
+    checkTextHasNoErrors("package org.foo\nclass Bar")
   }
 }
