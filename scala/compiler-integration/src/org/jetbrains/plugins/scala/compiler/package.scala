@@ -28,9 +28,4 @@ package object compiler {
       CompileServerManager.showCompileServerSettingsDialog(project, filter)
     }
   }
-
-  def createJvmAddOpensParams(modulePackageList: String*): Seq[String] =
-    modulePackageList.flatMap { modulePackage =>
-      Seq("--add-opens", s"$modulePackage=ALL-UNNAMED")
-    }
 }
