@@ -1,25 +1,29 @@
 package org.jetbrains.plugins.scala.caches
 
 import com.intellij.util.SofterReference
-import org.jetbrains.plugins.scala.caches.ValueWrapper.Reference
 
-trait ValueWrapper {
-  def wrap[A](v: A): Reference[A]
+trait ValueWrapper[A] {
+  type Reference
+
+  def wrap(v: A): Reference
+
+  def unwrap(v: Reference): A
 }
 
 object ValueWrapper {
-  trait Reference[+A] {
-    def get(): A
+  def None[A]: ValueWrapper[A] = new ValueWrapper[A] {
+    override type Reference = A
+
+    override def wrap(v: A): Reference = v
+
+    override def unwrap(v: Reference): A = v
   }
 
-  val None: ValueWrapper = new ValueWrapper {
-    override def wrap[A](v: A): Reference[A] = () => v
-  }
+  def SofterReference[A]: ValueWrapper[A] = new ValueWrapper[A] {
+    override type Reference = SofterReference[A]
 
-  val SofterReference: ValueWrapper = new ValueWrapper {
-    override def wrap[A](v: A): Reference[A] = {
-      val reference = new SofterReference[A](v)
-      () => reference.get()
-    }
+    override def wrap(v: A): Reference = new SofterReference[A](v)
+
+    override def unwrap(v: Reference): A = v.get()
   }
 }

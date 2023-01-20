@@ -34,17 +34,17 @@ package object caches {
     (v1, v2, v3, v4) => cache((v1, v2, v3, v4)) { f(v1, v2, v3, v4) }
   }
 
-  def cachedWithoutModificationCount[R](name: String, wrapper: ValueWrapper, cleanupScheduler: CleanupScheduler, f: () => R): () => R = {
+  def cachedWithoutModificationCount[R](name: String, wrapper: ValueWrapper[R], cleanupScheduler: CleanupScheduler, f: () => R): () => R = {
     val cache = new CacheWithoutModificationCount0[R](f.getClass.getName, name, wrapper, cleanupScheduler)
     () => cache { f() }
   }
 
-  def cachedWithoutModificationCount[T1, R](name: String, wrapper: ValueWrapper, cleanupScheduler: CleanupScheduler, f: T1 => R): T1 => R = {
+  def cachedWithoutModificationCount[T1, R](name: String, wrapper: ValueWrapper[R], cleanupScheduler: CleanupScheduler, f: T1 => R): T1 => R = {
     val cache = new CacheWithoutModificationCountN[Tuple1[T1], R](f.getClass.getName, name, wrapper, cleanupScheduler)
     v1 => cache(Tuple1(v1)) { f(v1) }
   }
 
-  def cachedWithoutModificationCount[T1, T2, R](name: String, wrapper: ValueWrapper, cleanupScheduler: CleanupScheduler, f: (T1, T2) => R): (T1, T2) => R = {
+  def cachedWithoutModificationCount[T1, T2, R](name: String, wrapper: ValueWrapper[R], cleanupScheduler: CleanupScheduler, f: (T1, T2) => R): (T1, T2) => R = {
     val cache = new CacheWithoutModificationCountN[(T1, T2), R](f.getClass.getName, name, wrapper, cleanupScheduler)
     (v1, v2) => cache((v1, v2)) { f(v1, v2) }
   }
