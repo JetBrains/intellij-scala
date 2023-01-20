@@ -5,7 +5,6 @@ import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.externalSystem.autolink.{ExternalSystemProjectLinkListener, ExternalSystemUnlinkedProjectAware}
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalSystemSettingsListener
-import com.intellij.openapi.externalSystem.util.ExternalSystemBundle
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.sbt.Sbt
@@ -38,9 +37,6 @@ class SbtUnlinkedProjectAware extends ExternalSystemUnlinkedProjectAware {
     val settings = SbtSettings.getInstance(project)
     settings.subscribe(new Delegate(listener), parentDisposable)
   }
-
-  override def getNotificationText: String =
-    ExternalSystemBundle.message("unlinked.project.notification.load.action", getSystemId.getReadableName)
 }
 
 object SbtUnlinkedProjectAware {

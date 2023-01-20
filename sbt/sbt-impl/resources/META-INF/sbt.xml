@@ -47,6 +47,7 @@
 
         <projectOpenProcessor implementation="org.jetbrains.sbt.project.SbtProjectOpenProcessor"/>
         <externalSystemUnlinkedProjectAware implementation="org.jetbrains.sbt.project.SbtUnlinkedProjectAware"/>
+        <externalTextProvider implementation="org.jetbrains.sbt.project.SbtTextProvider"/>
 
         <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.module.SbtModuleEditorProvider"/>
 
