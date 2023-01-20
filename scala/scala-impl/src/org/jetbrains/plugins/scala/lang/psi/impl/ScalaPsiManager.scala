@@ -15,7 +15,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaLowerCase
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaShortNamesCacheManager, cachedInUserData}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ValueWrapper, ScalaShortNamesCacheManager, cachedInUserData, cachedWithoutModificationCount}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
@@ -40,7 +40,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -77,35 +76,33 @@ class ScalaPsiManager(implicit val project: Project) {
     else getStableSignaturesCached(tp, compoundTypeThisType)
   }
 
-  @CachedWithoutModificationCount(valueWrapper = ValueWrapper.SofterReference, clearCacheOnChange)
-  private def getStableSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
+  private val getStableSignaturesCached = cachedWithoutModificationCount("ScalaPsiManager.getStableSignaturesCached", ValueWrapper.SofterReference, clearCacheOnChange, (tp: ScCompoundType, compoundTypeThisType: Option[ScType]) => {
     StableNodes.build(tp, compoundTypeThisType)
-  }
+  })
 
   def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
     if (dontCacheCompound) TypeNodes.build(tp, compoundTypeThisType)
     else getTypesCached(tp, compoundTypeThisType)
   }
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
-  private def getTypesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
+  private val getTypesCached = cachedWithoutModificationCount("ScalaPsiManager.getTypesCached", ValueWrapper.SofterReference, clearCacheOnChange, (tp: ScCompoundType, compoundTypeThisType: Option[ScType]) => {
     TypeNodes.build(tp, compoundTypeThisType)
-  }
+  })
 
   def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
     if (dontCacheCompound) return TermNodes.build(tp, compoundTypeThisType)
     getSignaturesCached(tp, compoundTypeThisType)
   }
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
-  private def getSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
+  private val getSignaturesCached = cachedWithoutModificationCount("ScalaPsiManager.getSignaturesCached", ValueWrapper.SofterReference, clearCacheOnChange, (tp: ScCompoundType, compoundTypeThisType: Option[ScType]) => {
     TermNodes.build(tp, compoundTypeThisType)
-  }
+  })
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
-  def simpleAliasProjectionCached(projection: ScProjectionType): ScType = {
+  def simpleAliasProjectionCached(projection: ScProjectionType): ScType = _simpleAliasProjectionCached(projection)
+
+  private val _simpleAliasProjectionCached = cachedWithoutModificationCount("ScalaPsiManager.simpleAliasProjectionCached", ValueWrapper.SofterReference, clearCacheOnChange, (projection: ScProjectionType) => {
     ScProjectionType.simpleAliasProjection(projection)
-  }
+  })
 
   def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
     if (DumbService.getInstance(project).isDumb) Seq.empty
@@ -122,24 +119,25 @@ class ScalaPsiManager(implicit val project: Project) {
 
   import ScalaIndexKeys._
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
-  private def getPackageImplicitObjectsCached(fqn: String, scope: GlobalSearchScope): Iterable[ScObject] =
+  private val getPackageImplicitObjectsCached = cachedWithoutModificationCount("ScalaPsiManager.getPackageImplicitObjectsCached", ValueWrapper.SofterReference, clearCacheOnTopLevelChange, (fqn: String, scope: GlobalSearchScope) => {
     IMPLICIT_OBJECT_KEY.elements(cleanFqn(fqn), scope)
+  })
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
-  private def getTopLevelImplicitClassesByPackageCached(fqn: String, scope: GlobalSearchScope): Iterable[ScClass] =
+  private val getTopLevelImplicitClassesByPackageCached = cachedWithoutModificationCount("ScalaPsiManager.getTopLevelImplicitClassesByPackageCached", ValueWrapper.SofterReference, clearCacheOnTopLevelChange, (fqn: String, scope: GlobalSearchScope) => {
     TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY.elements(cleanFqn(fqn), scope)
+  })
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
-  private def getTopLevelExtensionsByPackageCached(fqn: String, scope: GlobalSearchScope): Iterable[ScExtension] =
+  private val getTopLevelExtensionsByPackageCached = cachedWithoutModificationCount("ScalaPsiManager.getTopLevelExtensionsByPackageCached", ValueWrapper.SofterReference, clearCacheOnTopLevelChange, (fqn: String, scope: GlobalSearchScope) => {
     TOP_LEVEL_EXTENSION_BY_PKG_KEY.elements(cleanFqn(fqn), scope)
+  })
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
-  def getCachedPackage(inFqn: String): Option[PsiPackage] = {
+  def getCachedPackage(inFqn: String): Option[PsiPackage] = _getCachedPackage(inFqn)
+
+  private val _getCachedPackage = cachedWithoutModificationCount("ScalaPsiManager.getCachedPackage", ValueWrapper.SofterReference, clearCacheOnTopLevelChange, (inFqn: String) => {
     //to find java packages with scala keyword name as PsiPackage not ScSyntheticPackage
     val fqn = cleanFqn(inFqn)
     Option(JavaPsiFacade.getInstance(project).findPackage(fqn))
-  }
+  })
 
   private[this] def isPackageOutOfScope(`package`: PsiPackage)
                                        (implicit scope: GlobalSearchScope): Boolean =
@@ -155,14 +153,15 @@ class ScalaPsiManager(implicit val project: Project) {
     if (DumbService.getInstance(project).isDumb)
       None
     else
-      computeCachedPackageInScope(fqn)
+      computeCachedPackageInScope(fqn, scope)
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
-  private def computeCachedPackageInScope(fqn: String)(implicit scope: GlobalSearchScope): Option[PsiPackage] =
-    getCachedPackage(fqn).filter { `package` => isScalaPackageInScope(fqn) || !isPackageOutOfScope(`package`) }
+  private val computeCachedPackageInScope = cachedWithoutModificationCount("ScalaPsiManager.computeCachedPackageInScope", ValueWrapper.SofterReference, clearCacheOnTopLevelChange, (fqn: String, scope: GlobalSearchScope) => {
+    getCachedPackage(fqn).filter { `package` => isScalaPackageInScope(fqn)(scope) || !isPackageOutOfScope(`package`)(scope) }
+  })
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
-  def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
+  def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = _getCachedClass(scope, fqn)
+
+  private val _getCachedClass = cachedWithoutModificationCount("ScalaPsiManager.getCachedClass", ValueWrapper.SofterReference, clearCacheOnTopLevelChange, (scope: GlobalSearchScope, fqn: String) => {
     def getCachedFacadeClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
       inJavaPsiFacade.set(true)
       try {
@@ -176,16 +175,17 @@ class ScalaPsiManager(implicit val project: Project) {
 
     val res = ScalaShortNamesCacheManager.getInstance(project).getClassByFQName(fqn, scope)
     Option(res).orElse(getCachedFacadeClass(scope, fqn))
-  }
+  })
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
-  def getTopLevelDefinitionsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScMember] = {
+  def getTopLevelDefinitionsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScMember] = _getTopLevelDefinitionsByPackage(pkgFqn, scope)
+
+  private val _getTopLevelDefinitionsByPackage = cachedWithoutModificationCount("ScalaPsiManager.getTopLevelDefinitionsByPackage", ValueWrapper.SofterReference, clearCacheOnTopLevelChange, (pkgFqn: String, scope: GlobalSearchScope) => {
     val fqn = cleanFqn(pkgFqn)
     TOP_LEVEL_VAL_OR_VAR_BY_PKG_KEY.elements(fqn, scope) ++
       TOP_LEVEL_TYPE_ALIAS_BY_PKG_KEY.elements(fqn, scope) ++
       TOP_LEVEL_FUNCTION_BY_PKG_KEY.elements(fqn, scope) ++
       TOP_LEVEL_EXTENSION_BY_PKG_KEY.elements(fqn, scope)
-  }
+  })
 
   def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope)
@@ -215,15 +215,15 @@ class ScalaPsiManager(implicit val project: Project) {
       PsiClass.EMPTY_ARRAY
     else
       `package`.getQualifiedName match {
-        case ScalaLowerCase => getScalaPackageClassesCached
+        case ScalaLowerCase => getScalaPackageClassesCached(scope)
         case qualifiedName => getJavaClasses(`package`) ++ getScalaClasses(qualifiedName)
       }
 
-  @CachedWithoutModificationCount(ValueWrapper.None, clearCacheOnTopLevelChange)
-  private[this] def getScalaPackageClassesCached(implicit scope: GlobalSearchScope): Array[PsiClass] =
-    getScalaClassNamesCached(ScalaLowerCase).flatMap { className =>
+  private[this] val getScalaPackageClassesCached = cachedWithoutModificationCount("ScalaPsiManager.getScalaPackageClassesCached", ValueWrapper.None, clearCacheOnTopLevelChange, (scope: GlobalSearchScope) => {
+    getScalaClassNamesCached(ScalaLowerCase, scope).flatMap { className =>
       getCachedClasses(scope, ScalaLowerCase + "." + className)
     }.toArray
+  })
 
   private[this] def getJavaClasses(`package`: PsiPackage)
                                   (implicit scope: GlobalSearchScope) = {
@@ -250,13 +250,14 @@ class ScalaPsiManager(implicit val project: Project) {
     else
       scalaQualifiedName + "." + (_: String)
 
-    getScalaClassNamesCached(scalaQualifiedName)
+    getScalaClassNamesCached(scalaQualifiedName, scope)
       .map(toFqn)
       .flatMap(getCachedClasses(scope, _))
   }
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
-  def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
+  def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = _getCachedClasses(scope, fqn)
+
+  private val _getCachedClasses = cachedWithoutModificationCount("ScalaPsiManager.getCachedClasses", ValueWrapper.SofterReference, clearCacheOnTopLevelChange, (scope: GlobalSearchScope, fqn: String) => {
     def getCachedFacadeClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
       inJavaPsiFacade.set(true)
       try {
@@ -273,38 +274,41 @@ class ScalaPsiManager(implicit val project: Project) {
       }
     }
 
-    if (DumbService.getInstance(project).isDumb) return Array.empty
+    if (DumbService.getInstance(project).isDumb) Array.empty[PsiClass] else { // TODO Don't cache
+      val classes = getCachedFacadeClasses(scope, cleanFqn(fqn))
+      val fromScala = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
+      val scalaSynthetic = SyntheticClasses.get(scope.getProject).findClasses(fqn)
+      val synthetic = SyntheticClassProducer.getAllClasses(fqn, scope)
 
-    val classes        = getCachedFacadeClasses(scope, cleanFqn(fqn))
-    val fromScala      = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
-    val scalaSynthetic = SyntheticClasses.get(scope.getProject).findClasses(fqn)
-    val synthetic      = SyntheticClassProducer.getAllClasses(fqn, scope)
-
-    val result = Array.concat(fromScala.toArray, classes, synthetic, scalaSynthetic)
-    scope match {
-      case _: GlobalSearchScopeWithRecommendedResultsSorting =>
-        util.Arrays.sort(result, PsiClassUtil.createScopeComparator(scope))
-        result
-      case _ =>
-        result
+      val result = Array.concat(fromScala.toArray, classes, synthetic, scalaSynthetic)
+      scope match {
+        case _: GlobalSearchScopeWithRecommendedResultsSorting =>
+          util.Arrays.sort(result, PsiClassUtil.createScopeComparator(scope))
+          result
+        case _ =>
+          result
+      }
     }
-  }
+  })
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
-  def cachedFunction1Type(elementScope: ElementScope): Option[ScParameterizedType] =
+  def cachedFunction1Type(elementScope: ElementScope): Option[ScParameterizedType] = _cachedFunction1Type(elementScope)
+
+  private val _cachedFunction1Type = cachedWithoutModificationCount("ScalaPsiManager.cachedFunction1Type", ValueWrapper.SofterReference, clearCacheOnTopLevelChange, (elementScope: ElementScope) => {
     elementScope.function1Type()
+  })
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
-  def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] =
+  def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] = _scalaSeqAlias(scope)
+
+  private val _scalaSeqAlias = cachedWithoutModificationCount("ScalaPsiManager.scalaSeqAlias", ValueWrapper.SofterReference, clearCacheOnTopLevelChange, (scope: GlobalSearchScope) => {
     getStableAliasesByFqn("scala.Seq", scope).headOption
+  })
 
   def getJavaPackageClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
     if (DumbService.getInstance(project).isDumb) return Set.empty
     getJavaPackageClassNamesCached(psiPackage, scope)
   }
 
-  @CachedWithoutModificationCount(ValueWrapper.None, clearCacheOnTopLevelChange)
-  private def getJavaPackageClassNamesCached(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
+  private val getJavaPackageClassNamesCached = cachedWithoutModificationCount("ScalaPsiManager.getJavaPackageClassNamesCached", ValueWrapper.None, clearCacheOnTopLevelChange, (psiPackage: PsiPackage, scope: GlobalSearchScope) => {
     val key = cleanFqn(psiPackage.getQualifiedName)
     val classes = JAVA_CLASS_NAME_IN_PACKAGE_KEY.elements(key, scope).toSet
 
@@ -314,19 +318,18 @@ class ScalaPsiManager(implicit val project: Project) {
     }
 
     classes.map(_.getName) ++ additionalClasses
-  }
+  })
 
   def getScalaPackageClassNames(implicit scope: GlobalSearchScope): Set[String] =
     if (DumbService.getInstance(project).isDumb) Set.empty
-    else getScalaClassNamesCached(ScalaLowerCase)
+    else getScalaClassNamesCached(ScalaLowerCase, scope)
 
-  @CachedWithoutModificationCount(ValueWrapper.None, clearCacheOnTopLevelChange)
-  private[this] def getScalaClassNamesCached(scalaQualifiedName: String)
-                                            (implicit scope: GlobalSearchScope): Set[String] =
+  private[this] val getScalaClassNamesCached = cachedWithoutModificationCount("ScalaPsiManager.getScalaClassNamesCached", ValueWrapper.None, clearCacheOnTopLevelChange, (scalaQualifiedName: String, scope: GlobalSearchScope) => {
     CLASS_NAME_IN_PACKAGE_KEY.elements(
       scalaQualifiedName,
       scope
     ).map(_.name).toSet
+  })
 
   private def clearCaches(): Unit = {
     new ProjectContext(project).typeSystem.clearCache()
@@ -379,8 +382,9 @@ class ScalaPsiManager(implicit val project: Project) {
     }
   }
 
-  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
-  def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = {
+  def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = _javaPsiTypeParameterUpperType(typeParameter)
+
+  private val _javaPsiTypeParameterUpperType = cachedWithoutModificationCount("ScalaPsiManager.javaPsiTypeParameterUpperType", ValueWrapper.SofterReference, clearCacheOnChange, (typeParameter: PsiTypeParameter) => {
     val types = ArraySeq.unsafeWrapArray(typeParameter.getExtendsListTypes ++ typeParameter.getImplementsListTypes)
     types match {
       case Seq() => Any
@@ -389,7 +393,7 @@ class ScalaPsiManager(implicit val project: Project) {
         Any
       case _ => andType(types)
     }
-  }
+  })
 
   private def andType(psiTypes: Seq[PsiType]): ScType = {
     new ProjectContext(project).typeSystem.andType(psiTypes.map(_.toScType()))

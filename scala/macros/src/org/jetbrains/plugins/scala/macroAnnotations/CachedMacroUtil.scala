@@ -15,16 +15,6 @@ object CachedMacroUtil {
     }
   }
 
-  def cachesUtilFQN(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
-  }
-
-  def cleanupSchedulerTypeFqn(implicit c: whitebox.Context): c.universe.Tree = {
-    import c.universe.Quasiquote
-    tq"_root_.org.jetbrains.plugins.scala.caches.CleanupScheduler"
-  }
-
   private def internalTracer(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     q"_root_.org.jetbrains.plugins.scala.caches.stats.Tracer"
@@ -48,8 +38,6 @@ object CachedMacroUtil {
       q"$internalTracer($tracingKeyId, $tracingKeyName)"
     }
     else q"$internalTracer($cacheKey, $cacheName)"
-
-
   }
 
   private def expressionsWithValuesText(c: whitebox.Context)(trees: Seq[c.universe.Tree]): c.universe.Tree = {
@@ -70,10 +58,6 @@ object CachedMacroUtil {
   //to prevent it's accidental usage in production, compilation will fail on teamcity
   private def expressionTracersEnabled(c: whitebox.Context): Boolean = {
     System.getProperty("ij.scala.compile.server") == "true" || c.settings.contains("enable-expression-tracers")
-  }
-
-  def generateTermName(prefix: String = "", postfix: String = "")(implicit c: whitebox.Context): c.universe.TermName = {
-    c.universe.TermName(prefix + "$" + postfix)
   }
 
   def stringLiteral(name: AnyRef)(implicit c: whitebox.Context): c.universe.Tree = {
@@ -109,9 +93,4 @@ object CachedMacroUtil {
       case _ => tp
     }
   }
-}
-
-object ModCount extends Enumeration {
-  type ModCount = Value
-  //only changes that may affect return type of a current block
 }
