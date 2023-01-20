@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScRefinement, ScSelfTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.project.ModuleExt
@@ -121,11 +121,14 @@ private[declarationRedundancy] object Search {
         case _ => false
       }
 
+      val isScalaClass = element.is[ScClass]
+
       val conditions = new Conditions(
         isOnTheFly,
         isOnlyVisibleInLocalFile(element),
         isImplicit(element),
-        isMemberOfUnusedTypeDefinition
+        isMemberOfUnusedTypeDefinition,
+        isScalaClass
       )
 
       def isSelfReferentialTypeDefRef(usage: ElementUsage): Boolean = (usage, element.asOptionOf[ScTypeDefinition]) match {
@@ -273,7 +276,8 @@ private[declarationRedundancy] object Search {
       val isOnTheFly: Boolean,
       val isOnlyVisibleInLocalFile: Boolean,
       val isImplicit: Boolean,
-      val isMemberOfUnusedTypeDefinition: Boolean
+      val isMemberOfUnusedTypeDefinition: Boolean,
+      val isScalaClass: Boolean
     )
 
     /**

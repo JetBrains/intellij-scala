@@ -157,6 +157,8 @@ object ScalaUnusedDeclarationInspection {
       searcher.GlobalSearchMethods
     } else Seq.empty
 
-    new Pipeline(localSearch ++ globalSearch, canExit)
+    val extensionPointImplementationSearch = searcher.IJExtensionPointImplementationSearch
+
+    new Pipeline(localSearch ++ globalSearch :+ extensionPointImplementationSearch, canExit)
   }
 }
