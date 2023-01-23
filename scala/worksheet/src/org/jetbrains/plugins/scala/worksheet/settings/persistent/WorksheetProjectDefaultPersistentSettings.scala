@@ -53,6 +53,6 @@ object WorksheetProjectDefaultPersistentSettings {
     @BooleanBeanProperty var interactive: Boolean = false
     @BooleanBeanProperty var makeBeforeRun: Boolean = false
     @BeanProperty var moduleName: String = null
-    @BeanProperty var compilerProfileName: String = ScalaCompilerConfiguration.DefaultProfileName
+    @BeanProperty var compilerProfileName: String = null
   }
 }
