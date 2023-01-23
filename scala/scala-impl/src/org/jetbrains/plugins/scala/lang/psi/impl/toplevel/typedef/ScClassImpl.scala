@@ -143,18 +143,19 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
     s"${accessModifier}implicit def $name$typeParametersText$parametersText : $returnType = throw new Error()"
   }
 
-  override def getSyntheticImplicitMethod: Option[ScFunction] = {
-    if (!hasModifierProperty("implicit") || constructor.isEmpty) None else cachedInUserData("ScClassImpl.getSyntheticImplicitMethod", this, ModTracker.libraryAware(this)) {
-      try {
-        val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
-        method.syntheticNavigationElement = this
-        Some(method)
-      } catch {
-        case p: ProcessCanceledException         => throw p
-        case _: ScalaPsiElementCreationException => None
+  override def getSyntheticImplicitMethod: Option[ScFunction] =
+    if (!hasModifierProperty("implicit") || constructor.isEmpty) None
+    else
+      cachedInUserData("ScClassImpl.getSyntheticImplicitMethod", this, ModTracker.libraryAware(this)) {
+        try {
+          val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
+          method.syntheticNavigationElement = this
+          Some(method)
+        } catch {
+          case p: ProcessCanceledException         => throw p
+          case _: ScalaPsiElementCreationException => None
+        }
       }
-    }
-  }
 
   override def psiFields: Array[PsiField] = {
     val fields = constructor match {

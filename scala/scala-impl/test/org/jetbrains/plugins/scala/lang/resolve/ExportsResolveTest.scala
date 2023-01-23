@@ -192,4 +192,36 @@ class ExportsResolveTest extends SimpleResolveTestBase {
         |
         |""".stripMargin
     )
+
+  def testSCL20917(): Unit =
+    checkTextHasNoErrors(
+      """
+        |class Context:
+        |  def contextMethod: String = ???
+        |
+        |class Script1(val ctxParam1: Context):
+        |  export ctxParam1.* //ERROR: not resolved
+        |
+        |class Script2(ctxParam2: Context):
+        |  export ctxParam2.*
+        |
+        |class Script3(ctxParam3: Context):
+        |  export ctxParam3.* //ERROR: not resolved
+        |
+        |  def scriptMethod: String = ???
+        |
+        |class Script4:
+        |  val ctxField: Context = ???
+        |  export ctxField.*
+        |
+        |  def scriptMethod: String = ???
+        |
+        |object Usage {
+        |  (null: Script1).contextMethod //ERROR: not resolved
+        |  (null: Script2).contextMethod //OK
+        |  (null: Script3).contextMethod //ERROR: not resolved
+        |  (null: Script4).contextMethod //OK
+        |}
+        |""".stripMargin
+    )
 }

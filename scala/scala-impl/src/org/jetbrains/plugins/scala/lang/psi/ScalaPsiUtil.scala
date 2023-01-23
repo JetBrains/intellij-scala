@@ -1524,14 +1524,13 @@ object ScalaPsiUtil {
 
   def isImplicit(namedElement: PsiNamedElement): Boolean =
     namedElement match {
-      case _: ScGiven => true
-      case _: ScGivenPattern => true
+      case _: ScGiven         => true
+      case _: ScGivenPattern  => true
       case Implicit0Binding() => true
-
       /** See [[BetterMonadicForSupport]] */
-      case owner: ScModifierListOwner => hasImplicitModifier(owner)
+      case owner: ScModifierListOwner                => hasImplicitModifier(owner)
       case inNameContext(owner: ScModifierListOwner) => hasImplicitModifier(owner)
-      case _ => false
+      case _                                         => false
     }
 
   def hasImplicitModifier(modifierListOwner: ScModifierListOwner): Boolean = modifierListOwner match {
