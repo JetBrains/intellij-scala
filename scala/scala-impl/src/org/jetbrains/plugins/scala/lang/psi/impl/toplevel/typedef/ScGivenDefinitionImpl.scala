@@ -60,43 +60,44 @@ class ScGivenDefinitionImpl(
   override def parameters: Seq[ScParameter] =
     clauses.fold(Seq.empty[ScParameter])(_.params)
 
-  override def desugaredDefinitions: Seq[ScMember] = cachedInUserData("ScGivenDefinitionImpl.desugaredDefinitions", this, ModTracker.libraryAware(this)) {
-    try {
-      val supersText = extendsBlock.templateParents.fold("")(_.supersText)
+  override def desugaredDefinitions: Seq[ScMember] =
+    cachedInUserData("ScGivenDefinitionImpl.desugaredDefinitions", this, ModTracker.libraryAware(this)) {
+      try {
+        val supersText = extendsBlock.templateParents.fold("")(_.supersText)
 
-      if (isObject) {
-        val text = s"implicit object $name extends $supersText"
-        val obj  = ScalaPsiElementFactory.createTypeDefinitionWithContext(text, this.getContext, this)
-        obj.originalGivenElement       = this
-        obj.syntheticNavigationElement = this
-        Seq(obj)
-      } else {
-        val typeParametersDeclText = typeParametersClause.fold("")(_.getTextByStub)
+        if (isObject) {
+          val text = s"implicit object $name extends $supersText"
+          val obj  = ScalaPsiElementFactory.createTypeDefinitionWithContext(text, this.getContext, this)
+          obj.originalGivenElement       = this
+          obj.syntheticNavigationElement = this
+          Seq(obj)
+        } else {
+          val typeParametersDeclText = typeParametersClause.fold("")(_.getTextByStub)
 
-        val typeParametersText =
-          if (typeParameters.isEmpty) ""
-          else                        typeParameters.map(_.name).commaSeparated(Model.SquareBrackets)
+          val typeParametersText =
+            if (typeParameters.isEmpty) ""
+            else                        typeParameters.map(_.name).commaSeparated(Model.SquareBrackets)
 
-        val parametersText = clauses.fold("")(_.getText)
+          val parametersText = clauses.fold("")(_.getText)
 
-        val clsText            = s"class $name$typeParametersDeclText$parametersText extends $supersText"
-        val implicitMethodText = s"implicit def $name$typeParametersDeclText$parametersText: $name$typeParametersText = ???"
+          val clsText            = s"class $name$typeParametersDeclText$parametersText extends $supersText"
+          val implicitMethodText = s"implicit def $name$typeParametersDeclText$parametersText: $name$typeParametersText = ???"
 
-        val cls = ScalaPsiElementFactory.createTypeDefinitionWithContext(clsText, this.getContext, this)
-        cls.originalGivenElement       = this
-        cls.syntheticNavigationElement = this
+          val cls = ScalaPsiElementFactory.createTypeDefinitionWithContext(clsText, this.getContext, this)
+          cls.originalGivenElement       = this
+          cls.syntheticNavigationElement = this
 
-        val implicitMethod = ScalaPsiElementFactory.createDefinitionWithContext(implicitMethodText, this.getContext, this)
-        implicitMethod.originalGivenElement       = this
-        implicitMethod.syntheticNavigationElement = this
+          val implicitMethod = ScalaPsiElementFactory.createDefinitionWithContext(implicitMethodText, this.getContext, this)
+          implicitMethod.originalGivenElement       = this
+          implicitMethod.syntheticNavigationElement = this
 
-        Seq(cls, implicitMethod)
+          Seq(cls, implicitMethod)
+        }
+      } catch {
+        case p: ProcessCanceledException         => throw p
+        case _: ScalaPsiElementCreationException => Seq.empty
       }
-    } catch {
-      case p: ProcessCanceledException         => throw p
-      case _: ScalaPsiElementCreationException => Seq.empty
     }
-  }
 
   override def processDeclarations(
     processor:  PsiScopeProcessor,

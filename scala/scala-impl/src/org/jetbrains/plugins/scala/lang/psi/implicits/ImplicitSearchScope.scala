@@ -19,16 +19,27 @@ import org.jetbrains.plugins.scala.project._
 
 case class ImplicitSearchScope(representative: PsiElement) {
 
-  def cachedVisibleImplicits: Set[ScalaResolveResult] = cachedWithRecursionGuard("ImplicitSearchScope.cachedVisibleImplicits", representative, Set.empty[ScalaResolveResult], BlockModificationTracker(representative)) {
-    new ImplicitParametersProcessor(representative, withoutPrecedence = false)
-      .candidatesByPlace
-  }
+  def cachedVisibleImplicits: Set[ScalaResolveResult] =
+    cachedWithRecursionGuard(
+      "ImplicitSearchScope.cachedVisibleImplicits",
+      representative,
+      Set.empty[ScalaResolveResult],
+      BlockModificationTracker(representative)
+    ) {
+      new ImplicitParametersProcessor(representative, withoutPrecedence = false).candidatesByPlace
+    }
 
-
-  def cachedImplicitsByType(scType: ScType): Set[ScalaResolveResult] = cachedWithRecursionGuard("ImplicitSearchScope.cachedImplicitsByType", representative, Set.empty[ScalaResolveResult], BlockModificationTracker(representative), Tuple1(scType)) {
-    new ImplicitParametersProcessor(representative, withoutPrecedence = true)
-    .candidatesByType(scType)
-  }
+  def cachedImplicitsByType(scType: ScType): Set[ScalaResolveResult] =
+    cachedWithRecursionGuard(
+      "ImplicitSearchScope.cachedImplicitsByType",
+      representative,
+      Set.empty[ScalaResolveResult],
+      BlockModificationTracker(representative),
+      Tuple1(scType)
+    ) {
+      new ImplicitParametersProcessor(representative, withoutPrecedence = true)
+        .candidatesByType(scType)
+    }
 }
 
 object ImplicitSearchScope {
