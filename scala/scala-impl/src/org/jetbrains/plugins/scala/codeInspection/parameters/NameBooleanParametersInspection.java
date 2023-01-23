@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.codeInspection.parameters;
 
-import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.codeInspection.options.OptPane;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle;
 
-import javax.swing.*;
+import static com.intellij.codeInspection.options.OptPane.checkbox;
+import static com.intellij.codeInspection.options.OptPane.pane;
 
 //for consistency with java reflection-based system of persistent storage of settings
 public class NameBooleanParametersInspection extends NameBooleanParametersInspectionBase {
@@ -21,9 +22,8 @@ public class NameBooleanParametersInspection extends NameBooleanParametersInspec
     this.ignoreSingleParameter = ignoreSingleParameter;
   }
 
-  @Nullable
   @Override
-  public JComponent createOptionsPanel() {
-    return new SingleCheckboxOptionsPanel(ScalaInspectionBundle.message("name.boolean.ignore.single.parameter.methods"), this, "ignoreSingleParameter");
+  public @NotNull OptPane getOptionsPane() {
+    return pane(checkbox("ignoreSingleParameter", ScalaInspectionBundle.message("name.boolean.ignore.single.parameter.methods")));
   }
 }

@@ -1,21 +1,20 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import com.intellij.codeInspection.options.{OptPane, OptionController}
+import com.intellij.codeInspection.ui.StringValidatorWithSwingSelector
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
-import com.intellij.openapi.ui.{InputValidator, Messages}
-import com.intellij.openapi.wm.IdeFocusManager
-import com.intellij.ui._
-import com.intellij.ui.components.JBList
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
+import one.util.streamex.StreamEx
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsUtil}
 
-import java.awt.{Component, GridLayout}
-import java.util
-import javax.swing._
-import javax.swing.event.ChangeEvent
-import scala.annotation.nowarn
+import java.util.function.{Consumer, Supplier}
+import java.{util => ju}
 import scala.collection.immutable.ArraySeq
 
 object OperationOnCollectionInspectionBase {
@@ -27,6 +26,8 @@ object OperationOnCollectionInspectionBase {
 
   private val likeOptionKey = "operation.on.collection.like.option"
   private val likeCollectionKey = "operation.on.collection.like.collection"
+
+  private val simplificationTypesPrefix = "operation.on.collection.simplification.type"
 
   private val inputMessages = Map(
     likeCollectionKey -> ScalaInspectionBundle.message("operation.on.collection.like.collection.input.message"),
@@ -47,6 +48,24 @@ object OperationOnCollectionInspectionBase {
     def unapply(expr: ScExpression): Option[ScExpression] =
       if (expr.is[ScBlock, ScParenthesisedExpr]) None
       else Some(expr)
+  }
+
+  private class PatternStringValidator(@Nls inputTitle: String, @Nls inputMessage: String) extends StringValidatorWithSwingSelector {
+    override def validatorId(): String = "scala.pattern.validator"
+
+    override def select(project: Project): String =
+      Messages.showInputDialog(
+        project,
+        inputMessage,
+        inputTitle,
+        Messages.getWarningIcon,
+        "",
+        ScalaProjectSettingsUtil.getPatternValidator
+      )
+
+    // TODO: Basically, the same as ScalaProjectSettingsUtil.getPatternValidator#checkInput
+    //       but return nullable error message instead of Boolean
+    override def getErrorMessage(project: Project, string: String): String = null
   }
 }
 
@@ -94,84 +113,51 @@ abstract class OperationOnCollectionInspectionBase extends LocalInspectionTool {
     )
   }
 
-  override def createOptionsPanel: JComponent = {
-    def checkBoxesPanel(): JComponent = {
-      val innerPanel = new JPanel()
-      innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS))
-      for (i <- possibleSimplificationTypes.indices) {
-        val enabled = getSimplificationTypesEnabled
-        val checkBox = new JCheckBox(possibleSimplificationTypes(i).description, enabled(i))
-        checkBox.getModel.addChangeListener((_: ChangeEvent) => {
-          setSimplificationTypesEnabled(getSimplificationTypesEnabled.updated(i, checkBox.isSelected))
-        })
-        innerPanel.add(checkBox)
+  override def getOptionsPane: OptPane = {
+    def patternList(patternListKey: String) = OptPane.stringList(
+      patternListKey,
+      panelTitles(patternListKey),
+      new PatternStringValidator(
+        inputTitles(patternListKey),
+        inputMessages(patternListKey)
+      )
+    )
+
+    val patternsPanel = OptPane.horizontalStack(patternList(likeCollectionKey), patternList(likeOptionKey))
+
+    if (possibleSimplificationTypes.sizeIs > 1) {
+      val checkboxes = possibleSimplificationTypes.zipWithIndex.map { case (t, idx) =>
+        OptPane.checkbox(
+          idx.toString,
+          t.description
+        ).prefix(simplificationTypesPrefix)
       }
-      val extPanel = new JPanel()
-      extPanel.setLayout(new BoxLayout(extPanel, BoxLayout.X_AXIS))
-      extPanel.add(innerPanel)
-      extPanel.add(Box.createHorizontalGlue())
-      extPanel
-    }
 
-    def createPatternListPanel(parent: JComponent, patternListKey: String): JComponent = {
-      val patternList = patternLists(patternListKey)()
-      val listModel = new DefaultListModel[String]()
-      patternList.foreach(listModel.add(listModel.size, _))
-      val patternJBList = new JBList[String](listModel)
-      def resetValues(): Unit = {
-        val newArray = listModel.toArray collect {case s: String => s}
-        setPatternLists(patternListKey)(ArraySeq.unsafeWrapArray(newArray))
-      }
-      @nowarn("cat=deprecation")
-      val panel = ToolbarDecorator.createDecorator(patternJBList).setAddAction(new AnActionButtonRunnable {
-        def addPattern(pattern: String): Unit = {
-          if (pattern == null) return
-          val index: Int = - util.Arrays.binarySearch (listModel.toArray, pattern) - 1
-          if (index < 0) return
-          listModel.add(index, pattern)
-          resetValues()
-          patternJBList.setSelectedValue (pattern, true)
-          ScrollingUtil.ensureIndexIsVisible(patternJBList, index, 0)
-          IdeFocusManager.getGlobalInstance.requestFocus(patternJBList, false)
-        }
+      OptPane.pane(OptPane.checkboxPanel(checkboxes: _*), patternsPanel)
+    } else OptPane.pane(patternsPanel)
+  }
 
-        override def run(button: AnActionButton): Unit = {
-          val validator: InputValidator = ScalaProjectSettingsUtil.getPatternValidator
-          val inputMessage = inputMessages(patternListKey)
-          val inputTitle = inputTitles(patternListKey)
-          val newPattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
-          addPattern(newPattern)
-        }
-      }).setRemoveAction((_: AnActionButton) => {
-        patternJBList.getSelectedIndices.foreach(listModel.removeElementAt)
-        resetValues()
-      }).disableUpDownActions.createPanel
+  // TODO: this way changes to likeCollection/likeOption lists are not detected by Swing
+  //       and 'Apply'/'Reset' buttons are not activated (worked like that before refactoring)
+  //       probably caused by PersistentStateComponent usage
+  override def getOptionController: OptionController =
+    super.getOptionController
+      .onValue(likeCollectionKey, getMutablePatternList(likeCollectionKey), consumeNewPatternList(likeCollectionKey))
+      .onValue(likeOptionKey, getMutablePatternList(likeOptionKey), consumeNewPatternList(likeOptionKey))
+      .onPrefix(
+        simplificationTypesPrefix,
+        (idx: String) => getSimplificationTypesEnabled(idx.toInt),
+        (idx: String, enabled: Any) =>
+          setSimplificationTypesEnabled(
+            getSimplificationTypesEnabled.updated(idx.toInt, enabled.asInstanceOf[Boolean])
+          )
+      )
 
-      val title = panelTitles(patternListKey)
-      val border = BorderFactory.createTitledBorder(title)
-      panel.setBorder(border)
-      panel
-    }
+  private def getMutablePatternList(patternListKey: String): Supplier[ju.List[String]] =
+    () => StreamEx.of(patternLists(patternListKey)(): _*).toMutableList
 
-    def patternsPanel(): JComponent = {
-
-      val panel = new JPanel(new GridLayout(1,2))
-      val likeCollectionPanel = createPatternListPanel(panel, likeCollectionKey)
-      val likeOptionPanel = createPatternListPanel(panel, likeOptionKey)
-      panel.add(likeCollectionPanel)
-      panel.add(likeOptionPanel)
-      panel
-    }
-
-    val panel = new JPanel()
-    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS))
-    if (possibleSimplificationTypes.length > 1) {
-      val chbPanel = checkBoxesPanel()
-      chbPanel.setAlignmentX(Component.LEFT_ALIGNMENT)
-      panel.add(checkBoxesPanel())
-    }
-    panel.add(Box.createVerticalGlue())
-    panel.add(patternsPanel())
-    panel
+  private def consumeNewPatternList(patternListKey: String): Consumer[ju.List[String]] = { newList =>
+    val newArray = newList.toArray.collect { case s: String => s }
+    setPatternLists(patternListKey)(ArraySeq.unsafeWrapArray(newArray))
   }
 }

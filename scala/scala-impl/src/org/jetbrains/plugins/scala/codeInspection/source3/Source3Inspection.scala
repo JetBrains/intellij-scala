@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.source3
 
-import com.intellij.codeInspection.ui.MultipleCheckboxOptionsPanel
+import com.intellij.codeInspection.options.OptPane
+import com.intellij.codeInspection.options.OptPane.{checkbox, pane}
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -19,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
-import javax.swing.JComponent
 import scala.beans.BeanProperty
 
 class Source3Inspection extends LocalInspectionTool {
@@ -114,17 +114,15 @@ class Source3Inspection extends LocalInspectionTool {
     }
   }
 
-  override def createOptionsPanel(): JComponent = {
-    val panel = new MultipleCheckboxOptionsPanel(this)
-    panel.addCheckbox(ScalaInspectionBundle.message("suggest.converting.wildcards"), "convertWildcardUnderscore")
-    panel.addCheckbox(ScalaInspectionBundle.message("suggest.adding.case.in.for.comprehensions"), "addGeneratorCase")
-    panel.addCheckbox(ScalaInspectionBundle.message("suggest.using.star.instead.of.underscore"), "convertWildcardImport")
-    panel.addCheckbox(ScalaInspectionBundle.message("suggest.using.as.instead.of.arrow"), "convertImportAlias")
-    panel.addCheckbox(ScalaInspectionBundle.message("suggest.converting.vararg.splices"), "convertVarArgSplices")
-    panel.addCheckbox(ScalaInspectionBundle.message("suggest.converting.named.wildcard.patterns"), "convertNamedWildcardPattern")
-    panel.addCheckbox(ScalaInspectionBundle.message("suggest.using.and.instead.of.with"), "convertCompoundTypes")
-    panel
-  }
+  override def getOptionsPane: OptPane = pane(
+    checkbox("convertWildcardUnderscore", ScalaInspectionBundle.message("suggest.converting.wildcards")),
+    checkbox("addGeneratorCase", ScalaInspectionBundle.message("suggest.adding.case.in.for.comprehensions")),
+    checkbox("convertWildcardImport", ScalaInspectionBundle.message("suggest.using.star.instead.of.underscore")),
+    checkbox("convertImportAlias", ScalaInspectionBundle.message("suggest.using.as.instead.of.arrow")),
+    checkbox("convertVarArgSplices", ScalaInspectionBundle.message("suggest.converting.vararg.splices")),
+    checkbox("convertNamedWildcardPattern", ScalaInspectionBundle.message("suggest.converting.named.wildcard.patterns")),
+    checkbox("convertCompoundTypes", ScalaInspectionBundle.message("suggest.using.and.instead.of.with")),
+  )
 }
 
 object Source3Inspection {

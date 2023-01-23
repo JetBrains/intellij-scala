@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.shadow
 
 import com.intellij.codeInsight.intention.{HighPriorityAction, LowPriorityAction}
-import com.intellij.codeInspection.ex.DisableInspectionToolAction
-import com.intellij.codeInspection.ui.InspectionOptionsPanel
 import com.intellij.codeInspection._
+import com.intellij.codeInspection.ex.DisableInspectionToolAction
+import com.intellij.codeInspection.options.OptPane
+import com.intellij.codeInspection.options.OptPane.{checkbox, pane}
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
@@ -19,11 +20,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
 
-import javax.swing.JComponent
 import scala.beans.BooleanBeanProperty
 import scala.collection.mutable
 
 final class PrivateShadowInspection extends LocalInspectionTool {
+
   import PrivateShadowInspection._
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = new PsiElementVisitor {
@@ -39,7 +40,7 @@ final class PrivateShadowInspection extends LocalInspectionTool {
   private def createProblemDescriptor(elem: ScNamedElement, @Nls description: String)
                                      (implicit manager: InspectionManager, isOnTheFly: Boolean): ProblemDescriptor = {
     val showAsError =
-        fatalWarningsCompilerOption &&
+      fatalWarningsCompilerOption &&
         (isCompilerOptionPresent(elem, "-Xfatal-warnings") || isCompilerOptionPresent(elem, "-Werror"))
 
     val fixes = mutable.ArrayBuilder.make[LocalQuickFix]
@@ -65,7 +66,7 @@ final class PrivateShadowInspection extends LocalInspectionTool {
       case _                                                                                      => false
     }
 
-  private def isElementShadowing(elem: ScNamedElement) : Boolean =
+  private def isElementShadowing(elem: ScNamedElement): Boolean =
     // Fields suspected of being shadowed are all fields belonging to the containing class or trait with the same name
     // as the element under inspection, but not itself.
     Option(PsiTreeUtil.getParentOfType(elem, classOf[ScTypeDefinition])).exists { typeDefinition =>
@@ -85,7 +86,7 @@ final class PrivateShadowInspection extends LocalInspectionTool {
             }
           case _ => false
         }
-  }
+    }
 
   @BooleanBeanProperty
   private[shadow] var privateShadowCompilerOption: Boolean = true
@@ -93,20 +94,13 @@ final class PrivateShadowInspection extends LocalInspectionTool {
   @BooleanBeanProperty
   private[shadow] var fatalWarningsCompilerOption: Boolean = true
 
-  @Override
-  override def createOptionsPanel(): JComponent = {
-    val panel = new InspectionOptionsPanel(this)
-    val compilerOptionCheckbox = panel.addCheckboxEx(
+  override def getOptionsPane: OptPane = pane(
+    checkbox(
+      privateShadowPropertyName,
       ScalaInspectionBundle.message("private.shadow.compiler.option.label"),
-      privateShadowPropertyName
+      checkbox(fatalWarningsPropertyName, ScalaInspectionBundle.message("private.shadow.fatal.warnings.label"))
     )
-    panel.addDependentCheckBox(
-      ScalaInspectionBundle.message("private.shadow.fatal.warnings.label"),
-      fatalWarningsPropertyName,
-      compilerOptionCheckbox
-    )
-    panel
-  }
+  )
 }
 
 private[shadow] object PrivateShadowInspection {

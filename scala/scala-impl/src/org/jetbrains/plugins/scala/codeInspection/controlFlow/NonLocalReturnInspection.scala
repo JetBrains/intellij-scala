@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.controlFlow
 
+import com.intellij.codeInspection.options.OptPane
+import com.intellij.codeInspection.options.OptPane.{checkbox, pane}
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder, SetInspectionOptionFix}
-import com.intellij.codeInspection.ui.InspectionOptionsPanel
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -9,24 +10,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
-import javax.swing.JComponent
 import scala.annotation.tailrec
 import scala.beans.BooleanBeanProperty
 
 final class NonLocalReturnInspection extends LocalInspectionTool {
+
   import NonLocalReturnInspection._
   import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
 
   @BooleanBeanProperty
   var checkCompilerOption: Boolean = true
 
-  @Override
-  override def createOptionsPanel(): JComponent =
-    InspectionOptionsPanel.singleCheckBox(
-      this,
-      ScalaInspectionBundle.message("nonlocal.return.check.compiler.option"),
-      propertyName
-    )
+  override def getOptionsPane: OptPane = pane(checkbox(propertyName, checkboxLabel))
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case scReturn: ScReturn if isNonLocal(scReturn) &&
@@ -47,6 +42,9 @@ object NonLocalReturnInspection {
 
   @NonNls
   private val propertyName: String = "checkCompilerOption"
+
+  @Nls
+  private val checkboxLabel: String = ScalaInspectionBundle.message("nonlocal.return.check.compiler.option")
 
   private def isSynchronized(methodCall: ScMethodCall): Boolean = {
     val ref = methodCall.findFirstChildByTypeScala[ScReferenceExpression](ScalaElementType.REFERENCE_EXPRESSION)

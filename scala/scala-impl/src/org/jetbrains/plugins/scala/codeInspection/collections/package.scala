@@ -25,6 +25,7 @@ import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 
 package object collections {
+  // TODO: once initialized, it doesn't change because it is used in `val`s below
   def likeCollectionClasses: ArraySeq[String] = ArraySeq.unsafeWrapArray(ScalaApplicationSettings.getInstance().getLikeCollectionClasses)
   def likeOptionClasses: ArraySeq[String] = ArraySeq.unsafeWrapArray(ScalaApplicationSettings.getInstance().getLikeOptionClasses)
 

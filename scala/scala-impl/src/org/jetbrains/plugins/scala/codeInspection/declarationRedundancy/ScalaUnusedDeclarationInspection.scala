@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
 import com.intellij.codeInspection.SetInspectionOptionFix
+import com.intellij.codeInspection.options.OptPane
+import com.intellij.codeInspection.options.OptPane.{checkbox, dropdown, option, pane}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiAnnotationOwner, PsiElement}
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
-import org.jetbrains.plugins.scala.codeInspection.ui.InspectionOptionsComboboxPanel
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
@@ -17,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 
-import javax.swing.JComponent
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
@@ -33,19 +33,16 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
   @BeanProperty
   var reportLocalDeclarations: Int = 0
 
-  override def createOptionsPanel: JComponent = {
-    val panel = new InspectionOptionsComboboxPanel(this)
-    panel.addCheckbox(
-      ScalaInspectionBundle.message("name.unused.declaration.report.public.declarations"),
-      reportPublicDeclarationsPropertyName
+  override def getOptionsPane: OptPane = pane(
+    checkbox(reportPublicDeclarationsPropertyName, ScalaInspectionBundle.message("name.unused.declaration.report.public.declarations")),
+    dropdown(
+      reportLocalDeclarationsPropertyName,
+      ScalaInspectionBundle.message("name.unused.declaration.report.local.declarations"),
+      option(AlwaysEnabled.toString, ScalaInspectionBundle.message("inspection.option.enabled")),
+      option(ComplyToCompilerOption.toString, ScalaInspectionBundle.message("inspection.option.check.compiler.unnamed")),
+      option(AlwaysDisabled.toString, ScalaInspectionBundle.message("inspection.option.disabled")),
     )
-    panel.addComboboxForCompilerOption(
-      label = ScalaInspectionBundle.message("name.unused.declaration.report.local.declarations"),
-      getSelectedIndex = () => reportLocalDeclarations,
-      setSelectedIndex = reportLocalDeclarations = _
-    )
-    panel
-  }
+  )
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = {
 
@@ -138,6 +135,9 @@ object ScalaUnusedDeclarationInspection {
 
   @NonNls
   private val reportPublicDeclarationsPropertyName: String = "reportPublicDeclarations"
+
+  @NonNls
+  private val reportLocalDeclarationsPropertyName: String = "reportLocalDeclarations"
 
   private def hasUnusedAnnotation(holder: PsiAnnotationOwner): Boolean =
     holder.hasAnnotation("scala.annotation.unused") ||
