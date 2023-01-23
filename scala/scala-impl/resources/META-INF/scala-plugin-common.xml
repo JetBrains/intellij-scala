@@ -28,7 +28,7 @@
         <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalInheritorsSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher"/>
         <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalSearchScopeChecker" interface="org.jetbrains.plugins.scala.findUsages.ExternalSearchScopeChecker"/>
 
-        <extensionPoint qualifiedName="org.intellij.scala.structureViewModelProvider" interface="org.jetbrains.plugins.scala.lang.structureView.StructureViewModelProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.structureViewModelProvider" interface="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModelProvider" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
