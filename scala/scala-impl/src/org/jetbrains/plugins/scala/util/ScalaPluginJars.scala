@@ -23,6 +23,7 @@ object ScalaPluginJars {
   val scalaReflectJar       = new File(libRoot, "scala-reflect.jar")
   val scalaNailgunRunnerJar = new File(libRoot, "scala-nailgun-runner.jar")
   val compilerSharedJar     = new File(libRoot, "compiler-shared.jar")
+  val scalaJpsJar           = new File(libRoot, "scala-jps.jar")
   val runnersJarName        = "runners.jar"
   val runnersJar            = new File(libRoot, runnersJarName)
   val replInterface         = new File(libRoot, "repl-interface.jar")

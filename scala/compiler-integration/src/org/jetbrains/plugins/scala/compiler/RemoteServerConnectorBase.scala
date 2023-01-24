@@ -47,6 +47,7 @@ abstract class RemoteServerConnectorBase(
     compilerClasspath :+
       ScalaPluginJars.runnersJar :+
       ScalaPluginJars.compilerSharedJar :+
+      ScalaPluginJars.scalaJpsJar :+
       outputDir
 
   protected def worksheetArgs: Option[WorksheetArgs] = None

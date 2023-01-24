@@ -69,6 +69,7 @@ lazy val scalaCommunity: sbt.Project =
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target", baseDirectory.value / "compilation-cache"),
       packageAdditionalProjects := Seq(
+        jps,
         compilerJps,
         nailgunRunners,
         copyrightIntegration,
@@ -330,7 +331,7 @@ lazy val debugger =
 
 lazy val compilerJps =
   newProject("compiler-jps", file("scala/compiler-jps"))
-    .dependsOn(compilerShared, repackagedZinc, worksheetReplInterface)
+    .dependsOn(compilerShared, jps, repackagedZinc, worksheetReplInterface)
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
@@ -363,6 +364,22 @@ lazy val compilerShared =
         Dependencies.compilerIndicesProtocol -> Some(s"lib/scala-compiler-indices-protocol_2.13-${Versions.compilerIndicesVersion}.jar")
       ),
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true)
+    )
+
+lazy val jps =
+  newProject("jps", file("scala/jps"))
+    .settings(
+      Compile / javacOptions := outOfIDEAProcessJavacOptions,
+      Compile / scalacOptions := outOfIDEAProcessScalacOptions,
+      packageMethod := PackagingMethod.Standalone("lib/scala-jps.jar", static = true),
+      //Manually build classpath for the jps module because the code from this module
+      //will be executed in JPS process which has a separate classpath.
+      //NOTE: this classpath is only required to properly compile the module
+      //(in order we do not accidentally use any classes which are not available in JPS process)<br>
+      //At runtime the classpath will be constructed in by Platform.
+      intellijMainJars := Nil,
+      intellijPlugins := Nil,
+      Compile / unmanagedJars ++= Common.jpsClasspath.value
     )
 
 lazy val runners: Project =

@@ -82,6 +82,55 @@ object Common {
         packageFileMappings := Seq.empty
       )
 
+  /**
+   * Manually build classpath for the JPS module.
+   * Code from JPS modules is executed in JPS process which has a separate classpath.
+   *
+   * The classpath construction logic can be found here:
+   *  - com.intellij.compiler.server.impl.BuildProcessClasspathManager.getBuildProcessClasspath
+   *  - org.jetbrains.jps.cmdline.ClasspathBootstrap.getBuildProcessApplicationClasspath
+   *  - com.intellij.compiler.server.impl.BuildProcessClasspathManager.getBuildProcessPluginsClasspath
+   *
+   * An easy practical way too see which classpath is actually used is to place a breakpoint inside
+   * BuildProcessClasspathManager.getBuildProcessClasspath
+   *
+   * Note that JPS process will contain classpath from other plugins as well.
+   * Currently only base classes from Java & Platform are required for Scala Plugin
+   *
+   * @todo we might also use this classpath for community/scala/compiler-jps module. But before that it should be refactored.
+   *       Currently, the module contains code which might be executed in Scala Compile Server, not only in JPS.
+   *       We should split it into separate modules with oun classpathes
+   */
+  def jpsClasspath: Def.Initialize[Task[Classpath]] = Def.task {
+    val intellijLibDir = intellijBaseDirectory.value / "lib"
+    val intellijPluginsDir = intellijBaseDirectory.value / "plugins"
+
+    /** see also org.jetbrains.plugins.scala.compiler.CompileServerLauncher.compileServerJars */
+    val platformJarNames = Seq(
+      "util.jar",
+      "util_rt.jar",
+      "3rd-party-rt.jar",
+      "protobuf.jar",
+      "jps-model.jar",
+      "forms_rt.jar",
+      "idea_rt.jar",
+      "util-8.jar"
+    )
+    //If you need any extra plugin dependencies, add the jars here
+    val pluginsJarPaths = Seq(
+      "java/lib/jps-builders.jar",
+      "java/lib/jps-builders-6.jar",
+      "java/lib/jps-javac-extension.jar",
+      "java/lib/javac2.jar",
+      "java/lib/aether-dependency-resolver.jar",
+    )
+
+    val platformJarsFiles: Seq[File] = platformJarNames.map(intellijLibDir / _)
+    val pluginJarsFiles: Seq[File] = pluginsJarPaths.map(intellijPluginsDir / _)
+
+    (platformJarsFiles ++ pluginJarsFiles).classpath
+  }
+
   implicit class ProjectOps(private val project: Project) extends AnyVal {
     def withCompilerPluginIn(plugin: Project): Project = project
       .dependsOn(

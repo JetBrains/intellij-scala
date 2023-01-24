@@ -342,6 +342,7 @@ object CompileServerLauncher {
     ScalaPluginJars.scalaReflectJar,
     ScalaPluginJars.scalaNailgunRunnerJar,
     ScalaPluginJars.compilerSharedJar,
+    ScalaPluginJars.scalaJpsJar,
     ScalaPluginJars.nailgunJar,
     ScalaPluginJars.sbtInterfaceJar,
     ScalaPluginJars.incrementalCompilerJar,
