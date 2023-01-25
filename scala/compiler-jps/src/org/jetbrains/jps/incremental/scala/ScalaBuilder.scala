@@ -4,7 +4,7 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import com.intellij.openapi.util.Key
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.incremental.CompileContext
+import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.Server.ServerError
 import org.jetbrains.jps.incremental.scala.local.LocalServer
@@ -123,7 +123,8 @@ object ScalaBuilder {
   private lazy val sbtData = {
     val pluginJpsRoot = new File(PathManager.getJarPathForClass(getClass)).getParentFile
     val javaClassVersion = System.getProperty("java.class.version")
-    SbtData.from(pluginJpsRoot, javaClassVersion)
+    val systemRootDir = Utils.getSystemRoot.toPath
+    SbtData.from(pluginJpsRoot, javaClassVersion, systemRootDir)
   }
 
   private def scalaLibraryWarning(modules: Set[JpsModule], compilationData: CompilationData, client: Client): Unit = {

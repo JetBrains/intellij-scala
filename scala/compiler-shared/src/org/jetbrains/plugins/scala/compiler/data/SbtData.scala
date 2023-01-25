@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.compiler.data
 
+import com.intellij.openapi.util.io.FileUtil
+
 import java.io._
+import java.nio.file.Path
 import java.security.MessageDigest
 import java.util.jar.JarFile
-
-import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.jps.incremental.Utils
-
 import scala.io.Source
 import scala.util.{Failure, Success, Using}
 
@@ -33,22 +32,22 @@ object SbtData {
 
   val compilerInterfacesKey = "scala.compiler.interfaces.dir"
 
-  private def compilerInterfacesDir = {
+  private def compilerInterfacesDir(systemRootDir: Path): File = {
     def defaultDir =
-      Utils.getSystemRoot.toPath.resolve("scala-compiler-interfaces").toFile
+      systemRootDir.resolve("scala-compiler-interfaces").toFile
 
     val customPath = Option(System.getProperty(compilerInterfacesKey))
     customPath.map(new File(_)).getOrElse(defaultDir)
   }
 
-  def from(pluginJpsRoot: File, javaClassVersion: String): Either[String, SbtData] =
+  def from(pluginJpsRoot: File, javaClassVersion: String, systemRootDir: Path): Either[String, SbtData] =
     for {
       sbtHome  <- Either.cond(pluginJpsRoot.exists, pluginJpsRoot, "sbt home directory does not exist: " + pluginJpsRoot)
       sbtFiles <- Option(sbtHome.listFiles).toRight("Invalid sbt home directory: " + sbtHome.getPath)
-      sbtData  <- from(sbtFiles.toIndexedSeq, javaClassVersion)
+      sbtData  <- from(sbtFiles.toIndexedSeq, javaClassVersion, systemRootDir)
     } yield sbtData
 
-  private def from(sbtFiles: Seq[File], javaClassVersion: String): Either[String, SbtData] = {
+  private def from(sbtFiles: Seq[File], javaClassVersion: String, systemRootDir: Path): Either[String, SbtData] = {
     def fileWithName(name: String): Either[String, File] =
       sbtFiles.find(_.getName == name).toRight(s"No '$name' in sbt home directory")
 
@@ -65,7 +64,7 @@ object SbtData {
       sbtVersion           <- readSbtVersionFrom(sbtInterfaceJar)
     } yield {
       val checksum = encodeHex(md5(scalaBridge_2_10))
-      val interfacesHome = new File(compilerInterfacesDir, sbtVersion + "-idea-" + checksum)
+      val interfacesHome = new File(compilerInterfacesDir(systemRootDir), sbtVersion + "-idea-" + checksum)
       val scalaBridgeSources = ScalaSourceJars(
         _2_10 = scalaBridge_2_10,
         _2_11 = scalaBridge_2_11,
