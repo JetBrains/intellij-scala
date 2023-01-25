@@ -317,7 +317,8 @@ lazy val compilerIntegration =
   newProject("compiler-integration", file("scala/compiler-integration"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      sbtImpl % "test->test;compile->compile"
+      sbtImpl % "test->test;compile->compile",
+      jps
     )
     .withCompilerPluginIn(scalacPatches)
 
@@ -358,11 +359,8 @@ lazy val compilerShared =
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
-      libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.compilerIndicesProtocol, Dependencies.zincInterface),
-      packageLibraryMappings ++= Seq(
-        Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
-        Dependencies.compilerIndicesProtocol -> Some(s"lib/scala-compiler-indices-protocol_2.13-${Versions.compilerIndicesVersion}.jar")
-      ),
+      libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.zincInterface),
+      packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true)
     )
 
@@ -372,6 +370,8 @@ lazy val jps =
       Compile / javacOptions := outOfIDEAProcessJavacOptions,
       Compile / scalacOptions := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/scala-jps.jar", static = true),
+      libraryDependencies += Dependencies.compilerIndicesProtocol,
+      packageLibraryMappings += Dependencies.compilerIndicesProtocol -> Some(s"lib/scala-compiler-indices-protocol_2.13-${Versions.compilerIndicesVersion}.jar"),
       //Manually build classpath for the jps module because the code from this module
       //will be executed in JPS process which has a separate classpath.
       //NOTE: this classpath is only required to properly compile the module
