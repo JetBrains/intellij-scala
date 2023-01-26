@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala.compiler
 
-import java.io.File
-
-import org.jetbrains.jps.incremental.messages.CustomBuilderMessage
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.plugins.scala.compiler.CompilerEventType.CompilerEventType
-import org.jetbrains.plugins.scala.util.{CompilationId, ObjectSerialization}
+import org.jetbrains.plugins.scala.util.CompilationId
 
-import scala.util.Try
+import java.io.File
 
 sealed trait CompilerEvent {
 
@@ -16,12 +13,6 @@ sealed trait CompilerEvent {
   def compilationId: CompilationId
 
   def compilationUnitId: Option[CompilationUnitId]
-
-  final def toCustomMessage: CustomBuilderMessage = new CustomBuilderMessage(
-    CompilerEvent.BuilderId,
-    eventType.toString,
-    ObjectSerialization.toBase64(this)
-  )
 }
 
 object CompilerEvent {
@@ -73,14 +64,6 @@ object CompilerEvent {
     extends CompilerEvent {
 
     override def eventType: CompilerEventType = CompilerEventType.CompilationFinished
-  }
-
-  def fromCustomMessage(customMessage: CustomBuilderMessage): Option[CompilerEvent] = {
-    val text = customMessage.getMessageText
-    Option(customMessage)
-      .filter(_.getBuilderId == BuilderId)
-      .flatMap { msg => Try(CompilerEventType.withName(msg.getMessageType)).toOption }
-      .map { _ => ObjectSerialization.fromBase64[CompilerEvent](text) }
   }
 
   final val BuilderId = "compiler-event"

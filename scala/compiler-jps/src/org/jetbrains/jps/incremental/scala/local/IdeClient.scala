@@ -4,11 +4,11 @@ package local
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
-import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, FileDeletedEvent, ProgressMessage}
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, CustomBuilderMessage, FileDeletedEvent, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent}
-import org.jetbrains.plugins.scala.util.CompilationId
+import org.jetbrains.plugins.scala.util.{CompilationId, ObjectSerialization}
 
 import java.io.File
 import java.util
@@ -16,6 +16,8 @@ import java.util
 abstract class IdeClient(compilerName: String,
                          context: CompileContext,
                          chunk: ModuleChunk) extends Client {
+
+  import IdeClient._
 
   private var hasErrors = false
   private val compilationId: CompilationId = CompilationId.generate()
@@ -106,6 +108,14 @@ object IdeClient {
     CompilationUnitId(
       moduleId = moduleId,
       testScope = testScope
+    )
+  }
+
+  private[IdeClient] implicit class CompilerEventExt(private val compilerEvent: CompilerEvent) extends AnyVal {
+    def toCustomMessage: CustomBuilderMessage = new CustomBuilderMessage(
+      CompilerEvent.BuilderId,
+      compilerEvent.eventType.toString,
+      ObjectSerialization.toBase64(compilerEvent)
     )
   }
 }
