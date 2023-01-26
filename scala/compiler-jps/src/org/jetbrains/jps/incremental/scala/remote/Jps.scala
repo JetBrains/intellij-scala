@@ -7,12 +7,15 @@ import org.jetbrains.jps.incremental.{MessageHandler, Utils}
 import org.jetbrains.jps.incremental.fs.BuildFSState
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.plugins.scala.compiler.CompilerEvent
+import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventType}
+import org.jetbrains.plugins.scala.compiler.CompilerEvent.BuilderId
+import org.jetbrains.plugins.scala.util.ObjectSerialization
 
 import java.io.File
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.jdk.CollectionConverters._
+import scala.util.Try
 
 private object Jps {
   private val systemRootSet: AtomicBoolean = new AtomicBoolean(false)
@@ -30,7 +33,7 @@ private object Jps {
     val messageHandler = new MessageHandler {
       override def processMessage(msg: BuildMessage): Unit = msg match {
         case customMessage: CustomBuilderMessage =>
-          CompilerEvent.fromCustomMessage(customMessage).foreach {
+          fromCustomMessage(customMessage).foreach {
             case CompilerEvent.MessageEmitted(_, _, msg) => client.message(msg)
             case CompilerEvent.CompilationFinished(_, _, sources) => compiledFiles ++= sources
             case _ => ()
@@ -107,5 +110,15 @@ private object Jps {
       case _ =>
         body
     }
+  }
+
+  // Duplicated in org.jetbrains.plugins.scala.compiler.CompilerEventFromCustomBuilderMessageListener
+  // to avoid complex compile time dependencies between modules.
+  private def fromCustomMessage(customMessage: CustomBuilderMessage): Option[CompilerEvent] = {
+    val text = customMessage.getMessageText
+    Option(customMessage)
+      .filter(_.getBuilderId == BuilderId)
+      .flatMap(msg => Try(CompilerEventType.withName(msg.getMessageType)).toOption)
+      .map(_ => ObjectSerialization.fromBase64[CompilerEvent](text))
   }
 }
