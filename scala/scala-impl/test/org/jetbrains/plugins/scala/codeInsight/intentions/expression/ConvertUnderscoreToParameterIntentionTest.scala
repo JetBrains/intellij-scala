@@ -69,7 +69,4 @@ class ConvertUnderscoreToParameterIntentionTest extends ScalaIntentionTestBase{
 
     doTest(text, resultText)
   }
-
-  def testFail(): Unit =
-    org.junit.Assert.fail("This test is failing to prevent an automatic merge")
 }

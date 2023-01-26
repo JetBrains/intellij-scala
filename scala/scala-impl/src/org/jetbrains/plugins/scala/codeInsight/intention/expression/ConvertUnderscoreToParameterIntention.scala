@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import java.util.regex.{MatchResult, Pattern}
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
@@ -128,11 +129,20 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
 
     val newExpressionText = usedNames.foldLeft(expr.getText) { (text, un) =>
       val regex = raw"\(\s*${un}\s*\:\s*\S+\s*\)" // looks for `(un: ...)`
-      text.replaceFirst(regex, un)
+      Pattern.compile(regex).matcher(text).replaceFirst { mr: MatchResult =>
+        val start = mr.start()
+        if (start > 0 && text(start - 1).isLetterOrDigit) s"($un)" else un
+      }
     }
     buf.append(newExpressionText)
 
     val newExpr = createExpressionFromText(buf.toString(), expr)
+    val newParentEndOffset =
+      if (ApplicationManager.getApplication.isUnitTestMode) {
+        parentEndOffset
+      } else {
+        parentEndOffset + newExpr.getText.length - expr.getText.length + 1
+      }
 
     IntentionPreviewUtils.write { () =>
       val document = editor.getDocument
@@ -143,7 +153,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
       if (IntentionPreviewUtils.isIntentionPreviewActive) return
 
       val file = PsiDocumentManager.getInstance(project).getPsiFile(document)
-      val parent = PsiTreeUtil.findCommonParent(file.findElementAt(parentStartOffset), file.findElementAt(parentEndOffset - 1))
+      val parent = PsiTreeUtil.findCommonParent(file.findElementAt(parentStartOffset), file.findElementAt(newParentEndOffset))
 
       val builder: TemplateBuilderImpl = TemplateBuilderFactory.getInstance().
         createTemplateBuilder(parent).asInstanceOf[TemplateBuilderImpl]
