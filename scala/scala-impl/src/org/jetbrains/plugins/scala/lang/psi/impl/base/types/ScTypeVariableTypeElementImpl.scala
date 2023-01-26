@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScTypePattern, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeArgs, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -65,7 +65,7 @@ class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   private def boundsGiven(expected: ScParameterizedType): Option[(ScType, ScType)] = {
     val typeParameters = expected.designator match {
-      case dt: ScDesignatorType => dt.element match {
+      case dt: DesignatorOwner => dt.element match {
         case tpo: ScTypeParametersOwner => tpo.typeParameters
         case _ => Seq.empty
       }
