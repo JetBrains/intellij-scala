@@ -464,7 +464,7 @@ object ScalaPsiElementFactory {
   )(implicit ctx: ProjectContext): ScBlockExpr =
     createBlockWithGivenExpressions(Seq(expression), features)
 
-  def createBlockWithGivenExpressions[CC[X] <: collection.Seq[X]](
+  def createBlockWithGivenExpressions[CC[+X] <: collection.Seq[X]](
     expressions: CC[PsiElement],
     features: ScalaFeatures
   )(implicit ctx: ProjectContext): ScBlockExpr = {

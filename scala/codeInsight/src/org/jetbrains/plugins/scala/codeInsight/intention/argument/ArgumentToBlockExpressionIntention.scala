@@ -9,40 +9,62 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScFunctionExpr, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr, ScExpression, ScFunctionExpr, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createAnonFunBlockFromFunExpr, createBlockFromExpr}
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 final class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
 
-  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    elementAndTouchingPrevElement(editor, element).exists( element =>
-      IntentionAvailabilityChecker.checkIntention(this, element) && (element match {
-        case Parent(list: ScArgumentExprList) if list.exprs.size == 1 && !list.exprs.head.is[ScUnderscoreSection] => true
-        case _ => false
-      })
-    )
-  }
+  import ArgumentToBlockExpressionIntention.{FunctionExpression, argListForElement}
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
+    elementAndTouchingPrevElement(editor, element).exists { element =>
+      IntentionAvailabilityChecker.checkIntention(this, element) &&
+        argListForElement(element).exists(list => list.exprs.sizeIs == 1 && !list.exprs.head.is[ScUnderscoreSection])
+    }
+
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
     elementAndTouchingPrevElement(editor, element)
-      .collectFirst { case Parent(argList: ScArgumentExprList) => argList }
+      .iterator
+      .flatMap(argListForElement)
+      .nextOption()
       .foreach { list =>
+        import list.projectContext
         val exp = list.exprs.head
-        implicit val projectContext: ProjectContext = list.projectContext
         val block = exp match {
-          case funExpr: ScFunctionExpr => createAnonFunBlockFromFunExpr(funExpr, element)
+          case FunctionExpression(fnExpr) => createAnonFunBlockFromFunExpr(fnExpr, element)
+          case block: ScBlockExpr => ScalaPsiUtil.convertBlockToBraced(block)
           case _ => createBlockFromExpr(exp, element)
         }
-        exp.replace(block)
-        list.getFirstChild.delete()
-        list.getLastChild.delete()
+        if (list.isArgsInParens) {
+          list.getLastChild.delete()
+          list.getFirstChild.replace(block)
+          exp.delete()
+        } else exp.replace(block)
         CodeStyleManager.getInstance(project).reformat(list)
       }
-  }
 
   override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.convert.to.block.expression")
 
   override def getText: String = getFamilyName
+}
+
+object ArgumentToBlockExpressionIntention {
+  private def argListForElement(element: PsiElement): Option[ScArgumentExprList] = element match {
+    case ElementType(ScalaTokenTypes.tCOLON) & ChildOf((block: ScBlockExpr) & ChildOf(argList: ScArgumentExprList)) =>
+      Option.when(block.firstChildNotWhitespaceComment.contains(element))(argList)
+    case ChildOf(list: ScArgumentExprList) => Some(list)
+    case _ => None
+  }
+
+  private object FunctionExpression {
+    def unapply(expr: ScExpression): Option[ScFunctionExpr] = expr match {
+      case fnExpr: ScFunctionExpr => Some(fnExpr)
+      case block: ScBlockExpr if block.exprs.sizeIs == 1 =>
+        block.exprs.headOption.filterByType[ScFunctionExpr]
+      case _ => None
+    }
+  }
 }
