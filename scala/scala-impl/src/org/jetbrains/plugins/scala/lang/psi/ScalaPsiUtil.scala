@@ -1792,7 +1792,13 @@ object ScalaPsiUtil {
     statement
   }
 
-  def convertBlockToBraced(block: ScBlock)(implicit ctx: ProjectContext): ScBlock =
-    if (block.isEnclosedByBraces) block.copy().asInstanceOf[ScBlock]
-    else ScalaPsiElementFactory.createBlockWithGivenExpressions(block.exprs, block)
+  def convertBlockToBraced(block: ScBlockExpr)(implicit ctx: ProjectContext): ScBlockExpr = {
+    val blockCopy = block.copy().asInstanceOf[ScBlockExpr]
+
+    if (block.isEnclosedByBraces) blockCopy
+    else {
+      val exprs = blockCopy.statements ++ blockCopy.caseClauses
+      ScalaPsiElementFactory.createBlockWithGivenExpressions(exprs, block)
+    }
+  }
 }
