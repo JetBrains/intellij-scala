@@ -2,16 +2,19 @@ package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class UnnecessaryPartialFunctionInspectionTest extends ScalaInspectionTestBase {
+abstract class UnnecessaryPartialFunctionInspectionTestBase extends ScalaInspectionTestBase {
+  private val hint = UnnecessaryPartialFunctionQuickFix.hint
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[UnnecessaryPartialFunctionInspection]
 
   override protected val description: String = UnnecessaryPartialFunctionInspection.inspectionName
 
-  val hint = UnnecessaryPartialFunctionQuickFix.hint
+  protected def testFix(text: String, fixed: String): Unit = testQuickFix(text, fixed, hint)
+}
 
-  private def testFix(text: String, fixed: String): Unit = testQuickFix(text, fixed, hint)
+class UnnecessaryPartialFunctionInspectionTest extends UnnecessaryPartialFunctionInspectionTestBase {
 
   def testInspectionCapturesSimpleExpression(): Unit = {
     val text = s"val f: Int => String = {${START}case$END x => x.toString}"
@@ -83,7 +86,7 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaInspectionTestBase {
   }
 
   def testInspectionCapturesSimpleExpressionWithTypeConstraint(): Unit = {
-    val text = s"def f: Int => String = {${START}case$END x: Int => x.toString}"
+    val text = s"def f: Int => String = { ${START}case$END x: Int => x.toString }"
     val fixed = "def f: Int => String = { x: Int => x.toString }"
 
     checkTextHasError(text)
@@ -97,7 +100,7 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaInspectionTestBase {
   }
 
   def testInspectionCapturesCaseWithTypeConstraintLessRestrictiveThanExpectedInputType(): Unit = {
-    val text = s"def f: Int => String = {${START}case$END x: Any  => x.toString}"
+    val text = s"def f: Int => String = { ${START}case$END x: Any => x.toString }"
     val fixed = "def f: Int => String = { x: Any => x.toString }"
 
     checkTextHasError(text)
@@ -105,7 +108,7 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaInspectionTestBase {
   }
 
   def testInspectionCapturesCaseWithTypeConstraintWithTypeParameters(): Unit = {
-    val text = s"def f[T]: Option[T] => String = {${START}case$END x: Option[_]  => x.toString}"
+    val text = s"def f[T]: Option[T] => String = { ${START}case$END x: Option[_] => x.toString }"
     val fixed = "def f[T]: Option[T] => String = { x: Option[_] => x.toString }"
 
     checkTextHasError(text)
@@ -165,7 +168,7 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaInspectionTestBase {
   def testInspectionCapturesMethodArgumentWithTypeConstraint(): Unit = {
     val text =
       s"""def foo(bar: Int => String) = bar(42)
-         |foo{${START}case$END x: Any => x.toString}""".stripMargin
+         |foo { ${START}case$END x: Any => x.toString }""".stripMargin
     val fixed =
       """def foo(bar: Int => String) = bar(42)
         |foo { x: Any => x.toString }""".stripMargin
@@ -173,7 +176,7 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaInspectionTestBase {
     testFix(text, fixed)
   }
 
-  def testInspectionCapturesArgumentInMethodWithMultipleAruments(): Unit = {
+  def testInspectionCapturesArgumentInMethodWithMultipleArguments(): Unit = {
     val text =
       s"""def foo(input: Int, bar: Int => String, prefix: String) = prefix + bar(input)
          |foo(42, {${START}case$END x => x.toString}, "value: ")""".stripMargin
@@ -184,10 +187,10 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaInspectionTestBase {
     testFix(text, fixed)
   }
 
-  def testInspectionCapturesArgumentWithTypeConstraintInMethodWithMultipleAruments(): Unit = {
+  def testInspectionCapturesArgumentWithTypeConstraintInMethodWithMultipleArguments(): Unit = {
     val text =
       s"""def foo(input: Int, bar: Int => String, prefix: String) = prefix + bar(input)
-         |foo(42, {${START}case$END x: Any => x.toString}, "value: ")""".stripMargin
+         |foo(42, { ${START}case$END x: Any => x.toString }, "value: ")""".stripMargin
     val fixed =
       """def foo(input: Int, bar: Int => String, prefix: String) = prefix + bar(input)
         |foo(42, { x: Any => x.toString }, "value: ")""".stripMargin
@@ -226,4 +229,64 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaInspectionTestBase {
       |}
       |""".stripMargin
   )
+
+  def testInspectionCapturesMethodArgumentWithCommentBeforeArgList(): Unit = {
+    val text =
+      s"""List(0).map /*hmm*/ {
+         |  ${START}case$END x => x + 5
+         |}""".stripMargin
+    val fixed = "List(0).map /*hmm*/ (x => x + 5)"
+    checkTextHasError(text)
+    testFix(text, fixed)
+  }
+
+  def testInspectionCapturesMethodArgumentWithBlockOnNewLine(): Unit = {
+    val text =
+      s"""List(1).map { ${START}case$END x =>
+         |  x + 5
+         |}""".stripMargin
+    val fixed =
+      """List(1).map(x =>
+        |  x + 5)""".stripMargin
+    checkTextHasError(text)
+    testFix(text, fixed)
+  }
+}
+
+class UnnecessaryPartialFunctionInspectionTest_Scala3 extends UnnecessaryPartialFunctionInspectionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
+
+  def testInspectionCapturesFewerBracesMethodArgument(): Unit = {
+    val text =
+      s"""List(0).map:
+         |  ${START}case$END x => x
+         |""".stripMargin
+    val fixed = "List(0).map(x => x)"
+    checkTextHasError(text)
+    testFix(text, fixed)
+  }
+
+  def testInspectionCapturesFewerBracesMethodArgumentWithSpaceBeforeColon(): Unit = {
+    val text =
+      s"""List(1).map :
+         |  ${START}case$END x => x
+         |""".stripMargin
+    val fixed = "List(1).map(x => x)"
+    checkTextHasError(text)
+    testFix(text, fixed)
+  }
+
+  def testInspectionCapturesFewerBracesMethodArgumentWithBlockOnNewLine(): Unit = {
+    val text =
+      s"""List(2).map:
+         |  ${START}case$END x =>
+         |    x
+         |""".stripMargin
+    val fixed =
+      """List(2).map(x =>
+        |    x)""".stripMargin
+    checkTextHasError(text)
+    testFix(text, fixed)
+  }
 }
