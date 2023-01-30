@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
@@ -1791,4 +1791,8 @@ object ScalaPsiUtil {
 
     statement
   }
+
+  def convertBlockToBraced(block: ScBlock)(implicit ctx: ProjectContext): ScBlock =
+    if (block.isEnclosedByBraces) block.copy().asInstanceOf[ScBlock]
+    else ScalaPsiElementFactory.createBlockWithGivenExpressions(block.exprs, block)
 }

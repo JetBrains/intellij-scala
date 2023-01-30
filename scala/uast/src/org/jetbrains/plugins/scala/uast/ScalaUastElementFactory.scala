@@ -63,7 +63,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
 
   @Nullable
   override def createBlockExpression(expressions: util.List[_ <: UExpression], @Nullable context: PsiElement): UBlockExpression = {
-    val block = createBlockWithGivenExpressions(expressions.asScala.flatMap(_.getSourcePsi.toOption), context)
+    val block = createBlockWithGivenExpressions(expressions.asScala.toSeq.flatMap(_.getSourcePsi.toOption), context)
     block.context = context
     new ScUBlockExpression(block, LazyUElement.Empty)
   }
