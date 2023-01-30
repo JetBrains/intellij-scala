@@ -131,10 +131,21 @@ class TypeVariableTest extends TypeInferenceTestBase {
   def testLessArguments(): Unit = checkHasErrorAroundCaret(Prefix + Invariant2 +
     s"(??? : Invariant2[Type, Unit]) match { case _: Invariant2[t$CARET] => val v: Type = ??? : t }")
 
-  // Incompatible types
+  // Non-parameterized types
 
-  def testNoTypeParameters(): Unit = checkTextHasNoErrors(Prefix +
-    "(??? : Type) match { case _: Invariant[t] => val v: t = ??? : Type }")
+  def testAny1(): Unit = checkTextHasNoErrors(Prefix +
+    "(??? : Any) match { case _: InvariantUpperBound[t] => val v: Type = ??? : t }")
+
+  def testAny2(): Unit = checkHasErrorAroundCaret(Prefix +
+    s"(??? : Any) match { case _: InvariantUpperBound[t] => val v: t = ??? : ${CARET}Type }")
+
+  def testNothing1(): Unit = checkTextHasNoErrors(Prefix +
+    "(??? : Nothing) match { case _: InvariantUpperBound[t] => val v: Type = ??? : t }")
+
+  def testNothing2(): Unit = checkHasErrorAroundCaret(Prefix +
+    s"(??? : Nothing) match { case _: InvariantUpperBound[t] => val v: t = ??? : ${CARET}Type }")
+
+  // Subtyping
 
   def testNotSupertype(): Unit = checkHasErrorAroundCaret(Prefix + "class NotInvariantSubtype[A]; " +
     s"(??? : NotInvariantSubtype[Type]) match { case _: Invariant[t] => val v: Type = ??? : ${CARET}t }")
