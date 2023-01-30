@@ -38,7 +38,7 @@ class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(n
     case _ => Right(existentialArgumentWith(None))
   }
 
-  private def inferredType1(typedPattern: ScTypedPatternLike) = {
+  private def inferredType1(typedPattern: ScTypedPatternLike): TypeResult = {
     def patternConformsTo(t: ScParameterizedType) = getParent.getParent match {
       case e: ScParameterizedTypeElement => e.typeElement.`type`().exists(t.designator.conforms)
       case _ => typedPattern.`type`() match {
@@ -54,7 +54,10 @@ class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(n
           case _ => Failure("Fruitless type test")
         }
       case Some(expected: ScParameterizedType) if patternConformsTo(expected) => Right(existentialArgumentWith(boundsGiven(expected)))
-      case _ => Failure("Fruitless type test")
+      case _ => typedPattern.typePattern.map(_.typeElement).flatMap(_.`type`().toOption) match {
+        case Some(actual: ScParameterizedType) => Right(existentialArgumentWith(boundsGiven(actual)))
+        case _ => Failure("Fruitless type test")
+      }
     }
   }
 
