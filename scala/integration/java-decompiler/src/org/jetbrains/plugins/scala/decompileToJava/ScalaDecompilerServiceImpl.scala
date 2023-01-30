@@ -1,11 +1,7 @@
 package org.jetbrains.plugins.scala
 package decompileToJava
 
-import java.io.File
-import java.util.jar.Manifest
-
 import com.intellij.ide.highlighter.JavaClassFileType
-import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.java.decompiler.IdeaLogger
@@ -13,6 +9,8 @@ import org.jetbrains.java.decompiler.main.decompiler.BaseDecompiler
 import org.jetbrains.java.decompiler.main.extern.{IBytecodeProvider, IFernflowerPreferences, IResultSaver}
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 
+import java.io.File
+import java.util.jar.Manifest
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
@@ -70,7 +68,7 @@ object ScalaDecompilerServiceImpl {
       s"""|//decompiled from ${filename.stripSuffix(".java")}.class
           |$text
         """.stripMargin
-    }.mkString
+    }.mkString.replace("\r", "") // "\r" comes from "FernFowler" decompiler on Windows, also from multiline string literals used in code when plugin is build on Windows
 
     override def saveClassFile(path: String, qname: String, entry: String, content: String, mapping: Array[Int]): Unit =
       if (entry != null && content != null) decompiledTexts += entry -> content
