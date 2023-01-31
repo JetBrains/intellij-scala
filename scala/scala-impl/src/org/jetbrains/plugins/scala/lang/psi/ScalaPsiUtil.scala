@@ -1743,10 +1743,12 @@ object ScalaPsiUtil {
         }
 
     statement.condition.foreach { cond =>
-      cond.nextSiblingNotWhitespaceComment.filter(_.elementType == ScalaTokenTypes.tRPARENTHESIS) match {
-        case Some(rParen) =>
+      cond.nextSiblingNotWhitespaceComment match {
+        case Some(rParen@ElementType(ScalaTokenTypes.tRPARENTHESIS)) =>
           addThenKw(rParen)
           rParen.delete()
+        case Some(ElementType(ScalaTokenType.ThenKeyword)) =>
+          // then keyword is already present
         case _ =>
           addThenKw(cond)
       }
