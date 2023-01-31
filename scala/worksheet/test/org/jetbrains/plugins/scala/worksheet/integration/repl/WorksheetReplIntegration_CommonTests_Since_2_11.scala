@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.integration.repl
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.{assertIsBlank, assertStringMatches}
+import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, TestJdkVersion}
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
@@ -263,6 +264,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     assertViewerEditorText(worksheetEditor, after)
   }
 
+  @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
   def testSystemExit(): Unit =
     doRenderTest(
       """val x = 42

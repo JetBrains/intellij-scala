@@ -313,6 +313,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     assertViewerEditorText(worksheetEditor, after)
   }
 
+  @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
   override def testSystemExit(): Unit =
     doRenderTest(
       """val x = 42
