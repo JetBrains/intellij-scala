@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
@@ -852,6 +852,7 @@ object ScalaPsiUtil {
   * ScTuple in ScInfixExpr should be treated specially because of auto-tupling
   * Underscore functions in sugar calls and reference expressions do need parentheses
   * ScMatchStmt in ScGuard do need parentheses
+  * Fewer-braces calls in lhs of infix do need parentheses
   *
   ********** other cases (1 - need parentheses, 0 - does not need parentheses *****
   *
@@ -943,6 +944,7 @@ object ScalaPsiUtil {
         case _ if !parent.is[ScExpression] => false
         case _ if expr.textMatches("_") => false
         case (_: ScTuple | _: ScBlock | _: ScXmlExpr, _) => false
+        case (infix: ScInfixExpr, call: ScMethodCall) if infix.left == from && call.args.isColonArgs => true
         case (infix: ScInfixExpr, _: ScTuple) => tupleInInfixNeedParentheses(infix, from)
         case (_: ScSugarCallExpr |
               _: ScReferenceExpression, elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
@@ -1741,10 +1743,12 @@ object ScalaPsiUtil {
         }
 
     statement.condition.foreach { cond =>
-      cond.nextSiblingNotWhitespaceComment.filter(_.elementType == ScalaTokenTypes.tRPARENTHESIS) match {
-        case Some(rParen) =>
+      cond.nextSiblingNotWhitespaceComment match {
+        case Some(rParen@ElementType(ScalaTokenTypes.tRPARENTHESIS)) =>
           addThenKw(rParen)
           rParen.delete()
+        case Some(ElementType(ScalaTokenType.ThenKeyword)) =>
+          // then keyword is already present
         case _ =>
           addThenKw(cond)
       }
@@ -1790,5 +1794,15 @@ object ScalaPsiUtil {
     }
 
     statement
+  }
+
+  def convertBlockToBraced(block: ScBlockExpr)(implicit ctx: ProjectContext): ScBlockExpr = {
+    val blockCopy = block.copy().asInstanceOf[ScBlockExpr]
+
+    if (block.isEnclosedByBraces) blockCopy
+    else {
+      val exprs = blockCopy.statements ++ blockCopy.caseClauses
+      ScalaPsiElementFactory.createBlockWithGivenExpressions(exprs, block)
+    }
   }
 }

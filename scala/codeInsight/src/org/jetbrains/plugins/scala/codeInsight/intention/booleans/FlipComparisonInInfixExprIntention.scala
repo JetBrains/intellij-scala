@@ -10,9 +10,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
+import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+
+import scala.util.chaining.scalaUtilChainingOps
 
 final class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
 
@@ -46,9 +50,9 @@ final class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAc
     val diff = editor.getCaretModel.getOffset - operation.nameId.getTextRange.getStartOffset
 
     import infixExpr.projectContext
-    val newInfixExpr = createExpressionFromText(s"$argumentText ${Replacement(operation.refName)} $baseText", element)
+    val newInfixExpr = createFlippedInfixExpr(baseText, operation, argumentText)(element)
 
-    val size = newInfixExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
+    val size = newInfixExpr.operation.nameId.getTextRange.getStartOffset -
       newInfixExpr.getTextRange.getStartOffset
 
     IntentionPreviewUtils.write { () =>
@@ -75,4 +79,22 @@ object FlipComparisonInInfixExprIntention {
     "&&" -> "&&",
     "||" -> "||"
   )
+
+  private def createFlippedInfixExpr(baseText: String, operation: ScReferenceExpression, argumentText: String)
+                                    (features: ScalaFeatures)
+                                    (implicit ctx: ProjectContext): ScInfixExpr =
+    createExpressionFromText(s"($argumentText) ${Replacement(operation.refName)} ($baseText)", features)
+      .asInstanceOf[ScInfixExpr]
+      .tap { infix =>
+        stripUnnecessaryParentheses(infix.left)
+        stripUnnecessaryParentheses(infix.right)
+      }
+
+  private[this] def stripUnnecessaryParentheses(expr: ScExpression): Unit = expr match {
+    case e: ScParenthesisedExpr if e.isParenthesisRedundant =>
+      // if there already were parentheses in the expression before refactoring,
+      // then keep one pair when stripping unnecessary parentheses
+      e.doStripParentheses(keepOnePair = e.isNestingParenthesis)
+    case _ =>
+  }
 }

@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.codeInspection.functionExpressions.UnnecessaryPartialFunctionQuickFix._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 object UnnecessaryPartialFunctionQuickFix {
   val hint: String = ScalaInspectionBundle.message("convert.to.anonymous.function")
@@ -20,32 +19,40 @@ class UnnecessaryPartialFunctionQuickFix(expression: ScBlockExpr)
 
   override protected def doApplyFix(expr: ScBlockExpr)
                                    (implicit project: Project): Unit = {
-    val expressionCopy = expr.copy().asInstanceOf[ScBlockExpr]
+    var expressionCopy = expr.copy().asInstanceOf[ScBlockExpr]
     expressionCopy.caseClauses.map(_.caseClauses).foreach {
       case Seq(singleCaseClause) =>
         removeCaseKeyword(singleCaseClause)
-        if(canConvertBraces(singleCaseClause)){
+        if (canConvertBraces(singleCaseClause)) {
+          expressionCopy = ScalaPsiUtil.convertBlockToBraced(expressionCopy)
           ScalaPsiUtil.replaceBracesWithParentheses(expressionCopy)
           deleteLeadingWhitespace(expressionCopy)
           deleteTrailingWhitespace(expressionCopy)
         }
-        expr.replace(createExpressionFromText(expressionCopy.getText, expr))
+        val prevWs = expr.prevLeaf.filter(_.isWhitespace)
+        val exprRange = expr.getTextRange
+        val documentManager = PsiDocumentManager.getInstance(project)
+        val document = expr.getContainingFile.getViewProvider.getDocument
+        document.replaceString(exprRange.getStartOffset, exprRange.getEndOffset, expressionCopy.getText)
+        documentManager.commitDocument(document)
+        prevWs.foreach(_.delete())
+        documentManager.doPostponedOperationsAndUnblockDocument(document)
       case _ =>
     }
   }
 
-  def deleteLeadingWhitespace(expressionCopy: ScBlockExpr): Unit =
+  private def deleteLeadingWhitespace(expressionCopy: ScBlockExpr): Unit =
     expressionCopy.findFirstChildByType(ScalaTokenTypes.tLPARENTHESIS)
       .map(_.getNextSibling)
       .foreach(deleteIfWhitespace)
 
-  def deleteTrailingWhitespace(expressionCopy: ScBlockExpr): Unit =
+  private def deleteTrailingWhitespace(expressionCopy: ScBlockExpr): Unit =
     expressionCopy.findFirstChildByType(ScalaTokenTypes.tRPARENTHESIS)
       .map(_.getPrevSibling)
       .foreach(deleteIfWhitespace)
 
-  def deleteIfWhitespace(element: PsiElement): Unit =
-    if(element.isInstanceOf[PsiWhiteSpace]) element.delete()
+  private def deleteIfWhitespace(element: PsiElement): Unit =
+    if (element.is[PsiWhiteSpace]) element.delete()
 
   private def removeCaseKeyword(clause: ScCaseClause): Unit =
     for {
