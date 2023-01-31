@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.io.BaseOutputReader
 import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
-import org.jetbrains.plugins.scala.compiler.ProcessWatcher.{Log, ignoreErrorTextLine}
+import org.jetbrains.plugins.scala.compiler.ProcessWatcher.Log
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
 private final class ProcessWatcher(project: Project, process: Process, commandLine: String) {
@@ -72,7 +72,7 @@ private final class ProcessWatcher(project: Project, process: Process, commandLi
 
     private def processErrorText(text: String, outputType: Key[_]): Unit = {
       Log.warn(s"[$outputType] ${text.trim}")
-      val filtered = text.linesIterator.filterNot(ignoreErrorTextLine).mkString(System.lineSeparator())
+      val filtered = text.linesIterator.mkString(System.lineSeparator())
       if (filtered.nonEmpty) {
         project.getMessageBus.syncPublisher(CompileServerManager.ErrorTopic).onError(filtered)
       }
@@ -87,20 +87,4 @@ private final class ProcessWatcher(project: Project, process: Process, commandLi
 object ProcessWatcher {
   private val Log = Logger.getInstance(classOf[ProcessWatcher])
   private val ExceptionPattern = "[eE]rror|[eE]xception".r.pattern
-
-  private def ignoreErrorTextLine(text: String): Boolean =
-    isJDK17SecurityManagerWarningLine(text)
-
-  //Temp (hopefully) workaround for SCL-19556, SCL-19470, SCL-18150
-  //See implementation of java.lang.System.setSecurityManager in JDK 17 and https://openjdk.java.net/jeps/411
-  //UPDATE: in JDK 18 they now throw an exception, not just print a warning, see SCL-20064,
-  // this is workaround in CompileServerLauncher by passing -Djava.security.manager=allow
-  private def isJDK17SecurityManagerWarningLine(text: String) = {
-    text.linesIterator.exists { line =>
-      line.startsWith("WARNING: A terminally deprecated method in java.lang.System has been called") ||
-        line.startsWith("WARNING: System::setSecurityManager has been called by com.facebook.nailgun.NGServer") ||
-        line.startsWith("WARNING: Please consider reporting this to the maintainers of com.facebook.nailgun.NGServer") ||
-        line.startsWith("WARNING: System::setSecurityManager will be removed in a future release")
-    }
-  }
 }
