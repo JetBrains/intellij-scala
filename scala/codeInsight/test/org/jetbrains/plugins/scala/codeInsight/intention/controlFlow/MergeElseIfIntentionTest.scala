@@ -364,4 +364,31 @@ class MergeElseIfIntentionTest_Scala3 extends intentions.ScalaIntentionTestBase 
 
     doTest(text, resultText)
   }
+
+  def testMergeElseIfFewerBraces(): Unit = {
+    val text =
+      s"""class MergeElseIf:
+         |  def mthd() =
+         |    if (true) {
+         |      println("a")
+         |    } el${CARET}se {
+         |      if locally:
+         |        true
+         |      then println("b")
+         |      else println("c")
+         |    }
+         |""".stripMargin
+    val resultText =
+      s"""class MergeElseIf:
+         |  def mthd() =
+         |    if true then
+         |      println("a")
+         |    el${CARET}se if locally:
+         |      true
+         |    then println("b")
+         |    else println("c")
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
 }
