@@ -852,6 +852,7 @@ object ScalaPsiUtil {
   * ScTuple in ScInfixExpr should be treated specially because of auto-tupling
   * Underscore functions in sugar calls and reference expressions do need parentheses
   * ScMatchStmt in ScGuard do need parentheses
+  * Fewer-braces calls in lhs of infix do need parentheses
   *
   ********** other cases (1 - need parentheses, 0 - does not need parentheses *****
   *
@@ -943,6 +944,7 @@ object ScalaPsiUtil {
         case _ if !parent.is[ScExpression] => false
         case _ if expr.textMatches("_") => false
         case (_: ScTuple | _: ScBlock | _: ScXmlExpr, _) => false
+        case (infix: ScInfixExpr, call: ScMethodCall) if infix.left == from && call.args.isColonArgs => true
         case (infix: ScInfixExpr, _: ScTuple) => tupleInInfixNeedParentheses(infix, from)
         case (_: ScSugarCallExpr |
               _: ScReferenceExpression, elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
