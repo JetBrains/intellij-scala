@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createScalaElementFromTextWithContext, createScalaFileFromText}
+import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeConstants
 import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 import org.jetbrains.plugins.scala.uast.AbstractUastFixtureTest.findUElementByTextFromPsi
@@ -290,7 +291,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testLambdaExpression(): Unit = {
     val params = javaList(
-      new UParameterInfo(PsiType.INT, "a"),
+      new UParameterInfo(PsiTypeConstants.Int, "a"),
       new UParameterInfo(null, "b"),
     )
     val body = uastExpressionFromText("println()")
@@ -307,7 +308,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testLambdaExpressionWithOneParamWithType(): Unit = {
-    val params = javaList(new UParameterInfo(PsiType.INT, null))
+    val params = javaList(new UParameterInfo(PsiTypeConstants.Int, null))
     val body = uastExpressionFromText("println()")
     val lambda = uastElementFactory.createLambdaExpression(params, body, null)
 
@@ -331,8 +332,8 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testLambdaExpressionWithBlockBody(): Unit = {
     val params = javaList(
-      new UParameterInfo(PsiType.INT, "a"),
-      new UParameterInfo(PsiType.DOUBLE, "b"),
+      new UParameterInfo(PsiTypeConstants.Int, "a"),
+      new UParameterInfo(PsiTypeConstants.Double, "b"),
     )
     val body = uastExpressionFromText("""{ println(a); println(b); return "10" }""")
     val lambda = uastElementFactory.createLambdaExpression(params, body, null)
@@ -358,7 +359,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testLocalVariableWithType(): Unit = {
     val initializer = uastExpressionFromText("1 + 2")
-    val variable = uastElementFactory.createLocalVariable("a", PsiType.DOUBLE, initializer, false, null)
+    val variable = uastElementFactory.createLocalVariable("a", PsiTypeConstants.Double, initializer, false, null)
 
     val sourcePsi = variable.getSourcePsi
     assertTrue(sourcePsi.is[ScReferencePattern])
@@ -367,7 +368,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testLocalFinalVariable(): Unit = {
     val initializer = uastExpressionFromText("1 + 2")
-    val variable = uastElementFactory.createLocalVariable("a", PsiType.LONG, initializer, true, null)
+    val variable = uastElementFactory.createLocalVariable("a", PsiTypeConstants.Long, initializer, true, null)
 
     val sourcePsi = variable.getSourcePsi
     assertTrue(sourcePsi.is[ScReferencePattern])
@@ -376,7 +377,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testLocalVariableWithSuggestedName(): Unit = {
     val initializer = uastExpressionFromText("f(a) + 1")
-    val variable = uastElementFactory.createLocalVariable(null, PsiType.INT, initializer, true, null)
+    val variable = uastElementFactory.createLocalVariable(null, PsiTypeConstants.Int, initializer, true, null)
 
     val sourcePsi = variable.getSourcePsi
     assertTrue(sourcePsi.is[ScReferencePattern])

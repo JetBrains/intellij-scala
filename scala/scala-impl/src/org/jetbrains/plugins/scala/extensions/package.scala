@@ -50,7 +50,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PsiTypeConstants}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TermSignature}
@@ -91,7 +91,7 @@ package object extensions {
 
     def isAccessor: Boolean = isParameterless &&
       hasQueryLikeName &&
-      repr.getReturnType != PsiType.VOID
+      repr.getReturnType != PsiTypeConstants.Void
 
     def hasQueryLikeName: Boolean = {
       val name = repr.name

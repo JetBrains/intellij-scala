@@ -1493,8 +1493,16 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       }
     case _: PsiParameter =>
       val tp = param.getType
-      import com.intellij.psi.PsiType._
-      Set[PsiType](BOOLEAN, INT, CHAR, DOUBLE, FLOAT, LONG, BYTE, SHORT).contains(tp)
+      Set[PsiType](
+        PsiTypeConstants.Boolean,
+        PsiTypeConstants.Int,
+        PsiTypeConstants.Char,
+        PsiTypeConstants.Double,
+        PsiTypeConstants.Float,
+        PsiTypeConstants.Long,
+        PsiTypeConstants.Byte,
+        PsiTypeConstants.Short
+      ).contains(tp)
     case _ => false
   }
 }

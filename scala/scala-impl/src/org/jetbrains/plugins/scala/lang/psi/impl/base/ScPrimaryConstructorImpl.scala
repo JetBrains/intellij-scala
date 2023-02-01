@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPrimaryConstructorStub
+import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeConstants
 
 import java.util
 import javax.swing.Icon
@@ -80,7 +81,7 @@ class ScPrimaryConstructorImpl private(stub: ScPrimaryConstructorStub, node: AST
 
   override def setName(name: String): PsiElement = this
 
-  override def getReturnType: PsiType = PsiType.VOID
+  override def getReturnType: PsiType = PsiTypeConstants.Void
 
   override def getDocComment: PsiDocComment = null
 

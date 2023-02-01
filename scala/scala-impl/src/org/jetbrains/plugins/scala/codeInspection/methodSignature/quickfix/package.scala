@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeConstants
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import java.util.regex.Pattern
@@ -56,7 +57,7 @@ package object quickfix {
     MutatorNamePattern.matcher(method.getName).matches()
 
   private[methodSignature] def isMutator(method: PsiMethod): Boolean =
-    isNotScala(method) && (method.getReturnType == PsiType.VOID || hasMutatorLikeName(method))
+    isNotScala(method) && (method.getReturnType == PsiTypeConstants.Void || hasMutatorLikeName(method))
 
   private[methodSignature] def isAccessor(method: PsiMethod): Boolean =
     isNotScala(method) && method.isAccessor

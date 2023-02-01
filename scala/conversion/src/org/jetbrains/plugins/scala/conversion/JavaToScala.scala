@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.dependency.DependencyPath
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation}
+import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeConstants
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.RichThreadLocal
 
@@ -385,7 +386,7 @@ object JavaToScala {
             MethodCallExpression(
               convertPsiToIntermediate(m.getMethodExpression, externalProperties),
               convertToExpressionList(m.getArgumentList, externalProperties),
-              (m.getType == PsiType.VOID) && m.getArgumentList.getExpressions.isEmpty
+              (m.getType == PsiTypeConstants.Void) && m.getArgumentList.getExpressions.isEmpty
             )
         }
       case t: PsiThisExpression =>
@@ -445,7 +446,7 @@ object JavaToScala {
         }
 
         def convertMethodReturnType: Option[TypeNode] =
-          if (m.getReturnType != PsiType.VOID || ScalaCodeStyleSettings.getInstance(m.getProject).ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT)
+          if (m.getReturnType != PsiTypeConstants.Void || ScalaCodeStyleSettings.getInstance(m.getProject).ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT)
             Some(convertTypePsiToIntermediate(m.getReturnTypeElement))
           else None
 
@@ -1189,7 +1190,7 @@ object JavaToScala {
 
   private def serialVersion(c: PsiClass): Option[PsiField] = {
     val serialField = c.findFieldByName("serialVersionUID", false)
-    if (serialField != null && serialField.getType.isAssignableFrom(PsiType.LONG) &&
+    if (serialField != null && serialField.getType.isAssignableFrom(PsiTypeConstants.Long) &&
       serialField.hasModifierProperty("static") && serialField.hasModifierProperty("final") &&
       serialField.hasInitializer) {
       Some(serialField)

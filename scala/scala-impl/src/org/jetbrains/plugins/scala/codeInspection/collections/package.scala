@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, PartialFunctionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, PartialFunctionType, PsiTypeConstants}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -446,7 +446,7 @@ package object collections {
         ref match {
           case MethodRepr(Typeable(FunctionType(_, _)), _, _, _) => false
           case ResolvesTo(fun: ScFunction) => fun.hasUnitResultType
-          case ResolvesTo(m: PsiMethod) => m.getReturnType == PsiType.VOID
+          case ResolvesTo(m: PsiMethod) => m.getReturnType == PsiTypeConstants.Void
           case _ => false
         }
       }
