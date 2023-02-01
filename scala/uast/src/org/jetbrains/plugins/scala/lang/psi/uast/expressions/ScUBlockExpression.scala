@@ -1,17 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 
-import java.util
-
-import com.intellij.psi.{PsiElement, PsiType}
+import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScReturn, ScUnderScoreSectionUtil}
+import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeConstants
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement, ScUExpression}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.uast.{UBlockExpression, UBlockExpressionAdapter, UElement, UExpression, ULambdaExpression, UMethod, UVariable}
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 trait ScUBlockCommon
@@ -108,9 +108,9 @@ object ScUBlockExpression {
   }
 
   private def isNonUnitResultUFunction(uFun: UElement): Boolean = uFun match {
-    case method: UMethod if method.getReturnType != PsiType.VOID => true
+    case method: UMethod if method.getReturnType != PsiTypeConstants.Void => true
     case lambda: ULambdaExpression
-        if Option(lambda.getBody).exists(_.getExpressionType != PsiType.VOID) =>
+        if Option(lambda.getBody).exists(_.getExpressionType != PsiTypeConstants.Void) =>
       true
 
     case localFunDecl: ScULocalFunctionDeclarationExpression =>
@@ -118,7 +118,7 @@ object ScUBlockExpression {
         case collection.Seq(variable: UVariable) =>
           variable.getUastInitializer match {
             case lambda: ULambdaExpression =>
-              Option(lambda.getBody).exists(_.getExpressionType != PsiType.VOID)
+              Option(lambda.getBody).exists(_.getExpressionType != PsiTypeConstants.Void)
             case _ => false
           }
         case _ => false

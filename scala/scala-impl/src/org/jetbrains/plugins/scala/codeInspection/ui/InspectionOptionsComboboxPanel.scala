@@ -5,7 +5,9 @@ import com.intellij.codeInspection.ui.InspectionOptionsPanel
 import org.jetbrains.sbt.project.template.SComboBox
 
 import javax.swing.JLabel
+import scala.annotation.nowarn
 
+@nowarn("cat=deprecation")
 class InspectionOptionsComboboxPanel(owner: InspectionProfileEntry) extends InspectionOptionsPanel(owner) {
   def addCombobox(label:            String,
                   options:          Seq[String],

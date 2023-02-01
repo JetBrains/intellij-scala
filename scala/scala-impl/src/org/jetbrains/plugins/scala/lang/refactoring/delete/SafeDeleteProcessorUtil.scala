@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeConstants
 
 import java.util
 import scala.collection.mutable
@@ -303,7 +304,7 @@ object SafeDeleteProcessorUtil {
     val factory: PsiElementFactory = facade.getElementFactory
     var privateModifierList: PsiModifierList = null
     try {
-      val newMethod: PsiMethod = factory.createMethod("x3", PsiType.VOID)
+      val newMethod: PsiMethod = factory.createMethod("x3", PsiTypeConstants.Void)
       privateModifierList = newMethod.getModifierList
       privateModifierList.setModifierProperty(PsiModifier.PRIVATE, true)
     }

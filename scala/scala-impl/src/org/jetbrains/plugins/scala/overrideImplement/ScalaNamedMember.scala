@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeConstants
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -44,7 +45,7 @@ case class ScMethodMember(signature: PhysicalMethodSignature, isOverride: Boolea
     val returnType = getElement match {
       case fun: ScFunction => fun.returnType.getOrAny
       case method: PsiMethod =>
-        val psiType = Option(method.getReturnType).getOrElse(PsiType.VOID)
+        val psiType = Option(method.getReturnType).getOrElse(PsiTypeConstants.Void)
         psiType.toScType()(signature.projectContext)
     }
     substitutor(returnType)
