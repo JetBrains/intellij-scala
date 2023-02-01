@@ -36,6 +36,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
         (range.getStartOffset <= offset && offset <= range.getEndOffset) &&
           ref.isQualified &&
           ref.nameId.textMatches("apply") &&
+          ref.qualifier.filterByType[ScMethodCall].forall(!_.args.isColonArgs) &&
           buildReplacement(methodCallExpr).isDefined
       case _ =>
         false
@@ -71,9 +72,9 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
         case _ => e
       }
 
-    var start = expr.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.getTextRange.getStartOffset - 1
     val buf = new mutable.StringBuilder
     val qualifier = expr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get
+    var start = qualifier.endOffset
     buf.append(qualifier.getText)
 
     def checkFun(fun: ScFunction, currentCalledClauses: Int): Boolean = {

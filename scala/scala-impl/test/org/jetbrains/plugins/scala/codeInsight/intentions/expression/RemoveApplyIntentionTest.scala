@@ -3,8 +3,11 @@ package codeInsight.intentions.expression
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
-class RemoveApplyIntentionTest extends ScalaIntentionTestBase {
+abstract class RemoveApplyIntentionTestBase extends ScalaIntentionTestBase {
   override val familyName = ScalaBundle.message("family.name.remove.unnecessary.apply")
+}
+
+class RemoveApplyIntentionTest extends RemoveApplyIntentionTestBase {
 
   def testRemoveApply(): Unit =
     doTest(
@@ -20,20 +23,20 @@ class RemoveApplyIntentionTest extends ScalaIntentionTestBase {
 
   def testRemoveApply3(): Unit = {
     val text =
-      """
-        |object D {
-        |  def foo() = B
-        |
-        |  foo.ap<caret>ply(1)
-        |}
+      s"""
+         |object D {
+         |  def foo() = B
+         |
+         |  foo.ap${CARET}ply(1)
+         |}
       """.stripMargin
     val resultText =
       s"""
-        |object D {
-        |  def foo() = B
-        |
-        |  foo()${CARET}(1)
-        |}
+         |object D {
+         |  def foo() = B
+         |
+         |  foo()$CARET(1)
+         |}
       """.stripMargin
 
     doTest(text, resultText)
@@ -41,20 +44,42 @@ class RemoveApplyIntentionTest extends ScalaIntentionTestBase {
 
   def testRemoveApply4(): Unit = {
     val text =
-      """
-        |object D {
-        |  def foo() = B
-        |
-        |  foo().ap<caret>ply(1)
-        |}
+      s"""
+         |object D {
+         |  def foo() = B
+         |
+         |  foo().ap${CARET}ply(1)
+         |}
       """.stripMargin
     val resultText =
-      """
-        |object D {
-        |  def foo() = B
-        |
-        |  foo()<caret>(1)
-        |}
+      s"""
+         |object D {
+         |  def foo() = B
+         |
+         |  foo()$CARET(1)
+         |}
+      """.stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testRemoveApply4_newLine(): Unit = {
+    val text =
+      s"""
+         |object D {
+         |  def foo() = B
+         |
+         |  foo()
+         |    .ap${CARET}ply(1)
+         |}
+      """.stripMargin
+    val resultText =
+      s"""
+         |object D {
+         |  def foo() = B
+         |
+         |  foo()$CARET(1)
+         |}
       """.stripMargin
 
     doTest(text, resultText)
@@ -68,39 +93,39 @@ class RemoveApplyIntentionTest extends ScalaIntentionTestBase {
 
   def testRemoveApply6(): Unit =
     checkIntentionIsNotAvailable(
-      """
-        |object D {
-        |  def foo()(implicit x: String) = B
-        |  implicit val s: String = ""
-        |  foo().<caret>apply(1)
-        |}
+      s"""
+         |object D {
+         |  def foo()(implicit x: String) = B
+         |  implicit val s: String = ""
+         |  foo().${CARET}apply(1)
+         |}
       """.stripMargin
     )
 
   def testRemoveApply7(): Unit =
     checkIntentionIsNotAvailable(
-      """
-        |object P {
-        |  class AAAA()(implicit s: String) extends (Int => Int) {
-        |    def this(x: Int) {
-        |      this()
-        |    }
-        |    def apply(v1: Int) = v1 + 1
-        |  }
-        |  implicit val s: String = "text"
-        |  (new AAAA()).ap<caret>ply(1)
-        |}
+      s"""
+         |object P {
+         |  class AAAA()(implicit s: String) extends (Int => Int) {
+         |    def this(x: Int) {
+         |      this()
+         |    }
+         |    def apply(v1: Int) = v1 + 1
+         |  }
+         |  implicit val s: String = "text"
+         |  (new AAAA()).ap${CARET}ply(1)
+         |}
       """.stripMargin
     )
 
   def testRemoveApply8(): Unit = {
     checkIntentionIsNotAvailable(
-      """
-        |object A {
-        |  def foo = B
-        |  def foo(x: Int) = B
-        |  foo.a<caret>pply(1)
-        |}
+      s"""
+         |object A {
+         |  def foo = B
+         |  def foo(x: Int) = B
+         |  foo.a${CARET}pply(1)
+         |}
       """.stripMargin
     )
   }
@@ -109,12 +134,44 @@ class RemoveApplyIntentionTest extends ScalaIntentionTestBase {
   def testImplicitly(): Unit =
     checkIntentionIsNotAvailable(
       s"""
-        |trait Result {
-        |  def apply(): Unit = ()
-        |}
-        |def implicitly[T](implicit x: Int): Result = ???
-        |
-        |implicitly[Result].ap${CARET}ply()
-        |""".stripMargin
+         |trait Result {
+         |  def apply(): Unit = ()
+         |}
+         |def implicitly[T](implicit x: Int): Result = ???
+         |
+         |implicitly[Result].ap${CARET}ply()
+         |""".stripMargin
     )
+}
+
+final class RemoveApplyIntentionTest_Scala3 extends RemoveApplyIntentionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
+
+  def testFewerBracesSameLine(): Unit = doTest(
+    text =
+      s"""List(1, 2, 3).ap${CARET}ply:
+         |  1""".stripMargin,
+    resultText =
+      s"""List(1, 2, 3)$CARET:
+         |  1""".stripMargin,
+  )
+
+  def testFewerBracesNewLine(): Unit = doTest(
+    text =
+      s"""List(1, 2, 3)
+         |  .ap${CARET}ply:
+         |    1""".stripMargin,
+    resultText =
+      s"""List(1, 2, 3)$CARET:
+         |  1""".stripMargin,
+  )
+
+  def testFewerBracesAfterFewerBraces(): Unit = checkIntentionIsNotAvailable(
+    text =
+      s"""List(1, 2, 3).map:
+         |    _ + 2
+         |  .ap${CARET}ply:
+         |    1""".stripMargin
+  )
 }
