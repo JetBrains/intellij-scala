@@ -5,25 +5,11 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.dsl.builder.*;
-import com.intellij.ui.layout.PropertyBinding;
 import com.intellij.ui.layout.ValidationInfoBuilder;
-import kotlin.Unit;
 
 import javax.swing.*;
 
 public class KotlinInteropUtils {
-
-    @SuppressWarnings("unchecked")
-    public static <T, C extends ComboBox<T>> Cell<C> bindItem(Cell<C> cell, PropertyBinding<T> binding) {
-        return cell.bind(
-                component -> (T) component.getSelectedItem(),
-                (component, value) -> {
-                    component.setSelectedItem(value);
-                    return Unit.INSTANCE;
-                },
-                MutablePropertyKt.MutableProperty(binding.getGet(), binding.getSet())
-        );
-    }
 
     public static <T, C extends ComboBox<T>> Cell<C> bindItem(Cell<C> cell, GraphProperty<T> property) {
         return ComboBoxKt.bindItem(cell, property);
