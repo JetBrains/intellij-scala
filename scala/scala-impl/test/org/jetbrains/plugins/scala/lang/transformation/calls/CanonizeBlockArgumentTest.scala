@@ -5,7 +5,9 @@ package calls
 
 import org.junit.Ignore
 
-class CanonizeBlockArgumentTest extends TransformerTest(new CanonizeBlockArgument()) {
+abstract class CanonizeBlockArgumentTestBase extends TransformerTest(new CanonizeBlockArgument())
+
+final class CanonizeBlockArgumentTest extends CanonizeBlockArgumentTestBase {
   def testMethodCall(): Unit = check(
     before = "f {A}",
     after = "f(A)"
@@ -26,7 +28,43 @@ class CanonizeBlockArgumentTest extends TransformerTest(new CanonizeBlockArgumen
     after = "f(A)"
   )()
 
+  def testMultilineBlock(): Unit = check(
+    before =
+      """f {
+        |  1
+        |  2
+        |  3
+        |}""".stripMargin,
+    after =
+      """f({
+        |  1
+        |  2
+        |  3
+        |})""".stripMargin
+  )()
+
   // TODO test synthetic method
+}
+
+final class CanonizeBlockArgumentTestIgnored_Scala3 extends CanonizeBlockArgumentTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
+
+  def testFewerBraces(): Unit = check(
+    before =
+      """f:
+        |  1
+        |  2
+        |  3
+        |""".stripMargin,
+    after =
+      """f({
+        |  1
+        |  2
+        |  3
+        |})""".stripMargin
+  )()
+
 }
 
 @Ignore("flaky tests")
