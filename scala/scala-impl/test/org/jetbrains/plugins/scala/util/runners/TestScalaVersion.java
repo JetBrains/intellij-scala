@@ -13,7 +13,7 @@ public enum TestScalaVersion {
     Scala_3_1,
     Scala_3_2,
     Scala_3_Latest,
-    Scala_3_3_Nightly
+    Scala_3_3_RC
     ;
 
     public org.jetbrains.plugins.scala.ScalaVersion toProductionVersion() {
@@ -32,7 +32,7 @@ public enum TestScalaVersion {
             case Scala_3_0 -> LatestScalaVersions.Scala_3_0();
             case Scala_3_1 -> LatestScalaVersions.Scala_3_1();
             case Scala_3_2 -> LatestScalaVersions.Scala_3_2();
-            case Scala_3_3_Nightly -> LatestScalaVersions.Scala_3_3_Nightly();
+            case Scala_3_3_RC -> LatestScalaVersions.Scala_3_3_RC();
             case Scala_3_Latest -> LatestScalaVersions.Scala_3();
         };
     }
