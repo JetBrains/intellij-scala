@@ -8,7 +8,6 @@ import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.plugins.scala.compiler.data.SbtData
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
 
-import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters._
 
 class ScalaBuildProcessParametersProvider(project: Project)
@@ -52,18 +51,12 @@ class ScalaBuildProcessParametersProvider(project: Project)
   private def scalaCompileServerSystemDir(): String =
     s"-Dscala.compile.server.system.dir=${CompileServerLauncher.scalaCompileServerSystemDir}"
 
-  /**
-   * A cache to avoid recomputing the `rt.jar` location on every invocation of the JPS build system.
-   * Only the path to the JPS build process JDK is kept, not a reference to the SDK, to avoid leaks.
-   */
-  private val jdkCache: ConcurrentHashMap[String, Seq[String]] = new ConcurrentHashMap()
-
   private def java9rtParams(): Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance()
     if (settings.COMPILE_SERVER_ENABLED) Seq.empty
     else {
       val sdk = CompileServerJdkManager.getBuildProcessRuntimeSdk(project)
-      jdkCache.computeIfAbsent(sdk.getHomePath, _ => toJdk(sdk).map(CompileServerLauncher.prepareJava9rtJar).getOrElse(Seq.empty))
+      toJdk(sdk).map(CompileServerLauncher.prepareJava9rtJar).getOrElse(Seq.empty)
     }
   }
 
