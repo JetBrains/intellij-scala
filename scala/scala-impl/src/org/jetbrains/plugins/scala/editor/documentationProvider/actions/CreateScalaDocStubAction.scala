@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider.actions
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.{Document, Editor}
@@ -20,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDocCommentOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaDocCommentFromText
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.jetbrains.plugins.scala.util.IndentUtil
 
 import scala.collection.mutable
 
@@ -129,9 +131,19 @@ object CreateScalaDocStubAction {
     val project = docOwner.getProject
     val docCommentEnd = docOwner.getTextRange.getStartOffset
 
+    val tabSize = CodeStyle.getSettings(project).getTabSize(docOwner.getLanguage.getAssociatedFileType)
+    val indent = IndentUtil.calcIndent(docOwner, tabSize)
+
+    val newIndentedCommentText =
+      if (indent <= 0) newComment.getText + "\n"
+      else {
+        val indentedLineBreak = "\n" + (" " * indent)
+        newComment.getText.replaceAll("\n", indentedLineBreak) + indentedLineBreak
+      }
+
     val commandBody: Runnable = () => {
       inWriteAction {
-        psiDocument.insertString(docCommentEnd, newComment.getText + "\n")
+        psiDocument.insertString(docCommentEnd, newIndentedCommentText)
         PsiDocumentManager.getInstance(project).commitDocument(psiDocument)
       }
 

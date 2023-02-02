@@ -5,14 +5,15 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.editor.documentationProvider.actions.CreateScalaDocStubAction
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffset
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert.assertEquals
 
-class CreateScalaDocStubActionTest extends ScalaLightCodeInsightFixtureTestCase {
+abstract class CreateScalaDocStubActionTestBase extends ScalaLightCodeInsightFixtureTestCase {
+  protected val | = EditorTestUtil.CARET_TAG
 
-  private def | = EditorTestUtil.CARET_TAG
   private def action = new CreateScalaDocStubAction
 
-  private def doTest(codeBefore: String, codeAfter: String): Unit = {
+  protected def doTest(codeBefore: String, codeAfter: String): Unit = {
     val stripTrailingSpaces = true
     configureByText(codeBefore, stripTrailingSpaces)
 
@@ -26,6 +27,16 @@ class CreateScalaDocStubActionTest extends ScalaLightCodeInsightFixtureTestCase 
 
     assertEquals("Wrong caret offset", expectedOffset, getEditor.getCaretModel.getOffset)
   }
+
+  private def configureByText(text: String, stripTrailingSpaces: Boolean): Unit = {
+    val (normalizedText, offset) = findCaretOffset(text, stripTrailingSpaces)
+
+    myFixture.configureByText("dummy.scala", normalizedText)
+    getEditor.getCaretModel.moveToOffset(offset)
+  }
+}
+
+class CreateScalaDocStubActionTest extends CreateScalaDocStubActionTestBase {
 
   def testClass_WithoutParameters(): Unit = {
     doTest(
@@ -89,11 +100,101 @@ class CreateScalaDocStubActionTest extends ScalaLightCodeInsightFixtureTestCase 
          |  class ${|}A(x: Int, str: String)
          |}""".stripMargin
     )
+}
 
-  private def configureByText(text: String, stripTrailingSpaces: Boolean): Unit = {
-    val (normalizedText, offset) = findCaretOffset(text, stripTrailingSpaces)
+final class CreateScalaDocStubActionTest_Scala3 extends CreateScalaDocStubActionTest {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
 
-    myFixture.configureByText("dummy.scala", normalizedText)
-    getEditor.getCaretModel.moveToOffset(offset)
+  def testIndentedClass_WithoutParameters(): Unit = {
+    doTest(
+      s"""object Test:
+         |  class ${|}A
+         |""".stripMargin,
+      s"""object Test:
+         |  /**
+         |   *
+         |   */
+         |  class ${|}A
+         |""".stripMargin
+    )
+
+    doTest(
+      s"""object Test:
+         |
+         |
+         |  class ${|}A
+         |""".stripMargin,
+      s"""object Test:
+         |
+         |
+         |  /**
+         |   *
+         |   */
+         |  class ${|}A
+         |""".stripMargin
+    )
   }
+
+  def testIndentedClass_WithParameters(): Unit =
+    doTest(
+      s"""object Test:
+         |  class ${|}A(x: Int, str: String)
+         |""".stripMargin,
+      s"""object Test:
+         |  /**
+         |   * @param x
+         |   * @param str
+         |   */
+         |  class ${|}A(x: Int, str: String)
+         |""".stripMargin
+    )
+
+  def testIndentedClass_WithParameters_Recreate(): Unit =
+    doTest(
+      s"""object Test:
+         |  /**
+         |   * @param x
+         |   */
+         |  class ${|}A(x: Int, str: String)
+         |""".stripMargin,
+      s"""object Test:
+         |  /**
+         |   * @param x
+         |   * @param str
+         |   */
+         |  class ${|}A(x: Int, str: String)
+         |""".stripMargin
+    )
+
+  def testFunction_Nested(): Unit =
+    doTest(
+      s"""object Test:
+         |
+         |  def foo(): Unit =
+         |
+         |    def b${|}ar(i: Int): Unit =
+         |      println(i)
+         |
+         |    println(0)
+         |    bar(1)
+         |    bar(2)
+         |  end foo
+         |""".stripMargin,
+      s"""object Test:
+         |
+         |  def foo(): Unit =
+         |
+         |    /**
+         |     * @param i
+         |     */
+         |    def b${|}ar(i: Int): Unit =
+         |      println(i)
+         |
+         |    println(0)
+         |    bar(1)
+         |    bar(2)
+         |  end foo
+         |""".stripMargin
+    )
 }
