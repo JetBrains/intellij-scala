@@ -73,7 +73,7 @@ object ExternalHighlighters {
       ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
       val wolf = WolfTheProblemSolver.getInstance(project)
       val errorFiles = filterFilesToHighlightBasedOnFileLevel(state.filesWithHighlightings(errorTypes), project)
-      errorFiles.foreach(wolf.reportProblemsFromExternalSource(_, this))
+      inReadAction(errorFiles.foreach(wolf.reportProblemsFromExternalSource(_, this)))
     }
 
   private[highlighting] def filterFilesToHighlightBasedOnFileLevel(
