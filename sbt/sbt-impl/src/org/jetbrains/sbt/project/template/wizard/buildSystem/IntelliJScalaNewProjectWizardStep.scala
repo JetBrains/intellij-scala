@@ -12,7 +12,7 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContain
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.DialogValidation
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.ui.dsl.builder.{Panel, Row, RowLayout}
+import com.intellij.ui.dsl.builder.{Panel, Row}
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import kotlin.Unit.{INSTANCE => KUnit}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -22,7 +22,6 @@ import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardStep
 
 import java.nio.file.{Path, Paths}
-import java.util.Collections
 import javax.swing.{JComboBox, JComponent}
 
 /** inspired by [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard]] */
@@ -66,8 +65,14 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     }
   }
 
-  //noinspection ApiStatus,UnstableApiUsage
-  override def customOptions(panel: Panel): Unit = {
+  override def setupSettingsUI(panel: Panel): Unit = {
+    setupJavaSdkUI(panel)
+    setupScalaSdkUI(panel)
+    setupPackagePrefixUI(panel)
+    setupSampleCodeUI(panel)
+  }
+
+  private def setupScalaSdkUI(panel: Panel): Unit = {
     panel.row(scalaSdkLabelText, (row: Row) => {
       val simplePanel = libraryPanel.getSimplePanel
       val components = simplePanel.getComponents.map(_.asInstanceOf[JComponent])
@@ -94,12 +99,14 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       }
       KUnit
     })
+  }
+
+  private def setupPackagePrefixUI(panel: Panel): Unit = {
     panel.row(packagePrefixLabel, (row: Row) => {
       row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.LEFT)
       KUnit
     })
   }
-
 
   //////////////////////////////////////////
   // [BOILERPLATE] Delegate to parent
