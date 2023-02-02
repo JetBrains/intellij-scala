@@ -126,8 +126,8 @@ object ScalaGenerateEqualsAction {
       val sign = new PhysicalMethodSignature(
         createMethodWithContext(declText + " = true", aClass, aClass.extendsBlock),
         ScSubstitutor.empty)
-      val overrideMod = overrideModifier(aClass, sign)
-      val text = s"$overrideMod $declText = $otherParamName.isInstanceOf[${aClass.name}]"
+      val modifiers = if (needsOverrideModifier(aClass, sign)) ScalaKeyword.OVERRIDE else ScalaKeyword.PRIVATE
+      val text = s"$modifiers $declText = $otherParamName.isInstanceOf[${aClass.name}]"
       createMethodWithContext(text, aClass, aClass.extendsBlock)
     }
 
@@ -225,11 +225,10 @@ object ScalaGenerateEqualsAction {
       }
     }
 
-    private def overrideModifier(definition: ScTemplateDefinition, signature: TermSignature): String = {
-      val needModifier = methodSignaturesToOverride(definition).exists {
-        _.equiv(signature)
-      }
-      if (needModifier) ScalaKeyword.OVERRIDE else ""
+    private def needsOverrideModifier(definition: ScTemplateDefinition, signature: TermSignature): Boolean = {
+      val signatures = methodSignaturesToOverride(definition)
+      val overriddenSignature = signatures.find(_.equiv(signature))
+      overriddenSignature.isDefined
     }
 
     private def overridesFromJavaObject(definition: ScTemplateDefinition, signature: TermSignature): Boolean =

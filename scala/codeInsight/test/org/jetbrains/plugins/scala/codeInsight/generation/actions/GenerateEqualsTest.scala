@@ -24,7 +24,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
         |  var y = 0
         |  private val z = 0
         |
-        |  def canEqual(other: Any): Boolean = other.isInstanceOf[A]
+        |  private def canEqual(other: Any): Boolean = other.isInstanceOf[A]
         |
         |  override def equals(other: Any): Boolean = other match {
         |    case that: A =>
@@ -178,7 +178,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
         |class B (i: Int, val j: Int) extends A {
         |  val z = 0
         |
-        |  def canEqual(other: Any): Boolean = other.isInstanceOf[B]
+        |  private def canEqual(other: Any): Boolean = other.isInstanceOf[B]
         |
         |  override def equals(other: Any): Boolean = other match {
         |    case that: B =>
@@ -214,7 +214,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
         |  val other: Int
         |) {
         |
-        |  def canEqual(other1: Any): Boolean = other1.isInstanceOf[Foo]
+        |  private def canEqual(other1: Any): Boolean = other1.isInstanceOf[Foo]
         |
         |  override def equals(other1: Any): Boolean = other1 match {
         |    case that1: Foo =>
@@ -255,7 +255,7 @@ class GenerateEqualsTest_Scala3 extends ScalaGenerateTestBase {
         |  val x = 0
         |  var y = 0
         |
-        |  def canEqual(other: Any): Boolean = other.isInstanceOf[A]
+        |  private def canEqual(other: Any): Boolean = other.isInstanceOf[A]
         |
         |  override def equals(other: Any): Boolean = other match
         |    case that: A =>
@@ -395,7 +395,7 @@ class GenerateEqualsTest_Scala3 extends ScalaGenerateTestBase {
         |  val a = 0
         |
         |class B (i: Int, val j: Int) extends A:
-        |  def canEqual(other: Any): Boolean = other.isInstanceOf[B]
+        |  private def canEqual(other: Any): Boolean = other.isInstanceOf[B]
         |
         |  override def equals(other: Any): Boolean = other match
         |    case that: B =>
