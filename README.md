@@ -91,13 +91,17 @@ The full test suite isn't run to avoid really long build times.
 
 ## Common problems
 1. **Error `object BuildInfo is already defined ...` during compilation of the project** \
-   BuildInfo is an sbt plugin that exposes some of the sbt build metadata to the main project. We use it to forward some dependencies versions from the build sources to main project sources. Sometimes during import this generated source root is added to scala-impl module multiple times. Make sure it's only included once, as shown below.
+   BuildInfo is an sbt plugin that exposes some of the sbt build metadata to the main project. We use it to forward some dependencies versions from the build sources to main project sources. Sometimes during import this generated source root is added to scala-impl module multiple times. Make sure it's only included once by removing duplicates.
 
 2. **Can't browse IntelliJ Platform sources** \
    When loading Scala Plugin project in sbt, the IntelliJ platform is downloaded to `<home>/.ScalaPluginIC/sdk/<sdk version>/`.
    IntelliJ platform sources should be automatically attached after project has been imported and indices have been built. \
-   However, sometimes this doesn't happen and the sources are not attached. As a result you see decompiled code when opening a Platform API class.
-   To fix this you can invoke "Attach Intellij Sources" action (you need to enable [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) to access this action)
+   However, sometimes this doesn't happen and the sources are not attached. As a result you see decompiled code when opening a Platform API class. \
+   **Solution:** \
+   Invoke "Attach Intellij Sources" action (you need to enable [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) to access this action
+3. After building the project you see git local changes in `ImportsPanel.java` (or similar files). All `IdeBorderFactory.PlainSmallWithIndent` are replaced with `BorderFactory` \
+**Solution**: enable [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html). \
+UI Designer uses different border class in internal mode, see `com.intellij.uiDesigner.make.FormSourceCodeGenerator#borderFactoryClassName`
 
 ## Other
 ### Investigation performance issues
