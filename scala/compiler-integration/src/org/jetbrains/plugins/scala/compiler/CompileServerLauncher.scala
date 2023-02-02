@@ -14,7 +14,6 @@ import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
@@ -22,6 +21,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
+
 //noinspection ApiStatus,UnstableApiUsage
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 
@@ -412,30 +412,32 @@ object CompileServerLauncher {
       // The output of the command is a path like the following:
       // <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5
       // for Eclipse Adoptium 17.0.5
-      val exportDirectoryPath =
-        Path.of(s"${jdk.executable.canonicalPath} -Dsbt.global.base=$jvmRtDir -jar $java9rtExportJar --rt-ext-dir".!!.trim)
+      Try {
+        val exportDirectoryPath =
+          Path.of(s"${jdk.executable.canonicalPath} -Dsbt.global.base=$jvmRtDir -jar $java9rtExportJar --rt-ext-dir".!!.trim)
 
-      // The full path of the produced `rt.jar`.
-      // Example: <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5/rt.jar
-      val rtJarPath = exportDirectoryPath.resolve("rt.jar")
+        // The full path of the produced `rt.jar`.
+        // Example: <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5/rt.jar
+        val rtJarPath = exportDirectoryPath.resolve("rt.jar")
 
-      // Create the export directory if it doesn't exist.
-      val exportDirectory = exportDirectoryPath.toFile
-      if (!exportDirectory.exists()) {
-        exportDirectory.mkdirs()
-      }
+        // Create the export directory if it doesn't exist.
+        val exportDirectory = exportDirectoryPath.toFile
+        if (!exportDirectory.exists()) {
+          exportDirectory.mkdirs()
+        }
 
-      // Create the `rt.jar` if it doesn't exist.
-      if (!rtJarPath.toFile.exists()) {
-        // The command
-        // `java -jar <plugin root>/java9-rt-export/java9-rt-export.jar <IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
-        // is executed and creates the `rt.jar`.
-        s"${jdk.executable.canonicalPath} -jar $java9rtExportJar $rtJarPath".!
-      }
+        // Create the `rt.jar` if it doesn't exist.
+        if (!rtJarPath.toFile.exists()) {
+          // The command
+          // `java -jar <plugin root>/java9-rt-export/java9-rt-export.jar <IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
+          // is executed and creates the `rt.jar`.
+          s"${jdk.executable.canonicalPath} -jar $java9rtExportJar $rtJarPath".!
+        }
 
-      // The path of the directory with the exported `rt.jar` is provided as a JVM parameter
-      // `-Dscala.ext.dirs=<IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
-      Seq(s"$scalaExtDirsParameterString=$exportDirectoryPath")
+        // The path of the directory with the exported `rt.jar` is provided as a JVM parameter
+        // `-Dscala.ext.dirs=<IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
+        Seq(s"$scalaExtDirsParameterString=$exportDirectoryPath")
+      }.getOrElse(Seq.empty)
     }
   }
 
