@@ -103,10 +103,9 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       row.cell(downloadScalaSourcesCheckbox)
       KUnit
     })
-    panel.row(packagePrefixLabel, (row: Row) => {
-      row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.LEFT)
-      KUnit
-    })
+
+    setupPackagePrefixUI(panel)
+
     panel.row(null: JLabel, (row: Row) => {
       val cb = row.checkBox(UIBundle.message("label.project.wizard.new.project.add.sample.code"))
       ButtonKt.bindSelected(cb, addSampleCodeProperty: com.intellij.openapi.observable.properties.ObservableMutableProperty[java.lang.Boolean])
