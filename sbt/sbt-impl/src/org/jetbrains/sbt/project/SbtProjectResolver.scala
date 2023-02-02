@@ -34,6 +34,7 @@ import org.jetbrains.sbt.structure.{BuildData, Configuration, ConfigurationData,
 import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, usingTempFile, structure => sbtStructure}
 
 import java.io.{File, FileNotFoundException}
+import java.nio.file.Path
 import java.util.{Collections, Locale, UUID}
 import scala.collection.{MapView, mutable}
 import scala.concurrent.Await
@@ -305,7 +306,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val dummyBuildData = BuildData(projectRoot.toURI, Seq.empty, Seq.empty, Seq.empty, Seq.empty)
     val buildModule = createBuildModule(dummyBuildData, projects, moduleFilesDirectory, None, sbtVersion)
-    projectNode.add(buildModule)
+    projectNode.add(buildModule.moduleNode)
 
     projectNode
   }
@@ -352,15 +353,57 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val sharedSourceModules = createSharedSourceModules(projectToModule, libraryNodes, moduleFilesDirectory)
     projectNode.addAll(sharedSourceModules)
 
-    val buildModuleForProject: BuildData => ModuleNode = createBuildModule(_, projects, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath), sbtVersion)
+    val buildModuleForProject: BuildData => BuildModuleNodeWithBuildBaseDir = createBuildModule(_, projects, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath), sbtVersion)
     val buildModules = data.builds.map(buildModuleForProject)
 
     if (buildModules.size > 1) {
-      buildModules.foreach(_.setIdeModuleGroup(Array("sbt-build-modules")))
+      buildModules.foreach(_.moduleNode.setIdeModuleGroup(Array("sbt-build-modules")))
     }
 
-    projectNode.addAll(buildModules)
+    configureBuildModuleDependencies(buildModules)
+
+    projectNode.addAll(buildModules.map(_.moduleNode))
     projectNode
+  }
+
+  /**
+   * Some SBT builds can have nested sbT builds.
+   * Scala Plugin project is a good example for that.
+   * There is Ultimate part and Community part and Community part is a nested build for Ultimate.
+   * In order we can resolve entities of community module in ultimate module
+   * we need to add a dependency on `scalaCommunity-build` module to `scalaUltimate-build` module.
+   *
+   * @todo So far this is a hacky solution which only works for 2s build modules.
+   *       It's primarily designed to work in Scala Plugin project.
+   *       It doesnt work in case there are more nested projects.
+   *       For that case a more general solution is needed, but it would be nice to have more project examples
+   */
+  private def configureBuildModuleDependencies(buildModules: Seq[BuildModuleNodeWithBuildBaseDir]): Unit = {
+    if (buildModules.size == 2) {
+      val Seq(module1, module2) = buildModules
+
+      def addModuleDependency(parentModule: ModuleNode, childModule: ModuleNode): Unit = {
+        val dependencyNode = new ModuleDependencyNode(parentModule, childModule)
+        dependencyNode.setScope(DependencyScope.COMPILE)
+        dependencyNode.setExported(true)
+        parentModule.add(dependencyNode)
+      }
+
+      if (isChild(module1.buildBaseDir.toPath, module2.buildBaseDir.toPath)) {
+        addModuleDependency(module2.moduleNode, module1.moduleNode)
+      }
+      else if (isChild(module2.buildBaseDir.toPath, module1.buildBaseDir.toPath)) {
+        addModuleDependency(module1.moduleNode, module2.moduleNode)
+      }
+      else {
+        //modules are not hierarchical? Not sure if such case possible but will leave the empty branch here
+      }
+    }
+  }
+
+  private def isChild(child: Path, parentPath: Path): Boolean = {
+    val parent = parentPath.normalize()
+    child.normalize().startsWith(parent)
   }
 
   /** Choose a project jdk based on information from sbt settings and IDE.
@@ -608,8 +651,18 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     } else List(project.target)
   }
 
-  private def createBuildModule(build: sbtStructure.BuildData, projects: Seq[ProjectData], moduleFilesDirectory: File, localCachePath: Option[String], sbtVersion: String): ModuleNode = {
+  private case class BuildModuleNodeWithBuildBaseDir(
+    moduleNode: ModuleNode,
+    buildBaseDir: File
+  )
 
+  private def createBuildModule(
+    build: sbtStructure.BuildData,
+    projects: Seq[ProjectData],
+    moduleFilesDirectory: File,
+    localCachePath: Option[String],
+    sbtVersion: String
+  ): BuildModuleNodeWithBuildBaseDir = {
     val buildBaseProject =
       projects
         .filter(p => p.buildURI == build.uri)
@@ -624,7 +677,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       .map(_.name +  Sbt.BuildModuleSuffix)
       .getOrElse(build.uri.toString)
 
-    val buildBaseDir = buildBaseProject
+    val buildBaseDir: File = buildBaseProject
       .map(_.base)
       .getOrElse {
         if (build.uri.getScheme == "file") new File(build.uri.getPath)
@@ -655,7 +708,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     result.add(createSbtBuildModuleData(build, projects, localCachePath))
 
-    result
+    BuildModuleNodeWithBuildBaseDir(result, buildBaseDir)
   }
 
   private def createBuildContentRoot(buildRoot: File): ContentRootNode = {
