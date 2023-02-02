@@ -4,7 +4,7 @@ import com.intellij.facet.impl.ui.libraries.LibraryOptionsPanel
 import com.intellij.framework.library.FrameworkLibraryVersionFilter
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer
 import com.intellij.ui.components.{ComponentsKt, JBTextField}
-import com.intellij.ui.dsl.gridLayout.HorizontalAlign
+import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.util.ui.UI
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -58,7 +58,7 @@ trait PackagePrefixStepLike {
 
   protected def setupPackagePrefixUI(panel: com.intellij.ui.dsl.builder.Panel): Unit = {
     panel.row(packagePrefixLabel, (row: com.intellij.ui.dsl.builder.Row) => {
-      row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.LEFT)
+      row.cell(packagePrefixTextField).align(AlignX.LEFT.INSTANCE)
       kotlin.Unit.INSTANCE
     })
   }
