@@ -38,6 +38,11 @@ object ScalaGenerateEqualsAction {
     private lazy val myEqualsFields = collection.mutable.LinkedHashSet[ScNamedElement]()
     private lazy val myHashCodeFields = collection.mutable.LinkedHashSet[ScNamedElement]()
 
+    private def getUniqueLocalVarName(baseName: String): String = {
+      val fieldNames = myHashCodeFields.map(_.name).toSet
+      ScalaGenerateEqualsAction.getUniqueLocalVarName(baseName, fieldNames)
+    }
+
     private def chooseOriginalMembers(aClass: ScClass)
                                      (implicit project: Project, editor: Editor): Boolean = {
       val equalsMethod = hasEquals(aClass)
@@ -101,11 +106,13 @@ object ScalaGenerateEqualsAction {
         createMethodWithContext(declText + " = 0", aClass, aClass.extendsBlock),
         ScSubstitutor.empty)
       val superCall = Option(if (!overridesFromJavaObject(aClass, signature)) "super.hashCode()" else null)
-      val usedFields = superCall ++ myHashCodeFields.map(_.name)
-      val stateText = usedFields.mkString("Seq(", ", ", ")")
-      val firstStmtText = s"val state = $stateText"
+      val fieldNames = myHashCodeFields.map(_.name)
+      val stateParts = superCall ++ fieldNames
+      val stateText = stateParts.mkString("Seq(", ", ", ")")
+      val stateValName = getUniqueLocalVarName("state")
+      val firstStmtText = s"val $stateValName = $stateText"
       val arrow = ScalaPsiUtil.functionArrow(ctx)
-      val calculationText = s"state.map(_.hashCode()).foldLeft(0)((a, b) $arrow 31 * a + b)"
+      val calculationText = s"$stateValName.map(_.hashCode()).foldLeft(0)((a, b) $arrow 31 * a + b)"
       val methodText =
         optBraces"""override $declText =$BlockStart
                    |  $firstStmtText
@@ -114,29 +121,32 @@ object ScalaGenerateEqualsAction {
     }
 
     private def createCanEqual(aClass: ScClass): ScFunction = {
-      val declText = "def canEqual(other: Any): Boolean"
+      val otherParamName = getUniqueLocalVarName("other")
+      val declText = s"def canEqual($otherParamName: Any): Boolean"
       val sign = new PhysicalMethodSignature(
         createMethodWithContext(declText + " = true", aClass, aClass.extendsBlock),
         ScSubstitutor.empty)
       val overrideMod = overrideModifier(aClass, sign)
-      val text = s"$overrideMod $declText = other.isInstanceOf[${aClass.name}]"
+      val text = s"$overrideMod $declText = $otherParamName.isInstanceOf[${aClass.name}]"
       createMethodWithContext(text, aClass, aClass.extendsBlock)
     }
 
     private def createEquals(aClass: ScClass)(implicit ctx: ProjectContext, features: ScalaFeatures): ScFunction = {
-      val fieldComparisons = myEqualsFields.map(_.name).map(name => s"$name == that.$name")
-      val declText = "def equals(other: Any): Boolean"
+      val thatValName = getUniqueLocalVarName("that")
+      val otherParamName = getUniqueLocalVarName("other")
+      val fieldComparisons = myEqualsFields.map(_.name).map(name => s"$name == $thatValName.$name")
+      val declText = s"def equals($otherParamName: Any): Boolean"
       val signature = new PhysicalMethodSignature(
         createMethodWithContext(declText + " = false", aClass, aClass.extendsBlock),
         ScSubstitutor.empty)
-      val superCheck = Option(if (!overridesFromJavaObject(aClass, signature)) "super.equals(that)" else null)
-      val canEqualCheck = Option(if (aClass.hasFinalModifier) null else "(that canEqual this)")
+      val superCheck = Option(if (!overridesFromJavaObject(aClass, signature)) s"super.equals($thatValName)" else null)
+      val canEqualCheck = Option(if (aClass.hasFinalModifier) null else s"$thatValName.canEqual(this)")
       val allChecks = superCheck ++ canEqualCheck ++ fieldComparisons
       val checksText = allChecks.mkString(" &&\n")
       val arrow = ScalaPsiUtil.functionArrow(ctx)
       val text =
-        optBraces"""override $declText = other match$BlockStart
-                   |  case that: ${aClass.name} $arrow
+        optBraces"""override $declText = $otherParamName match$BlockStart
+                   |  case $thatValName: ${aClass.name} $arrow
                    |    $checksText
                    |  case _ $arrow false$BlockEnd""".stripMargin.replace("\r", "")
       createMethodWithContext(text, aClass, aClass.extendsBlock)
@@ -233,4 +243,15 @@ object ScalaGenerateEqualsAction {
       elementOfTypeAtCaret(classOf[ScClass])
   }
 
+  private def getUniqueLocalVarName(baseName: String, existingNames: Set[String]): String = {
+    def clashes(name: String): Boolean = existingNames.contains(name)
+
+    if (clashes(baseName)) {
+      //1000 is used as a random big number, we don't expect that classes will have so much fields
+      val candidates = (1 to 1000).iterator.map(baseName + _)
+      candidates.find(newName => !clashes(newName)).getOrElse(baseName)
+    }
+    else
+      baseName
+  }
 }
