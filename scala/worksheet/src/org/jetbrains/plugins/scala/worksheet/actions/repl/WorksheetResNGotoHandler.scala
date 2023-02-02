@@ -55,7 +55,10 @@ private object WorksheetResNGotoHandler {
    */
   private def findReferencedPsi(ref: ScReferenceExpression): Option[Array[PsiElement]] = {
     val resolvedElements: Array[PsiElement] = ref.multiResolveScala(false).map(_.element)
-    val resolvedResNCandidate = resolvedElements.find(r => !r.getParent.isPhysical)
+    val resolvedResNCandidate = resolvedElements.find { r =>
+      val parent = r.getParent
+      parent != null && !parent.isPhysical
+    }
 
     val resolvedElementWithResNTarget = for {
       resolved <- resolvedResNCandidate
