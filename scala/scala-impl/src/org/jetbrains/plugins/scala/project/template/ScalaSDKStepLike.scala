@@ -4,6 +4,7 @@ import com.intellij.facet.impl.ui.libraries.LibraryOptionsPanel
 import com.intellij.framework.library.FrameworkLibraryVersionFilter
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer
 import com.intellij.ui.components.{ComponentsKt, JBTextField}
+import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.util.ui.UI
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -30,7 +31,7 @@ trait ScalaSDKStepLike extends PackagePrefixStepLike {
 
 trait PackagePrefixStepLike {
 
-  protected val packagePrefixHelpText: String = ScalaBundle.message("package.prefix.help")
+  private val packagePrefixHelpText: String = ScalaBundle.message("package.prefix.help")
 
   /**
    * In NewProjectWizard we can't use `prefixPanel` created with  `UI.PanelFactory.panel.withTooltip`
@@ -52,7 +53,13 @@ trait PackagePrefixStepLike {
 
   protected val packagePrefixLabelText: String = ScalaBundle.message("package.prefix.label")
 
-  protected val packagePrefixLabel: JLabel =
+  private val packagePrefixLabel: JLabel =
     ComponentsKt.Label(packagePrefixLabelText, null, null, false, null)
 
+  protected def setupPackagePrefixUI(panel: com.intellij.ui.dsl.builder.Panel): Unit = {
+    panel.row(packagePrefixLabel, (row: com.intellij.ui.dsl.builder.Row) => {
+      row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.LEFT)
+      kotlin.Unit.INSTANCE
+    })
+  }
 }

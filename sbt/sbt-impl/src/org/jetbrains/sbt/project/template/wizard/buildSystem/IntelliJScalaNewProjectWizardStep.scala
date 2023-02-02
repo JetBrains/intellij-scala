@@ -11,7 +11,6 @@ import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.DialogValidation
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.ui.dsl.builder.{Panel, Row}
-import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import kotlin.Unit.{INSTANCE => KUnit}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.ScalaLibraryProperties
@@ -94,13 +93,6 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
         }
         cell
       }
-      KUnit
-    })
-  }
-
-  private def setupPackagePrefixUI(panel: Panel): Unit = {
-    panel.row(packagePrefixLabel, (row: Row) => {
-      row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.LEFT)
       KUnit
     })
   }
