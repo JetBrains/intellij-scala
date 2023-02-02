@@ -8,8 +8,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.dsl.builder.{Row, SegmentedButton}
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard
 
-import java.nio.file.Path
-
 /** analog of [[com.intellij.ide.projectWizard.generators.JavaNewProjectWizard.Step]] */
 //noinspection ApiStatus,UnstableApiUsage
 final class ScalaNewProjectWizardStep(parent: NewProjectWizardLanguageStep)
@@ -62,6 +60,4 @@ final class ScalaNewProjectWizardStep(parent: NewProjectWizardLanguageStep)
 
   override def getPath: String = parent.getPath
   override def setPath(path: String): Unit = parent.setPath(path)
-
-  override def getProjectPath: Path = parent.getProjectPath
 }
