@@ -56,4 +56,17 @@ class ConvertUnderscoreToParameterIntentionTest extends ScalaIntentionTestBase{
     doTest(text, resultText)
   }
 
+  def testIntroduceExplicitParameterAndRemoveTypeFromExpression1(): Unit = {
+    val text = "Seq(1).map((<caret>_: Int) + 1)"
+    val resultText = "Seq(1).map((i: Int) => i + 1)"
+
+    doTest(text, resultText)
+  }
+
+  def testIntroduceExplicitParameterAndRemoveTypeFromExpression2(): Unit = {
+    val text = "Seq((1, 1)).map((<caret>_: Int) + (_: Int))"
+    val resultText = "Seq((1, 1)).map((i: Int, i1: Int) => i + i1)"
+
+    doTest(text, resultText)
+  }
 }

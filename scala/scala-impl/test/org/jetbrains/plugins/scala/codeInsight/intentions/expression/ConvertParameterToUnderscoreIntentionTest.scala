@@ -50,23 +50,23 @@ class ConvertParameterToUnderscoreIntentionTest extends ScalaIntentionTestBase {
 
   def testIntroduceImplicitParameter7(): Unit = {
     val text = """
-    | val x: Int => Int = i<caret> => {
-    |   i + {
-    |     1 + {
-    |       i
-    |     }
-    |   }
-    | }
-    """.stripMargin
+    |val x: Int => Int = i<caret> => {
+    |  i + {
+    |    1 + {
+    |      i
+    |    }
+    |  }
+    |}
+    """.stripMargin.trim
     val resultText= """
-    | val x: Int => Int = i => {
-    |   i + {
-    |     1 + {
-    |       i
-    |     }
-    |   }
-    | }
-    """.stripMargin
+    |val x: Int => Int = i => {
+    |  i + {
+    |    1 + {
+    |      i
+    |    }
+    |  }
+    |}
+    """.stripMargin.trim
 
     try {
       doTest(text, resultText)
@@ -219,6 +219,13 @@ class ConvertParameterToUnderscoreIntentionTest_Scala3 extends ScalaIntentionTes
       s"""some.map:
          |  $CARET(_: Int) > 5
          |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testIntroduceImplicitParameterButDontRemoveTheType(): Unit = {
+    val text = "Seq(1).map((<caret>i: Int) => i + 1)"
+    val resultText = "Seq(1).map((_: Int) + 1)"
 
     doTest(text, resultText)
   }

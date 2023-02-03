@@ -74,7 +74,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
     }
     val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(funText, elems.head.getContext, elems.head).asInstanceOf[ScFunctionExpr]
     val toReturn = ConvertParameterToUnderscoreIntention.createExpressionToIntroduce(expr, withoutParameterTypes = true) match {
-      case Left(e) => e
+      case Right(e) => e
       case _ => expr
     }
     ScalaPsiUtil.adjustTypes(toReturn, addImports = false)
