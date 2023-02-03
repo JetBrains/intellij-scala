@@ -4,6 +4,7 @@ import com.intellij.openapi.util.ModificationTracker
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.caches.CacheInUserData._
 import org.jetbrains.plugins.scala.caches.CacheWithRecursionGuard.{cacheWithRecursionGuard0, cacheWithRecursionGuardN}
+import org.jetbrains.plugins.scala.caches.stats.Tracer
 
 package object caches {
 
@@ -64,4 +65,16 @@ package object caches {
 
   def cachedWithRecursionGuard[T <: Product, R](name: String, element: PsiElement, defaultValue: => R, dependency: => AnyRef, v: T)(f: => R): R =
     cacheWithRecursionGuardN[T, R]((() => f).getClass.getName, name, element, defaultValue, dependency, v, f)
+
+  def measure[R](name: String)(f: => R): R = {
+    val tracer = Tracer(f.getClass.getName, name)
+    tracer.invocation()
+    tracer.calculationStart()
+    try {
+      f
+    } finally {
+      tracer.calculationEnd()
+    }
+  }
 }
+

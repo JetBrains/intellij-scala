@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
+import org.jetbrains.plugins.scala.caches.measure
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.functionTypeNoImplicits
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -10,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 private case class NonValueFunctionTypes(fun: ScFunction, substitutor: ScSubstitutor, typeFromMacro: Option[ScType]) {
 
@@ -49,10 +49,9 @@ private object NonValueFunctionTypes {
 
   private case class MethodTypeData(methodType: ScType, hasImplicitClause: Boolean)
 
-  @Measure
   private def computeMethodType(fun: ScFunction,
                                 substitutor: ScSubstitutor,
-                                undefinedTypeData: UndefinedTypeData): Option[MethodTypeData] = {
+                                undefinedTypeData: UndefinedTypeData): Option[MethodTypeData] = measure("NonValueFunctionTypes.computeMethodType") {
     val typeParameters = fun.typeParametersWithExtension
     //@TODO: multiple using clauses
     val clauses        = fun.parameterClausesWithExtension
@@ -79,10 +78,9 @@ private object NonValueFunctionTypes {
     }
   }
 
-  @Measure
   private def computeUndefinedType(fun: ScFunction,
                                    substitutor: ScSubstitutor,
-                                   typeFromMacro: Option[ScType]): Option[UndefinedTypeData] = {
+                                   typeFromMacro: Option[ScType]): Option[UndefinedTypeData] = measure("NonValueFunctionTypes.computeUndefinedType") {
     val ft = functionTypeNoImplicits(fun)
 
     ft match {
