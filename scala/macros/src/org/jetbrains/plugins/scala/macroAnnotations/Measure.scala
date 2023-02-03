@@ -4,7 +4,7 @@ import scala.annotation.StaticAnnotation
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
-class Measure(params: Any*) extends StaticAnnotation {
+class Measure extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro Measure.measureImpl
 }
 
@@ -14,13 +14,6 @@ object Measure {
     import c.universe._
     implicit val x: c.type = c
 
-    def trackedExprs: Seq[c.universe.Tree] = {
-      c.prefix.tree match {
-        case q"new Measure(..$params)" => params.map(_.asInstanceOf[c.universe.Tree])
-        case _ => Seq.empty
-      }
-    }
-
     annottees.toList match {
       case DefDef(mods, termName, tpParams, paramss, retTp, rhs) :: Nil =>
 
@@ -29,7 +22,7 @@ object Measure {
         val cacheName = withClassName(termName)
         val updatedBody =
           q"""
-            val _tracer_ = ${internalTracerInstance(c)(uniqueId, cacheName, trackedExprs)}
+            val _tracer_ = ${internalTracerInstance(c)(uniqueId, cacheName, Seq.empty)}
             _tracer_.invocation()
             _tracer_.calculationStart()
             try {
