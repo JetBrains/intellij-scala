@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
 import com.intellij.compiler.server.{BuildManagerListener, BuildProcessParametersProvider}
+import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.{ApplicationManager, PathManagerEx}
@@ -23,6 +24,7 @@ import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
 
 import java.util.concurrent.ConcurrentHashMap
+import scala.io.Source
 
 //noinspection ApiStatus,UnstableApiUsage
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
@@ -406,10 +408,10 @@ object CompileServerLauncher {
      */
     Option(jdk).filter(_.version.exists(_.isAtLeast(JavaSdkVersion.JDK_1_9))).fold(Seq.empty[String]) { jdk =>
       // We are running JDK 9+ as the runtime JDK for the Scala compiler.
-      val executablePath = jdk.executable.getCanonicalPath
+      val executablePath = jdk.executable.canonicalPath
 
       val resultPath =
-        if (jdkRtJarCache.contains(executablePath)) Some(jdkRtJarCache.get(executablePath))
+        if (jdkRtJarCache.containsKey(executablePath)) Some(jdkRtJarCache.get(executablePath))
         else {
           // The path of the `java9-rt-export.jar` tool packaged as `<plugin root>/java9-rt-export/java9-rt-export.jar`
           // and distributed with the Scala plugin.
@@ -420,7 +422,6 @@ object CompileServerLauncher {
             .resolve(java9rtExportString)
             .resolve(s"$java9rtExportString.jar")
 
-          import scala.sys.process._
           // The command
           // `java -Dsbt.global.base=<IDEA system directory>/scala-compile-server/jvm-rt -jar <plugin root>/java9-rt-export/java9-rt-export.jar --rt-ext-dir`
           // is executed to obtain a directory for exporting the rt.jar. The directory (and jar) is unique for each JDK
@@ -429,8 +430,14 @@ object CompileServerLauncher {
           // <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5
           // for Eclipse Adoptium 17.0.5
           Try {
+            val exportDirectoryPathProcess =
+              new GeneralCommandLine(executablePath, s"-Dsbt.global.base=$jvmRtDir", "-jar", java9rtExportJar.toString, "--rt-ext-dir")
+                .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
+                .createProcess()
+
+            exportDirectoryPathProcess.waitFor()
             val exportDirectoryPath =
-              Path.of(s"$executablePath -Dsbt.global.base=$jvmRtDir -jar $java9rtExportJar --rt-ext-dir".!!.trim)
+              Path.of(Source.fromInputStream(exportDirectoryPathProcess.getInputStream).mkString.trim)
 
             // The full path of the produced `rt.jar`.
             // Example: <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5/rt.jar
@@ -447,7 +454,10 @@ object CompileServerLauncher {
               // The command
               // `java -jar <plugin root>/java9-rt-export/java9-rt-export.jar <IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
               // is executed and creates the `rt.jar`.
-              s"$executablePath -jar $java9rtExportJar $rtJarPath".!
+              new GeneralCommandLine(executablePath, "-jar", java9rtExportJar.toString, rtJarPath.toString)
+                .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
+                .createProcess()
+                .waitFor()
             }
 
             jdkRtJarCache.put(executablePath, exportDirectoryPath)
