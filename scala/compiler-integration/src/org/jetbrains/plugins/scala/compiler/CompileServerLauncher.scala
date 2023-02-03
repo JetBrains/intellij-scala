@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
 import com.intellij.compiler.server.{BuildManagerListener, BuildProcessParametersProvider}
+import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.{ApplicationManager, PathManagerEx}
@@ -14,7 +15,6 @@ import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
@@ -22,6 +22,10 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
+
+import java.util.concurrent.ConcurrentHashMap
+import scala.io.Source
+
 //noinspection ApiStatus,UnstableApiUsage
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 
@@ -363,6 +367,16 @@ object CompileServerLauncher {
   }
 
   /**
+   * A cache to avoid recomputing the `rt.jar` location on every invocation of the `prepareJava9rtJar` method,
+   * which happens every time the compile server needs to be started for some reason, as well as every time
+   * the JPS build process restarts, which is after every build.
+   *
+   * Only the filesystem path to the argument JDK is kept in the map, not a reference to the underlying SDK object,
+   * to avoid memory leaks.
+   */
+  private val jdkRtJarCache: ConcurrentHashMap[String, Path] = new ConcurrentHashMap()
+
+  /**
    * Prepares the Java 9+ `rt.jar` workaround for compiling old versions of Scala with modern JDK versions.
    *
    * @note This method does heavy I/O which can block for several seconds. It must not be called on the UI thread.
@@ -394,48 +408,66 @@ object CompileServerLauncher {
      */
     Option(jdk).filter(_.version.exists(_.isAtLeast(JavaSdkVersion.JDK_1_9))).fold(Seq.empty[String]) { jdk =>
       // We are running JDK 9+ as the runtime JDK for the Scala compiler.
+      val executablePath = jdk.executable.canonicalPath
 
-      // The path of the `java9-rt-export.jar` tool packaged as `<plugin root>/java9-rt-export/java9-rt-export.jar`
-      // and distributed with the Scala plugin.
-      val java9rtExportJar =
-        Path.of(PathUtil.getJarPathForClass(getClass))
-          .getParent
-          .getParent
-          .resolve(java9rtExportString)
-          .resolve(s"$java9rtExportString.jar")
+      val resultPath =
+        if (jdkRtJarCache.containsKey(executablePath)) Some(jdkRtJarCache.get(executablePath))
+        else {
+          // The path of the `java9-rt-export.jar` tool packaged as `<plugin root>/java9-rt-export/java9-rt-export.jar`
+          // and distributed with the Scala plugin.
+          val java9rtExportJar =
+          Path.of(PathUtil.getJarPathForClass(getClass))
+            .getParent
+            .getParent
+            .resolve(java9rtExportString)
+            .resolve(s"$java9rtExportString.jar")
 
-      import scala.sys.process._
-      // The command
-      // `java -Dsbt.global.base=<IDEA system directory>/scala-compile-server/jvm-rt -jar <plugin root>/java9-rt-export/java9-rt-export.jar --rt-ext-dir`
-      // is executed to obtain a directory for exporting the rt.jar. The directory (and jar) is unique for each JDK
-      // runtime, but needs to be exported only once and can be reused on subsequent invocations using the same JDK.
-      // The output of the command is a path like the following:
-      // <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5
-      // for Eclipse Adoptium 17.0.5
-      val exportDirectoryPath =
-        Path.of(s"${jdk.executable.canonicalPath} -Dsbt.global.base=$jvmRtDir -jar $java9rtExportJar --rt-ext-dir".!!.trim)
+          // The command
+          // `java -Dsbt.global.base=<IDEA system directory>/scala-compile-server/jvm-rt -jar <plugin root>/java9-rt-export/java9-rt-export.jar --rt-ext-dir`
+          // is executed to obtain a directory for exporting the rt.jar. The directory (and jar) is unique for each JDK
+          // runtime, but needs to be exported only once and can be reused on subsequent invocations using the same JDK.
+          // The output of the command is a path like the following:
+          // <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5
+          // for Eclipse Adoptium 17.0.5
+          Try {
+            val exportDirectoryPathProcess =
+              new GeneralCommandLine(executablePath, s"-Dsbt.global.base=$jvmRtDir", "-jar", java9rtExportJar.toString, "--rt-ext-dir")
+                .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
+                .createProcess()
 
-      // The full path of the produced `rt.jar`.
-      // Example: <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5/rt.jar
-      val rtJarPath = exportDirectoryPath.resolve("rt.jar")
+            exportDirectoryPathProcess.waitFor()
+            val exportDirectoryPath =
+              Path.of(Source.fromInputStream(exportDirectoryPathProcess.getInputStream).mkString.trim)
 
-      // Create the export directory if it doesn't exist.
-      val exportDirectory = exportDirectoryPath.toFile
-      if (!exportDirectory.exists()) {
-        exportDirectory.mkdirs()
-      }
+            // The full path of the produced `rt.jar`.
+            // Example: <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5/rt.jar
+            val rtJarPath = exportDirectoryPath.resolve("rt.jar")
 
-      // Create the `rt.jar` if it doesn't exist.
-      if (!rtJarPath.toFile.exists()) {
-        // The command
-        // `java -jar <plugin root>/java9-rt-export/java9-rt-export.jar <IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
-        // is executed and creates the `rt.jar`.
-        s"${jdk.executable.canonicalPath} -jar $java9rtExportJar $rtJarPath".!
-      }
+            // Create the export directory if it doesn't exist.
+            val exportDirectory = exportDirectoryPath.toFile
+            if (!exportDirectory.exists()) {
+              exportDirectory.mkdirs()
+            }
+
+            // Create the `rt.jar` if it doesn't exist.
+            if (!rtJarPath.toFile.exists()) {
+              // The command
+              // `java -jar <plugin root>/java9-rt-export/java9-rt-export.jar <IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
+              // is executed and creates the `rt.jar`.
+              new GeneralCommandLine(executablePath, "-jar", java9rtExportJar.toString, rtJarPath.toString)
+                .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
+                .createProcess()
+                .waitFor()
+            }
+
+            jdkRtJarCache.put(executablePath, exportDirectoryPath)
+            exportDirectoryPath
+          }.toOption
+        }
 
       // The path of the directory with the exported `rt.jar` is provided as a JVM parameter
       // `-Dscala.ext.dirs=<IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
-      Seq(s"$scalaExtDirsParameterString=$exportDirectoryPath")
+      resultPath.map(path => s"$scalaExtDirsParameterString=$path").toSeq
     }
   }
 
