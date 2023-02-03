@@ -190,8 +190,6 @@
 
         <toolWindow id="internal-profiler" anchor="bottom" canCloseContents="false" doNotActivateOnStart="true"
                     factoryClass="org.jetbrains.plugins.scala.caches.stats.InternalProfilerToolWindowFactory"/>
-        <toolWindow id="scala-trace-log-viewer" anchor="bottom" canCloseContents="true" doNotActivateOnStart="true"
-                    factoryClass="org.jetbrains.plugins.scala.traceLogViewer.TraceLogViewerWindowFactory"/>
 
         <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" id="keywordCompletionContributor"
@@ -1976,10 +1974,6 @@
         </action>
         <action id="Scala.ExtractTrait" class="org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitAction">
             <add-to-group group-id="IntroduceActionsGroup"/>
-        </action>
-        <action id="Scala.RunActionOnPsiElementWithTraceLogger"
-                internal="true"
-                class="org.jetbrains.plugins.scala.actions.internal.RunActionOnPsiElementWithTraceLoggerAction">
         </action>
         <action id="Scala.EditPackagePrefix" class="org.jetbrains.plugins.scala.actions.EditPackagePrefixAction">
             <add-to-group group-id="ProjectViewPopupMenuSettingsGroup" relative-to-action="MarkRootGroup" anchor="after"/>

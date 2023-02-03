@@ -47,8 +47,6 @@ lazy val scalaCommunity: sbt.Project =
       bsp % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
       dfa % "test->test;compile->compile",
-      traceLogger % "test->test;compile->compile",
-      traceLogViewer % "test->test;compile->compile",
       conversion % "test->test;compile->compile",
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
@@ -159,45 +157,6 @@ lazy val dfa = newProject(
   }
 )
 
-lazy val traceLogger = newProject(
-  "traceLogger",
-  file("scala/traceLogger")
-).settings(
-  libraryDependencies ++= DependencyGroups.traceLogger,
-  Compile / scalacOptions ++= Seq(
-    "-deprecation",
-    "-unchecked",
-    "-feature",
-    "-Xlint",
-    "-Xfatal-warnings"
-  ),
-  // the internet says this is smart thing to do
-  (Compile / console / scalacOptions) ~= {
-    _.filterNot(Set("-Xlint"))
-  }
-)
-
-lazy val traceLogViewer = newProject(
-  "traceLogViewer",
-  file("scala/traceLogViewer")
-).dependsOn(
-  traceLogger,
-  scalaImpl % "test->test;compile->compile"
-).settings(
-  Compile / scalacOptions ++= Seq(
-    "-deprecation",
-    "-unchecked",
-    "-feature",
-    "-Xlint",
-    "-Xfatal-warnings",
-    "-Xsource:3",
-  ),
-  // the internet says this is smart thing to do
-  (Compile / console / scalacOptions) ~= {
-    _.filterNot(Set("-Xlint"))
-  }
-)
-
 lazy val conversion = newProject(
   "conversion",
   file("scala/conversion")
@@ -265,8 +224,6 @@ lazy val scalaImpl: sbt.Project =
       compilerShared % "test->test;compile->compile",
       scalaApi,
       sbtApi,
-      macroAnnotations,
-      traceLogger,
       decompiler % "test->test;compile->compile",
       tastyReader % "test->test;compile->compile",
       scalatestFinders,
@@ -496,13 +453,6 @@ lazy val decompiler =
     .settings(
       libraryDependencies ++= DependencyGroups.decompiler,
       packageMethod := PackagingMethod.Standalone("lib/scalap.jar")
-    )
-
-lazy val macroAnnotations =
-  newProject("macros", file("scala/macros"))
-    .settings(
-      libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler),
-      packageMethod        := PackagingMethod.Skip()
     )
 
 lazy val bsp =

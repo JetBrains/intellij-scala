@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ExtensionMethod
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
-import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 case class ImplicitConversionResolveResult(resolveResult: ScalaResolveResult,
                                            `type`: ScType,
@@ -107,12 +106,12 @@ object ImplicitConversionResolveResult {
     forCompletion:      Boolean
   )(implicit
     place: ScExpression
-  ): Seq[ScalaResolveResult] = TraceLogger.func {
+  ): Seq[ScalaResolveResult] = {
     import place.elementScope
     val functionType         = FunctionType(Any(place.projectContext), Seq(expressionType))
     val expandedFunctionType = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
 
-    def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = TraceLogger.func {
+    def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
       val data = refName.map {
         ExtensionConversionData(place, ref, _, processor, noApplicability, withoutImplicitsForArgs)
       }

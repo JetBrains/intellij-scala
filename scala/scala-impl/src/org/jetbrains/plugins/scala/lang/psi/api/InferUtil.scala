@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import scala.annotation.{tailrec, unused}
 import scala.collection.immutable.ArraySeq
@@ -74,7 +73,7 @@ object InferUtil {
     canThrowSCE:                Boolean,
     searchImplicitsRecursively: Int = 0,
     fullInfo:                   Boolean
-  ): (ScType, Option[Seq[ScalaResolveResult]], ConstraintSystem) = TraceLogger.func {
+  ): (ScType, Option[Seq[ScalaResolveResult]], ConstraintSystem) = {
     implicit val ctx: ProjectContext = element
 
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
@@ -190,7 +189,7 @@ object InferUtil {
     canThrowSCE:                Boolean,
     searchImplicitsRecursively: Int = 0,
     abstractSubstitutor:        ScSubstitutor = ScSubstitutor.empty
-  ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = TraceLogger.func {
+  ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
 
     implicit val project: ProjectContext = place.getProject
 

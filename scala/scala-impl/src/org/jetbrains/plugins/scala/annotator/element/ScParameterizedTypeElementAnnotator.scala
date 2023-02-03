@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypePa
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, TypePresentationContext, extractTypeParameters}
-import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameterizedTypeElement] {
 
@@ -145,7 +144,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
   )(implicit
     holder: ScalaAnnotationHolder,
     tpc:    TypePresentationContext
-  ): Unit = TraceLogger.func {
+  ): Unit = {
     lazy val argTyText = argTy.presentableText
     val upper = param.upperType
     val lower = param.lowerType

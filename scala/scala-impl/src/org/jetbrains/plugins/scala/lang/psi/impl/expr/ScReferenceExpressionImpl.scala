@@ -33,7 +33,6 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import scala.collection.mutable
 
@@ -55,7 +54,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     maybeAssignment = Some(statement)
   }
 
-  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = TraceLogger.func {
+  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = {
     //micro-optimization: don't use fold to decrease chance of StackOverflowError
     // in long method call chains or for-comprehensions
     // this method is called many many times during resolved
