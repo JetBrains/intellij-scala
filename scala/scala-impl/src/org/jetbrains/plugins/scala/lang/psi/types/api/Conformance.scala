@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Conformance._
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType}
-import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier
@@ -32,7 +31,7 @@ trait Conformance {
   final def conformsInner(left: ScType, right: ScType,
                           visited: Set[PsiClass] = Set.empty,
                           constraints: ConstraintSystem = ConstraintSystem.empty,
-                          checkWeak: Boolean = false): ConstraintsResult = TraceLogger.func {
+                          checkWeak: Boolean = false): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
     if (left.isAny || left.is[WildcardType] || right.isNothing || left == right) constraints

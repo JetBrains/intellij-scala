@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import scala.collection.mutable
 
@@ -28,7 +27,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   implicit def ctx: ProjectContext = elem
 
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult],
-                                   expandInnerResult: Boolean = true): Option[ScalaResolveResult] = TraceLogger.func {
+                                   expandInnerResult: Boolean = true): Option[ScalaResolveResult] = {
     mostSpecificGeneric(applicable.map(r => r.innerResolveResult match {
       case Some(rr) if expandInnerResult =>
         new InnerScalaResolveResult(rr.element, implicitConversionClass(rr), r, r.substitutor)
@@ -37,7 +36,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }), noImplicit = false).map(_.repr)
   }
 
-  def mostSpecificForImplicitParameters(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] = TraceLogger.func {
+  def mostSpecificForImplicitParameters(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] = {
     mostSpecificGeneric(applicable.map { r =>
       r.innerResolveResult match {
         case Some(rr) => new InnerScalaResolveResult(rr.element, implicitConversionClass(rr), r, r.substitutor, implicitCase = true)
