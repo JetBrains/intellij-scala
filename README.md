@@ -102,6 +102,9 @@ The full test suite isn't run to avoid really long build times.
 3. After building the project you see git local changes in `ImportsPanel.java` (or similar files). All `IdeBorderFactory.PlainSmallWithIndent` are replaced with `BorderFactory` \
 **Solution**: enable [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html). \
 UI Designer uses different border class in internal mode, see `com.intellij.uiDesigner.make.FormSourceCodeGenerator#borderFactoryClassName`
+4. **Unexpected local git changes in `uiDesigner.xml` or other files in .idea directory** \
+      It may happen due to disable [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) or by enabling it after/during setup. \
+      The solution to this problem might be to revert these changes, enable [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) (if it has not already been done) and restart IntelliJ.
 
 ## Other
 ### Investigation performance issues
