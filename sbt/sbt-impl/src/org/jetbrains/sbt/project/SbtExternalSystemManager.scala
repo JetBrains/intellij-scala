@@ -83,11 +83,13 @@ object SbtExternalSystemManager {
     val jreHome = vmExecutable.parent.flatMap(_.parent)
     val vmOptions = getVmOptions(settingsState, jreHome)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
+    val sbtOptions = settings.sbtParameters.split(',').toSeq.map(_.trim).filter(_.nonEmpty)
 
     new SbtExecutionSettings(
       realProjectPath,
       vmExecutable,
       vmOptions,
+      sbtOptions,
       SbtSettings.hiddenDefaultMaxHeapSize,
       environment,
       customLauncher,

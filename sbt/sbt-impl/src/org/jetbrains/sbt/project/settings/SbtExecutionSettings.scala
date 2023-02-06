@@ -8,6 +8,7 @@ import java.io.File
 class SbtExecutionSettings(val realProjectPath: String,
                            val vmExecutable: File,
                            val vmOptions: Seq[String],
+                           val sbtOptions: Seq[String],
                            val hiddenDefaultMaxHeapSize: JvmMemorySize,
                            val environment: Map[String,String],
                            val customLauncher: Option[File],
