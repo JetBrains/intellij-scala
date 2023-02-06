@@ -30,6 +30,7 @@ final class SbtSettings(project: Project)
   @BeanProperty var customLauncherPath: String = ""
   @BeanProperty var maximumHeapSize: String = defaultMaxHeapSize
   @BeanProperty var vmParameters: String = ""
+  @BeanProperty var sbtParameters: String = ""
   @BeanProperty var customVMEnabled: Boolean = false
   @BeanProperty var customVMPath: String = ""
   @BeanProperty var customSbtStructurePath: String = ""
@@ -45,6 +46,7 @@ final class SbtSettings(project: Project)
     state.customVMEnabled = customVMEnabled
     state.customVMPath = customVMPath
     state.customSbtStructurePath = customSbtStructurePath
+    state.sbtParameters = sbtParameters
 
     state
   }
@@ -56,6 +58,7 @@ final class SbtSettings(project: Project)
     customLauncherPath = state.customLauncherPath
     maximumHeapSize = state.maximumHeapSize
     vmParameters = state.vmParameters
+    sbtParameters = state.sbtParameters
     customVMEnabled = state.customVMEnabled
     customVMPath = state.customVMPath
     customSbtStructurePath = state.customSbtStructurePath
@@ -76,6 +79,7 @@ final class SbtSettings(project: Project)
     customLauncherPath = settings.customLauncherPath
     maximumHeapSize = settings.maximumHeapSize
     vmParameters = settings.vmParameters
+    sbtParameters = settings.sbtParameters
     customVMEnabled = settings.customVMEnabled
     customVMPath = settings.customVMPath
     customSbtStructurePath = settings.customSbtStructurePath
@@ -114,6 +118,9 @@ object SbtSettings {
 
     @BeanProperty
     var vmParameters: String = ""
+
+    @BeanProperty
+    var sbtParameters: String = ""
 
     @BeanProperty
     var customVMEnabled: Boolean = false

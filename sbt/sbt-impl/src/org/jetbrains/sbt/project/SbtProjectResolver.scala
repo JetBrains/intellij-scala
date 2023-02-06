@@ -165,7 +165,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           // TODO add error/warning messages during dump, report directly
           dumper.dumpFromProcess(
             projectRoot, structureFilePath, options,
-            settings.vmExecutable, settings.vmOptions, settings.environment,
+            settings.vmExecutable, settings.vmOptions, settings.sbtOptions, settings.environment,
             sbtLauncher, sbtStructureJar, settings.preferScala2)
         }
       }
