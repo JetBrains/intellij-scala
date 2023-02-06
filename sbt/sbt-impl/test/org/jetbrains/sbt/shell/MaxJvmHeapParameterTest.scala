@@ -22,10 +22,10 @@ class MaxJvmHeapParameterTest extends TestCase {
       FileUtil.writeToFile(jvmOptsFile, jvmOpts.mkString("\n"))
     }
 
-    val settings = new SbtExecutionSettings(null, null, userOpts, hiddenDefaultSize, null, null, null, null,
+    val settings = new SbtExecutionSettings(null, null, userOpts, List.empty, hiddenDefaultSize, null, null, null, null,
                                             false, false, false, false, false ,false, true)
 
-    SbtProcessManager.buildVMParameters(settings, workingDir)
+    SbtProcessManager.buildVMParameters(settings, workingDir, List.empty)
   }
 
   /*
