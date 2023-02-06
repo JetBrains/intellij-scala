@@ -11,11 +11,12 @@ import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.annotations.{Nls, NonNls, TestOnly}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
-import org.jetbrains.plugins.scala.extensions.LoggerExt
+import org.jetbrains.plugins.scala.extensions.{LoggerExt, ObjectExt}
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 import org.jetbrains.sbt.{SbtBundle, SbtCompilationSupervisorPort}
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
+import org.jetbrains.sbt.project.structure.SbtOpts.{JvmOption, JvmOptionGlobal, JvmOptionShellOnly, SbtLauncherOption}
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication._
@@ -76,6 +77,7 @@ class SbtStructureDump {
                       options: Seq[String],
                       vmExecutable: File,
                       vmOptions: Seq[String],
+                      sbtOptions: Seq[String],
                       environment: Map[String, String],
                       sbtLauncher: File,
                       sbtStructureJar: File,
@@ -93,8 +95,6 @@ class SbtStructureDump {
       s"""SettingKey[_root_.java.lang.String]("sbtStructureOptions") in _root_.sbt.Global := "$optString""""
     ).mkString("set _root_.scala.collection.Seq(", ",", ")")
 
-    val sbtCommandArgs = List.empty
-
     val sbtCommands = (
       Seq(
         setCommands,
@@ -107,7 +107,7 @@ class SbtStructureDump {
 
     runSbt(
       directory, vmExecutable, vmOptions, environment,
-      sbtLauncher, sbtCommandArgs, sbtCommands,
+      sbtLauncher, sbtOptions, sbtCommands,
       SbtBundle.message("sbt.extracting.project.structure.from.sbt")
     )
   }
@@ -153,7 +153,7 @@ class SbtStructureDump {
              vmOptions: Seq[String],
              environment0: Map[String, String],
              sbtLauncher: File,
-             sbtCommandLineArgs: List[String],
+             sbtOptions: Seq[String],
              @NonNls sbtCommands: String,
              @Nls reportMessage: String,
             )
@@ -173,7 +173,7 @@ class SbtStructureDump {
          |  vmOptions: $vmOptions,
          |  environment: $environment,
          |  sbtLauncher: $sbtLauncher,
-         |  sbtCommandLineArgs: $sbtCommandLineArgs,
+         |  sbtCommandLineArgs: $sbtOptions,
          |  sbtCommands: $sbtCommands,
          |  reportMessage: $reportMessage""".stripMargin
     )
@@ -181,17 +181,18 @@ class SbtStructureDump {
     val startTime = System.currentTimeMillis()
     // assuming here that this method might still be called without valid project
 
-    val jvmOptions = SbtOpts.loadFrom(directory) ++ JvmOpts.loadFrom(directory) ++ vmOptions
-
+    val mappedSbtOpts = SbtOpts.processArgs(sbtOptions) ++ SbtOpts.loadFrom(directory)
+    val jvmOpts = mappedSbtOpts.collect { case a: JvmOptionGlobal => a.value } ++ JvmOpts.loadFrom(directory) ++ vmOptions
+    val sbtLauncherOpts = mappedSbtOpts.collect { case a: SbtLauncherOption => a.value }
     val processCommandsRaw =
       List(
         normalizePath(vmExecutable),
         "-Djline.terminal=jline.UnsupportedTerminal",
         "-Dsbt.log.noformat=true",
         "-Dfile.encoding=UTF-8") ++
-      jvmOptions ++
+      jvmOpts ++
       List("-jar", normalizePath(sbtLauncher)) ++
-      sbtCommandLineArgs // :+ "--debug"
+      sbtLauncherOpts// :+ "--debug"
 
     val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
