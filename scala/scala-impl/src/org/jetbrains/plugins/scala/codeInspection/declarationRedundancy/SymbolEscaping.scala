@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -20,10 +20,38 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
  * Utility to scrape all types that escape through public members of a given type definition. The current use
  * case is to assist in [[ScalaAccessCanBeTightenedInspection]], but maybe it could also be used to improve
  * our error highlighting. See SCL-20855.
- *
- * [[elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate]] is the main and only entrypoint.
  */
 private[declarationRedundancy] object SymbolEscaping {
+
+  def elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate(element: ScNamedElement): Boolean = {
+
+    def getEscapeInfosOfContainingClassAndCompanion(containingClass: Option[ScTemplateDefinition]) = {
+      val containingTypeDef = containingClass.filterByType[ScTypeDefinition]
+      val containingTypeDefCompanion = containingTypeDef.flatMap(_.baseCompanion)
+      (containingTypeDef ++ containingTypeDefCompanion).flatMap(getEscapeInfos)
+    }
+
+    element match {
+      case td: ScTypeDefinition =>
+        td.`type`() match {
+          case Right(tdType) =>
+            val designatorType = tdType.asOptionOf[ScParameterizedType].map(_.designator).getOrElse(tdType)
+            val escapeInfos = getEscapeInfosOfContainingClassAndCompanion(Option(td.containingClass))
+            escapeInfos.exists(info => info.member != td && info.types.exists(_.conforms(designatorType)))
+
+          case _ => false
+        }
+
+      case r: ScReferencePattern if r.isVal =>
+        val escapeInfos = getEscapeInfosOfContainingClassAndCompanion(Option(r.containingClass))
+        escapeInfos.exists { info =>
+          info.member != r &&
+            info.types.collect { case p: ScProjectionType if p.element == r => p }.nonEmpty
+        }
+
+      case _ => false
+    }
+  }
 
   /**
    * If any of the scraped [[ScType]] instances are parameterized, this method will destructure those into a list of
@@ -178,37 +206,5 @@ private[declarationRedundancy] object SymbolEscaping {
         case _ => Seq.empty
       }
     }.flatten.filterNot(_.types.isEmpty)
-  }
-
-  def elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate(element: ScNamedElement): Boolean = {
-
-    def getEscapeInfosOfContainingClassAndCompanion(containingClass: Option[ScTemplateDefinition]) = {
-      val containingTypeDef = containingClass.flatMap(_.asOptionOf[ScTypeDefinition])
-      val containingTypeDefCompanion = containingTypeDef.flatMap(_.baseCompanion)
-      (containingTypeDef ++ containingTypeDefCompanion).flatMap(getEscapeInfos)
-    }
-
-    element match {
-      case td: ScTypeDefinition =>
-
-        td.`type`() match {
-
-          case Right(tdType) =>
-            val designatorType = tdType.asOptionOf[ScParameterizedType].map(_.designator).getOrElse(tdType)
-            val escapeInfos = getEscapeInfosOfContainingClassAndCompanion(Option(td.containingClass))
-            escapeInfos.exists(info => info.member != td && info.types.exists(_.conforms(designatorType)))
-
-          case _ => false
-        }
-
-      case r: ScReferencePattern if r.isVal =>
-        val escapeInfos = getEscapeInfosOfContainingClassAndCompanion(Option(r.containingClass))
-        escapeInfos.exists { info =>
-          info.member != r &&
-            info.types.collect { case p: ScProjectionType if p.element == r => p }.nonEmpty
-        }
-
-      case _ => false
-    }
   }
 }
