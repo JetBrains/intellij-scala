@@ -60,6 +60,9 @@ class BspProjectDataService extends ScalaAbstractProjectDataService[BspProjectDa
     val allMappings = (currentMappings.asScala ++ newMappings).asJava
 
     vcsManager.setDirectoryMappings(allMappings)
+    if (newMappings.nonEmpty) {
+      BspVcsRootExtension.onVcsRootAdded(project)
+    }
   }
 
   private def configureJdk(jdk: Option[SdkReference])(implicit project: ProjectContext): Unit = executeProjectChangeAction {

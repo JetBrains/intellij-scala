@@ -2,12 +2,16 @@
 
 <idea-plugin>
     <depends optional="true" config-file="BSP-JUnit.xml">JUnit</depends>
+    <depends optional="true" config-file="BSP-Terminal.xml">org.jetbrains.plugins.terminal</depends>
     <extensionPoints>
         <extensionPoint qualifiedName="com.intellij.bspEnvironmentRunnerExtension"
                         interface="org.jetbrains.bsp.project.test.environment.BspEnvironmentRunnerExtension"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.intellij.bspResolverNamingExtension"
                         interface="org.jetbrains.bsp.project.importing.BspResolverNamingExtension"
+                        dynamic="true"/>
+        <extensionPoint qualifiedName="com.intellij.bspVcsRootExtension"
+                        interface="org.jetbrains.bsp.data.BspVcsRootExtension"
                         dynamic="true"/>
     </extensionPoints>
 
