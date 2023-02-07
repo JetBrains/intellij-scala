@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch
 
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -26,7 +27,7 @@ private final class ElementUsageWithKnownReference private(
 
   def referenceIsInMemberThatHasTypeDefAsAncestor(typeDef: ScTypeDefinition): Boolean = {
     val memberThatReferenceIsPartOf = reference.getElement.parentOfType[ScMember]
-    memberThatReferenceIsPartOf.exists(m => m == typeDef || typeDef.isAncestorOf(m))
+    memberThatReferenceIsPartOf.exists(PsiTreeUtil.isAncestor(typeDef, _, /*strict=*/ false))
   }
 
   private def isReferenceToDefMacroImpl: Boolean =
@@ -47,15 +48,20 @@ private final class ElementUsageWithKnownReference private(
    *
    *     def addOne: Int = i + 1
    *
+   *     // These public methods don't allow `addOne` method to be private.
+   *     // Commenting these methods will allow us to mark `addOne` as private.
+   *     def addOneCanNotBePrivate1 = i.doStuff.addOne
+   *     def addOneCanNotBePrivate2 = Seq(1).map(_.addOne)
+   *     def addOneCanNotBePrivate3 = 1.addOne
+   *     def addOneCanNotBePrivate4 = anInt.addOne
+   *
+   *     // With the above methods commented, these can stay public and
+   *     // `addOne` can still be marked as private.
    *     def addOneCanBePrivate1 = addOne
    *     def addOneCanBePrivate2 = addOne.doStuff
    *     def addOneCanBePrivate3 = this.addOne
    *     def addOneCanBePrivate4 = self.addOne
    *
-   *     def addOneCanNotBePrivate1 = i.doStuff.addOne
-   *     def addOneCanNotBePrivate2 = Seq(1).map(_.addOne)
-   *     def addOneCanNotBePrivate3 = 1.addOne
-   *     def addOneCanNotBePrivate4 = anInt.addOne
    *   }
    *
    *   implicit class IntExt2(i: Int) { def doStuff: Int = 42 }
@@ -85,8 +91,8 @@ private final class ElementUsageWithKnownReference private(
   private def isIndirectReferenceToImplicitClassExtensionMethodFromWithinThatClass(typeDef: ScTypeDefinition): Boolean = {
 
     def firstChildIsNonThisTypedExpression(refExpr: ScReferenceExpression): Boolean =
-      refExpr.children.toSeq.headOption match {
-        case Some(e: ScExpression) =>
+      refExpr.getFirstChild match {
+        case e: ScExpression =>
           (e.`type`(), typeDef.`type`()) match {
             case (Right(t1), Right(t2)) => !t1.conforms(t2)
             case _ => false
@@ -107,11 +113,20 @@ private final class ElementUsageWithKnownReference private(
     val referenceContainer = refElement.parentOfType[ScTypeDefinition]
     val referenceContainerIsTargetContainerCompanion = targetContainerCompanion.exists(referenceContainer.contains)
 
+    /**
+     * {{{
+     * class Bar { Bar.b }
+     * object Bar { val b = 42 }
+     * }}}
+     *
+     * This method returns `true` for an `ElementUsage` where `b` in `val b` is our target,
+     * and `Bar.b` is our reference to that target.
+     */
     def referenceIsExpressionWhoseFirstChildHasTargetContainerType = refElement match {
       case refExpr: ScReferenceExpression if refExpr.children.size > 1 =>
-        val firstChild = refExpr.children.toSeq.head
-        val firstChildType = firstChild.asOptionOfUnsafe[Typeable].toSeq.flatMap(_.`type`().toSeq).headOption
-        val targetContainerType = targetContainer.toSeq.flatMap(_.`type`().toSeq).headOption
+        val firstChild = refExpr.getFirstChild
+        val firstChildType = firstChild.asOptionOfUnsafe[Typeable].flatMap(_.`type`().toOption)
+        val targetContainerType = targetContainer.flatMap(_.`type`().toOption)
 
         (firstChildType, targetContainerType) match {
           case (Some(t1), Some(t2)) => t1.equiv(t2)
