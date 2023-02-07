@@ -18,7 +18,7 @@ final class AmmoniteFileDeclarationsContributor extends FileDeclarationsContribu
 
   override def processAdditionalDeclarations(processor: PsiScopeProcessor, holder: PsiElement, state: ResolveState, lastParent: PsiElement): Unit = {
     lastParent match {
-      case file: ScalaFile if file.name == "dummy.scala" => return
+      case file: ScalaFile if ScalaPsiElementFactory.SyntheticFileKey.isIn(file) => return
       case _ =>
     }
 

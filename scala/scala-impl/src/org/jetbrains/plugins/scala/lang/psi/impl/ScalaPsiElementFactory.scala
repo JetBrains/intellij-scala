@@ -4,6 +4,7 @@ import com.intellij.lang.{ASTNode, LanguageParserDefinitions, PsiBuilder, PsiBui
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
@@ -1195,6 +1196,7 @@ object ScalaPsiElementFactory {
       factory.createFileViewProvider(vfile, language, PsiManager.getInstance(ctx.getProject), false)
 
     val scalaFile        = new ScalaFileImpl(viewProvider)
+    scalaFile.putUserData(SyntheticFileKey, true)
     val project          = ctx.getProject
     val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language)
 
@@ -1477,4 +1479,5 @@ object ScalaPsiElementFactory {
     }
   }
 
+  private[scala] val SyntheticFileKey: Key[true] = Key.create("SCALA_SYNTHETIC_FILE_KEY")
 }
