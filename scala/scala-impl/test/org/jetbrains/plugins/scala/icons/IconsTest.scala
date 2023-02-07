@@ -25,14 +25,13 @@ class IconsTest extends UsefulTestCase {
     iconFields.sortBy(_.getName).foreach { f =>
       val icon = f.get(null)
       icon match {
-        case cached: com.intellij.openapi.util.IconLoader.CachedImageIcon =>
+        case cached: com.intellij.openapi.util.CachedImageIcon =>
           // contains com.intellij.openapi.util.IconLoader.EMPTY_ICON in case icon can't be loaded
           val realIcon0 = cached.getRealIcon
-          val realIcon1 = cached.doGetRealIcon()
+          // val realIcon1 = cached.doGetRealIcon()
           assertTrue(
             s"""Cant resolve icon ${f.getName} (${icon.getClass}) (${cached.getOriginalPath}).
                |realIcon0: $realIcon0
-               |realIcon1: $realIcon1
                |""".stripMargin.trim,
             !realIcon0.toString.toLowerCase().startsWith("empty icon ") // EMPTY_ICON is private
           )
