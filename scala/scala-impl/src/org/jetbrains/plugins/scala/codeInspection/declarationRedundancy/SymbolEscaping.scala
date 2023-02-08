@@ -165,53 +165,53 @@ private[declarationRedundancy] object SymbolEscaping {
         .filter(t => isScTypeDefinedInFile(t, typeDefFile))
         .filterNot(_.is[TypeParameterType])
 
-    typeDef.members.collect { member =>
+    def processMember(member: ScMember): Seq[EscapeInfo] = member match {
+      case typeDef: ScTypeDefinition if !isPrivate(typeDef) =>
 
+        val templateParentTypes = Option(typeDef.extendsBlock).flatMap(_.templateParents)
+          .toSeq.flatMap(_.typeElements).flatMap(_.`type`().toSeq)
+
+        val types = templateParentTypes ++ getTypeParameterTypes(typeDef)
+        val childTypes = (typeDef +: typeDef.baseCompanion.toSeq).flatMap(getEscapeInfos)
+
+        EscapeInfo(typeDef, destructureAndFilter(types)) +: childTypes
+
+      case typeAlias: ScTypeAliasDefinition if !isPrivate(typeAlias) =>
+        val types = getTypeParameterTypes(typeAlias) ++ typeAlias.aliasedType.toSeq
+        Seq(EscapeInfo(typeAlias, destructureAndFilter(types)))
+
+      case primaryConstructor: ScPrimaryConstructor =>
+
+        def isPrivateOrNonMember(p: ScClassParameter): Boolean =
+          isPrivate(p) || !p.isClassMember
+
+        val parametersThroughWhichTypeDefsCanEscape = if (isPrivate(primaryConstructor)) {
+          primaryConstructor.parameters.filterNot(isPrivateOrNonMember)
+        } else {
+          primaryConstructor.parameters.filterNot(p => isPrivateOrNonMember(p) && p.getDefaultExpression.isEmpty)
+        }
+
+        val types = parametersThroughWhichTypeDefsCanEscape.flatMap(p => p.`type`().toSeq)
+
+        Seq(EscapeInfo(primaryConstructor, destructureAndFilter(types)))
+
+      case function: ScFunction if !isPrivate(function) =>
+
+        val returnAndParameterTypes = function.`type`().toSeq
+        val types = returnAndParameterTypes ++ getTypeParameterTypes(function)
+
+        Seq(EscapeInfo(function, destructureAndFilter(types)))
+
+      case typeable: Typeable if !isPrivate(typeable) =>
+        val types = typeable.`type`().toSeq
+        Seq(EscapeInfo(typeable, destructureAndFilter(types)))
+
+      case _ => Seq.empty
+    }
+
+    typeDef.members.flatMap { member =>
       ProgressManager.checkCanceled()
-
-      member match {
-        case typeDef: ScTypeDefinition if !isPrivate(typeDef) =>
-
-          val templateParentTypes = Option(typeDef.extendsBlock).flatMap(_.templateParents)
-            .toSeq.flatMap(_.typeElements).flatMap(_.`type`().toSeq)
-
-          val types = templateParentTypes ++ getTypeParameterTypes(typeDef)
-          val childTypes = (typeDef +: typeDef.baseCompanion.toSeq).flatMap(getEscapeInfos)
-
-          EscapeInfo(typeDef, destructureAndFilter(types)) +: childTypes
-
-        case typeAlias: ScTypeAliasDefinition if !isPrivate(typeAlias) =>
-          val types = getTypeParameterTypes(typeAlias) ++ typeAlias.aliasedType.toSeq
-          Seq(EscapeInfo(typeAlias, destructureAndFilter(types)))
-
-        case primaryConstructor: ScPrimaryConstructor =>
-
-          def isPrivateOrNonMember(p: ScClassParameter): Boolean =
-            isPrivate(p) || !p.isClassMember
-
-          val parametersThroughWhichTypeDefsCanEscape = if (isPrivate(primaryConstructor)) {
-            primaryConstructor.parameters.filterNot(isPrivateOrNonMember)
-          } else {
-            primaryConstructor.parameters.filterNot(p => isPrivateOrNonMember(p) && p.getDefaultExpression.isEmpty)
-          }
-
-          val types = parametersThroughWhichTypeDefsCanEscape.flatMap(p => p.`type`().toSeq)
-
-          Seq(EscapeInfo(primaryConstructor, destructureAndFilter(types)))
-
-        case function: ScFunction if !isPrivate(function) =>
-
-          val returnAndParameterTypes = function.`type`().toSeq
-          val types = returnAndParameterTypes ++ getTypeParameterTypes(function)
-
-          Seq(EscapeInfo(function, destructureAndFilter(types)))
-
-        case typeable: Typeable if !isPrivate(typeable) =>
-          val types = typeable.`type`().toSeq
-          Seq(EscapeInfo(typeable, destructureAndFilter(types)))
-
-        case _ => Seq.empty
-      }
-    }.flatten.filterNot(_.types.isEmpty)
+      processMember(member)
+    }.filterNot(_.types.isEmpty)
   }
 }
