@@ -2,13 +2,8 @@ package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiFile
-<<<<<<< HEAD
 import org.jetbrains.plugins.scala.caches.ModTracker
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-=======
-import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt}
->>>>>>> 7c76e1fe93 (Code review suggestions)
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -20,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionTy
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-
 
 /**
  * Utility to scrape all types that escape through public members of a given type definition. The current use
