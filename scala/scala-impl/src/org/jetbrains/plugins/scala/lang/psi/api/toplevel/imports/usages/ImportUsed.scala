@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages
 
+import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiElement, SmartPointerManager, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.TokenTexts
@@ -38,8 +39,11 @@ sealed abstract class ImportUsed(private val pointer: SmartPsiElementPointer[Psi
     val isScala3 = Option(element).exists(_.isInScala3Module)
     qualName.exists(settings.isAlwaysUsedImport) ||
       isLanguageFeatureImport ||
-      (ScalaHighlightingMode.showCompilerErrorsScala3(project) && isScala3)
+      (ScalaHighlightingMode.showCompilerErrorsScala3(project) && isScala3 && !markedAsUnusedByCompiler)
   }
+
+  def markedAsUnusedByCompiler: Boolean =
+    ImportUsed.UnusedImportReportedByCompilerKey.isIn(element)
 
   private def isLanguageFeatureImport: Boolean = {
     importExpr.exists {
@@ -80,6 +84,10 @@ object ImportUsed {
   }
 
   def unapply(importUsed: ImportUsed): Option[PsiElement] = Option(importUsed.element)
+
+  // See org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighters.applyHighlighting
+  val UnusedImportReportedByCompilerKey: Key[Boolean] =
+    Key.create("SCALA_UNUSED_IMPORT_REPORTED_BY_COMPILER_KEY")
 }
 
 /**

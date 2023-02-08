@@ -17,9 +17,13 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
   def file: PsiFile
   def document: Document
 
-  def collectHighlightings(unusedImports: Iterable[ImportUsed]): Iterable[HighlightInfo] = {
-    unusedImports.filterNot(_.isAlwaysUsed).flatMap {
-      (imp: ImportUsed) => {
+  def collectHighlightings(unusedImports: Iterable[ImportUsed]): Iterable[HighlightInfo] =
+    unusedImports
+      // Do not highlight imports that were marked as unused by compiler and highlighted in
+      // org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighters.applyHighlighting
+      // to avoid duplicated highlightings
+      .filterNot(imp => imp.isAlwaysUsed || imp.markedAsUnusedByCompiler)
+      .flatMap { (imp: ImportUsed) =>
         val psiOption: Option[PsiElement] = imp match {
           case ImportExprUsed(expr@Parent(importStmt: ScImportStmt)) if !PsiTreeUtil.hasErrorElements(expr) =>
             if (importStmt.importExprs.size == 1) Some(importStmt)
@@ -43,13 +47,11 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
           Seq(highlightInfoBuilder.create())
         }
       }
-    }
-  }
 
   protected def highlightAll(highlights: util.Collection[HighlightInfo]): Unit = {
     UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, document, 0,
       file.getTextLength, highlights, getColorsScheme, getId)
   }
-  
+
   protected def getFixes: List[IntentionAction]
 }

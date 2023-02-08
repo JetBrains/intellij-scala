@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, inReadAction, invokeAndWait}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.util.matchers.{HamcrestMatchers, ScalaBaseMatcher}
 import org.junit.experimental.categories.Category
@@ -153,5 +154,13 @@ abstract class ScalaCompilerHighlightingTestBase
       }.mkString(",")
       s"HighlightInfo($values)"
     }
+  }
+
+  protected def setCompilerOptions(options: String*): Unit = {
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+    val newSettings = defaultProfile.getSettings.copy(
+      additionalCompilerOptions = options
+    )
+    defaultProfile.setSettings(newSettings)
   }
 }

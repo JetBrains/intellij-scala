@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala
 package compiler.highlighting
 
+import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 
 import scala.annotation.nowarn
 
@@ -43,6 +44,31 @@ class ScalaCompilerHighlightingTest_3_2 extends ScalaCompilerHighlightingTest_3 
 class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 {
   @nowarn("cat=deprecation")
   override implicit def version: ScalaVersion = ScalaVersion.Latest.Scala_3_3_RC
+
+  def testUnusedImports(): Unit = {
+    setCompilerOptions("-Wunused:imports")
+
+    def highlighting(startOffset: Int, endOffset: Int): ExpectedHighlighting =
+      ExpectedHighlighting(
+        severity = HighlightSeverity.WARNING,
+        range = Some(TextRange.create(startOffset, endOffset)),
+        quickFixDescriptions = List(QuickFixBundle.message("optimize.imports.fix")),
+        msgPrefix = ScalaInspectionBundle.message("unused.import.statement")
+      )
+
+    runTestCase(
+      fileName = "UnusedImportsWithFlag.scala",
+      content =
+        """import scala.util.control.*
+          |import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
+          |import scala.collection.mutable.Set
+          |
+          |class UnusedImportsWithFlag {
+          |  val long = new AtomicLong()
+          |}""".stripMargin,
+      expectedResult = expectedResult(highlighting(0, 27), highlighting(64, 77), highlighting(91, 126))
+    )
+  }
 }
 
 abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {

@@ -10,11 +10,17 @@ import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.xml.util.XmlStringUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
-import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, executeOnPooledThread, inReadAction, invokeLater}
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaOptimizeImportsFix
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.{Pos, PosRange}
+import org.jetbrains.plugins.scala.editor.DocumentExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, executeOnPooledThread, inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
 
 import java.util.Collections
@@ -25,7 +31,7 @@ object ExternalHighlighters {
 
   // A random number of highlighters group to avoid conflicts with standard groups.
   private[highlighting] final val ScalaCompilerPassId = 979132998
-  
+
   def applyHighlighting(project: Project, editor: Editor, state: HighlightingState): Unit = {
     val document = editor.getDocument
     for {
@@ -89,6 +95,37 @@ object ExternalHighlighters {
     }
   }
 
+  @Nullable
+  private def unusedImportElementRange(@Nullable leaf: PsiElement): TextRange = {
+    val importExpr = PsiTreeUtil.getParentOfType(leaf, classOf[ScImportExpr])
+    if (importExpr == null) return null
+
+    // Put user data to enable Optimize Imports action
+    // See org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedImportPass
+    def markAsUnused(element: PsiElement): Unit =
+      element.putUserData(UnusedImportReportedByCompilerKey, true)
+
+    val set = ImportUsed.buildAllFor(importExpr).map(_.element)
+    if (set.contains(importExpr)) {
+      markAsUnused(importExpr)
+      importExpr.getParent.asOptionOf[ScImportOrExportStmt].getOrElse(importExpr).getTextRange
+    } else {
+      val selector = PsiTreeUtil.getParentOfType(leaf, classOf[ScImportSelector])
+      if (selector != null && set.contains(selector)) {
+        markAsUnused(selector)
+        selector.getTextRange
+      } else null
+    }
+  }
+
+  private def highlightInfoBuilder(highlightType: HighlightInfoType, highlightRange: TextRange, description: String): HighlightInfo.Builder =
+    HighlightInfo
+      .newHighlightInfo(highlightType)
+      .range(highlightRange)
+      .description(description)
+      .escapedToolTip(escapeHtmlWithNewLines(description))
+      .group(ScalaCompilerPassId)
+
   private def toHighlightInfo(highlighting: ExternalHighlighting, document: Document, psiFile: PsiFile): Option[HighlightInfo] = {
     val message = highlighting.message
 
@@ -99,13 +136,21 @@ object ExternalHighlighters {
       highlightRange <- calculateRangeToHighlight(posRange, message, document, psiFile)
     } yield {
       val description = message.trim.stripSuffix(lineText(message))
-      val highlightInfo = HighlightInfo
-        .newHighlightInfo(highlighting.highlightType)
-        .range(highlightRange)
-        .description(description)
-        .escapedToolTip(escapeHtmlWithNewLines(description))
-        .group(ScalaCompilerPassId)
-        .create()
+
+      def standardHighlightInfo =
+        highlightInfoBuilder(highlighting.highlightType, highlightRange, description).create()
+
+      val highlightInfo =
+        if (description.trim.equalsIgnoreCase("unused import")) {
+          val leaf = psiFile.findElementAt(highlightRange.getStartOffset)
+          val unusedImportRange = unusedImportElementRange(leaf)
+          if (unusedImportRange != null) {
+            // modify highlighting info to mimic Scala 2 unused import highlighting in Scala 3
+            highlightInfoBuilder(HighlightInfoType.UNUSED_SYMBOL, unusedImportRange, ScalaInspectionBundle.message("unused.import.statement"))
+              .registerFix(new ScalaOptimizeImportsFix, null, null, highlightRange, null)
+              .create()
+          } else standardHighlightInfo
+        } else standardHighlightInfo
 
       executeOnPooledThread {
         inReadAction {
