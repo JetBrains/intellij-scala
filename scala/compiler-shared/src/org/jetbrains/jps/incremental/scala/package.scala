@@ -5,7 +5,6 @@ import _root_.java.net.URL
 import _root_.java.util.Properties
 import _root_.java.net.URLClassLoader
 
-import _root_.scala.language.implicitConversions
 import _root_.scala.util.Using
 
 package object scala {
@@ -14,12 +13,6 @@ package object scala {
 
   class Extractor[A, B](f: A => B) {
     def unapply(a: A): Some[B] = Some(f(a))
-  }
-
-  implicit def toRightBiasedEither[A, B](either: Either[A, B]): Either[A, B] = either
-
-  implicit class PipedObject[T](private val v: T) extends AnyVal {
-    def |>[R](f: T => R): R = f(v)
   }
 
   def containsScala3(files: Iterable[File]): Boolean =
