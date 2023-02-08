@@ -20,6 +20,8 @@ import java.nio.file.Paths
     Resolver.sonatypeOssRepos("snapshots") :+
     ("scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/")
 
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+
 (Global / javacOptions) := globalJavacOptions
 
 (Global / scalacOptions) := globalScalacOptions
@@ -384,6 +386,7 @@ lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir
   .settings(
     name := "scalatest-finders",
     organization := "JetBrains",
+    scalaVersion := Versions.scalaVersion,
     // NOTE: we might continue NOT using Scala in scalatestFinders just in case
     // in some future we will decide again to extract the library, so as it can be used even without scala jar
     crossPaths := false, // disable using the Scala version in output paths and artifacts

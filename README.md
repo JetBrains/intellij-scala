@@ -113,7 +113,7 @@ UI Designer uses different border class in internal mode, see `com.intellij.uiDe
 
 You might want to generate a test coverage report for a given package. It can be done by running for example the following:
 ```
-sbt "project scala-impl;set coverageEnabled := true;project scalaCommunity;testOnly org.jetbrains.plugins.scala.codeInspection.unusedInspections.*;scala-impl/coverageReport"
+sbt "project scala-impl;set coverageEnabled := true;project scalaCommunity;testOnly org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.*;scala-impl/coverageReport"
 ```
 Close to the very tail of the output of this command you will find a line that gives you the location of the generated report, for example:
 ```
