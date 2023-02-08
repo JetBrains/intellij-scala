@@ -40,7 +40,6 @@ private final class ElementUsageWithKnownReference private(
    * available in [[reference]]'s immediate scope because [[reference]] and [[target]] are siblings.
    *
    * Below we can see some examples for each scenario.
-   *
    * {{{
    * object foo {
    *   implicit class IntExt1(i: Int) { self =>
@@ -83,10 +82,12 @@ private final class ElementUsageWithKnownReference private(
    *   def addOneCanBePrivate4 = self.addOne
    * }}}
    *
-   * Since this way of utilizing extension methods is probably quite rare, and false negatives are relatively fine to
-   * have, we could consider forgetting about these cases. For now I've implemented an additional check in
-   * `firstChildIsNonThisTypedExpression`. If we suspect any disproportionate performance impact, we could simply
-   * remove this additional check and allow the false negatives.
+   * Implementation Note:<br>
+   * This way of utilizing extension methods is probably quite rare.
+   * We could ignore these cases, because false negatives are relatively fine to have.
+   * But for now I've implemented an additional check in `firstChildIsNonThisTypedExpression`.
+   * If we suspect any disproportionate performance impact, we could simply remove this additional check and allow the
+   * false negatives.
    */
   private def isIndirectReferenceToImplicitClassExtensionMethodFromWithinThatClass(typeDef: ScTypeDefinition): Boolean = {
 
@@ -143,7 +144,6 @@ private final class ElementUsageWithKnownReference private(
       (refElement.is[ScStableCodeReference] || referenceIsExpressionWhoseFirstChildHasTargetContainerType ||
         isReferenceToImportedCompanionObjectMember)
   }
-
 
   override lazy val targetCanBePrivate: Boolean = {
     val parentTypeDef = target.underlying.get().parentOfType[ScTypeDefinition]
