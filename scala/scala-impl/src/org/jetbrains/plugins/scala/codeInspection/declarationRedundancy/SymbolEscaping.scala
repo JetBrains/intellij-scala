@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionTy
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
-
 /**
  * Utility to scrape all types that escape through public members of a given type definition. The current use
  * case is to assist in [[ScalaAccessCanBeTightenedInspection]], but maybe it could also be used to improve
