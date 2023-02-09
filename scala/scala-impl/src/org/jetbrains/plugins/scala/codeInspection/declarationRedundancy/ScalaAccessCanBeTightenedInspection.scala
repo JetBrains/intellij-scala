@@ -74,7 +74,7 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
       case t: ScTypeDefinition if isTypeDefThatShouldNotBeInspected(t) => false
       case m: ScMember => !m.isLocal && !Option(m.containingClass).exists(isLocalClass) && !isBeanProperty(m)
       case p: ScPatternList => shouldProcessElement(p.getContext)
-      case _ => true
+      case _ => false
     }
   }
 }
