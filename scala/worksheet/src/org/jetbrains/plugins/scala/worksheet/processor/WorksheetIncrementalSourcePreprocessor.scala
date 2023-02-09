@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.worksheet.processor
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiErrorElement
-import org.jetbrains.plugins.scala.compiler.data.serialization.extensions.EitherExt
 import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages.ReplDelimiter
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -47,7 +46,7 @@ object WorksheetIncrementalSourcePreprocessor {
 
   private def toEitherOfSeq[A, B](seq: Seq[Either[A, B]]): Either[A, Seq[B]] =
     seq.find(_.isLeft) match {
-      case Some(value) => Left(value.getLeft)
-      case None        => Right(seq.map(_.getRight))
+      case Some(Left(value)) => Left(value)
+      case _ => Right(seq.collect { case Right(value) => value })
     }
 }

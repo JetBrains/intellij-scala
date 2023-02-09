@@ -16,7 +16,6 @@ import org.jetbrains.annotations.{NonNls, Nullable, TestOnly}
 import org.jetbrains.plugins.scala._
 import org.jetbrains.plugins.scala.build._
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
-import org.jetbrains.plugins.scala.compiler.data.serialization.extensions.EitherExt
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, SdkReference}
@@ -98,7 +97,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val conversionResult: Try[DataNode[ESProjectData]] = structureDump
       .map { case (elem, _) =>
-        val data = elem.deserialize[sbtStructure.StructureData].getRight
+        val data = elem.deserialize[sbtStructure.StructureData].getOrElse(throw new IllegalStateException("Could not deserialize sbt structure data"))
         convert(normalizePath(projectRoot), data, settings.jdk, sbtVersion).toDataNode
       }
       .recoverWith {

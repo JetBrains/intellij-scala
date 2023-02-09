@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.data.serialization
 
 import org.jetbrains.plugins.scala.compiler.data.serialization.ArgListSerializer._
-import org.jetbrains.plugins.scala.compiler.data.serialization.extensions._
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 
 /** TODO: cover with property-based tests */
@@ -37,11 +36,11 @@ object WorksheetArgsPlainSerializer extends ArgListSerializer[WorksheetArgs.RunP
   )
 
   override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgs.RunPlain] =
-    for {
+    (for {
       worksheetClassName <- Right(args.head)
-      pathToRunners      <- pathToFileValidated(args(1), "pathToRunners").lift
-      worksheetTempFile  <- pathToFileValidated(args(2), "worksheetTempFile").lift
-      originalFileName   <- notNull(args(3), "originalFileName").lift
+      pathToRunners      <- pathToFileValidated(args(1), "pathToRunners")
+      worksheetTempFile  <- pathToFileValidated(args(2), "worksheetTempFile")
+      originalFileName   <- notNull(args(3), "originalFileName")
       outputDirs         = args.drop(4).flatMap(pathToFile(_, "outputDirs"))
     } yield WorksheetArgs.RunPlain(
       worksheetClassName,
@@ -49,7 +48,7 @@ object WorksheetArgsPlainSerializer extends ArgListSerializer[WorksheetArgs.RunP
       worksheetTempFile,
       originalFileName,
       outputDirs
-    )
+    )).left.map(Seq(_))
 }
 
 object WorksheetArgsReplSerializer extends ArgListSerializer[WorksheetArgs.RunRepl] {
@@ -65,11 +64,11 @@ object WorksheetArgsReplSerializer extends ArgListSerializer[WorksheetArgs.RunRe
   )
 
   override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgs.RunRepl] =
-    for {
-      sessionId            <- notNull(args.head, "repl session id").lift
-      codeChunk            <- notNull(args(1), "codeChunk").lift
-      dropReplInstance     <- boolean(args(2), "dropCachedReplInstance").lift
-      continueOnChunkError <- boolean(args(3), "continueOnChunkError").lift
+    (for {
+      sessionId            <- notNull(args.head, "repl session id")
+      codeChunk            <- notNull(args(1), "codeChunk")
+      dropReplInstance     <- boolean(args(2), "dropCachedReplInstance")
+      continueOnChunkError <- boolean(args(3), "continueOnChunkError")
       outputDirs           = args.drop(4).flatMap(SerializationUtils.pathToFile(_, "outputDirs"))
     } yield WorksheetArgs.RunRepl(
       sessionId,
@@ -77,5 +76,5 @@ object WorksheetArgsReplSerializer extends ArgListSerializer[WorksheetArgs.RunRe
       dropReplInstance,
       continueOnChunkError,
       outputDirs
-    )
+    )).left.map(Seq(_))
 }
