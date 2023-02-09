@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl
 import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, PackageScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiNamedElement, PsiPackage, PsiReference}
+import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, PsiPackage, PsiReference}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -36,15 +36,37 @@ private object ScalaUseScope {
   // 2. Elements in scratch files can only be used in those files
   // 3. Scratch files can be configured to be treated like worksheets (enabled by default)
   // 4. Scratch files have no concept of Project, so GlobalSearchScope should not be used
-  def apply(baseUseScope: SearchScope, file: ScalaFile): SearchScope = file match {
-    case ScFile.VirtualFile(virtualFile) if file.isWorksheetFile =>
-      if (ScratchUtil.isScratch(virtualFile)) {
-        new LocalSearchScope(file)
-      } else {
-        GlobalSearchScope.fileScope(file.getProject, virtualFile)
-      }
+  def apply(baseUseScope: SearchScope, file: ScalaFile): SearchScope =
+    file match {
+      case ScFile.VirtualFile(virtualFile) =>
+        if (ScratchUtil.isScratch(virtualFile))
+          fileScopeForScratchFiles(file)
+        else if (file.isWorksheetFile)
+          GlobalSearchScope.fileScope(file.getProject, virtualFile)
+        else
+          baseUseScope
+      case _ =>
+        baseUseScope
+    }
 
-    case _ => if (ScratchUtil.isScratch(file.getVirtualFile)) new LocalSearchScope(file) else baseUseScope
+  /**
+   * There are two possible ways to define "file scope":
+   *  1. new LocalSearchScope(file)
+   *  1. GlobalSearchScope.fileScope(project, virtualFile)
+   *
+   * With both approaches "Show hierarchy" action doesn't work in Scratch files due to this bug in IntelliJ Platform:<br>
+   * [[https://youtrack.jetbrains.com/issue/IDEA-313012/type-hierarchy-doesnt-detect-inheritors-for-classes-in-scratch-files]]
+   *
+   * Also "Is mixed into" and "Member has implementation/overrides" gutter icons do not work for same root cause.
+   *
+   * However if we use `new LocalSearchScope(file)` gutter icons still work.<br>
+   * This is due to a workaround in
+   * [[org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaLocalInheritorsSearcher.processQuery]]
+   * which only can handle `LocalSearchScope`
+   */
+  private def fileScopeForScratchFiles(file: PsiFile): SearchScope = {
+    //GlobalSearchScope.fileScope(file.getProject, virtualFile)
+    new LocalSearchScope(file)
   }
 
   private def intersect(scope: SearchScope, scopeOption: Option[SearchScope]): SearchScope =
@@ -172,7 +194,7 @@ private object ScalaUseScope {
          * does not include the file that contains the ScMember.
          */
 
-      new PackageScope(p, /*includeSubpackages*/ true, /*includeLibraries*/ true)
+        new PackageScope(p, /*includeSubpackages*/ true, /*includeLibraries*/ true)
 
       case td: ScTypeDefinition =>
 
