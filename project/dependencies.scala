@@ -24,7 +24,7 @@ object Versions {
   val junitInterfaceVersion: String = "0.13.3"
 
   val bspVersion = "2.1.0-M3"
-  val sbtStructureVersion: String = "2022.3.1"
+  val sbtStructureVersion: String = "2023.1.0"
   val sbtIdeaShellVersion: String = "2021.1.0"
   val compilerIndicesVersion = "1.0.13"
 
@@ -60,7 +60,7 @@ object Dependencies {
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
-  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
+  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "2.1.0"
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
   //  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
