@@ -71,7 +71,7 @@ object Dependencies {
 
   val commonsLang: ModuleID = "org.apache.commons" % "commons-lang3" % "3.12.0"
 
-  val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "23.0.0"
+  val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "23.1.0"
 
   //NOTE: JUnit 4 dependency is already available via intellij main jars.
   // It's bundled together with it's transitive dependencies in single junit4.jar (in <sdk_root>/lib folder)
