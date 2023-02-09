@@ -17,7 +17,7 @@ Document tests/pos/pos_valueclasses/nullAsInstanceOfVC.scala
 (19:23..19:27) scala/Unit#
 (20:22..20:25) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
 (20:37..20:40) scala/Any#
-(20:49..20:50) local2 -> 13:14
+(20:49..20:50) local2 -> 5:5
 (20:51..20:63) scala/Any#asInstanceOf().
 (20:64..20:67) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
 (21:22..21:25) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
@@ -259,7 +259,7 @@ Document tests/pos/pos_valueclasses/t6260.scala
 (12:24..12:30) scala/Predef.String#
 (12:34..12:38) scala/Unit#
 (13:17..13:20) scala/Int#
-(13:25..13:26) local2 -> 13:14
+(13:25..13:26) local2 -> 5:5
 (13:27..13:28) scala/Int#`+`(+4).
 (14:17..14:23) scala/Predef.String#
 (14:28..14:29) local4 -> 14:14

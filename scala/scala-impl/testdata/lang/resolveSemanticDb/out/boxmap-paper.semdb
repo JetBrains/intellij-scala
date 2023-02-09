@@ -1,0 +1,103 @@
+Document tests/pos/boxmap-paper.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:45) scala/language.experimental.captureChecking.
+(5:16..5:17) _empty_/`boxmap-paper$package`.cell().[T] -> 5:10
+(5:20..5:24) _empty_/`boxmap-paper$package`.Cell# -> 3:6
+(5:25..5:26) _empty_/`boxmap-paper$package`.cell().[T] -> 5:10
+(6:14..6:15) _empty_/`boxmap-paper$package`.cell().[T] -> 5:10
+(6:19..6:20) local3 -> 6:4
+(6:25..6:26) local4 -> 6:11
+(6:27..6:28) _empty_/`boxmap-paper$package`.cell().(x) -> 5:13
+(8:15..8:19) _empty_/`boxmap-paper$package`.Cell# -> 3:6
+(8:20..8:21) _empty_/`boxmap-paper$package`.get().[T] -> 8:9
+(8:25..8:26) _empty_/`boxmap-paper$package`.get().[T] -> 8:9
+(8:29..8:30) _empty_/`boxmap-paper$package`.get().(c) -> 8:12
+(8:31..8:32) _empty_/`boxmap-paper$package`.get().[T] -> 8:9
+(8:34..8:42) scala/Predef.identity().
+(10:18..10:22) _empty_/`boxmap-paper$package`.Cell# -> 3:6
+(10:23..10:24) _empty_/`boxmap-paper$package`.map().[A] -> 10:9
+(10:30..10:31) _empty_/`boxmap-paper$package`.map().[A] -> 10:9
+(10:35..10:36) _empty_/`boxmap-paper$package`.map().[B] -> 10:12
+(10:39..10:43) _empty_/`boxmap-paper$package`.Cell# -> 3:6
+(10:44..10:45) _empty_/`boxmap-paper$package`.map().[B] -> 10:12
+(11:5..11:6) _empty_/`boxmap-paper$package`.map().(c) -> 10:15
+(11:7..11:11) _empty_/`boxmap-paper$package`.Cell# -> 3:6
+(11:12..11:13) _empty_/`boxmap-paper$package`.map().[B] -> 10:12
+(11:20..11:21) _empty_/`boxmap-paper$package`.map().[A] -> 10:9
+(11:26..11:30) _empty_/`boxmap-paper$package`.cell(). -> 5:5
+(11:31..11:32) _empty_/`boxmap-paper$package`.map().(f) -> 10:27
+(11:33..11:34) local9 -> 11:17
+(13:22..13:26) _empty_/`boxmap-paper$package`.Cell# -> 3:6
+(13:27..13:28) _empty_/`boxmap-paper$package`.pureMap().[A] -> 13:13
+(13:34..13:35) _empty_/`boxmap-paper$package`.pureMap().[A] -> 13:13
+(13:39..13:40) _empty_/`boxmap-paper$package`.pureMap().[B] -> 13:16
+(13:43..13:47) _empty_/`boxmap-paper$package`.Cell# -> 3:6
+(13:48..13:49) _empty_/`boxmap-paper$package`.pureMap().[B] -> 13:16
+(14:5..14:6) _empty_/`boxmap-paper$package`.pureMap().(c) -> 13:19
+(14:7..14:11) _empty_/`boxmap-paper$package`.Cell# -> 3:6
+(14:12..14:13) _empty_/`boxmap-paper$package`.pureMap().[B] -> 13:16
+(14:20..14:21) _empty_/`boxmap-paper$package`.pureMap().[A] -> 13:13
+(14:26..14:30) _empty_/`boxmap-paper$package`.cell(). -> 5:5
+(14:31..14:32) _empty_/`boxmap-paper$package`.pureMap().(f) -> 13:31
+(14:33..14:34) local10 -> 14:17
+(16:22..16:26) _empty_/`boxmap-paper$package`.Cell# -> 3:6
+(16:27..16:28) _empty_/`boxmap-paper$package`.lazyMap().[A] -> 16:13
+(16:34..16:35) _empty_/`boxmap-paper$package`.lazyMap().[A] -> 16:13
+(16:39..16:40) _empty_/`boxmap-paper$package`.lazyMap().[B] -> 16:16
+(16:44..16:45) _empty_/`boxmap-paper$package`.lazyMap().(f) -> 16:31
+(16:53..16:57) _empty_/`boxmap-paper$package`.Cell# -> 3:6
+(16:58..16:59) _empty_/`boxmap-paper$package`.lazyMap().[B] -> 16:16
+(17:11..17:12) _empty_/`boxmap-paper$package`.lazyMap().(c) -> 16:19
+(17:13..17:17) _empty_/`boxmap-paper$package`.Cell# -> 3:6
+(17:18..17:19) _empty_/`boxmap-paper$package`.lazyMap().[B] -> 16:16
+(17:26..17:27) _empty_/`boxmap-paper$package`.lazyMap().[A] -> 16:13
+(17:32..17:36) _empty_/`boxmap-paper$package`.cell(). -> 5:5
+(17:37..17:38) _empty_/`boxmap-paper$package`.lazyMap().(f) -> 16:31
+(17:39..17:40) local11 -> 17:23
+(20:16..20:22) scala/Predef.String#
+(20:25..20:29) scala/Unit#
+(22:18..22:20) _empty_/IO# -> 19:7
+(24:19..24:21) _empty_/`boxmap-paper$package`.test().(io) -> 22:10
+(24:29..24:32) scala/Int#
+(24:43..24:45) _empty_/`boxmap-paper$package`.test().(io) -> 22:10
+(24:46..24:51) _empty_/IO#print(). -> 20:7
+(26:10..26:14) _empty_/`boxmap-paper$package`.Cell# -> 3:6
+(26:16..26:18) _empty_/`boxmap-paper$package`.test().(io) -> 22:10
+(26:26..26:29) scala/Int#
+(27:9..27:13) _empty_/`boxmap-paper$package`.cell(). -> 5:5
+(27:15..27:17) _empty_/`boxmap-paper$package`.test().(io) -> 22:10
+(27:25..27:28) scala/Int#
+(27:30..27:39) local12 -> 24:7
+(29:16..29:18) _empty_/`boxmap-paper$package`.test().(io) -> 22:10
+(29:26..29:29) scala/Int#
+(30:13..30:14) local14 -> 29:12
+(30:18..30:20) _empty_/`boxmap-paper$package`.test().(io) -> 22:10
+(30:21..30:26) _empty_/IO#print(). -> 20:7
+(31:13..31:14) local14 -> 29:12
+(31:18..31:20) _empty_/`boxmap-paper$package`.test().(io) -> 22:10
+(31:21..31:26) _empty_/IO#print(). -> 20:7
+(31:34..31:35) local15 -> 30:9
+(31:36..31:37) scala/Int#`+`(+4).
+(31:38..31:39) local16 -> 31:9
+(31:40..31:41) scala/StringContext#s().
+(33:11..33:18) _empty_/`boxmap-paper$package`.lazyMap(). -> 16:5
+(33:20..33:22) _empty_/`boxmap-paper$package`.test().(io) -> 22:10
+(33:30..33:33) scala/Int#
+(33:35..33:39) scala/Unit#
+(33:41..33:42) local13 -> 26:7
+(33:49..33:50) local17 -> 29:7
+(33:51..33:52) local18 -> 33:44
+(34:12..34:19) _empty_/`boxmap-paper$package`.lazyMap(). -> 16:5
+(34:21..34:23) _empty_/`boxmap-paper$package`.test().(io) -> 22:10
+(34:31..34:34) scala/Int#
+(34:36..34:40) scala/Unit#
+(34:42..34:43) local13 -> 26:7
+(34:45..34:46) local17 -> 29:7
+(35:12..35:19) _empty_/`boxmap-paper$package`.lazyMap(). -> 16:5
+(35:20..35:21) local13 -> 26:7
+(35:23..35:24) local17 -> 29:7
+(36:11..36:12) local19 -> 33:7
+(37:11..37:13) local20 -> 34:7
+(38:11..38:13) local21 -> 35:7
+

@@ -1,0 +1,31 @@
+Document tests/pos/i15991.abstract.scala
+(2:20..2:25) scala/Tuple#
+(2:32..2:33) _empty_/Foo.unapply().[T] -> 2:15
+(2:36..2:42) scala/Predef.String#
+(2:43..2:45) scala/`*:`#
+(2:46..2:52) scala/Predef.String#
+(2:53..2:55) scala/`*:`#
+(2:56..2:57) _empty_/Foo.unapply().[T] -> 2:15
+(3:19..3:22) _empty_/Foo.unapply().(tup) -> 2:27
+(7:13..7:19) scala/Predef.String#
+(7:20..7:22) scala/`*:`#
+(7:23..7:29) scala/Predef.String#
+(7:30..7:32) scala/`*:`#
+(7:33..7:43) scala/Tuple$package.EmptyTuple#
+(10:9..10:12) _empty_/Foo. -> 1:8
+(10:27..10:31) _empty_/Test#tup2. -> 7:7
+(11:5..11:6) local0 -> 10:13
+(11:7..11:8) java/lang/String#`+`().
+(11:9..11:10) local1 -> 10:16
+(15:15..15:19) _empty_/Test#tup2. -> 7:7
+(16:12..16:15) _empty_/Foo. -> 1:8
+(17:10..17:11) local2 -> 16:16
+(17:13..17:14) local3 -> 16:19
+(18:13..18:16) local4 -> 15:9
+(18:17..18:19) scala/Tuple2#_1.
+(19:13..19:16) local4 -> 15:9
+(19:17..19:19) scala/Tuple2#_2.
+(20:5..20:6) local5 -> 18:9
+(20:7..20:8) java/lang/String#`+`().
+(20:9..20:10) local6 -> 19:9
+
