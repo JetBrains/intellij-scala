@@ -1,3 +1,6 @@
+import org.jetbrains.sbtidea.IntelliJPlatform.IdeaCommunity
+import org.jetbrains.sbtidea.download.BuildInfo
+import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
 import sbt._
 
 object Versions {
@@ -12,10 +15,18 @@ object Versions {
   val zincVersion = "1.8.0"
   val intellijVersion = "232.109"
 
-  val IntellijVersionUtils.DataForManagedIntellijDependencies(
+  val (
     intellijVersion_ForManagedIntellijDependencies,
-    intellijRepository_ForManagedIntellijDependencies
-  ) = IntellijVersionUtils.getDataForManagedIntellijDependencies(intellijVersion)
+    intellijRepository_ForManagedIntellijDependencies,
+  ) = detectIntellijArtifactVersionAndRepository(intellijVersion)
+
+  private def detectIntellijArtifactVersionAndRepository(intellijVersion: String): (String, MavenRepository) = {
+    val locationDescriptor = IntellijVersionUtils.detectArtifactLocation(BuildInfo(intellijVersion, IdeaCommunity), ".zip")
+    val artifactVersion = locationDescriptor.artifactVersion
+    val artifactUrl = locationDescriptor.url
+    //println(s"""[detectIntellijArtifactVersionAndRepository] build number: $intellijVersion, artifact version: $artifactVersion, artifact url: $artifactUrl""")
+    (artifactVersion, locationDescriptor.repository)
+  }
 
   val junitVersion: String = "4.13.2"
   val junitInterfaceVersion: String = "0.13.3"

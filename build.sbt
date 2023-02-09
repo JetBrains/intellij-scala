@@ -2,7 +2,6 @@ import Common._
 import Dependencies.provided
 import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPath, sbtDep}
 import org.jetbrains.sbtidea.Keys._
-import sbtide.Keys.ideSkipProject
 
 import java.nio.file.Paths
 
