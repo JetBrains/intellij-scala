@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester
 
-import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.text.{LiteralNameSuggester, StringUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaTypeValidator, Sc
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 object NameSuggester {
 
@@ -138,9 +139,12 @@ object NameSuggester {
     case invocation: MethodInvocation =>
       enhancedNames(invocation.matchedParameters, types)
     case literal: ScLiteral if literal.isString =>
-      Option(literal.getValue).collect {
-        case string: String if isIdentifier(string.toLowerCase) => string
-      }.flatMap(string => camelCaseNames(string).headOption).toSeq
+      Option(literal.getValue) match {
+        case Some(string: String) =>
+          val identifierSuggestion = if (isIdentifier(string.toLowerCase)) camelCaseNames(string).headOption else None
+          identifierSuggestion.toSeq ++ LiteralNameSuggester.literalNames(string).asScala
+        case _ => Seq.empty
+      }
     case expression =>
       val maybeName = expression.getContext match {
         case x: ScAssignment => x.referenceName
