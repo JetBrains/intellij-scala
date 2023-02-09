@@ -48,8 +48,8 @@ final class ShowDecompiledClassAsJavaAction extends AnAction(ScalaJavaDecompiler
   private def getPsiElement(e: AnActionEvent): Option[PsiElement] = {
     val editor = e.getData(CommonDataKeys.EDITOR)
     if (editor != null) {
-      val psiFile = PsiUtilBase.getPsiFileInEditor(editor, e.getProject)
-      Option(psiFile.findElementAt(editor.getCaretModel.getOffset))
+      val psiFile = Option(PsiUtilBase.getPsiFileInEditor(editor, e.getProject))
+      psiFile.flatMap(f => Option(f.findElementAt(editor.getCaretModel.getOffset)))
     }
     else Option(e.getData(CommonDataKeys.PSI_ELEMENT))
   }
