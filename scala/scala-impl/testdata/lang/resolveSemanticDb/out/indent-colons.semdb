@@ -121,15 +121,13 @@ Document tests/pos/indent-colons.scala
 (121:38..121:39) _empty_/`indent-colons$package`.tryEither().[T] -> 121:15
 (121:42..121:45) scala/Predef.`???`().
 (124:3..124:12) _empty_/`indent-colons$package`.tryEither(). -> 121:5
-(126:4..126:9) scala/Function1#apply().
-(127:10..127:11) local34 -> 127:5
+(127:10..127:11) local33 -> 127:5
 (127:12..127:20) scala/Any#toString().
 (130:3..130:12) _empty_/`indent-colons$package`.tryEither(). -> 121:5
-(132:4..132:9) scala/Function1#apply().
 (133:7..133:15) scala/Any#toString().
 (137:3..137:7) scala/Some.
-(139:4..139:9) scala/Function1#apply().
-(140:10..140:11) local37 -> 140:5
+(137:11..137:15) scala/Option#fold().
+(140:10..140:11) local34 -> 140:5
 (140:12..140:20) scala/Any#toString().
 (144:46..144:47) _empty_/Test23.nested().[T] -> 144:33
 (144:50..144:51) _empty_/Test23.nested().[T] -> 144:33

@@ -1215,6 +1215,28 @@
   "flag": "-Vreify",
   "scalaVersions": ["2.13"]
 }, {
+  "argType": "OneSeparate",
+  "choices": {
+
+  },
+  "defaultValue": "50000",
+  "descriptions": {
+    "3.2": "Number of characters to be printed before output is truncated."
+  },
+  "flag": "-Vrepl-max-print-characters",
+  "scalaVersions": ["3.2"]
+}, {
+  "argType": "OneSeparate",
+  "choices": {
+
+  },
+  "defaultValue": "1000",
+  "descriptions": {
+    "3.2": "Number of elements to be printed before output is truncated."
+  },
+  "flag": "-Vrepl-max-print-elements",
+  "scalaVersions": ["3.2"]
+}, {
   "argType": "Multiple",
   "choices": {
 
@@ -2485,17 +2507,7 @@
 
   },
   "descriptions": {
-    "3.2": "Check captured references (warning: extremely experimental and unstable)"
-  },
-  "flag": "-Ycc",
-  "scalaVersions": ["3.2"]
-}, {
-  "argType": "No",
-  "choices": {
-
-  },
-  "descriptions": {
-    "3.2": "Used in conjunction with -Ycc, debug info for captured references"
+    "3.2": "Used in conjunction with captureChecking language import, debug info for captured references"
   },
   "flag": "-Ycc-debug",
   "scalaVersions": ["3.2"]
@@ -2505,7 +2517,7 @@
 
   },
   "descriptions": {
-    "3.2": "Used in conjunction with -Ycc, suppress type abbreviations"
+    "3.2": "Used in conjunction with captureChecking language import, suppress type abbreviations"
   },
   "flag": "-Ycc-no-abbrev",
   "scalaVersions": ["3.2"]
@@ -3196,6 +3208,16 @@
   },
   "flag": "-Ykind-projector",
   "scalaVersions": ["3.0", "3.1", "3.2"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.2": "Use experimental lightweight implementation of lazy vals"
+  },
+  "flag": "-Ylightweight-lazy-vals",
+  "scalaVersions": ["3.2"]
 }, {
   "argType": "OneAfterColon",
   "choices": {

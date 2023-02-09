@@ -1,0 +1,34 @@
+Document tests/pos/i16236.scala
+(3:19..3:20) _empty_/i16236$package.consume().[T] -> 3:13
+(3:23..3:27) scala/Unit#
+(5:15..5:21) scala/Double#
+(5:22..5:23) scala/`&`#
+(5:24..5:25) _empty_/A# -> 1:7
+(5:27..5:28) scala/`|`#
+(5:29..5:33) scala/Null#
+(5:36..5:40) scala/Unit#
+(5:43..5:50) _empty_/i16236$package.consume(). -> 3:5
+(5:51..5:52) _empty_/i16236$package.fails().(p) -> 5:11
+(7:23..7:24) _empty_/A# -> 1:7
+(7:25..7:26) scala/`&`#
+(7:27..7:33) scala/Double#
+(7:35..7:36) scala/`|`#
+(7:37..7:41) scala/Null#
+(7:44..7:48) scala/Unit#
+(7:51..7:58) _empty_/i16236$package.consume(). -> 3:5
+(7:59..7:60) _empty_/i16236$package.switchedOrder().(p) -> 7:19
+(8:22..8:28) scala/Predef.String#
+(8:29..8:30) scala/`&`#
+(8:31..8:32) _empty_/A# -> 1:7
+(8:34..8:35) scala/`|`#
+(8:36..8:40) scala/Null#
+(8:43..8:47) scala/Unit#
+(8:50..8:57) _empty_/i16236$package.consume(). -> 3:5
+(8:58..8:59) _empty_/i16236$package.nonPrimitive().(p) -> 8:18
+(9:17..9:23) scala/Double#
+(9:24..9:25) scala/`&`#
+(9:26..9:27) _empty_/A# -> 1:7
+(9:31..9:35) scala/Unit#
+(9:38..9:45) _empty_/i16236$package.consume(). -> 3:5
+(9:46..9:47) _empty_/i16236$package.notNull().(p) -> 9:13
+

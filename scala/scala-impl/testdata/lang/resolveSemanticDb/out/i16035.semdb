@@ -1,0 +1,17 @@
+Document tests/pos/i16035.scala
+(2:21..2:22) _empty_/Scope.Uses#[A] -> 2:13
+(2:27..2:28) _empty_/Scope.Uses#[B] -> 2:16
+(5:25..5:26) _empty_/Scope.Uses.apply().[A] -> 5:15
+(5:31..5:32) _empty_/Scope.Uses.apply().[B] -> 5:18
+(5:35..5:39) _empty_/Scope.Uses# -> 2:8
+(5:40..5:41) _empty_/Scope.Uses.apply().[A] -> 5:15
+(5:43..5:44) _empty_/Scope.Uses.apply().[B] -> 5:18
+(5:48..5:50) _empty_/Scope.Uses.apply().(fn) -> 5:21
+(7:8..7:13) _empty_/Scope. -> 1:8
+(9:9..9:12) scala/Int#
+(10:3..10:7) _empty_/Scope.Uses. -> 4:10
+(10:8..10:11) scala/Int#
+(10:13..10:19) scala/Predef.String#
+(10:31..10:32) local2 -> 10:21
+(10:33..10:34) scala/StringContext#s().
+

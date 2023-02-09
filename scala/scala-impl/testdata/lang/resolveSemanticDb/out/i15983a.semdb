@@ -1,0 +1,17 @@
+Document tests/pos/i15983a.scala
+(1:25..1:26) _empty_/OtherC#[B] -> 1:17
+(4:26..4:27) _empty_/crash#OtherT#[B] -> 4:18
+(6:21..6:22) _empty_/crash#indexK().[F] -> 6:14
+(6:23..6:26) scala/Any#
+(6:30..6:33) scala/Predef.`???`().
+(8:12..8:18) _empty_/crash#OtherT# -> 4:8
+(8:19..8:22) scala/Any#
+(8:24..8:27) scala/Any#
+(8:29..8:32) scala/Any#
+(8:36..8:42) _empty_/crash#indexK(). -> 6:7
+(10:13..10:19) _empty_/OtherC# -> 1:7
+(10:20..10:23) scala/Any#
+(10:25..10:28) scala/Any#
+(10:30..10:33) scala/Any#
+(10:37..10:43) _empty_/crash#indexK(). -> 6:7
+

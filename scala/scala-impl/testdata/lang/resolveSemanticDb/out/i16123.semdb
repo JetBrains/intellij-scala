@@ -1,0 +1,16 @@
+Document tests/pos/i16123.scala
+(3:27..3:30) _empty_/Nat# -> 2:14
+(4:22..4:25) _empty_/Nat# -> 2:14
+(4:30..4:31) _empty_/Succ#[N] -> 4:17
+(4:41..4:44) _empty_/Nat# -> 2:14
+(7:14..7:17) _empty_/Nat# -> 2:14
+(7:20..7:23) scala/Int#
+(7:26..7:27) _empty_/Test#foo().(n) -> 7:11
+(8:10..8:14) _empty_/Zero.
+(9:10..9:14) _empty_/Succ.
+(9:15..9:19) _empty_/Zero.
+(12:14..12:17) _empty_/Test#foo(). -> 7:7
+(12:18..12:22) _empty_/Succ.
+(12:23..12:27) _empty_/Succ.
+(12:28..12:32) _empty_/Zero.
+

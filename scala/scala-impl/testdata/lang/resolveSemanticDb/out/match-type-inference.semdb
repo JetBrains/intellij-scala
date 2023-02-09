@@ -1,0 +1,23 @@
+Document tests/pos/match-type-inference.scala
+(1:20..1:23) scala/Any#
+(1:27..1:28) _empty_/`match-type-inference$package`.IsString#[T] -> 1:15
+(2:8..2:14) scala/Predef.String#
+(3:8..3:9) scala/Any#
+(6:17..6:20) scala/Any#
+(6:23..6:31) _empty_/`match-type-inference$package`.IsString# -> 1:6
+(6:32..6:33) _empty_/`match-type-inference$package`.isString().(x) -> 6:14
+(6:42..6:43) _empty_/`match-type-inference$package`.isString().(x) -> 6:14
+(7:11..7:17) scala/Predef.String#
+(10:18..10:21) scala/Any#
+(10:24..10:25) _empty_/`match-type-inference$package`.isString2().(x) -> 10:15
+(11:8..11:14) scala/Predef.String#
+(12:8..12:9) scala/Any#
+(13:5..13:6) _empty_/`match-type-inference$package`.isString2().(x) -> 10:15
+(14:11..14:17) scala/Predef.String#
+(17:21..17:22) _empty_/`match-type-inference$package`.isString3().[T] -> 17:15
+(17:25..17:26) _empty_/`match-type-inference$package`.isString3().[T] -> 17:15
+(18:8..18:14) scala/Predef.String#
+(19:8..19:9) scala/Any#
+(20:5..20:6) _empty_/`match-type-inference$package`.isString3().(x) -> 17:18
+(21:11..21:17) scala/Predef.String#
+

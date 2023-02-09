@@ -262,7 +262,9 @@ object AfterUpdateDottyVersionScript {
         """    private def excludeDef(sym: Symbol)(using Context): Boolean =
           |      !sym.exists
           |      || sym.isLocalDummy
-          |      || sym.is(Synthetic)
+          |      // basically do not register synthetic symbols, except anonymous class
+          |      // `new Foo { ... }`
+          |      || (sym.is(Synthetic) && !sym.isAnonymousClass)
           |      || sym.isSetter
           |      || sym.isOldStyleImplicitConversion(forImplicitClassOnly = true)
           |      || sym.owner.isGivenInstanceSummoner
@@ -271,7 +273,9 @@ object AfterUpdateDottyVersionScript {
         """    private def excludeDef(sym: Symbol)(using Context): Boolean =
           |      !sym.exists
           |      || sym.isLocalDummy
-          |      //|| sym.is(Synthetic)
+          |      // basically do not register synthetic symbols, except anonymous class
+          |      // `new Foo { ... }`
+          |      //|| (sym.is(Synthetic) && !sym.isAnonymousClass)
           |      //|| sym.isSetter
           |      //|| sym.isOldStyleImplicitConversion(forImplicitClassOnly = true)
           |      //|| sym.owner.isGivenInstanceSummoner
