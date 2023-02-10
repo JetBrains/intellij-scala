@@ -469,6 +469,7 @@ lazy val bsp =
     .settings(
       libraryDependencies ++= DependencyGroups.bsp,
       intellijPlugins += "JUnit".toPlugin,
+      intellijPlugins += "org.jetbrains.plugins.terminal".toPlugin,
       buildInfoPackage := "org.jetbrains.bsp.buildinfo",
       buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
       buildInfoOptions += BuildInfoOption.ConstantValue,

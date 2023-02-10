@@ -1,0 +1,5 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <bspVcsRootExtension implementation="org.jetbrains.bsp.data.TerminalStartDirectoryConfig"/>
+    </extensions>
+</idea-plugin>
