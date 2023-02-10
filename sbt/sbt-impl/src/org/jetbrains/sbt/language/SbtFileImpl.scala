@@ -55,7 +55,10 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
     else Some(ScalaPsiElementFactory.createScalaFileFromText(imports.mkString("import ", ", ", ";"), ScalaFeatures.default))
   })
 
-  /** NOTE: consider rewriting this using [[com.intellij.psi.ResolveScopeEnlarger]] */
+  /**
+   * @note dual logic is located in [[org.jetbrains.sbt.language.psi.search.SbtBuildModuleUseScopeEnlarger]]
+   * @todo consider rewriting this using [[com.intellij.psi.ResolveScopeEnlarger]]
+   */
   override def getFileResolveScope: GlobalSearchScope = {
     val target = targetModule
     target match {
@@ -67,7 +70,8 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
   }
 
   private def targetModule: TargetModule = cachedInUserData("SbtFileImpl.targetModule", this, ProjectRootManager.getInstance(getProject)) {
-    ModuleUtilCore.findModuleForPsiElement(this) match {
+    val moduleForFile = ModuleUtilCore.findModuleForPsiElement(this)
+    moduleForFile match {
       case null => ModuleLess
       case module =>
         val manager = ModuleManager.getInstance(getProject)

@@ -73,6 +73,8 @@
 
         <psi.referenceContributor implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 
+        <useScopeEnlarger implementation="org.jetbrains.sbt.language.psi.search.SbtBuildModuleUseScopeEnlarger"/>
+
         <externalSystemTaskNotificationListener implementation="org.jetbrains.sbt.project.SbtNotificationListener"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtCompletionContributor"
                                 order="first, before liveTemplates" id="sbtCompletionContributor"/>

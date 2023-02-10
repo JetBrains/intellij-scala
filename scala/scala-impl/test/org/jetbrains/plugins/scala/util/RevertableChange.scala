@@ -69,6 +69,18 @@ object RevertableChange {
   def withModifiedRegistryValue(key: String, newValue: Boolean): RevertableChange =
     withModifiedRegistryValueInternal[Boolean](key, newValue, _.asBoolean, _ setValue _)
 
+  def withModifiedSystemProperty(key: String, newValue: String): RevertableChange =
+    withModifiedSetting[String](
+      getter = System.getProperty(key),
+      setter = value => {
+        if (value == null)
+          System.clearProperty(key)
+        else
+          System.setProperty(key, value)
+      },
+      newValue
+    )
+
   def withModifiedRegistryValue(key: String, newValue: Int): RevertableChange =
     withModifiedRegistryValueInternal[Int](key, newValue, _.asInteger(), _ setValue _)
 

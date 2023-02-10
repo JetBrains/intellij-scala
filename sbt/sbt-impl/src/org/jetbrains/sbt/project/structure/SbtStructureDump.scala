@@ -344,14 +344,14 @@ object SbtStructureDump {
 
   val PrintProcessOutputOnFailurePropertyName = "sbt.import.print.process.output.on.failure"
 
-  @TestOnly
-  var printErrorsAndWarningsToConsoleDuringTests = true
+  private def dontPrintErrorsAndWarningsToConsoleDuringTests: Boolean =
+    System.getProperty("dontPrintErrorsAndWarningsToConsoleDuringTests") == "true"
 
   private def reportEvent(messages: BuildMessages,
                           reporter: BuildReporter,
                           text: String): BuildMessages = {
 
-    if (ApplicationManager.getApplication.isUnitTestMode && printErrorsAndWarningsToConsoleDuringTests) {
+    if (ApplicationManager.getApplication.isUnitTestMode && !dontPrintErrorsAndWarningsToConsoleDuringTests) {
       val isErrorOrWarning = text.startsWith("[warn]") || text.startsWith("[error]")
       if (isErrorOrWarning){
         System.err.println(text)

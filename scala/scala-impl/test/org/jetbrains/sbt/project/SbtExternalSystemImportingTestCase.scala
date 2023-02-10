@@ -2,15 +2,14 @@ package org.jetbrains.sbt.project
 
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.util.RevertableChange
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.project.structure.SbtStructureDump
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert.assertNotNull
 
@@ -34,8 +33,12 @@ abstract class SbtExternalSystemImportingTestCase extends ExternalSystemImportin
     super.setUp()
 
     myProjectJdk = SmartJDKLoader.getOrCreateJDK(projectJdkLanguageLevel)
+
+    //See org.jetbrains.sbt.project.structure.SbtStructureDump.dontPrintErrorsAndWarningsToConsoleDuringTests
     //output from sbt process is already printed (presumably somewhere from ExternalSystemImportingTestCase or internals)
-    SbtStructureDump.printErrorsAndWarningsToConsoleDuringTests = false
+    RevertableChange
+      .withModifiedSystemProperty("dontPrintErrorsAndWarningsToConsoleDuringTests", "true")
+      .applyChange(this)
   }
 
   override protected def setUpInWriteAction(): Unit = {
@@ -53,14 +56,12 @@ abstract class SbtExternalSystemImportingTestCase extends ExternalSystemImportin
   protected final def getTestProjectDir: File = new File(getTestProjectPath)
 
   override protected def setUpProjectRoot(): Unit = {
-    val projectRoot = new File(getTestProjectPath)
-    myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectRoot)
-    assertNotNull(s"project root was not found: $projectRoot", myProjectRoot)
+    val testProjectPath = new File(getTestProjectPath)
+    myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(testProjectPath)
+    assertNotNull(s"test project root was not found: $testProjectPath", myProjectRoot)
   }
 
   override def tearDown(): Unit = {
-    SbtStructureDump.printErrorsAndWarningsToConsoleDuringTests = true
-
     //jdk might be null if it was some exception in super.setup()
     if (myProjectJdk != null) {
       inWriteAction {
