@@ -60,7 +60,56 @@ class InheritorsSearchTest extends ScalaLightCodeInsightFixtureTestCase {
        |
        |class AA3 extends X.AA1
        |""".stripMargin,
-    "AA2", "AA3")
+    "AA2", "AA3"
+  )
+
+  def testTypeAlias_WithAliasedFullyQualifiedName_1(): Unit = doTest(
+    s"""package org.example
+       |
+       |trait ${CARET}Phase
+       |object Scope1 {
+       |  type Phase = org.example.Phase
+       |}
+       |
+       |class Phase1 extends Phase
+       |class Phase2 extends Scope1.Phase
+       |
+       |package inner_package {
+       |  trait Phase //NEW PHASE, UNRELATED TO ORIGINAL
+       |  object Scope2 {
+       |    type Phase = org.example.inner_package.Phase //REFERENCING NEW PHASE, UNRELATED TO ORIGINAL
+       |  }
+       |
+       |  class Phase3 extends Phase
+       |  class Phase4 extends Scope2.Phase
+       |}
+       |""".stripMargin,
+    "Phase1", "Phase2",
+  )
+
+  def testTypeAlias_WithAliasedFullyQualifiedName_2(): Unit = doTest(
+    s"""package org.example
+       |
+       |trait ${CARET}Phase
+       |object Scope1 {
+       |  type Phase = org.example.inner_package.Phase //REFERENCING NEW PHASE, UNRELATED TO ORIGINAL
+       |}
+       |
+       |class Phase1 extends Phase
+       |class Phase2 extends Scope1.Phase
+       |
+       |package inner_package {
+       |  trait Phase //NEW PHASE, UNRELATED TO ORIGINAL
+       |  object Scope2 {
+       |    type Phase = org.example.Phase //REFERENCING ORIGINAL PHASE
+       |  }
+       |
+       |  class Phase3 extends Phase
+       |  class Phase4 extends Scope2.Phase
+       |}
+       |""".stripMargin,
+    "Phase1", "Phase4",
+  )
 
   def testTypeAliasLocal(): Unit = doTest(
     s"""
@@ -147,5 +196,5 @@ class InheritorsSearchTest extends ScalaLightCodeInsightFixtureTestCase {
        |  }
        |}
        |""".stripMargin,
-  "SuccessResult", "NotFoundResult", "WrongResult")
+    "SuccessResult", "NotFoundResult", "WrongResult")
 }
