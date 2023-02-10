@@ -531,24 +531,27 @@ private[importing] object BspResolverLogic {
 
   // extension method added as for better performance than getCanonicalPath method
   implicit class FileExtensions(val f: File){
-    def getCanonicalPathSimplified: String = {
+    def getCanonicalPathOptimized: String = {
       f.toPath.toAbsolutePath.normalize().toString
+    }
+    def getCanonicalFileOptimized: File = {
+      f.toPath.toAbsolutePath.normalize().toFile
     }
   }
 
   private val jarSuffix = ".jar"
   private val sourcesSuffixes = Seq("-sources", "-src")
   private val javadocSuffix = "-javadoc"
-  private def stripSuffixes(path: String) =
+  private def stripSuffixes(path: String): String =
     path
       .stripSuffix(jarSuffix)
       .stripSuffixes(sourcesSuffixes)
       .stripSuffix(javadocSuffix)
-  private def libraryPrefix(path: File) =
+  private def libraryPrefix(path: File): Option[String] =
     if (path.getName.endsWith(jarSuffix))
-      Option(stripSuffixes(path.getCanonicalPathSimplified))
+      Option(stripSuffixes(path.getCanonicalPathOptimized))
     else None
-  private def libraryName(path: File) =
+  private def libraryName(path: File): String =
     stripSuffixes(path.getName)
 
   private[importing] def projectNode(workspace: File,
@@ -556,8 +559,8 @@ private[importing] object BspResolverLogic {
                                      excludedPaths: List[File]
                                    ): DataNode[ProjectData] = {
 
-    val projectRootPath = workspace.getCanonicalPathSimplified
-    val moduleFileDirectoryPath = moduleFilesDirectory(workspace).getCanonicalPathSimplified
+    val projectRootPath = workspace.getCanonicalPathOptimized
+    val moduleFileDirectoryPath = moduleFilesDirectory(workspace).getCanonicalPathOptimized
     val projectRoot = new File(projectRootPath)
     val projectData = new ProjectData(BSP.ProjectSystemId, projectRoot.getName, projectRootPath, projectRootPath)
     val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
@@ -569,7 +572,7 @@ private[importing] object BspResolverLogic {
         val name = projectRoot.getName + "-root"
         val moduleData = new ModuleData(name, BSP.ProjectSystemId, BspSyntheticModuleType.Id, name, moduleFileDirectoryPath, projectRootPath)
         val moduleNode = new DataNode[ModuleData](ProjectKeys.MODULE, moduleData, projectNode)
-        val contentRootData = new ContentRootData(BSP.ProjectSystemId, projectRoot.getCanonicalPathSimplified)
+        val contentRootData = new ContentRootData(BSP.ProjectSystemId, projectRoot.getCanonicalPathOptimized)
         val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, contentRootData, moduleNode)
         moduleNode.addChild(contentRootDataNode)
 
@@ -577,30 +580,37 @@ private[importing] object BspResolverLogic {
       }
 
     val projectLibraryDependencies =
-      projectModules.modules
-        .flatMap(m => m.data.classpath ++
+      projectModules.modules.toSet
+        .flatMap((m: ModuleDescription) =>
+          m.data.classpath ++
           m.data.classpathSources ++
           m.data.testClasspath ++
           m.data.testClasspathSources)
+        .map(_.getCanonicalFileOptimized)
         .groupBy(libraryPrefix)
         // ignore non-standard jar libs
         .flatMap { case (pathPrefix, jars) => pathPrefix.map(p => p -> jars) }
         .groupBy { case (_, files) => libraryName(files.head) }
         .flatMap { case name -> prefixLibs =>
-          if (prefixLibs.size == 1) // use short name when unique
+          if (prefixLibs.size == 1) {
+            // use short name when unique
             prefixLibs.map { case prefix -> files => prefix -> (name,files) }
-          // use full prefix when short name ambiguous
-          else prefixLibs.map { case prefix -> files => prefix -> (prefix,files) }
+          }
+          else {
+            // add a number for uniqueness and to keep names short
+            prefixLibs.toList.sortBy(_._1).zipWithIndex
+              .map { case (prefix -> files, index) => prefix -> (s"${name}__${index + 1}", files) }
+          }
         }
         .flatMap { case (pathPrefix, (name, jars)) =>
-          val binary = jars.find(_.getCanonicalPathSimplified.endsWith(pathPrefix + jarSuffix))
+          val binary = jars.find(_.toString.endsWith(pathPrefix + jarSuffix))
           val source = jars.find(j => sourcesSuffixes.exists(j.getName.contains))
           val doc = jars.find(_.getName.contains(javadocSuffix))
           binary.map { bin =>
             val data = new LibraryData(BSP.ProjectSystemId, name)
-            data.addPath(LibraryPathType.BINARY, bin.getCanonicalPathSimplified)
-            source.foreach(src => data.addPath(LibraryPathType.SOURCE, src.getCanonicalPathSimplified))
-            doc.foreach(doc => data.addPath(LibraryPathType.DOC, doc.getCanonicalPathSimplified))
+            data.addPath(LibraryPathType.BINARY, bin.toString)
+            source.foreach(src => data.addPath(LibraryPathType.SOURCE, src.toString))
+            doc.foreach(doc => data.addPath(LibraryPathType.DOC, doc.toString))
             pathPrefix -> data
           }
         }
@@ -686,7 +696,7 @@ private[importing] object BspResolverLogic {
     val moduleDescriptionData = moduleDescription.data
 
     val moduleBase: Option[ContentRootData] = moduleDescriptionData.basePath.map { path =>
-      val base = path.getCanonicalPathSimplified
+      val base = path.getCanonicalPathOptimized
       new ContentRootData(BSP.ProjectSystemId, base)
     }
     val sourceRoots = moduleDescriptionData.sourceDirs.map { dir =>
@@ -720,10 +730,10 @@ private[importing] object BspResolverLogic {
     val moduleData = new ModuleData(moduleDescriptionData.id, BSP.ProjectSystemId, moduleType.getId, moduleName, moduleFileDirectoryPath, projectRootPath)
 
     moduleDescriptionData.output.foreach { outputPath =>
-      moduleData.setCompileOutputPath(SOURCE, outputPath.getCanonicalPathSimplified)
+      moduleData.setCompileOutputPath(SOURCE, outputPath.getCanonicalPathOptimized)
     }
     moduleDescriptionData.testOutput.foreach { outputPath =>
-      moduleData.setCompileOutputPath(TEST, outputPath.getCanonicalPathSimplified)
+      moduleData.setCompileOutputPath(TEST, outputPath.getCanonicalPathOptimized)
     }
 
     moduleData.setInheritProjectCompileOutputPath(false)
@@ -759,8 +769,8 @@ private[importing] object BspResolverLogic {
 
     def configureLibraryDependencyData(name: String, scope: DependencyScope, libs: Iterable[File], sources: Iterable[File]) = {
       val libraryData = new LibraryData(BSP.ProjectSystemId, name)
-      libs.foreach { path => libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPathSimplified) }
-      sources.foreach { path => libraryData.addPath(LibraryPathType.SOURCE, path.getCanonicalPathSimplified) }
+      libs.foreach { path => libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPathOptimized) }
+      sources.foreach { path => libraryData.addPath(LibraryPathType.SOURCE, path.getCanonicalPathOptimized) }
       val libraryDependencyData = new LibraryDependencyData(moduleData, libraryData, LibraryLevel.MODULE)
       libraryDependencyData.setScope(scope)
       libraryDependencyData
@@ -797,7 +807,7 @@ private[importing] object BspResolverLogic {
     val contentRootData: Iterable[ContentRootData] = {
       val rootPathToData: Seq[(String, ContentRootData)] = allSourceRoots.map { case (sourceType, root) =>
         val data = getContentRoot(root.directory, moduleBase)
-        data.storePath(sourceType, root.directory.getCanonicalPathSimplified, root.packagePrefix.orNull)
+        data.storePath(sourceType, root.directory.getCanonicalPathOptimized, root.packagePrefix.orNull)
         data.getRootPath -> data
       }
       // effectively deduplicate by content root path. ContentRootData does not implement equals correctly
@@ -810,7 +820,7 @@ private[importing] object BspResolverLogic {
 
     moduleDescription.data.outputPaths.foreach { outputPath =>
       val data = getContentRoot(outputPath, moduleBase)
-      data.storePath(EXCLUDED, outputPath.getCanonicalPathSimplified)
+      data.storePath(EXCLUDED, outputPath.getCanonicalPathOptimized)
     }
 
     val metadata = createBspMetadata(moduleDescription)
@@ -839,10 +849,10 @@ private[importing] object BspResolverLogic {
   private[importing] def getContentRoot(dir: File, moduleBase: Option[ContentRootData]) = {
     val baseRoot = for {
       contentRoot <- moduleBase
-      if FileUtil.isAncestor(contentRoot.getRootPath, dir.getCanonicalPathSimplified, false)
+      if FileUtil.isAncestor(contentRoot.getRootPath, dir.getCanonicalPathOptimized, false)
     } yield contentRoot
 
-    baseRoot.getOrElse(new ContentRootData(BSP.ProjectSystemId, dir.getCanonicalPathSimplified))
+    baseRoot.getOrElse(new ContentRootData(BSP.ProjectSystemId, dir.getCanonicalPathOptimized))
   }
 
 
@@ -954,8 +964,8 @@ private[importing] object BspResolverLogic {
   private[importing] case class Library(name: String, binary: File, sources: Option[File]) {
     val data: LibraryData = {
       val libraryData = new LibraryData(BSP.ProjectSystemId, name)
-      libraryData.addPath(LibraryPathType.BINARY, binary.getCanonicalPathSimplified)
-      sources.foreach(src => libraryData.addPath(LibraryPathType.BINARY, src.getCanonicalPathSimplified))
+      libraryData.addPath(LibraryPathType.BINARY, binary.getCanonicalPathOptimized)
+      sources.foreach(src => libraryData.addPath(LibraryPathType.BINARY, src.getCanonicalPathOptimized))
       libraryData
     }
   }
