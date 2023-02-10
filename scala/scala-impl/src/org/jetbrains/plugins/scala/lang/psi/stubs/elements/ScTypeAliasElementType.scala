@@ -76,6 +76,9 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
         obj.qualifiedName + "." + alias.name
     }
 
+    val classTypeFull= getClassType(alias)
+    //org.example.ClassName -> ClassName
+    val classTypeShort = classTypeFull.map(t => t.substring(t.lastIndexOf(".") + 1, t.length))
     new ScTypeAliasStubImpl(
       parentStub,
       this,
@@ -89,7 +92,7 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
       stableQualifier   = stableQualifier,
       isTopLevel        = alias.isTopLevel,
       topLevelQualifier = alias.topLevelQualifier,
-      classType         = classType(alias)
+      classType         = classTypeShort
     )
   }
 
@@ -120,7 +123,7 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
     }
   }
 
-  private def classType(ta: ScTypeAlias): Option[String] = ta match {
+  private def getClassType(ta: ScTypeAlias): Option[String] = ta match {
     case td: ScTypeAliasDefinition =>
       td.aliasedTypeElement match {
         case None     => None
