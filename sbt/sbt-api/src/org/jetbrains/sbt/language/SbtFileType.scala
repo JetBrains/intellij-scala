@@ -1,5 +1,4 @@
-package org.jetbrains.sbt
-package language
+package org.jetbrains.sbt.language
 
 import com.intellij.openapi.util.IconLoader
 import org.jetbrains.plugins.scala.LanguageFileTypeBase
