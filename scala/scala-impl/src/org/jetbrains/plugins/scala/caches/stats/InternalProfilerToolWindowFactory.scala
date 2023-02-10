@@ -19,6 +19,9 @@ import scala.jdk.CollectionConverters._
 
 class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware {
 
+  //noinspection ApiStatus
+  override def getIcon: Icon = com.intellij.icons.AllIcons.Toolwindows.ToolWindowProfiler
+
   override def init(toolWindow: ToolWindow): Unit = {
     toolWindow.setStripeTitle(NlsString.force("Scala plugin profiler"))
   }
