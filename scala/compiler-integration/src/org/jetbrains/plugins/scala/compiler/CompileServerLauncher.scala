@@ -484,6 +484,10 @@ object CompileServerLauncher {
    */
   def ensureServerRunning(project: Project): Boolean = serverStartLock.synchronized {
     LOG.traceWithDebugInDev(s"ensureServerRunning [thread:${Thread.currentThread.getId}]")
+    if (project.isDisposed) {
+      LOG.warn(s"ensureServerRunning is invoked for a disposed project: $project")
+      return false
+    }
     val reasons = restartReasons(project)
     if (reasons.nonEmpty) {
       val stopped = stop(timeoutMs = 3000L, debugReason = Some(s"needs to restart: ${reasons.mkString(", ")}"))
