@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider.actions
 
-import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.PriorityAction.Priority
+import com.intellij.codeInsight.intention.{IntentionAction, PriorityAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -10,11 +11,15 @@ import org.jetbrains.plugins.scala.extensions.{&, ElementType, Parent}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 
-final class CreateScalaDocStubIntentionAction extends IntentionAction {
+final class CreateScalaDocStubIntentionAction extends IntentionAction  with PriorityAction {
 
   override def getText: String = ScalaEditorBundle.message("add.scaladoc.intention.action.text")
 
   override def getFamilyName: String = ScalaEditorBundle.message("add.scaladoc.intention.action.family.name")
+
+  //Setting priority to LOW primarily to move it below "Add type annotation action"
+  //Because the latter seems to be a more frequent action
+  override def getPriority: PriorityAction.Priority = Priority.LOW
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!file.getLanguage.isKindOf(ScalaLanguage.INSTANCE))
