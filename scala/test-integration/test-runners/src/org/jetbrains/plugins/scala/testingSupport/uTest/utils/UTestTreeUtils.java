@@ -143,7 +143,11 @@ public class UTestTreeUtils {
         try {
             tree = new Tree<>(walkup, childrenScala);
         } catch (NoSuchMethodError error) {
-            tree = newTree_213(walkup, childrenScala);
+            try {
+                tree = newTree_213(walkup, childrenScala);
+            } catch (NoSuchMethodError error_213) {
+                tree = newTree_212(walkup, childrenScala.toSeq());
+            }
         }
         return tree;
     }
@@ -153,6 +157,18 @@ public class UTestTreeUtils {
         try {
             Class<Tree> clazz = Tree.class;
             Constructor<Tree> constructor = clazz.getConstructor(java.lang.Object.class, scala.collection.immutable.Seq.class);
+            return (Tree<T>) constructor.newInstance(walkup, childrenScala);
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            e.printStackTrace();
+            throw expectedError(errorMessage(e));
+        }
+    }
+
+    @SuppressWarnings({"rawtypes", "JavaReflectionMemberAccess", "unchecked"})
+    private static <T> Tree<T> newTree_212(T walkup, scala.collection.Seq<Tree<String>> childrenScala) throws UTestRunExpectedError {
+        try {
+            Class<Tree> clazz = Tree.class;
+            Constructor<Tree> constructor = clazz.getConstructor(java.lang.Object.class, scala.collection.Seq.class);
             return (Tree<T>) constructor.newInstance(walkup, childrenScala);
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
             e.printStackTrace();
