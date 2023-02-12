@@ -36,7 +36,7 @@ public final class UTestRunnerArgs {
                     ++argIdx;
                     if (currentClass == null)
                         throw new RuntimeException("Failed to run tests: no suite class specified for test " + args.get(argIdx));
-                    while (!args.get(argIdx).startsWith("-")) {
+                    while (argIdx < args.size() && !args.get(argIdx).startsWith("-")) {
                         String testName = args.get(argIdx);
                         UTestPath testPath = parseTestPathSafe(currentClass, testName);
                         if (testPath != null)
