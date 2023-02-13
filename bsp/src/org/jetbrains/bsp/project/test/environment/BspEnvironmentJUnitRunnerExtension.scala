@@ -1,7 +1,10 @@
 package org.jetbrains.bsp.project.test.environment
+
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.junit.JUnitConfiguration
+import org.jetbrains.annotations.ApiStatus
 
+@ApiStatus.Internal
 class BspEnvironmentJUnitRunnerExtension extends BspEnvironmentRunnerExtension {
   override def runConfigurationSupported(config: RunConfiguration): Boolean =
     config.isInstanceOf[JUnitConfiguration]
