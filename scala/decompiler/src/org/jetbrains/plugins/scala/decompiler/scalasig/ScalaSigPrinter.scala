@@ -893,7 +893,8 @@ object ScalaSigPrinter {
     }
 
     def escapeNonIdentifiers: String = {
-      if (!isIdentifier(str) || keywordList.contains(str) || str == "=") "`" + str + "`"
+      if (str == "<empty>") str
+      else if (!isIdentifier(str) || keywordList.contains(str) || str == "=") "`" + str + "`"
       else str
     }
 
