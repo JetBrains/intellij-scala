@@ -681,7 +681,11 @@ class ScalaSigPrinter(builder: StringBuilder) {
                 case _                                 => ""
               }
           val base = res.stripPrefix("<empty>.")
-          if (typeArgs.nonEmpty && base.startsWith("scala.Tuple") && base != "scala.Tuple1" && !base.substring(11).contains(".")) {
+          val isInfix = base.nonEmpty && base.reverseIterator.takeWhile(_ != '.').forall(!_.isLetterOrDigit) && typeArgs.length == 2
+          val result = if (isInfix) {
+            val s = typeArgs.map(toStringParensRequired(_, level)).mkString(" " + base + " ")
+            if (parensRequired) "(" + s + ")" else s
+          } else if (typeArgs.nonEmpty && base.startsWith("scala.Tuple") && base != "scala.Tuple1" && !base.substring(11).contains(".")) {
             typeArgs.map(toString(_, level)).mkString("(", ", ", ")")
           } else if (typeArgs.nonEmpty && base.startsWith("scala.Function")) {
             val params = if (typeArgs.length == 2) toStringParensRequired(typeArgs.head, level) else typeArgs.init.map(toString(_, level)).mkString("(", ", ", ")")
@@ -689,7 +693,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
             if (parensRequired) "(" + s + ")" else s
           } else {
             base + typeArgString(typeArgs, level)
-          } + suffix
+          }
+          result + suffix
       })
       case TypeBoundsType(lower, upper) =>
         val lb = toString(lower, level)

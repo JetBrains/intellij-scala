@@ -435,19 +435,20 @@ class TreePrinter(privateMembers: Boolean = false) {
       case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => name
       case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments: _*)) =>
         val base = textOfType(constructor)
-        val isSymbolic = base.reverseIterator.takeWhile(_ != '.').forall(!_.isLetterOrDigit)
-        if (isSymbolic) arguments.map(it => simple(textOfType(it))).mkString(" " + simple(base) + " ")
-        else if (base == "scala.<repeated>") textOfType(arguments.head, parensRequired = true) + "*" // TODO why repeated parameters in aliases are encoded differently?
-        else {
-          if (base.startsWith("scala.Tuple") && base != "scala.Tuple1" && !base.substring(11).contains(".")) { // TODO use regex
-            arguments.map(it => simple(textOfType(it))).mkString("(", ", ", ")")
-          } else if (base.startsWith("scala.Function") || base.startsWith("scala.ContextFunction")) {
-            val arrow = if (base.startsWith("scala.Function")) " => " else " ?=> "
-            val s = (if (arguments.length == 2) simple(textOfType(arguments.head, parensRequired = true)) else arguments.init.map(it => simple(textOfType(it))).mkString("(", ", ", ")")) + arrow + simple(textOfType(arguments.last))
-            if (parensRequired) "(" + s + ")" else s
-          } else {
-            simple(base) + "[" + arguments.map(it => simple(textOfType(it))).mkString(", ") + "]"
-          }
+        val isInfix = base.reverseIterator.takeWhile(_ != '.').forall(!_.isLetterOrDigit) && arguments.length == 2
+        if (isInfix) {
+          val s = arguments.map(it => simple(textOfType(it, parensRequired = true))).mkString(" " + simple(base) + " ")
+          if (parensRequired) "(" + s + ")" else s
+        } else if (base == "scala.<repeated>") {
+          textOfType(arguments.head, parensRequired = true) + "*" // TODO why repeated parameters in aliases are encoded differently?
+        } else if (base.startsWith("scala.Tuple") && base != "scala.Tuple1" && !base.substring(11).contains(".")) { // TODO use regex
+          arguments.map(it => simple(textOfType(it))).mkString("(", ", ", ")")
+        } else if (base.startsWith("scala.Function") || base.startsWith("scala.ContextFunction")) {
+          val arrow = if (base.startsWith("scala.Function")) " => " else " ?=> "
+          val s = (if (arguments.length == 2) simple(textOfType(arguments.head, parensRequired = true)) else arguments.init.map(it => simple(textOfType(it))).mkString("(", ", ", ")")) + arrow + simple(textOfType(arguments.last))
+          if (parensRequired) "(" + s + ")" else s
+        } else {
+          simple(base) + "[" + arguments.map(it => simple(textOfType(it))).mkString(", ") + "]"
         }
       case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
         annotation match {
