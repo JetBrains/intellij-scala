@@ -46,9 +46,9 @@ trait ScalaTestFrameworkCommandLineStateLike {
     }
 
   protected final object DebugOptions {
-    // set to true to debug test runner process
-    def attachDebugAgent = false && !ApplicationManager.getApplication.isUnitTestMode
-    def waitUntilDebuggerAttached = true
+    def attachDebugAgent = false // set to true to debug test runner process
+    def waitUntilDebuggerAttached = true //if set to true JVM will wait until you attach the debugger
+    def port = "5009"
   }
 
   protected def createExecutionResult(

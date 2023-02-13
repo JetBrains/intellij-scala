@@ -56,7 +56,7 @@ class ScalaTestFrameworkCommandLineState(
 
     if (DebugOptions.attachDebugAgent) {
       val suspend = if(DebugOptions.waitUntilDebuggerAttached) "y" else "n"
-      params.getVMParametersList.addParametersString(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5009")
+      params.getVMParametersList.addParametersString(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=${DebugOptions.port}")
     }
 
     val workingDirEffective = VariablesExpander.getWorkingDirExpanded(configuration)
