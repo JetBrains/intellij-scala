@@ -434,19 +434,19 @@ class TreePrinter(privateMembers: Boolean = false) {
         if (qualifier.nonEmpty) qualifier + selector + name else name
       case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => name
       case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments: _*)) =>
-        val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
+        val base = textOfType(constructor)
         val isSymbolic = base.reverseIterator.takeWhile(_ != '.').forall(!_.isLetterOrDigit)
-        if (isSymbolic) elements.mkString(" " + simple(base) + " ")
+        if (isSymbolic) arguments.map(it => simple(textOfType(it))).mkString(" " + simple(base) + " ")
         else if (base == "scala.<repeated>") textOfType(arguments.head, parensRequired = true) + "*" // TODO why repeated parameters in aliases are encoded differently?
         else {
           if (base.startsWith("scala.Tuple") && base != "scala.Tuple1" && !base.substring(11).contains(".")) { // TODO use regex
-            elements.mkString("(", ", ", ")")
+            arguments.map(it => simple(textOfType(it))).mkString("(", ", ", ")")
           } else if (base.startsWith("scala.Function") || base.startsWith("scala.ContextFunction")) {
             val arrow = if (base.startsWith("scala.Function")) " => " else " ?=> "
-            val s = (if (elements.length == 2) elements.head else elements.init.mkString("(", ", ", ")")) + arrow + elements.last
+            val s = (if (arguments.length == 2) simple(textOfType(arguments.head, parensRequired = true)) else arguments.init.map(it => simple(textOfType(it))).mkString("(", ", ", ")")) + arrow + simple(textOfType(arguments.last))
             if (parensRequired) "(" + s + ")" else s
           } else {
-            simple(base) + "[" + elements.mkString(", ") + "]"
+            simple(base) + "[" + arguments.map(it => simple(textOfType(it))).mkString(", ") + "]"
           }
         }
       case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
