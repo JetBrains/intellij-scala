@@ -676,8 +676,12 @@ class ScalaSigPrinter(builder: StringBuilder) {
                 case ex: ExternalSymbol if ex.isObject => ".type"
                 case _                                 => ""
               }
-          val ress = res.stripPrefix("<empty>.") + typeArgString(typeArgs, level) + suffix
-          ress
+          val base = res.stripPrefix("<empty>.")
+          if (typeArgs.nonEmpty && base.startsWith("scala.Tuple") && base != "scala.Tuple1" && !base.substring(11).contains(".")) {
+            typeArgs.map(toString(_, level)).mkString("(", ", ", ")")
+          } else {
+            base + typeArgString(typeArgs, level)
+          } + suffix
       })
       case TypeBoundsType(lower, upper) =>
         val lb = toString(lower, level)
