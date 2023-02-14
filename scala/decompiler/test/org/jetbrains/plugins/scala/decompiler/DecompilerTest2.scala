@@ -137,7 +137,6 @@ class DecompilerTest2 extends TestCase {
       .replace("Predef.", "")
       .replaceAll("\\w+\\.this\\.", "")
       .replace("final override ", "override final ")
-      .trim
 
     assertEquals(s"Content for $path", expected, adjusted)
   }
