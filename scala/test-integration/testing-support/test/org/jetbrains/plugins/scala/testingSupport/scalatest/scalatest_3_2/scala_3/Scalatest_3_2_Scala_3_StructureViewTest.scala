@@ -10,10 +10,4 @@ class Scalatest_3_2_Scala_3_StructureViewTest extends Scalatest_3_2_Scala_3_Base
   with FunSuiteFileStructureViewTest
   with PropSpecFileStructureViewTest
   with WordSpecFileStructureViewTest
-  with FunSpecFileStructureViewTest {
-
-  //TODO: do not ignore when SCL-20155 is fixed
-  @Ignore override def testWordSpecPending(): Unit = ()
-  @Ignore override def testWordSpecHierarchy(): Unit = ()
-  @Ignore override def testWordSpecNormal(): Unit = ()
-}
+  with FunSpecFileStructureViewTest
