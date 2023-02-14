@@ -27,7 +27,7 @@ class UTestBeforeAfterTest_2_12_0_7_4_old_syntax extends utest_0_7_4.UTestTestBa
       loc(beforeAfterFileName, 4, 10),
       assertConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
       IgnoreTreeResult,
-      AssertTestOutputTextContains(expectedText = "BEFORE")
+      output => assertTestOutputTextContains(expectedText = "BEFORE", output)
     )
 
   def testAfter(): Unit =
@@ -35,6 +35,6 @@ class UTestBeforeAfterTest_2_12_0_7_4_old_syntax extends utest_0_7_4.UTestTestBa
       loc(beforeAfterFileName, 4, 10),
       assertConfigAndSettings(_, beforeAfterTestName, "tests\\test1"),
       IgnoreTreeResult,
-      AssertTestOutputTextContains(expectedText = "AFTER")
+      output => assertTestOutputTextContains(expectedText = "AFTER", output)
     )
 }

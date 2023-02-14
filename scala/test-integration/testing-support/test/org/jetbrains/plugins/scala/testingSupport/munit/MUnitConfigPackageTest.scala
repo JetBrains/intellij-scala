@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.munit
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions
 
 class MUnitConfigPackageTest extends MUnitTestCase {
@@ -50,53 +51,61 @@ class MUnitConfigPackageTest extends MUnitTestCase {
   def testPackage0(): Unit =
     runTestByLocation2(
       packageLoc(packageName0),
-      AssertPackageConfigAndSettings(packageName0),
-      AssertResultTreePathsEqualsUnordered(Seq(
-        TestNodePath.p("[root] / MyTest01 / MyTest01.test error 01"),
-        TestNodePath.p("[root] / MyTest01 / MyTest01.test success 01"),
-        TestNodePath.p("[root] / MyTest02 / MyTest02.test error 02"),
-        TestNodePath.p("[root] / MyTest02 / MyTest02.test success 02"),
-        TestNodePath.p("[root] / MyTest11 / MyTest11.test error 11"),
-        TestNodePath.p("[root] / MyTest11 / MyTest11.test success 11"),
-        TestNodePath.p("[root] / MyTest12 / MyTest12.test error 12"),
-        TestNodePath.p("[root] / MyTest12 / MyTest12.test success 12"),
-        TestNodePath.p("[root] / MyTest21 / MyTest21.test error 21"),
-        TestNodePath.p("[root] / MyTest21 / MyTest21.test success 21"),
-        TestNodePath.p("[root] / MyTest22 / MyTest22.test error 22"),
-        TestNodePath.p("[root] / MyTest22 / MyTest22.test success 22"),
+      config => {
+        assertPackageConfigAndSettings(config, packageName0, "UTest in 'org'")
+      },
+      root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
+        TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest01 / MyTest01.test error 01")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest01 / MyTest01.test success 01")),
+        TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest02 / MyTest02.test error 02")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest02 / MyTest02.test success 02")),
+        TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest11 / MyTest11.test error 11")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest11 / MyTest11.test success 11")),
+        TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest12 / MyTest12.test error 12")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest12 / MyTest12.test success 12")),
+        TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest21 / MyTest21.test error 21")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest21 / MyTest21.test success 21")),
+        TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest22 / MyTest22.test error 22")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest22 / MyTest22.test success 22")),
       ))
     )(optionsWithErrorCode)
 
   def testPackage1(): Unit =
     runTestByLocation2(
       packageLoc(packageName1),
-      AssertPackageConfigAndSettings(packageName1),
-      AssertResultTreePathsEqualsUnordered(Seq(
-        TestNodePath.p("[root] / MyTest11 / MyTest11.test error 11"),
-        TestNodePath.p("[root] / MyTest11 / MyTest11.test success 11"),
-        TestNodePath.p("[root] / MyTest12 / MyTest12.test error 12"),
-        TestNodePath.p("[root] / MyTest12 / MyTest12.test success 12")
+      config => {
+        assertPackageConfigAndSettings(config, packageName1, "UTest in 'example1'")
+      },
+      root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
+        TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest11 / MyTest11.test error 11")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest11 / MyTest11.test success 11")),
+        TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest12 / MyTest12.test error 12")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest12 / MyTest12.test success 12"))
       ))
     )(optionsWithErrorCode)
 
   def testPackage2(): Unit =
     runTestByLocation2(
       packageLoc(packageName2),
-      AssertPackageConfigAndSettings(packageName2),
-      AssertResultTreePathsEqualsUnordered(Seq(
-        TestNodePath.p("[root] / MyTest21 / MyTest21.test error 21"),
-        TestNodePath.p("[root] / MyTest21 / MyTest21.test success 21"),
-        TestNodePath.p("[root] / MyTest22 / MyTest22.test error 22"),
-        TestNodePath.p("[root] / MyTest22 / MyTest22.test success 22"),
+      config => {
+        assertPackageConfigAndSettings(config, packageName2, "UTest in 'example2'")
+      },
+      root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
+        TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest21 / MyTest21.test error 21")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest21 / MyTest21.test success 21")),
+        TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest22 / MyTest22.test error 22")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest22 / MyTest22.test success 22")),
       ))
     )(optionsWithErrorCode)
 
   def testPackage_EnsureAssertionFails(): Unit = ExceptionAssertions.assertException[java.lang.AssertionError] {
     runTestByLocation2(
       packageLoc(packageName2),
-      AssertPackageConfigAndSettings(packageName2),
-      AssertResultTreePathsEqualsUnordered(Seq(
-        TestNodePath.p("[root] / MyTest21 / MyTest21.test error 21")
+      config => {
+        assertPackageConfigAndSettings(config, packageName2, "")
+      },
+      root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
+        TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest21 / MyTest21.test error 21"))
       ))
     )(optionsWithErrorCode)
   }

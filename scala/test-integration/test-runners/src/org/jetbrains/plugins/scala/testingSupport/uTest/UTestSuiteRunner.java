@@ -24,7 +24,7 @@ import static org.jetbrains.plugins.scala.testingSupport.uTest.utils.UTestErrorU
 import static org.jetbrains.plugins.scala.testingSupport.uTest.utils.UTestErrorUtils.expectedError;
 
 /**
- * Current supported version: 0.7.x
+ * Current supported version: 0.7.x<br>
  * Class is not reusable due to reused CountDownLatch
  */
 public final class UTestSuiteRunner  {

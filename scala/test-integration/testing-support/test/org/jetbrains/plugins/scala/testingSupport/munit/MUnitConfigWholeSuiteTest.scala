@@ -67,7 +67,7 @@ class MUnitConfigWholeSuiteTest extends MUnitTestCase {
       (testResult: TestRunResult) => {
         val root = testResult.requireTestTreeRoot
 
-        assertResultTreePathsEqualsUnordered2(root)(
+        assertResultTreePathsEqualsUnordered(root)(
           Seq(
             TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", s"$ClassNameFunSuite.test success 1"),
             TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", s"$ClassNameFunSuite.test success 2"),
@@ -88,7 +88,7 @@ class MUnitConfigWholeSuiteTest extends MUnitTestCase {
       (testResult: TestRunResult) => {
         val root = testResult.requireTestTreeRoot
 
-        assertResultTreePathsEqualsUnordered2(root)(
+        assertResultTreePathsEqualsUnordered(root)(
           Seq(
             TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", s"$ClassNameScalaCheckSuite.simple test"),
             TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", s"$ClassNameScalaCheckSuite.property test success"),

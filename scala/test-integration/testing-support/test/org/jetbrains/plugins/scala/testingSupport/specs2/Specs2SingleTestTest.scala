@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
+
 abstract class Specs2SingleTestTest extends Specs2TestCase {
   protected val specsTestFileName = "SpecificationTest.scala"
   protected val specsTestClassName = "SpecificationTest"
@@ -32,23 +34,20 @@ abstract class Specs2SingleTestTest extends Specs2TestCase {
     runTestByLocation(loc(specsTestFileName, 5, 10),
       assertConfigAndSettings(_, specsTestClassName, "run single test"),
       root => {
-        assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", specsTestClassName, "The 'SpecificationTest' should", "run single test"))
-        assertResultTreeDoesNotHaveNodes(root, "ignore other test", "run greater test", "run exclamation test")
+        assertResultTreeHasSinglePath(root, TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", specsTestClassName, "The 'SpecificationTest' should", "run single test"))
       }
     )
 
     runTestByLocation(loc(specsTestFileName, 10, 35),
       assertConfigAndSettings(_, specsTestClassName, "run exclamation test"),
       root => {
-        assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", specsTestClassName, "The 'SpecificationTest' should", "run exclamation test"))
-        assertResultTreeDoesNotHaveNodes(root, "ignore other test", "run single test", "run greater test")
+        assertResultTreeHasSinglePath(root, TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", specsTestClassName, "The 'SpecificationTest' should", "run exclamation test"))
       })
 
     runTestByLocation(loc(specsTestFileName, 12, 10),
       assertConfigAndSettings(_, specsTestClassName, "run greater test"),
       root => {
-        assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", specsTestClassName, "The 'SpecificationTest' should", "run greater test"))
-        assertResultTreeDoesNotHaveNodes(root, "ignore other test", "run single test", "run exclamation test")
+        assertResultTreeHasSinglePath(root, TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", specsTestClassName, "The 'SpecificationTest' should", "run greater test"))
       })
   }
 }

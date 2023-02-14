@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.base
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
+
 trait ScalaTestPackageTest extends ScalaTestTestCase {
 
   protected val packageName1 = "myPackage1"
@@ -85,53 +87,61 @@ trait ScalaTestPackageTest extends ScalaTestTestCase {
   def testPackageTestRun(): Unit =
     runTestByLocation(
       packageLoc(packageName1),
-      assertPackageConfigAndSettings(_, packageName1),
+      config => {
+        assertPackageConfigAndSettings(config, packageName1, "ScalaTests in 'myPackage1'")
+      },
       root => {
-        assertResultTreeHasExactNamedPaths(root)(Seq(
-          TestNodePath("[root]", "Test1", "Test1"),
-          TestNodePath("[root]", "Test2", "Test2")
+        assertResultTreePathsEqualsUnordered(root)(Seq(
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test1", "Test1"),
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test2", "Test2")
         ))
-        assertResultTreeDoesNotHaveNodes(root, "SecondTest")
       }
     )
 
   def testPackageTestRun_WithReservedKeywordInName(): Unit =
     runTestByLocation(
       packageLoc(packageNameEqualToReservedKeyword),
-      assertPackageConfigAndSettings(_, packageNameEqualToReservedKeyword),
-      root => assertResultTreeHasExactNamedPaths(root)(Seq(
-        TestNodePath("[root]", "Test3", "some test name")
+      config => {
+        assertPackageConfigAndSettings(config, packageNameEqualToReservedKeyword, "ScalaTests in 'type'")
+      },
+      root => assertResultTreePathsEqualsUnordered(root)(Seq(
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test3", "some test name")
       ))
     )
 
   def testModuleTestRun(): Unit =
     runTestByLocation(
       moduleLoc(getModule.getName),
-      assertPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
-      root => assertResultTreeHasExactNamedPaths(root)(Seq(
-        TestNodePath("[root]", "Test1", "Test1"),
-        TestNodePath("[root]", "Test2", "Test2"),
-        TestNodePath("[root]", "Test1", "SecondTest"),
-        TestNodePath("[root]", "Test3", "some test name"),
+      config => {
+        //TODO: the name shouldn't be `scala-2.13.10`, it should be the module name!
+        assertPackageConfigAndSettings(config, "", s"ScalaTests in 'scala-${version.minor}'")
+      },
+      root => assertResultTreePathsEqualsUnordered(root)(Seq(
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test1", "Test1"),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test2", "Test2"),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test1", "SecondTest"),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test3", "some test name"),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "StepSuiteDiscoverable", "test3.1"),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "NestedStepsSuite", "StepSuiteDiscoverable", "test3.1"),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable1", "test1.1"),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable1", "test1.2"),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable2", "test2.1"),
       ))
     )
 
   def testPackageTestRun_ShouldSkipNonDiscoverableTests(): Unit =
     runTestByLocation(
       packageLoc(packageName3),
-      assertPackageConfigAndSettings(_, packageName3),
+      config => {
+        assertPackageConfigAndSettings(config, packageName3, "ScalaTests in 'myPackage3'")
+      },
       root => {
-        assertResultTreeHasExactNamedPaths(root)(Seq(
-          TestNodePath("[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable1", "test1.1"),
-          TestNodePath("[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable1", "test1.2"),
-          TestNodePath("[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable2", "test2.1"),
-          TestNodePath("[root]", "NestedStepsSuite", "StepSuiteDiscoverable", "test3.1"),
-          TestNodePath("[root]", "StepSuiteDiscoverable", "test3.1"),
-        ))
-        assertResultTreeHasNotGotExactNamedPaths(root)(Seq(
-          TestNodePath("[root]", "StepSuiteNotDiscoverable1", "test1.1"),
-          TestNodePath("[root]", "StepSuiteNotDiscoverable1", "test1.2"),
-          TestNodePath("[root]", "StepSuiteNotDiscoverable2", "test2.1")
+        assertResultTreePathsEqualsUnordered(root)(Seq(
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable1", "test1.1"),
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable1", "test1.2"),
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "NestedStepsSuite", "StepSuiteNotDiscoverable2", "test2.1"),
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "NestedStepsSuite", "StepSuiteDiscoverable", "test3.1"),
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "StepSuiteDiscoverable", "test3.1"),
         ))
       }
     )

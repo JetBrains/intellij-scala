@@ -38,8 +38,8 @@ class MUnitConfigSingleTestTest extends MUnitTestCase {
   def testFunSuite_Success1(): Unit =
     runTestByLocation2(
       loc(FileNameFunSuite, 3, 10),
-      AssertConfigAndSettings(ClassNameFunSuite, "test success 1"),
-      AssertResultTreePathsEqualsUnordered2(Seq(
+      config => assertConfigAndSettings(config, ClassNameFunSuite, "test success 1"),
+      root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", ClassNameFunSuite, s"${ClassNameFunSuite}.test success 1")
       ))
     )
@@ -47,8 +47,8 @@ class MUnitConfigSingleTestTest extends MUnitTestCase {
   def testFunSuite_Success2(): Unit =
     runTestByLocation2(
       loc(FileNameFunSuite, 6, 10),
-      AssertConfigAndSettings(ClassNameFunSuite, "test success 2 multiline quotes"),
-      AssertResultTreePathsEqualsUnordered2(Seq(
+      config => assertConfigAndSettings(config, ClassNameFunSuite, "test success 2 multiline quotes"),
+      result => assertResultTreePathsEqualsUnordered(result.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", ClassNameFunSuite, s"${ClassNameFunSuite}.test success 2 multiline quotes")
       ))
     )
@@ -56,33 +56,36 @@ class MUnitConfigSingleTestTest extends MUnitTestCase {
   def testFunSuite_FailureJUnit(): Unit =
     runTestByLocation2(
       loc(FileNameFunSuite, 9, 10),
-      AssertConfigAndSettings(ClassNameFunSuite, "test failure JUnit assert"),
-      AssertResultTreePathsEqualsUnordered2(Seq(
-        TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", ClassNameFunSuite, s"${ClassNameFunSuite}.test failure JUnit assert")
-      )).and (
-        AssertExitCode(-1)
-      )
+      config => assertConfigAndSettings(config, ClassNameFunSuite, "test failure JUnit assert"),
+      result => {
+        assertResultTreePathsEqualsUnordered(result.testTreeRoot.get)(Seq(
+          TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", ClassNameFunSuite, s"${ClassNameFunSuite}.test failure JUnit assert")
+        ))
+        assertExitCode(-1, result)
+      }
     )
 
   def testFunSuite_FailureMUnit(): Unit =
     runTestByLocation2(
       loc(FileNameFunSuite, 13, 10),
-      AssertConfigAndSettings(ClassNameFunSuite, "test failure MUnit assert"),
-      AssertResultTreePathsEqualsUnordered2(Seq(
-        TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", ClassNameFunSuite, s"${ClassNameFunSuite}.test failure MUnit assert")
-      )).and (
-        AssertExitCode(-1)
-      )
+      config => assertConfigAndSettings(config, ClassNameFunSuite, "test failure MUnit assert"),
+      result => {
+        assertResultTreePathsEqualsUnordered(result.testTreeRoot.get)(Seq(
+          TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", ClassNameFunSuite, s"${ClassNameFunSuite}.test failure MUnit assert")
+        ))
+        assertExitCode(-1, result)
+      }
     )
 
   def testFunSuite_Error(): Unit =
     runTestByLocation2(loc(FileNameFunSuite, 17, 10),
-      AssertConfigAndSettings(ClassNameFunSuite, "test error"),
-      AssertResultTreePathsEqualsUnordered2(Seq(
-        TestNodePathWithStatus(Magnitude.ERROR_INDEX, "[root]", ClassNameFunSuite, s"${ClassNameFunSuite}.test error")
-      )).and (
-        AssertExitCode(-1)
-      )
+      config => assertConfigAndSettings(config, ClassNameFunSuite, "test error"),
+      result => {
+        assertResultTreePathsEqualsUnordered(result.testTreeRoot.get)(Seq(
+          TestNodePathWithStatus(Magnitude.ERROR_INDEX, "[root]", ClassNameFunSuite, s"${ClassNameFunSuite}.test error")
+        ))
+        assertExitCode(-1, result)
+      }
     )
 
   def testFunSuite_RunSelectedTests(): Unit = {
@@ -98,12 +101,13 @@ class MUnitConfigSingleTestTest extends MUnitTestCase {
 
     runTestByLocation3(
       runConfig,
-      AssertResultTreePathsEqualsUnordered2(Seq(
-        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", ClassNameFunSuite, s"$ClassNameFunSuite.test success 1"),
-        TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", ClassNameFunSuite, s"$ClassNameFunSuite.test failure MUnit assert"),
-      )).and (
-        AssertExitCode(-1)
-      )
+      result => {
+        assertResultTreePathsEqualsUnordered(result.testTreeRoot.get)(Seq(
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", ClassNameFunSuite, s"$ClassNameFunSuite.test success 1"),
+          TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", ClassNameFunSuite, s"$ClassNameFunSuite.test failure MUnit assert"),
+        ))
+        assertExitCode(-1, result)
+      }
     )
   }
 
@@ -136,8 +140,8 @@ class MUnitConfigSingleTestTest extends MUnitTestCase {
   def testScalaCheckSuite_SimpleTest(): Unit =
     runTestByLocation2(
       loc(FileNameScalaCheckSuite, 5, 10),
-      AssertConfigAndSettings(ClassNameScalaCheckSuite, "simple test"),
-      AssertResultTreePathsEqualsUnordered2(Seq(
+      config => assertConfigAndSettings(config, ClassNameScalaCheckSuite, "simple test"),
+      root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", ClassNameScalaCheckSuite, s"${ClassNameScalaCheckSuite}.simple test")
       ))
     )
@@ -145,8 +149,8 @@ class MUnitConfigSingleTestTest extends MUnitTestCase {
   def testScalaCheckSuite_PropertyTestSuccess(): Unit =
     runTestByLocation2(
       loc(FileNameScalaCheckSuite, 8, 10),
-      AssertConfigAndSettings(ClassNameScalaCheckSuite, "property test success"),
-      AssertResultTreePathsEqualsUnordered2(Seq(
+      config => assertConfigAndSettings(config, ClassNameScalaCheckSuite, "property test success"),
+      root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", ClassNameScalaCheckSuite, s"${ClassNameScalaCheckSuite}.property test success")
       ))
     )
@@ -154,8 +158,8 @@ class MUnitConfigSingleTestTest extends MUnitTestCase {
   def testScalaCheckSuite_PropertyTestFailure(): Unit =
     runTestByLocation2(
       loc(FileNameScalaCheckSuite, 12, 10),
-      AssertConfigAndSettings(ClassNameScalaCheckSuite, "property test failure"),
-      AssertResultTreePathsEqualsUnordered2(Seq(
+      config => assertConfigAndSettings(config, ClassNameScalaCheckSuite, "property test failure"),
+      root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", ClassNameScalaCheckSuite, s"${ClassNameScalaCheckSuite}.property test failure")
       ))
     )
@@ -163,8 +167,8 @@ class MUnitConfigSingleTestTest extends MUnitTestCase {
   def testScalaCheckSuite_PropertyTestError(): Unit =
     runTestByLocation2(
       loc(FileNameScalaCheckSuite, 16, 10),
-      AssertConfigAndSettings(ClassNameScalaCheckSuite, "property test error"),
-      AssertResultTreePathsEqualsUnordered2(Seq(
+      config => assertConfigAndSettings(config, ClassNameScalaCheckSuite, "property test error"),
+      root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.ERROR_INDEX, "[root]", ClassNameScalaCheckSuite, s"${ClassNameScalaCheckSuite}.property test error")
       ))
     )

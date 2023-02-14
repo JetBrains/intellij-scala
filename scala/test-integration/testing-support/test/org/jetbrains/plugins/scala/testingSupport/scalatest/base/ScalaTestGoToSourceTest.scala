@@ -40,7 +40,7 @@ trait ScalaTestGoToSourceTest extends ScalaTestTestCase {
   def testGoToSuccessfulLocation(): Unit =
     runGoToSourceTest(
       loc(GoToSourceFileName, 3, 5),
-      AssertConfigAndSettings(GoToSourceClassName, "Successful test should run fine"),
+      config => assertConfigAndSettings(config, GoToSourceClassName, "Successful test should run fine"),
       TestNodePath("[root]", GoToSourceClassName, "Successful test", "should run fine"),
       sourceLine = 3
     )
@@ -48,7 +48,7 @@ trait ScalaTestGoToSourceTest extends ScalaTestTestCase {
   def testGoToPendingLocation(): Unit =
     runGoToSourceTest(
       loc(GoToSourceFileName, 6, 5),
-      AssertConfigAndSettings(GoToSourceClassName, "pending test should be pending"),
+      config => assertConfigAndSettings(config, GoToSourceClassName, "pending test should be pending"),
       TestNodePath("[root]", GoToSourceClassName, "pending test", "should be pending"),
       sourceLine = 6
     )
@@ -58,7 +58,7 @@ trait ScalaTestGoToSourceTest extends ScalaTestTestCase {
   def testGoToIgnoredLocation(): Unit =
     runGoToSourceTest(
       loc(GoToSourceFileName, 2, 5),
-      AssertConfigAndSettings(GoToSourceClassName),
+      config => assertConfigAndSettings(config, GoToSourceClassName),
       //notice that runConfig test name and testTree test name differ by !!! IGNORED !!! suffix
       TestNodePath("[root]", GoToSourceClassName, "pending test", "should be ignored !!! IGNORED !!!"),
       sourceLine = 10
@@ -67,7 +67,7 @@ trait ScalaTestGoToSourceTest extends ScalaTestTestCase {
   def testGoToFailedTest(): Unit =
     runGoToSourceTest(
       loc(GoToSourceFileName, 13, 5),
-      AssertConfigAndSettings(GoToSourceClassName, "failed test should fail"),
+      config => assertConfigAndSettings(config, GoToSourceClassName, "failed test should fail"),
       TestNodePath("[root]", GoToSourceClassName, "failed test", "should fail"),
       sourceLine = 13
     )
@@ -75,7 +75,7 @@ trait ScalaTestGoToSourceTest extends ScalaTestTestCase {
   def testGoToTemplateTest(): Unit =
     runGoToSourceTest(
       loc(GoToSourceFileName, 2, 5),
-      AssertConfigAndSettings(GoToSourceClassName),
+      config => assertConfigAndSettings(config, GoToSourceClassName),
       TestNodePath("[root]", GoToSourceClassName, "Successful in template", "should run fine"),
       sourceLine = 3,
       Some(GoToSourceTemplateClassName + ".scala")

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.base.scopeTest
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import org.jetbrains.plugins.scala.testingSupport.scalatest.base.generators.FreeSpecGenerator
 
 trait FreeSpecScopeTest extends FreeSpecGenerator {
@@ -13,21 +14,16 @@ trait FreeSpecScopeTest extends FreeSpecGenerator {
       "A ComplexFreeSpec Outer scope 2 Inner scope 2 Another innermost scope",
       "A ComplexFreeSpec Outer scope 2 Inner test"
     )
-    val path1 = TestNodePath("[root]", complexFreeSpecClassName, "A ComplexFreeSpec", "Outer scope 2", "Inner scope 2", "Another innermost scope")
-    val path2 = TestNodePath("[root]", complexFreeSpecClassName, "A ComplexFreeSpec", "Outer scope 2", "Inner test")
+    val path1 = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", complexFreeSpecClassName, "A ComplexFreeSpec", "Outer scope 2", "Inner scope 2", "Another innermost scope")
+    val path2 = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", complexFreeSpecClassName, "A ComplexFreeSpec", "Outer scope 2", "Inner test")
     runTestByLocation(
       loc(complexFreeSpecFileName, 10, 10),
       assertConfigAndSettings(_, complexFreeSpecClassName, testNames:_*),
       root => {
-        assertResultTreeHasExactNamedPaths(root)(Seq(
+        assertResultTreePathsEqualsUnordered(root)(Seq(
           path1,
           path2
         ))
-        assertResultTreeDoesNotHaveNodes(root,
-          "Innermost scope",
-          "Outer scope 3",
-          "Not nested scope"
-        )
       })
   }
 }
