@@ -1,6 +1,0 @@
-package org.jetbrains.plugins.scala.testingSupport.utest.scala2_13.utest_0_7_4.old_syntax
-
-import org.jetbrains.plugins.scala.testingSupport.utest.UTestSimpleTest
-import org.jetbrains.plugins.scala.testingSupport.utest.scala2_13.utest_0_7_4.UTestTestBase_2_13_0_7_4
-
-class UTestSimpleTest_2_13_0_7_4_old_syntax extends UTestTestBase_2_13_0_7_4 with UTestSimpleTest

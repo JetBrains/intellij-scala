@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.testingSupport.utest.scala2_13.utest_0_7_4
+package org.jetbrains.plugins.scala.testingSupport.utest.scala2_13
 
-class UTestBeforeAfterTest_2_13_0_7_4 extends UTestTestBase_2_13_0_7_4 {
+class UTestBeforeAfterTest_2_13 extends UTestTestBase_2_13 {
 
   val beforeAfterTestName = "BeforeAfterTest"
   val beforeAfterFileName = beforeAfterTestName + ".scala"
