@@ -147,7 +147,7 @@ object ExternalHighlighters {
           if (unusedImportRange != null) {
             // modify highlighting info to mimic Scala 2 unused import highlighting in Scala 3
             highlightInfoBuilder(HighlightInfoType.UNUSED_SYMBOL, unusedImportRange, ScalaInspectionBundle.message("unused.import.statement"))
-              .registerFix(new ScalaOptimizeImportsFix, null, null, highlightRange, null)
+              .registerFix(new ScalaOptimizeImportsFix, null, null, unusedImportRange, null)
               .create()
           } else standardHighlightInfo
         } else standardHighlightInfo
