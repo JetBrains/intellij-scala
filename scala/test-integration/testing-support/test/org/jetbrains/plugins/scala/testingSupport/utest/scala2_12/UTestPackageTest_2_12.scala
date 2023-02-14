@@ -1,0 +1,5 @@
+package org.jetbrains.plugins.scala.testingSupport.utest.scala2_12
+
+import org.jetbrains.plugins.scala.testingSupport.utest.UTestNewSyntaxPackageTest
+
+class UTestPackageTest_2_12 extends UTestTestBase_2_12 with UTestNewSyntaxPackageTest

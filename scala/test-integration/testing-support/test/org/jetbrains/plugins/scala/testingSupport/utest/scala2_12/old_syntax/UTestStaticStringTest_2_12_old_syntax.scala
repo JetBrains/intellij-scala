@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.testingSupport.utest.scala2_13.utest_0_7_4.old_syntax
+package org.jetbrains.plugins.scala.testingSupport.utest.scala2_12.old_syntax
 
 import org.jetbrains.plugins.scala.testingSupport.utest.UTestStaticStringTest
-import org.jetbrains.plugins.scala.testingSupport.utest.scala2_13.utest_0_7_4.UTestTestBase_2_13_0_7_4
+import org.jetbrains.plugins.scala.testingSupport.utest.scala2_12.UTestTestBase_2_12
 
-class UTestStaticStringTest_2_13_0_7_4_old_syntax extends UTestTestBase_2_13_0_7_4 with UTestStaticStringTest {
+class UTestStaticStringTest_2_12_old_syntax extends UTestTestBase_2_12 with UTestStaticStringTest {
 
   protected val testsTestName = "UTestTests"
 

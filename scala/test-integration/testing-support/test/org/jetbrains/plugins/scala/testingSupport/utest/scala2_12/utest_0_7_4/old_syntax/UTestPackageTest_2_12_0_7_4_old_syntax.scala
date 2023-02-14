@@ -1,6 +1,0 @@
-package org.jetbrains.plugins.scala.testingSupport.utest.scala2_12.utest_0_7_4.old_syntax
-
-import org.jetbrains.plugins.scala.testingSupport.utest.UTestPackageTest
-import org.jetbrains.plugins.scala.testingSupport.utest.scala2_12.utest_0_7_4
-
-class UTestPackageTest_2_12_0_7_4_old_syntax extends utest_0_7_4.UTestTestBase_2_12_0_7_4 with UTestPackageTest
