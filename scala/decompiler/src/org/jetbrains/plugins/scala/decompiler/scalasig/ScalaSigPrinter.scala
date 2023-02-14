@@ -227,7 +227,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       if (c.isTrait) print("trait ") else print("class ")
       print(processName(c.name))
       val it = c.infoType
-      val cons = if (defaultConstructor == "()" && !c.isCase) "" else defaultConstructor
+      val cons = if (defaultConstructor.startsWith("()") && !c.isCase) defaultConstructor.substring(2) else defaultConstructor
       val (classType, typeParams) = it match {
         case PolyType(typeRef, symbols) => (PolyTypeWithCons(typeRef, symbols, cons, contextBounds), symbols)
         case ClassInfoType(a, b) if !c.isTrait => (ClassInfoTypeWithCons(a, b, cons), Seq.empty)
