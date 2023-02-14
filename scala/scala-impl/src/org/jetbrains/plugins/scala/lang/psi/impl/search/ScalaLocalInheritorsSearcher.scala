@@ -13,17 +13,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 /**
-  * @see [[ScalaDirectClassInheritorsSearcher]]
-  * TODO: show inheritors via gutter doesn't work in Scratch files
+  * @see [[ScalaDirectClassInheritorsSearcher]]<br>
+  * TODO: show inheritors via gutter doesn't work in Scratch files (see IDEA-313012)
   */
 class ScalaLocalInheritorsSearcher extends QueryExecutorBase[PsiClass, ClassInheritorsSearch.SearchParameters] {
 
   override def processQuery(params: SearchParameters, consumer: Processor[_ >: PsiClass]): Unit = {
     val clazz = params.getClassToProcess
 
-    val (_, virtualFiles) = params.getScope match {
-      case local: LocalSearchScope if clazz.isInstanceOf[ScalaPsiElement] => (local, local.getVirtualFiles)
-      case _ => return
+    val scope = params.getScope
+    val (_, virtualFiles) = scope match {
+      case local: LocalSearchScope if clazz.isInstanceOf[ScalaPsiElement] =>
+        (local, local.getVirtualFiles)
+      case _ =>
+        return
     }
 
     val project = clazz.getProject
@@ -37,7 +40,7 @@ class ScalaLocalInheritorsSearcher extends QueryExecutorBase[PsiClass, ClassInhe
           if (psiFile != null) {
             psiFile.depthFirst().foreach {
               case td: ScTemplateDefinition if continue =>
-                if (td.isInheritor(clazz, true) && checkCandidate(td, params))
+                if (td.isInheritor(clazz, true) && checkCandidate(td, params, scope))
                   continue = consumer.process(td)
               case _ =>
             }
@@ -47,13 +50,18 @@ class ScalaLocalInheritorsSearcher extends QueryExecutorBase[PsiClass, ClassInhe
     }
   }
 
-  private def checkCandidate(candidate: PsiClass, parameters: ClassInheritorsSearch.SearchParameters): Boolean = {
-    val searchScope: SearchScope = parameters.getScope
+  private def checkCandidate(
+    candidate: PsiClass,
+    parameters: ClassInheritorsSearch.SearchParameters,
+    searchScope: SearchScope
+  ): Boolean = {
     ProgressManager.checkCanceled()
-    if (!PsiSearchScopeUtil.isInScope(searchScope, candidate)) false
+    if (!PsiSearchScopeUtil.isInScope(searchScope, candidate))
+      false
     else candidate match {
       case _: ScNewTemplateDefinition => true
-      case td: ScTypeDefinition => parameters.getNameCondition.value(td.name)
+      case td: ScTypeDefinition =>
+        parameters.getNameCondition.value(td.name)
     }
   }
 }
