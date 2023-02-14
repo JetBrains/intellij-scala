@@ -76,7 +76,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
     val accessibilityOk = symbol match {
       case _ if level == 0 => true
-      case _: AliasSymbol  => true
+      case _: AliasSymbol  => true // TODO why?
       case _: ObjectSymbol => true // non-private members of private objects may leak to the outer scope
       case _               => !symbol.isPrivate
     }
@@ -184,6 +184,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case _ =>
     }
 
+    if (symbol.isAbstractOverride) print("abstract override ")
+    if (symbol.isOverride) print("override ")
     // print private access modifier
     if (symbol.isPrivate) {
       print("private")
@@ -201,12 +203,10 @@ class ScalaSigPrinter(builder: StringBuilder) {
     if (symbol.isSealed) print("sealed ")
     if (symbol.isImplicit) print("implicit ")
     if (symbol.isFinal && !symbol.isInstanceOf[ObjectSymbol]) print("final ")
-    if (symbol.isOverride) print("override ")
     if (symbol.isAbstract) symbol match {
       case c@(_: ClassSymbol | _: ObjectSymbol) if !c.isTrait => print("abstract ")
       case _ => ()
     }
-    if (symbol.isAbstractOverride) print("abstract override ")
     if (symbol.isCase && !symbol.isMethod) print("case ")
   }
 
@@ -514,6 +514,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   def printTypeSymbol(level: Int, t: TypeSymbol): Unit = {
+    printModifiers(t)
     print("type ")
     print(processName(t.name))
     t.infoType match {
