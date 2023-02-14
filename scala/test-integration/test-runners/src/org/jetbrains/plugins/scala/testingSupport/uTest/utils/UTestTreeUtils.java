@@ -13,7 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.jetbrains.plugins.scala.testingSupport.uTest.utils.UTestErrorUtils.*;
+import static org.jetbrains.plugins.scala.testingSupport.uTest.utils.UTestErrorUtils.errorMessage;
+import static org.jetbrains.plugins.scala.testingSupport.uTest.utils.UTestErrorUtils.expectedError;
 
 public class UTestTreeUtils {
 
@@ -66,13 +67,13 @@ public class UTestTreeUtils {
 
     /**
      * testPath = x.y
-     *
+     * <br>
      * root =   x (can contains extra empty root node)
      *        /   \
      *      y      a
      *     / \       \
      *    z   b       c
-     *
+     *<br>
      * result: y
      *        / \
      *       z   b
@@ -93,13 +94,13 @@ public class UTestTreeUtils {
 
     /**
      * testPath = x.y
-     *
+     * <br>
      * root =   x (can contains extra empty root node)
      *        /   \
      *      y      a
      *     / \       \
      *    z   b       c
-     *
+     * <br>
      * result:  x
      *        /
      *      y
@@ -145,34 +146,29 @@ public class UTestTreeUtils {
         } catch (NoSuchMethodError error) {
             try {
                 tree = newTree_213(walkup, childrenScala);
-            } catch (NoSuchMethodError error_213) {
-                tree = newTree_212(walkup, childrenScala.toSeq());
+            } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException ignored) {
+                try {
+                    tree = newTree_212(walkup, childrenScala.toSeq());
+                } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                    e.printStackTrace();
+                    throw expectedError(errorMessage(e));
+                }
             }
         }
         return tree;
     }
 
-    @SuppressWarnings({"rawtypes", "JavaReflectionMemberAccess", "unchecked"})
-    private static <T> Tree<T> newTree_213(T walkup, scala.collection.immutable.List<Tree<String>> childrenScala) throws UTestRunExpectedError {
-        try {
-            Class<Tree> clazz = Tree.class;
-            Constructor<Tree> constructor = clazz.getConstructor(java.lang.Object.class, scala.collection.immutable.Seq.class);
-            return (Tree<T>) constructor.newInstance(walkup, childrenScala);
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            e.printStackTrace();
-            throw expectedError(errorMessage(e));
-        }
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static <T> Tree<T> newTree_213(T walkup, scala.collection.immutable.List<Tree<String>> childrenScala) throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
+        Class<Tree> clazz = Tree.class;
+        Constructor<Tree> constructor = clazz.getConstructor(java.lang.Object.class, scala.collection.immutable.Seq.class);
+        return (Tree<T>) constructor.newInstance(walkup, childrenScala);
     }
 
     @SuppressWarnings({"rawtypes", "JavaReflectionMemberAccess", "unchecked"})
-    private static <T> Tree<T> newTree_212(T walkup, scala.collection.Seq<Tree<String>> childrenScala) throws UTestRunExpectedError {
-        try {
-            Class<Tree> clazz = Tree.class;
-            Constructor<Tree> constructor = clazz.getConstructor(java.lang.Object.class, scala.collection.Seq.class);
-            return (Tree<T>) constructor.newInstance(walkup, childrenScala);
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            e.printStackTrace();
-            throw expectedError(errorMessage(e));
-        }
+    private static <T> Tree<T> newTree_212(T walkup, scala.collection.Seq<Tree<String>> childrenScala) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        Class<Tree> clazz = Tree.class;
+        Constructor<Tree> constructor = clazz.getConstructor(java.lang.Object.class, scala.collection.Seq.class);
+        return (Tree<T>) constructor.newInstance(walkup, childrenScala);
     }
 }
