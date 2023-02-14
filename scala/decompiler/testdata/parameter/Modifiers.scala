@@ -21,6 +21,12 @@ trait Modifiers {
 
   class ClassOverride(override val hashCode: Int)
 
+  trait A {
+    protected val x: Int
+  }
+
+  class B(implicit override protected final val x: Int) extends A
+
   def defImplicit(implicit x: Int, y: Long): Unit
 
   def defRegularAndImplicit(x: Int)(implicit y: Long): Unit

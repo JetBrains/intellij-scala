@@ -739,8 +739,12 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   private def modifiersIn(sb: StringBuilder, node: Node, excluding: Set[Int] = Set.empty, isParameter: Boolean = true): Unit = { // TODO Optimize
-    if (node.contains(OVERRIDE)) {
-      sb ++= "override "
+    if (node.contains(ABSTRACT) && !excluding(ABSTRACT) && node.contains(OVERRIDE)) {
+      sb ++= "abstract override "
+    } else {
+      if (node.contains(OVERRIDE)) {
+        sb ++= "override "
+      }
     }
     if (node.contains(PRIVATE)) {
       if (node.contains(LOCAL)) {
@@ -778,7 +782,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (node.contains(LAZY) && !excluding(LAZY)) {
       sb ++= "lazy "
     }
-    if (node.contains(ABSTRACT) && !excluding(ABSTRACT)) {
+    if (node.contains(ABSTRACT) && !excluding(ABSTRACT) && !node.contains(OVERRIDE)) {
       sb ++= "abstract "
     }
     if (node.contains(TRANSPARENT)) {

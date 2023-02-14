@@ -41,7 +41,7 @@ class DecompilerTest2 extends TestCase {
   def testMemberBounds(): Unit = doTest("member/Bounds")
   def testMemberDef(): Unit = doTest("member/Def")
   def testMemberIdentifiers(): Unit = doTest("member/Identifiers")
-//  def testMemberModifiers(): Unit = doTest("member/Modifiers")
+  def testMemberModifiers(): Unit = doTest("member/Modifiers")
 //  def testMemberQualifier(): Unit = doTest("member/Qualifier")
   def testMemberThis(): Unit = doTest("member/This")
   def testMemberType(): Unit = doTest("member/Type")
@@ -75,7 +75,7 @@ class DecompilerTest2 extends TestCase {
   def testTypeDefinitionIdentifiers(): Unit = doTest("typeDefinition/Identifiers")
   def testTypeDefinitionImplicitClass(): Unit = doTest("typeDefinition/ImplicitClass")
   def testTypeDefinitionMembers(): Unit = doTest("typeDefinition/Members")
-//  def testTypeDefinitionModifiers(): Unit = doTest("typeDefinition/Modifiers")
+  def testTypeDefinitionModifiers(): Unit = doTest("typeDefinition/Modifiers")
   def testTypeDefinitionObject(): Unit = doTest("typeDefinition/Object")
   def testTypeDefinitionParents(): Unit = doTest("typeDefinition/Parents")
   def testTypeDefinitionQualifier(): Unit = doTest("typeDefinition/Qualifier")
@@ -136,7 +136,6 @@ class DecompilerTest2 extends TestCase {
       .replace("_root_.Predef.", "")
       .replace("Predef.", "")
       .replaceAll("\\w+\\.this\\.", "")
-      .replace("final override ", "override final ")
 
     assertEquals(s"Content for $path", expected, adjusted)
   }

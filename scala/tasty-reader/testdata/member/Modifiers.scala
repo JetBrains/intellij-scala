@@ -59,6 +59,14 @@ trait Modifiers {
 
   final type FinalTypeAlias = Int
 
+  trait A {
+    protected def x: Int
+  }
+
+  trait B extends A {
+    abstract override protected implicit final def x: Int = ???
+  }
+
   opaque type OpaqueTypeAlias = /**/Int/*???*/
 
   extension (i: Int)

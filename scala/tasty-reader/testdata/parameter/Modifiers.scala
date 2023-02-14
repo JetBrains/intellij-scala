@@ -39,6 +39,12 @@ trait Modifiers {
 
   class ClassOverride(override val hashCode: Int)
 
+  trait A {
+    protected val x: Int
+  }
+
+  class B(implicit override protected final val x: Int) extends A
+
   trait TraitUsing(using x: Int, y: Long)
 
   trait TraitAnonymousUsing(using Int, Long)

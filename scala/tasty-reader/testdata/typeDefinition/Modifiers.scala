@@ -35,6 +35,16 @@ trait Modifiers {
 
   case object CaseObject
 
+  trait A {
+    protected def x: Any
+  }
+
+  trait B extends A {
+    abstract override protected implicit case object x
+  }
+
+  protected sealed abstract class C
+
   private enum PrivateEnum {
     case Case
   }

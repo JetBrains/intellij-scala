@@ -9,15 +9,9 @@ trait Modifiers {
 
   class ProtectedPrimaryConstructorTypeParameter[A] protected ()
 
-  class PrivateAuxilliaryConstructor {
-    private def this(x: Int) = /**/this()/*???*/
-  }
-
   class ProtectedAuxilliaryConstructor {
     protected def this(x: Int) = /**/this()/*???*/
   }
-
-  private def privateDef: Int = ???
 
   protected def protectedDef: Int = ???
 
@@ -26,8 +20,6 @@ trait Modifiers {
   implicit def implicitDef: Int = ???
 
   override def hashCode(): Int = ???
-
-  private val privateVal: Int = ???
 
   protected val protectedVal: Int = ???
 
@@ -38,8 +30,6 @@ trait Modifiers {
   lazy val lazyVal: Int = ???
 
   override val toString: String = ???
-
-  private var privateVar: Int = ???
 
   protected var protectedVar: Int = ???
 
@@ -54,4 +44,12 @@ trait Modifiers {
   protected type ProtectedTypeAlias = Int
 
   final type FinalTypeAlias = Int
+
+  trait A {
+    protected def x: Int
+  }
+
+  trait B extends A {
+    abstract override protected implicit final def x: Int = ???
+  }
 }
