@@ -132,6 +132,10 @@ object Decompiler {
         builder.delete(builder.length - 1, builder.length)
       }
 
+      if (!builder.isEmpty && builder.charAt(builder.length - 1) == '\n') {
+        builder.setLength(builder.length - 1)
+      }
+
       Some(printer.result)
     } catch {
       case e: ScalaDecompilerException =>
