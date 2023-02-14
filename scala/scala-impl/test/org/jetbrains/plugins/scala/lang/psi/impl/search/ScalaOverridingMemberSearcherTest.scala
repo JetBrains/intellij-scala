@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.search
 
 import com.intellij.ide.scratch.ScratchRootType
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertEquals
 
 class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTestCase with PsiSelectionUtil {
 
@@ -19,18 +19,21 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
     val expectedOverridingMembers = overriding.map(selectElement[ScNamedElement](file, _))
     val foundOverridingMembers = ScalaOverridingMemberSearcher.search(originElem, withSelfType = true)
 
+    def getLineNumber(element: PsiElement): Int =
+      file.getText.substring(0, element.getTextRange.getStartOffset).count(_ =='\n')
+
     val name = origin.last
     expectedOverridingMembers.foreach { expected =>
       if (!foundOverridingMembers.contains(expected)) {
-        val linenum = file.getText.substring(0, expected.getTextRange.getStartOffset).count(_ =='\n')
-        throw new AssertionError(s"Function $name in line $linenum was not found to override the original function")
+        val lineNumber = getLineNumber(expected)
+        throw new AssertionError(s"Function $name in line $lineNumber was not found to override the original function")
       }
     }
 
     val notFoundMembers = foundOverridingMembers.filter(!expectedOverridingMembers.contains(_))
     notFoundMembers.foreach { notFound =>
-      val linenum = file.getText.substring(0, notFound.getTextRange.getStartOffset).count(_ =='\n')
-      throw new AssertionError(s"Function $name in line $linenum should not have been found")
+      val lineNumber = getLineNumber(notFound)
+      throw new AssertionError(s"Function $name in line $lineNumber should not have been found")
     }
 
     foundOverridingMembers
@@ -39,8 +42,8 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
       .withFilter(_.length > 1)
       .map(_.head)
       .foreach { foundMultipleTimes =>
-        val linenum = file.getText.substring(0, foundMultipleTimes.getTextRange.getStartOffset).count(_ =='\n')
-        throw new AssertionError(s"Function $name in line $linenum was found multiple times")
+        val lineNumber = getLineNumber(foundMultipleTimes)
+        throw new AssertionError(s"Function $name in line $lineNumber was found multiple times")
       }
 
     assert(foundOverridingMembers.length == expectedOverridingMembers.length)
@@ -189,13 +192,19 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
   )
 
   def test_scratch_file(): Unit = {
-    val code = "trait A { def foo: String }; object B extends A { override def foo = \"\" }"
-    val scratchFile = ScratchRootType.getInstance.createScratchFile(getProject, "foo.sc", ScalaLanguage.INSTANCE, code)
-    myFixture.configureFromExistingVirtualFile(scratchFile)
-    val psiFile = PsiManager.getInstance(getProject).findFile(scratchFile)
-    val fooMethodElement = selectElement[ScNamedElement](psiFile, List("A", "foo"))
+    val scratchFileText =
+      """trait A { def foo: String };
+        |object B extends A { override def foo = "" }""".stripMargin
+    val scratchVFile = ScratchRootType.getInstance.createScratchFile(getProject, "foo.sc", ScalaLanguage.INSTANCE, scratchFileText)
+    myFixture.configureFromExistingVirtualFile(scratchVFile)
+    val scratchPsiFile = PsiManager.getInstance(getProject).findFile(scratchVFile)
+    val fooMethodElement = selectElement[ScNamedElement](scratchPsiFile, List("A", "foo"))
     val res = ScalaOverridingMemberSearcher.search(fooMethodElement)
-    assertTrue(s"Found ${res.length} overriding members, whereas exactly 1 was expected", res.length == 1)
+    assertEquals(
+      "Wong number of overriding members",
+      1,
+      res.length
+    )
   }
 
   // todo: fix this

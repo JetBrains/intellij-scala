@@ -52,7 +52,8 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
       buffer += clazz
     }
     val candidates: Seq[ScTemplateDefinition] = inReadAction {
-      if (!clazz.isValid) return true
+      if (!clazz.isValid)
+        return true
 
       ScalaInheritors.directInheritorCandidates(clazz, scope)
     }
@@ -96,7 +97,8 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
 
     if (anonymousClasses.nonEmpty && queryParameters.includeAnonymous()) {
       for (clazz <- anonymousClasses) {
-        if (!consumer.process(clazz)) return false
+        if (!consumer.process(clazz))
+          return false
       }
     }
 

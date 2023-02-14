@@ -132,9 +132,11 @@ object ScalaInheritors {
 
   def directInheritorCandidates(clazz: PsiClass, localScope: LocalSearchScope): Seq[ScTemplateDefinition] = {
     val name: String = clazz.name
-    if (name == null || clazz.isEffectivelyFinal) return Seq.empty
+    if (name == null || clazz.isEffectivelyFinal)
+      return Seq.empty
 
-    localScope.getScope.toSeq.flatMap { element =>
+    val scopeElements = localScope.getScope.toSeq
+    scopeElements.flatMap { element =>
       element.elements
         .filterByType[ScTemplateDefinition]
         .filter(_.isInheritor(clazz, false))
