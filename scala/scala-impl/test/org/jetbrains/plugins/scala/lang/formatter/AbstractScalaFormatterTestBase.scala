@@ -159,11 +159,12 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
         val expected = prepareText(textClean)
         val documentText = prepareText(document.getText)
         if (checkResult) {
-          assertEquals(expected, documentText)
+          val errorMessage = s"Wrong formatting for range ${range} (range text: ${range.substring(textClean)})"
+          assertEquals(errorMessage, expected, documentText)
 
           manager.commitDocument(document)
           val fileText = prepareText(file.getText)
-          assertEquals(expected, fileText)
+          assertEquals(errorMessage, expected, fileText)
         }
 
         if (expected != documentText) {
