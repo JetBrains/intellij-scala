@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
+
 abstract class Specs2SpecialCharactersTest extends Specs2TestCase {
   val testName = "Specs2SpecialCharactersTest"
   val fileName = testName + ".scala"
@@ -36,31 +38,31 @@ abstract class Specs2SpecialCharactersTest extends Specs2TestCase {
   def testComma(): Unit = {
     runTestByLocation(loc(fileName, 5, 5),
       assertConfigAndSettings(_, testName, "Comma , test"),
-      root => assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", testName, "Special characters test should", "Comma , test"))
+      root => assertResultTreeHasSinglePath(root, TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", testName, "Special characters test should", "Comma , test"))
     )
   }
 
   def testExclamation(): Unit = {
     runTestByLocation(loc(fileName, 9, 5),
       assertConfigAndSettings(_, testName, "! test"),
-      root => assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", testName, "Special characters test should", "! test")))
+      root => assertResultTreeHasSinglePath(root, TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", testName, "Special characters test should", "! test")))
   }
 
   def testTick(): Unit = {
     runTestByLocation(loc(fileName, 13, 5),
       assertConfigAndSettings(_, testName, "tick ' test"),
-      root => assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", testName, "Special characters test should", "tick ' test")))
+      root => assertResultTreeHasSinglePath(root, TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", testName, "Special characters test should", "tick ' test")))
   }
 
   def testBacktick(): Unit = {
     runTestByLocation(loc(fileName, 17, 5),
       assertConfigAndSettings(_, testName, "backtick ` test"),
-      root => assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", testName, "Special characters test should", "backtick ` test")))
+      root => assertResultTreeHasSinglePath(root, TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", testName, "Special characters test should", "backtick ` test")))
   }
 
   def testTilde(): Unit = {
     runTestByLocation(loc(fileName, 21, 5),
       assertConfigAndSettings(_, testName, "tilde ~ test"),
-      root => assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", testName, "Special characters test should", "tilde ~ test")))
+      root => assertResultTreeHasSinglePath(root, TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", testName, "Special characters test should", "tilde ~ test")))
   }
 }

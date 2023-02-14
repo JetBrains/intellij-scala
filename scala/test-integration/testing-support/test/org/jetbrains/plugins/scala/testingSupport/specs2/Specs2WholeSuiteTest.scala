@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
+
 abstract class Specs2WholeSuiteTest extends Specs2TestCase {
   addSourceFile("SpecificationTest.scala",
     s"""
@@ -36,9 +38,9 @@ abstract class Specs2WholeSuiteTest extends Specs2TestCase {
   def testSpecification(): Unit =
     runTestByLocation(loc("SpecificationTest.scala", 3, 14),
       assertConfigAndSettings(_, "SpecificationTest"),
-      root => assertResultTreeHasExactNamedPaths(root)(Seq(
-        TestNodePath("[root]", "SpecificationTest", "The 'SpecificationTest' should", "run single test"),
-        TestNodePath("[root]", "SpecificationTest", "The 'SpecificationTest' should", "ignore other test")
+      root => assertResultTreePathsEqualsUnordered(root)(Seq(
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "SpecificationTest", "The 'SpecificationTest' should", "run single test"),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "SpecificationTest", "The 'SpecificationTest' should", "ignore other test")
       ))
     )
 }

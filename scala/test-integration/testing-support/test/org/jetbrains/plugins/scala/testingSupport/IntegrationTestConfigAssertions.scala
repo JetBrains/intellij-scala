@@ -9,38 +9,39 @@ import org.junit.ComparisonFailure
 
 trait IntegrationTestConfigAssertions {
 
-  trait ConfigurationAssert extends Function1[RunnerAndConfigurationSettings, Unit]
-
-  def IgnoreConfiguration: ConfigurationAssert = _ => ()
-
   protected def assertConfigAndSettings(
     configAndSettings: RunnerAndConfigurationSettings,
     testClass: String,
     testNames: String*
   ): Unit = {
-    AssertConfigAndSettings(testClass, testNames: _*)(configAndSettings)
-  }
-
-  protected def AssertConfigAndSettings(
-    testClass: String,
-    testNames: String*
-  ): ConfigurationAssert = { configAndSettings =>
     val config = configAndSettings.getConfiguration
     assertConfig(testClass, testNames, config.asInstanceOf[AbstractTestRunConfiguration])
   }
 
   protected def assertPackageConfigAndSettings(
     configAndSettings: RunnerAndConfigurationSettings,
-    packageName: String = "",
-    generatedName: String = "" // TODO: use (wasn't used from the very beginning
-  ): Unit =
-    AssertPackageConfigAndSettings(packageName)(configAndSettings)
+    packageName: String,
+    generatedConfigName: String
+  ): Unit = {
+    assertPackageConfigAndSettings(configAndSettings, packageName)
+    assertGeneratedConfigName(configAndSettings, generatedConfigName)
+  }
 
-  protected def AssertPackageConfigAndSettings(packageName: String): ConfigurationAssert = configAndSettings => {
+  private def assertPackageConfigAndSettings(
+    configAndSettings: RunnerAndConfigurationSettings,
+    packageName: String,
+  ): Unit = {
     val config = configAndSettings.getConfiguration
     val testConfig = config.asInstanceOf[AbstractTestRunConfiguration]
     val packageData = assertIsA[AllInPackageTestData](testConfig.testConfigurationData)
     assertEquals("package name are not equal", packageName, packageData.testPackagePath)
+  }
+
+  private def assertGeneratedConfigName(
+    configAndSettings: RunnerAndConfigurationSettings,
+    expectedName: String
+  ): Unit = {
+    assertEquals("Generated configuration name is wrong", expectedName, configAndSettings.getName)
   }
 
   private def assertModule(config: AbstractTestRunConfiguration): Unit =

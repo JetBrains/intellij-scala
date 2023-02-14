@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.utest
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
+
 trait UTestNewSyntaxPackageTest extends UTestTestCase {
 
   val packageName = "myPackage"
@@ -51,28 +53,35 @@ trait UTestNewSyntaxPackageTest extends UTestTestCase {
   def testPackageTestRun(): Unit =
     runTestByLocation(
       packageLoc(packageName),
-      assertPackageConfigAndSettings(_, packageName),
+      config => {
+        assertPackageConfigAndSettings(config, packageName, "UTests in 'myPackage'")
+      },
       root => {
-        assertResultTreeHasExactNamedPaths(root)(Seq(
-          TestNodePath("[root]", "Test1", "tests", "test1"),
-          TestNodePath("[root]", "Test1", "tests", "test2"),
-          TestNodePath("[root]", "Test2", "tests", "test1"),
-          TestNodePath("[root]", "Test2", "tests", "test2"),
+        assertResultTreePathsEqualsUnordered(root)(Seq(
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test1", "tests", "test1"),
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test1", "tests", "test2"),
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test2", "tests", "test1"),
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test2", "tests", "test2"),
         ))
-        assertResultTreeDoesNotHaveNodes(root, "test")
+        assertResultTreeStatus(root, Magnitude.COMPLETE_INDEX)
       }
     )
 
   def testModuleTestRun(): Unit =
     runTestByLocation(
       moduleLoc(getModule.getName),
-      assertPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
-      root => assertResultTreeHasExactNamedPaths(root)(Seq(
-        TestNodePath("[root]", "Test1", "tests", "test1"),
-        TestNodePath("[root]", "Test1", "tests", "test2"),
-        TestNodePath("[root]", "Test2", "tests", "test1"),
-        TestNodePath("[root]", "Test2", "tests", "test2"),
-        TestNodePath("[root]", "Test2", "tests", "test"),
-      ))
+      config => {
+        assertPackageConfigAndSettings(config, "", s"UTests in 'scala-${version.minor}'")
+      },
+      root => {
+        assertResultTreePathsEqualsUnordered(root)(Seq(
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test1", "tests", "test1"),
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test1", "tests", "test2"),
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test2", "tests", "test1"),
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test2", "tests", "test2"),
+          TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test2", "tests", "test"),
+        ))
+        assertResultTreeStatus(root, Magnitude.COMPLETE_INDEX)
+      }
     )
 }

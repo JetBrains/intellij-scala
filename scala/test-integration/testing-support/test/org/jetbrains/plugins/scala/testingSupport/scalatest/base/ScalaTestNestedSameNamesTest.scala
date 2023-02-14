@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.base
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
+
 
 trait ScalaTestNestedSameNamesTest extends ScalaTestTestCase {
 
-  private val testPath = TestNodePath("[root]", "FunSpecTest", "FunSpecTest", "FunSpecTest", "FunSpecTest")
+  private val testPath = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "FunSpecTest", "FunSpecTest", "FunSpecTest", "FunSpecTest")
 
   addSourceFile("FunSpecTest.scala",
     s"""$ImportsForFunSpec
@@ -22,7 +24,7 @@ trait ScalaTestNestedSameNamesTest extends ScalaTestTestCase {
   def testNestedSameNames(): Unit = {
     runTestByLocation(loc("FunSpecTest.scala", 6, 12),
       assertConfigAndSettings(_, "FunSpecTest", "FunSpecTest FunSpecTest FunSpecTest"),
-      root => assertResultTreeHasExactNamedPath(root, testPath)
+      root => assertResultTreeHasSinglePath(root, testPath)
     )
   }
 }

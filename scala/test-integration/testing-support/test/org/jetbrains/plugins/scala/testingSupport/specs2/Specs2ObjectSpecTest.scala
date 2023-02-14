@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
+
 abstract class Specs2ObjectSpecTest extends Specs2TestCase {
 
   addSourceFile("SpecObject.scala",
@@ -24,8 +26,7 @@ abstract class Specs2ObjectSpecTest extends Specs2TestCase {
     runTestByLocation(loc("SpecObject.scala", 5, 8),
       assertConfigAndSettings(_, "SpecObject", "run alone"),
       root => {
-        assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", "SpecObject", "single test in SpecObject should", "run alone"))
-        assertResultTreeDoesNotHaveNodes(root, "ignore other test")
+        assertResultTreeHasSinglePath(root, TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "SpecObject", "single test in SpecObject should", "run alone"))
       }
     )
 

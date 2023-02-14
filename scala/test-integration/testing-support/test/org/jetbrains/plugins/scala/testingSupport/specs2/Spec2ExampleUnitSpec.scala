@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
+
 // example taken from
 // https://github.com/etorreborre/specs2/blob/SPECS2-4.10.0/examples/jvm/src/test/scala/examples/UnitSpec.scala
 abstract class Spec2ExampleUnitSpec extends Specs2TestCase {
@@ -82,14 +84,14 @@ abstract class Spec2ExampleUnitSpec extends Specs2TestCase {
 
   def testUnitSpecAll(): Unit =
     runTestByLocation2(loc(fileName, 3, 10),
-      AssertConfigAndSettings(regExpClassName),
-      AssertResultTreePathsEqualsUnordered(Seq(
-        TestNodePath("[root]", "MutableSpec", "'Hello world' should", "contain 11 characters"),
-        TestNodePath("[root]", "MutableSpec", "'Hello world' should", "start with 'Hello'"),
-        TestNodePath("[root]", "MutableSpec", "'Hello world' should", "with 'world'"),
-        TestNodePath("[root]", "MutableSpec", "'Hey you' should", "contain 7 characters"),
+      config => assertConfigAndSettings(config, regExpClassName),
+      root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, Seq("[root]", "MutableSpec", "'Hello world' should", "contain 11 characters")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, Seq("[root]", "MutableSpec", "'Hello world' should", "start with 'Hello'")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, Seq("[root]", "MutableSpec", "'Hello world' should", "with 'world'")),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, Seq("[root]", "MutableSpec", "'Hey you' should", "contain 7 characters")),
         // yes, there ar two duplicated path which are run in different contexts
-        TestNodePath("[root]", "MutableSpec", "'Hey you' should", "contain 7 characters"),
+        TestNodePathWithStatus(Magnitude.PASSED_INDEX, Seq("[root]", "MutableSpec", "'Hey you' should", "contain 7 characters")),
       ))
     )
 }

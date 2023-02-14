@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.base.singleTest
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import org.jetbrains.plugins.scala.testingSupport.scalatest.base.generators.FunSuiteGenerator
 
 trait FunSuiteSingleTestTest extends FunSuiteGenerator {
 
-  protected val funSuiteTestPath = TestNodePath("[root]", funSuiteClassName, "should run single test")
-  protected val funSuiteTaggedTestPath = TestNodePath("[root]", funSuiteClassName, "tagged")
+  protected val funSuiteTestPath = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", funSuiteClassName, "should run single test")
+  protected val funSuiteTaggedTestPath = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", funSuiteClassName, "tagged")
 
   def testFunSuite(): Unit = {
     runTestByLocation(loc(funSuiteFileName, 9, 8),
       assertConfigAndSettings(_, funSuiteClassName, "should run single test"),
       root => {
-        assertResultTreeHasExactNamedPath(root, funSuiteTestPath)
-        assertResultTreeDoesNotHaveNodes(root, "should not run other tests")
+        assertResultTreeHasSinglePath(root, funSuiteTestPath)
       }
     )
   }
@@ -21,8 +21,7 @@ trait FunSuiteSingleTestTest extends FunSuiteGenerator {
     runTestByLocation(loc(funSuiteFileName, 12, 8),
       assertConfigAndSettings(_, funSuiteClassName, "tagged"),
       root => {
-        assertResultTreeHasExactNamedPath(root, funSuiteTaggedTestPath)
-        assertResultTreeDoesNotHaveNodes(root, "should not run other tests")
+        assertResultTreeHasSinglePath(root, funSuiteTaggedTestPath)
       }
     )
   }

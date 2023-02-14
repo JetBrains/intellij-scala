@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.base
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
+
 trait ScalaTestIgnoredSpecTest extends ScalaTestTestCase {
 
-  protected val ignoredTestPath = TestNodePath("[root]", "IgnoredTestSpec", "An IgnoredTestSpec", "should be ignored and have proper suffix !!! IGNORED !!!")
-  protected val succeededTestPath = TestNodePath("[root]", "IgnoredTestSpec", "An IgnoredTestSpec", "should run tests")
+  protected val ignoredTestPath = TestNodePathWithStatus(Magnitude.IGNORED_INDEX, "[root]", "IgnoredTestSpec", "An IgnoredTestSpec", "should be ignored and have proper suffix !!! IGNORED !!!")
+  protected val succeededTestPath = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "IgnoredTestSpec", "An IgnoredTestSpec", "should run tests")
 
   addSourceFile("IgnoredTest.scala",
     s"""$ImportsForFlatSpec
@@ -29,8 +31,12 @@ trait ScalaTestIgnoredSpecTest extends ScalaTestTestCase {
   )
 
   def testIgnoredTest(): Unit =
-    runTestByLocation(loc("IgnoredTest.scala", 2, 7),
+    runTestByLocation(
+      loc("IgnoredTest.scala", 2, 7),
       assertConfigAndSettings(_, "IgnoredTestSpec"),
-      root => assertResultTreeHasExactNamedPaths(root)(Seq(succeededTestPath, ignoredTestPath))
+      root => assertResultTreePathsEqualsUnordered(root)(Seq(
+        succeededTestPath,
+        ignoredTestPath
+      ))
     )
 }

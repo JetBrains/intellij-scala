@@ -46,9 +46,9 @@ class MUnitGoToSourceTest extends MUnitTestCase {
     val runResult = runTestFromConfig(runConfig)
     val testTreeRoot = runResult.requireTestTreeRoot
 
-    AssertGoToSourceTest(TestNodePath("[root]"), GoToLocation(FileNameFunSuite, 2))(testTreeRoot)
-    AssertGoToSourceTest(TestNodePath("[root]", s"$ClassNameFunSuite.test single line"), GoToLocation(FileNameFunSuite, 3))(testTreeRoot)
-    AssertGoToSourceTest(TestNodePath("[root]", s"$ClassNameFunSuite.test 2"), GoToLocation(FileNameFunSuite, 6))(testTreeRoot)
+    assertGoToSourceTest(testTreeRoot, TestNodePath("[root]"), GoToLocation(FileNameFunSuite, 2))
+    assertGoToSourceTest(testTreeRoot, TestNodePath("[root]", s"$ClassNameFunSuite.test single line"), GoToLocation(FileNameFunSuite, 3))
+    assertGoToSourceTest(testTreeRoot, TestNodePath("[root]", s"$ClassNameFunSuite.test 2"), GoToLocation(FileNameFunSuite, 6))
   }
 
   def testGoTo_ScalaCheckSuite(): Unit = {
@@ -56,15 +56,15 @@ class MUnitGoToSourceTest extends MUnitTestCase {
     val runResult = runTestFromConfig(runConfig)
     val testTreeRoot = runResult.requireTestTreeRoot
 
-    AssertGoToSourceTest(TestNodePath("[root]"), GoToLocation(FileNameScalaCheckSuite, 4))(testTreeRoot)
-    AssertGoToSourceTest(TestNodePath("[root]", s"$ClassNameScalaCheckSuite.simple test"), GoToLocation(FileNameScalaCheckSuite, 5))(testTreeRoot)
-    AssertGoToSourceTest(TestNodePath("[root]", s"$ClassNameScalaCheckSuite.property test"), GoToLocation(FileNameScalaCheckSuite, 8))(testTreeRoot)
+    assertGoToSourceTest(testTreeRoot, TestNodePath("[root]"), GoToLocation(FileNameScalaCheckSuite, 4))
+    assertGoToSourceTest(testTreeRoot, TestNodePath("[root]", s"$ClassNameScalaCheckSuite.simple test"), GoToLocation(FileNameScalaCheckSuite, 5))
+    assertGoToSourceTest(testTreeRoot, TestNodePath("[root]", s"$ClassNameScalaCheckSuite.property test"), GoToLocation(FileNameScalaCheckSuite, 8))
   }
 
   def testGoTo_EnsureAssertionFails(): Unit = ExceptionAssertions.assertException[java.lang.AssertionError] {
     val runConfig = createTestFromCaretLocation(loc(FileNameFunSuite, 2, 10))
     val runResult = runTestFromConfig(runConfig)
     val testTreeRoot = runResult.requireTestTreeRoot
-    AssertGoToSourceTest(TestNodePath("[root]"), GoToLocation(FileNameFunSuite, 5))(testTreeRoot)
+    assertGoToSourceTest(testTreeRoot, TestNodePath("[root]"), GoToLocation(FileNameFunSuite, 5))
   }
 }

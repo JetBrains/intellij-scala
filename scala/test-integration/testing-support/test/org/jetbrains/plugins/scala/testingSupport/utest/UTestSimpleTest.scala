@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.utest
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
 
 trait UTestSimpleTest extends UTestTestCase {
@@ -31,18 +32,17 @@ trait UTestSimpleTest extends UTestTestCase {
        |}
       """.stripMargin.trim())
 
-  protected val outer1_Path  = TestNodePath("[root]", ClassName, "tests", "outer1")
-  protected val inner2_1Path = TestNodePath("[root]", ClassName, "tests", "outer2", "inner2_1")
-  protected val sameNamePath = TestNodePath("[root]", ClassName, "tests", "sameName", "sameName")
-  protected val failedPath   = TestNodePath("[root]", ClassName, "tests", "failed")
+  protected val outer1_Path  = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", ClassName, "tests", "outer1")
+  protected val inner2_1Path = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", ClassName, "tests", "outer2", "inner2_1")
+  protected val sameNamePath = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", ClassName, "tests", "sameName", "sameName")
+  protected val failedPath   = TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", ClassName, "tests", "failed")
 
   def testSingleTest(): Unit =
     runTestByLocation(
       loc(FileName, 8, 10),
       assertConfigAndSettings(_, ClassName, "tests\\outer2\\inner2_1"),
       root => {
-        assertResultTreeHasExactNamedPath(root, inner2_1Path)
-        assertResultTreeDoesNotHaveNodes(root, "outer1", "inner1_1")
+        assertResultTreeHasSinglePath(root, inner2_1Path)
       }
     )
 
@@ -50,14 +50,14 @@ trait UTestSimpleTest extends UTestTestCase {
     runTestByLocation(
       loc(FileName, 12, 10),
       assertConfigAndSettings(_, ClassName, "tests\\sameName\\sameName"),
-      root => assertResultTreeHasExactNamedPath(root, sameNamePath)
+      root => assertResultTreeHasSinglePath(root, sameNamePath)
     )
 
   def testClassSuite(): Unit =
     runTestByLocation(
       loc(FileName, 3, 3),
       assertConfigAndSettings(_, ClassName),
-      root => assertResultTreeHasExactNamedPaths(root)(Seq(
+      root => assertResultTreePathsEqualsUnordered(root)(Seq(
         outer1_Path,
         inner2_1Path,
         sameNamePath,
@@ -98,7 +98,7 @@ trait UTestSimpleTest extends UTestTestCase {
     runGoToSourceTest(
       loc(FileName, 16, 5),
       assertConfigAndSettings(_, ClassName, "tests\\failed"),
-      failedPath,
+      failedPath.path,
       sourceLine = 4
     )
 }

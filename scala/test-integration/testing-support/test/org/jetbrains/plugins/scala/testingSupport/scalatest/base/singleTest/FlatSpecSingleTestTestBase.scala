@@ -5,15 +5,14 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestTestCa
 
 trait FlatSpecSingleTestTestBase extends ScalaTestTestCase {
 
-  protected def doTest(testClassName: String)
-                      (caretLocation: CaretLocation)
-                      (expectedTestName: String, expectedTestPath: TestNodePath): Unit =
+  protected final def doTest(testClassName: String)
+                            (caretLocation: CaretLocation)
+                            (expectedTestName: String, expectedTestPath: TestNodePathWithStatus): Unit =
     runTestByLocation(
       caretLocation,
       configAndSettings => assertConfigAndSettings(configAndSettings, testClassName, expectedTestName),
       root => {
-        assertResultTreeHasExactNamedPath(root, expectedTestPath)
-        assertResultTreeDoesNotHaveNodes(root, "should not run other tests")
+        assertResultTreeHasSinglePath(root, expectedTestPath)
       }
     )
 }

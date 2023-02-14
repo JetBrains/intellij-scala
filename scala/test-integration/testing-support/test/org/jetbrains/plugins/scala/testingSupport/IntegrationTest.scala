@@ -3,45 +3,35 @@ package org.jetbrains.plugins.scala.testingSupport
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.configurations.TestLocation
 import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
-import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, inReadAction}
 import org.junit.Assert._
 
 import java.nio.file.Path
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 trait IntegrationTest extends AnyRef
   with IntegrationTestConfigurationCreation
+  with IntegrationTestConfigurationRunning
+  with IntegrationTestGoToTests
   with IntegrationTestConfigAssertions
   with IntegrationTestTreeViewAssertions
-  with IntegrationTestConfigurationRunning
   with IntegrationTestRunResultAssertions {
 
   protected def getProject: Project
   protected def srcPath: Path
 
-  implicit def defaultTestOptions: TestRunOptions = TestRunOptions(10.seconds, 0)
+  protected val IgnoreTreeResult: AbstractTestProxy => Unit = _ => ()
+  protected val IgnoreProcessOutput: ProcessOutput => Unit  = _ => ()
 
-  case class TestRunOptions(duration: FiniteDuration, expectedProcessErrorCode: Int) {
-    def withDuration(newDuration: FiniteDuration): TestRunOptions = copy(duration = newDuration)
-    def withErrorCode(newCode: Int): TestRunOptions = copy(expectedProcessErrorCode = newCode)
-  }
-
-  protected def IgnoreTreeResult: TestTreeAssert = _ => ()
-  protected def IgnoreProcessOutput: ProcessOutputAssert  = _ => ()
-
-  def AssertTestOutputTextContains(expectedText: String): ProcessOutputAssert  = { output =>
+  def assertTestOutputTextContains(expectedText: String, output: ProcessOutput): Unit  = {
     val res = output.textFromTests
     assertTrue(s"output was '$res' expected to contain '$expectedText'", res.contains(expectedText))
   }
 
   def runTestByLocation(
     testLocation: TestLocation,
-    assertConfig: ConfigurationAssert,
-    assertTestTree: TestTreeAssert,
+    assertConfig: RunnerAndConfigurationSettings => Unit,
+    assertTestTree: AbstractTestProxy => Unit,
   )(implicit testOptions: TestRunOptions): Unit =
     runTestByLocation(
       testLocation,
@@ -52,9 +42,9 @@ trait IntegrationTest extends AnyRef
 
   def runTestByLocation(
     testLocation: TestLocation,
-    assertConfig: ConfigurationAssert,
-    assertTestTree: TestTreeAssert,
-    assertProcessOutput: ProcessOutputAssert
+    assertConfig: RunnerAndConfigurationSettings => Unit,
+    assertTestTree: AbstractTestProxy => Unit,
+    assertProcessOutput: ProcessOutput => Unit
   )(implicit testOptions: TestRunOptions): Unit = {
 
     def assertTestResult(testRunResult: TestRunResult): Unit = {
@@ -72,8 +62,8 @@ trait IntegrationTest extends AnyRef
 
   def runTestByLocation2(
     testLocation: TestLocation,
-    assertConfig: ConfigurationAssert,
-    assertTestResult: TestRunResultAssert
+    assertConfig: RunnerAndConfigurationSettings => Unit,
+    assertTestResult: TestRunResult => Unit
   )(implicit testOptions: TestRunOptions): Unit = {
     try {
       val runConfig = createTestFromLocation(testLocation)
@@ -94,7 +84,7 @@ trait IntegrationTest extends AnyRef
 
   def runTestByLocation3(
     runConfig: RunnerAndConfigurationSettings,
-    assertTestResult: TestRunResultAssert
+    assertTestResult: TestRunResult => Unit
   )(implicit testOptions: TestRunOptions): Unit = {
     val testRunResult = runTestFromConfig(runConfig, testOptions.duration)
     try
@@ -129,68 +119,4 @@ trait IntegrationTest extends AnyRef
     assertEquals(config1.getConfiguration.getName, config2.getConfiguration.getName)
   }
 
-  def runGoToSourceTest(
-    caretLocation: CaretLocation,
-    assertConfiguration: ConfigurationAssert,
-    testPath: TestNodePath,
-    sourceLine: Int,
-    sourceFile: Option[String] = None
-  )(implicit testOptions: TestRunOptions): Unit =
-    runGoToSourceTest(
-      caretLocation,
-      assertConfiguration,
-      testPath,
-      GoToLocation(sourceFile.getOrElse(caretLocation.fileName), sourceLine)
-    )(testOptions)
-
-  case class GoToLocation(sourceFile: String, sourceLine: Int)
-
-  def runGoToSourceTest(
-    caretLocation: CaretLocation,
-    assertConfiguration: ConfigurationAssert,
-    testPath: TestNodePath,
-    expectedLocation: GoToLocation
-  )(implicit testOptions: TestRunOptions): Unit = {
-    val runConfig = createTestFromCaretLocation(caretLocation)
-
-    assertConfiguration(runConfig)
-
-    val runResult = runTestFromConfig(runConfig, testOptions.duration)
-
-    val testTreeRoot = runResult.requireTestTreeRoot
-    assertGoToSourceTest(testTreeRoot, testPath, expectedLocation)
-  }
-
-  protected def AssertGoToSourceTest(
-    testPath: TestNodePath,
-    expectedLocation: GoToLocation
-  ): TestTreeAssert = { testRoot =>
-    assertGoToSourceTest(testRoot, testPath, expectedLocation)
-  }
-
-  protected def assertGoToSourceTest(
-    testRoot: AbstractTestProxy,
-    testPath: TestNodePath,
-    expectedLocation: GoToLocation
-  ): Unit = inReadAction {
-    val testPathOpt = getExactNamePathFromResultTree(testRoot, testPath, allowTail = true)
-
-    val project = getProject
-
-    val psiElement = {
-      val leafNode = testPathOpt.nodes.last
-      val location = leafNode.getLocation(project, GlobalSearchScope.projectScope(project))
-      assertNotNull(s"location should not be null for leaf node: $leafNode", location)
-      location.getPsiElement
-    }
-
-    val psiFile = psiElement.getContainingFile
-    val textRange = psiElement.getTextRange
-
-    val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
-    assertEquals(expectedLocation.sourceFile, psiFile.name)
-
-    val startLineNumber = document.getLineNumber(textRange.getStartOffset)
-    assertEquals(expectedLocation.sourceLine, startLineNumber)
-  }
 }

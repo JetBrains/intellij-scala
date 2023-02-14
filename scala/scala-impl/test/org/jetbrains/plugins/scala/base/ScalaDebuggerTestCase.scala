@@ -301,6 +301,10 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
   protected def assertEquals[A, B](expected: A, actual: B)(implicit ev: A <:< B): Unit = {
     org.junit.Assert.assertEquals(expected, actual)
   }
+
+  protected def assertEquals[A, B](message: String, expected: A, actual: B)(implicit ev: A <:< B): Unit = {
+    org.junit.Assert.assertEquals(message, expected, actual)
+  }
 }
 
 private object ScalaDebuggerTestCase {

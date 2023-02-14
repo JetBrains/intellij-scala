@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.utest
 
+import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
 
 trait UTestNewSyntaxSimpleTest extends UTestTestCase {
@@ -32,29 +33,32 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
        |}
        |""".stripMargin.trim())
 
-  protected val inner2_1Path = TestNodePath("[root]", uTestTestName, "tests", "outer2", "inner2_1")
-  protected val outer1_Path = TestNodePath("[root]", uTestTestName, "tests", "outer1")
-  protected val sameNamePath = TestNodePath("[root]", uTestTestName, "tests", "sameName", "sameName")
-  protected val inner1_1Path = TestNodePath("[root]", uTestTestName, "otherTests", "outer1", "inner1_1")
-  protected val failedPath = TestNodePath("[root]", uTestTestName, "tests", "failed")
+  protected val inner2_1Path = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", uTestTestName, "tests", "outer2", "inner2_1")
+  protected val outer1_Path = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", uTestTestName, "tests", "outer1")
+  protected val sameNamePath = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", uTestTestName, "tests", "sameName", "sameName")
+  protected val inner1_1Path = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", uTestTestName, "otherTests", "outer1", "inner1_1")
+  protected val failedPath = TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", uTestTestName, "tests", "failed")
 
   def testClassSuite(): Unit =
     runTestByLocation(loc(uTestFileName, 2, 3),
       assertConfigAndSettings(_, uTestTestName),
-      root => assertResultTreeHasExactNamedPaths(root)(Seq(
-        outer1_Path,
-        inner2_1Path,
-        sameNamePath,
-        failedPath,
-      ))
+      root => {
+        assertResultTreePathsEqualsUnordered(root)(Seq(
+          outer1_Path,
+          inner2_1Path,
+          sameNamePath,
+          failedPath,
+        ))
+        assertResultTreeStatus(root, Magnitude.FAILED_INDEX) // there is a single failing test
+      }
     )
 
   def testSingleTest(): Unit = {
     runTestByLocation(loc(uTestFileName, 8, 15),
       assertConfigAndSettings(_, uTestTestName, "tests\\outer2\\inner2_1"),
       root => {
-        assertResultTreeHasExactNamedPaths(root)(Seq(inner2_1Path))
-        assertResultTreeDoesNotHaveNodes(root, "outer1", "inner1_1")
+        assertResultTreeHasSinglePath(root, inner2_1Path)
+        assertResultTreeStatus(root, Magnitude.COMPLETE_INDEX)
       })
   }
 
@@ -65,7 +69,11 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
   def testSameName(): Unit = {
     runTestByLocation(loc(uTestFileName, 14, 15),
       assertConfigAndSettings(_, uTestTestName, "tests\\sameName\\sameName"),
-      root => assertResultTreeHasExactNamedPath(root, sameNamePath))
+      root => {
+        assertResultTreeHasSinglePath(root, sameNamePath)
+        assertResultTreeStatus(root, Magnitude.COMPLETE_INDEX)
+      }
+    )
   }
 
   def testGoToSourceSuccessful(): Unit =
@@ -80,7 +88,7 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
     runGoToSourceTest(
       loc(uTestFileName, 18, 10),
       assertConfigAndSettings(_, uTestTestName, "tests\\failed"),
-      failedPath,
+      failedPath.path,
       sourceLine = 3
     )
 
@@ -125,12 +133,18 @@ trait UTestNewSyntaxSimpleTest extends UTestTestCase {
   def testFailing(): Unit =
     runTestByLocation(loc(uTestFileName1, 4, 10),
       assertConfigAndSettings(_, uTestTestName1, "tests\\test1"),
-      root => assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", uTestTestName1, "tests", "test1"))
+      root => {
+        assertResultTreeHasSinglePath(root, TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", uTestTestName1, "tests", "test1"))
+        assertResultTreeStatus(root, Magnitude.FAILED_INDEX)
+      }
     )
 
   def testFailingWithNullMessage(): Unit =
     runTestByLocation(loc(uTestFileName1, 7, 10),
       assertConfigAndSettings(_, uTestTestName1, "tests\\test2"),
-      root => assertResultTreeHasExactNamedPath(root, TestNodePath("[root]", uTestTestName1, "tests", "test2"))
+      root => {
+        assertResultTreeHasSinglePath(root, TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", uTestTestName1, "tests", "test2"))
+        assertResultTreeStatus(root, Magnitude.FAILED_INDEX)
+      }
     )
 }
