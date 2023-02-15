@@ -76,7 +76,7 @@
           <text resource-bundle="messages/SbtBundle" key="sbt.settings.jvm"/>
         </properties>
       </component>
-      <grid id="1881b" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="1881b" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="1" use-parent-layout="false"/>
@@ -131,7 +131,7 @@
               <text resource-bundle="messages/SbtBundle" key="sbt.settings.commandLineParams"/>
             </properties>
           </component>
-          <component id="1fa65" class="com.intellij.ui.RawCommandLineEditor" binding="mySbtCommandArgs">
+          <component id="1fa65" class="com.intellij.ui.RawCommandLineEditor" binding="mySbtOptions">
             <constraints>
               <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false">
                 <minimum-size width="250" height="-1"/>
@@ -141,15 +141,6 @@
             <properties>
               <dialogCaption resource-bundle="messages/SbtBundle" key="sbt.settings.commandLineParams"/>
               <enabled value="true"/>
-            </properties>
-          </component>
-          <component id="b10e6" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <font size="11"/>
-              <text resource-bundle="messages/SbtBundle" key="sbt.settings.commandLineParams.helper"/>
             </properties>
           </component>
         </children>
