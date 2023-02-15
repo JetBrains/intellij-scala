@@ -71,6 +71,13 @@ class ScalaSigPrinter(builder: StringBuilder) {
     case _ =>
   }
 
+  private def symbolAttributes(s: Symbol): String = s match {
+    case t: SymbolInfoSymbol =>
+      val s = t.attributes.map(toString).mkString(" ")
+      if (s.nonEmpty) s + " " else s
+    case _ => ""
+  }
+
   def printSymbol(level: Int, symbol: Symbol): Unit = {
     def isSynthetic: Boolean = symbol.isSynthetic || symbol.isCaseAccessor || symbol.isParamAccessor
 
@@ -281,6 +288,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   def printPrimaryConstructor(m: MethodSymbol, c: ClassSymbol): Unit = {
     printModifiers(m)
+    printSymbolAttributes(m, onNewLine = false, ())
     printMethodType(m.infoType, printResult = false, methodSymbolAsClassParam(_, c))(())
   }
 
@@ -337,7 +345,6 @@ class ScalaSigPrinter(builder: StringBuilder) {
     val toPrint = paramAccessors.find(m => !m.isPrivate || !m.isLocal)
     toPrint match {
       case Some(ms) =>
-        printer.printSymbolAttributes(ms, onNewLine = false, ())
         val previousLength = sb.length
         printer.printModifiers(ms)
         if (isMutable) printer.print("var ")
@@ -365,7 +372,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
         else mt.paramSymbols
 
       val paramEntries = paramSymbolsWithoutContextBounds.map({
-        case ms: MethodSymbol => pe(ms)
+        case ms: MethodSymbol => symbolAttributes(ms) + pe(ms)
         case _ => "^___^"
       })
 
@@ -526,10 +533,12 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   def toString(attrib: SymAnnot): String = {
     val prefix = toString(attrib.typeRef, "@")
+    val inScala = prefix.startsWith("@scala.")
     if (attrib.hasArgs) {
       val argTexts = attrib.args.map(annotArgText)
-      val namedArgsText = attrib.namedArgs.map {
-        case (name, value) => s"${processName(name)} = ${annotArgText(value)}"
+      val namedArgsText = attrib.namedArgs.map { case (name, value) =>
+        // For some reason, positional arguments are always encoded as named arguments, even for Scala annotations.
+        if (inScala) annotArgText(value) else s"${processName(name)} = ${annotArgText(value)}"
       }
       (argTexts ++ namedArgsText).mkString(s"$prefix(", ", ", ")")
     }
@@ -544,7 +553,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case Constant(v) => annotArgText(v)
       case Ref(v) => annotArgText(v)
       case AnnotArgArray(args) =>
-        args.map(ref => annotArgText(ref.get)).mkString("Array(", ", ", ")")
+        args.map(ref => annotArgText(ref.get)).mkString("scala.Array(", ", ", ")")
       case t: Type => "classOf[%s]" format toString(t)
       case null => "null"
       case _ => arg.toString
