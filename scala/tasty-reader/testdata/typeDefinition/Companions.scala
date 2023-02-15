@@ -25,6 +25,10 @@ trait Companions {
     def static: Int = ???
   }
 
+  class SerializableClass extends Serializable
+
+  object SerializableClass
+
   enum Enum {
     def instance: Int = ???
 

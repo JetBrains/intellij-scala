@@ -8,26 +8,16 @@ import scala.util.control.NonFatal
 
 // TODO Prettify and unify Scala 2 decompiler output, SCL-20672
 
-// companion object extends Foo (with Serializable)
-// trailing line separator
 // self type class with
-// final override -> override final
-// infix parameterized types
-// function types
-// tuple types
-// order of annotations
 
-// fix: <empty> package
 // fix: private val parameters in value classes
 // fix: implicit implicit val x: Int, implicit val y: Int
-// fix: annotation on value parameters, primary constructors, types
+// fix: annotation on types
 // fix: qualified private abstract type is decompiled, without access modifier
 // fix: private type alias is decompiled
 // fix: custom self type names
 
 // qualified private that is equivalent to private is decompiled?
-// abstract trait?
-// annotation by-name arguments?
 // literal types - annotations?
 // why private[Class1] def method1: Int is decompiled?
 // why private object PrivateObject is decompiled?
@@ -42,7 +32,7 @@ class DecompilerTest2 extends TestCase {
   def testMemberDef(): Unit = doTest("member/Def")
   def testMemberIdentifiers(): Unit = doTest("member/Identifiers")
   def testMemberModifiers(): Unit = doTest("member/Modifiers")
-//  def testMemberQualifier(): Unit = doTest("member/Qualifier")
+  def testMemberQualifier(): Unit = doTest("member/Qualifier")
   def testMemberThis(): Unit = doTest("member/This")
   def testMemberType(): Unit = doTest("member/Type")
   def testMemberVal(): Unit = doTest("member/Val")
@@ -57,7 +47,7 @@ class DecompilerTest2 extends TestCase {
   def testParameterByName(): Unit = doTest("parameter/ByName")
   def testParameterCaseClass(): Unit = doTest("parameter/CaseClass")
   def testParameterClass(): Unit = doTest("parameter/Class")
-//  def testParameterContextBounds(): Unit = doTest("parameter/ContextBounds")
+  def testParameterContextBounds(): Unit = doTest("parameter/ContextBounds")
   def testParameterDef(): Unit = doTest("parameter/Def")
   def testParameterDefaultArguments(): Unit = doTest("parameter/DefaultArguments")
   def testParameterHKT(): Unit = doTest("parameter/HKT")
