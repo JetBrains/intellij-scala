@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.base
 
+import com.intellij.util.containers.ContainerUtil
 import junit.framework.{AssertionFailedError, Test, TestListener, TestResult}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
@@ -55,13 +56,19 @@ trait ScalaSdkOwner extends Test
       // see HeavyPlatformTestCase.runBare & UsefulTestCase.clearDeclaredFields
       val listener =
         if (reportFailedTestContextDetails) {
+          var shouldLogVersionFor = ContainerUtil.newConcurrentSet[Test]()
           val versionsDetailMessage = s"### $buildVersionsDetailsMessage ###"
-          lazy val logVersion: Unit = System.err.println(versionsDetailMessage) // lazy val to log only once
+
           Some(new TestListener {
-            override def addError(test: Test, t: Throwable): Unit = logVersion
-            override def addFailure(test: Test, t: AssertionFailedError): Unit = logVersion
-            override def endTest(test: Test): Unit = ()
+            override def addError(test: Test, t: Throwable): Unit = shouldLogVersionFor.add(test)
+            override def addFailure(test: Test, t: AssertionFailedError): Unit = shouldLogVersionFor.add(test)
             override def startTest(test: Test): Unit = ()
+            override def endTest(test: Test): Unit = {
+              if (shouldLogVersionFor.contains(test)) {
+                System.err.println(versionsDetailMessage)
+                shouldLogVersionFor.remove(test)
+              }
+            }
           })
         }
         else None
