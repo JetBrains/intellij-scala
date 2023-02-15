@@ -40,7 +40,7 @@ class ScalaSig(val entries: Array[Entry]) {
       case _ => false
     }
     val forSameSymbol = symAnnots.filter(sameSymbol)
-    forSameSymbol.iterator.distinctBy(_.typeRef).to(ArraySeq)
+    forSameSymbol.reverseIterator.distinctBy(_.typeRef).to(ArraySeq)
   }
 
   def addClass(c: ClassSymbol): Unit = classes += c

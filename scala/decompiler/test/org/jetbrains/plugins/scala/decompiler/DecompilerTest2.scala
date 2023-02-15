@@ -34,10 +34,10 @@ import scala.util.control.NonFatal
 
 class DecompilerTest2 extends TestCase {
 
-//  def testAnnotationMembers(): Unit = doTest("annotation/Members")
-//  def testAnnotationMultiple(): Unit = doTest("annotation/Multiple")
-//  def testAnnotationParameters(): Unit = doTest("annotation/Parameters")
-//  def testAnnotationText(): Unit = doTest("annotation/Text")
+  def testAnnotationMembers(): Unit = doTest("annotation/Members")
+  def testAnnotationMultiple(): Unit = doTest("annotation/Multiple")
+  def testAnnotationParameters(): Unit = doTest("annotation/Parameters")
+  def testAnnotationText(): Unit = doTest("annotation/Text")
   def testMemberBounds(): Unit = doTest("member/Bounds")
   def testMemberDef(): Unit = doTest("member/Def")
   def testMemberIdentifiers(): Unit = doTest("member/Identifiers")

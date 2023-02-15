@@ -525,10 +525,13 @@ class TreePrinter(privateMembers: Boolean = false) {
         if (name.nonEmpty) {
           sb ++= indent
           sb ++= id(name)
-          val args = apply.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ") // TODO optimize
-          if (args.nonEmpty) {
+          val args = apply.children.map(textOfConstant).filter(_.nonEmpty) // TODO optimize
+          val namedArgs = apply.children.collect {
+            case Node3(NAMEDARG, Seq(name), Seq(tail)) => name + " = " + textOfConstant(tail)
+          }
+          if (args.nonEmpty || namedArgs.nonEmpty) {
             sb ++= "("
-            sb ++= args
+            sb ++= (args ++ namedArgs).mkString(", ")
             sb ++= ")"
           }
           sb ++= suffix
