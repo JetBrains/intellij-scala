@@ -40,7 +40,7 @@ trait Parameters {
 
   class ClassVar(@inline var x: Int)
 
-  class ClassPrivateVal(@inline private val x: Int)
+  class ClassPrivateVal(@inline /**/private val /**/x: Int)
 
   class CaseClass(@inline x: Int)
 

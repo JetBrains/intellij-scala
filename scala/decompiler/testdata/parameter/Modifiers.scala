@@ -13,7 +13,7 @@ trait Modifiers {
 
   class ClassVar(var x: Int)
 
-  class ClassPrivate(private val x: Int)
+  class ClassPrivate(/**/private val /**/x: Int)
 
   class ClassProtected(protected val x: Int)
 

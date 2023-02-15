@@ -175,7 +175,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
     print(s)
   }
 
-  def printModifiers(symbol: Symbol): Unit = {
+  def printModifiers(symbol: Symbol, classParameterModifiers: Boolean = true): Unit = {
     lazy val privateWithin: Option[String] = {
       symbol match {
         case sym: SymbolInfoSymbol => sym.symbolInfo.privateWithin match {
@@ -192,9 +192,9 @@ class ScalaSigPrinter(builder: StringBuilder) {
     }
 
     if (symbol.isAbstractOverride) print("abstract override ")
-    if (symbol.isOverride) print("override ")
+    if (classParameterModifiers && symbol.isOverride) print("override ")
     // print private access modifier
-    if (symbol.isPrivate) {
+    if (classParameterModifiers && symbol.isPrivate) {
       print("private")
       if (symbol.isLocal) print("[this] ")
       else print(" ")
@@ -209,9 +209,9 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
     if (symbol.isSealed) print("sealed ")
     if (symbol.isImplicit) print("implicit ")
-    if (symbol.isFinal && !symbol.isInstanceOf[ObjectSymbol]) print("final ")
+    if (classParameterModifiers && symbol.isFinal && !symbol.isInstanceOf[ObjectSymbol]) print("final ")
     if (symbol.isAbstract) symbol match {
-      case c@(_: ClassSymbol | _: ObjectSymbol) if !c.isTrait => print("abstract ")
+      case c@(_: ClassSymbol | _: ObjectSymbol) if classParameterModifiers && !c.isTrait => print("abstract ")
       case _ => ()
     }
     if (symbol.isCase && !symbol.isMethod) print("case ")
@@ -346,9 +346,11 @@ class ScalaSigPrinter(builder: StringBuilder) {
     toPrint match {
       case Some(ms) =>
         val previousLength = sb.length
-        printer.printModifiers(ms)
-        if (isMutable) printer.print("var ")
-        else if (!(c.isCase && sb.length == previousLength)) printer.print("val ")
+        printer.printModifiers(ms, classParameterModifiers = !ms.isPrivate)
+        if (!ms.isPrivate) {
+          if (isMutable) printer.print("var ")
+          else if (!(c.isCase && sb.length == previousLength)) printer.print("val ")
+        }
       case _ =>
     }
 
