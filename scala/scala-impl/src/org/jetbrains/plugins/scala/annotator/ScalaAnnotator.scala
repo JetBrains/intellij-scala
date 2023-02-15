@@ -34,8 +34,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 class ScalaAnnotator extends Annotator
   with FunctionAnnotator
-  with OverridingAnnotator
-  with DumbAware {
+  with OverridingAnnotator {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
     val file = element.getContainingFile
