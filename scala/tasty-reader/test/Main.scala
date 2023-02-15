@@ -76,7 +76,7 @@ object Main {
           val file = new File(s"$OutputDir/${entry.getName}")
           val tree = TreeReader.treeFrom(in.readAllBytes())
           val path = Paths.get(file.getPath.replaceFirst("\\.tasty$", ".scala"))
-          val treePrinter = new TreePrinter()
+          val treePrinter = new TreePrinter(legacySyntax = true)
           mode match {
             case Mode.Parse =>
               file.getParentFile.mkdirs()
