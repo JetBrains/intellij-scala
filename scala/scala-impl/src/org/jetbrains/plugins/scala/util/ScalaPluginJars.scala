@@ -31,6 +31,7 @@ object ScalaPluginJars {
   val nailgunJar             = new File(jpsRoot, "nailgun.jar")
   val sbtInterfaceJar        = new File(jpsRoot, "sbt-interface.jar")
   val incrementalCompilerJar = new File(jpsRoot, "incremental-compiler.jar")
+  val compileServerJar       = new File(jpsRoot, "compile-server.jar")
   val compilerJpsJar         = new File(jpsRoot, "compiler-jps.jar")
 }
 

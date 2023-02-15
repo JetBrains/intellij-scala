@@ -345,6 +345,7 @@ object CompileServerLauncher {
     ScalaPluginJars.nailgunJar,
     ScalaPluginJars.sbtInterfaceJar,
     ScalaPluginJars.incrementalCompilerJar,
+    ScalaPluginJars.compileServerJar,
     ScalaPluginJars.compilerJpsJar,
     ScalaPluginJars.replInterface,
   ).distinct

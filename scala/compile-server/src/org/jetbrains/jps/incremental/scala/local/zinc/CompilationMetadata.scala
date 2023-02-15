@@ -60,7 +60,7 @@ object CompilationMetadata {
       val logs = new StringWriter()
       e.printStackTrace(new PrintWriter(logs))
       e.printStackTrace(System.out) // It will become a warning
-      CacheResult(JpsBundle.message("exception.when.loading.cache.logs", logs), None)
+      CacheResult(CompileServerBundle.message("exception.when.loading.cache.logs", logs), None)
     }
 
     val cachedResults: List[CacheResult] = cacheProviders.map{
@@ -84,14 +84,14 @@ object CompilationMetadata {
             CompilationMetadata(content.getAnalysis.asInstanceOf[Analysis], Some(content.getMiniSetup), cacheStats(description, isCached = true))(cacheProviders)
           case Some(badFormat: AnyRef) =>
             val cacheResultClass = badFormat.getClass.getName
-            client.warning(JpsBundle.message("unrecognized.cache.format", badFormat, cacheResultClass))
-            notUseCache(JpsBundle.message("no.cache", s"badFormat ($cacheResultClass): $description)"))
+            client.warning(CompileServerBundle.message("unrecognized.cache.format", badFormat, cacheResultClass))
+            notUseCache(CompileServerBundle.message("no.cache", s"badFormat ($cacheResultClass): $description)"))
 
           case _ =>
-            notUseCache(JpsBundle.message("no.cache", description))
+            notUseCache(CompileServerBundle.message("no.cache", description))
         }
       case _ =>
-        notUseCache(JpsBundle.message("no.cache.found"))
+        notUseCache(CompileServerBundle.message("no.cache.found"))
     }
   }
 }
