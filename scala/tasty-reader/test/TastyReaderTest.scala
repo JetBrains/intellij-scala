@@ -154,7 +154,7 @@ class TastyReaderTest extends TestCase {
     val tree = TreeReader.treeFrom(readBytes(tastyFile))
 
     val (sourceFile, actual) = try {
-      val treePrinter = new TreePrinter(privateMembers = true)
+      val treePrinter = new TreePrinter()
       treePrinter.fileAndTextOf(tree)
     } catch {
       case NonFatal(e) =>

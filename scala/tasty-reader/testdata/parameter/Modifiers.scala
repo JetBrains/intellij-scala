@@ -31,7 +31,7 @@ trait Modifiers {
 
   class ClassVar(var x: Int)
 
-  class ClassPrivate(private val x: Int)
+  class ClassPrivate(/**/private val /**/x: Int)
 
   class ClassProtected(protected val x: Int)
 
@@ -67,7 +67,7 @@ trait Modifiers {
 
   class TraitVar(var x: Int)
 
-  class TraitPrivate(private val x: Int)
+  class TraitPrivate(/**/private val /**/x: Int)
 
   class TraitProtected(protected val x: Int)
 
@@ -101,7 +101,7 @@ trait Modifiers {
     case Case/**/ extends EnumVar(1)/**/
   }
 
-  enum EnumPrivate(private val x: Int) {
+  enum EnumPrivate(/**/private val /**/x: Int) {
     case Case/**/ extends EnumPrivate(1)/**/
   }
 
@@ -126,7 +126,7 @@ trait Modifiers {
   }
 
   enum EnumCaseClassPrivate {
-    case Class(private val x: Int)
+    case Class(/**/private val /**/x: Int)
   }
 
   enum EnumCaseClassProtected {

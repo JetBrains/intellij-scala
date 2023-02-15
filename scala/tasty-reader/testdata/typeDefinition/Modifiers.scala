@@ -1,8 +1,8 @@
 package typeDefinition
 
-trait Modifiers {
+trait Modifiers {/**/
   private class PrivateClass
-
+/**/
   protected class ProtectedClass
 
   abstract class AbstractClass
@@ -14,9 +14,9 @@ trait Modifiers {
   open class OpenClass
 
   case class CaseClass()
-
+/**/
   private trait PrivateTrait
-
+/**/
   protected trait ProtectedTrait
 
   abstract trait AbstractTrait
@@ -26,9 +26,9 @@ trait Modifiers {
   open trait OpenTrait
 
   transparent trait TransparentTrait
-
+/**/
   private object PrivateObject
-
+/**/
   protected object ProtectedObject
 
   implicit object ImplicitObject
@@ -44,26 +44,26 @@ trait Modifiers {
   }
 
   protected sealed abstract class C
-
+/**/
   private enum PrivateEnum {
     case Case
   }
-
+/**/
   protected enum ProtectedEnum {
     case Case
   }
 
-  enum PrivateEnumCaseObject {
+  enum PrivateEnumCaseObject/**/ {
     private case Object
-  }
+  }/**/
 
   enum ProtectedEnumCaseObject {
     protected case Object
   }
 
-  enum PrivateEnumCaseClass {
+  enum PrivateEnumCaseClass/**/ {
     private case Class()
-  }
+  }/**/
 
   enum ProtectedEnumCaseClass {
     protected case Class()

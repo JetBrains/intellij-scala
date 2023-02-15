@@ -698,13 +698,16 @@ class TreePrinter(privateMembers: Boolean = false) {
           templateValueParam.foreach { valueParam =>
             if (!valueParam.contains(LOCAL)) {
               val sb1 = new StringBuilder() // TODO reuse
-              modifiersIn(sb1, valueParam, if (isImplicitClause) Set(GIVEN, IMPLICIT) else Set(GIVEN))
+              val isPrivate = valueParam.contains(PRIVATE)
+              modifiersIn(sb1, valueParam, (if (privateMembers || !isPrivate) Set() else Set(ABSTRACT, OVERRIDE, PRIVATE, FINAL)) ++ (if (isImplicitClause) Set(GIVEN, IMPLICIT) else Set(GIVEN)))
               sb ++= sb1
-              if (valueParam.contains(MUTABLE)) {
-                sb ++= "var "
-              } else {
-                if (!(definition.exists(_.contains(CASE)) && valueParam.modifierTags.forall(it => it == CASEaccessor || it == HASDEFAULT))) {
-                  sb ++= "val "
+              if (privateMembers || !isPrivate) {
+                if (valueParam.contains(MUTABLE)) {
+                  sb ++= "var "
+                } else {
+                  if (!(definition.exists(_.contains(CASE)) && valueParam.modifierTags.forall(it => it == CASEaccessor || it == HASDEFAULT))) {
+                    sb ++= "val "
+                  }
                 }
               }
             }
@@ -745,11 +748,11 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (node.contains(ABSTRACT) && !excluding(ABSTRACT) && node.contains(OVERRIDE)) {
       sb ++= "abstract override "
     } else {
-      if (node.contains(OVERRIDE)) {
+      if (node.contains(OVERRIDE) && !excluding(OVERRIDE)) {
         sb ++= "override "
       }
     }
-    if (node.contains(PRIVATE)) {
+    if (node.contains(PRIVATE) && !excluding(PRIVATE)) {
       if (node.contains(LOCAL)) {
 //        sb += "private[this] " TODO Enable? (in Scala 3 it's almost always inferred)
         sb ++= "private "

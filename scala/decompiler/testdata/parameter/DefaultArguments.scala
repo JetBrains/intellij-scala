@@ -9,7 +9,7 @@ trait DefaultArguments {
 
   class ClassVar(var x: Int = /**/1/*???*/)
 
-  class ClassPrivateVal(private val x: Int = /**/1/*???*/)
+  class ClassPrivateVal(/**/private val /**/x: Int = /**/1/*???*/)
 
   class ClassProtectedVal(protected val x: Int = /**/1/*???*/)
 

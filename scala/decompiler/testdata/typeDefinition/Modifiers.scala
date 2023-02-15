@@ -1,6 +1,8 @@
 package typeDefinition
 
-trait Modifiers {
+trait Modifiers {/**/
+  private class PrivateClass
+/**/
   protected class ProtectedClass
 
   abstract class AbstractClass
@@ -10,7 +12,9 @@ trait Modifiers {
   sealed class SealedClass
 
   case class CaseClass()
-
+/**/
+  private trait PrivateTrait
+/**/
   protected trait ProtectedTrait
 
   sealed trait SealedTrait
