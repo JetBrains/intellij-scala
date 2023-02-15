@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.settings.{SbtExecutionSettings, SbtProjectSettings}
-import org.jetbrains.sbt.project.structure.SbtOpts.{JvmOption, SbtLauncherOption}
+import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 import org.jetbrains.sbt.shell.SbtProcessManager._
@@ -141,8 +141,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
     vmParams.add("-server")
 
     val mappedSbtOpts = SbtOpts.processArgs(sbtSettings.sbtOptions) ++ SbtOpts.loadFrom(workingDir)
-    val jvmFromSbtOpts = mappedSbtOpts.collect { case a: JvmOption => a.value }
-    val allJvmOpts = buildVMParameters(sbtSettings, workingDir, jvmFromSbtOpts).mkString(" ").split("\\s").toList
+    val sbtOpts = mappedSbtOpts.collect { case a: JvmOption => a.value }
+    val allJvmOpts = buildVMParameters(sbtSettings, workingDir, sbtOpts)
     vmParams.addAll(allJvmOpts.asJava)
 
     // don't add runid when using addPluginSbtFile command
@@ -509,21 +509,21 @@ object SbtProcessManager {
   private[shell]
   def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: File, sbtOpts: Seq[String]): Seq[String] = {
     val hardcoded = List("-Dsbt.supershell=false")
-    val opts =
+    val jvmOpts =
       hardcoded ++
-      sbtOpts ++
       JvmOpts.loadFrom(workingDir) ++
       sbtSettings.vmOptions
+    val combinedJvmSbtOpts = SbtOpts.combineSbtAndJvmOpts(sbtOpts, jvmOpts)
 
-    val hasXmx = opts.exists(_.startsWith("-Xmx"))
+    val hasXmx = combinedJvmSbtOpts.exists(_.startsWith("-Xmx"))
     val xmsPrefix = "-Xms"
-    def minMaxHeapSize = opts.reverseIterator
+    def minMaxHeapSize = combinedJvmSbtOpts.reverseIterator
       .find(_.startsWith(xmsPrefix))
       .map(_.drop(xmsPrefix.length))
       .flatMap(JvmMemorySize.parse)
     def xmxNotNeeded = minMaxHeapSize.exists(_ >= sbtSettings.hiddenDefaultMaxHeapSize)
 
-    if (hasXmx || xmxNotNeeded) opts
-    else ("-Xmx" + sbtSettings.hiddenDefaultMaxHeapSize) +: opts
+    if (hasXmx || xmxNotNeeded) combinedJvmSbtOpts
+    else ("-Xmx" + sbtSettings.hiddenDefaultMaxHeapSize) +: combinedJvmSbtOpts
   }
 }

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 import org.jetbrains.sbt.{SbtBundle, SbtCompilationSupervisorPort}
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
-import org.jetbrains.sbt.project.structure.SbtOpts.{JvmOption, JvmOptionGlobal, JvmOptionShellOnly, SbtLauncherOption}
+import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication._
@@ -182,7 +182,10 @@ class SbtStructureDump {
     // assuming here that this method might still be called without valid project
 
     val mappedSbtOpts = SbtOpts.processArgs(sbtOptions) ++ SbtOpts.loadFrom(directory)
-    val jvmOpts = mappedSbtOpts.collect { case a: JvmOptionGlobal => a.value } ++ JvmOpts.loadFrom(directory) ++ vmOptions
+    val sbtOpts = mappedSbtOpts.collect { case a: JvmOptionGlobal => a.value }
+    val jvmOpts = JvmOpts.loadFrom(directory) ++ vmOptions
+    val combinedJvmSbtOpts = SbtOpts.combineSbtAndJvmOpts(sbtOpts, jvmOpts)
+
     val sbtLauncherOpts = mappedSbtOpts.collect { case a: SbtLauncherOption => a.value }
     val processCommandsRaw =
       List(
@@ -190,7 +193,7 @@ class SbtStructureDump {
         "-Djline.terminal=jline.UnsupportedTerminal",
         "-Dsbt.log.noformat=true",
         "-Dfile.encoding=UTF-8") ++
-      jvmOpts ++
+      combinedJvmSbtOpts ++
       List("-jar", normalizePath(sbtLauncher)) ++
       sbtLauncherOpts// :+ "--debug"
 
