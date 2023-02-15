@@ -17,7 +17,7 @@ import scala.collection.mutable
 // nonEmpty predicate
 // implicit StringBuilder?
 // indent: opaque type, implicit
-class TreePrinter(privateMembers: Boolean = false) {
+class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false) {
   private final val Indent = "  "
   private final val CompiledCode = "???"
 
@@ -392,10 +392,12 @@ class TreePrinter(privateMembers: Boolean = false) {
   // TODO keep prefixes? but those are not "relative" imports, but regular (implicit) imports of each Scala compilation unit
   private def simple(tpe: String): String = {
     if (tpe.startsWith("this.") && tpe != "this.type") return tpe.substring(5)
-    val s1 = tpe.stripPrefix("_root_.")
-    val s2 = if (!s1.stripPrefix("scala.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s1.stripPrefix("scala.") else s1
-    val s3 = if (!s2.stripPrefix("java.lang.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s2.stripPrefix("java.lang.") else s2
-    val s4 = if (!s3.stripPrefix("scala.Predef.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s3.stripPrefix("scala.Predef.") else s3
+    val s4 = if (!simpleTypes) tpe else {
+      val s1 = tpe.stripPrefix("_root_.")
+      val s2 = if (!s1.stripPrefix("scala.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s1.stripPrefix("scala.") else s1
+      val s3 = if (!s2.stripPrefix("java.lang.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s2.stripPrefix("java.lang.") else s2
+      if (!s3.stripPrefix("scala.Predef.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s3.stripPrefix("scala.Predef.") else s3
+    }
     if (s4.nonEmpty) s4 else "Nothing" // TODO Remove when all types are supported
   }
 
