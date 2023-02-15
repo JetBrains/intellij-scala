@@ -17,7 +17,7 @@ import scala.collection.mutable
 // nonEmpty predicate
 // implicit StringBuilder?
 // indent: opaque type, implicit
-class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false) {
+class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false, legacySyntax: Boolean = false) {
   private final val Indent = "  "
   private final val CompiledCode = "???"
 
@@ -244,7 +244,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false)
       // TODO enum Enum[+A] { case Case extends Enum[Nothing] }
       // TODO enum Enum[-A] { case Case extends Enum[Any] }
       if (parents.nonEmpty && !(parents.length == 1 && !parents.head.endsWith("]") && (definition.isEmpty || definition.exists(it => it.contains(ENUM) && it.contains(CASE))))) {
-        sb ++= " extends " + parents.mkString(", ")
+        sb ++= " extends " + parents.mkString(if (legacySyntax) " with " else ", ")
       }
     }
     val selfType = children.find(_.is(SELFDEF)) match {
@@ -439,7 +439,8 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false)
         val base = textOfType(constructor)
         val isInfix = base.reverseIterator.takeWhile(_ != '.').forall(!_.isLetterOrDigit) && arguments.length == 2
         if (isInfix) {
-          val s = arguments.map(it => simple(textOfType(it, parensRequired = true))).mkString(" " + simple(base) + " ")
+          val isWith = legacySyntax && base == "scala.&"
+          val s = arguments.map(it => simple(textOfType(it, parensRequired = !isWith))).mkString(" " + (if (isWith) "with" else simple(base)) + " ")
           if (parensRequired) "(" + s + ")" else s
         } else if (base == "scala.<repeated>") {
           textOfType(arguments.head, parensRequired = true) + "*" // TODO why repeated parameters in aliases are encoded differently?
@@ -479,7 +480,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false)
       case Node1(TYPEBOUNDStpt | TYPEBOUNDS) =>
         val sb1 = new StringBuilder() // TODO reuse
         boundsIn(sb1, node)
-        "?" + sb1.toString
+        if (legacySyntax) "_" else "?" + sb1.toString
 
       case Node3(LAMBDAtpt, _, children) =>
         val sb1 = new StringBuilder() // TODO reuse
