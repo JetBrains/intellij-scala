@@ -17,11 +17,11 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
   override def compile(compilationData: CompilationData, client: Client): Unit = optScalac match {
     case Some(scalac) => doCompile(compilationData, client, scalac)
     case _ =>
-      client.error(JpsBundle.message("no.scalac.found.to.compile.scala.sources", compilationData.sources.take(10).mkString("\n")))
+      client.error(CompileServerBundle.message("no.scalac.found.to.compile.scala.sources", compilationData.sources.take(10).mkString("\n")))
   }
 
   private def doCompile(compilationData: CompilationData, client: Client, scalac: ScalaCompiler): Unit = {
-    client.progress(JpsBundle.message("loading.cached.results"))
+    client.progress(CompileServerBundle.message("loading.cached.results"))
 
     val incrementalCompiler = new IncrementalCompilerImpl
 
@@ -35,7 +35,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
     val zincMetadata = CompilationMetadata.load(analysisStore, client, compilationData)
     import zincMetadata._
 
-    client.progress(JpsBundle.message("searching.for.changed.files"))
+    client.progress(CompileServerBundle.message("searching.for.changed.files"))
 
     val progress = getProgress(client, compilationData.sources.size)
     val reporter = getReporter(client)
@@ -85,7 +85,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
     )
 
     val compilationResult = Try {
-      client.progress(JpsBundle.message("collecting.incremental.compiler.data"))
+      client.progress(CompileServerBundle.message("collecting.incremental.compiler.data"))
       val result: CompileResult = incrementalCompiler.compile(inputs, logger)
 
       if (result.hasModified || cacheDetails.isCached) {
@@ -127,7 +127,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
         // Keep files dirty
         compilationData.zincData.allSources.foreach(source => client.sourceStarted(source.getAbsolutePath))
 
-        val msg = JpsBundle.message("compilation.failed.when.compiling", compilationData.output, e.getMessage, e.getStackTrace.mkString("\n  "))
+        val msg = CompileServerBundle.message("compilation.failed.when.compiling", compilationData.output, e.getMessage, e.getStackTrace.mkString("\n  "))
         client.error(msg, None)
     }
 
