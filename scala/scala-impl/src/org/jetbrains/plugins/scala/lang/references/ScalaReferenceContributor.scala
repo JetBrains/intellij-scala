@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScPsiDocToken
 
 import scala.collection.mutable.ListBuffer
@@ -46,17 +46,18 @@ private final class InterpolatedStringReferenceProvider extends PsiReferenceProv
     case _: ScInterpolatedStringLiteral => EMPTY_ARRAY
     case literal: ScLiteral if literal.isString && literal.textContains('$') => // TODO remove this hack
       try {
-        val interpolated = createExpressionWithContextFromText("s" + literal.getText, literal.getContext)
-          .asInstanceOf[ScInterpolatedStringLiteral]
-
-        for {
-          child <- interpolated.getInjections.toArray
-          if child.isInstanceOf[ScReferenceExpression]
-        } yield new InterpolatedStringPsiReference(
-          child.asInstanceOf[ScReferenceExpression],
-          literal,
-          interpolated
-        )
+        createExpressionWithContextFromText("s" + literal.getText, literal.getContext) match {
+          case interpolated: ScInterpolatedStringLiteral =>
+            for {
+              child <- interpolated.getInjections.toArray
+              if child.is[ScReferenceExpression]
+            } yield new InterpolatedStringPsiReference(
+              child.asInstanceOf[ScReferenceExpression],
+              literal,
+              interpolated
+            )
+          case _ => EMPTY_ARRAY
+        }
       } catch {
         case _: IncorrectOperationException => EMPTY_ARRAY
       }
@@ -128,4 +129,3 @@ private object ScalaFilePathReferenceProvider {
     ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING
   )
 }
-
