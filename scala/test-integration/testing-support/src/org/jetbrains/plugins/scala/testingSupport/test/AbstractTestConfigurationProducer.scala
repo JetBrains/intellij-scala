@@ -116,7 +116,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   @NlsSafe
   protected def configurationName(contextInfo: CreateFromContextInfo): String
 
-  protected def getContextInfo(location: PsiElementLocation): Option[CreateFromContextInfo] = {
+  private def getContextInfo(location: PsiElementLocation): Option[CreateFromContextInfo] = {
     val psiElement = location.getPsiElement
     if (psiElement.is[PsiPackage, PsiDirectory])
       getTestPackageWithPackageName(location)
@@ -124,11 +124,14 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
       getTestClassWithTestName(location)
   }
 
-  protected def getTestPackageWithPackageName(location: PsiElementLocation): Option[CreateFromContextInfo.AllInPackage] =
+  private def getTestPackageWithPackageName(location: PsiElementLocation): Option[CreateFromContextInfo.AllInPackage] =
     location.getPsiElement match {
-      case dir: PsiDirectory => Option(AbstractJavaTestConfigurationProducer.checkPackage(dir)).map(p => AllInPackage(p, dir.name))
-      case pack: PsiPackage  => Some(AllInPackage(pack, pack.name))
-      case _                 => None
+      case dir: PsiDirectory =>
+        Option(AbstractJavaTestConfigurationProducer.checkPackage(dir)).map(p => AllInPackage(p, dir.name))
+      case pack: PsiPackage  =>
+        Some(AllInPackage(pack, pack.name))
+      case _ =>
+        None
     }
 
   def getTestClassWithTestName(location: PsiElementLocation): Option[ClassWithTestName]
