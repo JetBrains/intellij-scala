@@ -71,6 +71,7 @@ lazy val scalaCommunity: sbt.Project =
       packageAdditionalProjects := Seq(
         jps,
         compilerJps,
+        compileServer,
         nailgunRunners,
         copyrightIntegration,
         packageSearchIntegration,
@@ -289,9 +290,18 @@ lazy val debugger =
     )
     .withCompilerPluginIn(scalacPatches)
 
+lazy val compileServer =
+  newProject("compile-server", file("scala/compile-server"))
+    .dependsOn(compilerShared, repackagedZinc, worksheetReplInterface)
+    .settings(
+      Compile / javacOptions := outOfIDEAProcessJavacOptions,
+      Compile / scalacOptions := outOfIDEAProcessScalacOptions,
+      packageMethod := PackagingMethod.Standalone("lib/jps/compile-server.jar", static = true)
+    )
+
 lazy val compilerJps =
   newProject("compiler-jps", file("scala/compiler-jps"))
-    .dependsOn(compilerShared, jps, repackagedZinc, worksheetReplInterface)
+    .dependsOn(jps, compileServer)
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,

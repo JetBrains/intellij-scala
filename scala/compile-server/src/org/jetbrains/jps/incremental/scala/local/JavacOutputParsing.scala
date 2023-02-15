@@ -1,14 +1,12 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import java.io.File
-
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.local.JavacOutputParsing._
 import xsbti.Logger
+
+import java.io.File
 import java.util.function.Supplier
-
-import org.jetbrains.jps.incremental.scala.Client.PosInfo
-
 import scala.util.matching.Regex
 
 trait JavacOutputParsing extends Logger {
