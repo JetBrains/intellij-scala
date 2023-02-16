@@ -10,11 +10,6 @@ import java.net.{InetAddress, SocketException, SocketTimeoutException, UnknownHo
 import java.nio.file.Paths
 import scala.concurrent.duration.FiniteDuration
 
-// TODO: this class can only be used in the JPS process, not in the Scala Compile Server process
-//  we should split compiler-jps module into several modules:
-//  1. classes which can be used only in JPS process
-//  2. classes which can be used only in CS process
-//  3. classes which can be used in both JPS and CS processes
 final class RemoteServer(
                           override val address: InetAddress,
                           override val port: Int,
