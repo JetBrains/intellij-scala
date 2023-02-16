@@ -21,7 +21,7 @@ import scala.collection.concurrent.TrieMap
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
-@Service
+@Service(Array(Service.Level.PROJECT))
 private[scala] final class TriggerCompilerHighlightingService(project: Project) extends Disposable {
 
   import TriggerCompilerHighlightingService._

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import scala.collection.mutable
 import scala.ref.Reference
 
-@Service
+@Service(Array(Service.Level.PROJECT))
 final class WorksheetSyntheticModuleService(project: Project) {
 
   private val modulesMap = mutable.HashMap[VirtualFile, WorksheetSyntheticModule]()

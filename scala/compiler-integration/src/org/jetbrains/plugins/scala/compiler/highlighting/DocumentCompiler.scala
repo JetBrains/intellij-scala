@@ -19,7 +19,7 @@ import java.nio.file.{Files, Path}
 import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-@Service
+@Service(Array(Service.Level.PROJECT))
 private final class DocumentCompiler(project: Project) extends Disposable {
 
   private val outputDirectories = new ConcurrentHashMap[Module, File]
