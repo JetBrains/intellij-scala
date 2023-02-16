@@ -376,6 +376,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
    *       It's primarily designed to work in Scala Plugin project.
    *       It doesnt work in case there are more nested projects.
    *       For that case a more general solution is needed, but it would be nice to have more project examples
+   *
+   * @todo Actually, looks like this workaround is not correct.<br>
+   *       By default, definitions in nested project can't be accessed from containing project.
+   *       The reason why in `ultimateRoot/build.sbt` we can see definitions from `ultimateRoot/community/proejct`
+   *       is because we explicitly add unmanaged sources in `ultimateRoot/project/build.sbt`: {{{
+   *         Compile / unmanagedSourceDirectories += baseDirectory.value.getParentFile / "community" / "project"
+   *       }}}<br>
+   *       See also https://youtrack.jetbrains.com/issue/SCL-13573/Apply-shared-external-source-directory-logic-for-sbt-build-modules
    */
   private def configureBuildModuleDependencies(buildModules: Seq[BuildModuleNodeWithBuildBaseDir]): Unit = {
     if (buildModules.size == 2) {
