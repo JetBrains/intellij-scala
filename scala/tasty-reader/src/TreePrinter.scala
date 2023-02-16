@@ -364,26 +364,34 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
           sb ++= "val "
         }
       }
-      val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
-      if (!isAnonymousGiven) {
-        val nameId = id(name)
-        sb ++= nameId
-        if (needsSpace(nameId)) {
-          sb ++= " "
-        }
-        sb ++= ": "
-      }
       val tpe = children.headOption
       tpe match {
-        case Some(t) =>
-          sb ++= simple(textOfType(t))
-        case None =>
-          sb ++= simple("") // TODO implement
-      }
-      val isDeclaration = children.drop(1).forall(_.isModifier)
-      if (!isDeclaration) {
-        sb ++= " = "
-        sb ++= CompiledCode
+        case Some(const @ Node1(UNITconst | TRUEconst | FALSEconst | BYTEconst | SHORTconst | INTconst | LONGconst | FLOATconst | DOUBLEconst | CHARconst | STRINGconst | NULLconst)) =>
+          val nameId = id(name)
+          sb ++= nameId
+          sb ++= " = "
+          sb ++= textOfConstant(const)
+        case _ =>
+          val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
+          if (!isAnonymousGiven) {
+            val nameId = id(name)
+            sb ++= nameId
+            if (needsSpace(nameId)) {
+              sb ++= " "
+            }
+            sb ++= ": "
+          }
+          tpe match {
+            case Some(t) =>
+              sb ++= simple(textOfType(t))
+            case None =>
+              sb ++= simple("") // TODO implement
+          }
+          val isDeclaration = children.drop(1).forall(_.isModifier)
+          if (!isDeclaration) {
+            sb ++= " = "
+            sb ++= CompiledCode
+          }
       }
     }
   }
@@ -416,7 +424,6 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       case Node3(SINGLETONtpt, _, Seq(tail)) =>
         val literal = textOfConstant(tail)
         if (literal.nonEmpty) literal else textOfType(tail) + (if (tail.is(TERMREF)) "" else ".type")
-      case const @ Node1(UNITconst | TRUEconst | FALSEconst | BYTEconst | SHORTconst | INTconst | LONGconst | FLOATconst | DOUBLEconst | CHARconst | STRINGconst | NULLconst) => textOfConstant(const)
       case Node3(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
       case Node3(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + name + // TODO why there's "package" in some cases?
           (if (parent.forall(_.is(SINGLETONtpt))) ".type" else "") // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
