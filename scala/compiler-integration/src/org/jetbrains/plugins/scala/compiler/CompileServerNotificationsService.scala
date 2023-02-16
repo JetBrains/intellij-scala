@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHi
 
 import scala.concurrent.duration.DurationLong
 
-@Service
+@Service(Array(Service.Level.PROJECT))
 final class CompileServerNotificationsService(project: Project) {
 
   private val title = CompilerIntegrationBundle.message("scala.compile.server.title")

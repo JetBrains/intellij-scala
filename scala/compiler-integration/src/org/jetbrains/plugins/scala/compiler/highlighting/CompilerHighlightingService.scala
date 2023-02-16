@@ -38,7 +38,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 import scala.util.Try
 
-@Service
+@Service(Array(Service.Level.PROJECT))
 private final class CompilerHighlightingService(project: Project) extends Disposable {
 
   import CompilerHighlightingService._

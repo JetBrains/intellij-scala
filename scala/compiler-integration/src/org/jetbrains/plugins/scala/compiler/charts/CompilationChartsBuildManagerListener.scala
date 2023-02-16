@@ -43,7 +43,7 @@ class CompilationChartsBuildManagerListener
   }
 }
 
-@Service
+@Service(Array(Service.Level.PROJECT))
 private final class CompilationChartsUpdater(project: Project)
   extends ScheduledService(1.seconds) {
 
