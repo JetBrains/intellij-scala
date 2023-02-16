@@ -836,7 +836,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
   }
 
   private def id(s: String): String = {
-    val quoted = Keywords(s) || (!s.startsWith("@") && s.headOption.exists(!_.isLetter) && s.exists(_.isLetter) || s.contains(' '))
+    val quoted = Keywords(s) || (!s.startsWith("@") && s.headOption.exists(c => !c.isLetter && c != '_') && s.exists(_.isLetter) || s.contains(' '))
     if (quoted) "`" + s + "`" else s
   }
 
