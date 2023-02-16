@@ -693,7 +693,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
                 case _                                 => ""
               }
           val base = res.stripPrefix("<empty>.")
-          val isInfix = base.nonEmpty && base.reverseIterator.takeWhile(_ != '.').forall(!_.isLetterOrDigit) && typeArgs.length == 2
+          val isInfix = base.nonEmpty && base.forall(!_.isLetterOrDigit) && typeArgs.length == 2
           val result = if (isInfix) {
             val s = typeArgs.map(toStringParensRequired(_, level)).mkString(" " + base + " ")
             if (parensRequired) "(" + s + ")" else s

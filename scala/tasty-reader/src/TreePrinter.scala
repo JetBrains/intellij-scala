@@ -444,10 +444,11 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => name
       case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments: _*)) =>
         val base = textOfType(constructor)
-        val isInfix = base.reverseIterator.takeWhile(_ != '.').forall(!_.isLetterOrDigit) && arguments.length == 2
+        val simpleBase = simple(base)
+        val isInfix = simpleBase.forall(!_.isLetterOrDigit) && arguments.length == 2
         if (isInfix) {
           val isWith = legacySyntax && base == "scala.&"
-          val s = arguments.map(it => simple(textOfType(it, parensRequired = !isWith))).mkString(" " + (if (isWith) "with" else simple(base)) + " ")
+          val s = arguments.map(it => simple(textOfType(it, parensRequired = !isWith))).mkString(" " + (if (isWith) "with" else simpleBase) + " ")
           if (parensRequired) "(" + s + ")" else s
         } else if (base == "scala.<repeated>") {
           textOfType(arguments.head, parensRequired = true) + "*" // TODO why repeated parameters in aliases are encoded differently?
@@ -458,7 +459,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
           val s = (if (arguments.length == 2) simple(textOfType(arguments.head, parensRequired = true)) else arguments.init.map(it => simple(textOfType(it))).mkString("(", ", ", ")")) + arrow + simple(textOfType(arguments.last))
           if (parensRequired) "(" + s + ")" else s
         } else {
-          simple(base) + "[" + arguments.map(it => simple(textOfType(it))).mkString(", ") + "]"
+          simpleBase + "[" + arguments.map(it => simple(textOfType(it))).mkString(", ") + "]"
         }
       case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
         annotation match {

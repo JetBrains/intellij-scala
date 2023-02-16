@@ -24,4 +24,10 @@ trait Infix {
   trait C extends (Int * Long)
 
   def method(xs: (Int * Long)*): Unit
+
+  object O {
+    class /[A, B]
+  }
+
+  type T8 = Infix.this.O./[Int, Long]
 }
