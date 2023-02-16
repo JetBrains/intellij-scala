@@ -94,11 +94,11 @@ object Main {
       new JarInputStream(new BufferedInputStream(new FileInputStream(Repository + "/" + binaries))).pipe { in =>
         Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".class")).foreach { entry =>
           val file = new File(s"$OutputDir/${entry.getName}")
+          val fileName = entry.getName.split('/').last
           val path = Paths.get(file.getPath.replaceFirst("\\.class$", ".scala"))
           mode match {
             case Mode.Parse =>
               file.getParentFile.mkdirs()
-              val fileName = entry.getName.split('/').last
               Decompiler.sourceNameAndText(fileName, in.readAllBytes()) match {
                 case Some((_, text)) => Files.write(path, text.getBytes)
                 case None =>
@@ -106,7 +106,7 @@ object Main {
             case Mode.Test =>
               if (path.toFile.exists()) { // Inner classes don't have separate source files
                 val expected = new String(Files.readAllBytes(path))
-                Decompiler.sourceNameAndText(entry.getName, in.readAllBytes()) match {
+                Decompiler.sourceNameAndText(fileName, in.readAllBytes()) match {
                   case Some((_, actual)) =>
                     val actualPath = Path.of(path.toString.replaceFirst("\\.scala$", ".actual.scala"))
                     if (expected != actual) {

@@ -10,4 +10,6 @@ trait Tuple {
   type T2 = (Int, Long)
 
   type T3 = (Int, Long, Unit)
+
+  def repeated(xs: (Int, Long)*): Unit
 }

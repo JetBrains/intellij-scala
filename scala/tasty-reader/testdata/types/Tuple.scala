@@ -12,4 +12,6 @@ trait Tuple {
   type T3 = (Int, Long, Unit)
 
   type T4 = scala.Tuple.Size[(Int, Long)]
+
+  def repeated(xs: (Int, Long)*): Unit
 }

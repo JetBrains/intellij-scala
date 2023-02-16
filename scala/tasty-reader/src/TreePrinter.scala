@@ -210,7 +210,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
     val isInEnum = definition.exists(_.contains(ENUM))
     val isInCaseClass = !isInEnum && definition.exists(_.contains(CASE))
-    def textOf(tpe: Node): String = textOfType(tpe, parensRequired = true)
+    def textOf(tpe: Node): String = textOfType(tpe, parens = 1)
     // TODO recursive textOf method, common syntactic sugar for FunctionN and TupleN
     val parents = children.collect { // TODO rely on name kind
       case node if node.isTypeTree => textOf(node)
@@ -409,7 +409,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     if (s4.nonEmpty) s4 else "Nothing" // TODO Remove when all types are supported
   }
 
-  private def textOfType(node: Node, parensRequired: Boolean = false)(using parent: Option[Node] = None): String = {
+  private def textOfType(node: Node, parens: Int = 0)(using parent: Option[Node] = None): String = {
     if (node.isSharedType) {
       sharedTypes.get(node.addr) match {
         case Some(text) =>
@@ -448,23 +448,24 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
         val isInfix = simpleBase.forall(!_.isLetterOrDigit) && arguments.length == 2
         if (isInfix) {
           val isWith = legacySyntax && base == "scala.&"
-          val s = arguments.map(it => simple(textOfType(it, parensRequired = !isWith))).mkString(" " + (if (isWith) "with" else simpleBase) + " ")
-          if (parensRequired) "(" + s + ")" else s
+          val s = arguments.map(it => simple(textOfType(it, parens = if (isWith) 0 else 1))).mkString(" " + (if (isWith) "with" else simpleBase) + " ")
+          if (parens > 0) "(" + s + ")" else s
         } else if (base == "scala.<repeated>") {
-          textOfType(arguments.head, parensRequired = true) + "*" // TODO why repeated parameters in aliases are encoded differently?
+          textOfType(arguments.head, parens = 1) + "*" // TODO why repeated parameters in aliases are encoded differently?
         } else if (base.startsWith("scala.Tuple") && base != "scala.Tuple1" && !base.substring(11).contains(".")) { // TODO use regex
-          arguments.map(it => simple(textOfType(it))).mkString("(", ", ", ")")
+          val s = arguments.map(it => simple(textOfType(it))).mkString("(", ", ", ")")
+          if (parens > 1) "(" + s + ")" else s
         } else if (base.startsWith("scala.Function") || base.startsWith("scala.ContextFunction")) {
           val arrow = if (base.startsWith("scala.Function")) " => " else " ?=> "
-          val s = (if (arguments.length == 2) simple(textOfType(arguments.head, parensRequired = true)) else arguments.init.map(it => simple(textOfType(it))).mkString("(", ", ", ")")) + arrow + simple(textOfType(arguments.last))
-          if (parensRequired) "(" + s + ")" else s
+          val s = (if (arguments.length == 2) simple(textOfType(arguments.head, parens = 2)) else arguments.init.map(it => simple(textOfType(it))).mkString("(", ", ", ")")) + arrow + simple(textOfType(arguments.last))
+          if (parens > 0) "(" + s + ")" else s
         } else {
           simpleBase + "[" + arguments.map(it => simple(textOfType(it))).mkString(", ") + "]"
         }
       case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
         annotation match {
           case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe0, _: _*)), _: _*)), _: _*)) =>
-            if (textOfType(tpe0) == "scala.annotation.internal.Repeated") textOfType(tpe.children(1), parensRequired = true) + "*"
+            if (textOfType(tpe0) == "scala.annotation.internal.Repeated") textOfType(tpe.children(1), parens = 1) + "*"
             else textOfType(tpe) + " " + "@" + simple(textOfType(tpe0)) + {
               val args = annotation.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ")
               if (args.nonEmpty) "(" + args + ")" else ""
@@ -504,7 +505,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
           val params = valueParams.flatMap(_.children.headOption.map(tpe => simple(textOfType(tpe)))).mkString(", ")
           if (valueParams.length == 1) params else "(" + params + ")"
         } + " => " + tails2.headOption.map(tpe => simple(textOfType(tpe))).getOrElse("")
-        if (parensRequired) "(" + s + ")" else s
+        if (parens > 0) "(" + s + ")" else s
       case Node3(REFINEDtpt, _, Seq(tpe, members: _*)) =>
         val prefix = textOfType(tpe)
         (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(it => { val sb = new StringBuilder(); textOfMember(sb, "", it); sb.toString }).mkString("; ") + " }" // TODO use sb directly
