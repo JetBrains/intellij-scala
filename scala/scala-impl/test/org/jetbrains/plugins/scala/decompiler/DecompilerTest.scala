@@ -16,7 +16,7 @@ trait DecompilerTestBase extends TestCase {
     val classFilePath = getClassFilePath(fileName, getName)
     val expectedFilePath: String = classFilePath + ".test"
 
-    val expectedResult = new File(new jFile(expectedFilePath))(Codec.UTF8).slurp().replace("\r","")
+    val expectedResult = new File(new jFile(expectedFilePath))(Codec.UTF8).slurp().replace("\r","").trim
 
     Assert.assertEquals(expectedResult, decompile(classFilePath))
   }

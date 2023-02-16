@@ -12,9 +12,9 @@ object TestConfig {
 
     def +(key: distage.DIKey): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
-    def +(axisKey: scala.Tuple2[izumi.distage.model.definition.Axis.AxisChoice, distage.DIKey]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
+    def +(axisKey: (izumi.distage.model.definition.Axis.AxisChoice, distage.DIKey)): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
-    def +(setAxisKey: scala.Tuple2[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], distage.DIKey])(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
+    def +(setAxisKey: (_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], distage.DIKey))(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
   }
 
   object AxisDIKeys {
@@ -24,16 +24,16 @@ object TestConfig {
     implicit def fromSet(set: _root_.scala.Predef.Set[`?$2`] forSome {type `?$2` <: distage.DIKey}): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
     @scala.inline
-    implicit def fromSetMap(map: scala.Iterable[scala.Tuple2[_root_.scala.Predef.Set[`?$3`] forSome {type `?$3` <: izumi.distage.model.definition.Axis.AxisChoice}, _root_.scala.Predef.Set[`?$4`] forSome {type `?$4` <: distage.DIKey}]]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
+    implicit def fromSetMap(map: scala.Iterable[(_root_.scala.Predef.Set[`?$3`] forSome {type `?$3` <: izumi.distage.model.definition.Axis.AxisChoice}, _root_.scala.Predef.Set[`?$4`] forSome {type `?$4` <: distage.DIKey})]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
     @scala.inline
-    implicit def fromSingleMap(map: scala.Iterable[scala.Tuple2[izumi.distage.model.definition.Axis.AxisChoice, distage.DIKey]]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
+    implicit def fromSingleMap(map: scala.Iterable[(izumi.distage.model.definition.Axis.AxisChoice, distage.DIKey)]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
     @scala.inline
-    implicit def fromSingleToSetMap(map: scala.Iterable[scala.Tuple2[izumi.distage.model.definition.Axis.AxisChoice, _root_.scala.Predef.Set[`?$5`] forSome {type `?$5` <: distage.DIKey}]]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
+    implicit def fromSingleToSetMap(map: scala.Iterable[(izumi.distage.model.definition.Axis.AxisChoice, _root_.scala.Predef.Set[`?$5`] forSome {type `?$5` <: distage.DIKey})]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
     @scala.inline
-    implicit def fromSetToSingleMap(map: scala.Iterable[scala.Tuple2[_root_.scala.Predef.Set[`?$6`] forSome {type `?$6` <: izumi.distage.model.definition.Axis.AxisChoice}, distage.DIKey]]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
+    implicit def fromSetToSingleMap(map: scala.Iterable[(_root_.scala.Predef.Set[`?$6`] forSome {type `?$6` <: izumi.distage.model.definition.Axis.AxisChoice}, distage.DIKey)]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
     final def getActiveKeys$extension($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(activation: distage.Activation): _root_.scala.Predef.Set[distage.DIKey] = ???
 
@@ -41,9 +41,9 @@ object TestConfig {
 
     final def `+$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(key: distage.DIKey): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
-    final def `+$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(axisKey: scala.Tuple2[izumi.distage.model.definition.Axis.AxisChoice, distage.DIKey]): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
+    final def `+$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(axisKey: (izumi.distage.model.definition.Axis.AxisChoice, distage.DIKey)): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
 
-    final def `+$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(setAxisKey: scala.Tuple2[_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], distage.DIKey])(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
+    final def `+$extension`($this: izumi.distage.testkit.TestConfig.AxisDIKeys)(setAxisKey: (_root_.scala.Predef.Set[izumi.distage.model.definition.Axis.AxisChoice], distage.DIKey))(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.AxisDIKeys = ???
   }
 
   final case class PriorAxisDIKeys(keys: _root_.scala.Predef.Map[scala.Int, izumi.distage.testkit.TestConfig.AxisDIKeys]) extends scala.AnyVal {
@@ -51,11 +51,11 @@ object TestConfig {
 
     def ++(that: izumi.distage.testkit.TestConfig.AxisDIKeys)(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    def ++[A](elem: scala.Tuple2[scala.Int, A])(implicit toAxisDIKeys: scala.Function1[A, izumi.distage.testkit.TestConfig.AxisDIKeys]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
+    def ++[A](elem: (scala.Int, A))(implicit toAxisDIKeys: A => izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     def +(key: distage.DIKey): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    def +(priorKey: scala.Tuple2[scala.Int, distage.DIKey]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
+    def +(priorKey: (scala.Int, distage.DIKey)): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     def addToLevel(level: scala.Int, keys: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
   }
@@ -72,20 +72,20 @@ object TestConfig {
     implicit def fromPriorSet(map: _root_.scala.Predef.Map[scala.Int, _root_.scala.Predef.Set[`?$8`] forSome {type `?$8` <: distage.DIKey}]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     @scala.inline
-    implicit def fromAxisDIKeys[A](set: A)(implicit toAxisDIKeys: scala.Function1[A, izumi.distage.testkit.TestConfig.AxisDIKeys]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
+    implicit def fromAxisDIKeys[A](set: A)(implicit toAxisDIKeys: A => izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     @scala.inline
-    implicit def fromPriorAxisDIKeys[A](map: _root_.scala.Predef.Map[scala.Int, A])(implicit toAxisDIKeys: scala.Function1[A, izumi.distage.testkit.TestConfig.AxisDIKeys]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
+    implicit def fromPriorAxisDIKeys[A](map: _root_.scala.Predef.Map[scala.Int, A])(implicit toAxisDIKeys: A => izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     final def `++$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(that: izumi.distage.testkit.TestConfig.PriorAxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     final def `++$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(that: izumi.distage.testkit.TestConfig.AxisDIKeys)(implicit d: scala.DummyImplicit): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    final def `++$extension`[A]($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(elem: scala.Tuple2[scala.Int, A])(implicit toAxisDIKeys: scala.Function1[A, izumi.distage.testkit.TestConfig.AxisDIKeys]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
+    final def `++$extension`[A]($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(elem: (scala.Int, A))(implicit toAxisDIKeys: A => izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     final def `+$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(key: distage.DIKey): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
-    final def `+$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(priorKey: scala.Tuple2[scala.Int, distage.DIKey]): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
+    final def `+$extension`($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(priorKey: (scala.Int, distage.DIKey)): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
 
     final def addToLevel$extension($this: izumi.distage.testkit.TestConfig.PriorAxisDIKeys)(level: scala.Int, keys: izumi.distage.testkit.TestConfig.AxisDIKeys): izumi.distage.testkit.TestConfig.PriorAxisDIKeys = ???
   }

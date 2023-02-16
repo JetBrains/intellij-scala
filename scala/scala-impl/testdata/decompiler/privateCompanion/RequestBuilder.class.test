@@ -9,7 +9,7 @@ class RequestBuilder[HasUrl, HasForm] private[http] (config: com.twitter.finagle
 
   def url(u: java.net.URL): com.twitter.finagle.http.RequestBuilder[com.twitter.finagle.http.RequestBuilder.Valid, HasForm] = ???
 
-  def addFormElement(kv: scala.Tuple2[_root_.scala.Predef.String, _root_.scala.Predef.String]*): com.twitter.finagle.http.RequestBuilder[HasUrl, com.twitter.finagle.http.RequestBuilder.Valid] = ???
+  def addFormElement(kv: (_root_.scala.Predef.String, _root_.scala.Predef.String)*): com.twitter.finagle.http.RequestBuilder[HasUrl, com.twitter.finagle.http.RequestBuilder.Valid] = ???
 
   def add(elem: com.twitter.finagle.http.FormElement): com.twitter.finagle.http.RequestBuilder[HasUrl, com.twitter.finagle.http.RequestBuilder.Valid] = ???
 

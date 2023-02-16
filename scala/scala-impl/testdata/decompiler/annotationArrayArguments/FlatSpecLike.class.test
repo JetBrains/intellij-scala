@@ -1,6 +1,6 @@
 package org.scalatest
 
-@org.scalatest.Finders(value = Array("org.scalatest.finders.FlatSpecFinder"))
+@org.scalatest.Finders(value = scala.Array("org.scalatest.finders.FlatSpecFinder"))
 trait FlatSpecLike extends org.scalatest.Suite with org.scalatest.words.ShouldVerb with org.scalatest.words.MustVerb with org.scalatest.words.CanVerb with org.scalatest.Informing with org.scalatest.Notifying with org.scalatest.Alerting with org.scalatest.Documenting {
   protected def info: org.scalatest.Informer = ???
 
@@ -124,15 +124,15 @@ trait FlatSpecLike extends org.scalatest.Suite with org.scalatest.words.ShouldVe
 
   protected implicit def convertToInAndIgnoreMethodsAfterTaggedAs(resultOfTaggedAsInvocation: org.scalatest.words.ResultOfTaggedAsInvocation): FlatSpecLike.this.InAndIgnoreMethodsAfterTaggedAs = ???
 
-  protected implicit val shorthandTestRegistrationFunction: scala.Function3[scala.Predef.String, scala.Predef.String, scala.Predef.String, org.scalatest.words.ResultOfStringPassedToVerb] = ???
+  protected implicit val shorthandTestRegistrationFunction: (scala.Predef.String, scala.Predef.String, scala.Predef.String) => org.scalatest.words.ResultOfStringPassedToVerb = ???
 
-  protected implicit val shorthandSharedTestRegistrationFunction: scala.Function1[scala.Predef.String, org.scalatest.words.BehaveWord] = ???
+  protected implicit val shorthandSharedTestRegistrationFunction: scala.Predef.String => org.scalatest.words.BehaveWord = ???
 
   override def tags: scala.Predef.Map[scala.Predef.String, scala.Predef.Set[scala.Predef.String]] = ???
 
-  protected override def runTest(testName: scala.Predef.String, args: org.scalatest.Args): org.scalatest.Status = ???
+  override protected def runTest(testName: scala.Predef.String, args: org.scalatest.Args): org.scalatest.Status = ???
 
-  protected override def runTests(testName: scala.Option[scala.Predef.String], args: org.scalatest.Args): org.scalatest.Status = ???
+  override protected def runTests(testName: scala.Option[scala.Predef.String], args: org.scalatest.Args): org.scalatest.Status = ???
 
   override def testNames: scala.Predef.Set[scala.Predef.String] = ???
 
@@ -140,7 +140,7 @@ trait FlatSpecLike extends org.scalatest.Suite with org.scalatest.words.ShouldVe
 
   protected val behave: org.scalatest.words.BehaveWord = ???
 
-  final override val styleName: scala.Predef.String = ???
+  override final val styleName: scala.Predef.String = ???
 
   override def testDataFor(testName: scala.Predef.String, theConfigMap: org.scalatest.ConfigMap = ???): org.scalatest.TestData = ???
 }

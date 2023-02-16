@@ -71,7 +71,7 @@ private[process] trait ProcessBuilderImpl { this: scala.sys.process.ProcessBuild
     override def hasExitValue: scala.Boolean = ???
   }
 
-  private[process] abstract class ThreadBuilder(override val toString: scala.Predef.String, runImpl: scala.Function1[scala.sys.process.ProcessIO, scala.Unit]) extends ProcessBuilderImpl.this.AbstractBuilder {
+  private[process] abstract class ThreadBuilder(override val toString: scala.Predef.String, runImpl: scala.sys.process.ProcessIO => scala.Unit) extends ProcessBuilderImpl.this.AbstractBuilder {
     override def run(io: scala.sys.process.ProcessIO): scala.sys.process.Process = ???
   }
 
