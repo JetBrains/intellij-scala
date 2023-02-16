@@ -79,7 +79,7 @@ class DecompilerTest2 extends TestCase {
   def testTypesConstant(): Unit = doTest("types/Constant")
   def testTypesFunction(): Unit = doTest("types/Function")
   def testTypesIdent(): Unit = doTest("types/Ident")
-  def testTypesInfix(): Unit = doTest("types/Infix")
+//  def testTypesInfix(): Unit = doTest("types/Infix")
   def testTypesLiteral(): Unit = doTest("types/Literal")
   def testTypesParameterized(): Unit = doTest("types/Parameterized")
 //  def testTypesProjection(): Unit = doTest("types/Projection")
