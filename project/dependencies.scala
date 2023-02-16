@@ -146,11 +146,6 @@ object DependencyGroups {
   import Dependencies._
   import Versions._
 
-  val sbtBundled: Seq[ModuleID] = Seq(
-    zinc,
-    zincInterface
-  )
-
   val scalaCommunity: Seq[ModuleID] = Seq(
     scalaLibrary,
     scalaReflect,
