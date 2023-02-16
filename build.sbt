@@ -330,7 +330,8 @@ lazy val compilerShared =
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       libraryDependencies ++= Seq(Dependencies.nailgun),
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
-      packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true)
+      packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true),
+      intellijPlugins := Seq.empty
     )
 
 lazy val jps =
