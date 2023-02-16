@@ -34,6 +34,8 @@ object Main {
   // libraryDependencies += "org.typelevel" %% "cats-core" % "2.8.0",
   // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.14",
 
+  // libraryDependencies += "co.fs2" %% "fs2-core" % "3.6.1",
+
   // libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.13.9",
 
   // libraryDependencies += "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
@@ -47,8 +49,18 @@ object Main {
     "org/scala-lang/scala-compiler/2.13.9/scala-compiler-2.13.9.jar",
 
     "org/scalatest/scalatest-core_2.13/3.2.14/scalatest-core_2.13-3.2.14.jar",
+    "org/scalatest/scalatest-diagrams_2.13/3.2.14/scalatest-diagrams_2.13-3.2.14.jar",
+    "org/scalatest/scalatest-featurespec_2.13/3.2.14/scalatest-featurespec_2.13-3.2.14.jar",
+    "org/scalatest/scalatest-flatspec_2.13/3.2.14/scalatest-flatspec_2.13-3.2.14.jar",
+    "org/scalatest/scalatest-freespec_2.13/3.2.14/scalatest-freespec_2.13-3.2.14.jar",
     "org/scalatest/scalatest-funspec_2.13/3.2.14/scalatest-funspec_2.13-3.2.14.jar",
     "org/scalatest/scalatest-funsuite_2.13/3.2.14/scalatest-funsuite_2.13-3.2.14.jar",
+    "org/scalatest/scalatest-matchers-core_2.13/3.2.14/scalatest-matchers-core_2.13-3.2.14.jar",
+    "org/scalatest/scalatest-mustmatchers_2.13/3.2.14/scalatest-mustmatchers_2.13-3.2.14.jar",
+    "org/scalatest/scalatest-propspec_2.13/3.2.14/scalatest-propspec_2.13-3.2.14.jar",
+    "org/scalatest/scalatest-refspec_2.13/3.2.14/scalatest-refspec_2.13-3.2.14.jar",
+    "org/scalatest/scalatest-shouldmatchers_2.13/3.2.14/scalatest-shouldmatchers_2.13-3.2.14.jar",
+    "org/scalatest/scalatest-wordspec_2.13/3.2.14/scalatest-wordspec_2.13-3.2.14.jar",
 
     "org/scalactic/scalactic_2.13/3.2.14/scalactic_2.13-3.2.14.jar",
 
@@ -63,10 +75,13 @@ object Main {
     "org/typelevel/cats-effect-kernel_2.13/3.3.14/cats-effect-kernel_2.13-3.3.14.jar",
     "org/typelevel/cats-effect-std_2.13/3.3.14/cats-effect-std_2.13-3.3.14.jar",
 
+    "co/fs2/fs2-core_2.13/3.6.1/fs2-core_2.13-3.6.1.jar",
+
     "io/getquill/quill-sql_2.13/4.6.0/quill-sql_2.13-4.6.0.jar",
     "io/getquill/quill-jdbc-zio_2.13/4.6.0/quill-jdbc-zio_2.13-4.6.0.jar",
 
     "org/tpolecat/doobie-core_2.13/1.0.0-RC1/doobie-core_2.13-1.0.0-RC1.jar",
+    "org/tpolecat/doobie-free_2.13/1.0.0-RC1/doobie-free_2.13-1.0.0-RC1.jar",
   )
 
   def main(args: Array[String]): Unit = {
@@ -83,7 +98,8 @@ object Main {
           mode match {
             case Mode.Parse =>
               file.getParentFile.mkdirs()
-              Decompiler.sourceNameAndText(entry.getName, in.readAllBytes()) match {
+              val fileName = entry.getName.split('/').last
+              Decompiler.sourceNameAndText(fileName, in.readAllBytes()) match {
                 case Some((_, text)) => Files.write(path, text.getBytes)
                 case None =>
               }
