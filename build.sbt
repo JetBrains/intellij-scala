@@ -306,10 +306,8 @@ lazy val compilerJps =
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/jps/compiler-jps.jar", static = true),
-      libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.zincInterface, Dependencies.scalaParallelCollections),
+      libraryDependencies ++= Seq(Dependencies.scalaParallelCollections),
       packageLibraryMappings ++= Seq(
-        Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
-        Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar"),
         Dependencies.scalaParallelCollections -> Some("lib/jps/scala-parallel-collections.jar")
       )
     )
