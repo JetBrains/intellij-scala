@@ -41,8 +41,18 @@ object Main {
     "org/scala-lang/scala3-compiler_3/3.2.1/scala3-compiler_3-3.2.1.jar",
 
     "org/scalatest/scalatest-core_3/3.2.14/scalatest-core_3-3.2.14.jar",
+    "org/scalatest/scalatest-diagrams_3/3.2.14/scalatest-diagrams_3-3.2.14.jar",
+    "org/scalatest/scalatest-featurespec_3/3.2.14/scalatest-featurespec_3-3.2.14.jar",
+    "org/scalatest/scalatest-flatspec_3/3.2.14/scalatest-flatspec_3-3.2.14.jar",
+    "org/scalatest/scalatest-freespec_3/3.2.14/scalatest-freespec_3-3.2.14.jar",
     "org/scalatest/scalatest-funspec_3/3.2.14/scalatest-funspec_3-3.2.14.jar",
     "org/scalatest/scalatest-funsuite_3/3.2.14/scalatest-funsuite_3-3.2.14.jar",
+    "org/scalatest/scalatest-matchers-core_3/3.2.14/scalatest-matchers-core_3-3.2.14.jar",
+    "org/scalatest/scalatest-mustmatchers_3/3.2.14/scalatest-mustmatchers_3-3.2.14.jar",
+    "org/scalatest/scalatest-propspec_3/3.2.14/scalatest-propspec_3-3.2.14.jar",
+    "org/scalatest/scalatest-refspec_3/3.2.14/scalatest-refspec_3-3.2.14.jar",
+    "org/scalatest/scalatest-shouldmatchers_3/3.2.14/scalatest-shouldmatchers_3-3.2.14.jar",
+    "org/scalatest/scalatest-wordspec_3/3.2.14/scalatest-wordspec_3-3.2.14.jar",
 
     "org/scalactic/scalactic_3/3.2.14/scalactic_3-3.2.14.jar",
 
@@ -57,10 +67,13 @@ object Main {
     "org/typelevel/cats-effect-kernel_3/3.3.14/cats-effect-kernel_3-3.3.14.jar",
     "org/typelevel/cats-effect-std_3/3.3.14/cats-effect-std_3-3.3.14.jar",
 
+    "co/fs2/fs2-core_3/3.6.1/fs2-core_3-3.6.1.jar",
+
     "io/getquill/quill-sql_3/4.6.0/quill-sql_3-4.6.0.jar",
     "io/getquill/quill-jdbc-zio_3/4.6.0/quill-jdbc-zio_3-4.6.0.jar",
 
     "org/tpolecat/doobie-core_3/1.0.0-RC1/doobie-core_3-1.0.0-RC1.jar",
+    "org/tpolecat/doobie-free_3/1.0.0-RC1/doobie-free_3-1.0.0-RC1.jar",
   )
 
   // TODO check for lexer & parser errors and unresolved references
