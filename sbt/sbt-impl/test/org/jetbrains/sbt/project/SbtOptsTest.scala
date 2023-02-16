@@ -45,11 +45,12 @@ class SbtOptsTest {
   @Test
   def testProcessArgs(): Unit = {
      def doTest(providedArgs: Seq[String], expected: Seq[SbtOption]): Unit = {
-      val actual = SbtOpts.processArgs(providedArgs)
+      val actual = SbtOpts.processArgs(providedArgs, "dummy/Path")
       assertThat(actual, equalTo(expected))
     }
     doTest(Seq("-d", "-color=always"), Seq(SbtLauncherOption("--debug"), JvmOptionShellOnly("-Dsbt.color=always")))
     doTest(Seq("-debug", "-color always"), Seq(SbtLauncherOption("--debug")))
+    doTest(Seq("-d", "-no-global"), Seq(SbtLauncherOption("--debug"), JvmOptionGlobal("-Dsbt.global.base=dummy/Path/project/.sbtboot")))
     doTest(Seq("-debug", "-color=always"), Seq(SbtLauncherOption("--debug"), JvmOptionShellOnly("-Dsbt.color=always")))
     doTest(Seq("-debug", "-debug-inc", "-color=always"), Seq(SbtLauncherOption("--debug"), JvmOptionGlobal("-Dxsbt.inc.debug=true"), JvmOptionShellOnly("-Dsbt.color=always")))
     doTest(Seq("---debug", "-color"), Seq.empty)
@@ -58,7 +59,7 @@ class SbtOptsTest {
   }
 
   @Test
-  def testCombineSbtOptions(): Unit = {
+  def testCombineSbtOptsWithArgs(): Unit = {
     def doTest(providedArgs: Seq[String], expected: Seq[String]): Unit = {
       val actual = SbtOpts.combineSbtOptsWithArgs(providedArgs)
       assertThat(actual, equalTo(expected))
