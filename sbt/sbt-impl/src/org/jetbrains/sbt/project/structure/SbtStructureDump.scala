@@ -181,10 +181,9 @@ class SbtStructureDump {
     val startTime = System.currentTimeMillis()
     // assuming here that this method might still be called without valid project
 
-    val mappedSbtOpts = SbtOpts.processArgs(sbtOptions) ++ SbtOpts.loadFrom(directory)
+    val mappedSbtOpts = SbtOpts.loadFrom(directory) ++ SbtOpts.processArgs(sbtOptions, directory.getCanonicalPath)
     val sbtOpts = mappedSbtOpts.collect { case a: JvmOptionGlobal => a.value }
-    val jvmOpts = JvmOpts.loadFrom(directory) ++ vmOptions
-    val combinedJvmSbtOpts = SbtOpts.combineSbtAndJvmOpts(sbtOpts, jvmOpts)
+    val allJvmOpts = JvmOpts.loadFrom(directory) ++ vmOptions ++ sbtOpts
 
     val sbtLauncherOpts = mappedSbtOpts.collect { case a: SbtLauncherOption => a.value }
     val processCommandsRaw =
@@ -193,7 +192,7 @@ class SbtStructureDump {
         "-Djline.terminal=jline.UnsupportedTerminal",
         "-Dsbt.log.noformat=true",
         "-Dfile.encoding=UTF-8") ++
-      combinedJvmSbtOpts ++
+        allJvmOpts ++
       List("-jar", normalizePath(sbtLauncher)) ++
       sbtLauncherOpts// :+ "--debug"
 

@@ -140,7 +140,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
 
-    val mappedSbtOpts = SbtOpts.processArgs(sbtSettings.sbtOptions) ++ SbtOpts.loadFrom(workingDir)
+    val mappedSbtOpts = SbtOpts.loadFrom(workingDir) ++ SbtOpts.processArgs(sbtSettings.sbtOptions, workingDirPath)
     val sbtOpts = mappedSbtOpts.collect { case a: JvmOption => a.value }
     val allJvmOpts = buildVMParameters(sbtSettings, workingDir, sbtOpts)
     vmParams.addAll(allJvmOpts.asJava)
@@ -509,21 +509,20 @@ object SbtProcessManager {
   private[shell]
   def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: File, sbtOpts: Seq[String]): Seq[String] = {
     val hardcoded = List("-Dsbt.supershell=false")
-    val jvmOpts =
-      hardcoded ++
+    val jvmOpts = hardcoded ++
       JvmOpts.loadFrom(workingDir) ++
-      sbtSettings.vmOptions
-    val combinedJvmSbtOpts = SbtOpts.combineSbtAndJvmOpts(sbtOpts, jvmOpts)
+      sbtSettings.vmOptions ++
+      sbtOpts
 
-    val hasXmx = combinedJvmSbtOpts.exists(_.startsWith("-Xmx"))
+    val hasXmx = jvmOpts.exists(_.startsWith("-Xmx"))
     val xmsPrefix = "-Xms"
-    def minMaxHeapSize = combinedJvmSbtOpts.reverseIterator
+    def minMaxHeapSize = jvmOpts.reverseIterator
       .find(_.startsWith(xmsPrefix))
       .map(_.drop(xmsPrefix.length))
       .flatMap(JvmMemorySize.parse)
     def xmxNotNeeded = minMaxHeapSize.exists(_ >= sbtSettings.hiddenDefaultMaxHeapSize)
 
-    if (hasXmx || xmxNotNeeded) combinedJvmSbtOpts
-    else ("-Xmx" + sbtSettings.hiddenDefaultMaxHeapSize) +: combinedJvmSbtOpts
+    if (hasXmx || xmxNotNeeded) jvmOpts
+    else ("-Xmx" + sbtSettings.hiddenDefaultMaxHeapSize) +: jvmOpts
   }
 }

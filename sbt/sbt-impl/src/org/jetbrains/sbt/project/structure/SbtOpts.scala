@@ -18,35 +18,23 @@ object SbtOpts {
 
   val SbtOptsFile: String = ".sbtopts"
 
-  def loadFrom(directory: File): Seq[SbtOption] = {
-    val sbtOptsFile = directory / SbtOptsFile
-    if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead)
-      processArgs(FileUtil.loadLines(sbtOptsFile)
-        .asScala.iterator
-        .map(_.trim)
-        .map(op => if (op.startsWith("--")) op.stripPrefix("-") else op)
-        .toSeq)
-    else
-      Seq.empty
-  }
+  private val jvmNoColorOpt = "-Dsbt.log.noformat=true"
+  private val jvmColorOpt = "-Dsbt.color="
 
-  private val sbtToJdkConflictedOpts: List[((String, SbtOption), (String, SbtOption))] = List(
-    ("-no-colors" -> JvmOptionShellOnly("-Dsbt.log.noformat=true"), "-color=" -> JvmOptionShellOnly("-Dsbt.color=")),
-  )
-
-  private val sbtToJdkOpts: ListMap[String, SbtOption] = ListMap(
+  private val sbtToJdkOpts = (projectPath: String) => ListMap(
     "-sbt-boot" -> JvmOptionGlobal("-Dsbt.boot.directory="),
     "-sbt-dir" -> JvmOptionGlobal("-Dsbt.global.base="),
     "-ivy" -> JvmOptionGlobal("-Dsbt.ivy.home="),
-    "-no-global" -> JvmOptionGlobal("-Dsbt.global.base=project/.sbtboot"),
+    "-no-global" -> JvmOptionGlobal(s"-Dsbt.global.base=$projectPath/project/.sbtboot"),
     "-no-share" -> JvmOptionGlobal("-Dsbt.global.base=project/.sbtboot -Dsbt.boot.directory=project/.boot -Dsbt.ivy.home=project/.ivy"),
     "-jvm-debug" -> JvmOptionGlobal("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address="),
     "-sbt-cache" -> JvmOptionGlobal("-Dsbt.global.localcache="),
     "-debug-inc" -> JvmOptionGlobal("-Dxsbt.inc.debug=true"),
     "-traces" -> JvmOptionGlobal("-Dsbt.traces=true"),
-
     "-timings" -> JvmOptionGlobal("-Dsbt.task.timings=true -Dsbt.task.timings.on.shutdown=true"),
-  ) ++ sbtToJdkConflictedOpts.map(_._1) ++ sbtToJdkConflictedOpts.map(_._2)
+    "-no-colors" -> JvmOptionShellOnly(jvmNoColorOpt),
+    "-color=" -> JvmOptionShellOnly(jvmColorOpt)
+  )
 
   private val sbtToLauncherOpts: ListMap[String, SbtOption] = ListMap(
     "-d" -> SbtLauncherOption("--debug"),
@@ -57,25 +45,24 @@ object SbtOpts {
     "--error" -> SbtLauncherOption("--error")
   )
 
-  def combineSbtAndJvmOpts(sbtOpts: Seq[String], jvmOpts: Seq[String]): Seq[String] = {
-    jvmOpts
-      .filterNot(sbtOpts.contains(_))
-      .filterNot { opt =>
-        val conflictedOpt = sbtToJdkConflictedOpts.find(op => opt.startsWith(op._1._2.value)  || opt.startsWith(op._2._2.value))
-        conflictedOpt match {
-          case Some(x) =>
-            val presentInSbtOpts = sbtOpts.exists(op => op == x._2._2.value || op == x._1._2.value)
-            if (presentInSbtOpts) true
-            else false
-          case None => false
-        }
-      } ++ sbtOpts
+  def loadFrom(directory: File): Seq[SbtOption] = {
+    val sbtOptsFile = directory / SbtOptsFile
+    if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead) {
+      val optsFromFile = FileUtil.loadLines(sbtOptsFile)
+        .asScala.iterator
+        .map(_.trim)
+        .map(op => if (op.startsWith("--")) op.stripPrefix("-") else op)
+        .toSeq
+      processArgs(optsFromFile, directory.getCanonicalPath)
+    } else
+      Seq.empty
   }
+
   def combineSbtOptsWithArgs(opts: Seq[String]): Seq[String] = {
     @tailrec
     def prependArgsToOpts(optsToCombine: Seq[String], result: Seq[String]): Seq[String] = {
       def shouldPrepend(opt: String): Boolean = {
-        (sbtToJdkOpts ++ sbtToLauncherOpts).get(opt) match {
+        (sbtToJdkOpts("") ++ sbtToLauncherOpts).get(opt) match {
           case Some(x) =>
             if (x.value.endsWith("=") && !opt.endsWith("=")) {
               Try(optsToCombine(1)).fold(
@@ -95,11 +82,11 @@ object SbtOpts {
         case Nil => result
       }
     }
-    val withoutDoubleDash = opts.map(op => if (op.startsWith("--")) op.stripPrefix("-") else op)
+    val withoutDoubleDash = opts.map { op => if (op.startsWith("--")) op.stripPrefix("-") else op }
     prependArgsToOpts(withoutDoubleDash, Seq.empty)
   }
 
-  def processArgs(opts: Seq[String]): Seq[SbtOption] = {
+  def processArgs(opts: Seq[String], projectPath: String): Seq[SbtOption] = {
     opts.flatMap { opt =>
       if (sbtToLauncherOpts.contains(opt))
         sbtToLauncherOpts.get(opt)
@@ -108,23 +95,25 @@ object SbtOpts {
       else if (opt.startsWith("-D"))
         Some(JvmOptionGlobal(opt))
       else {
-        processOptWithArg(opt)
+        processOptWithArg(opt, projectPath)
       }
     }
   }
 
-  private def processOptWithArg(opt: String): Option[SbtOption] = {
-    sbtToJdkOpts.find{ case (k,_) => opt.startsWith(k)}.flatMap { case (k,x) =>
-      val v = opt.replace(k, "").trim
-      if (v.isEmpty && !x.value.endsWith("=")) Some(x)
-      else if (v.nonEmpty && x.value.endsWith("=")) {
-        x match {
-          case _: JvmOptionGlobal => Some(JvmOptionGlobal(x.value + v))
-          case _: JvmOptionShellOnly => Some(JvmOptionShellOnly(x.value + v))
-          case _ => None
+  private def processOptWithArg(opt: String, projectPath: String): Option[SbtOption] = {
+    sbtToJdkOpts(projectPath)
+      .find { case (k, _) => opt.startsWith(k) }
+      .flatMap { case (k, x) =>
+        val v = opt.replace(k, "").trim
+        if (v.isEmpty && !x.value.endsWith("=")) Some(x)
+        else if (v.nonEmpty && x.value.endsWith("=")) {
+          x match {
+            case _: JvmOptionGlobal => Some(JvmOptionGlobal(x.value + v))
+            case _: JvmOptionShellOnly => Some(JvmOptionShellOnly(x.value + v))
+            case _ => None
+          }
         }
+        else None
       }
-      else None
-    }
   }
 }
