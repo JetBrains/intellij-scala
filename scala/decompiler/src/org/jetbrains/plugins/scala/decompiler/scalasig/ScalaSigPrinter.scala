@@ -568,18 +568,14 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   def printType(t: Type, sep: String)(implicit flags: TypeFlags): Unit = print(toString(t, sep)(flags))
 
-  // TODO Use default arguments instead of overloading
-
   def toString(t: Type)(implicit flags: TypeFlags): String = toString(t, "")(flags)
 
   def toString(t: Type, level: Int)(implicit flags: TypeFlags): String = toString(t, "", level)(flags)
 
-  private def toStringParensRequired(t: Type, level: Int)(implicit flags: TypeFlags): String = toString(t, "", level, parensRequired = true)(flags)
-
   private val SingletonTypePattern = """(.*?)\.type""".r
 
   //TODO: this passing of 'level' look awful;
-  def toString(t: Type, sep: String, level: Int = 0, parensRequired: Boolean = false)(implicit flags: TypeFlags): String = {
+  def toString(t: Type, sep: String, level: Int = 0, parens: Int = 0)(implicit flags: TypeFlags): String = {
 
     // print type itself
     t match {
@@ -614,7 +610,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
         sep + processName(currentTypeParameters.getOrElse(symbol, symbol.name)) + typeArgString(typeArgs, level)
       case TypeRefType(prefix, symbol, typeArgs) => sep + (symbol.path match {
         case "scala.<repeated>" => flags match {
-          case TypeFlags(true) => toStringParensRequired(typeArgs.head, level) + "*"
+          case TypeFlags(true) => toString(typeArgs.head, "", level, 1) + "*"
           case _ => "scala.Seq" + typeArgString(typeArgs, level)
         }
         case "scala.<byname>" => "=> " + toString(typeArgs.head, level)
@@ -695,14 +691,14 @@ class ScalaSigPrinter(builder: StringBuilder) {
           val base = res.stripPrefix("<empty>.")
           val isInfix = base.nonEmpty && base.forall(!_.isLetterOrDigit) && typeArgs.length == 2
           val result = if (isInfix) {
-            val s = typeArgs.map(toStringParensRequired(_, level)).mkString(" " + base + " ")
-            if (parensRequired) "(" + s + ")" else s
+            typeArgs.map(toString(_, "", level, 1)).mkString(" " + base + " ")
           } else if (typeArgs.nonEmpty && base.startsWith("scala.Tuple") && base != "scala.Tuple1" && !base.substring(11).contains(".")) {
-            typeArgs.map(toString(_, level)).mkString("(", ", ", ")")
+            val s = typeArgs.map(toString(_, level)).mkString("(", ", ", ")")
+            if (parens > 1) "(" + s + ")" else s
           } else if (typeArgs.nonEmpty && base.startsWith("scala.Function")) {
-            val params = if (typeArgs.length == 2) toStringParensRequired(typeArgs.head, level) else typeArgs.init.map(toString(_, level)).mkString("(", ", ", ")")
+            val params = if (typeArgs.length == 2) toString(typeArgs.head, "", level, 2) else typeArgs.init.map(toString(_, level)).mkString("(", ", ", ")")
             val s = params + " => " + toString(typeArgs.last, level)
-            if (parensRequired) "(" + s + ")" else s
+            if (parens > 0) "(" + s + ")" else s
           } else {
             base + typeArgString(typeArgs, level)
           }
@@ -721,16 +717,16 @@ class ScalaSigPrinter(builder: StringBuilder) {
           else text
         }
         val parents = {
-          val parents0 = typeRefs.map(toString(_, level))
+          val parents0 = typeRefs.map(toString(_, "", level, 1))
           if (classStr.nonEmpty && parents0 == Seq("scala.AnyRef")) "" else parents0.mkString("", " with ", "")
         }
         if (parents.nonEmpty) sep + parents + classStr else sep + classStr.stripPrefix(" ")
-      case RefinedType(_, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString("", " with ", "")
+      case RefinedType(_, typeRefs) => sep + typeRefs.map(toString(_, "", level, 1)).mkString("", " with ", "")
       case ClassInfoType(symbol, typeRefs) =>
-        val parents = simplify(symbol, typeRefs.map(toStringParensRequired(_, level)))
+        val parents = simplify(symbol, typeRefs.map(toString(_, "", level, 1)))
         if (parents.nonEmpty) sep + parents.mkString(" extends ", " with ", "") else sep
       case ClassInfoTypeWithCons(symbol, typeRefs, cons) =>
-        val parents = simplify(symbol, typeRefs.map(toStringParensRequired(_, level)))
+        val parents = simplify(symbol, typeRefs.map(toString(_, "", level, 1)))
         if (parents.nonEmpty) sep + parents.mkString(cons + " extends ", " with ", "") else sep + cons
 
       case ImplicitMethodType(resultType, _) => toString(resultType, sep, level)
