@@ -65,6 +65,7 @@ class TastyReaderTest extends TestCase {
   def testMemberType(): Unit = doTest("member/Type")
   def testMemberVal(): Unit = doTest("member/Val")
   def testMemberVar(): Unit = doTest("member/Var")
+  def testPackage1Package(): Unit = doTest("package1/package")
   def testPackage1Package2Package(): Unit = doTest("package1/package2/package")
   def testPackage1Package2Nested(): Unit = doTest("package1/package2/Nested")
   def testPackage1Package2NestedImport(): Unit = doTest("package1/package2/NestedImport")

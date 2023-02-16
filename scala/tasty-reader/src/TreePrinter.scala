@@ -72,7 +72,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
             case Seq(Node2(VALDEF, Seq("package")), Node2(TYPEDEF, Seq("package$")), _: _*) => true // TODO use name type, not contents
             case _ => false
           }
-          if (name != "<empty>") {
+          if (name != "<empty>" && (!containsPackageObject || name.contains('.'))) {
             sb ++= "package "
             if (containsPackageObject) {
               sb ++= id(name.split('.').init.mkString(".")) // TODO optimize
