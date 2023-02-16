@@ -29,6 +29,7 @@ object ScalaPluginJars {
   val replInterface         = new File(libRoot, "repl-interface.jar")
 
   val nailgunJar             = new File(jpsRoot, "nailgun.jar")
+  val compilerInterfaceJar   = new File(jpsRoot, "compiler-interface.jar")
   val sbtInterfaceJar        = new File(jpsRoot, "sbt-interface.jar")
   val incrementalCompilerJar = new File(jpsRoot, "incremental-compiler.jar")
   val compileServerJar       = new File(jpsRoot, "compile-server.jar")

@@ -71,6 +71,7 @@ lazy val scalaCommunity: sbt.Project =
       packageAdditionalProjects := Seq(
         jps,
         compilerJps,
+        repackagedZinc,
         compileServer,
         nailgunRunners,
         copyrightIntegration,
@@ -319,7 +320,15 @@ lazy val repackagedZinc =
       packageAssembleLibraries := true,
       shadePatterns += ShadePattern("com.google.protobuf.**", "zinc.protobuf.@1"),
       packageMethod := PackagingMethod.DepsOnly("lib/jps/incremental-compiler.jar"),
-      libraryDependencies += Dependencies.zinc)
+      libraryDependencies ++= Seq(Dependencies.zinc, Dependencies.zincInterface, Dependencies.sbtInterface),
+      // We package and ship these jars separately. They are also transitive dependencies of `zinc`.
+      // These mappings ensure that the transitive dependencies are not packaged into the assembled
+      // `incremental-compiler.jar`, which leads to a bloated classpath with repeated classes.
+      packageLibraryMappings ++= Seq(
+        Dependencies.zincInterface -> None,
+        Dependencies.sbtInterface -> None
+      )
+    )
 
 lazy val compilerShared =
   newProject("compiler-shared", file("scala/compiler-shared"))
