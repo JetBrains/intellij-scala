@@ -1,6 +1,6 @@
 package scala.reflect
 
-@scala.SerialVersionUID(value = 1)
+@scala.SerialVersionUID(1)
 abstract class AnyValManifest[T <: scala.AnyVal](override val toString: scala.Predef.String) extends scala.reflect.Manifest[T] with scala.Equals {
   override def <:<(that: scala.reflect.ClassManifest[_]): scala.Boolean = ???
 

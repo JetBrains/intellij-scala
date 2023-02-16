@@ -1,7 +1,7 @@
 package akka.http.scaladsl.model
 
-object MediaTypes extends akka.http.impl.util.ObjectRegistry[scala.Tuple2[_root_.scala.Predef.String, _root_.scala.Predef.String], akka.http.scaladsl.model.MediaType] {
-  type FindCustom = scala.Function2[_root_.scala.Predef.String, _root_.scala.Predef.String, scala.Option[akka.http.scaladsl.model.MediaType]]
+object MediaTypes extends akka.http.impl.util.ObjectRegistry[(_root_.scala.Predef.String, _root_.scala.Predef.String), akka.http.scaladsl.model.MediaType] {
+  type FindCustom = (_root_.scala.Predef.String, _root_.scala.Predef.String) => scala.Option[akka.http.scaladsl.model.MediaType]
 
   def forExtensionOption(ext: _root_.scala.Predef.String): scala.Option[akka.http.scaladsl.model.MediaType] = ???
 

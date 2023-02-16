@@ -1,7 +1,7 @@
 package org.apache.spark.mllib.clustering
 
 @org.apache.spark.annotation.Since("0.8.0")
-class KMeansModel(@org.apache.spark.annotation.Since("1.0.0") val clusterCenters: scala.Array[org.apache.spark.mllib.linalg.Vector]) extends org.apache.spark.mllib.util.Saveable with scala.Serializable with org.apache.spark.mllib.pmml.PMMLExportable {
+class KMeansModel @org.apache.spark.annotation.Since("1.1.0") (@org.apache.spark.annotation.Since("1.0.0") val clusterCenters: scala.Array[org.apache.spark.mllib.linalg.Vector]) extends org.apache.spark.mllib.util.Saveable with scala.Serializable with org.apache.spark.mllib.pmml.PMMLExportable {
   @org.apache.spark.annotation.Since("1.4.0")
   def this(centers: java.lang.Iterable[org.apache.spark.mllib.linalg.Vector]) = ???
 
@@ -23,7 +23,7 @@ class KMeansModel(@org.apache.spark.annotation.Since("1.0.0") val clusterCenters
   @org.apache.spark.annotation.Since("1.4.0")
   override def save(sc: org.apache.spark.SparkContext, path: scala.Predef.String): scala.Unit = ???
 
-  protected override def formatVersion: scala.Predef.String = ???
+  override protected def formatVersion: scala.Predef.String = ???
 }
 
 @org.apache.spark.annotation.Since("1.4.0")

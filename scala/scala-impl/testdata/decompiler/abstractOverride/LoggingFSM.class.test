@@ -3,9 +3,9 @@ package akka.actor
 trait LoggingFSM[S, D] extends akka.actor.FSM[S, D] { this: akka.actor.LoggingFSM[S, D] with akka.actor.Actor =>
   def logDepth: scala.Int = ???
 
-  private[akka] override val debugEvent: scala.Boolean = ???
+  override private[akka] val debugEvent: scala.Boolean = ???
 
-  private[akka] abstract override def processEvent(event: LoggingFSM.super[FSM/*akka.actor.FSM*/].Event, source: scala.AnyRef): scala.Unit = ???
+  abstract override private[akka] def processEvent(event: LoggingFSM.super[FSM/*akka.actor.FSM*/].Event, source: scala.AnyRef): scala.Unit = ???
 
   protected def getLog: scala.IndexedSeq[akka.actor.FSM.LogEntry[S, D]] = ???
 }

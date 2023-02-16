@@ -25,7 +25,7 @@ trait HashTable[A, Entry >: scala.Null <: scala.collection.mutable.HashEntry[A, 
 
   private[collection] def init(in: java.io.ObjectInputStream, readEntry: => Entry): scala.Unit = ???
 
-  private[collection] def serializeTo(out: java.io.ObjectOutputStream, writeEntry: scala.Function1[Entry, scala.Unit]): scala.Unit = ???
+  private[collection] def serializeTo(out: java.io.ObjectOutputStream, writeEntry: Entry => scala.Unit): scala.Unit = ???
 
   @scala.deprecatedOverriding("No sensible way to override findEntry as private findEntry0 is used in multiple places internally.", "2.11.0")
   protected def findEntry(key: A): Entry = ???
@@ -42,7 +42,7 @@ trait HashTable[A, Entry >: scala.Null <: scala.collection.mutable.HashEntry[A, 
 
   protected def entriesIterator: scala.collection.Iterator[Entry] = ???
 
-  protected def foreachEntry[U](f: scala.Function1[Entry, U]): scala.Unit = ???
+  protected def foreachEntry[U](f: Entry => U): scala.Unit = ???
 
   protected def clearTable(): scala.Unit = ???
 
