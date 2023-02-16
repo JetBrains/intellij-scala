@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{NavigatablePsiElement, PsiElement}
+import com.intellij.psi.{NavigatablePsiElement, PsiElement, PsiFile}
 
 trait NavigablePsiElementWrapper[E <: NavigatablePsiElement] extends NavigatablePsiElement {
   val delegate: E
@@ -26,4 +26,7 @@ trait NavigablePsiElementWrapper[E <: NavigatablePsiElement] extends Navigatable
 
   override def getTextOffset: Int =
     delegate.getTextOffset
+
+  override def getContainingFile: PsiFile =
+    delegate.getContainingFile
 }

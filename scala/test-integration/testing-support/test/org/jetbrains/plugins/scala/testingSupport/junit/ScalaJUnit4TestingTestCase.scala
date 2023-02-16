@@ -1,13 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.junit
 
-import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-
-class ScalaJUnit4TestingTestCase extends ScalaJUnitTestingTestCaseBase {
-
-  override protected def additionalLibraries: Seq[LibraryLoader] = Seq(
-    IvyManagedLoader(("junit" % "junit" % "4.13.2").transitive())
-  )
+class ScalaJUnit4TestingTestCase extends ScalaJUnit4TestingTestCaseBase {
 
   private val ScalaJUnit4_Tests_FileName = "ScalaJUnit4_Tests.scala"
   addSourceFile(ScalaJUnit4_Tests_FileName,
