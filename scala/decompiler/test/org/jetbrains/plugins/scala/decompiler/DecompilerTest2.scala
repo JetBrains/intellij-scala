@@ -10,6 +10,7 @@ import scala.util.control.NonFatal
 
 // self type class with
 
+// fix: final val v: 123 = ??? is not a constant
 // fix: private val parameters in value classes
 // fix: implicit implicit val x: Int, implicit val y: Int
 // fix: annotation on types
@@ -17,6 +18,7 @@ import scala.util.control.NonFatal
 // fix: private type alias is decompiled
 // fix: custom self type names
 
+// Foo.this.A for type parameters
 // qualified private that is equivalent to private is decompiled?
 // literal types - annotations?
 // why private[Class1] def method1: Int is decompiled?
@@ -74,7 +76,7 @@ class DecompilerTest2 extends TestCase {
   def testTypeDefinitionTrait(): Unit = doTest("typeDefinition/Trait")
   def testTypesAnd(): Unit = doTest("types/And")
 //  def testTypesAnnotated(): Unit = doTest("types/Annotated")
-//  def testTypesConstant(): Unit = doTest("types/Constant")
+  def testTypesConstant(): Unit = doTest("types/Constant")
   def testTypesFunction(): Unit = doTest("types/Function")
   def testTypesIdent(): Unit = doTest("types/Ident")
   def testTypesInfix(): Unit = doTest("types/Infix")
