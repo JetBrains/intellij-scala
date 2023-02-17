@@ -35,6 +35,8 @@ class Node(val addr: Addr, val tag: Int, val names: Seq[String], children0: () =
 
   val prevSiblings: Iterator[Node] = Iterator.unfold(this)(_.prevSibling.map(x => (x, x)))
 
+  var refTag: Option[Int] = None
+
   var refName: Option[String] = None
 
   var value: Long = -1L

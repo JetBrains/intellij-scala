@@ -8,7 +8,7 @@ trait This {
   trait Qualifier {
     class C
 
-    type T = Qualifier.this.C
+    type T = /**/Qualifier.this./**/C
   }
 }/**/
 object This1 {
