@@ -29,5 +29,5 @@ trait Infix {
     class /[A, B]
   }
 
-  type T8 = Infix.this.O./[Int, Long]
+  type T8 = O./[Int, Long]
 }
