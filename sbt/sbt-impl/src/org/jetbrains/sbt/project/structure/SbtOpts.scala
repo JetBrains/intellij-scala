@@ -18,9 +18,6 @@ object SbtOpts {
 
   val SbtOptsFile: String = ".sbtopts"
 
-  private val jvmNoColorOpt = "-Dsbt.log.noformat=true"
-  private val jvmColorOpt = "-Dsbt.color="
-
   private val sbtToJdkOpts = (projectPath: String) => ListMap(
     "-sbt-boot" -> JvmOptionGlobal("-Dsbt.boot.directory="),
     "-sbt-dir" -> JvmOptionGlobal("-Dsbt.global.base="),
@@ -32,17 +29,16 @@ object SbtOpts {
     "-debug-inc" -> JvmOptionGlobal("-Dxsbt.inc.debug=true"),
     "-traces" -> JvmOptionGlobal("-Dsbt.traces=true"),
     "-timings" -> JvmOptionGlobal("-Dsbt.task.timings=true -Dsbt.task.timings.on.shutdown=true"),
-    "-no-colors" -> JvmOptionShellOnly(jvmNoColorOpt),
-    "-color=" -> JvmOptionShellOnly(jvmColorOpt)
+    "-no-colors" -> JvmOptionShellOnly("-Dsbt.log.noformat=true"),
+    "-color=" -> JvmOptionShellOnly("-Dsbt.color=")
   )
 
   private val sbtToLauncherOpts: ListMap[String, SbtOption] = ListMap(
     "-d" -> SbtLauncherOption("--debug"),
     "-debug" -> SbtLauncherOption("--debug"),
-    "--debug" -> SbtLauncherOption("--debug"),
-    "--warn" -> SbtLauncherOption("--warn"),
-    "--info" -> SbtLauncherOption("--info"),
-    "--error" -> SbtLauncherOption("--error")
+    "-warn" -> SbtLauncherOption("--warn"),
+    "-info" -> SbtLauncherOption("--info"),
+    "-error" -> SbtLauncherOption("--error")
   )
 
   def loadFrom(directory: File): Seq[SbtOption] = {
@@ -51,7 +47,7 @@ object SbtOpts {
       val optsFromFile = FileUtil.loadLines(sbtOptsFile)
         .asScala.iterator
         .map(_.trim)
-        .map(op => if (op.startsWith("--")) op.stripPrefix("-") else op)
+        .map(removeDoubleDash)
         .toSeq
       processArgs(optsFromFile, directory.getCanonicalPath)
     } else
@@ -62,7 +58,7 @@ object SbtOpts {
     @tailrec
     def prependArgsToOpts(optsToCombine: Seq[String], result: Seq[String]): Seq[String] = {
       def shouldPrepend(opt: String): Boolean = {
-        (sbtToJdkOpts("") ++ sbtToLauncherOpts).get(opt) match {
+        sbtToJdkOpts("").get(opt) match {
           case Some(x) =>
             if (x.value.endsWith("=") && !opt.endsWith("=")) {
               Try(optsToCombine(1)).fold(
@@ -82,8 +78,7 @@ object SbtOpts {
         case Nil => result
       }
     }
-    val withoutDoubleDash = opts.map { op => if (op.startsWith("--")) op.stripPrefix("-") else op }
-    prependArgsToOpts(withoutDoubleDash, Seq.empty)
+    prependArgsToOpts(opts.map(removeDoubleDash), Seq.empty)
   }
 
   def processArgs(opts: Seq[String], projectPath: String): Seq[SbtOption] = {
@@ -99,6 +94,9 @@ object SbtOpts {
       }
     }
   }
+
+  private def removeDoubleDash(opt: String): String =
+    if (opt.startsWith("--") && !opt.matches("\\-+.$")) opt.stripPrefix("-") else opt
 
   private def processOptWithArg(opt: String, projectPath: String): Option[SbtOption] = {
     sbtToJdkOpts(projectPath)
