@@ -9,4 +9,9 @@ trait Text {
 
   @Deprecated(since = "since")
   def f3: Int = ???
+
+  @deprecated("""line1
+line2
+""")
+  def f4: Int = ???
 }
