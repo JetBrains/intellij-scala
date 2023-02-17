@@ -525,7 +525,10 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     case FLOATconst => s"${intBitsToFloat(node.value.toInt)}F"
     case DOUBLEconst => s"${longBitsToDouble(node.value)}D"
     case CHARconst => "'" + node.value.toChar + "'"
-    case STRINGconst => "\"" + node.name + "\""
+    case STRINGconst =>
+      val s = node.name
+      val quote = if (s.contains("\n")) "\"\"\"" else "\""
+      quote + s.replace("\r\n", "\n") + quote
     case NULLconst => "null"
     case _ => ""
   }
