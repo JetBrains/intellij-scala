@@ -1256,10 +1256,6 @@ package object extensions {
     }
   }
 
-  implicit class PipedObject[T](private val value: T) extends AnyVal {
-    def |>[R](f: T => R): R = f(value)
-  }
-
   implicit class DisposableExt[T <: Disposable](private val target: T) extends AnyVal {
     def delegateUserDataHolder: UserDataHolderEx =
       UserDataHolderDelegator.userDataHolderFor(target)

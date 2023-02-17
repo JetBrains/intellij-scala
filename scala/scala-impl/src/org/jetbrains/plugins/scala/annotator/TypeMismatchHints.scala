@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.util.chaining._
+
 object TypeMismatchHints {
   private val ElementsPreceededByWhitespace = TokenSet.create(
     ScalaTokenTypes.kELSE, ScalaTokenTypes.kMACRO, ScalaTokenTypes.kCATCH, ScalaTokenTypes.tRBRACE)
@@ -34,7 +36,7 @@ object TypeMismatchHints {
       case _ => Seq.empty
     }
 
-    val parts = Text(": ") +: partsOf(expectedType, actualType, tooltipFor(expectedType, actualType)) |> { parts =>
+    val parts = (Text(": ") +: partsOf(expectedType, actualType, tooltipFor(expectedType, actualType))).pipe { parts =>
       format match {
         case InnerParentheses => Text(")") +: parts
         case OuterParentheses => parts :+ Text(")")
