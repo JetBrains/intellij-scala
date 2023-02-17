@@ -104,14 +104,17 @@ object SbtOpts {
     sbtToJdkOpts(projectPath)
       .find { case (k, _) => opt.startsWith(k) }
       .flatMap { case (k, x) =>
-        val v = opt.replace(k, "").trim
-        if (v.isEmpty && !x.value.endsWith("=")) Some(x)
-        else if (v.nonEmpty && x.value.endsWith("=")) {
-          x match {
-            case _: JvmOptionGlobal => Some(JvmOptionGlobal(x.value + v))
-            case _: JvmOptionShellOnly => Some(JvmOptionShellOnly(x.value + v))
-            case _ => None
-          }
+        val value = opt.replace(k, "")
+        val trimmedValue = value.trim
+        if (trimmedValue.isEmpty && !x.value.endsWith("=")) Some(x)
+        else if (trimmedValue.nonEmpty && x.value.endsWith("=")) {
+          if ((!k.endsWith("=") && value.matches("^\\s+.*")) || k.endsWith("=") && value.matches("^[^\\s]+.*")) {
+            x match {
+              case _: JvmOptionGlobal => Some(JvmOptionGlobal(x.value + trimmedValue))
+              case _: JvmOptionShellOnly => Some(JvmOptionShellOnly(x.value + trimmedValue))
+              case _ => None
+            }
+          } else None
         }
         else None
       }

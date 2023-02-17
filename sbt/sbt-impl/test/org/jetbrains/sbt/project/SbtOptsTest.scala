@@ -15,8 +15,9 @@ class SbtOptsTest {
   private val input =
     """
       |--sbt-boot /some/where/sbt/boot
-      |-sbt-dir /some/where/else/sbt
+      |-sbt-dir      /some/where/else/sbt
       |--ivy /some/where/ivy
+      |-color=   always
       |-jvm-debug 4711
       |-debug
       |debug
@@ -49,6 +50,7 @@ class SbtOptsTest {
       assertThat(actual, equalTo(expected))
     }
     doTest(Seq("-d", "-color=always"), Seq(SbtLauncherOption("--debug"), JvmOptionShellOnly("-Dsbt.color=always")))
+    doTest(Seq("-d", "-color=   always"), Seq(SbtLauncherOption("--debug")))
     doTest(Seq("-debug", "-color always"), Seq(SbtLauncherOption("--debug")))
     doTest(Seq("-d", "-no-global"), Seq(SbtLauncherOption("--debug"), JvmOptionGlobal("-Dsbt.global.base=dummy/Path/project/.sbtboot")))
     doTest(Seq("-debug", "-color=always"), Seq(SbtLauncherOption("--debug"), JvmOptionShellOnly("-Dsbt.color=always")))
@@ -56,6 +58,7 @@ class SbtOptsTest {
     doTest(Seq("---debug", "-color"), Seq.empty)
     doTest(Seq("debug", "-debug=true"), Seq.empty)
     doTest(Seq("-debug-inc", "-color"), Seq(JvmOptionGlobal("-Dxsbt.inc.debug=true")))
+    doTest(Seq("-sbt-dirop"), Seq.empty)
   }
 
   @Test
