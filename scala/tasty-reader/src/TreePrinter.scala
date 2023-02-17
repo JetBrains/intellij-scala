@@ -474,7 +474,9 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
             }
           case _ => textOfType(tpe)
         }
-      case Node3(BYNAMEtpt, _, Seq(tpe)) => "=> " + simple(textOfType(tpe))
+      case Node3(BYNAMEtpt, _, Seq(tpe)) =>
+        val s = "=> " + simple(textOfType(tpe))
+        if (parens > 1) "(" + s + ")" else s
 
       case Node3(MATCHtpt, _, children) =>
         val (tpe, cases) = children match {
