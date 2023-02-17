@@ -20,4 +20,6 @@ trait Function {
   def repeated(xs: (Int => Unit)*): Unit
 
   type T7 = ((Int, Long)) => Unit
+
+  type T8 = (=> Int) => Unit
 }

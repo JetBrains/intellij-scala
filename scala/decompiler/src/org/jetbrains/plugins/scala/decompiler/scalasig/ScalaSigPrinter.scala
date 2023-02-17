@@ -614,7 +614,9 @@ class ScalaSigPrinter(builder: StringBuilder) {
           case TypeFlags(true) => toString(typeArgs.head, "", level, 1) + "*"
           case _ => "scala.Seq" + typeArgString(typeArgs, level)
         }
-        case "scala.<byname>" => "=> " + toString(typeArgs.head, level)
+        case "scala.<byname>" =>
+          val s = "=> " + toString(typeArgs.head, level)
+          if (parens > 1) "(" + s + ")" else s
         case _ =>
           def checkContainsSelf(self: Option[Type], parent: Symbol): Boolean = {
             self match {
