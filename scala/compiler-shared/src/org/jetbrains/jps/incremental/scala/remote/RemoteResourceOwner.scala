@@ -1,6 +1,5 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import com.facebook.nailgun.NGConstants
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.scala._
 
@@ -54,9 +53,9 @@ trait RemoteResourceOwner {
     while (!client.isCanceled) {
       val chunk = Chunk.readFrom(input)
       chunk match {
-        case Chunk(NGConstants.CHUNKTYPE_EXIT, code) =>
+        case Chunk(NailgunConstants.CHUNKTYPE_EXIT, code) =>
           return
-        case Chunk(NGConstants.CHUNKTYPE_STDOUT, data) =>
+        case Chunk(NailgunConstants.CHUNKTYPE_STDOUT, data) =>
           try {
             val event = Event.fromBytes(Base64.getDecoder.decode(data))
             processor.process(event)
@@ -77,7 +76,7 @@ trait RemoteResourceOwner {
         //
         // Also sometimes Nailgun prints to NGContext output (instead of default process output)
         // e.g. see com.facebook.nailgun.builtins.DefaultNail.nailMain
-        case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
+        case Chunk(NailgunConstants.CHUNKTYPE_STDERR, data) =>
           val message = fromBytes(data)
           if (StringUtils.isNotBlank(message)) {
             val messageClean = RemoteResourceOwner.ansiColorCodePattern.replaceAllIn(message, "")
@@ -90,9 +89,9 @@ trait RemoteResourceOwner {
   }
 
   protected def createChunks(command: String, args: Seq[String]): Seq[Chunk] = {
-    args.map(s => Chunk(NGConstants.CHUNKTYPE_ARGUMENT.toChar, toBytes(s))) :+
-      Chunk(NGConstants.CHUNKTYPE_WORKINGDIRECTORY.toChar, toBytes(currentDirectory)) :+
-      Chunk(NGConstants.CHUNKTYPE_COMMAND.toChar, toBytes(command))
+    args.map(s => Chunk(NailgunConstants.CHUNKTYPE_ARGUMENT.toChar, toBytes(s))) :+
+      Chunk(NailgunConstants.CHUNKTYPE_WORKINGDIRECTORY.toChar, toBytes(currentDirectory)) :+
+      Chunk(NailgunConstants.CHUNKTYPE_COMMAND.toChar, toBytes(command))
   }
 
   private def toBytes(s: String) = s.getBytes(StandardCharsets.UTF_8)
