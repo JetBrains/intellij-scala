@@ -373,20 +373,21 @@ class ScalaSigPrinter(builder: StringBuilder) {
         if (isImplicitClause) mt.paramSymbols.dropWhile(ps => ps.name.startsWith("evidence$") && hasSingleArgument(ps))
         else mt.paramSymbols
 
-      val paramEntries = paramSymbolsWithoutContextBounds.map({
-        case ms: MethodSymbol => symbolAttributes(ms) + pe(ms)
-        case _ => "^___^"
-      })
-
       if (!isImplicitClause || paramSymbolsWithoutContextBounds.nonEmpty) {
+        val isImplicit = mt match {
+          case _: ImplicitMethodType => true
+          //for Scala 2.9
+          case mt: MethodType if mt.paramSymbols.nonEmpty && mt.paramSymbols.head.isImplicit => true
+          case _ => false
+        }
+        val paramEntries = paramSymbolsWithoutContextBounds.map({
+          case ms: MethodSymbol =>
+            val s = pe(ms)
+            symbolAttributes(ms) + (if (isImplicit) s.replace("implicit ", "") else s)
+          case _ => "^___^"
+        })
         // Print parameter clauses
-        print(paramEntries.mkString(
-          "(" + (mt match {
-            case _: ImplicitMethodType => "implicit "
-            //for Scala 2.9
-            case mt: MethodType if mt.paramSymbols.nonEmpty && mt.paramSymbols.head.isImplicit => "implicit "
-            case _ => ""
-          }), ", ", ")"))
+        print(paramEntries.mkString(if (isImplicit) "(implicit " else "(", ", ", ")"))
       }
 
       // Print result type

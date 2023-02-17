@@ -57,7 +57,7 @@ class DecompilerTest2 extends TestCase {
   def testParameterHKTBounds(): Unit = doTest("parameter/HKTBounds")
   def testParameterHKTVariance(): Unit = doTest("parameter/HKTVariance")
   def testParameterIdentifiers(): Unit = doTest("parameter/Identifiers")
-//  def testParameterModifiers(): Unit = doTest("parameter/Modifiers")
+  def testParameterModifiers(): Unit = doTest("parameter/Modifiers")
   def testParameterQualifier(): Unit = doTest("parameter/Qualifier")
   def testParameterRepeated(): Unit = doTest("parameter/Repeated")
   def testParameterTrait(): Unit = doTest("parameter/Trait")
