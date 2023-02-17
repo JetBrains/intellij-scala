@@ -750,7 +750,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   private def simplify(symbol: Symbol, parents: Seq[String]): Seq[String] = {
-    val parents0 = parents.dropWhile(_ == "scala.AnyRef")
+    val parents0 = parents.dropWhile(p => p == "scala.AnyRef" || p == "java.lang.Object")
     val parents1 = if (symbol.isCase) parents0.filterNot(_ == "scala.Product").filterNot(_ == "scala.Serializable") else parents0
     if (symbol.isModule) parents1.filterNot(_ == "java.io.Serializable") else parents1
   }
