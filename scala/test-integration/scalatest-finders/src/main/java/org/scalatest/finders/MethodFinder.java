@@ -22,8 +22,7 @@ public class MethodFinder implements Finder {
     public Selection find(AstNode node) {
       Selection result = null;
       while (result == null) {
-        if (node instanceof MethodDefinition) {
-          MethodDefinition methodDef = (MethodDefinition) node;
+        if (node instanceof MethodDefinition methodDef) {
           if (methodDef.parent() != null && methodDef.parent() instanceof ConstructorBlock && methodDef.paramTypes().length == 0 && methodDef.canBePartOfTestName()) {
             String displayName = NameTransformer.decode(methodDef.className()) + "." + methodDef.name();
             String testName = NameTransformer.encode(methodDef.name());

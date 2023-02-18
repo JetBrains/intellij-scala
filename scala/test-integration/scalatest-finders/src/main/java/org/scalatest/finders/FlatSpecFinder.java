@@ -29,8 +29,7 @@ public class FlatSpecFinder implements Finder {
     Selection result = null;
 
     while (result == null) {
-      if (node instanceof MethodInvocation) {
-        MethodInvocation invocation = (MethodInvocation) node;
+      if (node instanceof MethodInvocation invocation) {
         if (is(invocation.name(), "of", "in", "should", "must")) {
           ConstructorBlock constructor = getParentOfType(node, ConstructorBlock.class);
           if (constructor != null) {
@@ -67,8 +66,7 @@ public class FlatSpecFinder implements Finder {
         } else {
           break;
         }
-      else if (invocation.target() instanceof MethodInvocation) {
-        MethodInvocation invocationTarget = (MethodInvocation) invocation.target();
+      else if (invocation.target() instanceof MethodInvocation invocationTarget) {
         if (is(invocationTarget.name(), "should", "must", "taggedAs")) {
           invocation = invocationTarget;
         } else if (invocationTarget.canBePartOfTestName()) {
@@ -133,8 +131,7 @@ public class FlatSpecFinder implements Finder {
   }
 
   private boolean isScope(AstNode node, boolean allowIt) {
-    if (node instanceof MethodInvocation) {
-      MethodInvocation invocation = (MethodInvocation) node;
+    if (node instanceof MethodInvocation invocation) {
       return invocation.name().equals("of") ||
           isScopeTagged(invocation, allowIt) ||
           (invocation.name().equals("in") && invocation.target() != null &&
@@ -165,8 +162,7 @@ public class FlatSpecFinder implements Finder {
     if (node instanceof ConstructorBlock) {
       List<String> testNames = getTestNamesFromChildren(prefix, Arrays.asList(node.children()));
       return new Selection(node.className(), prefix.length() > 0 ? prefix : node.className(), testNames.toArray(new String[0]));
-    } else if (node instanceof MethodInvocation) {
-      MethodInvocation invocation = (MethodInvocation) node;
+    } else if (node instanceof MethodInvocation invocation) {
       String name = invocation.name();
       switch (name) {
         case "of":
@@ -208,8 +204,7 @@ public class FlatSpecFinder implements Finder {
     validSet.add("in");
     List<String> testNameList = new ArrayList<>();
     for (AstNode node : children) {
-      if (node instanceof MethodInvocation && isValidName(node.name(), validSet)) {
-        MethodInvocation invocation = (MethodInvocation) node;
+      if (node instanceof MethodInvocation invocation && isValidName(node.name(), validSet)) {
         String testName = getTestName(prefix, invocation);
         if (testName != null) {
           testNameList.add(testName);

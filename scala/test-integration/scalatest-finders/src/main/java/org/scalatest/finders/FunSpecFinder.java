@@ -27,8 +27,7 @@ public class FunSpecFinder implements Finder {
     String result = invocation.args()[0].toString();
     AstNode node = invocation.parent();
     while (node != null) {
-      if (node instanceof MethodInvocation) {
-        MethodInvocation parentInvocation = (MethodInvocation) node;
+      if (node instanceof MethodInvocation parentInvocation) {
         if (parentInvocation.name().equals("describe")) {
           if (parentInvocation.args()[0].canBePartOfTestName()) {
             result = parentInvocation.args()[0].toString() + " " + result;
@@ -53,8 +52,7 @@ public class FunSpecFinder implements Finder {
     
     while (nodes.size() > 0) {
       AstNode head = nodes.remove(0);
-      if (head instanceof MethodInvocation) {
-        MethodInvocation headInvocation = (MethodInvocation) head;
+      if (head instanceof MethodInvocation headInvocation) {
         if (headInvocation.name().equals("apply") && headInvocation.target() instanceof ToStringTarget && headInvocation.target().toString().equals("it")) {
           String testName = getTestNameBottomUp(headInvocation);
           if (testName != null) {
@@ -73,8 +71,7 @@ public class FunSpecFinder implements Finder {
   public Selection find(AstNode node) {
     Selection result = null;
     while (result == null) {
-      if (node instanceof MethodInvocation) {
-        MethodInvocation invocation = (MethodInvocation) node;
+      if (node instanceof MethodInvocation invocation) {
         String name = invocation.name();
         if (name.equals("apply")) {
           String testName = getTestNameBottomUp(invocation);

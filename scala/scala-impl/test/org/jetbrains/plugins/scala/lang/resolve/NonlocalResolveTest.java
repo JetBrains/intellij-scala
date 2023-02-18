@@ -170,8 +170,7 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
   
   public void testSCL3666() throws Exception {
     PsiReference ref = findReferenceAtCaret();
-    if (ref instanceof ScReference) {
-      ScReference refElement = (ScReference) ref;
+    if (ref instanceof ScReference refElement) {
       assertNotNull(ref.resolve());
       assertTrue(refElement.bind().get().isApplicable(false));
     }

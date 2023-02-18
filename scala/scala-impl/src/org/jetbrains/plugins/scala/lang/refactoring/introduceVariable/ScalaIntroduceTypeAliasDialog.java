@@ -91,8 +91,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         ScopeItem newScope = currentScope;
 
         ScalaValidator validator = null;
-        if (currentScope instanceof PackageScopeItem) {
-            PackageScopeItem packageScopeItem = (PackageScopeItem) currentScope;
+        if (currentScope instanceof PackageScopeItem packageScopeItem) {
             currentScope = ScopeSuggester.handleOnePackage(myTypeElement, packageScopeItem.name(),
                     (PsiDirectory) packageScopeItem.fileEncloser(), conflictsReporter, myTypeElement.getProject(),
                     isReplaceAllOccurrences(), getEnteredName());
@@ -172,8 +171,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         if (item instanceof PackageScopeItem) {
             myCbReplaceAllOccurences.setEnabled(true);
             myCbReplaceAllOccurences.setText(ScalaBundle.message("replace.all.occurrences"));
-        } else if (item instanceof SimpleScopeItem) {
-            SimpleScopeItem simpleScopeItem = (SimpleScopeItem) item;
+        } else if (item instanceof SimpleScopeItem simpleScopeItem) {
             int occurrencesCount = simpleScopeItem.usualOccurrences().length;
             if (occurrencesCount > 1) {
                 myCbReplaceAllOccurences.setEnabled(true);
@@ -187,8 +185,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
     private void setUpCompanionObjOcc(ScopeItem item) {
         myReplaceCompanionObjectOcc.setSelected(false);
-        if (item instanceof SimpleScopeItem) {
-            SimpleScopeItem simpleScopeItem = (SimpleScopeItem) item;
+        if (item instanceof SimpleScopeItem simpleScopeItem) {
             int companionObjOccCount = simpleScopeItem.occurrencesInCompanion().length;
             if (companionObjOccCount > 0) {
                 myReplaceCompanionObjectOcc.setEnabled(true);
@@ -324,8 +321,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     private void setUpReplaceInInheritors(ScopeItem scope) {
         myReplaceInInheritors.setSelected(false);
         myReplaceInInheritors.setEnabled(false);
-        if (scope instanceof SimpleScopeItem) {
-            SimpleScopeItem simpleScopeItem = (SimpleScopeItem) scope;
+        if (scope instanceof SimpleScopeItem simpleScopeItem) {
             if (simpleScopeItem.isClass() || simpleScopeItem.isTrait()) {
                 myReplaceInInheritors.setEnabled(true);
             } else {

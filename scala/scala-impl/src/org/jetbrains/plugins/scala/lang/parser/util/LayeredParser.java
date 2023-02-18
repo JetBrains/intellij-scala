@@ -430,15 +430,13 @@ public abstract class LayeredParser implements PsiParser {
     private void processFakeMarker(FakeMarker fakeMarker, Stack<FakeStartMarker> openMarkers) {
       if (!fakeMarker.isValid()) return;
 
-      if (fakeMarker instanceof FakeStartMarker) {
+      if (fakeMarker instanceof FakeStartMarker fakeStartMarker) {
         final Marker marker = myDelegate.mark();
-        final FakeStartMarker fakeStartMarker = (FakeStartMarker) fakeMarker;
 
         openMarkers.push(fakeStartMarker);
         fakeStartMarker.setDelegateMarker(marker);
         if (fakeStartMarker.getEndMarker() != null) fakeStartMarker.getEndMarker().setValid(true);
-      } else if (fakeMarker instanceof FakeEndMarker) {
-        final FakeEndMarker endMarker = (FakeEndMarker) fakeMarker;
+      } else if (fakeMarker instanceof FakeEndMarker endMarker) {
 
         while (!openMarkers.isEmpty() && openMarkers.peek() != endMarker.getStartMarker()) {
           FakeStartMarker markerToClose = openMarkers.pop();

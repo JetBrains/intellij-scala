@@ -23,8 +23,7 @@ abstract class FunctionFinder implements Finder {
   public Selection find(AstNode node) {
     Selection result = null;
     while (result == null) {
-      if (node instanceof MethodInvocation) {
-        MethodInvocation methodInv = (MethodInvocation) node;
+      if (node instanceof MethodInvocation methodInv) {
         if (getName().equals(methodInv.name()) && methodInv.parent() != null && methodInv.parent() instanceof ConstructorBlock && methodInv.args()[0].canBePartOfTestName())
           result = new Selection(methodInv.className(), methodInv.className() + ": \"" + methodInv.args()[0].toString() + "\"", new String[] { methodInv.args()[0].toString() });
         else {
