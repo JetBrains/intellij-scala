@@ -29,17 +29,8 @@ class NameTransformer {
     enterOp('?', "$qmark");
     enterOp('@', "$at");
   }
-  
-  private static class OpCodes {
-    private final char op;
-    private final String code;
-    private final OpCodes next;
-    
-    public OpCodes(char op, String code, OpCodes next) {
-      this.op = op;
-      this.code = code;
-      this.next = next;
-    }
+
+  private record OpCodes(char op, String code, NameTransformer.OpCodes next) {
   }
   
   
