@@ -59,8 +59,7 @@ public class SpecFinder implements Finder {
     
     while (nodes.size() > 0) {
       AstNode head = nodes.remove(0);
-      if (head instanceof MethodDefinition) {
-        MethodDefinition methodDef = (MethodDefinition) head;
+      if (head instanceof MethodDefinition methodDef) {
         if (methodDef.name().contains(" ")) {
           String testName = getTestNameBottomUp(methodDef);
           if (testName.length() > 0)

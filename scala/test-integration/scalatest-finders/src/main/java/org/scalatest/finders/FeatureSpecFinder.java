@@ -25,16 +25,14 @@ public class FeatureSpecFinder implements Finder {
   public Selection find(AstNode node) {
     Selection result = null;
     while (result == null) {
-      if (node instanceof MethodInvocation) {
-        MethodInvocation invocation = (MethodInvocation) node;
+      if (node instanceof MethodInvocation invocation) {
         String name = invocation.name();
         AstNode[] args = invocation.args();
         if (isScenarioRef(name) && args.length > 0 && args[0].canBePartOfTestName()) {
           AstNode parent = invocation.parent();
           if (parent instanceof ConstructorBlock)
             result = new Selection(parent.className(), "Scenario: " + args[0].toString(), new String[] { "Scenario: " + args[0].toString() });
-          else if (parent instanceof MethodInvocation) {
-            MethodInvocation parentInvocation = (MethodInvocation) parent;
+          else if (parent instanceof MethodInvocation parentInvocation) {
             String parentName = parentInvocation.name();
             AstNode[] parentArgs = parentInvocation.args();
             if (isFeatureRef(parentName) && parentArgs.length > 0 && parentArgs[0].canBePartOfTestName()) {
@@ -62,14 +60,13 @@ public class FeatureSpecFinder implements Finder {
             List<String> testNameList = new ArrayList<>();
             AstNode[] children = invocation.children();
             for (AstNode childNode : children) {
-              if (childNode instanceof MethodInvocation
+              if (childNode instanceof MethodInvocation child
                   && (isScenarioRef(childNode.name()))
                   && ((MethodInvocation) childNode).args().length > 0
                   && ((MethodInvocation) childNode).args()[0] instanceof StringLiteral) {
-                  MethodInvocation child = (MethodInvocation) childNode;
-                  if (child.args()[0].canBePartOfTestName()) {
-                    testNameList.add(featureText + " Scenario: " + child.args()[0]);
-                  }
+                if (child.args()[0].canBePartOfTestName()) {
+                  testNameList.add(featureText + " Scenario: " + child.args()[0]);
+                }
               }
             }
             result = new Selection(invocation.className(), featureText, testNameList.toArray(new String[0]));

@@ -27,8 +27,7 @@ public class PackageSearchApiHelper {
         String textSearch = String.format("%s %s", finalGroupId, finalArtifactId);
         if (fillArtifact)
             return service.suggestPrefix(finalGroupId, finalArtifactId, searchParameters, repo -> {
-                if (repo instanceof MavenRepositoryArtifactInfo) {
-                    MavenRepositoryArtifactInfo tempRepo = (MavenRepositoryArtifactInfo) repo;
+                if (repo instanceof MavenRepositoryArtifactInfo tempRepo) {
                     if (tempRepo.getGroupId().equals(finalGroupId))
                         cld.add((MavenRepositoryArtifactInfo) repo);
                 }

@@ -27,8 +27,7 @@ public class FreeSpecFinder implements Finder {
   private String getTestNameBottomUp(MethodInvocation invocation) {
     StringBuilder result = new StringBuilder();
     while (invocation != null) {
-      if (invocation.target().name().equals("taggedAs") && invocation.target() instanceof MethodInvocation) {
-        MethodInvocation taggedInvocation = (MethodInvocation) invocation.target();
+      if (invocation.target().name().equals("taggedAs") && invocation.target() instanceof MethodInvocation taggedInvocation) {
         if (!taggedInvocation.target().canBePartOfTestName()) return null;
         result.insert(0, taggedInvocation.target().toString() + " ");
       } else {
@@ -50,8 +49,7 @@ public class FreeSpecFinder implements Finder {
       
     while (nodes.size() > 0) {
       AstNode head = nodes.remove(0);
-      if (head instanceof MethodInvocation) {
-        MethodInvocation headInvocation = (MethodInvocation) head;
+      if (head instanceof MethodInvocation headInvocation) {
         if (is(headInvocation.name(), "in", "is")) {
           String testName = getTestNameBottomUp(headInvocation);
           if (testName != null) {
@@ -70,8 +68,7 @@ public class FreeSpecFinder implements Finder {
   public Selection find(AstNode node) {
     Selection result = null;
     while (result == null) {
-      if (node instanceof MethodInvocation) {
-        MethodInvocation invocation = (MethodInvocation) node;
+      if (node instanceof MethodInvocation invocation) {
         String name = invocation.name();
         AstNode parent = invocation.parent();
 

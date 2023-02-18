@@ -90,8 +90,7 @@ public class MoveScalaFileHandler extends MoveFileHandler {
   @Override
   public void retargetUsages(List<UsageInfo> usageInfos, Map<PsiElement, PsiElement> oldToNewMap) {
     for (UsageInfo usage : usageInfos) {
-      if (usage instanceof MoveRenameUsageInfo) {
-        final MoveRenameUsageInfo moveRenameUsage = (MoveRenameUsageInfo)usage;
+      if (usage instanceof MoveRenameUsageInfo moveRenameUsage) {
         final PsiElement oldElement = moveRenameUsage.getReferencedElement();
         final PsiElement newElement = oldToNewMap.get(oldElement);
         final PsiReference reference = moveRenameUsage.getReference();

@@ -37,8 +37,7 @@ public class WordSpecFinder implements Finder {
 
     AstNode curNode = node;
     while (result == null && curNode != null) {
-      if (curNode instanceof MethodInvocation) {
-        MethodInvocation invocation = (MethodInvocation) curNode;
+      if (curNode instanceof MethodInvocation invocation) {
 
         String name = invocation.name();
         AstNode parent = invocation.parent();
@@ -99,8 +98,7 @@ public class WordSpecFinder implements Finder {
         
     while (nodes.size() > 0) {
       AstNode head = nodes.remove(0);
-      if (head instanceof MethodInvocation) {
-        MethodInvocation headInvocation = (MethodInvocation) head;
+      if (head instanceof MethodInvocation headInvocation) {
         if (isMethod(headInvocation, "in")) {
           String testName = getTestNameBottomUp(headInvocation);
           if (testName != null) {
