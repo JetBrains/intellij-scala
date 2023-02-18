@@ -16,27 +16,5 @@
 
 package org.scalatest.finders;
 
-public class Selection {
-    
-    private final String className;
-    private final String displayName;
-    private final String[] testNames;
-
-    public Selection(String className, String displayName, String[] testNames) {
-        this.className = className;
-        this.displayName = displayName;
-        this.testNames = testNames;
-    }
-
-    public String className() {
-        return className;
-    }
-
-    public String displayName() {
-        return displayName;
-    }
-
-    public String[] testNames() {
-        return testNames;
-    }
+public record Selection(String className, String displayName, String[] testNames) {
 }
