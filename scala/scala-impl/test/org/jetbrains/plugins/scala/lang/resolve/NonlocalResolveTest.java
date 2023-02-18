@@ -51,7 +51,7 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     assertTrue(resolved instanceof ScFunction);
     ScFunction fun = (ScFunction) resolved;
     ScTemplateDefinition clazz = fun.containingClass();
-    assertTrue(clazz.getName().equals("C"));    
+    assertEquals("C", clazz.getName());
   }
 
   public void testMathImported() throws Exception {

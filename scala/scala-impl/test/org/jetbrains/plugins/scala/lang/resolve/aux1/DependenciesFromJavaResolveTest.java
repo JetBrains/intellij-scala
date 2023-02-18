@@ -27,9 +27,9 @@ public class DependenciesFromJavaResolveTest extends ScalaResolveTestCase {
     final ScClass clazz = (ScClass) resolved;
     final PsiClass[] supers = clazz.getSupers();
 
-    assertTrue(supers.length == 1);
+    assertEquals(1, supers.length);
     final String name = supers[0].getName();
-    assertTrue(name.equals("Object"));
+    assertEquals("Object", name);
   }
   
   public void testScalaPrivateTag() throws Exception {

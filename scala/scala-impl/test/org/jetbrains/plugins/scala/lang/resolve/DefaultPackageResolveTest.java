@@ -15,21 +15,21 @@ public class DefaultPackageResolveTest extends ScalaResolveTestCase {
 
   public void testScalaToJava() throws Exception {
     PsiReference ref = findReferenceAtCaret();
-    assertTrue(ref.resolve() == null);
+    assertNull(ref.resolve());
   }
 
   public void testScalaToScala() throws Exception {
     PsiReference ref = findReferenceAtCaret();
-    assertTrue(ref.resolve() == null);
+    assertNull(ref.resolve());
   }
 
   public void testScalaToScript() throws Exception {
     PsiReference ref = findReferenceAtCaret();
-    assertTrue(ref.resolve() == null);
+    assertNull(ref.resolve());
   }
 
   public void testDefaultScalaToJava() throws Exception {
     PsiReference ref = findReferenceAtCaret();
-    assertTrue(ref.resolve() != null);
+    assertNotNull(ref.resolve());
   }
 }
