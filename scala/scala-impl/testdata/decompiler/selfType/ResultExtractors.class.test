@@ -1,6 +1,6 @@
 package play.api.test
 
-trait ResultExtractors { this: play.api.test.ResultExtractors with play.api.http.HeaderNames with play.api.http.Status =>
+trait ResultExtractors { this: play.api.http.HeaderNames with play.api.http.Status =>
   def contentType(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): scala.Predef.String = ???
 
   def contentAsString(of: play.twirl.api.Content)(implicit timeout: akka.util.Timeout): scala.Predef.String = ???

@@ -72,7 +72,7 @@ class DecompilerTest2 extends TestCase {
   def testTypeDefinitionObject(): Unit = doTest("typeDefinition/Object")
   def testTypeDefinitionParents(): Unit = doTest("typeDefinition/Parents")
   def testTypeDefinitionQualifier(): Unit = doTest("typeDefinition/Qualifier")
-//  def testTypeDefinitionSelfType(): Unit = doTest("typeDefinition/SelfType")
+  def testTypeDefinitionSelfType(): Unit = doTest("typeDefinition/SelfType")
   def testTypeDefinitionTrait(): Unit = doTest("typeDefinition/Trait")
   def testTypesAnd(): Unit = doTest("types/And")
 //  def testTypesAnnotated(): Unit = doTest("types/Annotated")

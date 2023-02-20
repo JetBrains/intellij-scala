@@ -246,7 +246,14 @@ class ScalaSigPrinter(builder: StringBuilder) {
         val previousLength = builder.length
         print(" {")
         //Print class selftype
-        c.thisTypeRef match {
+        val selfType = c.thisTypeRef match {
+          case Some(t) => t.get match {
+            case RefinedType(_, Seq(_, t2)) => Some(t2)
+            case _ => Some(t)
+          }
+          case None => None
+        }
+        selfType match {
           case Some(t) => print(" this: " + toString(t.get, "", parens = 1) + " =>")
           case None =>
         }
