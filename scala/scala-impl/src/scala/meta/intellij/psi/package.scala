@@ -8,7 +8,7 @@ package object psi {
 
   object hasInlineAnnotation {
 
-    def unapply(definition: ScTemplateDefinition): Boolean =
+    def unapply(definition: ScTemplateDefinition): Boolean = !definition.isInScala3Module &&
       definition.membersWithSynthetic.exists {
         case member if hasInlineModifier(member) => true
         case holder: ScAnnotationsHolder => holder.hasAnnotation("scala.meta.internal.inline.inline")
