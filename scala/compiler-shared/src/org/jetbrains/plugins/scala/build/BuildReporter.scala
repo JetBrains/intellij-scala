@@ -24,6 +24,9 @@ trait BuildReporter {
   /** Show warning message. */
   def warning(@Nls message: String, position: Option[FilePosition]): Unit
 
+  /** Show warning message with details. */
+  def warning(@Nls message: String, position: Option[FilePosition], @Nls details: String): Unit = ()
+
   /** Show error message. */
   def error(@Nls message: String, position: Option[FilePosition]): Unit
 

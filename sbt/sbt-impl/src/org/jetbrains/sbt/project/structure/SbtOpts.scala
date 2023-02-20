@@ -2,12 +2,15 @@ package org.jetbrains.sbt
 package project.structure
 
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.text.EditDistance
+import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.sbt.project.structure.SbtOption._
 
 import java.io.File
 import scala.annotation.tailrec
 import scala.collection.immutable.ListMap
+import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
@@ -42,12 +45,28 @@ object SbtOpts {
     "-error" -> SbtLauncherOption("--error")
   )
 
-  def loadFrom(directory: File): Seq[SbtOption] = {
+  private val helperMessages = ListMap(
+    "-sbt-boot" -> "--sbt-boot <path>",
+    "-sbt-dir" -> "--sbt-dir <path>",
+    "-ivy" -> "--ivy <path>",
+    "-no-global" -> "--no-global",
+    "-no-share" -> "--no-share",
+    "-jvm-debug" -> "--jvm-debug <port>",
+    "-sbt-cache" -> "--sbt-cache <path>",
+    "-debug-inc" -> "--debug-inc",
+    "-traces" -> "--traces",
+    "-timings" -> "--timings",
+    "-no-colors" -> "--no-colors",
+    "-color=" -> "--color=auto|always|true|false|never"
+  ) ++ sbtToLauncherOpts.map { kv => kv._1 -> { if (isShortOption(kv._1)) kv._1 else s"-${kv._1}" } }
+
+  def loadFrom(directory: File)(implicit reporter: BuildReporter = null): Seq[SbtOption] = {
     val sbtOptsFile = directory / SbtOptsFile
     if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead) {
       val optsFromFile = FileUtil.loadLines(sbtOptsFile)
         .asScala.iterator
         .map(_.trim)
+        .filter(_.nonEmpty)
         .map(removeDoubleDash)
         .toSeq
       processArgs(optsFromFile, directory.getCanonicalPath)
@@ -63,10 +82,10 @@ object SbtOpts {
           case Some(x) =>
             if (x.value.endsWith("=") && !opt.endsWith("=")) {
               Try(optsToCombine(1)).fold(
-                _ => false, // TODO show warning about the lack of the argument
+                _ => false,
                 next =>
                   if (!next.startsWith("-") && next.nonEmpty) true
-                  else false // TODO show warning about the incorrect argument
+                  else false
               )
             } else false
           case None => false
@@ -82,8 +101,9 @@ object SbtOpts {
     prependArgsToOpts(opts.map(removeDoubleDash), Seq.empty)
   }
 
-  def processArgs(opts: Seq[String], projectPath: String): Seq[SbtOption] = {
-    opts.flatMap { opt =>
+  def processArgs(opts: Seq[String], projectPath: String)(implicit reporter: BuildReporter = null): Seq[SbtOption] = {
+    val unrecognizedOpts = ListBuffer[(String, Option[String])]()
+    val sbtOpts = opts.flatMap { opt =>
       if (sbtToLauncherOpts.contains(opt))
         sbtToLauncherOpts.get(opt)
       else if (opt.startsWith("-J"))
@@ -92,12 +112,49 @@ object SbtOpts {
         Some(JvmOptionGlobal(opt))
       else {
         processOptWithArg(opt, projectPath)
+          .orElse {
+            unrecognizedOpts.addOne(findClosestOption(opt))
+            None
+          }
       }
+    }
+    if (unrecognizedOpts.nonEmpty) {
+      Option(reporter).foreach { reporter =>
+        val warningDetails = unrecognizedOpts.map {
+          case (x, Some(y)) => SbtBundle.message("sbt.unrecognized.opt.with.suggestion", x, y)
+          case (x, None) => SbtBundle.message("sbt.unrecognised.opt", x)
+        }
+        reporter.warning(
+          SbtBundle.message("sbt.unrecognized.opts", unrecognizedOpts.map(_._1).mkString(", ")), None,
+          (warningDetails :+ SbtBundle.message("sbt.available.opts", helperMessages.values.mkString("\n", "\n", ""))).mkString("\n"))
+      }
+    }
+    sbtOpts
+  }
+
+  private def findClosestOption(userOpt: String): (String, Option[String]) = {
+    val closestOption = (sbtToJdkOpts("") ++ sbtToLauncherOpts)
+      .map { opt =>
+        opt -> {
+          val truncatedOptFromArg =
+            if (opt._2.value.endsWith("=") && !opt._1.endsWith("=")) userOpt.split(' ')(0)
+            else if (opt._2.value.endsWith("=") && opt._1.endsWith("=")) userOpt.split("=")(0)
+            else userOpt
+          EditDistance.optimalAlignment(opt._1, truncatedOptFromArg.trim, false, 2)
+        }
+      }
+      .filter(_._2 <= 2)
+      .minByOption(_._2)
+    closestOption match {
+      case Some(x) => (userOpt, Some(helperMessages(x._1._1)))
+      case None => (userOpt, None)
     }
   }
 
+  private def isShortOption(opt: String): Boolean = opt.matches("\\-+.$")
+
   private def removeDoubleDash(opt: String): String =
-    if (opt.startsWith("--") && !opt.matches("\\-+.$")) opt.stripPrefix("-") else opt
+    if (opt.startsWith("--") && !isShortOption(opt)) opt.stripPrefix("-") else opt
 
   private def processOptWithArg(opt: String, projectPath: String): Option[SbtOption] = {
     sbtToJdkOpts(projectPath)
