@@ -80,9 +80,4 @@ class SbtOptsTest {
     doTest(Seq("-d", "-sbt-dir", ""), Seq("-d", "-sbt-dir", ""))
     doTest(Seq("-d", "-sbt-dir", "-dummy"), Seq("-d", "-sbt-dir", "-dummy"))
   }
-
-  @Test
-  def dummyFailingTest(): Unit = {
-    assertThat(3, equalTo(2))
-  }
 }
