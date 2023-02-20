@@ -17,7 +17,7 @@ trait Function {
 
   trait T6 extends (Int => Unit)
 
-  class C { this: C with (Int => Unit) =>
+  class C { this: (Int => Unit) =>
   }
 
   def repeated(xs: (Int => Unit)*): Unit
