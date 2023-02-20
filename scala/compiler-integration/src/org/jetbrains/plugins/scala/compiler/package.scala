@@ -4,7 +4,6 @@ import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
-import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.CompileServerProblem
 
 import java.io.File
@@ -28,9 +27,4 @@ package object compiler {
       CompileServerManager.showCompileServerSettingsDialog(project, filter)
     }
   }
-
-  def createJvmAddOpensParams(modulePackageList: String*): Seq[String] =
-    modulePackageList.flatMap { modulePackage =>
-      Seq("--add-opens", s"$modulePackage=ALL-UNNAMED")
-    }
 }
