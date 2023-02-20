@@ -17,6 +17,10 @@ trait Function {
 
   trait T6 extends (Int => Unit)
 
+  trait C { self: (Int => Unit) =>
+
+  }
+
   def repeated(xs: (Int => Unit)*): Unit
 
   type T7 = ((Int, Long)) => Unit
