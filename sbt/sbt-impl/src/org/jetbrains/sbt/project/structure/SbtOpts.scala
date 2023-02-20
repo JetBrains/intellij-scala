@@ -33,6 +33,7 @@ object SbtOpts {
     "-color=" -> JvmOptionShellOnly("-Dsbt.color=")
   )
 
+  // options proceeded by -- will also also handled (except -d)
   private val sbtToLauncherOpts: ListMap[String, SbtOption] = ListMap(
     "-d" -> SbtLauncherOption("--debug"),
     "-debug" -> SbtLauncherOption("--debug"),
