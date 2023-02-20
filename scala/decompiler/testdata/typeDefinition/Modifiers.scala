@@ -1,8 +1,8 @@
 package typeDefinition
 
-trait Modifiers {
+trait Modifiers {/**/
   private class PrivateClass
-
+/**/
   protected class ProtectedClass
 
   abstract class AbstractClass
@@ -12,12 +12,10 @@ trait Modifiers {
   sealed class SealedClass
 
   case class CaseClass()
-
+/**/
   private trait PrivateTrait
-
+/**/
   protected trait ProtectedTrait
-
-  abstract trait AbstractTrait
 
   sealed trait SealedTrait
 
@@ -28,4 +26,14 @@ trait Modifiers {
   implicit object ImplicitObject
 
   case object CaseObject
+
+  trait A {
+    protected def x: Any
+  }
+
+  trait B extends A {
+    abstract override protected implicit case object x
+  }
+
+  protected sealed abstract class C
 }

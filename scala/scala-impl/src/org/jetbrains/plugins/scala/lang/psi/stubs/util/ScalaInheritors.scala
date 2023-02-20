@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScDesugarizableTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
@@ -51,6 +51,7 @@ object ScalaInheritors {
             case Some(e) => extractReference(e)
             case _ => None
           }
+        case x: ScDesugarizableTypeElement => extractReference(x.typeElementFromText(x.desugarizedText))
         case _ => None
       }
     }

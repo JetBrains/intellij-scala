@@ -65,6 +65,7 @@ class TastyReaderTest extends TestCase {
   def testMemberType(): Unit = doTest("member/Type")
   def testMemberVal(): Unit = doTest("member/Val")
   def testMemberVar(): Unit = doTest("member/Var")
+  def testPackage1Package(): Unit = doTest("package1/package")
   def testPackage1Package2Package(): Unit = doTest("package1/package2/package")
   def testPackage1Package2Nested(): Unit = doTest("package1/package2/Nested")
   def testPackage1Package2NestedImport(): Unit = doTest("package1/package2/NestedImport")
@@ -114,6 +115,7 @@ class TastyReaderTest extends TestCase {
   def testTypesFunctionContext(): Unit = doTest("types/FunctionContext")
   def testTypesFunctionPolymorphic(): Unit = doTest("types/FunctionPolymorphic")
   def testTypesIdent(): Unit = doTest("types/Ident")
+  def testTypesInfix(): Unit = doTest("types/Infix")
   def testTypesKindProjector(): Unit = doTest("types/KindProjector")
   def testTypesLambda(): Unit = doTest("types/Lambda")
   def testTypesLiteral(): Unit = doTest("types/Literal")
@@ -153,7 +155,7 @@ class TastyReaderTest extends TestCase {
     val tree = TreeReader.treeFrom(readBytes(tastyFile))
 
     val (sourceFile, actual) = try {
-      val treePrinter = new TreePrinter(privateMembers = true)
+      val treePrinter = new TreePrinter(simpleTypes = true)
       treePrinter.fileAndTextOf(tree)
     } catch {
       case NonFatal(e) =>

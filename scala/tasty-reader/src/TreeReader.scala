@@ -48,7 +48,7 @@ private class TreeReader(nameAtRef: NameTable) {
       tag match {
         case RENAMED =>
 //          names :+= readName(in); names :+= readName(in)
-        case VALDEF | DEFDEF | TYPEDEF | TYPEPARAM | PARAM | NAMEDARG | BIND =>
+        case VALDEF | DEFDEF | TYPEDEF | TYPEPARAM | PARAM | BIND =>
           names :+= readName(in); children = treeReader()
         case REFINEDtype | TERMREFin | TYPEREFin | SELECTin =>
           names :+= readName(in); children = treeReader()
@@ -68,7 +68,7 @@ private class TreeReader(nameAtRef: NameTable) {
     }
     else if (tag >= firstNatASTTreeTag) {
       tag match {
-        case IDENT | IDENTtpt | SELECT | SELECTtpt | TERMREF | TYPEREF | SELFDEF => names :+= readName(in)
+        case IDENT | IDENTtpt | SELECT | SELECTtpt | TERMREF | TYPEREF | SELFDEF | NAMEDARG => names :+= readName(in)
         case _ => nat = readNat(in)
       }
       children = { val tree = readTree(in); () => Seq(tree) }
@@ -95,7 +95,7 @@ private class TreeReader(nameAtRef: NameTable) {
         tag match {
           case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
             val in0 = in.subReader(Addr(nat), in.endAddr)
-            in0.readByte() // Tag
+            node.refTag = Some(in0.readByte())
             in0.readNat() // Length
             node.refName = Some(readName(in0)) // TODO use as node name?
           case _ =>

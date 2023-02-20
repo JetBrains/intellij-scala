@@ -1,7 +1,7 @@
 package sbt
 
-final case class SessionSettings(currentBuild: java.net.URI, currentProject: scala.Predef.Map[java.net.URI, scala.Predef.String], original: scala.Seq[sbt.Def.Setting[_]], append: sbt.SessionSettings.SessionMap, rawAppend: scala.Seq[sbt.Def.Setting[_]], currentEval: scala.Function0[sbt.compiler.Eval]) {
-  def setCurrent(build: java.net.URI, project: scala.Predef.String, eval: scala.Function0[sbt.compiler.Eval]): sbt.SessionSettings = ???
+final case class SessionSettings(currentBuild: java.net.URI, currentProject: scala.Predef.Map[java.net.URI, scala.Predef.String], original: scala.Seq[sbt.Def.Setting[_]], append: sbt.SessionSettings.SessionMap, rawAppend: scala.Seq[sbt.Def.Setting[_]], currentEval: () => sbt.compiler.Eval) {
+  def setCurrent(build: java.net.URI, project: scala.Predef.String, eval: () => sbt.compiler.Eval): sbt.SessionSettings = ???
 
   def current: sbt.ProjectRef = ???
 
@@ -15,11 +15,11 @@ final case class SessionSettings(currentBuild: java.net.URI, currentProject: sca
 }
 
 object SessionSettings extends scala.Serializable {
-  type SessionSetting = scala.Tuple2[sbt.Def.Setting[_], scala.Seq[scala.Predef.String]]
+  type SessionSetting = (sbt.Def.Setting[_], scala.Seq[scala.Predef.String])
 
   type SessionMap = scala.Predef.Map[sbt.ProjectRef, scala.Seq[sbt.SessionSettings.SessionSetting]]
 
-  type SbtConfigFile = scala.Tuple2[java.io.File, scala.Seq[scala.Predef.String]]
+  type SbtConfigFile = (java.io.File, scala.Seq[scala.Predef.String])
 
   def reapply(session: sbt.SessionSettings, s: sbt.State): sbt.State = ???
 
@@ -27,25 +27,25 @@ object SessionSettings extends scala.Serializable {
 
   def clearAllSettings(s: sbt.State): sbt.State = ???
 
-  def withSettings(s: sbt.State)(f: scala.Function1[sbt.SessionSettings, sbt.State]): sbt.State = ???
+  def withSettings(s: sbt.State)(f: sbt.SessionSettings => sbt.State): sbt.State = ???
 
   def pluralize(size: scala.Int, of: scala.Predef.String): java.lang.String = ???
 
   def checkSession(newSession: sbt.SessionSettings, oldState: sbt.State): scala.Unit = ???
 
   @scala.deprecated("This method will no longer be public", "0.13.7")
-  def removeRanges[T](in: scala.Seq[T], ranges: scala.Seq[scala.Tuple2[scala.Int, scala.Int]]): scala.Seq[T] = ???
+  def removeRanges[T](in: scala.Seq[T], ranges: scala.Seq[(scala.Int, scala.Int)]): scala.Seq[T] = ???
 
-  def removeSettings(s: sbt.State, ranges: scala.Seq[scala.Tuple2[scala.Int, scala.Int]]): sbt.State = ???
+  def removeSettings(s: sbt.State, ranges: scala.Seq[(scala.Int, scala.Int)]): sbt.State = ???
 
   def saveAllSettings(s: sbt.State): sbt.State = ???
 
   def saveSettings(s: sbt.State): sbt.State = ???
 
-  def saveSomeSettings(s: sbt.State)(include: scala.Function1[sbt.ProjectRef, scala.Boolean]): sbt.State = ???
+  def saveSomeSettings(s: sbt.State)(include: sbt.ProjectRef => scala.Boolean): sbt.State = ???
 
   @scala.deprecated("This method will no longer be public", "0.13.7")
-  def writeSettings(pref: sbt.ProjectRef, settings: scala.List[sbt.SessionSettings.SessionSetting], original: scala.Seq[sbt.Def.Setting[_]], structure: sbt.BuildStructure): scala.Tuple2[scala.Seq[sbt.SessionSettings.SessionSetting], scala.Seq[sbt.Def.Setting[_]]] = ???
+  def writeSettings(pref: sbt.ProjectRef, settings: scala.List[sbt.SessionSettings.SessionSetting], original: scala.Seq[sbt.Def.Setting[_]], structure: sbt.BuildStructure): (scala.Seq[sbt.SessionSettings.SessionSetting], scala.Seq[sbt.Def.Setting[_]]) = ???
 
   @scala.deprecated("This method will no longer be public", "0.13.7")
   def needsTrailingBlank(lines: scala.Seq[scala.Predef.String]): scala.Boolean = ???
@@ -64,7 +64,7 @@ object SessionSettings extends scala.Serializable {
 
   final class Print(val all: scala.Boolean) extends sbt.SessionSettings.SessionCommand
 
-  final class Remove(val ranges: scala.Seq[scala.Tuple2[scala.Int, scala.Int]]) extends sbt.SessionSettings.SessionCommand
+  final class Remove(val ranges: scala.Seq[(scala.Int, scala.Int)]) extends sbt.SessionSettings.SessionCommand
 
   final class Save(val all: scala.Boolean) extends sbt.SessionSettings.SessionCommand
 
@@ -72,9 +72,9 @@ object SessionSettings extends scala.Serializable {
 
   lazy val remove: sbt.complete.Parser[sbt.SessionSettings.Remove] = ???
 
-  def natSelect: sbt.complete.Parser[scala.Seq[scala.Tuple2[scala.Int, scala.Int]]] = ???
+  def natSelect: sbt.complete.Parser[scala.Seq[(scala.Int, scala.Int)]] = ???
 
-  def range: sbt.complete.Parser[scala.Tuple2[scala.Int, scala.Int]] = ???
+  def range: sbt.complete.Parser[(scala.Int, scala.Int)] = ???
 
-  def command(s: sbt.State): sbt.complete.Parser[scala.Function0[sbt.State]] = ???
+  def command(s: sbt.State): sbt.complete.Parser[() => sbt.State] = ???
 }

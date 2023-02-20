@@ -13,13 +13,19 @@ trait Modifiers {
 
   class ClassVar(var x: Int)
 
-  class ClassPrivate(private val x: Int)
+  class ClassPrivate(/**/private val /**/x: Int)
 
   class ClassProtected(protected val x: Int)
 
   class ClassFinal(final val x: Int)
 
   class ClassOverride(override val hashCode: Int)
+
+  trait A {
+    protected val x: Int
+  }
+
+  class B(implicit override protected final val x: Int) extends A
 
   def defImplicit(implicit x: Int, y: Long): Unit
 

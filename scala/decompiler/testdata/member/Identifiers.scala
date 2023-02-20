@@ -11,6 +11,8 @@ trait Identifiers {
 
   type `type` = Int
 
+  def _foo: Int = ???
+
   def & : Int = ???
 
   def foo_ : Int = ???

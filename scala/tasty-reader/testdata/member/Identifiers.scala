@@ -14,6 +14,8 @@ trait Identifiers {
   extension (i: Int)
     def `def`: Int = ???
 
+  def _foo: Int = ???
+
   def & : Int = ???
 
   def foo_ : Int = ???

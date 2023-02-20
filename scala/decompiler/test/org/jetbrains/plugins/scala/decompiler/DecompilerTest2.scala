@@ -8,45 +8,38 @@ import scala.util.control.NonFatal
 
 // TODO Prettify and unify Scala 2 decompiler output, SCL-20672
 
-// companion object extends Foo (with Serializable)
-// trailing line separator
 // self type class with
-// final override -> override final
-// infix parameterized types
-// function types
-// tuple types
-// order of annotations
 
-// fix: <empty> package
+// fix: final val v: 123 = ??? is not a constant
 // fix: private val parameters in value classes
 // fix: implicit implicit val x: Int, implicit val y: Int
-// fix: annotation on value parameters, primary constructors, types
+// fix: annotation on types
 // fix: qualified private abstract type is decompiled, without access modifier
 // fix: private type alias is decompiled
 // fix: custom self type names
 
+// Foo.this.A for type parameters
 // qualified private that is equivalent to private is decompiled?
-// abstract trait?
-// annotation by-name arguments?
 // literal types - annotations?
 // why private[Class1] def method1: Int is decompiled?
 // why private object PrivateObject is decompiled?
 
 class DecompilerTest2 extends TestCase {
 
-//  def testAnnotationMembers(): Unit = doTest("annotation/Members")
-//  def testAnnotationMultiple(): Unit = doTest("annotation/Multiple")
-//  def testAnnotationParameters(): Unit = doTest("annotation/Parameters")
-//  def testAnnotationText(): Unit = doTest("annotation/Text")
+  def testAnnotationMembers(): Unit = doTest("annotation/Members")
+  def testAnnotationMultiple(): Unit = doTest("annotation/Multiple")
+  def testAnnotationParameters(): Unit = doTest("annotation/Parameters")
+  def testAnnotationText(): Unit = doTest("annotation/Text")
   def testMemberBounds(): Unit = doTest("member/Bounds")
   def testMemberDef(): Unit = doTest("member/Def")
   def testMemberIdentifiers(): Unit = doTest("member/Identifiers")
-//  def testMemberModifiers(): Unit = doTest("member/Modifiers")
-//  def testMemberQualifier(): Unit = doTest("member/Qualifier")
+  def testMemberModifiers(): Unit = doTest("member/Modifiers")
+  def testMemberQualifier(): Unit = doTest("member/Qualifier")
   def testMemberThis(): Unit = doTest("member/This")
   def testMemberType(): Unit = doTest("member/Type")
   def testMemberVal(): Unit = doTest("member/Val")
   def testMemberVar(): Unit = doTest("member/Var")
+  def testPackage1Package(): Unit = doTest("package1/package")
   def testPackage1Package2Package(): Unit = doTest("package1/package2/package")
   def testPackage1Package2Nested(): Unit = doTest("package1/package2/Nested")
   def testPackage1Package2NestedImport(): Unit = doTest("package1/package2/NestedImport")
@@ -57,14 +50,14 @@ class DecompilerTest2 extends TestCase {
   def testParameterByName(): Unit = doTest("parameter/ByName")
   def testParameterCaseClass(): Unit = doTest("parameter/CaseClass")
   def testParameterClass(): Unit = doTest("parameter/Class")
-//  def testParameterContextBounds(): Unit = doTest("parameter/ContextBounds")
+  def testParameterContextBounds(): Unit = doTest("parameter/ContextBounds")
   def testParameterDef(): Unit = doTest("parameter/Def")
   def testParameterDefaultArguments(): Unit = doTest("parameter/DefaultArguments")
   def testParameterHKT(): Unit = doTest("parameter/HKT")
   def testParameterHKTBounds(): Unit = doTest("parameter/HKTBounds")
   def testParameterHKTVariance(): Unit = doTest("parameter/HKTVariance")
   def testParameterIdentifiers(): Unit = doTest("parameter/Identifiers")
-//  def testParameterModifiers(): Unit = doTest("parameter/Modifiers")
+  def testParameterModifiers(): Unit = doTest("parameter/Modifiers")
   def testParameterQualifier(): Unit = doTest("parameter/Qualifier")
   def testParameterRepeated(): Unit = doTest("parameter/Repeated")
   def testParameterTrait(): Unit = doTest("parameter/Trait")
@@ -75,7 +68,7 @@ class DecompilerTest2 extends TestCase {
   def testTypeDefinitionIdentifiers(): Unit = doTest("typeDefinition/Identifiers")
   def testTypeDefinitionImplicitClass(): Unit = doTest("typeDefinition/ImplicitClass")
   def testTypeDefinitionMembers(): Unit = doTest("typeDefinition/Members")
-//  def testTypeDefinitionModifiers(): Unit = doTest("typeDefinition/Modifiers")
+  def testTypeDefinitionModifiers(): Unit = doTest("typeDefinition/Modifiers")
   def testTypeDefinitionObject(): Unit = doTest("typeDefinition/Object")
   def testTypeDefinitionParents(): Unit = doTest("typeDefinition/Parents")
   def testTypeDefinitionQualifier(): Unit = doTest("typeDefinition/Qualifier")
@@ -83,20 +76,21 @@ class DecompilerTest2 extends TestCase {
   def testTypeDefinitionTrait(): Unit = doTest("typeDefinition/Trait")
   def testTypesAnd(): Unit = doTest("types/And")
 //  def testTypesAnnotated(): Unit = doTest("types/Annotated")
-//  def testTypesConstant(): Unit = doTest("types/Constant")
-//  def testTypesFunction(): Unit = doTest("types/Function")
+  def testTypesConstant(): Unit = doTest("types/Constant")
+  def testTypesFunction(): Unit = doTest("types/Function")
   def testTypesIdent(): Unit = doTest("types/Ident")
-//  def testTypesLiteral(): Unit = doTest("types/Literal")
-//  def testTypesParameterized(): Unit = doTest("types/Parameterized")
-//  def testTypesProjection(): Unit = doTest("types/Projection")
+//  def testTypesInfix(): Unit = doTest("types/Infix")
+  def testTypesLiteral(): Unit = doTest("types/Literal")
+  def testTypesParameterized(): Unit = doTest("types/Parameterized")
+  def testTypesProjection(): Unit = doTest("types/Projection")
   def testTypesRefinement(): Unit = doTest("types/Refinement")
   def testTypesRefs(): Unit = doTest("types/Refs")
   def testTypesSelect(): Unit = doTest("types/Select")
   def testTypesSingleton(): Unit = doTest("types/Singleton")
-//  def testTypesThis(): Unit = doTest("types/This")
-//  def testTypesTuple(): Unit = doTest("types/Tuple")
+  def testTypesThis(): Unit = doTest("types/This")
+  def testTypesTuple(): Unit = doTest("types/Tuple")
   def testTypesWildcard(): Unit = doTest("types/Wildcard")
-//  def testEmptyPackage(): Unit = doTest("EmptyPackage")
+  def testEmptyPackage(): Unit = doTest("EmptyPackage")
   def testNesting(): Unit = doTest("Nesting")
 
   private def doTest(path: String): Unit = {
@@ -134,9 +128,8 @@ class DecompilerTest2 extends TestCase {
       .replace("java.lang.", "")
       .replace("_root_.Predef.", "")
       .replace("Predef.", "")
-      .replaceAll("\\w+\\.this\\.", "")
-      .replace("final override ", "override final ")
-      .trim
+      .replaceAll("\\w+\\.this\\.(?!type)", "")
+      .replaceAll("\\w+\\.(?=this.type)", "")
 
     assertEquals(s"Content for $path", expected, adjusted)
   }

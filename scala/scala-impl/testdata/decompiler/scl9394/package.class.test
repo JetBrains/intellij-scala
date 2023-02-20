@@ -27,16 +27,16 @@ package object prop {
     def apply(a: A): nyaya.prop.Eval = ???
 
     @scala.inline
-    def forall[B, F[_]: scalaz.Foldable](f: scala.Function1[B, F[A]]): nyaya.prop.Prop[B] = ???
+    def forall[B, F[_]: scalaz.Foldable](f: B => F[A]): nyaya.prop.Prop[B] = ???
 
     @scala.inline
-    def forallS[B, F[_]: scalaz.Foldable, C](f: scala.Function1[B, F[C]])(implicit ev: scala.Predef.<:<[C, A]): nyaya.prop.Prop[B] = ???
+    def forallS[B, F[_]: scalaz.Foldable, C](f: B => F[C])(implicit ev: scala.Predef.<:<[C, A]): nyaya.prop.Prop[B] = ???
 
     @scala.inline
     def forallF[F[_]: scalaz.Foldable]: nyaya.prop.Prop[F[A]] = ???
 
-    @scala.inline
     @scala.annotation.elidable(2000)
+    @scala.inline
     def assert(a: A): scala.Unit = ???
   }
 }

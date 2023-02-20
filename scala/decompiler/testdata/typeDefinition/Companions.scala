@@ -24,4 +24,8 @@ trait Companions {
   object CaseClass {
     def static: Int = ???
   }
+
+  class SerializableClass extends Serializable
+
+  object SerializableClass
 }

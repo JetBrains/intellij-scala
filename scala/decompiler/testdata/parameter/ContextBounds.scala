@@ -25,7 +25,7 @@ trait ContextBounds {
 
   def multiParameter[A, B](implicit evidence$1: IsSubtypeOf[A, B]): Unit = ???
 
-  def multiParameterInfix[A, B](implicit evidence$1: A <:< B): Unit = ???
+  def multiParameterInfix[A, B](implicit evidence$1: <:<[A, B]): Unit = ???
 
   class HKT[A[_]]
 
