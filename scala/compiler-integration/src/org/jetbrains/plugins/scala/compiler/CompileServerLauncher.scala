@@ -20,7 +20,7 @@ import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
-import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
 import org.jetbrains.plugins.scala.util._
 
 import java.util.concurrent.ConcurrentHashMap
@@ -301,8 +301,7 @@ object CompileServerLauncher {
   def pid: Option[Long] = serverInstance.map(_.watcher.pid)
 
   def defaultSdk(project: Project): Sdk =
-    CompileServerJdkManager.recommendedSdk(project)
-      .getOrElse(CompileServerJdkManager.getBuildProcessRuntimeSdk(project))
+    CompileServerJdkManager.recommendedJdk(project)._1
 
   def compileServerSdk(project: Project): Either[CompileServerProblem, Sdk] = {
     val settings = ScalaCompileServerSettings.getInstance()

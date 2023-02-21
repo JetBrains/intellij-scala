@@ -40,7 +40,7 @@ final class CompileServerNotificationsService(project: Project) {
           serverJdkVersion isAtLeast recommendedJdkVersion
       for {
         (serverSdk, serverJdkVersion) <- CompileServerJdkManager.compileServerJdk(project)
-        (recommendedSdk, recommendedJdkVersion) <- CompileServerJdkManager.recommendedJdk(project)
+        (recommendedSdk, recommendedJdkVersion) = CompileServerJdkManager.recommendedJdk(project)
         if !serverJdkIsOk(serverJdkVersion, recommendedJdkVersion)
       } showWarning(serverSdk.getName, recommendedSdk.getName)
     }

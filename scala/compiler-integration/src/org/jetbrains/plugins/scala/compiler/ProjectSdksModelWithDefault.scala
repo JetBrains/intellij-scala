@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
 private[compiler] class ProjectSdksModelWithDefault extends ProjectSdksModel {
   class DefaultSdk(versionString: String)
-    extends ProjectJdkImpl("Project Default", JavaSdk.getInstance(), "", versionString) {
+    extends ProjectJdkImpl("Recommended JDK for this project", JavaSdk.getInstance(), "", versionString) {
 
     override def clone(): ProjectJdkImpl = new DefaultSdk(versionString)
   }

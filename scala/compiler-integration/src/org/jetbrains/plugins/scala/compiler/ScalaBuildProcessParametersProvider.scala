@@ -47,8 +47,8 @@ class ScalaBuildProcessParametersProvider(project: Project)
     val settings = ScalaCompileServerSettings.getInstance()
     if (settings.COMPILE_SERVER_ENABLED) Seq.empty
     else {
-      val sdk = CompileServerJdkManager.getBuildProcessRuntimeSdk(project)
-      toJdk(sdk).map(CompileServerLauncher.prepareJava9rtJar).getOrElse(Seq.empty)
+      val sdk = CompileServerJdkManager.compileServerJdk(project).map(_._1)
+      sdk.map(toJdk).flatMap(_.toOption).map(CompileServerLauncher.prepareJava9rtJar).getOrElse(Seq.empty)
     }
   }
 
