@@ -1,6 +1,6 @@
 package akka.actor
 
-trait LoggingFSM[S, D] extends akka.actor.FSM[S, D] { this: akka.actor.LoggingFSM[S, D] with akka.actor.Actor =>
+trait LoggingFSM[S, D] extends akka.actor.FSM[S, D] { this: akka.actor.Actor =>
   def logDepth: scala.Int = ???
 
   override private[akka] val debugEvent: scala.Boolean = ???
