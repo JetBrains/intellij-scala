@@ -6,7 +6,7 @@ import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
-private[compiler] class ProjectSdksModelWithDefault extends ProjectSdksModel {
+private class ProjectSdksModelWithDefault extends ProjectSdksModel {
   class DefaultSdk(homePath: String, versionString: String)
     extends ProjectJdkImpl("Recommended JDK for this project", JavaSdk.getInstance(), homePath, versionString) {
 
