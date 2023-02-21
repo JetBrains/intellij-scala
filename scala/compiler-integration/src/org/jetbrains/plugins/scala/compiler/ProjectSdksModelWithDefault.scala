@@ -7,16 +7,17 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
 private[compiler] class ProjectSdksModelWithDefault extends ProjectSdksModel {
-  class DefaultSdk(versionString: String)
-    extends ProjectJdkImpl("Recommended JDK for this project", JavaSdk.getInstance(), "", versionString) {
+  class DefaultSdk(homePath: String, versionString: String)
+    extends ProjectJdkImpl("Recommended JDK for this project", JavaSdk.getInstance(), homePath, versionString) {
 
-    override def clone(): ProjectJdkImpl = new DefaultSdk(versionString)
+    override def clone(): ProjectJdkImpl = new DefaultSdk(homePath, versionString)
   }
 
 
   override def reset(project: Project): Unit = {
     super.reset(project)
-    val defaultSdk = new DefaultSdk(CompileServerLauncher.defaultSdk(project).getVersionString)
+    val sdk = CompileServerLauncher.defaultSdk(project)
+    val defaultSdk = new DefaultSdk(sdk.getHomePath, sdk.getVersionString)
     addSdk(defaultSdk)
   }
 
