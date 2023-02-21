@@ -5,13 +5,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.JavaSdkVersion
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.CompositeModificationTracker
 import org.jetbrains.plugins.scala.caches.cached
-import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeAndWait}
+import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
+import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
 import scala.concurrent.duration.DurationLong
 
@@ -33,15 +32,10 @@ final class CompileServerNotificationsService(project: Project) {
 
   private val _warnIfCompileServerJdkMayLeadToCompilationProblems = cached("CompileServerNotificationService.warnIfCompileServerJdkMayLeadToCompilationProblems", modificationTracker, () => {
     if (project.hasScala) {
-      def serverJdkIsOk(serverJdkVersion: JavaSdkVersion, recommendedJdkVersion: JavaSdkVersion): Boolean =
-        if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
-          serverJdkVersion == recommendedJdkVersion
-        else
-          serverJdkVersion isAtLeast recommendedJdkVersion
       for {
         (serverSdk, serverJdkVersion) <- CompileServerJdkManager.compileServerJdk(project)
-        (recommendedSdk, recommendedJdkVersion) = CompileServerJdkManager.recommendedJdk(project)
-        if !serverJdkIsOk(serverJdkVersion, recommendedJdkVersion)
+        (recommendedSdk, _) = CompileServerJdkManager.recommendedJdk(project)
+        if !CompileServerJdkManager.isRecommendedVersionForProject(project, serverJdkVersion)
       } showWarning(serverSdk.getName, recommendedSdk.getName)
     }
   })
