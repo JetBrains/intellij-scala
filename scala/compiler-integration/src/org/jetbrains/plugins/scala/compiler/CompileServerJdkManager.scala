@@ -17,13 +17,7 @@ object CompileServerJdkManager {
   
   def recommendedJdk(project: Project): Jdk =
     getProjectJdk(project)
-      .filter { case (_, version) =>
-        if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-          // Compiler based highlighting is enabled and we need at least Java 11 to be able to execute the
-          // JPS code inside the Scala Compile Server.
-          version.isAtLeast(JavaSdkVersion.JDK_11)
-        } else true
-      }
+      .filter { case (_, version) => isRecommendedVersionForProject(project, version) }
       .getOrElse {
         // The project JDK cannot run the JPS code inside the Scala Compile Server (JDK version < 11).
         // Use the JDK which the JPS build system uses as a fallback. This is usually the bundled
@@ -31,6 +25,12 @@ object CompileServerJdkManager {
         val fallback = getBuildProcessRuntimeJdk(project)
         (fallback.first, fallback.second)
       }
+
+  private[compiler] def isRecommendedVersionForProject(project: Project, version: JavaSdkVersion): Boolean = {
+    // Compiler based highlighting is enabled and we need at least Java 11 to be able to execute the
+    // JPS code inside the Scala Compile Server.
+    !ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project) || version.isAtLeast(JavaSdkVersion.JDK_11)
+  }
 
   /**
    * Returns the Build Process runtime SDK.
