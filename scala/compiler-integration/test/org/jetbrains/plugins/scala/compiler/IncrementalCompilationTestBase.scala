@@ -3,11 +3,9 @@ package org.jetbrains.plugins.scala.compiler
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.VfsTestUtil
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
-import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.util.matchers.HamcrestMatchers.everyValueGreaterThanIn
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
@@ -36,7 +34,7 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
                                               override protected val useCompileServer: Boolean = false)
   extends ScalaCompilerTestBase {
 
-  override protected def buildProcessJdk: Sdk = CompileServerJdkManager.getBuildProcessRuntimeSdk(getProject)
+  override protected def buildProcessJdk: Sdk = CompileServerLauncher.defaultSdk(getProject)
 
   def testRecompileOnlyAffectedFiles(): Unit = {
     val sources = initBuildProject(

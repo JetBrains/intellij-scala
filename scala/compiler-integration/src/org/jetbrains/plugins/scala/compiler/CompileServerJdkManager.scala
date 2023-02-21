@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Pair
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 object CompileServerJdkManager {
 
@@ -14,19 +15,22 @@ object CompileServerJdkManager {
       version <- getJdkVersion(sdk)
     } yield (sdk, version)
   
-  def recommendedJdk(project: Project): Option[Jdk] = {
-    val jdk = getBuildProcessRuntimeJdk(project)
-    Some((jdk.first, jdk.second))
-  }
-
-  final def recommendedSdk(project: Project): Option[Sdk] =
-    recommendedJdk(project).map(_._1)
-
-  final def getBuildProcessRuntimeSdk(project: Project): Sdk =
-    getBuildProcessRuntimeJdk(project).first
-
-  final def getBuildProcessJdkVersion(project: Project): JavaSdkVersion =
-    compileServerJdk(project).map(_._2).getOrElse(getBuildProcessRuntimeJdk(project).second)
+  def recommendedJdk(project: Project): Jdk =
+    getProjectJdk(project)
+      .filter { case (_, version) =>
+        if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+          // Compiler based highlighting is enabled and we need at least Java 11 to be able to execute the
+          // JPS code inside the Scala Compile Server.
+          version.isAtLeast(JavaSdkVersion.JDK_11)
+        } else true
+      }
+      .getOrElse {
+        // The project JDK cannot run the JPS code inside the Scala Compile Server (JDK version < 11).
+        // Use the JDK which the JPS build system uses as a fallback. This is usually the bundled
+        // JetBrains Runtime JDK.
+        val fallback = getBuildProcessRuntimeJdk(project)
+        (fallback.first, fallback.second)
+      }
 
   /**
    * Returns the Build Process runtime SDK.
