@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.transformation
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
@@ -54,7 +54,8 @@ class DesugarCodeAction extends AnAction(
     }
   }
 
-  override def update(e: AnActionEvent): Unit = {
+  override def update(e: AnActionEvent): Unit =
     ScalaActionUtil.enableAndShowIfInScalaFile(e)
-  }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
