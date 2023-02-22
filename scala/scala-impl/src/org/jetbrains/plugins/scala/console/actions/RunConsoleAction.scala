@@ -38,6 +38,8 @@ class RunConsoleAction extends AnAction(
     }
   }
 
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
+
   override def actionPerformed(e: AnActionEvent): Unit =
     doRunAction(e)
 
