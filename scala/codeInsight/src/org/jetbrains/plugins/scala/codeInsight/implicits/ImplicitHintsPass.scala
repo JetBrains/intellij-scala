@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.HighlightingAdvisor
 import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ImportImplicitInstanceFix, PopupPosition}
+import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.RangeInlayHintsPass
@@ -24,8 +25,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.fromScMethodLike
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}
 
@@ -77,21 +80,26 @@ class ImplicitHintsPass(
     if (!ImplicitHints.enabled && !showImplicitErrorsForFile)
       return
 
-    def implicitArgumentsOrErrorHints(owner: ImplicitArgumentsOwner): Seq[Hint] = {
-      val showShowImplicitErrors = showImplicitErrors(owner)
+    def shouldShowImplicitArgumentsOrErrors(enabledForElement: Boolean, arguments: Seq[ScalaResolveResult]): Boolean =
+      ImplicitHints.enabled || (enabledForElement && arguments.exists(it =>
+        it.isImplicitParameterProblem &&
+          (if (probableArgumentsFor(it).size > 1) settings.isShowAmbiguousImplicitArguments
+           else settings.isShowNotFoundImplicitArguments)
+      ))
+
+    def shouldSearchForImplicits(enabledForElement: Boolean): Boolean = {
       val compilerErrorsEnabled = ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(rootElement)
-      val shouldSearch = (ImplicitHints.enabled || showShowImplicitErrors) &&
+
+      (ImplicitHints.enabled || enabledForElement) &&
         !(compilerErrorsEnabled && rootElement.isInScala3Module)
+    }
 
-      def shouldShow(arguments: Seq[ScalaResolveResult]) =
-        ImplicitHints.enabled || (showShowImplicitErrors && arguments.exists(it =>
-          it.isImplicitParameterProblem &&
-            (if (probableArgumentsFor(it).size > 1) settings.isShowAmbiguousImplicitArguments
-            else settings.isShowNotFoundImplicitArguments)))
+    def implicitArgumentsOrErrorHints(owner: ImplicitArgumentsOwner): Seq[Hint] = {
+      val enabledForElement = showImplicitErrors(owner)
 
-      if (shouldSearch) {
+      if (shouldSearchForImplicits(enabledForElement)) {
         owner.findImplicitArguments.toSeq.flatMap {
-          case args if shouldShow(args) =>
+          case args if shouldShowImplicitArgumentsOrErrors(enabledForElement, args) =>
             implicitArgumentsHint(owner, args)(editor.getColorsScheme, owner)
           case _ => Seq.empty
         }
@@ -115,7 +123,57 @@ class ImplicitHintsPass(
       }
     }
 
+    def injectedConstructorHintsFor(tdef: ScTemplateDefinition): Seq[Hint] = {
+      val enabledForElement = showImplicitErrors(tdef)
+
+      if (!tdef.isInScala3File)                              Seq.empty
+      else if (!shouldSearchForImplicits(enabledForElement)) Seq.empty
+      else {
+        val injectedConstructors = tdef.injectedParentTraitConstructorCalls
+        val anchor               = tdef.extendsBlock.templateParents.getOrElse(tdef.extendsBlock)
+
+        if (injectedConstructors.isEmpty) Seq.empty
+        else
+          cachedInUserData(
+            "ImplicitHintPass.injectedConstructorHintsFor",
+            tdef,
+            ModTracker.physicalPsiChange(tdef.getProject)
+          ) {
+            val consNames = injectedConstructors.toSeq.flatMap { case (cons, subst) =>
+              val name = cons.name
+
+              val (_, args, _) = InferUtil.updateTypeWithImplicitParameters(
+                cons.polymorphicType(subst),
+                anchor,
+                None,
+                canThrowSCE = false,
+                fullInfo    = false
+              )
+
+              val implicitArgs = args.getOrElse(Seq.empty)
+
+              if (shouldShowImplicitArgumentsOrErrors(enabledForElement, implicitArgs)) {
+                Text(s" with $name") +: presentationOf(implicitArgs, None)(editor.getColorsScheme)
+              } else Seq.empty
+            }
+
+            val hint = Hint(consNames, anchor, suffix = true)
+            Seq(hint)
+          }
+      }
+    }
+
     rootElement.depthFirst().foreach {
+      case tdef: ScTemplateDefinition if !tdef.is[ScTrait] =>
+        val parents =
+          tdef
+            .extendsBlock
+            .templateParents
+            .fold(Seq.empty[ScConstructorInvocation])(_.parentClauses)
+
+        hints ++= parents.flatMap(explicitArgumentHint)
+        hints ++= parents.flatMap(implicitArgumentsOrErrorHints)
+        hints ++= injectedConstructorHintsFor(tdef)
       case enumerator@ScEnumerator.withDesugaredAndEnumeratorToken(desugaredEnum, token) =>
         val analogCall = desugaredEnum.analogMethodCall
         def mapBackTo(e: PsiElement)(hint: Hint): Hint = hint.copy(element = e)
@@ -129,9 +187,6 @@ class ImplicitHintsPass(
         hints ++= implicitConversionHints(e)
         hints ++= explicitArgumentHint(e)
         hints ++= implicitArgumentsOrErrorHints(e)
-      case c: ScConstructorInvocation =>
-        hints ++= explicitArgumentHint(c)
-        hints ++= implicitArgumentsOrErrorHints(c)
       case _ =>
     }
 
@@ -168,16 +223,29 @@ private object ImplicitHintsPass {
 
   private final val BulkChangeThreshold = 1000
 
-  private def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult)
-                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Hint] = {
-    val hintPrefix = Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = Some(menu.ImplicitConversion))
-    val hintSuffix = Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true, menu = Some(menu.ImplicitArguments))
+  private def implicitConversionHint(
+    e:          ScExpression,
+    conversion: ScalaResolveResult
+  )(implicit
+    scheme: EditorColorsScheme,
+    owner:  ImplicitArgumentsOwner
+  ): Seq[Hint] = {
+    val hintPrefix =
+      Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = Some(menu.ImplicitConversion))
+
+    val hintSuffix = Hint(
+      Text(")") +: collapsedPresentationOf(conversion.implicitParameters, Option(owner)),
+      e,
+      suffix = true,
+      menu = Some(menu.ImplicitArguments)
+    )
+
     Seq(hintPrefix, hintSuffix)
   }
 
   private def implicitArgumentsHint(e: ImplicitArgumentsOwner, arguments: Seq[ScalaResolveResult])
                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Hint] = {
-    val hint = Hint(presentationOf(arguments), e, suffix = true, menu = Some(menu.ImplicitArguments))
+    val hint = Hint(presentationOf(arguments, Option(owner)), e, suffix = true, menu = Some(menu.ImplicitArguments))
     Seq(hint)
   }
 
@@ -186,48 +254,48 @@ private object ImplicitHintsPass {
     Seq(hint)
   }
 
-  private def presentationOf(arguments: Seq[ScalaResolveResult])
-                            (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] = {
+  private def presentationOf(arguments: Seq[ScalaResolveResult], owner: Option[ImplicitArgumentsOwner])
+                            (implicit scheme: EditorColorsScheme): Seq[Text] = {
 
     if (!ImplicitHints.enabled)
-      collapsedPresentationOf(arguments)
+      collapsedPresentationOf(arguments, owner)
     else
-      expandedPresentationOf(arguments)
+      expandedPresentationOf(arguments, owner)
   }
 
-  private def collapsedPresentationOf(arguments: Seq[ScalaResolveResult])
-                                     (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] =
+  private def collapsedPresentationOf(arguments: Seq[ScalaResolveResult], owner: Option[ImplicitArgumentsOwner])
+                                     (implicit scheme: EditorColorsScheme): Seq[Text] =
     if (arguments.isEmpty) Seq.empty
     else {
       val problems = arguments.filter(_.isImplicitParameterProblem)
       val folding = Text(foldedString,
         attributes = foldedAttributes(error = problems.nonEmpty),
-        expansion = Some(() => expandedPresentationOf(arguments).drop(1).dropRight(1))
+        expansion = Some(() => expandedPresentationOf(arguments, owner).drop(1).dropRight(1))
       )
 
       Seq(
         Text("("),
         folding,
         Text(")")
-      ).withErrorTooltipIfEmpty(notFoundTooltip(problems))
+      ).withErrorTooltipIfEmpty(notFoundTooltip(problems, owner))
     }
 
-  private def expandedPresentationOf(arguments: Seq[ScalaResolveResult])
-                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] =
+  private def expandedPresentationOf(arguments: Seq[ScalaResolveResult], owner: Option[ImplicitArgumentsOwner])
+                                    (implicit scheme: EditorColorsScheme): Seq[Text] =
     if (arguments.isEmpty) Seq.empty
     else {
       arguments.join(
         Text("("),
         Text(", "),
         Text(")")
-      )(presentationOf)
+      )(presentationOf(_, owner))
     }
 
-  private def presentationOf(argument: ScalaResolveResult)
-                            (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] = {
+  private def presentationOf(argument: ScalaResolveResult, owner: Option[ImplicitArgumentsOwner])
+                            (implicit scheme: EditorColorsScheme): Seq[Text] = {
     val result = argument.isImplicitParameterProblem
-      .option(problemPresentation(parameter = argument))
-      .getOrElse(namedBasicPresentation(argument) ++ collapsedPresentationOf(argument.implicitParameters))
+      .option(problemPresentation(parameter = argument, owner))
+      .getOrElse(namedBasicPresentation(argument) ++ collapsedPresentationOf(argument.implicitParameters, owner))
     result
   }
 
@@ -243,63 +311,82 @@ private object ImplicitHintsPass {
     )
   }
 
-  private def problemPresentation(parameter: ScalaResolveResult)
-                                 (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] = {
+  private def problemPresentation(parameter: ScalaResolveResult, owner: Option[ImplicitArgumentsOwner])
+                                 (implicit scheme: EditorColorsScheme): Seq[Text] = {
     probableArgumentsFor(parameter) match {
-      case Seq()                                                => noApplicableExpandedPresentation(parameter)
-      case Seq((arg, result)) if arg.implicitParameters.isEmpty => presentationOfProbable(arg, result)
-      case args                                                 => collapsedProblemPresentation(parameter, args)
+      case Seq()                                                => noApplicableExpandedPresentation(parameter, owner)
+      case Seq((arg, result)) if arg.implicitParameters.isEmpty => presentationOfProbable(arg, result, owner)
+      case args                                                 => collapsedProblemPresentation(parameter, args, owner)
     }
   }
 
-  private def noApplicableExpandedPresentation(parameter: ScalaResolveResult)
-                                              (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner) = {
+  private def noApplicableExpandedPresentation(parameter: ScalaResolveResult, owner: Option[ImplicitArgumentsOwner])
+                                              (implicit scheme: EditorColorsScheme) = {
 
     val qMarkText = Text("?", likeWrongReference, navigatable = parameter.element.asOptionOfUnsafe[Navigatable])
     val paramTypeSuffix = Text(typeSuffix(parameter))
 
     (qMarkText :: paramTypeSuffix :: Nil)
-      .withErrorTooltipIfEmpty(notFoundTooltip(parameter))
+      .withErrorTooltipIfEmpty(notFoundTooltip(parameter, owner))
   }
 
-  private def collapsedProblemPresentation(parameter: ScalaResolveResult, probableArgs: Seq[(ScalaResolveResult, FullInfoResult)])
-                                          (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] = {
+  private def collapsedProblemPresentation(
+    parameter:    ScalaResolveResult,
+    probableArgs: Seq[(ScalaResolveResult, FullInfoResult)],
+    owner:        Option[ImplicitArgumentsOwner]
+  )(implicit
+    scheme: EditorColorsScheme,
+  ): Seq[Text] = {
     val errorTooltip =
-      if (probableArgs.size > 1) ambiguousTooltip(parameter)
-      else notFoundTooltip(parameter)
+      if (probableArgs.size > 1) ambiguousTooltip(parameter, owner)
+      else                       notFoundTooltip(parameter, owner)
 
     val presentationString =
       if (!ImplicitHints.enabled) foldedString else foldedString + typeSuffix(parameter)
 
-    Seq(Text(
-      presentationString,
-      foldedAttributes(error = parameter.isImplicitParameterProblem),
-      effectRange = Some((0, foldedString.length)),
-      navigatable = parameter.element.asOptionOfUnsafe[Navigatable],
-      errorTooltip = Some(errorTooltip),
-      expansion = Some(() => expandedProblemPresentation(parameter, probableArgs))
-    ))
+    Seq(
+      Text(
+        presentationString,
+        foldedAttributes(error = parameter.isImplicitParameterProblem),
+        effectRange = Some((0, foldedString.length)),
+        navigatable = parameter.element.asOptionOfUnsafe[Navigatable],
+        errorTooltip = Some(errorTooltip),
+        expansion = Some(() => expandedProblemPresentation(parameter, probableArgs, owner))
+      )
+    )
   }
 
-  private def expandedProblemPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)])
-                                         (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] = {
-
+  private def expandedProblemPresentation(
+    parameter: ScalaResolveResult,
+    arguments: Seq[(ScalaResolveResult, FullInfoResult)],
+    owner:     Option[ImplicitArgumentsOwner]
+  )(implicit
+    scheme: EditorColorsScheme,
+  ): Seq[Text] =
     arguments match {
-      case Seq((arg, result)) => presentationOfProbable(arg, result).withErrorTooltipIfEmpty(notFoundTooltip(parameter))
-      case _                  => expandedAmbiguousPresentation(parameter, arguments)
-    }
-  }
-
-  private def expandedAmbiguousPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)])
-                                           (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner) =
-    arguments.join(Text(" | ", likeWrongReference)) {
-      case (argument, result) => presentationOfProbable(argument, result)
-    }.withErrorTooltipIfEmpty {
-      ambiguousTooltip(parameter)
+      case Seq((arg, result)) =>
+        presentationOfProbable(arg, result, owner)
+          .withErrorTooltipIfEmpty(notFoundTooltip(parameter, owner))
+      case _ => expandedAmbiguousPresentation(parameter, arguments, owner)
     }
 
-  private def presentationOfProbable(argument: ScalaResolveResult, result: FullInfoResult)
-                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] = {
+  private def expandedAmbiguousPresentation(
+    parameter: ScalaResolveResult,
+    arguments: Seq[(ScalaResolveResult, FullInfoResult)],
+    owner:     Option[ImplicitArgumentsOwner]
+  )(implicit
+    scheme: EditorColorsScheme
+  ) =
+    arguments
+      .join(Text(" | ", likeWrongReference)) { case (argument, result) =>
+        presentationOfProbable(argument, result, owner)
+      }
+      .withErrorTooltipIfEmpty {
+        ambiguousTooltip(parameter, owner)
+      }
+
+  private def presentationOfProbable(argument: ScalaResolveResult, result: FullInfoResult, owner: Option[ImplicitArgumentsOwner])
+                                    (implicit scheme: EditorColorsScheme): Seq[Text] = {
     result match {
       case OkResult =>
         namedBasicPresentation(argument)
@@ -310,7 +397,7 @@ private object ImplicitHintsPass {
             Text("("),
             Text(", "),
             Text(")")
-          )(presentationOf)
+          )(presentationOf(_, owner))
         namedBasicPresentation(argument) ++ presentationOfParameters
 
       case DivergedImplicitResult =>
@@ -333,33 +420,38 @@ private object ImplicitHintsPass {
   private def paramWithType(parameter: ScalaResolveResult): String =
     StringUtil.escapeXmlEntities(parameter.name + typeSuffix(parameter))
 
-  private def notFoundTooltip(parameter: ScalaResolveResult)
-                             (implicit owner: ImplicitArgumentsOwner): ErrorTooltip = {
+  private def notFoundTooltip(parameter: ScalaResolveResult, owner: Option[ImplicitArgumentsOwner]): ErrorTooltip = {
     val message = ScalaCodeInsightBundle.message("no.implicits.found.for.parameter", paramWithType(parameter))
-    notFoundErrorTooltip(message, Seq(parameter))
+    notFoundErrorTooltip(message, Seq(parameter), owner)
   }
 
-  private def notFoundTooltip(parameters: Seq[ScalaResolveResult])
-                             (implicit owner: ImplicitArgumentsOwner): Option[ErrorTooltip] =
+  private def notFoundTooltip(
+    parameters: Seq[ScalaResolveResult],
+    owner:      Option[ImplicitArgumentsOwner]
+  ): Option[ErrorTooltip] =
     parameters match {
       case Seq()  => None
-      case Seq(p) => Some(notFoundTooltip(p))
-      case ps     =>
-        val message = ScalaCodeInsightBundle.message("no.implicits.found.for.parameters", ps.map(paramWithType).mkString(", "))
-        Some(notFoundErrorTooltip(message, ps))
+      case Seq(p) => Some(notFoundTooltip(p, owner))
+      case ps =>
+        val message =
+          ScalaCodeInsightBundle.message("no.implicits.found.for.parameters", ps.map(paramWithType).mkString(", "))
+        Some(notFoundErrorTooltip(message, ps, owner))
     }
 
-  private def notFoundErrorTooltip(@Nls message: String, notFoundArgs: Seq[ScalaResolveResult])
-                                  (implicit owner: ImplicitArgumentsOwner): ErrorTooltip = {
-    val quickFix = ImportImplicitInstanceFix(() => notFoundArgs, owner, PopupPosition.atCustomLocation)
-    ErrorTooltip(message, quickFix, owner)
+  private def notFoundErrorTooltip(
+    @Nls message: String,
+    notFoundArgs: Seq[ScalaResolveResult],
+    owner:        Option[ImplicitArgumentsOwner]
+  ): ErrorTooltip = {
+    owner.fold(ErrorTooltip.fromString(message)) { owner =>
+      val quickFix = ImportImplicitInstanceFix(() => notFoundArgs, owner, PopupPosition.atCustomLocation)
+      ErrorTooltip(message, quickFix, owner)
+    }
   }
 
-
-  private def ambiguousTooltip(parameter: ScalaResolveResult)
-                              (implicit owner: ImplicitArgumentsOwner): ErrorTooltip = {
+  private def ambiguousTooltip(parameter: ScalaResolveResult, owner: Option[ImplicitArgumentsOwner]): ErrorTooltip = {
     val message = ScalaCodeInsightBundle.message("ambiguous.implicits.for.parameter", paramWithType(parameter))
-    notFoundErrorTooltip(message, Seq(parameter))
+    notFoundErrorTooltip(message, Seq(parameter), owner)
   }
 }
 

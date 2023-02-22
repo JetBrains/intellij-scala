@@ -5,10 +5,12 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Typeable {
@@ -73,6 +75,25 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def allFunctionsByName(name: String): Iterator[PsiMethod]
 
   def allTermsByName(name: String): Seq[PsiNamedElement]
+
+  /**
+   * Transitively collects all parent traits' constructors with implicit/using parameters only,
+   * e.g. for `Baz` in
+   * {{{
+   *   trait Foo(implicit x: Int)
+   *   trait Bar(implicit s: String) extends Foo
+   *   class Baz extends Bar
+   * }}}
+   * it will return `Seq(Foo(Int), Bar(String))`
+   *
+   * To be used for annotating missing implicit arguments.
+   */
+  def injectedParentTraitConstructorCalls: collection.Set[(ScPrimaryConstructor, ScSubstitutor)]
+
+  /**
+   * Returns parent super class (not trait) if there is one.
+   */
+  def superClass: Option[PsiClass]
 }
 
 object ScTemplateDefinition {

@@ -105,19 +105,21 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     visited:     Set[PsiClass],
     checkWeak:   Boolean
   ): ConstraintsResult = {
+    import SmartSuperTypeUtil.TraverseSupers._
+
     var unificationConstraints: ConstraintsResult = ConstraintsResult.Left
 
     boundKind match {
       case Bound.Lower =>
-        traverseSuperTypes(tpe, (_, tp) =>
+        traverseSuperTypes(tpe, (tp, _, _) =>
             tp match {
               case ptpe: ParameterizedType =>
                 val tryUnify = unifyTypeVariable(hkTv, ptpe, constraints, boundKind, visited, checkWeak)
                 tryUnify match {
-                  case ConstraintsResult.Left => false
-                  case unified                => unificationConstraints = unified; true
+                  case ConstraintsResult.Left => ProcessParents
+                  case unified                => unificationConstraints = unified; Stop
                 }
-              case _ => false
+              case _ => ProcessParents
             }
         )
         unificationConstraints

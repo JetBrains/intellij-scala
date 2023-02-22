@@ -229,38 +229,49 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   override def isExtensionMethod: Boolean =
     byStubOrPsi(_.isExtensionMethod)(extensionMethodOwner.nonEmpty)
 
-  override def effectiveParameterClauses: Seq[ScParameterClause] = cachedInUserData("ScFunctionImpl.effectiveParameterClauses", this, BlockModificationTracker(this)) {
-    val maybeOwner = if (isConstructor) {
-      containingClass match {
-        case owner: ScTypeParametersOwner => Some(owner)
-        case _                            => None
-      }
-    } else Option(this)
+  override def effectiveParameterClauses: Seq[ScParameterClause] =
+    cachedInUserData("ScFunctionImpl.effectiveParameterClauses", this, BlockModificationTracker(this)) {
+      val maybeOwner = if (isConstructor) {
+        containingClass match {
+          case owner: ScTypeParametersOwner => Some(owner)
+          case _                            => None
+        }
+      } else Option(this)
 
-    paramClauses.clauses ++
-      maybeOwner.flatMap {
-        ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()
-      }
-  }
+      paramClauses.clauses ++
+        maybeOwner.flatMap {
+          ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()
+        }
+    }
 
   /**
     * @return Empty array, if containing class is null.
     */
-  override def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = _getFunctionWrappers(isStatic, isAbstract, cClass)
+  override def getFunctionWrappers(
+    isStatic:   Boolean,
+    isAbstract: Boolean,
+    cClass:     Option[PsiClass] = None
+  ): Seq[ScFunctionWrapper] =
+    _getFunctionWrappers(isStatic, isAbstract, cClass)
 
-  private val _getFunctionWrappers = cached("ScFunctionImpl.getFunctionWrappers", BlockModificationTracker(this), (isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass]) => {
-    val builder = Seq.newBuilder[ScFunctionWrapper]
-    if (cClass.isDefined || containingClass != null) {
-      for {
-        clause <- clauses
-        first  <- clause.clauses.headOption
-        if first.hasRepeatedParam && isJavaVarargs(this)
-      } builder += new ScFunctionWrapper(this, isStatic, isAbstract, cClass, isJavaVarargs = true)
+  private val _getFunctionWrappers =
+    cached(
+      "ScFunctionImpl.getFunctionWrappers",
+      BlockModificationTracker(this),
+      (isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass]) => {
+        val builder = Seq.newBuilder[ScFunctionWrapper]
+        if (cClass.isDefined || containingClass != null) {
+          for {
+            clause <- clauses
+            first  <- clause.clauses.headOption
+            if first.hasRepeatedParam && isJavaVarargs(this)
+          } builder += new ScFunctionWrapper(this, isStatic, isAbstract, cClass, isJavaVarargs = true)
 
-      builder += new ScFunctionWrapper(this, isStatic, isAbstract, cClass)
-    }
-    builder.result()
-  })
+          builder += new ScFunctionWrapper(this, isStatic, isAbstract, cClass)
+        }
+        builder.result()
+      }
+    )
 
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {
