@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.actions
 
 import _root_.com.intellij.codeInsight.TargetElementUtil
 import _root_.com.intellij.psi._
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
@@ -24,9 +24,11 @@ class ShowTypeInfoAction extends AnAction(
   /* icon = */ null
 ) {
 
-  override def update(e: AnActionEvent): Unit = {
+  override def update(e: AnActionEvent): Unit =
     ScalaActionUtil.enableAndShowIfInScalaFile(e)
-  }
+
+  override def getActionUpdateThread: ActionUpdateThread =
+    ActionUpdateThread.BGT
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
@@ -104,19 +106,17 @@ object ShowTypeInfoAction {
     typeInfoFromRef.orElse(typeInfoFromPattern(pattern))
   }
 
-  def typeInfoFromPattern(p: ScBindingPattern): Option[String] =
+  private def typeInfoFromPattern(p: ScBindingPattern): Option[String] =
     p match {
       case null => None
       case _    => typeTextOf(p, ScSubstitutor.empty)(p)
     }
 
   private[this] def typeTextOf(elem: PsiElement, subst: ScSubstitutor)
-                              (implicit context: TypePresentationContext): Option[String] = {
+                              (implicit context: TypePresentationContext): Option[String] =
     typeText(elem.ofNamedElement(subst))
-  }
 
   private[this] def typeText(optType: Option[ScType])
-                            (implicit context: TypePresentationContext): Option[String] = {
+                            (implicit context: TypePresentationContext): Option[String] =
     optType.map(TypePresentation.withoutAliases)
-  }
 }
