@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.conversion.copy.plainText
 
 import com.intellij.core.CoreBundle
 import com.intellij.ide.{IdeBundle, IdeView, PasteProvider}
-import com.intellij.openapi.actionSystem.{DataContext, LangDataKeys, PlatformCoreDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, DataContext, LangDataKeys, PlatformCoreDataKeys}
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.module.Module
@@ -35,6 +35,8 @@ import scala.util.control.NonFatal
  * For a similar Java implementation see [[com.intellij.ide.JavaFilePasteProvider]]
  */
 final class ScalaFilePasteProvider extends PasteProvider {
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def isPastePossible(dataContext: DataContext): Boolean = true
 
