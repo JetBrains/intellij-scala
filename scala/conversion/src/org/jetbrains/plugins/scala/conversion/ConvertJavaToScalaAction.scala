@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.conversion
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, PlatformCoreDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys, PlatformCoreDataKeys}
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -42,6 +42,8 @@ class ConvertJavaToScalaAction extends AnAction(
         setEnabled(false)
     }
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   private def isElementOkForConversion(element: PsiElement): Boolean =
     element.getContainingFile match {
@@ -111,12 +113,12 @@ object ConvertJavaToScalaAction {
     val scalaFileText = JavaToScala.convertPsiToText(javaFile).trim
     updateDocumentTextAndCommit(targetScalaFile, scalaFileText)
     ConverterUtil.cleanCode(targetScalaFile, project, 0, targetScalaFile.getTextLength)
-    withoutModifiedSettingsForConverion(project) {
+    withoutModifiedSettingsForConversion(project) {
       CodeStyleManager.getInstance(project).reformatText(targetScalaFile, 0, targetScalaFile.getTextLength)
     }
   }
 
-  private def showFileAlreadyExistsNotification(project: Project, scalaFileName: String): Unit =  {
+  private def showFileAlreadyExistsNotification(project: Project, scalaFileName: String): Unit =
     ScalaNotificationGroups.javaToScalaConverter
       .createNotification(
         ScalaConversionBundle.message("cannot.create.file"),
@@ -124,7 +126,6 @@ object ConvertJavaToScalaAction {
         NotificationType.ERROR
       )
       .notify(project)
-  }
 
   private def updateDocumentTextAndCommit(scalaFile: PsiFile, convertedScalaText: String): Unit = {
     val project = scalaFile.getProject
@@ -133,7 +134,7 @@ object ConvertJavaToScalaAction {
     document.commit(project)
   }
 
-  private def withoutModifiedSettingsForConverion(project: Project)(body: => Unit): Unit = {
+  private def withoutModifiedSettingsForConversion(project: Project)(body: => Unit): Unit = {
     val codeStyle = CodeStyle.getSettings(project)
     val settings = codeStyle.getCommonSettings(ScalaLanguage.INSTANCE)
     val scalaSettings = codeStyle.getCustomSettings(classOf[ScalaCodeStyleSettings])
