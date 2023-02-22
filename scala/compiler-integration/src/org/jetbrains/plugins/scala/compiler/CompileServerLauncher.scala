@@ -163,8 +163,11 @@ object CompileServerLauncher {
         val isScalaCompileServer = s"-D${CompileServerProperties.IsScalaCompileServer}=true"
 
         val vmOptions: Seq[String] = if (isUnitTestMode && project == null) Seq() else {
+          // Duplicated --add-opens parameters are inherited from this extension point
+          // through ScalaBuildProcessParametersProvider. This filtering also helps to not
+          // pass --add-opens parameters to JDK 8 and lower.
           val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala.iterator
-            .flatMap(_.getVMArguments.asScala).toSeq
+            .flatMap(_.getVMArguments.asScala).toSeq.diff(compileServerJvmAddOpensExtraParams)
           val extraJvmParameters = CompileServerVmOptionsProvider.implementations.iterator
             .flatMap(_.vmOptionsFor(project)).toSeq
           buildProcessParameters ++ extraJvmParameters
@@ -175,7 +178,7 @@ object CompileServerLauncher {
           if (jdk.version.exists(_ isAtLeast JavaSdkVersion.JDK_1_9)) {
             val buffer = mutable.ListBuffer.empty[String]
             ClasspathBootstrap.configureReflectionOpenPackages(buffer.append)
-            buffer.result()
+            buffer.result() ++ compileServerJvmAddOpensExtraParams
           } else Seq.empty
 
         val userJvmParameters = jvmParameters
@@ -591,4 +594,13 @@ object CompileServerLauncher {
   private val java9rtExportString: String = "java9-rt-export"
 
   private val scalaExtDirsParameterString: String = "-Dscala.ext.dirs"
+
+  private[compiler] val compileServerJvmAddOpensExtraParams: Seq[String] =
+    Seq(
+      "java.base/java.nio",
+      "java.base/java.util",
+      "java.base/sun.nio.ch"
+    ).flatMap { modulePackage =>
+      Seq("--add-opens", s"$modulePackage=ALL-UNNAMED")
+    }
 }
