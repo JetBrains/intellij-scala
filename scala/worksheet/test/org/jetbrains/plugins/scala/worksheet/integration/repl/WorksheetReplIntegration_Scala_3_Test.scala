@@ -10,7 +10,10 @@ import org.junit.Assert._
 
 import scala.language.postfixOps
 
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_Latest,
+  TestScalaVersion.Scala_3_3_RC
+))
 class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegration_Scala_3_BaseTest with FailableTest {
   override def testAllInOne(): Unit = {
     val before =

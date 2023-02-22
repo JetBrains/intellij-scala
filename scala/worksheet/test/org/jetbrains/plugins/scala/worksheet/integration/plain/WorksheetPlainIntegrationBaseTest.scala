@@ -528,6 +528,8 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
   @RunWithScalaVersions(Array(
     TestScalaVersion.Scala_3_0,
     TestScalaVersion.Scala_3_1,
+    TestScalaVersion.Scala_3_2,
+    TestScalaVersion.Scala_3_3_RC
   ))
   def testScala3_AllInOne(): Unit = {
     val before =
@@ -644,6 +646,8 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
   @RunWithScalaVersions(Array(
     TestScalaVersion.Scala_3_0,
     TestScalaVersion.Scala_3_1,
+    TestScalaVersion.Scala_3_2,
+    TestScalaVersion.Scala_3_3_RC
   ))
   def testScala3_WithBracelessSyntax(): Unit = {
     val before =
