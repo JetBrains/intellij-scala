@@ -3,7 +3,7 @@ package worksheet
 package actions
 
 import com.intellij.ide.fileTemplates.actions.AttributesDefaults
-import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, DataContext, PlatformCoreDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent, CommonDataKeys, DataContext, PlatformCoreDataKeys}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDirectory, PsiFile}
@@ -45,6 +45,8 @@ final class NewScalaWorksheetAction extends LazyFileTemplateAction(
     presentation.setVisible(isEnabled)
     presentation.setIcon(icon)
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 object NewScalaWorksheetAction {
