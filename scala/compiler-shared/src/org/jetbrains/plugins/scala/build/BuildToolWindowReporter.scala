@@ -5,7 +5,7 @@ import com.intellij.build.events.{BuildEvent, EventResult, MessageEvent}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import org.jetbrains.annotations.Nls
@@ -123,8 +123,9 @@ object BuildToolWindowReporter {
       cancelToken.failure(new ProcessCanceledException())
     }
 
-    override def update(e: AnActionEvent): Unit = {
+    override def update(e: AnActionEvent): Unit =
       e.getPresentation.setEnabled(!cancelToken.isCompleted)
-    }
+
+    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }
 }
