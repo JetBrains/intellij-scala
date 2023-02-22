@@ -39,6 +39,8 @@ class ShowImplicitArgumentsAction extends AnAction(
 
   override def update(e: AnActionEvent): Unit = ScalaActionUtil.enableAndShowIfInScalaFile(e)
 
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
+
   override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
     implicit val project: Project = CommonDataKeys.PROJECT.getData(context)
@@ -101,12 +103,11 @@ class ShowImplicitArgumentsAction extends AnAction(
   private def allTargets(element: PsiElement): Iterable[ImplicitArgumentsTarget] =
     implicitArgsNoConversion(element) ++ implicitArgsConversion(element)
 
-  private def implicitArgsNoConversion(element: PsiElement): Option[ImplicitArgumentsTarget] = {
+  private def implicitArgsNoConversion(element: PsiElement): Option[ImplicitArgumentsTarget] =
     element.asOptionOf[ImplicitArgumentsOwner]
       .flatMap(_.findImplicitArguments)
       .filter(_.nonEmpty)
       .map(ImplicitArgumentsTarget(element, _))
-  }
 
   private def implicitArgsConversion(element: PsiElement): Option[ImplicitArgumentsTarget] =
     element.asOptionOf[ScExpression]
