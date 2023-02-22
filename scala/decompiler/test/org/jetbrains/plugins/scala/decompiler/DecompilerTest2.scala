@@ -44,7 +44,7 @@ class DecompilerTest2 extends TestCase {
   def testPackage1Package2Nested(): Unit = doTest("package1/package2/Nested")
   def testPackage1Package2NestedImport(): Unit = doTest("package1/package2/NestedImport")
   def testPackage1Package2Prefix(): Unit = doTest("package1/package2/Prefix")
-//  def testPackage1Package2Scope(): Unit = doTest("package1/package2/Scope")
+  def testPackage1Package2Scope(): Unit = doTest("package1/package2/Scope")
   def testPackage1Members(): Unit = doTest("package1/Members")
   def testParameterBounds(): Unit = doTest("parameter/Bounds")
   def testParameterByName(): Unit = doTest("parameter/ByName")
