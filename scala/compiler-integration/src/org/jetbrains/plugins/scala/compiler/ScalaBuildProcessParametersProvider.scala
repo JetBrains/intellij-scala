@@ -15,6 +15,7 @@ class ScalaBuildProcessParametersProvider(project: Project)
   override def getVMArguments: java.util.List[String] = {
     customScalaCompilerInterfaceDir().toSeq ++
     parallelCompilationOptions() ++
+    addOpens() ++
     java9rtParams() :+
     scalaCompileServerSystemDir() :+
     // this is the only way to propagate registry values to the JPS process
@@ -39,6 +40,8 @@ class ScalaBuildProcessParametersProvider(project: Project)
     else
       Seq.empty
   }
+
+  private def addOpens(): Seq[String] = CompileServerLauncher.compileServerJvmAddOpensExtraParams
 
   private def scalaCompileServerSystemDir(): String =
     s"-Dscala.compile.server.system.dir=${CompileServerLauncher.scalaCompileServerSystemDir}"
