@@ -27,6 +27,8 @@ object ScModifierList {
 
     def isImplicit: Boolean = hasModifier(Implicit)
 
+    def isUsing: Boolean = hasModifier(Using)
+
     def isSealed: Boolean = hasModifier(Sealed)
 
     def isLazy: Boolean = hasModifier(Lazy)

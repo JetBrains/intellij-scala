@@ -68,6 +68,4 @@ class ImplicitParametersTest extends ImplicitParametersTestBase {
        |    }
        |}
     """.stripMargin)
-
-  def testSCL
 }
