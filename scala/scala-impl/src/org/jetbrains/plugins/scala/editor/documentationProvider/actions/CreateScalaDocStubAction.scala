@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider.actions
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.util.TextRange
@@ -30,9 +30,10 @@ class CreateScalaDocStubAction extends AnAction(
   ScalaEditorBundle.message("create.scaladoc.stub.action.description"),
   /* icon = */ null
 ) {
-  override def update(e: AnActionEvent): Unit = {
+  override def update(e: AnActionEvent): Unit =
     ScalaActionUtil enableAndShowIfInScalaFile e
-  }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
