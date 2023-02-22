@@ -133,6 +133,9 @@ class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
     final override def update(e: AnActionEvent): Unit =
       e.getPresentation.setEnabled(isEnabled)
 
+    final override def getActionUpdateThread: ActionUpdateThread =
+      ActionUpdateThread.EDT
+
     final override def actionPerformed(e: AnActionEvent): Unit = {
       currentZoomIndex = newZoomIndex
       val newZoom = AvailableZooms(currentZoomIndex)
