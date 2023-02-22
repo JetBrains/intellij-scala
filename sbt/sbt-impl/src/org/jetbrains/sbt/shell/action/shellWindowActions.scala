@@ -108,13 +108,13 @@ final class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbA
 
   setShortcutSet(CommonShortcuts.getCopy)
 
-  override def update(e: AnActionEvent): Unit = {
+  override def update(e: AnActionEvent): Unit =
     e.getPresentation.setEnabled(CopyFromHistoryViewerAction.isEnabled(e, view))
-  }
 
-  override def actionPerformed(e: AnActionEvent): Unit = {
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
+
+  override def actionPerformed(e: AnActionEvent): Unit =
     CopyFromHistoryViewerAction.copyFromHistoryToClipboard(e, view)
-  }
 }
 
 private object CopyFromHistoryViewerAction {
