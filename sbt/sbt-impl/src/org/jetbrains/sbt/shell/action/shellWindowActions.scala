@@ -67,22 +67,22 @@ final class StartAction(project: Project) extends DumbAwareAction {
 
 final class StopAction(project: Project) extends DumbAwareAction {
   copyFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_STOP_PROGRAM))
-  val templatePresentation: Presentation = getTemplatePresentation
+  private val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Suspend)
   templatePresentation.setText(SbtBundle.message("sbt.shell.stop"))
   templatePresentation.setDescription(null: String)
 
-  override def actionPerformed(e: AnActionEvent): Unit = {
+  override def actionPerformed(e: AnActionEvent): Unit =
     if (isEnabled) {
       executeOnPooledThread {
         SbtProcessManager.forProject(e.getProject).destroyProcess()
       }
     }
-  }
 
-  override def update(e: AnActionEvent): Unit = {
+  override def update(e: AnActionEvent): Unit =
     e.getPresentation.setEnabled(isEnabled)
-  }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   private def isEnabled: Boolean = shellAlive(project)
 }
