@@ -4,7 +4,6 @@ import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.Pair
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 object CompileServerJdkManager {
@@ -22,8 +21,7 @@ object CompileServerJdkManager {
         // The project JDK cannot run the JPS code inside the Scala Compile Server (JDK version < 11).
         // Use the JDK which the JPS build system uses as a fallback. This is usually the bundled
         // JetBrains Runtime JDK.
-        val fallback = getBuildProcessRuntimeJdk(project)
-        (fallback.first, fallback.second)
+        getBuildProcessRuntimeJdk(project)
       }
 
   private[compiler] def isRecommendedVersionForProject(project: Project, version: JavaSdkVersion): Boolean = {
@@ -37,8 +35,9 @@ object CompileServerJdkManager {
    * The method isn't thread-safe, so the synchronized is used.
    * @see SCL-17710
    */
-  private def getBuildProcessRuntimeJdk(project: Project): Pair[Sdk, JavaSdkVersion] = synchronized {
-    BuildManager.getBuildProcessRuntimeSdk(project)
+  private def getBuildProcessRuntimeJdk(project: Project): Jdk = synchronized {
+    val pair = BuildManager.getBuildProcessRuntimeSdk(project)
+    (pair.first, pair.second)
   }
   
   private def getProjectJdk(project: Project): Option[Jdk] =
