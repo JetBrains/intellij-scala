@@ -35,7 +35,7 @@ object CompileServerJdkManager {
    * The method isn't thread-safe, so the synchronized is used.
    * @see SCL-17710
    */
-  private def getBuildProcessRuntimeJdk(project: Project): Jdk = synchronized {
+  private[compiler] def getBuildProcessRuntimeJdk(project: Project): Jdk = synchronized {
     val pair = BuildManager.getBuildProcessRuntimeSdk(project)
     (pair.first, pair.second)
   }
