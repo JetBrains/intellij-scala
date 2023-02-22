@@ -17,7 +17,7 @@ import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
-import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, executeOnPooledThread}
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.shell.action.SbtShellActionUtil.shellAlive
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellConsoleView, SbtShellToolWindowFactory}
@@ -244,14 +244,13 @@ final class DebugShellAction(project: Project, remoteConnection: Option[RemoteCo
     for {
       desc <- descriptors.find(_.getDisplayName == configName)
       proc <- Option(desc.getProcessHandler)
-      if proc.isInstanceOf[RemoteDebugProcessHandler]
+      if proc.is[RemoteDebugProcessHandler]
       if !(proc.isProcessTerminated || proc.isProcessTerminating)
     } yield proc
 
-
   private def findRunConfig: Option[RunnerAndConfigurationSettings] = {
     val runManager = RunManager.getInstance(project)
-    Option(runManager.findConfigurationByTypeAndName(configType.getId,  configName))
+    Option(runManager.findConfigurationByTypeAndName(configType.getId, configName))
   }
 
   private def findSession: Option[DebuggerSession] = {
@@ -259,9 +258,10 @@ final class DebugShellAction(project: Project, remoteConnection: Option[RemoteCo
     sessions.asScala.find(_.getSessionName == configName)
   }
 
-  override def update(e: AnActionEvent): Unit = {
+  override def update(e: AnActionEvent): Unit =
     e.getPresentation.setEnabled(isEnabled)
-  }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   private def isEnabled: Boolean = remoteConnection.isDefined && shellAlive(project)
 }
