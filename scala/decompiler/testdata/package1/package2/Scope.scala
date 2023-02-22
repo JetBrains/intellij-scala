@@ -16,12 +16,12 @@ trait Scope {
   }
 
   class Class1 {
-    private[Class1] def method1: Int = ???
-
     class Class2 {
       private[Class1] def method1: Int = ???
 
       private[Class2] def method2: Int = ???
     }
+
+    private[Class1] def method1: Int = ???
   }
 }
