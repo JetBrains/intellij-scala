@@ -24,7 +24,7 @@ class NewPackageObjectAction extends LazyFileTemplateAction(
             .flatMap(_.getDirectories.headOption)
             .flatMap(dir => Option(JavaDirectoryService.getInstance.getPackage(dir)))
             .map(_.getQualifiedName)
-            .exists(!_.isEmpty)
+            .exists(_.nonEmpty)
 
     val module: Module = e.getDataContext.getData(PlatformCoreDataKeys.MODULE.getName).asInstanceOf[Module]
     val isEnabled: Boolean = Option(module).exists(_.hasScala)
@@ -33,7 +33,8 @@ class NewPackageObjectAction extends LazyFileTemplateAction(
     e.getPresentation.setVisible(hasPackage && isEnabled)
   }
 
-  override def getAttributesDefaults(dataContext: DataContext): AttributesDefaults = {
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
+
+  override def getAttributesDefaults(dataContext: DataContext): AttributesDefaults =
     new AttributesDefaults("package").withFixedName(true)
-  }
 }
