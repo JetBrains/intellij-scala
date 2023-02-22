@@ -103,8 +103,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
           }
         case c: ClassSymbol if !refinementClass(c) && !c.isModule =>
           printSymbolAttributes(c, onNewLine = true, indent())
-          indent()
-          printClass(level, c)
+          printClass(level, c, indent _)
         case m: MethodSymbol =>
           printSymbolAttributes(m, onNewLine = true, indent())
           printMethod(level, m, indent _)
@@ -219,16 +218,18 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   private def refinementClass(c: ClassSymbol) = c.name == "<refinement>"
 
-  def printClass(level: Int, c: ClassSymbol): Unit = {
+  def printClass(level: Int, c: ClassSymbol, indent: () => Unit = () => ()): Unit = {
     if (c.name == "<local child>" /*scala.tools.nsc.symtab.StdNames.LOCALCHILD.toString()*/ ) {
-      print("\n")
+      // Skip
     } else if (c.name == "<refinement>") {
+      indent()
       print(" { ")
       val previousLength = builder.length
       printChildren(level, c)
       builder.replace(previousLength, builder.length, LineSeparator.replaceAllIn(builder.substring(previousLength, builder.length).trim, "; "))
       print(" }")
     } else {
+      indent()
       printModifiers(c)
       val (contextBounds, defaultConstructor) = if (!c.isTrait) getPrinterByConstructor(c) else (Seq.empty, "")
       if (c.isTrait) print("trait ") else print("class ")
