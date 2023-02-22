@@ -252,6 +252,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       StructureFileReuseMode(true, true)
     else if (java.lang.Boolean.parseBoolean(System.getProperty("sbt.project.structure.readWrite")))
       StructureFileReuseMode(true, true)
+    else if (java.lang.Boolean.parseBoolean(System.getProperty("sbt.project.structure.write")))
+      StructureFileReuseMode(false, true)
     else if (java.lang.Boolean.parseBoolean(System.getProperty("sbt.project.structure.read")))
       StructureFileReuseMode(true, false)
     else
@@ -773,7 +775,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  private def createUnmanagedDependencies(dependencies: Seq[sbtStructure.JarDependencyData])
+  protected def createUnmanagedDependencies(dependencies: Seq[sbtStructure.JarDependencyData])
                                          (moduleData: ModuleData): Seq[LibraryDependencyNode] = {
     dependencies.groupBy(it => scopeFor(it.configurations)).toSeq.map { case (scope, dependency) =>
       val name = scope match {

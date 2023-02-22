@@ -47,12 +47,18 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       // so source module dependencies are not relevant for compilation, only for highlighting.
       val representativeProject = representativeProjectIn(rootGroup.projects)
 
-      //add library dependencies of the representative project
-      val moduleDependencies = representativeProject.dependencies.modules
-      moduleNode.addAll(createLibraryDependencies(moduleDependencies)(moduleNode, libraryNodes.map(_.data)))
+      val representativeProjectDependencies = representativeProject.dependencies
 
       //add library dependencies of the representative project
-      val projectDependencies = representativeProject.dependencies.projects
+      val libraryDependencies = representativeProjectDependencies.modules
+      moduleNode.addAll(createLibraryDependencies(libraryDependencies)(moduleNode, libraryNodes.map(_.data)))
+
+      //add unmanaged jars/libraries dependencies of the representative project
+      val unmanagedLibraryDependencies = representativeProjectDependencies.jars
+      moduleNode.addAll(createUnmanagedDependencies(unmanagedLibraryDependencies)(moduleNode))
+
+      //add library dependencies of the representative project
+      val projectDependencies = representativeProjectDependencies.projects
       projectDependencies.foreach { dependencyId =>
         val dependency =
           projectToModuleNode.values

@@ -66,7 +66,8 @@ class SbtCrossBuildProjectHighlightingTest_BackReferencesEnabled extends SbtCros
   override def testHighlighting(): Unit = {
     withEnabledBackReferencesFromSharedSources(enabled = true) {
       super.testHighlighting()
-    }}
+    }
+  }
 }
 
 class SbtCrossBuildProjectHighlightingTest_BackReferencesDisabled extends SbtCrossBuildProjectHighlightingTestBase {
@@ -112,7 +113,21 @@ class SbtCrossBuildProjectHighlightingTest_BackReferencesDisabled extends SbtCro
       (103, 134), // Cannot resolve symbol 'MyClassInPlatformSpecificModule'
       (181, 216), // Cannot resolve symbol 'MyJavaClassInPlatformSpecificModule'
     ),
-    //////////////////////////////////////////////////////////////////////////////////////////////////
+    "coreFullWithUnmanagedLibraries/js/src/main/scala/JsTest.scala" -> Set(
+      (7, 13), // Declaration is never used
+      (22, 37), // Cannot resolve symbol library_package
+    ),
+    "coreFullWithUnmanagedLibraries/jvm/src/main/scala/JvmTest.scala" -> Set(
+      (7, 14), // Declaration is never used
+      (23, 38), // Cannot resolve symbol library_package
+    ),
+    "coreFullWithUnmanagedLibraries/shared/src/main/scala/org/example/MyClassInSharedSources.scala" -> Set(
+      (27, 49), // Declaration is never used
+      (58, 73), // Cannot resolve symbol library_package
+    ),
+    "coreFullWithUnmanagedLibraries/shared/src/main/scala/org/example/MyJavaClassInSharedSources.java" -> Set(
+      (103, 118), // Cannot resolve symbol 'library_package'
+    ),
     "corePure/.js/src/main/scala/org/example/MyClassInPlatformSpecificModule.scala" -> Set(
       (27, 58), // Declaration is never used
       (130, 154), // Declaration is never used
