@@ -199,7 +199,6 @@
             </constraints>
             <properties>
               <focusable value="true"/>
-              <foreground color="-16777216"/>
               <text value=""/>
               <visible value="false"/>
             </properties>
