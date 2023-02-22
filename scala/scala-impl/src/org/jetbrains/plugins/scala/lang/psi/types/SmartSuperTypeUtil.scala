@@ -16,6 +16,13 @@ import scala.collection.mutable.ArrayBuffer
   * is equivalent to some class, has FunctionN type etc).
   */
 object SmartSuperTypeUtil {
+  sealed trait TraverseSupers
+  object TraverseSupers {
+    case object Stop           extends TraverseSupers
+    case object Skip           extends TraverseSupers
+    case object ProcessParents extends TraverseSupers
+  }
+
   private[psi] def smartIsInheritor(
     leftClass:   PsiClass,
     substitutor: ScSubstitutor,
@@ -26,11 +33,12 @@ object SmartSuperTypeUtil {
     else {
       var resTpe: ScType = null
 
-      traverseSuperTypes(leftClass, substitutor, (cls, tpe) => {
+      traverseSuperTypes(leftClass, substitutor, (tpe, cls, _) => {
         if (areClassesEquivalent(cls, rightClass)) {
           if ((resTpe eq null) || tpe.conforms(resTpe)) resTpe = tpe
         }
-        false
+
+        TraverseSupers.ProcessParents
       }, Set.empty)
 
       Option(resTpe)
@@ -38,7 +46,7 @@ object SmartSuperTypeUtil {
 
   private[psi] def traverseSuperTypes(
     tpe:     ScType,
-    f:       (PsiClass, ScType) => Boolean,
+    f:       (ScType, PsiClass, ScSubstitutor) => TraverseSupers,
     visited: Set[PsiClass] = Set.empty
   ): Boolean =
     tpe.extractClassType.fold(false) { case (cls, subst) => traverseSuperTypes(cls, subst, f, visited) }
@@ -46,7 +54,7 @@ object SmartSuperTypeUtil {
   private[psi] def traverseSuperTypes(
     cls:     PsiClass,
     subst:   ScSubstitutor,
-    process: (PsiClass, ScType) => Boolean,
+    process: (ScType, PsiClass, ScSubstitutor) => TraverseSupers,
     visited: Set[PsiClass]
   ): Boolean = {
     ProgressManager.checkCanceled()
@@ -78,8 +86,13 @@ object SmartSuperTypeUtil {
         superTpe =>
           superTpe.extractClassType match {
             case Some((aClass, s)) if !visited.contains(aClass) =>
-              toBeProcessed += ((aClass, s))
-              process(aClass, superTpe)
+              process(superTpe, aClass, s) match {
+                case TraverseSupers.Stop           => true
+                case TraverseSupers.Skip           => false
+                case TraverseSupers.ProcessParents =>
+                  toBeProcessed += ((aClass, s))
+                  false
+              }
             case _ => false
           }
       )
