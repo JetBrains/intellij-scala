@@ -3,7 +3,7 @@ package worksheet
 package actions
 
 import com.intellij.ide.scratch.ScratchRootType
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.util.text.StringUtil.notNullize
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil.enableAndShowIfInScalaFile
@@ -34,7 +34,8 @@ final class CreateLightWorksheetAction extends AnAction(
     }
   }
 
-  override def update(event: AnActionEvent): Unit = {
+  override def update(event: AnActionEvent): Unit =
     enableAndShowIfInScalaFile(event)
-  }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
