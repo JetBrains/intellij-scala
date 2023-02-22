@@ -39,4 +39,6 @@ class EditPackagePrefixAction extends AnAction(ScalaBundle.message("edit.package
 
     e.getPresentation.setEnabledAndVisible(isSourceRoot)
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
