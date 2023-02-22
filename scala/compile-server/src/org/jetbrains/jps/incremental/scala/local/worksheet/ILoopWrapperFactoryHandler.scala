@@ -155,6 +155,7 @@ object ILoopWrapperFactoryHandler {
   private def ILoopWrapper213Impl    = ILoopWrapperDescriptor("ILoopWrapper213Impl", Scala2ILoopWrapperVersion)
   private def ILoopWrapper300Impl    = ILoopWrapperDescriptor("ILoopWrapper300Impl", Scala3ILoopWrapperVersion)
   private def ILoopWrapper312Impl    = ILoopWrapperDescriptor("ILoopWrapper312Impl", Scala3ILoopWrapperVersion)
+  private def ILoopWrapper330Impl    = ILoopWrapperDescriptor("ILoopWrapper330Impl", Scala3ILoopWrapperVersion)
 
   private def wrapperClassNameFor(version: ScalaVersion): ILoopWrapperDescriptor = {
     val versionStr = version.value.presentation
@@ -166,8 +167,10 @@ object ILoopWrapperFactoryHandler {
       //  reuse org.jetbrains.plugins.scala.project.Version
       if (versionStr.startsWith("3.0") || versionStr.startsWith("3.1.0") || versionStr.startsWith("3.1.1"))
         ILoopWrapper300Impl
-      else
+      else if (versionStr.startsWith("3.1.2") || versionStr.startsWith("3.1.3") || versionStr.startsWith("3.2"))
         ILoopWrapper312Impl
+      else
+        ILoopWrapper330Impl
     }
     // note: lexicographic comparison is used, but it should work fine
     else if (version.value >= Version("2.12.13")) ILoopWrapper212_13Impl
