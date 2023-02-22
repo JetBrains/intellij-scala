@@ -17,6 +17,7 @@ package org.jetbrains.plugins.scala.editor.mouseHandler;
 
 import com.intellij.codeInsight.documentation.DocumentationManager;
 import com.intellij.codeInsight.navigation.AbstractDocumentationTooltipAction;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.project.Project;
@@ -44,5 +45,10 @@ public class ShowQuickDocAtPinnedWindowFromTooltipAction extends AbstractDocumen
     DocumentationManager docManager = DocumentationManager.getInstance(project);
     docManager.setAllowContentUpdateFromContext(false);
     docManager.showJavaDocInfoAtToolWindow(docAnchor, originalElement); 
+  }
+
+  @Override
+  public @NotNull ActionUpdateThread getActionUpdateThread() {
+    return ActionUpdateThread.EDT;
   }
 }
