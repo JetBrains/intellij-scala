@@ -38,9 +38,10 @@ final class ShowImplicitConversionsAction extends AnAction(
   private var hint: LightBulbHint = _
   private val hintAlarm: Alarm = new Alarm
 
-  override def update(e: AnActionEvent): Unit = {
+  override def update(e: AnActionEvent): Unit =
     ScalaActionUtil.enableAndShowIfInScalaFile(e)
-  }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
@@ -205,13 +206,11 @@ final class ShowImplicitConversionsAction extends AnAction(
     }
 
     addMouseListener(new MouseAdapter {
-      override def mouseEntered(e: MouseEvent): Unit = {
+      override def mouseEntered(e: MouseEvent): Unit =
         setBorder(ACTIVE_BORDER)
-      }
 
-      override def mouseExited(e: MouseEvent): Unit = {
+      override def mouseExited(e: MouseEvent): Unit =
         setBorder(INACTIVE_BORDER)
-      }
 
       override def mousePressed(e: MouseEvent): Unit = e.getButton match {
         case MouseEvent.BUTTON1 if !e.isPopupTrigger =>
@@ -233,5 +232,4 @@ final class ShowImplicitConversionsAction extends AnAction(
       }
     }
   }
-
 }
