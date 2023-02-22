@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.project.settings
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.{ActionManager, AnActionEvent, ShortcutSet}
+import com.intellij.openapi.actionSystem.{ActionManager, ActionUpdateThread, AnActionEvent, ShortcutSet}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
@@ -14,7 +14,7 @@ import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.tree.TreeUtil
 import com.intellij.util.ui.{EditableTreeModel, JBUI}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.OptionExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerProfilesPanel._
 
 import java.awt._
@@ -200,9 +200,10 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
     override def moveNodeTo(parentOrNeighbour: TreePath): Unit = ()
   }
 
-  @nowarn("cat=deprecation")
   private class MoveToAction
     extends AnActionButton(ScalaBundle.message("scala.compiler.profiles.panel.move.to"), AllIcons.Actions.Forward) {
+
+    override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
 
     override def getShortcut: ShortcutSet =
       ActionManager.getInstance.getAction("Move").getShortcutSet
@@ -210,7 +211,7 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
     override def isEnabled: Boolean =
       myTree.getSelectionPath match {
         case null  => false
-        case entry => entry.getLastPathComponent.isInstanceOf[MyModuleNode] && myModuleProfiles.nonEmpty
+        case entry => entry.getLastPathComponent.is[MyModuleNode] && myModuleProfiles.nonEmpty
       }
 
     override def actionPerformed(e: AnActionEvent): Unit = {
@@ -261,7 +262,7 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
 
     private def relativePoint(e: AnActionEvent): RelativePoint = {
       val point =
-        if (e.getInputEvent.isInstanceOf[MouseEvent]) getPreferredPopupPoint
+        if (e.getInputEvent.is[MouseEvent]) getPreferredPopupPoint
         else TreeUtil.getPointForSelection(myTree)
       if (point != null) point
       else TreeUtil.getPointForSelection(myTree)
