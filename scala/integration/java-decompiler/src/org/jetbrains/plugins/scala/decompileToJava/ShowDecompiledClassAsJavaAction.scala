@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.decompileToJava
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi.impl.JavaPsiImplementationHelper
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiModificationTracker, PsiTreeUtil, PsiUtilBase}
@@ -33,6 +33,8 @@ final class ShowDecompiledClassAsJavaAction extends AnAction(ScalaJavaDecompiler
     val enabled = project != null && classFile.isDefined
     event.getPresentation.setEnabledAndVisible(enabled)
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   private def getClassfile(event: AnActionEvent): Option[ScFile] = {
     val psiElement = getPsiElement(event)
