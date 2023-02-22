@@ -27,10 +27,12 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     }
   }
 
-  def createSourceModuleNodesAndDependencies(rootGroup: RootGroup,
-                                             projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
-                                             libraryNodes: Seq[LibraryNode],
-                                             moduleFilesDirectory: File): ModuleNode = {
+  private def createSourceModuleNodesAndDependencies(
+    rootGroup: RootGroup,
+    projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
+    libraryNodes: Seq[LibraryNode],
+    moduleFilesDirectory: File
+  ): ModuleNode = {
     val projects = rootGroup.projects
 
     val sourceModuleNode = {
