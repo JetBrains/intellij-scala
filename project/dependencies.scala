@@ -115,7 +115,7 @@ object Dependencies {
   val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13" % zincVersion classifier "sources"
   val sbtBridge_Scala_3_0 = "org.scala-lang" % "scala3-sbt-bridge" % "3.0.2"
   val sbtBridge_Scala_3_1 = "org.scala-lang" % "scala3-sbt-bridge" % "3.1.3"
-  val sbtBridge_Scala_3_2 = "org.scala-lang" % "scala3-sbt-bridge" % "3.2.1"
+  val sbtBridge_Scala_3_2 = "org.scala-lang" % "scala3-sbt-bridge" % "3.2.2"
   val sbtBridge_Scala_3_3 = "org.scala-lang" % "scala3-sbt-bridge" % "3.3.1-RC1-bin-20230206-21729d2-NIGHTLY"
 
   val java9rtExport = "org.scala-sbt.rt" % "java9-rt-export" % "0.1.0"
