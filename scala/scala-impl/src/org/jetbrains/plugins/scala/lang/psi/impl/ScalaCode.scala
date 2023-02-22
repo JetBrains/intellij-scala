@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
   * @@(Seq[PsiElement], separator = ", ") elements are inserted directly, separators are re-parsed
 */
 object ScalaCode {
-  private val FileName = "factory" + ScalaFileType.INSTANCE.getDefaultExtension
+  private val FileName = "factory" + ScalaFileType.INSTANCE.getExtensionWithDot
   private val Placeholder = "placeholder$0"
 
   // "unquote-splicing"
