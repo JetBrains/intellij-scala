@@ -38,11 +38,11 @@ final class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollTo
   */
 final class StartAction(project: Project) extends DumbAwareAction {
   copyShortcutFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_DEFAULT_RUNNER))
-  val templatePresentation: Presentation = getTemplatePresentation
+  private val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Execute)
   templatePresentation.setText(SbtBundle.message("sbt.shell.start"))
 
-  override def actionPerformed(e: AnActionEvent): Unit = {
+  override def actionPerformed(e: AnActionEvent): Unit =
     SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
       toolWindow.getContentManager.removeAllContents(true)
 
@@ -50,7 +50,6 @@ final class StartAction(project: Project) extends DumbAwareAction {
         SbtProcessManager.forProject(e.getProject).restartProcess()
       }
     }
-  }
 
   override def update(e: AnActionEvent): Unit = {
     val presentation = e.getPresentation
@@ -62,6 +61,8 @@ final class StartAction(project: Project) extends DumbAwareAction {
       presentation.setText(SbtBundle.message("sbt.shell.start"))
     }
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 }
 
 final class StopAction(project: Project) extends DumbAwareAction {
