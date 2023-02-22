@@ -1,6 +1,6 @@
 package org.jetbrains.bsp.project.importing.experimental
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.project.ProjectUtil
 import org.jetbrains.bsp.{BspBundle, BspUtil}
 
@@ -12,10 +12,11 @@ class GenerateBspConfigurationFile extends AnAction(
     val project = e.getProject
     val isBspProject = project != null && BspUtil.isBspProject(project)
     if (!isBspProject) {
-      e.getPresentation.setEnabled(false)
-      e.getPresentation.setVisible(false)
+      e.getPresentation.setEnabledAndVisible(false)
     }
   }
+
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     val project = e.getProject
