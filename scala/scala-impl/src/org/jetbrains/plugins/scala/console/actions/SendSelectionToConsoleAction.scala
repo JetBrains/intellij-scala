@@ -67,6 +67,8 @@ class SendSelectionToConsoleAction extends AnAction(
     }
   }
 
+  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
+
   override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
     val editor = CommonDataKeys.EDITOR.getData(context)
@@ -78,7 +80,7 @@ class SendSelectionToConsoleAction extends AnAction(
     if (console != null) sendSelection(console, selectedText)
   }
 
-  def sendSelection(console: ScalaLanguageConsole, text: String): Unit = {
+  private def sendSelection(console: ScalaLanguageConsole, text: String): Unit = {
     val consoleEditor = console.getConsoleEditor
     val controller = ScalaConsoleInfo.getController(console.getProject)
     val processHandler = ScalaConsoleInfo.getProcessHandler(console.getProject)
@@ -114,5 +116,3 @@ class SendSelectionToConsoleAction extends AnAction(
     }
   }
 }
-
-
