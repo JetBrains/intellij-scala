@@ -11,6 +11,14 @@ lazy val coreFull =
     //.jsSettings(/* ... defined in sbt-scalajs-crossproject*/)
     //.nativeSettings(/* ... defined in sbt-scala-native */)
 
+lazy val coreFullWithUnmanagedLibraries =
+  crossProject(JVMPlatform, JSPlatform)
+    .crossType(CrossType.Full)
+    .settings(
+      scalaVersion := "2.13.10",
+      exportJars := true
+    )
+
 lazy val corePure =
   crossProject(JSPlatform, JVMPlatform, NativePlatform)
     .crossType(CrossType.Pure)

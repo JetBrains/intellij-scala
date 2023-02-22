@@ -70,6 +70,8 @@ trait AllProjectHighlightingTest {
     reporter.reportFinalResults()
   }
 
+  //NOTE: it can be overridden
+  //By default it simply runs Java/Scala annotator
   protected def highlightSingleFile(
     virtualFile: VirtualFile,
     psiFile: PsiFile,
