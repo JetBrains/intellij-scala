@@ -597,7 +597,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
               case Ref(ex: ExternalSymbol) => processName(ex.name)
               case _ => "this"
             }
-            case name if thisSymbol.isModule => processName(name)
+            case name if thisSymbol.isModule => if (thisSymbol.isStableObject) processName(thisSymbol.path).stripPrefix("<empty>.") else processName(name)
             case name => processName(name) + ".this"
           }
         sep + thisSymbolName + "." + processName(symbol.name) + ".type"
@@ -657,12 +657,12 @@ class ScalaSigPrinter(builder: StringBuilder) {
           }
           val prefixStr = (prefix.get, symbol.get, toString(prefix.get, level)) match {
             case (NoPrefixType, _, _) => ""
-            case (ThisType(Ref(objectSymbol)), _, _) if objectSymbol.isModule && !objectSymbol.isStableObject =>
-              val name: String = objectSymbol.name
+            case (ThisType(Ref(objectSymbol)), _, _) if objectSymbol.isModule =>
               objectSymbol match {
-                case classSymbol: ClassSymbol if name == "package" =>
+                case classSymbol: ClassSymbol if objectSymbol.name == "package" =>
                   processName(classSymbol.symbolInfo.owner.path) + "."
-                case _ => processName(name) + "."
+                case _ =>
+                  (if (objectSymbol.isStableObject) processName(objectSymbol.path) else processName(objectSymbol.name)) + "."
               }
             case (ThisType(packSymbol), _, _) if !packSymbol.isType =>
               processName(packSymbol.path.fixRoot) + "."
