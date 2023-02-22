@@ -207,7 +207,13 @@ trait ScalaBounds extends api.Bounds {
             if (isSameOrBaseClass(opt)) return true
           }
           false
-        case _ => false //class can't be inheritor of type alias
+        case (base: ScTypeAlias, inheritor) =>
+          if (smartEquivalence(base, inheritor)) return true
+          for (opt <- other.getSuperClasses) {
+            if (isSameOrBaseClass(opt)) return true
+          }
+          false
+        case _ => false
       }
 
     def getNamedElement: PsiNamedElement = typeNamedElement.get._1
@@ -224,7 +230,12 @@ trait ScalaBounds extends api.Bounds {
         case None =>
           getNamedElement match {
             case tp: ScTypeParam => TypeParameterType(tp)
-            case other           => ScalaType.designator(other)
+            case other           =>
+              val subst = tp match {
+                case proj: ScProjectionType => proj.actualSubst
+                case _                      => ScSubstitutor.empty
+              }
+              subst(ScalaType.designator(other))
           }
       }
 
@@ -291,11 +302,11 @@ trait ScalaBounds extends api.Bounds {
         (t1, t2) match {
           case (ScDesignatorType(t: ScParameter), _) =>
             lubInner(t.getRealParameterType.getOrAny, t2, depth, checkWeak)
-          case (ScDesignatorType(t: ScTypedDefinition), _) if !t.isInstanceOf[ScObject] =>
+          case (ScDesignatorType(t: ScTypedDefinition), _) if !t.is[ScObject] =>
             lubInner(t.`type`().getOrAny, t2, depth, checkWeak)
           case (_, ScDesignatorType(t: ScParameter)) =>
             lubInner(t1, t.getRealParameterType.getOrAny, depth, checkWeak)
-          case (_, ScDesignatorType(t: ScTypedDefinition)) if !t.isInstanceOf[ScObject] =>
+          case (_, ScDesignatorType(t: ScTypedDefinition)) if !t.is[ScObject] =>
             lubInner(t1, t.`type`().getOrAny, depth, checkWeak)
           case (ex: ScExistentialType, _) => lubInner(ex.quantified, t2, depth, checkWeak).unpackedType
           case (_, ex: ScExistentialType) => lubInner(t1, ex.quantified, depth, checkWeak).unpackedType

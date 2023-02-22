@@ -10,6 +10,7 @@ public enum ScalaModifier {
     Abstract(PsiModifier.ABSTRACT),
     Override(ScalaModifier.OVERRIDE),
     Implicit(ScalaModifier.IMPLICIT),
+    Using(ScalaModifier.USING),
     Sealed(ScalaModifier.SEALED),
     Lazy(ScalaModifier.LAZY),
     Case(ScalaModifier.CASE),
@@ -44,6 +45,7 @@ public enum ScalaModifier {
     public static final String ABSTRACT = PsiModifier.ABSTRACT;
     public static final String CASE = "case";
     public static final String IMPLICIT = "implicit";
+    public static final String USING = "using";
     public static final String LAZY = "lazy";
     public static final String OVERRIDE = "override";
     public static final String SEALED = "sealed";

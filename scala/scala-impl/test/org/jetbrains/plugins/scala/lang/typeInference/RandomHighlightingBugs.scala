@@ -706,4 +706,28 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
          |//Value[Value.T]""".stripMargin
     )
   }
+
+  def SCL18853(): Unit = checkTextHasNoErrors(
+    """
+      |trait Sealed[T] {
+      |	type MyType = T
+      |}
+      |
+      |sealed abstract class TestEnum
+      |
+      |object TestEnum extends Sealed[TestEnum] {
+      |
+      |	case object STUFF extends MyType
+      |	case object FLUFF extends MyType
+      |
+      |	val all: List[MyType] = List(STUFF, FLUFF)
+      |}
+      |
+      |class Fish(t: TestEnum)
+      |
+      |object run {
+      |	val f = new Fish(TestEnum.FLUFF)
+      |}
+      |""".stripMargin
+  )
 }
