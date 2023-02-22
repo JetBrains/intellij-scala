@@ -103,8 +103,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
           }
         case c: ClassSymbol if !refinementClass(c) && !c.isModule =>
           printSymbolAttributes(c, onNewLine = true, indent())
-          indent()
-          printClass(level, c)
+          printClass(level, c, indent _)
         case m: MethodSymbol =>
           printSymbolAttributes(m, onNewLine = true, indent())
           printMethod(level, m, indent _)
@@ -219,16 +218,18 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   private def refinementClass(c: ClassSymbol) = c.name == "<refinement>"
 
-  def printClass(level: Int, c: ClassSymbol): Unit = {
+  def printClass(level: Int, c: ClassSymbol, indent: () => Unit = () => ()): Unit = {
     if (c.name == "<local child>" /*scala.tools.nsc.symtab.StdNames.LOCALCHILD.toString()*/ ) {
-      print("\n")
+      // Skip
     } else if (c.name == "<refinement>") {
+      indent()
       print(" { ")
       val previousLength = builder.length
       printChildren(level, c)
       builder.replace(previousLength, builder.length, LineSeparator.replaceAllIn(builder.substring(previousLength, builder.length).trim, "; "))
       print(" }")
     } else {
+      indent()
       printModifiers(c)
       val (contextBounds, defaultConstructor) = if (!c.isTrait) getPrinterByConstructor(c) else (Seq.empty, "")
       if (c.isTrait) print("trait ") else print("class ")
@@ -596,7 +597,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
               case Ref(ex: ExternalSymbol) => processName(ex.name)
               case _ => "this"
             }
-            case name if thisSymbol.isModule => processName(name)
+            case name if thisSymbol.isModule => if (thisSymbol.isStableObject) processName(thisSymbol.path).stripPrefix("<empty>.") else processName(name)
             case name => processName(name) + ".this"
           }
         sep + thisSymbolName + "." + processName(symbol.name) + ".type"
@@ -656,12 +657,12 @@ class ScalaSigPrinter(builder: StringBuilder) {
           }
           val prefixStr = (prefix.get, symbol.get, toString(prefix.get, level)) match {
             case (NoPrefixType, _, _) => ""
-            case (ThisType(Ref(objectSymbol)), _, _) if objectSymbol.isModule && !objectSymbol.isStableObject =>
-              val name: String = objectSymbol.name
+            case (ThisType(Ref(objectSymbol)), _, _) if objectSymbol.isModule =>
               objectSymbol match {
-                case classSymbol: ClassSymbol if name == "package" =>
+                case classSymbol: ClassSymbol if objectSymbol.name == "package" =>
                   processName(classSymbol.symbolInfo.owner.path) + "."
-                case _ => processName(name) + "."
+                case _ =>
+                  (if (objectSymbol.isStableObject) processName(objectSymbol.path) else processName(objectSymbol.name)) + "."
               }
             case (ThisType(packSymbol), _, _) if !packSymbol.isType =>
               processName(packSymbol.path.fixRoot) + "."

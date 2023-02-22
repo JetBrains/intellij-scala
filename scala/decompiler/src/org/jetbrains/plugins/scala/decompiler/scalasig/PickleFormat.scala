@@ -33,12 +33,8 @@ trait Symbol extends Flags with Entry {
     @annotation.tailrec
     def loop(parent: Option[Symbol]): Boolean = parent match {
       case Some(_: ExternalSymbol) | Some(NoSymbol) | None => true
-      case Some(sym) =>
-        (sym.isStable ||
-          (sym.isModule && sym.name == "package")) &&
-          loop(sym.parent)
+      case Some(sym) => (sym.isStable || sym.isModule) && loop(sym.parent)
     }
-
     if (isStable)       true
     else if (!isModule) false
     else                loop(parent)
