@@ -221,7 +221,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       case Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => textOf(tpe)
       case Node3(APPLY, _, Seq(Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)), _: _*)) => textOf(tpe)
     }.filter(s => s.nonEmpty && s != "java.lang.Object" && s != "_root_.scala.runtime.EnumValue" &&
-      !(isInCaseClass && s == "_root_.scala.Product" || s == "_root_.scala.Serializable"))
+      !(isInCaseClass && (s == "_root_.scala.Product" || s == "_root_.scala.Serializable")))
       .map(simple)
     val isInGiven = definition.exists(it => isGivenObject0(it) || isGivenClass0(it))
     val isInAnonymousGiven = isInGiven && definition.exists(_.name.startsWith("given_")) // TODO common method
