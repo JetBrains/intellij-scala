@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.{IdeBorderFactory, StateRestoringCheckBox}
 import com.intellij.util.ui.JBUI.Borders
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 
 import javax.swing.{BoxLayout, JComponent, JPanel}
@@ -58,9 +59,9 @@ class ScalaTypeDefinitionUsagesDialog(element: ScTypeDefinition, project: Projec
 
     myCbUsages = addCheckboxToPanel(FindBundle.message("find.what.usages.checkbox"), getFindUsagesOptions.isUsages, findWhatPanel, true)
 
-    if (element.isInstanceOf[ScClass]) {
+    if (element.is[ScClass]) {
       val usageKindPanel = new JPanel()
-      usageKindPanel.setBorder(Borders.empty(0, 20, 0, 0))
+      usageKindPanel.setBorder(Borders.emptyLeft(20))
       usageKindPanel.setLayout(new BoxLayout(usageKindPanel, BoxLayout.Y_AXIS))
 
       myCbOnlyNewInstances = addCheckboxToPanel(ScalaBundle.message("find.what.new.instances.usages"), getFindUsagesOptions.isOnlyNewInstances, usageKindPanel, true)
@@ -91,7 +92,6 @@ class ScalaTypeDefinitionUsagesDialog(element: ScTypeDefinition, project: Projec
       dependentCbs.foreach(makeSelectable)
     else
       dependentCbs.foreach(makeUnselectable)
-
 
     val hasSelected: Boolean =
       isSelected(myCbUsages) ||
