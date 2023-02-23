@@ -8,14 +8,15 @@ import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.util.NlsActions
 import com.intellij.ui.components.{JBLabel, JBPanel}
 import com.intellij.ui.{IdeBorderFactory, SideBorder}
+import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 
 import java.awt._
 import java.awt.geom.Rectangle2D
-import javax.swing.border.{EmptyBorder, LineBorder}
 import javax.swing._
+import javax.swing.border.LineBorder
 import scala.concurrent.duration.DurationInt
 
 class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
@@ -37,7 +38,7 @@ class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
   addToLeft({
     val panel = new JPanel()
     panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS))
-    panel.setBorder(new EmptyBorder(2, 3, 0, 0))
+    panel.setBorder(JBUI.Borders.empty(2, 3, 0, 0))
     panel.add(new JBLabel("Level: "))
     val comboBox = new JComboBox[Level](Level.values())
     comboBox.setFocusable(false)
