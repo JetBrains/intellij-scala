@@ -4,9 +4,9 @@ import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.IdeBorderFactory
 import com.intellij.ui.components.{JBCheckBox, JBPanel}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
+import com.intellij.util.ui.JBUI
 import org.jetbrains.plugins.scala.ScalaBundle
 
-import java.awt.Insets
 import javax.swing.JPanel
 
 class Scala3SettingsPanel(settings: CodeStyleSettings) extends ScalaCodeStyleSubPanelBase(settings) {
@@ -16,7 +16,7 @@ class Scala3SettingsPanel(settings: CodeStyleSettings) extends ScalaCodeStyleSub
 
   private def buildInnerPanel(): JPanel = {
     val panel = new JBPanel
-    panel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1))
+    panel.setLayout(new GridLayoutManager(1, 1, JBUI.emptyInsets(), -1, -1))
     panel.setBorder(IdeBorderFactory.createTitledBorder(ScalaBundle.message("scala3.panel.title")))
 
     checkbox = new JBCheckBox(ScalaBundle.message("scala3.panel.use.indentation.based.syntax"))

@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project.settings
 import com.intellij.ui.TitledSeparator
 import com.intellij.ui.components.JBLabel
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
-import com.intellij.util.ui.UI
+import com.intellij.util.ui.{JBUI, UI}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.settings.SbtExtraControls.JCheckBoxWithTooltip
@@ -25,16 +25,16 @@ final class SbtExtraControls {
   val scalaVersionPreferenceComboBox = new JComboBox(Array("Scala 2", "Scala 3"))
 
   locally {
-    content.setLayout(new GridLayoutManager(9, 2, new Insets(0, 0, 0, 0), -1, -1))
+    content.setLayout(new GridLayoutManager(9, 2, JBUI.emptyInsets(), -1, -1))
 
     def gc(row: Int, column: Int, rowSpan: Int, colSpan: Int) =
       new GridConstraints(row, column, rowSpan, colSpan, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false)
 
     val scalaVersionPreferencePanel = {
-      val panel = new JPanel();
+      val panel = new JPanel()
       panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS))
-      panel.add(new JBLabel(SbtBundle.message("sbt.settings.scalaVersionPreference")));
-      panel.add(Box.createRigidArea(new Dimension(10, 0)));
+      panel.add(new JBLabel(SbtBundle.message("sbt.settings.scalaVersionPreference")))
+      panel.add(Box.createRigidArea(new Dimension(10, 0)))
       panel.add(UI.PanelFactory.panel(scalaVersionPreferenceComboBox).withTooltip(SbtBundle.message("sbt.settings.scalaVersionPreference.tooltip")).createPanel())
       panel
     }

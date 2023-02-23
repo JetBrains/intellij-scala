@@ -1,19 +1,19 @@
-package org.jetbrains.plugins.scala.codeInsight
-package hints
-package methodChains
-
-import java.awt.{Graphics, Insets, Rectangle}
+package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.openapi.editor.{Document, Editor, Inlay, InlayModel, RangeMarker}
 import com.intellij.openapi.util.{Disposer, Key}
+import com.intellij.util.ui.JBUI
 import org.jetbrains.plugins.scala.annotator.hints.Text
-import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.AlignedInlayGroup._
+import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.AlignedInlayGroup.{AlignedInlayRenderer, AlignmentLine, ScalaMethodChainDisposableKey}
+import org.jetbrains.plugins.scala.codeInsight.hints.typeHintsMenu
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
+
+import java.awt.{Graphics, Insets, Rectangle}
 
 private abstract class AlignedHintTemplate(val textParts: Seq[Text]) {
   def line(document: Document): Int = document.getLineNumber(endOffset)
@@ -52,7 +52,7 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
 
   locally {
     inlays =
-      for(line <- alignmentLines; hint <- line.maybeHint) yield {
+      for (line <- alignmentLines; hint <- line.maybeHint) yield {
         val inlay = inlayModel.addAfterLineEndElement(
           hint.endOffset,
           false,
@@ -83,6 +83,7 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
 
   override def dispose(): Unit = alignmentLines.foreach(_.dispose())
 }
+
 private object AlignedInlayGroup {
   private val ScalaMethodChainDisposableKey: Key[Disposable] = Key.create[Disposable]("SCALA_METHOD_CHAIN_DISPOSABLE_KEY")
 
@@ -108,7 +109,6 @@ private object AlignedInlayGroup {
 
     override def dispose(): Unit = marker.dispose()
   }
-
 
   private case class Cached(lineEndX: Int, margin: Int)
 
@@ -136,12 +136,12 @@ private object AlignedInlayGroup {
       }
 
       var hasSomethingElseInLine = false
-      editor.asOptionOf[EditorImpl].foreach(_.processLineExtensions(line.lineNumber, _ => { hasSomethingElseInLine = true; false} ))
+      editor.asOptionOf[EditorImpl].foreach(_.processLineExtensions(line.lineNumber, _ => { hasSomethingElseInLine = true; false }))
       if (!hasSomethingElseInLine) {
         super.paint0(editor, g, r, textAttributes)
       }
     }
 
-    override def getMargin(editor: Editor): Insets = new Insets(0, cached.margin, 0, 0)
+    override def getMargin(editor: Editor): Insets = JBUI.insetsLeft(cached.margin)
   }
 }

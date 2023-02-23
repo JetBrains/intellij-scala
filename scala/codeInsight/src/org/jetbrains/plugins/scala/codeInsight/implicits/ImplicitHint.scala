@@ -1,18 +1,19 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import java.awt.Insets
-import java.lang.reflect.{Field, Modifier}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.editor.{Editor, InlayModel}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
+import com.intellij.util.ui.JBUI
 import org.jetbrains.plugins.scala.annotator.hints.Hint
 
-import scala.jdk.CollectionConverters._
+import java.awt.Insets
+import java.lang.reflect.{Field, Modifier}
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 object ImplicitHint {
-  private val EmptyInsets = new Insets(0, 0, 0, 0)
+  private val EmptyInsets = JBUI.emptyInsets()
 
   private val ElementKey: Key[PsiElement] = Key.create("SCALA_IMPLICIT_HINT_ELEMENT")
 

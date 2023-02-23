@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import java.awt._
-
 import com.intellij.ide.ui.AntialiasingType
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorFontType
@@ -9,9 +7,12 @@ import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.openapi.util.Key
 import com.intellij.ui.paint.EffectPainter
-import com.intellij.util.ui.GraphicsUtil
+import com.intellij.util.ui.{GraphicsUtil, JBUI}
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer._
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+
+import java.awt._
 
 //TODO: why it's in "implicits" package?
 // It's also used in methodChains, rangeHints
@@ -35,7 +36,7 @@ class TextPartsHintRenderer(var parts: Seq[Text], menu: Option[String])
   }
 
   override def paint0(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
-    if (!editor.isInstanceOf[EditorImpl]) return
+    if (!editor.is[EditorImpl]) return
     val editorImpl = editor.asInstanceOf[EditorImpl]
 
     val m = getMargin(editor)
@@ -190,10 +191,9 @@ private object TextPartsHintRenderer {
 
   private final val BackgroundAlpha = 0.55F
 
-  private final val DefaultMargin = new Insets(0, 0, 0, 0)
+  private final val DefaultMargin = JBUI.emptyInsets()
 
-  private final val DefaultPadding = new Insets(0, 0, 0, 0)
+  private final val DefaultPadding = JBUI.emptyInsets()
 
   private final val ExpansionLevel = 5
 }
-
