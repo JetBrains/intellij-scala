@@ -13,6 +13,7 @@ import javax.swing._
 
 final class SbtExtraControls {
   private val content: JComponent = new JPanel
+
   def rootComponent: JComponent = content
 
   var converterVersion = 0
@@ -22,7 +23,7 @@ final class SbtExtraControls {
   val useSbtShellForBuildCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.useShellForBuild"), SbtBundle.message("sbt.settings.useShellForBuild.tooltip"))
   val remoteDebugSbtShellCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.remoteDebug"), SbtBundle.message("sbt.settings.remoteDebug.tooltip"))
   val allowSbtVersionOverrideCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.allowSbtVersionOverride"), SbtBundle.message("sbt.settings.allowSbtVersionOverride.tooltip"))
-  val scalaVersionPreferenceComboBox = new JComboBox(Array("Scala 2", "Scala 3"))
+  val scalaVersionPreferenceComboBox = new com.intellij.openapi.ui.ComboBox(Array("Scala 2", "Scala 3"))
 
   locally {
     content.setLayout(new GridLayoutManager(9, 2, JBUI.emptyInsets(), -1, -1))

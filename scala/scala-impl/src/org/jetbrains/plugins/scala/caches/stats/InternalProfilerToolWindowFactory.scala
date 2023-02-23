@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.{Content, ContentFactory}
 import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
@@ -14,7 +15,7 @@ import org.jetbrains.plugins.scala.util.ui.extensions.ComponentExt
 
 import java.awt.BorderLayout
 import java.util.concurrent.{Future, TimeUnit}
-import javax.swing.{Icon, JPanel, JScrollPane}
+import javax.swing.{Icon, JPanel}
 import scala.jdk.CollectionConverters._
 
 class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware {
@@ -80,13 +81,13 @@ object InternalProfilerToolWindowFactory {
     val parentCalls = data.parentCalls
     val sorted = parentCalls.asScala.sortBy(_._2).reverse
     val total = sorted.map(_._2).sum
+
     def fraction(i: Int): String = (i.toDouble / total * 100).round.toString + " %"
 
     sorted.map {
       case (name, count) => s"$name: ${fraction(count)}"
     }.mkString("; ")
   }
-
 
   def createContent(project: Project): Seq[Content] = {
     val timingsTable = createTableWithToolbarPanel(ScalaCacheTracerDataSource, timingsModel, project)
@@ -115,7 +116,7 @@ object InternalProfilerToolWindowFactory {
     val table = tableModel.createTable()
     tableModel.registerSpeedSearch(table)
 
-    val scrollPane = new JScrollPane
+    val scrollPane = new JBScrollPane
     scrollPane.setViewportView(table)
 
     val mainPanel = new JPanel()
@@ -159,7 +160,6 @@ object InternalProfilerToolWindowFactory {
       else dataSource.resume()
     }
   }
-
 
   class ClearAction(dataSource: DataSource[_], tableModel: DataByIdTableModel[_]) extends AnAction with DumbAware {
     getTemplatePresentation.setIcon(AllIcons.Actions.GC)
