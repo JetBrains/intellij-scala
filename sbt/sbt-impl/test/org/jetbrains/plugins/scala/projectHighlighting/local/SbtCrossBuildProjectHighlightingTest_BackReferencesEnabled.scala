@@ -49,15 +49,8 @@ abstract class SbtCrossBuildProjectHighlightingTestBase extends SbtProjectHighli
     virtualFile: VirtualFile,
     psiFile: PsiFile,
     reporter: HighlightingProgressReporter,
-  ): Unit = {
-    codeInsightFixture.openFileInEditor(virtualFile)
-    val infosAll = getProjectFixture.doHighlighting().asScala.toSeq
-    val infosWithDescription = infosAll.filter(_.getDescription != null)
-    infosWithDescription.foreach { error =>
-      val range = TextRange.create(error.getStartOffset, error.getEndOffset)
-      reporter.reportError(relativePathOf(psiFile), range, error.getDescription)
-    }
-  }
+  ): Unit =
+    doHighlightingForFile(virtualFile, psiFile, reporter)
 }
 
 
