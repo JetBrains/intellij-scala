@@ -133,6 +133,8 @@ object ScalaFeatures {
   private val minorVersion14 = Version("14")
   private val minorVersion16 = Version("16")
 
+  private val ScalaVersion_2_12_2 = ScalaVersion.Latest.Scala_2_12.withMinor(2)
+
   def deserializeFromInt(bits: Int): SerializableScalaFeatures = new SerializableScalaFeatures(bits)
 
   def apply(version: ScalaVersion,
@@ -195,10 +197,19 @@ object ScalaFeatures {
   val `-Xsource:3 in 2.12.15 or 2.13.7`: SerializableScalaFeatures = `-Xsource:3 in 2.12.14 or 2.13.6`
     .copy(ScalaVersion.Latest.Scala_2_13.withMinor(7))
 
+
   def onlyByVersion(version: ScalaVersion): SerializableScalaFeatures =
-    ScalaFeatures(version, hasSource3Flag = false, hasNoIndentFlag = false, hasOldSyntaxFlag = false,
-      hasDeprecationFlag = false, hasSourceFutureFlag = false, hasMetaEnabled = false, hasTrailingCommasEnabled = false,
-      hasUnderscoreWildcardsDisabled = false)
+    ScalaFeatures(
+      version,
+      hasSource3Flag = false,
+      hasNoIndentFlag = false,
+      hasOldSyntaxFlag = false,
+      hasDeprecationFlag = false,
+      hasSourceFutureFlag = false,
+      hasMetaEnabled = false,
+      hasTrailingCommasEnabled = version >= ScalaVersion_2_12_2,
+      hasUnderscoreWildcardsDisabled = false
+    )
 
   val CreatedWithScalaFeatures: Key[ScalaFeatures] =
     Key.create[ScalaFeatures]("created.with.scala.features")
