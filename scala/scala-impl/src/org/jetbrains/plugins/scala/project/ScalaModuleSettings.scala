@@ -71,7 +71,7 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
 
   val isTrailingCommasEnabled: Boolean = {
     val version = compilerVersion.map(Version.apply)
-    val `is scala 2.12.2` = version.exists(_ >= Version("2.12.2"))
+    val `is scala 2.12.2` = version.exists(_ >= Scala_2_12_2_version)
     `is scala 2.12.2`
   }
 
@@ -151,6 +151,8 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
 }
 
 private object ScalaModuleSettings {
+  private val Scala_2_12_2_version = Version("2.12.2")
+
   sealed trait ScalaVersionProvider {
     def languageLevel: ScalaLanguageLevel
     def compilerVersion: Option[String]
