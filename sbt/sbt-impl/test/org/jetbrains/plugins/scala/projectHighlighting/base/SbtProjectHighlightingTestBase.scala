@@ -4,12 +4,14 @@ import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.psi.PsiFile
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScopesCore}
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
 import com.intellij.testFramework.{TestLoggerFactory, VfsTestUtil}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.performance.FixtureDelegate
+import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.relativePathOf
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestCase
@@ -19,6 +21,7 @@ import org.junit.Assert
 import java.io.File
 import java.nio.file.{Files, Path, Paths}
 import java.util
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImportingTestCase {
 
@@ -28,7 +31,7 @@ abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImporting
   private def getProjectFilePath: Path = Paths.get(getTestProjectPath, s"$projectFileName.ipr")
   private def isProjectAlreadyCached = Files.exists(getProjectFilePath)
 
-  private def isProjectCachingEnabled: Boolean =
+  protected def isProjectCachingEnabled: Boolean =
     !SbtProjectHighlightingTestBase.isProjectCachingDisabledPropertySet
 
   override def setUpFixtures(): Unit = {
@@ -43,6 +46,20 @@ abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImporting
     codeInsightFixture = factory.createCodeInsightFixture(projectFixture)
     codeInsightFixture.setUp()
     myTestFixture = codeInsightFixture
+  }
+
+  protected final def doHighlightingForFile(
+    virtualFile: VirtualFile,
+    psiFile: PsiFile,
+    reporter: HighlightingProgressReporter,
+  ): Unit = {
+    codeInsightFixture.openFileInEditor(virtualFile)
+    val infosAll = codeInsightFixture.doHighlighting().asScala.toSeq
+    val infosWithDescription = infosAll.filter(_.getDescription != null)
+    infosWithDescription.foreach { error =>
+      val range = TextRange.create(error.getStartOffset, error.getEndOffset)
+      reporter.reportError(relativePathOf(psiFile), range, error.getDescription)
+    }
   }
 
   private def persistProjectConfiguration(): Unit = {

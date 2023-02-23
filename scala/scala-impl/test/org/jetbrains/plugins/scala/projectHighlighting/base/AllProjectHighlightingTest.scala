@@ -8,7 +8,7 @@ import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.impl.PsiManagerEx
-import com.intellij.psi.search.FileTypeIndex
+import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotator}
@@ -34,6 +34,10 @@ trait AllProjectHighlightingTest {
 
   protected val reporter: HighlightingProgressReporter
 
+  protected def scalaFileTypes: Seq[FileType] = Seq(ScalaFileType.INSTANCE)
+
+  protected def processOnlyFilesInSourceRoots: Boolean = true
+
   def doAllProjectHighlightingTest(): Unit = {
     val modules = ModuleManager.getInstance(getProject).getModules
     val module = modules.find(_.hasScala)
@@ -45,7 +49,11 @@ trait AllProjectHighlightingTest {
     )
     assertTrue("Test project must be in smart mode before running highlighting", !DumbService.isDumb(getProject))
 
-    val scope = SourceFilterScope(scalaFileTypes :+ JavaFileType.INSTANCE)(getProject)
+    val fileTypes = scalaFileTypes :+ JavaFileType.INSTANCE
+    val scope = if (processOnlyFilesInSourceRoots)
+      SourceFilterScope(fileTypes)(getProject)
+    else
+      GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.projectScope(getProject), fileTypes: _*)
     val scalaFiles = scalaFileTypes.flatMap(fileType => FileTypeIndex.getFiles(fileType, scope).asScala)
     val javaFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, scope).asScala
 
@@ -84,8 +92,6 @@ trait AllProjectHighlightingTest {
         AllProjectHighlightingTest.annotateScalaFile(psiFile, reporter)
     }
   }
-
-  protected def scalaFileTypes: Seq[FileType] = Seq(ScalaFileType.INSTANCE)
 }
 
 object AllProjectHighlightingTest {
