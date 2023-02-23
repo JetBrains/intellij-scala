@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.compiler.charts.ui
 
+import com.intellij.ui.Gray
+import org.jetbrains.plugins.scala.compiler.CompilationUnitId
 import org.jetbrains.plugins.scala.compiler.charts.Memory
 import org.jetbrains.plugins.scala.compiler.charts.ui.Common._
 import org.jetbrains.plugins.scala.compiler.charts.ui.ProgressDiagramPrinter._
-import org.jetbrains.plugins.scala.compiler.CompilationUnitId
 
 import java.awt.geom.{Line2D, Point2D, Rectangle2D}
 import java.awt.{Color, Graphics2D}
@@ -125,7 +126,7 @@ class ProgressDiagramPrinter(clip: Rectangle2D,
   private def moduleTextColor(darkTheme: Boolean): Color =
     if (darkTheme) DarkModuleTextColor else LightModuleTextColor
 
-  private final val DarkModuleTextColor = new Color(255, 255, 255)
+  private final val DarkModuleTextColor = Gray._255
   private final val LightModuleTextColor = TextColor
   private final val SegmentGap = 1
   private final val VerticalGap = 4
