@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
-import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaFeatures}
 import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModule.{Build, Imports}
 
@@ -72,33 +72,44 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
   private def targetModule: TargetModule = cachedInUserData("SbtFileImpl.targetModule", this, ProjectRootManager.getInstance(getProject)) {
     val moduleForFile = ModuleUtilCore.findModuleForPsiElement(this)
     moduleForFile match {
-      case null => ModuleLess
+      case null =>
+        ModuleLess
       case module =>
-        val manager = ModuleManager.getInstance(getProject)
-
-        val moduleByUri = for {
-          SbtModuleData(_, buildURI) <- SbtUtil.getSbtModuleData(module)
-
-          module <- manager.getModules.find { module =>
-            Build(module) == buildURI.uri
-          }
-        } yield module
-
-        val moduleFinal = moduleByUri.orElse {
-          //(original issue which Justin fixed: SCL-13600)
-          //This is the old way of finding a build module which breaks if the way the module name is assigned changes
-          // This branch should be non-actual for SBT projects (imported as SBT)
-          // TODO: improve it for BSP projects (in particular BSP projects with SBT server)
-          Option(manager.findModuleByName(module.getName + Sbt.BuildModuleSuffix))
+        val buildModule = findBuildModule(module)
+        buildModule match {
+          case Some(buildModule) =>
+            val moduleWithDepsAndLibsScope = buildModule.getModuleWithDependenciesAndLibrariesScope(false)
+            SbtModuleWithScope(buildModule, moduleWithDepsAndLibsScope)
+          case None =>
+            DefinitionModule(module)
         }
-        moduleFinal
-          .map { module =>
-            val moduleWithDepsAndLibsScope = module.getModuleWithDependenciesAndLibrariesScope(false)
-            SbtModuleWithScope(module, moduleWithDepsAndLibsScope)
-          }
-          .getOrElse(DefinitionModule(module))
     }
   }
+
+  override def findBuildModule(module: Module): Option[Module] =
+    if (module.hasBuildModuleType)
+      Some(module)
+    else {
+      val manager = ModuleManager.getInstance(getProject)
+
+      val modules = manager.getModules
+      val moduleByUri = for {
+        SbtModuleData(_, buildURI) <- SbtUtil.getSbtModuleData(module)
+        module <- modules.find(Build(_) == buildURI.uri)
+      } yield module
+
+      val moduleByUriOrName = moduleByUri.orElse {
+        //(original issue which Justin fixed: SCL-13600)
+        //This is the old way of finding a build module which breaks if the way the module name is assigned changes
+        // This branch should be non-actual for SBT projects (imported as SBT)
+        // TODO: improve it for BSP projects (in particular BSP projects with SBT server) (see SCL-19738)
+        //  Example when it doesn't work even now is when you have nested is when you have nested projects with `build.sbt`
+        //  See SCL-20233 for example project
+        val buildModuleName = module.getName + Sbt.BuildModuleSuffix
+        modules.find(_.getName == buildModuleName)
+      }
+      moduleByUriOrName
+    }
 }
 
 object SbtFileImpl {

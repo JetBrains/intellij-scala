@@ -25,8 +25,4 @@ object SbtModuleType {
   val instance: SbtModuleType =
     Class.forName("org.jetbrains.sbt.project.module.SbtModuleType")
       .getConstructor().newInstance().asInstanceOf[SbtModuleType]
-
-  def unapply(m: Module): Option[Module] =
-    if (ModuleType.get(m).isInstanceOf[SbtModuleType]) Some(m)
-    else None
 }
