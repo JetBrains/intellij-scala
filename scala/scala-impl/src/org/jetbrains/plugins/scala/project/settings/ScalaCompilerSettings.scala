@@ -12,6 +12,8 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  recompileOnMacroDef: Boolean,
                                  transitiveStep: Int,
                                  recompileAllFraction: Double,
+
+                                 //language features start (NOTE: we could extract them to a separate class)
                                  dynamics: Boolean,
                                  postfixOps: Boolean,
                                  reflectiveCalls: Boolean,
@@ -19,6 +21,9 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  higherKinds: Boolean,
                                  existentials: Boolean,
                                  macros: Boolean,
+                                 languageWildcard: Boolean, //-language:_
+                                 //language features end
+
                                  experimental: Boolean,
                                  warnings: Boolean,
                                  deprecationWarnings: Boolean,
@@ -93,6 +98,7 @@ object ScalaCompilerSettings {
       recompileOnMacroDef = state.recompileOnMacroDef,
       transitiveStep = state.transitiveStep,
       recompileAllFraction = state.recompileAllFraction,
+
       dynamics = state.dynamics,
       postfixOps = state.postfixOps,
       reflectiveCalls = state.reflectiveCalls,
@@ -100,6 +106,8 @@ object ScalaCompilerSettings {
       higherKinds = state.higherKinds,
       existentials = state.existentials,
       macros = state.macros,
+      languageWildcard = state.languageWildcard,
+
       experimental = state.experimental,
       warnings = state.warnings,
       deprecationWarnings = state.deprecationWarnings,
@@ -168,6 +176,7 @@ object ScalaCompilerSettings {
     ("-language:higherKinds", _.higherKinds, _.higherKinds = _),
     ("-language:existentials", _.existentials, _.existentials = _),
     ("-language:experimental.macros", _.macros, _.macros = _),
+    ("-language:_", _.languageWildcard, _.languageWildcard = _),
     ("-Xexperimental", _.experimental, _.experimental = _),
     ("-nowarn", !_.warnings, (s, x) => s.warnings = !x),
     ("-deprecation", _.deprecationWarnings, _.deprecationWarnings = _),

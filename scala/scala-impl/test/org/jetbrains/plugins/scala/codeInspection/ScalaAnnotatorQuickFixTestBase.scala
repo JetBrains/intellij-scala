@@ -195,7 +195,10 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
       myFixture.doHighlighting().asScala.toSeq
     val highlightsFiltered =
       highlightsAll
-        .filter(highlightInfo => descriptionMatches(highlightInfo.getDescription))
+        .filter(highlightInfo => {
+          val description = highlightInfo.getDescription
+          description != null && descriptionMatches(description)
+        })
         .filter(checkOffset(_, explicitCaretMarkerOffset))
 
     TestPrepareResult(myFixture.getFile.getText, expectedHighlights, highlightsFiltered)
