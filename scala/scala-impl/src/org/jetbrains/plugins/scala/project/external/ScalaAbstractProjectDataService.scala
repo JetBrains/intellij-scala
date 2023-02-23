@@ -7,11 +7,13 @@ import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys, Pr
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.externalSystem.service.project.manage.AbstractProjectDataService
+import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
-import org.jetbrains.plugins.scala.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
+
+import scala.annotation.nowarn
 
 abstract class ScalaAbstractProjectDataService[E, I](key: Key[E]) extends AbstractProjectDataService[E, I] {
 
@@ -32,6 +34,7 @@ abstract class ScalaAbstractProjectDataService[E, I](key: Key[E]) extends Abstra
       } yield module
   }
 
+  @nowarn("cat=deprecation")
   protected final def executeProjectChangeAction(project: Project)(action: => Unit): Unit =
     ExternalSystemApiUtil.executeProjectChangeAction(new DisposeAwareProjectChange(project) {
       override def execute(): Unit = action
