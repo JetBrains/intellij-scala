@@ -3,7 +3,7 @@ package org.jetbrains.bsp.project.test;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.Couple;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.components.JBList;
@@ -130,7 +130,7 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
         return lastRequestResult.stream()
                 .flatMap(item -> item.getClasses().stream()
                         .filter(x -> regex.matcher(x).matches())
-                        .map(x -> Pair.create(item.getTarget(), x)))
+                        .map(x -> Couple.of(item.getTarget(), x)))
                 .collect(groupingBy(x -> x.first, mapping(x -> x.second, toList())));
     }
 
