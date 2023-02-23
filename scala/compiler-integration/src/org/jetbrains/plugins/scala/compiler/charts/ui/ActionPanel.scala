@@ -28,6 +28,7 @@ class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
   private var currentZoomIndex: Int = DefaultZoomIndex
 
   private val debugBorder = false
+
   private def configureBorder(c: JComponent, debugColor: Color): Unit =
     if (debugBorder)
       c.setBorder(new LineBorder(debugColor, 2))
@@ -39,10 +40,10 @@ class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
     val panel = new JPanel()
     panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS))
     panel.setBorder(JBUI.Borders.empty(2, 3, 0, 0))
-    panel.add(new JBLabel("Level: "))
+    panel.add(new JBLabel(CompilerIntegrationBundle.message("compilation.charts.level")))
     val comboBox = new JComboBox[Level](Level.values())
     comboBox.setFocusable(false)
-    comboBox.addItemListener(e => setLevel(comboBox.getSelectedItem.asInstanceOf[Level]))
+    comboBox.addItemListener(_ => setLevel(comboBox.getSelectedItem.asInstanceOf[Level]))
     panel.add(comboBox)
     panel
   })
@@ -155,6 +156,7 @@ class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
       AllIcons.General.ActualZoom) {
 
     override protected def isEnabled: Boolean = currentZoomIndex != DefaultZoomIndex
+
     override protected def newZoomIndex: Int = DefaultZoomIndex
   }
 
@@ -165,6 +167,7 @@ class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
       AllIcons.General.ZoomOut) {
 
     override protected def isEnabled: Boolean = currentZoomIndex > 0
+
     override protected def newZoomIndex: Int = currentZoomIndex - 1
   }
 
@@ -175,6 +178,7 @@ class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
       AllIcons.General.ZoomIn) {
 
     override protected def isEnabled: Boolean = currentZoomIndex < AvailableZooms.size - 1
+
     override protected def newZoomIndex: Int = currentZoomIndex + 1
   }
 }
