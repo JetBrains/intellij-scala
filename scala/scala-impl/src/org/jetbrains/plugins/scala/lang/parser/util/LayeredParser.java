@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.parser.util;
 import com.intellij.lang.*;
 import com.intellij.lang.impl.PsiBuilderAdapter;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.Ref;
 import com.intellij.psi.TokenType;
@@ -357,10 +358,10 @@ public abstract class LayeredParser implements PsiParser {
     void copyMarkersWithRoot(IElementType rootElementType) {
       final PsiBuilder.Marker rootMarker = rootElementType != null ? myDelegate.mark() : null;
       final List<Pair<Marker, IElementType>> subRootMarkers = mySubRootElements.isEmpty() ?
-              Collections.<Pair<Marker, IElementType>>emptyList() :
-              new ArrayList<Pair<Marker, IElementType>>(mySubRootElements.size());
+              Collections.emptyList() :
+              new ArrayList<>(mySubRootElements.size());
       for (IElementType tpe : mySubRootElements) {
-        subRootMarkers.add(new Pair<Marker, IElementType>(myDelegate.mark(), tpe));
+        subRootMarkers.add(new Pair<>(myDelegate.mark(), tpe));
       }
 
       final Stack<FakeStartMarker> openMarkers = new Stack<FakeStartMarker>();
@@ -467,7 +468,7 @@ public abstract class LayeredParser implements PsiParser {
     private void setMarkerCustomEdgeBinder(FakeEndMarker endMarker) {
       FakeStartMarker startMarker = endMarker.getStartMarker();
 
-      Pair<WhitespacesAndCommentsBinder, WhitespacesAndCommentsBinder> pair = startMarker.getMyCustomEdgeTokenBinders();
+      Couple<WhitespacesAndCommentsBinder> pair = startMarker.getMyCustomEdgeTokenBinders();
       if (pair != null && startMarker.getDelegateMarker() != null) {
         startMarker.getDelegateMarker().setCustomEdgeTokenBinders(pair.getFirst(), pair.getSecond());
       }
@@ -857,7 +858,7 @@ public abstract class LayeredParser implements PsiParser {
       private final int myTokenNum;
       private FakeEndMarker endMarker;
       private Marker delegateMarker;
-      private Pair<WhitespacesAndCommentsBinder, WhitespacesAndCommentsBinder> myCustomEdgeTokenBinders;
+      private Couple<WhitespacesAndCommentsBinder> myCustomEdgeTokenBinders;
       private StackTraceElement[] createdAt;
 
 
@@ -936,13 +937,13 @@ public abstract class LayeredParser implements PsiParser {
         this.delegateMarker = delegateMarker;
       }
 
-      Pair<WhitespacesAndCommentsBinder, WhitespacesAndCommentsBinder> getMyCustomEdgeTokenBinders() {
+      Couple<WhitespacesAndCommentsBinder> getMyCustomEdgeTokenBinders() {
         return myCustomEdgeTokenBinders;
       }
 
       @Override
       public void setCustomEdgeTokenBinders(@Nullable WhitespacesAndCommentsBinder left, @Nullable WhitespacesAndCommentsBinder right) {
-        myCustomEdgeTokenBinders = new Pair<WhitespacesAndCommentsBinder, WhitespacesAndCommentsBinder>(left, right);
+        myCustomEdgeTokenBinders = Couple.of(left, right);
       }
 
       @Override
