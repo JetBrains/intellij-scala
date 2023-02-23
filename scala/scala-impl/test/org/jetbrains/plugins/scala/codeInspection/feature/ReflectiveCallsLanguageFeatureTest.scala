@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.feature
 
 class ReflectiveCallsLanguageFeatureTest extends LanguageFeatureInspectionTestBase {
-  override protected val classOfInspection = classOf[LanguageFeatureInspection]
   override protected val description = "Advanced language feature: reflective call"
 
   def test_duck(): Unit = {

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.feature
 
 class ImplicitConversionLanguageFeatureTest extends LanguageFeatureInspectionTestBase {
-  override protected val classOfInspection = classOf[LanguageFeatureInspection]
   override protected val description = "Advanced language feature: implicit conversion"
 
   def testImportFeatureFlag(): Unit = {
