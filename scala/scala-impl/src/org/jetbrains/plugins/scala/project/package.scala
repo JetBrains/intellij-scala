@@ -109,8 +109,34 @@ package object project {
       ScalaModuleSettings(module)
     }
 
+    /**
+     * @return true if module "looks like" a build module (if module name has `-build` suffux)
+     */
     def isBuildModule: Boolean =
       module.getName.endsWith(Sbt.BuildModuleSuffix)
+
+    /**
+     * @return true if module hast SbtModuleType (work with SBT projects and with BSP projects which use SBT as server)
+     * @note we now have two methods: isBuildModule and hasBuildModuleType<br>
+     *       isBuildModule is actually something like `looksLikeBuildModule` because it only checks module name<br>
+     *       hasBuildModuleType truly checks if the module is reported as build module by SBT<br>
+     *       We could deduplicate and leave just one method `isBuildModule`<br>
+     *       However it might be not that simple. E.g. in BSP projects module there will be no SbtModuleType
+     *       reported for build module (see See SCL-19738)
+     *       We need a way to truly check for BSP projects as well
+     *
+     *       `isBuildModule` is mostly-used because it's simple and cheap (it just checks the name)<br>
+     *       And maybe it would be even ok to just leave this simple implementation.
+     *       However I decided to leave `isBuildModule2` just because it was already used in some parts
+     *       (the method was previously `org.jetbrains.sbt.project.module.SbtModuleType.unapply`)
+     *
+     */
+    def hasBuildModuleType: Boolean = {
+      val moduleType = ModuleType.get(module)
+      moduleType.isInstanceOf[SbtModuleType]
+    }
+
+    def isSourceModule: Boolean = !hasBuildModuleType
 
     def hasScala: Boolean =
       scalaModuleSettings.isDefined
@@ -433,18 +459,28 @@ package object project {
   // TODO May also be a library file (source or compiled), SCL-20935
   implicit class ProjectPsiFileExt(private val file: PsiFile) extends AnyVal {
 
+    /** TODO: document, maybe even rename to something better, like "actual module", "effective module" */
     def module: Option[Module] = attachedFileModule.orElse {
       cachedInUserData("ProjectPsiFileExt.module", file, ProjectRootManager.getInstance(file.getProject)) {
         inReadAction { // assuming that most of the time it will be read from cache
           val module = {
             val virtualFile = if (file.getVirtualFile != null) file.getVirtualFile else file.getOriginalFile.getVirtualFile
-            if (virtualFile != null && ProjectFileIndex.getInstance(file.getProject).isInLibrary(virtualFile)) null else ModuleUtilCore.findModuleForPsiElement(file)
+            val isFileInLibrary = virtualFile != null && ProjectFileIndex.getInstance(file.getProject).isInLibrary(virtualFile)
+            if (isFileInLibrary)
+              null
+            else
+              ModuleUtilCore.findModuleForPsiElement(file)
           }
           // for build.sbt files the appropriate module is the one with `-build` suffix
           //noinspection ApiStatus
-          if (module != null && file.isInstanceOf[SbtFile])
-            findBuildModule(module)
-          else
+          if (module != null) {
+            file match {
+              case sbtFile: SbtFile =>
+                sbtFile.findBuildModule(module)
+              case _ =>
+                Option(module)
+            }
+          } else
             Option(module)
         }
       }
@@ -483,15 +519,6 @@ package object project {
     @TestOnly
     var enableFeaturesCheckInTests = false
   }
-
-  private def findBuildModule(m: Module): Option[Module] = m match {
-    case SbtModuleType(_) => Some(m)
-    case _ => moduleByName(m.getProject, s"${m.getName}${Sbt.BuildModuleSuffix}")
-  }
-
-  //noinspection SameParameterValue
-  private def moduleByName(project: Project, name: String): Option[Module] =
-    ModuleManager.getInstance(project).getModules.find(_.getName == name)
 
   // TODO The same as ScalaFeatures (Scala versions, isSource3Enabled vs hasSource3Flag, etc.), SCL-20935
   implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
