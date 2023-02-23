@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.builder
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
 import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
@@ -46,11 +47,16 @@ class ScalaPsiBuilderImpl(
 
     containingFile match {
       case Some(file) =>
-        file.module match {
-          case Some(module) => module.features
-          case None         => ScalaFeaturePusher.getFeatures(file).getOrElse(featuresByVersion)
+        val fileModule = file.module
+        fileModule match {
+          case Some(module) =>
+            module.features
+          case None         =>
+            val featuresFromPusher = ScalaFeaturePusher.getFeatures(file)
+            featuresFromPusher.getOrElse(featuresByVersion)
         }
-      case None => featuresByVersion
+      case None =>
+        featuresByVersion
     }
   }
 
