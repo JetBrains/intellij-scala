@@ -1,8 +1,4 @@
 <idea-plugin>
-    <extensionPoints>
-        <extensionPoint qualifiedName="com.intellij.sbt.internal.dynamicLinker" interface="org.jetbrains.sbt.internal.InternalDynamicLinker"/>
-    </extensionPoints>
-
     <extensions defaultExtensionNs="com.intellij">
         <moduleService serviceImplementation="org.jetbrains.sbt.project.module.SbtModule"/>
         <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.module.SbtModuleType"/>
