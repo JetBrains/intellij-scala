@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import org.jetbrains.plugins.scala.indices.protocol.sbt.SbtCompilationInfo
 import org.jetbrains.sbt.project.data.ModuleNode
-import org.jetbrains.sbt.project.module.SbtModuleType
 
 import java.io.File
 
@@ -69,8 +68,4 @@ package object references {
         CompilerReferenceIndex.exists(dir) &&
           !CompilerReferenceIndex.versionDiffers(dir, expectedVersion)
     )
-
-  implicit class ModuleSbtExtensions(private val module: Module) extends AnyVal {
-    def isSourceModule: Boolean = SbtModuleType.unapply(module).isEmpty
-  }
 }
