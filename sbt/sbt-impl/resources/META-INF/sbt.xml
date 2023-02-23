@@ -142,8 +142,6 @@
         <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.IntelliJScalaNewProjectWizard" />
 
         <orderEnumerationHandlerFactory implementation="org.jetbrains.sbt.execution.SbtOrderEnumeratorHandlerFactory"/>
-
-        <sbt.internal.dynamicLinker implementation="org.jetbrains.sbt.internal.InternalDynamicLinkerImpl$"/>
     </extensions>
 
     <applicationListeners>
