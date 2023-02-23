@@ -1,26 +1,26 @@
-package org.jetbrains.plugins.scala.codeInsight.hints
-package methodChains
+package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
-import java.awt.Insets
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme, EditorFontType}
+import com.intellij.openapi.editor.{Document, Editor, InlayModel}
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
+import com.intellij.util.ui.JBUI
 import org.jetbrains.plugins.scala.annotator.hints.{AnnotatorHints, Text}
-import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass._
+import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass.{hasObviousReturnType, isFollowedByLineEnd, isUnqualifiedReference, removeLastIfHasTypeMismatch}
+import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, isTypeObvious, textPartsOf, typeHintsMenu}
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiElementExt, PsiFileExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScArgumentExprList, ScBlockExpr, ScExpression, ScFunctionExpr, ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
-import org.jetbrains.plugins.scala.settings.annotations.Expression
-import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.settings.annotations.Expression
 
+import java.awt.Insets
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 private[codeInsight] trait ScalaMethodChainInlayHintsPass {
   private var collectedHintTemplates = Seq.empty[(Seq[AlignedHintTemplate], ScExpression)]
@@ -179,7 +179,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
         hint.endOffset,
         false,
         new TextPartsHintRenderer(hint.textParts, typeHintsMenu) {
-          override protected def getMargin(editor: Editor): Insets = new Insets(0, charWidth, 0, 0)
+          override protected def getMargin(editor: Editor): Insets = JBUI.insetsLeft(charWidth)
         }
       )
       inlay.putUserData(ScalaMethodChainKey, true)
@@ -197,7 +197,7 @@ private object ScalaMethodChainInlayHintsPass {
   private object CallerAndCall {
     def unapply(expr: ScExpression): Option[(ScExpression, MethodInvocation)] = expr match {
       case Parent((ref: ScReferenceExpression) & Parent(mc: ScMethodCall)) => Some(ref -> mc)
-      case Parent(call@ScInfixExpr(`expr`, _, _)) =>  Some(expr -> call)
+      case Parent(call@ScInfixExpr(`expr`, _, _)) => Some(expr -> call)
       case _ => None
     }
   }

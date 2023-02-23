@@ -6,6 +6,7 @@ import com.intellij.openapi.ui.{ComboBox, ValidationInfo}
 import com.intellij.refactoring.BaseRefactoringProcessor
 import com.intellij.ui.table.{JBTable, TableView}
 import com.intellij.ui.{EditorTextField, ToolbarDecorator}
+import com.intellij.util.ui.JBUI
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature._
@@ -40,7 +41,7 @@ class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
     val panel = super.createNorthPanel() //to initialize fields
     val northPanel = new JPanel(new GridBagLayout())
     val gbc: GridBagConstraints = new GridBagConstraints(0, 0, 1, 1, 1, 1,
-      GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0)
+      GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, JBUI.emptyInsets(), 0, 0)
 
     val paramNamePanel = createParamNamePanel()
     val paramTypePanel = createParamTypePanel()
@@ -121,7 +122,7 @@ class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
         myParametersTableModel.fireTableDataChanged()
         parametersTable.updateUI()
         updateSignatureAlarmFired()
-        getRefactorAction.setEnabled(!newText.isEmpty)
+        getRefactorAction.setEnabled(newText.nonEmpty)
       }
     })
     val paramNameLabel = new JLabel(ScalaBundle.message("parameter.label.name"))

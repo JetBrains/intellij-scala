@@ -23,10 +23,11 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.components.panels.HorizontalLayout
 import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
+import com.intellij.util.ui.JBUI
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction, inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
@@ -288,7 +289,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     def constraint(row: Int, column: Int, rowSpan: Int, colSpan: Int, anchor: Int, fill: Int, HSizePolicy: Int, VSizePolicy: Int) =
       new GridConstraints(row, column, rowSpan, colSpan, anchor, fill, HSizePolicy, VSizePolicy, null, null, null, 0, false)
 
-    val inner = new JPanel(new GridLayoutManager(7, 3, new Insets(10, 15, 10, 15), -1, -1))
+    val inner = new JPanel(new GridLayoutManager(7, 3, JBUI.insets(10, 15), -1, -1))
 
     showScalaFmtInvalidCodeWarnings = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.show.warnings.when.formatting.invalid.code"))
     useIntellijFormatterForRangeFormat = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.use.intellij.formatter.for.code.range.formatting"))
@@ -298,7 +299,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       useIntellijWarning.setVisible(!useIntellijFormatterForRangeFormat.isSelected)
     })
     val useIntellijFormatterWrapper = {
-      val w = new JPanel(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1))
+      val w = new JPanel(new GridLayoutManager(1, 2, JBUI.emptyInsets(), -1, -1))
       w.add(useIntellijFormatterForRangeFormat, constraint(0, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
       w.add(useIntellijWarning, constraint(0, 1, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
       w

@@ -8,6 +8,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.components.JBLabel
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
+import com.intellij.util.ui.JBUI
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.rearranger.ScalaArrangementPanel
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
@@ -112,12 +113,12 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     def constraint(row: Int, col: Int, fill: Int, HSizePolicy: Int, VSizePolicy: Int) =
       new GridConstraints(row, col, 1, 1, ANCHOR_CENTER, fill, HSizePolicy, VSizePolicy, null, null, null, 0, false)
 
-    val formatterSelectorPanel = new JPanel(new GridLayoutManager(1, 3, new Insets(0, 10, 0, 0), -1, -1))
+    val formatterSelectorPanel = new JPanel(new GridLayoutManager(1, 3, JBUI.insetsLeft(10), -1, -1))
     formatterSelectorPanel.add(new JBLabel(ScalaBundle.message("scala.root.code.style.panel.formatter")), constraint(0, 0, FILL_BOTH, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     formatterSelectorPanel.add(formatterSelectorComboBox, constraint(0, 1, FILL_HORIZONTAL, CAN_SHRINK_AND_GROW, SIZEPOLICY_FIXED))
     formatterSelectorPanel.add(new Spacer, constraint(0, 2, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
 
-    outerPanel = new JPanel(new GridLayoutManager(7, 2, new Insets(0, 0, 0, 0), -1, -1))
+    outerPanel = new JPanel(new GridLayoutManager(7, 2, JBUI.emptyInsets(), -1, -1))
     outerPanel.add(formatterSelectorPanel, constraint(0, 0, FILL_BOTH, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     outerPanel.add(innerPanel, constraint(1, 0, FILL_BOTH, CAN_SHRINK_AND_GROW, CAN_SHRINK_AND_GROW))
 
@@ -184,7 +185,9 @@ object ScalaTabbedCodeStylePanel {
     }
 
     def exposeIsModified(settings: CodeStyleSettings): Boolean = super.isModified(settings)
+
     def exposeApply(settings: CodeStyleSettings): Unit = super.apply(settings)
+
     def exposeResetImpl(settings: CodeStyleSettings): Unit = super.resetImpl(settings)
 
     def onProjectSet(project: Project): Unit = scalaFmtSettingsPanel.onProjectSet(project)
