@@ -2,6 +2,7 @@ package org.jetbrains.sbt.project
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
@@ -16,7 +17,6 @@ import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{RichFile, inWriteAction}
-import org.jetbrains.plugins.scala.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -29,6 +29,7 @@ import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
 import java.net.URI
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
 
 @Category(Array(classOf[SlowTests]))
@@ -476,6 +477,7 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
 
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
+  @nowarn("cat=deprecation")
   def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
     val projectLangaugeLevel = SbtProjectStructureImportingTest.this.projectJdkLanguageLevel
 
