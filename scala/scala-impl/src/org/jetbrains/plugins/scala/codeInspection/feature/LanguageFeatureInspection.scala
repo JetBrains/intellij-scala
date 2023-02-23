@@ -76,7 +76,9 @@ private case class Feature(@Nls name: String,
 
   def process(e: PsiElement, holder: ProblemsHolder): Unit = {
     compilerProfile(e).foreach { profile =>
-      if (!isEnabled(profile.getSettings) && isEnabledOn(e)) {
+      val compilerSettings = profile.getSettings
+      val isFeatureEnabled = isEnabled(compilerSettings) || compilerSettings.languageWildcard
+      if (!isFeatureEnabled && isEnabledOn(e)) {
         findIn.lift(e).foreach { it =>
           if (!isFlagImportedFor(it)) {
             holder.registerProblem(
