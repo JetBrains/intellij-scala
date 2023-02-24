@@ -1,15 +1,21 @@
-package org.jetbrains.plugins.scala.projectHighlighting.local
+package org.jetbrains.bsp.projectHighlighting
 
 import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.projectHighlighting.base.{ProjectHighlightingAssertions, SbtProjectHighlightingLocalProjectsTestBase}
+import org.jetbrains.plugins.scala.projectHighlighting.base.ProjectHighlightingAssertions
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
+import org.jetbrains.plugins.scala.{HighlightingTests, ScalaFileType}
 import org.jetbrains.sbt.language.SbtFileType
+import org.junit.experimental.categories.Category
 
-class SbtFilesProblemHighlightFilterTest
-  extends SbtProjectHighlightingLocalProjectsTestBase
+//NOTE:
+//The test is very similar to `org.jetbrains.plugins.scala.projectHighlighting.local.SbtFilesProblemHighlightFilterTest`
+//But for SBT project which is opened as BSP over SBT
+@Category(Array(classOf[HighlightingTests]))
+class SbtFilesProblemHighlightFilter_SbtOverBspProject_Test
+  extends SbtOverBspProjectHighlightingLocalProjectsTestBase
     with ProjectHighlightingAssertions {
 
   override def projectName = "sbt-with-many-sbt-files-in-different-locations"
@@ -43,7 +49,7 @@ class SbtFilesProblemHighlightFilterTest
   }
 
   override def testHighlighting(): Unit = {
-    super.testHighlighting()
+    super.testHighlighting() //TODO
 
     assertFileShouldBeHighlighted("build.sbt")
     assertFileShouldBeHighlighted("project/build.sbt")
@@ -52,4 +58,21 @@ class SbtFilesProblemHighlightFilterTest
     assertFileShouldNotBeHighlighted("sub-project/testdata/build.sbt")
     assertFileShouldNotBeHighlighted("sub-project/src/main/scala/build.sbt")
   }
+
+  import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
+
+  override protected def filesWithProblems: Map[String, Set[TextRange]] = Map(
+    "sub-project/build.sbt" -> Set(
+      (0, 21), // Unused import statement
+      (7, 19), // Cannot resolve symbol Dependencies
+      (23, 44), // Expression type Def.Setting[String] must conform to DslEntry in sbt file
+      (45, 63), // Expression type Def.Setting[String] must conform to DslEntry in sbt file
+      (65, 72), // Cannot resolve symbol Compile
+      (73, 74), // Cannot resolve symbol /
+      (79, 80), // Cannot resolve symbol /
+      (91, 93), // Cannot resolve symbol :=
+      (123, 190), // Expression type Def.Setting[Seq[ModuleID]] must conform to DslEntry in sbt file
+      (154, 163), // Cannot resolve symbol scalaTest
+    )
+  )
 }

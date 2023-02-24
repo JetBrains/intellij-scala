@@ -7,13 +7,10 @@ import com.intellij.psi.PsiFile
 import com.intellij.testFramework.InspectionsKt
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.{ScalaAccessCanBeTightenedInspection, ScalaUnusedDeclarationInspection}
-import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.relativePathOf
 import org.jetbrains.plugins.scala.projectHighlighting.base.SbtProjectHighlightingLocalProjectsTestBase
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.RevertableChange
 import org.junit.experimental.categories.Category
-
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Category(Array(classOf[HighlightingTests]))
 abstract class SbtCrossBuildProjectHighlightingTestBase extends SbtProjectHighlightingLocalProjectsTestBase {

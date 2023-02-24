@@ -5,19 +5,19 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.testFramework.CompilerTester
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
 import org.jetbrains.plugins.scala.HighlightingTests
-import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMessageExt
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, TestUtils}
-import org.jetbrains.sbt.project.SbtExternalSystemImportingTestCase
+import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[HighlightingTests]))
 final class SbtNoErrorsInProjectWithProvidedAndRuntimeDependenciesTest
-  extends SbtExternalSystemImportingTestCase
+  extends SbtExternalSystemImportingTestLike
     with AllProjectHighlightingTest {
 
   protected var codeInsightFixture: CodeInsightTestFixture = _
