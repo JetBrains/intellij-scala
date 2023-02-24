@@ -8,18 +8,18 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
-import org.jetbrains.annotations.{Nls, NonNls, TestOnly}
+import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, ObjectExt}
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
-import org.jetbrains.sbt.{SbtBundle, SbtCompilationSupervisorPort}
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication._
+import org.jetbrains.sbt.{SbtBundle, SbtCompilationSupervisorPort}
 
 import java.io.{BufferedWriter, File, OutputStreamWriter, PrintWriter}
 import java.nio.charset.Charset
@@ -268,7 +268,8 @@ class SbtStructureDump {
         (typ, reporter) match {
           case (OutputType.StdErr, reporter: ExternalSystemNotificationReporter) =>
             reporter.logErr(text)
-          case _ => reporter.log(text)
+          case _ =>
+            reporter.log(text)
         }
       }
     }
@@ -348,7 +349,7 @@ object SbtStructureDump {
   val PrintProcessOutputOnFailurePropertyName = "sbt.import.print.process.output.on.failure"
 
   private def dontPrintErrorsAndWarningsToConsoleDuringTests: Boolean =
-    System.getProperty("dontPrintErrorsAndWarningsToConsoleDuringTests") == "true"
+    System.getProperty("sbt.structure.dump.dontPrintErrorsAndWarningsToConsoleDuringTests") == "true"
 
   private def reportEvent(messages: BuildMessages,
                           reporter: BuildReporter,

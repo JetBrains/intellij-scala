@@ -9,12 +9,12 @@ import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory, ScalaTypeDefinitionFindUsagesOptions}
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.sbt.project.SbtExternalSystemImportingTestCase
+import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
 
 import scala.collection.mutable
 
-class FindUsagesInSbtBuildModuleTest extends SbtExternalSystemImportingTestCase {
+class FindUsagesInSbtBuildModuleTest extends SbtExternalSystemImportingTestLike {
 
   override protected def getTestProjectPath: String =
     s"${TestUtils.getTestDataPath}/findUsages/sbt_projects/${getTestName(true)}"

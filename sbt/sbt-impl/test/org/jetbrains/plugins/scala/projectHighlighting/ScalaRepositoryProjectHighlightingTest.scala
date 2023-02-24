@@ -10,7 +10,7 @@ import org.junit.experimental.categories.Category
 //TODO: fix errors in scala project and ignore the test
 @Ignore
 @Category(Array(classOf[HighlightingTests]))
-class ScalaProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
+class ScalaRepositoryProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
 
   override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
     GithubRepositoryWithRevision("scala", "scala", "2.13.x")

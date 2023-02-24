@@ -7,14 +7,14 @@ import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMe
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange, TestUtils}
-import org.jetbrains.sbt.project.SbtExternalSystemImportingTestCase
+import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.{assertTrue, fail}
 
 import java.io.File
 import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
-class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingTestCase {
+class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingTestLike {
 
   override protected lazy val getTestProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/compilation/projects/${getTestName(true)}"

@@ -5,7 +5,7 @@ import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.ProjectJdkTable
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelProjectExtension, ModuleRootModificationUtil}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.java.LanguageLevel
@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertC
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.jetbrains.sbt.SbtDirectoryCompletionContributor
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
+import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
@@ -33,7 +34,7 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
 
 @Category(Array(classOf[SlowTests]))
-final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingTestCase
+final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingTestLike
   with ProjectStructureExpectedLibrariesOps
   with ProjectStructureMatcher
   with ExactMatch {
@@ -398,7 +399,7 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
     inWriteAction {
       ProjectJdkTable.getInstance.addJdk(projectSdk9)
     }
-    getCurrentSbtProjectSettings.jdk = projectSdk9.getName
+    getCurrentExternalProjectSettings.jdk = projectSdk9.getName
 
     //sbt can't be run with mock project JDK, so ensure it has normal SDK (configured in base test class)
     setSbtSettingsCustomSdk(getJdkConfiguredForTestCase)
@@ -473,6 +474,12 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
         ProjectJdkTable.getInstance.removeJdk(projectSdk9)
       }
     }
+  }
+
+  private def setSbtSettingsCustomSdk(sdk: Sdk): Unit = {
+    val settings = SbtSettings.getInstance(myProject)
+    settings.setCustomVMPath(sdk.getHomePath)
+    settings.setCustomVMEnabled(true)
   }
 
   //noinspection TypeAnnotation

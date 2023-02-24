@@ -19,7 +19,7 @@ import org.junit.experimental.categories.Category
 import java.io.File
 
 @Category(Array(classOf[SlowTests]))
-final class HighlightingOfTrailingCommaErrorsInSbtFilesTest extends SbtExternalSystemImportingTestCase {
+final class HighlightingOfTrailingCommaErrorsInSbtFilesTest extends SbtExternalSystemImportingTestLike {
 
   override protected def getTestProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/${getTestName(true)}"
