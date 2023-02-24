@@ -71,7 +71,7 @@
                     doNotActivateOnStart="true"/>
         <externalSystemSettingsListener implementation="org.jetbrains.sbt.project.ShowSbtShellAfterCreatingNewProject"/>
 
-        <psi.referenceContributor implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
+        <psi.referenceContributor language="sbt" implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 
         <useScopeEnlarger implementation="org.jetbrains.sbt.language.psi.search.SbtBuildModuleUseScopeEnlarger"/>
 
