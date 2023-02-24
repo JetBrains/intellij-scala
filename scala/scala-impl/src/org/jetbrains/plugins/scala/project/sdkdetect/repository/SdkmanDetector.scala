@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project.sdkdetect.repository
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.util.SystemProperties
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.template.{PathExt, _}
 
@@ -8,7 +9,7 @@ import java.util.stream.{Stream => JStream}
 
 object SdkmanDetector extends ScalaSdkDetectorDependencyManagerBase {
   private val SDKMAN_DIR_ENV     = "SDKMAN_DIR"
-  private val SDKMAN_DEFAULT_DIR = sys.props.get("user.home").map(x => Paths.get(x) / ".sdkman")
+  private val SDKMAN_DEFAULT_DIR = Some(SystemProperties.getUserHome).map(x => Paths.get(x) / ".sdkman")
 
   override def friendlyName: String = ScalaBundle.message("sdkman")
 

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project.sdkdetect.repository;
 
+import com.intellij.util.SystemProperties;
 import dev.dirs.ProjectDirectories;
 
 import java.io.File;
@@ -49,9 +50,9 @@ public final class CoursierPaths {
             path = xdgPath;
 
         if (path == null) {
-            File coursierDotFile = new File(System.getProperty("user.home") + "/.coursier");
+            File coursierDotFile = new File(SystemProperties.getUserHome() + "/.coursier");
             if (coursierDotFile.isDirectory())
-                path = System.getProperty("user.home") + "/.coursier/cache/v1/";
+                path = SystemProperties.getUserHome() + "/.coursier/cache/v1/";
         }
 
         if (path == null) {

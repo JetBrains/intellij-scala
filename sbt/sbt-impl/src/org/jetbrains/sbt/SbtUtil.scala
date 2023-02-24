@@ -8,6 +8,7 @@ import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.util.SystemProperties
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.buildinfo.BuildInfo
@@ -69,8 +70,7 @@ object SbtUtil {
   private def getFileProperty(name: String): Option[File] = Option(System.getProperty(name)) flatMap { path =>
     if (path.isEmpty) None else Some(new File(path))
   }
-  private def fileProperty(name: String): File = new File(System.getProperty(name))
-  private[sbt] def defaultGlobalBase = fileProperty("user.home") / Sbt.Extension
+  private[sbt] def defaultGlobalBase: File = new File(SystemProperties.getUserHome) / Sbt.Extension
   private def defaultVersionedGlobalBase(sbtVersion: Version): File = {
     defaultGlobalBase / binaryVersion(sbtVersion).presentation
   }

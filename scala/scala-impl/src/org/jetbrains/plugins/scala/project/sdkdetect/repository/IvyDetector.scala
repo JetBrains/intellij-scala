@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.util.SystemProperties
 import org.apache.ivy.util.{AbstractMessageLogger, Message, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, ResolveFailure, ResolvedDependency, Types, UnresolvedDependency}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
@@ -20,7 +21,7 @@ private[repository] object IvyDetector extends ScalaSdkDetectorDependencyManager
   override protected def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = IvySdkChoice(descriptor)
 
   override protected def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
-    val homePrefix = Paths.get(sys.props("user.home"))
+    val homePrefix = Paths.get(SystemProperties.getUserHome)
     val ivyHome    = sys.props.get("sbt.ivy.home").map(Paths.get(_)).orElse(Option(homePrefix / ".ivy2")).get
     val scalaRoot = ivyHome / "cache" / "org.scala-lang"
 

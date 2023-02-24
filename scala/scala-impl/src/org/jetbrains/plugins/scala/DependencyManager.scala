@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.registry.RegistryManager
+import com.intellij.util.SystemProperties
 import org.apache.ivy.Ivy
 import org.apache.ivy.core.module.id.ModuleRevisionId
 import org.apache.ivy.core.report.{ArtifactDownloadReport, ResolveReport}
@@ -25,7 +26,7 @@ import scala.jdk.CollectionConverters._
 abstract class DependencyManagerBase {
   import DependencyManagerBase._
 
-  private val homePrefix = sys.props.get("tc.idea.prefix").orElse(sys.props.get("user.home")).map(new File(_)).get
+  private val homePrefix = sys.props.get("tc.idea.prefix").orElse(Some(SystemProperties.getUserHome)).map(new File(_)).get
   private val ivyHome = sys.props.get("sbt.ivy.home").map(new File(_)).orElse(Option(new File(homePrefix, ".ivy2"))).get
 
   protected def useFileSystemResolversOnly: Boolean =
