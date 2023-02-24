@@ -186,28 +186,6 @@ abstract class SbtProjectHighlightingTestBase extends SbtExternalSystemImporting
       TestLoggerFactory.onTestFinished(success, testDescription)
     }
   }
-
-  protected def findFile(filename: String): VirtualFile = {
-    import scala.jdk.CollectionConverters._
-    val searchScope = SourceFilterScope(GlobalSearchScopesCore.directoryScope(myProject, myProjectRoot, true))(myProject)
-
-    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, searchScope)
-    val file = files.asScala.filter(_.getName == filename).toList match {
-      case vf :: Nil => vf
-      case Nil => // is this a file path?
-        val file = VfsTestUtil.findFileByCaseSensitivePath(s"$getTestProjectPath/$filename")
-        Assert.assertTrue(
-          s"Could not find file: $filename. Consider providing relative path from project root",
-          file != null && files.contains(file)
-        )
-        file
-      case list =>
-        Assert.fail(s"There are ${list.size} files with name $filename. Provide full path from project root")
-        null
-    }
-    LocalFileSystem.getInstance().refreshFiles(files)
-    file
-  }
 }
 
 object SbtProjectHighlightingTestBase {
