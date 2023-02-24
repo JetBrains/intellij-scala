@@ -15,10 +15,12 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.Iconable
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi._
+import com.intellij.psi.impl.source.resolve.FileContextUtil
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.InspectionBasedHighlightingPass.LocalQuickFixAsIntentionIconableAdapter
 import org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 
 import java.util.Collections
@@ -68,9 +70,15 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
     }
   }
 
-  private def shouldHighlightFile: Boolean =
+  private def shouldHighlightFile: Boolean = {
+
+    def isInjectedFragmentEditor: Boolean = FileContextUtil.getFileContext(file).is[ScStringLiteral]
+
+    def isDebugEvaluatorExpression: Boolean = file.is[ScalaCodeFragment]
+
     HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) &&
-      (!file.is[ScalaCodeFragment] || !inspectionIsDisabledForScalaFragments)
+      (!inspectionIsDisabledForScalaFragments || !(isDebugEvaluatorExpression || isInjectedFragmentEditor))
+  }
 
   override def doApplyInformationToEditor(): Unit = {
     if (shouldHighlightFile) {
