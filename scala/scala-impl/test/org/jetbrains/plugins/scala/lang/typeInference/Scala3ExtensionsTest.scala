@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang.typeInference
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
@@ -368,6 +367,49 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |    import Extensions.{foo => baz, *}
       |    println("...".baz)
       |    println("...".bar)
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL20701(): Unit = checkTextHasNoErrors(
+    """
+      |extension (s: String) {
+      |  def foo(x: Int) = "Int"
+      |  def foo(x: String) = "Int"
+      |}
+      |
+      |val s = "abc"
+      |s.foo(3) // can't find declaration to go
+      |s.foo("abc") // can't find declaration to go
+      |""".stripMargin
+  )
+
+  def testSCL19820(): Unit = checkTextHasNoErrors(
+    """
+      |case class MyClass(i: Int)
+      |
+      |object MyClassExtensions {
+      |  extension (m: MyClass) {
+      |    def myDef(x: Int): Int = m.i + x
+      |    def myDef(x: Double): Double = m.i + x
+      |    def apply(x: Int): Int = m.i + x
+      |  }
+      |}
+      |
+      |object testMain {
+      |  def main(args: Array[String]): Unit = {
+      |    import MyClassExtensions._
+      |    val myClass = MyClass(1)
+      |    val output1 = myClass.myDef(1)
+      |    val output2 = myClass.myDef(1.0)
+      |    val output3 = myClass(1)
+      |    val output4 = myClass.apply(1)
+      |
+      |    println(output1.isInstanceOf[Int])    // Prints true
+      |    println(output2.isInstanceOf[Double]) // Prints true
+      |    println(output3.isInstanceOf[Int])    // Prints true
+      |    println(output4.isInstanceOf[Int])    // Prints true
+      |  }
       |}
       |""".stripMargin
   )

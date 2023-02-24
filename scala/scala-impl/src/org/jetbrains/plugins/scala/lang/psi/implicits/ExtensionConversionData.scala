@@ -88,19 +88,51 @@ object ExtensionConversionHelper {
     }
   }
 
-  private def findInType(tp: ScType, data: ExtensionConversionData, typeParams: Seq[TypeParameter]): Option[ScalaResolveResult] = {
+  private def findInType(
+    tp:         ScType,
+    data:       ExtensionConversionData,
+    typeParams: Seq[TypeParameter]
+  ): Option[ScalaResolveResult] =
+    extractMethodResolveProc(data, typeParams).flatMap { processor =>
+      processor.processType(tp, data.place, ScalaResolveState.empty)
+      processor.candidatesS.find(_.isApplicable())
+    }
+
+  def scala3ExtensionApplicabilityCheck(
+    data: ExtensionConversionData,
+    cand: ScalaResolveResult
+  ): Option[ScalaResolveResult] = {
+    val candName = cand.renamed.getOrElse(cand.element.name)
+
+    if (data.refName != candName) None
+    else
+      extractMethodResolveProc(data, Seq.empty).flatMap { proc =>
+        MethodResolveProcessor.candidates(proc, Set(cand)).find(_.isApplicable())
+      }
+  }
+
+  private def extractMethodResolveProc(
+    data:       ExtensionConversionData,
+    typeParams: Seq[TypeParameter]
+  ): Option[MethodResolveProcessor] = {
     import data._
 
-    Option(processor).collect {
-      case processor: MethodResolveProcessor => processor
+    Option(processor).collect { case processor: MethodResolveProcessor =>
+      processor
     }.map { processor =>
       new MethodResolveProcessor(
-        ref, refName, processor.argumentClauses, processor.typeArgElements, typeParams, kinds,
-        processor.expectedOption, processor.isUnderscore, processor.isShapeResolve, processor.constructorResolve,
-        noImplicitsForArgs = withoutImplicitsForArgs)
-    }.flatMap { processor =>
-      processor.processType(tp, place, ScalaResolveState.empty)
-      processor.candidatesS.find(_.isApplicable())
+        ref,
+        refName,
+        processor.argumentClauses,
+        processor.typeArgElements,
+        typeParams,
+        kinds,
+        processor.expectedOption,
+        processor.isUnderscore,
+        processor.isShapeResolve,
+        processor.constructorResolve,
+        noImplicitsForArgs = withoutImplicitsForArgs
+      )
     }
   }
 
