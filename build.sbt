@@ -247,10 +247,7 @@ lazy val scalaImpl: sbt.Project =
       //for ExternalSystemTestCase and ExternalSystemImportingTestCase
       libraryDependencies += "com.jetbrains.intellij.platform" % "external-system-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies % Test notTransitive(),
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
-      intellijPlugins ++= Seq(
-        "org.jetbrains.idea.maven",      // TODO remove after extracting the SBT module (which depends on Maven)
-        "JUnit"
-      ).map(_.toPlugin),
+      intellijPlugins += "JUnit".toPlugin,
       intellijPluginJars :=
         intellijPluginJars.value.map { case (descriptor, cp) => descriptor -> cp.filterNot(_.data.getName.contains("junit-jupiter-api")) },
       packageLibraryMappings := Seq(
