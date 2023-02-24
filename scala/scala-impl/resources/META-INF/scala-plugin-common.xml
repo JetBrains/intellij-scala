@@ -265,7 +265,7 @@
                                        implementationClass="org.jetbrains.plugins.scala.lang.completion.ml.ScalaContextFeatureProvider"/>
         <completion.ml.elementFeatures language="Scala"
                                        implementationClass="org.jetbrains.plugins.scala.lang.completion.ml.ScalaElementFeatureProvider"/>
-        <psi.referenceContributor implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
+        <psi.referenceContributor language="Scala" implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
         <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
         <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
         <!--<codeInsight.typeInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.actions.ScalaExpressionTypeProvider"/>-->
