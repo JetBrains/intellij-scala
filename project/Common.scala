@@ -130,6 +130,19 @@ object Common {
     (platformJarsFiles ++ pluginJarsFiles).classpath
   }
 
+  def compilerSharedClasspath: Def.Initialize[Task[Classpath]] = Def.task {
+    val intellijLibDir = intellijBaseDirectory.value / "lib"
+
+    val platformJarNames = Seq(
+      "app.jar",
+      "util.jar",
+      "util_rt.jar",
+      "3rd-party-rt.jar"
+    )
+
+    platformJarNames.map(intellijLibDir / _).classpath
+  }
+
   implicit class ProjectOps(private val project: Project) extends AnyVal {
     def withCompilerPluginIn(plugin: Project): Project = project
       .dependsOn(
