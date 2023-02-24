@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.integration
 import com.intellij.openapi.compiler.CompilerMessage
 import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
@@ -60,7 +61,7 @@ abstract class WorksheetIntegrationBaseTest
   protected def worksheetFileName: String = s"worksheet_${getTestName(false)}.sc"
 
   override protected def reuseCompileServerProcessBetweenTests: Boolean =
-    !System.getProperty("os.name").startsWith("Mac") || System.getProperty("os.arch") != "aarch64"
+    !SystemInfo.isMac || SystemInfo.OS_ARCH != "aarch64"
 
   protected def setupWorksheetSettings(settings: WorksheetFilePersistentSettings): Unit = {
     settings.setRunType(self.runType)
