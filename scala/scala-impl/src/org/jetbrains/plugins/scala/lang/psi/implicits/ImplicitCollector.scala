@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
+import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.{extensionConversionCheck, scala3ExtensionApplicabilityCheck}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -760,15 +760,14 @@ class ImplicitCollector(
     extensionData match {
       case None => Some(cand)
       case Some(data) =>
-        cand.element match {
-          case fun @ ExtensionMethod() =>
-            val candName = cand.renamed.getOrElse(fun.name)
-            Option.when(data.refName == candName)(cand)
-          case _ =>
-            extensionConversionCheck(data, cand).orElse(
-              reportWrong(cand, CantFindExtensionMethodResult)
-            )
+        val applicabilityCheck = cand.element match {
+          case ExtensionMethod() => scala3ExtensionApplicabilityCheck(data, cand)
+          case _                 => extensionConversionCheck(data, cand)
         }
+
+        applicabilityCheck.orElse(
+          reportWrong(cand, CantFindExtensionMethodResult)
+        )
     }
   }
 
