@@ -10,6 +10,7 @@ import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
+import com.intellij.util.SystemProperties
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
 
@@ -53,7 +54,7 @@ abstract class SmartJDKLoader() extends LibraryLoader {
 object SmartJDKLoader {
 
   private val jdkPaths = {
-    val userHome = System.getProperty("user.home")
+    val userHome = SystemProperties.getUserHome
     Seq(
       "/usr/lib/jvm",                      // linux style
       "C:\\Program Files\\Java\\",         // windows style

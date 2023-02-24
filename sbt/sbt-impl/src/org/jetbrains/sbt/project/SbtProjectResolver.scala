@@ -12,6 +12,7 @@ import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.RegistryManager
+import com.intellij.util.SystemProperties
 import org.jetbrains.annotations.{NonNls, Nullable, TestOnly}
 import org.jetbrains.plugins.scala._
 import org.jetbrains.plugins.scala.build._
@@ -748,7 +749,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def localCacheResolver(localCachePath: Option[String]): SbtResolver = {
     val localCachePathFinal = localCachePath.getOrElse {
-      System.getProperty("user.home") + "/.ivy2/cache".replace('/', File.separatorChar)
+      SystemProperties.getUserHome + "/.ivy2/cache".replace('/', File.separatorChar)
     }
     new SbtIvyResolver("Local cache", localCachePathFinal, isLocal = true, SbtBundle.message("sbt.local.cache"))
   }

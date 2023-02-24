@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project
 
+import com.intellij.util.SystemProperties
 import org.jetbrains.plugins.scala.DependencyManagerBase.scalaLibraryDescription
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.project.sdkdetect.repository.CoursierPaths
@@ -7,7 +8,7 @@ import org.jetbrains.sbt.project.ProjectStructureDsl.{ScalaSdkAttributes, libCla
 
 trait ProjectStructureExpectedLibrariesOps {
 
-  private val systemHome = sys.props.get("user.home").get
+  private val systemHome = SystemProperties.getUserHome
   private val ivyCacheRootHome = withoutPathSuffix(systemHome) + "/.ivy2/cache"
   private val coursierCacheRoot = withoutPathSuffix(CoursierPaths.cacheDirectory.getAbsolutePath)
 

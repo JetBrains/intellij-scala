@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import java.io.File
 import java.util.regex.Pattern
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi.{PsiDirectory, PsiFileSystemItem, PsiManager}
+import com.intellij.util.SystemProperties
 import org.apache.commons.lang.SystemUtils
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfo
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
@@ -279,9 +279,9 @@ object AmmoniteUtil {
       None
   }
 
-  def getDefaultCachePath: String = System.getProperty("user.home") + "/.ivy2/cache"
+  def getDefaultCachePath: String = SystemProperties.getUserHome + "/.ivy2/cache"
 
-  def getCoursierCachePath: String = System.getProperty("user.home") + {
+  def getCoursierCachePath: String = SystemProperties.getUserHome + {
     if (SystemUtils.IS_OS_MAC) "/Library/Caches/Coursier/v1"
     else if (SystemUtils.IS_OS_WINDOWS) "\\AppData\\Local\\Coursier\\Cache\\v1"
     else "/.coursier/cache/v1"

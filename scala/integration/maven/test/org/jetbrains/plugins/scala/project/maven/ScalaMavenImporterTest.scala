@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.project.maven
 import com.intellij.maven.testFramework.MavenImportingTestCase
 import com.intellij.openapi.module.{ModuleTypeManager, StdModuleTypes}
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.util.SystemProperties
 import org.jetbrains.idea.maven.utils.MavenUtil
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
@@ -69,7 +70,7 @@ class ScalaMavenImporterTest
     val mavenRoot = mavenRootFromMavenOpts.getOrElse {
       //NOTE: if this doesn't work for some reason, also consider using
       //org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory (it doesn't respect MAVEN_OPTS though)
-      val userHome = System.getProperty("user.home")
+      val userHome = SystemProperties.getUserHome
       assertNotNull("user.home property is not set", userHome)
 
       val userHomeDir = new File(userHome)
