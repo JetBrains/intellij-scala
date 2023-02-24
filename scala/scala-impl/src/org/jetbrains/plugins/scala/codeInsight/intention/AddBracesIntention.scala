@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.intention
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -37,6 +38,7 @@ class AddBracesIntention extends PsiElementBaseIntentionAction {
   private def check(project: Project, editor: Editor, element: PsiElement): Option[() => Unit] = {
     val classes = Seq(classOf[ScPatternDefinition], classOf[ScIf], classOf[ScFunctionDefinition], classOf[ScTry],
       classOf[ScFinallyBlock], classOf[ScWhile], classOf[ScDo])
+
     def isAncestorOfElement(ancestor: PsiElement) = PsiTreeUtil.isContextAncestor(ancestor, element, false)
 
     val expr: Option[ScExpression] = element.parentOfType(classes).flatMap {
@@ -66,15 +68,16 @@ class AddBracesIntention extends PsiElementBaseIntentionAction {
         }
         startLine == endLine && !isBlock
     }
-    oneLinerExpr.map { expr => () =>
-      {
+    oneLinerExpr.map { expr =>
+      () => {
         CodeEditUtil.replaceChild(
           expr.getParent.getNode,
           expr.getNode,
           createExpressionFromText("{\n%s}".format(expr.getText), expr)(expr.getManager).getNode
         )
 
-        AutoBraceAdvertiser.advertiseAutoBraces(project)
+        if (!IntentionPreviewUtils.isIntentionPreviewActive)
+          AutoBraceAdvertiser.advertiseAutoBraces(project)
       }
     }
   }
