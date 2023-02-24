@@ -7,6 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
@@ -135,7 +136,7 @@ object SmartJDKLoader {
         }
 
   private def currentJava(versionMajor: String) =
-    sys.props.get("java.version")
+    Some(SystemInfo.JAVA_VERSION)
       .filter(v => v.startsWith(s"1.$versionMajor") || v.startsWith(versionMajor))
       .flatMap(_ => sys.props.get("java.home"))
       .flatMap(d => findJDK(new File(d).getParentFile))
