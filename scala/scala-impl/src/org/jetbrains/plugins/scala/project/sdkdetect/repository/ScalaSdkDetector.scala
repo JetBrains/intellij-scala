@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
-import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.Nls
@@ -21,14 +19,9 @@ object ScalaSdkDetector {
       new ProjectLocalDetector(contextDirectory),
       SystemDetector,
       BrewDetector,
-      IvyDetector
-    ) ++
-      (if (isIdeaPluginEnabled("org.jetbrains.idea.maven")) Seq(MavenDetector) else Seq.empty) ++
-    Seq(
+      IvyDetector,
+      MavenDetector,
       SdkmanDetector,
       CoursierDetector
     )
-
-  private def isIdeaPluginEnabled(id: String): Boolean =
-    Option(PluginId.findId(id)).map(PluginManagerCore.getPlugin).exists(_.isEnabled)
 }
