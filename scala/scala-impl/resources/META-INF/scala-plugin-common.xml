@@ -488,8 +488,7 @@
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask"/>
 
-        <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings"
-                            serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings"/>
 
@@ -509,8 +508,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.bm4.BetterMonadicForSupport"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil"/>
-        <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
-                        serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.SearchMethodsWithProjectBoundCache"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
