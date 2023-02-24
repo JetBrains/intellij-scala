@@ -311,7 +311,15 @@ lazy val compilerJps =
       libraryDependencies ++= Seq(Dependencies.scalaParallelCollections),
       packageLibraryMappings ++= Seq(
         Dependencies.scalaParallelCollections -> Some("lib/jps/scala-parallel-collections.jar")
-      )
+      ),
+      //Manually build classpath for the jps module because the code from this module
+      //will be executed in JPS process which has a separate classpath.
+      //NOTE: this classpath is only required to properly compile the module
+      //(in order we do not accidentally use any classes which are not available in JPS process)<br>
+      //At runtime the classpath will be constructed in by Platform.
+      intellijMainJars := Seq.empty,
+      intellijPlugins := Seq.empty,
+      Compile / unmanagedJars ++= Common.jpsClasspath.value
     )
 
 lazy val repackagedZinc =
