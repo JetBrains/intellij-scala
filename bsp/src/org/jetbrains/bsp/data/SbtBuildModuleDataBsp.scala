@@ -1,15 +1,11 @@
 package org.jetbrains.bsp.data
 
-import java.net.URI
-import java.util
-
 import com.intellij.openapi.externalSystem.model.Key
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.bsp.data.BspEntityData.datakey
 
-object sbtData {
-
-}
+import java.net.URI
+import java.util
 
 /**
   * Data describing a "build" module: The IDEA-side representation of the sbt meta-project
