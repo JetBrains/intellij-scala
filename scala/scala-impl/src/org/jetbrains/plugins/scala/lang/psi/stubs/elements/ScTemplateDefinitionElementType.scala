@@ -76,7 +76,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
 
         val isScalaDeprecated = annotations.exists {
           case annotation: ScAnnotation =>
-            val text = annotation.constructorInvocation.typeElement.getText
+            val text = annotation.constructorInvocation.typeElement.getText.stripPrefix("_root_.")
             text == "deprecated" || text == "scala.deprecated"
           case _ => false
         }

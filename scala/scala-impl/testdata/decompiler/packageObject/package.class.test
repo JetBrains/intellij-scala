@@ -40,10 +40,10 @@ package object vdom {
 
   object prefix_<^ extends japgolly.scalajs.react.vdom.Base {
     @scala.inline
-    def < : vdom.Tags.type = ???
+    def < : japgolly.scalajs.react.vdom.Tags.type = ???
 
     @scala.inline
-    def ^ : vdom.Attrs.type = ???
+    def ^ : japgolly.scalajs.react.vdom.Attrs.type = ???
   }
 
   object svg {

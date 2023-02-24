@@ -522,32 +522,24 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     if (!accessibilityCheck)
       processor.doNotCheckAccessibility()
 
-    //performance improvement
-    ScalaPsiUtil.fileContext(this) match {
-      case s: ScalaFile if s.isCompiled =>
-        //todo: improve checking for this and super
-        val refText = getText
+    // SCL-21037
+    val refText = getText
+    if (refText == "_root_" || refText.startsWith("_root_.")) {
+      // TODO # type projections
+      val fqn = if (refText == "_root_") "" else refText.stripPrefix("_root_.")
+      val manager = ScalaPsiManager.instance(getProject)
+      val classes = manager.getCachedClasses(getResolveScope, fqn)
+      val pack    = manager.getCachedPackage(fqn)
 
-        if (!refText.contains("this") &&
-          !refText.contains("super") &&
-          (refText.contains(".") || getContext.is[ScStableCodeReference])) {
-          //so this is full qualified reference => findClass, or findPackage
-          val manager = ScalaPsiManager.instance(getProject)
-          val classes = manager.getCachedClasses(getResolveScope, refText)
-          val pack    = manager.getCachedPackage(refText)
+      pack.foreach(processor.execute(_, ScalaResolveState.empty))
+      classes.foreach(processor.execute(_, ScalaResolveState.empty))
 
-          pack.foreach(processor.execute(_, ScalaResolveState.empty))
-          classes.foreach(processor.execute(_, ScalaResolveState.empty))
+      val candidates = processor.candidatesS
+      val filtered = candidates.filter(candidatesFilter)
 
-          val candidates = processor.candidatesS
-          val filtered = candidates.filter(candidatesFilter)
-
-          if (filtered.nonEmpty) {
-            return filtered.mapToArray(identity)
-          }
-        }
-
-      case _ =>
+      if (filtered.nonEmpty) {
+        return filtered.mapToArray(identity)
+      }
     }
 
     val candidates = processQualifier(processor)

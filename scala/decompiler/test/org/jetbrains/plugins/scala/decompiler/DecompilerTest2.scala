@@ -46,6 +46,7 @@ class DecompilerTest2 extends TestCase {
   def testPackage1Package2Prefix(): Unit = doTest("package1/package2/Prefix")
   def testPackage1Package2Scope(): Unit = doTest("package1/package2/Scope")
   def testPackage1Members(): Unit = doTest("package1/Members")
+  def testPackage1Paths(): Unit = doTest("package1/Root", simpleTypes = false)
   def testParameterBounds(): Unit = doTest("parameter/Bounds")
   def testParameterByName(): Unit = doTest("parameter/ByName")
   def testParameterCaseClass(): Unit = doTest("parameter/CaseClass")
@@ -93,7 +94,7 @@ class DecompilerTest2 extends TestCase {
   def testEmptyPackage(): Unit = doTest("EmptyPackage")
   def testNesting(): Unit = doTest("Nesting")
 
-  private def doTest(path: String): Unit = {
+  private def doTest(path: String, simpleTypes: Boolean = true): Unit = {
     val testDataPath = {
       val path = Path.of("scala/decompiler/testdata")
       if (Files.exists(path)) path else Path.of("community", path.toString)
@@ -120,13 +121,11 @@ class DecompilerTest2 extends TestCase {
       .replaceAll(raw"(?s)/\*\*/.*?/\*(.*?)\*/", "$1")
       .replace("\r", "")
 
-    val adjusted = actual
-      .replace("scala.math.Ordering", "Ordering")
-      .replace("scala.math.PartialOrdering", "PartialOrdering")
+    val adjusted = if (!simpleTypes) actual else actual
+      .replace("_root_.", "")
       .replaceAll("scala\\.(?=\\p{Lu}|\\W)", "")
       .replace("@scala.", "@")
       .replace("java.lang.", "")
-      .replace("_root_.Predef.", "")
       .replace("Predef.", "")
       .replaceAll("\\w+\\.this\\.(?!type)", "")
       .replaceAll("\\w+\\.(?=this.type)", "")

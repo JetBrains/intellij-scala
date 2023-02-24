@@ -54,7 +54,7 @@ object ScImplicitStub {
       paramTypeElem <- param.typeElement
       className     <- classOrUpperBoundClass(paramTypeElem, f)
     } yield {
-      className.stripPrefix("_root_.")
+      className
     }
 
   private def classOrUpperBoundClass(typeElem: ScTypeElement, owner: ScTypeParametersOwner): Option[String] = {

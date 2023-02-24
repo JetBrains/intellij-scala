@@ -544,7 +544,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   def toString(attrib: SymAnnot): String = {
     val prefix = toString(attrib.typeRef, "@")
-    val inScala = prefix.startsWith("@scala.")
+    val inScala = prefix.startsWith("@_root_.scala.")
     if (attrib.hasArgs) {
       val argTexts = attrib.args.map(annotArgText)
       val namedArgsText = attrib.namedArgs.map { case (name, value) =>
@@ -564,7 +564,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case Constant(v) => annotArgText(v)
       case Ref(v) => annotArgText(v)
       case AnnotArgArray(args) =>
-        args.map(ref => annotArgText(ref.get)).mkString("scala.Array(", ", ", ")")
+        args.map(ref => annotArgText(ref.get)).mkString("_root_.scala.Array(", ", ", ")")
       case t: Type => "classOf[%s]" format toString(t)
       case null => "null"
       case _ => arg.toString
@@ -594,17 +594,17 @@ class ScalaSigPrinter(builder: StringBuilder) {
         val thisSymbolName: String =
           thisSymbol.name match {
             case "package" => thisSymbol.symbolInfo.owner match {
-              case Ref(ex: ExternalSymbol) => processName(ex.name)
+              case Ref(ex: ExternalSymbol) => "_root_." + processName(ex.path)
               case _ => "this"
             }
-            case name if thisSymbol.isModule => if (thisSymbol.isStableObject) processName(thisSymbol.path).stripPrefix("<empty>.") else processName(name)
+            case name if thisSymbol.isModule => if (thisSymbol.isStableObject) "_root_." + processName(thisSymbol.path).stripPrefix("<empty>.") else processName(name)
             case name => processName(name) + ".this"
           }
         sep + thisSymbolName + "." + processName(symbol.name) + ".type"
       case SingleType(Ref(ThisType(Ref(exSymbol: ExternalSymbol))), symbol) if exSymbol.name == "<root>" =>
-        sep + processName(symbol.name) + ".type"
+        sep + "_root_." + processName(symbol.name) + ".type"
       case SingleType(Ref(ThisType(Ref(exSymbol: ExternalSymbol))), Ref(symbol)) =>
-        sep + processName(exSymbol.path).stripPrefix("<empty>.").removeDotPackage + "." +
+        sep + "_root_." + processName(exSymbol.path).stripPrefix("<empty>.").removeDotPackage + "." +
           processName(symbol.name) + ".type"
       case SingleType(Ref(NoPrefixType), Ref(symbol)) =>
         sep + processName(symbol.name) + ".type"
@@ -620,7 +620,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case TypeRefType(prefix, symbol, typeArgs) => sep + (symbol.path match {
         case "scala.<repeated>" => flags match {
           case TypeFlags(true) => toString(typeArgs.head, "", level, 1) + "*"
-          case _ => "scala.Seq" + typeArgString(typeArgs, level)
+          case _ => "_root_.scala.Seq" + typeArgString(typeArgs, level)
         }
         case "scala.<byname>" =>
           val s = "=> " + toString(typeArgs.head, level)
@@ -660,12 +660,13 @@ class ScalaSigPrinter(builder: StringBuilder) {
             case (ThisType(Ref(objectSymbol)), _, _) if objectSymbol.isModule =>
               objectSymbol match {
                 case classSymbol: ClassSymbol if objectSymbol.name == "package" =>
-                  processName(classSymbol.symbolInfo.owner.path) + "."
+                  "_root_." + processName(classSymbol.symbolInfo.owner.path) + "."
                 case _ =>
-                  (if (objectSymbol.isStableObject) processName(objectSymbol.path) else processName(objectSymbol.name)) + "."
+                  (if (objectSymbol.isStableObject) "_root_." + processName(objectSymbol.path) else processName(objectSymbol.name)) + "."
               }
             case (ThisType(packSymbol), _, _) if !packSymbol.isType =>
-              processName(packSymbol.path.fixRoot) + "."
+              val s = packSymbol.path.stripPrefix("<root>")
+              "_root_." + (if (s.nonEmpty) processName(s) + "." else "")
             case (ThisType(Ref(classSymbol: ClassSymbol)), _, _) if refinementClass(classSymbol) => ""
             case (ThisType(Ref(typeSymbol: ClassSymbol)), ExternalSymbol(_, Some(parent), _), _)
               if typeSymbol.path != parent.path && checkContainsSelf(typeSymbol.thisTypeRef, parent) =>
@@ -699,14 +700,14 @@ class ScalaSigPrinter(builder: StringBuilder) {
                 case ex: ExternalSymbol if ex.isObject => ".type"
                 case _                                 => ""
               }
-          val base = res.stripPrefix("<empty>.")
+          val base = res.stripPrefix("_root_.<empty>.")
           val isInfix = base.nonEmpty && base.forall(!_.isLetterOrDigit) && typeArgs.length == 2
           val result = if (isInfix) {
             typeArgs.map(toString(_, "", level, 1)).mkString(" " + base + " ")
-          } else if (typeArgs.nonEmpty && base.startsWith("scala.Tuple") && base != "scala.Tuple1" && !base.substring(11).contains(".")) {
+          } else if (typeArgs.nonEmpty && base.startsWith("_root_.scala.Tuple") && base != "_root_.scala.Tuple1" && !base.substring(18).contains(".")) {
             val s = typeArgs.map(toString(_, level)).mkString("(", ", ", ")")
             if (parens > 1) "(" + s + ")" else s
-          } else if (typeArgs.nonEmpty && base.startsWith("scala.Function")) {
+          } else if (typeArgs.nonEmpty && base.startsWith("_root_.scala.Function")) {
             val params = if (typeArgs.length == 2) toString(typeArgs.head, "", level, 2) else typeArgs.init.map(toString(_, level)).mkString("(", ", ", ")")
             val s = params + " => " + toString(typeArgs.last, level)
             if (parens > 0) "(" + s + ")" else s
@@ -718,8 +719,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case TypeBoundsType(lower, upper) =>
         val lb = toString(lower, level)
         val ub = toString(upper, level)
-        val lbs = if (!lb.equals("scala.Nothing")) " >: " + lb else ""
-        val ubs = if (!ub.equals("scala.Any")) " <: " + ub else ""
+        val lbs = if (!lb.equals("_root_.scala.Nothing")) " >: " + lb else ""
+        val ubs = if (!ub.equals("_root_.scala.Any")) " <: " + ub else ""
         lbs + ubs
       case RefinedType(Ref(classSym: ClassSymbol), typeRefs) =>
         val classStr = {
@@ -729,7 +730,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
         }
         val parents = {
           val parents0 = typeRefs.map(toString(_, "", level, 1))
-          if (classStr.nonEmpty && parents0 == Seq("scala.AnyRef")) "" else parents0.mkString("", " with ", "")
+          if (classStr.nonEmpty && parents0 == Seq("_root_.scala.AnyRef")) "" else parents0.mkString("", " with ", "")
         }
         if (parents.nonEmpty) sep + parents + classStr else sep + classStr.stripPrefix(" ")
       case RefinedType(_, typeRefs) => sep + typeRefs.map(toString(_, "", level, 1)).mkString("", " with ", "")
@@ -760,9 +761,9 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   private def simplify(symbol: Symbol, parents: Seq[String]): Seq[String] = {
-    val parents0 = parents.dropWhile(p => p == "scala.AnyRef" || p == "java.lang.Object")
-    val parents1 = if (symbol.isCase) parents0.filterNot(_ == "scala.Product").filterNot(_ == "scala.Serializable") else parents0
-    if (symbol.isModule) parents1.filterNot(_ == "java.io.Serializable") else parents1
+    val parents0 = parents.dropWhile(p => p == "_root_.scala.AnyRef" || p == "_root_.java.lang.Object")
+    val parents1 = if (symbol.isCase) parents0.filterNot(_ == "_root_.scala.Product").filterNot(_ == "_root_.scala.Serializable") else parents0
+    if (symbol.isModule) parents1.filterNot(_ == "_root_.java.io.Serializable") else parents1
   }
 
   def getVariance(t: TypeSymbol): String = if (t.isCovariant) "+" else if (t.isContravariant) "-" else ""
@@ -820,11 +821,11 @@ class ScalaSigPrinter(builder: StringBuilder) {
       (constantDefinitionExpr orElse literalText).lift(ct.value)
 
     private val nonLiteralTypeText: PartialFunction[Any, String] = {
-      case null                                         => "scala.Null"
-      case _: Unit                                      => "scala.Unit"
-      case _: Short                                     => "scala.Short" //there are no literals for shorts and bytes
-      case _: Byte                                      => "scala.Byte"
-      case Ref(typeRef: TypeRefType)                    => s"java.lang.Class[${classTypeText(typeRef)}]"
+      case null                                         => "_root_.scala.Null"
+      case _: Unit                                      => "_root_.scala.Unit"
+      case _: Short                                     => "_root_.scala.Short" //there are no literals for shorts and bytes
+      case _: Byte                                      => "_root_.scala.Byte"
+      case Ref(typeRef: TypeRefType)                    => s"_root_.java.lang.Class[${classTypeText(typeRef)}]"
       case Ref(ExternalSymbol(_, Some(Ref(parent)), _)) => parent.path  //enum type
     }
 
@@ -835,19 +836,19 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
     private val constantDefinitionExpr: PartialFunction[Any, String] = {
       case Ref(sym: ExternalSymbol)  => sym.path //enum value
-      case Ref(typeRef: TypeRefType) => s"scala.Predef.classOf[${classTypeText(typeRef)}]" //class literal
+      case Ref(typeRef: TypeRefType) => s"_root_.scala.Predef.classOf[${classTypeText(typeRef)}]" //class literal
 
       // java numeric constants with special `toString`
       // Double and Float infinities are equal, so we should check type first
-      case d: Double if d == java.lang.Double.POSITIVE_INFINITY => "java.lang.Double.POSITIVE_INFINITY"
-      case d: Double if d == java.lang.Double.NEGATIVE_INFINITY => "java.lang.Double.NEGATIVE_INFINITY"
+      case d: Double if d == java.lang.Double.POSITIVE_INFINITY => "_root_.java.lang.Double.POSITIVE_INFINITY"
+      case d: Double if d == java.lang.Double.NEGATIVE_INFINITY => "_root_.java.lang.Double.NEGATIVE_INFINITY"
 
-      case f: Float if f == java.lang.Float.POSITIVE_INFINITY => "java.lang.Float.POSITIVE_INFINITY"
-      case f: Float if f == java.lang.Float.NEGATIVE_INFINITY => "java.lang.Float.NEGATIVE_INFINITY"
+      case f: Float if f == java.lang.Float.POSITIVE_INFINITY => "_root_.java.lang.Float.POSITIVE_INFINITY"
+      case f: Float if f == java.lang.Float.NEGATIVE_INFINITY => "_root_.java.lang.Float.NEGATIVE_INFINITY"
 
       // NaNs cannot be compared directly
-      case d: Double if java.lang.Double.isNaN(d) => "java.lang.Double.NaN"
-      case f: Float  if java.lang.Float.isNaN(f)  => "java.lang.Float.NaN"
+      case d: Double if java.lang.Double.isNaN(d) => "_root_.java.lang.Double.NaN"
+      case f: Float  if java.lang.Float.isNaN(f)  => "_root_.java.lang.Float.NaN"
     }
 
     private val literalText: PartialFunction[Any, String] = {
@@ -909,8 +910,6 @@ object ScalaSigPrinter {
 
     //noinspection MutatorLikeMethodIsParameterless
     def removeDotPackage: String = StringUtils.replace(str, ".`package`", "")
-
-    def fixRoot: String = StringUtils.replace(str, "<root>", "_root_")
 
     def stripPrivatePrefix: String = if (placeholderPattern.matcher(str).matches) str else {
       val i = str.lastIndexOf("$$")

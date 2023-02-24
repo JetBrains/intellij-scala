@@ -164,7 +164,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                                  (implicit state: ResolveState): Boolean = {
     val elementName = state.renamed.getOrElse(namedElement.name)
 
-    !StringUtil.isEmpty(elementName) && ScalaNamesUtil.equivalent(elementName, name)
+    (name == "_root_" && elementName == null) ||
+      !StringUtil.isEmpty(elementName) && ScalaNamesUtil.equivalent(elementName, name)
   }
 
   override def getHint[T](hintKey: Key[T]): T = {
