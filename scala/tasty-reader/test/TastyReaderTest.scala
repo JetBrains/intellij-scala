@@ -72,6 +72,7 @@ class TastyReaderTest extends TestCase {
   def testPackage1Package2Prefix(): Unit = doTest("package1/package2/Prefix")
   def testPackage1Package2Scope(): Unit = doTest("package1/package2/Scope")
   def testPackage1Members(): Unit = doTest("package1/Members")
+  def testPackage1Paths(): Unit = doTest("package1/Root", simpleTypes = false)
   def testPackage1TopLevel(): Unit = doTest("package1/topLevel")
   def testParameterBounds(): Unit = doTest("parameter/Bounds")
   def testParameterByName(): Unit = doTest("parameter/ByName")
@@ -134,7 +135,7 @@ class TastyReaderTest extends TestCase {
   def testEmptyPackage(): Unit = doTest("EmptyPackage")
   def testNesting(): Unit = doTest("Nesting")
 
-  private def doTest(path: String): Unit = {
+  private def doTest(path: String, simpleTypes: Boolean = true): Unit = {
     val testDataPath = {
       val path = Path.of("scala/tasty-reader/testdata")
       if (Files.exists(path)) path else Path.of("community", path.toString)
@@ -155,7 +156,7 @@ class TastyReaderTest extends TestCase {
     val tree = TreeReader.treeFrom(readBytes(tastyFile))
 
     val (sourceFile, actual) = try {
-      val treePrinter = new TreePrinter(simpleTypes = true)
+      val treePrinter = new TreePrinter(simpleTypes = simpleTypes)
       treePrinter.fileAndTextOf(tree)
     } catch {
       case NonFatal(e) =>

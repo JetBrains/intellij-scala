@@ -28,7 +28,7 @@ package object stubs {
       case _ => EMPTY_STRING_ARRAY
     }
 
-    allNames.filter {
+    allNames.map(_.stripPrefix("_root_.")).filter {
       case JAVA_LANG_OBJECT | AnyRefFqn => false
       case _ => true
     }
