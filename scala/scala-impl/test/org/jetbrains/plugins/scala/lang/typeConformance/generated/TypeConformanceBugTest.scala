@@ -108,4 +108,20 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
       |/* True */
     """.stripMargin)
 
+  def testSCL12540(): Unit = {
+    doTest(
+      """
+        |trait Helper[A] {
+        |  type Value = A
+        |}
+        |sealed trait Base
+        |object Base extends Helper[Base] {
+        |  case object Choice1 extends Value
+        |  case object Choice2 extends Value
+        |}
+        |
+        |val a: Base = Base.Choice1
+        |//True
+      """.stripMargin)
+  }
 }

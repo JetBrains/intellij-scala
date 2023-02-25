@@ -141,7 +141,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_class_refinement(): Unit = doTest("class-refinement", true)
   def test_classtag_typetest(): Unit = doTest("classtag-typetest", true)
   def test_classWithCompObj(): Unit = doTest("classWithCompObj", true)
-  def test_closure_args(): Unit = doTest("closure-args", true) // #extension
+  def test_closure_args(): Unit = doTest("closure-args", false) // #extension
   def test_cls(): Unit = doTest("cls", true)
   def test_cls1(): Unit = doTest("cls1", true)
   def test_clsrefine(): Unit = doTest("clsrefine", true)
@@ -812,7 +812,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i7375(): Unit = doTest("i7375", true) // #extension
   def test_i7383(): Unit = doTest("i7383", true)
   def test_i7392(): Unit = doTest("i7392", true) // #traitParameters
-  def test_i7401(): Unit = doTest("i7401", false) // #extension
+  def test_i7401(): Unit = doTest("i7401", true) // #extension
   def test_i7403(): Unit = doTest("i7403", true) // #extension
   def test_i7413(): Unit = doTest("i7413", true) // #extension
   def test_i7421(): Unit = doTest("i7421", true)
@@ -878,7 +878,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i8152(): Unit = doTest("i8152", true) // #opaque
   def test_i8181(): Unit = doTest("i8181", true) // #extension
   def test_i8182(): Unit = doTest("i8182", false) // #extension
-  def test_i8188a(): Unit = doTest("i8188a", false) // #extension
+  def test_i8188a(): Unit = doTest("i8188a", true) // #extension
   def test_i8188b(): Unit = doTest("i8188b", false)
   def test_i8188c(): Unit = doTest("i8188c", false)
   def test_i8198(): Unit = doTest("i8198", true) // #extension
@@ -907,7 +907,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i8612(): Unit = doTest("i8612", false) // #transparentInline
   def test_i8615(): Unit = doTest("i8615", true)
   def test_i8615b(): Unit = doTest("i8615b", true)
-  def test_i8623(): Unit = doTest("i8623", false) // #extension
+  def test_i8623(): Unit = doTest("i8623", true) // #extension
   def test_i8666(): Unit = doTest("i8666", true) // #matchType
   def test_i8712(): Unit = doTest("i8712", true)
   def test_i8715(): Unit = doTest("i8715", false)
@@ -1115,7 +1115,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i11644(): Unit = doTest("i11644", true)
   def test_i11682(): Unit = doTest("i11682", true)
   def test_i11712(): Unit = doTest("i11712", true) // #transparentInline
-  def test_i11713(): Unit = doTest("i11713", false) // #extension
+  def test_i11713(): Unit = doTest("i11713", true) // #extension
   def test_i11725(): Unit = doTest("i11725", true)
   def test_i11731(): Unit = doTest("i11731", true)
   def test_i11732(): Unit = doTest("i11732", false)
@@ -1279,7 +1279,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def `test_i14349.min`(): Unit = doTest("i14349.min", true)
   def test_i14367(): Unit = doTest("i14367", true)
   def test_i14442(): Unit = doTest("i14442", true)
-  def test_i14451(): Unit = doTest("i14451", false) // #extension
+  def test_i14451(): Unit = doTest("i14451", true) // #extension
   def test_i14477(): Unit = doTest("i14477", true) // #matchType
   def test_i14494(): Unit = doTest("i14494", false) // #intersectionType
   def test_i14544(): Unit = doTest("i14544", true) // #derives
@@ -1779,7 +1779,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_spec_traits(): Unit = doTest("spec-traits", true)
   def test_spec_vector(): Unit = doTest("spec-vector", true)
   def test_specialize10(): Unit = doTest("specialize10", true)
-  def test_specs2_failure(): Unit = doTest("specs2-failure", false) // #extension
+  def test_specs2_failure(): Unit = doTest("specs2-failure", true) // #extension
   def test_splice_pat(): Unit = doTest("splice-pat", false) // #spliced/quoted
   def test_spurious_overload(): Unit = doTest("spurious-overload", true)
   def test_staleSymbol(): Unit = doTest("staleSymbol", true)
