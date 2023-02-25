@@ -79,4 +79,15 @@ class Scala3ImplicitParametersTest extends ImplicitParametersTestBase {
        |}
        |""".stripMargin
   )
+
+  def testSCL20919(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |trait Result[T]:
+       |  def res: T
+       |
+       |def run() =
+       |  given Result[String] with {def res = "result"}
+       |  ${START}implicitly[Result[String]]$END
+       |""".stripMargin
+  )
 }

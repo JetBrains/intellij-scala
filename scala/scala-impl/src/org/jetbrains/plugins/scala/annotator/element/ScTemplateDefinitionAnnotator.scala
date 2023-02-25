@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScPrimaryConstructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScEnumCase, ScFunctionDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TypePresentationContext, ValueClassType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.overrideImplement.{ScMethodMember, ScalaOIUtil, ScalaTypedMember}
+import org.jetbrains.plugins.scala.extensions.&
 
 import scala.util.chaining._
 
@@ -55,21 +56,15 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
-    def resolveNoCons(ref: ScStableCodeReference): Option[ScalaResolveResult] = ref.resolveNoConstructor match {
-      case Array(srr) => srr.toOption
-      case _          => None
-    }
+    def resolveNoCons(ref: ScStableCodeReference): Option[ScalaResolveResult] =
+      ref.resolveNoConstructor match {
+        case Array(srr) => srr.toOption
+        case _          => None
+      }
 
-    val superClass = for {
-      parents     <- tdef.extendsBlock.templateParents
-      firstParent <- parents.firstParentClause
-      ref         <- firstParent.reference
-      cls         <- resolveNoCons(ref)
-      if cls.element.is[ScClass]
-    } yield cls.element
-
+    val superClass           = tdef.superClass
     val directSupers         = tdef.extendsBlock.templateParents.toSeq.flatMap(_.parentClauses)
-    val directSupersBuilder  = Set.newBuilder[PsiClass]
+    val directSupersBuilder  = Set.newBuilder[ScTrait]
     val supers               = tdef.allSupers.toSet
 
     directSupers.collect {
@@ -79,21 +74,23 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
         resolvedSuper.collect {
           case ScalaResolveResult(superTrait: ScTrait, _) if parentClause.args.nonEmpty =>
             directSupersBuilder += superTrait
-            superClass.collect {
-              case cls: PsiClass =>
-                if (ScalaPsiUtil.isInheritorDeep(cls, superTrait))
-                  holder.createErrorAnnotation(
-                    parentClause,
-                    ScalaBundle.message("trait.is.already.implemented.by.superclass", superTrait.name, cls.name)
-                  )
+            superClass.foreach { cls =>
+              if (ScalaPsiUtil.isInheritorDeep(cls, superTrait))
+                holder.createErrorAnnotation(
+                  parentClause,
+                  ScalaBundle.message("trait.is.already.implemented.by.superclass", superTrait.name, cls.name)
+                )
             }
         }
     }
 
     if (!tdef.is[ScTrait]) {
+      def hasOnlyImplicitParameters(cons: ScPrimaryConstructor): Boolean =
+        cons.parameters.forall(_.isImplicitOrContextParameter)
+
       val resolvedDirectSupers = directSupersBuilder.result()
       supers.collect {
-        case tr: ScTrait if tr.constructor.isDefined =>
+        case (tr: ScTrait) & ScConstructorOwner.constructor(cons) =>
           val isDirectlyImplemented = resolvedDirectSupers.contains(tr)
 
           val isExtendedBySuperClass = superClass match {
@@ -101,7 +98,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
             case _                   => false
           }
 
-          val isOk = isDirectlyImplemented || isExtendedBySuperClass
+          val isOk = isDirectlyImplemented || isExtendedBySuperClass || hasOnlyImplicitParameters(cons)
           if (!isOk) {
             val anchor =
               if (tdef.is[ScNewTemplateDefinition]) tdef.getFirstChild

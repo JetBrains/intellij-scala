@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}
@@ -31,7 +32,8 @@ import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScalaType, TermSignature, TypeSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScalaType, SmartSuperTypeUtil, TermSignature, TypeSignature}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -458,6 +460,54 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
         case _ => PsiClassType.EMPTY_ARRAY
       }
     } else PsiClassType.EMPTY_ARRAY
+  }
+
+  override def superClass: Option[PsiClass] =
+    for {
+      firstSuper  <- superTypes.headOption
+      cls         <- firstSuper.extractClass
+      if !cls.is[ScTrait]
+    } yield cls
+
+  override def injectedParentTraitConstructorCalls: collection.Set[(ScPrimaryConstructor, ScSubstitutor)] = {
+    import SmartSuperTypeUtil.TraverseSupers
+
+    val parentClass = superClass
+    val injectedConstructors = new ju.LinkedHashSet[(ScPrimaryConstructor, ScSubstitutor)]()
+
+    def isImplementedBySuperClass(target: PsiClass): Boolean =
+      parentClass.fold(false)(ScalaPsiUtil.isInheritorDeep(_, target))
+
+    def isDirectParent(target: PsiClass): Boolean =
+      this.isInheritor(target, checkDeep = false)
+
+    superTypes.foreach(tpe =>
+      SmartSuperTypeUtil.traverseSuperTypes(
+        tpe,
+        (_, cls, subst) =>
+          cls match {
+            case _: ScClass                        => TraverseSupers.Skip
+            case cls: PsiClass if !cls.isInterface => TraverseSupers.Skip
+            case (trt: ScTrait) & ScConstructorOwner.constructor(cons) =>
+              val parameters = cons.parameters
+
+              //Collect parent traits' constructors with implicit/using parameters only,
+              //they are "inserted" by the compiler at instantiation site.
+              //Skip everything that is indirectly implemented by super class.
+              if (
+                parameters.nonEmpty && parameters.forall(_.isImplicitOrContextParameter) &&
+                  !isImplementedBySuperClass(trt) && !isDirectParent(trt)
+              ) {
+                injectedConstructors.add((cons, subst))
+              }
+
+              TraverseSupers.ProcessParents
+            case _ => TraverseSupers.ProcessParents
+          }
+      )
+    )
+
+    injectedConstructors.asScala
   }
 }
 

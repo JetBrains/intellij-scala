@@ -131,9 +131,9 @@ object ImplicitConversionResolveResult {
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
     //That's why we need to have noApplicability parameter
     val found = checkImplicits() match {
-      case Seq() => checkImplicits(noApplicability = true)
-      case seq@Seq(_) => seq
-      case _ => checkImplicits(withoutImplicitsForArgs = true)
+      case Seq()        => checkImplicits(noApplicability = true)
+      case seq @ Seq(_) => seq
+      case _            => checkImplicits(withoutImplicitsForArgs = true)
     }
 
     found match {

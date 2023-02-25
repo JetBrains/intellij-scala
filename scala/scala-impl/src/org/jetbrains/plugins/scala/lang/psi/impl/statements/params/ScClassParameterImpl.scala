@@ -30,6 +30,8 @@ final class ScClassParameterImpl private(stub: ScParameterStub, node: ASTNode)
 
   override def isImplicitParameter: Boolean = super.isImplicitParameter || getModifierList.isImplicit
 
+  override def isContextParameter: Boolean = super.isContextParameter || getModifierList.isUsing
+
   override def isPrivateThis: Boolean = {
     if (!isClassMember) return true
     getModifierList.accessModifier match {

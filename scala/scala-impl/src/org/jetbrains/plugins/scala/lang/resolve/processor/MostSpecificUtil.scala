@@ -312,7 +312,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     val res = e match {
       case m: PsiMethod =>
         val scope = elem.elementScope
-        m.methodTypeProvider(scope).polymorphicType()
+        m.methodTypeProvider(scope).polymorphicType(dropExtensionClauses = true)
       case fun: ScFun => fun.polymorphicType()
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
         case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, elem, true) =>

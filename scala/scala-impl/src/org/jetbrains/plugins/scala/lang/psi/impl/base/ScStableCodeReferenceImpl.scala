@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern,
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScExtendsBlock, ScTemplateBody}
@@ -319,9 +320,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
                 if (!forName.isEmpty) {
                   forName.iterator.filter { sig =>
                     sig.namedElement match {
-                      case inNameContext(_: ScValue) => true
-                      case _: ScObject               => true
-                      case _                         => false
+                      case clsParam: ScClassParameter => !clsParam.isVar
+                      case inNameContext(_: ScValue)  => true
+                      case _: ScObject                => true
+                      case _                          => false
                     }
                   }.forall(sig => processor.execute(sig.namedElement, state))
                   return

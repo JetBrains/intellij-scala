@@ -245,8 +245,8 @@ object ScExtendsBlockImpl {
         reference.resolveNoConstructor match {
           case Array(ScalaResolveResult(clazz: PsiClass, _)) =>
             Some(clazz)
-          case Array(ScalaResolveResult(typeAlias: ScTypeAliasDefinition, _)) =>
-            tail(typeAlias.aliasedType)
+          case Array(ScalaResolveResult(typeAlias: ScTypeAliasDefinition, subst)) =>
+            tail(typeAlias.aliasedType.map(subst))
           case _ =>
             tail(typeElement.`type`())
         }
