@@ -67,20 +67,19 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     val directSupersBuilder  = Set.newBuilder[ScTrait]
     val supers               = tdef.allSupers.toSet
 
-    superClass.collect {
-      case cls: PsiClass =>
-        directSupers.collect {
-          case parentClause =>
-            val resolvedSuper = parentClause.reference.flatMap(resolveNoCons)
+    directSupers.collect {
+      case parentClause =>
+        val resolvedSuper = parentClause.reference.flatMap(resolveNoCons)
 
-            resolvedSuper.collect {
-              case ScalaResolveResult(superTrait: ScTrait, _) if parentClause.args.nonEmpty =>
-                directSupersBuilder += superTrait
-                if (ScalaPsiUtil.isInheritorDeep(cls, superTrait))
-                  holder.createErrorAnnotation(
-                    parentClause,
-                    ScalaBundle.message("trait.is.already.implemented.by.superclass", superTrait.name, cls.name)
-                  )
+        resolvedSuper.collect {
+          case ScalaResolveResult(superTrait: ScTrait, _) if parentClause.args.nonEmpty =>
+            directSupersBuilder += superTrait
+            superClass.foreach { cls =>
+              if (ScalaPsiUtil.isInheritorDeep(cls, superTrait))
+                holder.createErrorAnnotation(
+                  parentClause,
+                  ScalaBundle.message("trait.is.already.implemented.by.superclass", superTrait.name, cls.name)
+                )
             }
         }
     }

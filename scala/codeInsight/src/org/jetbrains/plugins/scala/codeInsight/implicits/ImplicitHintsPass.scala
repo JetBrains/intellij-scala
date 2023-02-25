@@ -25,12 +25,14 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.fromScMethodLike
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}
+import org.jetbrains.plugins.scala.extensions.&
 
 import scala.collection.mutable
 
@@ -164,7 +166,7 @@ class ImplicitHintsPass(
     }
 
     rootElement.depthFirst().foreach {
-      case tdef: ScTemplateDefinition if !tdef.is[ScTrait] =>
+      case (_: ScTemplateParents) & ChildOf(ChildOf(tdef: ScTemplateDefinition)) if !tdef.is[ScTrait] =>
         val parents =
           tdef
             .extendsBlock
