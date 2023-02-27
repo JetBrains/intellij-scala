@@ -430,7 +430,8 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
           (if (parent.forall(_.is(SINGLETONtpt))) ".type" else "") // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
       case Node3(THIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
-        if (qualifier.endsWith("$")) qualifier.substring(0, qualifier.length - 1) // What is the semantics of "this" when referring to external module classes?
+        if (qualifier.endsWith("package$")) { val i = qualifier.lastIndexOf('.'); qualifier.substring(0, if (i == -1) qualifier.length - 8 else i) }
+        else if (qualifier.endsWith("$")) qualifier.substring(0, qualifier.length - 1) // What is the semantics of "this" when referring to external module classes?
         else if (qualifier == "_root_.<empty>") "this" else qualifier.split('.').last + ".this"
       case Node3(QUALTHIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
