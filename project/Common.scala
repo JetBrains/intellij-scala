@@ -62,7 +62,6 @@ object Common {
       pathExcludeFilter := excludePathsFromPackage _,
       (Test / testOptions) += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
       (Test / testFrameworks) := (Test / testFrameworks).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest"))),
-      (Test / scalacOptions) += "-Xmacro-settings:enable-expression-tracers",
       compilationCacheSettings
     )
 
