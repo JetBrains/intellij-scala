@@ -11,6 +11,29 @@ final case class ScAndType private(lhs: ScType, rhs: ScType) extends ScalaType w
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitAndType(this)
 
   override implicit def projectContext: ProjectContext = lhs.projectContext
+
+  override def equivInner(
+    r:           ScType,
+    constraints: ConstraintSystem,
+    falseUndef:  Boolean
+  ): ConstraintsResult = r match {
+    case ScAndType(rLhs, rRhs) =>
+      if (r eq this) constraints
+      else {
+        val lhsConstraints = lhs.equiv(rLhs, constraints, falseUndef)
+
+        lhsConstraints match {
+          case ConstraintsResult.Left =>
+            val swapped = lhs.equiv(rRhs, constraints, falseUndef)
+            swapped match {
+              case ConstraintsResult.Left => ConstraintsResult.Left
+              case cs: ConstraintSystem   => rhs.equiv(rLhs, cs, falseUndef)
+            }
+          case cs: ConstraintSystem   => rhs.equiv(rRhs, cs, falseUndef)
+        }
+      }
+    case _ => ConstraintsResult.Left
+  }
 }
 
 object ScAndType {
