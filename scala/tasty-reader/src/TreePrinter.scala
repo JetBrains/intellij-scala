@@ -439,7 +439,8 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       case Node3(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, tail) =>
         val prefix = if (node.refTag.contains(TYPEPARAM)) "" else tail.headOption.map(textOfType(_)).getOrElse("")
         val name = node.refName.getOrElse("")
-        if (name == "package" || name.endsWith("$package")) prefix else (if (prefix.isEmpty) name else prefix + "." + name) // TODO rely on name kind
+        if (name == "package" || name.endsWith("$package")) prefix
+        else (if (prefix.isEmpty) name else prefix + "." + name) + (if (parent.isEmpty && node.is(TERMREFsymbol, TERMREFdirect)) ".type" else "") // TODO rely on name kind
       case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
         val selector = if (node.tag == SELECTtpt && node.children.headOption.exists(it => isTypeTreeTag(it.tag))) "#" else "."
         val qualifier = textOfType(tail)

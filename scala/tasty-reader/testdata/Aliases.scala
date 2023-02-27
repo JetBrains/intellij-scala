@@ -13,7 +13,7 @@ trait Aliases {
 
   /**/export O.Type/*final type Type = O.Type*/
 
-  /**/export O.value/*final val value: O.value = ???*/
+  /**/export O.value/*final val value: O.value.type = ???*/
 
   /**/export O.repeatedParameter/*final def repeatedParameter(xs: Int*): Unit = ???*/
 
