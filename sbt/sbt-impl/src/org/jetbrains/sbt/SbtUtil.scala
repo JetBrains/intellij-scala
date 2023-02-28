@@ -2,9 +2,7 @@ package org.jetbrains.sbt
 
 import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.model.project.ModuleData
-import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
-import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
+import com.intellij.openapi.externalSystem.model.Key
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -20,7 +18,6 @@ import java.io.{BufferedInputStream, File, FileInputStream}
 import java.net.URI
 import java.util.Properties
 import java.util.jar.JarFile
-import scala.jdk.CollectionConverters._
 import scala.util.Using
 
 object SbtUtil {
@@ -174,43 +171,18 @@ object SbtUtil {
   def getBuildModuleData(project: Project, moduleId: String): Option[SbtBuildModuleData] = {
     val emptyURI = new URI("")
 
-    getModuleData(project, moduleId, SbtBuildModuleData.Key)
-      .find(_.buildFor.uri != emptyURI)
+    val moduleDataSeq = getModuleData(project, moduleId, SbtBuildModuleData.Key)
+    moduleDataSeq.find(_.buildFor.uri != emptyURI)
   }
 
   def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
-    val dataManager = ProjectDataManager.getInstance()
-
-    val projectDataEither = Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
-      .orElse {
-        // in tests org.jetbrains.sbt.project.SbtProjectImportingTest `project.getBasePath` doesn't equal to actual external project data
-        if (ApplicationManager.getApplication.isUnitTestMode) {
-          val externalProjectsData = dataManager.getExternalProjectsData(project, SbtProjectSystem.Id).asScala
-          externalProjectsData.find(_.getExternalProjectStructure.getData.getInternalName == project.getName)
-        }
-        else None
-      }
-
-
-    val maybeNodes: Either[String, Iterable[K]] = for {
-      projectInfo      <- projectDataEither.toRight(s"can't detect sbt external project data for project $project)")
-      projectStructure <- Option(projectInfo.getExternalProjectStructure).toRight(s"no external project structure for project $project, $projectInfo")
-      moduleDataNode   <- Option(ExternalSystemApiUtil.findChild(projectStructure, ProjectKeys.MODULE,  (node: DataNode[ModuleData]) => {
-        // seems hacky. but apparently there isn't yet any better way to get the data for selected module?
-        node.getData.getId == moduleId
-      }))
-        .toRight(s"can't find module data node for project $project, $projectInfo")
-    } yield {
-      val dataNodes = ExternalSystemApiUtil.findAll(moduleDataNode, key).asScala
-      dataNodes.map { node =>
-        dataManager.ensureTheDataIsReadyToUse(node)
-        node.getData
-      }
-    }
-    // TODO: do we need to report it to user? we need to
-    maybeNodes.getOrElse(Nil)
+    val dataEither = ExternalSystemUtil.getModuleData(SbtProjectSystem.Id, project, moduleId, key)
+    //TODO: do we need to report the warning to user
+    // However there is some code which doesn't expect the data to be present and just checks if it exists
+    // So before reporting the warning to user we need to review usage code and decide which code expects
+    // the data and which not and then probably split API into two versions: something like "get" and "getOptional"...
+    dataEither.getOrElse(Nil)
   }
-
 
   def getSbtProjectIdSeparated(module: Module): (Option[String], Option[String]) =
     getSbtModuleData(module) match {
