@@ -17,7 +17,7 @@ object BspResolverDescriptors {
   case class ModuleDescription(data: ModuleDescriptionData,
                                moduleKindData: ModuleKind)
 
-  case class ModuleDescriptionData(id: String,
+  case class ModuleDescriptionData(idUri: String,
                                    name: String,
                                    targets: Seq[BuildTarget],
                                    targetDependencies: Seq[BuildTargetIdentifier],

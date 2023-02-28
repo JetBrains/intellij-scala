@@ -15,11 +15,12 @@
                         dynamic="true"/>
     </extensionPoints>
 
-    <extensions defaultExtensionNs="org.intellij.scala">
-        <worksheetCompilerExtension implementation="org.jetbrains.bsp.project.test.environment.BspWorksheetCompilerExtension"/>
-        <sbtUnlinkedProjectAwareHelper implementation="org.jetbrains.bsp.project.BspSbtUnlinkedProjectAwareHelper"/>
+    <extensions defaultExtensionNs="org.intellij">
+        <scala.worksheetCompilerExtension implementation="org.jetbrains.bsp.project.test.environment.BspWorksheetCompilerExtension"/>
+        <scala.sbtUnlinkedProjectAwareHelper implementation="org.jetbrains.bsp.project.BspSbtUnlinkedProjectAwareHelper"/>
+        <sbt.buildModuleUriProvider implementation="org.jetbrains.bsp.project.BspSbtBuildModuleUriProvider"/>
     </extensions>
-
+    
     <extensions defaultExtensionNs="com.intellij">
         <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentScalaTestRunnerExtension"/>
         <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentApplicationRunnerExtension"/>

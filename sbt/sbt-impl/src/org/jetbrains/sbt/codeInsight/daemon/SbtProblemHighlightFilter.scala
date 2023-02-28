@@ -1,11 +1,10 @@
 package org.jetbrains.sbt.codeInsight.daemon
 
 import com.intellij.codeInsight.daemon.ProblemHighlightFilter
-import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager}
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.NonPhysicalFileSystem
 import com.intellij.psi.{PsiCodeFragment, PsiFile}
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiFileExt}
 import org.jetbrains.sbt.language.SbtFile
 
 /**
@@ -31,12 +30,16 @@ final class SbtProblemHighlightFilter extends ProblemHighlightFilter {
 
   override def shouldHighlight(file: PsiFile): Boolean = file match {
     case file: SbtFile =>
-      val isInSources = !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file)
-      val isInSourceRootOfBuildModule = isInSources && {
-        val module = ModuleUtilCore.findModuleForPsiElement(file)
-        module != null && module.isBuildModule
-      }
-      isInSourceRootOfBuildModule || isInRootOfContentRoots(file)
+      //File can be in the content root of non-build module or in the content root of build module:
+      // root
+      //   |-- project
+      //     |-- build.sbt //should be highlighted
+      //   |-- build.sbt //should be highlighted
+      //   |-- testdata
+      //     |-- build.sbt //should NOT be highlighted
+      //
+      //But `file.module` will anyway resolve to a correct `build` module
+      isInRootOfContentRoots(file) && file.module.exists(_.isBuildModule)
     case _ =>
       true
   }

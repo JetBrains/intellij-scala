@@ -8,6 +8,10 @@
         <extensionPoint qualifiedName="org.intellij.scala.sbtUnlinkedProjectAwareHelper" interface="org.jetbrains.sbt.project.SbtUnlinkedProjectAwareHelper"/>
     </extensionPoints>
 
+    <extensions defaultExtensionNs="org.intellij">
+        <sbt.buildModuleUriProvider implementation="org.jetbrains.sbt.project.SbtSbtBuildModuleUriProvider"/>
+    </extensions>
+
     <extensions defaultExtensionNs="com.intellij">
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
         <lang.fileViewProviderFactory language="sbt"
