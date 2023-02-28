@@ -1,15 +1,17 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.impl.VfsData
 import com.intellij.psi.{PsiComment, PsiFile}
 import com.intellij.testFramework.TestModeFlags
 import com.intellij.testFramework.common.ThreadLeakTracker
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.junit.Assert
-import org.junit.Assert.fail
+import org.junit.Assert.{assertNotNull, fail}
 
 import java.io.{File, IOException}
 import java.net.URISyntaxException
@@ -174,5 +176,13 @@ object TestUtils {
         fail("Test result must be in last comment statement.").asInstanceOf[Nothing]
     }
     ExpectedResultFromLastComment(fileTextWithoutLastComment, commentInnerContent.trim)
+  }
+
+  def getPathRelativeToProject(file: VirtualFile, project: Project): String = {
+    val projectRoot = ProjectUtil.guessProjectDir(project)
+    assertNotNull(s"Can't guess project dir", file)
+    val pathParent = projectRoot.getPath
+    val pathChild = file.getPath
+    pathChild.stripPrefix(pathParent).stripPrefix("/")
   }
 }

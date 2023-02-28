@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaFeatures}
-import org.jetbrains.sbt.project.data.SbtModuleData
+import org.jetbrains.sbt.project.SbtBuildModuleUriProvider
 import org.jetbrains.sbt.project.module.SbtModule.{Build, Imports}
 
 import scala.jdk.CollectionConverters._
@@ -91,24 +91,12 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
       Some(module)
     else {
       val manager = ModuleManager.getInstance(getProject)
-
       val modules = manager.getModules
-      val moduleByUri = for {
-        SbtModuleData(_, buildURI) <- SbtUtil.getSbtModuleData(module)
-        module <- modules.find(Build(_) == buildURI.uri)
+      val sbtBuildModuleUri = SbtBuildModuleUriProvider.getBuildModuleUri(module)
+      for {
+        buildModuleUri <- sbtBuildModuleUri
+        module <- modules.find(Build(_) == buildModuleUri)
       } yield module
-
-      val moduleByUriOrName = moduleByUri.orElse {
-        //(original issue which Justin fixed: SCL-13600)
-        //This is the old way of finding a build module which breaks if the way the module name is assigned changes
-        // This branch should be non-actual for SBT projects (imported as SBT)
-        // TODO: improve it for BSP projects (in particular BSP projects with SBT server) (see SCL-19738)
-        //  Example when it doesn't work even now is when you have nested is when you have nested projects with `build.sbt`
-        //  See SCL-20233 for example project
-        val buildModuleName = module.getName + Sbt.BuildModuleSuffix
-        modules.find(_.getName == buildModuleName)
-      }
-      moduleByUriOrName
     }
 }
 

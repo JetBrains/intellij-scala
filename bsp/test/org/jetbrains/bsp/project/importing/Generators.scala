@@ -126,7 +126,7 @@ object Generators {
     moduleKind <- genModuleKind
   } yield {
     val data = ModuleDescriptionData(
-      id = id, 
+      idUri = id,
       name = name,
       targets = targets,
       targetDependencies = targetDependencies,
