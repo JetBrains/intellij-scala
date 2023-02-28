@@ -414,7 +414,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     if (node.isSharedType) {
       sharedTypes.get(node.addr) match {
         case Some(text) =>
-          return text
+          return text + (if (parent.isEmpty && node.is(TERMREF) && !text.endsWith(".type")) ".type" else "")
         case _ =>
       }
     }
