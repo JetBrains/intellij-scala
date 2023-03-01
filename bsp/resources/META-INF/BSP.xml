@@ -54,7 +54,6 @@
         <toolWindow id="bsp" anchor="right"
                     icon="/org/jetbrains/plugins/scala/bsp/images/toolWindowBuildServerProtocol.svg"
                     factoryClass="org.jetbrains.bsp.BspToolWindowFactory" />
-        <externalSystemSettingsListener implementation="org.jetbrains.bsp.project.importing.ShowBspToolWindowAfterCreatingNewProject"/>
 
         <projectTaskRunner implementation="org.jetbrains.bsp.project.BspProjectTaskRunner"/>
         <postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>
