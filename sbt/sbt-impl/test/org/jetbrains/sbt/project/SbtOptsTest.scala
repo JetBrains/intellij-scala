@@ -29,14 +29,14 @@ class SbtOptsTest {
     """.stripMargin
 
   private val expected = Seq(
-    JvmOptionGlobal("-Dsbt.boot.directory=/some/where/sbt/boot"),
-    JvmOptionGlobal("-Dsbt.global.base=/some/where/else/sbt"),
-    JvmOptionGlobal("-Dsbt.ivy.home=/some/where/ivy"),
-    SbtLauncherOption("--debug"),
-    JvmOptionGlobal("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=4711"),
-    SbtLauncherOption("--error"),
-    SbtLauncherOption("--warn"),
-    SbtLauncherOption("--debug")
+    JvmOptionGlobal("-Dsbt.boot.directory=/some/where/sbt/boot")(),
+    JvmOptionGlobal("-Dsbt.global.base=/some/where/else/sbt")(),
+    JvmOptionGlobal("-Dsbt.ivy.home=/some/where/ivy")(),
+    SbtLauncherOption("--debug")(),
+    JvmOptionGlobal("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=4711")(),
+    SbtLauncherOption("--error")(),
+    SbtLauncherOption("--warn")(),
+    SbtLauncherOption("--debug")()
   )
 
   @Test
@@ -56,15 +56,15 @@ class SbtOptsTest {
       val actual = SbtOpts.processArgs(providedArgs, "dummy/Path")
       assertThat(actual, equalTo(expected))
     }
-    doTest(Seq("-d", "-color=always", "-error"), Seq(SbtLauncherOption("--debug"), JvmOptionShellOnly("-Dsbt.color=always"), SbtLauncherOption("--error")))
-    doTest(Seq("-d", "-color=   always", "--d"), Seq(SbtLauncherOption("--debug")))
-    doTest(Seq("-debug", "-color always", "-error"), Seq(SbtLauncherOption("--debug"), SbtLauncherOption("--error")))
-    doTest(Seq("-d", "-no-global"), Seq(SbtLauncherOption("--debug"), JvmOptionGlobal("-Dsbt.global.base=dummy/Path/project/.sbtboot")))
-    doTest(Seq("-debug", "-color=always"), Seq(SbtLauncherOption("--debug"), JvmOptionShellOnly("-Dsbt.color=always")))
-    doTest(Seq("-debug", "-debug-inc", "-color=always"), Seq(SbtLauncherOption("--debug"), JvmOptionGlobal("-Dxsbt.inc.debug=true"), JvmOptionShellOnly("-Dsbt.color=always")))
+    doTest(Seq("-d", "-color=always", "-error"), Seq(SbtLauncherOption("--debug")(), JvmOptionShellOnly("-Dsbt.color=always")(), SbtLauncherOption("--error")()))
+    doTest(Seq("-d", "-color=   always", "--d"), Seq(SbtLauncherOption("--debug")()))
+    doTest(Seq("-debug", "-color always", "-error"), Seq(SbtLauncherOption("--debug")(), SbtLauncherOption("--error")()))
+    doTest(Seq("-d", "-no-global"), Seq(SbtLauncherOption("--debug")(), JvmOptionGlobal("-Dsbt.global.base=dummy/Path/project/.sbtboot")()))
+    doTest(Seq("-debug", "-color=always"), Seq(SbtLauncherOption("--debug")(), JvmOptionShellOnly("-Dsbt.color=always")()))
+    doTest(Seq("-debug", "-debug-inc", "-color=always"), Seq(SbtLauncherOption("--debug")(), JvmOptionGlobal("-Dxsbt.inc.debug=true")(), JvmOptionShellOnly("-Dsbt.color=always")()))
     doTest(Seq("---debug", "-color"), Seq.empty)
     doTest(Seq("debug", "-debug=true"), Seq.empty)
-    doTest(Seq("-debug-inc", "-color"), Seq(JvmOptionGlobal("-Dxsbt.inc.debug=true")))
+    doTest(Seq("-debug-inc", "-color"), Seq(JvmOptionGlobal("-Dxsbt.inc.debug=true")()))
     doTest(Seq("-sbt-dirop"), Seq.empty)
   }
 
