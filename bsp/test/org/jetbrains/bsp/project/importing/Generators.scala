@@ -104,7 +104,7 @@ object Generators {
   def genModuleKind: Gen[ModuleKind] = for {
     jdkData <- genJdkData
     scalaSdkData <- genScalaSdkData
-  } yield ScalaModule(jdkData, scalaSdkData)
+  } yield ModuleKind.ScalaModule(jdkData, scalaSdkData)
 
   def genModuleDescription: Gen[ModuleDescription] = for {
     id <- arbitrary[String]

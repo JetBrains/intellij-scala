@@ -1,7 +1,7 @@
 package org.jetbrains.bsp.project.importing
 
 import ch.epfl.scala.bsp4j.{BuildTarget, BuildTargetCapabilities, BuildTargetIdentifier}
-import org.jetbrains.bsp.project.importing.BspResolverDescriptors.UnspecifiedModule
+import org.jetbrains.bsp.project.importing.BspResolverDescriptors.ModuleKind
 import org.junit.Test
 
 import scala.jdk.CollectionConverters._
@@ -23,7 +23,7 @@ class BspResolverLogicTest {
     assert(descriptions.synthetic.isEmpty)
     assert(descriptions.modules.size == 1)
     val rootModule = descriptions.modules.head
-    assert(rootModule.moduleKindData == UnspecifiedModule())
+    assert(rootModule.moduleKindData == ModuleKind.UnspecifiedModule())
     assert(rootModule.data.targets.head == target)
   }
 
