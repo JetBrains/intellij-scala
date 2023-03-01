@@ -87,7 +87,6 @@ case object BuildMessages {
   }
 }
 
-//TODO: `System.currentTimeMillis` shouldn't be used here, we should pass `eventTime` via parameters
 class BuildEventMessage(
   parentId: Any,
   kind: MessageEvent.Kind,
