@@ -39,27 +39,31 @@ object BspResolverDescriptors {
   case class ProjectModules(modules: Seq[ModuleDescription], synthetic: Seq[ModuleDescription])
 
   sealed abstract class ModuleKind
+  object ModuleKind {
+    case class UnspecifiedModule() extends ModuleKind
 
-  //TODO: move all inheritors to ModuleKind companion object for a better discoverability of choices
-  case class UnspecifiedModule() extends ModuleKind
-  case class JvmModule(jdkData: JdkData) extends ModuleKind
-  case class ScalaModule(jdkData: JdkData,
-                         scalaSdkData: ScalaSdkData
-                        ) extends ModuleKind
+    case class JvmModule(jdkData: JdkData) extends ModuleKind
 
-  case class SbtModule(jdkData: JdkData,
-                       scalaSdkData: ScalaSdkData,
-                       sbtData: SbtBuildModuleDataBsp
-                      ) extends ModuleKind
+    case class ScalaModule(
+      jdkData: JdkData,
+      scalaSdkData: ScalaSdkData
+    ) extends ModuleKind
 
-  case class TargetData(sources: Try[SourcesResult],
-                        dependencySources: Try[DependencySourcesResult],
-                        resources: Try[ResourcesResult],
-                        outputPaths: Try[OutputPathsResult],
-                        scalacOptions: Try[ScalacOptionsResult], // TODO should be optional
-                        javacOptions: Try[JavacOptionsResult]
-                       )
+    case class SbtModule(
+      jdkData: JdkData,
+      scalaSdkData: ScalaSdkData,
+      sbtData: SbtBuildModuleDataBsp
+    ) extends ModuleKind
+  }
+
+  case class TargetData(
+    sources: Try[SourcesResult],
+    dependencySources: Try[DependencySourcesResult],
+    resources: Try[ResourcesResult],
+    outputPaths: Try[OutputPathsResult],
+    scalacOptions: Try[ScalacOptionsResult], // TODO should be optional
+    javacOptions: Try[JavacOptionsResult]
+  )
 
   case class SourceDirectory(directory: File, generated: Boolean, packagePrefix: Option[String])
-
 }

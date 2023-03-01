@@ -184,7 +184,7 @@ private[importing] object BspResolverLogic {
     val modules: Seq[ModuleDescription] = noBase ++ mergedBase
 
     val (sbtBuildModules, ordinaryModules) =
-      modules.partition(_.moduleKindData.is[BspResolverDescriptors.SbtModule])
+      modules.partition(_.moduleKindData.is[BspResolverDescriptors.ModuleKind.SbtModule])
 
     //First register "non-build" modules and then register "build" modules
     //This is just in case there are any unexpected duplicated content roots issues.
@@ -295,6 +295,7 @@ private[importing] object BspResolverLogic {
       .map(LanguageLevel.parse)
       .flatMap(Option(_))
     val moduleKind: Option[ModuleKind] = targetData.flatMap { _ =>
+      import ModuleKind._
       buildTarget.getDataKind match {
         case BuildTargetDataKind.JVM =>
           targetData.flatMap(extractJdkData)
@@ -332,7 +333,7 @@ private[importing] object BspResolverLogic {
      *       - [[org.jetbrains.sbt.language.SbtFile.findBuildModule]]
      */
     val (sourceDirsFiltered1, resourceDirsFiltered1) = (moduleBaseDir, moduleKind) match {
-      case (Some(baseDir), Some(_: BspResolverDescriptors.SbtModule)) =>
+      case (Some(baseDir), Some(_: BspResolverDescriptors.ModuleKind.SbtModule)) =>
         (
           sourceDirs.filter(f => FileUtil.isAncestor(baseDir, f.directory, false)),
           resourceDirs.filter(f => FileUtil.isAncestor(baseDir, f.directory, false))
@@ -360,7 +361,7 @@ private[importing] object BspResolverLogic {
     )
 
     if (tags.contains(BuildTargetTag.NO_IDE)) None
-    else Option(ModuleDescription(moduleDescriptionData, moduleKind.getOrElse(UnspecifiedModule())))
+    else Option(ModuleDescription(moduleDescriptionData, moduleKind.getOrElse(ModuleKind.UnspecifiedModule())))
   }
 
   private[importing] def createModuleDescriptionData(target: BuildTarget,
@@ -523,7 +524,8 @@ private[importing] object BspResolverLogic {
   private def mergeFiles(a: Seq[File], b: Seq[File]) =
     (a++b).sortBy(_.getAbsolutePath).distinct
 
-  private def mergeModuleKind(a: ModuleKind, b: ModuleKind) =
+  private def mergeModuleKind(a: ModuleKind, b: ModuleKind) = {
+    import ModuleKind._
     (a,b) match {
       case (UnspecifiedModule(), other) => other
       case (other, UnspecifiedModule()) => other
@@ -534,6 +536,7 @@ private[importing] object BspResolverLogic {
           module2
       case (first, _) => first
     }
+  }
 
   // extension method added as for better performance than getCanonicalPath method
   implicit class FileExtensions(val f: File){
@@ -624,7 +627,7 @@ private[importing] object BspResolverLogic {
     val moduleIdToBuildModuleId: Map[MyURI, MyURI] = projectModules.modules
       .flatMap { moduleDescription =>
         moduleDescription.moduleKindData match {
-          case SbtModule(_, _, sbtData) =>
+          case ModuleKind.SbtModule(_, _, sbtData) =>
             sbtData.childrenIds.asScala.map(_ -> sbtData.id)
           case _ =>
             None
@@ -750,7 +753,7 @@ private[importing] object BspResolverLogic {
 
     val moduleName = moduleDescriptionData.name
     val moduleType = moduleDescription.moduleKindData match {
-      case SbtModule(_, _, _) =>
+      case ModuleKind.SbtModule(_, _, _) =>
         SbtModuleType.instance
       case _ =>
         StdModuleTypes.JAVA
@@ -862,6 +865,7 @@ private[importing] object BspResolverLogic {
 
   private def createBspMetadata(moduleDescription: ModuleDescription): BspMetadata = {
     val targetIds = moduleDescription.data.targets.map(t => new MyURI(t.getId.getUri))
+    import ModuleKind._
     val jdkData = moduleDescription.moduleKindData match {
       case module: JvmModule => Some(module.jdkData)
       case module: ScalaModule => Some(module.jdkData)
@@ -956,7 +960,7 @@ private[importing] object BspResolverLogic {
     buildTargetIdToBuildModuleTargetId: Map[MyURI, MyURI]
   ): Unit =
     moduleKind match {
-      case ScalaModule(_, scalaSdkData) =>
+      case ModuleKind.ScalaModule(_, scalaSdkData) =>
 
         val moduleData = moduleNode.getData
 
@@ -981,17 +985,17 @@ private[importing] object BspResolverLogic {
           case _ =>
         }
 
-      case SbtModule(_, scalaSdkData, sbtBuildModuleData) =>
+      case ModuleKind.SbtModule(_, scalaSdkData, sbtBuildModuleData) =>
         val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, scalaSdkData, moduleNode)
         val sbtBuildModuleDataNode = new DataNode[SbtBuildModuleDataBsp](SbtBuildModuleDataBsp.Key, sbtBuildModuleData, moduleNode)
 
         moduleNode.addChild(scalaSdkNode)
         moduleNode.addChild(sbtBuildModuleDataNode)
 
-      case JvmModule(JdkData(javaHome, javaVersion)) =>
+      case ModuleKind.JvmModule(JdkData(javaHome, javaVersion)) =>
         // FIXME set jdk from home or version
 
-      case UnspecifiedModule() =>
+      case ModuleKind.UnspecifiedModule() =>
     }
 
   private[importing] sealed abstract class DependencyId(id: String)
