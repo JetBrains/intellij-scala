@@ -11,6 +11,7 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
       pane.getLauncherPath == settings.customLauncherPath &&
       pane.getMaximumHeapSize == settings.maximumHeapSize &&
       pane.getVmParameters == settings.vmParameters &&
+      pane.getSbtCommandArgs == settings.sbtOptions &&
       pane.isCustomVM == settings.customVMEnabled &&
       pane.getCustomVMPath == settings.customVMPath
   }
@@ -28,6 +29,7 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
     settings.customLauncherPath = pane.getLauncherPath
     settings.maximumHeapSize = pane.getMaximumHeapSize
     settings.vmParameters = pane.getVmParameters
+    settings.sbtOptions = pane.getSbtCommandArgs
     settings.customVMEnabled = pane.isCustomVM
     settings.customVMPath = pane.getCustomVMPath
   }
@@ -37,6 +39,7 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
     pane.setLauncherPath(settings.customLauncherPath)
     pane.setMaximumHeapSize(settings.maximumHeapSize)
     pane.setMyVmParameters(settings.vmParameters)
+    pane.setSbtCommandArgs(settings.sbtOptions)
     pane.setCustomVMPath(settings.customVMPath, settings.customVMEnabled)
   }
 

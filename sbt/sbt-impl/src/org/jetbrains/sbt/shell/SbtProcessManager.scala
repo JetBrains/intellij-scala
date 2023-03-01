@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.settings.{SbtExecutionSettings, SbtProjectSettings}
+import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 import org.jetbrains.sbt.shell.SbtProcessManager._
@@ -138,7 +139,12 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
-    vmParams.addAll(buildVMParameters(sbtSettings, workingDir).asJava)
+
+    val mappedSbtOpts = SbtOpts.loadFrom(workingDir) ++ SbtOpts.processArgs(sbtSettings.sbtOptions, workingDirPath)
+    val sbtOpts = mappedSbtOpts.collect { case a: JvmOption => a.value }
+    val allJvmOpts = buildVMParameters(sbtSettings, workingDir, sbtOpts)
+    vmParams.addAll(allJvmOpts.asJava)
+
     // don't add runid when using addPluginSbtFile command
     if (! addPluginSupported)
       vmParams.add(s"-Didea.runid=$runid")
@@ -184,6 +190,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
         else                             "idea-shell"
 
       commandLine.addParameter(commands)
+      val sbtLauncherOpts = mappedSbtOpts.collect { case a: SbtLauncherOption => a.value }
+      commandLine.addParameters(sbtLauncherOpts.asJava)
     }
 
     if (shouldUpgradeSbtVersion)
@@ -499,23 +507,22 @@ object SbtProcessManager {
                                  runner: SbtShellRunner)
 
   private[shell]
-  def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: File): Seq[String] = {
+  def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: File, sbtOpts: Seq[String]): Seq[String] = {
     val hardcoded = List("-Dsbt.supershell=false")
-    val opts =
-      hardcoded ++
-      SbtOpts.loadFrom(workingDir) ++
+    val jvmOpts = hardcoded ++
       JvmOpts.loadFrom(workingDir) ++
-      sbtSettings.vmOptions
+      sbtSettings.vmOptions ++
+      sbtOpts
 
-    val hasXmx = opts.exists(_.startsWith("-Xmx"))
+    val hasXmx = jvmOpts.exists(_.startsWith("-Xmx"))
     val xmsPrefix = "-Xms"
-    def minMaxHeapSize = opts.reverseIterator
+    def minMaxHeapSize = jvmOpts.reverseIterator
       .find(_.startsWith(xmsPrefix))
       .map(_.drop(xmsPrefix.length))
       .flatMap(JvmMemorySize.parse)
     def xmxNotNeeded = minMaxHeapSize.exists(_ >= sbtSettings.hiddenDefaultMaxHeapSize)
 
-    if (hasXmx || xmxNotNeeded) opts
-    else ("-Xmx" + sbtSettings.hiddenDefaultMaxHeapSize) +: opts
+    if (hasXmx || xmxNotNeeded) jvmOpts
+    else ("-Xmx" + sbtSettings.hiddenDefaultMaxHeapSize) +: jvmOpts
   }
 }

@@ -14,12 +14,14 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Pair, SystemInfo}
 import com.intellij.util.Function
+import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.plugins.scala.extensions.{RichFile, invokeAndWait}
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.settings._
+import org.jetbrains.sbt.project.structure.SbtOpts
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
 
 import java.io.File
@@ -68,6 +70,8 @@ object SbtExternalSystemManager {
   private val Log = Logger.getInstance(classOf[SbtExternalSystemManager])
 
   def executionSettingsFor(project: Project, path: String): SbtExecutionSettings = {
+    import scala.jdk.CollectionConverters._
+
     val settings = SbtSettings.getInstance(project)
     val settingsState = settings.getState
 
@@ -83,11 +87,13 @@ object SbtExternalSystemManager {
     val jreHome = vmExecutable.parent.flatMap(_.parent)
     val vmOptions = getVmOptions(settingsState, jreHome)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
+    val sbtOptions = SbtOpts.combineSbtOptsWithArgs(ParametersListUtil.parse(settings.sbtOptions, false, true).asScala.toSeq)
 
     new SbtExecutionSettings(
       realProjectPath,
       vmExecutable,
       vmOptions,
+      sbtOptions,
       SbtSettings.hiddenDefaultMaxHeapSize,
       environment,
       customLauncher,
