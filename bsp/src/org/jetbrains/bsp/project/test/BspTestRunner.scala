@@ -1,10 +1,5 @@
 package org.jetbrains.bsp.project.test
 
-import java.io.{File, OutputStream}
-import java.net.URI
-import java.util.UUID
-import java.util.concurrent.CompletableFuture
-
 import ch.epfl.scala.bsp4j.TaskDataKind._
 import ch.epfl.scala.bsp4j.TestStatus._
 import ch.epfl.scala.bsp4j._
@@ -18,18 +13,22 @@ import com.intellij.execution.{DefaultExecutionResult, ExecutionResult, Executor
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import jetbrains.buildServer.messages.serviceMessages._
-import org.jetbrains.bsp.{BspBundle, BspErrorMessage}
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.bsp.protocol.BspNotifications.{BspNotification, LogMessage, TaskFinish, TaskStart}
 import org.jetbrains.bsp.protocol.session.BspSession.BspServer
+import org.jetbrains.bsp.{BspBundle, BspErrorMessage}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, BuildToolWindowReporter}
 
-import scala.jdk.CollectionConverters._
+import java.io.{File, OutputStream}
+import java.net.URI
+import java.util.UUID
+import java.util.concurrent.CompletableFuture
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Promise
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success}
 
 class BspTestRunner(
@@ -57,7 +56,7 @@ class BspTestRunner(
   private def targets(): List[URI] = {
     ModuleManager.getInstance(project).getModules.toList
       .flatMap(BspMetadata.get(project, _).toOption)
-      .flatMap(x => x.targetIds.asScala.toList)
+      .flatMap(x => x.targetIds.asScala.toList.map(_.uri))
   }
 
   private def testRequest(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[TestResult] = {
