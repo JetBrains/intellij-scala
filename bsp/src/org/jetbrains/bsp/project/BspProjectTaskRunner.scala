@@ -1,9 +1,5 @@
 package org.jetbrains.bsp.project
 
-import java.io.File
-import java.nio.file.Paths
-import java.util.Collections
-
 import com.intellij.compiler.impl.{CompileContextImpl, CompilerUtil, ProjectCompileScope}
 import com.intellij.compiler.progress.CompilerTask
 import com.intellij.openapi.compiler.{CompilerPaths, CompilerTopics}
@@ -25,8 +21,11 @@ import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.extensions
 
-import scala.jdk.CollectionConverters._
+import java.io.File
+import java.nio.file.Paths
+import java.util.Collections
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success}
 
 
@@ -69,7 +68,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       } yield {
         val data = metadata.getData
         val workspaceUri = Paths.get(projectPath).toUri
-        data.targetIds.asScala.map(id => BspTarget(workspaceUri, id)).toList
+        data.targetIds.asScala.map(id => BspTarget(workspaceUri, id.uri)).toList
       }
 
       targetIds.getOrElse(List.empty)

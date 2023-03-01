@@ -9,6 +9,7 @@ import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModifiableR
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion, ScalaAbstractProjectDataService, SdkUtils}
+
 import java.util
 
 class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Module](BspMetadata.Key) {
@@ -28,7 +29,7 @@ class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Mo
                       (implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
     modelsProvider.getIdeModuleByNode(node).foreach { module =>
       val data = node.getData
-      val jdkByHome = Option(data.javaHome).map(_.toFile).map(JdkByHome)
+      val jdkByHome = Option(data.javaHome).map(_.uri.toFile).map(JdkByHome)
       val jdkByVersion = Option(data.javaVersion).map(JdkByVersion)
       val existingJdk = Option(ModuleRootManager.getInstance(module).getSdk)
       val moduleJdk = jdkByHome
@@ -50,8 +51,8 @@ class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Mo
   }
 
   private def setLanguageLevel(model: ModifiableRootModel, languageLevel: LanguageLevel)
-                              (implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = executeProjectChangeAction {
-    val languageLevelExtesion = model.getModuleExtension(classOf[LanguageLevelModuleExtensionImpl])
-    languageLevelExtesion.setLanguageLevel(languageLevel)
+                              (implicit project: Project): Unit = executeProjectChangeAction {
+    val languageLevelExtension = model.getModuleExtension(classOf[LanguageLevelModuleExtensionImpl])
+    languageLevelExtension.setLanguageLevel(languageLevel)
   }
 }

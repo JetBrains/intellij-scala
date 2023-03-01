@@ -3,8 +3,8 @@ package org.jetbrains.bsp.data
 import com.intellij.openapi.externalSystem.model.Key
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.bsp.data.BspEntityData.datakey
+import org.jetbrains.sbt.project.data.MyURI
 
-import java.net.URI
 import java.util
 
 /**
@@ -21,8 +21,8 @@ case class SbtBuildModuleDataBsp @PropertyMapping(Array(
   "childrenIds",
   "imports",
 ))(
-  id: URI,
-  childrenIds: util.List[URI],
+  id: MyURI,
+  childrenIds: util.List[MyURI],
   imports: util.List[String],
 ) extends BspEntityData
 
@@ -40,8 +40,8 @@ case class SbtModuleDataBsp @PropertyMapping(Array(
   "id",
   "buildModuleId"
 ))(
-  id: URI,
-  buildModuleId: URI
+  id: MyURI,
+  buildModuleId: MyURI
 ) extends BspEntityData
 
 object SbtModuleDataBsp {

@@ -24,7 +24,7 @@ final class SbtBuildModuleDataBspService extends ScalaAbstractProjectDataService
     } {
       val buildModuleData = moduleNode.getData
       Imports(module) = buildModuleData.imports
-      Build(module) = buildModuleData.id
+      Build(module) = buildModuleData.id.uri
     }
   }
 
