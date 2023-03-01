@@ -15,7 +15,7 @@ final class BspSbtBuildModuleUriProvider extends SbtBuildModuleUriProvider {
 
   override def getBuildModuleUri(module: Module): Option[URI] = {
     val sbtModuleData = getSbtModuleData(module)
-    sbtModuleData.map(_.buildModuleId)
+    sbtModuleData.map(_.buildModuleId.uri)
   }
 
   private def getSbtModuleData(module: Module): Option[SbtModuleDataBsp] = {
@@ -28,7 +28,7 @@ final class BspSbtBuildModuleUriProvider extends SbtBuildModuleUriProvider {
     val emptyURI = new URI("")
 
     val moduleDataSeq = getModuleData(project, moduleId, SbtModuleDataBsp.Key)
-    moduleDataSeq.find(_.id != emptyURI)
+    moduleDataSeq.find(_.id.uri != emptyURI)
   }
 
   private def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {

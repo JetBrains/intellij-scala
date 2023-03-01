@@ -1,8 +1,5 @@
 package org.jetbrains.bsp.data
 
-import java.io.File
-import java.net.URI
-import java.util
 import com.intellij.openapi.externalSystem.model.project.{AbstractExternalEntityData, ModuleData}
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
@@ -11,9 +8,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.bsp.data.BspEntityData._
 import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.project.external.SdkReference
-import org.jetbrains.bsp.data.BspEntityData._
+import org.jetbrains.sbt.project.data.MyURI
+
+import java.io.File
+import java.util
 
 abstract class BspEntityData extends AbstractExternalEntityData(BSP.ProjectSystemId) with Product {
 
@@ -50,7 +51,7 @@ object BspProjectData {
 
 
 case class JdkData @PropertyMapping(Array("javaHome", "javaVersion"))(
-  @Nullable javaHome: URI,
+  @Nullable javaHome: MyURI,
   @Nullable javaVersion: String
 ) extends BspEntityData
 
@@ -75,8 +76,16 @@ case class BspMetadataError(msg: String)
   * @param targetIds target ids mapped to module
   */
 @SerialVersionUID(4)
-case class BspMetadata @PropertyMapping(Array("targetIds", "javaHome", "javaVersion", "languageLevel"))
-(@NotNull targetIds: util.List[URI], @Nullable javaHome: URI, @Nullable javaVersion: String, @Nullable languageLevel: LanguageLevel)
+case class BspMetadata @PropertyMapping(Array(
+  "targetIds",
+  "javaHome",
+  "javaVersion", "languageLevel"
+))(
+  @NotNull targetIds: util.List[MyURI],
+  @Nullable javaHome: MyURI,
+  @Nullable javaVersion: String,
+  @Nullable languageLevel: LanguageLevel
+)
 
 object BspMetadata {
   val Key: Key[BspMetadata] = datakey(classOf[BspMetadata])

@@ -19,6 +19,7 @@ import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, StringExt}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
+import org.jetbrains.sbt.project.data.MyURI
 import org.jetbrains.sbt.project.module.SbtModuleType
 
 import java.io.File
@@ -42,7 +43,7 @@ private[importing] object BspResolverLogic {
   private[importing] def getJdkData(target: JvmBuildTarget): JdkData = {
     val javaHome = Option(target.getJavaHome).map(new URI(_))
 
-    JdkData(javaHome.orNull, target.getJavaVersion)
+    JdkData(javaHome.map(new MyURI(_)).orNull, target.getJavaVersion)
   }
 
   private[importing] def getScalaSdkData(target: ScalaBuildTarget, scalacOptionsItem: Option[ScalacOptionsItem]): (JdkData, ScalaSdkData) = {
@@ -64,10 +65,10 @@ private[importing] object BspResolverLogic {
     target: SbtBuildTarget,
     scalacOptionsItem: Option[ScalacOptionsItem]
   ): (JdkData, ScalaSdkData, SbtBuildModuleDataBsp) = {
-    val children = target.getChildren.asScala.map { target => new URI(target.getUri) }
+    val children = target.getChildren.asScala.map { target => new MyURI(target.getUri) }
 
     val sbtBuildModuleData = SbtBuildModuleDataBsp(
-      id = targetId,
+      id = new MyURI(targetId),
       imports = target.getAutoImports,
       childrenIds = children.asJava
     )
@@ -620,7 +621,7 @@ private[importing] object BspResolverLogic {
           }
         }
 
-    val moduleIdToBuildModuleId: Map[URI, URI] = projectModules.modules
+    val moduleIdToBuildModuleId: Map[MyURI, MyURI] = projectModules.modules
       .flatMap { moduleDescription =>
         moduleDescription.moduleKindData match {
           case SbtModule(_, _, sbtData) =>
@@ -703,7 +704,7 @@ private[importing] object BspResolverLogic {
       None
     } else {
       val (home, version) = groupedJdks.maxBy { case (_, count) => count }._1
-      Option(home).map(_.toFile).map(JdkByHome).orElse(Option(version).map(JdkByVersion))
+      Option(home).map(_.uri.toFile).map(JdkByHome).orElse(Option(version).map(JdkByVersion))
     }
     jdkReference
   }
@@ -716,7 +717,7 @@ private[importing] object BspResolverLogic {
     moduleDescription: ModuleDescription,
     projectNode: DataNode[ProjectData],
     projectLibraryDependencies: Map[String, LibraryData],
-    buildTargetIdToBuildModuleTargetId: Map[URI, URI]
+    buildTargetIdToBuildModuleTargetId: Map[MyURI, MyURI]
   ): DataNode[ModuleData] = {
     import ExternalSystemSourceType._
 
@@ -860,7 +861,7 @@ private[importing] object BspResolverLogic {
   }
 
   private def createBspMetadata(moduleDescription: ModuleDescription): BspMetadata = {
-    val targetIds = moduleDescription.data.targets.map(_.getId.getUri.toURI)
+    val targetIds = moduleDescription.data.targets.map(t => new MyURI(t.getId.getUri))
     val jdkData = moduleDescription.moduleKindData match {
       case module: JvmModule => Some(module.jdkData)
       case module: ScalaModule => Some(module.jdkData)
@@ -952,7 +953,7 @@ private[importing] object BspResolverLogic {
     moduleNode: DataNode[ModuleData],
     moduleKind: ModuleKind,
     moduleDescriptionData: ModuleDescriptionData,
-    buildTargetIdToBuildModuleTargetId: Map[URI, URI]
+    buildTargetIdToBuildModuleTargetId: Map[MyURI, MyURI]
   ): Unit =
     moduleKind match {
       case ScalaModule(_, scalaSdkData) =>
@@ -970,10 +971,11 @@ private[importing] object BspResolverLogic {
         val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, scalaSdkData, moduleNode)
         moduleNode.addChild(scalaSdkNode)
 
-        val buildModuleIdOpt = buildTargetIdToBuildModuleTargetId.get(new URI(moduleDescriptionData.idUri))
+        val buildModuleIdOpt = buildTargetIdToBuildModuleTargetId.get(new MyURI(moduleDescriptionData.idUri))
         buildModuleIdOpt match {
           case Some(buildModuleId) =>
-            val sbtModuleData = SbtModuleDataBsp(new URI(moduleDescriptionData.idUri), buildModuleId)
+            val moduleId = new MyURI(moduleDescriptionData.idUri)
+            val sbtModuleData = SbtModuleDataBsp(moduleId, buildModuleId)
             val sbtModuleDataNode = new DataNode[SbtModuleDataBsp](SbtModuleDataBsp.Key, sbtModuleData, moduleNode)
             moduleNode.addChild(sbtModuleDataNode)
           case _ =>
