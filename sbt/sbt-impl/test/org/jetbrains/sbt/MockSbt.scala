@@ -17,12 +17,14 @@ trait MockSbtBase extends ScalaSdkOwner { this: Test =>
 
   protected def scalaSdkLoader: ScalaSDKLoader = ScalaSDKLoader(includeScalaReflectIntoCompilerClasspath = true)
 
-  override def librariesLoaders: Seq[LibraryLoader] = {
+  override def librariesLoaders: Seq[LibraryLoader] =
     Seq(
       scalaSdkLoader,
-      IvyManagedLoader(new DependencyManagerForSbt(sbtVersion), ("org.scala-sbt" % "sbt" % sbtVersion.presentation).transitive())
+      sbtLoader
     )
-  }
+
+  private def sbtLoader: IvyManagedLoader =
+    IvyManagedLoader(new DependencyManagerForSbt(sbtVersion), ("org.scala-sbt" % "sbt" % sbtVersion.presentation).transitive())
 }
 
 trait MockSbt_0_13 extends MockSbtBase { this: Test =>

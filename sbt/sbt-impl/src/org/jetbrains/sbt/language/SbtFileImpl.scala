@@ -1,6 +1,7 @@
 package org.jetbrains.sbt
 package language
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
@@ -93,10 +94,19 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
       val manager = ModuleManager.getInstance(getProject)
       val modules = manager.getModules
       val sbtBuildModuleUri = SbtBuildModuleUriProvider.getBuildModuleUri(module)
-      for {
+      val result = for {
         buildModuleUri <- sbtBuildModuleUri
         module <- modules.find(Build(_) == buildModuleUri)
       } yield module
+
+      if (result.isEmpty && ApplicationManager.getApplication.isUnitTestMode) {
+        //NOTE: right now this legacy way of determining build module is left for tests only
+        //It simplifies setup logic for tests which work with sbt files.
+        //In theory we could remove this extra branch, but we would need to improve setup for tests
+        val buildModuleName = module.getName + Sbt.BuildModuleSuffix
+        modules.find(_.getName == buildModuleName)
+      }
+      else result
     }
 }
 
