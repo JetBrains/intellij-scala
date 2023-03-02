@@ -16,7 +16,7 @@ import jetbrains.buildServer.messages.serviceMessages._
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.bsp.protocol.BspNotifications.{BspNotification, LogMessage, TaskFinish, TaskStart}
-import org.jetbrains.bsp.protocol.session.BspSession.BspServer
+import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BuildServerInfo}
 import org.jetbrains.bsp.{BspBundle, BspErrorMessage}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, BuildToolWindowReporter}
@@ -59,9 +59,9 @@ class BspTestRunner(
       .flatMap(x => x.targetIds.asScala.toList.map(_.uri))
   }
 
-  private def testRequest(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[TestResult] = {
+  private def testRequest(server: BspServer, serverInfo: BuildServerInfo): CompletableFuture[TestResult] = {
     // TODO should we check for intersection of language ids in individual targets, and whether targets are testable?
-    val testsSupported = ! capabilities.getTestProvider.getLanguageIds.isEmpty
+    val testsSupported = !serverInfo.capabilities.getTestProvider.getLanguageIds.isEmpty
     if (testsSupported) {
       val targetIds = targets().map(uri => new BuildTargetIdentifier(uri.toString))
       val params = new TestParams(targetIds.asJava)

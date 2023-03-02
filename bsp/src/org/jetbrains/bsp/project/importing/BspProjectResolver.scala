@@ -12,7 +12,7 @@ import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
 import org.jetbrains.bsp.project.importing.BspResolverLogic._
 import org.jetbrains.bsp.project.importing.preimport.{BloopPreImporter, PreImporter}
 import org.jetbrains.bsp.protocol.session.Bsp4JJobFailure
-import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator}
+import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BuildServerInfo, NotificationAggregator}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspConnectionConfig, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings}
 import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspTaskCancelled, BspUtil}
@@ -52,7 +52,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     val result = if (isPreviewMode) {
       val modules = ProjectModules(Nil, Nil)
       reporter.finish(BuildMessages.empty.status(BuildMessages.OK))
-      projectNode(workspace, modules, rootExclusions(workspace))
+      projectNode(workspace, modules, rootExclusions(workspace), "dummy-display-name")
     } else {
       runImport(workspace, executionSettings)
     }
@@ -64,14 +64,14 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   }
 
   private def requests(workspace: File)
-                      (implicit server: BspServer, capabilities: BuildServerCapabilities, reporter: BuildReporter)
+                      (implicit server: BspServer, serverInfo: BuildServerInfo, reporter: BuildReporter)
   : CompletableFuture[DataNode[ProjectData]] = {
 
     val structureEventId = BuildMessages.randomEventId
     reporter.startTask(structureEventId, None, BspBundle.message("bsp.resolver.resolving.build.structure"))
     val reloadEventId = BuildMessages.randomEventId
     val reloadRequest = {
-      if (capabilities.getCanReload) {
+      if (serverInfo.capabilities.getCanReload) {
         reporter.startTask(reloadEventId, Some(structureEventId), BspBundle.message("bsp.resolver.build.reloading"))
         server.workspaceReload()
       }
@@ -104,12 +104,14 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
             val descriptions = calculateModuleDescriptions(
               targets, scalacOptions.toSeq, javacOptions.toSeq, sources.toSeq, resources.toSeq, outputPaths.toSeq, depSources.toSeq
             )
-            projectNode(workspace, descriptions, rootExclusions(workspace))
+            projectNode(workspace, descriptions, rootExclusions(workspace), serverInfo.displayName)
           }
           .reportFinished(
-            reporter, structureEventId,
+            reporter,
+            structureEventId,
             BspBundle.message("bsp.resolver.build.structure"),
-            BspBundle.message("bsp.resolver.resolving.build.structure.failed"))
+            BspBundle.message("bsp.resolver.resolving.build.structure.failed")
+          )
       }
 
     projectNodeFuture
@@ -135,7 +137,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     preImportMessages match {
       case Success(messages) if messages.status == BuildMessages.OK =>
         val projectJob: BspJob[(DataNode[ProjectData], BuildMessages)] =
-          communication.run(requests(workspace)(_,_,reporter), BuildMessages.empty, notifications, reporter.log)
+          communication.run(requests(workspace)(_, _,reporter), BuildMessages.empty, notifications, reporter.log)
 
         waitForProjectCancelable(projectJob) match {
           case Success((data, _)) =>
@@ -274,7 +276,7 @@ object BspProjectResolver {
 
   //noinspection ReferencePassedToNls
   private[importing] def targetData(targets: List[BuildTarget], parentId: EventId)
-                                   (implicit bsp: BspServer, capabilities: BuildServerCapabilities, reporter: BuildReporter):
+                                   (implicit bsp: BspServer, serverInfo: BuildServerInfo, reporter: BuildReporter):
   CompletableFuture[TargetData] = {
     val targetIds = targets.map(_.getId).asJava
 
@@ -286,7 +288,7 @@ object BspProjectResolver {
       .catchBspErrors
       .reportFinished(reporter, sourcesEventId, message, BspBundle.message("bsp.resolver.request.failed.buildtarget.sources"))
 
-    val depSources = if (isDependencySourcesProvider) {
+    val depSources = if (serverInfo.capabilities.isDependencySourcesProvider) {
       val eventId = BuildMessages.randomEventId
       val depSourcesParams = new DependencySourcesParams(targetIds)
       val message = "dependency sources"
@@ -299,7 +301,7 @@ object BspProjectResolver {
       CompletableFuture.completedFuture[Try[DependencySourcesResult]](Success(emptyResult))
     }
 
-    val resources = if (isResourcesProvider) {
+    val resources = if (serverInfo.capabilities.isResourcesProvider) {
       val eventId = BuildMessages.randomEventId
       val resourcesParams = new ResourcesParams(targetIds)
       val message = "resources"
@@ -312,7 +314,7 @@ object BspProjectResolver {
       CompletableFuture.completedFuture[Try[ResourcesResult]](Success(emptyResult))
     }
 
-    val outputPaths: CompletableFuture[Try[OutputPathsResult]] = if (isOutputPathsProvider) {
+    val outputPaths: CompletableFuture[Try[OutputPathsResult]] = if (serverInfo.capabilities.isOutputPathsProvider) {
       val params = new OutputPathsParams(targetIds)
       val eventId = BuildMessages.randomEventId
       val message = BspBundle.message("bsp.resolver.outputpaths")
@@ -377,14 +379,16 @@ object BspProjectResolver {
     }
   }
 
-  private def isDependencySourcesProvider(implicit capabilities: BuildServerCapabilities) =
-    Option(capabilities.getDependencySourcesProvider).exists(_.booleanValue())
+  implicit class BuildServerCapabilitiesOps(private val capabilities: BuildServerCapabilities) extends AnyVal {
+    def isDependencySourcesProvider: Boolean =
+      Option(capabilities.getDependencySourcesProvider).exists(_.booleanValue())
 
-  private def isResourcesProvider(implicit capabilities: BuildServerCapabilities) =
-    Option(capabilities.getResourcesProvider).exists(_.booleanValue())
+    def isResourcesProvider: Boolean =
+      Option(capabilities.getResourcesProvider).exists(_.booleanValue())
 
-  private def isOutputPathsProvider(implicit capabilities: BuildServerCapabilities) =
-    Option(capabilities.getOutputPathsProvider).exists(_.booleanValue())
+    def isOutputPathsProvider: Boolean =
+      Option(capabilities.getOutputPathsProvider).exists(_.booleanValue())
+  }
   
   private[importing] def rootExclusions(workspace: File): List[File] = List(
     new File(workspace, BspUtil.BloopConfigDirName),
