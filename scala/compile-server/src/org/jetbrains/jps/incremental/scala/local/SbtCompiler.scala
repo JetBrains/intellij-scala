@@ -5,6 +5,7 @@ import org.jetbrains.jps.incremental.scala.local.zinc.Utils.virtualFileConverter
 import org.jetbrains.jps.incremental.scala.local.zinc._
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompileOrder}
 import sbt.internal.inc._
+import xsbti.compile.analysis.ReadStamps
 import xsbti.compile.{CompileOrder => SbtCompileOrder, _}
 
 import java.io.File
@@ -13,6 +14,8 @@ import scala.jdk.OptionConverters._
 import scala.util.Try
 
 class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileToStore: File => AnalysisStore) extends AbstractCompiler {
+
+  private val stampReaderCache: Cache[true, ReadStamps] = new Cache(1)
 
   override def compile(compilationData: CompilationData, client: Client): Unit = optScalac match {
     case Some(scalac) => doCompile(compilationData, client, scalac)
@@ -66,6 +69,9 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
       Optional.of(previousAnalysis: CompileAnalysis),
       previousSetup.toJava
     )
+
+    val stampReader = stampReaderCache.getOrUpdate(true)(Stamps.timeWrapBinaryStamps(virtualFileConverter))
+
     val inputs = incrementalCompiler.inputs(
       compilationData.classpath.toArray.map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath)),
       compilationData.zincData.allSources.toArray.map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath)),
@@ -81,7 +87,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
       previousResult,
       Optional.empty(),
       virtualFileConverter,
-      null
+      stampReader
     )
 
     val compilationResult = Try {
