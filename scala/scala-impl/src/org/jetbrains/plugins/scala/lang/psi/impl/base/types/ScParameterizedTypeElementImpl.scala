@@ -129,7 +129,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     }
 
     typeArgList.typeArgs.find {
-      case e: ScFunctionalTypeElement if isKindProjectorFunctionSyntax => true
+      case _: ScFunctionalTypeElement if isKindProjectorFunctionSyntax => true
       case e if isKindProjectorInlineSyntax(e)                         => true
       case _: ScWildcardTypeElementImpl                                => true
       case _                                                           => false

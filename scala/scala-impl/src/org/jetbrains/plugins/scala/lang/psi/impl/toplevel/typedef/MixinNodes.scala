@@ -100,8 +100,6 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
       signatureCollector.processRefinement(compoundType, map)
     }
   }
-
-
 }
 
 object MixinNodes {
@@ -198,39 +196,10 @@ object MixinNodes {
 
   trait Map[T <: Signature] extends SignatureSink[T] {
     def forName(name: String): AllNodes[T]
-    def allNodes: Iterator[Node[T]]
-    def implicitNodes: Iterator[Node[T]]
 
-    def nodesIterator(
-      decodedName:  String,
-      isSupers:     Boolean,
-      onlyImplicit: Boolean = false
-    ): Iterator[Node[T]] = {
+    def allNodes: Iterator[Node[T]] = allNames.iterator().asScala.map(forName).flatMap(_.nodesIterator)
 
-      val allIterator =
-        if (decodedName != "") forName(decodedName).nodesIterator
-        else if (onlyImplicit) implicitNodes
-        else                   allNodes
-
-      if (isSupers) allIterator.flatMap(node => if (node.fromSuper) Iterator(node) else node.primarySuper.iterator)
-      else          allIterator
-    }
-
-    def allSignatures: Iterator[T] = allNodes.map(_.info)
-
-    def intersect(other: Map[T]): Map[T] = new IntersectionMap(this,  other)
-
-    protected val forNameCache = new ConcurrentHashMap[String, AllNodes[T]]()
-  }
-
-  class MapImpl[T <: Signature] extends Map[T] {
-    private val allNames: util.HashSet[String] = new util.HashSet[String]
-    private[MapImpl] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
-
-    private val thisSignaturesByName: JMap[String, JList[T]] = new JMap()
-    private val supersSignaturesByName: JMap[String, JList[T]] = new JMap()
-
-    override lazy val implicitNodes: Iterator[Node[T]] = {
+    lazy val implicitNodes: Seq[Node[T]] = {
       val builder = ArraySeq.newBuilder[Node[T]]
       builder.sizeHint(implicitNames.size)
       val iterator = implicitNames.iterator()
@@ -242,8 +211,39 @@ object MixinNodes {
           }
         }
       }
-      builder.result().iterator
+      builder.result()
     }
+
+    def nodesIterator(
+      decodedName:  String,
+      isSupers:     Boolean,
+      onlyImplicit: Boolean = false
+    ): Iterator[Node[T]] = {
+
+      val allIterator =
+        if (decodedName != "") forName(decodedName).nodesIterator
+        else if (onlyImplicit) implicitNodes.iterator
+        else                   allNodes
+
+      if (isSupers) allIterator.flatMap(node => if (node.fromSuper) Iterator(node) else node.primarySuper.iterator)
+      else          allIterator
+    }
+
+    def allSignatures: Iterator[T]       = allNodes.map(_.info)
+    def intersect(other: Map[T]): Map[T] = new IntersectionMap(this,  other)
+
+    protected val forNameCache = new ConcurrentHashMap[String, AllNodes[T]]()
+
+    def allNames: util.HashSet[String]
+    def implicitNames: SmartHashSet[String]
+  }
+
+  class MapImpl[T <: Signature] extends Map[T] {
+    override val allNames: util.HashSet[String] = new util.HashSet[String]
+    override val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
+
+    private val thisSignaturesByName: JMap[String, JList[T]] = new JMap()
+    private val supersSignaturesByName: JMap[String, JList[T]] = new JMap()
 
     private var fromSuper: Boolean                  = true
     private var finishedBuildingSignatures: Boolean = false
@@ -264,8 +264,6 @@ object MixinNodes {
       if (signature.isImplicit || signature.isExtensionMethod)
         implicitNames.add(name)
     }
-
-    def allNodes: Iterator[Node[T]] = allNames.iterator().asScala.map(forName).flatMap(_.nodesIterator)
 
     override def forName(name: String): AllNodes[T] = {
       val cleanName = ScalaNamesUtil.clean(name)
@@ -335,18 +333,25 @@ object MixinNodes {
   }
 
   class IntersectionMap[T <: Signature](lhsMap: Map[T], rhsMap: Map[T]) extends Map[T] {
+    override val allNames: util.HashSet[String] =
+      new util.HashSet[String]() {
+        addAll(lhsMap.allNames)
+        addAll(rhsMap.allNames)
+      }
+
+    override val implicitNames: SmartHashSet[String] = {
+      val names = new SmartHashSet[String]()
+      names.addAll(lhsMap.implicitNames)
+      names.addAll(rhsMap.implicitNames)
+      names
+    }
+
     override def forName(name: String): AllNodes[T] = {
       val cleanName = ScalaNamesUtil.clean(name)
       val fromLhs   = lhsMap.forName(name)
       val fromRhs   = rhsMap.forName(name)
       forNameCache.atomicGetOrElseUpdate(cleanName, fromLhs.merge(fromRhs))
     }
-
-    override def allNodes: Iterator[Node[T]] =
-      lhsMap.allNodes ++ rhsMap.allNodes
-
-    override def implicitNodes: Iterator[Node[T]] =
-      lhsMap.implicitNodes ++ rhsMap.implicitNodes
 
     override def put(signature: T): Unit = ()
   }
@@ -372,14 +377,17 @@ object MixinNodes {
           case _: TypeSignature     => newPublics.put(node.info, node) // todo: merge alias bounds
           case sig: TermSignature   =>
             newPublics.merge(node.info, node, (oldNode, _) => {
-              val currentSig     = oldNode.info
-              val currentElement = currentSig.namedElement
+              val oldSig     = oldNode.info.asInstanceOf[TermSignature]
+              val oldElement = oldSig.namedElement
 
-              currentElement match {
+              oldElement match {
                 case e @ (_: PsiMethod | _: ScBindingPattern | _: ScFieldId) =>
                   //intersect return types of same-signature members
-                  val combinedSubst         = currentSig.substitutor.followed(sig.substitutor)
-                  val intersectedReturnType = ScAndType(returnType(e), returnType(sig.namedElement))
+                  val sigReturnType = sig.intersectedReturnType.getOrElse(returnType(sig.namedElement))
+                  val oldReturnType = oldSig.intersectedReturnType.getOrElse(returnType(e))
+
+                  val combinedSubst         = oldSig.substitutor.followed(sig.substitutor)
+                  val intersectedReturnType = ScAndType(oldReturnType, sigReturnType)
 
                   val intersectedSig =
                     sig.copy(substitutor = combinedSubst, intersectedReturnType = intersectedReturnType.toOption)

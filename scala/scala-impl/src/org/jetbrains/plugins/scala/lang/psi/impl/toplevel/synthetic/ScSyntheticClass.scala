@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitProcessor
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 import javax.swing.Icon
 import scala.collection.mutable
@@ -195,7 +196,8 @@ final class SyntheticClasses(project: Project) {
 
   private[synthetic] def clear(): Unit = {
     if (classesInitialized) {
-      all.clear()
+      sharedClasses.clear()
+      scala3Classes.clear()
       numeric.clear()
       integer.clear()
       syntheticObjects.clear()
@@ -203,7 +205,6 @@ final class SyntheticClasses(project: Project) {
     }
 
     stringPlusMethod = null
-    all = null
     numeric = null
     integer = null
     file = null
@@ -216,11 +217,13 @@ final class SyntheticClasses(project: Project) {
 
   var stringPlusMethod: ScType => ScSyntheticFunction = _
 
-  var all: mutable.Map[String, PsiClass]              = new mutable.HashMap[String, PsiClass]
-  var numeric: mutable.Set[ScSyntheticClass]          = new mutable.HashSet[ScSyntheticClass]
-  var integer: mutable.Set[ScSyntheticClass]          = new mutable.HashSet[ScSyntheticClass]
-  val syntheticObjects: mutable.Map[String, ScObject] = new mutable.HashMap[String, ScObject]
-  val syntheticAliases: mutable.Set[ScTypeAlias]      = new mutable.HashSet[ScTypeAlias]
+//  var all: mutable.Map[String, PsiClass]              = mutable.HashMap.empty[String, PsiClass]
+  val sharedClasses: mutable.Map[String, PsiClass]    = mutable.HashMap.empty[String, PsiClass]
+  val scala3Classes: mutable.Map[String, PsiClass]    = mutable.HashMap.empty[String, PsiClass]
+  var numeric: mutable.Set[ScSyntheticClass]          = mutable.HashSet.empty[ScSyntheticClass]
+  var integer: mutable.Set[ScSyntheticClass]          = mutable.HashSet.empty[ScSyntheticClass]
+  val syntheticObjects: mutable.Map[String, ScObject] = mutable.HashMap.empty[String, ScObject]
+  val syntheticAliases: mutable.Set[ScTypeAlias]      = mutable.HashSet.empty[ScTypeAlias]
 
   private[synthetic]
   var file : PsiFile = _
@@ -230,7 +233,7 @@ final class SyntheticClasses(project: Project) {
     import stdTypes._
     val typeParameters = SyntheticClasses.TypeParameter :: Nil
 
-    all = new mutable.HashMap[String, PsiClass]
+//    all = new mutable.HashMap[String, PsiClass]
     val fileName = s"dummy-synthetics.scala"
     val emptyScalaFile = PsiFileFactory.getInstance(project).createFileFromText(fileName, ScalaFileType.INSTANCE, "")
     file = emptyScalaFile
@@ -322,17 +325,17 @@ final class SyntheticClasses(project: Project) {
       syntheticObjects.put(obj.qualifiedName, obj)
     }
 
-    def createAndRegisterClass(debugName: String, fileText: String): Unit = {
+    def registerContextFunctionClass(debugName: String, fileText: String): Unit = {
       val dummyFile = createDummyFile(debugName, fileText)
       val cls = dummyFile.typeDefinitions.head.asInstanceOf[PsiClass]
-      all.put(cls.name, cls)
+      scala3Classes.put(cls.name, cls)
     }
 
     (1 to 22).foreach { n =>
       val typeParameters    = (1 to n).map(i => s"-T$i").mkString(", ")
       val contextParameters = (1 to n).map(i => s"x$i: T$i").mkString(", ")
 
-      createAndRegisterClass("ContextFunction",
+      registerContextFunctionClass("ContextFunction",
        s"""
            |package scala
            |
@@ -470,7 +473,7 @@ object Unit
     )
 
     def registerAlias(text: String): Unit = {
-      val file  = ScalaPsiElementFactory.createScalaFileFromText(text, language = Option(Scala3Language.INSTANCE))
+      val file  = ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)
       val alias = file.members.head.asInstanceOf[ScTypeAlias]
       syntheticAliases += alias
     }
@@ -515,15 +518,17 @@ object Unit
       override def getQualifiedName: String = "scala." + name
     }
 
-    all += ((name, clazz)); clazz
+    sharedClasses += ((name, clazz)); clazz
   }
 
   def registerIntegerClass(clazz : ScSyntheticClass): ScSyntheticClass = {integer += clazz; clazz}
   def registerNumericClass(clazz : ScSyntheticClass): ScSyntheticClass = {numeric += clazz; clazz}
 
-  def getAll: Iterable[PsiClass] = all.values
+  def getAll: Iterable[PsiClass] = sharedClasses.values ++ scala3Classes.values
 
-  def byName(name: String): Option[PsiClass] = all.get(name)
+  def sharedClassesOnly: Iterable[PsiClass] = sharedClasses.values
+
+  def byName(name: String): Option[PsiClass] = sharedClasses.get(name).orElse(scala3Classes.get(name))
 
   val prefix = "scala."
 
