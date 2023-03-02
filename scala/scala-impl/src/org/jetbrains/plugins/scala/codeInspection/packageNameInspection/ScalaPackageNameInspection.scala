@@ -21,7 +21,7 @@ import scala.jdk.CollectionConverters._
 class ScalaPackageNameInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 
-  override def getID: String = "ScalaPackageName"
+  override def getID: String = ScalaPackageNameInspection.ToolId
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     file match {
@@ -134,4 +134,8 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
       case name => packagePrefix.fold("")(_ + ".") + name
     }
   }
+}
+
+object ScalaPackageNameInspection {
+  val ToolId = "ScalaPackageName"
 }

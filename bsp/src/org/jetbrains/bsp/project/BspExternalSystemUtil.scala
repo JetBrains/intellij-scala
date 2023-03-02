@@ -5,12 +5,17 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.bsp.BSP
-import org.jetbrains.bsp.data.SbtModuleDataBsp
+import org.jetbrains.bsp.data.{BspProjectData, SbtModuleDataBsp}
 import org.jetbrains.sbt.ExternalSystemUtil
 
 import java.net.URI
 
 object BspExternalSystemUtil {
+
+  def getBspProjectData(project: Project): Option[BspProjectData] = {
+    val dataEither = ExternalSystemUtil.getProjectData(BSP.ProjectSystemId, project, BspProjectData.Key)
+    dataEither.toSeq.flatten.headOption
+  }
 
   def getSbtModuleData(module: Module): Option[SbtModuleDataBsp] = {
     val project = module.getProject
