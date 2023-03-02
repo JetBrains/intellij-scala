@@ -454,7 +454,11 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         while (iterator.hasNext) {
           val comp = iterator.next()
           val result = check(comp, constraints)
-          if (result.isRight) builder += result
+
+          result match {
+            case ConstraintsResult.Left => ()
+            case cs: ConstraintSystem   => builder += cs
+          }
         }
 
         builder.result()

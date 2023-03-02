@@ -45,7 +45,7 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
       |""".stripMargin
   )
 
-  def testSignatureIntercsection(): Unit = checkTextHasNoErrors(
+  def testSignatureIntersection(): Unit = checkTextHasNoErrors(
     s"""
        |object A {
        |  trait TwitterPost
@@ -80,6 +80,19 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
        |  trait Foo[A] { def o: Option[A] = ??? }
        |  trait Bar[B] { def o: Option[B] = ??? }
        |  def x(xx: Foo[Int] & Bar[String]): Option[Int with String] = xx.o
+       |}
+       |""".stripMargin
+  )
+
+  def testDeepIntersection(): Unit = checkTextHasNoErrors(
+    s"""
+       |object A {
+       |  trait Foo[A] { def x: List[A] = ??? }
+       |  trait Bar[B] { def x: List[B] = ??? }
+       |  trait Baz[Z] { def x: List[Z] = ??? }
+       |  trait Qux[Q] { def x: List[Q] = ??? }
+       |  val x: Foo[Int] & Bar[String] & Baz[Double] & Qux[Float] = ???
+       |  val xs: List[Int with String with Double with Float] = x.x
        |}
        |""".stripMargin
   )
