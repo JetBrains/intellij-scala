@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.annotator
 
-import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
@@ -9,14 +9,12 @@ import com.intellij.testFramework.{HeavyPlatformTestCase, UsefulTestCase}
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, SmartJDKLoader}
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath
 import org.jetbrains.sbt.language.SbtFileImpl
-import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.{MockSbtBase, MockSbt_0_13, MockSbt_1_0, Sbt, SbtBundle}
+import org.jetbrains.sbt.{MockSbtBase, MockSbtBuildModule, MockSbt_0_13, MockSbt_1_0, Sbt, SbtBundle}
 import org.junit.Assert.assertNotNull
 import org.junit.Ignore
 import org.junit.experimental.categories.Category
@@ -26,12 +24,14 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[SlowTests]))
-abstract class SbtAnnotatorTestBase extends HeavyPlatformTestCase with MockSbtBase {
+abstract class SbtAnnotatorTestBase extends HeavyPlatformTestCase
+  with MockSbtBase
+  with MockSbtBuildModule {
 
   protected def testdataPath: String = s"$getTestDataPath/annotator/Sbt"
 
   protected def loadTestFile(): SbtFileImpl = {
-    val filePath = s"$testdataPath/${getTestName(false)}${Sbt.Extension}"
+    val filePath = s"$testdataPath/SbtAnnotator.sbt"
     val file = LocalFileSystem.getInstance
       .findFileByPath(filePath.replace(File.separatorChar, '/'))
     assertNotNull(filePath, file)
@@ -40,31 +40,17 @@ abstract class SbtAnnotatorTestBase extends HeavyPlatformTestCase with MockSbtBa
     sbtFile
   }
 
-  implicit protected lazy val module: Module = inWriteAction {
-    val moduleName = getModule.getName + Sbt.BuildModuleSuffix + ".iml"
-    val module = ModuleManager.getInstance(getProject).newModule(moduleName, SbtModuleType.instance.getId)
-    ModuleRootModificationUtil.setModuleSdk(module, getTestProjectJdk)
-    module
-  }
-
   override def librariesLoaders: Seq[LibraryLoader] =
     HeavyJDKLoader() +: super.librariesLoaders
 
   override protected def setUp(): Unit = {
     super.setUp()
-    setUpLibraries(module)
+    setupSbtBuildModule(getModule, Some(getTestProjectJdk))
     addTestFileToModuleSources()
     setUpProjectSettings()
   }
 
-  override def tearDown(): Unit = {
-    disposeLibraries(module)
-    super.tearDown()
-  }
-
-  override def getTestName(lowercaseFirstLetter: Boolean) = "SbtAnnotator"
-
-  override def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
+  override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 
   protected def runTest(sbtVersion: Version, expectedMessages: Seq[Message]): Unit = {
     setSbtVersion(sbtVersion)
