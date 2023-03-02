@@ -563,10 +563,12 @@ private[importing] object BspResolverLogic {
   private def libraryName(path: File): String =
     stripSuffixes(path.getName)
 
-  private[importing] def projectNode(workspace: File,
-                                     projectModules: ProjectModules,
-                                     excludedPaths: List[File]
-                                   ): DataNode[ProjectData] = {
+  private[importing] def projectNode(
+    workspace: File,
+    projectModules: ProjectModules,
+    excludedPaths: List[File],
+    displayName: String
+  ): DataNode[ProjectData] = {
 
     val projectRootPath = workspace.getCanonicalPathOptimized
     val moduleFileDirectoryPath = moduleFilesDirectory(workspace).getCanonicalPathOptimized
@@ -668,7 +670,7 @@ private[importing] object BspResolverLogic {
     val bspProjectData = {
       val jdkReference = inferProjectJdk(modules)
       val vcsRootsCandidates = projectModules.modules.flatMap(_.data.basePath).distinct
-      new DataNode[BspProjectData](BspProjectData.Key, BspProjectData(jdkReference, vcsRootsCandidates.asJava), projectNode)
+      new DataNode[BspProjectData](BspProjectData.Key, BspProjectData(jdkReference, vcsRootsCandidates.asJava, displayName), projectNode)
     }
 
     // effects

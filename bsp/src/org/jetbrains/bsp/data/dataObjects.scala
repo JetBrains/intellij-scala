@@ -37,16 +37,24 @@ object BspEntityData {
                 ): Key[T] = new Key(clazz.getName, weight)
 }
 
-@SerialVersionUID(1)
-case class BspProjectData @PropertyMapping(Array("jdk", "vcsRootsCandidates")) private (
+/**
+ * @param serverDisplayName corresponds to `InitializeBuildResult.displayName`, examples: "sbt", "scala-cli"
+ */
+@SerialVersionUID(2)
+case class BspProjectData @PropertyMapping(Array(
+  "jdk",
+  "vcsRootsCandidates",
+  "serverDisplayName"
+)) private (
   @Nullable jdk: SdkReference,
-  @NotNull vcsRootsCandidates: util.List[File]
+  @NotNull vcsRootsCandidates: util.List[File],
+  @NotNull serverDisplayName: String,
 ) extends BspEntityData
 
 object BspProjectData {
   val Key: Key[BspProjectData] = datakey(classOf[BspProjectData], weight = ProjectKeys.PROJECT.getProcessingWeight +  1)
-  def apply(sdk: Option[SdkReference], vcsRootsCandidates: util.List[File]): BspProjectData =
-    BspProjectData(sdk.orNull, vcsRootsCandidates)
+  def apply(sdk: Option[SdkReference], vcsRootsCandidates: util.List[File], displayName: String): BspProjectData =
+    BspProjectData(sdk.orNull, vcsRootsCandidates, displayName)
 }
 
 
