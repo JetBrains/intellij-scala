@@ -66,7 +66,7 @@ class BspSession private(bspPID: Long,
     notificationCallbacks.foreach(_.apply(notification))
 
   private def nextQueuedCommand(): Unit = {
-    val initResult = try {
+    val initResultTry: Try[InitializeBuildResult] = try {
       Success(waitForSessionInitialized(sessionTimeout))
     } catch {
       case to : TimeoutException =>
@@ -87,8 +87,9 @@ class BspSession private(bspPID: Long,
 
     import scala.concurrent.ExecutionContext.Implicits.global
     try {
-      val capabilities = initResult.get.getCapabilities // throw will be handled
-      currentJob.run(serverConnection.server, capabilities) // in case not yet running
+      val initResult = initResultTry.get// throw will be handled
+      val buildServerInfo = BuildServerInfo(initResult.getDisplayName, initResult.getCapabilities)
+      currentJob.run(serverConnection.server, buildServerInfo) // in case not yet running
       val currentIgnoringErrors = currentJob.future
         .recover { case NonFatal(_) => () }
         .andThen { case _ => lastActivity = System.currentTimeMillis()}
@@ -98,7 +99,7 @@ class BspSession private(bspPID: Long,
       val next = jobs.poll(queueTimeout.toMillis, TimeUnit.MILLISECONDS)
       if (next != null) {
         currentJob = next
-        currentJob.run(serverConnection.server, capabilities)
+        currentJob.run(serverConnection.server, buildServerInfo)
       }
     } catch {
       case _: TimeoutException => // just carry on
@@ -391,7 +392,15 @@ object BspSession {
   type ProcessLogger = String => Unit
   type NotificationAggregator[A] = (A, BspNotification) => A
   type NotificationCallback = BspNotification => Unit
-  type BspSessionTask[T] = (BspServer, BuildServerCapabilities) => CompletableFuture[T]
+  type BspSessionTask[T] = (BspServer, BuildServerInfo) => CompletableFuture[T]
+
+  /**
+   * @param displayName corresponds to [[ch.epfl.scala.bsp4j.InitializeBuildResult#getDisplayName]]
+   */
+  case class BuildServerInfo(
+    displayName: String,
+    capabilities: BuildServerCapabilities
+  )
 
   trait BspServer extends bsp4j.BuildServer
     with bsp4j.ScalaBuildServer

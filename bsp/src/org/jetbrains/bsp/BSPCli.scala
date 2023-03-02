@@ -1,10 +1,5 @@
 package org.jetbrains.bsp
 
-import java.io.File
-import java.util
-import java.util.concurrent.CompletableFuture
-import java.util.{Collections, UUID}
-
 import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j._
 import com.intellij.mock.{MockApplication, MockLocalFileSystem}
@@ -20,10 +15,14 @@ import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, AutoPreImport}
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspSystemSettings}
 import org.jetbrains.plugins.scala.build.{BuildReporter, ConsoleReporter}
 
-import scala.jdk.CollectionConverters._
+import java.io.File
+import java.util
+import java.util.concurrent.CompletableFuture
+import java.util.{Collections, UUID}
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.io.StdIn
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
 /**
@@ -36,7 +35,7 @@ object BSPCli extends App {
 
   private implicit val reporter: ConsoleReporter = new ConsoleReporter("BSPCli")
 
-  class DummyListener extends ExternalSystemTaskNotificationListener {
+  private class DummyListener extends ExternalSystemTaskNotificationListener {
     override def onStart(externalSystemTaskId: ExternalSystemTaskId, workingDir: String): Unit = {}
 
     override def onStart(externalSystemTaskId: ExternalSystemTaskId): Unit = {}
@@ -58,7 +57,7 @@ object BSPCli extends App {
 
   class Opts(val projectPath: String, val tracePath: Option[String])
 
-  val opts = try {
+  private val opts = try {
     System.setProperty("java.awt.headless", "true")
     val opts = parseOpts(args)
     opts.tracePath.fold({})(p => sys.props += ("BSP_TRACE_PATH" -> p))
@@ -103,7 +102,7 @@ object BSPCli extends App {
     println("Resolving build targets...")
     val task = ExternalSystemTaskId.create(BSP.ProjectSystemId, ExternalSystemTaskType.RESOLVE_PROJECT, opts.projectPath)
     resolver.resolveProjectInfo(task, opts.projectPath, isPreviewMode = false, bspExecSettings, new DummyListener)
-    val targets = bspReq(buildTargets)
+    val targets = bspReq1(buildTargets)
     println(s"Received ${targets.getTargets.size()} targets:")
     targets.getTargets.forEach(x => println(x.getId.getUri))
     targets
@@ -140,36 +139,38 @@ object BSPCli extends App {
     )
   }
 
-  def logProcess(str: String): Unit =
+  private def logProcess(str: String): Unit =
     if (str.endsWith(System.lineSeparator()))
       print(Console.BLUE + str + Console.RESET)
     else println(Console.BLUE + str + Console.RESET)
 
-  def logDto(not: Any): Unit = println(Console.YELLOW + not + Console.RESET)
+  private def logDto(not: Any): Unit = println(Console.YELLOW + not + Console.RESET)
 
-  def bspReq[T](bspSessionTask: BspSessionTask[T])(implicit reporter: BuildReporter): T = {
+  private def bspReq1[T](bspSessionTask: BspServer => CompletableFuture[T])(implicit reporter: BuildReporter): T =
+    bspReq { case (server, _) => bspSessionTask(server) }
+
+  private def bspReq[T](bspSessionTask: BspSessionTask[T])(implicit reporter: BuildReporter): T = {
     val result = Await.result(bspComm.run(bspSessionTask, logDto, logProcess).future, Int.MaxValue seconds)
     logDto(result)
     result
   }
 
-  def buildTargets(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[WorkspaceBuildTargetsResult] =
+  def buildTargets(server: BspServer): CompletableFuture[WorkspaceBuildTargetsResult] =
     server.workspaceBuildTargets()
 
-  def compileRequest(targets: BuildIds)(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[CompileResult] = {
+  def compileRequest(targets: BuildIds)(server: BspServer): CompletableFuture[CompileResult] = {
     val params = new bsp4j.CompileParams(targets)
     params.setOriginId(UUID.randomUUID().toString)
     server.buildTargetCompile(params)
   }
 
-  def testAllRequest(targets: BuildIds)(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[TestResult] = {
+  private def testAllRequest(targets: BuildIds)(server: BspServer): CompletableFuture[TestResult] = {
     val params = new bsp4j.TestParams(targets)
     params.setOriginId(UUID.randomUUID().toString)
     server.buildTargetTest(params)
   }
 
-
-  def testSingleRequest(targets: BuildIds, clasId: String, buildTargetUri: String)(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[TestResult] = {
+  private def testSingleRequest(targets: BuildIds, clasId: String, buildTargetUri: String)(server: BspServer): CompletableFuture[TestResult] = {
     val params = new bsp4j.TestParams(targets)
     params.setOriginId(UUID.randomUUID().toString)
     params.setDataKind("scala-test")
@@ -186,7 +187,7 @@ object BSPCli extends App {
   }
 
 
-  def testClasses(targets: BuildIds)(server: BspServer, capabilities: BuildServerCapabilities): CompletableFuture[ScalaTestClassesResult] = {
+  def testClasses(targets: BuildIds)(server: BspServer): CompletableFuture[ScalaTestClassesResult] = {
     val params = new bsp4j.ScalaTestClassesParams(targets)
     params.setOriginId(UUID.randomUUID().toString)
     server.buildTargetScalaTestClasses(params)
@@ -213,12 +214,18 @@ object BSPCli extends App {
         case exit() =>
           bspComm.closeSession()
           running = false
-        case help() => println(helpText)
-        case compile() => bspReq(compileRequest(targetIds.asJava))
-        case getScalaTestClasses() => bspReq(testClasses(targetIds.asJava))
-        case runAllTests() => bspReq(testAllRequest(targetIds.asJava))
-        case runTestClass(className, targetUri) => bspReq(testSingleRequest(targetIds.asJava, className, targetUri))
-        case _ => println("Illegal command, type help for more")
+        case help() =>
+          println(helpText)
+        case compile() =>
+          bspReq1(compileRequest(targetIds.asJava))
+        case getScalaTestClasses() =>
+          bspReq1(testClasses(targetIds.asJava))
+        case runAllTests() =>
+          bspReq1(testAllRequest(targetIds.asJava))
+        case runTestClass(className, targetUri) =>
+          bspReq1(testSingleRequest(targetIds.asJava, className, targetUri))
+        case _ =>
+          println("Illegal command, type help for more")
       }
     }
     // There are non daemon threads, need to explicitly stop them

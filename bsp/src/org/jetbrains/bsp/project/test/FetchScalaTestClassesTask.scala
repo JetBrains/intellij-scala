@@ -1,24 +1,23 @@
 package org.jetbrains.bsp.project.test
 
-import java.nio.file.Paths
-import java.util.UUID
-import java.util.concurrent.CompletableFuture
-
 import ch.epfl.scala.bsp4j._
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
-import org.jetbrains.bsp.{BspBundle, BspErrorMessage}
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.protocol.BspJob.CancelCheck
-import org.jetbrains.bsp.protocol.session.BspSession.BspServer
+import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BuildServerInfo}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
+import org.jetbrains.bsp.{BspBundle, BspErrorMessage}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, BuildToolWindowReporter}
 
-import scala.jdk.CollectionConverters._
+import java.nio.file.Paths
+import java.util.UUID
+import java.util.concurrent.CompletableFuture
 import scala.concurrent.Promise
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 
@@ -82,9 +81,10 @@ class FetchScalaTestClassesTask(project: Project,
     }
   }
 
-  private def requestTestClasses(params: ScalaTestClassesParams)(bsp: BspServer, capabilities: BuildServerCapabilities):
-  CompletableFuture[ScalaTestClassesResult] =
-    if (! capabilities.getTestProvider.getLanguageIds.isEmpty) bsp.buildTargetScalaTestClasses(params)
+  private def requestTestClasses(
+    params: ScalaTestClassesParams
+  )(bsp: BspServer, serverInfo: BuildServerInfo): CompletableFuture[ScalaTestClassesResult] =
+    if (!serverInfo.capabilities.getTestProvider.getLanguageIds.isEmpty) bsp.buildTargetScalaTestClasses(params)
     else {
       val result = new CompletableFuture[ScalaTestClassesResult]()
       result.completeExceptionally(BspErrorMessage(BspBundle.message("bsp.test.server.does.not.support.testing")))
