@@ -46,6 +46,7 @@ class TermSignature(
     tParams:               Seq[TypeParameter]     = tParams,
     substitutor:           ScSubstitutor          = substitutor,
     namedElement:          PsiNamedElement        = namedElement,
+    exportedIn:            Option[PsiClass]       = exportedIn,
     hasRepeatedParam:      Array[Int]             = hasRepeatedParam,
     renamed:               Option[String]         = renamed,
     intersectedReturnType: Option[ScType]         = intersectedReturnType
@@ -56,6 +57,7 @@ class TermSignature(
       tParams,
       substitutor,
       namedElement,
+      exportedIn,
       hasRepeatedParam,
       renamed,
       intersectedReturnType
