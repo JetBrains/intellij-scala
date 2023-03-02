@@ -1,8 +1,5 @@
 package org.jetbrains.bsp.project
 
-import java.net.URI
-import java.util.concurrent.CompletableFuture
-
 import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j._
 import com.intellij.build.FilePosition
@@ -25,9 +22,11 @@ import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildActi
 import org.jetbrains.plugins.scala.build._
 import org.jetbrains.plugins.scala.util.CompilationId
 
-import scala.jdk.CollectionConverters._
+import java.net.URI
+import java.util.concurrent.CompletableFuture
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise}
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -103,10 +102,11 @@ class BspTask[T](project: Project,
       val targetsToClean = targetToCleanByWorkspace.getOrElse(workspace, List.empty)
       val communication: BspCommunication = BspCommunication.forWorkspace(workspace.toFile, project)
       communication.run(
-        buildRequests(targets, targetsToClean)(_, _, reporter),
+        { case (server, serverInfo) => buildRequests(targets, targetsToClean)(server, serverInfo.capabilities, reporter) },
         BuildMessages.empty,
         notifications,
-        processLog)
+        processLog
+      )
     }
 
     val cancelToken = new CancelCheck(resultPromise, indicator)

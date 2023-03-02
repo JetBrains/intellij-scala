@@ -1,29 +1,27 @@
 package org.jetbrains.bsp.project.test.environment
 
-import java.net.URI
-import java.nio.file.Paths
-import java.util.concurrent.CompletableFuture
-
 import ch.epfl.scala.bsp4j._
 import com.intellij.execution.configurations.{ModuleBasedConfiguration, RunConfiguration}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.DumbService
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiFile}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.BspBundle
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.BspMetadata
-import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask}
+import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask, BuildServerInfo}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildToolWindowReporter}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 
-import scala.jdk.CollectionConverters._
+import java.net.URI
+import java.nio.file.Paths
+import java.util.concurrent.CompletableFuture
 import scala.concurrent.Promise
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 object BspJvmEnvironment {
@@ -165,7 +163,7 @@ object BspJvmEnvironment {
 
   private def createJvmEnvironmentRequest(targets: Seq[BuildTargetIdentifier], environmentType: ExecutionEnvironmentType)(
     server: BspServer,
-    capabilities: BuildServerCapabilities
+    serverInfo: BuildServerInfo
   ): CompletableFuture[Result[Seq[JvmEnvironmentItem]]] = {
     def environment[R](
       capability: BuildServerCapabilities => java.lang.Boolean,
@@ -173,7 +171,7 @@ object BspJvmEnvironment {
       items: R => java.util.List[JvmEnvironmentItem],
       endpointName: String
     ): CompletableFuture[Result[Seq[JvmEnvironmentItem]]] = {
-      if (Option(capability(capabilities)).exists(_.booleanValue)) {
+      if (Option(capability(serverInfo.capabilities)).exists(_.booleanValue)) {
         endpoint(targets.asJava).thenApply(response => Right(items(response).asScala.toSeq))
       } else {
         CompletableFuture.completedFuture(Left(Error(
@@ -205,20 +203,20 @@ object BspJvmEnvironment {
   ): Try[Seq[SourcesItem]] = {
     bspRequest(
       workspace, project, BspBundle.message("bsp.task.fetching.sources"),
-      createSourcesRequest(potentialTargets)
+      { case (s, _) => createSourcesRequest(potentialTargets)(s) }
     ).map(sources => sources.getItems.asScala.toList)
   }
 
-  private def createSourcesRequest(targets: Seq[BuildTargetIdentifier])(
-    server: BspServer, capabilities: BuildServerCapabilities
-  ): CompletableFuture[SourcesResult] = {
+  private def createSourcesRequest(targets: Seq[BuildTargetIdentifier])(server: BspServer): CompletableFuture[SourcesResult] = {
     server.buildTargetSources(new SourcesParams(targets.asJava))
   }
 
-  private def bspRequest[A](workspace: URI,
-                            project: Project,
-                            @Nls reporterTitle: String,
-                            task: BspSessionTask[A]): Try[A] = {
+  private def bspRequest[A](
+    workspace: URI,
+    project: Project,
+    @Nls reporterTitle: String,
+    task: BspSessionTask[A]
+  ): Try[A] = {
     val communication = BspCommunication.forWorkspace(workspace.toFile, project)
     val bspTaskId = BuildMessages.randomEventId
     val cancelAction = new CancelBuildAction(Promise[Unit]())
