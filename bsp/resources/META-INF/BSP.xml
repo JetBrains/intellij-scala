@@ -15,11 +15,12 @@
                         dynamic="true"/>
     </extensionPoints>
 
-    <extensions defaultExtensionNs="org.intellij.scala">
-        <worksheetCompilerExtension implementation="org.jetbrains.bsp.project.test.environment.BspWorksheetCompilerExtension"/>
-        <sbtUnlinkedProjectAwareHelper implementation="org.jetbrains.bsp.project.BspSbtUnlinkedProjectAwareHelper"/>
+    <extensions defaultExtensionNs="org.intellij">
+        <scala.worksheetCompilerExtension implementation="org.jetbrains.bsp.project.test.environment.BspWorksheetCompilerExtension"/>
+        <scala.sbtUnlinkedProjectAwareHelper implementation="org.jetbrains.bsp.project.BspSbtUnlinkedProjectAwareHelper"/>
+        <sbt.buildModuleUriProvider implementation="org.jetbrains.bsp.project.BspSbtBuildModuleUriProvider"/>
     </extensions>
-
+    
     <extensions defaultExtensionNs="com.intellij">
         <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentScalaTestRunnerExtension"/>
         <bspEnvironmentRunnerExtension implementation="org.jetbrains.bsp.project.test.environment.BspEnvironmentApplicationRunnerExtension"/>
@@ -53,7 +54,6 @@
         <toolWindow id="bsp" anchor="right"
                     icon="/org/jetbrains/plugins/scala/bsp/images/toolWindowBuildServerProtocol.svg"
                     factoryClass="org.jetbrains.bsp.BspToolWindowFactory" />
-        <externalSystemSettingsListener implementation="org.jetbrains.bsp.project.importing.ShowBspToolWindowAfterCreatingNewProject"/>
 
         <projectTaskRunner implementation="org.jetbrains.bsp.project.BspProjectTaskRunner"/>
         <postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>

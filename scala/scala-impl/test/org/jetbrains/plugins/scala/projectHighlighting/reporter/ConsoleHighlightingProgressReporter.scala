@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.projectHighlighting.reporter
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter.TextBasedProgressIndicator
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.IndentUtils.StringExt
 import org.junit.Assert
 
 import scala.collection.mutable
@@ -11,8 +12,6 @@ class ConsoleHighlightingProgressReporter(
   testClassName: String,
   override val filesWithProblems: Map[String, Set[TextRange]]
 ) extends HighlightingProgressReporter {
-
-  import org.jetbrains.plugins.scala.projectHighlighting.reporter.IndentUtils.StringExt
 
   private val errors = mutable.ArrayBuffer.empty[FileErrorDescriptor]
 

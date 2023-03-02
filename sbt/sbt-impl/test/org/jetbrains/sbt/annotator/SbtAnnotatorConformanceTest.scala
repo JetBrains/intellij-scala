@@ -21,21 +21,18 @@ abstract class SbtAnnotatorConformanceTestBase extends SbtAnnotatorTestBase {
   private def doConformanceTest(text: String, expected: String): Unit = {
     // just for the context. we can probably create a context without loading the file?
     val file = loadTestFile()
-    val expression = ScalaPsiElementFactory.createExpressionFromText(text, file)
+    val expression = ScalaPsiElementFactory.createExpressionFromText(text, file)(getProject)
 
-    val isAllowed = SbtAnnotator.isTypeAllowed(
-      expression,
-      expression.`type`() match {
-        case Right(value) => value
-        case Left(failure)  =>
-          throw new NoSuchElementException(
-            s"""Couldn't infer expression type
-              |expression: $expression
-              |cause: $failure""".stripMargin
-          )
-      },
-      expected
-    )
+    val expressionType = expression.`type`() match {
+      case Right(value) => value
+      case Left(failure) =>
+        throw new NoSuchElementException(
+          s"""Couldn't infer expression type
+             |expression: $expression
+             |cause: $failure""".stripMargin
+        )
+    }
+    val isAllowed = SbtAnnotator.isTypeAllowed(expression, expressionType, expected)
     assertTrue(s"$expression should conform to $expected", isAllowed)
   }
 }

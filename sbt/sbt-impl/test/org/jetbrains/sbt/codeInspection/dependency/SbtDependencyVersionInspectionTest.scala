@@ -5,15 +5,20 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.codeInspection.SbtDependencyVersionInspection
 import org.jetbrains.sbt.language.SbtFileType
-import org.jetbrains.sbt.{MockSbt_1_0, Sbt}
+import org.jetbrains.sbt.{MockSbtBuildModule, MockSbt_1_0, Sbt, SbtHighlightingUtil}
 
-class SbtDependencyVersionInspectionTest extends ScalaInspectionTestBase with MockSbt_1_0{
+class SbtDependencyVersionInspectionTest extends ScalaInspectionTestBase with MockSbt_1_0 with MockSbtBuildModule {
   override val sbtVersion: Version = Sbt.LatestVersion
   override protected val classOfInspection = classOf[SbtDependencyVersionInspection]
   override protected val description: String = ""
   override protected val fileType: LanguageFileType = SbtFileType
 
   override protected def descriptionMatches(s: String): Boolean = Option(s).exists(x => x.startsWith("Newer stable version for") && x.endsWith("is available"))
+
+  protected override def setUp(): Unit = {
+    super.setUp()
+    SbtHighlightingUtil.enableHighlightingOutsideBuildModule(getProject)
+  }
 
   def testDependencyVersionInspection(): Unit = {
     val text =

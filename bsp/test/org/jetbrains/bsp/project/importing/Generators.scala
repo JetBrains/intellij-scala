@@ -1,18 +1,19 @@
 package org.jetbrains.bsp.project.importing
 
-import java.io.File
-import java.nio.file.{Path, Paths}
 import ch.epfl.scala.bsp.testkit.gen.Bsp4jGenerators._
 import ch.epfl.scala.bsp.testkit.gen.UtilGenerators.{genFileUriString, genPath}
 import ch.epfl.scala.bsp.testkit.gen.bsp4jArbitrary._
 import ch.epfl.scala.bsp4j.{BuildTarget, BuildTargetIdentifier}
 import com.google.gson.{Gson, GsonBuilder}
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.bsp.data.JdkData
-import org.jetbrains.bsp.data.ScalaSdkData
-import org.jetbrains.bsp.project.importing.BspResolverDescriptors.{ModuleDescription, SourceDirectory, _}
+import org.jetbrains.bsp.data.{JdkData, ScalaSdkData}
+import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
+import org.jetbrains.sbt.project.data.MyURI
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
+
+import java.io.File
+import java.nio.file.{Path, Paths}
 import scala.jdk.CollectionConverters._
 
 object Generators {
@@ -98,12 +99,12 @@ object Generators {
   def genJdkData: Gen[JdkData] = for {
     javaHome <- genFileUri
     javaVersion <- arbitrary[String]
-  } yield JdkData(javaHome, javaVersion)
+  } yield JdkData(new MyURI(javaHome), javaVersion)
 
   def genModuleKind: Gen[ModuleKind] = for {
     jdkData <- genJdkData
     scalaSdkData <- genScalaSdkData
-  } yield ScalaModule(jdkData, scalaSdkData)
+  } yield ModuleKind.ScalaModule(jdkData, scalaSdkData)
 
   def genModuleDescription: Gen[ModuleDescription] = for {
     id <- arbitrary[String]
@@ -126,7 +127,7 @@ object Generators {
     moduleKind <- genModuleKind
   } yield {
     val data = ModuleDescriptionData(
-      id = id, 
+      idUri = id,
       name = name,
       targets = targets,
       targetDependencies = targetDependencies,

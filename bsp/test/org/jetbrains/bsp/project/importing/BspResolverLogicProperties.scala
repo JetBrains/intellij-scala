@@ -1,14 +1,12 @@
 package org.jetbrains.bsp.project.importing
 
-import java.io.File
-import java.nio.file.Path
 import ch.epfl.scala.bsp.testkit.gen.Bsp4jGenerators._
 import ch.epfl.scala.bsp.testkit.gen.bsp4jArbitrary._
 import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, GsonBuilder}
 import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.bsp.project.importing.BspResolverDescriptors.{ModuleDescription, ProjectModules, ScalaModule, SourceDirectory}
+import org.jetbrains.bsp.project.importing.BspResolverDescriptors.{ModuleDescription, ModuleKind, ProjectModules, SourceDirectory}
 import org.jetbrains.bsp.project.importing.BspResolverLogic._
 import org.jetbrains.bsp.project.importing.Generators._
 import org.jetbrains.plugins.scala.SlowTests
@@ -18,6 +16,9 @@ import org.scalacheck.Prop.{forAll, propBoolean}
 import org.scalacheck._
 import org.scalatestplus.junit.AssertionsForJUnit
 import org.scalatestplus.scalacheck.Checkers
+
+import java.io.File
+import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[SlowTests]))
@@ -40,7 +41,7 @@ class BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
     forAll(Gen.listOf(genScalaBuildTargetWithoutTags(List(BuildTargetTag.NO_IDE)))) { buildTargets: List[BuildTarget] =>
       forAll { (scalacOptionsItems: List[ScalacOptionsItem], javacOptionsItems: List[JavacOptionsItem], sourcesItems: List[SourcesItem], resourcesItems: List[ResourcesItem], outputPathsItems: List[OutputPathsItem], dependencySourcesItems: List[DependencySourcesItem]) =>
         val descriptions = calculateModuleDescriptions(buildTargets, scalacOptionsItems, javacOptionsItems, sourcesItems, resourcesItems, outputPathsItems, dependencySourcesItems)
-        val moduleIds = (descriptions.modules ++ descriptions.synthetic).map(_.data.id)
+        val moduleIds = (descriptions.modules ++ descriptions.synthetic).map(_.data.idUri)
         val moduleForEveryTarget = (buildTargets.nonEmpty && buildTargets.exists(_.getBaseDirectory != null)) ==> descriptions.modules.nonEmpty
         val noDuplicateIds = moduleIds.size == moduleIds.distinct.size // TODO generator needs to create shared source dirs
         moduleForEveryTarget
@@ -56,7 +57,7 @@ class BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
         val description = moduleDescriptionForTarget(target, scalacOptions, javacOptions, depSources, sources, resources, outputPaths, dependencyOutputs)
         val emptyForNOIDE = target.getTags.contains(BuildTargetTag.NO_IDE) ==> description.isEmpty :| "contained NO_IDE tag, but created anyway"
         val definedForBaseDir = target.getBaseDirectory != null ==> description.isDefined :| "base dir defined, but not created"
-        val hasScalaModule = description.isDefined ==> description.get.moduleKindData.isInstanceOf[ScalaModule]
+        val hasScalaModule = description.isDefined ==> description.get.moduleKindData.isInstanceOf[ModuleKind.ScalaModule]
         emptyForNOIDE || (definedForBaseDir && hasScalaModule)
       }
     }

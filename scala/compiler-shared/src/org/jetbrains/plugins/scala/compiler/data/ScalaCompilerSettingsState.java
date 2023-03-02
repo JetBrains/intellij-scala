@@ -12,6 +12,7 @@ public final class ScalaCompilerSettingsState {
     public boolean recompileOnMacroDef = SbtIncrementalOptions.Default().recompileOnMacroDef();
     public int transitiveStep = SbtIncrementalOptions.Default().transitiveStep();
     public double recompileAllFraction = SbtIncrementalOptions.Default().recompileAllFraction();
+
     public boolean dynamics = false;
     public boolean postfixOps = false;
     public boolean reflectiveCalls = false;
@@ -19,6 +20,8 @@ public final class ScalaCompilerSettingsState {
     public boolean higherKinds = false;
     public boolean existentials = false;
     public boolean macros = false;
+    public boolean languageWildcard = false;
+
     public boolean experimental = false;
     public boolean warnings = true;
     public boolean deprecationWarnings = false;
