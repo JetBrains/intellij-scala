@@ -1,7 +1,15 @@
 package org.jetbrains.plugins.scala.editor.todo
 
+import org.jetbrains.sbt.SbtHighlightingUtil
+
 /** tests [[ScalaIndexPatternBuilder]] */
 class ScalaTodoIndexerTest extends ScalaTodoItemsTestBase {
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    //we have a test for sbt file
+    SbtHighlightingUtil.enableHighlightingOutsideBuildModule(getProject)
+  }
 
   def testTodo_LineComment(): Unit = testTodos(
     s"""// ${start}TODO: do something$end

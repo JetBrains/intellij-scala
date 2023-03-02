@@ -22,6 +22,8 @@ class SbtAnnotationInspectionTest extends TypeAnnotationInspectionTest with Mock
   protected override def setUp(): Unit = {
     super.setUp()
 
+    SbtHighlightingUtil.enableHighlightingOutsideBuildModule(getProject)
+
     val settings = getScalaCodeStyleSettings
     import settings._
 
@@ -47,7 +49,7 @@ class SbtAnnotationInspectionTest extends TypeAnnotationInspectionTest with Mock
   }
 
   def testPublicValue(): Unit = testQuickFix(
-    s"lazy val ${SELECTION_START_TAG}project${SELECTION_END_TAG} = Project(null, null)",
+    s"lazy val ${SELECTION_START_TAG}project$SELECTION_END_TAG = Project(null, null)",
     "lazy val project: Project = Project(null, null)"
   )
 }

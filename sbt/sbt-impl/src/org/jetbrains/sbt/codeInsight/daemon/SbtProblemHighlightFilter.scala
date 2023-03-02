@@ -1,10 +1,12 @@
 package org.jetbrains.sbt.codeInsight.daemon
 
 import com.intellij.codeInsight.daemon.ProblemHighlightFilter
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.NonPhysicalFileSystem
 import com.intellij.psi.{PsiCodeFragment, PsiFile}
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiFileExt}
+import org.jetbrains.sbt.SbtHighlightingUtil
 import org.jetbrains.sbt.language.SbtFile
 
 /**
@@ -39,7 +41,8 @@ final class SbtProblemHighlightFilter extends ProblemHighlightFilter {
       //     |-- build.sbt //should NOT be highlighted
       //
       //But `file.module` will anyway resolve to a correct `build` module
-      isInRootOfContentRoots(file) && file.module.exists(_.isBuildModule)
+      isInRootOfContentRoots(file) && file.module.exists(_.isBuildModule) ||
+        ApplicationManager.getApplication.isUnitTestMode && SbtHighlightingUtil.isHighlightingOutsideBuildModuleEnabled(file.getProject)
     case _ =>
       true
   }
