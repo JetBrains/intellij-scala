@@ -66,6 +66,7 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
     splitter.setSecondComponent(settingsComponent)
 
     TreeSpeedSearch.installOn(myTree)
+      .setComparator(new SpeedSearchComparator(false))
   }
 
   private def onNodeSelected(__ : TreeSelectionEvent): Unit =
