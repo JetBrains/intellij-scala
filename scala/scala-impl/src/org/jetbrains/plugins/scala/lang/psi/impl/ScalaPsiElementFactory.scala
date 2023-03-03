@@ -1479,5 +1479,5 @@ object ScalaPsiElementFactory {
     }
   }
 
-  private[scala] val SyntheticFileKey: Key[true] = Key.create("SCALA_SYNTHETIC_FILE_KEY")
+  val SyntheticFileKey: Key[true] = Key.create("SCALA_SYNTHETIC_FILE_KEY")
 }
