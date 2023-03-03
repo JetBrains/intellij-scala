@@ -106,13 +106,12 @@ object Common {
     /** see also org.jetbrains.plugins.scala.compiler.CompileServerLauncher.compileServerJars */
     val platformJarNames = Seq(
       "util.jar",
+      "util-8.jar",
       "util_rt.jar",
-      "3rd-party-rt.jar",
       "protobuf.jar",
       "jps-model.jar",
       "forms_rt.jar",
       "idea_rt.jar",
-      "util-8.jar"
     )
     //If you need any extra plugin dependencies, add the jars here
     val pluginsJarPaths = Seq(
@@ -135,8 +134,8 @@ object Common {
     val platformJarNames = Seq(
       "app.jar",
       "util.jar",
+      "util-8.jar",
       "util_rt.jar",
-      "3rd-party-rt.jar"
     )
 
     platformJarNames.map(intellijLibDir / _).classpath
