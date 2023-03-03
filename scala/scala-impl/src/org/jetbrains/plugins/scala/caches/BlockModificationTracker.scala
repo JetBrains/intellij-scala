@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.caches
 
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{Key, ModificationTracker, SimpleModificationTracker}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -66,9 +68,10 @@ object BlockModificationTracker {
         case Some(expr) =>
           ExpressionModificationTracker(expr)
         case _ =>
-          element.getContainingFile match {
+          ScalaPsiUtil.fileContext(element) match {
             case file: ScalaFileImpl =>
-              CachesUtil.fileContextModTracker(file)
+              if (file.isCompiled) ProjectRootManager.getInstance(element.getProject)
+              else CachesUtil.fileContextModTracker(file)
             case _ =>
               CachesUtil.scalaTopLevelModTracker(element.getProject)
           }
