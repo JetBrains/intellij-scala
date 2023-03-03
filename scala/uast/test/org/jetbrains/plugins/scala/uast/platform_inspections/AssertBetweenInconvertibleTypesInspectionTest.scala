@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.uast.platform_inspections
 
-import com.intellij.codeInspection.{AssertBetweenInconvertibleTypesInspection, LocalInspectionTool}
+import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.codeInspection.test.AssertBetweenInconvertibleTypesInspection
+import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
-import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 
 class AssertBetweenInconvertibleTypesInspectionTest extends ScalaInspectionTestBase {
 

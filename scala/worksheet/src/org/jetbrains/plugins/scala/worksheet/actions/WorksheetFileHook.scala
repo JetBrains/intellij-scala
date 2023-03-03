@@ -182,7 +182,7 @@ object WorksheetFileHook {
         }
 
         val controlPanel = new WorksheetControlPanel()
-        val actions: ju.List[AnAction] = ContainerUtil.immutableSingletonList(new WorksheetReplRunAction)
+        val actions: ju.List[AnAction] = ju.List.of(new WorksheetReplRunAction)
         ClientProperty.put(editor.getComponent, AnAction.ACTIONS_KEY, actions)
         file2panel.put(file, controlPanel)
         myFileEditorManager.addTopComponent(editor, controlPanel)
