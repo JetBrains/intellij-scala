@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.components
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
 import com.intellij.openapi.wm.impl.status.widget.StatusBarWidgetsManager
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget}
-import com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
 import com.intellij.util.Consumer
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -17,9 +17,12 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import java.awt.event.MouseEvent
 import javax.swing.Icon
+import scala.annotation.nowarn
 
 private final class TypeAwareWidget(project: Project, factory: TypeAwareWidgetFactory)
-  extends StatusBarWidget with StatusBarWidget.IconPresentation with TypeAwareWidgetFactory.UpdateListener {
+  extends StatusBarWidget
+    with StatusBarWidget.IconPresentation
+    with TypeAwareWidgetFactory.UpdateListener {
 
   private var statusBar: StatusBar = _
   private val connection: MessageBusConnection = project.getMessageBus.connect()
@@ -56,6 +59,7 @@ private final class TypeAwareWidget(project: Project, factory: TypeAwareWidgetFa
     s"$title: $status $toChange"
   }
 
+  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   override def getClickConsumer: Consumer[MouseEvent] =
     _ => ToggleTypeAwareHighlightingAction.toggleSettingAndRehighlight(project)
 

@@ -63,6 +63,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   override def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 
+  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   override def createCallerChooser(title: String, treeToReuse: Tree, callback: Consumer[_ >: util.Set[ScFunction]]): CallerChooserBase[ScFunction] = null
 
   override def createRefactoringProcessor(): BaseRefactoringProcessor = {

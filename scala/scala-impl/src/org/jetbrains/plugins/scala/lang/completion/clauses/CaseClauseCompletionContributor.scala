@@ -7,7 +7,7 @@ import com.intellij.patterns.{ElementPattern, PlatformPatterns}
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, ScalaCompletionContributor, ScalaKeyword, aot, positionFromParameters, DelegatingCompletionProvider}
+import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, DelegatingCompletionProvider, ScalaCompletionContributor, ScalaKeyword, aot, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPa
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+
+import scala.annotation.nowarn
 
 final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
@@ -223,6 +225,7 @@ object CaseClauseCompletionContributor {
     override protected def createElement(text: String, context: PsiElement, child: PsiElement): ScPattern =
       createPatternFromTextWithContext(text, context, child)
 
+    @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
     override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): Consumer[CompletionResult] =
       (result: CompletionResult) => {
         val lookupElement = result.getLookupElement

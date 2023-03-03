@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 
 import java.util
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data: T)
@@ -26,6 +27,7 @@ class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data
 
   override def getTargets: util.List[PsiElement] = (kind.target(data).toSeq: Seq[PsiElement]).asJava
 
+  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   override def selectTargets(targets: util.List[_ <: PsiElement],
                              selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit =
     selectionConsumer.consume(targets)

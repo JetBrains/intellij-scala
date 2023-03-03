@@ -30,6 +30,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
+import scala.annotation.nowarn
+
 package object completion {
 
   import PlatformPatterns.psiElement
@@ -369,6 +371,7 @@ package object completion {
                                 context: PsiElement,
                                 child: PsiElement): E
 
+    @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
     protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): Consumer[CompletionResult]
 
     protected final def createParameters(typeElement: ScalaPsiElement,

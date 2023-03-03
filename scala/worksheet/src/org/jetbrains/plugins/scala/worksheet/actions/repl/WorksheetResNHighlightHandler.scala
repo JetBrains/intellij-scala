@@ -6,6 +6,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.Consumer
 
+import scala.annotation.nowarn
+
 private final class WorksheetResNHighlightHandler(
   editor: Editor,
   file: PsiFile,
@@ -13,6 +15,7 @@ private final class WorksheetResNHighlightHandler(
   referenced: Array[PsiElement]
 ) extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
 
+  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   override def selectTargets(
     targets: ju.List[_ <: PsiElement],
     selectionConsumer: Consumer[_ >: ju.List[_ <: PsiElement]]

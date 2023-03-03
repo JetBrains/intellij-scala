@@ -19,10 +19,15 @@ import java.awt.event.MouseEvent
 import java.net.URI
 import java.util.concurrent.TimeUnit
 import javax.swing.Icon
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
+@nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
 private final class BspServerWidget extends StatusBarWidget
-  with StatusBarWidget.IconPresentation with Consumer[MouseEvent] with BspServerWidgetProvider.UpdateWidgetListener {
+  with StatusBarWidget.IconPresentation
+  with Consumer[MouseEvent]
+  with BspServerWidgetProvider.UpdateWidgetListener {
+
   private val connection: MessageBusConnection = ApplicationManager.getApplication.getMessageBus.connect()
   private var statusBar: StatusBar = _
 

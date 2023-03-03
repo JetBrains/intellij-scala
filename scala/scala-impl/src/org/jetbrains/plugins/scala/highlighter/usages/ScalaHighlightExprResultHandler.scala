@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExpressionExt
 
 import java.util
 import java.util.Collections
+import scala.annotation.nowarn
 
 class ScalaHighlightExprResultHandler(expr: ScExpression, editor: Editor,
                                       file: PsiFile, keyword: PsiElement)
@@ -23,7 +24,8 @@ class ScalaHighlightExprResultHandler(expr: ScExpression, editor: Editor,
     })
     returns.map(_.getTextRange).foreach(myReadUsages.add)
   }
-  
+
+  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   override def selectTargets(targets: util.List[_ <: PsiElement], selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit = {
     selectionConsumer.consume(targets)
   }

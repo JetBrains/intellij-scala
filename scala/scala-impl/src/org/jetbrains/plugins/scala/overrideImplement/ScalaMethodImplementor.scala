@@ -5,7 +5,7 @@ import com.intellij.codeInsight.generation.{GenerationInfo, PsiGenerationInfo}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiMethod}
-import com.intellij.util.Consumer
+import com.intellij.util.{Consumer, EmptyConsumer}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOverrideImplementMethod
@@ -13,11 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 
 class ScalaMethodImplementor extends MethodImplementor {
-  val emptyConsumer: Consumer[PsiMethod] = (_: PsiMethod) => {}
-
   private val prototypeToBaseMethod = mutable.WeakHashMap[PsiMethod, PsiMethod]()
 
   override def createImplementationPrototypes(inClass: PsiClass, method: PsiMethod): Array[PsiMethod] = {
@@ -41,7 +40,9 @@ class ScalaMethodImplementor extends MethodImplementor {
     new ScalaPsiMethodGenerationInfo(method, baseMethod.orNull)
   }
 
-  override def createDecorator(targetClass: PsiClass, baseMethod: PsiMethod, toCopyJavaDoc: Boolean, insertOverrideIfPossible: Boolean): Consumer[PsiMethod] = emptyConsumer
+  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
+  @nowarn("msg=class EmptyConsumer in package util is deprecated")
+  override def createDecorator(targetClass: PsiClass, baseMethod: PsiMethod, toCopyJavaDoc: Boolean, insertOverrideIfPossible: Boolean): Consumer[PsiMethod] = EmptyConsumer.getInstance()
 
   override def getMethodsToImplement(aClass: PsiClass): Array[PsiMethod] = Array()
 }
