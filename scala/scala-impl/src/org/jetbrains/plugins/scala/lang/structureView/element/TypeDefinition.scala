@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.structureView.element
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.NlsString
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -33,7 +33,7 @@ class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElementDe
 }
 
 object TypeDefinition {
-   def childrenOf(definition: ScTypeDefinition): Seq[PsiElement] = {
+   private[structureView] def childrenOf(definition: ScTemplateDefinition): Seq[PsiElement] = {
      val blocks = definition.extendsBlock.templateBody.toSeq
        .flatMap(_.getChildren)
        .filterByType[ScBlockExpr]

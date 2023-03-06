@@ -20,7 +20,10 @@ private class Block(block: ScBlock) extends AbstractTreeElementDelegatingChildre
 }
 
 private object Block {
-  def childrenOf(block: ScBlock): Seq[PsiElement] = block.getChildren.collect {
-    case element @ (_: ScFunction | _: ScTypeDefinition | _: ScBlockExpr | _: ScExtension) => element
-  }.toSeq
+  def childrenOf(block: ScBlock): Seq[PsiElement] = {
+    val blockChildren = block.getChildren
+    blockChildren.collect {
+      case element @ (_: ScFunction | _: ScTypeDefinition | _: ScBlockExpr | _: ScExtension) => element
+    }.toSeq
+  }
 }
