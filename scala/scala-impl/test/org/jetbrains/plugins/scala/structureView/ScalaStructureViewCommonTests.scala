@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.structureView
 
 import com.intellij.icons.AllIcons
+import com.intellij.ide.structureView.newStructureView.StructureViewComponent
+import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.ui.{IconManager, PlatformIcons}
 import org.jetbrains.plugins.scala.icons.Icons._
+import org.jetbrains.plugins.scala.lang.structureView.ScalaAnonymousClassesNodeProvider
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase._
 
 abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase {
@@ -778,5 +781,115 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       Node(VAL, "l2: Int"),
       Node(VAR, "r2: Int"),
       new Node(BlockIcon, ""))
+  }
+
+  def testAnonimousClasses(): Unit = {
+    val code =
+      """class ScalaStructureTest {
+        |
+        |  //not an anonymous class
+        |  new Foo
+        |  new Foo()
+        |
+        |  //inside primary constructor body
+        |  new Foo() {}
+        |  {
+        |    new Foo() {}
+        |  }
+        |
+        |  //inside function body without block
+        |  def foo1(): AnyRef =
+        |    new Foo() {}
+        |
+        |  def foo2(): Unit = {
+        |    //inside function body
+        |    new Foo() {}
+        |
+        |    {
+        |      new Foo() {}
+        |    }
+        |
+        |    //inside arguments
+        |    new Foo(new Foo() {}) {}
+        |    println(new Foo() {})
+        |
+        |    //inside arguments, multiple arguments list
+        |    new Foo("42")(new Foo() {}) {}
+        |
+        |    def bar(x: AnyRef)(y: AnyRef): Unit = ()
+        |
+        |    bar(new Foo() {})("42")
+        |    bar("42")(new Foo() {})
+        |
+        |    //inside inner class
+        |    class Inner {
+        |      new Foo() {}
+        |      new Foo() {}
+        |    }
+        |
+        |    //inside anonymous class
+        |    new AnyRef {
+        |      new Foo() {}
+        |    }
+        |  }
+        |}
+        |""".stripMargin
+
+
+    val EmptyBlockNodeText = ""
+    val expectedStructureWithAnonimousDisabled =
+      s"""-ScalaStructureTest.scala
+         | -ScalaStructureTest
+         |  $EmptyBlockNodeText
+         |  foo1(): AnyRef
+         |  -foo2(): Unit
+         |   $EmptyBlockNodeText
+         |   bar(AnyRef)(AnyRef): Unit
+         |   Inner
+         |""".stripMargin.trim
+
+    val expectedStructureWithAnonimousEnabled =
+      s"""-ScalaStructureTest.scala
+         | -ScalaStructureTest
+         |  $$1
+         |  -$EmptyBlockNodeText
+         |   $$2
+         |  -foo1(): AnyRef
+         |   $$3
+         |  -foo2(): Unit
+         |   $$4
+         |   -$EmptyBlockNodeText
+         |    $$5
+         |   $$6
+         |   $$7
+         |   $$8
+         |   $$9
+         |   $$10
+         |   bar(AnyRef)(AnyRef): Unit
+         |   $$11
+         |   $$12
+         |   -Inner
+         |    $$1
+         |    $$2
+         |   -$$13
+         |    $$14
+         |""".stripMargin.trim
+
+    myFixture.configureByText("ScalaStructureTest.scala", code)
+
+    //NOTE: our common test code from `ScalaStructureViewTestBase` can't test
+    // nodes coming from com.intellij.ide.util.FileStructureNodeProvider
+    //In IntelliJ tests they test it using this fixture method
+    myFixture.testStructureView((svc: StructureViewComponent) => {
+      val tree = svc.getTree
+
+      PlatformTestUtil.expandAll(tree)
+      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonimousDisabled)
+
+      svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
+
+      PlatformTestUtil.expandAll(tree)
+      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonimousEnabled)
+    })
   }
 }

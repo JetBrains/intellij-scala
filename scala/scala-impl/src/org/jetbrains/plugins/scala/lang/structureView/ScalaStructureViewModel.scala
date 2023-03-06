@@ -94,8 +94,11 @@ class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLan
     res
   }
 
-  override def getNodeProviders: util.Collection[NodeProvider[_ <: TreeElement]] =
-    (new ScalaInheritedMembersNodeProvider() +: ScalaStructureViewModelProvider.nodeProvidersFor(myRootElement)).asJava
+  override def getNodeProviders: util.Collection[NodeProvider[_ <: TreeElement]] = (
+    new ScalaInheritedMembersNodeProvider() +:
+      ScalaStructureViewModelProvider.nodeProvidersFor(myRootElement) :+
+      new ScalaAnonymousClassesNodeProvider()
+    ).asJava
 
   override def isSuitable(element: PsiElement): Boolean = element match {
     case t: ScTypeDefinition => t.getParent match {
