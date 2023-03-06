@@ -10,10 +10,8 @@ import org.junit.Assert.assertEquals
 
 class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTestCase with PsiSelectionUtil {
 
-
   def check(code: String, origin: NamedElementPath, overriding: Seq[NamedElementPath]): Unit = {
     val file = myFixture.configureByText(ScalaFileType.INSTANCE, code)
-
 
     val originElem = selectElement[ScNamedElement](file, origin)
     val expectedOverridingMembers = overriding.map(selectElement[ScNamedElement](file, _))
@@ -49,7 +47,7 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
     assert(foundOverridingMembers.length == expectedOverridingMembers.length)
   }
 
-  def test_not_overriden(): Unit = check(
+  def test_not_overridden(): Unit = check(
     """
       |trait Trait {
       |  def test(): Unit
@@ -60,7 +58,7 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
     Seq.empty
   )
 
-  def test_normal_overriden(): Unit = check(
+  def test_normal_overridden(): Unit = check(
     """
       |trait Trait {
       |  def test(): Unit
@@ -206,6 +204,26 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
       res.length
     )
   }
+
+  def test_compound_selftype_override(): Unit = check(
+    """
+      |trait A {
+      |  def method() :String
+      |}
+      |
+      |trait B { }
+      |
+      |trait M {
+      |  self: A with B =>
+      |
+      |  override def method() = "Hello World"
+      |}
+    """.stripMargin,
+    path("A", "method"),
+    Seq(
+      path("M", "method")
+    )
+  )
 
   // todo: fix this
   /*
