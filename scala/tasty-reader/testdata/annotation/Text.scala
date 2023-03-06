@@ -14,4 +14,10 @@ trait Text {
 line2
 """)
   def f4: Int = ???
+
+  @throws[RuntimeException]
+  def f5: Int = ???
+
+  @throws[RuntimeException]("cause")
+  def f6: Int = ???
 }

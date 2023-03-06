@@ -541,11 +541,18 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
 
   private def textOfAnnotationIn(sb: StringBuilder, indent: String, node: Node, suffix: String): Unit = {
     node.children.reverseIterator.takeWhile(_.is(ANNOTATION)).foreach {  // TODO sb.insert?
-      case Node3(ANNOTATION, _, Seq(tpe, apply @ Node1(APPLY))) =>
+      case Node3(ANNOTATION, _, Seq(tpe, apply @ Node3(APPLY, _, Seq(tail, _: _*)))) =>
         val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("_root_.scala.annotation.internal.")).map(simple).map("@" + _).getOrElse("") // TODO optimize
         if (name.nonEmpty) {
           sb ++= indent
           sb ++= id(name)
+          tail match {
+            case Node3(TYPEAPPLY, _, Seq(_, args: _*)) =>
+              sb ++= "["
+              sb ++= args.map(arg => simple(textOfType(arg))).mkString(", ")
+              sb ++= "]"
+            case _ =>
+          }
           val args = apply.children.map(textOfConstant).filter(_.nonEmpty) // TODO optimize
           val namedArgs = apply.children.collect {
             case Node3(NAMEDARG, Seq(name), Seq(tail)) => name + " = " + textOfConstant(tail)
