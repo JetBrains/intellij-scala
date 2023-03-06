@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import com.intellij.psi.{PsiElementVisitor, PsiFile}
+import com.intellij.psi.{PsiElementVisitor, PsiFile, PsiRecursiveVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -13,7 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
-class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
+class ScalaRecursiveElementVisitor extends ScalaElementVisitor with PsiRecursiveVisitor{
+  //This stack was initially added in 2012 with commit message:
+  //"Fixed exponent in recursive element visitor"
+  //Not sure if it's actual anymore, but if we want to remove we need to make some benchmarks
   private var referencesStack = List.empty[ScReference]
 
   override def visitScalaElement(element: ScalaPsiElement): Unit = {
