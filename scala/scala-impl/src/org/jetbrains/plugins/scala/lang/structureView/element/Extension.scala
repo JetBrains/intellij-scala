@@ -8,7 +8,9 @@ import org.jetbrains.plugins.scala.lang.structureView.element.Extension.clauseTe
 
 // TODO: improve in SCL-19224
 // - inherited extensions
-final class Extension(extension: ScExtension) extends AbstractTreeElementDelegatingChildrenToPsi(extension) {
+final class Extension(extension: ScExtension)
+  extends AbstractTreeElementDelegatingChildrenToPsi(extension)
+    with InheritedLocationStringItemPresentation {
 
   override def getPresentableText: String = {
     val typeParameters = extension.typeParametersClause.fold("")(_.getTextByStub)
