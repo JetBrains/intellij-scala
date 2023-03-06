@@ -172,13 +172,10 @@ class SbtDependencyModifier extends ExternalDependencyModificator {
     inReadAction({
       libDeps.map(libDepInfixAndString => {
         val libDepArr = SbtDependencyUtils.processLibraryDependencyFromExprAndString(libDepInfixAndString).map(_.asInstanceOf[String])
-        val dataContext = new DataContext {
-          override def getData(dataId: String): AnyRef = {
+        val dataContext: DataContext = (dataId: String) => {
             if (CommonDataKeys.PSI_ELEMENT.is(dataId)) {
-              return libDepInfixAndString
-            }
-            null
-          }
+              libDepInfixAndString
+            } else null
         }
 
         libDepArr.length match {
