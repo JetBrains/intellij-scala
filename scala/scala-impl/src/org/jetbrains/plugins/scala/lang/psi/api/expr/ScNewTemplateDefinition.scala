@@ -10,4 +10,19 @@ trait ScNewTemplateDefinition extends ScExpression with ScTemplateDefinition {
   def desugaredApply: Option[ScExpression]
 
   override def getTextOffset: Int = extendsBlock.getTextOffset
+
+  /**
+   * @return `true` if new expression creates an instance a new anonimous class<br>
+   *         Examples: {{{
+   *             new Foo() {}
+   *             new Foo() { def foo(): Unit = () }
+   * }}}
+   *         `false` if new expression creates an instance of existing class<br>
+   *         Examples:  {{{
+   *             new Foo
+   *             new Foo()
+   *             new Foo(42)
+   * }}}
+   */
+  def isAnonimous: Boolean
 }

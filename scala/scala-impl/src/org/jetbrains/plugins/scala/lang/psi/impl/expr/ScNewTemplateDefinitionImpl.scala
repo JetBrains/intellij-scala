@@ -216,4 +216,6 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   override protected def keywordTokenType: IElementType = ScalaTokenType.NewKeyword
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
+
+  override def isAnonimous: Boolean = extendsBlock.templateBody.nonEmpty
 }

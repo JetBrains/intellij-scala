@@ -2,13 +2,15 @@ package org.jetbrains.plugins.scala.structureView
 
 import com.intellij.lang.Language
 import com.intellij.testFramework.UsefulTestCase.assertThrows
-import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaVersion}
 import org.jetbrains.plugins.scala.icons.Icons._
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
 
 class Scala2StructureViewTest extends ScalaStructureViewCommonTests {
 
   override protected def scalaLanguage: Language = ScalaLanguage.INSTANCE
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   // NOTE: in Scala 2 top level functions/value/etc... are not supported
   // but it still will not hurt to show them in the structure view even in a non-compilable code

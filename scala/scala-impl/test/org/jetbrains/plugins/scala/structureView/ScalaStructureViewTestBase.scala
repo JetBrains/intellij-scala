@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.structureView
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.structureView.StructureViewTreeElement
+import com.intellij.ide.structureView.newStructureView.StructureViewComponent
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFileFactory
@@ -11,7 +12,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
+import org.jetbrains.plugins.scala.lang.structureView.{ScalaStructureViewBuilder, ScalaStructureViewModel}
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
 import org.junit.Assert
 import org.junit.Assert.fail
@@ -58,18 +59,15 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
   }
 
   protected def check(@Language("Scala") code: String, nodes: Node*): Unit = {
-    val actualNode: Node = {
-      val file = psiFileOf(code)(getProject)
+    val structureView = createScalaStructureView(code)
+    val model = structureView.getTreeModel
 
-      val model = new ScalaStructureViewModel(file)
-
-      val sorter: Seq[TreeElement] => Seq[TreeElement] = elements => {
-        val comparators = model.getSorters.filterNot(_.isVisible).reverseIterator.map(_.getComparator.asInstanceOf[Comparator[TreeElement]])
-        comparators.foldLeft(elements)((elements, comparator) => elements.sortWith((e1, e2) => comparator.compare(e1, e2) <= 0))
-      }
-
-      Node(model.getRoot, sorter)
+    val sorter: Seq[TreeElement] => Seq[TreeElement] = elements => {
+      val comparators = model.getSorters.filterNot(_.isVisible).reverseIterator.map(_.getComparator.asInstanceOf[Comparator[TreeElement]])
+      comparators.foldLeft(elements)((elements, comparator) => elements.sortWith((e1, e2) => comparator.compare(e1, e2) <= 0))
     }
+
+    val actualNode: Node = Node(model.getRoot, sorter)
 
     val expectedNode = new Node(ScalaFileType.INSTANCE.getIcon, "foo.scala", nodes: _*)
 
@@ -78,7 +76,31 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
     Assert.assertEquals(expectedStr, actualStr)
   }
 
-  protected def psiFileOf(@Language("Scala") text: String)(project: Project): ScalaFile = {
+  protected def createScalaStructureView(code: String): StructureViewComponent = {
+    val file = createScalaFile(code)(getProject)
+
+    val builder = new ScalaStructureViewBuilder(file)
+    builder.createStructureView(null /*unused editor*/ , getProject).asInstanceOf[StructureViewComponent]
+  }
+
+  protected def check(structureView: StructureViewComponent, expectedNodes: Node*): Unit = {
+    val model = structureView.getTreeModel
+
+    val sorter: Seq[TreeElement] => Seq[TreeElement] = elements => {
+      val comparators = model.getSorters.filterNot(_.isVisible).reverseIterator.map(_.getComparator.asInstanceOf[Comparator[TreeElement]])
+      comparators.foldLeft(elements)((elements, comparator) => elements.sortWith((e1, e2) => comparator.compare(e1, e2) <= 0))
+    }
+    val rootNode = model.getRoot
+    val actualNode: Node = Node(rootNode, sorter)
+
+    val expectedNode = new Node(ScalaFileType.INSTANCE.getIcon, "foo.scala", expectedNodes: _*)
+
+    val expectedStr = expectedNode.presentation()
+    val actualStr   = actualNode.presentation()
+    Assert.assertEquals(expectedStr, actualStr)
+  }
+
+  protected def createScalaFile(@Language("Scala") text: String)(project: Project): ScalaFile = {
     PsiFileFactory.getInstance(project)
       .createFileFromText("foo.scala", scalaLanguage, text: CharSequence)
       .asInstanceOf[ScalaFile]
