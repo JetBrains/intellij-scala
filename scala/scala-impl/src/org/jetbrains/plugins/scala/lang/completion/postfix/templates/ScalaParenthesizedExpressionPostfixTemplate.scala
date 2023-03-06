@@ -6,5 +6,6 @@ import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.Sc
 
 final class ScalaParenthesizedExpressionPostfixTemplate extends ParenthesizedPostfixTemplate(
   ScalaPostfixTemplatePsiInfo,
-  SelectAllAncestors()
+  SelectAllAncestors(),
+  null
 )

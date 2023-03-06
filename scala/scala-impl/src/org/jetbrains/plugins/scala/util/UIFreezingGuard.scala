@@ -101,7 +101,7 @@ object UIFreezingGuard {
   private def dumpThreads(ms: Long): Unit = {
     val threshold = 1000
     if (ms > threshold) {
-      PerformanceWatcher.getInstance().dumpThreads("scalaEdtFreezing/", false)
+      PerformanceWatcher.getInstance().dumpThreads("scalaEdtFreezing/", false, false)
     }
   }
 
