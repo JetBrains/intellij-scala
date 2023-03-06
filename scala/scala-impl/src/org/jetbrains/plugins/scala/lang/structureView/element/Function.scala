@@ -8,7 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresentation.withSimpleNames
 
 private class Function(function: ScFunction, inherited: Boolean)
-  extends AbstractTreeElementDelegatingChildrenToPsi(function, inherited) {
+  extends AbstractTreeElementDelegatingChildrenToPsi(function, inherited)
+  with InheritedLocationStringItemPresentation {
 
   override def location: Option[String] = Option(function.containingClass).map(_.name)
 
