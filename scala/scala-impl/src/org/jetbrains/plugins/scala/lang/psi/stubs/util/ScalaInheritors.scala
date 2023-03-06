@@ -39,9 +39,9 @@ object ScalaInheritors {
   }
 
   private def collectForDirectSuperReferences(extBlock: ScExtendsBlock,
-                                                 function: ScStableCodeReference => String): ArraySeq[String] = {
+                                              function: ScStableCodeReference => String): ArraySeq[String] = {
     @tailrec
-    def extractReference(te: ScTypeElement): Option[ScStableCodeReference] = {
+    def extractReference(te: ScTypeElement): Option[ScStableCodeReference] =
       te match {
         case simpleType: ScSimpleTypeElement => simpleType.reference
         case infixType: ScInfixTypeElement => Option(infixType.operation)
@@ -54,7 +54,6 @@ object ScalaInheritors {
         case x: ScDesugarizableTypeElement => extractReference(x.typeElementFromText(x.desugarizedText))
         case _ => None
       }
-    }
 
     extBlock.templateParents match {
       case None => ArraySeq.empty
@@ -161,19 +160,18 @@ object ScalaInheritors {
           return
         }
 
-        def checkTp(tp: ScType): Boolean = {
+        def checkTp(tp: ScType): Boolean =
           tp match {
             case c: ScCompoundType =>
               c.components.exists(checkTp)
             case _ =>
               tp.extractClass match {
-                case Some(otherClazz) =>
-                  if (ScEquivalenceUtil.areClassesEquivalent(inheritedClazz, otherClazz)) return true
-                case _ =>
+                case Some(otherClazz) if ScEquivalenceUtil.areClassesEquivalent(inheritedClazz, otherClazz) =>
+                  true
+                case _ => false
               }
           }
-          false
-        }
+
         inReadAction {
           import ScalaIndexKeys._
           for {
@@ -185,6 +183,7 @@ object ScalaInheritors {
           } if (clazz != null) inheritorsBuilder += clazz
         }
       }
+
       processClass(clazz)
       ClassInheritorsSearch.search(clazz, ScalaFilterScope(resolveScope), true).forEach(new Processor[PsiClass] {
         override def process(t: PsiClass): Boolean = {
