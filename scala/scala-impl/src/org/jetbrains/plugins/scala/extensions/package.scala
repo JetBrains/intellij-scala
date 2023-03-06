@@ -697,11 +697,11 @@ package object extensions {
 
     def elements: Iterator[PsiElement] = depthFirst()
 
-    def depthFirst(predicate: PsiElement => Boolean = _ => true): Iterator[PsiElement] =
-      new DepthFirstIterator(element, predicate)
+    def depthFirst(shouldProcessChildren: PsiElement => Boolean = _ => true): Iterator[PsiElement] =
+      new DepthFirstIterator(element, shouldProcessChildren)
 
-    def breadthFirst(predicate: PsiElement => Boolean = _ => true): Iterator[PsiElement] =
-      new BreadthFirstIterator(element, predicate)
+    def breadthFirst(shouldProcessChildren: PsiElement => Boolean = _ => true): Iterator[PsiElement] =
+      new BreadthFirstIterator(element, shouldProcessChildren)
 
     def prevSibling: Option[PsiElement] = Option(element.getPrevSibling)
 

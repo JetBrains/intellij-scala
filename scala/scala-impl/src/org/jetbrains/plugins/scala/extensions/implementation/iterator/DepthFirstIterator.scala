@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.extensions.implementation.iterator
 
 import com.intellij.psi.PsiElement
 
-final class DepthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean) extends Iterator[PsiElement] {
+final class DepthFirstIterator(element: PsiElement, shouldProcessChildren: PsiElement => Boolean) extends Iterator[PsiElement] {
   private var stack: List[PsiElement] =
     if (element == null)  List.empty
     else                  List(element)
@@ -12,7 +12,9 @@ final class DepthFirstIterator(element: PsiElement, predicate: PsiElement => Boo
   override def next(): PsiElement = {
     val element = stack.head
     stack = stack.tail
-    if (predicate(element)) pushChildren(element)
+    if (shouldProcessChildren(element)) {
+      pushChildren(element)
+    }
     element
   }
 
