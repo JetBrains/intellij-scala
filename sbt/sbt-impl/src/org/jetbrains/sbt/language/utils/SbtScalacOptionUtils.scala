@@ -28,16 +28,13 @@ object SbtScalacOptionUtils {
   val SEQ_OPS = Set("++=", "--=", ":=")
   val SINGLE_OPS = Set("+=", "-=")
 
-  def projectVersions(project: Project): List[ScalaLanguageLevel] =
-    if (ApplicationManager.getApplication.isUnitTestMode)
-      List(ScalaLanguageLevel.getDefault)
-    else
-      SbtDependencyUtils.getAllScalaVers(project).flatMap(ScalaLanguageLevel.findByVersion)
+  private def projectScalaVersions(project: Project): List[ScalaLanguageLevel] =
+    SbtDependencyUtils.getAllScalaVers(project).flatMap(ScalaLanguageLevel.findByVersion)
 
   def projectVersionsSorted(project: Project, reverse: Boolean): List[ScalaLanguageLevel] = {
     val ordering = implicitly[Ordering[ScalaLanguageLevel]]
 
-    projectVersions(project).distinct.sorted(if (reverse) ordering.reverse else ordering)
+    projectScalaVersions(project).distinct.sorted(if (reverse) ordering.reverse else ordering)
   }
 
   @tailrec

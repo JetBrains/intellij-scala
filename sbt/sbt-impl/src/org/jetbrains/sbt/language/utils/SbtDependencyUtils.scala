@@ -15,11 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.SbtUtil.{getBuildModuleData, getSbtModuleData}
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
-import org.jetbrains.sbt.project.data.SbtModuleExtData
-import org.jetbrains.sbt.{Sbt, SbtUtil}
 
 object SbtDependencyUtils {
   val LIBRARY_DEPENDENCIES: String = "libraryDependencies"
@@ -145,20 +144,15 @@ object SbtDependencyUtils {
   }
 
   def getScalaVerFromModule(module: OpenapiModule): String = {
-    var scalaVer: String = ""
-    val moduleExtData = SbtUtil.getModuleData(
-      module.getProject,
-      ExternalSystemApiUtil.getExternalProjectId(module),
-      SbtModuleExtData.Key).toSeq
-    if (moduleExtData.nonEmpty) scalaVer = moduleExtData.head.scalaVersion
-    scalaVer
+    val scalaVersion = module.scalaMinorVersion.map(_.minor)
+    scalaVersion.getOrElse("")
   }
 
   def getAllScalaVers(project: Project): List[String] = {
-    var res: List[String] = Nil
-    val modules = ModuleManager.getInstance(project).getModules
-    res = modules.map(getScalaVerFromModule).toList
-    res.filter(_.nonEmpty).distinct
+    val modulesAll = ModuleManager.getInstance(project).getModules.toList
+    val modulesMain = modulesAll.filterNot(_.isBuildModule)
+    val scalaVersions = modulesMain.map(getScalaVerFromModule)
+    scalaVersions.filter(_.nonEmpty).distinct
   }
 
   def buildScalaArtifactIdString(groupId: String, artifactId: String, scalaVer: String): String = {
@@ -171,7 +165,6 @@ object SbtDependencyUtils {
         s"${artifactId}_${paddedScalaVer(0)}"
       case _ =>
         s"${artifactId}_${paddedScalaVer(0)}.${paddedScalaVer(1)}"
-
     }
   }
 
