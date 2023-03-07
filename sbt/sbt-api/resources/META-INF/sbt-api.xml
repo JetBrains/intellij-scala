@@ -1,6 +1,7 @@
 <idea-plugin>
     <extensionPoints>
         <extensionPoint qualifiedName="org.intellij.sbt.buildModuleUriProvider" interface="org.jetbrains.sbt.project.SbtBuildModuleUriProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.sbt.sbtVersionProvider" interface="org.jetbrains.sbt.project.SbtVersionProvider" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">

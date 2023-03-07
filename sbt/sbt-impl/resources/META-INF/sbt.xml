@@ -10,6 +10,7 @@
 
     <extensions defaultExtensionNs="org.intellij">
         <sbt.buildModuleUriProvider implementation="org.jetbrains.sbt.project.SbtSbtBuildModuleUriProvider"/>
+        <sbt.sbtVersionProvider implementation="org.jetbrains.sbt.project.SbtSbtVersionProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">

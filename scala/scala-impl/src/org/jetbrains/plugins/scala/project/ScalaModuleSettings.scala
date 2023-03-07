@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatur
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
 import org.jetbrains.plugins.scala.project.ScalaModuleSettings._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
-import org.jetbrains.sbt.settings.SbtSettings
+import org.jetbrains.sbt.project.SbtVersionProvider
 
 import java.io.File
 import java.util.jar.Attributes
@@ -33,12 +33,28 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
 
   val scalaLanguageLevel: ScalaLanguageLevel = scalaVersionProvider.languageLevel
 
+  val sbtVersion: Option[Version] = {
+    val versionString = SbtVersionProvider.getSbtVersion(module)
+    versionString.map(Version.apply)
+  }
+
   val settingsForHighlighting: Seq[ScalaCompilerSettings] =
     ScalaCompilerConfiguration.instanceIn(module.getProject).settingsForHighlighting(module)
 
   val compilerPlugins: Set[String] = settingsForHighlighting.flatMap(_.plugins).toSet
 
-  val additionalCompilerOptions: Set[String] = settingsForHighlighting.flatMap(_.additionalCompilerOptions).toSet
+  val additionalCompilerOptions: Set[String] =
+    settingsForHighlighting.flatMap(_.additionalCompilerOptions).toSet ++ implicitSbtCompilerOptions
+
+  private def implicitSbtCompilerOptions: Set[String] = {
+    if (sbtVersion.exists(_ >= Version("1.6"))) {
+      //Since sbt 1.6 `-Xsource:3` compiler option for  build definition scala files
+      //(see https://github.com/sbt/sbt/pull/6664/files)
+      //note: sbt also adds "-Wconf:cat=unused-nowarn:s" but seems that it's not important for us
+      Set("-Xsource:3")
+    }
+    else Set.empty
+  }
 
   val isMetaEnabled: Boolean =
     compilerPlugins.exists(isMetaParadiseJar)
@@ -59,15 +75,6 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
   //~/Coursier/cache/v1/https/repo1.maven.org/maven2/org/scala-native/nscplugin_3.2.1/0.4./nscplugin_3.2.1-0.4.7.jar
   val isScalaNative: Boolean =
     compilerPlugins.exists(p => p.contains("scala-native") || p.contains("nscplugin"))
-
-  val sbtVersion: Option[Version] =
-    SbtSettings.getInstance(module.getProject)
-      .getLinkedProjectSettings(module)
-      .flatMap { projectSettings =>
-        Option(projectSettings.sbtVersion)
-      }.map {
-      Version(_)
-    }
 
   val isTrailingCommasEnabled: Boolean = {
     val version = compilerVersion.map(Version.apply)
@@ -198,28 +205,50 @@ private object ScalaModuleSettings {
     }
   }
 
+  //TODO: instead of relying of some classpath, just register module-level Scala SDK for `-build` modules
+  // the same way as we do for normal modules
   private def forSbtBuildModule(module: Module): Option[ScalaModuleSettings] =
     for {
-      sbtAndPluginsOrRuntimeLib <- {
-        val processor: FindProcessor[libraries.Library] = { lib =>
-          lib.getName.contains(": " + org.jetbrains.sbt.Sbt.BuildLibraryPrefix) ||
-            LibraryExt.isRuntimeLibrary(lib.getName)
-        }
-        OrderEnumerator.orderEntries(module).librariesOnly.forEachLibrary(processor)
-        Option(processor.getFoundValue)
-      }
-      scalaVersion <- scalaVersionFromForSbtClasspath(sbtAndPluginsOrRuntimeLib)
+      libraryWithRuntimeJar <- findLibraryWithScalaRuntime(module)
+      scalaVersion <- detectScalaVersionFromJars(libraryWithRuntimeJar)
     } yield {
       val versionProvider = ScalaVersionProvider.fromFullVersion(scalaVersion)
       new ScalaModuleSettings(module, versionProvider)
     }
 
+  /**
+   * For a given build module returns library which contains scala-library jar
+   *
+   * Note:
+   *  - in SBT projects `-build` module contains single module-level library in format "sbt: sbt-1.8.2"
+   *  - in BSP/SBT projects `-build` module contains many libraries for each jar
+   *    However it still can contain some libraries which also contain `: sbt-` (example: "BSP: ivy-2.3.0-sbt-a8f9eb5bf09d0539ea3658a2c2d4e09755b5133e")
+   *    So we first handle BSP case and search "BSP: scala-library-2.12.17" and only then search for library which contains "sbt-1.8.2"
+   */
+  private def findLibraryWithScalaRuntime(module: Module): Option[Library] = {
+    val processor1: FindProcessor[libraries.Library] = { lib =>
+      LibraryExt.isRuntimeLibrary(lib.getName)
+    }
+    val processor2: FindProcessor[libraries.Library] = { lib =>
+      //example: "sbt: sbt-1.8.2"
+      lib.getName.contains(": " + org.jetbrains.sbt.Sbt.BuildLibraryPrefix)
+    }
+
+    val librariesEnumerator = OrderEnumerator.orderEntries(module).librariesOnly
+    librariesEnumerator.forEachLibrary(processor1)
+    val result = Option(processor1.getFoundValue).orElse {
+      librariesEnumerator.forEachLibrary(processor2)
+      Option(processor2.getFoundValue)
+    }
+    result
+  }
+
   private val LibraryVersionReg = "\\d+\\.\\d+\\.\\d+".r
 
   // Example of scala lib path in sbt 1.3.13 classpath:
   // ~/.sbt/boot/scala-2.12.10/lib/scala-library.jar
-  private def scalaVersionFromForSbtClasspath(sbtLib: Library): Option[String] = {
-    val classpath = sbtLib.getFiles(OrderRootType.CLASSES): Array[VirtualFile]
+  private def detectScalaVersionFromJars(library: Library): Option[String] = {
+    val classpath = library.getFiles(OrderRootType.CLASSES): Array[VirtualFile]
     val scalaLibraryJar = classpath.find(f => LibraryExt.isRuntimeLibrary(f.getName))
     scalaLibraryJar.map(_.getPath).flatMap(LibraryVersionReg.findFirstIn)
   }
