@@ -1,19 +1,19 @@
-package org.jetbrains.sbt
+package org.jetbrains.plugins.scala.actions
 
 import com.intellij.ide.actions.CreateDirectoryCompletionContributor
 import com.intellij.ide.actions.CreateDirectoryCompletionContributor.Variant
 import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.model.project.{ContentRootData, ExternalSystemSourceType, ModuleData}
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys, ProjectSystemId}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.PsiDirectory
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
-import org.jetbrains.sbt.SbtDirectoryCompletionContributor.getModuleContentRootsData
-import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.plugins.scala.actions.ScalaDirectoryCompletionContributorBase.getModuleContentRootsData
+import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 
 import java.util
 import java.util.Collections.emptyList
@@ -25,8 +25,10 @@ import scala.jdk.CollectionConverters.{BufferHasAsJava, CollectionHasAsScala}
  *
  * NOTE: currently there is no way to apply custom sorting to the completion items, see IDEA-306694
  */
-class SbtDirectoryCompletionContributor extends CreateDirectoryCompletionContributor {
-  override def getDescription: String = SbtBundle.message("sbt.source.sets")
+@ApiStatus.Internal
+@ApiStatus.Experimental
+abstract class ScalaDirectoryCompletionContributorBase(projectSystemId: ProjectSystemId)
+  extends CreateDirectoryCompletionContributor {
 
   override def getVariants(directory: PsiDirectory): util.Collection[Variant] = {
     val project = directory.getProject
@@ -36,7 +38,7 @@ class SbtDirectoryCompletionContributor extends CreateDirectoryCompletionContrib
       return emptyList()
 
     val moduleProperties = ExternalSystemModulePropertyManager.getInstance(module)
-    if (SbtProjectSystem.Id.getId != moduleProperties.getExternalSystemId)
+    if (projectSystemId.getId != moduleProperties.getExternalSystemId)
       return emptyList()
 
     val result = new mutable.ArrayBuffer[Variant]()
@@ -46,7 +48,7 @@ class SbtDirectoryCompletionContributor extends CreateDirectoryCompletionContrib
       paths.asScala.map(p => new Variant(p.getPath, rootType)).toSeq
     }
 
-    val contentRootsData = getModuleContentRootsData(module)
+    val contentRootsData = getModuleContentRootsData(module, projectSystemId)
     for {
       rootData <- contentRootsData
     } {
@@ -60,10 +62,10 @@ class SbtDirectoryCompletionContributor extends CreateDirectoryCompletionContrib
   }
 }
 
-object SbtDirectoryCompletionContributor {
+object ScalaDirectoryCompletionContributorBase {
 
-  private def getModuleContentRootsData(module: Module): Seq[ContentRootData] =
-    findSbtModuleData(module) match {
+  private def getModuleContentRootsData(module: Module, projectSystemId: ProjectSystemId): Seq[ContentRootData] =
+    findModuleData(module, projectSystemId) match {
       case Some(moduleData) =>
         val contentRoots = ExternalSystemApiUtil.findAll(moduleData, ProjectKeys.CONTENT_ROOT)
         contentRoots.asScala.map(_.getData).toSeq
@@ -71,17 +73,15 @@ object SbtDirectoryCompletionContributor {
         Nil
     }
 
-  private def findSbtModuleData(module: Module): Option[DataNode[ModuleData]] = {
-    val projectPath = ExternalSystemApiUtil.getExternalProjectPath(module)
-    if (projectPath == null) None else {
+  private def findModuleData(module: Module, projectSystemId: ProjectSystemId): Option[DataNode[ModuleData]] = {
+    val moduleId = ExternalSystemApiUtil.getExternalProjectId(module)
+    if (moduleId == null) None
+    else {
       val project = module.getProject
-      findSbtModuleData(project, projectPath)
+      val dataNodes = ExternalSystemUtil.getModuleDataNode(projectSystemId, project, moduleId)
+      dataNodes.toOption
     }
   }
-
-  private def findSbtModuleData(project: Project, projectPath: String): Option[DataNode[ModuleData]] =
-    Option(ExternalSystemApiUtil.findModuleNode(project, SbtProjectSystem.Id, projectPath))
-
 
   //NOTE: in Gradle version the utilities from this companion object are located in GradleContentRootContributor.
   //I didn't find a reason why would we need same analogue (SbtContentRootContributor).

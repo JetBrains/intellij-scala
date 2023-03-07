@@ -6,7 +6,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.{BspProjectData, SbtBuildModuleDataBsp, SbtModuleDataBsp}
-import org.jetbrains.sbt.ExternalSystemUtil
+import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 
 import java.net.URI
 
