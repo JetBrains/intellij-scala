@@ -5,7 +5,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.bsp.BSP
-import org.jetbrains.bsp.data.{BspProjectData, SbtModuleDataBsp}
+import org.jetbrains.bsp.data.{BspProjectData, SbtBuildModuleDataBsp, SbtModuleDataBsp}
 import org.jetbrains.sbt.ExternalSystemUtil
 
 import java.net.URI
@@ -23,11 +23,22 @@ object BspExternalSystemUtil {
     getSbtModuleData(project, moduleId)
   }
 
-  private def getSbtModuleData(project: Project, moduleId: String): Option[SbtModuleDataBsp] = {
-    val emptyURI = new URI("")
+  def getSbtBuildModuleDataBsp(module: Module): Option[SbtBuildModuleDataBsp] = {
+    val project = module.getProject
+    val moduleId = ExternalSystemApiUtil.getExternalProjectId(module) // nullable, but that's okay for use in predicate
+    getSbtBuildModuleDataBsp(project, moduleId)
+  }
 
+  private val EmptyURI = new URI("")
+
+  private def getSbtModuleData(project: Project, moduleId: String): Option[SbtModuleDataBsp] = {
     val moduleDataSeq = getModuleData(project, moduleId, SbtModuleDataBsp.Key)
-    moduleDataSeq.find(_.id.uri != emptyURI)
+    moduleDataSeq.find(_.id.uri != EmptyURI)
+  }
+
+  private def getSbtBuildModuleDataBsp(project: Project, moduleId: String): Option[SbtBuildModuleDataBsp] = {
+    val moduleDataSeq = getModuleData(project, moduleId, SbtBuildModuleDataBsp.Key)
+    moduleDataSeq.find(_.id.uri != EmptyURI)
   }
 
   private def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {

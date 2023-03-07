@@ -2,6 +2,7 @@ package org.jetbrains.bsp.data
 
 import com.intellij.openapi.externalSystem.model.Key
 import com.intellij.serialization.PropertyMapping
+import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.bsp.data.BspEntityData.datakey
 import org.jetbrains.sbt.project.data.MyURI
 
@@ -13,17 +14,20 @@ import java.util
  * @param id          id of the build module
  * @param childrenIds ids associated with the modules that this build module describes the build for
  * @param imports     implicit sbt file imports.
+ * @param sbtVersion  indicates a version of SBT in case of SBT us used over BSP
  * @note for a SBT external build system entity see [[org.jetbrains.sbt.project.data.SbtBuildModuleData]]
  */
-@SerialVersionUID(3)
+@SerialVersionUID(4)
 case class SbtBuildModuleDataBsp @PropertyMapping(Array(
   "id",
   "childrenIds",
   "imports",
+  "sbtVersion",
 ))(
   id: MyURI,
   childrenIds: util.List[MyURI],
   imports: util.List[String],
+  @NotNull sbtVersion: String
 ) extends BspEntityData
 
 object SbtBuildModuleDataBsp {
