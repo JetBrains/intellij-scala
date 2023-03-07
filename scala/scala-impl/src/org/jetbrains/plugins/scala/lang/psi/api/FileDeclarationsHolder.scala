@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl._
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder}
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
@@ -141,10 +141,15 @@ trait FileDeclarationsHolder
 
     if (checkPredefinedClassesAndPackages) {
       if (ScalaProjectSettings.in(getProject).aliasExportsEnabled) {
-        //mind SCL-20534
-        if(lastParent.defaultImports.exists(s => s == "scala" || s == "scala.Predef") && !isInsidePackage("scala")) {
-          if (aliasImports.exists(!_.processDeclarations(processor, state, lastParent, place)))
-            return false
+        ScalaPsiUtil.fileContext(this) match {
+          case file: ScFile if file.isCompiled =>
+            // Do nothing
+          case _ =>
+            //mind SCL-20534
+            if(lastParent.defaultImports.exists(s => s == "scala" || s == "scala.Predef") && !isInsidePackage("scala")) {
+              if (aliasImports.exists(!_.processDeclarations(processor, state, lastParent, place)))
+                return false
+            }
         }
       }
 
