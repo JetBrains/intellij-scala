@@ -75,27 +75,18 @@ public class ScalaCompileServerForm implements Configurable {
                 Optional.ofNullable(((JdkComboBox.JdkComboBoxItem) e.getItem()).getJdk())
                         .flatMap(sdk -> Optional.ofNullable(sdk.getVersionString()))
                         .map(JavaSdkVersion::fromVersionString)
-                        .ifPresentOrElse(
-                                version -> {
-                                    if (CompileServerJdkManager$.MODULE$.isRecommendedVersionForProject(project, version)) {
-                                        myJdkWarningLabel.setVisible(false);
-                                    } else {
-                                        myJdkWarningLabel.setForeground(JBColor.RED);
-                                        final var text = CompilerIntegrationBundle.message("compile.server.wrong.jdk.selected");
-                                        myJdkWarningLabel.setText("<html>" + text + "</html>");
-                                        myJdkWarningLabel.setVisible(true);
-                                    }
-                                },
-                                () -> {
-                                    myJdkWarningLabel.setForeground(JBColor.YELLOW);
-                                    final var text = CompilerIntegrationBundle.message("compile.server.unknown.jdk.version.selected");
-                                    myJdkWarningLabel.setText("<html>" + text + "</html>");
-                                    myJdkWarningLabel.setVisible(true);
-                                }
-                        );
+                        .ifPresent(version -> {
+                            if (CompileServerJdkManager$.MODULE$.isRecommendedVersionForProject(project, version)) {
+                                myJdkWarningLabel.setVisible(false);
+                            } else {
+                                myJdkWarningLabel.setForeground(JBColor.RED);
+                                final var text = CompilerIntegrationBundle.message("compile.server.wrong.jdk.selected");
+                                myJdkWarningLabel.setText("<html>" + text + "</html>");
+                                myJdkWarningLabel.setVisible(true);
+                            }
+                        });
             }
         });
-        myCompilationServerSdk.showNoneSdkItem();
 
         mySdkPanel.add(UI.PanelFactory.panel(myCompilationServerSdk).withTooltip(CompilerIntegrationBundle.message("compile.server.description")).createPanel(), BorderLayout.CENTER);
 
@@ -310,7 +301,7 @@ public class ScalaCompileServerForm implements Configurable {
         myJdkWarningLabel.setFocusable(true);
         myJdkWarningLabel.setText("");
         myJdkWarningLabel.setVisible(false);
-        myJvmSettingsPanel.add(myJdkWarningLabel, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(490, -1), 1, false));
+        myJvmSettingsPanel.add(myJdkWarningLabel, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, new Dimension(500, -1), 1, false));
         myEnableCompileServer = new JCheckBox();
         this.$$$loadButtonText$$$(myEnableCompileServer, this.$$$getMessageFromBundle$$$("messages/CompilerIntegrationBundle", "compile.server.use.for.scala"));
         myContentPanel.add(myEnableCompileServer, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
