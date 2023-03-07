@@ -70,7 +70,8 @@ private[importing] object BspResolverLogic {
     val sbtBuildModuleData = SbtBuildModuleDataBsp(
       id = new MyURI(targetId),
       imports = target.getAutoImports,
-      childrenIds = children.asJava
+      childrenIds = children.asJava,
+      sbtVersion = target.getSbtVersion
     )
     val (jdkData, scalaSdkData) = getScalaSdkData(target.getScalaBuildTarget, scalacOptionsItem)
 
