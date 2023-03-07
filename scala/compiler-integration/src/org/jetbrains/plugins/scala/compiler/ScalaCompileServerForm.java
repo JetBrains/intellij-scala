@@ -75,27 +75,18 @@ public class ScalaCompileServerForm implements Configurable {
                 Optional.ofNullable(((JdkComboBox.JdkComboBoxItem) e.getItem()).getJdk())
                         .flatMap(sdk -> Optional.ofNullable(sdk.getVersionString()))
                         .map(JavaSdkVersion::fromVersionString)
-                        .ifPresentOrElse(
-                                version -> {
-                                    if (CompileServerJdkManager$.MODULE$.isRecommendedVersionForProject(project, version)) {
-                                        myJdkWarningLabel.setVisible(false);
-                                    } else {
-                                        myJdkWarningLabel.setForeground(JBColor.RED);
-                                        final var text = CompilerIntegrationBundle.message("compile.server.wrong.jdk.selected");
-                                        myJdkWarningLabel.setText("<html>" + text + "</html>");
-                                        myJdkWarningLabel.setVisible(true);
-                                    }
-                                },
-                                () -> {
-                                    myJdkWarningLabel.setForeground(JBColor.YELLOW);
-                                    final var text = CompilerIntegrationBundle.message("compile.server.unknown.jdk.version.selected");
-                                    myJdkWarningLabel.setText("<html>" + text + "</html>");
-                                    myJdkWarningLabel.setVisible(true);
-                                }
-                        );
+                        .ifPresent(version -> {
+                            if (CompileServerJdkManager$.MODULE$.isRecommendedVersionForProject(project, version)) {
+                                myJdkWarningLabel.setVisible(false);
+                            } else {
+                                myJdkWarningLabel.setForeground(JBColor.RED);
+                                final var text = CompilerIntegrationBundle.message("compile.server.wrong.jdk.selected");
+                                myJdkWarningLabel.setText("<html>" + text + "</html>");
+                                myJdkWarningLabel.setVisible(true);
+                            }
+                        });
             }
         });
-        myCompilationServerSdk.showNoneSdkItem();
 
         mySdkPanel.add(UI.PanelFactory.panel(myCompilationServerSdk).withTooltip(CompilerIntegrationBundle.message("compile.server.description")).createPanel(), BorderLayout.CENTER);
 
