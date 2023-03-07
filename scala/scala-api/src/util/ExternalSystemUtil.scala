@@ -1,4 +1,4 @@
-package org.jetbrains.sbt
+package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
@@ -9,6 +9,9 @@ import com.intellij.openapi.project.Project
 
 import scala.jdk.CollectionConverters._
 
+/**
+ * See also [[com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil]]
+ */
 object ExternalSystemUtil {
 
   def getProjectData[K](
@@ -16,6 +19,15 @@ object ExternalSystemUtil {
     project: Project,
     key: Key[K],
   ): Either[String, Iterable[K]] = {
+    val nodes = getProjectDataNodes(projectSystemId, project, key)
+    nodes.map(_.map(_.getData))
+  }
+
+  private def getProjectDataNodes[K](
+    projectSystemId: ProjectSystemId,
+    project: Project,
+    key: Key[K],
+  ): Either[String, Iterable[DataNode[K]]] = {
     val dataManager = ProjectDataManager.getInstance()
     val (_, projectDataNode: DataNode[ProjectData]) = getExternalProjectInfoAndData(dataManager, projectSystemId, project) match {
       case Right(value) => value
@@ -23,7 +35,7 @@ object ExternalSystemUtil {
         return Left(error)
     }
 
-    val result = findAllEnsuring(dataManager, projectDataNode, key)
+    val result = findAllNodesEnsuring(dataManager, projectDataNode, key)
     Right(result)
   }
 
@@ -33,12 +45,37 @@ object ExternalSystemUtil {
     moduleId: String,
     key: Key[K],
   ): Either[String, Iterable[K]] = {
-    val dataManager = ProjectDataManager.getInstance()
+    val nodes = getModuleDataNodes(projectSystemId, project, moduleId, key)
+    nodes.map(_.map(_.getData))
+  }
 
-    val (
-      projectInfo: ExternalProjectInfo,
-      projectDataNode: DataNode[ProjectData]
-    ) = getExternalProjectInfoAndData(dataManager, projectSystemId, project) match {
+  private def getModuleDataNodes[K](
+    projectSystemId: ProjectSystemId,
+    project: Project,
+    moduleId: String,
+    key: Key[K],
+  ): Either[String, Iterable[DataNode[K]]] = {
+    val dataManager = ProjectDataManager.getInstance()
+    val moduleDataNode = getModuleDataNode(dataManager, projectSystemId, project, moduleId)
+    moduleDataNode.map(findAllNodesEnsuring(dataManager, _, key))
+  }
+
+  def getModuleDataNode(
+    projectSystemId: ProjectSystemId,
+    project: Project,
+    moduleId: String,
+  ): Either[String, DataNode[ModuleData]] = {
+    val dataManager = ProjectDataManager.getInstance()
+    getModuleDataNode(dataManager, projectSystemId, project, moduleId)
+  }
+
+  private def getModuleDataNode(
+    dataManager: ProjectDataManager,
+    projectSystemId: ProjectSystemId,
+    project: Project,
+    moduleId: String,
+  ): Either[String, DataNode[ModuleData]] = {
+    val (projectInfo: ExternalProjectInfo, projectDataNode: DataNode[ProjectData]) = getExternalProjectInfoAndData(dataManager, projectSystemId, project) match {
       case Right(value) => value
       case Left(error) =>
         return Left(error)
@@ -48,21 +85,16 @@ object ExternalSystemUtil {
       // seems hacky. but apparently there isn't yet any better way to get the data for selected module?
       node.getData.getId == moduleId
     })
-    if (moduleDataNode == null) {
-      return Left(s"can't find module data node with id `$moduleId` for project $project, $projectInfo")
-    }
-
-    val result = findAllEnsuring(dataManager, moduleDataNode, key)
-    Right(result)
+    if (moduleDataNode != null)
+      Right(moduleDataNode)
+    else
+      Left(s"can't find module data node with id `$moduleId` for project $project, $projectInfo")
   }
 
-  private def findAllEnsuring[K](dataManager: ProjectDataManager, parent: DataNode[_], key: Key[K]): Iterable[K] = {
+  private def findAllNodesEnsuring[K](dataManager: ProjectDataManager, parent: DataNode[_], key: Key[K]): Iterable[DataNode[K]] = {
     val dataNodes = ExternalSystemApiUtil.findAll(parent, key).asScala
-    val result = dataNodes.map { node =>
-      dataManager.ensureTheDataIsReadyToUse(node)
-      node.getData
-    }
-    result
+    dataNodes.foreach(dataManager.ensureTheDataIsReadyToUse)
+    dataNodes
   }
 
   private def getExternalProjectInfoAndData(

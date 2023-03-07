@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
-import org.jetbrains.sbt.SbtDirectoryCompletionContributor
+import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert

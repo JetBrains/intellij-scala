@@ -106,7 +106,7 @@
         <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                  id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher"/>
 
-        <createDirectoryCompletionContributor implementation="org.jetbrains.sbt.SbtDirectoryCompletionContributor"/>
+        <createDirectoryCompletionContributor implementation="org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor"/>
 
         <defaultLiveTemplates file="liveTemplates/sbt"/>
         <liveTemplateContext contextId="sbt"
