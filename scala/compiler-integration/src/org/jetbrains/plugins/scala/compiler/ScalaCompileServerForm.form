@@ -194,7 +194,7 @@
           <component id="b9706" class="javax.swing.JLabel" binding="myJdkWarningLabel">
             <constraints>
               <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false">
-                <maximum-size width="490" height="-1"/>
+                <maximum-size width="500" height="-1"/>
               </grid>
             </constraints>
             <properties>
