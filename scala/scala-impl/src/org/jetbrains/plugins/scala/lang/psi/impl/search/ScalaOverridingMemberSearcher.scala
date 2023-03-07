@@ -122,7 +122,6 @@ object ScalaOverridingMemberSearcher {
     buffer.toArray
   }
 
-
   private def isOverridingMemberSearchApplicable(member: PsiNamedElement): Boolean = {
     def inTemplateBodyOrEarlyDef(element: PsiElement): Boolean = {
       val parent = inReadAction(element.getParent)
