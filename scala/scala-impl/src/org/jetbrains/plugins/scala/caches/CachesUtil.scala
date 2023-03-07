@@ -8,6 +8,7 @@ import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder._
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 
@@ -120,7 +121,7 @@ object CachesUtil {
   /**
    * see [[org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl.getContextModificationStamp]]
    */
-  def fileContextModTracker(file: ScalaFileImpl): ModificationTracker =
+  def fileContextModTracker(file: ScalaFile): ModificationTracker =
     if (file == null)
       ModificationTracker.NEVER_CHANGED
     else

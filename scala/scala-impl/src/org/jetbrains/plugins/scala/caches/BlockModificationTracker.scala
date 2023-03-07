@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 
 import scala.annotation.tailrec
 
@@ -69,7 +68,7 @@ object BlockModificationTracker {
           ExpressionModificationTracker(expr)
         case _ =>
           ScalaPsiUtil.fileContext(element) match {
-            case file: ScalaFileImpl =>
+            case file: ScalaFile =>
               if (file.isCompiled) ProjectRootManager.getInstance(element.getProject)
               else CachesUtil.fileContextModTracker(file)
             case _ =>
