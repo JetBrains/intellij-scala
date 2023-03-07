@@ -3,7 +3,7 @@ package lang.completion
 
 import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 
-abstract class SbtCompletionDefinitionTestBase extends SbtCompletionTestBase {
+abstract class SbtCompletionDefinitionTestBase extends SbtFileTestDataCompletionTestBase {
   self: MockSbtBase =>
 
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
