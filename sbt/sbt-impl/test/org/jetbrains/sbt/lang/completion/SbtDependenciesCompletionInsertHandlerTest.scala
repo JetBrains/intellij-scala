@@ -4,15 +4,12 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.sbt.language.SbtFileType
 
-class SbtDependenciesCompletionInsertHandlerTest extends ScalaCompletionTestBase {
+class SbtDependenciesCompletionInsertHandlerTest extends SbtCompletionTestBase {
   private val GROUP_ID = "org.scalatest"
   private val ARTIFACT_ID = "scalatest"
   private val RENDERING_PLACEHOLDER = "Sbtzzz"
   private val LOOKUP_ITEM = s"$GROUP_ID:$ARTIFACT_ID:$RENDERING_PLACEHOLDER"
   private val RESULT_DEPENDENCY = s""""$GROUP_ID" % "$ARTIFACT_ID" % "$CARET""""
-
-  override protected def configureFromFileText(fileText: String): PsiFile =
-    configureFromFileText(SbtFileType, fileText)
 
   def testTopLevel_Single_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =

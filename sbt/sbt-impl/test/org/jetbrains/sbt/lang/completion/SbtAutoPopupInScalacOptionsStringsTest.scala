@@ -3,6 +3,7 @@ package org.jetbrains.sbt.lang.completion
 import com.intellij.codeInsight.editorActions.CompletionAutoPopupHandler
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
 import org.jetbrains.sbt.language.SbtFileType
 import org.junit.Assert.assertNull
@@ -10,6 +11,9 @@ import org.junit.Assert.assertNull
 import scala.jdk.CollectionConverters._
 
 class SbtAutoPopupInScalacOptionsStringsTest extends ScalaCompletionAutoPopupTestCase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_2_13
 
   override def setUp(): Unit = {
     super.setUp()

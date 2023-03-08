@@ -1,18 +1,11 @@
 package org.jetbrains.sbt.lang.completion
 
-import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
-import org.jetbrains.sbt.language.SbtFileType
-
-class SbtScalacOptionInsertHandlerTest extends ScalaCompletionTestBase {
+class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
   private val LOOKUP_ITEM = "-Yno-generic-signatures" // flag with multiple dashes
   private val RESULT_OPTION = s""""$LOOKUP_ITEM""""
 
   private val LOOKUP_ITEM_WITH_SEPARATE_ARG = "-classpath"
   private val RESULT_OPTION_WITH_SEPARATE_ARG = s"""Seq("$LOOKUP_ITEM_WITH_SEPARATE_ARG", ".")"""
-
-  override protected def configureFromFileText(fileText: String): PsiFile =
-    configureFromFileText(SbtFileType, fileText)
 
   def testTopLevel_Single_OutsideOfStringLiteral_AfterParenthesisedExpr(): Unit = doCompletionTest(
     fileText =

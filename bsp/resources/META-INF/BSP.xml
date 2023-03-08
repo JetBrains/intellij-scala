@@ -74,6 +74,8 @@
         <notificationGroup id="BSP" displayType="BALLOON" bundle="messages.ScalaBspBundle" key="scala.notification.group.id.bsp"/>
 
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.bsp.codeInspection.BspScalaCliInspectionSuppressor"/>
+
+        <createDirectoryCompletionContributor implementation="org.jetbrains.bsp.actions.BspDirectoryCompletionContributor"/>
     </extensions>
 
     <projectListeners>

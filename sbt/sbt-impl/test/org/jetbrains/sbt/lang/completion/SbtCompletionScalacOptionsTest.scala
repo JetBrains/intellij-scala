@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package lang.completion
 
-class SbtCompletionScalacOptionsTest extends SbtCompletionTestBase with MockSbt_1_0 {
+class SbtCompletionScalacOptionsTest extends SbtFileTestDataCompletionTestBase with MockSbt_1_0 {
   override def folderPath: String = super.folderPath + "scalacOptions/"
 
   def testCompleteSeqRef(): Unit = doTest()
