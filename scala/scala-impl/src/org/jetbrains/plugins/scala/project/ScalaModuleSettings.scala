@@ -20,7 +20,11 @@ import java.io.File
 import java.util.jar.Attributes
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
-private class ScalaModuleSettings(module: Module, val scalaVersionProvider: ScalaVersionProvider) {
+private class ScalaModuleSettings private(
+  module: Module,
+  isBuildModule: Boolean,
+  val scalaVersionProvider: ScalaVersionProvider
+) {
 
   val scalaSdk: Option[LibraryEx] = scalaVersionProvider match {
     case ScalaVersionProvider.FromScalaSdk(library) => Some(library)
@@ -44,7 +48,8 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
   val compilerPlugins: Set[String] = settingsForHighlighting.flatMap(_.plugins).toSet
 
   val additionalCompilerOptions: Set[String] =
-    settingsForHighlighting.flatMap(_.additionalCompilerOptions).toSet ++ implicitSbtCompilerOptions
+    settingsForHighlighting.flatMap(_.additionalCompilerOptions).toSet ++
+      (if (isBuildModule) implicitSbtCompilerOptions else Nil)
 
   private def implicitSbtCompilerOptions: Set[String] = {
     if (sbtVersion.exists(_ >= Version("1.6"))) {
@@ -201,7 +206,7 @@ private object ScalaModuleSettings {
 
       scalaSdk
         .map(ScalaVersionProvider.FromScalaSdk)
-        .map(new ScalaModuleSettings(module, _))
+        .map(new ScalaModuleSettings(module, isBuildModule = false, _))
     }
   }
 
@@ -213,7 +218,7 @@ private object ScalaModuleSettings {
       scalaVersion <- detectScalaVersionFromJars(libraryWithRuntimeJar)
     } yield {
       val versionProvider = ScalaVersionProvider.fromFullVersion(scalaVersion)
-      new ScalaModuleSettings(module, versionProvider)
+      new ScalaModuleSettings(module, isBuildModule = true, versionProvider)
     }
 
   /**
