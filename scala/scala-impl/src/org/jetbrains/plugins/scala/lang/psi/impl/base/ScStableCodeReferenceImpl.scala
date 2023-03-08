@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
@@ -530,6 +530,12 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       val manager = ScalaPsiManager.instance(getProject)
       val classes = manager.getCachedClasses(getResolveScope, fqn)
       val pack    = manager.getCachedPackage(fqn)
+
+      ScalaPsiUtil.fileContext(this) match {
+        case file: ScFile if file.isCompiled =>
+          processor.doNotCheckAccessibility()
+        case _ =>
+      }
 
       pack.foreach(processor.execute(_, ScalaResolveState.empty))
       classes.foreach(processor.execute(_, ScalaResolveState.empty))
