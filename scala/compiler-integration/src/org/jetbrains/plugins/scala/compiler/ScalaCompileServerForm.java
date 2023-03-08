@@ -76,7 +76,12 @@ public class ScalaCompileServerForm implements Configurable {
                         .flatMap(sdk -> Optional.ofNullable(sdk.getVersionString()))
                         .map(JavaSdkVersion::fromVersionString)
                         .ifPresent(version -> {
-                            if (CompileServerJdkManager$.MODULE$.isRecommendedVersionForProject(project, version)) {
+                            if (!CompileServerJdkManager$.MODULE$.isCompatible(version)) {
+                                myJdkWarningLabel.setForeground(JBColor.RED);
+                                final var text = CompilerIntegrationBundle.message("compile.server.jdk.too.old");
+                                myJdkWarningLabel.setText("<html>" + text + "</html>");
+                                myJdkWarningLabel.setVisible(true);
+                            } else if (CompileServerJdkManager$.MODULE$.isRecommendedVersionForProject(project, version)) {
                                 myJdkWarningLabel.setVisible(false);
                             } else {
                                 myJdkWarningLabel.setForeground(JBColor.RED);

@@ -16,6 +16,7 @@ object CompileServerJdkManager {
   
   def recommendedJdk(project: Project): Jdk =
     getProjectJdk(project)
+      .filter { case (_, version) => isCompatible(version) }
       .filter { case (_, version) => isRecommendedVersionForProject(project, version) }
       .getOrElse {
         // The project JDK cannot run the JPS code inside the Scala Compile Server (JDK version < 11).
@@ -23,6 +24,11 @@ object CompileServerJdkManager {
         // JetBrains Runtime JDK.
         getBuildProcessRuntimeJdk(project)
       }
+
+  /**
+   * The Scala Compile Server code is compiled to Java 8 bytecode.
+   */
+  private[compiler] def isCompatible(version: JavaSdkVersion): Boolean = version.isAtLeast(JavaSdkVersion.JDK_1_8)
 
   private[compiler] def isRecommendedVersionForProject(project: Project, version: JavaSdkVersion): Boolean = {
     // Compiler based highlighting is enabled and we need at least Java 11 to be able to execute the
