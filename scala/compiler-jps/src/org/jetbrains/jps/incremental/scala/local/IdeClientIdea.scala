@@ -47,10 +47,6 @@ class IdeClientIdea(compilerName: String,
     super.compilationEnd(sources)
   }
 
-  override def worksheetOutput(text: String): Unit = ()
-
-  override def processingEnd(): Unit = ()
-
   override def sourceStarted(source: String): Unit = ()
 
   private def handleCompilationResult(compilationResult: CompilationResult): Unit = {

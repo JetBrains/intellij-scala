@@ -33,13 +33,9 @@ class IdeClientSbt(compilerName: String,
     consumer.registerCompiledClass(target, compiledClass)
   }
 
-  override def worksheetOutput(text: String): Unit = ()
-
   override def sourceStarted(source: String): Unit = {
     FSOperations.markDirty(context, CompilationRound.NEXT, new File(source))
   }
-
-  override def processingEnd(): Unit = ()
 
   // TODO Expect JPS compiler in UI-designer to take generated class events into account
   private val FormsToCompileKey = catching(classOf[ClassNotFoundException], classOf[NoSuchFieldException]).opt {

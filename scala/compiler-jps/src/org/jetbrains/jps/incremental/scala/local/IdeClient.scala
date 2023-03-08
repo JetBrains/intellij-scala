@@ -55,6 +55,8 @@ abstract class IdeClient(compilerName: String,
     context.processMessage(CompilerEvent.CompilationStarted(compilationId, compilationUnitId).toCustomMessage)
   }
 
+  override def worksheetOutput(text: String): Unit = ()
+
   override def compilationPhase(name: String): Unit =
     context.processMessage(CompilerEvent.CompilationPhase(compilationId, compilationUnitId, name).toCustomMessage)
 
@@ -63,6 +65,8 @@ abstract class IdeClient(compilerName: String,
 
   override def compilationEnd(sources: Set[File]): Unit =
     context.processMessage(CompilerEvent.CompilationFinished(compilationId, compilationUnitId, sources).toCustomMessage)
+
+  override def processingEnd(): Unit = ()
 
   override def trace(exception: Throwable): Unit =
     context.processMessage(CompilerMessage.createInternalCompilationError(compilerName, exception))
