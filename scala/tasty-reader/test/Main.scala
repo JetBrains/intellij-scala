@@ -15,15 +15,15 @@ object Main {
   private val Repository = Home + "/.cache/coursier/v1/https/repo1.maven.org/maven2/"
   private val OutputDir = Home + "/IdeaProjects/scala-plugin-for-ultimate/community/scala/tasty-reader/target/comparison"
 
-  // scalaVersion := "3.2.1",
+  // scalaVersion := "3.2.2",
 
-  // libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.2.1",
+  // libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.2.2",
 
   // libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14",
 
-  // libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.14",
-
   // libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.17.0",
+
+  // libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.14",
 
   // libraryDependencies += "dev.zio" %% "zio" % "2.0.2",
   // libraryDependencies += "dev.zio" %% "zio-streams" % "2.0.2",
@@ -31,14 +31,23 @@ object Main {
   // libraryDependencies += "org.typelevel" %% "cats-core" % "2.8.0",
   // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.14",
 
-  // libraryDependencies += "io.getquill" %% "quill-sql" % "4.6.0",
-  // libraryDependencies += "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
+  // libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.3.7",
+  // libraryDependencies += "org.scalaz" %% "scalaz-effect" % "7.3.7",
+
+  // libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.7.0",
+  // libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.5.0",
+  // libraryDependencies += "com.typesafe.akka" %% "akka-http-core" % "10.5.0",
+
+  // libraryDependencies += "co.fs2" %% "fs2-core" % "3.6.1",
 
   // libraryDependencies += "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
 
+  // libraryDependencies += "io.getquill" %% "quill-sql" % "4.6.0",
+  // libraryDependencies += "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
+
   private val Libraries = Seq(
-    "org/scala-lang/scala3-library_3/3.2.1/scala3-library_3-3.2.1.jar",
-    "org/scala-lang/scala3-compiler_3/3.2.1/scala3-compiler_3-3.2.1.jar",
+    "org/scala-lang/scala3-library_3/3.2.2/scala3-library_3-3.2.2.jar",
+    "org/scala-lang/scala3-compiler_3/3.2.2/scala3-compiler_3-3.2.2.jar",
 
     "org/scalatest/scalatest-core_3/3.2.14/scalatest-core_3-3.2.14.jar",
     "org/scalatest/scalatest-diagrams_3/3.2.14/scalatest-diagrams_3-3.2.14.jar",
@@ -66,6 +75,13 @@ object Main {
     "org/typelevel/cats-effect_3/3.3.14/cats-effect_3-3.3.14.jar",
     "org/typelevel/cats-effect-kernel_3/3.3.14/cats-effect-kernel_3-3.3.14.jar",
     "org/typelevel/cats-effect-std_3/3.3.14/cats-effect-std_3-3.3.14.jar",
+
+    "org/scalaz/scalaz-core_3/7.3.7/scalaz-core_3-7.3.7.jar",
+    "org/scalaz/scalaz-effect_3/7.3.7/scalaz-effect_3-7.3.7.jar",
+
+    "com/typesafe/akka/akka-actor_3/2.7.0/akka-actor_3-2.7.0.jar",
+    "com/typesafe/akka/akka-http_3/10.5.0/akka-http_3-10.5.0.jar",
+    "com/typesafe/akka/akka-http-core_3/10.5.0/akka-http-core_3-10.5.0.jar",
 
     "co/fs2/fs2-core_3/3.6.1/fs2-core_3-3.6.1.jar",
 

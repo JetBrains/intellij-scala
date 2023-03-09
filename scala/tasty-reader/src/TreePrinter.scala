@@ -541,11 +541,18 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
 
   private def textOfAnnotationIn(sb: StringBuilder, indent: String, node: Node, suffix: String): Unit = {
     node.children.reverseIterator.takeWhile(_.is(ANNOTATION)).foreach {  // TODO sb.insert?
-      case Node3(ANNOTATION, _, Seq(tpe, apply @ Node1(APPLY))) =>
+      case Node3(ANNOTATION, _, Seq(tpe, apply @ Node3(APPLY, _, Seq(tail, _: _*)))) =>
         val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("_root_.scala.annotation.internal.")).map(simple).map("@" + _).getOrElse("") // TODO optimize
         if (name.nonEmpty) {
           sb ++= indent
           sb ++= id(name)
+          tail match {
+            case Node3(TYPEAPPLY, _, Seq(_, args: _*)) =>
+              sb ++= "["
+              sb ++= args.map(arg => simple(textOfType(arg))).mkString(", ")
+              sb ++= "]"
+            case _ =>
+          }
           val args = apply.children.map(textOfConstant).filter(_.nonEmpty) // TODO optimize
           val namedArgs = apply.children.collect {
             case Node3(NAMEDARG, Seq(name), Seq(tail)) => name + " = " + textOfConstant(tail)
@@ -669,6 +676,8 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     modifiers(sb)
     val hasModifiers = sb.length > previousLength
 
+    val isPrivateConstructor = !privateMembers && node.is(DEFDEF) && node.names == Seq("<init>") && node.contains(PRIVATE)
+
     val ps = target match {
       case Target.Extension =>
         popExtensionParams(mutable.Stack[Node](node.children: _*))
@@ -698,56 +707,62 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
           open = true
           next = false
           if (node.contains(GIVEN)) {
-            sb ++= "using "
+            if (!isPrivateConstructor) {
+              sb ++= "using "
+            }
           } else {
             if (node.contains(IMPLICIT)) {
-              sb ++= "implicit "
+              if (!isPrivateConstructor) {
+                sb ++= "implicit "
+              }
               isImplicitClause = true
             }
           }
         }
-        if (next) {
-          sb ++= ", "
-        }
-        textOfAnnotationIn(sb, "", node, " ")
-        val tpe = textOfType(children.head)
-        if (node.contains(INLINE) || tpe.endsWith(" @scala.annotation.internal.InlineParam")) {
-          sb ++= "inline "
-        }
         val templateValueParam = templateValueParams.map(_.next())
-        if (!definition.exists(isGivenClass0)) {
-          templateValueParam.foreach { valueParam =>
-            if (!valueParam.contains(LOCAL)) {
-              val sb1 = new StringBuilder() // TODO reuse
-              val isPrivate = valueParam.contains(PRIVATE)
-              modifiersIn(sb1, valueParam, (if (privateMembers || !isPrivate) Set() else Set(ABSTRACT, OVERRIDE, PRIVATE, FINAL)) ++ (if (isImplicitClause) Set(GIVEN, IMPLICIT) else Set(GIVEN)))
-              sb ++= sb1
-              if (privateMembers || !isPrivate) {
-                if (valueParam.contains(MUTABLE)) {
-                  sb ++= "var "
-                } else {
-                  if (!(definition.exists(_.contains(CASE)) && valueParam.modifierTags.forall(it => it == CASEaccessor || it == HASDEFAULT))) {
-                    sb ++= "val "
+        if (!isPrivateConstructor || templateValueParam.exists(!_.contains(PRIVATE))) { // TODO private (), variables in { ... }
+          if (next) {
+            sb ++= ", "
+          }
+          textOfAnnotationIn(sb, "", node, " ")
+          val tpe = textOfType(children.head)
+          if (node.contains(INLINE) || tpe.endsWith(" @scala.annotation.internal.InlineParam")) {
+            sb ++= "inline "
+          }
+          if (!definition.exists(isGivenClass0)) {
+            templateValueParam.foreach { valueParam =>
+              if (!valueParam.contains(LOCAL)) {
+                val sb1 = new StringBuilder() // TODO reuse
+                val isPrivate = valueParam.contains(PRIVATE)
+                modifiersIn(sb1, valueParam, (if (privateMembers || !isPrivate) Set() else Set(ABSTRACT, OVERRIDE, PRIVATE, IMPLICIT, FINAL)) ++ (if (isImplicitClause && !isPrivateConstructor) Set(GIVEN, IMPLICIT) else Set(GIVEN)))
+                sb ++= sb1
+                if (privateMembers || !isPrivate) {
+                  if (valueParam.contains(MUTABLE)) {
+                    sb ++= "var "
+                  } else {
+                    if (!(definition.exists(_.contains(CASE)) && valueParam.modifierTags.forall(it => it == CASEaccessor || it == HASDEFAULT))) {
+                      sb ++= "val "
+                    }
                   }
                 }
               }
             }
           }
-        }
-        if (!(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
-          val nameId = id(name)
-          sb ++= nameId
-          if (needsSpace(nameId)) {
-            sb ++= " "
+          if (!(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
+            val nameId = id(name)
+            sb ++= nameId
+            if (needsSpace(nameId)) {
+              sb ++= " "
+            }
+            sb ++= ": "
           }
-          sb ++= ": "
+          sb ++= simple(tpe).stripSuffix(" @scala.annotation.internal.InlineParam")
+          if (node.contains(HASDEFAULT)) {
+            sb ++= " = "
+            sb ++= CompiledCode
+          }
+          next = true
         }
-        sb ++= simple(tpe).stripSuffix(" @scala.annotation.internal.InlineParam")
-        if (node.contains(HASDEFAULT)) {
-          sb ++= " = "
-          sb ++= CompiledCode
-        }
-        next = true
       case _ =>
     }
     if (open) {
