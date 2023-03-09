@@ -5,6 +5,7 @@ import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.ide.structureView.newStructureView.StructureViewComponent
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.ElementBase
 import com.intellij.ui.{CoreIconManager, IconManager, LayeredIcon, PlatformIcons}
@@ -12,7 +13,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.structureView.{ScalaStructureViewBuilder, ScalaStructureViewModel}
+import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewBuilder
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
 import org.junit.Assert
 import org.junit.Assert.fail
@@ -80,7 +81,9 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
     val file = createScalaFile(code)(getProject)
 
     val builder = new ScalaStructureViewBuilder(file)
-    builder.createStructureView(null /*unused editor*/ , getProject).asInstanceOf[StructureViewComponent]
+    val component = builder.createStructureView(null /*unused editor*/ , getProject).asInstanceOf[StructureViewComponent]
+    Disposer.register(getTestRootDisposable, component) //to avoid "Thread Leaked" exceptions
+    component
   }
 
   protected def check(structureView: StructureViewComponent, expectedNodes: Node*): Unit = {
