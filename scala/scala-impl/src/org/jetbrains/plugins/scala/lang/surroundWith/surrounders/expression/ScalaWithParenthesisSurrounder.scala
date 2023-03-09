@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -28,7 +29,7 @@ class ScalaWithParenthesisSurrounder extends ScalaExpressionSurrounder {
   //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription = "(  )"
 
-  override def getSurroundSelectionRange(expr: ASTNode): TextRange = {
+  override def getSurroundSelectionRange(editor: Editor, expr: ASTNode): TextRange = {
     val offset = expr.getTextRange.getEndOffset
     new TextRange(offset, offset)
   }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
@@ -52,13 +53,9 @@ object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
   //noinspection ReferencePassedToNls
   override def getTemplateDescription: String = ScalaKeyword.MATCH
 
-  override def getSurroundSelectionRange(withMatchNode: ASTNode): TextRange = {
-    val matchExpr = withMatchNode.getPsi match {
-      case x: ScParenthesisedExpr => x.innerElement match {
-        case Some(y: ScMatch) => y
-        case _ => return null
-      }
-      case x: ScMatch => x
+  override def getSurroundSelectionRange(editor: Editor, withMatchNode: ASTNode): TextRange = {
+    val matchExpr = unwrapParenthesis(withMatchNode) match {
+      case Some(stmt: ScMatch) => stmt
       case _ => return null
     }
 

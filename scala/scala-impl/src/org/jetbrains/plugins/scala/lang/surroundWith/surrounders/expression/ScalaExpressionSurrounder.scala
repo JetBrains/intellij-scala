@@ -40,7 +40,7 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
     elements.forall(isApplicable)
 
   override def surroundElements(project: Project, editor: Editor, elements: Array[PsiElement]): TextRange =
-    getSurroundSelectionRange(surroundedNode(elements))
+    getSurroundSelectionRange(editor, surroundedNode(elements))
 
   def surroundedNode(elements: Array[PsiElement]): ASTNode = {
     val result = surroundPsi(elements).getNode
@@ -80,5 +80,10 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
   def getTemplateAsString(elements: Array[PsiElement]): String =
     elements.map(_.getNode.getText).mkString
 
-  def getSurroundSelectionRange(node: ASTNode): TextRange
+  def getSurroundSelectionRange(editor: Editor, node: ASTNode): TextRange
+
+  protected def unwrapParenthesis(node: ASTNode): Option[PsiElement] = node.getPsi match {
+    case p: ScParenthesisedExpr => p.innerElement
+    case e => Option(e)
+  }
 }

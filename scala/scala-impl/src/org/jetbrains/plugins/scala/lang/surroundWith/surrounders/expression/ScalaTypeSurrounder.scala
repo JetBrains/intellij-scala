@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -25,16 +26,16 @@ class ScalaTypeSurrounder extends ScalaExpressionSurrounder {
     }
   }
 
-  override def getSurroundSelectionRange(withType: ASTNode): TextRange = {
+  override def getSurroundSelectionRange(editor: Editor, withType: ASTNode): TextRange = {
     lazy val defaultRange = {
       val expr: ScExpression = withType.getPsi.asInstanceOf[ScExpression]
       val offset = expr.getTextRange.getEndOffset
       new TextRange(offset, offset)
     }
 
-    withType.getPsi match {
-      case x: ScParenthesisedExpr => x.innerElement match {
-        case Some(y: ScTypedExpression) => y.typeElement match {
+    unwrapParenthesis(withType) match {
+      case Some(typedExpr: ScTypedExpression) =>
+        typedExpr.typeElement match {
           case Some(te: ScTypeElement) =>
             if (te.textMatches("Any"))
               te.getTextRange
@@ -42,8 +43,6 @@ class ScalaTypeSurrounder extends ScalaExpressionSurrounder {
               defaultRange
           case _ => defaultRange
         }
-        case _ => defaultRange
-      }
       case _ => defaultRange
     }
   }

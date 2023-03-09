@@ -3,6 +3,5 @@ class a {
 }
 -----
 class a {
-  if (false) {}
-  else {}
+  if (false) {} else {}
 }

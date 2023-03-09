@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -23,7 +24,7 @@ class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf with 
     val cond = getPrecedingExpression(rpar)
 
     cond.orElse {
-      if (this.isInScala3Module) {
+      if (this.isInScala3File) {
         val thenKeyword = findChildByType[PsiElement](ScalaTokenType.ThenKeyword)
         getPrecedingExpression(thenKeyword)
       } else None

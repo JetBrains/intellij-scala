@@ -1,13 +1,12 @@
-package org.jetbrains.plugins.scala
-package lang
-package surroundWith
+package org.jetbrains.plugins.scala.lang.surroundWith
 
 object SurroundWithTestUtil {
-  val startMarker = "<start>"
-  val endMarkers: Array[String] = Array[String]("<if>",
+  private val startMarker = "<start>"
+  private val endMarkers: Array[String] = Array[String]("<if>",
     "<else>", "<while>", "<do>", "<for>", "<yield>"
     , "<catch>", "<finally>", "<try>", "<braces>",
     "<match>", "<parenthesis>", "<if_cond>", "<else_cond>", "<unary>")
+
   def prepareFile(text: String): (String, Integer, Integer, Integer) = {
     var workingText = text
     val start = text.indexOf(startMarker)

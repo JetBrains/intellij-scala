@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -13,15 +14,11 @@ class ScalaWithForSurrounder extends ScalaExpressionSurrounder {
     "for (a <- as) {" + super.getTemplateAsString(elements) + "}"
   }
 
-  override def getSurroundSelectionRange(withForNode: ASTNode): TextRange = {
-    val element: PsiElement = withForNode.getPsi match {
-      case x: ScParenthesisedExpr => x.innerElement match {
-        case Some(y) => y
-        case _ => return x.getTextRange
-      }
-      case x => x
+  override def getSurroundSelectionRange(editor: Editor, withForNode: ASTNode): TextRange = {
+    val forStmt = unwrapParenthesis(withForNode) match {
+      case Some(stmt: ScFor) => stmt
+      case _ => return withForNode.getTextRange
     }
-    val forStmt = element.asInstanceOf[ScFor]
 
     val enums = (forStmt.enumerators: @unchecked) match {
       case Some(x) => x.getNode

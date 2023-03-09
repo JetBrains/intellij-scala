@@ -26,7 +26,7 @@ final class ScalaMatchPostfixTemplate extends PostfixTemplateWithExpressionSelec
     val styleManager = CodeStyleManager.getInstance(expression.getProject)
     styleManager.reformat(matchNode.getPsi)
 
-    ScalaWithMatchSurrounder.getSurroundSelectionRange(matchNode) match {
+    ScalaWithMatchSurrounder.getSurroundSelectionRange(editor, matchNode) match {
       case null =>
       case range =>
         editor.getCaretModel.moveToOffset(range.getStartOffset)

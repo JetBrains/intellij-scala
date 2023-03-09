@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.StringExt
@@ -22,13 +23,10 @@ class ScalaWithUnaryNotSurrounder extends ScalaExpressionSurrounder {
     case _ => false
   }
 
-  override def getSurroundSelectionRange(withUnaryNot: ASTNode): TextRange = {
-    val expression = withUnaryNot.getPsi match {
-      case x: ScParenthesisedExpr => x.innerElement match {
-        case Some(y) => y
-        case _ => return x.getTextRange
-      }
-      case x: ScExpression => x
+  override def getSurroundSelectionRange(editor: Editor, withUnaryNot: ASTNode): TextRange = {
+    val expression = unwrapParenthesis(withUnaryNot) match {
+      case Some(expr: ScExpression) => expr
+      case _ => return withUnaryNot.getTextRange
     }
 
     val offset = expression.getTextRange.getEndOffset

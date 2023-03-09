@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -15,16 +16,11 @@ class ScalaWithTryCatchFinallySurrounder extends ScalaExpressionSurrounder {
   //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription = "try / catch / finally"
 
-  override def getSurroundSelectionRange(withTryCatchNode: ASTNode): TextRange = {
-    val element: PsiElement = withTryCatchNode.getPsi match {
-      case x: ScParenthesisedExpr => x.innerElement match {
-        case Some(y) => y
-        case _ => return x.getTextRange
-      }
-      case x => x
+  override def getSurroundSelectionRange(editor: Editor, withTryCatchNode: ASTNode): TextRange = {
+    val tryCatchStmt = unwrapParenthesis(withTryCatchNode) match {
+      case Some(stmt: ScTry) => stmt
+      case _ => return withTryCatchNode.getTextRange
     }
-
-    val tryCatchStmt = element.asInstanceOf[ScTry]
 
     val catchBlockPsiElement = tryCatchStmt.catchBlock.get
     val caseClause =

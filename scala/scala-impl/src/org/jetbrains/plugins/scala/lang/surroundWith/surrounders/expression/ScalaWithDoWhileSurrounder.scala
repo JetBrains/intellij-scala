@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -21,15 +22,11 @@ class ScalaWithDoWhileSurrounder extends ScalaExpressionSurrounder {
   //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription = "do / while"
 
-  override def getSurroundSelectionRange(withDoWhileNode: ASTNode): TextRange = {
-    val element: PsiElement = withDoWhileNode.getPsi match {
-      case x: ScParenthesisedExpr => x.innerElement match {
-        case Some(y) => y
-        case _ => return x.getTextRange
-      }
-      case x => x
+  override def getSurroundSelectionRange(editor: Editor, withDoWhileNode: ASTNode): TextRange = {
+    val doWhileStmt = unwrapParenthesis(withDoWhileNode) match {
+      case Some(stmt: ScDo) => stmt
+      case _ => return withDoWhileNode.getTextRange
     }
-    val doWhileStmt = element.asInstanceOf[ScDo]
 
     val conditionNode: ASTNode = doWhileStmt.getNode.getLastChildNode.getTreePrev
 
