@@ -11,8 +11,6 @@ import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget}
 import org.jetbrains.jps.incremental.fs.CompilationRound
 import org.jetbrains.jps.incremental.{CompileContext, FSOperations}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
-import org.jetbrains.jps.incremental.scala.remote.CompileServerMeteringInfo
-import org.jetbrains.plugins.scala.compiler.CompilerEvent
 
 import scala.jdk.CollectionConverters._
 import scala.util.control.Exception._
