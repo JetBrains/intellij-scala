@@ -11,7 +11,6 @@ import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
 import org.jetbrains.jps.incremental.scala.local.IdeClientIdea.CompilationResult
 import org.jetbrains.jps.incremental.scala.local.PackageObjectsData.packageObjectClassName
-import org.jetbrains.jps.incremental.scala.remote.CompileServerMeteringInfo
 import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.org.objectweb.asm.ClassReader
 
@@ -46,10 +45,6 @@ class IdeClientIdea(compilerName: String,
     persistPackageObjectData()
     super.compilationEnd(sources)
   }
-
-  override def worksheetOutput(text: String): Unit = ()
-
-  override def processingEnd(): Unit = ()
 
   override def sourceStarted(source: String): Unit = ()
 

@@ -4,7 +4,7 @@ import com.intellij.openapi.util.io.FileFilters
 
 import java.util
 import java.util.Collections
-import org.jetbrains.jps.builders.java.{JavaModuleBuildTargetType, JavaSourceRootDescriptor, ResourcesTargetType}
+import org.jetbrains.jps.builders.java.{JavaModuleBuildTargetType, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.storage.BuildDataPaths
 import org.jetbrains.jps.builders.{AdditionalRootsProviderService, BuildTarget}
 import org.jetbrains.jps.incremental.ModuleBuildTarget
