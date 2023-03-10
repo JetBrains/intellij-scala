@@ -33,7 +33,7 @@ object Common {
   val headCommitSum: String =
     scala.sys.process.Process("git rev-parse HEAD").!!.trim.take(7)
 
-  val compilationCacheSettings: Seq[Def.Setting[_]] = Seq(
+  val compilationCacheSettings: Seq[Def.Setting[?]] = Seq(
     Compile / remoteCacheId := headCommitSum,
     Compile / pushRemoteCacheConfiguration ~= (_.withOverwrite(true)),
     Test / remoteCacheId := headCommitSum,

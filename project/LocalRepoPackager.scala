@@ -19,7 +19,7 @@ object LocalRepoPackager extends AutoPlugin {
   val localRepoDependencies = settingKey[Seq[Dependency]]("dependencies to be downloaded into local repo")
   val localRepoUpdate = taskKey[Seq[(Path,Path)]]("create or update local repo")
 
-  override def projectSettings: Seq[Def.Setting[_]] = Seq(
+  override def projectSettings: Seq[Def.Setting[?]] = Seq(
     localRepoUpdate := updateLocalRepo(
       localRepoDependencies.value,
       (ThisBuild/baseDirectory).value.toPath / "project" / "resources")
