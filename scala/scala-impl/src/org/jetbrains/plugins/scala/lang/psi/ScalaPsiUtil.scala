@@ -1795,6 +1795,69 @@ object ScalaPsiUtil {
     statement
   }
 
+  /**
+   * Convert {{{
+   *   try { block } catch { case _ => handler } finally { cleanup }
+   * }}} to {{{
+   *   try
+   *     block
+   *   catch
+   *     case _ => handler
+   *   finally
+   *     cleanup
+   * }}}
+   * if Scala 3 indentation-based syntax is enabled.
+   *
+   * Doesn't modify given statement, returns a modified copy.
+   */
+  def convertTryToBracelessIfNeeded(tryStmt: ScTry)(implicit ctx: ProjectContext, features: ScalaFeatures): ScTry = {
+    if (!ctx.project.indentationBasedSyntaxEnabled(features)) return tryStmt
+
+    val statement = tryStmt.copy().asInstanceOf[ScTry]
+    CodeStyleManager.getInstance(ctx.project).reformat(statement, true)
+
+    // TODO: deduplicate
+    def processBlock(block: ScBlockExpr): Unit = {
+      // remove braces
+      if (block.statements.nonEmpty || block.caseClauses.isDefined) { // do not remove braces from empty blocks to prevent compilation errors
+        block.getRBrace.foreach { rBrace =>
+          if (rBrace.startsFromNewLine(ignoreComments = false) &&
+            (rBrace.followedByNewLine(ignoreComments = false) || PsiTreeUtil.nextLeaf(rBrace) == null)) {
+            // if '}' is the only element on its line, delete an empty line along with the brace
+            rBrace.prevSibling.filterByType[PsiWhiteSpace].foreach { ws =>
+              val newWsText = ws.getText.split('\n').dropRight(1).mkString("\n")
+              if (newWsText.isEmpty) ws.delete()
+              else ws.replace(createWhitespace(newWsText))
+            }
+          }
+          block.getNode.removeChild(rBrace.getNode)
+        }
+        block.getLBrace.foreach(_.delete())
+      }
+    }
+
+    statement.expression.foreach {
+      case block: ScBlockExpr => processBlock(block)
+      case _ =>
+    }
+
+    statement.catchBlock.foreach { b =>
+      b.expression.foreach {
+        case block: ScBlockExpr => processBlock(block)
+        case _ =>
+      }
+    }
+
+    statement.finallyBlock.foreach { b =>
+      b.expression.foreach {
+        case block: ScBlockExpr => processBlock(block)
+        case _ =>
+      }
+    }
+
+    statement
+  }
+
   def convertBlockToBraced(block: ScBlockExpr)(implicit ctx: ProjectContext): ScBlockExpr = {
     val blockCopy = block.copy().asInstanceOf[ScBlockExpr]
 

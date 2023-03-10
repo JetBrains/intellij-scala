@@ -133,6 +133,11 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
                 .replace(": " + lightFile.getName(), "");
     }
 
+    @NotNull
+    protected String transformExpectedResult(@NotNull String text) {
+        return text;
+    }
+
     protected void runTest(@NotNull final String testName0,
                            @NotNull final String content0,
                            @NotNull final Project project) {
@@ -159,7 +164,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         }
 
         if (result.trim().equalsIgnoreCase("UNCHANGED_TAG")) {
-            assertEquals("Unchenged expected result expects only 1 input enty", 1, input.size());
+            assertEquals("Unchanged expected result expects only 1 input entry", 1, input.size());
             result = input.get(0);
         }
 
@@ -171,7 +176,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         testName = dotIdx >= 0 ? testName0.substring(0, dotIdx) : testName0;
 
         String temp = transform(testName, input.get(0), project);
-        result = result.trim();
+        result = transformExpectedResult(result.trim());
 
         final String transformed = convertLineSeparators(temp).trim();
 

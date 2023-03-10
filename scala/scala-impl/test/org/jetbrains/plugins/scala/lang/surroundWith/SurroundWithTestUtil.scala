@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.lang.surroundWith
 
 object SurroundWithTestUtil {
+  // could be handy to keep trailing whitespaces at the end of the line
+  private val preserveTrailingSpacesMarker = "<preserve-trailing-spaces>"
+
   private val startMarker = "<start>"
   private val endMarkers: Array[String] = Array[String]("<if>",
     "<else>", "<while>", "<do>", "<for>", "<yield>"
@@ -17,6 +20,9 @@ object SurroundWithTestUtil {
     workingText = removeMarker(workingText, s)
     (workingText, start, end, t)
   }
+
+  def prepareExpectedResult(text: String): String =
+    text.replace(preserveTrailingSpacesMarker, "")
 
   private def removeMarker(text: String, marker: String): String = {
     val i = text.indexOf(marker)

@@ -1,29 +1,20 @@
 package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 
-import com.intellij.lang.ASTNode
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-class ScalaWithTryFinallySurrounder extends ScalaExpressionSurrounder {
+class ScalaWithTryFinallySurrounder extends ScalaWithTrySurrounderBase {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "try {\n" + super.getTemplateAsString(elements) + "\n} finally a"
 
-  //noinspection ScalaExtractStringToBundle
+  //noinspection ScalaExtractStringToBundle,DialogTitleCapitalization
   override def getTemplateDescription = "try / finally"
 
-  override def getSurroundSelectionRange(editor: Editor, withTryCatchNode: ASTNode): TextRange = {
-    val tryCatchStmt = unwrapParenthesis(withTryCatchNode) match {
-      case Some(stmt: ScTry) => stmt
-      case _ => return withTryCatchNode.getTextRange
+  override protected def getRangeToDelete(editor: Editor, tryStmt: ScTry): TextRange =
+    tryStmt.finallyBlock match {
+      case Some(ScFinallyBlock(expr)) => expr.getTextRange
+      case _ => null
     }
-
-    val caseClause = tryCatchStmt.getNode.getLastChildNode.getLastChildNode.getPsi
-
-    val offset = caseClause.getTextRange.getStartOffset
-    tryCatchStmt.getNode.removeChild(caseClause.getNode)
-
-    new TextRange(offset, offset)
-  }
 }

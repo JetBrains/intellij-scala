@@ -64,4 +64,9 @@ class ScalaSurroundWithFileSetTestCase extends ScalaFileSetTestCase {
 
         return psiFile.getText();
     }
+
+    @Override
+    protected @NotNull String transformExpectedResult(@NotNull String text) {
+        return SurroundWithTestUtil.prepareExpectedResult(text);
+    }
 }

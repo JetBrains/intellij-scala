@@ -1,0 +1,12 @@
+class a:
+  <start>ABC
+  deF<catch>
+end a
+-----
+class a:
+  try
+    ABC
+    deF
+  catch
+    case  =>
+end a
