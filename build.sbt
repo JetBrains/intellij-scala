@@ -1,7 +1,7 @@
-import Common._
+import Common.*
 import Dependencies.provided
 import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPath, sbtDep}
-import org.jetbrains.sbtidea.Keys._
+import org.jetbrains.sbtidea.Keys.*
 
 import java.nio.file.Paths
 
@@ -600,7 +600,7 @@ lazy val mlCompletionIntegration =
       resolvers += "intellij-dependencies" at "https://packages.jetbrains.team/maven/p/ij/intellij-dependencies/",
       libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.3.2"
     )
-    
+
 lazy val packageSearchIntegration =
   newProject("packagesearch", file("scala/integration/packagesearch"))
     .dependsOn(scalaImpl, sbtImpl)
@@ -682,7 +682,7 @@ lazy val runtimeDependencies4 =
 //    .enablePlugins(JmhPlugin)
 
 // Testing keys and settings
-import Common.TestCategory._
+import Common.TestCategory.*
 
 val junitInterfaceFlags = "-v -s -a +c +q"
 

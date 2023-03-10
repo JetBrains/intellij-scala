@@ -1,8 +1,8 @@
-import sbt.{Def, _}
+import sbt.{Def, *}
 import LocalRepoPackager.localRepoDependencies
-import Keys._
-import org.jetbrains.sbtidea.Keys._
-import org.jetbrains.sbtidea.packaging.PackagingKeys._
+import Keys.*
+import org.jetbrains.sbtidea.Keys.*
+import org.jetbrains.sbtidea.packaging.PackagingKeys.*
 import sbtide.Keys.ideSkipProject
 
 object Common {

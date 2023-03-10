@@ -4,9 +4,8 @@ import coursier.ivy.IvyRepository
 import coursier.maven.MavenRepository
 import coursier.util.Artifact
 import coursier.{Classifier, Fetch, Module, ModuleName, Organization, moduleNameString, organizationString, util}
+import sbt.*
 import sbt.Keys.baseDirectory
-import sbt._
-import sbt.io.IO
 
 import java.io.File
 import java.net.URI
@@ -16,7 +15,7 @@ import java.nio.file.{Path, Paths}
   * Download artifacts from Maven and map them into a local repository, so that sbt can resolve artifacts locally without depending on online resolvers.
   */
 object LocalRepoPackager extends AutoPlugin {
-  
+
   val localRepoDependencies = settingKey[Seq[Dependency]]("dependencies to be downloaded into local repo")
   val localRepoUpdate = taskKey[Seq[(Path,Path)]]("create or update local repo")
 

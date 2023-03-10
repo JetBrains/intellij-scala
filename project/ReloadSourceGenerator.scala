@@ -1,4 +1,4 @@
-import sbt.{Def, _}
+import sbt.{Def, *}
 import sbt.plugins.JvmPlugin
 
 object ReloadSourceGenerator extends AutoPlugin {

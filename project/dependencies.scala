@@ -1,7 +1,7 @@
 import org.jetbrains.sbtidea.IntelliJPlatform.IdeaCommunity
 import org.jetbrains.sbtidea.download.BuildInfo
 import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
-import sbt._
+import sbt.*
 
 object Versions {
   val scalaVersion: String = "2.13.10"
@@ -55,7 +55,7 @@ object Versions {
 
 object Dependencies {
 
-  import Versions._
+  import Versions.*
 
   val sbtLaunch: ModuleID = "org.scala-sbt" % "sbt-launch" % sbtVersion intransitive()
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
@@ -144,8 +144,8 @@ object Dependencies {
 }
 
 object DependencyGroups {
-  import Dependencies._
-  import Versions._
+  import Dependencies.*
+  import Versions.*
 
   val scalaCommunity: Seq[ModuleID] = Seq(
     scalaLibrary,
