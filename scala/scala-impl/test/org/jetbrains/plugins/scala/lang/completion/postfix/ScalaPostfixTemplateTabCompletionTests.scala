@@ -65,15 +65,10 @@ abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaCompletion
   TestScalaVersion.Scala_3_Latest,
 ))
 class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompletionTestBase {
-  def testTry(): Unit = doTestUniqueKeyTemplate()()
 
   def testAssert(): Unit = doTestUniqueKeyTemplate()()
 
   def testCast(): Unit = doTestUniqueKeyTemplate()()
-
-  def testElse(): Unit = doTestUniqueKeyTemplate()()
-
-  def testIf(): Unit = doTestUniqueKeyTemplate()()
 
   def testFor(): Unit = doTestUniqueKeyTemplate()()
 
@@ -118,6 +113,12 @@ class ScalaPostfixTemplateTabCompletionTest_2_13 extends ScalaPostfixTemplateTab
   def testMatch(): Unit = doTest(classOf[ScalaMatchPostfixTemplate])()
 
   def testExhaustiveMatch(): Unit = doTest(classOf[ScalaExhaustiveMatchPostfixTemplate])(".match")
+
+  def testTry(): Unit = doTestUniqueKeyTemplate()()
+
+  def testElse(): Unit = doTestUniqueKeyTemplate()()
+
+  def testIf(): Unit = doTestUniqueKeyTemplate()()
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
@@ -128,4 +129,10 @@ class ScalaPostfixTemplateTabCompletionTest_3_Latest extends ScalaPostfixTemplat
   def testMatch(): Unit = doTest(classOf[ScalaMatchPostfixTemplate])()
 
   def testExhaustiveMatch(): Unit = doTest(classOf[ScalaExhaustiveMatchPostfixTemplate])(".match")
+
+  def testTry(): Unit = doTestUniqueKeyTemplate()()
+
+  def testElse(): Unit = doTestUniqueKeyTemplate()()
+
+  def testIf(): Unit = doTestUniqueKeyTemplate()()
 }
