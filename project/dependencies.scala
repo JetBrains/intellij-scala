@@ -174,8 +174,8 @@ object DependencyGroups {
   )
 
   val bsp: Seq[ModuleID] = Seq(
-    ("ch.epfl.scala" % "bsp4j" % bspVersion).excludeAll(bspExclusions: _*),
-    ("ch.epfl.scala" %% "bsp-testkit" % bspVersion).excludeAll(bspExclusions: _*) % Test,
+    ("ch.epfl.scala" % "bsp4j" % bspVersion).excludeAll(bspExclusions *),
+    ("ch.epfl.scala" %% "bsp-testkit" % bspVersion).excludeAll(bspExclusions *) % Test,
     scalaTest,
     scalaCheck,
     "org.scalatestplus" %% "junit-4-13" % "3.2.15.0" % Test,
