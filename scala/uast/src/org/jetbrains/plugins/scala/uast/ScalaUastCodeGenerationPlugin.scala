@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.uast.UastContextKt.toUElement
 import org.jetbrains.uast.generate.{UastCodeGenerationPlugin, UastElementFactory}
-import org.jetbrains.uast.{UElement, UExpression, UField, UMethod, UParameter, UQualifiedReferenceExpression, UReferenceExpression, UastUtils}
+import org.jetbrains.uast.{UElement, UExpression, UField, UMethod, UParameter, UQualifiedReferenceExpression, UReferenceExpression, UReturnExpression, UastUtils}
 
 import scala.collection.mutable
 
@@ -140,6 +140,9 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
       case _ => null
     }
   }
+
+  // This method is about explicit Kotlin return labels
+  override def changeLabel(uReturnExpression: UReturnExpression, psiElement: PsiElement): UReturnExpression = null
 
   private def addToBlock(block: ScBlockExpr, element: PsiElement)(implicit pc: ProjectContext): PsiElement = {
     val rBrace = block.getRBrace.orNull
