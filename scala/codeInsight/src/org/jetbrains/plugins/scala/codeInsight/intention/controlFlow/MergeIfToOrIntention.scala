@@ -65,7 +65,7 @@ final class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
 
     implicit val ctx: ProjectContext = project
     implicit val features: ScalaFeatures = element
-    val newIfStmt = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](expr.toString(), element))
+    val newIfStmt = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](expr.toString(), element), recursive = true)
 
     IntentionPreviewUtils.write { () =>
       ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)

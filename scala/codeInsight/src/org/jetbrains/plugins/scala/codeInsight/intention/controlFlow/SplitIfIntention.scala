@@ -52,7 +52,7 @@ final class SplitIfIntention extends PsiElementBaseIntentionAction {
     import ifStmt.projectContext
     implicit val features: ScalaFeatures = element
     val start = ifStmt.getTextRange.getStartOffset
-    val newIfStmt = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](prefix + suffix, element))
+    val newIfStmt = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](prefix + suffix, element), recursive = true)
     val diff = newIfStmt.condition.get.getTextRange.getStartOffset - newIfStmt.getTextRange.getStartOffset
 
     IntentionPreviewUtils.write { () =>

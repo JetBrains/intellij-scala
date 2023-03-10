@@ -12,7 +12,7 @@ abstract class ScalaWithIfSurrounderBase extends ScalaExpressionSurrounder {
   override def getSurroundSelectionRange(editor: Editor, nodeWithIfNode: ASTNode): TextRange = {
     val stmt = unwrapParenthesis(nodeWithIfNode) match {
       case Some(stmt: ScIf) =>
-        val converted = ScalaPsiUtil.convertIfToBracelessIfNeeded(stmt)(stmt.projectContext, stmt)
+        val converted = ScalaPsiUtil.convertIfToBracelessIfNeeded(stmt, recursive = false)(stmt.projectContext, stmt)
         if (stmt eq converted) stmt
         else stmt.replace(converted).asInstanceOf[ScIf]
       case _ => return nodeWithIfNode.getTextRange

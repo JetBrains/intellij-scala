@@ -1726,7 +1726,7 @@ object ScalaPsiUtil {
    *
    * Doesn't modify given statement, returns a modified copy.
    */
-  def convertIfToBracelessIfNeeded(ifStmt: ScIf)(implicit ctx: ProjectContext, features: ScalaFeatures): ScIf = {
+  def convertIfToBracelessIfNeeded(ifStmt: ScIf, recursive: Boolean)(implicit ctx: ProjectContext, features: ScalaFeatures): ScIf = {
     if (!ctx.project.indentationBasedSyntaxEnabled(features)) return ifStmt
 
     val statement = ifStmt.copy().asInstanceOf[ScIf]
@@ -1754,7 +1754,7 @@ object ScalaPsiUtil {
       cond.prevSiblingNotWhitespaceComment.filter(_.elementType == ScalaTokenTypes.tLPARENTHESIS).foreach(_.delete())
     }
 
-    def convertIf(scIf: ScIf): Unit = scIf.replace(convertIfToBracelessIfNeeded(scIf))
+    def convertIf(scIf: ScIf): Unit = scIf.replace(convertIfToBracelessIfNeeded(scIf, recursive))
 
     def processBlock(block: ScBlockExpr): Unit = {
       // remove braces
@@ -1774,21 +1774,23 @@ object ScalaPsiUtil {
         block.getLBrace.foreach(_.delete())
       }
 
-      // process inner ifs
-      block.children
-        .filterByType[ScIf]
-        .foreach(convertIf)
+      if (recursive) {
+        // process inner ifs
+        block.children
+          .filterByType[ScIf]
+          .foreach(convertIf)
+      }
     }
 
     statement.thenExpression.foreach {
       case block: ScBlockExpr => processBlock(block)
-      case innerIf: ScIf => convertIf(innerIf)
+      case innerIf: ScIf if recursive => convertIf(innerIf)
       case _ =>
     }
 
     statement.elseExpression.foreach {
       case block: ScBlockExpr => processBlock(block)
-      case innerIf: ScIf => convertIf(innerIf)
+      case innerIf: ScIf if recursive => convertIf(innerIf)
       case _ =>
     }
 

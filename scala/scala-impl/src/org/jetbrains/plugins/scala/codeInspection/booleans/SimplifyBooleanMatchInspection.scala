@@ -64,7 +64,7 @@ object SimpleBooleanMatchUtil {
       case Some((clause, value)) =>
         val exprText = if (value) stmt.expression.get.getText else "!" + getParenthesisedText(stmt.expression.get)
         val ifStmt = createElementFromText[ScIf](s"if ($exprText){ ${getTextWithoutBraces(clause)} }", stmt)
-        ScalaPsiUtil.convertIfToBracelessIfNeeded(ifStmt)
+        ScalaPsiUtil.convertIfToBracelessIfNeeded(ifStmt, recursive = true)
     }
   }
 
@@ -80,7 +80,7 @@ object SimpleBooleanMatchUtil {
              |${getTextWithoutBraces(falseClause)}
              |}
            """.stripMargin, stmt)
-        ScalaPsiUtil.convertIfToBracelessIfNeeded(ifStmt)
+        ScalaPsiUtil.convertIfToBracelessIfNeeded(ifStmt, recursive = true)
       case _ => stmt
     }
   }

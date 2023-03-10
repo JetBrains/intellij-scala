@@ -80,7 +80,7 @@ final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     IntentionPreviewUtils.write { () =>
       implicit val ctx: ProjectContext = element.getManager
       implicit val features: ScalaFeatures = element
-      val newIfStmtDummy = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](newIfElseText, element))
+      val newIfStmtDummy = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](newIfElseText, element), recursive = true)
       val newIfStmt = ifStmt.replaceExpression(newIfStmtDummy, removeParenthesis = true)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
 

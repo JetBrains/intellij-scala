@@ -6,7 +6,8 @@ end a
 -----
 class a:
   if  then
-    if true then
+    if (true) {
       again
+    }
   else {}
 end a

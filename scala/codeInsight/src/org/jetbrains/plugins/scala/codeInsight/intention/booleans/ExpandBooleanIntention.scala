@@ -45,7 +45,7 @@ final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
       implicit val context: ProjectContext = project
       implicit val features: ScalaFeatures = element
       val replacementText = s"if ($expressionText) { return true } else { return false }"
-      val replacement = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](replacementText, features))
+      val replacement = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](replacementText, features), recursive = false)
       statement.replaceExpression(replacement, removeParenthesis = true)
 
       editor.getCaretModel.moveToOffset(start)

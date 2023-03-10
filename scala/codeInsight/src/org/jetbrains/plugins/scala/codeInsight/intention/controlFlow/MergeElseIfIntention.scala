@@ -64,7 +64,7 @@ final class MergeElseIfIntention extends PsiElementBaseIntentionAction {
 
     implicit val ctx: ProjectContext = element.getManager
     implicit val features: ScalaFeatures = element
-    val newIfStmt = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](expr.toString(), element))
+    val newIfStmt = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](expr.toString(), element), recursive = true)
     val size = newIfStmt.thenExpression.get.getTextRange.getEndOffset -
       newIfStmt.getTextRange.getStartOffset
 
