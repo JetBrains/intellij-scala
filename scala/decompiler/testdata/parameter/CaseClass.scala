@@ -7,5 +7,7 @@ trait CaseClass {
 
   case class PrivateValParameter(/**/private val /**/x: Int)
 
+  case class ProtectedValParameter(protected val x: Int)
+
   case class VarParameter(var x: Int)
 }

@@ -605,7 +605,9 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
 
     val templateTypeParams = template.map(_.children.filter(_.is(TYPEPARAM)).iterator)
 
-    lazy val contextBounds = node.children.collect {
+    val isPrivateConstructor = node.is(DEFDEF) && node.names == Seq("<init>") && node.contains(PRIVATE)
+
+    lazy val contextBounds = if (!privateMembers && isPrivateConstructor) Seq.empty else node.children.collect {
       case param @ Node3(PARAM, Seq(name), Seq(tail, _: _*)) if name.startsWith("evidence$") && param.contains(IMPLICIT) && hasSingleArgument(tail) =>
         val Seq(designator, argument) = tail.children
         (simple(textOfType(argument)), simple(textOfType(designator)))
@@ -676,8 +678,6 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     modifiers(sb)
     val hasModifiers = sb.length > previousLength
 
-    val isPrivateConstructor = !privateMembers && node.is(DEFDEF) && node.names == Seq("<init>") && node.contains(PRIVATE)
-
     val ps = target match {
       case Target.Extension =>
         popExtensionParams(mutable.Stack[Node](node.children: _*))
@@ -694,6 +694,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     next = false
 
     var isImplicitClause = false
+    var isGivenClause = false
 
     ps.foreach {
       case Node1(EMPTYCLAUSE) =>
@@ -707,20 +708,17 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
           open = true
           next = false
           if (node.contains(GIVEN)) {
-            if (!isPrivateConstructor) {
-              sb ++= "using "
-            }
+            sb ++= "using "
+            isGivenClause = true
           } else {
             if (node.contains(IMPLICIT)) {
-              if (!isPrivateConstructor) {
-                sb ++= "implicit "
-              }
+              sb ++= "implicit "
               isImplicitClause = true
             }
           }
         }
         val templateValueParam = templateValueParams.map(_.next())
-        if (!isPrivateConstructor || templateValueParam.exists(!_.contains(PRIVATE))) { // TODO private (), variables in { ... }
+        if (privateMembers || !isPrivateConstructor || templateValueParam.exists(!_.contains(PRIVATE))) { // TODO private (), variables in { ... }
           if (next) {
             sb ++= ", "
           }
@@ -734,7 +732,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
               if (!valueParam.contains(LOCAL)) {
                 val sb1 = new StringBuilder() // TODO reuse
                 val isPrivate = valueParam.contains(PRIVATE)
-                modifiersIn(sb1, valueParam, (if (privateMembers || !isPrivate) Set() else Set(ABSTRACT, OVERRIDE, PRIVATE, IMPLICIT, FINAL)) ++ (if (isImplicitClause && !isPrivateConstructor) Set(GIVEN, IMPLICIT) else Set(GIVEN)))
+                modifiersIn(sb1, valueParam, (if (isImplicitClause) Set(IMPLICIT) else if (isGivenClause) Set(GIVEN) else Set.empty) ++ (if (privateMembers || !isPrivate) Set.empty else Set(ABSTRACT, OVERRIDE, PRIVATE, IMPLICIT, FINAL)))
                 sb ++= sb1
                 if (privateMembers || !isPrivate) {
                   if (valueParam.contains(MUTABLE)) {
@@ -766,6 +764,13 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       case _ =>
     }
     if (open) {
+      if (!next) {
+        if (isImplicitClause) {
+          sb.setLength(sb.length - 9)
+        } else if (isGivenClause) {
+          sb.setLength(sb.length - 6)
+        }
+      }
       sb ++= ")"
     }
     if (template.isEmpty || hasModifiers || definition.exists(it => it.contains(CASE) && !it.contains(OBJECT))) {} else {
