@@ -17,7 +17,9 @@ trait Modifiers {
 
   class ClassPrivateImplicit1(implicit /**/private val /**/x: Int, y: Int)
 
-  class ClassPrivateImplicit2(x: Int, /**/implicit private val /**/y: Int)
+  class ClassPrivateImplicit2(x: Int, /**/private implicit val /**/y: Int)
+
+  class ClassPrivateImplicit3(implicit x: Int, /**/private val /**/y: Int)
 
   class ClassProtected(protected val x: Int)
 

@@ -174,7 +174,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
     print(s)
   }
 
-  def printModifiers(symbol: Symbol, classParameterModifiers: Boolean = true): Unit = {
+  def printModifiers(symbol: Symbol): Unit = {
     lazy val privateWithin: Option[String] = {
       symbol match {
         case sym: SymbolInfoSymbol => sym.symbolInfo.privateWithin match {
@@ -191,9 +191,9 @@ class ScalaSigPrinter(builder: StringBuilder) {
     }
 
     if (symbol.isAbstractOverride) print("abstract override ")
-    if (classParameterModifiers && symbol.isOverride) print("override ")
+    if (symbol.isOverride) print("override ")
     // print private access modifier
-    if (classParameterModifiers && symbol.isPrivate) {
+    if (symbol.isPrivate) {
       print("private")
       if (symbol.isLocal) print("[this] ")
       else print(" ")
@@ -207,10 +207,10 @@ class ScalaSigPrinter(builder: StringBuilder) {
     else privateWithin.foreach(s => print("private" + s + " "))
 
     if (symbol.isSealed) print("sealed ")
-    if (classParameterModifiers && symbol.isImplicit) print("implicit ")
-    if (classParameterModifiers && symbol.isFinal && !symbol.isInstanceOf[ObjectSymbol]) print("final ")
+    if (symbol.isImplicit) print("implicit ")
+    if (symbol.isFinal && !symbol.isInstanceOf[ObjectSymbol]) print("final ")
     if (symbol.isAbstract) symbol match {
-      case c@(_: ClassSymbol | _: ObjectSymbol) if classParameterModifiers && !c.isTrait => print("abstract ")
+      case c@(_: ClassSymbol | _: ObjectSymbol) if !c.isTrait => print("abstract ")
       case _ => ()
     }
     if (symbol.isCase && !symbol.isMethod) print("case ")
@@ -294,7 +294,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
         val printer = new ScalaSigPrinter(new StringBuilder())
         printer.printPrimaryConstructor(m, c)
         val res = printer.result
-        (contextBoundsIn(m.infoType), if (res.length() > 0 && res.charAt(0) != '(') " " + res else res)
+        (if (!m.isPrivate) contextBoundsIn(m.infoType) else Seq.empty, if (res.length() > 0 && res.charAt(0) != '(') " " + res else res)
       case _ => (Seq.empty, "")
     }
   }
@@ -302,7 +302,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
   def printPrimaryConstructor(m: MethodSymbol, c: ClassSymbol): Unit = {
     printModifiers(m)
     printSymbolAttributes(m, onNewLine = false, ())
-    printMethodType(m.infoType, printResult = false, methodSymbolAsClassParam(_, c, m), printImplicit = !m.isPrivate)(())
+    printMethodType(m.infoType, printResult = false, methodSymbolAsClassParam(_, c, m))(())
   }
 
   def printPackageObject(level: Int, o: ObjectSymbol): Unit = {
@@ -359,9 +359,9 @@ class ScalaSigPrinter(builder: StringBuilder) {
     if (!primaryConstructor.isPrivate || toPrint.exists(m => !m.isLocal && !m.isPrivate)) {
       toPrint match {
         case Some(ms) =>
-          val previousLength = sb.length
-          printer.printModifiers(ms, classParameterModifiers = primaryConstructor.isPrivate || !ms.isPrivate)
           if (!ms.isPrivate) {
+            val previousLength = sb.length
+            printer.printModifiers(ms)
             if (isMutable) printer.print("var ")
             else if (!(c.isCase && sb.length == previousLength)) printer.print("val ")
           }
@@ -378,8 +378,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   def printMethodType(t: Type, printResult: Boolean,
                       pe: MethodSymbol => String = methodSymbolAsMethodParam,
-                      needsSpace: Boolean = false,
-                      printImplicit: Boolean = true)(cont: => Unit): Unit = {
+                      needsSpace: Boolean = false)(cont: => Unit): Unit = {
 
     def _pmt(mt: FunctionType): Unit = {
 
@@ -399,17 +398,18 @@ class ScalaSigPrinter(builder: StringBuilder) {
         val paramEntries = paramSymbolsWithoutContextBounds.map({
           case ms: MethodSymbol =>
             val s = pe(ms)
-            symbolAttributes(ms) + (if (isImplicit && printImplicit) s.replace("implicit ", "") else s)
+            symbolAttributes(ms) + (if (isImplicit) s.replace("implicit ", "") else s)
           case _ => "^___^"
         })
         // Print parameter clauses
-        print(paramEntries.filter(_.nonEmpty).mkString(if (isImplicit && printImplicit) "(implicit " else "(", ", ", ")"))
+        val entries = paramEntries.filter(_.nonEmpty)
+        print(entries.mkString(if (isImplicit && entries.nonEmpty) "(implicit " else "(", ", ", ")"))
       }
 
       // Print result type
       mt.resultType.get match {
-        case mt: MethodType => printMethodType(mt, printResult, pe, printImplicit = printImplicit)({})
-        case imt: ImplicitMethodType => printMethodType(imt, printResult, pe, printImplicit = printImplicit)({})
+        case mt: MethodType => printMethodType(mt, printResult, pe)({})
+        case imt: ImplicitMethodType => printMethodType(imt, printResult, pe)({})
         case x => if (printResult) {
           print(": ")
           printType(x)
