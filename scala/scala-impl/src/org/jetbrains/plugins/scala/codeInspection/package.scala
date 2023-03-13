@@ -27,7 +27,7 @@ package object codeInspection {
     textEditor <- FileEditorManager.getInstance(project).getSelectedEditor(vfile).asOptionOf[TextEditor]
   } yield textEditor.getEditor
 
-  private[codeInspection] def expressionResultIsNotUsed(expression: ScExpression): Boolean =
+  def expressionResultIsNotUsed(expression: ScExpression): Boolean =
     parentCannotUseExprAsResult(expression) ||
       parents(expression).exists {
         case e: ScExpression => parentCannotUseExprAsResult(e)
