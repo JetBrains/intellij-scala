@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundI
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 class DeprecatedViewBoundInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {

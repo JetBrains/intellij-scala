@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createP
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 class VariablePatternShadowInspection extends LocalInspectionTool {
 
   import VariablePatternShadowInspection._

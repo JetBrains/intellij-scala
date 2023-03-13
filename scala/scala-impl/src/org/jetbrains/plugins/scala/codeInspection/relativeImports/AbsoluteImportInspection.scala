@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 class AbsoluteImportInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case importExpr@ScImportExpr.qualifier(qualifier) =>

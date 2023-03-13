@@ -7,9 +7,6 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 final class ScalaUnusedImportsPassFactory
   extends TextEditorHighlightingPassFactory
     with TextEditorHighlightingPassFactoryRegistrar

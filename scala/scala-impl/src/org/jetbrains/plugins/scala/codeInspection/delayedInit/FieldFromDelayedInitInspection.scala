@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 final class FieldFromDelayedInitInspection extends LocalInspectionTool {
 
   import FieldFromDelayedInitInspection._

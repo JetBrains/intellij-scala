@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 class LoopVariableNotUpdatedInspection extends LocalInspectionTool {
   private val ComparisonOperators = Set("==", "!=", ">", "<", ">=", "<=")
 

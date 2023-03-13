@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 class SbtReplaceProjectWithProjectInInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {

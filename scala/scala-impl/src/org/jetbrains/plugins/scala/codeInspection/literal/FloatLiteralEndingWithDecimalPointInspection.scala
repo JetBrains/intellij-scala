@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiE
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 class FloatLiteralEndingWithDecimalPointInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case lit: ScLiteral if lit.getText.endsWith(".") =>

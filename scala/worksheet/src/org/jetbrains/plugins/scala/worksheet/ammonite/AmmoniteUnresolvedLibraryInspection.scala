@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeR
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 class AmmoniteUnresolvedLibraryInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case stableRef: ScStableCodeReference => stableRef.qualifier.foreach(processExpr(stableRef, _, holder))
