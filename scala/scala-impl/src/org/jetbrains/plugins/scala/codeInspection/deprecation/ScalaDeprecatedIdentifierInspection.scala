@@ -5,9 +5,6 @@ import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, Scal
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 class ScalaDeprecatedIdentifierInspection extends LocalInspectionTool {
   import ScalaDeprecatedIdentifierInspection._
 

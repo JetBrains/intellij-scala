@@ -6,9 +6,6 @@ import com.intellij.psi.{PsiFile, PsiManager, PsiTreeChangeAdapter, PsiTreeChang
 import org.jetbrains.plugins.scala.compiler.highlighting.TriggerCompilerHighlightingOnPsiChangeListener.PsiChangeListener
 import org.jetbrains.plugins.scala.project.ProjectExt
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 private final class TriggerCompilerHighlightingOnPsiChangeListener extends ProjectManagerListener {
 
   override def projectOpened(project: Project): Unit = {

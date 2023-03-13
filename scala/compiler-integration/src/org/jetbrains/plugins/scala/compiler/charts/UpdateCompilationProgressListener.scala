@@ -3,9 +3,6 @@ package org.jetbrains.plugins.scala.compiler.charts
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 private class UpdateCompilationProgressListener(project: Project)
   extends CompilerEventListener {
 

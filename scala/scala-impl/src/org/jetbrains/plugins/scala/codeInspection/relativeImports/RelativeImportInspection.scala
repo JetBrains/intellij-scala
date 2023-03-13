@@ -12,10 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
 
-import scala.annotation.{tailrec, unused}
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-@unused("registered in scala-plugin-common.xml")
 class RelativeImportInspection extends LocalInspectionTool {
   import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
 

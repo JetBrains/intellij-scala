@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListene
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.project.template.FileExt
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 private class UpdateCompilerGeneratedStateListener(project: Project)
   extends CompilerEventListener {
 
