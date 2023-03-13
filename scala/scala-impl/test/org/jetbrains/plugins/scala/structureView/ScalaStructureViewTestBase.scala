@@ -8,7 +8,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.ElementBase
-import com.intellij.ui.{CoreIconManager, IconManager, LayeredIcon, PlatformIcons}
+import com.intellij.ui.icons.CoreIconManager
+import com.intellij.ui.{IconManager, LayeredIcon, PlatformIcons}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}

@@ -25,7 +25,7 @@ class IconsTest extends UsefulTestCase {
     iconFields.sortBy(_.getName).foreach { f =>
       val icon = f.get(null)
       icon match {
-        case cached: com.intellij.openapi.util.CachedImageIcon =>
+        case cached: com.intellij.ui.icons.CachedImageIcon =>
           // contains com.intellij.openapi.util.IconLoader.EMPTY_ICON in case icon can't be loaded
           val realIcon0 = cached.getRealIcon
           // val realIcon1 = cached.doGetRealIcon()
