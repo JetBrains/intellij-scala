@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, Scal
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
-import scala.annotation.unused
-
-@unused("registered in scala-plugin-common.xml")
 class TypeParameterShadowInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {

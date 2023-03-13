@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServer
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
 import java.io.File
-import scala.annotation.{tailrec, unused}
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 //noinspection ApiStatus
@@ -72,7 +72,6 @@ object ScalaEvaluatorCompileHelper {
   def instance(project: Project): ScalaEvaluatorCompileHelper =
     project.getService(classOf[ScalaEvaluatorCompileHelper])
 
-  @unused("registered in scala-plugin-common.xml")
   private class Listener(project: Project) extends DebuggerManagerListener {
 
     override def sessionDetached(session: DebuggerSession): Unit = {

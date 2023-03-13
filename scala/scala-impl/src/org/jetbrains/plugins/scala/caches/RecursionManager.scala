@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.util.RichThreadLocal
 
 import java.util
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
-import scala.annotation.unused
 import scala.jdk.CollectionConverters._
 
 /**
@@ -66,7 +65,6 @@ object RecursionManager {
       result.asInstanceOf[LocalCacheValue]
     }
 
-    @unused("used by CachedMacroUtil")
     def cacheInLocalCache(data: Data, value: LocalCacheValue): Unit = {
       val stack = ourStack.value
       val key = createKey(data, myCallEquals = true)

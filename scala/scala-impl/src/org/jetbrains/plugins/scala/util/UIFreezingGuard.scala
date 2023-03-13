@@ -46,7 +46,6 @@ object UIFreezingGuard {
 
   private def isEdt: Boolean = ApplicationManager.getApplication.isDispatchThread
 
-  @unused("used by CachedMacroUtil")
   def withResponsibleUI[T](body: => T): T = {
     if (!isAlreadyGuarded && pceEnabled) {
       val start = System.currentTimeMillis()

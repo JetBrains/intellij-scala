@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager
 
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
-import scala.annotation.unused
 import scala.util.control.ControlThrowable
 
 object CachesUtil {
@@ -48,7 +47,6 @@ object CachesUtil {
                                               key: Key[_],
                                               set: Set[ScFunction]) extends ControlThrowable
 
-  @unused("used in caching macro annotations")
   def getOrCreateCachedMap[Dom: ProjectUserDataHolder, Data, Result](elem: Dom,
                                                                      key: Key[CachedMap[Data, Result]],
                                                                      cacheTypeId: String,
@@ -71,7 +69,6 @@ object CachesUtil {
     cachedValue.getValue
   }
 
-  @unused("used in caching macro annotations")
   def getOrCreateCachedRef[Dom: ProjectUserDataHolder, Result](elem: Dom, key: Key[CachedRef[Result]], cacheTypeId: String, cacheTypeName: String, dependencyItem: () => Object): AtomicReference[Result] = {
     import CacheCapabilties._
     val cachedValue = elem.getUserData(key) match {
@@ -90,7 +87,6 @@ object CachesUtil {
     cachedValue.getValue
   }
 
-  @unused("used in CachedWithRecursionGuard")
   def handleRecursiveCall[Data, Result](e: PsiElement,
                                         data: Data,
                                         key: Key[_],
