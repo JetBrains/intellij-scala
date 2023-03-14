@@ -9,7 +9,23 @@ trait Modifiers {
 
   class PrivatePrimaryConstructorValParameter private (val x: Int)
 
+  case class PrivatePrimaryConstructorCaseClassParameter private (x: Int)
+
   class PrivatePrimaryConstructorPrivateValParameter private (/**/private val x: Int/**/)
+
+  class PrivatePrimaryConstructorUsingParameter private (/**/using x: Int/**/)
+
+  class PrivatePrimaryConstructorUsingParameters private (/**/using x: Int, y: Int/**/)
+
+  class PrivatePrimaryConstructorUsingVal1 private (using val x: Int/**/, y: Int/**/)
+
+  class PrivatePrimaryConstructorUsingVal3 private (using /**/x: Int, /**/val y: Int)
+
+  class PrivatePrimaryConstructorUsingPrivateVal1 private (/**/using private val x: Int, y: Int/**/)
+
+  class PrivatePrimaryConstructorUsingPrivateVal3 private (/**/using x: Int, private val y: Int/**/)
+
+  class PrivatePrimaryConstructorUsingPrivateVal4 private (/**/using private val x: Int, private val y: Int/**/)
 
   class PrivatePrimaryConstructorImplicitParameter private (/**/implicit x: Int/**/)
 
@@ -21,11 +37,29 @@ trait Modifiers {
 
   class PrivatePrimaryConstructorImplicitVal3 private (implicit /**/x: Int, /**/val y: Int)
 
+  class PrivatePrimaryConstructorImplicitVal4 private (implicit val x: Int, val y: Int)
+
   class PrivatePrimaryConstructorImplicitPrivateVal1 private (/**/implicit private val x: Int, y: Int/**/)
 
-  class PrivatePrimaryConstructorImplicitPrivateVal2 private (/**/x: Int, implicit private val y: Int/**/)
+  class PrivatePrimaryConstructorImplicitPrivateVal2 private (/**/x: Int, private implicit val y: Int/**/)
 
   class PrivatePrimaryConstructorImplicitPrivateVal3 private (/**/implicit x: Int, private val y: Int/**/)
+
+  class PrivatePrimaryConstructorImplicitPrivateVal4 private (/**/implicit private val x: Int, private val y: Int/**/)
+
+  class PrivatePrimaryConstructorUsingImplicitVal1 private (using implicit val x: Int/**/, y: Int/**/)
+
+  class PrivatePrimaryConstructorUsingImplicitVal2 private (using /**/x: Int, /**/implicit val y: Int)
+
+  class PrivatePrimaryConstructorUsingImplicitVal4 private (using implicit val x: Int, implicit val y: Int)
+
+  class PrivatePrimaryConstructorUsingImplicitPrivateVal1 private (/**/using private implicit val x: Int, y: Int/**/)
+
+  class PrivatePrimaryConstructorUsingImplicitPrivateVal2 private (/**/using x: Int, private implicit val y: Int/**/)
+
+  class PrivatePrimaryConstructorUsingImplicitPrivateVal4 private (/**/using private implicit val x: Int, private implicit val y: Int/**/)
+
+  class PrivatePrimaryConstructorContextBound[A/**/: Ordering/**/] private ()
 
   class ProtectedPrimaryConstructor protected ()
 
