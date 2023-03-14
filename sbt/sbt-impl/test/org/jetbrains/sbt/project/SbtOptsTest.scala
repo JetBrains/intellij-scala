@@ -40,11 +40,6 @@ class SbtOptsTest {
   )
 
   @Test
-  def dummyFailingTest(): Unit = {
-    assertTrue(false)
-  }
-
-  @Test
   def testLoad(): Unit = {
     val optsDir = FileUtil.createTempDirectory("sbtOptsTest","",true)
     val optsFile = new File(optsDir,SbtOpts.SbtOptsFile)
