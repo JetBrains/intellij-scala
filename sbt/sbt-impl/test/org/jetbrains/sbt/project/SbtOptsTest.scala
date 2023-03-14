@@ -5,7 +5,7 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.jetbrains.sbt.project.structure.{SbtOption, SbtOpts}
 import org.jetbrains.sbt.project.structure.SbtOption._
-import org.junit.Assert.assertEquals
+import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Test
 
 import java.io.File

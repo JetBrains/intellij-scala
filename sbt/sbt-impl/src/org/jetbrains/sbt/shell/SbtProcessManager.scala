@@ -190,8 +190,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
         else                             "idea-shell"
 
       commandLine.addParameter(commands)
-      val sbtLauncherOpts = mappedSbtOpts.collect { case a: SbtLauncherOption => a.value }
-      commandLine.addParameters(sbtLauncherOpts.asJava)
+      val sbtLauncherArgs = mappedSbtOpts.collect { case a: SbtLauncherOption => a.value }
+      commandLine.addParameters(sbtLauncherArgs.asJava)
     }
 
     if (shouldUpgradeSbtVersion)
