@@ -819,7 +819,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i7424b(): Unit = doTest("i7424b", false) // #enum
   def test_i7424c(): Unit = doTest("i7424c", true) // #enum
   def test_i7428(): Unit = doTest("i7428", true) // #enum
-  def test_i7452(): Unit = doTest("i7452", false) // #typeLambda
+  def test_i7452(): Unit = doTest("i7452", true) // #typeLambda
   def test_i7458(): Unit = doTest("i7458", true) // #extension
   def test_i7467(): Unit = doTest("i7467", true)
   def test_i7477(): Unit = doTest("i7477", true)
@@ -1660,7 +1660,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_relax_implicit_divergence(): Unit = doTest("relax_implicit_divergence", true)
   def test_renaming_imports(): Unit = doTest("renaming-imports", false)
   def test_Repeated(): Unit = doTest("Repeated", false) // #opaque, #extension
-  def test_repeatedArgs213(): Unit = doTest("repeatedArgs213", false) // #intersectionType
+  def test_repeatedArgs213(): Unit = doTest("repeatedArgs213", true) // #intersectionType
   def test_Result(): Unit = doTest("Result", true) // #enum
   def test_resultGuidesInference(): Unit = doTest("resultGuidesInference", true)
   def test_return_thistype(): Unit = doTest("return_thistype", true)
