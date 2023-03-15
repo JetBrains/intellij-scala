@@ -107,7 +107,7 @@ class SbtStructureDump {
 
     runSbt(
       directory, vmExecutable, vmOptions, environment,
-      sbtLauncher, sbtOptions, sbtCommands,
+      sbtLauncher, sbtOptions, Seq.empty, sbtCommands,
       SbtBundle.message("sbt.extracting.project.structure.from.sbt")
     )
   }
@@ -154,6 +154,7 @@ class SbtStructureDump {
              environment0: Map[String, String],
              sbtLauncher: File,
              sbtOptions: Seq[String],
+             sbtLauncherArgs: Seq[String],
              @NonNls sbtCommands: String,
              @Nls reportMessage: String,
             )
@@ -173,7 +174,8 @@ class SbtStructureDump {
          |  vmOptions: $vmOptions,
          |  environment: $environment,
          |  sbtLauncher: $sbtLauncher,
-         |  sbtCommandLineArgs: $sbtOptions,
+         |  sbtOptions: $sbtOptions,
+         |  sbtLauncherArguments: $sbtLauncherArgs,
          |  sbtCommands: $sbtCommands,
          |  reportMessage: $reportMessage""".stripMargin
     )
@@ -185,7 +187,7 @@ class SbtStructureDump {
     val sbtOpts = mappedSbtOpts.collect { case a: JvmOptionGlobal => a.value }
     val allJvmOpts = JvmOpts.loadFrom(directory) ++ vmOptions ++ sbtOpts
 
-    val sbtLauncherOpts = mappedSbtOpts.collect { case a: SbtLauncherOption => a.value }
+    val allSbtLauncherArgs = mappedSbtOpts.collect { case a: SbtLauncherOption => a.value } ++ sbtLauncherArgs
     val processCommandsRaw =
       List(
         normalizePath(vmExecutable),
@@ -194,7 +196,7 @@ class SbtStructureDump {
         "-Dfile.encoding=UTF-8") ++
         allJvmOpts ++
       List("-jar", normalizePath(sbtLauncher)) ++
-      sbtLauncherOpts// :+ "--debug"
+      allSbtLauncherArgs// :+ "--debug"
 
     val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 

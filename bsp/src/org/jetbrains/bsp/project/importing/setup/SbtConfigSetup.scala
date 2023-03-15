@@ -38,7 +38,7 @@ object SbtConfigSetup {
     val sbtLauncher = SbtUtil.getDefaultLauncher
 
     // dummy command so that sbt will run, init and exit
-    val sbtCommandLineArgs = List("early(startServer)")
+    val sbtLauncherArgs = List("early(startServer)")
     val sbtCommands = ""
 
     val projectSbtVersion = Version(detectSbtVersion(baseDir, getDefaultLauncher))
@@ -53,7 +53,7 @@ object SbtConfigSetup {
     val dumper = new SbtStructureDump()
     val runInit = (reporter: BuildReporter) => dumper.runSbt(
       baseDir, jdkExe, vmArgs,
-      Map.empty, sbtLauncher, sbtCommandLineArgs, sbtCommands,
+      Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
       BspBundle.message("bsp.resolver.creating.sbt.configuration"),
     )(reporter)
     new SbtConfigSetup(dumper, runInit)

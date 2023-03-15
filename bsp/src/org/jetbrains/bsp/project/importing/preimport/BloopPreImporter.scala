@@ -40,7 +40,7 @@ object BloopPreImporter {
     val settingsFile = FileUtil.createTempFile(baseDir, "idea-bloop", Sbt.Extension, true)
     FileUtil.writeToFile(settingsFile, injectedSettings)
 
-    val sbtCommandArgs = List(
+    val sbtLauncherArgs = List(
       "early(addPluginSbtFile=\"\"\"" + pluginFilePath + "\"\"\")"
     )
     val sbtCommands = "bloopInstall"
@@ -58,7 +58,7 @@ object BloopPreImporter {
       val dumper = new SbtStructureDump()
       val runDump = (dumper: SbtStructureDump) => dumper.runSbt(
         baseDir, jdkExe, vmArgs,
-        Map.empty, sbtLauncher, sbtCommandArgs, sbtCommands,
+        Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
         BspBundle.message("bsp.resolver.creating.bloop.configuration.from.sbt"),
       )
       new BloopPreImporter(dumper, runDump)
