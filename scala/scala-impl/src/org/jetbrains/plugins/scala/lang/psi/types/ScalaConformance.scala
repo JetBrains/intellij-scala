@@ -433,9 +433,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
     trait OrTypeVisitor extends ScalaTypeVisitor {
       override def visitOrType(t: ScOrType): Unit = {
-        conformsInner(t.lhs, l, HashSet.empty, constraints) match {
+        conformsInner(l, t.lhs, HashSet.empty, constraints) match {
           case ConstraintsResult.Left => result = ConstraintsResult.Left
-          case cs: ConstraintSystem   => result = conformsInner(t.rhs, l, HashSet.empty, cs)
+          case cs: ConstraintSystem   => result = conformsInner(l, t.rhs, HashSet.empty, cs)
         }
       }
     }
@@ -682,7 +682,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
         with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
-        with TypeParameterTypeVisitor {}
+        with TypeParameterTypeVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
