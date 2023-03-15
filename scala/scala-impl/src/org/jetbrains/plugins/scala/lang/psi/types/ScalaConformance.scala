@@ -112,8 +112,8 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     }
 
     val parametersIterator = typeParams.iterator
-    val args1Iterator  = args1.iterator
-    val args2Iterator  = args2.iterator
+    val args1Iterator      = args1.iterator
+    val args2Iterator      = args2.iterator
 
     while (parametersIterator.hasNext && args1Iterator.hasNext && args2Iterator.hasNext) {
       val tp = parametersIterator.next().psiTypeParameter
@@ -130,14 +130,23 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         //this case filter out such cases like undefined type
         case _ =>
           (lhs, rhs) match {
+            case (l: UndefinedType, r: UndefinedType) =>
+              val id = r.typeParameter.typeParamId
+
+              val (lower, upper) =
+                if (l.isWrappedExistential) {
+                  val typeParam = l.typeParameter
+                  (typeParam.lowerType, typeParam.upperType)
+                } else                        (l, l)
+
+            constraints =
+              constraints
+                .withUpper(id, upper)
+                .withLower(id, lower)
             case (UndefinedType(typeParameter, _), rt) =>
-              val y = addParam(typeParameter, rt, constraints)
-              if (y.isLeft) return ConstraintsResult.Left
-              constraints = y.constraints
+              constraints = addParam(typeParameter, rt, constraints)
             case (lt, UndefinedType(typeParameter, _)) =>
-              val y = addParam(typeParameter, lt, constraints)
-              if (y.isLeft) return ConstraintsResult.Left
-              constraints = y.constraints
+              constraints = addParam(typeParameter, lt, constraints)
             case (ScAbstractType(_, lower, upper), right) =>
               if (!addAbstract(upper, lower, right))
                 return ConstraintsResult.Left
@@ -1109,7 +1118,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       if (result != null) return
 
       val (updatedWithUndefinedTypes, undefines) = {
-        val remapper = new ExistentialArgumentsToTypeParameters(e.wildcards, UndefinedType(_))
+        val remapper = new ExistentialArgumentsToTypeParameters(e.wildcards, UndefinedType.wrapExistential)
         (remapper.remapExistentials(e.quantified), remapper.remapped)
       }
 
@@ -1133,6 +1142,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       ) match {
         case cs: ConstraintSystem =>
           constraints = cs
+
           val subst =
             cs.substitutionBounds(canThrowSCE = true, checkWeak = false)
               .map(_.substitutor) match {
@@ -1353,16 +1363,17 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     override def visitUndefinedType(u: UndefinedType): Unit = {
       val rightVisitor = new ValDesignatorSimplification {
         override def visitUndefinedType(u2: UndefinedType): Unit = {
-          val name = u2.typeParameter.typeParamId
-          result = if (u2.level > u.level) {
-            constraints.withUpper(name, u)
-          } else if (u.level > u2.level) {
-            constraints.withUpper(name, u)
-          } else {
-            constraints
-          }
+          val uId  = u.typeParameter.typeParamId
+          val u2Id = u2.typeParameter.typeParamId
+
+          if (u2.isWrappedExistential) {
+            result = constraints.withLower(uId, u2.typeParameter.lowerType)
+          } else if (u.isWrappedExistential) {
+            result = constraints.withUpper(u2Id, u.typeParameter.upperType)
+          } else result = constraints.withUpper(u2Id, u)
         }
       }
+
       r.visitType(rightVisitor)
       if (result == null) {
         r match {

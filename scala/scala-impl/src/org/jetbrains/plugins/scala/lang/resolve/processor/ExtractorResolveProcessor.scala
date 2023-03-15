@@ -86,7 +86,8 @@ class ExtractorResolveProcessor(ref: ScReference,
             case fun: ScFunction =>
               val undefSubst = ScSubstitutor.bind(fun.typeParameters)(UndefinedType(_))
               val subst      = r.substitutor.followed(undefSubst)
-              val clauses = fun.paramClauses.clauses
+              val clauses    = fun.paramClauses.clauses
+
               if (clauses.nonEmpty && clauses.head.parameters.length == 1) {
                 val paramTpe = clauses.head.parameters.head.`type`()
                 paramTpe.exists(t => tp.conforms(subst(t)))

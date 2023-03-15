@@ -17,6 +17,8 @@ trait UndefinedType extends NonValueType with LeafType {
 
   val level: Int
 
+  val isWrappedExistential: Boolean = false
+
   override implicit def projectContext: ProjectContext = typeParameter.psiTypeParameter
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitUndefinedType(this)
@@ -45,6 +47,13 @@ object UndefinedType {
   //todo undefined type should store only typeParamId
   private case class FromTypeParameter(override val typeParameter: TypeParameter, override val level: Int = 0) extends UndefinedType
 
+  private case class WrappedExistential(
+    override val typeParameter: TypeParameter,
+    override val level:         Int = 0
+  ) extends UndefinedType {
+    override val isWrappedExistential: Boolean = true
+  }
+
   private case class FromParameter(p: ScParameter, original: ValueType) extends UndefinedType {
     override implicit def projectContext: ProjectContext = p.projectContext
 
@@ -58,6 +67,8 @@ object UndefinedType {
   def unapply(arg: UndefinedType): Option[(TypeParameter, Int)] = Some(arg.typeParameter, arg.level)
 
   def apply(typeParameter: TypeParameter, level: Int = 0): UndefinedType = FromTypeParameter(typeParameter, level)
+
+  def wrapExistential(typeParameter: TypeParameter): UndefinedType = WrappedExistential(typeParameter)
 
   def apply(psiTypeParameter: PsiTypeParameter): UndefinedType =
     FromTypeParameter(TypeParameter(psiTypeParameter))

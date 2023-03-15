@@ -52,7 +52,7 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
     case _ => in
   }
 
-  override def toString: String = "TypeParameter: " + ifReadAllowed(name)("")
+  override def toString: String = s"TypeParameter: ${ifReadAllowed(name)("")}"
 
   override def getContainingFileName: String = byStubOrPsi(_.containingFileName) {
     Option(getContainingFile).map(_.name).getOrElse("NoFile")

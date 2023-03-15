@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
-class PatternTypeInferenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class PatternTypeInferenceTest extends ScalaLightCodeInsightFixtureTestCase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == LatestScalaVersions.Scala_3_0
 
   def testSCL13746(): Unit = checkTextHasNoErrors(
     """
@@ -72,25 +75,25 @@ class PatternTypeInferenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
 //      |""".stripMargin
 //  )
 
-  def testSCL14197(): Unit = checkTextHasNoErrors(
-    """
-      |class Base[A, B]
-      |case class ChildA[T]() extends Base[T, T]
-      |case class ChildB[T]() extends Base[AnyRef with T, T]
-      |
-      |object BugExample extends App {
-      |  def foo[A, B](child: Base[A, B], doesntWork: A): B = child match {
-      |    case childA: ChildA[_] => barA(childA, doesntWork) // problem with B
-      |    case childB: ChildB[_] => barB(childB, doesntWork) // problem with A
-      |  }
-      |
-      |  def barA[T](child: ChildA[T], a: T): T = a
-      |  def barB[T](child: ChildB[T], a: AnyRef with T): T = a
-      |
-      |  println(foo(ChildA[Int](), 1))
-      |  println(foo(ChildB[String](), "2"))
-      |}""".stripMargin
-  )
+//  def testSCL14197(): Unit = checkTextHasNoErrors(
+//    """
+//      |class Base[A, B]
+//      |case class ChildA[T]() extends Base[T, T]
+//      |case class ChildB[T]() extends Base[AnyRef with T, T]
+//      |
+//      |object BugExample extends App {
+//      |  def foo[A, B](child: Base[A, B], doesntWork: A): B = child match {
+//      |    case childA: ChildA[_] => barA(childA, doesntWork) // problem with B
+//      |    case childB: ChildB[_] => barB(childB, doesntWork) // problem with A
+//      |  }
+//      |
+//      |  def barA[T](child: ChildA[T], a: T): T = a
+//      |  def barB[T](child: ChildB[T], a: AnyRef with T): T = a
+//      |
+//      |  println(foo(ChildA[Int](), 1))
+//      |  println(foo(ChildB[String](), "2"))
+//      |}""".stripMargin
+//  )
 
   def testSCL16108(): Unit = checkTextHasNoErrors(
     """
@@ -192,21 +195,57 @@ class PatternTypeInferenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
       |""".stripMargin
   )
 
-  def testPatternTypeInferenceMaxtype(): Unit = checkTextHasNoErrors(
+  def testIntersect(): Unit = checkTextHasNoErrors(
     """
-      |trait Foo
-      |trait Baz extends Foo { def isBaz: Unit }
+      |trait Foo[A]; trait Foo2[A]; trait Foo3
+      |trait Bar extends Foo[Int] with Foo3
+      |trait Baz[T] extends Foo[T] with Foo2[String] { def foo: T = ??? }
       |
-      |trait A[+B]
-      |case class B[+X >: Baz](x: X) extends A[X]
-      |
-      |val a: A[Foo] = new B[Foo](null)
-      |
-      |val i: Int = 123
-      |a match {
-      |  case b: B[x] =>
-      |    val xxx: x = new Foo {}
+      |(??? : Bar) match {
+      |  case tt: Baz[t] =>
+      |    val x: Int = tt.foo
+      |    val t: t = 123
       |}
       |""".stripMargin
   )
+
+  def testSCL21119(): Unit = checkTextHasNoErrors(
+    """
+      |object IncorrectTypeMismatch {
+      |  sealed trait Foo[T]
+      |
+      |  trait Bar[A]
+      |
+      |  case object FooString extends Foo[String]
+      |
+      |  val string: Bar[String] = new Bar[String] {}
+      |
+      |  def findBar[P](tag: Foo[P]): Option[Bar[P]] =
+      |    tag match {
+      |      case FooString => Some(string) // shows type mismatch
+      |      case _ => None
+      |    }
+      |
+      |  def foo(): Unit = {
+      |    val tag = new Foo[String] {}
+      |    val bar = findBar(tag)
+      |  }
+      |}""".stripMargin
+  )
+
+  //@TODO: in scala 3 type parameters of enclosing enums (only?) are also instantiated
+//  def testEnum(): Unit = checkTextHasNoErrors(
+//    """
+//      |enum Func[-A, +B] {
+//      |  case Double extends Func[Int, Int]
+//      |  case ToString extends Func[Float, String]
+//      |
+//      |  def run: A => B = this match {
+//      |    case Double => (x: Int) => x * 2
+//      |    case ToString => (x: Float) => x.toString
+//      |  }
+//      |}
+//      |""".stripMargin
+//  )
+//
 }

@@ -3,6 +3,7 @@ package patterns
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -50,7 +51,8 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                   fun.parameters.count(!_.isImplicitParameter) == 1 =>
             //@TODO: this is prettu much duplicated in ScPattern.expectedType
             val substitutor = r.substitutor
-            val typeParams = fun.typeParameters
+            val typeParams  = fun.typeParameters
+
             val subst =
               if (typeParams.isEmpty) substitutor
               else {

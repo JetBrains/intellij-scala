@@ -270,7 +270,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_gadt_param_unification(): Unit = doTest("gadt-param-unification", true)
   def test_gadt_simpleEQ(): Unit = doTest("gadt-simpleEQ", true)
   def test_gadt_strip_refinement(): Unit = doTest("gadt-strip-refinement", true)
-  def test_gadt_TailCalls(): Unit = doTest("gadt-TailCalls", false)
+  def test_gadt_TailCalls(): Unit = doTest("gadt-TailCalls", true)
   def test_gadt_TypeSafeLambda(): Unit = doTest("gadt-TypeSafeLambda", false)
   def test_gadt_upcast(): Unit = doTest("gadt-upcast", true)
   def test_gadt_variant_hkt(): Unit = doTest("gadt-variant-hkt", true) // #enum
@@ -1171,7 +1171,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i12373(): Unit = doTest("i12373", true)
   def test_i12379a(): Unit = doTest("i12379a", false)
   def test_i12379b(): Unit = doTest("i12379b", true)
-  def test_i12390_gadt(): Unit = doTest("i12390-gadt", false) // #enum
+  def test_i12390_gadt(): Unit = doTest("i12390-gadt", true) // #enum
   def test_i12395(): Unit = doTest("i12395", true)
   def test_i12396(): Unit = doTest("i12396", true)
   def test_i12474(): Unit = doTest("i12474", true)
@@ -1370,7 +1370,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i15898(): Unit = doTest("i15898", true)
   def test_i15922(): Unit = doTest("i15922", true)
   def test_i15931(): Unit = doTest("i15931", true) // #enum
-  def test_i15934(): Unit = doTest("i15934", false)
+  def test_i15934(): Unit = doTest("i15934", true)
   def test_i15940(): Unit = doTest("i15940", true)
   def test_i15960(): Unit = doTest("i15960", true)
   def test_i15964(): Unit = doTest("i15964", false)

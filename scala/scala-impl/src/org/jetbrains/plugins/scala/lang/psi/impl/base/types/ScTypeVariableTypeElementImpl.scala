@@ -4,42 +4,29 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, ToNullSafe, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPatternLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInference
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiElementImpl}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeParameter, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeVariableTypeElement {
-  override protected def innerType: TypeResult = {
-    var resTpe: Option[ScType] = None
+  override protected def innerType: TypeResult =
+    (
+      for {
+        pat         <- this.parentOfType[ScTypedPatternLike]
+        typePattern <- pat.typePattern
+        te          = typePattern.typeElement
+        tpe         = te.unsubstitutedType.getOrAny
+        expected    <- pat.expectedType
+        subst       = PatternTypeInference.doTypeInference(pat, expected, tpe.toOption)
+      } yield subst(tvType)
+    ).asTypeResult
 
-    for {
-      pat         <- this.parentOfType[ScTypedPattern]
-      typePattern <- pat.typePattern
-      te          = typePattern.typeElement
-      newTe       = ScalaPsiElementFactory.createTypedPatternFromText(te.getText, te, null)
-      tpe         = newTe.unsubstitutedType.getOrAny
-      expected    <- pat.expectedType
-      subst = PatternTypeInference
-        .doTypeInference(pat, expected, tpe.toOption)
-        .getOrElse(ScSubstitutor.empty)
-    } {
-      tpe.visitRecursively {
-        case tpt: TypeParameterType if tpt.name == this.name => resTpe = Option(subst(tpt))
-        case _                                               => ()
-      }
-    }
+  private[this] lazy val tvType = TypeParameterType(TypeParameter.light(name, List.empty, Nothing, Any))
 
-    Right(resTpe.getOrElse(tvType))
-  }
-
-  private[this] val tvType = TypeParameterType(TypeParameter.light(name, List.empty, Nothing, Any))
-
-  override val unsubstitutedType: TypeResult = Right(tvType)
+  override lazy val unsubstitutedType: TypeResult = Right(tvType)
 
   override def nameId: PsiElement =
     findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER).nullSafe

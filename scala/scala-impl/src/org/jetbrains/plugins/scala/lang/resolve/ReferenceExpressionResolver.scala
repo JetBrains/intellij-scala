@@ -18,11 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScCon
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createParameterFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScForImpl
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInferenceUtil, ScForImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInference, ScForImpl}
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitResolveResult, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -314,7 +311,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
            * To support resolve of such cases we store information about enclosing extension in the resolve state.
            */
           case fdef @ ExtensionMethod() => fdef.extensionMethodOwner.fold(state)(state.withExtensionContext)
-          case (cc: ScCaseClause) && Parent(Parent(m: ScMatch)) =>
+          case (cc: ScCaseClause) & Parent(Parent(m: ScMatch)) =>
             val maybeSubst = PatternTypeInference.doForMatchClause(m, cc)
             val oldSubst   = state.matchClauseSubstitutor
 

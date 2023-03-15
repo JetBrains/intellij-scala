@@ -314,7 +314,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             case ScalaResolveResult(psiTypeParameter: PsiTypeParameter, _) =>
               Right(TypeParameterType(psiTypeParameter))
             case ScalaResolveResult(tvar: ScTypeVariableTypeElement, _) =>
-              Right(tvar.inferredType.getOrAny)
+              Right(tvar.`type`().getOrAny)
             case ScalaResolveResult(synth: ScSyntheticClass, _) =>
               Right(synth.stdType)
             case ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor)

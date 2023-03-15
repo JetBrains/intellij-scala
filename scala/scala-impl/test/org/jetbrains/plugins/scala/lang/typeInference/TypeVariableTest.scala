@@ -41,7 +41,6 @@ class TypeVariableTest extends TypeInferenceTestBase {
   def testInvariantUpperBound2(): Unit = checkHasErrorAroundCaret(Prefix +
     s"(??? : InvariantUpperBound[_]) match { case _: InvariantUpperBound[t] => val v: t = ??? : ${CARET}Type }")
 
-
   def testCovariantLowerBound1(): Unit = checkHasErrorAroundCaret(Prefix +
     s"(??? : CovariantLowerBound[_]) match { case _: CovariantLowerBound[t] => val v: Type = ??? : ${CARET}t }")
 
@@ -153,6 +152,9 @@ class TypeVariableTest extends TypeInferenceTestBase {
   def testSupertype(): Unit = checkTextHasNoErrors(Prefix + "class InvariantSubtype[A] extends Invariant[A]; " +
     s"(??? : InvariantSubtype[Type]) match { case _: Invariant[t] => val v: Type = ??? : t }")
 
+
+  def testSubtype(): Unit = checkTextHasNoErrors(Prefix + "class InvariantSubtype[A] extends Invariant[A]; " +
+    s"(??? : Invariant[Type]) match { case _: InvariantSubtype[t] => val v: Type = ??? : t }")
 
   // TODO:
   // Type aliases

@@ -29,9 +29,15 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
 
   def isSingleton: Boolean = false
 
-  private[types] def getType: TypeResult = cachedWithRecursionGuard("ScTypeElement.getType", this, Failure(ScalaBundle.message("recursive.type.of.type.element")), BlockModificationTracker(this)) {
-    innerType
-  }
+  private[types] def getType: TypeResult =
+    cachedWithRecursionGuard(
+      "ScTypeElement.getType",
+      this,
+      Failure(ScalaBundle.message("recursive.type.of.type.element")),
+      BlockModificationTracker(this)
+    ) {
+      innerType
+    }
 
   def getTypeNoConstructor: TypeResult = getType
 

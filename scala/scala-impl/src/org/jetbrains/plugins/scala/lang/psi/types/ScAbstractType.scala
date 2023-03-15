@@ -4,8 +4,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-
-
 /**
  * This type works like undefined type, but you cannot use this type
  * to resolve generics. It's important if two local type

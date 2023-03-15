@@ -339,14 +339,24 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
           if (expectedForMatch.isEmpty) Array.empty
           else {
-            val matchSubst =
-                PatternTypeInference.doForMatchClause(m, c).getOrElse(ScSubstitutor.empty)
+            val matchSubst = PatternTypeInference.doForMatchClause(m, c)
             expectedForMatch.map { case (tpe, elem) => (matchSubst(tpe), elem) }
           }
         case b: ScBlockExpr if b.isInCatchBlock =>
           b.getContext.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isPartialFunction =>
-          b.expectedTypesEx(fromUnderscore = true).flatMap(fromFunction)
+          val expectedForPf    = b.expectedTypesEx(fromUnderscore = true)
+          val functionLikeType = FunctionLikeType(expr)
+
+          expectedForPf.collect {
+            case (functionLikeType(_, resTpe, Seq(paramTpe)), elem) =>
+
+              val subst = c.pattern.fold(ScSubstitutor.empty)(
+                PatternTypeInference.doTypeInference(_, paramTpe)
+              )
+
+              (subst(resTpe), elem)
+          }
         case _ => Array.empty
       }
       //see SLS[6.23]

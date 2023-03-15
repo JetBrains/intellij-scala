@@ -71,7 +71,7 @@ trait Type {
     if (!parseWildcardStartToken())
       return false
 
-    if (!isPattern) Bounds.parseSubtypeBounds()
+    Bounds.parseSubtypeBounds()
     typeMarker.done(ScalaElementType.WILDCARD_TYPE)
 
     // TODO: looks like this is a dead code, no tests trigger breakpoint inside, leaving it just in case...

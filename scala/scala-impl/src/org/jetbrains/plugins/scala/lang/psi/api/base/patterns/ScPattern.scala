@@ -69,7 +69,7 @@ object ScPattern {
           argList.getContext match {
             case constr: ScConstructorPattern =>
               val thisIndex: Int = constr.args.patterns.indexWhere(_ == pattern)
-              expectedTypeForExtractorArg(constr.ref, thisIndex, constr.expectedType, argList.patterns.length)
+              expectedTypeForExtractorArg(constr, constr.ref, thisIndex, constr.expectedType, argList.patterns.length)
             case _ => None
           }
         case composite: ScCompositePattern => composite.expectedType
@@ -78,7 +78,7 @@ object ScPattern {
             if (infix.left == pattern) 0
             else if (pattern.is[ScTuplePattern]) return None //pattern is handled elsewhere in pattern function
             else 1
-          expectedTypeForExtractorArg(infix.operation, i, infix.expectedType, 2)
+          expectedTypeForExtractorArg(infix, infix.operation, i, infix.expectedType, 2)
         case par: ScParenthesisedPattern => par.expectedType
         case patternList: ScPatterns => patternList.getContext match {
           case tuple: ScTuplePattern =>
@@ -96,7 +96,7 @@ object ScPattern {
                     case _         => -1 //is it possible to get here?
                   }
 
-                  return expectedTypeForExtractorArg(infix.operation, i + 1, infix.expectedType, patternLength)
+                  return expectedTypeForExtractorArg(infix, infix.operation, i + 1, infix.expectedType, patternLength)
                 }
               case _ =>
             }
@@ -162,10 +162,13 @@ object ScPattern {
       }
     }
 
-    private def expectedTypeForExtractorArg(ref: ScStableCodeReference,
-                                            argIndex: Int,
-                                            expected: Option[ScType],
-                                            totalNumberOfPatterns: Int): Option[ScType] = {
+    private def expectedTypeForExtractorArg(
+      contextPattern:        ScPattern,
+      ref:                   ScStableCodeReference,
+      argIndex:              Int,
+      expected:              Option[ScType],
+      totalNumberOfPatterns: Int
+    ): Option[ScType] = {
       val bind: Option[ScalaResolveResult] = ref.bind() match {
         case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) =>
           val resolve = ref match {
@@ -186,33 +189,33 @@ object ScPattern {
 
           resolve match {
             case Array(r) => Some(r)
-            case _        => None
+            case _ => None
           }
         case m => m
       }
 
       def calculateSubstitutor(
-        tpe:          ScType,
+        tpe: ScType,
         functionType: ScType,
-        substitutor:  ScSubstitutor,
-        typeParams:   Seq[ScTypeParam]
+        substitutor: ScSubstitutor,
+        typeParams: Seq[ScTypeParam]
       ): ScSubstitutor = {
         val tp = tpe match {
           case ScExistentialType(quantified, _) => quantified
-          case _                                => tpe
+          case _ => tpe
         }
 
         val substitutedFunctionType = substitutor(functionType)
 
-        val maybeSubst =
+        val patSubst =
           PatternTypeInference.doTypeInference(
-            pattern,
+            contextPattern,
             tp,
             substitutedFunctionType.toOption,
             typeParams.map(TypeParameter(_)).toOption
           )
 
-        maybeSubst.fold(substitutor)(_.followed(substitutor))
+        patSubst.followed(substitutor)
       }
 
       bind match {
