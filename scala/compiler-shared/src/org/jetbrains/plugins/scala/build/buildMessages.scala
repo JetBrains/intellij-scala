@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.build
 
-import com.intellij.build.events.impl.{AbstractBuildEvent, FileMessageEventImpl}
+import com.intellij.build.events.impl.{AbstractBuildEvent, FileMessageEventImpl, MessageEventImpl}
 import com.intellij.build.events.{MessageEvent, MessageEventResult, Warning}
 import com.intellij.build.{FilePosition, events}
 import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
 import com.intellij.task._
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.build.BuildMessages.{BuildStatus, Canceled, Error}
 
 import java.util.UUID
@@ -74,13 +74,14 @@ case object BuildMessages {
     @Nls message: String,
     kind: MessageEvent.Kind,
     position: Option[FilePosition],
-    eventTime: Long
+    eventTime: Long,
+    @Nls details: String = null,
   ): AbstractBuildEvent with MessageEvent = {
     val kindGroup = kind.toString
 
     position match {
       case None =>
-        new BuildEventMessage(parentId, kind, kindGroup, message, eventTime)
+        new BuildEventMessage(parentId, kind, kindGroup, message, details, eventTime)
       case Some(filePosition) =>
         new FileMessageEventImpl(parentId, kind, kindGroup, message, null, filePosition)
     }
@@ -92,6 +93,7 @@ class BuildEventMessage(
   kind: MessageEvent.Kind,
   @Nls group: String,
   @Nls message: String,
+  @Nls @Nullable details: String,
   eventTime: Long
 ) extends AbstractBuildEvent(
   new Object,
@@ -107,6 +109,7 @@ class BuildEventMessage(
   override def getResult: MessageEventResult =
     new MessageEventResult() {
       override def getKind: MessageEvent.Kind = kind
+      override def getDetails: String = details
     }
 
   override def getNavigatable(project: Project): Navigatable = null // TODO sensible default navigation?

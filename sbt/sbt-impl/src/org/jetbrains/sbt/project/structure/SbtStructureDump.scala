@@ -242,7 +242,7 @@ class SbtStructureDump {
           case BuildMessages.Canceled =>
             new SkippedResultImpl()
           case BuildMessages.Error | BuildMessages.Indeterminate =>
-            new FailureResultImpl(messages.errors.asJava)
+            new FailureResultImpl()
         }
 
       case Failure(x) =>
@@ -265,7 +265,7 @@ class SbtStructureDump {
       val text = textRaw.trim
 
       if (text.nonEmpty) {
-        messages = reportEvent(messages, reporter, text)
+        messages = reportEvent(messages, text)
         reporter.progressTask(dumpTaskId, 1, -1, "", text)
         (typ, reporter) match {
           case (OutputType.StdErr, reporter: ExternalSystemNotificationReporter) =>
@@ -354,7 +354,6 @@ object SbtStructureDump {
     System.getProperty("sbt.structure.dump.dontPrintErrorsAndWarningsToConsoleDuringTests") == "true"
 
   private def reportEvent(messages: BuildMessages,
-                          reporter: BuildReporter,
                           text: String): BuildMessages = {
 
     if (ApplicationManager.getApplication.isUnitTestMode && !dontPrintErrorsAndWarningsToConsoleDuringTests) {
@@ -363,13 +362,10 @@ object SbtStructureDump {
         System.err.println(text)
       }
     }
-
-    if (text.startsWith("[error] Total time")) {
-      val msg = SbtBundle.message("sbt.task.failed.see.log.for.details")
-      reporter.error(msg, None)
+    if (text.startsWith("[error]") && messages.status != BuildMessages.Error) {
       messages
-        .addError(msg)
         .status(BuildMessages.Error)
+        .addError(SbtBundle.message("sbt.import.check.root.node.for.details"))
     } else messages
   }
 

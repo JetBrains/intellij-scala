@@ -2,12 +2,15 @@ package org.jetbrains.sbt
 package project.structure
 
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.text.EditDistance
+import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.sbt.project.structure.SbtOption._
 
 import java.io.File
 import scala.annotation.tailrec
 import scala.collection.immutable.ListMap
+import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
@@ -18,36 +21,39 @@ object SbtOpts {
 
   val SbtOptsFile: String = ".sbtopts"
 
-  private val sbtToJdkOpts = (projectPath: String) => ListMap(
-    "-sbt-boot" -> JvmOptionGlobal("-Dsbt.boot.directory="),
-    "-sbt-dir" -> JvmOptionGlobal("-Dsbt.global.base="),
-    "-ivy" -> JvmOptionGlobal("-Dsbt.ivy.home="),
-    "-no-global" -> JvmOptionGlobal(s"-Dsbt.global.base=$projectPath/project/.sbtboot"),
-    "-no-share" -> JvmOptionGlobal("-Dsbt.global.base=project/.sbtboot -Dsbt.boot.directory=project/.boot -Dsbt.ivy.home=project/.ivy"),
-    "-jvm-debug" -> JvmOptionGlobal("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address="),
-    "-sbt-cache" -> JvmOptionGlobal("-Dsbt.global.localcache="),
-    "-debug-inc" -> JvmOptionGlobal("-Dxsbt.inc.debug=true"),
-    "-traces" -> JvmOptionGlobal("-Dsbt.traces=true"),
-    "-timings" -> JvmOptionGlobal("-Dsbt.task.timings=true -Dsbt.task.timings.on.shutdown=true"),
-    "-no-colors" -> JvmOptionShellOnly("-Dsbt.log.noformat=true"),
-    "-color=" -> JvmOptionShellOnly("-Dsbt.color=")
+  private def sbtToJdkOpts(projectPath: String) = ListMap(
+    "-sbt-boot" -> JvmOptionGlobal("-Dsbt.boot.directory=")("--sbt-boot <path>"),
+    "-sbt-dir" -> JvmOptionGlobal("-Dsbt.global.base=")("--sbt-dir <path>"),
+    "-ivy" -> JvmOptionGlobal("-Dsbt.ivy.home=")("--ivy <path>"),
+    "-no-global" -> JvmOptionGlobal(s"-Dsbt.global.base=$projectPath/project/.sbtboot")("--no-global"),
+    "-no-share" -> JvmOptionGlobal("-Dsbt.global.base=project/.sbtboot -Dsbt.boot.directory=project/.boot -Dsbt.ivy.home=project/.ivy")("--no-share"),
+    "-jvm-debug" -> JvmOptionGlobal("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=")("--jvm-debug <port>"),
+    "-sbt-cache" -> JvmOptionGlobal("-Dsbt.global.localcache=")("--sbt-cache <path>"),
+    "-debug-inc" -> JvmOptionGlobal("-Dxsbt.inc.debug=true")("--debug-inc"),
+    "-traces" -> JvmOptionGlobal("-Dsbt.traces=true")("--traces"),
+    "-timings" -> JvmOptionGlobal("-Dsbt.task.timings=true -Dsbt.task.timings.on.shutdown=true")("--timings"),
+    "-no-colors" -> JvmOptionShellOnly("-Dsbt.log.noformat=true")("--no-colors"),
+    "-color=" -> JvmOptionShellOnly("-Dsbt.color=")("--color=auto|always|true|false|never")
   )
 
-  // options proceeded by -- will also also handled (except -d)
-  private val sbtToLauncherOpts: ListMap[String, SbtOption] = ListMap(
-    "-d" -> SbtLauncherOption("--debug"),
-    "-debug" -> SbtLauncherOption("--debug"),
-    "-warn" -> SbtLauncherOption("--warn"),
-    "-info" -> SbtLauncherOption("--info"),
-    "-error" -> SbtLauncherOption("--error")
+  // options proceeded by -- will be also handled (except -d)
+  private val sbtToLauncherOpts = ListMap(
+    "-d" -> SbtLauncherOption("--debug")("-d"),
+    "-debug" -> SbtLauncherOption("--debug")("--debug"),
+    "-warn" -> SbtLauncherOption("--warn")("--warn"),
+    "-info" -> SbtLauncherOption("--info")("--info"),
+    "-error" -> SbtLauncherOption("--error")("--error")
   )
 
-  def loadFrom(directory: File): Seq[SbtOption] = {
+  private val allAvailableOptions = sbtToJdkOpts("") ++ sbtToLauncherOpts
+
+  def loadFrom(directory: File)(implicit reporter: BuildReporter = null): Seq[SbtOption] = {
     val sbtOptsFile = directory / SbtOptsFile
     if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead) {
       val optsFromFile = FileUtil.loadLines(sbtOptsFile)
         .asScala.iterator
         .map(_.trim)
+        .filter(_.nonEmpty)
         .map(removeDoubleDash)
         .toSeq
       processArgs(optsFromFile, directory.getCanonicalPath)
@@ -63,10 +69,10 @@ object SbtOpts {
           case Some(x) =>
             if (x.value.endsWith("=") && !opt.endsWith("=")) {
               Try(optsToCombine(1)).fold(
-                _ => false, // TODO show warning about the lack of the argument
+                _ => false,
                 next =>
                   if (!next.startsWith("-") && next.nonEmpty) true
-                  else false // TODO show warning about the incorrect argument
+                  else false
               )
             } else false
           case None => false
@@ -82,35 +88,73 @@ object SbtOpts {
     prependArgsToOpts(opts.map(removeDoubleDash), Seq.empty)
   }
 
-  def processArgs(opts: Seq[String], projectPath: String): Seq[SbtOption] = {
-    opts.flatMap { opt =>
+  def processArgs(opts: Seq[String], projectPath: String)(implicit reporter: BuildReporter = null): Seq[SbtOption] = {
+    val unrecognizedOpts = ListBuffer[(String, Option[String])]()
+    val sbtOpts = opts.flatMap { opt =>
       if (sbtToLauncherOpts.contains(opt))
         sbtToLauncherOpts.get(opt)
       else if (opt.startsWith("-J"))
-        Some(JvmOptionGlobal(opt.substring(2)))
+        Some(JvmOptionGlobal(opt.substring(2))())
       else if (opt.startsWith("-D"))
-        Some(JvmOptionGlobal(opt))
+        Some(JvmOptionGlobal(opt)())
       else {
         processOptWithArg(opt, projectPath)
+          .orElse {
+            unrecognizedOpts.addOne((opt, findClosestOptionHelper(opt)))
+            None
+          }
       }
     }
+    if (unrecognizedOpts.nonEmpty && reporter != null) reportUnrecognizedOptions(unrecognizedOpts.toList)
+    sbtOpts
   }
 
-  private def removeDoubleDash(opt: String): String =
-    if (opt.startsWith("--") && !opt.matches("\\-+.$")) opt.stripPrefix("-") else opt
+  private def reportUnrecognizedOptions(unrecognizedOpts: List[(String, Option[String])])(implicit reporter: BuildReporter): Unit = {
+    val warningDetails = unrecognizedOpts.map {
+      case (x, Some(y)) => SbtBundle.message("sbt.unrecognized.opt.with.suggestion", x, y)
+      case (x, None) => SbtBundle.message("sbt.unrecognised.opt", x)
+    }
+    reporter.warning(
+      SbtBundle.message("sbt.unrecognized.opts", unrecognizedOpts.size, unrecognizedOpts.map(_._1).mkString(", ")), None,
+      (warningDetails :+ SbtBundle.message("sbt.available.opts", allAvailableOptions.map(_._2.helperMsg).mkString("\n", "\n", ""))).mkString("\n"))
+  }
 
-  private def processOptWithArg(opt: String, projectPath: String): Option[SbtOption] = {
+  private def findClosestOptionHelper(userOpt: String): Option[String] = {
+    val closestOption = allAvailableOptions
+      .map { case (optionKey, targetSbtOption) =>
+        val optionKeyEndsWithEqualsSign = optionKey.endsWith("=")
+        val targetOptionRequiresValue = targetSbtOption.value.endsWith("=")
+        val truncatedOptFromArg =
+          if (targetOptionRequiresValue && !optionKeyEndsWithEqualsSign) userOpt.split(' ')(0)
+          else if (targetOptionRequiresValue && optionKeyEndsWithEqualsSign) userOpt.split("=")(0)
+          else userOpt
+        val distance = EditDistance.optimalAlignment(optionKey, truncatedOptFromArg.trim, false, 2)
+        optionKey -> distance
+      }
+      .filter(_._2 <= 2)
+      .minByOption(_._2)
+    closestOption.map{ x => allAvailableOptions(x._1).helperMsg }
+  }
+
+  private def isShortOption(opt: String): Boolean = opt.matches("\\-+.$")
+
+  private def removeDoubleDash(opt: String): String =
+    if (opt.startsWith("--") && !isShortOption(opt)) opt.stripPrefix("-") else opt
+
+  private def processOptWithArg(option: String, projectPath: String): Option[SbtOption] = {
     sbtToJdkOpts(projectPath)
-      .find { case (k, _) => opt.startsWith(k) }
-      .flatMap { case (k, x) =>
-        val value = opt.replace(k, "")
-        val trimmedValue = value.trim
-        if (trimmedValue.isEmpty && !x.value.endsWith("=")) Some(x)
-        else if (trimmedValue.nonEmpty && x.value.endsWith("=")) {
-          if ((!k.endsWith("=") && value.matches("^\\s+.*")) || k.endsWith("=") && value.matches("^[^\\s]+.*")) {
-            x match {
-              case _: JvmOptionGlobal => Some(JvmOptionGlobal(x.value + trimmedValue))
-              case _: JvmOptionShellOnly => Some(JvmOptionShellOnly(x.value + trimmedValue))
+      .find { case (optionKey, _) => option.startsWith(optionKey) }
+      .flatMap { case (optionKey, targetSbtOption) =>
+        val optionValue = option.replace(optionKey, "")
+        val isOptionValueEmpty = optionValue.trim.isEmpty
+        val targetOptionRequiresValue = targetSbtOption.value.endsWith("=")
+        if (isOptionValueEmpty && !targetOptionRequiresValue) Some(targetSbtOption)
+        else if (!isOptionValueEmpty && targetOptionRequiresValue) {
+          val optionKeyEndsWithEqualsSign = optionKey.endsWith("=")
+          if ((!optionKeyEndsWithEqualsSign && optionValue.matches("^\\s+.*")) || optionKeyEndsWithEqualsSign && optionValue.matches("^[^\\s]+.*")) {
+            targetSbtOption match {
+              case _: JvmOptionGlobal => Some(JvmOptionGlobal(targetSbtOption.value + optionValue.trim)())
+              case _: JvmOptionShellOnly => Some(JvmOptionShellOnly(targetSbtOption.value + optionValue.trim)())
               case _ => None
             }
           } else None

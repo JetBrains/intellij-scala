@@ -5,10 +5,9 @@ import com.intellij.build.events._
 import com.intellij.build.{FilePosition, SyncViewManager}
 import com.intellij.openapi.externalSystem.model.task.event.{FailureResult => _, SkippedResult => _, SuccessResult => _, _}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.ExternalSystemNotificationReporter._
-
 import java.io.File
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -66,14 +65,17 @@ class ExternalSystemNotificationReporter(workingDir: String,
   override def warning(message: String, position: Option[FilePosition]): Unit =
     onEvent(message, Kind.WARNING, position)
 
+  override def warning(message: String, position: Option[FilePosition], details: String): Unit =
+    onEvent(message, Kind.WARNING, position, details)
+
   override def error(message: String, position: Option[FilePosition]): Unit =
     onEvent(message, Kind.ERROR, position)
 
   override def info(message: String, position: Option[FilePosition]): Unit =
     onEvent(message, Kind.INFO, position)
 
-  private def onEvent(@Nls message: String, kind: Kind, position: Option[FilePosition]): Unit = {
-    viewManager.foreach(_.onEvent(taskId, event(message, kind, position)))
+  private def onEvent(@Nls message: String, kind: Kind, position: Option[FilePosition], @Nls details: String = null): Unit = {
+    viewManager.foreach(_.onEvent(taskId, event(message, kind, position, details)))
   }
 
   override def log(message: String): Unit =
@@ -144,8 +146,8 @@ class ExternalSystemNotificationReporter(workingDir: String,
 
   override def clear(file: File): Unit = ()
 
-  private def event(@Nls message: String, kind: MessageEvent.Kind, position: Option[FilePosition])=
-    BuildMessages.message(taskId, message, kind, position, eventTime = System.currentTimeMillis)
+  private def event(@Nls message: String, kind: MessageEvent.Kind, position: Option[FilePosition], @Nls @Nullable details: String)=
+    BuildMessages.message(taskId, message, kind, position, eventTime = System.currentTimeMillis, details)
 }
 
 object ExternalSystemNotificationReporter {
