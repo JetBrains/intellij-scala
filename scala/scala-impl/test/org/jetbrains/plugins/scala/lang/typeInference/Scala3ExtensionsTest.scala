@@ -197,38 +197,25 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
        |}
        |""".stripMargin
   )
-//
-//  def testAmbiguousExtensionsWithExpectedType(): Unit = {
-//    checkTextHasNoErrors(
-//      """
-//        |object B:
-//        |  trait F
-//        |  given F with {
-//        |    extension (x: Int) { def foo: Int = 123 }
-//        |  }
-//        |
-//        |  trait G
-//        |  given G with {
-//        |    extension (x: Int) { def foo: String = "123" }
-//        |  }
-//        |
-//        |  val s: Int = 123.foo
-//        |""".stripMargin
-//    )
-//  }
-//
-//  def testAmbiguousImplicitClassesWithExpectedType(): Unit = {
-//    checkTextHasNoErrors(
-//      """
-//        |object B {
-//        |  implicit class IntOps1(val x: Int) { def fooz: Int = 123 }
-//        |  implicit class IntOps2(val x: Int) { def fooz: String = "123" }
-//        |
-//        |  val s: String = 123.fooz
-//        |}
-//        |""".stripMargin
-//    )
-//  }
+
+  def testAmbiguousExtensionsWithExpectedType(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |object B:
+        |  trait F
+        |  given F with {
+        |    extension (x: Int) { def foo: Int = 123 }
+        |  }
+        |
+        |  trait G
+        |  given G with {
+        |    extension (x: Int) { def foo: String = "123" }
+        |  }
+        |
+        |  val s: Int = 123.foo
+        |""".stripMargin
+    )
+  }
 
   def testAmbiguousExtensionWithExpectedTypeAndTypeArgs(): Unit = checkHasErrorAroundCaret(
     s"""
@@ -411,6 +398,25 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |    println(output4.isInstanceOf[Int])    // Prints true
       |  }
       |}
+      |""".stripMargin
+  )
+
+  def testSCL21053(): Unit = checkTextHasNoErrors(
+    """
+      |object TestIntellij:
+      |
+      |  extension [X](x: X)
+      |    def foo[Y](using Bar[X, Y]): Map[X, Y] = ???
+      |
+      |  trait Bar[X, Y]
+      |  given Bar[Int, Int]    = ???
+      |  given Bar[Int, String] = ???
+      |  given Bar[Int, Float]  = ???
+      |
+      |  def main(args: Array[String]) =
+      |    val intint    = 1.foo[Int] // Map[Int, Int], but intellij says it's an Any
+      |    val intFloat  = 1.foo[Float] // Map[Int, Float], but intellij says it's an Any
+      |    val intString = 1.foo[String] // Map[Int, String], but intellij says it's an Any
       |""".stripMargin
   )
 }
