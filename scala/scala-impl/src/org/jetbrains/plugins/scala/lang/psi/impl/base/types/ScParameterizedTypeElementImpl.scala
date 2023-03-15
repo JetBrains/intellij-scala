@@ -8,14 +8,13 @@ import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -23,8 +22,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import scala.annotation.tailrec
 
 class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParameterizedTypeElement {
-  import ScParameterizedTypeElementImpl._
-
   override def desugarizedText: String = {
     val inlineSyntaxIds = KindProjectorUtil.syntaxIdsFor(this).toSet
 
@@ -188,22 +185,8 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
 
     val typeArgs = typeArgList.typeArgs.map(_.`type`().getOrAny)
 
-    tr match {
-      case Right(ScDesignatorType(alias: ScTypeAlias)) if
-        alias.topLevelQualifier.contains("scala") && andOrOrTypeDesignator.contains(alias.name) =>
-        val name = alias.name
-        if (typeArgs.size != 2) Right(Any)
-        else {
-          val tpe =
-            if (name == "&") ScAndType(typeArgs.head, typeArgs(1))
-            else             ScOrType(typeArgs.head, typeArgs(1))
-
-          Right(tpe)
-        }
-      case _ =>
-        if (typeArgs.isEmpty) tr
-        else                  Right(ScParameterizedType(res, typeArgs))
-    }
+    if (typeArgs.isEmpty) tr
+    else                  Right(ScParameterizedType(res, typeArgs))
   }
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
@@ -254,8 +237,4 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     }
     super.processDeclarations(processor, state, lastParent, place)
   }
-}
-
-object ScParameterizedTypeElementImpl {
-  private[ScParameterizedTypeElementImpl] val andOrOrTypeDesignator = Set("&", "|")
 }

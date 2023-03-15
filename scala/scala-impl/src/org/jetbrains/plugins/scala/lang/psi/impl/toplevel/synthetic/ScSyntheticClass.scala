@@ -200,8 +200,8 @@ final class SyntheticClasses(project: Project) {
       scala3Classes.clear()
       numeric.clear()
       integer.clear()
-      syntheticObjects.clear()
-      syntheticAliases.clear()
+      objects.clear()
+      aliases.clear()
     }
 
     stringPlusMethod = null
@@ -217,12 +217,12 @@ final class SyntheticClasses(project: Project) {
 
   var stringPlusMethod: ScType => ScSyntheticFunction = _
 
-  val sharedClasses: mutable.Map[String, PsiClass]    = mutable.HashMap.empty[String, PsiClass]
-  val scala3Classes: mutable.Map[String, PsiClass]    = mutable.HashMap.empty[String, PsiClass]
-  var numeric: mutable.Set[ScSyntheticClass]          = mutable.HashSet.empty[ScSyntheticClass]
-  var integer: mutable.Set[ScSyntheticClass]          = mutable.HashSet.empty[ScSyntheticClass]
-  val syntheticObjects: mutable.Map[String, ScObject] = mutable.HashMap.empty[String, ScObject]
-  val syntheticAliases: mutable.Set[ScTypeAlias]      = mutable.HashSet.empty[ScTypeAlias]
+  val sharedClasses: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
+  val scala3Classes: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
+  var numeric: mutable.Set[ScSyntheticClass]       = mutable.HashSet.empty[ScSyntheticClass]
+  var integer: mutable.Set[ScSyntheticClass]       = mutable.HashSet.empty[ScSyntheticClass]
+  val objects: mutable.Map[String, ScObject]       = mutable.HashMap.empty[String, ScObject]
+  val aliases: mutable.Set[ScTypeAlias]            = mutable.HashSet.empty[ScTypeAlias]
 
   private[synthetic]
   var file : PsiFile = _
@@ -320,7 +320,7 @@ final class SyntheticClasses(project: Project) {
     def registerObject(debugName: String, fileText: String): Unit = {
       val dummyFile = createDummyFile(debugName, fileText)
       val obj = dummyFile.typeDefinitions.head.asInstanceOf[ScObject]
-      syntheticObjects.put(obj.qualifiedName, obj)
+      objects.put(obj.qualifiedName, obj)
     }
 
     def registerContextFunctionClass(debugName: String, fileText: String): Unit = {
@@ -473,7 +473,7 @@ object Unit
     def registerAlias(text: String): Unit = {
       val file  = ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)
       val alias = file.members.head.asInstanceOf[ScTypeAlias]
-      syntheticAliases += alias
+      aliases += alias
     }
 
     registerAlias(
@@ -537,12 +537,12 @@ object Unit
         case _ =>
       }
     }
-    syntheticObjects.get(qName).orNull
+    objects.get(qName).orNull
   }
 
   def findClasses(qName: String): Array[PsiClass] = {
     val c = findClass(qName)
-    val obj = syntheticObjects.get(qName).orNull
+    val obj = objects.get(qName).orNull
 
     if (c != null && obj != null && c != obj)
       Array(c, obj)

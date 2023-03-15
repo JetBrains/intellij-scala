@@ -126,8 +126,8 @@ object ScPackageImpl {
     val syntheticClasses = SyntheticClasses.get(manager.project)
     for {
       syntheticElement <- classesToProcess(syntheticClasses) ++
-        syntheticClasses.syntheticObjects.valuesIterator ++
-        (if (shouldProcessScala3Definitions) syntheticClasses.syntheticAliases.iterator
+        syntheticClasses.objects.valuesIterator ++
+        (if (shouldProcessScala3Definitions) syntheticClasses.aliases.iterator
         else                                 Iterator.empty)
       // Assume that is the scala package contained a class with the same names as the synthetic object, then it must also contain the object.
 
