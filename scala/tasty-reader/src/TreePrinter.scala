@@ -308,8 +308,10 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
         sb ++= Indent
       }
       val isAbstractGiven = node.contains(GIVEN)
-      modifiersIn(sb, node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false)
-      if (!isAbstractGiven) {
+      modifiersIn(sb, node, (if (isAbstractGiven) Set(GIVEN, FINAL) else Set.empty), isParameter = false)
+      if (isAbstractGiven) {
+        sb ++= "given "
+      } else {
         sb ++= (if (node.contains(STABLE)) "val " else "def ")
       }
       val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
