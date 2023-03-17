@@ -1,5 +1,6 @@
 package org.jetbrains.idea.devkit.scala;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.Application;
@@ -42,6 +43,11 @@ public class AttachIntellijSourcesAction extends AnAction {
     @Override
     public boolean isDumbAware() {
         return true;
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 
     private static final Logger LOG = Logger.getInstance(IntellijSourcesAttachListener.class);
