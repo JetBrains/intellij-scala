@@ -114,10 +114,21 @@ object ScPackageImpl {
                           scope: GlobalSearchScope): Boolean = {
     val namesSet = manager.getScalaPackageClassNames
 
+    val shouldProcessScala3Definitions = processor match {
+      case proc: ResolveProcessor => proc.ref.isInScala3File
+      case _                      => false
+    }
+
+    def classesToProcess(syntheticClasses: SyntheticClasses): Iterable[PsiClass] =
+      if (shouldProcessScala3Definitions) syntheticClasses.getAll
+      else                                syntheticClasses.sharedClassesOnly
+
     val syntheticClasses = SyntheticClasses.get(manager.project)
     for {
-      syntheticElement <- syntheticClasses.getAll ++
-        syntheticClasses.syntheticObjects.valuesIterator
+      syntheticElement <- classesToProcess(syntheticClasses) ++
+        syntheticClasses.objects.valuesIterator ++
+        (if (shouldProcessScala3Definitions) syntheticClasses.aliases.iterator
+        else                                 Iterator.empty)
       // Assume that is the scala package contained a class with the same names as the synthetic object, then it must also contain the object.
 
       // Does the "scala" package already contain a class named `className`?

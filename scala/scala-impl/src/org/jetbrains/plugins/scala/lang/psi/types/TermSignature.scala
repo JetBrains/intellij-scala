@@ -35,9 +35,33 @@ class TermSignature(
   override val namedElement: PsiNamedElement,
   override val exportedIn:   Option[PsiClass] = None,
   val hasRepeatedParam:      Array[Int]       = Array.empty,
-  override val renamed:      Option[String]   = None
+  override val renamed:      Option[String]   = None,
+  val intersectedReturnType: Option[ScType]   = None
 ) extends Signature
     with ProjectContextOwner {
+
+  def copy(
+    _name:                 String                 = _name,
+    typesEval:             Seq[Seq[() => ScType]] = typesEval,
+    tParams:               Seq[TypeParameter]     = tParams,
+    substitutor:           ScSubstitutor          = substitutor,
+    namedElement:          PsiNamedElement        = namedElement,
+    exportedIn:            Option[PsiClass]       = exportedIn,
+    hasRepeatedParam:      Array[Int]             = hasRepeatedParam,
+    renamed:               Option[String]         = renamed,
+    intersectedReturnType: Option[ScType]         = intersectedReturnType
+  ): TermSignature =
+    new TermSignature(
+      _name,
+      typesEval,
+      tParams,
+      substitutor,
+      namedElement,
+      exportedIn,
+      hasRepeatedParam,
+      renamed,
+      intersectedReturnType
+    )
 
   override implicit def projectContext: ProjectContext = namedElement
 

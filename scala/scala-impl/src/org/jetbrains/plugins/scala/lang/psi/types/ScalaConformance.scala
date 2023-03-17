@@ -431,39 +431,57 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
     }
 
-    trait CompoundTypeVisitor extends ScalaTypeVisitor {
-      override def visitCompoundType(c: ScCompoundType): Unit = {
-        val comps = c.components
-        var results = Set[ConstraintSystem]()
-        def traverse(check: (ScType, ConstraintSystem) => ConstraintsResult): Unit = {
-          val iterator = comps.iterator
-          while (iterator.hasNext) {
-            val comp = iterator.next()
-            val t = check(comp, constraints)
-            if (t.isRight) {
-              results = results + t.constraints
-            }
-          }
-        }
-        traverse(typeSystem.equivInner(l, _, _))
-        if (results.isEmpty) {
-          traverse(conformsInner(l, _, HashSet.empty, _))
-        }
-
-        if (results.size == 1) {
-          result = results.head
-          return
-        } else if (results.size > 1) {
-          result = ConstraintSystem(results)
-          return
-        }
-
-        result = l match {
-          case AliasType(_: ScTypeAliasDefinition, Right(lower), _) =>
-            conformsInner(lower, c, HashSet.empty, constraints)
-          case _ => ConstraintsResult.Left
+    trait OrTypeVisitor extends ScalaTypeVisitor {
+      override def visitOrType(t: ScOrType): Unit = {
+        conformsInner(l, t.lhs, HashSet.empty, constraints) match {
+          case ConstraintsResult.Left => result = ConstraintsResult.Left
+          case cs: ConstraintSystem   => result = conformsInner(l, t.rhs, HashSet.empty, cs)
         }
       }
+    }
+
+    trait CompoundTypeVisitor extends ScalaTypeVisitor {
+      override def visitAndType(t: ScAndType): Unit =
+        compareComponents(Seq(t.lhs, t.rhs))
+
+      private def traverseComponents(
+        comps: Seq[ScType],
+        check: (ScType, ConstraintSystem) => ConstraintsResult
+      ): Set[ConstraintSystem] = {
+        val builder = Set.newBuilder[ConstraintSystem]
+
+        val iterator = comps.iterator
+        while (iterator.hasNext) {
+          val comp = iterator.next()
+          val result = check(comp, constraints)
+
+          result match {
+            case ConstraintsResult.Left => ()
+            case cs: ConstraintSystem   => builder += cs
+          }
+        }
+
+        builder.result()
+      }
+
+      private def compareComponents(comps: Seq[ScType]): Unit = {
+        val equivConstraints = traverseComponents(comps, typeSystem.equivInner(l, _, _))
+
+        val results =
+          if (equivConstraints.isEmpty)
+            traverseComponents(comps, conformsInner(l, _, HashSet.empty, _))
+          else equivConstraints
+
+        if (results.nonEmpty) result = ConstraintSystem(results)
+        else
+          result = l match {
+            case AliasType(_: ScTypeAliasDefinition, Right(lower), _) =>
+              conformsInner(lower, r, HashSet.empty, constraints)
+            case _ => ConstraintsResult.Left
+          }
+      }
+
+      override def visitCompoundType(c: ScCompoundType): Unit = compareComponents(c.components)
     }
 
     trait ExistentialVisitor extends ScalaTypeVisitor {
@@ -589,7 +607,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       if (result != null) return
 
       rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
-        with ProjectionVisitor {}
+        with ProjectionVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -652,7 +670,33 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
     }
 
-    override def visitCompoundType(c: ScCompoundType): Unit = {
+    override def visitOrType(t: ScOrType): Unit = {
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
+          with ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
+        with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
+        with TypeParameterTypeVisitor with OrTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      conformsInner(t.lhs, r, visited, constraints) match {
+        case ConstraintsResult.Left => result = conformsInner(t.rhs, r, visited, constraints)
+        case cs: ConstraintSystem   => result = cs
+      }
+    }
+
+    private def visitCompoundOrAndType(): Unit = {
       var rightVisitor: ScalaTypeVisitor =
         new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
           with ParameterizedAbstractVisitor {}
@@ -671,7 +715,19 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
+    }
 
+    override def visitAndType(t: ScAndType): Unit = {
+      visitCompoundOrAndType()
+      if (result != null) return
+
+      conformsInner(t.lhs, r, visited, constraints) match {
+        case ConstraintsResult.Left => result = ConstraintsResult.Left
+        case cs: ConstraintSystem   => result = conformsInner(t.rhs, r, visited, cs)
+      }
+    }
+
+    override def visitCompoundType(c: ScCompoundType): Unit = {
       /*If T<:Ui for i=1,...,n and for every binding d of a type or value x in R there exists a member binding
       of x in T which subsumes d, then T conforms to the compound type	U1	with	. . .	with	Un	{R }.
 
@@ -697,6 +753,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         constraints = processor.getConstraints
         processor.getResult
       }
+
+      visitCompoundOrAndType()
+      if (result != null) return
 
       val isSuccess = c.components.forall(comp => {
         val t = conformsInner(comp, r, HashSet.empty, constraints)
@@ -727,7 +786,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor with ProjectionVisitor {}
+      rightVisitor =
+        new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor
+          with ProjectionVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -824,7 +885,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
 
       rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
-        with ProjectionVisitor {}
+        with ProjectionVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1004,7 +1065,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       if (result != null) return
 
       rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
-        with ProjectionVisitor {}
+        with ProjectionVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1160,7 +1221,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
             case _            => ConstraintsResult.Left
           }
         case _ =>
-          rightVisitor = new CompoundTypeVisitor with ExistentialVisitor {}
+          rightVisitor = new CompoundTypeVisitor with ExistentialVisitor with OrTypeVisitor {}
           r.visitType(rightVisitor)
       }
       if (result != null) return
@@ -1233,7 +1294,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
 
       rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor
-        with ExistentialVisitor with ProjectionVisitor {}
+        with ExistentialVisitor with ProjectionVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1280,7 +1341,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       if (result != null) return
 
       rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor
-        with ExistentialVisitor with ProjectionVisitor {}
+        with ExistentialVisitor with ProjectionVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 

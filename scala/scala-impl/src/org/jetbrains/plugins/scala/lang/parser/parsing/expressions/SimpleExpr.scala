@@ -190,8 +190,7 @@ object SimpleExpr extends ParsingRule {
           }
         case `tLPARENTHESIS` | `tLBRACE`
           if builder.getTokenType != tLPARENTHESIS ||
-            !builder.newlineBeforeCurrentToken ||
-            (builder.isScala3 && builder.isScala3IndentationBasedSyntaxEnabled && ParserUtils.isIndent) =>
+            !builder.newlineBeforeCurrentToken => // TODO(SCL-21085): || (builder.isScala3 && builder.isScala3IndentationBasedSyntaxEnabled && ParserUtils.isIndent)
           if (state && ArgumentExprs()) {
             val tMarker = marker.precede
             marker.done(ScalaElementType.METHOD_CALL)
