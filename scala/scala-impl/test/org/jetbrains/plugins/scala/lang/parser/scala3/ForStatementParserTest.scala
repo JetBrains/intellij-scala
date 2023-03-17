@@ -378,4 +378,130 @@ class ForStatementParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  def test_for_with_tuples_SCL_21081(): Unit = checkTree(
+    """for {
+      |  x <- Seq(1, 2, 3)
+      |  t1 = (1, 2)
+      |  (a, b) = (3, 4)
+      |  t2 = (1, 2)
+      |  (c, d) = (3, 4)
+      |} {}""".stripMargin,
+    """ScalaFile
+      |  ForStatement
+      |    PsiElement(for)('for')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement({)('{')
+      |    PsiWhiteSpace('\n  ')
+      |    Enumerators
+      |      Generator
+      |        ReferencePattern: x
+      |          PsiElement(identifier)('x')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(<-)('<-')
+      |        PsiWhiteSpace(' ')
+      |        MethodCall
+      |          ReferenceExpression: Seq
+      |            PsiElement(identifier)('Seq')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            IntegerLiteral
+      |              PsiElement(integer)('1')
+      |            PsiElement(,)(',')
+      |            PsiWhiteSpace(' ')
+      |            IntegerLiteral
+      |              PsiElement(integer)('2')
+      |            PsiElement(,)(',')
+      |            PsiWhiteSpace(' ')
+      |            IntegerLiteral
+      |              PsiElement(integer)('3')
+      |            PsiElement())(')')
+      |      PsiWhiteSpace('\n  ')
+      |      ForBinding
+      |        ReferencePattern: t1
+      |          PsiElement(identifier)('t1')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        Tuple
+      |          PsiElement(()('(')
+      |          IntegerLiteral
+      |            PsiElement(integer)('1')
+      |          PsiElement(,)(',')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('2')
+      |          PsiElement())(')')
+      |      PsiWhiteSpace('\n  ')
+      |      ForBinding
+      |        TuplePattern
+      |          PsiElement(()('(')
+      |          ArgumentPatterns
+      |            ReferencePattern: a
+      |              PsiElement(identifier)('a')
+      |            PsiElement(,)(',')
+      |            PsiWhiteSpace(' ')
+      |            ReferencePattern: b
+      |              PsiElement(identifier)('b')
+      |          PsiElement())(')')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        Tuple
+      |          PsiElement(()('(')
+      |          IntegerLiteral
+      |            PsiElement(integer)('3')
+      |          PsiElement(,)(',')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('4')
+      |          PsiElement())(')')
+      |      PsiWhiteSpace('\n  ')
+      |      ForBinding
+      |        ReferencePattern: t2
+      |          PsiElement(identifier)('t2')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        Tuple
+      |          PsiElement(()('(')
+      |          IntegerLiteral
+      |            PsiElement(integer)('1')
+      |          PsiElement(,)(',')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('2')
+      |          PsiElement())(')')
+      |      PsiWhiteSpace('\n  ')
+      |      ForBinding
+      |        TuplePattern
+      |          PsiElement(()('(')
+      |          ArgumentPatterns
+      |            ReferencePattern: c
+      |              PsiElement(identifier)('c')
+      |            PsiElement(,)(',')
+      |            PsiWhiteSpace(' ')
+      |            ReferencePattern: d
+      |              PsiElement(identifier)('d')
+      |          PsiElement())(')')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        Tuple
+      |          PsiElement(()('(')
+      |          IntegerLiteral
+      |            PsiElement(integer)('3')
+      |          PsiElement(,)(',')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('4')
+      |          PsiElement())(')')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(})('}')
+      |    PsiWhiteSpace(' ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      PsiElement(})('}')
+      |""".stripMargin
+  )
+
 }
