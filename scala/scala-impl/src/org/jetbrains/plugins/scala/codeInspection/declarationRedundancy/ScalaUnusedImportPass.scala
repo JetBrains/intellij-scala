@@ -10,7 +10,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.util.{DocumentUtil, Processor}
+import com.intellij.util.{DocumentUtil, Processor, ThreeState}
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedImportPass.scheduleOnTheFlyImportOptimizer
@@ -109,7 +109,7 @@ object ScalaUnusedImportPass {
       val codeAnalyzer = DaemonCodeAnalyzerEx.getInstanceEx(file.getProject)
       file match {
         case _: ScalaFile if codeAnalyzer.isHighlightingAvailable(file) && codeAnalyzer.isErrorAnalyzingFinished(file) =>
-          !containsErrorsPreventingOptimize(file) && DaemonListeners.canChangeFileSilently(file, true)
+          !containsErrorsPreventingOptimize(file) && DaemonListeners.canChangeFileSilently(file, true, ThreeState.UNSURE)
         case _ => false
       }
     }
