@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import java.{util => ju}
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 /**
@@ -184,7 +184,7 @@ object ImplicitProcessor {
   private[this] def findImplicitObjectsImpl(`type`: ScType)
                                            (implicit elementScope: ElementScope): Seq[ScType] = {
     val visited = mutable.HashSet.empty[ScType]
-    val parts = mutable.Queue.empty[ScType]
+    val parts   = mutable.Queue.empty[ScType]
 
     def collectPartsIter(iterable: IterableOnce[ScType]): Unit = {
       val iterator = iterable.iterator
@@ -327,25 +327,33 @@ object ImplicitProcessor {
       }
     }
 
-    @tailrec
+    def workWithTypeAlias(alias: ScTypeAliasDefinition, subst: ScSubstitutor = ScSubstitutor.empty): Unit = {
+      if (alias.isOpaque) {
+        val companionName = alias.qualifiedNameOpt
+        companionName.foreach { fqn =>
+          elementScope
+            .getCachedObject(fqn)
+            .foreach(obj => addResult(fqn, ScDesignatorType(obj)))
+        }
+      } else collectObjects(subst(alias.aliasedType.getOrAny))
+    }
+
     def collectObjects(tp: ScType): Unit = {
       tp match {
         case _ if tp.isAny =>
-        case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
-          elementScope.getCachedObject("scala." + tp.name)
-            .foreach { o =>
-              addResult(o.qualifiedName, ScDesignatorType(o))
-            }
-        case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
-        case ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst) =>
-          collectObjects(actualSubst(actualElem.aliasedType.getOrAny))
+        case tp: StdType if stdTypes.contains(tp.name) =>
+          elementScope
+            .getCachedObject("scala." + tp.name)
+            .foreach(o => addResult(o.qualifiedName, ScDesignatorType(o)))
+        case ScDesignatorType(ta: ScTypeAliasDefinition) => workWithTypeAlias(ta)
+        case ScProjectionType.withActual(ta: ScTypeAliasDefinition, actualSubst) => workWithTypeAlias(ta, actualSubst)
         case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
           val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
-          collectObjects(genericSubst(ta.aliasedType.getOrAny))
-        case ParameterizedType(ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst), args) =>
-          val genericSubst = ScSubstitutor.bind(actualElem.typeParameters, args)
-          val s = actualSubst.followed(genericSubst)
-          collectObjects(s(actualElem.aliasedType.getOrAny))
+          workWithTypeAlias(ta, genericSubst)
+        case ParameterizedType(ScProjectionType.withActual(ta: ScTypeAliasDefinition, actualSubst), args) =>
+          val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
+          val subst        = actualSubst.followed(genericSubst)
+          workWithTypeAlias(ta, subst)
         case _ =>
           tp.extractClass match {
             case Some(obj: ScObject) => addResult(obj.qualifiedName, tp)
@@ -373,4 +381,7 @@ object ImplicitProcessor {
 
     res.values.flatten.toSeq
   }
+
+  private[this] val stdTypes =
+    Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char")
 }

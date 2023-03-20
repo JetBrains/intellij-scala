@@ -419,4 +419,22 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |    val intString = 1.foo[String] // Map[Int, String], but intellij says it's an Any
       |""".stripMargin
   )
+
+  def testSCL21060(): Unit = checkTextHasNoErrors(
+    """
+      |object Opaque {
+      |  object Scope:
+      |    opaque type MyOpaqueType = String
+      |
+      |    object MyOpaqueType: //TODO completion of companion object name doesn't work
+      |      extension (t: MyOpaqueType)
+      |        def myExtensionForOpaque: String = "42"
+      |
+      |  def main(): Unit = {
+      |    val valueOpaque: Scope.MyOpaqueType = ???
+      |    valueOpaque.myExtensionForOpaque
+      |  }
+      |}
+      |""".stripMargin
+  )
 }
