@@ -437,4 +437,20 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |}
       |""".stripMargin
   )
+
+  def testSCL21084(): Unit = checkTextHasNoErrors(
+    """
+      |
+      |extension [T <: Tuple](t: T) {
+      |  def id = t
+      |}
+      |
+      |implicit class TupleExts[T <: Tuple](t: T) extends AnyVal {
+      |  def id2 = t
+      |}
+      |
+      |val ti = (Option(1), Option(2), Option("3")).id
+      |val ti2 = (Option(1), Option(2), Option("3")).id2
+      |""".stripMargin
+  )
 }
