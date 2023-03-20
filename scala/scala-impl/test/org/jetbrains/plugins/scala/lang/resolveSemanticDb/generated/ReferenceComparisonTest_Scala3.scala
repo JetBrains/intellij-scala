@@ -141,7 +141,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_class_refinement(): Unit = doTest("class-refinement", true)
   def test_classtag_typetest(): Unit = doTest("classtag-typetest", true)
   def test_classWithCompObj(): Unit = doTest("classWithCompObj", true)
-  def test_closure_args(): Unit = doTest("closure-args", false) // #extension
+  def test_closure_args(): Unit = doTest("closure-args", true) // #extension
   def test_cls(): Unit = doTest("cls", true)
   def test_cls1(): Unit = doTest("cls1", true)
   def test_clsrefine(): Unit = doTest("clsrefine", true)
@@ -168,7 +168,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_contextbounds_implicits_old(): Unit = doTest("contextbounds-implicits-old", true)
   def test_contrib467(): Unit = doTest("contrib467", true)
   def test_conversion_function_prototype(): Unit = doTest("conversion-function-prototype", false) // #opaque
-  def test_convert(): Unit = doTest("convert", false)
+  def test_convert(): Unit = doTest("convert", true)
   def test_covariant_opaque(): Unit = doTest("covariant-opaque", true) // #opaque
   def test_creators(): Unit = doTest("creators", true)
   def test_curried(): Unit = doTest("curried", true)
@@ -223,7 +223,6 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_existential_java_case_class(): Unit = doTest("existential-java-case-class", true)
   def test_existentials(): Unit = doTest("existentials", true)
   def test_existentials_harmful(): Unit = doTest("existentials-harmful", true)
-  //top level "erased" is not recognized as a (soft?) keyword and is parsed as reference, which is not resolved
   def test_experimental_erased(): Unit = doTest("experimental-erased", false)
   def test_experimental_erased_2(): Unit = doTest("experimental-erased-2", false)
   def test_experimentalErased(): Unit = doTest("experimentalErased", false)
@@ -234,7 +233,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_export_in_extension_rename(): Unit = doTest("export-in-extension-rename", true) // #extension
   def test_export_opaque(): Unit = doTest("export-opaque", false) // #opaque, #export
   def test_export_proxies(): Unit = doTest("export-proxies", true) // #export
-  def test_extmethods(): Unit = doTest("extmethods", false) // #extension
+  def test_extmethods(): Unit = doTest("extmethods", true) // #extension
   def test_extmethods_2(): Unit = doTest("extmethods-2", true)
   def test_extractor_types(): Unit = doTest("extractor-types", true)
   def test_extractors(): Unit = doTest("extractors", true)
@@ -432,7 +431,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i1990(): Unit = doTest("i1990", true)
   def test_i1990a(): Unit = doTest("i1990a", false)
   def test_i2009(): Unit = doTest("i2009", true)
-  def test_i2051(): Unit = doTest("i2051", true) // #traitParameters
+  def test_i2051(): Unit = doTest("i2051", true)
   def test_i2056(): Unit = doTest("i2056", true)
   def test_i2064(): Unit = doTest("i2064", true)
   def test_i2066(): Unit = doTest("i2066", true)
@@ -888,7 +887,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i8284(): Unit = doTest("i8284", true)
   def test_i8319(): Unit = doTest("i8319", false) // #intersectionType
   def test_i8338(): Unit = doTest("i8338", true)
-  def test_i8344_1(): Unit = doTest("i8344-1", true) // #enum
+  def test_i8344_1(): Unit = doTest("i8344-1", false) // #enum
   def test_i8344_2(): Unit = doTest("i8344-2", true)
   def test_i8357(): Unit = doTest("i8357", false) // #opaque, #intersectionType
   def test_i8368(): Unit = doTest("i8368", false) // #export
@@ -1074,7 +1073,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i11163(): Unit = doTest("i11163", true)
   def test_i11168(): Unit = doTest("i11168", false) // #extension
   def test_i11174minimisation(): Unit = doTest("i11174minimisation", false) // #enum
-  def test_i11175(): Unit = doTest("i11175", false) // #extension
+  def test_i11175(): Unit = doTest("i11175", true) // #extension
   def test_i11184a(): Unit = doTest("i11184a", true)
   def test_i11184b(): Unit = doTest("i11184b", true)
   def test_i11184c(): Unit = doTest("i11184c", true)
@@ -1247,7 +1246,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i13565(): Unit = doTest("i13565", true)
   def test_i13586(): Unit = doTest("i13586", false) // #spliced/quoted
   def test_i13660(): Unit = doTest("i13660", true) // #typeLambda
-  def test_i13668(): Unit = doTest("i13668", false) // #extension
+  def test_i13668(): Unit = doTest("i13668", true) // #extension
   def test_i13669(): Unit = doTest("i13669", false) // #extension, #export
   def test_i13739(): Unit = doTest("i13739", false) // #unionType
   def test_i13816(): Unit = doTest("i13816", false) // #intersectionType
