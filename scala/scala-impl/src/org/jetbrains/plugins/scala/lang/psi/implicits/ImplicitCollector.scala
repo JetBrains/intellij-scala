@@ -764,7 +764,9 @@ class ImplicitCollector(
       case None => Some(cand)
       case Some(data) =>
         val applicabilityCheck = cand.element match {
-          case e @ ExtensionMethod() => Option.when(e.name == data.refName)(cand)
+          case e @ ExtensionMethod() =>
+            val candName = cand.renamed.getOrElse(e.name)
+            Option.when(data.refName == candName)(cand)
           case _                     => extensionConversionCheck(data, cand)
         }
 

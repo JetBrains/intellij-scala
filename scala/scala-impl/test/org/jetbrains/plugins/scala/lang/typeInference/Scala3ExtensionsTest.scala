@@ -217,7 +217,9 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
     )
   }
 
-  def testAmbiguousExtensionWithExpectedTypeAndTypeArgs(): Unit = checkHasErrorAroundCaret(
+  //@TODO: Currently does not compile, but probably should,
+  //       nobody in epfl seems to know why.
+  def testAmbiguousExtensionWithExpectedTypeAndTypeArgs(): Unit = checkTextHasNoErrors(
     s"""
       |object B {
       |  trait F
@@ -230,11 +232,13 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |    extension (x: Int) { def foo[Y]: String = "123" }
       |  }
       |
-      |  val s: Int = 123.f${CARET}oo[Int]
+      |  val s: Int = 123.foo[Int]
       |}""".stripMargin
   )
 
-  def testAmbiguousExtensionWithExpectedTypeAndArgs(): Unit = checkHasErrorAroundCaret(
+  //@TODO: Currently does not compile, but probably should,
+  //       nobody in epfl seems to know why.
+  def testAmbiguousExtensionWithExpectedTypeAndArgs(): Unit = checkTextHasNoErrors(
     s"""
       |object B {
       |  trait F
@@ -247,7 +251,7 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |    extension (x: Int) { def foo(i: Int): String = "123" }
       |  }
       |
-      |  val s: Int = 123.fo${CARET}o(1)
+      |  val s: Int = 123.foo(1)
       |}""".stripMargin
   )
 
@@ -445,7 +449,7 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |  def id = t
       |}
       |
-      |implicit class TupleExts[T <: Tuple](t: T) extends AnyVal {
+      |implicit class TupleExts[T <: Tuple](private val t: T) extends AnyVal {
       |  def id2 = t
       |}
       |
