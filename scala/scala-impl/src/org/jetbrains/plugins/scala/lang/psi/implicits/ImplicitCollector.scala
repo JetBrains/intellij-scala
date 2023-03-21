@@ -234,10 +234,12 @@ class ImplicitCollector(
       if (withoutLocalTypeInference.nonEmpty) withoutLocalTypeInference
       else                                    collectCompatibleCandidates(candidates, withLocalTypeInference = true)
 
-    mostSpecificUtil.mostSpecificForImplicitParameters(compatible) match {
-      case Some(r) => Seq(r)
-      case _       => compatible.toSeq
-    }
+    if (compatible.forall(_.isExtension)) compatible.toSeq
+    else
+      mostSpecificUtil.mostSpecificForImplicitParameters(compatible) match {
+        case Some(r) => Seq(r)
+        case _       => compatible.toSeq
+      }
   }
 
   private def collectFullInfo(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = {
@@ -352,9 +354,11 @@ class ImplicitCollector(
           afterExtensionPredicate match {
             case Some(r) =>
               val notMoreSpecific = mostSpecificUtil.notMoreSpecificThan(r)
-              filteredCandidates.filterInPlace(notMoreSpecific)
-              //this filter was added to make result deterministic
-              results = results.filter(c => notMoreSpecific(c))
+              if (!c.isExtension) {
+                filteredCandidates.filterInPlace(notMoreSpecific)
+                //this filter was added to make result deterministic
+                results = results.filter(c => notMoreSpecific(c))
+              }
               results = results + r
             case _ =>
           }
@@ -560,11 +564,10 @@ class ImplicitCollector(
     val depth = ScalaProjectSettings.getInstance(project).getImplicitParametersSearchDepth
     val notTooDeepSearch = depth < 0 || searchImplicitsRecursively < depth
 
-    if (hasImplicitClause && notTooDeepSearch) {
-      val isExtensionMethod = c.isExtension
+    if (hasImplicitClause && notTooDeepSearch && !c.isExtension) {
 
       val conversionDataCheckedResult =
-        if (!hadDependents && !isExtensionMethod) {
+        if (!hadDependents) {
           val noMethod = wrongExtensionConversion(nonValueType)
           failedPtAdapt.orElse(noMethod)
         } else failedPtAdapt
@@ -761,8 +764,10 @@ class ImplicitCollector(
       case None => Some(cand)
       case Some(data) =>
         val applicabilityCheck = cand.element match {
-          case ExtensionMethod() => scala3ExtensionApplicabilityCheck(data, cand)
-          case _                 => extensionConversionCheck(data, cand)
+          case e @ ExtensionMethod() =>
+            val candName = cand.renamed.getOrElse(e.name)
+            Option.when(data.refName == candName)(cand)
+          case _                     => extensionConversionCheck(data, cand)
         }
 
         applicabilityCheck.orElse(

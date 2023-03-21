@@ -139,7 +139,9 @@ object ImplicitConversionResolveResult {
     found match {
       case _ if forCompletion => found
       case Seq(_)             => found
-      case _                  => Seq.empty
+      case multiple           =>
+        if (multiple.forall(_.isExtension)) multiple
+        else                                Seq.empty
     }
   }
 

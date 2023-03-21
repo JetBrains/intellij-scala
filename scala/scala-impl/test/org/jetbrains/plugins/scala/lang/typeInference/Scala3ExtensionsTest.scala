@@ -197,40 +197,29 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
        |}
        |""".stripMargin
   )
-//
-//  def testAmbiguousExtensionsWithExpectedType(): Unit = {
-//    checkTextHasNoErrors(
-//      """
-//        |object B:
-//        |  trait F
-//        |  given F with {
-//        |    extension (x: Int) { def foo: Int = 123 }
-//        |  }
-//        |
-//        |  trait G
-//        |  given G with {
-//        |    extension (x: Int) { def foo: String = "123" }
-//        |  }
-//        |
-//        |  val s: Int = 123.foo
-//        |""".stripMargin
-//    )
-//  }
-//
-//  def testAmbiguousImplicitClassesWithExpectedType(): Unit = {
-//    checkTextHasNoErrors(
-//      """
-//        |object B {
-//        |  implicit class IntOps1(val x: Int) { def fooz: Int = 123 }
-//        |  implicit class IntOps2(val x: Int) { def fooz: String = "123" }
-//        |
-//        |  val s: String = 123.fooz
-//        |}
-//        |""".stripMargin
-//    )
-//  }
 
-  def testAmbiguousExtensionWithExpectedTypeAndTypeArgs(): Unit = checkHasErrorAroundCaret(
+  def testAmbiguousExtensionsWithExpectedType(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |object B:
+        |  trait F
+        |  given F with {
+        |    extension (x: Int) { def foo: Int = 123 }
+        |  }
+        |
+        |  trait G
+        |  given G with {
+        |    extension (x: Int) { def foo: String = "123" }
+        |  }
+        |
+        |  val s: Int = 123.foo
+        |""".stripMargin
+    )
+  }
+
+  //@TODO: Currently does not compile, but probably should,
+  //       nobody in epfl seems to know why.
+  def testAmbiguousExtensionWithExpectedTypeAndTypeArgs(): Unit = checkTextHasNoErrors(
     s"""
       |object B {
       |  trait F
@@ -243,11 +232,13 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |    extension (x: Int) { def foo[Y]: String = "123" }
       |  }
       |
-      |  val s: Int = 123.f${CARET}oo[Int]
+      |  val s: Int = 123.foo[Int]
       |}""".stripMargin
   )
 
-  def testAmbiguousExtensionWithExpectedTypeAndArgs(): Unit = checkHasErrorAroundCaret(
+  //@TODO: Currently does not compile, but probably should,
+  //       nobody in epfl seems to know why.
+  def testAmbiguousExtensionWithExpectedTypeAndArgs(): Unit = checkTextHasNoErrors(
     s"""
       |object B {
       |  trait F
@@ -260,7 +251,7 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |    extension (x: Int) { def foo(i: Int): String = "123" }
       |  }
       |
-      |  val s: Int = 123.fo${CARET}o(1)
+      |  val s: Int = 123.foo(1)
       |}""".stripMargin
   )
 
@@ -411,6 +402,59 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |    println(output4.isInstanceOf[Int])    // Prints true
       |  }
       |}
+      |""".stripMargin
+  )
+
+  def testSCL21053(): Unit = checkTextHasNoErrors(
+    """
+      |object TestIntellij:
+      |
+      |  extension [X](x: X)
+      |    def foo[Y](using Bar[X, Y]): Map[X, Y] = ???
+      |
+      |  trait Bar[X, Y]
+      |  given Bar[Int, Int]    = ???
+      |  given Bar[Int, String] = ???
+      |  given Bar[Int, Float]  = ???
+      |
+      |  def main(args: Array[String]) =
+      |    val intint    = 1.foo[Int] // Map[Int, Int], but intellij says it's an Any
+      |    val intFloat  = 1.foo[Float] // Map[Int, Float], but intellij says it's an Any
+      |    val intString = 1.foo[String] // Map[Int, String], but intellij says it's an Any
+      |""".stripMargin
+  )
+
+  def testSCL21060(): Unit = checkTextHasNoErrors(
+    """
+      |object Opaque {
+      |  object Scope:
+      |    opaque type MyOpaqueType = String
+      |
+      |    object MyOpaqueType: //TODO completion of companion object name doesn't work
+      |      extension (t: MyOpaqueType)
+      |        def myExtensionForOpaque: String = "42"
+      |
+      |  def main(): Unit = {
+      |    val valueOpaque: Scope.MyOpaqueType = ???
+      |    valueOpaque.myExtensionForOpaque
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL21084(): Unit = checkTextHasNoErrors(
+    """
+      |
+      |extension [T <: Tuple](t: T) {
+      |  def id = t
+      |}
+      |
+      |implicit class TupleExts[T <: Tuple](private val t: T) extends AnyVal {
+      |  def id2 = t
+      |}
+      |
+      |val ti = (Option(1), Option(2), Option("3")).id
+      |val ti2 = (Option(1), Option(2), Option("3")).id2
       |""".stripMargin
   )
 }
