@@ -122,18 +122,35 @@ private[importing] object BspResolverLogic {
       .toMap
 
     val sharedResources = sharedSourceDirs(idToResources)
-    val sharedSources = sharedSourceDirs(idToSources.view.mapValues(_.filterNot(_.generated)).toMap)
-    val sharedGeneratedSources = idToSources
-      .view
-      .mapValues(_.filter(_.generated))
-      .filter { case (id, src) => sharedSources.values.flatten.toSeq.contains(id) && src.nonEmpty }
+
+    val sharedSourcesAgg = mutable.Map[BuildTargetIdentifier, Seq[SourceDirectory]]()
+    val sharedGeneratedSourcesAgg = mutable.Map[BuildTargetIdentifier, Seq[SourceDirectory]]()
+    val idsByDirAgg = mutable.MultiDict[SourceDirectory, BuildTargetIdentifier]()
+    idToSources.view.foreach { case (bti, sources) =>
+      val (generatedSources, notGeneratedSources) = sources.partition(_.generated)
+      if (notGeneratedSources.nonEmpty) sharedSourcesAgg(bti) = notGeneratedSources
+      if (generatedSources.nonEmpty) sharedGeneratedSourcesAgg(bti) = generatedSources
+      sources.foreach{
+        dir => idsByDirAgg.addOne(dir, bti)
+      }
+    }
+    val sharedIdsByDir = idsByDirAgg.collectSets {
+      case (dir, ids) if ids.size > 1 => (dir, ids)
+    }
+    val sharedSources = sharedIdsByDir.groupMap(_._1)(_._2).view.mapValues(_.toSeq)
+    val allIdsWithSharedSources = sharedIdsByDir.values.toSet
+    val sharedGeneratedSources = sharedGeneratedSourcesAgg.filter {
+      case (bti, _) => allIdsWithSharedSources.contains(bti)
+    }.toMap
 
     val moduleDescriptions = buildTargets.flatMap { (target: BuildTarget) =>
       val id = target.getId
       val scalacOptions = idToScalacOptions.get(id)
       val javacOptions = idToJavacOptions.get(id)
       val depSources = idToDepSources.getOrElse(id, Seq.empty)
-      val sharedSourcesAndGenerated = (sharedSources.keys ++ sharedGeneratedSources.values.flatten).toSeq
+      val sharedSourcesAndGenerated = sharedGeneratedSources.values.foldLeft(sharedSources.keys.toSet) {
+        case (agg, dirs) => agg ++ dirs
+      }
       val sources = idToSources.getOrElse(id, Seq.empty).filterNot(sharedSourcesAndGenerated.contains)
       val resources = idToResources.getOrElse(id, Seq.empty).filterNot(sharedResources.contains)
       val outputPaths = idToOutputPaths.getOrElse(id, Seq.empty)
@@ -158,10 +175,10 @@ private[importing] object BspResolverLogic {
     val idsGeneratedSources = sharedSources.values.toSeq.distinct
       .sortBy(_.size)
       .foldRight((sharedGeneratedSources, Map.empty[Seq[BuildTargetIdentifier], Seq[SourceDirectory]])) {
-        case (ids, (sharedGeneratedSources, result)) =>
-          val sharedGeneratedSourcesForIds = sharedGeneratedSources.filterKeys(ids.contains)
+        case (ids, (idToSources, result)) =>
+          val sharedGeneratedSourcesForIds = idToSources.view.filterKeys(ids.contains)
           (
-            sharedGeneratedSources.filterKeys(!sharedGeneratedSourcesForIds.keySet.contains(_)),
+            idToSources.view.filterKeys(!sharedGeneratedSourcesForIds.keySet.contains(_)).toMap,
             result + (ids.sortBy(_.getUri) -> sharedGeneratedSourcesForIds.values.flatten.toSeq)
           )
       }._2
@@ -193,16 +210,17 @@ private[importing] object BspResolverLogic {
     ProjectModules(ordinaryModules ++ sbtBuildModules, syntheticSourceModules)
   }
 
-  private def sharedSourceDirs(idToSources: Map[BuildTargetIdentifier, Seq[SourceDirectory]]): Map[SourceDirectory, Seq[BuildTargetIdentifier]] = {
+
+  private def sharedSourceDirs(idToSources: scala.collection.Map[BuildTargetIdentifier, Seq[SourceDirectory]]): Map[SourceDirectory, Seq[BuildTargetIdentifier]] = {
     val idToSrc = for {
       (id, sources) <- idToSources.toSeq
       dir <- sources
     } yield (id, dir)
 
     idToSrc
-      .groupBy(_._2) // TODO merge source dirs with mixed generated flag?
-      .map { case (dir, derp) => (dir, derp.map(_._1)) }
-      .filter(_._2.size > 1)
+      .groupBy { case (_, dir) => dir } // TODO merge source dirs with mixed generated flag?
+      .filter { case (_, dirBindings) => dirBindings.size > 1 }
+      .map { case (dir, btiToDir) => (dir, btiToDir.map(_._1)) }
   }
 
   private def sourceDirectories(sourcesItem: SourcesItem): Seq[SourceDirectory] = {

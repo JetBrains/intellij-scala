@@ -500,6 +500,7 @@ lazy val bsp =
     )
     .settings(
       libraryDependencies ++= DependencyGroups.bsp,
+      libraryDependencies += Dependencies.scalaCollectionContrib,
       intellijPlugins += "JUnit".toPlugin,
       intellijPlugins += "org.jetbrains.plugins.terminal".toPlugin,
       buildInfoPackage := "org.jetbrains.bsp.buildinfo",
