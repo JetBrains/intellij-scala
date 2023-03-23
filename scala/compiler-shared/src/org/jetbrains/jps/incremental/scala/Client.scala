@@ -3,6 +3,7 @@ package org.jetbrains.jps.incremental.scala
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, PosInfo}
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
+import xsbti.TextEdit
 
 import java.io.File
 
@@ -17,8 +18,9 @@ trait Client {
                     @Nls text: String,
                     source: Option[File] = None,
                     from: PosInfo = PosInfo.Empty,
-                    to: PosInfo = PosInfo.Empty): Unit =
-    message(ClientMsg(kind, text, source, from, to))
+                    to: PosInfo = PosInfo.Empty,
+                    quickFixes: List[TextEdit2] = Nil): Unit =
+    message(ClientMsg(kind, text, source, from, to, quickFixes))
 
   final def error(@Nls text: String,
                   source: Option[File] = None,
@@ -85,7 +87,8 @@ object Client {
                              @Nls text: String,
                              source: Option[File],
                              from: PosInfo,
-                             to: PosInfo)
+                             to: PosInfo,
+                             quickFixes: List[TextEdit2] = Nil)
 
   /**
    * Information about the position in the source file.

@@ -39,7 +39,8 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           val highlighting = ExternalHighlighting(
             highlightType = kindToHighlightInfoType(msg.kind, text),
             message = text,
-            rangeOpt
+            rangeOpt,
+            msg.quickFixes
           )
           val fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
           val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)

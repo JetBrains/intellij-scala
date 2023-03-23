@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInspection.{LocalQuickFix, LocalQuickFixOnPsiElement, ProblemDescriptor}
+import com.intellij.codeInspection.ex.{QuickFixAction, QuickFixWrapper}
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
@@ -11,21 +13,24 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.xml.util.XmlStringUtil
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.jps.incremental.scala.TextEdit2
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaOptimizeImportsFix
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.{Pos, PosRange}
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, executeOnPooledThread, inReadAction, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, executeOnPooledThread, inReadAction, inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
+import xsbti.TextEdit
 
 import java.util.Collections
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
+import scala.util.chaining.scalaUtilChainingOps
 
 object ExternalHighlighters {
 
@@ -118,13 +123,38 @@ object ExternalHighlighters {
     }
   }
 
-  private def highlightInfoBuilder(highlightType: HighlightInfoType, highlightRange: TextRange, description: String): HighlightInfo.Builder =
+  private def highlightInfoBuilder(highlightType: HighlightInfoType, highlightRange: TextRange, description: String, document: Document, quickFixes: List[TextEdit2]): HighlightInfo.Builder =
     HighlightInfo
       .newHighlightInfo(highlightType)
       .range(highlightRange)
       .description(description)
       .escapedToolTip(escapeHtmlWithNewLines(description))
-      .group(ScalaCompilerPassId)
+      .group(ScalaCompilerPassId).tap { info =>
+
+      if (quickFixes.nonEmpty) {
+        val platformFix: IntentionAction = new IntentionAction {
+          override def getFamilyName: String = "SOME FIX FROM COMPILER" // fixme
+
+          override def getText: String = getFamilyName
+
+          override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = true
+
+          override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+            inWriteAction {
+              var delta = 0
+              quickFixes.foreach { quickFix =>
+
+                editor.getDocument.replaceString(quickFix.position.startOffset + delta, quickFix.position.endOffset + delta, quickFix.newText)
+                delta += quickFix.newText.length - (quickFix.position.endOffset - quickFix.position.startOffset)
+              }
+            }
+          }
+
+          override def startInWriteAction(): Boolean = true
+        }
+        info.registerFix(platformFix, null, null, TextRange.create(highlightRange.getStartOffset, highlightRange.getEndOffset), null)
+      }
+    }
 
   private def toHighlightInfo(highlighting: ExternalHighlighting, document: Document, psiFile: PsiFile): Option[HighlightInfo] = {
     val message = highlighting.message
@@ -138,7 +168,7 @@ object ExternalHighlighters {
       val description = message.trim.stripSuffix(lineText(message))
 
       def standardHighlightInfo =
-        highlightInfoBuilder(highlighting.highlightType, highlightRange, description).create()
+        highlightInfoBuilder(highlighting.highlightType, highlightRange, description, document, highlighting.quickFixes).create()
 
       val highlightInfo =
         if (description.trim.equalsIgnoreCase("unused import")) {
@@ -146,7 +176,7 @@ object ExternalHighlighters {
           val unusedImportRange = unusedImportElementRange(leaf)
           if (unusedImportRange != null) {
             // modify highlighting info to mimic Scala 2 unused import highlighting in Scala 3
-            highlightInfoBuilder(HighlightInfoType.UNUSED_SYMBOL, unusedImportRange, ScalaInspectionBundle.message("unused.import.statement"))
+            highlightInfoBuilder(HighlightInfoType.UNUSED_SYMBOL, unusedImportRange, ScalaInspectionBundle.message("unused.import.statement"), document, highlighting.quickFixes)
               .registerFix(new ScalaOptimizeImportsFix, null, null, unusedImportRange, null)
               .create()
           } else standardHighlightInfo

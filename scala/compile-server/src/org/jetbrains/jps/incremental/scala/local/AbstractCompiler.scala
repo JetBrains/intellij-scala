@@ -114,10 +114,10 @@ abstract class AbstractCompiler extends Compiler {
       val pos = problem.position
       val messageWithoutAnsiColorCodes = ansiColorCodePattern.replaceAllIn(problem.message(), "")
       val resultMsg = s"${messageWithoutAnsiColorCodes}\n${pos.lineContent}\n"
-      logInClient(resultMsg, pos, kind)
+      logInClient(resultMsg, pos, kind, problem.quickFix().asScala.toList.map(TextEdit2.fromTextEdit))
     }
 
-    private def logInClient(msg: String, pos: Position, kind: MessageKind): Unit = {
+    private def logInClient(msg: String, pos: Position, kind: MessageKind, quickFixes: List[TextEdit2] = Nil): Unit = {
       val source = pos.sourceFile.toScala
       val from = PosInfo(
         line = pos.line().toScala.map(_.toLong),
@@ -130,7 +130,7 @@ abstract class AbstractCompiler extends Compiler {
         offset = pos.endOffset().toScala.map(_.toLong)
       )
       //noinspection ReferencePassedToNls
-      client.message(kind, msg, source, from, to)
+      client.message(kind, msg, source, from, to, quickFixes)
     }
   }
 

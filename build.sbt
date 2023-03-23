@@ -350,6 +350,7 @@ lazy val compilerShared =
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true),
+      libraryDependencies += Dependencies.sbtInterface,
       intellijMainJars := Seq.empty,
       intellijPlugins := Seq.empty,
       Compile / unmanagedJars ++= Common.compilerSharedClasspath.value

@@ -109,7 +109,7 @@ object Dependencies {
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion excludeAll ExclusionRule(organization = "org.apache.logging.log4j")
   /** actually this is is compilerInterface (TODO: rename, cause naming difference is misleading) */
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
-  val sbtInterface = "org.scala-sbt" % "util-interface" % sbtVersion
+  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.8.1-SNAPSHOT"
 
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
@@ -117,7 +117,7 @@ object Dependencies {
   val sbtBridge_Scala_3_0 = "org.scala-lang" % "scala3-sbt-bridge" % "3.0.2"
   val sbtBridge_Scala_3_1 = "org.scala-lang" % "scala3-sbt-bridge" % "3.1.3"
   val sbtBridge_Scala_3_2 = "org.scala-lang" % "scala3-sbt-bridge" % "3.2.2"
-  val sbtBridge_Scala_3_3 = "org.scala-lang" % "scala3-sbt-bridge" % "3.3.1-RC1-bin-20230206-21729d2-NIGHTLY"
+  val sbtBridge_Scala_3_3 = "org.scala-lang" % "scala3-sbt-bridge" % "3.3.1-RC1-bin-SNAPSHOT"
 
   val java9rtExport = "org.scala-sbt.rt" % "java9-rt-export" % "0.1.0"
 

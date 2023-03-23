@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
+import org.jetbrains.jps.incremental.scala.TextEdit2
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.PosRange
+import xsbti.TextEdit
 
 /**
  * All information that needed for highlighting.
@@ -13,7 +15,8 @@ import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.Po
  */
 final case class ExternalHighlighting(highlightType: HighlightInfoType,
                                       message: String,
-                                      range: Option[PosRange])
+                                      range: Option[PosRange],
+                                      quickFixes: List[TextEdit2] = Nil)
 
 object ExternalHighlighting {
 
