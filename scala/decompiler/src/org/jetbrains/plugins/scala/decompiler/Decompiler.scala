@@ -1,15 +1,11 @@
 package org.jetbrains.plugins.scala
 package decompiler
 
-import java.io.ByteArrayInputStream
-import java.lang.StringBuilder
-import java.nio.charset.StandardCharsets.UTF_8
-
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.text.StringUtil
-import org.apache.bcel.classfile._
+import org.jetbrains.org.objectweb.asm.ClassReader
 
-import scala.reflect.internal.pickling.ByteCodecs
+import java.nio.charset.StandardCharsets.UTF_8
 
 object Decompiler {
   val BYTES_VALUE                       = "bytes"
@@ -30,19 +26,15 @@ object Decompiler {
 
     if (!containsMarker(bytes)) return None
 
-    val parsed = new ClassParser(new ByteArrayInputStream(bytes), fileName).parse()
+    val reader = new ClassReader(bytes)
+    val visitor = new DecompilerClassVisitor(fileName)
+
+    reader.accept(visitor, ClassReader.SKIP_CODE | ClassReader.SKIP_FRAMES)
+
     for {
-      annotation <- parsed.getAnnotationEntries.find(isScalaSignatureAnnotation)
-      pair <- annotation.getElementValuePairs.find(_.getNameString == "bytes")
-
-      simpleValues = collectSimple(pair.getValue)
-      strings = simpleValues.map(valueBytes)
-
-      bytes = decode(strings)
-      signature = Parser.parseScalaSig(bytes, fileName)
-
-      text <- decompiledText(signature, parsed.getClassName, fileName == "package.class")
-    } yield (parsed.getSourceFileName, StringUtil.convertLineSeparators(text))
+      signature <- visitor.signature
+      text <- decompiledText(signature, reader.getClassName, fileName == "package.class")
+    } yield (visitor.source, StringUtil.convertLineSeparators(text))
   }
 
   private def tryDecompileSigFile(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
@@ -61,35 +53,11 @@ object Decompiler {
     }
   }
 
-  private def isScalaSignatureAnnotation(entry: AnnotationEntry) =
-    entry.getAnnotationType match {
-      case "Lscala/reflect/ScalaSignature;" |
-           "Lscala/reflect/ScalaLongSignature;" => true
-      case _ => false
-    }
-
-  private def collectSimple(value: ElementValue) = value match {
-    case simpleValue: SimpleElementValue => simpleValue :: Nil
-    case arrayValue: ArrayElementValue =>
-      arrayValue.getElementValuesArray.collect {
-        case simpleValue: SimpleElementValue => simpleValue
-      }.toList
-  }
-
-  private def valueBytes(value: SimpleElementValue) =
-    value.getValueString.getBytes(UTF_8)
-
-  private def decode(strings: List[Array[Byte]]) = {
-    val bytes = Array.concat(strings: _*)
-    ByteCodecs.decode(bytes)
-    bytes
-  }
-
   private def decompiledText(scalaSig: ScalaSig,
                              className: String,
                              isPackageObject: Boolean) =
     try {
-      val builder = new StringBuilder
+      val builder = new java.lang.StringBuilder()
 
       val printer = new ScalaSigPrinter(builder)
 
