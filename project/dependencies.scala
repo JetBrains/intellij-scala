@@ -96,8 +96,6 @@ object Dependencies {
   val scalaTest: ModuleID = scalaTestNotSpecified % Test
   val scalaCheck: ModuleID = "org.scalatestplus" %% "scalacheck-1-16" % "3.2.14.0" % Test
 
-  val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.5.0"
-
   // has to be in the compiler process classpath along with spray-json
   // when updating the version, do not forget to:
   //  1. update version in the sbt-idea-compiler indices plugin too
@@ -193,8 +191,7 @@ object DependencyGroups {
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
     scalaReflect,
-    commonsLang,
-    bcel
+    commonsLang
   )
 
   val testRunners: Seq[ModuleID] = Seq(
