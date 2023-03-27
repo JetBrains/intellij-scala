@@ -48,7 +48,11 @@ class SbtOptsTest {
     assertEquals(expected, opts)
   }
 
-
+  import org.junit.Assert.assertTrue
+  @Test
+  def dummyFailingTest(): Unit = {
+    assertTrue(false)
+  }
 
   @Test
   def testProcessArgs(): Unit = {

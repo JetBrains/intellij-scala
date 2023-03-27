@@ -1,7 +1,6 @@
 package org.jetbrains.sbt
 package shell
 
-import com.intellij.execution.actions.ClearConsoleAction
 import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
@@ -30,8 +29,7 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
     val defaultActions = super.createConsoleActions()
     val toggleSoftWrapsAction = defaultActions.find(_.isInstanceOf[ToggleUseSoftWrapsToolbarAction])
       .getOrElse(throw new RuntimeException("action of type `ToggleUseSoftWrapsToolbarAction` couldn't be found"))
-    val clearAllAction = defaultActions.find(_.isInstanceOf[ClearConsoleAction])
-      .getOrElse(throw new RuntimeException("action of type `ClearConsoleAction` couldn't be found"))
+    val clearAllAction = new ClearThisConsoleAction(this)
 
     val startAction = new StartAction(project)
     val stopAction = new StopAction(project)
