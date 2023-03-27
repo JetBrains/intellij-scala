@@ -70,8 +70,6 @@ object Dependencies {
   val directories: ModuleID = "dev.dirs" % "directories" % "26"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
-  val commonsLang: ModuleID = "org.apache.commons" % "commons-lang3" % "3.12.0"
-
   val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "23.1.0"
 
   //NOTE: JUnit 4 dependency is already available via intellij main jars.
@@ -186,8 +184,7 @@ object DependencyGroups {
 
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
-    scalaReflect,
-    commonsLang
+    scalaReflect
   )
 
   val testRunners: Seq[ModuleID] = Seq(
