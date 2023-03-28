@@ -3,13 +3,14 @@ package org.jetbrains.sbt.shell.action
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine.RemoteDebugProcessHandler
 import com.intellij.debugger.impl.DebuggerSession
+import com.intellij.execution.actions.ClearConsoleAction
 import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.impl.ExecutionManagerImpl
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.remote.{RemoteConfiguration, RemoteConfigurationType}
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
-import com.intellij.execution.ui.{RunContentDescriptor, RunContentManager}
+import com.intellij.execution.ui.{ConsoleView, RunContentDescriptor, RunContentManager}
 import com.intellij.execution.{ProgramRunnerUtil, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.find.{EditorSearchSession, FindManager, FindModel, FindUtil}
 import com.intellij.icons.AllIcons
@@ -115,6 +116,20 @@ final class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbA
 
   override def actionPerformed(e: AnActionEvent): Unit =
     CopyFromHistoryViewerAction.copyFromHistoryToClipboard(e, view)
+}
+
+//copied from ConsoleViewImpl#ClearThisConsoleAction
+//This is a workaround to avoid the default "clear console" action being replaced by Grep Console plugin
+//We might remove remove it once https://github.com/krasa/GrepConsole/issues/260 is fixed
+final class ClearThisConsoleAction(myConsoleView: ConsoleView) extends ClearConsoleAction {
+  override def update(e: AnActionEvent): Unit = {
+    val enabled = myConsoleView.getContentSize > 0
+    e.getPresentation.setEnabled(enabled)
+  }
+
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    myConsoleView.clear()
+  }
 }
 
 private object CopyFromHistoryViewerAction {

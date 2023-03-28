@@ -48,8 +48,6 @@ class SbtOptsTest {
     assertEquals(expected, opts)
   }
 
-
-
   @Test
   def testProcessArgs(): Unit = {
      def doTest(providedArgs: Seq[String], expected: Seq[SbtOption]): Unit = {
