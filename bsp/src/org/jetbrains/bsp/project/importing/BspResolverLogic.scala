@@ -123,17 +123,19 @@ private[importing] object BspResolverLogic {
 
     val sharedResources = sharedSourceDirs(idToResources)
     val sharedSources = sharedSourceDirs(idToSources.view.mapValues(_.filterNot(_.generated)).toMap)
+    val sharedSourcesIdentifiers = sharedSources.values.flatten.toSeq
     val sharedGeneratedSources = idToSources
       .view
       .mapValues(_.filter(_.generated))
-      .filter { case (id, src) => sharedSources.values.flatten.toSeq.contains(id) && src.nonEmpty }
+      .filter { case (id, src) => sharedSourcesIdentifiers.contains(id) && src.nonEmpty }
+      .toMap
 
+    val sharedSourcesAndGenerated = (sharedSources.keys ++ sharedGeneratedSources.values.flatten).toSeq
     val moduleDescriptions = buildTargets.flatMap { (target: BuildTarget) =>
       val id = target.getId
       val scalacOptions = idToScalacOptions.get(id)
       val javacOptions = idToJavacOptions.get(id)
       val depSources = idToDepSources.getOrElse(id, Seq.empty)
-      val sharedSourcesAndGenerated = (sharedSources.keys ++ sharedGeneratedSources.values.flatten).toSeq
       val sources = idToSources.getOrElse(id, Seq.empty).filterNot(sharedSourcesAndGenerated.contains)
       val resources = idToResources.getOrElse(id, Seq.empty).filterNot(sharedResources.contains)
       val outputPaths = idToOutputPaths.getOrElse(id, Seq.empty)
@@ -157,7 +159,7 @@ private[importing] object BspResolverLogic {
 
     val idsGeneratedSources = sharedSources.values.toSeq.distinct
       .sortBy(_.size)
-      .foldRight((sharedGeneratedSources, Map.empty[Seq[BuildTargetIdentifier], Seq[SourceDirectory]])) {
+      .foldRight((sharedGeneratedSources.view, Map.empty[Seq[BuildTargetIdentifier], Seq[SourceDirectory]])) {
         case (ids, (sharedGeneratedSources, result)) =>
           val sharedGeneratedSourcesForIds = sharedGeneratedSources.filterKeys(ids.contains)
           (
