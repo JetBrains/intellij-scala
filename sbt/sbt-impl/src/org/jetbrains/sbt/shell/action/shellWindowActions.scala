@@ -118,7 +118,9 @@ final class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbA
     CopyFromHistoryViewerAction.copyFromHistoryToClipboard(e, view)
 }
 
-// copied from ConsoleViewImpl#ClearThisConsoleAction to avoid being replaced by Grep Console plugin
+//copied from ConsoleViewImpl#ClearThisConsoleAction
+//This is a workaround to avoid the default "clear console" action being replaced by Grep Console plugin
+//We might remove remove it once https://github.com/krasa/GrepConsole/issues/260 is fixed
 final class ClearThisConsoleAction(myConsoleView: ConsoleView) extends ClearConsoleAction {
   override def update(e: AnActionEvent): Unit = {
     val enabled = myConsoleView.getContentSize > 0
