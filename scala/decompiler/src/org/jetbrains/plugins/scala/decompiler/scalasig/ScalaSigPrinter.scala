@@ -88,7 +88,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
         case PolyType(Ref(TypeRefType(_, symbol, _)), _) => !symbol.isPrivate
         case _ => true
       }
-      case _: ObjectSymbol => true // non-private members of private objects may leak to the outer scope
+      case o: ObjectSymbol if o.isPrivate =>
+        symbol.parent.exists(_.children.exists(s => s.isType && !s.isPrivate && s.name == o.name))
       case _               => !symbol.isPrivate
     }
 
