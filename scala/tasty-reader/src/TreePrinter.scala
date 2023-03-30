@@ -452,7 +452,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
         val base = textOfType(constructor)
         val simpleBase = simple(base)
         val isInfix = simpleBase.forall(!_.isLetterOrDigit) && arguments.length == 2
-        val isWith = legacySyntax && base == "_root_.scala.&"
+        val isWith = (legacySyntax || !constructor.is(IDENTtpt)) && base == "_root_.scala.&"
         if (isInfix || isWith) {
           val s = arguments.map(it => simple(textOfType(it, parens = if (isWith) 0 else 1))).mkString(" " + (if (isWith) "with" else simpleBase) + " ")
           if (parens > 0) "(" + s + ")" else s
