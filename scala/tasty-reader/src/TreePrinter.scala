@@ -52,6 +52,20 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     defDef.contains(IMPLICIT) && defDef.prevSibling.exists(isImplicitClass)
   }
 
+  private def isPseudoPrivateTypeAlias(typeDef: Node): Boolean = !typeDef.firstChild.is(TEMPLATE) && {
+    val repr = if (typeDef.firstChild.is(LAMBDAtpt)) typeDef.firstChild else typeDef
+    !repr.children.exists(_.is(TYPEBOUNDStpt)) && {
+      repr.children.find(_.isTypeTree) match {
+        case Some(n) =>
+          if (n.is(IDENTtpt)) !n.firstChild.is(TYPEREFsymbol) || !n.firstChild.refPrivate
+          else if (n.is(APPLIEDtpt) && n.firstChild.is(IDENTtpt)) !n.firstChild.firstChild.is(TYPEREFsymbol) || !n.firstChild.firstChild.refPrivate
+          else true
+        case _ =>
+          true
+      }
+    }
+  }
+
   def fileAndTextOf(node: Node): (String, String) = {
     assert(sharedTypes.isEmpty)
     assert(sourceFiles.isEmpty)
@@ -105,7 +119,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
   }
 
   private def textOfMember(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
-    case node @ Node1(TYPEDEF) if (privateMembers || !node.contains(PRIVATE)) && (!node.contains(SYNTHETIC) || isGivenClass0(node)) => // TODO why both are synthetic?
+    case node @ Node1(TYPEDEF) if (privateMembers || !node.contains(PRIVATE) || isPseudoPrivateTypeAlias(node)) && (!node.contains(SYNTHETIC) || isGivenClass0(node)) => // TODO why both are synthetic?
       sb ++= prefix
       textOfTypeDef(sb, indent, node, definition)
 
