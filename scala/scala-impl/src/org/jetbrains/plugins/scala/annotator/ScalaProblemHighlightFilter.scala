@@ -27,13 +27,10 @@ final class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
   private def isInSourceRoots(file: ScalaFile): Boolean =
     !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file)
 
-  private def isSpecialFile(file: ScalaFile): Boolean = {
-    // looks like outdated check, ammonite files should have ".sc" extension,
-    // so file.getFileType != ScalaFileType.INSTANCE should be true in this case
-    //AmmoniteUtil.isAmmoniteFile(file) ||
-    ScratchUtil.isScratch(file.getVirtualFile) ||
+  private def isSpecialFile(file: ScalaFile): Boolean =
+    file.isWorksheetFile ||
+      ScratchUtil.isScratch(file.getVirtualFile) ||
       ScalaConsoleInfo.isConsole(file)
-  }
 
   //file may be both source and library source
   private def isLibraryAndNotSource(file: PsiFile): Boolean = {
