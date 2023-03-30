@@ -18,6 +18,8 @@ trait Members {
 
   class PrimaryConstructor @inline ()
 
+  class PrimaryProtectedConstructor @inline protected ()
+
   class AuxiliaryConstructor {
     @inline
     def this(x: Int) = /**/this()/*???*/
