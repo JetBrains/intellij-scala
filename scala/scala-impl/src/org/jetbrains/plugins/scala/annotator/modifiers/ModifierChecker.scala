@@ -249,7 +249,7 @@ private[annotator] object ModifierChecker {
                     } else
                       c match {
                         case clazz: ScClass =>
-                          val error = !hasPrimaryConstructorWithExactlyOneNonImplicitArgument(clazz)
+                          val error = !hasPrimaryConstructorWithExactlyOneParameterInFirstClause(clazz)
                           if (error) {
                             createErrorWithQuickFix(
                               ScalaBundle.message("implicit.class.must.have.a.primary.constructor.with.one.argument"),
@@ -327,7 +327,7 @@ private[annotator] object ModifierChecker {
     case _ =>
   }
 
-  private def hasPrimaryConstructorWithExactlyOneNonImplicitArgument(clazz: ScClass): Boolean =
+  private def hasPrimaryConstructorWithExactlyOneParameterInFirstClause(clazz: ScClass): Boolean =
     clazz.constructor.exists { constr =>
       val clauses = constr.parameterList.clauses
       if (clauses.isEmpty) false
@@ -336,15 +336,7 @@ private[annotator] object ModifierChecker {
         val firstClauseHasSingleParameter =
           firstClauseParameters.length == 1 && !firstClauseParameters.head.isRepeatedParameter
 
-        firstClauseHasSingleParameter && {
-          //this is also valid: `implicit class A(x: Int)(implicit y: String)`
-          val otherClausesAreAcceptable = clauses.length match {
-            case 1 => true
-            case 2 => clauses(1).isImplicit
-            case _ => false
-          }
-          otherClausesAreAcceptable
-        }
+        firstClauseHasSingleParameter
       }
     }
 

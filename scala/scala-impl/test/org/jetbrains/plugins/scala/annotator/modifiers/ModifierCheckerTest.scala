@@ -61,6 +61,14 @@ abstract class ModifierCheckerTestBase extends SimpleTestCase {
     assertNothing(messages("""object Wrapper { implicit class A(x: Int)(implicit y: String) }"""))
   }
 
+  def testValidImplicitClass3(): Unit = {
+    assertNothing(messages("""object Wrapper { implicit class A(x: Int)(y: String) }"""))
+  }
+
+  def testValidImplicitClass4(): Unit = {
+    assertNothing(messages("""object Wrapper { implicit class A(x: Int)(y: String)(x: Int) }"""))
+  }
+
   def testInvalidImplicitClass1(): Unit = {
     assertMessages(messages("""object Wrapper { implicit class A }"""))(
       Error("implicit", ImplicitClassMustHaveSingleConstructorParameter),
