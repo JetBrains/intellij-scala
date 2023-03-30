@@ -68,4 +68,12 @@ trait Modifiers {/**/
   enum ProtectedEnumCaseClass {
     protected case Class()
   }
+/**/
+  private class PrivateCompanionObject1
+
+  private object PrivateCompanionObject1
+/**/
+  class PrivateCompanionObject2
+
+  private object PrivateCompanionObject2
 }

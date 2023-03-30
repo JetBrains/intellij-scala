@@ -18,9 +18,9 @@ trait Modifiers {/**/
   protected trait ProtectedTrait
 
   sealed trait SealedTrait
-
+/**/
   private object PrivateObject
-
+/**/
   protected object ProtectedObject
 
   implicit object ImplicitObject
@@ -36,4 +36,12 @@ trait Modifiers {/**/
   }
 
   protected sealed abstract class C
+/**/
+  private class PrivateCompanionObject1
+
+  private object PrivateCompanionObject1
+/**/
+  class PrivateCompanionObject2
+
+  private object PrivateCompanionObject2
 }
