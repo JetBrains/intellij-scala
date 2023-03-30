@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiDocCommentOwner, PsiElement}
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.internal.ApiStatusInspection._
@@ -10,23 +11,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 class ApiStatusInspection extends LocalInspectionTool {
+
+  private def elementsAreInTheSameModule(e1: PsiElement, e2: PsiElement): Boolean =
+    ModuleUtilCore.findModuleForPsiElement(e1) == ModuleUtilCore.findModuleForPsiElement(e2)
+
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case fun: ScFunction =>
       fun.superMethod.collectFirst {
-        case Status(status) & sup if !fun.containingFile.exists(sup.containingFile.contains) =>
+        case Status(status) & sup if !elementsAreInTheSameModule(fun, sup) =>
           val name = fun.name
           holder.registerProblem(fun.nameId, ScalaInspectionBundle.message("super.method.name.is.marked.as.status", name, status))
       }
     case ref: ScReference if !ScalaPsiUtil.isInsideImportExpression(ref) =>
       ref match {
-        case ResolvesTo(target@WithApiStatus(status))  =>
-          val isFromTheSameFile = ref.containingFile.exists(target.containingFile.contains)
-          if (!isFromTheSameFile) {
+        case ResolvesTo(target@WithApiStatus(status)) if !elementsAreInTheSameModule(ref, target)  =>
             ref.nameId.toOption.map { elementToHighlight =>
               val name = ref.refName
               holder.registerProblem(elementToHighlight, ScalaInspectionBundle.message("symbol.name.is.marked.as.status", name, status))
             }
-          }
         case _ =>
       }
     case _ =>
