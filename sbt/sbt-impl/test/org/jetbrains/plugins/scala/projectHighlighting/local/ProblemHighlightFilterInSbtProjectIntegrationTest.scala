@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProg
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.language.SbtFileType
 
-class SbtFilesProblemHighlightFilterTest
+class ProblemHighlightFilterInSbtProjectIntegrationTest
   extends SbtProjectHighlightingLocalProjectsTestBase
     with ProjectHighlightingAssertions {
 
@@ -45,6 +45,7 @@ class SbtFilesProblemHighlightFilterTest
   }
 
   override def testHighlighting(): Unit = {
+    //.sbt files
     assertFileShouldBeHighlighted("build.sbt")
     assertFileShouldBeHighlighted("project/build.sbt")
     assertFileShouldBeHighlighted("sub-project/build.sbt")
@@ -54,6 +55,28 @@ class SbtFilesProblemHighlightFilterTest
     assertFileShouldNotBeHighlighted("sub-project/src/main/scala/build.sbt")
     assertFileShouldNotBeHighlighted("sub-project-separate/testdata/build.sbt")
     assertFileShouldNotBeHighlighted("sub-project-separate/src/main/scala/build.sbt")
+
+    //.scala files
+    assertFileShouldNotBeHighlighted("MyClass.scala") //TODO: fix this case (scala files in sbt project roots should be supported)
+
+    assertFileShouldNotBeHighlighted("sub-project/MyClass.scala") //TODO: fix this case (scala files in sbt project roots should be supported)
+    assertFileShouldNotBeHighlighted("sub-project/testdata/MyClass.scala")
+    assertFileShouldBeHighlighted("sub-project/src/main/scala/MyClass.scala")
+
+    assertFileShouldNotBeHighlighted("sub-project-separate/MyClass.scala") //TODO: fix this case (scala files in sbt project roots should be supported)
+    assertFileShouldNotBeHighlighted("sub-project-separate/testdata/MyClass.scala")
+    assertFileShouldBeHighlighted("sub-project-separate/src/main/scala/MyClass.scala")
+
+    //.sc files (Worksheets)
+    assertFileShouldBeHighlighted("worksheet.sc")
+
+    assertFileShouldBeHighlighted("sub-project/worksheet.sc")
+    assertFileShouldBeHighlighted("sub-project/testdata/worksheet.sc")
+    assertFileShouldBeHighlighted("sub-project/src/main/scala/worksheet.sc")
+
+    assertFileShouldBeHighlighted("sub-project-separate/worksheet.sc")
+    assertFileShouldBeHighlighted("sub-project-separate/testdata/worksheet.sc")
+    assertFileShouldBeHighlighted("sub-project-separate/src/main/scala/worksheet.sc")
 
     super.testHighlighting()
   }
