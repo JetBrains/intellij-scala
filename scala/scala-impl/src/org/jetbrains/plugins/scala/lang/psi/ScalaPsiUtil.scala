@@ -1321,7 +1321,7 @@ object ScalaPsiUtil {
   def syntheticParamClause(parameterOwner: ScTypeParametersOwner,
                            paramClauses: ScParameters,
                            isClassParameter: Boolean)
-                          (hasImplicit: Boolean = paramClauses.clauses.exists(_.isImplicit)): Option[ScParameterClause] = {
+                          (hasImplicit: Boolean = paramClauses.clauses.exists(_.isImplicitOrUsing)): Option[ScParameterClause] = {
     if (hasImplicit) return None
 
     val namedTypeParameters = parameterOwner.typeParameters.zipMapped(_.name)

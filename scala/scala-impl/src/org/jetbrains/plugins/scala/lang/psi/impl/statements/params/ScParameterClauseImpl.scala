@@ -37,7 +37,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   })
 
   override def effectiveParameters: Seq[ScParameter] = cachedInUserData("ScParameterClauseImpl.effectiveParameters", this, BlockModificationTracker(this)) {
-    if (!isImplicit) parameters else {
+    if (!isImplicitOrUsing) parameters else {
       //getParent is sufficient (not getContext), for synthetic clause, getParent will return other PSI,
       //which is ok, it will not add anything more
       val maybeSyntheticClause = getParent match {
