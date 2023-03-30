@@ -43,11 +43,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -1318,12 +1318,21 @@ object ScalaPsiUtil {
   }
 
   /** Creates a synthetic parameter clause based on view and context bounds */
-  def syntheticParamClause(parameterOwner: ScTypeParametersOwner,
-                           paramClauses: ScParameters,
-                           isClassParameter: Boolean)
-                          (hasImplicit: Boolean = paramClauses.clauses.exists(_.isImplicitOrUsing)): Option[ScParameterClause] = {
-    if (hasImplicit) return None
+  def syntheticParamClause(
+    parameterOwner: ScTypeParametersOwner,
+    paramClauses: ScParameters,
+    isClassParameter: Boolean
+  )(hasImplicit: Boolean = paramClauses.clauses.exists(_.isImplicitOrUsing)): Option[ScParameterClause] =
+    if (!hasImplicit)
+      syntheticParamClauseNonImplicit(parameterOwner, paramClauses, isClassParameter)
+    else
+      None
 
+  private def syntheticParamClauseNonImplicit(
+    parameterOwner: ScTypeParametersOwner,
+    paramClauses: ScParameters,
+    isClassParameter: Boolean
+  ): Option[ScParameterClause] = {
     val namedTypeParameters = parameterOwner.typeParameters.zipMapped(_.name)
     if (namedTypeParameters.isEmpty) return None
 

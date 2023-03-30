@@ -37,34 +37,40 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   })
 
   override def effectiveParameters: Seq[ScParameter] = cachedInUserData("ScParameterClauseImpl.effectiveParameters", this, BlockModificationTracker(this)) {
-    if (!isImplicitOrUsing) parameters else {
-      //getParent is sufficient (not getContext), for synthetic clause, getParent will return other PSI,
-      //which is ok, it will not add anything more
-      val maybeSyntheticClause = getParent match {
-        case clauses: ScParameters =>
-          val maybeOwner = clauses.getParent match {
-            case f: ScFunction => Some((f, false))
-            case p: ScPrimaryConstructor =>
-              p.containingClass match {
-                case c: ScClass => Some((c, true))
-                case _ => None
-              }
-            case _ => None
-          }
-          maybeOwner.flatMap {
-            case (owner, isClassParameter) =>
-              ScalaPsiUtil.syntheticParamClause(owner, clauses, isClassParameter)(hasImplicit = false)
-          }
-        case _ => None
-      }
-
-      val syntheticParameters = maybeSyntheticClause.toSeq.flatMap(_.parameters)
-      syntheticParameters.foreach {
-        _.context = this
-      }
-
+    if (isImplicitOrUsing) {
+      val syntheticParameters = getSyntheticParameters
       syntheticParameters ++ parameters
+    } else {
+      parameters
     }
+  }
+
+  private def getSyntheticParameters: Seq[ScParameter] = {
+    //getParent is sufficient (not getContext), for synthetic clause, getParent will return other PSI,
+    //which is ok, it will not add anything more
+    val maybeSyntheticClause = getParent match {
+      case clauses: ScParameters =>
+        val maybeOwner = clauses.getParent match {
+          case f: ScFunction => Some((f, false))
+          case p: ScPrimaryConstructor =>
+            p.containingClass match {
+              case c: ScClass => Some((c, true))
+              case _ => None
+            }
+          case _ => None
+        }
+        maybeOwner.flatMap {
+          case (owner, isClassParameter) =>
+            ScalaPsiUtil.syntheticParamClause(owner, clauses, isClassParameter)(hasImplicit = false)
+        }
+      case _ => None
+    }
+
+    val syntheticParameters = maybeSyntheticClause.toSeq.flatMap(_.parameters)
+    syntheticParameters.foreach {
+      _.context = this
+    }
+    syntheticParameters
   }
 
   override def hasParenthesis: Boolean =
