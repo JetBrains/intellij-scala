@@ -466,7 +466,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def implicitArgEvaluator(fun: ScMethodLike, param: ScParameter, owner: ImplicitArgumentsOwner): Evaluator = {
     assert(param.owner == fun)
     val implicitParameters = fun.effectiveParameterClauses.lastOption match {
-      case Some(clause) if clause.isImplicit => clause.effectiveParameters
+      case Some(clause) if clause.isImplicitOrUsing => clause.effectiveParameters
       case _ => Seq.empty
     }
     val i = implicitParameters.indexOf(param)
@@ -627,7 +627,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                 case _ => eval
               }
             }
-            else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
+            else if (param.isImplicitOrContextParameter) implicitArgEvaluator(fun, param, call)
             else if (p.isDefault) {
               val paramIndex = parameters.indexOf(p)
               val methodName = defaultParameterMethodName(fun, paramIndex)
@@ -1113,7 +1113,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case scMethod: ScMethodLike =>
         val scClass = scMethod.containingClass.asInstanceOf[ScClass]
         val containingClass = getContextClass(scClass)
-        val implicitParams = scMethod.parameterList.params.filter(_.isImplicitParameter)
+        val implicitParams = scMethod.parameterList.params.filter(_.isImplicitOrContextParameter)
 
         val implicitsEvals =
           for {

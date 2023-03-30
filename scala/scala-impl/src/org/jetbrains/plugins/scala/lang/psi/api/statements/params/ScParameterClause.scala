@@ -29,10 +29,9 @@ trait ScParameterClause extends ScalaPsiElement {
   //  Or we could create some method `def implicitKind: Option[ImplicitKeyword | UsingKeyword]`
   def isImplicit: Boolean
   def isUsing: Boolean
+  def isImplicitOrUsing: Boolean = isImplicit || isUsing
 
   def isInline: Boolean
-
-  def isImplicitOrUsing: Boolean = isImplicit || isUsing
 
   def hasRepeatedParam: Boolean = parameters.lastOption.exists(_.isRepeatedParameter)
 

@@ -79,6 +79,8 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
       classOf[ScGivenDefinition]
     )
 
+  //TODO: Review all usages of `isImplicitParameter` and replace with `isImplicitOrContextParameter` if needed
+  // This is basically the same comment as for `ScParameterClause.isImplicit`
   def isImplicitParameter: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
     if (clause == null) return false
