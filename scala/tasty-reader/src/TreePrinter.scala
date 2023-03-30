@@ -898,6 +898,7 @@ private object TreePrinter {
     "implicit",
     "import",
     "lazy",
+    "macro",
     "match",
     "new",
     "null",

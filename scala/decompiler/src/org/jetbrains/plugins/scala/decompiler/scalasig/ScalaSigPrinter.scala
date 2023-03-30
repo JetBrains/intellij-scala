@@ -880,7 +880,7 @@ object ScalaSigPrinter {
   val keywordList =
     Set("true", "false", "null", "abstract", "case", "catch", "class", "def",
       "do", "else", "extends", "final", "finally", "for", "forSome", "if",
-      "implicit", "import", "lazy", "match", "new", "object", "override",
+      "implicit", "import", "lazy", "macro", "match", "new", "object", "override",
       "package", "private", "protected", "return", "sealed", "super",
       "this", "throw", "trait", "try", "type", "val", "var", "while", "with",
       "yield")
