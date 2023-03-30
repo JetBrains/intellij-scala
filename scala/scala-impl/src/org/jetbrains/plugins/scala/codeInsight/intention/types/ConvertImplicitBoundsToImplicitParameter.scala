@@ -62,7 +62,7 @@ object ConvertImplicitBoundsToImplicitParameter {
       case _ => return Seq.empty
     }
 
-    val existingClause = parameterOwner.allClauses.lastOption.filter(pc => (pc.isImplicit || pc.isUsing) && !element.isInScala3File)
+    val existingClause = parameterOwner.allClauses.lastOption.filter(_.isImplicitOrUsing)
     val existingParams = existingClause.iterator.flatMap(_.parameters).toSeq
 
     val candidates = for {
