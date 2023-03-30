@@ -300,8 +300,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   def printPrimaryConstructor(m: MethodSymbol, c: ClassSymbol): Unit = {
-    printModifiers(m)
     printSymbolAttributes(m, onNewLine = false, ())
+    printModifiers(m)
     printMethodType(m.infoType, printResult = false, methodSymbolAsClassParam(_, c, m))(())
   }
 

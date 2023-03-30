@@ -111,6 +111,7 @@ class TastyReaderTest extends TestCase {
   def testTypeDefinitionTrait(): Unit = doTest("typeDefinition/Trait")
   def testTypesAnd(): Unit = doTest("types/And")
   def testTypesAnnotated(): Unit = doTest("types/Annotated")
+  def testTypesCompound(): Unit = doTest("types/Compound")
   def testTypesConstant(): Unit = doTest("types/Constant")
   def testTypesFunction(): Unit = doTest("types/Function")
   def testTypesFunctionContext(): Unit = doTest("types/FunctionContext")
