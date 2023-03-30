@@ -96,8 +96,10 @@ private class TreeReader(nameAtRef: NameTable) {
           case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
             val in0 = in.subReader(Addr(nat), in.endAddr)
             node.refTag = Some(in0.readByte())
-            in0.readNat() // Length
+            val length = in0.readNat()
             node.refName = Some(readName(in0)) // TODO use as node name?
+            in0.goto(Addr(nat + length))
+            node.refPrivate = in0.readByte() == PRIVATE;
           case _ =>
         }
         node.value = value

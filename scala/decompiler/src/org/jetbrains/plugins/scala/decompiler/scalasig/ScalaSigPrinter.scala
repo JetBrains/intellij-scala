@@ -83,7 +83,11 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
     val accessibilityOk = symbol match {
       case _ if level == 0 => true
-      case _: AliasSymbol  => true // TODO why?
+      case alias: AliasSymbol if alias.isPrivate => alias.symbolInfo.info.get match {
+        case TypeRefType(_, symbol, _) => !symbol.isPrivate
+        case PolyType(Ref(TypeRefType(_, symbol, _)), _) => !symbol.isPrivate
+        case _ => true
+      }
       case _: ObjectSymbol => true // non-private members of private objects may leak to the outer scope
       case _               => !symbol.isPrivate
     }
