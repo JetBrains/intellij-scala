@@ -31,10 +31,6 @@ object KMeansModel extends org.apache.spark.mllib.util.Loader[org.apache.spark.m
   @org.apache.spark.annotation.Since("1.4.0")
   override def load(sc: org.apache.spark.SparkContext, path: scala.Predef.String): org.apache.spark.mllib.clustering.KMeansModel = ???
 
-  private object Cluster extends scala.Serializable {
-    def apply(r: org.apache.spark.sql.Row): org.apache.spark.mllib.clustering.KMeansModel.Cluster = ???
-  }
-
   private[clustering] object SaveLoadV1_0 {
     private[clustering] val thisClassName: java.lang.String = ???
 

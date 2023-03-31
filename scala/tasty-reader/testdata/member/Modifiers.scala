@@ -105,13 +105,33 @@ trait Modifiers {
 
   implicit var implicitVar: Int = ???
 /**/
-  private type PrivateAbstractType
+  private type PrivateAbstractType1
+
+  private type PrivateAbstractType2[A]
 /**/
   protected type ProtectedAbstractType
 
   final type FinalAbstractType
+
+  private type PrivateTypeAlias1 = Public1
+
+  private type PrivateTypeAlias2 = Public2[Int]
+
+  private type PrivateTypeAlias3[A] = Public2[A]
+
+  class Public1
+
+  class Public2[A]
 /**/
-  private type PrivateTypeAlias = Int
+  private type PrivateTypeAliasForPrivate1 = Private1
+
+  private type PrivateTypeAliasForPrivate2 = Private2[Int]
+
+  private type PrivateTypeAliasForPrivate3[A] = Private2[A]
+
+  private class Private1
+
+  private class Private2[A]
 /**/
   protected type ProtectedTypeAlias = Int
 

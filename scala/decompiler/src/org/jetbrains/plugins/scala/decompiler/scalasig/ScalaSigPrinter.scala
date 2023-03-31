@@ -83,8 +83,13 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
     val accessibilityOk = symbol match {
       case _ if level == 0 => true
-      case _: AliasSymbol  => true // TODO why?
-      case _: ObjectSymbol => true // non-private members of private objects may leak to the outer scope
+      case alias: AliasSymbol if alias.isPrivate => alias.symbolInfo.info.get match {
+        case TypeRefType(_, symbol, _) => !symbol.isPrivate
+        case PolyType(Ref(TypeRefType(_, symbol, _)), _) => !symbol.isPrivate
+        case _ => true
+      }
+      case o: ObjectSymbol if o.isPrivate =>
+        symbol.parent.exists(_.children.exists(s => s.isType && !s.isPrivate && s.name == o.name))
       case _               => !symbol.isPrivate
     }
 
@@ -876,7 +881,7 @@ object ScalaSigPrinter {
   val keywordList =
     Set("true", "false", "null", "abstract", "case", "catch", "class", "def",
       "do", "else", "extends", "final", "finally", "for", "forSome", "if",
-      "implicit", "import", "lazy", "match", "new", "object", "override",
+      "implicit", "import", "lazy", "macro", "match", "new", "object", "override",
       "package", "private", "protected", "return", "sealed", "super",
       "this", "throw", "trait", "try", "type", "val", "var", "while", "with",
       "yield")
