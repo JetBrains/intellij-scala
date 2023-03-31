@@ -15,14 +15,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScThisReference {
 
-  protected override def innerType: TypeResult = {
-    import scala.meta.intellij.psi._
+  protected override def innerType: TypeResult =
     refTemplate match {
-      case Some(hasInlineAnnotation()) => createTypeFromText("scala.meta.Stat", this, null).asTypeResult
-      case Some(td) => ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)
-      case _ => Failure(ScalaBundle.message("cannot.infer.type"))
+      case Some(td) =>
+        ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)
+      case _ =>
+        Failure(ScalaBundle.message("cannot.infer.type"))
     }
-  }
 
   override def refTemplate: Option[ScTemplateDefinition] = reference match {
     case Some(ref) => ref.resolve() match {

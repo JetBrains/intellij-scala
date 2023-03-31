@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.annotator.element
+package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.annotator.ScalaHighlightingTestBase
 
-class ScFunctionAnnotatorTest extends ScalaHighlightingTestBase {
+class Scala3InlineFunctionHighlightingTest extends ScalaHighlightingTestBase {
+
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_3
 
@@ -42,4 +42,14 @@ class ScFunctionAnnotatorTest extends ScalaHighlightingTestBase {
          |              (p6: String, p7: Int): String = ???
          |""".stripMargin
     )
+
+  //SCL-21031
+  def testSCL21031(): Unit = {
+    assertNoErrors(
+      """inline def foo1(param: String): Int = param.length
+        |@inline def foo2(param: String): Int = param.length
+        |def foo3(a: String): Int = a.length
+        |""".stripMargin
+    )
+  }
 }
