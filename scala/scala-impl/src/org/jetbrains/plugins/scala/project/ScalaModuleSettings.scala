@@ -188,23 +188,13 @@ private object ScalaModuleSettings {
       forSbtBuildModule(module)
     }
     else {
-      val processor = new CollectProcessor[libraries.Library]{
-        override def accept(t: Library): Boolean = t.isScalaSdk
-      }
-
+      val processor: FindProcessor[libraries.Library] = _.isScalaSdk
       OrderEnumerator.orderEntries(module)
         .librariesOnly
         .forEachLibrary(processor)
+      val scalaSdk = processor.getFoundValue.asInstanceOf[LibraryEx]
 
-      // TODO: this is a workaround for SCL-17196, SCL-18166, SCL-18867
-      //  (there can be 2 SDKs in Scala3 modules, if there is another Scala2 module which uses same scala2 version
-      //  that is used by Scala3
-      //  See also the same workaround in org.jetbrains.jps.incremental.scala.SettingsManager.getScalaSdk
-      val scalaSdk: Option[LibraryEx] = processor.getResults.iterator().asScala
-        .map(_.asInstanceOf[LibraryEx])
-        .maxByOption(_.properties.languageLevel)
-
-      scalaSdk
+      Option(scalaSdk)
         .map(ScalaVersionProvider.FromScalaSdk)
         .map(new ScalaModuleSettings(module, isBuildModule = false, _))
     }

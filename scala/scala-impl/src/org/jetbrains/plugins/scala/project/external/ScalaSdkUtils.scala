@@ -40,7 +40,7 @@ object ScalaSdkUtils {
     }
   }
 
-  private def convertScalaLibraryToScalaSdk(
+  def convertScalaLibraryToScalaSdk(
     modelsProvider: IdeModifiableModelsProvider,
     library: Library,
     compilerClasspath: Seq[File],

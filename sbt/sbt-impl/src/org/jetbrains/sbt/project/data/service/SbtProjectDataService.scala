@@ -12,6 +12,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.external._
@@ -22,6 +23,7 @@ import org.jetbrains.sbt.settings.SbtSettings
 
 import java.util
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+import org.jetbrains.plugins.scala.project._
 
 class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectData, Project](SbtProjectData.Key) {
 
@@ -39,8 +41,18 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
     } {
       projectData.removeUserData(ContentRootDataService.CREATE_EMPTY_DIRECTORIES) //we don't need creating empty dirs anyway
     }
-
+    revertScalaSdkFromLibraries(modelsProvider)
     dataToImport.foreach(node => doImport(project, node.getData, modelsProvider))
+  }
+
+  private def revertScalaSdkFromLibraries(modelsProvider: IdeModifiableModelsProvider): Unit = {
+    val libraries = modelsProvider.getModifiableProjectLibrariesModel.getLibraries.filter(_.hasRuntimeLibrary)
+    libraries
+      .filter { library => library.isScalaSdk && !library.getName.startsWith("sbt: scala-sdk") }
+      .foreach { library =>
+        val model = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
+        model.setKind(null)
+    }
   }
 
   private def doImport(project: Project, data: SbtProjectData, modelsProvider: IdeModifiableModelsProvider): Unit = {

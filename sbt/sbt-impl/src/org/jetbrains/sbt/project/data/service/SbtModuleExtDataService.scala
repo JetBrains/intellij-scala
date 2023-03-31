@@ -12,7 +12,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.util.CommonProcessors.{CollectProcessor, UniqueProcessor}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -63,56 +62,18 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
   )(
     implicit modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
-    val scalaLibraries = librariesWithScalaRuntimeJar(module)
-    if (scalaLibraries.nonEmpty) {
-      val scalaLibraryWithSameVersion = scalaLibraries.find(isSameCompileVersionOrLanguageLevel(compilerVersion, _))
-
-      scalaLibraryWithSameVersion match {
-        case Some(library) =>
-          ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(modelsProvider, library, scalacClasspath, scaladocExtraClasspath)
-        case None =>
-          // example: Scala 3 (dotty) project https://github.com/lampepfl/dotty
-          // TODO: dotty modules also have scala-library dependency (scala 2)
-          //  The library is reused between modules, and if in some module it's marked as Scala 2 SDK,
-          //  it's displayed as SDK in all other modules.
-          //  It can be quite confusing.
-          //  E.g. ATM in dotty project `tasty-core-scala2` uses Scala 2 and marks scala-library as Scala SDK.
-          //  So as a solution, when we convert scala-library to scala sdk we should probably create a copy of it
-          //  (which in it's turn might be reused in all modules which depend on the library as on SDK)
-          //  see also: org.jetbrains.plugins.scala.project.ScalaModuleSettings SCL-18166, SCL-18867
-          createModuleLevelScalaSdk(module, compilerVersion, scalacClasspath, scaladocExtraClasspath)
-      }
-    }
-    else {
-      // example: Scala project https://github.com/scala/scala
-      createModuleLevelScalaSdk(module, compilerVersion, scalacClasspath, scaladocExtraClasspath)
-    }
-  }
-
-  private def createModuleLevelScalaSdk(module: Module, compilerVersion: String, scalacClasspath: Seq[File], scaladocExtraClasspath: Seq[File])
-                                       (implicit modelsProvider: IdeModifiableModelsProvider): Unit = {
     val rootModel = modelsProvider.getModifiableRootModel(module)
-    val testLibrary = rootModel.getModuleLibraryTable.createLibrary(s"scala-sdk-$compilerVersion")
-    ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(modelsProvider, testLibrary, scalacClasspath, scaladocExtraClasspath)
-  }
-
-  private def isSameCompileVersionOrLanguageLevel(compilerVersion: String, scalaLibrary: Library): Boolean =
-    scalaLibrary.libraryVersion.exists { version =>
-      version == compilerVersion ||
-        ScalaLanguageLevel.findByVersion(version) == ScalaLanguageLevel.findByVersion(compilerVersion)
+    val scalaSDKForSpecificVersion = modelsProvider.getModifiableProjectLibrariesModel
+      .getLibraries
+      .find { lib => lib.getName == s"sbt: scala-sdk-$compilerVersion" && lib.isScalaSdk }
+    scalaSDKForSpecificVersion match {
+      case Some(scalaSDK) => rootModel.addLibraryEntry(scalaSDK)
+      case None =>
+        val tableModel = modelsProvider.getModifiableProjectLibrariesModel
+        val scalaSdkLibrary = tableModel.createLibrary(s"sbt: scala-sdk-$compilerVersion")
+        ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, scalaSdkLibrary, scalacClasspath, scaladocExtraClasspath)
+        rootModel.addLibraryEntry(scalaSdkLibrary)
     }
-
-  private def librariesWithScalaRuntimeJar(module: Module)(implicit modelsProvider: IdeModifiableModelsProvider): Iterable[Library] = {
-    val delegate = new CollectProcessor[Library] {
-      override def accept(library: Library): Boolean = library.hasRuntimeLibrary
-    }
-
-    modelsProvider.getModifiableRootModel(module)
-      .orderEntries
-      .librariesOnly
-      .forEachLibrary(new UniqueProcessor[Library](delegate))
-
-    delegate.getResults.asScala
   }
 
   private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference])(implicit modelsProvider: IdeModifiableModelsProvider): Unit = {

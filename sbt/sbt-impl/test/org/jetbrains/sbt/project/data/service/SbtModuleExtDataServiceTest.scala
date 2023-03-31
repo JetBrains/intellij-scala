@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project.data.service
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
-import com.intellij.openapi.module.{LanguageLevelUtil, Module, ModuleManager}
+import com.intellij.openapi.module.{JavaModuleType, LanguageLevelUtil, Module, ModuleManager, ModuleType}
 import com.intellij.openapi.projectRoots
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.ModuleRootManager
@@ -184,10 +184,10 @@ class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
 
     importProjectData(projectData)
 
-    val isLibrarySetUp = getProject.libraries
-      .filter(_.getName.contains(newVersion))
-      .exists(_.isScalaSdk)
-    assertTrue("Scala library is not set up", isLibrarySetUp)
+    val isScalaSdkSetUp = getProject.libraries
+      .filter(_.isScalaSdk)
+      .count(_.getName.contains(s"sbt: scala-sdk-$evictedVersion"))
+    assertTrue(s"More or less than one ScalaSdk for $evictedVersion scala version is set up in the project libraries", isScalaSdkSetUp == 1)
   }
 
   private def generateScalaProject(
@@ -234,10 +234,24 @@ class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
   private def doTestAndCheckScalaSdk(scalaVersion: String, scalaLibraryVersion: String): Unit = {
     import org.jetbrains.plugins.scala.project._
     importProjectData(generateScalaProject(scalaVersion, Some(scalaLibraryVersion), Seq.empty))
+
+    checkModuleLevelScalaSdk()
     val isLibrarySetUp = getProject.libraries
-      .filter(_.getName.contains("scala-library"))
+      .filter(_.getName.contains(s"sbt: scala-sdk-$scalaVersion"))
       .exists(_.isScalaSdk)
-    assertTrue("Scala library is not set up", isLibrarySetUp)
+    assertTrue(s"ScalaSdk for $scalaVersion scala version is not set up in the project libraries", isLibrarySetUp)
+  }
+
+  private def checkModuleLevelScalaSdk():Unit = {
+    import org.jetbrains.plugins.scala.project._
+    getProject.modules.filter(ModuleType.get(_).getName == JavaModuleType.getModuleName).foreach { module =>
+      var moduleLevelScalaSdk = false
+      module.libraries.filter(_.isScalaSdk).foreach { _ =>
+        if (!moduleLevelScalaSdk) moduleLevelScalaSdk = true
+        else assertFalse(s"ScalaSdk is set more than once in the module ${module.getName}", moduleLevelScalaSdk)
+      }
+      assertTrue(s"ScalaSdk is not set up in the module ${module.getName}", moduleLevelScalaSdk)
+    }
   }
 
   private def doTestSdk(sdk: Option[SdkReference], expectedSdk: projectRoots.Sdk, expectedLanguageLevel: LanguageLevel): Unit =
