@@ -13,21 +13,18 @@ class ScParamClauseElementType extends ScStubElementType[ScParamClauseStub, ScPa
   override def serialize(stub: ScParamClauseStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isImplicit)
     dataStream.writeBoolean(stub.isUsing)
-    dataStream.writeBoolean(stub.isInline)
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub =
     new ScParamClauseStubImpl(parentStub, this,
       isImplicit = dataStream.readBoolean,
       isUsing = dataStream.readBoolean,
-      isInline = dataStream.readBoolean
     )
 
   override def createStubImpl(parameterClause: ScParameterClause, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub =
     new ScParamClauseStubImpl(parentStub, this,
       isImplicit = parameterClause.isImplicit,
       isUsing = parameterClause.isUsing,
-      isInline = parameterClause.isInline
     )
 
   override def createElement(node: ASTNode): ScParameterClause = new ScParameterClauseImpl(node)

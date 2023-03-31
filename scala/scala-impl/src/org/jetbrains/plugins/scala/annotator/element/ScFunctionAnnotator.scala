@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator.element
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
@@ -15,12 +16,20 @@ object ScFunctionAnnotator extends ElementAnnotator[ScFunction] {
     }
 
   private def checkTransparentModifier(function: ScFunction)(implicit holder: ScalaAnnotationHolder): Unit = {
-    val modifiers = function.getModifierList
-    if (modifiers.isTransparent && !modifiers.isInline)
-      holder.createErrorAnnotation(function, ScalaBundle.message("transparent.method.must.be.inline"))
+    val modifierList = function.getModifierList
+    val transparentModifier = modifierList.findFirstChildByType(ScalaTokenType.TransparentKeyword).orNull
+    if (transparentModifier != null && !modifierList.isInline) {
+      holder.createErrorAnnotation(transparentModifier, ScalaBundle.message("transparent.method.must.be.inline"))
+    }
   }
 
-  private def checkInlineArguments(function: ScFunction)(implicit holder: ScalaAnnotationHolder): Unit =
-    if (!function.getModifierList.isInline && function.parameters.exists(_.isInlineParameter))
-      holder.createErrorAnnotation(function, ScalaBundle.message("only.inline.methods.may.have.inline.args"))
+  private def checkInlineArguments(function: ScFunction)(implicit holder: ScalaAnnotationHolder): Unit = {
+    val modifierList = function.getModifierList
+    if (!modifierList.isInline) {
+      val inlineModifiersInParameters = function.parameters.flatMap(_.findFirstChildByType(ScalaTokenType.InlineKeyword))
+      inlineModifiersInParameters.foreach { inlineToken =>
+        holder.createErrorAnnotation(inlineToken, ScalaBundle.message("only.inline.methods.may.have.inline.args"))
+      }
+    }
+  }
 }

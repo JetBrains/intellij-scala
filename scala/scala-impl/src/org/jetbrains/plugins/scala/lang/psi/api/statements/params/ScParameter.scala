@@ -87,9 +87,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
     clause.isImplicit
   }
 
-  def isInlineParameter: Boolean =
-    Option(PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])).exists(_.isInline)
-
   def isContextParameter: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
     if (clause == null) return false

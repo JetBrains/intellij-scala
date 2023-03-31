@@ -31,8 +31,6 @@ trait ScParameterClause extends ScalaPsiElement {
   def isUsing: Boolean
   def isImplicitOrUsing: Boolean = isImplicit || isUsing
 
-  def isInline: Boolean
-
   def hasRepeatedParam: Boolean = parameters.lastOption.exists(_.isRepeatedParameter)
 
   def getSmartParameters: Seq[Parameter] = effectiveParameters.map(Parameter(_))
