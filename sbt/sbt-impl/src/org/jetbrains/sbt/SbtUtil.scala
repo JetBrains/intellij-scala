@@ -19,6 +19,7 @@ import java.io.{BufferedInputStream, File, FileInputStream}
 import java.net.URI
 import java.util.Properties
 import java.util.jar.JarFile
+import scala.collection.mutable
 import scala.util.Using
 
 object SbtUtil {
@@ -284,5 +285,22 @@ object SbtUtil {
 
   /** Minimum project sbt version that is allowed version override. */
   private val MayUpgradeSbtVersion = Version("0.13.0")
+
+  def areQuotesClosedCorrect(options: String): Boolean = {
+    val quotes = "\"'"
+    val stack = mutable.Stack[Char]()
+    var firstQuote = 0
+    options
+      .filter { char => quotes.contains(char) }
+      .foreach { char =>
+        if (stack.isEmpty) {
+          firstQuote = char
+          stack.push(char)
+        } else if (stack.nonEmpty && char == firstQuote) {
+          stack.pop()
+        }
+      }
+    stack.isEmpty
+  }
 
 }

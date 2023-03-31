@@ -14,11 +14,8 @@ class SbtOptsTest {
 
   private val input =
     """
-      |--sbt-boot /some/where/sbt/boot
-      |-sbt-dir      /some/where/else/sbt
-      |--ivy /some/where/ivy
-      |-color=   always
-      |-debug
+      |--sbt-boot /some/where/sbt/boot -sbt-dir      /some/where/else/sbt
+      |--ivy /some/where/ivy -color=   always -debug
       |-jvm-debug 4711
       |--d
       |-error
@@ -51,7 +48,7 @@ class SbtOptsTest {
   @Test
   def testProcessArgs(): Unit = {
      def doTest(providedArgs: Seq[String], expected: Seq[SbtOption]): Unit = {
-      val actual = SbtOpts.processArgs(providedArgs, "dummy/Path")
+      val actual = SbtOpts.mapOptionsToSbtOptions(providedArgs, "dummy/Path")
       assertThat(actual, equalTo(expected))
     }
     doTest(Seq("-d", "-color=always", "-error"), Seq(SbtLauncherOption("--debug")(), JvmOptionShellOnly("-Dsbt.color=always")(), SbtLauncherOption("--error")()))
@@ -64,18 +61,27 @@ class SbtOptsTest {
     doTest(Seq("debug", "-debug=true"), Seq.empty)
     doTest(Seq("-debug-inc", "-color"), Seq(JvmOptionGlobal("-Dxsbt.inc.debug=true")()))
     doTest(Seq("-sbt-dirop"), Seq.empty)
+    doTest(Seq("-sbt-dir \"/Users/a  \"", "-sbt-dir \"/User's/a  \""), Seq(JvmOptionGlobal("-Dsbt.global.base=\"/Users/a  \"")(), JvmOptionGlobal("-Dsbt.global.base=\"/User's/a  \"")()))
   }
 
   @Test
   def testCombineSbtOptsWithArgs(): Unit = {
-    def doTest(providedArgs: Seq[String], expected: Seq[String]): Unit = {
-      val actual = SbtOpts.combineSbtOptsWithArgs(providedArgs)
+    def doTest(providedOpts: String, expected: Seq[String]): Unit = {
+      val actual = SbtOpts.combineOptionsWithArgs(providedOpts)
       assertThat(actual, equalTo(expected))
     }
-    doTest(Seq("-sbt-dir", "temp dir", "-color=always", "-d", "dummy"), Seq("-sbt-dir temp dir", "-color=always", "-d", "dummy"))
-    doTest(Seq("--sbt-dir", "temp dir", "-color=always", "--d", "dummy"), Seq("-sbt-dir temp dir", "-color=always", "--d", "dummy"))
-    doTest(Seq("-d", "-sbt-dir"), Seq("-d", "-sbt-dir"))
-    doTest(Seq("-d", "-sbt-dir", ""), Seq("-d", "-sbt-dir", ""))
-    doTest(Seq("-d", "-sbt-dir", "-dummy"), Seq("-d", "-sbt-dir", "-dummy"))
+    doTest("-sbt-dir \"temp dir\" -color=always -d dummy", Seq("-sbt-dir temp dir", "-color=always", "-d", "dummy"))
+    doTest("--sbt-dir \"temp di'r\" -color=always  --d dummy", Seq("-sbt-dir temp di'r", "-color=always", "--d", "dummy"))
+    doTest("--sbt-dir \"temp dir -color=always  --d dummy", Seq.empty)
+    doTest("-d -sbt-dir", Seq("-d", "-sbt-dir"))
+    doTest("-d -sbt-dir \"\"", Seq("-d", "-sbt-dir", ""))
+    doTest("-d -sbt-dir -dummy", Seq("-d", "-sbt-dir", "-dummy"))
   }
+
+  import org.junit.Assert.assertTrue
+  @Test
+  def dummyFailingTest(): Unit = {
+    assertTrue(false)
+  }
+
 }

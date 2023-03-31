@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 package project.structure
 
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.execution.ParametersListUtil
 import org.jetbrains.plugins.scala.extensions.RichFile
 
 import java.io.File
@@ -17,8 +18,10 @@ object JvmOpts {
     if (jvmOptsFile.exists && jvmOptsFile.isFile && jvmOptsFile.canRead)
       FileUtil.loadLines(jvmOptsFile)
         .asScala.iterator
-        .map(_.trim)
+        .filter(SbtUtil.areQuotesClosedCorrect)
+        .flatMap(ParametersListUtil.parse(_, false, true).asScala.toSeq)
         .filter(_.startsWith("-"))
+        .map(_.trim)
         .toSeq
     else
       Seq.empty

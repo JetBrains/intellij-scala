@@ -14,7 +14,6 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Pair, SystemInfo}
 import com.intellij.util.Function
-import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JdkVersionDetector
@@ -87,7 +86,7 @@ object SbtExternalSystemManager {
     val jreHome = vmExecutable.parent.flatMap(_.parent)
     val vmOptions = getVmOptions(settingsState, jreHome)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
-    val sbtOptions = SbtOpts.combineSbtOptsWithArgs(ParametersListUtil.parse(settings.sbtOptions, false, true).asScala.toSeq)
+    val sbtOptions = SbtOpts.combineOptionsWithArgs(settings.sbtOptions)
 
     new SbtExecutionSettings(
       realProjectPath,

@@ -183,7 +183,7 @@ class SbtStructureDump {
     val startTime = System.currentTimeMillis()
     // assuming here that this method might still be called without valid project
 
-    val mappedSbtOpts = SbtOpts.loadFrom(directory) ++ SbtOpts.processArgs(sbtOptions, directory.getCanonicalPath)
+    val mappedSbtOpts = SbtOpts.loadFrom(directory) ++ SbtOpts.mapOptionsToSbtOptions(sbtOptions, directory.getCanonicalPath)
     val sbtOpts = mappedSbtOpts.collect { case a: JvmOptionGlobal => a.value }
     val allJvmOpts = JvmOpts.loadFrom(directory) ++ vmOptions ++ sbtOpts
 
