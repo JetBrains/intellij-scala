@@ -100,7 +100,7 @@ object Dependencies {
   //  2. update version in scala-plugin-common.xml compilerServer.plugin classpath setting
   val compilerIndicesProtocol: ModuleID = "org.jetbrains.scala" %% "scala-compiler-indices-protocol" % compilerIndicesVersion
 
-  val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % "1.3.0"
+  val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % "1.3.1"
 
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion excludeAll ExclusionRule(organization = "org.apache.logging.log4j")
   /** actually this is is compilerInterface (TODO: rename, cause naming difference is misleading) */
