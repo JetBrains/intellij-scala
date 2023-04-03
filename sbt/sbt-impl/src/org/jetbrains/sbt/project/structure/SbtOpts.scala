@@ -86,7 +86,7 @@ object SbtOpts {
         case Nil => result
       }
     }
-    if (SbtUtil.areQuotesClosedCorrect(opts)) {
+    if (SbtUtil.areQuotesClosedCorrectly(opts)) {
       val parsedOpts = ParametersListUtil.parse(opts, false, true)
       prependArgsToOpts(parsedOpts.asScala.toSeq.map(removeDoubleDash), Seq.empty)
     } else Seq.empty

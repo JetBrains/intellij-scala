@@ -99,4 +99,16 @@ class SbtUtilTest {
     assertEquals(Sbt.Latest_1_0,latestCompatibleVersion(Sbt.LatestVersion))
   }
 
+  @Test
+  def testAreQuotesClosedCorrectly():Unit = {
+    assertTrue(SbtUtil.areQuotesClosedCorrectly(""" "sb's'b" """))
+    assertTrue(SbtUtil.areQuotesClosedCorrectly(""" "sb'sb" """))
+    assertTrue(SbtUtil.areQuotesClosedCorrectly(""" 'sb"sb' """))
+    assertTrue(SbtUtil.areQuotesClosedCorrectly(""" 'sb"sb'"b  c" """))
+    assertFalse(SbtUtil.areQuotesClosedCorrectly(""" 'sb"sb'b  " """))
+    assertFalse(SbtUtil.areQuotesClosedCorrectly(""" 'sb"sb'b  "c """))
+    assertFalse(SbtUtil.areQuotesClosedCorrectly(""" 'sb"sb'b  'c """))
+    assertFalse(SbtUtil.areQuotesClosedCorrectly(""" 'sb"sb"b  c """))
+  }
+
 }

@@ -18,7 +18,7 @@ object JvmOpts {
     if (jvmOptsFile.exists && jvmOptsFile.isFile && jvmOptsFile.canRead)
       FileUtil.loadLines(jvmOptsFile)
         .asScala.iterator
-        .filter(SbtUtil.areQuotesClosedCorrect)
+        .filter(SbtUtil.areQuotesClosedCorrectly)
         .flatMap(ParametersListUtil.parse(_, false, true).asScala.toSeq)
         .filter(_.startsWith("-"))
         .map(_.trim)
