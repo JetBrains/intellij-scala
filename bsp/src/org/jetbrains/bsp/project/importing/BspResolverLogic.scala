@@ -421,7 +421,17 @@ private[importing] object BspResolverLogic {
   //so we subtract 50 characters just in this case
   private final val MaxFileNameLength = FileSystem.getCurrent.getMaxFileNameLength - 50
 
-  private[importing] def sharedModuleId(targets: Seq[BuildTarget]): String = {
+  private[importing] case class TargetIdAndName(idUri: String, name: String)
+
+  private[importing] def sharedModuleTargetIdAndName(targets: Seq[BuildTarget]): TargetIdAndName = {
+    val shortId = sharedModuleShortId(targets)
+    //using URI constructor just to assert URI syntax is valid
+    val targetId = new URI(s"file:/dummyPathForSharedSourcesModule?id=$shortId").toString
+    val name = shortId + " (shared)"
+    TargetIdAndName(targetId, name)
+  }
+
+  private def sharedModuleShortId(targets: Seq[BuildTarget]): String = {
     val upperCaseWords = """(?<!(^|[A-Z]))(?=[A-Z])""".r
     val pascalCaseWords = """(?<!^)(?=[A-Z][a-z])""".r
     val underscores = """(?<=[^\w.]|_)|(?=[^\w.]|_)""".r
@@ -460,13 +470,13 @@ private[importing] object BspResolverLogic {
                                                           ancestors: Seq[ModuleDescription]): ModuleDescription = {
     // the synthetic module "inherits" most of the "ancestors" data
     val merged = mergeModules(ancestors)
-    val id = sharedModuleId(targets)
+    val TargetIdAndName(idUri, name) = sharedModuleTargetIdAndName(targets)
     val sources = sourceRoots ++ generatedSourceRoots
     val isTest = targets.exists(_.getTags.asScala.contains(BuildTargetTag.TEST))
 
     val inheritorData = merged.data.copy(
-      idUri = id,
-      name = id + " (shared)",
+      idUri = idUri,
+      name = name,
       targets = targets,
       resourceDirs = resources,
       sourceDirs = if (isTest) Seq.empty else sources,
