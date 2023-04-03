@@ -155,7 +155,7 @@ private[importing] object BspResolverLogic {
       .toSeq
       .sortBy(_._1.size)
 
-    val idsGeneratedSources = sharedSources.values.toSeq.distinct
+    val idsGeneratedSources: Map[Seq[BuildTargetIdentifier], Seq[SourceDirectory]] = sharedSources.values.toSeq.distinct
       .sortBy(_.size)
       .foldRight((sharedGeneratedSources, Map.empty[Seq[BuildTargetIdentifier], Seq[SourceDirectory]])) {
         case (ids, (sharedGeneratedSources, result)) =>
@@ -404,7 +404,8 @@ private[importing] object BspResolverLogic {
         testResourceDirs = resourceRoots,
         testClasspath = classPath,
         testClasspathSources = dependencySources
-      ) else
+      )
+    else
       dataBasic.copy(
         targetDependencies = targetDeps,
         output = outputPath,
@@ -417,47 +418,83 @@ private[importing] object BspResolverLogic {
     data
   }
 
-  //IntelliJ may attempt to append " (shared)" to the file name, putting it back over the max limit
-  //so we subtract 50 characters just in this case
-  private final val MaxFileNameLength = FileSystem.getCurrent.getMaxFileNameLength - 50
+  private val NameSplitRegex: String = {
+    //NOTE: using `.r` just for the syntax highlighting (via language injection)
+    val UpperCaseWords = """(?<!(^|[A-Z]))(?=[A-Z])""".r
+    val PascalCaseWords = """(?<!^)(?=[A-Z][a-z])""".r
+    val Underscores = """(?<=[^\w.]|_)|(?=[^\w.]|_)""".r
+    val DotsAndDigits = """(?<!\d)(?=\.)|(?<=\.)(?!\d)""".r
+    s"$UpperCaseWords|$PascalCaseWords|$Underscores|$DotsAndDigits"
+  }
 
   private[importing] case class TargetIdAndName(idUri: String, name: String)
 
   private[importing] def sharedModuleTargetIdAndName(targets: Seq[BuildTarget]): TargetIdAndName = {
-    val shortId = sharedModuleShortId(targets)
+    val targetNames = targets.map(_.getDisplayName)
+
+    val shortId = sharedModuleShortId(targetNames)
     //using URI constructor just to assert URI syntax is valid
     val targetId = new URI(s"file:/dummyPathForSharedSourcesModule?id=$shortId").toString
     val name = shortId + " (shared)"
     TargetIdAndName(targetId, name)
   }
 
-  private def sharedModuleShortId(targets: Seq[BuildTarget]): String = {
-    val upperCaseWords = """(?<!(^|[A-Z]))(?=[A-Z])""".r
-    val pascalCaseWords = """(?<!^)(?=[A-Z][a-z])""".r
-    val underscores = """(?<=[^\w.]|_)|(?=[^\w.]|_)""".r
-    val dotsAndDigits = """(?<!\d)(?=\.)|(?<=\.)(?!\d)""".r
-    val splitedNames = targets
-      .map(_.getDisplayName.split(s"$upperCaseWords|$pascalCaseWords|$underscores|$dotsAndDigits"))
-    val maxPartsCount = splitedNames.map(_.length).max
-    val groups = splitedNames
-      .map(parts => parts ++ Seq.fill(maxPartsCount - parts.length)(""))
-      .transpose
-      .map(_.distinct)
-    val (head, tail) = groups.partition(_.forall(_.nonEmpty))
-    def combine(parts: Seq[String]) = {
-      val nonEmptyParts = parts.filter(_.nonEmpty)
-      if (nonEmptyParts.size > 1) nonEmptyParts.mkString("(", "+", ")") else nonEmptyParts.mkString
-    }
-    val ret = head.map(combine).mkString +
-      (if (tail.nonEmpty) tail.map(combine).mkString("(", "", ")") else tail.mkString)
-    if (ret.length > MaxFileNameLength) {
-      val suffix = DigestUtils.md5Hex(ret)
-      val prefix = ret.substring(0, MaxFileNameLength - suffix.length)
-      prefix + suffix
-    } else {
-      ret
-    }
+  private def sharedModuleShortId(targetsDisplayNames: Seq[String]): String = {
+    //Example display names: Seq(
+    //   "dummy.amm[2.12.17]",
+    //   "dummy.amm[2.13.10]"
+    //)
+    //Example parts: Seq(
+    //   Seq("dummy", ".", "amm", "[", "2.12.17", "]"),
+    //   Seq("dummy", ".", "amm", "[", "2.13.10", "]")
+    //)
+    val displayNamesParts: Seq[Seq[String]] =
+      targetsDisplayNames.map(_.split(NameSplitRegex).toSeq)
+
+    val maxPartsCount = displayNamesParts.map(_.length).max
+
+    val displayNamesPartsSameLength: Seq[Seq[TestClassId]] =
+      displayNamesParts.map(parts => parts ++ Seq.fill(maxPartsCount - parts.length)(""))
+
+    //Example groups: Seq(
+    //   Seq("dummy"),
+    //   Seq("."),
+    //   Seq("amm"),
+    //   Seq("["),
+    //   Seq("2.12.17", "2.13.10"),
+    //   Seq("]")
+    //)
+    val groups: Seq[Seq[String]] =
+      displayNamesPartsSameLength.transpose.map(_.distinct)
+
+    val groupsNonEmpty: Seq[Seq[String]] =
+      groups.map(_.filter(_.nonEmpty)).filter(_.nonEmpty)
+
+    //input  : Seq("2.12.17", "2.13.10")
+    //output : "(2.12.17+2.13.10)"
+    def combine(parts: Seq[String]): String =
+      if (parts.size > 1)
+        parts.mkString("(", "+", ")")
+      else
+        parts.mkString
+
+    //Example: "dummy.amm[(2.12.17+2.13.10)]"
+    val result = groupsNonEmpty.map(combine).mkString
+
+    trimFileNameLengthIfNeeded(result)
   }
+
+  //IntelliJ may attempt to append " (shared)" to the file name, putting it back over the max limit
+  //so we subtract 50 characters just in this case
+  private final val MaxFileNameLength = FileSystem.getCurrent.getMaxFileNameLength - 50
+
+  private def trimFileNameLengthIfNeeded(name: String): String =
+    if (name.length > MaxFileNameLength) {
+      val suffix = DigestUtils.md5Hex(name)
+      val prefix = name.substring(0, MaxFileNameLength - suffix.length)
+      prefix + suffix
+    }
+    else name
 
   /** "Inherits" data from other modules into newly created synthetic module description.
    * This is a heuristic to for sharing source directories between modules. If those modules have conflicting dependencies,
