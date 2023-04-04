@@ -18,7 +18,7 @@ import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJav
 import com.intellij.testFramework.{EditorTestUtil, LightProjectDescriptor}
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader, SmartJDKLoader, SourcesLoader}
-import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.extensions.{StringExt, executeOnPooledThread, inReadAction}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
@@ -139,7 +139,9 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected def checkTextHasNoErrors(text: String): Unit = {
     myFixture.configureByText(ScalaFileType.INSTANCE, text)
 
-    CodeFoldingManager.getInstance(getProject).buildInitialFoldings(getEditor)
+    executeOnPooledThread {
+      inReadAction(CodeFoldingManager.getInstance(getProject).buildInitialFoldings(getEditor.getDocument))
+    }.get().setToEditor(getEditor)
 
     def doTestHighlighting(virtualFile: VirtualFile): Unit = {
       myFixture.testHighlighting(false, false, false, virtualFile)

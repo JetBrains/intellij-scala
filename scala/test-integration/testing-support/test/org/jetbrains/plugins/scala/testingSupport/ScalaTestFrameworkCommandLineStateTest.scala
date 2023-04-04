@@ -222,7 +222,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
       else null
     }
     // we need to pre-cache macro values otherwise they all will be equal to null
-    MacroManager.getInstance().cacheMacrosPreview(dataContext)
+    MacroManager.getInstance().cacheMacrosPreview(dataContext, project)
 
     myCustomModule
   }
