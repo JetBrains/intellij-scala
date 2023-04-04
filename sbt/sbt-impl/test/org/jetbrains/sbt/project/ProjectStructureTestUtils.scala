@@ -1,12 +1,11 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.util.SystemProperties
-import org.jetbrains.plugins.scala.DependencyManagerBase.scalaLibraryDescription
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.project.sdkdetect.repository.CoursierPaths
-import org.jetbrains.sbt.project.ProjectStructureDsl.{ScalaSdkAttributes, libClasses, libJavadocs, libSources, library, scalaSdkSettings}
+import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
+import org.jetbrains.sbt.project.ProjectStructureDsl._
 
-trait ProjectStructureExpectedLibrariesOps {
+object ProjectStructureTestUtils {
 
   private val systemHome = SystemProperties.getUserHome
   private val ivyCacheRootHome = withoutPathSuffix(systemHome) + "/.ivy2/cache"
@@ -27,52 +26,17 @@ trait ProjectStructureExpectedLibrariesOps {
   private def ivyCacheArtifacts(relativePaths: String*): Seq[String] =
     relativePaths.map(ivyCacheArtifact)
 
-  protected sealed trait ResolveScalaLibraryFrom
-  protected object ResolveScalaLibraryFrom {
-    object Ivy extends ResolveScalaLibraryFrom
-    object Coursier extends ResolveScalaLibraryFrom
-  }
-
-  protected def expectedScalaLibrary(scalaVersion: String, isSdk: Boolean = true): library =
+  def expectedScalaLibrary(scalaVersion: String, isSdk: Boolean = true): library =
     expectedScalaLibraryFromCoursier(ScalaVersion.fromString(scalaVersion).get, isSdk)
 
-
-  protected def expectedScalaLibraryFromIvy(
-    scalaVersion: ScalaVersion,
-    isSdk: Boolean = true
-  ): library = {
+  def expectedScalaLibraryFromCoursier(scalaVersion: ScalaVersion, isSdk: Boolean = true): library = {
     val scalaVersionStr = scalaVersion.minor
-    val dependency = scalaLibraryDescription(scalaVersion)
+    val dependency = DependencyManagerBase.scalaLibraryDescription(scalaVersion)
 
-    new library(s"sbt: $dependency:jar") {
-      libClasses  := ivyCacheArtifacts(s"org.scala-lang/scala-library/jars/scala-library-$scalaVersionStr.jar")
-      libSources  := ivyCacheArtifacts(s"org.scala-lang/scala-library/srcs/scala-library-$scalaVersionStr-sources.jar")
-      //For some reason IVY doesn't download javadocs: https://github.com/sbt/sbt/issues/5165#issuecomment-938817378
-      //libJavadocs := ivyCacheArtifacts(s"org.scala-lang/scala-library/docs/scala-library-$scalaVersionStr-javadoc.jar")
-
-      if (isSdk) scalaSdkSettings := Some(ScalaSdkAttributes(
-        scalaVersion.languageLevel,
-        classpath = ivyCacheArtifacts(
-          // TODO: build expected classpath depending on scalaVersion, currently extra classpath tested only for 2.12.10
-          "jline/jline/jars/jline-2.14.6.jar",
-          "org.fusesource.jansi/jansi/jars/jansi-1.12.jar",
-          "org.scala-lang.modules/scala-xml_2.12/bundles/scala-xml_2.12-1.0.6.jar",
-          "org.scala-lang/scala-compiler/jars/scala-compiler-2.12.10.jar",
-          "org.scala-lang/scala-library/jars/scala-library-2.12.10.jar",
-          "org.scala-lang/scala-reflect/jars/scala-reflect-2.12.10.jar",
-        )
-      ))
-    }
-  }
-
-  protected def expectedScalaLibraryFromCoursier(scalaVersion: ScalaVersion, isSdk: Boolean = true): library = {
-    val scalaVersionStr = scalaVersion.minor
-    val dependency = scalaLibraryDescription(scalaVersion)
-
-    if (scalaVersion.languageLevel.isScala2) {
+    if (scalaVersion.languageLevel.isScala2)
       new library(s"sbt: $dependency:jar") {
-        libClasses  := coursierCacheArtifacts(s"org/scala-lang/scala-library/$scalaVersionStr/scala-library-$scalaVersionStr.jar")
-        libSources  := coursierCacheArtifacts(s"org/scala-lang/scala-library/$scalaVersionStr/scala-library-$scalaVersionStr-sources.jar")
+        libClasses := coursierCacheArtifacts(s"org/scala-lang/scala-library/$scalaVersionStr/scala-library-$scalaVersionStr.jar")
+        libSources := coursierCacheArtifacts(s"org/scala-lang/scala-library/$scalaVersionStr/scala-library-$scalaVersionStr-sources.jar")
         libJavadocs := coursierCacheArtifacts(s"org/scala-lang/scala-library/$scalaVersionStr/scala-library-$scalaVersionStr-javadoc.jar")
 
         if (isSdk) scalaSdkSettings := Some(ScalaSdkAttributes(
@@ -88,12 +52,11 @@ trait ProjectStructureExpectedLibrariesOps {
           extraClasspath = Nil,
         ))
       }
-    }
-    else if (scalaVersion.minor == "3.0.2") {
+    else if (scalaVersion.minor == "3.0.2")
       new library(s"sbt: $dependency:jar") {
         // TODO: this should also include scala-library (scala 2) after SCL-18867 and SCL-18866
-        libClasses  := coursierCacheArtifacts(s"org/scala-lang/scala3-library_3/3.0.2/scala3-library_3-3.0.2.jar")
-        libSources  := coursierCacheArtifacts(s"org/scala-lang/scala3-library_3/3.0.2/scala3-library_3-3.0.2-sources.jar")
+        libClasses := coursierCacheArtifacts(s"org/scala-lang/scala3-library_3/3.0.2/scala3-library_3-3.0.2.jar")
+        libSources := coursierCacheArtifacts(s"org/scala-lang/scala3-library_3/3.0.2/scala3-library_3-3.0.2-sources.jar")
         libJavadocs := coursierCacheArtifacts(s"org/scala-lang/scala3-library_3/3.0.2/scala3-library_3-3.0.2-javadoc.jar")
 
         if (isSdk) scalaSdkSettings := Some(ScalaSdkAttributes(
@@ -148,8 +111,36 @@ trait ProjectStructureExpectedLibrariesOps {
           ),
         ))
       }
-    }
     else
       throw new IllegalArgumentException(s"""Unsupported expected scala version: $scalaVersion""".stripMargin)
   }
+
+  def expectedScalaLibraryFromIvy(
+    scalaVersion: ScalaVersion,
+    isSdk: Boolean = true
+  ): library = {
+    val scalaVersionStr = scalaVersion.minor
+    val dependency = DependencyManagerBase.scalaLibraryDescription(scalaVersion)
+
+    new library(s"sbt: $dependency:jar") {
+      libClasses := ivyCacheArtifacts(s"org.scala-lang/scala-library/jars/scala-library-$scalaVersionStr.jar")
+      libSources := ivyCacheArtifacts(s"org.scala-lang/scala-library/srcs/scala-library-$scalaVersionStr-sources.jar")
+      //For some reason IVY doesn't download javadocs: https://github.com/sbt/sbt/issues/5165#issuecomment-938817378
+      //libJavadocs := ivyCacheArtifacts(s"org.scala-lang/scala-library/docs/scala-library-$scalaVersionStr-javadoc.jar")
+
+      if (isSdk) scalaSdkSettings := Some(ScalaSdkAttributes(
+        scalaVersion.languageLevel,
+        classpath = ivyCacheArtifacts(
+          // TODO: build expected classpath depending on scalaVersion, currently extra classpath tested only for 2.12.10
+          "jline/jline/jars/jline-2.14.6.jar",
+          "org.fusesource.jansi/jansi/jars/jansi-1.12.jar",
+          "org.scala-lang.modules/scala-xml_2.12/bundles/scala-xml_2.12-1.0.6.jar",
+          "org.scala-lang/scala-compiler/jars/scala-compiler-2.12.10.jar",
+          "org.scala-lang/scala-library/jars/scala-library-2.12.10.jar",
+          "org.scala-lang/scala-reflect/jars/scala-reflect-2.12.10.jar",
+        )
+      ))
+    }
+  }
+
 }

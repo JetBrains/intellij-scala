@@ -18,8 +18,7 @@ import scala.reflect.{ClassTag, classTag}
 
 @Category(Array(classOf[SlowTests]))
 abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
-  with ProjectStructureMatcher
-  with ProjectStructureExpectedLibrariesOps {
+  with ProjectStructureMatcher {
 
   protected implicit def comparisonOptions: ProjectComparisonOptions =
     ProjectComparisonOptions.Implicit.default

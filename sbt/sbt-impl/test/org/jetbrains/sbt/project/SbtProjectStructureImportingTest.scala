@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertC
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
+import org.jetbrains.sbt.project.ProjectStructureTestUtils.{expectedScalaLibrary, expectedScalaLibraryFromIvy}
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -35,7 +36,6 @@ import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
 
 @Category(Array(classOf[SlowTests]))
 final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingTestLike
-  with ProjectStructureExpectedLibrariesOps
   with ProjectStructureMatcher
   with ExactMatch {
 
