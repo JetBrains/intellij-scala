@@ -5,6 +5,7 @@ import com.intellij.codeInspection._
 import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.project.Project
+import com.intellij.psi.impl.source.resolve.FileContextUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiFile, PsiNamedElement}
 import com.intellij.refactoring.RefactoringFactory
@@ -13,6 +14,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
@@ -39,7 +41,8 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
       !InjectedLanguageManager.getInstance(scalaFile.getProject).isInjectedFragment(scalaFile) &&
       !scalaFile.isWorksheetFile &&
       Option(scalaFile.getVirtualFile).isDefined &&
-      !ScratchUtil.isScratch(scalaFile.getVirtualFile)
+      !ScratchUtil.isScratch(scalaFile.getVirtualFile) &&
+      !FileContextUtil.getFileContext(scalaFile).is[ScStringLiteral]
 
   private def findSuspiciousTypeDefinitions(scalaFile: ScalaFile, virtualFileName: String): Seq[ScTypeDefinition] = {
     val members = scalaFile.members

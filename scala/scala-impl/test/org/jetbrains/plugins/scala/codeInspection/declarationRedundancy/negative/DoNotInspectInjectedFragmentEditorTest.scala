@@ -4,6 +4,7 @@ import com.intellij.psi.SmartPointerManager
 import com.intellij.psi.impl.source.resolve.FileContextUtil
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.codeInspection.ScalaFileNameInspection
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.{ScalaAccessCanBeTightenedInspection, ScalaUnusedDeclarationInspection}
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.junit.Assert.assertTrue
@@ -19,6 +20,11 @@ class DoNotInspectInjectedFragmentEditorTest extends ScalaLightCodeInsightFixtur
   def test_can_be_private(): Unit = {
     myFixture.enableInspections(classOf[ScalaAccessCanBeTightenedInspection])
     doCommonTest("class DoNotInspectInjectedFragmentEditorTest { val doNotInspectMe = 42; println(doNotInspectMe) }")
+  }
+
+  def test_scala_file_name_inspection(): Unit = {
+    myFixture.enableInspections(classOf[ScalaFileNameInspection])
+    doCommonTest("class DoNotInspectInjectedFragmentEditorTest")
   }
 
   private def doCommonTest(injectedCode: String): Unit = {
