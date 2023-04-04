@@ -27,8 +27,8 @@ private final class DecompilerClassVisitor extends ClassVisitor(Opcodes.ASM9) {
       new AnnotationVisitor(Opcodes.ASM9) {
         override def visit(name: String, value: Any): Unit = {
           if (name == BYTES_VALUE) {
-          // We are visiting the ScalaSignature annotation that only contains one encoded value as a string named "bytes"
-            rawSignature.append(value.toString)
+            // We are visiting the ScalaSignature annotation that only contains one encoded value as a string named "bytes"
+            rawSignature.append(value.asInstanceOf[String])
           }
         }
 
@@ -37,7 +37,7 @@ private final class DecompilerClassVisitor extends ClassVisitor(Opcodes.ASM9) {
             // We are visiting the ScalaLongSignature annotation that contains multiple encoded values as a string array named "bytes"
             new AnnotationVisitor(Opcodes.ASM9) {
               override def visit(name: String, value: Any): Unit = {
-                rawSignature.append(value.toString)
+                rawSignature.append(value.asInstanceOf[String])
               }
             }
           } else null
