@@ -6,6 +6,7 @@ import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.org.objectweb.asm.ClassReader
 
 import java.nio.charset.StandardCharsets.UTF_8
+import scala.reflect.internal.pickling.ByteCodecs
 
 object Decompiler {
   val BYTES_VALUE                       = "bytes"
@@ -27,14 +28,24 @@ object Decompiler {
     if (!containsMarker(bytes)) return None
 
     val reader = new ClassReader(bytes)
-    val visitor = new DecompilerClassVisitor(fileName)
+    val visitor = new DecompilerClassVisitor()
 
     reader.accept(visitor, ClassReader.SKIP_CODE | ClassReader.SKIP_FRAMES)
 
+    // The string `"<Unknown>"` as a default value for the source file name of a given classfile is taken from
+    // https://github.com/apache/commons-bcel/blob/29175909fb8c039613e46d071fdbbe5bf7914f49/src/main/java/org/apache/bcel/classfile/JavaClass.java#L118.
+    // The Apache BCEL bytecode manipulation library was previously used to implement our decompiler. The default
+    // value is kept for reasons of maintaining the behavior of the decompiler, in case a source file name cannot be
+    // decoded from the classfile.
     for {
-      signature <- visitor.signature
+      signature <- visitor.signature.map(decodeSignatureBytes(fileName))
       text <- decompiledText(signature, reader.getClassName, fileName == "package.class")
-    } yield (visitor.source, StringUtil.convertLineSeparators(text))
+    } yield (visitor.source.getOrElse("<Unknown>"), StringUtil.convertLineSeparators(text))
+  }
+
+  private def decodeSignatureBytes(fileName: String)(bytes: Array[Byte]): ScalaSig = {
+    ByteCodecs.decode(bytes)
+    Parser.parseScalaSig(bytes, fileName)
   }
 
   private def tryDecompileSigFile(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
