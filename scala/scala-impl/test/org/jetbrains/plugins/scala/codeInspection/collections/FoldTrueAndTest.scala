@@ -14,7 +14,7 @@ class FoldTrueAndTest extends OperationsOnCollectionInspectionTest {
     val selected = s"List(false).${START}foldLeft(true){_ && _}$END"
     checkTextHasError(selected)
     val text = "List(false).foldLeft(true){_ && _}"
-    val result = "List(false).forall(_)"
+    val result = "List(false).forall(identity)"
     testQuickFix(text, result, hint)
   }
 

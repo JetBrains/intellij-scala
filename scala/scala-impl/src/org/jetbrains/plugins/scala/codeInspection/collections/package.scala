@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, PartialFunctionType, PsiTypeConstants}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.AnonymousFunction
 
@@ -235,6 +236,10 @@ package object collections {
               }
             case _ => None
           }
+        case ScInfixExpr(underscore(), oper, underscore()) if oper.refName == "&&" =>
+          val identityElement =
+            ScalaPsiElementFactory.createExpressionFromText("identity", ScalaFeatures.default)(expr.getProject)
+          Some(identityElement)
         case ScInfixExpr(underscore(), oper, right) if oper.refName == "&&" => Some(right)
         case _ => None
       }
