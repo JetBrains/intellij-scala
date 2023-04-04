@@ -16,14 +16,7 @@ private final class DecompilerClassVisitor(fileName: String) extends ClassVisito
    */
   private val rawSignature: mutable.ListBuffer[String] = mutable.ListBuffer.empty
 
-  /*
-   * The string `"<Unknown>"` as a default value for the source file name of a given classfile is taken from
-   * https://github.com/apache/commons-bcel/blob/29175909fb8c039613e46d071fdbbe5bf7914f49/src/main/java/org/apache/bcel/classfile/JavaClass.java#L118.
-   * The Apache BCEL bytecode manipulation library was previously used to implement our decompiler. The default
-   * value is kept for reasons of maintaining the behavior of the decompiler, in case a source file name cannot be
-   * decoded from the classfile.
-   */
-  private[this] var _source: String = "<Unknown>"
+  private[this] var _source: Option[String] = None
 
   def signature: Option[ScalaSig] = {
     val chunks = rawSignature.result().map(_.getBytes(StandardCharsets.UTF_8))
@@ -43,7 +36,7 @@ private final class DecompilerClassVisitor(fileName: String) extends ClassVisito
     }
   }
 
-  def source: String = _source
+  def source: Option[String] = _source
 
   override def visitAnnotation(descriptor: String, visible: Boolean): AnnotationVisitor = descriptor match {
     case SCALA_SIG_ANNOTATION | SCALA_LONG_SIG_ANNOTATION =>
@@ -71,6 +64,6 @@ private final class DecompilerClassVisitor(fileName: String) extends ClassVisito
   }
 
   override def visitSource(source: String, debug: String): Unit = {
-    _source = source
+    _source = Option(source)
   }
 }

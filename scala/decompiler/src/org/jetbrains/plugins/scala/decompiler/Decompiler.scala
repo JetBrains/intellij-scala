@@ -31,10 +31,15 @@ object Decompiler {
 
     reader.accept(visitor, ClassReader.SKIP_CODE | ClassReader.SKIP_FRAMES)
 
+    // The string `"<Unknown>"` as a default value for the source file name of a given classfile is taken from
+    // https://github.com/apache/commons-bcel/blob/29175909fb8c039613e46d071fdbbe5bf7914f49/src/main/java/org/apache/bcel/classfile/JavaClass.java#L118.
+    // The Apache BCEL bytecode manipulation library was previously used to implement our decompiler. The default
+    // value is kept for reasons of maintaining the behavior of the decompiler, in case a source file name cannot be
+    // decoded from the classfile.
     for {
       signature <- visitor.signature
       text <- decompiledText(signature, reader.getClassName, fileName == "package.class")
-    } yield (visitor.source, StringUtil.convertLineSeparators(text))
+    } yield (visitor.source.getOrElse("<Unknown>"), StringUtil.convertLineSeparators(text))
   }
 
   private def tryDecompileSigFile(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
