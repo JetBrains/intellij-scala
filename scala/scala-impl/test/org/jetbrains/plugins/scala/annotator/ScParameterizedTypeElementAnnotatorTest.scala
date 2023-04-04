@@ -369,6 +369,13 @@ class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTyp
       |foo[TL4, Foo](???)
       |""".stripMargin
   ))
+
+  def testSCL20948(): Unit = assertNothing(messages(
+    """
+      |class Example[T <: Tuple]
+      |class A() extends Example[(Int, Long)]
+      |""".stripMargin
+  ))
 }
 
 @Category(Array(classOf[TypecheckerTests]))

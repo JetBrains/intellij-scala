@@ -35,7 +35,10 @@ trait Conformance {
     ProgressManager.checkCanceled()
 
     if (left.isAny || left.is[WildcardType] || right.isNothing || left == right) constraints
-    else if (right.canBeSameOrInheritor(left)) {
+    else if (left.isTupleBaseType) {
+      if (right.isTupleN) constraints
+      else                Left
+    } else if (right.canBeSameOrInheritor(left)) {
       val result = conformsInner(Key(left, right, checkWeak), visited)
       combine(result)(constraints)
     } else Left

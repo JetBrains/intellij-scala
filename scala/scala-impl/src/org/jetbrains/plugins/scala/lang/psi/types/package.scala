@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.shouldExp
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.{ProjectContext, _}
@@ -102,9 +102,13 @@ package object types {
 
     def isNull: Boolean = isStdType(Name.Null)
 
+    def isTupleBaseType: Boolean = scType.extractClass.exists(_.qualifiedName == "scala.Tuple")
+
+    def isTupleN: Boolean = scType.extractClass.exists(_.qualifiedName.matches(raw"scala.Tuple\d+"))
+
     def isPrimitive: Boolean = scType match {
-      case v: ValType => !isUnit
-      case _ => false
+      case _: ValType => !isUnit
+      case _          => false
     }
 
     def removeUndefines(): ScType = scType.updateLeaves {
@@ -198,6 +202,7 @@ package object types {
 
       def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
         tp.recursiveUpdate {
+          case AliasType(tdef: ScTypeAliasDefinition, _, _) if tdef.isOpaque => Stop
           case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _) => ProcessSubtypes
           case AliasType(ta: ScTypeAliasDefinition, _, Failure(_)) if needExpand(ta) =>
             ReplaceWith(projectContext.stdTypes.Any)
