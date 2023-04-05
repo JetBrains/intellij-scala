@@ -140,7 +140,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected def checkTextHasNoErrors(text: String): Unit = {
     myFixture.configureByText(ScalaFileType.INSTANCE, text)
 
-    EditorTestUtil.buildInitialFoldingsInBackground(getEditor)
+    //EditorTestUtil.buildInitialFoldingsInBackground(getEditor)
 
     def doTestHighlighting(virtualFile: VirtualFile): Unit = {
       myFixture.testHighlighting(false, false, false, virtualFile)
