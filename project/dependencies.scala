@@ -86,7 +86,7 @@ object Dependencies {
 
   val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.5.1"
 
-  val scalafmtDynamic = "org.scalameta" %% "scalafmt-dynamic" % "3.7.1"
+  val scalafmtDynamic = "org.scalameta" %% "scalafmt-dynamic" % "3.7.3"
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % "4.5.13" withSources() exclude("com.google.protobuf", "protobuf-java")
   val fastparse: ModuleID = "com.lihaoyi" %% "fastparse" % "2.3.3" // transitive dependency of scalaMeta, needs explicit versioning
 
