@@ -26,7 +26,7 @@ object Generators {
   implicit val arbVersion: Arbitrary[String] = Arbitrary(genVersion)
   implicit val arbPath: Arbitrary[Path] = Arbitrary(genPath)
   implicit val arbLanguageLevel: Arbitrary[LanguageLevel] = Arbitrary(genLanguageLevel)
-  implicit val arbSourceDirectory: Arbitrary[SourceDirectory] = Arbitrary(genSourceDirectory)
+  implicit val arbSourceDirectory: Arbitrary[SourceEntry] = Arbitrary(genSourceDirectory)
 
   /** A system-dependent file path. */
   def genPathBelow(root: Path): Gen[Path] = for {
@@ -44,7 +44,7 @@ object Generators {
   }
 
   def genLanguageLevel: Gen[LanguageLevel] = for {
-     n <- Gen.chooseNum(0, LanguageLevel.values().size - 1)
+     n <- Gen.chooseNum(0, LanguageLevel.values().length - 1)
      value = LanguageLevel.values()(n)
   } yield value
 
@@ -54,24 +54,24 @@ object Generators {
     s <- Gen.identifier.optional
   } yield v.mkString(".") + s.fold("")("-" + _)
 
-  def genSourceDirectoryUnder(root: Path): Gen[SourceDirectory] = for {
+  def genSourceDirectoryUnder(root: Path): Gen[SourceEntry] = for {
     path <- genPathBelow(root)
     generated <- arbitrary[Boolean]
-  } yield SourceDirectory(path.toFile, generated, None)
+  } yield SourceEntry(path.toFile, isDirectory = true, generated, None)
 
-  def genSourceDirectory: Gen[SourceDirectory] = for {
+  def genSourceDirectory: Gen[SourceEntry] = for {
     path <- arbitrary[Path]
     generated <- arbitrary[Boolean]
-  } yield SourceDirectory(path.toFile, generated, None)
+  } yield SourceEntry(path.toFile, isDirectory = true, generated = generated, None)
 
-  def genSourceDirs(root: Option[Path]): Gen[List[SourceDirectory]] = Gen.sized { size =>
+  def genSourceDirs(root: Option[Path]): Gen[List[SourceEntry]] = Gen.sized { size =>
     for {
       size1 <- Gen.choose(0,size)
       size2 = size - size1
       free <- Gen.listOfN(size1, genSourceDirectory)
       underRoot <- root
         .map(p => Gen.listOfN(size2, genSourceDirectoryUnder(p)))
-        .getOrElse(Gen.const[List[SourceDirectory]](List.empty))
+        .getOrElse(Gen.const[List[SourceEntry]](List.empty))
     } yield {
       free ++ underRoot
     }
@@ -84,7 +84,7 @@ object Generators {
     val newTags = target.getTags.asScala.filterNot(withoutTags.contains)
     target.setTags(newTags.asJava)
     if (target.getBaseDirectory == null)
-      target.setBaseDirectory(baseDir.toString)
+      target.setBaseDirectory(baseDir)
     target
   }
 
@@ -134,10 +134,10 @@ object Generators {
       targetTestDependencies = targetTestDependencies,
       basePath = basePath.map(_.toFile),
       output = output, testOutput = testOutput,
-      sourceDirs = sourceDirs,
-      testSourceDirs = testSourceDirs,
-      resourceDirs = resourceDirs,
-      testResourceDirs = testResourceDirs,
+      sourceRoots = sourceDirs,
+      testSourceRoots = testSourceDirs,
+      resourceRoots = resourceDirs,
+      testResourceRoots = testResourceDirs,
       outputPaths = outputPaths,
       classpath = classPath,
       classpathSources = classPathSources,

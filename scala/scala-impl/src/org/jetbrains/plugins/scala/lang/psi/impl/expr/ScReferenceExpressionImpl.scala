@@ -330,8 +330,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               } else s(tp)
             }.getOrElse(return result)
         }
-      case ScalaResolveResult(param: ScParameter, _) if isMetaInlineDefn(param) =>
-        ScalaPsiElementFactory.createTypeFromText("scala.meta.Stat", param.getContext, null).get
+
       case r @ ScalaResolveResult(param: ScParameter, s) =>
         val owner = param.owner match {
           case f: ScPrimaryConstructor => f.containingClass
