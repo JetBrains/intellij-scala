@@ -6,7 +6,7 @@ import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, GsonBuilder}
 import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.bsp.project.importing.BspResolverDescriptors.{ModuleDescription, ModuleKind, ProjectModules, SourceDirectory}
+import org.jetbrains.bsp.project.importing.BspResolverDescriptors.{ModuleDescription, ModuleKind, ProjectModules, SourceEntry}
 import org.jetbrains.bsp.project.importing.BspResolverLogic._
 import org.jetbrains.bsp.project.importing.Generators._
 import org.jetbrains.plugins.scala.SlowTests
@@ -52,7 +52,7 @@ class BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
   @Test @Ignore
   def `test moduleDescriptionForTarget succeeds for build targets with Scala`(): Unit = check(
     forAll(genBuildTargetWithScala) { target: BuildTarget =>
-      forAll { (scalacOptions: Option[ScalacOptionsItem], javacOptions: Option[JavacOptionsItem], depSources: Seq[File], sources: Seq[SourceDirectory], resources: Seq[SourceDirectory], outputPaths: Seq[File], dependencyOutputs: List[File]) =>
+      forAll { (scalacOptions: Option[ScalacOptionsItem], javacOptions: Option[JavacOptionsItem], depSources: Seq[File], sources: Seq[SourceEntry], resources: Seq[SourceEntry], outputPaths: Seq[File], dependencyOutputs: List[File]) =>
 
         val description = moduleDescriptionForTarget(target, scalacOptions, javacOptions, depSources, sources, resources, outputPaths, dependencyOutputs)
         val emptyForNOIDE = target.getTags.contains(BuildTargetTag.NO_IDE) ==> description.isEmpty :| "contained NO_IDE tag, but created anyway"
@@ -67,7 +67,7 @@ class BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
   def `test createScalaModuleDescription`(): Unit = check(
     forAll(genPath, Gen.listOf(genBuildTargetTag)) { (basePath: Path, tags: List[String]) =>
       forAll(Gen.listOf(genSourceDirectoryUnder(basePath)), Gen.listOf(genSourceDirectoryUnder(basePath))) {
-        (sourceRoots: List[SourceDirectory], resourceRoots: List[SourceDirectory]) =>
+        (sourceRoots: List[SourceEntry], resourceRoots: List[SourceEntry]) =>
           forAll { (target: BuildTarget, moduleBase: Option[File], outputPath: Option[File], classpath: List[File], dependencySources: List[File], outputPaths: List[File], languageLevel: LanguageLevel) =>
             val description = createModuleDescriptionData(target, tags, moduleBase, outputPath, sourceRoots, resourceRoots, outputPaths, classpath, dependencySources, Some(languageLevel))
 
@@ -77,7 +77,7 @@ class BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
               (description.output == outputPath &&
                 description.targetDependencies == target.getDependencies.asScala &&
                 description.classpathSources == dependencySources &&
-                description.sourceDirs == sourceRoots &&
+                description.sourceRoots == sourceRoots &&
                 description.outputPaths == outputPaths &&
                 description.classpath == classpath) :|
                 s"data not correctly set for library or application tags. Result data was: $description"
@@ -85,7 +85,7 @@ class BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
               (description.testOutput == outputPath &&
                 description.targetTestDependencies == target.getDependencies.asScala &&
                 description.testClasspathSources == dependencySources &&
-                description.testSourceDirs == sourceRoots &&
+                description.testSourceRoots == sourceRoots &&
                 description.testClasspath == classpath) :|
                 s"data not correctly set for test tag. Result data was: $description"
 

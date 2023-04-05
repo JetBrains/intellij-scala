@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.projectHighlighting.base
 import com.intellij.codeInsight.daemon.ProblemHighlightFilter
 import com.intellij.openapi.project.ProjectUtil
 import com.intellij.psi.PsiManager
-import org.junit.Assert.{assertEquals, assertNotNull}
+import org.junit.Assert.{assertEquals, assertFalse, assertNotNull, assertTrue}
 
 trait ProjectHighlightingAssertions {
   self: AllProjectHighlightingTest =>
@@ -26,6 +26,11 @@ trait ProjectHighlightingAssertions {
       s"File must be highlighted: $relativePath"
     else
       s"File must not be highlighted: $relativePath"
-    assertEquals(message, shouldHighlight, shouldHighlightActual)
+
+    if (shouldHighlight) {
+      assertTrue(s"File should be highlighted: $relativePath", shouldHighlightActual)
+    } else {
+      assertFalse(s"File should not be highlighted: $relativePath", shouldHighlightActual)
+    }
   }
 }

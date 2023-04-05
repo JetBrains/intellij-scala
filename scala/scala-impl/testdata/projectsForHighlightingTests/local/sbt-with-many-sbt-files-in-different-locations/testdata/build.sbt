@@ -1,7 +1,7 @@
-import Dependencies.*
+import Dependencies._
 
 libraryDependencies ++= Seq(
-  scalaTest
+  sparkCore
 )
 
 

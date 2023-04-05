@@ -1,17 +1,24 @@
-package org.jetbrains.plugins.scala.projectHighlighting.local
+package org.jetbrains.bsp.projectHighlighting
 
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.projectHighlighting.base.{ProjectHighlightingAssertions, SbtProjectHighlightingLocalProjectsTestBase}
+import org.jetbrains.plugins.scala.projectHighlighting.base.ProjectHighlightingAssertions
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.{HighlightingTests, ScalaFileType}
 import org.jetbrains.sbt.language.SbtFileType
+import org.jetbrains.sbt.project.ProjectStructureMatcher
+import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
+import org.junit.Assert.fail
+import org.junit.experimental.categories.Category
 
-class ProblemHighlightFilterInSbtProjectIntegrationTest
-  extends SbtProjectHighlightingLocalProjectsTestBase
+//NOTE:
+//The test is very similar to `org.jetbrains.plugins.scala.projectHighlighting.local.SbtFilesProblemHighlightFilterTest`
+//But for SBT project which is opened as BSP over SBT
+@Category(Array(classOf[HighlightingTests]))
+class ProblemHighlightFilterInSbtProjectIntegrationTest_SbtOverBsp
+  extends SbtOverBspProjectHighlightingLocalProjectsTestBase
     with ProjectHighlightingAssertions {
 
   override def projectName = "sbt-with-many-sbt-files-in-different-locations"
@@ -44,30 +51,6 @@ class ProblemHighlightFilterInSbtProjectIntegrationTest
         System.err.println(s"File wasn't highlighted because `ProblemHighlightFilter.shouldHighlightFile` returned false: ${TestUtils.getPathRelativeToProject(virtualFile, getProject)}")
     }
   }
-
-  import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
-
-  //TODO: remove once SCL-21132 is fixed
-  override protected def filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "src/main/scala/MyProdClass.scala" -> Set(
-      (46,69), // Cannot resolve symbol MyClassInSbtProjectRoot
-    ),
-    "src/test/scala/MyTestClass.scala" -> Set(
-      (46,69), // Cannot resolve symbol MyClassInSbtProjectRoot
-    ),
-    "sub-project-separate/src/main/scala/MyProdClass.scala" -> Set(
-      (46,69), // Cannot resolve symbol MyClassInSbtProjectRoot
-    ),
-    "sub-project-separate/src/test/scala/MyTestClass.scala" -> Set(
-      (46,69), // Cannot resolve symbol MyClassInSbtProjectRoot
-    ),
-    "sub-project/src/main/scala/MyProdClass.scala" -> Set(
-      (46,69), // Cannot resolve symbol MyClassInSbtProjectRoot
-    ),
-    "sub-project/src/test/scala/MyTestClass.scala" -> Set(
-      (46,69), // Cannot resolve symbol MyClassInSbtProjectRoot
-    )
-  )
 
   override def testHighlighting(): Unit = {
     assertHighlightedFiles()
@@ -103,10 +86,9 @@ class ProblemHighlightFilterInSbtProjectIntegrationTest
     assertFileShouldBeHighlighted("sub-project-separate/project/MyClass.scala")
 
     //in sbt project root outside main/test source roots, such files are also treated as sources by sbt
-    //TODO: SCL-21132, all 3 files below should be highlighted, we need to support `.scala` files in SBT project root
-    assertFileShouldNotBeHighlighted("MyClassInSbtProjectRoot.scala")
-    assertFileShouldNotBeHighlighted("sub-project/MyClassInSbtProjectRoot.scala")
-    assertFileShouldNotBeHighlighted("sub-project-separate/MyClassInSbtProjectRoot.scala")
+    assertFileShouldBeHighlighted("MyClassInSbtProjectRoot.scala")
+    assertFileShouldBeHighlighted("sub-project/MyClassInSbtProjectRoot.scala")
+    assertFileShouldBeHighlighted("sub-project-separate/MyClassInSbtProjectRoot.scala")
 
     //in main/test source roots
     assertFileShouldBeHighlighted("src/main/scala/MyProdClass.scala")
@@ -138,5 +120,58 @@ class ProblemHighlightFilterInSbtProjectIntegrationTest
     assertFileShouldBeHighlighted("sub-project-separate/src/main/scala/worksheet.sc")
     assertFileShouldBeHighlighted("sub-project-separate/src/test/scala/worksheet.sc")
     assertFileShouldBeHighlighted("sub-project-separate/testdata/worksheet.sc")
+  }
+
+  private lazy val testProjectDirVFile: VirtualFile =
+    VirtualFileManager.getInstance().findFileByNioPath(getTestProjectDir.toPath)
+
+  def relativeProjectPath(relPath: String): String = {
+    val result = testProjectDirVFile.findFileByRelativePath(relPath)
+    if (result == null) {
+      fail(s"Can't find file `$relPath` in `$testProjectDirVFile``")
+    }
+    result.getPath
+  }
+
+  def testProjectStructure(): Unit = {
+    import org.jetbrains.sbt.project.ProjectStructureDsl._
+    val expectedProject: project = new project(projectName) {
+      modules := Seq(
+        new module("root") {
+          contentRoots := Seq()
+          sources := Seq("src/main/scala")
+          testSources := Seq("src/test/scala")
+          resources := Seq()
+          testResources := Seq()
+        },
+        new module(s"root-build") {
+          contentRoots := Seq(relativeProjectPath("project"))
+          sources := Seq("Dependencies.scala", "MyClass.scala")
+        },
+        new module("subProject") {
+          sources := Seq("src/main/scala")
+          testSources := Seq("src/test/scala")
+          resources := Seq()
+          testResources := Seq()
+        },
+        new module("subProjectSeparateRoot") {
+          sources := Seq("src/main/scala")
+          testSources := Seq("src/test/scala")
+          resources := Seq()
+          testResources := Seq()
+        },
+        new module(s"subProjectSeparateRoot-build") {
+          contentRoots := Seq(relativeProjectPath("sub-project-separate/project"))
+          sources := Seq("MyClass.scala")
+        },
+      )
+    }
+
+
+    val matcher = new ProjectStructureMatcher {
+      override protected def defaultAssertMatch: ProjectStructureMatcher.AttributeMatchType = ProjectStructureMatcher.AttributeMatchType.Inexact
+    }
+    implicit val comparisonOptions: ProjectComparisonOptions = ProjectComparisonOptions(strictCheckForBuildModules = true)
+    matcher.assertProjectsEqual(expectedProject, getProject)(comparisonOptions)
   }
 }

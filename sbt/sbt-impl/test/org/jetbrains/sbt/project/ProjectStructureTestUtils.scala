@@ -33,8 +33,9 @@ object ProjectStructureTestUtils {
     val scalaVersionStr = scalaVersion.minor
     val dependency = DependencyManagerBase.scalaLibraryDescription(scalaVersion)
 
+    val libraryName = s"sbt: $dependency:jar"
     if (scalaVersion.languageLevel.isScala2)
-      new library(s"sbt: $dependency:jar") {
+      new library(libraryName) {
         libClasses := coursierCacheArtifacts(s"org/scala-lang/scala-library/$scalaVersionStr/scala-library-$scalaVersionStr.jar")
         libSources := coursierCacheArtifacts(s"org/scala-lang/scala-library/$scalaVersionStr/scala-library-$scalaVersionStr-sources.jar")
         libJavadocs := coursierCacheArtifacts(s"org/scala-lang/scala-library/$scalaVersionStr/scala-library-$scalaVersionStr-javadoc.jar")
@@ -53,7 +54,7 @@ object ProjectStructureTestUtils {
         ))
       }
     else if (scalaVersion.minor == "3.0.2")
-      new library(s"sbt: $dependency:jar") {
+      new library(libraryName) {
         // TODO: this should also include scala-library (scala 2) after SCL-18867 and SCL-18866
         libClasses := coursierCacheArtifacts(s"org/scala-lang/scala3-library_3/3.0.2/scala3-library_3-3.0.2.jar")
         libSources := coursierCacheArtifacts(s"org/scala-lang/scala3-library_3/3.0.2/scala3-library_3-3.0.2-sources.jar")
@@ -122,7 +123,8 @@ object ProjectStructureTestUtils {
     val scalaVersionStr = scalaVersion.minor
     val dependency = DependencyManagerBase.scalaLibraryDescription(scalaVersion)
 
-    new library(s"sbt: $dependency:jar") {
+    val libraryName = s"sbt: $dependency:jar"
+    new library(libraryName) {
       libClasses := ivyCacheArtifacts(s"org.scala-lang/scala-library/jars/scala-library-$scalaVersionStr.jar")
       libSources := ivyCacheArtifacts(s"org.scala-lang/scala-library/srcs/scala-library-$scalaVersionStr-sources.jar")
       //For some reason IVY doesn't download javadocs: https://github.com/sbt/sbt/issues/5165#issuecomment-938817378

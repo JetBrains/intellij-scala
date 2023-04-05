@@ -25,10 +25,10 @@ object BspResolverDescriptors {
                                    basePath: Option[File],
                                    output: Option[File],
                                    testOutput: Option[File],
-                                   sourceDirs: Seq[SourceDirectory],
-                                   testSourceDirs: Seq[SourceDirectory],
-                                   resourceDirs: Seq[SourceDirectory],
-                                   testResourceDirs: Seq[SourceDirectory],
+                                   sourceRoots: Seq[SourceEntry],
+                                   testSourceRoots: Seq[SourceEntry],
+                                   resourceRoots: Seq[SourceEntry],
+                                   testResourceRoots: Seq[SourceEntry],
                                    outputPaths: Seq[File],
                                    classpath: Seq[File],
                                    classpathSources: Seq[File],
@@ -65,5 +65,5 @@ object BspResolverDescriptors {
     javacOptions: Try[JavacOptionsResult]
   )
 
-  case class SourceDirectory(directory: File, generated: Boolean, packagePrefix: Option[String])
+  case class SourceEntry(file: File, isDirectory: Boolean, generated: Boolean, packagePrefix: Option[String])
 }

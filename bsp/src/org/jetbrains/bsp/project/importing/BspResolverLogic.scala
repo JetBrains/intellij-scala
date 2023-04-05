@@ -110,7 +110,7 @@ private[importing] object BspResolverLogic {
       .toMap
 
     val idToResources = resourcesItems
-      .map(item => (item.getTarget, item.getResources.asScala.iterator.map(sourceDirectory(_)).toSeq))
+      .map(item => (item.getTarget, item.getResources.asScala.iterator.map(sourceEntry(_)).toSeq))
       .toMap
 
     val idToOutputPaths = outputPathsItems
@@ -118,11 +118,11 @@ private[importing] object BspResolverLogic {
       .toMap
 
     val idToSources = sourcesItems
-      .map(item => (item.getTarget, sourceDirectories(item)))
+      .map(item => (item.getTarget, sourceEntries(item)))
       .toMap
 
-    val sharedResources = sharedSourceDirs(idToResources)
-    val sharedSources = sharedSourceDirs(idToSources.view.mapValues(_.filterNot(_.generated)).toMap)
+    val sharedResources = sharedSourceEntries(idToResources, idToTarget)
+    val sharedSources = sharedSourceEntries(idToSources.view.mapValues(_.filterNot(_.generated)).toMap, idToTarget)
     val sharedGeneratedSources = idToSources
       .view
       .mapValues(_.filter(_.generated))
@@ -155,9 +155,9 @@ private[importing] object BspResolverLogic {
       .toSeq
       .sortBy(_._1.size)
 
-    val idsGeneratedSources: Map[Seq[BuildTargetIdentifier], Seq[SourceDirectory]] = sharedSources.values.toSeq.distinct
+    val idsGeneratedSources: Map[Seq[BuildTargetIdentifier], Seq[SourceEntry]] = sharedSources.values.toSeq.distinct
       .sortBy(_.size)
-      .foldRight((sharedGeneratedSources, Map.empty[Seq[BuildTargetIdentifier], Seq[SourceDirectory]])) {
+      .foldRight((sharedGeneratedSources, Map.empty[Seq[BuildTargetIdentifier], Seq[SourceEntry]])) {
         case (ids, (sharedGeneratedSources, result)) =>
           val sharedGeneratedSourcesForIds = sharedGeneratedSources.filterKeys(ids.contains)
           (
@@ -193,34 +193,52 @@ private[importing] object BspResolverLogic {
     ProjectModules(ordinaryModules ++ sbtBuildModules, syntheticSourceModules)
   }
 
-  private def sharedSourceDirs(idToSources: Map[BuildTargetIdentifier, Seq[SourceDirectory]]): Map[SourceDirectory, Seq[BuildTargetIdentifier]] = {
-    val idToSrc = for {
-      (id, sources) <- idToSources.toSeq
-      dir <- sources
-    } yield (id, dir)
+  private def sharedSourceEntries(
+    idToSourceEntries: Map[BuildTargetIdentifier, Seq[SourceEntry]],
+    idToTarget: Map[BuildTargetIdentifier, BuildTarget]
+  ): Map[SourceEntry, Seq[BuildTargetIdentifier]] = {
+    val idWithSources: Seq[(BuildTargetIdentifier, SourceEntry)] =
+      for {
+        (id, sources) <- idToSourceEntries.toSeq
+        source <- sources
+      } yield (id, source)
 
-    idToSrc
-      .groupBy(_._2) // TODO merge source dirs with mixed generated flag?
-      .map { case (dir, derp) => (dir, derp.map(_._1)) }
-      .filter(_._2.size > 1)
+    val sourceEntryToIds: Map[SourceEntry, Seq[BuildTargetIdentifier]] =
+      idWithSources.groupBy(_._2).view.mapValues(_.map(_._1)).toMap
+
+    // TODO merge source dirs with mixed generated flag?
+    val sourceEntryToIdsWithCollisions = sourceEntryToIds.filter(_._2.size > 1)
+
+    /**
+     * Sometimes some source entries are reported twice for Compile & Test scope
+     * (For example if we put some Scala file in sbt root folder (./MyClass.scala)
+     * it will be reported along as source entry together with `./src/main/scala` and then with `./src/test/scala`)<br>
+     * We don't want to treat such sources as "shared source". Instead, such source root will be registered
+     * in Compile scope. It will be automatically available in test scope.
+     *
+     * Note, it's ensured that the folder won't be added as source root to Test scope here:
+     * [[com.intellij.openapi.externalSystem.service.project.manage.ContentRootDataService.importData]]
+     */
+    def targetsHaveSameBaseDirs(ids: Seq[BuildTargetIdentifier]): Boolean = {
+      val baseDirs = ids.flatMap(idToTarget.get).map(_.getBaseDirectory)
+      val baseDirsDistinct = baseDirs.distinct
+      baseDirsDistinct.size <= 1
+    }
+
+
+    sourceEntryToIdsWithCollisions.filterNot(e => targetsHaveSameBaseDirs(e._2))
   }
 
-  private def sourceDirectories(sourcesItem: SourcesItem): Seq[SourceDirectory] = {
+  private def sourceEntries(sourcesItem: SourcesItem): Seq[SourceEntry] = {
     val sourceItems: Seq[SourceItem] = sourcesItem.getSources.asScala.iterator.distinct.toSeq
-
-    val directories = sourceItems
-      .map { item =>
-        val packagePrefix = findPackagePrefix(sourcesItem, item.getUri)
-        val file = item.getUri.toURI.toFile
-        // bsp spec used to depend on uri ending in `/` to determine directory, use both kind and uri string to determine directory
-        if (item.getKind == SourceItemKind.DIRECTORY || item.getUri.endsWith("/"))
-          SourceDirectory(file, item.getGenerated, packagePrefix)
-        else
-        // use the file's immediate parent as best guess of source dir
-        // IntelliJ project model doesn't have a concept of individual source files
-          SourceDirectory(file.getParentFile, item.getGenerated, packagePrefix)
-      }
-    directories.distinct
+    val sourceEntries = sourceItems.map { item =>
+      val packagePrefix = findPackagePrefix(sourcesItem, item.getUri)
+      val file = item.getUri.toURI.toFile
+      // bsp spec used to depend on uri ending in `/` to determine directory, use both kind and uri string to determine directory
+      val isDirectory = item.getKind == SourceItemKind.DIRECTORY || item.getUri.endsWith("/")
+      SourceEntry(file, isDirectory, item.getGenerated, packagePrefix)
+    }
+    sourceEntries.distinct
   }
 
   private def findPackagePrefix(sourcesItem: SourcesItem, sourceUri: String): Option[String] = {
@@ -235,10 +253,9 @@ private[importing] object BspResolverLogic {
     }.filter(_.nonEmpty)
   }
 
-  private def sourceDirectory(uri: String, generated: Boolean = false) = {
+  private def sourceEntry(uri: String, generated: Boolean = false): SourceEntry = {
     val file = uri.toURI.toFile
-    if (uri.endsWith("/")) SourceDirectory(file, generated, None)
-    else SourceDirectory(file.getParentFile, generated, None)
+    SourceEntry(file, isDirectory = uri.endsWith("/"), generated, None)
   }
 
   /**
@@ -262,20 +279,23 @@ private[importing] object BspResolverLogic {
    *    basePath2
    * }}}
    */
-  private def excludeChildDirectories(dirs: Seq[SourceDirectory]) =
-    dirs.filter { dir =>
-      !dirs.exists(a => FileUtil.isAncestor(a.directory, dir.directory, true))
+  private def excludeChildDirectories(entries: Seq[SourceEntry]) = {
+    val dirs = entries.filter(_.isDirectory)
+    entries.filter { entry =>
+      !dirs.exists(a => FileUtil.isAncestor(a.file, entry.file, true))
     }
+  }
 
-  private[importing] def moduleDescriptionForTarget(buildTarget: BuildTarget,
-                                                    scalacOptions: Option[ScalacOptionsItem],
-                                                    javacOptions: Option[JavacOptionsItem],
-                                                    dependencySourceDirs: Seq[File],
-                                                    sourceDirs: Seq[SourceDirectory],
-                                                    resourceDirs: Seq[SourceDirectory],
-                                                    outputPaths: Seq[File],
-                                                    dependencyOutputs: Seq[File]
-                                                  )(implicit gson: Gson): Option[ModuleDescription] = {
+  private[importing] def moduleDescriptionForTarget(
+    buildTarget: BuildTarget,
+    scalacOptions: Option[ScalacOptionsItem],
+    javacOptions: Option[JavacOptionsItem],
+    dependencySourceDirs: Seq[File],
+    sourceEntries: Seq[SourceEntry],
+    resourceEntries: Seq[SourceEntry],
+    outputPaths: Seq[File],
+    dependencyOutputs: Seq[File]
+  )(implicit gson: Gson): Option[ModuleDescription] = {
     val moduleBaseDir: Option[File] = Option(buildTarget.getBaseDirectory).map(_.toURI.toFile)
     val outputPath =
       scalacOptions.map(_.getClassDirectory.toURI.toFile)
@@ -333,19 +353,19 @@ private[importing] object BspResolverLogic {
      *       Examples:
      *       - [[org.jetbrains.sbt.language.SbtFile.findBuildModule]]
      */
-    val (sourceDirsFiltered1, resourceDirsFiltered1) = (moduleBaseDir, moduleKind) match {
+    val (sourceEntriesFiltered1, resourceEntriesFiltered1) = (moduleBaseDir, moduleKind) match {
       case (Some(baseDir), Some(_: BspResolverDescriptors.ModuleKind.SbtModule)) =>
         (
-          sourceDirs.filter(f => FileUtil.isAncestor(baseDir, f.directory, false)),
-          resourceDirs.filter(f => FileUtil.isAncestor(baseDir, f.directory, false))
+          sourceEntries.filter(f => FileUtil.isAncestor(baseDir, f.file, false)),
+          resourceEntries.filter(f => FileUtil.isAncestor(baseDir, f.file, false))
         )
       case _ =>
-        (sourceDirs, resourceDirs)
+        (sourceEntries, resourceEntries)
     }
 
-    val (sourceDirsFiltered2, resourceDirsFiltered2) = (
-      excludeChildDirectories(sourceDirsFiltered1),
-      excludeChildDirectories(resourceDirsFiltered1)
+    val (sourceEntriesFiltered2, resourceEntriesFiltered2) = (
+      excludeChildDirectories(sourceEntriesFiltered1),
+      excludeChildDirectories(resourceEntriesFiltered1)
     )
 
     val moduleDescriptionData: ModuleDescriptionData = createModuleDescriptionData(
@@ -353,8 +373,8 @@ private[importing] object BspResolverLogic {
       tags = tags.toSeq,
       moduleBase = moduleBaseDir,
       outputPath = outputPath,
-      sourceRoots = sourceDirsFiltered2,
-      resourceRoots = resourceDirsFiltered2,
+      sourceRoots = sourceEntriesFiltered2,
+      resourceRoots = resourceEntriesFiltered2,
       classPath = classPathWithoutDependencyOutputs,
       dependencySources = dependencySourceDirs,
       outputPaths = outputPaths,
@@ -365,17 +385,18 @@ private[importing] object BspResolverLogic {
     else Option(ModuleDescription(moduleDescriptionData, moduleKind.getOrElse(ModuleKind.UnspecifiedModule())))
   }
 
-  private[importing] def createModuleDescriptionData(target: BuildTarget,
-                                                     tags: Seq[String],
-                                                     moduleBase: Option[File],
-                                                     outputPath: Option[File],
-                                                     sourceRoots: Seq[SourceDirectory],
-                                                     resourceRoots: Seq[SourceDirectory],
-                                                     outputPaths: Seq[File],
-                                                     classPath: Seq[File],
-                                                     dependencySources: Seq[File],
-                                                     languageLevel: Option[LanguageLevel]
-                                               ): ModuleDescriptionData = {
+  private[importing] def createModuleDescriptionData(
+    target: BuildTarget,
+    tags: Seq[String],
+    moduleBase: Option[File],
+    outputPath: Option[File],
+    sourceRoots: Seq[SourceEntry],
+    resourceRoots: Seq[SourceEntry],
+    outputPaths: Seq[File],
+    classPath: Seq[File],
+    dependencySources: Seq[File],
+    languageLevel: Option[LanguageLevel]
+  ): ModuleDescriptionData = {
     import BuildTargetTag._
 
     val moduleId = target.getId.getUri
@@ -385,14 +406,22 @@ private[importing] object BspResolverLogic {
       idUri = moduleId,
       name = moduleName,
       targets = Seq(target),
-      targetDependencies = Seq.empty, targetTestDependencies = Seq.empty,
+      targetDependencies = Seq.empty,
+      targetTestDependencies = Seq.empty,
       basePath = moduleBase,
-      output = None, testOutput = None,
-      sourceDirs = Seq.empty, testSourceDirs = Seq.empty,
-      resourceDirs = Seq.empty, testResourceDirs = Seq.empty,
+      output = None,
+      testOutput = None,
+      sourceRoots = Seq.empty,
+      testSourceRoots = Seq.empty,
+      resourceRoots = Seq.empty,
+      testResourceRoots = Seq.empty,
       outputPaths = outputPaths,
-      classpath = Seq.empty, classpathSources = Seq.empty,
-      testClasspath = Seq.empty, testClasspathSources = Seq.empty, languageLevel = languageLevel)
+      classpath = Seq.empty,
+      classpathSources = Seq.empty,
+      testClasspath = Seq.empty,
+      testClasspathSources = Seq.empty,
+      languageLevel = languageLevel
+    )
 
     val targetDeps = target.getDependencies.asScala.toSeq
 
@@ -400,8 +429,8 @@ private[importing] object BspResolverLogic {
       dataBasic.copy(
         targetTestDependencies = targetDeps,
         testOutput = outputPath,
-        testSourceDirs = sourceRoots,
-        testResourceDirs = resourceRoots,
+        testSourceRoots = sourceRoots,
+        testResourceRoots = resourceRoots,
         testClasspath = classPath,
         testClasspathSources = dependencySources
       )
@@ -409,8 +438,8 @@ private[importing] object BspResolverLogic {
       dataBasic.copy(
         targetDependencies = targetDeps,
         output = outputPath,
-        sourceDirs = sourceRoots,
-        resourceDirs = resourceRoots,
+        sourceRoots = sourceRoots,
+        resourceRoots = resourceRoots,
         classpath = classPath,
         classpathSources = dependencySources
       )
@@ -501,9 +530,9 @@ private[importing] object BspResolverLogic {
    * this mapping may break in unspecified ways.
    */
   private[importing] def createSyntheticModuleDescription(targets: Seq[BuildTarget],
-                                                          resources: Seq[SourceDirectory],
-                                                          sourceRoots: Seq[SourceDirectory],
-                                                          generatedSourceRoots: Seq[SourceDirectory],
+                                                          resources: Seq[SourceEntry],
+                                                          sourceRoots: Seq[SourceEntry],
+                                                          generatedSourceRoots: Seq[SourceEntry],
                                                           ancestors: Seq[ModuleDescription]): ModuleDescription = {
     // the synthetic module "inherits" most of the "ancestors" data
     val merged = mergeModules(ancestors)
@@ -515,9 +544,9 @@ private[importing] object BspResolverLogic {
       idUri = idUri,
       name = name,
       targets = targets,
-      resourceDirs = resources,
-      sourceDirs = if (isTest) Seq.empty else sources,
-      testSourceDirs = if (isTest) sources else Seq.empty,
+      resourceRoots = resources,
+      sourceRoots = if (isTest) Seq.empty else sources,
+      testSourceRoots = if (isTest) sources else Seq.empty,
       basePath = None
     )
     merged.copy(data = inheritorData)
@@ -536,10 +565,10 @@ private[importing] object BspResolverLogic {
         val targetTestDependencies = mergeBTIs(dataCombined.targetTestDependencies, dataNext.targetTestDependencies)
         val output = dataCombined.output.orElse(dataNext.output)
         val testOutput = dataCombined.testOutput.orElse(dataNext.testOutput)
-        val sourceDirs = mergeSourceDirs(dataCombined.sourceDirs, dataNext.sourceDirs)
-        val resourceDirs = mergeSourceDirs(dataCombined.resourceDirs, dataNext.resourceDirs)
-        val testResourceDirs = mergeSourceDirs(dataCombined.testResourceDirs, dataNext.testResourceDirs)
-        val testSourceDirs  = mergeSourceDirs(dataCombined.testSourceDirs, dataNext.testSourceDirs)
+        val sources = mergeSourceEntries(dataCombined.sourceRoots, dataNext.sourceRoots)
+        val resources = mergeSourceEntries(dataCombined.resourceRoots, dataNext.resourceRoots)
+        val testResources = mergeSourceEntries(dataCombined.testResourceRoots, dataNext.testResourceRoots)
+        val testSources  = mergeSourceEntries(dataCombined.testSourceRoots, dataNext.testSourceRoots)
         val outputPaths = mergeFiles(dataCombined.outputPaths, dataNext.outputPaths)
         val classPath = mergeFiles(dataCombined.classpath, dataNext.classpath)
         val classPathSources = mergeFiles(dataCombined.classpathSources, dataNext.classpathSources)
@@ -548,14 +577,25 @@ private[importing] object BspResolverLogic {
         val languageLevel = (dataCombined.languageLevel ++ dataNext.languageLevel).maxOption
 
         val newData = ModuleDescriptionData(
-          idUri = dataCombined.idUri, name = dataCombined.name,
-          targets = targets, targetDependencies = targetDependencies, targetTestDependencies = targetTestDependencies, basePath = dataCombined.basePath,
-          output = output, testOutput = testOutput,
-          sourceDirs = sourceDirs, testSourceDirs = testSourceDirs,
-          resourceDirs = resourceDirs, testResourceDirs = testResourceDirs,
+          idUri = dataCombined.idUri,
+          name = dataCombined.name,
+          targets = targets,
+          targetDependencies = targetDependencies,
+          targetTestDependencies = targetTestDependencies,
+          basePath = dataCombined.basePath,
+          output = output,
+          testOutput = testOutput,
+          sourceRoots = sources,
+          testSourceRoots = testSources,
+          resourceRoots = resources,
+          testResourceRoots = testResources,
           outputPaths = outputPaths,
-          classpath = classPath, classpathSources = classPathSources,
-          testClasspath = testClassPath, testClasspathSources = testClassPathSources, languageLevel = languageLevel)
+          classpath = classPath,
+          classpathSources = classPathSources,
+          testClasspath = testClassPath,
+          testClasspathSources = testClassPathSources,
+          languageLevel = languageLevel
+        )
 
         val newModuleKindData = mergeModuleKind(combined.moduleKindData, next.moduleKindData)
 
@@ -566,8 +606,8 @@ private[importing] object BspResolverLogic {
   private def mergeBTIs(a: Seq[BuildTargetIdentifier], b: Seq[BuildTargetIdentifier]) =
     (a++b).sortBy(_.getUri).distinct
 
-  private def mergeSourceDirs(a: Seq[SourceDirectory], b: Seq[SourceDirectory]) =
-    (a++b).sortBy(_.directory.getAbsolutePath).distinct
+  private def mergeSourceEntries(a: Seq[SourceEntry], b: Seq[SourceEntry]) =
+    (a++b).sortBy(_.file.getAbsolutePath).distinct
 
   private def mergeFiles(a: Seq[File], b: Seq[File]) =
     (a++b).sortBy(_.getAbsolutePath).distinct
@@ -780,25 +820,25 @@ private[importing] object BspResolverLogic {
       val base = path.getCanonicalPathOptimized
       new ContentRootData(BSP.ProjectSystemId, base)
     }
-    val sourceRoots = moduleDescriptionData.sourceDirs.map { dir =>
+    val sourceRoots = moduleDescriptionData.sourceRoots.map { dir =>
       val sourceType = if (dir.generated) SOURCE_GENERATED else SOURCE
       (sourceType, dir)
     }
 
-    val resourceRoots = moduleDescriptionData.resourceDirs.map { dir =>
+    val resourceRoots = moduleDescriptionData.resourceRoots.map { dir =>
       (RESOURCE, dir)
     }
 
-    val testRoots = moduleDescriptionData.testSourceDirs.map { dir =>
+    val testRoots = moduleDescriptionData.testSourceRoots.map { dir =>
       val sourceType = if (dir.generated) TEST_GENERATED else TEST
       (sourceType, dir)
     }
 
-    val testResourceRoots = moduleDescriptionData.testResourceDirs.map { dir =>
+    val testResourceRoots = moduleDescriptionData.testResourceRoots.map { dir =>
       (TEST_RESOURCE, dir)
     }
 
-    val allSourceRoots: Seq[(ExternalSystemSourceType, SourceDirectory)] =
+    val allSourceRoots: Seq[(ExternalSystemSourceType, SourceEntry)] =
       sourceRoots ++ testRoots ++ resourceRoots ++ testResourceRoots
 
     val moduleName = moduleDescriptionData.name
@@ -886,9 +926,9 @@ private[importing] object BspResolverLogic {
     moduleNode.addChild(libraryTestDependencyNode)
 
     val contentRootData: Iterable[ContentRootData] = {
-      val rootPathToData: Seq[(String, ContentRootData)] = allSourceRoots.map { case (sourceType, root) =>
-        val data = getContentRoot(root.directory, moduleBase)
-        data.storePath(sourceType, root.directory.getCanonicalPathOptimized, root.packagePrefix.orNull)
+      val rootPathToData: Seq[(String, ContentRootData)] = allSourceRoots.map { case (sourceType, sourceEntry) =>
+        val data = getContentRoot(sourceEntry.file, moduleBase)
+        data.storePath(sourceType, sourceEntry.file.getCanonicalPathOptimized, sourceEntry.packagePrefix.orNull)
         data.getRootPath -> data
       }
       // effectively deduplicate by content root path. ContentRootData does not implement equals correctly
