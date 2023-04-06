@@ -9,7 +9,7 @@ import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -102,7 +102,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
   }
 
   override def shouldProcessElement(element: PsiElement): Boolean =
-    !element.isInScala3File && Search.Util.shouldProcessElement(element) && {
+    Search.Util.shouldProcessElement(element) && {
       element match {
         case n: ScNamedElement =>
           if (isOnlyVisibleInLocalFile(n)) {
