@@ -56,8 +56,8 @@ trait TypePresentation {
         val res = e match {
           case o: ScObject if withPoint && isPredefined(o) => ""
           case _: PsiPackage if withPoint                  => ""
-          case clazz: PsiClass                             => classLinkSafe(clazz).getOrElse(escapeName(clazz.name))
-          case a: ScTypeAlias                              => a.qualifiedNameOpt.fold(escapeHtml(e.name))(psiElementLink(_, e.name))
+          case clazz: PsiClass                             => classLinkSafe(clazz, defLinkHighlight = false).getOrElse(escapeName(clazz.name))
+          case a: ScTypeAlias                              => a.qualifiedNameOpt.fold(escapeHtml(e.name))(psiElementLink(_, e.name, defLinkHighlight = false))
           case _                                           => escapeName(e.name)
         }
         res + pointStr(withPoint && res.nonEmpty)

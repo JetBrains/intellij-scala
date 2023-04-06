@@ -65,11 +65,8 @@ private class ScalaDocDefinitionGenerator private(
   }
 
   private def appendContainingClass(elem: ScMember): Unit =
-    containingClassHyperLink(elem) match {
-      case Some(psiLink) =>
-        builder.append(psiLink)
-        builder.append("\n")
-      case _ =>
+    containingClassHyperLink(elem).foreach { psiLink =>
+      builder.append(psiLink).append("\n")
     }
 
   private def appendDeclMainSection(element: PsiElement): Unit =
@@ -85,16 +82,16 @@ private class ScalaDocDefinitionGenerator private(
       case _ =>
     }
 
-    //        val start = length
-
     element match {
       case m: ScModifierListOwner =>
         val renderer = new ModifiersRenderer(new AccessModifierRenderer(AccessQualifierRenderer.WithHtmlPsiLink))
-        append(renderer.render(m))
+        val rendered = renderer.render(m)
+        builder.keyword { append(rendered) }
       case _ =>
     }
 
-    append(ScalaDocumentationUtils.getKeyword(keywordOwner))
+    val keyword = ScalaDocumentationUtils.getKeyword(keywordOwner)
+    builder.keyword { append(keyword) }
 
     builder.b {
       append(element match {
@@ -107,7 +104,8 @@ private class ScalaDocDefinitionGenerator private(
     element match {
       case tpeParamOwner: ScTypeParametersOwner =>
         val renderer = new TypeParamsRenderer(typeRenderer, new TypeBoundsRenderer(Html))
-        append(renderer.renderParams(tpeParamOwner))
+        val rendered = renderer.renderParams(tpeParamOwner)
+        builder.keyword { append(rendered) }
       case _ =>
     }
 
@@ -122,7 +120,6 @@ private class ScalaDocDefinitionGenerator private(
       case _ =>
     }
 
-
     val typeAnnotation = element match {
       case _: ScObject              => "" // ignore, object doesn't need type annotation
       case typed: ScTypedDefinition => typeAnnotationRenderer.render(typed)
@@ -136,8 +133,9 @@ private class ScalaDocDefinitionGenerator private(
     appendDefinitionSection {
       val path = typedef.getPath
       if (path.nonEmpty) {
+        builder.append(s"<icon src=\"AllIcons.Nodes.Package\"/> ")
         builder.append(path)
-        builder.append("\n")
+        builder.append("<br/>\n")
       }
       appendDeclMainSection(typedef)
       val extendsListRendered = parseExtendsBlock(typedef.extendsBlock)
@@ -201,7 +199,7 @@ private class ScalaDocDefinitionGenerator private(
   private def containingClassHyperLink(elem: ScMember): Option[String] = {
     val clazz = elem.containingClass
     if (clazz == null) None
-    else HtmlPsiUtils.classFullLinkSafe(clazz)
+    else HtmlPsiUtils.classFullLinkSafe(clazz, defLinkHighlight = false)
   }
 
   private def typeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
@@ -241,7 +239,7 @@ private class ScalaDocDefinitionGenerator private(
 
   private def parseExtendsBlock(elem: ScExtendsBlock)
                                (implicit typeToString: TypeRenderer): String = {
-    val buffer: StringBuilder = new StringBuilder()
+    val buffer = new StringBuilder
     elem.templateParents match {
       case Some(x: ScTemplateParents) =>
         val seq = x.allTypeElements
@@ -250,9 +248,10 @@ private class ScalaDocDefinitionGenerator private(
           if (seq.length > 1) {
             buffer.append("\n")
             for (i <- 1 until seq.length) {
-              if (i > 1)
-                buffer.append(" ")
-              buffer.append("with ")
+              if (i > 1) {
+                buffer.append(if (seq.length > 3) "<br/>" else " ")
+              }
+              buffer.keyword { buffer.append("with ") }
               buffer.append(typeToString(seq(i).`type`().getOrAny))
             }
           }
@@ -263,7 +262,14 @@ private class ScalaDocDefinitionGenerator private(
         }
     }
 
-    if (buffer.isEmpty) EmptyDoc
-    else "extends " + buffer
+    val result = buffer.toString.trim
+    if (result.isEmpty)
+      EmptyDoc
+    else {
+      val buffer2 = new StringBuilder
+      buffer2.keyword { buffer2.append("extends ") }
+      buffer2.append(result)
+      buffer2.toString
+    }
   }
 }

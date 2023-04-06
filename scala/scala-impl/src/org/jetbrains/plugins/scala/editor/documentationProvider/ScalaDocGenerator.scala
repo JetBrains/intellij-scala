@@ -51,8 +51,7 @@ object ScalaDocGenerator {
 
     appendFooter(builder)
 
-    val result = builder.result
-    result
+    builder.result
   }
 
   def generateDocRendered(commentOwner: ScDocCommentOwner, comment: ScDocComment): String = internalLog {

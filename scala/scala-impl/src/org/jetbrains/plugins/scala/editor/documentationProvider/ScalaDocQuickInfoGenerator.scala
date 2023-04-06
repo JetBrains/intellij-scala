@@ -159,7 +159,7 @@ object ScalaDocQuickInfoGenerator {
     if (!member.getParent.getParent.getParent.isInstanceOf[ScTypeDefinition]) return ""
     val clazz = member.containingClass
     // TODO: should we remove [] from getLocationString (see renderClassHeader and unify)
-    HtmlPsiUtils.classLink(clazz) + " " + clazz.getPresentation.getLocationString + "\n"
+    HtmlPsiUtils.classLink(clazz, defLinkHighlight = false) + " " + clazz.getPresentation.getLocationString + "\n"
   }
 
   /**

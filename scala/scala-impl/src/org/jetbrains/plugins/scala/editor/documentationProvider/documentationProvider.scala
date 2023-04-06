@@ -53,5 +53,7 @@ package object documentationProvider {
     def tt(inner: => Unit): Unit = withTag("tt")(inner)
     def sub(inner: => Unit): Unit = withTag("sub")(inner)
     def sup(inner: => Unit): Unit = withTag("sup")(inner)
+
+    def keyword(inner: => Unit): Unit = withTag("font", Seq("color" -> "d08564"))(inner)
   }
 }
