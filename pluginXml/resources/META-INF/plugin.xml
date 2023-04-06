@@ -34,7 +34,21 @@
       ]]>
     </description>
     <version>VERSION</version>
-    <change-notes><!-- CHANGE_NOTES --></change-notes>
+    <change-notes>
+        <![CDATA[
+        <ul>
+            <li>IntelliJ IDEA 2023.1 provides better support for Scala 3. It includes updates for working with braceless Scala code,
+                support for the new <pre> -Wunused:imports </pre> compiler option for enhanced import management, improved Scala code highlighting,
+                and the proper automatic generation of overriding methods with using clauses.</li>
+            <li>The IDE now provides improved support for sbt projects.</li>
+            <li>The Unused declaration and Can be private inspections have been upgraded in v2023.1.</li>
+            <li>IntelliJ IDEA 2023.1 brings numerous fixes and improvements in Scala 3 and Scala 2 decompilers.</li>
+        </ul>
+        <br/>
+        <a href="https://blog.jetbrains.com/scala/2023/03/29/intellij-scala-plugin-2023-1-is-out/">Read more on our blog</a>
+        ]]>
+        <!-- CHANGE_NOTES -->
+    </change-notes>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
     <idea-version since-build="232.3487" until-build="232.*"/>
     <depends>com.intellij.modules.java</depends>
