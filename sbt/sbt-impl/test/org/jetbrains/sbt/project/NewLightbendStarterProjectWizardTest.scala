@@ -30,7 +30,8 @@ class NewLightbendStarterProjectWizardTest extends NewScalaProjectWizardTestBase
       // NOTE: we do not test path of scala-library & SDK classpath for "Hello, Scala!"
       // template because it uses paths to `.sbt/boot` artifacts: `~/.sbt/boot/scala-2.12.10/lib/scala-reflect.jar`
       // (because scala version in the template is the same as used by sbt itself)
-      lazy val scalaLibrary = new library(s"sbt: ${scalaLibraryDescription(scalaVersion)}:jar") {
+      lazy val scalaLibrary = new library(s"sbt: ${scalaLibraryDescription(scalaVersion)}:jar")
+      lazy val scalaSdkLibrary = new library(s"sbt: scala-sdk-2.12.10") {
         scalaSdkSettings := Some(ScalaSdkAttributes(
           scalaVersion.languageLevel,
           classpath = None
@@ -45,7 +46,7 @@ class NewLightbendStarterProjectWizardTest extends NewScalaProjectWizardTestBase
       ).map(new library(_))
 
       // NOTE: actually there are much more libraries in the dependencies but we health-check just a single one
-      lazy val myLibraries = scalaLibrary +: scalaTestLibraries
+      lazy val myLibraries = scalaLibrary +: scalaTestLibraries :+ scalaSdkLibrary
 
       libraries ++= myLibraries
       modules := Seq(
