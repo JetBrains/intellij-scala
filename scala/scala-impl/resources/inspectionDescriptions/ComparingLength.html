@@ -7,12 +7,12 @@
   var seq: Seq[Int]
   seq.length == n
   seq.length != n
-  seq.length < n
+  seq.length &lt; n
   seq.length > n
 
   seq.size == n
   seq.size != n
-  seq.size < n
+  seq.size &lt; n
   seq.size > n
 </code></pre>
 <p>After the quick-fix is applied:</p>
@@ -20,12 +20,12 @@
   var seq: Seq[Int]
   seq.sizeIs == n
   seq.sizeIs != n
-  seq.sizeIs < n
+  seq.sizeIs &lt; n
   seq.sizeIs > n
 
   seq.sizeIs == n
   seq.sizeIs != n
-  seq.sizeIs < n
+  seq.sizeIs &lt; n
   seq.sizeIs > n
 </code></pre>
 <!-- tooltip end -->
