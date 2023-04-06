@@ -66,7 +66,7 @@ private class ScalaDocDefinitionGenerator private(
 
   private def appendContainingClass(elem: ScMember): Unit =
     containingClassHyperLink(elem).foreach { psiLink =>
-      builder.append(psiLink).append("\n")
+      builder.append(psiLink).append("<br/>\n")
     }
 
   private def appendDeclMainSection(element: PsiElement): Unit =
@@ -85,13 +85,11 @@ private class ScalaDocDefinitionGenerator private(
     element match {
       case m: ScModifierListOwner =>
         val renderer = new ModifiersRenderer(new AccessModifierRenderer(AccessQualifierRenderer.WithHtmlPsiLink))
-        val rendered = renderer.render(m)
-        builder.keyword { append(rendered) }
+        builder.appendKeyword(renderer.render(m))
       case _ =>
     }
 
-    val keyword = ScalaDocumentationUtils.getKeyword(keywordOwner)
-    builder.keyword { append(keyword) }
+    builder.appendKeyword(ScalaDocumentationUtils.getKeyword(keywordOwner))
 
     builder.b {
       append(element match {
@@ -104,8 +102,7 @@ private class ScalaDocDefinitionGenerator private(
     element match {
       case tpeParamOwner: ScTypeParametersOwner =>
         val renderer = new TypeParamsRenderer(typeRenderer, new TypeBoundsRenderer(Html))
-        val rendered = renderer.renderParams(tpeParamOwner)
-        builder.keyword { append(rendered) }
+        builder.appendKeyword(renderer.renderParams(tpeParamOwner))
       case _ =>
     }
 
@@ -133,9 +130,10 @@ private class ScalaDocDefinitionGenerator private(
     appendDefinitionSection {
       val path = typedef.getPath
       if (path.nonEmpty) {
-        builder.append(s"<icon src=\"AllIcons.Nodes.Package\"/> ")
-        builder.append(path)
-        builder.append("<br/>\n")
+        builder
+          .append(s"<icon src=\"AllIcons.Nodes.Package\"/> ")
+          .append(HtmlPsiUtils.psiElementLink(path, path))
+          .append("<br/>\n")
       }
       appendDeclMainSection(typedef)
       val extendsListRendered = parseExtendsBlock(typedef.extendsBlock)
@@ -199,7 +197,7 @@ private class ScalaDocDefinitionGenerator private(
   private def containingClassHyperLink(elem: ScMember): Option[String] = {
     val clazz = elem.containingClass
     if (clazz == null) None
-    else HtmlPsiUtils.classFullLinkSafe(clazz, defLinkHighlight = false)
+    else HtmlPsiUtils.classFullLinkSafe(clazz, defLinkHighlight = true)
   }
 
   private def typeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
@@ -251,8 +249,9 @@ private class ScalaDocDefinitionGenerator private(
               if (i > 1) {
                 buffer.append(if (seq.length > 3) "<br/>" else " ")
               }
-              buffer.keyword { buffer.append("with ") }
-              buffer.append(typeToString(seq(i).`type`().getOrAny))
+              buffer
+                .appendKeyword("with ")
+                .append(typeToString(seq(i).`type`().getOrAny))
             }
           }
         }
@@ -265,11 +264,10 @@ private class ScalaDocDefinitionGenerator private(
     val result = buffer.toString.trim
     if (result.isEmpty)
       EmptyDoc
-    else {
-      val buffer2 = new StringBuilder
-      buffer2.keyword { buffer2.append("extends ") }
-      buffer2.append(result)
-      buffer2.toString
-    }
+    else
+      (new StringBuilder)
+        .appendKeyword("extends ")
+        .append(result)
+        .toString
   }
 }

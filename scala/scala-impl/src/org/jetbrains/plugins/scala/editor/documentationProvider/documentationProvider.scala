@@ -1,5 +1,9 @@
 package org.jetbrains.plugins.scala.editor
 
+import com.intellij.ide.highlighter.JavaHighlightingColors
+import com.intellij.openapi.editor.colors.EditorColorsManager
+import com.intellij.openapi.editor.richcopy.HtmlSyntaxInfoUtil
+
 
 package object documentationProvider {
 
@@ -54,6 +58,10 @@ package object documentationProvider {
     def sub(inner: => Unit): Unit = withTag("sub")(inner)
     def sup(inner: => Unit): Unit = withTag("sup")(inner)
 
-    def keyword(inner: => Unit): Unit = withTag("font", Seq("color" -> "d08564"))(inner)
+    def appendKeyword(word: String): StringBuilder = {
+      val textAttributes = EditorColorsManager.getInstance.getGlobalScheme.getAttributes(JavaHighlightingColors.KEYWORD)
+      HtmlSyntaxInfoUtil.appendStyledSpan(delegate, textAttributes, word, 1.0f)
+      delegate
+    }
   }
 }
