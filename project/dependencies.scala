@@ -92,7 +92,8 @@ object Dependencies {
   // updates their ".scalafmt.conf" configuration file. In the Scala Plugin for IntelliJ IDEA, we have our own
   // resolution and download mechanism based on ivy. We do not need a dependency on Coursier interface.
   val scalafmtDynamic = "org.scalameta" %% "scalafmt-dynamic" % "3.7.3" exclude("io.get-coursier", "interface")
-  val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % "4.5.13" exclude("com.google.protobuf", "protobuf-java")
+  val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % "4.5.13" excludeAll ExclusionRule(organization = "com.thesamet.scalapb")
+  val scalapbRuntime: ModuleID = "com.thesamet.scalapb" %% "scalapb-runtime" % "0.11.11" % Test exclude("com.google.protobuf", "protobuf-java") // A dependency of scalameta, only used in tests.
   val fastparse: ModuleID = "com.lihaoyi" %% "fastparse" % "2.3.3" // transitive dependency of scalaMeta, needs explicit versioning
 
   val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.15"
@@ -153,6 +154,7 @@ object DependencyGroups {
     scalaReflect,
     scalaXml,
     scalaMetaCore,
+    scalapbRuntime,
     fastparse % Test, //used in single test org.jetbrains.plugins.scala.annotator.TreeTest
     //    scalaParserCombinators,
     sbtStructureCore,
@@ -179,8 +181,7 @@ object DependencyGroups {
     ("ch.epfl.scala" %% "bsp-testkit" % bspVersion).excludeAll(bspExclusions *) % Test,
     scalaTest,
     scalaCheck,
-    "org.scalatestplus" %% "junit-4-13" % "3.2.15.0" % Test,
-    "com.propensive" %% "mercator" % "0.3.0"
+    "org.scalatestplus" %% "junit-4-13" % "3.2.15.0" % Test
   )
 
   val dfa: Seq[ModuleID] = Seq(

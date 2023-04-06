@@ -9,7 +9,6 @@ import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import mercator._
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspBundle
 import org.jetbrains.bsp.BspUtil._
@@ -87,11 +86,6 @@ class BspTask[T](project: Project,
       new CompilerEventReporter(project, CompilationId.generate()),
       new IndicatorReporter(indicator)
     )
-    implicit val monadicTry: Monadic[Try] = new Monadic[Try] {
-      override def flatMap[A, B](from: Try[A])(fn: A => Try[B]): Try[B] = from.flatMap(fn)
-      override def point[A](value: A): Try[A] = Try(value)
-      override def map[A, B](from: Try[A])(fn: A => B): Try[B] = from.map(fn)
-    }
 
     val targetByWorkspace = targets.groupBy(_.workspace)
     val targetToCleanByWorkspace = targetsToClean.groupBy(_.workspace)
@@ -111,7 +105,8 @@ class BspTask[T](project: Project,
 
     val cancelToken = new CancelCheck(resultPromise, indicator)
 
-    val combinedMessages = new TraversableOps(buildJobs)
+    import BspTask.TryTraversableOps
+    val combinedMessages = buildJobs
       .traverse(BspJob.waitForJobCancelable(_, cancelToken))
       .map { compileResults =>
         val updatedMessages = compileResults.map(r => messagesWithStatus(reporter, r._1, r._2))
@@ -342,4 +337,15 @@ object BspTask {
   }
 
   case class BspTarget(workspace: URI, target: URI)
+
+  private final implicit class TryTraversableOps[A](private val ts: Iterable[A]) extends AnyVal {
+    def traverse[B](f: A => Try[B]): Try[Iterable[B]] =
+      ts.map(f)
+        .foldLeft(Try(Vector.empty[B])) { case (acc, tb) =>
+          for {
+            v <- acc
+            b <- tb
+          } yield v :+ b
+        }
+  }
 }
