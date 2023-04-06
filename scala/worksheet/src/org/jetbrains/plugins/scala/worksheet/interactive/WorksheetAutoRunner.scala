@@ -1,22 +1,24 @@
 package org.jetbrains.plugins.scala
 package worksheet.interactive
 
-import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
-import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiWhiteSpace}
+import com.intellij.psi.{PsiDocumentManager, PsiWhiteSpace}
 import com.intellij.util.Alarm
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
+import org.jetbrains.plugins.scala.worksheet.{WorksheetFile, WorksheetUtils}
 
 object WorksheetAutoRunner {
 
@@ -60,9 +62,20 @@ class WorksheetAutoRunner(project: Project) {
       lastProcessedOffset = offset
 
     override def documentChanged(e: DocumentEvent): Unit = {
-      if (project.isDisposed) return
+      if (project.isDisposed)
+        return
       
-      val psiFile = documentManager.getPsiFile(document)
+      val psiFile = documentManager.getPsiFile(document) match {
+        case ws: WorksheetFile => ws
+        case _ =>
+          return
+      }
+      val editor = WorksheetUtils.getSelectedTextEditor(project, psiFile.getVirtualFile) match {
+        case Some(value) => value
+        case None =>
+          return
+      }
+
       val offset = e.getOffset
       val isRepl = WorksheetFileSettings(psiFile).isRepl
 
@@ -78,18 +91,15 @@ class WorksheetAutoRunner(project: Project) {
       }
 
       if (isRepl && needToResetLastLine) {
-        val manager = FileEditorManager.getInstance(project)
-        WorksheetFileHook.handleEditor(manager, psiFile.getVirtualFile) { editor =>
-          WorksheetCache.getInstance(project).resetLastProcessedIncremental(editor)
-        }
+        WorksheetCache.getInstance(project).resetLastProcessedIncremental(editor)
       }
 
       if (WorksheetFileSettings(psiFile).isInteractive) {
-        handleDocumentChangedInteractiveMode(e, psiFile, offset, isRepl)
+        handleDocumentChangedInteractiveMode(e, editor, psiFile, offset, isRepl)
       }
     }
 
-    private def handleDocumentChangedInteractiveMode(e: DocumentEvent, psiFile: PsiFile, offset: Int, isRepl: Boolean): Unit = {
+    private def handleDocumentChangedInteractiveMode(e: DocumentEvent, editor: Editor, psiFile: WorksheetFile, offset: Int, isRepl: Boolean): Unit = {
       val virtualFile = psiFile.getVirtualFile
 
       val fragment = e.getNewFragment
@@ -106,11 +116,11 @@ class WorksheetAutoRunner(project: Project) {
         length == 0 || fragment.charAt(length - 1) != '\n'
       }
 
-      def isValid(vFile: VirtualFile): Boolean =
+      def canRunWorksheet(vFile: VirtualFile): Boolean =
         !WolfTheProblemSolver.getInstance(project).hasSyntaxErrors(vFile) &&
           !WorksheetFileHook.isRunning(vFile)
 
-      if (!isValid(virtualFile) || isReplWrongChar)
+      if (!canRunWorksheet(virtualFile) || isReplWrongChar)
         return
 
       val requestDelay = if (isRepl) getAutoRunDelay / 2 else getAutoRunDelay
@@ -124,7 +134,7 @@ class WorksheetAutoRunner(project: Project) {
               case _ => return false
             }
           }
-          isValid(virtualFile)
+          canRunWorksheet(virtualFile)
         } else {
           false
         }
@@ -132,7 +142,7 @@ class WorksheetAutoRunner(project: Project) {
 
       myAlarm.addRequest((() => {
         if (needToRunWorksheet) {
-          RunWorksheetAction.runCompilerForSelectedEditor(project, auto = true)
+          RunWorksheetAction.runCompiler(editor, psiFile, auto = true)
         }
       }): Runnable, requestDelay, true)
     }

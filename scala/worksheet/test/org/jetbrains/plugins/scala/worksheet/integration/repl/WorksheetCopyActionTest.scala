@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.testFramework.PlatformTestUtil
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.{CleanWorksheetAction, CopyWorksheetAction}
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.WorksheetEditorAndFile
 import org.junit.Assert._
 
 import scala.language.postfixOps
@@ -15,7 +15,7 @@ import scala.language.postfixOps
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
 class WorksheetCopyActionTest extends WorksheetReplIntegrationBaseTest {
 
-  private def prepareEditorForCopyAction(): Editor = doRenderTest(
+  private def prepareEditorForCopyAction(): WorksheetEditorAndFile = doRenderTest(
     """println(1)
       |println(1 +
       |  2)
@@ -30,7 +30,7 @@ class WorksheetCopyActionTest extends WorksheetReplIntegrationBaseTest {
 
   def testCopyAction(): Unit = {
     val editor = prepareEditorForCopyAction()
-    val result = CopyWorksheetAction.prepareCopiableText(editor, project)
+    val result = CopyWorksheetAction.prepareCopiableText(editor.editor, editor.psiFile)
     assertTrue(result.isDefined)
     assertEquals(
       """println(1)                                                                       //1
@@ -47,10 +47,10 @@ class WorksheetCopyActionTest extends WorksheetReplIntegrationBaseTest {
   def testCopyAction_AfterViewEditorWasAlreadyCleared(): Unit = {
     val editor = prepareEditorForCopyAction()
 
-    CleanWorksheetAction.cleanAll(editor, project)
+    CleanWorksheetAction.cleanAll(editor.editor, editor.psiFile)
     PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
 
-    val result = CopyWorksheetAction.prepareCopiableText(editor, project)
+    val result = CopyWorksheetAction.prepareCopiableText(editor.editor, editor.psiFile)
     assertTrue(result.isDefined)
     assertEquals(
       """println(1)
@@ -65,13 +65,13 @@ class WorksheetCopyActionTest extends WorksheetReplIntegrationBaseTest {
     val editor = prepareEditorForCopyAction()
 
     executeWriteActionCommand() {
-      val document = editor.getDocument
+      val document = editor.editor.getDocument
       document.deleteString(document.getLineStartOffset(1), document.getLineEndOffset(2) + 1)
       FileDocumentManager.getInstance().saveDocumentAsIs(document)
       document.commit(project)
     }
 
-    val result = CopyWorksheetAction.prepareCopiableText(editor, project)
+    val result = CopyWorksheetAction.prepareCopiableText(editor.editor, editor.psiFile)
     assertTrue(result.isDefined)
     // TODO: think how should copy result look like if left editor is being editted
   }

@@ -4,12 +4,12 @@ import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.actionSystem.{ActionPlaces, ActionToolbar, AnAction, AnActionEvent, Presentation}
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
-
-import javax.swing.{Icon, JPanel}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetAction
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiUtils
+
+import javax.swing.{Icon, JPanel}
 
 trait TopComponentAction extends TopComponentDisplayable with WorksheetAction {
   this: AnAction =>
@@ -24,8 +24,7 @@ trait TopComponentAction extends TopComponentDisplayable with WorksheetAction {
   def shortcutId: Option[String] = None
 
   override def update(e: AnActionEvent): Unit = {
-    e.getPresentation.setIcon(actionIcon)
-    updateInner(e)
+    updatePresentationEnabled(e)
   }
 
   override def setEnabled(flag: Boolean): Unit = actionButton.setEnabled(flag)

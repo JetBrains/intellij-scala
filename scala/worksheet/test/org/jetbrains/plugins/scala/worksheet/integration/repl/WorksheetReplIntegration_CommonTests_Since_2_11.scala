@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.util.assertions.StringAssertions.{assertIsBla
 import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, TestJdkVersion}
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
-import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{TestRunResult, WorksheetEditorAndFile}
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests.NoFolding
 import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
@@ -196,7 +196,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     val editor = doRenderTest(
       """42""",
       """res0: Int = 42"""
-    )
+    ).editor
     worksheetSettings(editor).setInteractive(true)
 
     val robot = new EditorRobot(editor)
@@ -221,7 +221,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     val editor = doRenderTest(
       """42""",
       """res0: Int = 42"""
-    )
+    ).editor
     worksheetSettings(editor).setInteractive(true)
 
     val robot = new EditorRobot(editor)
@@ -257,11 +257,11 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     val after =
       """x: Int = 42
         |y: Int = 23""".stripMargin
-    val worksheetEditor = prepareWorksheetEditor(before)
-    runWorksheetEvaluationAndWait(worksheetEditor)
-    assertViewerEditorText(worksheetEditor, after)
-    runWorksheetEvaluationAndWait(worksheetEditor)
-    assertViewerEditorText(worksheetEditor, after)
+    val editorAndFile@WorksheetEditorAndFile(editor, _) = prepareWorksheetEditor(before)
+    runWorksheetEvaluationAndWait(editorAndFile)
+    assertViewerEditorText(editor, after)
+    runWorksheetEvaluationAndWait(editorAndFile)
+    assertViewerEditorText(editor, after)
   }
 
   @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
@@ -458,7 +458,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     val editor = doRenderTest(
       """sealed trait T""",
       """defined trait T"""
-    )
+    ).editor
     assertLastLine(editor, 0)
   }
 
@@ -468,7 +468,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
         |case class A() extends T""".stripMargin,
       """defined trait T
         |defined class A""".stripMargin
-    )
+    ).editor
     assertLastLine(editor, 1)
   }
 
@@ -480,7 +480,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
       """defined trait T
         |defined class A
         |defined class B""".stripMargin
-    )
+    ).editor
     assertLastLine(editor, 2)
   }
 
@@ -512,7 +512,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
         |
         |
         |defined class D""".stripMargin
-    )
+    ).editor
     assertLastLine(editor, 12)
   }
 
@@ -538,7 +538,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
         |
         |defined trait T3
         |defined class C""".stripMargin
-    )
+    ).editor
     assertLastLine(editor, 9)
   }
 
@@ -698,7 +698,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
       val TestRunResult(editor, evaluationResult) =
         doRenderTestWithoutCompilationChecks2(RestoreErrorPositionsInOriginalFileCode, output => assertIsBlank(output))
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
-      assertCompilerMessages(editor)(expectedCompilerOutput)
+      assertCompilerMessages(editor.editor)(expectedCompilerOutput)
     }
 
   def testCompilationErrorsAndWarnings_ComplexTest(): Unit =
@@ -750,7 +750,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
          |""".stripMargin
 
 
-    val TestRunResult(editor, _) =
+    val TestRunResult(WorksheetEditorAndFile(editor, _), _) =
       doRenderTestWithoutCompilationChecks(before, after, WorksheetRunError(WorksheetCompilerResult.CompilationError))
 
     assertCompilerMessages(editor)(expectedCompilerOutput)

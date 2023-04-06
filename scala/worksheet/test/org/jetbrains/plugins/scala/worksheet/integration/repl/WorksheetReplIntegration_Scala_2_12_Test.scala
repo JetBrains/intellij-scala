@@ -1,16 +1,10 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
-import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertIsBlank
 import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
-import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
-import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
-import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
-import org.junit.Assert.assertEquals
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
 class WorksheetReplIntegration_Scala_2_12_Test
@@ -46,51 +40,51 @@ class WorksheetReplIntegration_Scala_2_12_Test
 
   // -Ypartial-unification is enabled in 2.13 by default, so testing on 2.12
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile(): Unit = {
-    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
+    val editorAndFile = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
     val profile = getModule.scalaCompilerSettingsProfile
     val newSettings = profile.getSettings.copy(
       additionalCompilerOptions = PartialUnificationCompilerOptions
     )
     profile.setSettings(newSettings)
-    doRenderTest(editor,
+    doRenderTest(editorAndFile,
       """foo: [F[_], A](fa: F[A])String
         |res0: String = 123""".stripMargin
     )
   }
 
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting(): Unit = {
-    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
+    val editorAndFile = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
     val profile = getModule.scalaCompilerSettingsProfile
     val newSettings = profile.getSettings.copy(
       additionalCompilerOptions = Seq.empty
     )
     profile.setSettings(newSettings)
-    doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
+    doResultTest(editorAndFile, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
   }
 
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_NonDefaultProfile(): Unit = {
-    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
-    worksheetSettings(editor).setCompilerProfileName(TestProfileName)
+    val editorAndFile = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
+    worksheetSettings(editorAndFile.editor).setCompilerProfileName(TestProfileName)
     val profile = createCompilerProfileForCurrentModule(TestProfileName)
     val newSettings = profile.getSettings.copy(
       additionalCompilerOptions = PartialUnificationCompilerOptions
     )
     profile.setSettings(newSettings)
-    doRenderTest(editor,
+    doRenderTest(editorAndFile,
       """foo: [F[_], A](fa: F[A])String
         |res0: String = 123""".stripMargin
     )
   }
 
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting_NonDefaultProfile(): Unit = {
-    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
-    worksheetSettings(editor).setCompilerProfileName(TestProfileName)
+    val editorAndFile = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
+    worksheetSettings(editorAndFile.editor).setCompilerProfileName(TestProfileName)
     val profile = createCompilerProfileForCurrentModule(TestProfileName)
     val newSettings = profile.getSettings.copy(
       additionalCompilerOptions = Seq.empty
     )
     profile.setSettings(newSettings)
-    doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
+    doResultTest(editorAndFile, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
   }
 
 }

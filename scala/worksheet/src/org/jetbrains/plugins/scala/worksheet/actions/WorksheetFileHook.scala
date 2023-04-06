@@ -38,16 +38,7 @@ object WorksheetFileHook {
   private def getPanel(file: VirtualFile): Option[WorksheetControlPanel] =
     Option(file2panel.get(file))
 
-  def handleEditor(source: FileEditorManager, file: VirtualFile)(callback: Editor => Unit): Unit =
-    invokeLater {
-      source.getSelectedEditor(file) match {
-        case txtEditor: TextEditor if txtEditor.getEditor != null =>
-          callback(txtEditor.getEditor)
-        case _ =>
-      }
-    }
-
-  def getDocumentFrom(project: Project,  file: VirtualFile): Option[Document] = {
+  private def getDocumentFrom(project: Project, file: VirtualFile): Option[Document] = {
     val fileOpt = Option(PsiManager.getInstance(project).findFile(file))
     fileOpt.map { file =>
       PsiDocumentManager.getInstance(project).getCachedDocument(file)

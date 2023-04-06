@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
-import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.utils.notifications.WorksheetNotificationsGroup
 
 import java.util.function.BiFunction
@@ -136,36 +135,36 @@ class AmmoniteScriptWrappersHolder(project: Project) {
       override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
         notification.expire()
         getFile(vFile).foreach { ammFile =>
-          WorksheetFileHook.handleEditor(FileEditorManager.getInstance(project), vFile) {
-            textEditor =>
-              val acc = mutable.ArrayBuffer.empty[CreateImportedLibraryQuickFix]
+          val editorOpt = WorksheetUtils.getSelectedTextEditor(project, vFile)
+          editorOpt.foreach { editor =>
+            val acc = mutable.ArrayBuffer.empty[CreateImportedLibraryQuickFix]
 
-              DocumentMarkupModel.forDocument(textEditor.getDocument, project, true).asInstanceOf[MarkupModelEx].processRangeHighlightersOverlappingWith(
-                0, ammFile.getTextLength, (t: RangeHighlighterEx) => {
-                  t.getErrorStripeTooltip match {
-                    case hInfo: HighlightInfo if hInfo.`type` == HighlightInfoType.WEAK_WARNING =>
-                      hInfo.findRegisteredQuickFix { case (descriptor, _) =>
-                        descriptor.getAction match {
-                          case wrapper: QuickFixWrapper =>
-                            wrapper.getFix match {
-                              case ammoniteFix: CreateImportedLibraryQuickFix => acc.append(ammoniteFix)
-                              case _ =>
-                            }
-                          case _ =>
-                        }
-                        null
+            DocumentMarkupModel.forDocument(editor.getDocument, project, true).asInstanceOf[MarkupModelEx].processRangeHighlightersOverlappingWith(
+              0, ammFile.getTextLength, (t: RangeHighlighterEx) => {
+                t.getErrorStripeTooltip match {
+                  case hInfo: HighlightInfo if hInfo.`type` == HighlightInfoType.WEAK_WARNING =>
+                    hInfo.findRegisteredQuickFix { case (descriptor, _) =>
+                      descriptor.getAction match {
+                        case wrapper: QuickFixWrapper =>
+                          wrapper.getFix match {
+                            case ammoniteFix: CreateImportedLibraryQuickFix => acc.append(ammoniteFix)
+                            case _ =>
+                          }
+                        case _ =>
                       }
-                    case _ =>
-                  }
-                  true
-                })
-
-              CommandProcessor.getInstance().executeCommand(project, () => {
-                acc.foreach {
-                  fix =>
-                    fix.invoke(project, ammFile, ammFile, ammFile)
+                      null
+                    }
+                  case _ =>
                 }
-              }, null, null)
+                true
+              })
+
+            CommandProcessor.getInstance().executeCommand(project, () => {
+              acc.foreach {
+                fix =>
+                  fix.invoke(project, ammFile, ammFile, ammFile)
+              }
+            }, null, null)
           }
         }
       }
@@ -203,9 +202,7 @@ object AmmoniteScriptWrappersHolder {
 
   private val READY_MASK = SET_PROBLEM_MASK | SET_OPEN_MASK | SET_DAEMON_MASK
 
-  private abstract class DisabledState {
-    def disabled: Boolean = true
-  }
+  private abstract class DisabledState
   private case object AlwaysDisabled extends DisabledState
   private case object PerRunDisabled extends DisabledState
 

@@ -245,7 +245,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     val editor = doRenderTest(
       """42""",
       """val res0: Int = 42"""
-    )
+    ).editor
     worksheetSettings(editor).setInteractive(true)
 
     val robot = new EditorRobot(editor)
@@ -270,7 +270,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     val editor = doRenderTest(
       """42""",
       """val res0: Int = 42"""
-    )
+    ).editor
     worksheetSettings(editor).setInteractive(true)
 
     val robot = new EditorRobot(editor)
@@ -306,11 +306,11 @@ class WorksheetReplIntegration_Scala_2_13_Test
     val after =
       """val x: Int = 42
         |val y: Int = 23""".stripMargin
-    val worksheetEditor = prepareWorksheetEditor(before)
-    runWorksheetEvaluationAndWait(worksheetEditor)
-    assertViewerEditorText(worksheetEditor, after)
-    runWorksheetEvaluationAndWait(worksheetEditor)
-    assertViewerEditorText(worksheetEditor, after)
+    val editorAndFile = prepareWorksheetEditor(before)
+    runWorksheetEvaluationAndWait(editorAndFile)
+    assertViewerEditorText(editorAndFile.editor, after)
+    runWorksheetEvaluationAndWait(editorAndFile)
+    assertViewerEditorText(editorAndFile.editor, after)
   }
 
   @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
@@ -507,7 +507,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     val editor = doRenderTest(
       """sealed trait T""",
       """trait T"""
-    )
+    ).editor
     assertLastLine(editor, 0)
   }
 
@@ -517,7 +517,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
         |case class A() extends T""".stripMargin,
       """trait T
         |class A""".stripMargin
-    )
+    ).editor
     assertLastLine(editor, 1)
   }
 
@@ -529,7 +529,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
       """trait T
         |class A
         |class B""".stripMargin
-    )
+    ).editor
     assertLastLine(editor, 2)
   }
 
@@ -561,7 +561,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
         |
         |
         |class D""".stripMargin
-    )
+    ).editor
     assertLastLine(editor, 12)
   }
 
@@ -587,7 +587,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
         |
         |trait T3
         |class C""".stripMargin
-    )
+    ).editor
     assertLastLine(editor, 9)
   }
 
@@ -736,9 +736,9 @@ class WorksheetReplIntegration_Scala_2_13_Test
           |unknown14
           |""".stripMargin
 
-      val TestRunResult(editor, evaluationResult) =
+      val TestRunResult(editorAndFile, evaluationResult) =
         doRenderTestWithoutCompilationChecks2(LargeInputWithErrors, output => assertIsBlank(output))
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
-      assertCompilerMessages(editor)(expectedCompilerOutput)
+      assertCompilerMessages(editorAndFile.editor)(expectedCompilerOutput)
     }
 }

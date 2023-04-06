@@ -1,44 +1,32 @@
 package org.jetbrains.plugins.scala.worksheet.actions
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import org.jetbrains.plugins.scala.actions.ScalaActionUtil
-import org.jetbrains.plugins.scala.extensions.inReadAction
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, DataContext}
+import com.intellij.openapi.editor.Editor
+import org.jetbrains.plugins.scala.extensions.{OptionExt, inReadAction}
 import org.jetbrains.plugins.scala.worksheet.WorksheetFile
 
 trait WorksheetAction {
-  this: AnAction => 
-  
-  def acceptFile(file: ScalaFile) = true
-  
-  def getSelectedFile(project: Project): Option[PsiFile] =
-    for {
-      editor <- Option(FileEditorManager.getInstance(project).getSelectedTextEditor)
-      file   <- Option(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
-    } yield file
 
-  protected def getSelectedFile(e: AnActionEvent): Option[PsiFile] =
-    Option(e.getProject).flatMap(getSelectedFile)
-  
-  def updateInner(e: AnActionEvent): Unit = {
-    val presentation = e.getPresentation
-    if (isActionEnabled(e))
-      ScalaActionUtil.enablePresentation(presentation)
-    else
-      ScalaActionUtil.disablePresentation(presentation)
+  protected def updatePresentationEnabled(e: AnActionEvent): Unit = {
+    val enabled = isActionEnabled(e)
+    e.getPresentation.setEnabled(enabled)
   }
+
+  protected def isActionEnabledForFile(file: WorksheetFile) = true
 
   private def isActionEnabled(e: AnActionEvent): Boolean =
     inReadAction {
-      val file = getSelectedFile(e)
-      file match {
-        case Some(sf: WorksheetFile) =>
-          acceptFile(sf)
-        case _ =>
-          false
-      }
+      val selectedFile = getCurrentScalaWorksheetEditorAndFile(e).map(_._2)
+      selectedFile.exists(isActionEnabledForFile)
     }
+
+  protected final def getCurrentScalaWorksheetEditorAndFile(event: AnActionEvent): Option[(Editor, WorksheetFile)] =
+    getCurrentScalaWorksheetEditorAndFile(event.getDataContext)
+
+  protected final def getCurrentScalaWorksheetEditorAndFile(context: DataContext): Option[(Editor, WorksheetFile)] = {
+    for {
+      editor <- Option(CommonDataKeys.EDITOR.getData(context))
+      file <- Option(CommonDataKeys.PSI_FILE.getData(context)).filterByType[WorksheetFile]
+    } yield (editor, file)
+  }
 }

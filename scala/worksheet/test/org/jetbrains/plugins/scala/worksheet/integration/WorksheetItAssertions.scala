@@ -4,7 +4,7 @@ import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData, WorksheetEditorAndFile}
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
 
 trait WorksheetItAssertions {
@@ -69,8 +69,6 @@ trait WorksheetItAssertions {
       assertEquals(expected, actual)
     }
 
-  // This is not the most fine-grained testing but quite easy to produce new test data,
-  // just copying from actual messages window (though should be checked manually first)
   protected def assertCompilerMessages(editor: Editor)(expectedAllMessagesText: String): Unit = {
     val messages = collectedCompilerMessages(editor).sortBy(m => (m.getLine, m.getColumn))
     val messagesRendered = messages.map { message: CompilerMessageImpl =>

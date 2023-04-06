@@ -1,24 +1,25 @@
 package org.jetbrains.plugins.scala.worksheet
 
 import com.intellij.ide.scratch.ScratchUtil
-import com.intellij.lang.LanguageUtil
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.model.java.JavaSourceRootType
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 object WorksheetUtils {
 
-
   // to test restoring of compiler messages positions in original worksheet file in one test method
   @TestOnly val ContinueOnFirstFailure = "scala.worksheet.continue.repl.evaluation.on.first.expression.failure"
-  @TestOnly val ShowReplErrorsInEditor = "scala.worksheet.show.repl.errors.in.editor"
-  @TestOnly val ShowReplErrorsInEditorInInteractiveMode = "scala.worksheet.show.repl.errors.in.editor.in.interactive.mode"
+  private val ShowReplErrorsInEditor = "scala.worksheet.show.repl.errors.in.editor"
+  private val ShowReplErrorsInEditorInInteractiveMode = "scala.worksheet.show.repl.errors.in.editor.in.interactive.mode"
 
   @TestOnly def continueWorksheetEvaluationOnExpressionFailure: Boolean = Registry.is(ContinueOnFirstFailure)
   @TestOnly def showReplErrorsInEditor: Boolean = Registry.is(ShowReplErrorsInEditor)
@@ -37,7 +38,7 @@ object WorksheetUtils {
     }
   }
 
-  def treatScratchFileAsWorksheet(project: Project): Boolean =
+  private def treatScratchFileAsWorksheet(project: Project): Boolean =
     settings(project).isTreatScratchFilesAsWorksheet
 
   def isAmmoniteEnabled(project: Project, file: VirtualFile): Boolean = {
@@ -55,4 +56,13 @@ object WorksheetUtils {
 
   private def settings(project: Project) =
     ScalaProjectSettings.getInstance(project)
+
+  @RequiresEdt
+  def getSelectedTextEditor(project: Project, file: VirtualFile): Option[Editor] =
+    FileEditorManager.getInstance(project).getSelectedEditor(file) match {
+      case txtEditor: TextEditor if txtEditor.getEditor != null =>
+        Option(txtEditor.getEditor)
+      case _ =>
+        None
+    }
 }

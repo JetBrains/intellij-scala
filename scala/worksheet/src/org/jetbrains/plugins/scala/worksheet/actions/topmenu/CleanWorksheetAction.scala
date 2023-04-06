@@ -1,25 +1,24 @@
 package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
-import java.awt.BorderLayout
-
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.impl.EditorImpl
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.util.concurrency.annotations.RequiresEdt
-import javax.swing.{DefaultBoundedRangeModel, Icon}
-import org.jetbrains.annotations.{CalledInAwt, TestOnly}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
+
+import java.awt.BorderLayout
+import javax.swing.{DefaultBoundedRangeModel, Icon}
 
 class CleanWorksheetAction extends AnAction(
   WorksheetBundle.message("clean.scala.worksheet.action.text"),
@@ -32,27 +31,17 @@ class CleanWorksheetAction extends AnAction(
   override def actionIcon: Icon = AllIcons.Actions.GC
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    val project = e.getProject
-    if (project == null) return //EA-72055
-
-    val editor: Editor = FileEditorManager.getInstance(project).getSelectedTextEditor
-    if (editor == null) return
-
-    val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    if (psiFile == null) return
-
-    val file: VirtualFile = psiFile.getVirtualFile
-    if (file == null) return
-
-    CleanWorksheetAction.cleanAll(editor, project)
+    for { (editor, psiFile) <- getCurrentScalaWorksheetEditorAndFile(e) } {
+      CleanWorksheetAction.cleanAll(editor, psiFile)
+    }
   }
 }
 
 object CleanWorksheetAction {
 
   @TestOnly
-  def cleanAll(editor: Editor, project: Project): Unit = {
-    val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+  def cleanAll(editor: Editor, psiFile: PsiFile): Unit = {
+    val project = psiFile.getProject
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
 
     if (psiFile == null || viewer == null) return

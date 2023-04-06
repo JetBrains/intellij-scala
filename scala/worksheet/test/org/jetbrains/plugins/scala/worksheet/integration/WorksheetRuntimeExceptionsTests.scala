@@ -17,7 +17,7 @@ trait WorksheetRuntimeExceptionsTests extends MatcherAssertions {
     exceptionFoldingType: ExceptionFoldingType,
     assertExceptionMessage: String => Unit
   ): Editor = {
-    val leftEditor = doResultTest(leftText, RunWorksheetActionResult.Done)
+    val leftEditor = doResultTest(leftText, RunWorksheetActionResult.Done).editor
     testDisplayFirstRuntimeException(leftEditor, expectedRightTextStart, exceptionFoldingType, assertExceptionMessage)
     leftEditor
   }

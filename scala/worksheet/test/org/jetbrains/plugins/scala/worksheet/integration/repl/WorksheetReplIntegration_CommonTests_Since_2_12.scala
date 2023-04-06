@@ -67,9 +67,9 @@ trait WorksheetReplIntegration_CommonTests_Since_2_12
           |Error:(62, 3) not found: value unknown14
           |unknown14""".stripMargin
 
-      val TestRunResult(editor, evaluationResult) =
+      val TestRunResult(editorAndFile, evaluationResult) =
         doRenderTestWithoutCompilationChecks2(RestoreErrorPositionsInOriginalFileCode, output => assertIsBlank(output))
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
-      assertCompilerMessages(editor)(expectedCompilerOutput)
+      assertCompilerMessages(editorAndFile.editor)(expectedCompilerOutput)
     }
 }

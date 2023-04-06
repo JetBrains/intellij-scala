@@ -136,6 +136,8 @@ class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegrat
 ))
 class WorksheetReplIntegration_Scala_3_Old_Versions_Test extends WorksheetReplIntegration_Scala_3_BaseTest
 
+
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8))
 abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
 
@@ -292,40 +294,36 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
   }
 
   def testSealedTraitHierarchy_1(): Unit = {
-    return // TODO: fix after this is fixed: https://github.com/lampepfl/dotty/issues/8677
     val editor = doRenderTest(
       """sealed trait T""",
-      """// trait T"""
-    )
+      """// defined trait T"""
+    ).editor
     assertLastLine(editor, 0)
   }
 
   def testSealedTraitHierarchy_2(): Unit = {
-    return // TODO: same as above
     val editor = doRenderTest(
       """sealed trait T
         |case class A() extends T""".stripMargin,
-      """// trait T
-        |// class A""".stripMargin
-    )
-    assertLastLine(editor, 2)
+      """// defined trait T
+        |// defined case class A""".stripMargin
+    ).editor
+    assertLastLine(editor, 1)
   }
 
   def testSealedTraitHierarchy_3(): Unit = {
-    return // TODO: same as above
     val editor = doRenderTest(
       """sealed trait T
         |case class A() extends T
         |case class B() extends T""".stripMargin,
-      """// trait T
-        |// case class A
-        |// case class B""".stripMargin
-    )
+      """// defined trait T
+        |// defined case class A
+        |// defined case class B""".stripMargin
+    ).editor
     assertLastLine(editor, 2)
   }
 
   def testSealedTraitHierarchy_WithSpacesAndComments(): Unit = {
-    return // TODO: same as above
     val editor = doRenderTest(
       """sealed trait T
         |case class A() extends T
@@ -340,25 +338,24 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
         |  *
         |  */
         |case class D() extends T""".stripMargin,
-      """// trait T
-        |// case class A
-        |// case class B
+      """// defined trait T
+        |// defined case class A
+        |// defined case class B
         |
         |
         |
-        |// case class C
+        |// defined case class C
         |
         |
         |
         |
         |
-        |// case class D""".stripMargin
-    )
+        |// defined case class D""".stripMargin
+    ).editor
     assertLastLine(editor, 12)
   }
 
   def testSealedTraitHierarchy_Several(): Unit = {
-    return // TODO: same as above
     val editor = doRenderTest(
       """sealed trait T1
         |
@@ -370,17 +367,17 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
         |
         |sealed trait T3
         |case class C() extends T3""".stripMargin,
-      """// trait T1
+      """// defined trait T1
         |
         |val x: Int = 1
         |
-        |// trait T2
-        |// case class A
-        |// case class B
+        |// defined trait T2
+        |// defined case class A
+        |// defined case class B
         |
-        |// trait T3
-        |// case class C""".stripMargin
-    )
+        |// defined trait T3
+        |// defined case class C""".stripMargin
+    ).editor
     assertLastLine(editor, 9)
   }
 

@@ -1,20 +1,18 @@
 package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
-import java.awt.datatransfer.StringSelection
-
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.editor._
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.ide.CopyPasteManager
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import javax.swing.Icon
+import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
+
+import java.awt.datatransfer.StringSelection
+import javax.swing.Icon
 
 class CopyWorksheetAction extends AnAction(
   WorksheetBundle.message("copy.scala.worksheet.action.text"),
@@ -27,14 +25,13 @@ class CopyWorksheetAction extends AnAction(
   override def actionIcon: Icon = AllIcons.Actions.Copy
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    val project = e.getProject
-    val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
-    if (editor == null) return
-
-    val resultText = CopyWorksheetAction.prepareCopiableText(editor, project).getOrElse(return)
-
-    val contents: StringSelection = new StringSelection(resultText)
-    CopyPasteManager.getInstance.setContents(contents)
+    for {
+      (editor, psiFile) <- getCurrentScalaWorksheetEditorAndFile(e)
+      copiedText <- CopyWorksheetAction.prepareCopiableText(editor, psiFile)
+    } {
+      val contents = new StringSelection(copiedText)
+      CopyPasteManager.getInstance.setContents(contents)
+    }
   }
 }
 
@@ -43,11 +40,8 @@ object CopyWorksheetAction {
   private val COPY_BORDER = 80
   private val FILL_SYMBOL = " "
 
-  def prepareCopiableText(editor: Editor, project: Project): Option[String] = {
-    val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
-    if (psiFile == null) return None
-
+  def prepareCopiableText(editor: Editor, psiFile: PsiFile): Option[String] = {
+    val viewer = WorksheetCache.getInstance(psiFile.getProject).getViewer(editor)
     Some(createMerged2(editor, viewer, psiFile).withNormalizedSeparator)
   }
 

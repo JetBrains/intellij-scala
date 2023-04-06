@@ -303,12 +303,12 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
         |lazy val y = new B()
         |""".stripMargin
 
-    val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
+    val editorAndFile = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
     //ATTENTION: note that even though we had simple `val` it's `lazy val` under the good
     // The logic is here: org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor.ScalaSourceBuilderBase.appendDeclaration
     // I don't 100% understand why it was introduced, but it was introduced withing changes for SCL-6752
     // Maybe we can drop this behaviour?
-    assertCompilerMessages(editor)(
+    assertCompilerMessages(editorAndFile.editor)(
       """Error:(1, 18) not found: type A
         |lazy val x = new A()
         |Error:(3, 18) not found: type B
@@ -325,8 +325,8 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
         |val x = new A()
         |""".stripMargin
 
-    val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
-    assertCompilerMessages(editor)(
+    val editorAndFile = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
+    assertCompilerMessages(editorAndFile.editor)(
       """Error:(5, 18) not found: type A
         |lazy val x = new A()""".stripMargin
     )
@@ -339,9 +339,8 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
         |val x = new A()
         |""".stripMargin
 
-    val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
-
-    assertCompilerMessages(editor)(
+    val editorAndFile = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
+    assertCompilerMessages(editorAndFile.editor)(
       """Error:(3, 18) not found: type A
         |lazy val x = new A()""".stripMargin
     )
@@ -355,9 +354,8 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
         |val x = new A()
         |""".stripMargin
 
-    val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
-
-    assertCompilerMessages(editor)(
+    val editorAndFile = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
+    assertCompilerMessages(editorAndFile.editor)(
       """Error:(4, 18) not found: type A
         |lazy val x = new A()
         |""".stripMargin
@@ -375,9 +373,8 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
         |unresolved2
         |""".stripMargin
 
-    val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
-
-    assertCompilerMessages(editor)(
+    val editorAndFile = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
+    assertCompilerMessages(editorAndFile.editor)(
       """Error:(4, 1) not found: value unresolved1
         |unresolved1
         |Error:(7, 1) not found: value unresolved2
@@ -396,9 +393,8 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
         |}
         |""".stripMargin
 
-    val editor = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
-
-    assertCompilerMessages(editor)(
+    val editorAndFile = doFailingTest(before, WorksheetRunError(WorksheetCompilerResult.CompilationError))
+    assertCompilerMessages(editorAndFile.editor)(
       """Error:(5, 17) not found: type A
         |    val x = new A()
         |""".stripMargin
@@ -418,7 +414,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     val editor = doRenderTest(
       """42""",
       """res0: Int = 42""".stripMargin
-    )
+    ).editor
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     WorksheetFilePersistentSettings(file.getVirtualFile).setInteractive(true)
@@ -445,7 +441,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     val editor = doRenderTest(
       """42""",
       """res0: Int = 42""".stripMargin
-    )
+    ).editor
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     WorksheetFilePersistentSettings(file.getVirtualFile).setInteractive(true)
 
@@ -474,13 +470,13 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
   // -Ypartial-unification is enabled in 2.13 by default, so testing on 2.12
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile(): Unit = {
-    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
+    val editorAndFile = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
     val profile = getModule.scalaCompilerSettingsProfile
     val newSettings = profile.getSettings.copy(
       additionalCompilerOptions = PartialUnificationCompilerOptions
     )
     profile.setSettings(newSettings)
-    doRenderTest(editor,
+    doRenderTest(editorAndFile,
       """foo: foo[F[_],A](val fa: F[A]) => String
         |res0: String = 123""".stripMargin
     )
@@ -488,25 +484,25 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting(): Unit = {
-    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
+    val editorAndFile = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
     val profile = getModule.scalaCompilerSettingsProfile
     val newSettings = profile.getSettings.copy(
       additionalCompilerOptions = Seq.empty
     )
     profile.setSettings(newSettings)
-    doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
+    doResultTest(editorAndFile, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
   }
 
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_NonDefaultProfile(): Unit = {
-    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
-    worksheetSettings(editor).setCompilerProfileName(TestProfileName)
+    val editorAndFile = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
+    worksheetSettings(editorAndFile.editor).setCompilerProfileName(TestProfileName)
     val profile = createCompilerProfileForCurrentModule(TestProfileName)
     val newSettings = profile.getSettings.copy(
       additionalCompilerOptions = PartialUnificationCompilerOptions
     )
     profile.setSettings(newSettings)
-    doRenderTest(editor,
+    doRenderTest(editorAndFile,
       """foo: foo[F[_],A](val fa: F[A]) => String
         |res0: String = 123""".stripMargin
     )
@@ -514,14 +510,14 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
 
   @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting_NonDefaultProfile(): Unit = {
-    val editor = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
-    worksheetSettings(editor).setCompilerProfileName(TestProfileName)
+    val editorAndFile = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
+    worksheetSettings(editorAndFile.editor).setCompilerProfileName(TestProfileName)
     val profile = createCompilerProfileForCurrentModule(TestProfileName)
     val newSettings = profile.getSettings.copy(
       additionalCompilerOptions = Seq.empty
     )
     profile.setSettings(newSettings)
-    doResultTest(editor, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
+    doResultTest(editorAndFile, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
   }
 
   // TODO: it flickers in WorksheetPlainCompileOnServerRunLocallyIntegrationTest, but works fine in prod

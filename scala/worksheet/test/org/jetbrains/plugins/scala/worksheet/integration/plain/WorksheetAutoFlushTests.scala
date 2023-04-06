@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.worksheet.integration.plain
 import org.jetbrains.plugins.scala.FlakyTests
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
-import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
+import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.{FoldingDataForTests, ViewerEditorState}
@@ -173,14 +173,14 @@ abstract class WorksheetPlainAutoFlushTestBase extends WorksheetIntegrationBaseT
   }
 
   private def runLongEvaluation(leftText: String): Seq[ViewerEditorData] = {
-    val editor = prepareWorksheetEditor(leftText)
+    val editorAndFile = prepareWorksheetEditor(leftText)
 
-    val evaluationResult = waitForEvaluationEnd(runWorksheetEvaluation(editor))
+    val evaluationResult = waitForEvaluationEnd(runWorksheetEvaluation(editorAndFile))
     assertEquals(RunWorksheetActionResult.Done, evaluationResult)
 
-    val printer = WorksheetCache.getInstance(project).getPrinter(editor)
+    val printer = WorksheetCache.getInstance(project).getPrinter(editorAndFile.editor)
       .getOrElse(fail("no printer found").asInstanceOf[Nothing]).asInstanceOf[WorksheetEditorPrinterPlain]
-    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
+    val viewer = WorksheetCache.getInstance(project).getViewer(editorAndFile.editor)
 
     val viewerStates: Seq[ViewerEditorData] =
       printer.viewerEditorStates.map { case ViewerEditorState(text, foldings) =>

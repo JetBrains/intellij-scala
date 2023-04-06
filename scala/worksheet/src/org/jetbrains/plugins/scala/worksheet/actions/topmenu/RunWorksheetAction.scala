@@ -5,23 +5,21 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, IndexNotReadyException, Project}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiDocumentManager
 import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
 import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, inWriteAction, invokeAndWait, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.WorksheetCompilerError
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetEvaluationErrorReporter}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
+import org.jetbrains.plugins.scala.worksheet.{WorksheetBundle, WorksheetFile}
 
 import javax.swing.Icon
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -40,8 +38,11 @@ class RunWorksheetAction extends AnAction(
 
   override def shortcutId: Option[String] = Some(RunWorksheetAction.ShortcutId)
 
-  override def actionPerformed(e: AnActionEvent): Unit =
-    RunWorksheetAction.runCompilerForSelectedEditor(e, auto = false)
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    for { (editor, psiFile) <- getCurrentScalaWorksheetEditorAndFile(e) } {
+      RunWorksheetAction.runCompilerForEditor(editor, psiFile, auto = false)
+    }
+  }
 
   override def update(e: AnActionEvent): Unit = {
     super.update(e)
@@ -81,15 +82,6 @@ object RunWorksheetAction {
     }
   }
 
-  def runCompilerForSelectedEditor(e: AnActionEvent, auto: Boolean): Unit = {
-    val project = e.getProject
-    if (project == null) {
-      Log.error("Can't find project")
-      return
-    }
-    runCompilerForSelectedEditor(project, auto)
-  }
-
   private final class RunImmediatelyExecutionContext extends ExecutionContext {
     override def execute(runnable: Runnable): Unit =
       runnable.run()
@@ -97,21 +89,17 @@ object RunWorksheetAction {
       Log.error(s"Fatal error occurred during execution in ${this.getClass.getSimpleName} ", cause)
   }
 
-  def runCompilerForSelectedEditor(project: Project, auto: Boolean): Future[RunWorksheetActionResult] = {
+  def runCompilerForEditor(editor: Editor, psiFile: WorksheetFile, auto: Boolean): Future[RunWorksheetActionResult] = {
     // SCL-16786: do not allow to run worksheet in dumb mode
     // - it is required during resolve in WorksheetSourceProcessor.processDefault
     // - run could be triggered automatically in "Incremental mode" bypassing AnAction
     // - also in theory preprocess could be delayed when "Build project before run" setting is enabled
+    val project = psiFile.getProject
     val future = if (DumbService.getInstance(project).isDumb)
        Future.successful(RunWorksheetActionResult.IndexNotReady())
     else {
       Stats.trigger(FeatureKey.runWorksheet)
-
-      val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
-      if (editor == null)
-        Future.successful(RunWorksheetActionResult.NoWorksheetEditorError)
-      else
-        runCompiler(project, editor, auto)
+      runCompiler(editor, psiFile, auto)
     }
 
     future.onComplete {
@@ -137,12 +125,12 @@ object RunWorksheetAction {
 
   @TestOnly
   // should be private, but is used in tests
-  def runCompiler(project: Project, editor: Editor, auto: Boolean): Future[RunWorksheetActionResult] = {
+  def runCompiler(editor: Editor, psiFile: WorksheetFile, auto: Boolean): Future[RunWorksheetActionResult] = {
     val start = System.currentTimeMillis()
     Log.debugSafe(s"worksheet evaluation started")
     val promise = Promise[RunWorksheetActionResult]()
     try {
-      doRunCompiler(project, editor, auto)(promise)
+      doRunCompiler(editor, psiFile, auto)(promise)
     } catch {
       case NonFatal(ex) =>
         promise.failure(ex)
@@ -155,19 +143,13 @@ object RunWorksheetAction {
     future
   }
 
-  private def doRunCompiler(project: Project, editor: Editor, auto: Boolean)
+  private def doRunCompiler(editor: Editor, psiFile: WorksheetFile, auto: Boolean)
                            (promise: Promise[RunWorksheetActionResult]): Unit = {
-    val psiFile: ScalaFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument) match {
-      case file: ScalaFile if file.isWorksheetFile => file
-      case _ =>
-        promise.success(RunWorksheetActionResult.NoWorksheetFileError)
-        return
-    }
-
-    psiFile.module match {
+    val module = psiFile.module
+    module match {
       case Some(module) =>
         val fileSettings = WorksheetFileSettings(psiFile)
-        doRunCompiler(project, editor, auto, psiFile.getVirtualFile, psiFile, fileSettings.isMakeBeforeRun, module)(promise)
+        doRunCompiler(module.getProject, editor, auto, psiFile.getVirtualFile, psiFile, fileSettings.isMakeBeforeRun, module)(promise)
       case None        =>
         promise.success(RunWorksheetActionResult.NoModuleError)
     }

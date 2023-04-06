@@ -1,15 +1,13 @@
 package org.jetbrains.plugins.scala.worksheet.integration
 
-import com.intellij.openapi.editor.Editor
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.ui.content.MessageView
 import com.intellij.util.ui.UIUtil
-
-import javax.swing.SwingUtilities
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
-import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{TestRunResult, WorksheetEditorAndFile}
 import org.junit.Assert.fail
 
+import javax.swing.SwingUtilities
 import scala.concurrent.Future
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.language.postfixOps
@@ -23,18 +21,17 @@ trait WorksheetItEvaluations {
     runWorksheetEvaluationAndWait(worksheetEditor)
   }
 
-  protected def runWorksheetEvaluationAndWait(worksheetEditor: Editor): TestRunResult = {
+  protected def runWorksheetEvaluationAndWait(worksheetEditor: WorksheetEditorAndFile): TestRunResult = {
     val future = runWorksheetEvaluation(worksheetEditor)
     TestRunResult(worksheetEditor, waitForEvaluationEnd(future))
   }
 
-  protected def runWorksheetEvaluation(worksheetEditor: Editor): Future[RunWorksheetAction.RunWorksheetActionResult] = {
+  protected def runWorksheetEvaluation(worksheetEditor: WorksheetEditorAndFile): Future[RunWorksheetAction.RunWorksheetActionResult] = {
     //HACK: force service to initialize, otherwise NPE can occur in WorksheetCompilerUtil.removeOldMessageContent
     //because `MessageView.getInstance` uses invokeLater under the hood and toolwindow is not initialized
     MessageView.getInstance(getProject)
     UIUtil.dispatchAllInvocationEvents()
-
-    RunWorksheetAction.runCompiler(project, worksheetEditor, auto = false)
+    RunWorksheetAction.runCompiler(worksheetEditor.editor, worksheetEditor.psiFile, auto = false)
   }
 
   protected def waitForEvaluationEnd(future: Future[RunWorksheetAction.RunWorksheetActionResult]): RunWorksheetAction.RunWorksheetActionResult = {
