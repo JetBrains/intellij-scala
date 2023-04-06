@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertC
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
-import org.jetbrains.sbt.project.ProjectStructureTestUtils.{expectedScalaLibrary, expectedScalaLibraryFromIvy}
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -52,7 +51,7 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
   }
 
   def testSimple(): Unit = {
-    val scalaLibraries = expectedScalaLibraryWithScalaSdk("2.13.5")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.5")
     runSimpleTest("simple", scalaLibraries)
 
     // Adding the assertion here not to create a separate heavy test for such a tiny check
@@ -66,12 +65,12 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
 
   //noinspection RedundantDefaultArgument
   def testSimple_Scala3(): Unit = {
-    val scalaLibraries = expectedScalaLibrary("2.13.6") +: expectedScalaLibraryWithScalaSdk("3.0.2")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibrary("2.13.6") +: ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("3.0.2")
     runSimpleTest("simple-scala3", scalaLibraries, ExpectedDirectoryCompletionVariant.DefaultSbtContentRootsScala3)
   }
 
   def testSimpleDoNotUseCoursier(): Unit = {
-    val scalaLibraries = expectedScalaLibraryWithScalaSdkFromIvy("2.12.10")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkFromIvy("2.12.10")
     runSimpleTest("simpleDoNotUseCoursier", scalaLibraries, ExpectedDirectoryCompletionVariant.DefaultSbtContentRootsScala212)
   }
 
@@ -182,7 +181,7 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
 
   def testProjectWithUppercaseName(): Unit = runTest {
     new project("MyProjectWithUppercaseName") {
-      lazy val scalaLibraries = expectedScalaLibraryWithScalaSdk("2.13.6")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
       libraries ++= scalaLibraries
 
       modules := Seq(
@@ -211,7 +210,7 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
 
   def testUnmanagedDependency(): Unit = runTest(
     new project("unmanagedDependency") {
-      val scalaLibraries: Seq[library] = expectedScalaLibraryWithScalaSdk("2.13.6")
+      val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
       libraries := scalaLibraries
 
       modules += new module("unmanagedDependency") {
@@ -220,7 +219,7 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
         }
 
         libraries := Seq(unmanagedLibrary)
-        val myLibraryDependencies = unmanagedLibrary +: scalaLibraries
+        val myLibraryDependencies: Seq[library] = unmanagedLibrary +: scalaLibraries
         libraryDependencies := myLibraryDependencies
       }
     }

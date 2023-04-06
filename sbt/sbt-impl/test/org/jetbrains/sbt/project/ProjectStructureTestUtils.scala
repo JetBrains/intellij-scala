@@ -26,21 +26,23 @@ object ProjectStructureTestUtils {
   private def ivyCacheArtifacts(relativePaths: String*): Seq[String] =
     relativePaths.map(ivyCacheArtifact)
 
-  def expectedScalaLibrary(scalaVersion: String, isSdk: Boolean = true): library = {
+  private def createScalaLibraryName(scalaVersion: ScalaVersion): String =
+    s"sbt: ${DependencyManagerBase.scalaLibraryDescription(scalaVersion)}:jar"
+
+  def expectedScalaLibrary(scalaVersion: String): library = {
     val scalaVersionFromString = ScalaVersion.fromString(scalaVersion).get
-    expectedScalaLibraryFromCoursier(ScalaVersion.fromString(scalaVersion).get, s"sbt: ${scalaLibraryDescription(scalaVersionFromString)}:jar", isSdk)
+    expectedScalaLibraryFromCoursier(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString), isSdk = false)
   }
 
   def expectedScalaLibraryWithScalaSdk(scalaVersion: String): Seq[library] = {
     val scalaVersionFromString = ScalaVersion.fromString(scalaVersion).get
-    val scalaLibrary = expectedScalaLibraryFromCoursier(scalaVersionFromString, s"sbt: ${scalaLibraryDescription(scalaVersionFromString)}:jar", false)
+    val scalaLibrary = expectedScalaLibraryFromCoursier(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString), isSdk = false)
     val scalaSdkLibrary = expectedScalaLibraryFromCoursier(scalaVersionFromString, s"sbt: scala-sdk-$scalaVersion")
     Seq(scalaLibrary, scalaSdkLibrary)
   }
 
-  def expectedScalaLibraryFromCoursier(scalaVersion: ScalaVersion, libraryName: String, isSdk: Boolean = true): library = {
+  private def expectedScalaLibraryFromCoursier(scalaVersion: ScalaVersion, libraryName: String, isSdk: Boolean = true): library = {
     val scalaVersionStr = scalaVersion.minor
-    val dependency = DependencyManagerBase.scalaLibraryDescription(scalaVersion)
 
     if (scalaVersion.languageLevel.isScala2)
       new library(libraryName) {
@@ -129,25 +131,19 @@ object ProjectStructureTestUtils {
 
   def expectedScalaLibraryWithScalaSdkFromIvy(scalaVersion: String): Seq[library] = {
     val scalaVersionFromString = ScalaVersion.fromString(scalaVersion).get
-    val scalaLibrary = expectedScalaLibraryFromIvy(scalaVersionFromString, s"sbt: scala-sdk-$scalaVersion")
-    val scalaSdkLibrary = expectedScalaLibraryFromIvy(scalaVersionFromString, s"sbt: ${scalaLibraryDescription(scalaVersionFromString)}:jar", false)
+    val scalaLibrary = expectedScalaLibraryFromIvy(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString), isSdk = false)
+    val scalaSdkLibrary = expectedScalaLibraryFromIvy(scalaVersionFromString, s"sbt: scala-sdk-$scalaVersion")
     Seq(scalaLibrary, scalaSdkLibrary)
   }
 
-  def expectedScalaLibraryFromIvy(
+  private def expectedScalaLibraryFromIvy(
     scalaVersion: ScalaVersion,
-    libraryName: Strin,
+    libraryName: String,
     isSdk: Boolean = true
   ): library = {
     val scalaVersionStr = scalaVersion.minor
-    val dependency = DependencyManagerBase.scalaLibraryDescription(scalaVersion)
 
     new library(libraryName) {
-      libClasses := ivyCacheArtifacts(s"org.scala-lang/scala-library/jars/scala-library-$scalaVersionStr.jar")
-      libSources := ivyCacheArtifacts(s"org.scala-lang/scala-library/srcs/scala-library-$scalaVersionStr-sources.jar")
-      //For some reason IVY doesn't download javadocs: https://github.com/sbt/sbt/issues/5165#issuecomment-938817378
-      //libJavadocs := ivyCacheArtifacts(s"org.scala-lang/scala-library/docs/scala-library-$scalaVersionStr-javadoc.jar")
-
       if (isSdk) scalaSdkSettings := Some(ScalaSdkAttributes(
         scalaVersion.languageLevel,
         classpath = ivyCacheArtifacts(
@@ -160,6 +156,12 @@ object ProjectStructureTestUtils {
           "org.scala-lang/scala-reflect/jars/scala-reflect-2.12.10.jar",
         )
       ))
+      else {
+        libClasses := ivyCacheArtifacts(s"org.scala-lang/scala-library/jars/scala-library-$scalaVersionStr.jar")
+        libSources := ivyCacheArtifacts(s"org.scala-lang/scala-library/srcs/scala-library-$scalaVersionStr-sources.jar")
+        //For some reason IVY doesn't download javadocs: https://github.com/sbt/sbt/issues/5165#issuecomment-938817378
+        //libJavadocs := ivyCacheArtifacts(s"org.scala-lang/scala-library/docs/scala-library-$scalaVersionStr-javadoc.jar")
+      }
     }
   }
 
