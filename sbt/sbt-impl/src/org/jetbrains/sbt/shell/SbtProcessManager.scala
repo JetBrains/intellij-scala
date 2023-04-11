@@ -140,7 +140,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
 
-    val mappedSbtOpts = SbtOpts.loadFrom(workingDir) ++ SbtOpts.processArgs(sbtSettings.sbtOptions, workingDirPath)
+    val mappedSbtOpts = SbtOpts.loadFrom(workingDir) ++ SbtOpts.mapOptionsToSbtOptions(sbtSettings.sbtOptions, workingDirPath)
     val sbtOpts = mappedSbtOpts.collect { case a: JvmOption => a.value }
     val allJvmOpts = buildVMParameters(sbtSettings, workingDir, sbtOpts)
     vmParams.addAll(allJvmOpts.asJava)

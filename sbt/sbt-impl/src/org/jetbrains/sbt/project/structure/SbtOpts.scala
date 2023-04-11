@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 package project.structure
 
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.text.EditDistance
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.RichFile
@@ -52,16 +53,16 @@ object SbtOpts {
     if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead) {
       val optsFromFile = FileUtil.loadLines(sbtOptsFile)
         .asScala.iterator
+        .flatMap(combineOptionsWithArgs)
         .map(_.trim)
         .filter(_.nonEmpty)
-        .map(removeDoubleDash)
         .toSeq
-      processArgs(optsFromFile, directory.getCanonicalPath)
+      mapOptionsToSbtOptions(optsFromFile, directory.getCanonicalPath)
     } else
       Seq.empty
   }
 
-  def combineSbtOptsWithArgs(opts: Seq[String]): Seq[String] = {
+  def combineOptionsWithArgs(opts: String): Seq[String] = {
     @tailrec
     def prependArgsToOpts(optsToCombine: Seq[String], result: Seq[String]): Seq[String] = {
       def shouldPrepend(opt: String): Boolean = {
@@ -85,10 +86,13 @@ object SbtOpts {
         case Nil => result
       }
     }
-    prependArgsToOpts(opts.map(removeDoubleDash), Seq.empty)
+    if (SbtUtil.areQuotesClosedCorrectly(opts)) {
+      val parsedOpts = ParametersListUtil.parse(opts, false, true)
+      prependArgsToOpts(parsedOpts.asScala.toSeq.map(removeDoubleDash), Seq.empty)
+    } else Seq.empty
   }
 
-  def processArgs(opts: Seq[String], projectPath: String)(implicit reporter: BuildReporter = null): Seq[SbtOption] = {
+  def mapOptionsToSbtOptions(opts: Seq[String], projectPath: String)(implicit reporter: BuildReporter = null): Seq[SbtOption] = {
     val unrecognizedOpts = ListBuffer[(String, Option[String])]()
     val sbtOpts = opts.flatMap { opt =>
       if (sbtToLauncherOpts.contains(opt))
@@ -98,7 +102,7 @@ object SbtOpts {
       else if (opt.startsWith("-D"))
         Some(JvmOptionGlobal(opt)())
       else {
-        processOptWithArg(opt, projectPath)
+        mapToSbtOption(opt, projectPath)
           .orElse {
             unrecognizedOpts.addOne((opt, findClosestOptionHelper(opt)))
             None
@@ -107,6 +111,28 @@ object SbtOpts {
     }
     if (unrecognizedOpts.nonEmpty && reporter != null) reportUnrecognizedOptions(unrecognizedOpts.toList)
     sbtOpts
+  }
+
+  private def mapToSbtOption(option: String, projectPath: String): Option[SbtOption] = {
+    sbtToJdkOpts(projectPath)
+      .find { case (optionKey, _) => option.startsWith(optionKey) }
+      .flatMap { case (optionKey, targetSbtOption) =>
+        val optionValue = option.replace(optionKey, "")
+        val isOptionValueEmpty = optionValue.trim.isEmpty
+        val targetOptionRequiresValue = targetSbtOption.value.endsWith("=")
+        if (isOptionValueEmpty && !targetOptionRequiresValue) Some(targetSbtOption)
+        else if (!isOptionValueEmpty && targetOptionRequiresValue) {
+          val optionKeyEndsWithEqualsSign = optionKey.endsWith("=")
+          if ((!optionKeyEndsWithEqualsSign && optionValue.matches("^\\s+.*")) || optionKeyEndsWithEqualsSign && optionValue.matches("^[^\\s]+.*")) {
+            targetSbtOption match {
+              case _: JvmOptionGlobal => Some(JvmOptionGlobal(targetSbtOption.value + optionValue.trim)())
+              case _: JvmOptionShellOnly => Some(JvmOptionShellOnly(targetSbtOption.value + optionValue.trim)())
+              case _ => None
+            }
+          } else None
+        }
+        else None
+      }
   }
 
   private def reportUnrecognizedOptions(unrecognizedOpts: List[(String, Option[String])])(implicit reporter: BuildReporter): Unit = {
@@ -141,25 +167,4 @@ object SbtOpts {
   private def removeDoubleDash(opt: String): String =
     if (opt.startsWith("--") && !isShortOption(opt)) opt.stripPrefix("-") else opt
 
-  private def processOptWithArg(option: String, projectPath: String): Option[SbtOption] = {
-    sbtToJdkOpts(projectPath)
-      .find { case (optionKey, _) => option.startsWith(optionKey) }
-      .flatMap { case (optionKey, targetSbtOption) =>
-        val optionValue = option.replace(optionKey, "")
-        val isOptionValueEmpty = optionValue.trim.isEmpty
-        val targetOptionRequiresValue = targetSbtOption.value.endsWith("=")
-        if (isOptionValueEmpty && !targetOptionRequiresValue) Some(targetSbtOption)
-        else if (!isOptionValueEmpty && targetOptionRequiresValue) {
-          val optionKeyEndsWithEqualsSign = optionKey.endsWith("=")
-          if ((!optionKeyEndsWithEqualsSign && optionValue.matches("^\\s+.*")) || optionKeyEndsWithEqualsSign && optionValue.matches("^[^\\s]+.*")) {
-            targetSbtOption match {
-              case _: JvmOptionGlobal => Some(JvmOptionGlobal(targetSbtOption.value + optionValue.trim)())
-              case _: JvmOptionShellOnly => Some(JvmOptionShellOnly(targetSbtOption.value + optionValue.trim)())
-              case _ => None
-            }
-          } else None
-        }
-        else None
-      }
-  }
 }
