@@ -1,21 +1,29 @@
 package org.jetbrains.plugins.scala.spellchecker
 
 import com.intellij.codeInsight.AnnotationUtil
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiModifierListOwner
 import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.spellchecker.inspections.PlainTextSplitter
-import com.intellij.spellchecker.tokenizer.{EscapeSequenceTokenizer, TokenConsumer, Tokenizer}
+import com.intellij.spellchecker.tokenizer.{EscapeSequenceTokenizer, TokenConsumer}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 import java.util.Collections
 
-class ScLiteralExpressionTokenizer extends Tokenizer[ScLiteral] {
-  def processTextWithEscapeSequences(element: ScLiteral, text: String, consumer: TokenConsumer): Unit = {
-    val unEscapedText = new java.lang.StringBuilder
+final class ScLiteralExpressionTokenizer extends EscapeSequenceTokenizer[ScLiteral] {
+
+  private def processTextWithEscapeSequences(
+    element: ScLiteral,
+    text: String,
+    rangeInHost: TextRange,
+    consumer: TokenConsumer
+  ): Unit = {
+    val unescapedText = new java.lang.StringBuilder
     val offsets: Array[Int] = new Array[Int](text.length + 1)
-    PsiLiteralExpressionImpl.parseStringCharacters(text, unEscapedText, offsets)
-    EscapeSequenceTokenizer.processTextWithOffsets(element, consumer, unEscapedText, offsets, 1)
+    PsiLiteralExpressionImpl.parseStringCharacters(text, unescapedText, offsets)
+    val startOffset = rangeInHost.getStartOffset
+    EscapeSequenceTokenizer.processTextWithOffsets(element, consumer, unescapedText, offsets, startOffset)
   }
 
   override def tokenize(element: ScLiteral, consumer: TokenConsumer): Unit = {
@@ -24,14 +32,16 @@ class ScLiteralExpressionTokenizer extends Tokenizer[ScLiteral] {
       return
     }
     val text: String = element.getText
-    if (text == null) {
+    if (text == null)
       return
-    }
+
     if (!text.contains("\\")) {
       consumer.consumeToken(element, PlainTextSplitter.getInstance)
     }
     else {
-      processTextWithEscapeSequences(element, text, consumer)
+      val rangeInHost = element.contentRange.shiftLeft(element.getNode.getStartOffset)
+      val contentTextOriginal = rangeInHost.substring(text)
+      processTextWithEscapeSequences(element, contentTextOriginal, rangeInHost, consumer)
     }
   }
 }
