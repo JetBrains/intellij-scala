@@ -236,7 +236,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestBase {
       assertEquals(expected.map(_.target), actual)
     }
 
-    onBreakpoints { ctx =>
+    onEveryBreakpoint { ctx =>
       val loc = ctx.getFrameProxy.getStackFrame.location()
       val debugProcess = getDebugProcess
       val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))

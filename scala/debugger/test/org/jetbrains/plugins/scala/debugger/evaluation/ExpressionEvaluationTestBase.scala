@@ -33,7 +33,7 @@ abstract class ExpressionEvaluationTestBase extends ScalaDebuggerTestBase {
     onBreakpointActionsQueue.addAll(actions.asJava)
     createLocalProcess(mainClass)
 
-    onBreakpoints { ctx =>
+    onEveryBreakpoint { ctx =>
       Option(onBreakpointActionsQueue.poll()).foreach(_ (ctx))
       resume(ctx)
     }

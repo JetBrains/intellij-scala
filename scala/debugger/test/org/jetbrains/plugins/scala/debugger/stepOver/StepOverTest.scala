@@ -130,7 +130,7 @@ abstract class StepOverTest extends ScalaDebuggerTestBase {
     val debugProcess = getDebugProcess
     val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))
 
-    onBreakpoints { implicit ctx =>
+    onEveryBreakpoint { implicit ctx =>
       val loc = ctx.getFrameProxy.location()
       val srcPos = inReadAction(positionManager.getSourcePosition(loc))
       val actual = srcPos.getLine

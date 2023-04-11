@@ -123,7 +123,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestBase {
 
     createLocalProcess(mainClass)
 
-    onBreakpoints { ctx =>
+    onEveryBreakpoint { ctx =>
       val loc = ctx.getFrameProxy.getStackFrame.location()
       val debugProcess = getDebugProcess
       val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))

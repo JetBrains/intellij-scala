@@ -161,7 +161,7 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
     val debugProcess = getDebugProcess
     val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))
 
-    onBreakpoints { ctx =>
+    onEveryBreakpoint { ctx =>
       val loc = ctx.getFrameProxy.getStackFrame.location()
       inReadAction {
         val srcPos = positionManager.getSourcePosition(loc)
