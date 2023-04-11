@@ -35,11 +35,11 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     annotateUndefinedMember(element)
     annotateSealedclassInheritance(element)
     annotateEnumClassInheritance(element)
-    annotateNeedsToBeMixin(element)
     annotateTraitPassingConstructorParameters(element)
     annotateParentTraitConstructorParameters(element)
 
     if (typeAware) {
+      annotateNeedsToBeMixin(element)
       annotateNeedsToBeAbstract(element)
       annotateIllegalInheritance(element)
       annotateObjectCreationImpossible(element)
