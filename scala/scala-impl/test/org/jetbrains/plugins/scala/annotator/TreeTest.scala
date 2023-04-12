@@ -10,6 +10,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[TypecheckerTests]))
 class TreeTest extends TestCase {
 
+  import scala.meta.internal.fastparse
   import fastparse._
   import NoWhitespace._
 
