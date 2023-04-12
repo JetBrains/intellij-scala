@@ -8,7 +8,9 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.options.newEditor.SettingsDialog
@@ -46,9 +48,9 @@ import scala.concurrent.TimeoutException
 import scala.jdk.CollectionConverters._
 
 /**
-  * Manages the sbt shell process instance for the project.
-  * Instantiates an sbt instance when initially requested.
-  */
+ * Manages the sbt shell process instance for the project.
+ * Instantiates an sbt instance when initially requested.
+ */
 final class SbtProcessManager(project: Project) extends Disposable {
 
   private val messageBus: MessageBusConnection = project.getMessageBus.connect
@@ -99,10 +101,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   private def createShellProcessHandler(): (ColoredProcessHandler, Option[RemoteConnection]) = {
     log.debug("createShellProcessHandler")
-    val workingDirPath =
-      Option(ProjectUtil.guessProjectDir(project))
-        .getOrElse(throw new IllegalStateException(s"no project directory found for project ${project.getName}"))
-        .getCanonicalPath
+    val workingDirPath = getWorkingDirPath(project)
     val workingDir = new File(workingDirPath)
 
     val sbtSettings = getSbtSettings(workingDirPath)
@@ -205,6 +204,29 @@ final class SbtProcessManager(project: Project) extends Disposable {
     (cpty, debugConnection)
   }
 
+  private def getWorkingDirPath(project: Project): String = {
+    //Fist try to calculate root path based on `getExternalRootProjectPath`
+    //When sbt project reference another sbt project via `RootProject` this will correctly find the root project path (see SCL-21143)
+    //However, if user manually linked multiple SBT projects via external system tool window (sbt tool window)
+    //using "Link sbt Project" button (the one with "plus" icon), it  will randomly choose one of the projects
+    val externalRootProjectPath: Option[String] = {
+      val modules = ModuleManager.getInstance(project).getModules.toSeq
+      modules.iterator.map(ExternalSystemApiUtil.getExternalRootProjectPath).find(_ != null)
+    }
+    externalRootProjectPath
+      .orElse {
+        //Not sure when externalRootProjectPath can be empty in SBT projects
+        //But just in case fallback to ProjectUtil.guessProjectDir, but notice that it's not reliable in some cases (see SCL-21143)
+        val message = s"Can't calculate external root project path for project `${project.getName}`, fallback to `ProjectUtil.guessProjectDir`"
+        if (ApplicationManager.getApplication.isInternal)
+          log.error(message)
+        else
+          log.warn(message)
+        Option(ProjectUtil.guessProjectDir(project)).map(_.getCanonicalPath)
+      }
+      .getOrElse(throw new IllegalStateException(s"no project directory found for project ${project.getName}"))
+  }
+
   // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
   // Use a wider value that should be reasonable in most cases. Has no effect on Unix.
   // TODO perhaps determine actual width of window and adapt accordingly
@@ -296,9 +318,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
   }
 
   /**
-    * add debug parameters to java parameters and create remote connection
-    * @return
-    */
+   * add debug parameters to java parameters and create remote connection
+   * @return
+   */
   private def addDebugParameters(javaParameters: JavaParameters): RemoteConnection = {
 
     val host = "localhost"
@@ -319,11 +341,11 @@ final class SbtProcessManager(project: Project) extends Disposable {
     sbtSettings.customLauncher.getOrElse(getDefaultLauncher)
 
   /**
-    * Because the regular GeneralCommandLine process doesn't mesh well with JLine on Windows, use a
-    * Pseudo-Terminal based command line
-    * @param commandLine commandLine to copy from
-    * @return
-    */
+   * Because the regular GeneralCommandLine process doesn't mesh well with JLine on Windows, use a
+   * Pseudo-Terminal based command line
+   * @param commandLine commandLine to copy from
+   * @return
+   */
   private def createPtyCommandLine(commandLine: GeneralCommandLine) = {
     val pty = new PtyCommandLine()
     pty.withExePath(commandLine.getExePath)
@@ -336,9 +358,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
   }
 
   /**
-    * Inject custom settings or plugins into an sbt directory.
-    * This seems to be the most straightforward way to add our own sbt settings
-    */
+   * Inject custom settings or plugins into an sbt directory.
+   * This seems to be the most straightforward way to add our own sbt settings
+   */
   private def injectSettings(runid: String, guardSettings: Boolean, settingsFile: File, settings: Seq[String]): Unit = {
     @NonNls
     val header =
