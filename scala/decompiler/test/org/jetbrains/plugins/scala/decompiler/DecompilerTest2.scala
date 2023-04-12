@@ -71,6 +71,7 @@ class DecompilerTest2 extends TestCase {
   def testTypeDefinitionMembers(): Unit = doTest("typeDefinition/Members")
   def testTypeDefinitionModifiers(): Unit = doTest("typeDefinition/Modifiers")
   def testTypeDefinitionObject(): Unit = doTest("typeDefinition/Object")
+  def testTypeDefinitionPrivate(): Unit = doTest("typeDefinition/PackagePrivate")
   def testTypeDefinitionParents(): Unit = doTest("typeDefinition/Parents")
   def testTypeDefinitionQualifier(): Unit = doTest("typeDefinition/Qualifier")
   def testTypeDefinitionSelfType(): Unit = doTest("typeDefinition/SelfType")
