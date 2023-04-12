@@ -34,7 +34,7 @@ object Versions {
   val bspVersion = "2.1.0-M3"
   val sbtStructureVersion: String = "2023.1.0"
   val sbtIdeaShellVersion: String = "2021.1.0"
-  val compilerIndicesVersion = "1.0.13"
+  val compilerIndicesVersion = "1.0.14"
 
   object Sbt {
     val binary_0_13 = "0.13"
