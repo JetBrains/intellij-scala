@@ -30,7 +30,7 @@ final class UTestTestFramework extends AbstractTestFramework with TestFrameworkS
   }
 
   override def frameworkSetupInfo(scalaVersion: Option[String]): TestFrameworkSetupInfo =
-    TestFrameworkSetupInfo(Seq(""""com.lihaoyi" %% "utest" % "latest.integration""""), Seq())
+    TestFrameworkSetupInfo(Seq(""""com.lihaoyi" %% "utest" % "latest.integration" % Test"""), Seq())
 }
 
 object UTestTestFramework {

@@ -15,8 +15,12 @@ import org.jetbrains.sbt.project.modifier.location._
 import scala.collection.mutable
 
 /**
- * Adds dependencies, resolvers and options to the build file in given location. Supposes that all changes of the same
- * type should be added as Seq(...) additions to library dependencies/resovlers/scalacOptions.
+ * Adds dependencies, resolvers and options to the build file in given location.<br>
+ * Supposes that all changes of the same type should be added as Seq(...) additions to library dependencies/resovlers/scalacOptions.
+ *
+ * TODO: try to detect latest library version and use it instead of "latest.integration"
+ * TODO: insert changes directly in module definition instead of just appending it to the `build.sbt` file
+ *  Though it's not a trivial task for SBT definitions, comparing to e.g. Maven
  */
 class SimpleBuildFileModifier(val libDependencies: Seq[String],
                               val resolvers: Seq[String],
@@ -54,7 +58,13 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String],
     val editedFiles = for {
       buildFileEntry <- buildFiles.iterator
       locationProvider <- buildFileLocationProviders.iterator
-      psiElement <- buildPsiElement(module.getProject, Option(if (buildFileEntry.isModuleLocal) null else module.getName), elementType)
+      //TODO: we must not use IntelliJ module name here
+      // Suppose we have `build.sbt` with content `lazy val root = (project in file(".")).settings(name := "my name")`
+      // Module name will be "my name" but in SBT we should use `root`, not "my name"
+      // However it's not even clear if we have information about the original `val` name for the module.
+      // Maybe SBT provide this information using some macro?
+      inName = if (buildFileEntry.isModuleLocal) Nil else Seq(module.getName)
+      psiElement <- buildPsiElement(module.getProject, inName, elementType)
       virtualFile <- {
         addElementsToBuildFile(module, locationProvider, elementType, buildFileEntry.file, Seq(newLineElement, psiElement))
       }
@@ -62,15 +72,16 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String],
     editedFiles.nextOption()
   }
 
-  private def buildPsiElement(project: Project, inName: Option[String], elementType: BuildFileElementType): Option[PsiElement] = {
+  private def buildPsiElement(project: Project, inScope: Seq[String], elementType: BuildFileElementType): Option[PsiElement] = {
     elementType match {
       case BuildFileElementType.libraryDependencyElementId =>
-        buildLibraryDependenciesPsi(project, inName, libDependencies)
+        buildLibraryDependenciesPsi(project, inScope, libDependencies)
       case BuildFileElementType.resolverElementId =>
-        buildResolversPsi(project, inName, resolvers)
+        buildResolversPsi(project, inScope, resolvers)
       case BuildFileElementType.`scalacOptionsElementId` =>
-        buildScalacOptionsPsi(project, Some("Test"), scalacOptions)
-      case _ => throw new IllegalArgumentException("Unsupported build file element type: " + elementType)
+        buildScalacOptionsPsi(project, inScope :+ "Test", scalacOptions)
+      case _ =>
+        throw new IllegalArgumentException("Unsupported build file element type: " + elementType)
     }
   }
 
@@ -87,21 +98,28 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String],
 object SimpleBuildFileModifier {
 
   private def createSeqString(normalIndent: String, seq: Seq[String]): String =
-    "Seq(\n" + seq.tail.fold(normalIndent + seq.head)(_ + ",\n" + normalIndent + _) + "\n)"
+    s"""Seq(
+       |${seq.map(normalIndent + _).mkString(",\n")}
+       |)""".stripMargin
 
-  private def createSeqPsiExpr(project: Project, inName: Option[String], prefix: String, seq: Seq[String]): Option[PsiElement] =
+  private def createSeqPsiExpr(project: Project, inScope: Seq[String], prefix: String, seq: Seq[String]): Option[PsiElement] =
     if (seq.isEmpty) None
-    else Some(createExpressionFromText(prefix + inName.map(" in " + _).getOrElse("") + " ++= " +
-      createSeqString(FormatterUtil.getNormalIndentString(project), seq), ScalaFeatures.default)(PsiManager.getInstance(project)))
+    else {
+      val valueString = createSeqString(FormatterUtil.getNormalIndentString(project), seq)
+      val scope = if (inScope.isEmpty) Seq("ThisBuild") else inScope
+      val scopePath = scope.mkString(" / ")
+      val text = s"$scopePath / $prefix ++= $valueString"
+      Some(createExpressionFromText(text, ScalaFeatures.default)(PsiManager.getInstance(project)))
+    }
 
-  private def buildLibraryDependenciesPsi(project: Project, inName: Option[String], dependencies: Seq[String]): Option[PsiElement] =
-    createSeqPsiExpr(project, inName, "libraryDependencies", dependencies)
+  private def buildLibraryDependenciesPsi(project: Project, inScope: Seq[String], dependencies: Seq[String]): Option[PsiElement] =
+    createSeqPsiExpr(project, inScope, "libraryDependencies", dependencies)
 
-  private def buildResolversPsi(project: Project, inName: Option[String], resolvers: Seq[String]): Option[PsiElement] =
-    createSeqPsiExpr(project, inName, "resolvers", resolvers)
+  private def buildResolversPsi(project: Project, inScope: Seq[String], resolvers: Seq[String]): Option[PsiElement] =
+    createSeqPsiExpr(project, inScope, "resolvers", resolvers)
 
-  private def buildScalacOptionsPsi(project: Project, inName: Option[String], options: Seq[String]): Option[PsiElement] =
-    createSeqPsiExpr(project, inName, "scalacOptions", options)
+  private def buildScalacOptionsPsi(project: Project, inScope: Seq[String], options: Seq[String]): Option[PsiElement] =
+    createSeqPsiExpr(project, inScope, "scalacOptions", options)
 
   private val supportedElementTypes: List[BuildFileElementType] = List(BuildFileElementType.libraryDependencyElementId,
     BuildFileElementType.resolverElementId, BuildFileElementType.scalacOptionsElementId)

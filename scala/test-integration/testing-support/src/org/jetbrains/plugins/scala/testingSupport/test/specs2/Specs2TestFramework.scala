@@ -22,7 +22,7 @@ final class Specs2TestFramework extends AbstractTestFramework with TestFramework
 
   override def frameworkSetupInfo(scalaVersion: Option[String]): TestFrameworkSetupInfo =
     TestFrameworkSetupInfo(
-      Seq(""""org.specs2" %% "specs2-core" % "latest.integration" % "test""""),
+      Seq(""""org.specs2" %% "specs2-core" % "latest.integration" % Test"""),
       Seq(""""-Yrangepos"""")
     )
 }

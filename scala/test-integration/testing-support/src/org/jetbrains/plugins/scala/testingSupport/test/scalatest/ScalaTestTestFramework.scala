@@ -28,7 +28,7 @@ final class ScalaTestTestFramework extends AbstractTestFramework with TestFramew
   }
 
   override def frameworkSetupInfo(scalaVersion: Option[String]): TestFrameworkSetupInfo =
-    TestFrameworkSetupInfo(Seq(""""org.scalatest" %% "scalatest" % "latest.integration" % "test""""), Seq())
+    TestFrameworkSetupInfo(Seq(""""org.scalatest" %% "scalatest" % "latest.integration" % Test"""), Seq())
 }
 
 object ScalaTestTestFramework {
