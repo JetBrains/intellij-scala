@@ -25,12 +25,9 @@ class ChangesConfirmationDialog private (val project: IJProject, private val cha
   setTitle(SbtBundle.message("sbt.build.file.changes"))
   init()
 
-  def selectedChanges: List[BuildFileChange] = {
-    myChangesBrowser
-      .getIncludedChanges
-      .asScala
-      .map(change => BuildFileChange.swap(change.asInstanceOf[BuildFileChange]))
-      .toList
+  def buildFileChanges: Seq[BuildFileChange] = {
+    val changes = myChangesBrowser.getAllChanges.asScala.map(_.asInstanceOf[BuildFileChange])
+    changes.map(BuildFileChange.swap).toSeq
   }
 
   override def createCenterPanel(): JComponent = {

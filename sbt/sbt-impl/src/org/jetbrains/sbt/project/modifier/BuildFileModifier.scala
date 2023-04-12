@@ -10,6 +10,7 @@ import com.intellij.openapi.vcs.changes.{CurrentContentRevision, SimpleContentRe
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore, VirtualFile}
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.vcsUtil.VcsUtil
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.modifier.ui.{BuildFileChange, BuildFileModifiedStatus, ChangesConfirmationDialog}
@@ -40,22 +41,22 @@ trait BuildFileModifier {
     val project = module.getProject
     val vfsFileToCopy = mutable.Map[VirtualFile, LightVirtualFile]()
     CommandProcessor.getInstance.executeCommand(project, () => {
-      modifyInner(module, vfsFileToCopy) match {
+      val changes = modifyInner(module, vfsFileToCopy)
+      res = changes match {
         case Some(changes) =>
           if (!needPreviewChanges) {
             applyChanges(changes, vfsFileToCopy)
-            res = true
+            true
           } else {
-            previewChanges(module.getProject, changes, vfsFileToCopy) match {
-              case Some(acceptedChanges) if acceptedChanges.nonEmpty =>
-                applyChanges(acceptedChanges, vfsFileToCopy)
-                res = true
-              case _ =>
-                res = false
+            val acceptedChanges = previewChanges(module.getProject, changes, vfsFileToCopy).toSeq.flatten
+            val hasAcceptedChanges = acceptedChanges.nonEmpty
+            if (hasAcceptedChanges) {
+              applyChanges(acceptedChanges, vfsFileToCopy)
             }
+            hasAcceptedChanges
           }
         case None =>
-          res = false
+          false
       }
     }, SbtBundle.message("sbt.build.file.modification"), this)
     if (res)
@@ -65,9 +66,9 @@ trait BuildFileModifier {
 
   private def previewChanges(
     project: IJProject,
-    changes: List[VirtualFile],
+    changes: Seq[VirtualFile],
     filesToWorkingCopies: mutable.Map[VirtualFile, LightVirtualFile]
-  ): Option[List[VirtualFile]] = {
+  ): Option[Seq[VirtualFile]] = {
     //first, create changes and set their initial status
     val fileStatusMap = mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)]()
     val documentManager = FileDocumentManager.getInstance()
@@ -88,19 +89,25 @@ trait BuildFileModifier {
     dialog.setModal(true)
     val isOk = dialog.showAndGet()
     if (isOk) {
-      val selectedChanges = dialog.selectedChanges
-      Some(for (change <- selectedChanges) yield changesToWorkingCopies(change.asInstanceOf[BuildFileChange]))
-    } else None
+      val selectedChanges = dialog.buildFileChanges
+      val acceptedChanges = for (change <- selectedChanges) yield changesToWorkingCopies(change)
+      Some(acceptedChanges)
+    }
+    else None
   }
 
-  private def applyChanges(changes: List[VirtualFile], vfsFileToCopy: mutable.Map[VirtualFile,
-      LightVirtualFile]): Unit = {
+  private def applyChanges(
+    changes: Seq[VirtualFile],
+    vfsFileToCopy: mutable.Map[VirtualFile, LightVirtualFile]
+  ): Unit = {
     val manager = FileDocumentManager.getInstance()
     for ((originalFile, changedFile) <- vfsFileToCopy) {
       if (changes.contains(changedFile)) {
         //we only want to rewrite files that actually changed
         val changedDocument = manager.getDocument(changedFile)
+        inWriteAction {
           VfsUtil.saveText(originalFile, changedDocument.getText)
+        }
       }
     }
   }

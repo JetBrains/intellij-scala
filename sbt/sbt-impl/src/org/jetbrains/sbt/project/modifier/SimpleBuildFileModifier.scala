@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import com.intellij.testFramework.LightVirtualFile
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.project.ScalaFeatures
@@ -32,7 +33,10 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String],
     val empty: Option[List[VirtualFile]] = Some(List())
     requiredElementTypes.foldLeft(empty)((acc, nextType) =>
       acc match{
-        case Some(accList) => addElements(module, nextType, fileToWorkingCopy).map(_ :: accList)
+        case Some(accList) =>
+          inWriteAction {
+            addElements(module, nextType, fileToWorkingCopy).map(_ :: accList)
+          }
         case _ => None
       })
   }
