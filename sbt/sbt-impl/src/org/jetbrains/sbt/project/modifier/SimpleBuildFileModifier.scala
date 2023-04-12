@@ -8,6 +8,7 @@ import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.sbt.project.modifier.SimpleBuildFileModifier._
 import org.jetbrains.sbt.project.modifier.location._
 
 import scala.collection.mutable
@@ -22,6 +23,7 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String],
                               val buildFileProviders: List[BuildFileProvider] = List(SimpleModuleBuildFileProvider, ProjectRootBuildFileProvider),
                               val buildFileLocationProviders: List[BuildFileModificationLocationProvider] = List(EndOfFileLocationProvider))
     extends BuildFileModifier {
+
   /**
    * Performs some specific modification(s) of sbt build file(s) (library dependencies, resolvers, sbt options, etc.)
    * @param module - module within IJ project to modify build file(s) for
@@ -35,34 +37,41 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String],
       })
   }
 
-  protected def addElements(module: Module, elementType: BuildFileElementType,
-                            fileToWorkingCopy: mutable.Map[VirtualFile, LightVirtualFile]): Option[VirtualFile] = {
-    val locationProvidersStream = buildFileLocationProviders.to(LazyList)
-    //TODO: rewrite this?
-    buildFileProviders.map(fileProvider =>
-      fileProvider.findBuildFile(module, elementType, fileToWorkingCopy)).to(LazyList).map(_.map(buildFileEntry =>
-      locationProvidersStream.map(locationProvider => buildPsiElement(module.getProject,
-        Option(if (buildFileEntry.isModuleLocal) null else module.getName), elementType).map(
-            SimpleBuildFileModifier.addElementsToBuildFile(module, locationProvider,elementType, buildFileEntry.file,
-              createNewLine()(PsiManager.getInstance(module.getProject)), _)
-        )).find(_.isDefined).flatten
-      )).map(opt => opt.flatten.flatten).find(_.isDefined).flatten
+  //TODO: rewrite this? (the original comment is dated 2015)
+  private def addElements(
+    module: Module,
+    elementType: BuildFileElementType,
+    fileToWorkingCopy: mutable.Map[VirtualFile, LightVirtualFile]
+  ): Option[VirtualFile] = {
+    def newLineElement = createNewLine()(PsiManager.getInstance(module.getProject))
+
+    val buildFiles = buildFileProviders.flatMap(_.findBuildFile(module, elementType, fileToWorkingCopy))
+    //NOTE: using lazy collections to add elements only to the first successful file, and not touch other files
+    val editedFiles = for {
+      buildFileEntry <- buildFiles.iterator
+      locationProvider <- buildFileLocationProviders.iterator
+      psiElement <- buildPsiElement(module.getProject, Option(if (buildFileEntry.isModuleLocal) null else module.getName), elementType)
+      virtualFile <- {
+        addElementsToBuildFile(module, locationProvider, elementType, buildFileEntry.file, Seq(newLineElement, psiElement))
+      }
+    } yield virtualFile
+    editedFiles.nextOption()
   }
 
-  protected def buildPsiElement(project: Project, inName: Option[String], elementType: BuildFileElementType): Option[PsiElement] = {
+  private def buildPsiElement(project: Project, inName: Option[String], elementType: BuildFileElementType): Option[PsiElement] = {
     elementType match {
       case BuildFileElementType.libraryDependencyElementId =>
-        SimpleBuildFileModifier.buildLibraryDependenciesPsi(project, inName, libDependencies)
+        buildLibraryDependenciesPsi(project, inName, libDependencies)
       case BuildFileElementType.resolverElementId =>
-        SimpleBuildFileModifier.buildResolversPsi(project, inName, resolvers)
+        buildResolversPsi(project, inName, resolvers)
       case BuildFileElementType.`scalacOptionsElementId` =>
-        SimpleBuildFileModifier.buildScalacOptionsPsi(project, Some("Test"), scalacOptions)
+        buildScalacOptionsPsi(project, Some("Test"), scalacOptions)
       case _ => throw new IllegalArgumentException("Unsupported build file element type: " + elementType)
     }
   }
 
-  protected def requiredElementTypes: Seq[BuildFileElementType] = {
-    SimpleBuildFileModifier.supportedElementTypes.filter{
+  private def requiredElementTypes: Seq[BuildFileElementType] = {
+    supportedElementTypes.filter{
       case BuildFileElementType.libraryDependencyElementId => libDependencies.nonEmpty
       case BuildFileElementType.resolverElementId => resolvers.nonEmpty
       case BuildFileElementType.`scalacOptionsElementId` => scalacOptions.nonEmpty
@@ -73,37 +82,49 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String],
 
 object SimpleBuildFileModifier {
 
-  def createSeqString(normalIndent: String, seq: Seq[String]): String =
+  private def createSeqString(normalIndent: String, seq: Seq[String]): String =
     "Seq(\n" + seq.tail.fold(normalIndent + seq.head)(_ + ",\n" + normalIndent + _) + "\n)"
 
-  def createSeqPsiExpr(project: Project, inName: Option[String], prefix: String, seq: Seq[String]): Option[PsiElement] =
+  private def createSeqPsiExpr(project: Project, inName: Option[String], prefix: String, seq: Seq[String]): Option[PsiElement] =
     if (seq.isEmpty) None
     else Some(createExpressionFromText(prefix + inName.map(" in " + _).getOrElse("") + " ++= " +
       createSeqString(FormatterUtil.getNormalIndentString(project), seq), ScalaFeatures.default)(PsiManager.getInstance(project)))
 
-  def buildLibraryDependenciesPsi(project: Project, inName: Option[String], dependencies: Seq[String]): Option[PsiElement] =
+  private def buildLibraryDependenciesPsi(project: Project, inName: Option[String], dependencies: Seq[String]): Option[PsiElement] =
     createSeqPsiExpr(project, inName, "libraryDependencies", dependencies)
 
-  def buildResolversPsi(project: Project, inName: Option[String], resolvers: Seq[String]): Option[PsiElement] =
+  private def buildResolversPsi(project: Project, inName: Option[String], resolvers: Seq[String]): Option[PsiElement] =
     createSeqPsiExpr(project, inName, "resolvers", resolvers)
 
-  def buildScalacOptionsPsi(project: Project, inName: Option[String], options: Seq[String]): Option[PsiElement] =
+  private def buildScalacOptionsPsi(project: Project, inName: Option[String], options: Seq[String]): Option[PsiElement] =
     createSeqPsiExpr(project, inName, "scalacOptions", options)
 
-  val supportedElementTypes: List[BuildFileElementType] = List(BuildFileElementType.libraryDependencyElementId,
+  private val supportedElementTypes: List[BuildFileElementType] = List(BuildFileElementType.libraryDependencyElementId,
     BuildFileElementType.resolverElementId, BuildFileElementType.scalacOptionsElementId)
 
-  def addElementsToBuildFile(module: Module, locationProvider: BuildFileModificationLocationProvider,
-                             elementType: BuildFileElementType, buildFile: PsiFile, psiElements: PsiElement*): Option[VirtualFile] = {
-    locationProvider.getAddElementLocation(module, elementType, buildFile) match {
+  private def addElementsToBuildFile(
+    module: Module,
+    locationProvider: BuildFileModificationLocationProvider,
+    elementType: BuildFileElementType,
+    buildFile: PsiFile,
+    psiElements: Seq[PsiElement]
+  ): Option[VirtualFile] = {
+    val location = locationProvider.getAddElementLocation(module, elementType, buildFile)
+    location match {
       case Some((parent, index)) if (index == 0) || parent.getChildren.length >= index =>
         val children = parent.getChildren
         if (children.isEmpty) {
-          for (psiElement <- psiElements) parent.add(psiElement)
+          for (psiElement <- psiElements) {
+            parent.add(psiElement)
+          }
         } else if (index == 0) {
-          for (psiElement <- psiElements) parent.addBefore(psiElement, children(0))
+          for (psiElement <- psiElements) {
+            parent.addBefore(psiElement, children(0))
+          }
         } else {
-          for (psiElement <- psiElements.reverse) parent.addAfter(psiElement, children(index - 1))
+          for (psiElement <- psiElements.reverse) {
+            parent.addAfter(psiElement, children(index - 1))
+          }
         }
         val psiFile = parent.getContainingFile
         val res = psiFile.getVirtualFile

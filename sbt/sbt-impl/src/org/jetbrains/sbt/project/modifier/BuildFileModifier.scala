@@ -25,8 +25,10 @@ trait BuildFileModifier {
    * Performs some specific modification(s) of sbt build file(s) (library dependencies, resolvers, sbt options, etc.)
    * @param module - module within IJ project to modify build file(s) for
    */
-  protected def modifyInner(module: IJModule, vfsFileToCopy: mutable.Map[VirtualFile, LightVirtualFile]):
-  Option[List[VirtualFile]]
+  protected def modifyInner(
+    module: IJModule,
+    vfsFileToCopy: mutable.Map[VirtualFile, LightVirtualFile]
+  ): Option[List[VirtualFile]]
 
   /**
    * Performs modification(s) of sbt build file(s) associated with the module and refreshes external system.
@@ -61,8 +63,11 @@ trait BuildFileModifier {
     res
   }
 
-  def previewChanges(project: IJProject, changes: List[VirtualFile], filesToWorkingCopies: mutable.Map[VirtualFile,
-      LightVirtualFile]): Option[List[VirtualFile]] = {
+  private def previewChanges(
+    project: IJProject,
+    changes: List[VirtualFile],
+    filesToWorkingCopies: mutable.Map[VirtualFile, LightVirtualFile]
+  ): Option[List[VirtualFile]] = {
     //first, create changes and set their initial status
     val fileStatusMap = mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)]()
     val documentManager = FileDocumentManager.getInstance()
