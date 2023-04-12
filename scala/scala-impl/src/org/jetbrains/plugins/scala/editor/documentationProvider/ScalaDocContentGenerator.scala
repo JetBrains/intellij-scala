@@ -166,14 +166,30 @@ private class ScalaDocContentGenerator(
   }
 
   private def visitParagraph(buffer: StringBuilder, paragraph: ScDocParagraph, skipParagraphElement: Boolean): Unit = {
-    if (!skipParagraphElement)
-      buffer.append(HtmlStartParagraph)
-    paragraph
-      .children
-      .dropWhile(_.elementType == ScalaDocTokenType.DOC_WHITESPACE)
-      .foreach(visitNode(buffer, _))
-    if (!skipParagraphElement)
-      buffer.append(HtmlEndParagraph).append('\n')
+    def isEmpty(element: PsiElement): Boolean =
+      element.elementType == ScalaDocTokenType.DOC_WHITESPACE ||
+        element.elementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS
+
+    val nodesTrimmed =
+      paragraph
+        .children
+        .toList
+        .dropWhile(isEmpty)
+        .reverse
+        .dropWhile(isEmpty)
+        .reverse
+
+    if (nodesTrimmed.nonEmpty) {
+      if (!skipParagraphElement && !nodesTrimmed.head.getText.contains(HtmlStartParagraph))
+        buffer.append(HtmlStartParagraph)
+
+      nodesTrimmed.foreach(visitNode(buffer, _))
+
+      if (!skipParagraphElement && !nodesTrimmed.last.getText.contains(HtmlEndParagraph))
+        buffer.append(HtmlEndParagraph)
+
+      buffer.append('\n')
+    }
   }
 
   private def visitDocList(buffer: StringBuilder, list: ScDocList): Unit = {
