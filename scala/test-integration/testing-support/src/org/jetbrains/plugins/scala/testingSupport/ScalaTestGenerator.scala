@@ -93,6 +93,8 @@ class ScalaTestGenerator extends TestGenerator {
       addSuperClass(typeDefinition, psiClass, fqName)
     }
     val positionElement = typeDefinition.extendsBlock.templateBody.map(_.getFirstChild).getOrElse(typeDefinition)
+    CodeInsightUtil.positionCursor(project, file, positionElement)
+
     addTestMethods(
       typeDefinition,
       dialog.getSelectedMethods.asScala.toSeq,
