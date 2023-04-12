@@ -38,10 +38,12 @@ class ChangesConfirmationDialog private (val project: IJProject, private val cha
 
     val swappedChanges: java.util.ArrayList[Change] = new java.util.ArrayList[Change]()
     swappedChanges.addAll(changes.map(BuildFileChange.swap).asJavaCollection)
-    val changesBrowser = new BuildFileChangeBrowser(project, swappedChanges, fileStatusMap)
-    myChangesBrowser = changesBrowser
+
+    val changesBrowser = new BuildFileChangeBrowser(project, fileStatusMap)
     changesBrowser.setChangesToDisplay(swappedChanges)
     changesBrowser.addToolbarAction(ActionManager.getInstance.getAction(IdeActions.ACTION_EDIT_SOURCE))
+
+    myChangesBrowser = changesBrowser
     rootPane.add(changesBrowser)
 
     /*todo val diffDetails = new ShortDiffDetails(project, new Getter[Array[Change]] {

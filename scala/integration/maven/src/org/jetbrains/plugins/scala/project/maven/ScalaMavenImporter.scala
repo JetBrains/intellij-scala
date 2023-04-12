@@ -164,7 +164,6 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
     mavenProject: MavenProject,
     nativeMavenProject: NativeMavenProjectHolder,
     embedder: MavenEmbedderWrapper,
-    context: ResolveContext
   ): Unit = {
     val configuration = validConfigurationIn(mavenProject)
     configuration.foreach { configuration =>
