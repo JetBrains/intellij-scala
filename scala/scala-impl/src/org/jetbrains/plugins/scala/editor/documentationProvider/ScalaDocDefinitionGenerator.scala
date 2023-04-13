@@ -91,13 +91,11 @@ private class ScalaDocDefinitionGenerator private(
 
     builder.appendKeyword(ScalaDocumentationUtils.getKeyword(keywordOwner))
 
-    builder.b {
-      append(element match {
-        case named: ScNamedElement => escapeHtml(named.name)
-        case value: ScValueOrVariable => escapeHtml(value.declaredNames.head) // TODO
-        case _ => "_"
-      })
-    }
+    append(element match {
+      case named: ScNamedElement => escapeHtml(named.name)
+      case value: ScValueOrVariable => escapeHtml(value.declaredNames.head) // TODO
+      case _ => "_"
+    })
 
     element match {
       case tpeParamOwner: ScTypeParametersOwner =>
@@ -131,7 +129,7 @@ private class ScalaDocDefinitionGenerator private(
       val path = typedef.getPath
       if (path.nonEmpty) {
         builder
-          .append(s"<icon src=\"AllIcons.Nodes.Package\"/> ")
+          .append("<icon src=\"AllIcons.Nodes.Package\"/> ")
           .append(HtmlPsiUtils.psiElementLink(path, path))
           .append("<br/>\n")
       }
@@ -194,11 +192,8 @@ private class ScalaDocDefinitionGenerator private(
 
   // UTILS
 
-  private def containingClassHyperLink(elem: ScMember): Option[String] = {
-    val clazz = elem.containingClass
-    if (clazz == null) None
-    else HtmlPsiUtils.classFullLinkSafe(clazz, defLinkHighlight = true)
-  }
+  private def containingClassHyperLink(elem: ScMember): Option[String] =
+    Option(elem.containingClass).flatMap(HtmlPsiUtils.classFullLinkSafe(_, defLinkHighlight = true))
 
   private def typeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
     new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll)
@@ -245,10 +240,9 @@ private class ScalaDocDefinitionGenerator private(
           buffer.append(typeToString(seq.head.`type`().getOrAny))
           if (seq.length > 1) {
             buffer.append("\n")
+            val typeElementsSeparator = if (seq.length > 3) "<br/>" else " "
             for (i <- 1 until seq.length) {
-              if (i > 1) {
-                buffer.append(if (seq.length > 3) "<br/>" else " ")
-              }
+              if (i > 1) buffer.append(typeElementsSeparator)
               buffer
                 .appendKeyword("with ")
                 .append(typeToString(seq(i).`type`().getOrAny))
