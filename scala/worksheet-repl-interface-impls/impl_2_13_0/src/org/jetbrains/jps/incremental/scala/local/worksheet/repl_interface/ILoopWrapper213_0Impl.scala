@@ -2,7 +2,6 @@ package org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface
 
 import java.io.{File, Flushable, PrintWriter}
 
-import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
 import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper213_0Impl._
 
 import scala.reflect.classTag

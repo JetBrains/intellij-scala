@@ -3,8 +3,7 @@ package org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface
 import java.io.{File, Flushable, PrintStream}
 import java.util
 
-import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
-import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper312Impl._
+import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper330Impl._
 
 import dotty.tools.repl.ReplDriver
 import dotty.tools.repl.State
@@ -14,7 +13,7 @@ import scala.jdk.CollectionConverters._
 /**
  * ATTENTION: when editing ensure to increase the version in ILoopWrapperFactoryHandler
  */
-class ILoopWrapper312Impl(
+class ILoopWrapper330Impl(
   myOut: PrintStream,
   wrapperReporter: ILoopWrapperReporter, // TODO: use when ReplDriver accepts reporter
   projectFullCp: util.List[String],
@@ -68,10 +67,12 @@ class ILoopWrapper312Impl(
   }
 }
 
-object ILoopWrapper312Impl {
+object ILoopWrapper330Impl {
 
   private class ReplDriverOpen(settings: Array[String], out: PrintStream, classLoader: Option[ClassLoader])
     extends ReplDriver(settings, out, classLoader) {
+
+    override protected def redirectOutput: Boolean = false
 
     override def resetToInitial(settings: List[String]): Unit = super.resetToInitial(settings)
   }

@@ -3,7 +3,6 @@ package org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface
 import java.io.{File, Flushable, PrintStream}
 import java.util
 
-import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
 import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper300Impl._
 
 import dotty.tools.repl.ReplDriver

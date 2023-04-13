@@ -2,8 +2,6 @@ package org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface
 
 import java.io.{File, Flushable, PrintWriter}
 
-import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
-
 import scala.reflect.classTag
 import scala.reflect.internal.util.Position
 import scala.tools.nsc.Settings
@@ -14,7 +12,7 @@ import scala.collection.JavaConverters._
 /**
  * ATTENTION: when editing ensure to increase the version in ILoopWrapperFactoryHandler
  */
-class ILoopWrapper212Impl(
+class ILoopWrapper212_13Impl(
   myOut: PrintWriter,
   wrapperReporter: ILoopWrapperReporter,
   projectFullCp: java.util.List[String],
@@ -37,8 +35,6 @@ class ILoopWrapper212Impl(
     createInterpreter()
     intp.initializeSynchronous()
     intp.quietBind(NamedParam[IMain]("$intp", intp)(tagOfIMain, classTag[IMain]))
-    // NOTE: this is NOOP method, deprecated since = "2.12.0", but the class is used in 2.122 as well
-    intp.setContextClassLoader()
   }
 
   // copied from ILoop
@@ -52,7 +48,7 @@ class ILoopWrapper212Impl(
   class MyILoopInterpreter extends ILoopInterpreter {
 
     override lazy val reporter: ReplReporter = new ReplReporter(this) {
-      override def print(pos: Position, msg: String, severity: Severity): Unit = {
+      override protected def display(pos: Position, msg: String, severity: Severity): Unit = {
         wrapperReporter.report(severity.toString, pos.line, pos.column, pos.lineContent, msg)
       }
     }

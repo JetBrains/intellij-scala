@@ -71,6 +71,7 @@ lazy val scalaCommunity: sbt.Project =
         jps,
         compilerJps,
         repackagedZinc,
+        worksheetReplInterfaceImpls,
         compileServer,
         nailgunRunners,
         copyrightIntegration,
@@ -199,6 +200,77 @@ lazy val worksheetReplInterface =
       intellijPlugins := Seq.empty,
       compilationCacheSettings
     )
+
+lazy val worksheetReplInterfaceImpls: Project =
+  newProject("worksheet-repl-interface-impls", file("scala/worksheet-repl-interface-impls"))
+    .settings(
+      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
+      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
+      packageMethod := PackagingMethod.Standalone("worksheet-repl-interface/impls.jar", static = true),
+      packageAdditionalProjects := Seq(
+        worksheetReplInterfaceImpl_2_12,
+        worksheetReplInterfaceImpl_2_12_13,
+        worksheetReplInterfaceImpl_2_13_0,
+        worksheetReplInterfaceImpl_2_13,
+        worksheetReplInterfaceImpl_3_0_0,
+        worksheetReplInterfaceImpl_3_1_2,
+        worksheetReplInterfaceImpl_3_3_0
+      )
+    )
+
+def worksheetReplInterfaceImplCommonSettings(scalaVer: String): Seq[Setting[?]] = Seq(
+  scalaVersion := scalaVer,
+  libraryDependencies += {
+    if (scalaVer.startsWith("3."))
+      "org.scala-lang" %% "scala3-compiler" % scalaVer % Provided
+    else
+      "org.scala-lang" % "scala-compiler" % scalaVer % Provided
+  },
+  dependencyOverrides := Seq.empty,
+  (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
+  (Compile / scalacOptions) := Seq("-release", "8"),
+  packageMethod := PackagingMethod.MergeIntoOther(worksheetReplInterfaceImpls),
+  intellijMainJars := Seq.empty,
+  intellijPlugins := Seq.empty
+)
+
+lazy val worksheetReplInterfaceImpl_2_12: Project =
+  newProject("worksheet-repl-interface-impl_2_12", file("scala/worksheet-repl-interface-impls/impl_2_12"))
+    .dependsOn(worksheetReplInterface)
+    .settings(
+      worksheetReplInterfaceImplCommonSettings("2.12.12"),
+      (Compile / scalacOptions) := Seq("-target:jvm-1.8") // Old version of Scala 2.12 does not have the modern compiler flags
+    )
+
+lazy val worksheetReplInterfaceImpl_2_12_13: Project =
+  newProject("worksheet-repl-interface-impl_2_12_13", file("scala/worksheet-repl-interface-impls/impl_2_12_13"))
+    .dependsOn(worksheetReplInterface)
+    .settings(worksheetReplInterfaceImplCommonSettings("2.12.17"))
+
+lazy val worksheetReplInterfaceImpl_2_13_0: Project =
+  newProject("worksheet-repl-interface-impl_2_13_0", file("scala/worksheet-repl-interface-impls/impl_2_13_0"))
+    .dependsOn(worksheetReplInterface)
+    .settings(worksheetReplInterfaceImplCommonSettings("2.13.0"))
+
+lazy val worksheetReplInterfaceImpl_2_13: Project =
+  newProject("worksheet-repl-interface-impl_2_13", file("scala/worksheet-repl-interface-impls/impl_2_13"))
+    .dependsOn(worksheetReplInterface)
+    .settings(worksheetReplInterfaceImplCommonSettings("2.13.10"))
+
+lazy val worksheetReplInterfaceImpl_3_0_0: Project =
+  newProject("worksheet-repl-interface-impl_3_0_0", file("scala/worksheet-repl-interface-impls/impl_3_0_0"))
+    .dependsOn(worksheetReplInterface)
+    .settings(worksheetReplInterfaceImplCommonSettings("3.1.1"))
+
+lazy val worksheetReplInterfaceImpl_3_1_2: Project =
+  newProject("worksheet-repl-interface-impl_3_1_2", file("scala/worksheet-repl-interface-impls/impl_3_1_2"))
+    .dependsOn(worksheetReplInterface)
+    .settings(worksheetReplInterfaceImplCommonSettings("3.2.2"))
+
+lazy val worksheetReplInterfaceImpl_3_3_0: Project =
+  newProject("worksheet-repl-interface-impl_3_3_0", file("scala/worksheet-repl-interface-impls/impl_3_3_0"))
+    .dependsOn(worksheetReplInterface)
+    .settings(worksheetReplInterfaceImplCommonSettings("3.3.0-RC3"))
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .settings(
