@@ -255,8 +255,7 @@ lazy val scalaImpl: sbt.Project =
         // "com.thesamet.scalapb" %% "lenses" % ".*"          -> None,
         Dependencies.scalaXml                              -> Some("lib/scala-xml.jar"),
         Dependencies.scalaReflect                          -> Some("lib/scala-reflect.jar"),
-        Dependencies.scalaLibrary                          -> None,
-        Dependencies.scalaCompiler                         -> None,
+        Dependencies.scalaLibrary                          -> None
       )
     )
     .withCompilerPluginIn(scalacPatches) // TODO Add to other modules
