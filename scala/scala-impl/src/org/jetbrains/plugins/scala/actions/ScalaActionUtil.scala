@@ -8,6 +8,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.ui.LightweightHint
 import com.intellij.util.ui.StartupUiUtil
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import java.awt.Point
@@ -15,28 +16,20 @@ import java.awt.event.{MouseEvent, MouseMotionAdapter}
 
 object ScalaActionUtil {
 
-  def enablePresentation(presentation: Presentation): Unit = {
-    presentation.setEnabled(true)
-    presentation.setVisible(true)
-  }
-  
-  def disablePresentation(presentation: Presentation): Unit = {
-    presentation.setEnabled(false)
-    presentation.setVisible(false)
-  }
+  @deprecated("Use `event.getPresentation.setEnabledAndVisible(true)` instead")
+  @inline def enablePresentation(e: AnActionEvent): Unit = e.getPresentation.setEnabledAndVisible(true)
 
-  @inline def enablePresentation(e: AnActionEvent): Unit = enablePresentation(e.getPresentation)
-
-  @inline def disablePresentation(e: AnActionEvent): Unit = disablePresentation(e.getPresentation)
+  @deprecated("Use `event.getPresentation.setEnabledAndVisible(false)` instead")
+  @inline def disablePresentation(e: AnActionEvent): Unit = e.getPresentation.setEnabledAndVisible(false)
 
   def enableAndShowIfInScalaFile(e: AnActionEvent): Unit = try {
-    getFileFrom(e) match {
-      case Some(_: ScalaFile) => enablePresentation(e)
-      case _ => disablePresentation(e)
-    }
+    val isInScalaFile = getFileFrom(e).exists(_.is[ScalaFile])
+    e.getPresentation.setEnabledAndVisible(isInScalaFile)
   } catch {
-    case c: ControlFlowException => throw c
-    case _: Exception => disablePresentation(e)
+    case c: ControlFlowException =>
+      throw c
+    case _: Exception =>
+      e.getPresentation.setEnabledAndVisible(false)
   }
 
   def getFileFrom(e: AnActionEvent): Option[PsiFile] = Option(CommonDataKeys.PSI_FILE.getData(e.getDataContext))

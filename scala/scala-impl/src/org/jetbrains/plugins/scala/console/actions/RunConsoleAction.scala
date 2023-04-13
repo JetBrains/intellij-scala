@@ -30,11 +30,11 @@ class RunConsoleAction extends AnAction(
     if (e.getProject == null || e.getProject.isDisposed) return
 
     if(!e.getProject.hasScala) {
-      ScalaActionUtil.disablePresentation(e)
+      e.getPresentation.setEnabledAndVisible(false)
     } else if(e.getPlace == ActionPlaces.PROJECT_VIEW_POPUP) {
       ScalaActionUtil.enableAndShowIfInScalaFile(e)
     } else {
-      ScalaActionUtil.enablePresentation(e)
+      e.getPresentation.setEnabledAndVisible(true)
     }
   }
 
