@@ -36,10 +36,9 @@ import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOption._
-import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 import org.jetbrains.sbt.shell.SbtProcessManager._
-import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtCompilationSupervisorPort}
+import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtCompilationSupervisorPort, SbtUtil}
 
 import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
 import java.util.concurrent.TimeUnit
@@ -129,10 +128,10 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
 
-    val mappedSbtOpts = SbtOpts.loadFrom(workingDir) ++ SbtOpts.mapOptionsToSbtOptions(sbtSettings.sbtOptions, workingDirPath)
-    val sbtOpts = mappedSbtOpts.collect { case a: JvmOption => a.value }
-    val allJvmOpts = buildVMParameters(sbtSettings, workingDir, sbtOpts)
-    vmParams.addAll(allJvmOpts.asJava)
+    val sbtOpts = SbtUtil.collectAllOptionsFromSbt(sbtSettings.sbtOptions, workingDir, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment)
+    val sbtOptsValues = sbtOpts.collect { case a: JvmOption => a.value }
+    val allOpts = buildVMParameters(sbtSettings, workingDir, sbtOptsValues)
+    vmParams.addAll(allOpts.asJava)
 
     // don't add runid when using addPluginSbtFile command
     if (! addPluginSupported)
@@ -177,7 +176,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
         else                             "idea-shell"
 
       commandLine.addParameter(commands)
-      val sbtLauncherArgs = mappedSbtOpts.collect { case a: SbtLauncherOption => a.value }
+      val sbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value }
       commandLine.addParameters(sbtLauncherArgs.asJava)
     }
 
@@ -492,8 +491,7 @@ object SbtProcessManager {
   def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: File, sbtOpts: Seq[String]): Seq[String] = {
     val hardcoded = List("-Dsbt.supershell=false")
     val jvmOpts = hardcoded ++
-      JvmOpts.loadFrom(workingDir) ++
-      sbtSettings.vmOptions ++
+      SbtUtil.collectAllOptionsFromJava(workingDir, sbtSettings.vmOptions, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment) ++
       sbtOpts
 
     val hasXmx = jvmOpts.exists(_.startsWith("-Xmx"))

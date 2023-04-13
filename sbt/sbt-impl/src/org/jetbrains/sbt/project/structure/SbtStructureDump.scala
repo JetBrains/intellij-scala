@@ -20,7 +20,7 @@ import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication._
-import org.jetbrains.sbt.{SbtBundle, SbtCompilationSupervisorPort}
+import org.jetbrains.sbt.{SbtBundle, SbtCompilationSupervisorPort, SbtUtil}
 
 import java.io.{BufferedWriter, File, OutputStreamWriter, PrintWriter}
 import java.nio.charset.Charset
@@ -186,18 +186,17 @@ class SbtStructureDump {
     val startTime = System.currentTimeMillis()
     // assuming here that this method might still be called without valid project
 
-    val mappedSbtOpts = SbtOpts.loadFrom(directory) ++ SbtOpts.mapOptionsToSbtOptions(sbtOptions, directory.getCanonicalPath)
-    val sbtOpts = mappedSbtOpts.collect { case a: JvmOptionGlobal => a.value }
-    val allJvmOpts = JvmOpts.loadFrom(directory) ++ vmOptions ++ sbtOpts
+    val sbtOpts = SbtUtil.collectAllOptionsFromSbt(sbtOptions, directory, passParentEnvironment, environment0)
+    val allOpts = SbtUtil.collectAllOptionsFromJava(directory, vmOptions, passParentEnvironment, environment0) ++ sbtOpts.collect { case a: JvmOptionGlobal => a.value }
 
-    val allSbtLauncherArgs = mappedSbtOpts.collect { case a: SbtLauncherOption => a.value } ++ sbtLauncherArgs
+    val allSbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value } ++ sbtLauncherArgs
     val processCommandsRaw =
       List(
         normalizePath(vmExecutable),
         "-Djline.terminal=jline.UnsupportedTerminal",
         "-Dsbt.log.noformat=true",
         "-Dfile.encoding=UTF-8") ++
-        allJvmOpts ++
+        allOpts ++
       List("-jar", normalizePath(sbtLauncher)) ++
       allSbtLauncherArgs// :+ "--debug"
 
