@@ -182,11 +182,22 @@ lazy val worksheet =
     )
 
 lazy val worksheetReplInterface =
-  newProject("worksheet-repl-interface", file("scala/worksheet-repl-interface"))
+  Project("worksheet-repl-interface", file("scala/worksheet-repl-interface"))
     .settings(
-      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
-      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
-      packageMethod :=  PackagingMethod.Standalone("lib/repl-interface.jar", static = true)
+      name := "worksheet-repl-interface",
+      organization := "JetBrains",
+      (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
+      // NOTE: we might continue NOT using Scala in scalatestFinders just in case
+      // in some future we will decide again to extract the library, so as it can be used even without scala jar
+      scalaVersion := Versions.scalaVersion,
+      crossPaths := false, // disable using the Scala version in output paths and artifacts
+      autoScalaLibrary := false, // removes Scala dependency
+      (Compile / javacOptions) := outOfIDEAProcessJavacOptions, // can run in the compile server
+      (Compile / scalacOptions) := Seq.empty, // scala is disabled anyway, set empty options to move to a separate compiler profile (in IntelliJ model)
+      packageMethod :=  PackagingMethod.Standalone("lib/repl-interface.jar", static = true),
+      intellijMainJars := Seq.empty,
+      intellijPlugins := Seq.empty,
+      compilationCacheSettings
     )
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
