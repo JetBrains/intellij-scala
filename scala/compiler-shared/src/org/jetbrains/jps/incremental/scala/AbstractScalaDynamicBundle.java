@@ -21,7 +21,7 @@ public abstract class AbstractScalaDynamicBundle extends AbstractBundle {
     }
 
     /**
-     * The following code was copied from {@link org.jetbrains.jps.api.JpsDynamicBundle}, to avoid linking against it.
+     * The following code was copied from org.jetbrains.jps.api.JpsDynamicBundle, to avoid linking against it.
      */
 
     private static final String LANGUAGE_BUNDLE = "jps.language.bundle";
@@ -45,6 +45,8 @@ public abstract class AbstractScalaDynamicBundle extends AbstractBundle {
             ourLangBundleLoader = loader;
         }
     }
+
+    @SuppressWarnings("deprecation")
     private static Method getSetParentMethod() {
         try {
             return ReflectionUtil.getDeclaredMethod(ResourceBundle.class, "setParent", ResourceBundle.class);
