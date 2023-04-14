@@ -62,7 +62,9 @@ trait PrecedenceHelper {
   protected def addResult(result: ScalaResolveResult): Boolean = addResults(Seq(result))
 
   protected def addResults(results: Iterable[ScalaResolveResult]): Boolean = {
-    if (results.isEmpty) return true
+    if (results.isEmpty)
+      return true
+
     val result: ScalaResolveResult = results.head
 
     lazy val levelSet = getLevelSet(result)
@@ -77,36 +79,40 @@ trait PrecedenceHelper {
 
     val currentPrecedence = precedence(result)
     val topPrecedence = holder(result)
+
     if (currentPrecedence < topPrecedence)
-      return false
+      false
     else if (currentPrecedence == topPrecedence && levelSet.isEmpty)
-      return false
+      false
     else if (currentPrecedence == topPrecedence) {
       if (isCheckForEqualPrecedence &&
         (levelUniqueNamesSet.contains(result) || uniqueNamesSet.contains(result))) {
-        return false
-      } else if (uniqueNamesSet.contains(result))
-        return false
-      addResults()
-    } else {
-      if (uniqueNamesSet.contains(result)) {
-        return false
-      } else {
-        holder(result) = currentPrecedence
-        val levelSetIterator = levelSet.iterator()
-
-        while (levelSetIterator.hasNext) {
-          val next = levelSetIterator.next()
-          if (holder.filterNot(next, result)(precedence)) {
-            levelSetIterator.remove()
-          }
-        }
-
-        clearLevelQualifiedSet(result)
+        false
+      }
+      else if (uniqueNamesSet.contains(result))
+        false
+      else {
         addResults()
+        true
       }
     }
-    true
+    else if (uniqueNamesSet.contains(result)) {
+      false
+    } else {
+      holder(result) = currentPrecedence
+      val levelSetIterator = levelSet.iterator()
+
+      while (levelSetIterator.hasNext) {
+        val next = levelSetIterator.next()
+        if (holder.filterNot(next, result)(precedence)) {
+          levelSetIterator.remove()
+        }
+      }
+
+      clearLevelQualifiedSet(result)
+      addResults()
+      true
+    }
   }
 
   protected def precedence(result: ScalaResolveResult): Int =
