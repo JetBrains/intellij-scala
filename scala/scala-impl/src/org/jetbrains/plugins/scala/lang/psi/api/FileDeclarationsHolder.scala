@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.migration.PsiMigrationManager
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
@@ -289,23 +291,32 @@ object FileDeclarationsHolder {
     if (place == null || place.hasOnlyStub)
       return false
 
-    place.getContainingFile match {
-      case scalaFile: ScalaFile if scalaFile.isWorksheetFile =>
-        true
-      case scalaFile: ScalaFile =>
-        val vFile = Option(scalaFile.getOriginalFile.getVirtualFile).getOrElse(scalaFile.getViewProvider.getVirtualFile)
-        if (vFile == null)
-          false
-        else {
-          val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
-          val isInSources = index.isInSourceContent(vFile)
-          val isInLibraries = index.isInLibraryClasses(vFile)
-          val belongsToProject = isInSources || isInLibraries
-          !belongsToProject
-        }
+    val scalaFile = place.getContainingFile match {
+      case sf: ScalaFile => sf
       case _ =>
-        false
+        return false
+    }
+
+    if (scalaFile.isWorksheetFile)
+      true
+    else {
+      //Fallback to `scalaFile.getViewProvider.getVirtualFile` was added for BDIDE-272
+      // TODO: maybe it's not required after we added `getOriginalFile`, we need to recheck it and probably remove fallback
+      val vFile = Option(scalaFile.getOriginalFile.getVirtualFile).getOrElse(scalaFile.getViewProvider.getVirtualFile)
+      if (vFile == null)
+        false // file exists only in memory
+      else
+        isExternalFile(scalaFile.getProject, vFile)
     }
   }
 
+  /**
+   * @return true for scratch file or just some external isolated scala file
+   */
+  private def isExternalFile(project: Project, vFile: VirtualFile) = {
+    val index = ProjectRootManager.getInstance(project).getFileIndex
+    val isInSources = index.isInSourceContent(vFile)
+    val isInLibraries = index.isInLibraryClasses(vFile)
+    !(isInSources || isInLibraries)
+  }
 }
