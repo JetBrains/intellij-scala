@@ -29,5 +29,5 @@ class Constants {
 
   final val enum = java.time.Month.JANUARY
 
-  final val symbol: 'foo  = ???
+  final val symbol: 'foo = ???
 }
