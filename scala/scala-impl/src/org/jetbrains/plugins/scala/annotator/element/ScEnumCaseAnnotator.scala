@@ -14,11 +14,17 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
+    if (!typeAware)
+      return
+
     val enumDef = cse.enumParent
     val parents = cse.extendsBlock.toOption.flatMap(_.templateParents)
 
-    def isDesignatedToEnumParent(tpe: ScType): Boolean =
-      tpe.extractClass.filterByType[ScTypeDefinition].exists(ScEnum.isDesugaredEnumClass)
+    def isDesignatedToEnumParent(tpe: ScType): Boolean = {
+      val clazz = tpe.extractClass
+      val td = clazz.filterByType[ScTypeDefinition]
+      td.exists(ScEnum.isDesugaredEnumClass)
+    }
 
     val nonVariantTypeParameter =
       enumDef.typeParameters.find(_.variance.isInvariant)
@@ -52,7 +58,7 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
       )
     }
 
-    //if both enum class and enum case have type parameters
+    //if both enum class and enum case have type parameterswar
     //an explicit extends clause must be provided
     if (enumDef.hasTypeParameters && cse.physicalTypeParameters.nonEmpty && parents.isEmpty) {
       holder.createErrorAnnotation(
