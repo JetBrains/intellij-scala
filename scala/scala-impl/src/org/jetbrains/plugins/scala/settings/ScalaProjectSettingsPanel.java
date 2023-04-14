@@ -195,7 +195,7 @@ public class ScalaProjectSettingsPanel {
         TableColumn targetLevelColumn = myBasePackagesTable.getColumnModel().getColumn(1);
         targetLevelColumn.setHeaderValue(ScalaBundle.message("scala.project.settings.form.tabs.base.package"));
 
-        new TableSpeedSearch(myBasePackagesTable);
+        TableSpeedSearch.installOn(myBasePackagesTable);
 
         JPanel tableComp = ToolbarDecorator.createDecorator(myBasePackagesTable)
                 .disableUpAction()
