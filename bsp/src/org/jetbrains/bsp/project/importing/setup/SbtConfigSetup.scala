@@ -54,7 +54,7 @@ object SbtConfigSetup {
     val runInit = (reporter: BuildReporter) => dumper.runSbt(
       baseDir, jdkExe, vmArgs,
       Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
-      BspBundle.message("bsp.resolver.creating.sbt.configuration"),
+      BspBundle.message("bsp.resolver.creating.sbt.configuration"), passParentEnvironment = true
     )(reporter)
     new SbtConfigSetup(dumper, runInit)
   }

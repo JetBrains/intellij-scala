@@ -2,6 +2,8 @@ package org.jetbrains.sbt.settings
 
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, ExternalSystemUiUtil, PaintAwarePanel}
 
+import scala.jdk.CollectionConverters.{MapHasAsJava, MapHasAsScala}
+
 class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsControl[SbtSettings] {
 
   private val pane = new SbtSettingsPane(settings.getProject)
@@ -13,14 +15,19 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
       pane.getVmParameters == settings.vmParameters &&
       pane.getSbtCommandArgs == settings.sbtOptions &&
       pane.isCustomVM == settings.customVMEnabled &&
-      pane.getCustomVMPath == settings.customVMPath
+      pane.getCustomVMPath == settings.customVMPath &&
+      pane.getSbtEnvironment == settings.sbtEnvironment.asJava &&
+      pane.getSbtPassParentEnvironment == settings.sbtPassParentEnvironment
+
   }
 
   override def showUi(show: Boolean): Unit =
     pane.getContentPanel.setVisible(show)
 
-  override def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit =
+  override def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit = {
+    canvas.remove(0)
     canvas.add(pane.getContentPanel, ExternalSystemUiUtil.getFillLineConstraints(indentLevel))
+  }
 
   override def disposeUIResources(): Unit = {}
 
@@ -32,15 +39,18 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
     settings.sbtOptions = pane.getSbtCommandArgs
     settings.customVMEnabled = pane.isCustomVM
     settings.customVMPath = pane.getCustomVMPath
+    settings.sbtEnvironment = pane.getSbtEnvironment.asScala.toMap
+    settings.sbtPassParentEnvironment = pane.getSbtPassParentEnvironment
   }
 
   override def reset(): Unit = {
-    pane.setCustomLauncherEnabled(settings.customLauncherEnabled)
-    pane.setLauncherPath(settings.customLauncherPath)
+    pane.setCustomLauncherEnabled(settings.customLauncherEnabled, settings.customLauncherPath)
     pane.setMaximumHeapSize(settings.maximumHeapSize)
     pane.setMyVmParameters(settings.vmParameters)
     pane.setSbtCommandArgs(settings.sbtOptions)
     pane.setCustomVMPath(settings.customVMPath, settings.customVMEnabled)
+    pane.setSbtEnvironment(settings.sbtEnvironment.asJava)
+    pane.setSbtPassParentEnvironment(settings.sbtPassParentEnvironment)
   }
 
   override def validate(settings: SbtSettings) = true

@@ -1,113 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.jetbrains.sbt.settings.SbtSettingsPane">
-  <grid id="27dc6" binding="myContentPanel" layout-manager="GridLayoutManager" row-count="5" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="myContentPanel" layout-manager="GridLayoutManager" row-count="4" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="677" height="412"/>
+      <xy x="17" y="20" width="1208" height="337"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <component id="fd9e3" class="com.intellij.ui.TitledSeparator">
-        <constraints>
-          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text resource-bundle="messages/SbtBundle" key="sbt.settings.sbtLauncher"/>
-        </properties>
-      </component>
-      <grid id="3ea53" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="3ea53" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="1" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="1" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
         <children>
-          <component id="4f3e8" class="javax.swing.JRadioButton" binding="myBundledButton">
+          <hspacer id="c7140">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
-            <properties>
-              <text resource-bundle="messages/SbtBundle" key="sbt.settings.bundled"/>
-            </properties>
-          </component>
-          <component id="ee93b" class="javax.swing.JRadioButton" binding="myCustomButton">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="messages/SbtBundle" key="sbt.settings.custom.launcher"/>
-            </properties>
-          </component>
-          <component id="2afad" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="myLauncherPath">
-            <constraints>
-              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <minimum-size width="250" height="-1"/>
-              </grid>
-            </constraints>
-            <properties/>
-          </component>
+          </hspacer>
         </children>
       </grid>
-      <grid id="a92bb" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="1881b" binding="vmSettingsPanel" layout-manager="GridLayoutManager" row-count="6" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="18" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="1" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="1" use-parent-layout="false">
+            <preferred-size width="450" height="107"/>
+          </grid>
         </constraints>
         <properties/>
         <border type="none"/>
         <children>
-          <component id="38b25" class="com.intellij.execution.ui.JrePathEditor" binding="myJrePathEditor" custom-create="true">
+          <component id="aa227" class="javax.swing.JLabel" binding="maximumHeapSizeLabel">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                <minimum-size width="250" height="-1"/>
-              </grid>
-            </constraints>
-            <properties/>
-          </component>
-        </children>
-      </grid>
-      <grid id="1881b" binding="vmSettingsPanel" layout-manager="GridLayoutManager" row-count="3" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="0" bottom="0" right="0"/>
-        <constraints>
-          <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="1" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children>
-          <component id="aa227" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <labelFor value="3bd0"/>
               <text resource-bundle="messages/SbtBundle" key="sbt.settings.maxHeapSize"/>
             </properties>
           </component>
-          <component id="2ec67" class="javax.swing.JLabel">
+          <component id="2ec67" class="javax.swing.JLabel" binding="vmParametersLabel">
             <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/SbtBundle" key="sbt.settings.vmParams"/>
             </properties>
           </component>
-          <component id="3bd0" class="javax.swing.JTextField" binding="myMaximumHeapSize">
+          <component id="3bd0" class="javax.swing.JTextField" binding="maximumHeapSize">
             <constraints>
-              <grid row="0" column="1" row-span="1" col-span="3" vsize-policy="2" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <preferred-size width="250" height="-1"/>
+              <grid row="1" column="1" row-span="1" col-span="4" vsize-policy="2" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <minimum-size width="287" height="-1"/>
+                <preferred-size width="287" height="-1"/>
               </grid>
             </constraints>
             <properties>
               <columns value="5"/>
+              <margin top="2" left="6" bottom="2" right="6"/>
             </properties>
           </component>
-          <component id="399a8" class="com.intellij.ui.RawCommandLineEditor" binding="myVmParameters">
+          <component id="399a8" class="com.intellij.ui.RawCommandLineEditor" binding="vmParameters">
             <constraints>
-              <grid row="1" column="1" row-span="1" col-span="3" vsize-policy="7" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <minimum-size width="250" height="-1"/>
-                <preferred-size width="250" height="-1"/>
+              <grid row="2" column="1" row-span="1" col-span="4" vsize-policy="7" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <minimum-size width="287" height="-1"/>
+                <preferred-size width="287" height="-1"/>
               </grid>
             </constraints>
             <properties>
@@ -115,11 +74,11 @@
               <enabled value="true"/>
             </properties>
           </component>
-          <component id="1fa65" class="com.intellij.ui.RawCommandLineEditor" binding="mySbtOptions">
+          <component id="1fa65" class="com.intellij.ui.RawCommandLineEditor" binding="sbtOptions">
             <constraints>
-              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <minimum-size width="250" height="-1"/>
-                <preferred-size width="250" height="-1"/>
+              <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <minimum-size width="287" height="-1"/>
+                <preferred-size width="287" height="-1"/>
               </grid>
             </constraints>
             <properties>
@@ -127,32 +86,78 @@
               <enabled value="true"/>
             </properties>
           </component>
-          <component id="b6628" class="javax.swing.JLabel" binding="sbtOptionsLabel">
+          <component id="3db44" class="javax.swing.JLabel" binding="sbtLauncherLabel">
             <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <enabled value="true"/>
-              <focusable value="true"/>
+              <text resource-bundle="messages/SbtBundle" key="sbt.settings.sbtLauncher"/>
+            </properties>
+          </component>
+          <component id="a364d" class="com.intellij.openapi.roots.ui.distribution.DistributionComboBox" binding="sbtLauncherChooser" custom-create="true">
+            <constraints>
+              <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <minimum-size width="287" height="-1"/>
+                <preferred-size width="287" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <alignmentX value="0.5"/>
+              <autoscrolls value="true"/>
+            </properties>
+          </component>
+          <component id="38b25" class="com.intellij.execution.ui.JrePathEditor" binding="jrePathEditor" custom-create="true">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <minimum-size width="462" height="-1"/>
+                <preferred-size width="462" height="-1"/>
+              </grid>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="df984" class="javax.swing.JLabel" binding="sbtOptionsLabel">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
               <text resource-bundle="messages/SbtBundle" key="sbt.settings.sbtOptions"/>
-              <visible value="true"/>
+            </properties>
+          </component>
+          <component id="e5e6e" class="javax.swing.JLabel" binding="envVarLabel">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text resource-bundle="messages/SbtBundle" key="sbt.settings.env.variables"/>
+            </properties>
+          </component>
+          <component id="2a9be" class="com.intellij.execution.configuration.EnvironmentVariablesComponent" binding="sbtEnvironment">
+            <constraints>
+              <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <minimum-size width="287" height="-1"/>
+                <preferred-size width="287" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <text value=""/>
+              <toolTipText value=""/>
             </properties>
           </component>
         </children>
       </grid>
       <hspacer id="13e59">
         <constraints>
-          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
       </hspacer>
       <vspacer id="9f935">
         <constraints>
-          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="5" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="5" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
       <component id="c87cc" class="javax.swing.JToolBar$Separator">
         <constraints>
-          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>

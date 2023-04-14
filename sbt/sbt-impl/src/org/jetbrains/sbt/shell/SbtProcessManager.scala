@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.shell
 
 import com.intellij.debugger.engine.DebuggerUtils
+import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.configurations._
 import com.intellij.execution.process.{ColoredProcessHandler, OSProcessUtil}
 import com.intellij.notification.{Notification, NotificationAction, NotificationType}
@@ -9,7 +10,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
@@ -20,10 +20,8 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
-import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.util.messages.MessageBusConnection
 import com.pty4j.unix.UnixPtyProcess
 import com.pty4j.{PtyProcess, WinSize}
@@ -181,7 +179,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
       commandLine.addParameters(sbtLauncherArgs.asJava)
     }
 
-    val pty = createPtyCommandLine(commandLine)
+    val pty = createPtyCommandLine(commandLine, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment)
     val cpty = new ColoredProcessHandler(pty)
     cpty.setShouldKillProcessSoftly(true)
     patchWindowSize(cpty.getProcess)
@@ -304,13 +302,15 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * @param commandLine commandLine to copy from
    * @return
    */
-  private def createPtyCommandLine(commandLine: GeneralCommandLine) = {
+  private def createPtyCommandLine(commandLine: GeneralCommandLine, passParentEnvironment: Boolean, environment: Map[String, String]) = {
     val pty = new PtyCommandLine()
     pty.withExePath(commandLine.getExePath)
     pty.withWorkDirectory(commandLine.getWorkDirectory)
     pty.withEnvironment(commandLine.getEnvironment)
+    pty.withEnvironment(environment.asJava)
     pty.withParameters(commandLine.getParametersList.getList)
-    pty.withParentEnvironmentType(commandLine.getParentEnvironmentType)
+    val parentEnvironmentType = if (passParentEnvironment) commandLine.getParentEnvironmentType else ParentEnvironmentType.NONE
+    pty.withParentEnvironmentType(parentEnvironmentType)
 
     pty
   }

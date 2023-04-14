@@ -2,6 +2,7 @@ package org.jetbrains.sbt.project.structure
 
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -11,7 +12,7 @@ import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
-import org.jetbrains.plugins.scala.extensions.{LoggerExt, ObjectExt}
+import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
@@ -82,6 +83,7 @@ class SbtStructureDump {
                       sbtLauncher: File,
                       sbtStructureJar: File,
                       preferScala2: Boolean,
+                      passParentEnvironment: Boolean
                      )
                      (implicit reporter: BuildReporter)
   : Try[BuildMessages] = {
@@ -108,7 +110,7 @@ class SbtStructureDump {
     runSbt(
       directory, vmExecutable, vmOptions, environment,
       sbtLauncher, sbtOptions, Seq.empty, sbtCommands,
-      SbtBundle.message("sbt.extracting.project.structure.from.sbt")
+      SbtBundle.message("sbt.extracting.project.structure.from.sbt"), passParentEnvironment
     )
   }
 
@@ -157,6 +159,7 @@ class SbtStructureDump {
              sbtLauncherArgs: Seq[String],
              @NonNls sbtCommands: String,
              @Nls reportMessage: String,
+             passParentEnvironment: Boolean
             )
             (implicit reporter: BuildReporter)
   : Try[BuildMessages] = {
@@ -204,8 +207,9 @@ class SbtStructureDump {
     reporter.startTask(dumpTaskId, None, reportMessage, startTime)
 
     val resultMessages = Try {
+      val parentEnvironmentType = if (passParentEnvironment) GeneralCommandLine.ParentEnvironmentType.CONSOLE else ParentEnvironmentType.NONE
       val generalCommandLine = new GeneralCommandLine(processCommands.asJava)
-        .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
+        .withParentEnvironmentType(parentEnvironmentType)
       val processBuilder = generalCommandLine.toProcessBuilder
       processBuilder.directory(directory)
       processBuilder.environment().putAll(environment.asJava)

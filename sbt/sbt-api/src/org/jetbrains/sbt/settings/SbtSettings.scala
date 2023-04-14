@@ -34,6 +34,8 @@ final class SbtSettings(project: Project)
   @BeanProperty var customVMEnabled: Boolean = false
   @BeanProperty var customVMPath: String = ""
   @BeanProperty var customSbtStructurePath: String = ""
+  @BeanProperty var sbtEnvironment: Map[String, String] = Map.empty
+  @BeanProperty var sbtPassParentEnvironment: Boolean = true
 
   override def getState: SbtSettings.State = {
     val state = new SbtSettings.State
@@ -47,6 +49,8 @@ final class SbtSettings(project: Project)
     state.customVMPath = customVMPath
     state.customSbtStructurePath = customSbtStructurePath
     state.sbtOptions = sbtOptions
+    state.sbtEnvironment = sbtEnvironment
+    state.sbtPassParentEnvironment = sbtPassParentEnvironment
 
     state
   }
@@ -62,6 +66,8 @@ final class SbtSettings(project: Project)
     customVMEnabled = state.customVMEnabled
     customVMPath = state.customVMPath
     customSbtStructurePath = state.customSbtStructurePath
+    sbtEnvironment = state.sbtEnvironment
+    sbtPassParentEnvironment = state.sbtPassParentEnvironment
   }
 
   override def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]): Unit = {
@@ -83,6 +89,8 @@ final class SbtSettings(project: Project)
     customVMEnabled = settings.customVMEnabled
     customVMPath = settings.customVMPath
     customSbtStructurePath = settings.customSbtStructurePath
+    sbtEnvironment = settings.sbtEnvironment
+    sbtPassParentEnvironment = settings.sbtPassParentEnvironment
   }
 
   def getLinkedProjectSettings(module: Module): Option[SbtProjectSettings] =
@@ -130,6 +138,12 @@ object SbtSettings {
 
     @BeanProperty
     var customSbtStructurePath: String = ""
+
+    @BeanProperty
+    var sbtEnvironment: Map[String, String] = Map.empty
+
+    @BeanProperty
+    var sbtPassParentEnvironment: Boolean = true
 
     private val linkedProjectSettings: util.TreeSet[SbtProjectSettings] = new util.TreeSet[SbtProjectSettings]
 

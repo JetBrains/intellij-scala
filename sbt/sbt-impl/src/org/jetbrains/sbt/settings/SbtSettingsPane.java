@@ -1,43 +1,60 @@
 package org.jetbrains.sbt.settings;
 
+import com.intellij.execution.configuration.EnvironmentVariablesComponent;
 import com.intellij.execution.ui.DefaultJreSelector;
 import com.intellij.execution.ui.JrePathEditor;
+import com.intellij.ide.macro.Macro;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.roots.ui.distribution.DistributionComboBox;
+import com.intellij.openapi.roots.ui.distribution.DistributionInfo;
+import com.intellij.openapi.roots.ui.distribution.FileChooserInfo;
+import com.intellij.openapi.roots.ui.distribution.LocalDistributionInfo;
+import com.intellij.openapi.ui.*;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.RawCommandLineEditor;
-import com.intellij.ui.TitledSeparator;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.UI;
+import kotlin.jvm.functions.Function1;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.sbt.SbtBundle;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.io.File;
 import java.lang.reflect.Method;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
+
 
 @SuppressWarnings("deprecation")
 public class SbtSettingsPane {
-    private JRadioButton myBundledButton;
-    private JRadioButton myCustomButton;
-    private JTextField myMaximumHeapSize;
-    private TextFieldWithBrowseButton myLauncherPath;
-    private RawCommandLineEditor myVmParameters;
+    private JTextField maximumHeapSize;
+    private RawCommandLineEditor vmParameters;
     private JPanel myContentPanel;
-    private JrePathEditor myJrePathEditor;
-    private RawCommandLineEditor mySbtOptions;
+    private JrePathEditor jrePathEditor;
+    private RawCommandLineEditor sbtOptions;
     private JPanel vmSettingsPanel;
+    private EnvironmentVariablesComponent sbtEnvironment;
     private JLabel sbtOptionsLabel;
+    private DistributionComboBox sbtLauncherChooser;
+    private JLabel sbtLauncherLabel;
+    private JLabel envVarLabel;
+    private JLabel vmParametersLabel;
+    private JLabel maximumHeapSizeLabel;
 
     private final Project myProject;
+    private final DistributionInfo sbtLauncherBundledDistributionInfo = new SbtLauncherBundledDistributionInfo();
 
     public SbtSettingsPane(Project project) {
 
@@ -45,62 +62,126 @@ public class SbtSettingsPane {
 
         $$$setupUI$$$();
 
-        myBundledButton.addItemListener(itemEvent -> setLauncherPathEnabled(itemEvent.getStateChange() == ItemEvent.DESELECTED));
-        myBundledButton.setSelected(true);
+        sbtLauncherChooser.setSpecifyLocationActionName(SbtBundle.message("sbt.settings.sbt.launcher.custom"));
+        sbtLauncherChooser.addDistributionIfNotExists(sbtLauncherBundledDistributionInfo);
+        addListenersToSbtLauncherChooser();
 
-        myCustomButton.addItemListener(itemEvent -> setLauncherPathEnabled(itemEvent.getStateChange() == ItemEvent.SELECTED));
 
-        myLauncherPath.addBrowseFolderListener(
-                SbtBundle.message("sbt.settings.choose.custom.launcher"),
-                SbtBundle.message("sbt.settings.choose.sbt.launch.jar"),
-                project,
-                FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
-        JPanel sbtOptionsLabelToolTip = UI.PanelFactory.panel(sbtOptionsLabel).withTooltip(SbtBundle.message("sbt.settings.sbtOptions.tooltip")).createPanel();
-        vmSettingsPanel.add(sbtOptionsLabelToolTip, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        JPanel sbtOptionsLabelTooltip = UI.PanelFactory.panel(sbtOptionsLabel).withTooltip(SbtBundle.message("sbt.settings.sbtOptions.tooltip")).createPanel();
+        vmSettingsPanel.add(sbtOptionsLabelTooltip, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+
+        jrePathEditor.setText(SbtBundle.message("sbt.settings.jrePathEditor.text"));
+        addListenersToJrePathEditor();
+
+    }
+
+    public static <T> Optional<T> castSafely(Object value, Class<T> expectedClass) {
+        if (expectedClass.isInstance(value)) {
+            return Optional.of(expectedClass.cast(value));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Boolean ifSelectedSbtLauncherIsCorrect(ItemEvent itemEvent) {
+        return castSafely(itemEvent.getItem(), DistributionComboBox.Item.Distribution.class)
+                .flatMap(distribution -> castSafely(distribution.getInfo(), LocalDistributionInfo.class))
+                .map(localDistributionInfo -> {
+                    String path = localDistributionInfo.getPath();
+                    return !path.isEmpty() && new File(path).isFile();
+                })
+                .orElse(true);
+    }
+
+    private void addDocumentFilterToJTextFieldDocument(JTextField jTextField) {
+        castSafely(jTextField.getDocument(), AbstractDocument.class)
+                .ifPresent(abstractDocument -> abstractDocument.setDocumentFilter(new DocumentFilter() {
+                    @Override
+                    public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                            throws BadLocationException {
+                        super.replace(fb, offset, length, text, attrs);
+                        jTextField.setCaretPosition(0);
+                    }
+                }));
+    }
+
+    private void addListenersToSbtLauncherChooser() {
+        installSbtLauncherChooserValidator();
+
+        Component sbtLauncherEditorComponent = sbtLauncherChooser.getEditor().getEditorComponent();
+        Optional<JTextField> sbtLauncherJTextField = castSafely(sbtLauncherEditorComponent, JTextField.class);
+        sbtLauncherJTextField.ifPresent(this::addDocumentFilterToJTextFieldDocument);
+        sbtLauncherChooser.addItemListener(listener -> sbtLauncherChooser.setToolTipText(getLauncherPath()));
+    }
+
+    private void addListenersToJrePathEditor() {
+        Component editorComponent = jrePathEditor.getComponent().getEditor().getEditorComponent();
+        castSafely(editorComponent, JTextField.class).ifPresent(jTextField -> {
+            Document jTextFieldDocument = jTextField.getDocument();
+            jTextFieldDocument.addDocumentListener(new DocumentAdapter() {
+                @Override
+                protected void textChanged(@NotNull DocumentEvent e) {
+                    jrePathEditor.getComponent().setToolTipText(getCustomVMPath());
+                }
+            });
+            addDocumentFilterToJTextFieldDocument(jTextField);
+        });
+    }
+
+    private void installSbtLauncherChooserValidator() {
+        Optional.ofNullable(DialogWrapper.findInstanceFromFocus())
+                .map(DialogWrapper::getDisposable)
+                .ifPresent(disposable -> {
+                    ComponentValidator validator = new ComponentValidator(disposable);
+                    validator.installOn(sbtLauncherChooser);
+                    validator.enableValidation();
+                    sbtLauncherChooser.addItemListener(itemEvent -> {
+                        if (!ifSelectedSbtLauncherIsCorrect(itemEvent))
+                            validator.updateInfo(new ValidationInfo(SbtBundle.message("sbt.settings.sbt.launcher.error.jar.is.not.valid.file")).forComponent(sbtLauncherChooser));
+                        else validator.updateInfo(null);
+                    });
+                });
     }
 
     public void createUIComponents() {
-
-        myJrePathEditor = new JrePathEditor(DefaultJreSelector.projectSdk(myProject));
+        sbtLauncherChooser = new DistributionComboBox(myProject, new SbtLauncherFileChooserInfo());
+        jrePathEditor = new JrePathEditor(DefaultJreSelector.projectSdk(myProject));
     }
 
     public JPanel getContentPanel() {
         return myContentPanel;
     }
 
-    public void setLauncherPathEnabled(boolean enabled) {
-        myLauncherPath.setEnabled(enabled);
-    }
-
     public boolean isCustomLauncher() {
-        return myCustomButton.isSelected();
+        return sbtLauncherChooser.getSelectedDistribution() instanceof LocalDistributionInfo;
     }
 
     public boolean isCustomVM() {
-        return myJrePathEditor.isAlternativeJreSelected();
+        return jrePathEditor.isAlternativeJreSelected();
     }
 
-    public void setCustomLauncherEnabled(boolean enabled) {
-        myBundledButton.setSelected(!enabled);
-        myCustomButton.setSelected(enabled);
+    public void setCustomLauncherEnabled(boolean enabled, String launcherPath) {
+        DistributionInfo distribution = enabled
+                ? new LocalDistributionInfo(launcherPath)
+                : sbtLauncherBundledDistributionInfo;
+        sbtLauncherChooser.setSelectedDistribution(distribution);
     }
 
     public String getLauncherPath() {
-        return myLauncherPath.getText();
+        DistributionInfo selectedDistributionInfo = sbtLauncherChooser.getSelectedDistribution();
+        return castSafely(selectedDistributionInfo, LocalDistributionInfo.class)
+                .map(LocalDistributionInfo::getPath)
+                .orElse(null);
     }
 
     public String getCustomVMPath() {
-        String pathOrName = myJrePathEditor.getJrePathOrName();
+        String pathOrName = jrePathEditor.getJrePathOrName();
         return Optional.ofNullable(pathOrName)
                 .flatMap(p -> Optional.ofNullable(ProjectJdkTable.getInstance().findJdk(pathOrName)))
                 .map(Sdk::getHomePath)
                 .orElse(pathOrName);
     }
 
-    @SuppressWarnings("unused")
-    public void setLauncherPath(String path) {
-        myLauncherPath.setText(path);
-    }
 
     @SuppressWarnings("unused")
     public void setCustomVMPath(String path, boolean useCustomVM) {
@@ -112,31 +193,47 @@ public class SbtSettingsPane {
                 .findFirst()
                 .map(Sdk::getName)
                 .orElse(path);
-        myJrePathEditor.setPathOrName(pathOrName, useCustomVM);
+        jrePathEditor.setPathOrName(pathOrName, useCustomVM);
     }
 
     public String getMaximumHeapSize() {
-        return myMaximumHeapSize.getText();
+        return maximumHeapSize.getText();
     }
 
     public void setMaximumHeapSize(String value) {
-        myMaximumHeapSize.setText(value);
+        maximumHeapSize.setText(value);
     }
 
     public String getVmParameters() {
-        return myVmParameters.getText();
+        return vmParameters.getText();
     }
 
     public void setMyVmParameters(String value) {
-        myVmParameters.setText(value);
+        vmParameters.setText(value);
     }
 
     public String getSbtCommandArgs() {
-        return mySbtOptions.getText();
+        return sbtOptions.getText();
     }
 
     public void setSbtCommandArgs(String text) {
-        mySbtOptions.setText(text);
+        sbtOptions.setText(text);
+    }
+
+    public Map<String, String> getSbtEnvironment() {
+        return sbtEnvironment.getEnvs();
+    }
+
+    public void setSbtEnvironment(Map<String, String> envs) {
+        sbtEnvironment.setEnvs(envs);
+    }
+
+    public Boolean getSbtPassParentEnvironment() {
+        return sbtEnvironment.isPassParentEnvs();
+    }
+
+    public void setSbtPassParentEnvironment(Boolean shouldPass) {
+        sbtEnvironment.setPassParentEnvs(shouldPass);
     }
 
     /**
@@ -149,62 +246,57 @@ public class SbtSettingsPane {
     private void $$$setupUI$$$() {
         createUIComponents();
         myContentPanel = new JPanel();
-        myContentPanel.setLayout(new GridLayoutManager(5, 3, new Insets(0, 0, 0, 0), -1, -1));
-        final TitledSeparator titledSeparator1 = new TitledSeparator();
-        titledSeparator1.setText(this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.sbtLauncher"));
-        myContentPanel.add(titledSeparator1, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        myContentPanel.setLayout(new GridLayoutManager(4, 4, new Insets(0, 0, 0, 0), -1, -1));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
-        myContentPanel.add(panel1, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
-        myBundledButton = new JRadioButton();
-        this.$$$loadButtonText$$$(myBundledButton, this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.bundled"));
-        panel1.add(myBundledButton, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myCustomButton = new JRadioButton();
-        this.$$$loadButtonText$$$(myCustomButton, this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.custom.launcher"));
-        panel1.add(myCustomButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myLauncherPath = new TextFieldWithBrowseButton();
-        panel1.add(myLauncherPath, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
-        final JPanel panel2 = new JPanel();
-        panel2.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        myContentPanel.add(panel2, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
-        panel2.add(myJrePathEditor, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
-        vmSettingsPanel = new JPanel();
-        vmSettingsPanel.setLayout(new GridLayoutManager(3, 4, new Insets(0, 0, 0, 0), -1, -1));
-        myContentPanel.add(vmSettingsPanel, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
-        final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.maxHeapSize"));
-        vmSettingsPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label2 = new JLabel();
-        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.vmParams"));
-        vmSettingsPanel.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myMaximumHeapSize = new JTextField();
-        myMaximumHeapSize.setColumns(5);
-        vmSettingsPanel.add(myMaximumHeapSize, new GridConstraints(0, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(250, -1), null, 0, false));
-        myVmParameters = new RawCommandLineEditor();
-        myVmParameters.setDialogCaption(this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.vmParams"));
-        myVmParameters.setEnabled(true);
-        vmSettingsPanel.add(myVmParameters, new GridConstraints(1, 1, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(250, -1), new Dimension(250, -1), null, 0, false));
-        mySbtOptions = new RawCommandLineEditor();
-        mySbtOptions.setDialogCaption(this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.sbtOptions"));
-        mySbtOptions.setEnabled(true);
-        vmSettingsPanel.add(mySbtOptions, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(250, -1), new Dimension(250, -1), null, 0, false));
-        sbtOptionsLabel = new JLabel();
-        sbtOptionsLabel.setEnabled(true);
-        sbtOptionsLabel.setFocusable(true);
-        this.$$$loadLabelText$$$(sbtOptionsLabel, this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.sbtOptions"));
-        sbtOptionsLabel.setVisible(true);
-        vmSettingsPanel.add(sbtOptionsLabel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        myContentPanel.add(panel1, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
         final Spacer spacer1 = new Spacer();
-        myContentPanel.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        panel1.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        vmSettingsPanel = new JPanel();
+        vmSettingsPanel.setLayout(new GridLayoutManager(6, 5, new Insets(0, 0, 0, 0), 18, -1));
+        myContentPanel.add(vmSettingsPanel, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(450, 107), null, 1, false));
+        maximumHeapSizeLabel = new JLabel();
+        this.$$$loadLabelText$$$(maximumHeapSizeLabel, this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.maxHeapSize"));
+        vmSettingsPanel.add(maximumHeapSizeLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        vmParametersLabel = new JLabel();
+        this.$$$loadLabelText$$$(vmParametersLabel, this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.vmParams"));
+        vmSettingsPanel.add(vmParametersLabel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        maximumHeapSize = new JTextField();
+        maximumHeapSize.setColumns(5);
+        maximumHeapSize.setMargin(new Insets(2, 6, 2, 6));
+        vmSettingsPanel.add(maximumHeapSize, new GridConstraints(1, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(287, -1), new Dimension(287, -1), null, 0, false));
+        vmParameters = new RawCommandLineEditor();
+        vmParameters.setDialogCaption(this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.vmParams"));
+        vmParameters.setEnabled(true);
+        vmSettingsPanel.add(vmParameters, new GridConstraints(2, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(287, -1), new Dimension(287, -1), null, 0, false));
+        sbtOptions = new RawCommandLineEditor();
+        sbtOptions.setDialogCaption(this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.sbtOptions"));
+        sbtOptions.setEnabled(true);
+        vmSettingsPanel.add(sbtOptions, new GridConstraints(3, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(287, -1), new Dimension(287, -1), null, 0, false));
+        sbtLauncherLabel = new JLabel();
+        this.$$$loadLabelText$$$(sbtLauncherLabel, this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.sbtLauncher"));
+        vmSettingsPanel.add(sbtLauncherLabel, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        sbtLauncherChooser.setAlignmentX(0.5f);
+        sbtLauncherChooser.setAutoscrolls(true);
+        vmSettingsPanel.add(sbtLauncherChooser, new GridConstraints(5, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(287, -1), new Dimension(287, -1), null, 0, false));
+        vmSettingsPanel.add(jrePathEditor, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(462, -1), new Dimension(462, -1), null, 0, false));
+        sbtOptionsLabel = new JLabel();
+        this.$$$loadLabelText$$$(sbtOptionsLabel, this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.sbtOptions"));
+        vmSettingsPanel.add(sbtOptionsLabel, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        envVarLabel = new JLabel();
+        this.$$$loadLabelText$$$(envVarLabel, this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.env.variables"));
+        vmSettingsPanel.add(envVarLabel, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        sbtEnvironment = new EnvironmentVariablesComponent();
+        sbtEnvironment.setText("");
+        sbtEnvironment.setToolTipText("");
+        vmSettingsPanel.add(sbtEnvironment, new GridConstraints(4, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(287, -1), new Dimension(287, -1), null, 0, false));
         final Spacer spacer2 = new Spacer();
-        myContentPanel.add(spacer2, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        myContentPanel.add(spacer2, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer3 = new Spacer();
+        myContentPanel.add(spacer3, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JToolBar.Separator toolBar$Separator1 = new JToolBar.Separator();
-        myContentPanel.add(toolBar$Separator1, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        label1.setLabelFor(myMaximumHeapSize);
-        ButtonGroup buttonGroup;
-        buttonGroup = new ButtonGroup();
-        buttonGroup.add(myBundledButton);
-        buttonGroup.add(myCustomButton);
+        myContentPanel.add(toolBar$Separator1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        maximumHeapSizeLabel.setLabelFor(maximumHeapSize);
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
@@ -254,35 +346,48 @@ public class SbtSettingsPane {
     /**
      * @noinspection ALL
      */
-    private void $$$loadButtonText$$$(AbstractButton component, String text) {
-        StringBuffer result = new StringBuffer();
-        boolean haveMnemonic = false;
-        char mnemonic = '\0';
-        int mnemonicIndex = -1;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == '&') {
-                i++;
-                if (i == text.length()) break;
-                if (!haveMnemonic && text.charAt(i) != '&') {
-                    haveMnemonic = true;
-                    mnemonic = text.charAt(i);
-                    mnemonicIndex = result.length();
-                }
-            }
-            result.append(text.charAt(i));
-        }
-        component.setText(result.toString());
-        if (haveMnemonic) {
-            component.setMnemonic(mnemonic);
-            component.setDisplayedMnemonicIndex(mnemonicIndex);
-        }
-    }
-
-    /**
-     * @noinspection ALL
-     */
     public JComponent $$$getRootComponent$$$() {
         return myContentPanel;
     }
 
+}
+
+class SbtLauncherFileChooserInfo implements FileChooserInfo {
+    @Nullable
+    @Override
+    public String getFileChooserTitle() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public String getFileChooserDescription() {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public FileChooserDescriptor getFileChooserDescriptor() {
+        return FileChooserDescriptorFactory.createSingleLocalFileDescriptor();
+    }
+
+    @Nullable
+    @Override
+    public Function1<Macro, Boolean> getFileChooserMacroFilter() {
+        return FileChooserInfo.Companion.getDIRECTORY_PATH();
+    }
+}
+
+class SbtLauncherBundledDistributionInfo implements  DistributionInfo {
+    @NotNull
+    @Override
+    public String getName() {
+        return SbtBundle.message("sbt.settings.sbt.launcher.bundled");
+    }
+
+    @Nullable
+    @Override
+    public String getDescription() {
+        return null;
+    }
 }

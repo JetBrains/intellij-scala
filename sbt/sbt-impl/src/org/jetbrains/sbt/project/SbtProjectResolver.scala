@@ -163,10 +163,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .getOrElse(throw new ExternalSystemException(s"Could not find sbt-structure-extractor for sbt version $sbtVersion"))
 
           // TODO add error/warning messages during dump, report directly
+          val environment = settings.environment ++ settings.userSetEnvironment
           dumper.dumpFromProcess(
             projectRoot, structureFilePath, options,
-            settings.vmExecutable, settings.vmOptions, settings.sbtOptions, settings.environment,
-            sbtLauncher, sbtStructureJar, settings.preferScala2)
+            settings.vmExecutable, settings.vmOptions, settings.sbtOptions, environment,
+            sbtLauncher, sbtStructureJar, settings.preferScala2, settings.passParentEnvironment)
         }
       }
       activeProcessDumper = None
