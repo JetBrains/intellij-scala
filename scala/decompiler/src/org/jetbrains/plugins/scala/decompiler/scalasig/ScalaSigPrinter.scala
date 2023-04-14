@@ -525,7 +525,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
               case Some(expr) => print(s" = $expr")
               case None =>
                 if (needsSpace(nn)) print(" ")
-                print(s": ${Constants.typeText(ct)} $compiledCodeBody")
+                print(s": ${Constants.typeText(ct)}$compiledCodeBody")
             }
           case _                                               =>
             val printBody = !m.isDeferred && (m.parent match {
