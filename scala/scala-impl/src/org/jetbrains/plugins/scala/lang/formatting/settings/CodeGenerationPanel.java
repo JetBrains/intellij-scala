@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 
 import javax.swing.*;
+import java.util.List;
 
 public final class CodeGenerationPanel extends ScalaCodeStylePanelBase {
 
@@ -30,7 +31,7 @@ public final class CodeGenerationPanel extends ScalaCodeStylePanelBase {
         panel.add(myCommenterForm.getCommenterPanel());
     }
 
-    public static ImmutableList<String> SupportedCommenterStandardOptionNames = ContainerUtil.immutableList(
+    public static List<String> SupportedCommenterStandardOptionNames = List.of(
             CodeStyleSettingsCustomizable.CommenterOption.LINE_COMMENT_AT_FIRST_COLUMN.name(),
             CodeStyleSettingsCustomizable.CommenterOption.LINE_COMMENT_ADD_SPACE.name(),
             CodeStyleSettingsCustomizable.CommenterOption.BLOCK_COMMENT_AT_FIRST_COLUMN.name(),
