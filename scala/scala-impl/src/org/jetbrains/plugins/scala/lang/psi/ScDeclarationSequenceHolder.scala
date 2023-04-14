@@ -3,11 +3,12 @@ package org.jetbrains.plugins.scala.lang.psi
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.scope._
+import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder.processSyntheticsForTopLevelDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGivenDefinition, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGivenDefinition, ScMember, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -33,14 +34,17 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
       }
 
       e match {
+        case m: ScMember =>
+          if (!processSyntheticsForTopLevelDefinition(m, processor, state))
+            return false
+        case _ =>
+      }
+
+      e match {
         case c: ScClass =>
           processor.execute(c, state)
           if (isOkForFakeCompanionModule(c)) {
             processor.execute(c.fakeCompanionModule.get, state)
-          }
-          c.getSyntheticImplicitMethod match {
-            case Some(impl) => if (!processElement(impl, state)) return false
-            case _ =>
           }
           true
         case t: ScTrait =>
@@ -49,11 +53,8 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
             processor.execute(t.fakeCompanionModule.get, state)
           }
           true
-        case gvn: ScGivenDefinition =>
-          gvn.desugaredDefinitions.forall(processor.execute(_, state))
-        case e: ScEnum =>
-          e.syntheticClass.forall(processor.execute(_, state))
-        case named: ScNamedElement => processor.execute(named, state)
+        case named: ScNamedElement =>
+          processor.execute(named, state)
         case holder: ScDeclaredElementsHolder =>
           val elements: Seq[PsiNamedElement] = holder.declaredElements
           var i = 0
@@ -94,5 +95,22 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
       }
     }
     true
+  }
+}
+
+object ScDeclarationSequenceHolder {
+
+  /** @return false to stop processing */
+  private[psi] def processSyntheticsForTopLevelDefinition(definition: ScMember, processor: PsiScopeProcessor, state: ResolveState): Boolean = {
+    val synthetics: Iterable[ScMember] = definition match {
+      case cls: ScClass => cls.getSyntheticImplicitMethod
+      case e: ScEnum => e.syntheticClass
+      case gvn: ScGivenDefinition => gvn.desugaredDefinitions
+      case _ => None
+    }
+    val stopAt = synthetics.find { member =>
+      !processor.execute(member, state)
+    }
+    stopAt.isEmpty
   }
 }

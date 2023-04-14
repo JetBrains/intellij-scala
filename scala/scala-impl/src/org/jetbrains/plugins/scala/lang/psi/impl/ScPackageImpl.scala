@@ -7,15 +7,15 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaLowerCase}
 import org.jetbrains.plugins.scala.caches.{ScalaShortNamesCacheManager, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGivenDefinition, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState}
+import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaLowerCase}
 
 final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
   pack.getManager.asInstanceOf[PsiManagerEx],
@@ -189,20 +189,12 @@ object ScPackageImpl {
               var stop = false
               while (classes.hasNext && !stop) {
                 val clazz = classes.next()
+
                 clazz match {
-                  case cls: ScClass if cls.isTopLevel =>
-                    cls.getSyntheticImplicitMethod.foreach { synMethod =>
-                      if (!processor.execute(synMethod, state)) return false
-                    }
-                  case e: ScEnum if e.isTopLevel =>
-                    e.syntheticClass.foreach { synCls =>
-                      if (!processor.execute(synCls, state)) return false
-                    }
-                  case gvn: ScGivenDefinition if gvn.isTopLevel =>
-                    gvn.desugaredDefinitions.foreach { synDef =>
-                      if (!processor.execute(synDef, state)) return false
-                    }
-                  case _ => ()
+                  case m: ScMember if m.isTopLevel =>
+                    if (!ScDeclarationSequenceHolder.processSyntheticsForTopLevelDefinition(m, processor, state))
+                      return false
+                  case _ =>
                 }
 
                 stop = clazz.containingClass == null && !processor.execute(clazz, state)
