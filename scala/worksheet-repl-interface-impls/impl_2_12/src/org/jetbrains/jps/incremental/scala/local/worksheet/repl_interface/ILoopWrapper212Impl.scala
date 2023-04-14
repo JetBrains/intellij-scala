@@ -1,7 +1,8 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface
 
-import java.io.{File, Flushable, PrintWriter}
+import com.github.ghik.silencer.silent
 
+import java.io.{File, Flushable, PrintWriter}
 import scala.reflect.classTag
 import scala.reflect.internal.util.Position
 import scala.tools.nsc.Settings
@@ -36,10 +37,11 @@ class ILoopWrapper212Impl(
     intp.initializeSynchronous()
     intp.quietBind(NamedParam[IMain]("$intp", intp)(tagOfIMain, classTag[IMain]))
     // NOTE: this is NOOP method, deprecated since = "2.12.0", but the class is used in 2.122 as well
-    intp.setContextClassLoader()
+    intp.setContextClassLoader(): @silent("deprecated")
   }
 
   // copied from ILoop
+  @silent("deprecated")
   override def createInterpreter() {
     if (addedClasspath != "")
       settings.classpath.append(addedClasspath)

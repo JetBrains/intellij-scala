@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface
 
 import java.io.{File, Flushable, PrintWriter}
-
+import scala.annotation.nowarn
 import scala.reflect.classTag
 import scala.reflect.internal.util.Position
 import scala.tools.nsc.Settings
@@ -38,6 +38,7 @@ class ILoopWrapper212_13Impl(
   }
 
   // copied from ILoop
+  @nowarn("cat=deprecation")
   override def createInterpreter() {
     if (addedClasspath != "")
       settings.classpath.append(addedClasspath)

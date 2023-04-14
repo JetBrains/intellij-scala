@@ -241,11 +241,28 @@ lazy val worksheetReplInterfaceImpl_2_12: Project =
       worksheetReplInterfaceImplCommonSettings("2.12.12"),
       (Compile / scalacOptions) := Seq("-target:jvm-1.8") // Old version of Scala 2.12 does not have the modern compiler flags
     )
+    .settings(
+      libraryDependencies ++= Seq(
+        compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.1" cross CrossVersion.full),
+        "com.github.ghik" % "silencer-lib" % "1.7.1" % Provided cross CrossVersion.full
+      ),
+      (Compile / scalacOptions) += "-deprecation",
+      // This is a workaround for manually enabling the `silencer-plugin` scalac compiler plugin. For some reason,
+      // automatic enabling doesn't work (the scalacOption "-Xplugin:" was not added).
+      // The silencer plugin is needed because this subproject is compiled using Scala 2.12.12 which did not have
+      // support for `@scala.annotation.nowarn`.
+      autoCompilerPlugins := false,
+      ivyConfigurations += Configurations.CompilerPlugin,
+      (Compile / scalacOptions) ++= Classpaths.autoPlugins(update.value, Seq.empty, isDotty = false)
+    )
 
 lazy val worksheetReplInterfaceImpl_2_12_13: Project =
   newProject("worksheet-repl-interface-impl_2_12_13", file("scala/worksheet-repl-interface-impls/impl_2_12_13"))
     .dependsOn(worksheetReplInterface)
-    .settings(worksheetReplInterfaceImplCommonSettings("2.12.17"))
+    .settings(
+      worksheetReplInterfaceImplCommonSettings("2.12.17"),
+      (Compile / scalacOptions) += "-deprecation"
+    )
 
 lazy val worksheetReplInterfaceImpl_2_13_0: Project =
   newProject("worksheet-repl-interface-impl_2_13_0", file("scala/worksheet-repl-interface-impls/impl_2_13_0"))
