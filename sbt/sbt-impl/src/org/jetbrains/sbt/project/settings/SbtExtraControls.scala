@@ -22,7 +22,6 @@ final class SbtExtraControls {
   val useSbtShellForImportCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.useShellForImport"), SbtBundle.message("sbt.settings.useShellForImport.tooltip"))
   val useSbtShellForBuildCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.useShellForBuild"), SbtBundle.message("sbt.settings.useShellForBuild.tooltip"))
   val remoteDebugSbtShellCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.remoteDebug"), SbtBundle.message("sbt.settings.remoteDebug.tooltip"))
-  val allowSbtVersionOverrideCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.allowSbtVersionOverride"), SbtBundle.message("sbt.settings.allowSbtVersionOverride.tooltip"))
   val scalaVersionPreferenceComboBox = new com.intellij.openapi.ui.ComboBox(Array("Scala 2", "Scala 3"))
 
   locally {
@@ -36,7 +35,7 @@ final class SbtExtraControls {
       panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS))
       panel.add(new JBLabel(SbtBundle.message("sbt.settings.scalaVersionPreference")))
       panel.add(Box.createRigidArea(new Dimension(10, 0)))
-      panel.add(UI.PanelFactory.panel(scalaVersionPreferenceComboBox).withTooltip(SbtBundle.message("sbt.settings.scalaVersionPreference.tooltip")).createPanel())
+      panel.add(withTooltip(scalaVersionPreferenceComboBox, SbtBundle.message("sbt.settings.scalaVersionPreference.tooltip")))
       panel
     }
 
@@ -49,8 +48,7 @@ final class SbtExtraControls {
     content.add(useSbtShellForImportCheckBox.panelWithTooltip, gc(4, 1, 1, 1))
     content.add(useSbtShellForBuildCheckBox.panelWithTooltip, gc(5, 1, 1, 1))
     content.add(new Spacer, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 5), null, new Dimension(-1, 1), 0, false))
-    content.add(allowSbtVersionOverrideCheckBox.panelWithTooltip, gc(7, 0, 1, 2))
-    content.add(remoteDebugSbtShellCheckBox.panelWithTooltip, gc(8, 0, 1, 2))
+    content.add(remoteDebugSbtShellCheckBox.panelWithTooltip, gc(7, 0, 1, 2))
 
     resolveClassifiersCheckBox.setEnabled(true)
   }

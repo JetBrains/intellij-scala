@@ -53,9 +53,6 @@ class SbtProjectSettings extends ExternalProjectSettings {
   var enableDebugSbtShell: Boolean = false
 
   @BeanProperty
-  var allowSbtVersionOverride = false
-
-  @BeanProperty
   var preferScala2 = true
 
   @Nullable
@@ -78,7 +75,6 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.useSbtShellForImport = useSbtShellForImport
     result.useSbtShellForBuild = useSbtShellForBuild
     result.enableDebugSbtShell = enableDebugSbtShell
-    result.allowSbtVersionOverride = allowSbtVersionOverride
     result
   }
 }
