@@ -38,7 +38,7 @@ public final class CodeGenerationPanel extends ScalaCodeStylePanelBase {
     );
 
     @Override
-    public void apply(CodeStyleSettings settings) {
+    public void apply(@NotNull CodeStyleSettings settings) {
         if (isModified(settings)) myCommenterForm.apply(settings);
     }
 
@@ -53,7 +53,7 @@ public final class CodeGenerationPanel extends ScalaCodeStylePanelBase {
     }
 
     @Override
-    protected void resetImpl(CodeStyleSettings settings) {
+    protected void resetImpl(@NotNull CodeStyleSettings settings) {
         myCommenterForm.reset(settings);
     }
 }
