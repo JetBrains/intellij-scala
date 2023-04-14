@@ -2,19 +2,15 @@ package org.jetbrains.jps.incremental.scala.local.worksheet
 
 import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
 import org.jetbrains.jps.incremental.scala.local.worksheet.util.IOUtils
-import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
 import org.jetbrains.jps.incremental.scala.{Client, MessageKind, compilerVersion}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.compiler.data.{CompilerJars, SbtData}
 import org.jetbrains.plugins.scala.project.Version
-import sbt.internal.inc.{AnalyzingCompiler, RawCompiler}
 import sbt.util.{Level, Logger}
-import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
 
 import java.io.{File, PrintStream}
 import java.lang.reflect.InvocationTargetException
 import java.net.{URLClassLoader, URLDecoder}
-import java.nio.file.Path
 
 class ILoopWrapperFactoryHandler {
   import ILoopWrapperFactoryHandler._
@@ -30,7 +26,7 @@ class ILoopWrapperFactoryHandler {
     val compilerJars = replContext.compilerJars
     val compilerVersionFromProperties  = compilerVersion(compilerJars.compilerJar)
     val scalaVersion = compilerVersionFromProperties.fold(FallBackScalaVersion)(ScalaVersion.apply)
-    val replWrapper = getOrCompileReplWrapper(replContext, scalaVersion, client)
+    val replWrapperClassName = wrapperClassNameFor(scalaVersion)
 
     if (args.dropCachedReplInstance) {
       cachedReplFactory.foreach(_.replFactory.clearSession(args.sessionId))
@@ -55,83 +51,10 @@ class ILoopWrapperFactoryHandler {
     client.progress("Running REPL...")
     IOUtils.patchSystemOut(out)
     val factory = cachedFactory.replFactory
-    factory.loadReplWrapperAndRun(args, replContext, out, replWrapper, client, cachedFactory.classLoader)
+    factory.loadReplWrapperAndRun(args, replContext, out, replWrapperClassName, scalaVersion, client, cachedFactory.classLoader)
   } catch {
     case e: InvocationTargetException =>
       throw e.getTargetException
-  }
-
-  protected def getOrCompileReplWrapper(replContext: ReplContext, scalaVersion: ScalaVersion, client: Client): ReplWrapperCompiled = {
-    val ReplContext(sbtData, compilerJars, _, _) = replContext
-    val ILoopWrapperDescriptor(wrapperClassName, wrapperVersion) = wrapperClassNameFor(scalaVersion)
-    val replLabel = s"repl-wrapper-${scalaVersion.value}-${sbtData.javaClassVersion}-$wrapperVersion-$wrapperClassName.jar"
-    val targetFile = new File(sbtData.interfacesHome, replLabel)
-
-    if (!targetFile.exists) {
-      val scalaInstance = CompilerFactoryImpl.getOrCreateScalaInstance(compilerJars)
-      compileReplLoopFile(scalaInstance, sbtData, wrapperClassName, replLabel, targetFile, client)
-    }
-
-    ReplWrapperCompiled(targetFile, wrapperClassName, scalaVersion)
-  }
-
-  private val ReplCompilationFailedMessage = "Repl wrapper compilation failed"
-
-  private def compileReplLoopFile(scalaInstance: ScalaInstance,
-                                  sbtData: SbtData,
-                                  iLoopWrapperClass: String,
-                                  replLabel: String,
-                                  targetJar: File,
-                                  client: Client): Unit = {
-    def findContainingJarOrReport(clazz: Class[_]): Option[File] = {
-      val res = findContainingJar(clazz)
-      if (res.isEmpty)
-        client.error(s"$ReplCompilationFailedMessage: jar for class `${clazz.getName}` can't be found")
-      res
-    }
-
-    // sources containing ILoopWrapper213Impl.scala and ILoopWrapperImpl.scala
-    val interfaceJar = sbtData.compilerInterfaceJar
-    // compiler-jps.jar
-    val containingJar = findContainingJarOrReport(this.getClass).getOrElse(return)
-    val replInterfaceJar = findContainingJarOrReport(classOf[ILoopWrapper]).getOrElse(return)
-    val replInterfaceSourcesJar = replInterfaceJar // we pack sources in resources in same jar
-
-    client.progress("Compiling REPL runner...")
-
-    val logger = NullLogger //new ClientDelegatingLogger(client)
-    sbtData.interfacesHome.mkdirs()
-
-    def filter(file: File): Boolean =
-      file.getName.endsWith(s"$iLoopWrapperClass.scala")
-
-    val rawCompiler = new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto(), logger) {
-      override def apply(sources: Seq[Path], classpath: Seq[Path], outputDirectory: Path, options: Seq[String]): Unit = {
-        val sourcesFiltered = sources.filter(path => filter(path.toFile))
-        super.apply(sourcesFiltered, classpath, outputDirectory, options)
-      }
-    }
-    try
-      AnalyzingCompiler.compileSources(
-        Seq(replInterfaceSourcesJar.toPath),
-        targetJar.toPath,
-        xsbtiJars = Seq(interfaceJar, containingJar, replInterfaceJar).distinct.map(_.toPath),
-        id = replLabel,
-        compiler = rawCompiler,
-        log = logger
-      )
-    catch {
-      case compilationFailed: sbt.internal.inc.CompileFailed =>
-        val indent = "  "
-        val message =
-          s"""$ReplCompilationFailedMessage: ${compilationFailed.toString}
-             |Arguments:
-             |${compilationFailed.arguments.map(indent + _.trim).mkString("\n")}
-             |Problems:
-             |${compilationFailed.problems.map(indent + _.toString).mkString("\n")}""".stripMargin
-        client.error(message)
-        throw compilationFailed
-    }
   }
 }
 
@@ -144,20 +67,16 @@ object ILoopWrapperFactoryHandler {
     scalaVersion: ScalaVersion
   )
 
-  // ATTENTION: when editing ILoopWrapperXXXImpl.scala ensure to increase the version
-  private case class ILoopWrapperDescriptor(className: String, version: Int)
-  private def Scala2ILoopWrapperVersion = 10
-  private def Scala3ILoopWrapperVersion = 16
   // 2.12 works OK for 2.11 as well
-  private def ILoopWrapper212Impl    = ILoopWrapperDescriptor("ILoopWrapper212Impl", Scala2ILoopWrapperVersion)
-  private def ILoopWrapper212_13Impl = ILoopWrapperDescriptor("ILoopWrapper212_13Impl", Scala2ILoopWrapperVersion)
-  private def ILoopWrapper213_0Impl  = ILoopWrapperDescriptor("ILoopWrapper213_0Impl", Scala2ILoopWrapperVersion)
-  private def ILoopWrapper213Impl    = ILoopWrapperDescriptor("ILoopWrapper213Impl", Scala2ILoopWrapperVersion)
-  private def ILoopWrapper300Impl    = ILoopWrapperDescriptor("ILoopWrapper300Impl", Scala3ILoopWrapperVersion)
-  private def ILoopWrapper312Impl    = ILoopWrapperDescriptor("ILoopWrapper312Impl", Scala3ILoopWrapperVersion)
-  private def ILoopWrapper330Impl    = ILoopWrapperDescriptor("ILoopWrapper330Impl", Scala3ILoopWrapperVersion)
+  private final val ILoopWrapper212Impl    = "ILoopWrapper212Impl"
+  private final val ILoopWrapper212_13Impl = "ILoopWrapper212_13Impl"
+  private final val ILoopWrapper213_0Impl  = "ILoopWrapper213_0Impl"
+  private final val ILoopWrapper213Impl    = "ILoopWrapper213Impl"
+  private final val ILoopWrapper300Impl    = "ILoopWrapper300Impl"
+  private final val ILoopWrapper312Impl    = "ILoopWrapper312Impl"
+  private final val ILoopWrapper330Impl    = "ILoopWrapper330Impl"
 
-  private def wrapperClassNameFor(version: ScalaVersion): ILoopWrapperDescriptor = {
+  private def wrapperClassNameFor(version: ScalaVersion): String = {
     val versionStr = version.value.presentation
 
     val wrapper = if (versionStr.startsWith("2.13.0")) ILoopWrapper213_0Impl
@@ -177,8 +96,6 @@ object ILoopWrapperFactoryHandler {
     else ILoopWrapper212Impl
     wrapper
   }
-
-  private[worksheet] case class ReplWrapperCompiled(file: File, className: String, version: ScalaVersion)
 
   private[worksheet] case class ScalaVersion(value: Version) {
     // temp solution while dotty is evolving very fast
@@ -204,7 +121,13 @@ object ILoopWrapperFactoryHandler {
   }
 
   private def createClassLoader(compilerJars: CompilerJars): URLClassLoader = {
-    val jars = compilerJars.allJars
+    val iLoopWrapperClass = classOf[ILoopWrapper]
+    val wrapperImplsJar =
+      findContainingJar(iLoopWrapperClass)
+        .map(_.toPath.getParent.getParent.resolve("worksheet-repl-interface").resolve("impls.jar").toFile)
+        .toSeq
+
+    val jars = wrapperImplsJar ++ compilerJars.allJars
     val replInterfaceLoader = classOf[ILoopWrapper].getClassLoader
     new URLClassLoader(sbt.io.Path.toURLs(jars), replInterfaceLoader)
   }

@@ -2,12 +2,11 @@ package org.jetbrains.jps.incremental.scala.local.worksheet
 
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory.{ILoopCreationException, MyUpdatePrintStream, MyUpdatePrintWriter}
-import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.{ReplContext, ReplWrapperCompiled}
+import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.{ReplContext, ScalaVersion}
 import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.{ILoopWrapper, ILoopWrapperReporter, NoopReporter, PrintWriterReporter}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.{ReplMessages, WorksheetArgs}
 
 import java.io._
-import java.net._
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 import java.util.regex.Pattern
@@ -33,14 +32,15 @@ class ILoopWrapperFactory {
     args: WorksheetArgs.RunRepl,
     replContext: ReplContext,
     outStream: PrintStream,
-    replWrapper: ReplWrapperCompiled,
+    replWrapperClassName: String,
+    scalaVersion: ScalaVersion,
     client: Client,
     classLoader: ClassLoader
   ): Unit = {
     client.progress("Retrieving REPL instance...")
     val instOpt = cache.getOrCreate(args.sessionId, () => {
       client.progress("Creating REPL instance...")
-      createILoopWrapper(args, replContext, replWrapper, outStream, classLoader) match {
+      createILoopWrapper(args, replContext, replWrapperClassName, scalaVersion, outStream, classLoader) match {
         case Right(inst) =>
           inst.init()
           Some(inst)
@@ -128,26 +128,18 @@ class ILoopWrapperFactory {
   private def createILoopWrapper(
     args: WorksheetArgs.RunRepl,
     replContext: ReplContext,
-    replWrapper: ReplWrapperCompiled,
+    replWrapperClassName: String,
+    scalaVersion: ScalaVersion,
     out: PrintStream,
     classLoader: ClassLoader
   ): Either[ILoopCreationException, ILoopWrapper] = {
-    val ReplWrapperCompiled(replFile, replClassName, version) = replWrapper
-    val loader = try {
-      val iLoopWrapperJar = replFile.toURI.toURL
-      new URLClassLoader(Array[URL](iLoopWrapperJar), classLoader)
-    } catch {
-      case ex: MalformedURLException =>
-        return Left(new ILoopCreationException(ex))
-    }
-
     val clazz = try {
       // assuming that implementation classes will have same package as interface
       val basePackage = classOf[ILoopWrapper].getPackage.getName
-      loader.loadClass(s"$basePackage.$replClassName")
+      classLoader.loadClass(s"$basePackage.$replWrapperClassName")
     } catch {
       case ex: ClassNotFoundException =>
-        return Left(new ILoopCreationException(s"Can't load ILoopWrapper $replWrapper (file exists: ${replFile.exists})", ex))
+        return Left(new ILoopCreationException(s"Can't load ILoopWrapper $replWrapperClassName", ex))
     }
 
     val replClasspathChunks = Seq(
@@ -160,7 +152,7 @@ class ILoopWrapperFactory {
     val scalaOptions = replContext.scalacOptions.asJava
 
     try {
-      val inst = if (!version.isScala3) {
+      val inst = if (!scalaVersion.isScala3) {
         val printWriter = new MyUpdatePrintWriter(out)
         val reporter = new PrintWriterReporter(printWriter)
         val constructor = clazz.getConstructor(classOf[PrintWriter], classOf[ILoopWrapperReporter], classOf[ju.List[_]], classOf[ju.List[_]])
