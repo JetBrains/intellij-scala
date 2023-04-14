@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGivenDefinition, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -49,7 +49,10 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
             processor.execute(t.fakeCompanionModule.get, state)
           }
           true
-        case gvn: ScGivenDefinition => gvn.desugaredDefinitions.forall(processor.execute(_, state))
+        case gvn: ScGivenDefinition =>
+          gvn.desugaredDefinitions.forall(processor.execute(_, state))
+        case e: ScEnum =>
+          e.syntheticClass.forall(processor.execute(_, state))
         case named: ScNamedElement => processor.execute(named, state)
         case holder: ScDeclaredElementsHolder =>
           val elements: Seq[PsiNamedElement] = holder.declaredElements

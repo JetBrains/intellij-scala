@@ -13,6 +13,11 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
     assertMessages(errors)(expectedErrors: _*)
   }
 
+  private def doTestInWorksheet(text: String)(expectedErrors: Message*): Unit = {
+    val errors = errorsFromScalaCode(text, "worksheet.sc")
+    assertMessages(errors)(expectedErrors: _*)
+  }
+
   def testCreateBaseClassInstance(): Unit =
     doTest(
       """
@@ -70,6 +75,29 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
         |enum Option[+T] {
         |  case Some(x: T) extends Option[T]       with F
         |  case None       extends Option[Nothing] with F
+        |}
+        |""".stripMargin
+    )()
+
+
+  def testWithExplicitExtendsParent_InWorksheet_TopLevel(): Unit =
+    doTestInWorksheet(
+      """enum Move(val score: Int) {
+        |  case Rock     extends Move(1)
+        |  case Paper    extends Move(2)
+        |  case Scissors extends Move(3)
+        |}
+        |""".stripMargin
+    )()
+
+  def testWithExplicitExtendsParent_InWorksheet_Inner(): Unit =
+    doTestInWorksheet(
+      """object wrapper {
+        |  enum Move(val score: Int) {
+        |    case Rock     extends Move(1)
+        |    case Paper    extends Move(2)
+        |    case Scissors extends Move(3)
+        |  }
         |}
         |""".stripMargin
     )()
