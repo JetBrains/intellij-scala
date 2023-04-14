@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class EnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
+class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
   import Message._
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
