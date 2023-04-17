@@ -300,13 +300,9 @@ object FileDeclarationsHolder {
     if (scalaFile.isWorksheetFile)
       true
     else {
-      //Fallback to `scalaFile.getViewProvider.getVirtualFile` was added for BDIDE-272
-      // TODO: maybe it's not required after we added `getOriginalFile`, we need to recheck it and probably remove fallback
-      val vFile = Option(scalaFile.getOriginalFile.getVirtualFile).getOrElse(scalaFile.getViewProvider.getVirtualFile)
-      if (vFile == null)
-        false // file exists only in memory
-      else
-        isExternalFile(scalaFile.getProject, vFile)
+      //NOTE: getViewProvider.getVirtualFile will return non-null result even for in-memory files (primarily needed for tests)
+      val virtualFile = Option(scalaFile.getOriginalFile.getVirtualFile).getOrElse(scalaFile.getViewProvider.getVirtualFile)
+      isExternalFile(scalaFile.getProject, virtualFile)
     }
   }
 
