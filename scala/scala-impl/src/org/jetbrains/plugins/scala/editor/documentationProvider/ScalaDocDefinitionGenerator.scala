@@ -5,22 +5,21 @@ import com.intellij.psi._
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
-import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TextEscaper.Html
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ScalaDocDefinitionGenerator {
@@ -198,21 +197,7 @@ private class ScalaDocDefinitionGenerator private(
   private def typeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
     new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll)
 
-  private def annotationsRenderer(implicit typeRenderer: TypeRenderer): AnnotationsRendererLike =
-    new AnnotationsRenderer(typeRenderer, "\n", TextEscaper.Html) {
-      override def shouldSkipArguments(annotationType: ScType, arguments: Seq[ScExpression]): Boolean =
-        arguments.isEmpty || isThrowsAnnotationConstructor(annotationType, arguments)
-
-      // see SCL-17608
-      private def isThrowsAnnotationConstructor(annotationType: ScType, arguments: Seq[ScExpression]): Boolean =
-        if (arguments.size == 1) {
-          //assuming that @throws annotation has single constructor with parametrized type which accepts java.lang.Class
-          annotationType.extractClass.exists { clazz =>
-            clazz.qualifiedName == "scala.throws" &&
-              arguments.head.`type`().exists(_.isInstanceOf[ScParameterizedType])
-          }
-        } else false
-    }
+  private lazy val annotationsRenderer: AnnotationsRendererLike = new ScalaDocAnnotationRenderer()
 
   private def definitionParamsRenderer(implicit typeRenderer: TypeRenderer): ParametersRenderer = {
     val parameterRenderer = new ParameterRenderer(

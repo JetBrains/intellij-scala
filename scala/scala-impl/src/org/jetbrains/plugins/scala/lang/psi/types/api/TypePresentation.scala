@@ -62,7 +62,7 @@ trait TypePresentation {
           case a: ScTypeAlias                              =>
             a.qualifiedNameOpt.fold(escapeHtml(e.name))(psiElementLink(_, e.name, attributesKey = Some(DefaultHighlighter.TYPE_ALIAS)))
           case _                                           =>
-            escapeName(e.name)
+            psiElement(e, Some(e.name))
         }
         res + pointStr(withPoint && res.nonEmpty)
       }
@@ -126,6 +126,7 @@ object TypePresentation {
     renderInfixType: Boolean = false,
     canonicalForm: Boolean = false // Canonical renderer is sometimes not enough, SCL-21183
   )
+
   object PresentationOptions {
     val Default: PresentationOptions = PresentationOptions()
   }
