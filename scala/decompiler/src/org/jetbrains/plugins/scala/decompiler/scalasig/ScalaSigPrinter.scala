@@ -83,13 +83,15 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
     val accessibilityOk = symbol match {
       case _ if level == 0 => true
-      case alias: AliasSymbol if alias.isPrivate => alias.symbolInfo.info.get match {
-        case TypeRefType(_, symbol, _) => !symbol.isPrivate
-        case PolyType(Ref(TypeRefType(_, symbol, _)), _) => !symbol.isPrivate
-        case _ => true
-      }
+      case alias: AliasSymbol if alias.isPrivate => isAliasedTypeAccessible(alias)
       case o: ObjectSymbol if o.isPrivate =>
-        symbol.parent.exists(_.children.exists(s => s.isType && !s.isPrivate && s.name == o.name))
+        symbol.parent.exists(_.children.exists(s => s.isType && !s.isPrivate && s.name == o.name)) || {
+          val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType
+          classSymbol.children.exists {
+            case alias: AliasSymbol => !alias.isPrivate || isAliasedTypeAccessible(alias)
+            case _ => false
+          }
+        }
       case _               => !symbol.isPrivate
     }
 
@@ -126,6 +128,12 @@ class ScalaSigPrinter(builder: StringBuilder) {
         case _ =>
       }
     }
+  }
+
+  private def isAliasedTypeAccessible(alias: AliasSymbol) = alias.symbolInfo.info.get match {
+    case TypeRefType(_, symbol, _) => !symbol.isPrivate
+    case PolyType(Ref(TypeRefType(_, symbol, _)), _) => !symbol.isPrivate
+    case _ => true
   }
 
   def isCaseClassObject(o: ObjectSymbol): Boolean = {
