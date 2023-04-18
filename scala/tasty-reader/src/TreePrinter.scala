@@ -66,8 +66,11 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     }
   }
 
-  private def isPseudoPrivateCompanionObject(typeDef: Node): Boolean = typeDef.contains(OBJECT) &&
-    typeDef.prevSibling.exists(_.prevSibling.exists(n => n.is(TYPEDEF) && !n.contains(PRIVATE) && n.name == typeDef.name.stripSuffix("$")))
+  private def isPseudoPrivateObject(typeDef: Node): Boolean = typeDef.contains(OBJECT) &&
+    (typeDef.prevSibling.exists(_.prevSibling.exists(n => n.is(TYPEDEF) && !n.contains(PRIVATE) && n.name == typeDef.name.stripSuffix("$"))) || typeDef.firstChild.children.exists {
+      case n @ Node3(TYPEDEF, _, Seq(head, _ : _*)) if !head.is(TEMPLATE) && !n.contains(SYNTHETIC) => !n.contains(PRIVATE) || isPseudoPrivateTypeAlias(n)
+      case _ => false
+    })
 
   def fileAndTextOf(node: Node): (String, String) = {
     assert(sharedTypes.isEmpty)
@@ -122,7 +125,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
   }
 
   private def textOfMember(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
-    case node @ Node1(TYPEDEF) if (privateMembers || !node.contains(PRIVATE) || isPseudoPrivateTypeAlias(node) || isPseudoPrivateCompanionObject(node)) && (!node.contains(SYNTHETIC) || isGivenClass0(node)) => // TODO why both are synthetic?
+    case node @ Node1(TYPEDEF) if (privateMembers || !node.contains(PRIVATE) || isPseudoPrivateTypeAlias(node) || isPseudoPrivateObject(node)) && (!node.contains(SYNTHETIC) || isGivenClass0(node)) => // TODO why both are synthetic?
       sb ++= prefix
       textOfTypeDef(sb, indent, node, definition)
 

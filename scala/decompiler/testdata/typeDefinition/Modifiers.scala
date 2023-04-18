@@ -19,8 +19,12 @@ trait Modifiers {/**/
 
   sealed trait SealedTrait
 /**/
-  private object PrivateObject
+  private object PrivateObject1
 /**/
+  private object PrivateObject2 {
+    type Alias = Int
+  }
+
   protected object ProtectedObject
 
   implicit object ImplicitObject
