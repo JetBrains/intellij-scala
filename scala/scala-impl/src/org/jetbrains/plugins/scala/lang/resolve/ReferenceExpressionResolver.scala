@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonName
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScEnum, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createParameterFromText
@@ -302,6 +302,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
         place match {
           case _: ScTemplateBody | _: ScExtendsBlock => //template body and inherited members are at the same level
+          case enum: ScEnum                          =>
+            if (!enum.fakeCompanionModule.forall(_.processDeclarations(processor, state, lastParent, place))) return
           case _                                     => if (!processor.changedLevel) return
         }
 
@@ -312,12 +314,9 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
            */
           case fdef @ ExtensionMethod() => fdef.extensionMethodOwner.fold(state)(state.withExtensionContext)
           case (cc: ScCaseClause) & Parent(Parent(m: ScMatch)) =>
-            val maybeSubst = PatternTypeInference.doForMatchClause(m, cc)
-            val oldSubst   = state.matchClauseSubstitutor
-
-            maybeSubst.fold(state)(
-              s => state.withMatchClauseSubstitutor(oldSubst.followed(s))
-            )
+            val subst    = PatternTypeInference.doForMatchClause(m, cc)
+            val oldSubst = state.matchClauseSubstitutor
+            state.withMatchClauseSubstitutor(oldSubst.followed(subst))
           case _ => state
         }
 

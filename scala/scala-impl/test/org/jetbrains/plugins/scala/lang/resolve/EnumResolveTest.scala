@@ -206,7 +206,7 @@ class EnumResolveTest extends SimpleResolveTestBase {
          |
          |""".stripMargin
     )
-    
+
   def testEnumConstructorParameters(): Unit =
     checkTextHasNoErrors(
       """
@@ -227,6 +227,18 @@ class EnumResolveTest extends SimpleResolveTestBase {
         |""".stripMargin
     )
 
+  def testSCL21138(): Unit = doResolveTest(
+    s"""
+       |enum Foo {
+       |  case Bar
+       |
+       |  def bar = this match {
+       |    case B${REFSRC}ar /*Foo is unresolved*/ => ???
+       |  }
+       |}
+       |""".stripMargin
+  )
+
   def testCreateBaseClassInstance(): Unit = {
   //@TODO: prohibit extending from enum class
 //    checkHasErrorAroundCaret(
@@ -238,6 +250,5 @@ class EnumResolveTest extends SimpleResolveTestBase {
 //         |""".stripMargin
 //    )
   }
-
 }
 
