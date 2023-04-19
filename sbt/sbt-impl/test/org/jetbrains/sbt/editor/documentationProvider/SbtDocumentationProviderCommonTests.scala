@@ -5,10 +5,14 @@ abstract class SbtDocumentationProviderCommonTests extends SbtDocumentationProvi
   def testSbtDescriptionShouldBeWrappedInDefaultScaladocTemplate(): Unit =
     doGenerateDocTest(
       s"""val ${CARET}someKey = SettingKey[Int]("some-key", "This is description for some-key")""",
-      s"""<html>
+      s"""
+         |<html>
          |${DocHtmlHead(myFixture.getFile)}
          |$BodyStart
-         |${DefinitionStart}val <b>someKey</b>: <a href="psi_element://sbt.SettingKey"><code>SettingKey</code></a>[<a href="psi_element://scala.Int"><code>Int</code></a>]$DefinitionEnd
+         |$DefinitionStart
+         |<span style="color:#000080;font-weight:bold;">val </span>someKey: <span style="color:#000000;"><a href="psi_element://sbt.SettingKey"><code>SettingKey</code></a></span>
+         |[<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>]
+         |$DefinitionEnd
          |$ContentStart
          |This is description for some-key
          |$ContentEnd

@@ -28,7 +28,7 @@ trait HtmlAssertions {
    * NOTE: we assume that whitespaces character only matter inside <pre> tag.
    */
   private def normalizeWhiteSpaces(htmlRaw: String): String = {
-    val html = htmlRaw.replace("\r", "")
+    val html = htmlRaw.replace("\r", "").replace("\n","")
 
     val buffer = new java.lang.StringBuilder
 
