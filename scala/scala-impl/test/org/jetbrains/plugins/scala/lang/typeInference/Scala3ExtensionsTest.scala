@@ -405,6 +405,23 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin
   )
 
+  def testSCL21095(): Unit = checkTextHasNoErrors(
+    """
+      |object ExtensionOverride {
+      |  class Foo
+      |
+      |  extension (f: Foo) {
+      |    def apply(x: String): String = "str"
+      |  }
+      |
+      |  def main(args: Array[String]): Unit = {
+      |    val instance = new Foo
+      |    val bad: String = instance("a")
+      |  }
+      |}
+      |""".stripMargin
+  )
+
   def testSCL21053(): Unit = checkTextHasNoErrors(
     """
       |object TestIntellij:

@@ -368,11 +368,17 @@ object MethodInvocationImpl {
       (updatedType, resolveResult)
     }
 
-    private def polymorphicType(result: ScalaResolveResult) =
+    private def polymorphicType(result: ScalaResolveResult): ScType = {
+      val dropExtensionClauses =
+        result.isExtension ||
+          (result.extensionContext.nonEmpty &&
+            result.element.asOptionOf[ScFunction].flatMap(_.extensionMethodOwner) == result.extensionContext)
+
       result.element.asInstanceOf[PsiMethod]
         .methodTypeProvider(invocation.elementScope)
-        .polymorphicType(result.substitutor)
+        .polymorphicType(result.substitutor, dropExtensionClauses = dropExtensionClauses)
         .updateTypeOfDynamicCall(result.isDynamic)
+    }
   }
 
   private sealed trait InvocationData {
