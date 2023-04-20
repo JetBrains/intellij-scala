@@ -214,17 +214,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     ProjectDataServiceTestCase.importProjectData(projectStructure, project)
     setUpJdk() // modules are updated so we need to again setup their jdk
 
-    val myCustomModule = ModuleManager.getInstance(project).findModuleByName(myCustomModuleName)
-
-    val dataContext: DataContext = dataId => {
-      if (CommonDataKeys.PROJECT.is(dataId)) project
-      else if (PlatformCoreDataKeys.MODULE.is(dataId) || LangDataKeys.MODULE_CONTEXT.is(dataId)) myCustomModule
-      else null
-    }
-    // we need to pre-cache macro values otherwise they all will be equal to null
-    MacroManager.getInstance().cacheMacrosPreview(dataContext, project)
-
-    myCustomModule
+    ModuleManager.getInstance(project).findModuleByName(myCustomModuleName)
   }
 
   private def ensureProjectRootExists(): Unit = {
