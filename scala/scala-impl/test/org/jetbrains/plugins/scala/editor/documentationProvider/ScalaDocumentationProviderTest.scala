@@ -1873,6 +1873,31 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     doGenerateDocContentDanglingTest(input, expectedContent)
   }
 
+  def testEmptyLikeFollowedByNewParagraph_DoNotInsertParagraph(): Unit = {
+    val input =
+      """/**
+        | * Paragraph 1
+        | *
+        | * Paragraph 2
+        | * Paragraph 3
+        | * <p>Paragraph 4</p>
+        | *
+        | * <p>Paragraph 5</p>
+        | */
+        | class A
+        |""".stripMargin
+
+    val expectedContent =
+      s""" Paragraph 1
+         | <p>Paragraph 2
+         | Paragraph 3
+         | <p>Paragraph 4</p>
+         | <p>Paragraph 5</p>
+         |""".stripMargin.trim
+
+    doGenerateDocContentDanglingTest(input, expectedContent)
+  }
+
   /**
    * NOTE: most complex logic with lists is in Parser, that is comprehensively tested via
    * [[org.jetbrains.plugins.scala.lang.parser.ScalaParserTest]] under `data/doccomments`
