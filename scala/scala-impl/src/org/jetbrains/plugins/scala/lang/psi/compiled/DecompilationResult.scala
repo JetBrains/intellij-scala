@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.compiled
 
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId, newvfs}
-import com.intellij.reference.SoftReference
 import org.jetbrains.plugins.scala.decompiler.Decompiler
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
 import org.jetbrains.plugins.scala.tasty.{TastyFileType, TastyReader}
 
 import java.io.{DataInputStream, DataOutputStream, IOException}
+import java.lang.ref.SoftReference
 
 private sealed trait DecompilationResult {
   val isScala: Boolean

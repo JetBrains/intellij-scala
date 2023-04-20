@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.uast
 
+import com.intellij.platform.uast.testFramework.common.RenderLogTestBase
 import com.intellij.psi.PsiElement
 import com.intellij.testFramework.EqualsToFile
 
 import java.io.File
 import org.jetbrains.uast._
-import org.jetbrains.uast.test.common.RenderLogTestBase
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 import org.junit.Assert
 

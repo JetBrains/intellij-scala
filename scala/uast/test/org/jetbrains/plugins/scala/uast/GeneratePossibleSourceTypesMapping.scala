@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.uast
 
 import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
+import com.intellij.platform.uast.testFramework.common.AllUastTypesKt.allUElementSubtypes
 import junit.framework.TestResult
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions._
@@ -9,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.uast.withPossibleSourceTypesCheck
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage, ScalaVersion}
 import org.jetbrains.uast.UElement
-import org.jetbrains.uast.test.common.AllUastTypesKt.allUElementSubtypes
 import org.junit.Ignore
 
 import java.nio.file.{Files, Path, Paths}

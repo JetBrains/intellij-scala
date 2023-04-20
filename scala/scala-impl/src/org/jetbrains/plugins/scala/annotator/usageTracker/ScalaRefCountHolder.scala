@@ -5,12 +5,11 @@ import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzer, impl}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
-import com.intellij.reference.SoftReference
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 
-import java.lang.ref.Reference
+import java.lang.ref.{Reference, SoftReference}
 import java.util.concurrent.atomic.AtomicLong
 import java.{util => ju}
 import scala.jdk.CollectionConverters.CollectionHasAsScala

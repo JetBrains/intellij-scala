@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala.uast
 
 import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFile
+import com.intellij.platform.uast.testFramework.common.AllUastTypesKt.allUElementSubtypes
+import com.intellij.platform.uast.testFramework.common.PossibleSourceTypesTestBase
 import junit.framework.{Test, TestCase}
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.lang.psi.uast.withPossibleSourceTypesCheck
 import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaVersion}
 import org.jetbrains.uast._
-import org.jetbrains.uast.test.common.AllUastTypesKt.allUElementSubtypes
-import org.jetbrains.uast.test.common.PossibleSourceTypesTestBase
 
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
