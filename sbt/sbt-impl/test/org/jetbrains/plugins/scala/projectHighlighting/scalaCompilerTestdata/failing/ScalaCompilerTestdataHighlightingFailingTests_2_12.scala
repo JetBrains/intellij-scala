@@ -32,10 +32,6 @@ class ScalaCompilerTestdataHighlightingFailingTests_2_12 extends ScalaCompilerTe
 
   def `test_gadt-gilles`(): Unit = doTest()
 
-  def test_gadts2(): Unit = doTest()
-
-  def test_hkgadt(): Unit = doTest()
-
   def test_infer_override_def_args(): Unit = doTest()
 
   def `test_overloaded-unapply`(): Unit = doTest()
@@ -50,8 +46,6 @@ class ScalaCompilerTestdataHighlightingFailingTests_2_12 extends ScalaCompilerTe
 
   def test_t389(): Unit = doTest()
 
-  def test_t694(): Unit = doTest()
-
   def test_t762(): Unit = doTest()
 
   def test_t1279a(): Unit = doTest()
@@ -61,8 +55,6 @@ class ScalaCompilerTestdataHighlightingFailingTests_2_12 extends ScalaCompilerTe
   def test_t3177(): Unit = doTest()
 
   def test_t3866(): Unit = doTest()
-
-  def test_t3880(): Unit = doTest()
 
   def test_t3999b(): Unit = doTest()
 
@@ -99,10 +91,6 @@ class ScalaCompilerTestdataHighlightingFailingTests_2_12 extends ScalaCompilerTe
   def test_t8237(): Unit = doTest()
 
   def test_t9008(): Unit = doTest()
-
-  def test_t9498(): Unit = doTest()
-
-  def test_t9658(): Unit = doTest()
 
   def test_ticket2251(): Unit = doTest()
 

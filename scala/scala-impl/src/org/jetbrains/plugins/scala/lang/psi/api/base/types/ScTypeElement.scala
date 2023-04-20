@@ -98,11 +98,17 @@ object ScTypeElement {
 }
 
 trait ScDesugarizableTypeElement extends ScTypeElement {
+  override def unsubstitutedType: TypeResult = computeDesugarizedType match {
+    case Some(typeElement) => typeElement.unsubstitutedType
+    case _                 => Failure(ScalaBundle.message("cannot.desugarize.typename", typeName))
+  }
+
   def desugarizedText: String
 
   def computeDesugarizedType: Option[ScTypeElement] = Option(typeElementFromText(desugarizedText))
 
-  def typeElementFromText: String => ScTypeElement = createTypeElementFromText(_, getContext, this)
+  def typeElementFromText: String => ScTypeElement =
+    createTypeElementFromText(_, getContext, this, isPattern = true, typeVariables = true)
 
   override protected def innerType: TypeResult = computeDesugarizedType match {
     case Some(typeElement) => typeElement.getType

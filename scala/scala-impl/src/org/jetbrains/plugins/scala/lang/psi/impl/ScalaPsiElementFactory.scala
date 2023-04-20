@@ -1297,8 +1297,20 @@ object ScalaPsiElementFactory {
   def createWhitespace(@NonNls whitespace: String)(implicit ctx: ProjectContext): PsiElement =
     createExpressionFromText(s"1$whitespace+ 1", ScalaFeatures.default).findElementAt(1)
 
-  def createTypeElementFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeElement =
-    createElementWithContext[ScTypeElement](text, context, child)(types.ParamType.parseWithoutScParamTypeCreation()(_))
+  def createTypeElementFromText(
+    @NonNls text:  String,
+    context:       PsiElement,
+    child:         PsiElement,
+    isPattern:     Boolean = false,
+    typeVariables: Boolean = false
+  ): ScTypeElement =
+    createElementWithContext[ScTypeElement](text, context, child)(
+      types.ParamType.parseWithoutScParamTypeCreation(
+        isPattern = isPattern,
+        typeVariables = typeVariables
+      )(_)
+    )
+
 
   def createTypedPatternFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeElement =
     createElementWithContext[ScTypeElement](text, context, child)(types.Type(isPattern = true)(_))

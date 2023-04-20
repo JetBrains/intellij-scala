@@ -68,10 +68,12 @@ object ComparingUtil {
           case Invariant     => !subTp.equiv(supTp)
         }
       }
+
       def getVariance(tp: PsiTypeParameter) = tp match {
         case scParam: ScTypeParam => scParam.variance
         case _ => Invariant
       }
+
       subTps.zip(supTps).zip(tparams.map(getVariance)).exists {
         case ((subTp, supTp), vr) => isNeverSubArg(subTp, supTp, vr)
         case _ => false
@@ -87,6 +89,9 @@ object ComparingUtil {
     }
 
     isNeverSubClass(subClass, supClass) ||
-            ((areClassesEquivalent(subClass, supClass) || (!sameType) && (subClass.isInheritor(supClass, true) || supClass.isInheritor(subClass, true))) && neverSubArgs())
+      (
+        (areClassesEquivalent(subClass, supClass) || (!sameType) && (subClass.isInheritor(supClass, true) || supClass.isInheritor(subClass, true)))
+          && neverSubArgs()
+        )
   }
 }

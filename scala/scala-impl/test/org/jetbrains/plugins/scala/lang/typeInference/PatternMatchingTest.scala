@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala.failed.annotator
+package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
 class PatternMatchingTest extends ScalaLightCodeInsightFixtureTestCase {
-  override protected def shouldPass: Boolean = false
-
   def testSCL13151(): Unit = {
     val text =
       """

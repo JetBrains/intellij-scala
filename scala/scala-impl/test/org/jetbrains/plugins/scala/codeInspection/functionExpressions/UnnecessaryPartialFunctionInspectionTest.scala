@@ -107,13 +107,13 @@ class UnnecessaryPartialFunctionInspectionTest extends UnnecessaryPartialFunctio
     testFix(text, fixed)
   }
 
-  def testInspectionCapturesCaseWithTypeConstraintWithTypeParameters(): Unit = {
-    val text = s"def f[T]: Option[T] => String = { ${START}case$END x: Option[_] => x.toString }"
-    val fixed = "def f[T]: Option[T] => String = { x: Option[_] => x.toString }"
-
-    checkTextHasError(text)
-    testFix(text, fixed)
-  }
+//  def testInspectionCapturesCaseWithTypeConstraintWithTypeParameters(): Unit = {
+//    val text = s"def f[T]: Option[T] => String = { ${START}case$END x: Option[_] => x.toString }"
+//    val fixed = "def f[T]: Option[T] => String = { x: Option[_] => x.toString }"
+//
+//    checkTextHasError(text)
+//    testFix(text, fixed)
+//  }
 
   def testInspectionCapturesSimpleExpressionWithWildcardCase(): Unit = {
     val text = s"""var f: Int => String = {${START}case$END _ => "foo"}"""

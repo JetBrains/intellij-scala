@@ -57,7 +57,10 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
 
     def exTpMatchesPattp = matchesPattern(exTp, widen(patType))
 
-    val neverMatches = !matchesPattern(exTp, patType) && isNeverSubType(abstraction(patType), exTp)
+    val neverMatches =
+      !matchesPattern(exTp, patType) &&
+        isNeverSubType(abstraction(patType), exTp) &&
+        pattern.typeVariables.isEmpty
 
     def isEliminatedByErasure = (exprType.extractClass, patType.extractClass) match {
       case (Some(cl1), Some(cl2)) if pattern.is[ScTypedPattern] => !isNeverSubClass(cl1, cl2)

@@ -22,26 +22,6 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestCase {
     checkTextHasNoErrors(text)
   }
 
-  def testSCL10118(): Unit = {
-    val text =
-      """
-        |object SCL10118{
-        |
-        |  trait Test[A]
-        |
-        |  case class First(i: Int) extends Test[String]
-        |
-        |  case class Second(s: String) extends Test[Int]
-        |
-        |  def run[A](t: Test[A]): A = t match {
-        |    case First(i) => i.toString
-        |    case Second(s) => s.length
-        |  }
-        |}
-      """.stripMargin
-    checkTextHasNoErrors(text)
-  }
-
   def testSCL8031(): Unit = {
     checkTextHasNoErrors(
       """
@@ -99,36 +79,6 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestCase {
         |        println("Got something else than bytes!")
         |    }
         |  }
-      """.stripMargin
-    checkTextHasNoErrors(text)
-  }
-
-  def testSCL13746(): Unit = {
-    val text =
-      """
-        |import scala.annotation.tailrec
-        |
-        |trait IO[A] {
-        |  def flatMap[B](f: A => IO[B]): IO[B] = FlatMap(this, f)
-        |  def map[B](f: A => B): IO[B] = flatMap(f andThen (Return(_)))
-        |}
-        |
-        |case class Return[A](a: A) extends IO[A]
-        |case class Suspend[A](r: () => A) extends IO[A]
-        |case class FlatMap[A, B](s: IO[A], k: A => IO[B]) extends IO[B]
-        |
-        |object IO {
-        |  @tailrec
-        |  def run[A](io: IO[A]): A = io match {
-        |    case Return(a) => a
-        |    case Suspend(r) => r()
-        |    case FlatMap(x, f) => x match {
-        |      case Return(a) => run(f(a))
-        |      case Suspend(r) => run(f(r()))
-        |      case FlatMap(y, g) => run(y flatMap (a => g(a) flatMap f))
-        |    }
-        |  }
-        |}
       """.stripMargin
     checkTextHasNoErrors(text)
   }

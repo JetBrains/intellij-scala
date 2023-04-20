@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwn
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, PsiTypeParametersExt, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType, SmartSuperTypeUtil}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScAndType, ScCompoundType, ScOrType, ScType, SmartSuperTypeUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -17,7 +17,7 @@ import scala.annotation.tailrec
 
 object PatternTypeInference {
   private[this] def patternType(pattern: ScPattern): TypeResult = pattern match {
-    case ScTypedPatternLike(typePattern) => typePattern.typeElement.`type`()
+    case ScTypedPatternLike(typePattern) => typePattern.typeElement.unsubstitutedType
     case other                           => other.`type`()
   }
 
@@ -51,7 +51,15 @@ object PatternTypeInference {
 
     //Collect type var constraints from corresponding type parameter bounds
     //in class definition
-    val constraints = tpe match {
+    def collectConstraintsAndTypeParams(tpe: ScType): ConstraintSystem = tpe match {
+      case ScAndType(lhs, rhs) =>
+        collectConstraintsAndTypeParams(lhs) + collectConstraintsAndTypeParams(rhs)
+      case ScOrType(lhs, rhs) =>
+        collectConstraintsAndTypeParams(lhs) + collectConstraintsAndTypeParams(rhs)
+      case ScCompoundType(comps, _, _) =>
+        comps.foldLeft(ConstraintSystem.empty) {
+          case (acc, comp) => acc + collectConstraintsAndTypeParams(comp)
+        }
       case ParameterizedType(_, targs) if targs.size == classTypeParams.size =>
         targs.zip(classTypeParams).foldLeft(ConstraintSystem.empty) {
           case (acc, (tpt: TypeParameterType, tp: TypeParameter)) =>
@@ -66,8 +74,9 @@ object PatternTypeInference {
       case _ => ConstraintSystem.empty
     }
 
-    val typeVars   = typeVarsBuilder.result()
-    val typeParams = typeParamsBuilder.result()
+    val constraints = collectConstraintsAndTypeParams(tpe)
+    val typeVars    = typeVarsBuilder.result()
+    val typeParams  = typeParamsBuilder.result()
 
     val subst =
       if (tpe.conforms(scrutineeType)) solve(constraints, shouldSolveForMaxType, typeParams, typeVars)
@@ -234,7 +243,7 @@ object PatternTypeInference {
             .map(bounds =>
               ScSubstitutor.bind(typeParams) { tParam =>
                 val id = tParam.typeParamId
-                bounds.upperMap.getOrElse(id, stdTypes.Any)
+                bounds.upperMap.getOrElse(id, TypeParameterType(tParam))
               }
             )
     }

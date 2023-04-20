@@ -12,22 +12,6 @@ class BoundsTest extends TypeInferenceTestBase {
 
   def testSCL7085(): Unit = doTest()
 
-  def testSCL9755(): Unit = {
-    val text =
-      s"""object IntelliJ {
-        |  trait Base[T]
-        |  case object StringExample extends Base[String]
-        |
-        |  implicit val baseStringEvidence = StringExample
-        |
-        |  def apply[T: Base](semantic: Base[T]): T = semantic match {
-        |    case StringExample => $START"string"$END
-        |  }
-        |}
-        |//T""".stripMargin
-    doTest(text)
-  }
-
   def testSCL5186(): Unit ={
     doTest(
       s"""object Test {
