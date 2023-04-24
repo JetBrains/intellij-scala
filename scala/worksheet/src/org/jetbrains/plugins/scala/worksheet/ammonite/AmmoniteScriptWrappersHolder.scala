@@ -144,12 +144,8 @@ class AmmoniteScriptWrappersHolder(project: Project) {
                 t.getErrorStripeTooltip match {
                   case hInfo: HighlightInfo if hInfo.`type` == HighlightInfoType.WEAK_WARNING =>
                     hInfo.findRegisteredQuickFix { case (descriptor, _) =>
-                      descriptor.getAction match {
-                        case wrapper: QuickFixWrapper =>
-                          wrapper.getFix match {
-                            case ammoniteFix: CreateImportedLibraryQuickFix => acc.append(ammoniteFix)
-                            case _ =>
-                          }
+                      QuickFixWrapper.unwrap(descriptor.getAction) match {
+                        case ammoniteFix: CreateImportedLibraryQuickFix => acc.append(ammoniteFix)
                         case _ =>
                       }
                       null

@@ -56,11 +56,14 @@ class MakePrivateQuickFixIsAboveAddTypeAnnotationQuickFixTest extends ScalaAnnot
 
   private def unwrapQuickFix(action: IntentionActionWithTextCaching): Option[QuickFix[_]] = {
     val unwrapped1 = IntentionActionDelegate.unwrap(action.getDelegate)
-    unwrapped1 match {
-      case wrapper: QuickFixWrapper => Some(wrapper.getFix)
-      case quickFix: QuickFix[_] => Some(quickFix)
-      case _ => None
-    }
+    val unwrapped2 = QuickFixWrapper.unwrap(unwrapped1)
+
+    Option(unwrapped2).orElse(
+      unwrapped1 match {
+        case quickFix: QuickFix[_] => Some(quickFix)
+        case _ => None
+      }
+    )
   }
 
   //noinspection SameParameterValue
