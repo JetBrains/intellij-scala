@@ -922,8 +922,7 @@ private[importing] object BspResolverLogic {
     // 1. synthetic module is depended on by all its parent targets
     // 2. synthetic module depends on all parent target's dependencies
     val dependencyByParent = moduleDependencies.groupBy(_.parent)
-
-    for {
+    val fromParentDeps = for {
       moduleDescription <- projectModules.synthetic
       synthParent <- moduleDescription.data.targets
       dep <- {
@@ -937,6 +936,31 @@ private[importing] object BspResolverLogic {
         parentSynthDependency +: inheritedDeps
       }
     } yield dep
+
+    // If a module is synthetic it composed of multiple targets. For the logic above to work,
+    // these targets need to be present as modules (non-synthetic).
+    // If modules share the same basePath, they will be merged (look at mergedBase in calculateModuleDescriptions)
+    // and hence disappear from the non synthetic modules and dependency cannot be found.
+    // example of such situation:
+    // module/test/fixture
+    // module/test/x/TestA.scala
+    // module/test/x/TestB.scala
+    // Each line is representing a target. All of them have basePath as module/test for valid reasons.
+    // TestA.scala and TestB.scala will be a synthetic target.
+    val fromDirectDeps = for {
+      moduleDescription <- projectModules.synthetic
+      dep <- {
+        val synthId = SynthId(moduleDescription.data.idUri)
+
+        def mapDependencies(targetIds: Seq[BuildTargetIdentifier], scope: DependencyScope) =
+          targetIds.map(id => ModuleDep(synthId, TargetId(id.getUri), scope, `export` = false))
+
+        val sourceDeps = mapDependencies(moduleDescription.data.targetDependencies, DependencyScope.COMPILE)
+        val testDeps = mapDependencies(moduleDescription.data.targetTestDependencies, DependencyScope.TEST)
+        sourceDeps ++ testDeps
+      }
+    } yield dep
+    (fromParentDeps ++ fromDirectDeps).distinct
   }
 
   private[importing] def addModuleDependencies(dependencies: Seq[ModuleDep],
