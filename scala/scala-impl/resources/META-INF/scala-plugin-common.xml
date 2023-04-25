@@ -116,10 +116,7 @@
         <editorHighlighterProvider filetype="Scala"
                                    implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighterProvider"/>
 
-        <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaLocalVarCouldBeValPassFactory"/>
         <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedImportsPassFactory"/>
-        <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedDeclarationPassFactory"/>
-        <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedPassFactory"/>
 
         <lang.syntaxHighlighterFactory language="Scala"
                                        implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
@@ -883,6 +880,7 @@
                          key="displayname.unused.declaration"
                          groupPath="Scala" groupKey="group.general" shortName="ScalaUnusedSymbol"
                          level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
+                         runForWholeFile="true"
                          enabledByDefault="true" language="Scala"/>
         <!--NOTE: editorAttributes="INFO_ATTRIBUTES" correspond WEAK_WARNING (IDK who invented this naming ¯\_(ツ)_/¯) -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection"

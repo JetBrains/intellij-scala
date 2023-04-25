@@ -7,7 +7,7 @@
                 implementation="org.jetbrains.plugins.scala.codeInsight.generation.GenerateToStringScalaClassFilter"/>
 
         <highlightVisitor
-                implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRefCountVisitor"/>
+                implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaImportRefCountVisitor"/>
         <highlightVisitor implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor"/>
 
         <daemon.changeLocalityDetector implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaChangeLocalityDetector"/>

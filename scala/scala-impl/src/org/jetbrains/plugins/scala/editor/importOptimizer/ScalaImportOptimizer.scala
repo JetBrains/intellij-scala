@@ -16,7 +16,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.concurrency.annotations.RequiresWriteLock
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.annotator.usageTracker.RedundantImportUtils
+import org.jetbrains.plugins.scala.annotator.importUsageTracker.RedundantImportUtils
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler

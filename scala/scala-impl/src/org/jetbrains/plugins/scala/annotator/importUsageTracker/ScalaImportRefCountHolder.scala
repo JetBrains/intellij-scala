@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator.usageTracker
+package org.jetbrains.plugins.scala.annotator.importUsageTracker
 
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzer, impl}
@@ -12,11 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import java.lang.ref.{Reference, SoftReference}
 import java.util.concurrent.atomic.AtomicLong
 import java.{util => ju}
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-final class ScalaRefCountHolder private (file: PsiFile) {
+final class ScalaImportRefCountHolder private(file: PsiFile) {
 
-  import ScalaRefCountHolder._
+  import ScalaImportRefCountHolder._
 
   private val lastReadyModCount = new AtomicLong(-1)
 
@@ -31,43 +30,14 @@ final class ScalaRefCountHolder private (file: PsiFile) {
   private def currentModCount: Long = CachesUtil.fileModCount(file)
 
   private val myImportUsed = ContainerUtil.newConcurrentSet[ImportUsed]
-  private val myValueUsed = ContainerUtil.newConcurrentSet[ValueUsed]
 
   def registerImportUsed(used: ImportUsed): Unit = {
     myImportUsed.add(used)
   }
 
-  def registerValueUsed(used: ValueUsed): Unit = {
-    myValueUsed.add(used)
-  }
-
   def usageFound(used: ImportUsed): Boolean = {
     assertReady()
     myImportUsed.contains(used)
-  }
-
-  def getWriteReferences(element: PsiNamedElement): Seq[SmartPsiElementPointer[PsiElement]] =
-    myValueUsed.asScala.collect {
-      case w: WriteValueUsed if w.declaration.getElement != null && w.declaration.getElement == element => w
-    }.map(_.reference).toSeq
-
-  def getReadReferences(element: PsiNamedElement): Seq[SmartPsiElementPointer[PsiElement]] =
-    myValueUsed.asScala.collect {
-      case r: ReadValueUsed if r.declaration.getElement != null && r.declaration.getElement == element => r
-    }.map(_.reference).toSeq
-
-  def isValueWriteUsed(element: PsiNamedElement): Boolean = {
-    assertReady()
-    myValueUsed.asScala.collect {
-      case w: WriteValueUsed if w.declaration.getElement != null => w
-    }.exists(_.declaration.getElement == element)
-  }
-
-  def isValueReadUsed(element: PsiNamedElement): Boolean = {
-    assertReady()
-    myValueUsed.asScala.collect {
-      case r: ReadValueUsed if r.declaration.getElement != null => r
-    }.exists(_.declaration.getElement == element)
   }
 
   def analyze(analyze: Runnable, file: PsiFile): Boolean = {
@@ -87,7 +57,6 @@ final class ScalaRefCountHolder private (file: PsiFile) {
     isReady
   }
 
-
   def runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip(analyze: () => Unit): Boolean = {
     if (isReady) {
       analyze()
@@ -102,25 +71,23 @@ final class ScalaRefCountHolder private (file: PsiFile) {
     dirtyScope.getOrElse(defaultRange) match {
       case `defaultRange` =>
         myImportUsed.clear()
-        myValueUsed.clear()
       case Some(_) =>
         clear(myImportUsed)(_.isValid)
-        clear(myValueUsed)(_.isValid)
       case _ =>
     }
   }
 }
 
-object ScalaRefCountHolder {
+object ScalaImportRefCountHolder {
 
   private val Log = Logger.getInstance(getClass)
 
-  private val key: Key[Reference[ScalaRefCountHolder]] = Key.create("scala.ref.count.holder")
+  private val key: Key[Reference[ScalaImportRefCountHolder]] = Key.create("scala.import.ref.count.holder")
 
-  def apply(element: PsiNamedElement): ScalaRefCountHolder =
+  def apply(element: PsiNamedElement): ScalaImportRefCountHolder =
     getInstance(element.getContainingFile)
 
-  def getInstance(file: PsiFile): ScalaRefCountHolder =
+  def getInstance(file: PsiFile): ScalaImportRefCountHolder =
     key.synchronized {
       val ref = file.getUserData(key)
       if (ref != null) {
@@ -129,7 +96,7 @@ object ScalaRefCountHolder {
           return stored
       }
 
-      val refCountHolder = new ScalaRefCountHolder(file)
+      val refCountHolder = new ScalaImportRefCountHolder(file)
       file.putUserData(key, new SoftReference(refCountHolder))
 
       refCountHolder

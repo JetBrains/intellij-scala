@@ -14,16 +14,21 @@ import scala.ref.WeakReference
 
 trait ElementUsage {
   def targetCanBePrivate: Boolean
+  val isAssignment: Boolean
 }
 
 private object ElementUsageWithUnknownReference extends ElementUsage {
   override val targetCanBePrivate: Boolean = false
+  override val isAssignment: Boolean = false
 }
 
 private final class ElementUsageWithKnownReference private(
   reference: SmartPsiElementPointer[PsiElement],
-  target: WeakReference[ScNamedElement]
+  target: WeakReference[ScNamedElement],
+  override val isAssignment: Boolean
 ) extends ElementUsage {
+
+  def getTarget(): ScNamedElement = target.underlying.get()
 
   def referenceIsInMemberThatHasTypeDefAsAncestor(typeDef: ScTypeDefinition): Boolean = {
     val memberThatReferenceIsPartOf = reference.getElement.parentOfType[ScMember]
@@ -157,9 +162,6 @@ private final class ElementUsageWithKnownReference private(
 }
 
 private object ElementUsageWithKnownReference {
-  def apply(reference: PsiElement, target: ScNamedElement): ElementUsageWithKnownReference =
-    new ElementUsageWithKnownReference(reference.createSmartPointer, WeakReference(target))
-
-  def apply(reference: SmartPsiElementPointer[PsiElement], target: ScNamedElement): ElementUsageWithKnownReference =
-    new ElementUsageWithKnownReference(reference, WeakReference(target))
+  def apply(reference: PsiElement, target: ScNamedElement, isAssignment: Boolean = false): ElementUsageWithKnownReference =
+    new ElementUsageWithKnownReference(reference.createSmartPointer, WeakReference(target), isAssignment)
 }

@@ -35,7 +35,7 @@ import scala.collection.mutable.ListBuffer
  * correct", cheapRefSearch is not for you.
  */
 
-private[declarationRedundancy] object Search {
+private[codeInspection] object Search {
 
   type Usages = Seq[ElementUsage]
 
@@ -94,7 +94,7 @@ private[declarationRedundancy] object Search {
    *                      in the provided order.
    * @param canExit       The condition that should lead the pipeline to gracefully conclude execution.
    */
-  private[declarationRedundancy] final class Pipeline(val searchMethods: Seq[Method], canExit: CanExit) {
+  private[codeInspection] final class Pipeline(val searchMethods: Seq[Method], canExit: CanExit) {
 
     /**
      * Initiates a usages search and returns the results.
@@ -165,7 +165,7 @@ private[declarationRedundancy] object Search {
    *                                `true` otherwise.
    *
    *                                Typically a value of `false` coincides with `usages.isEmpty`, and vice versa, but
-   *                                not necessarily. For such a counter-example see [[RefCountHolderSearch]].
+   *                                not necessarily. For such a counter-example see [[ResolveBasedLocalRefSearch]].
    */
   final class SearchMethodResult(val usages: Usages, val didExitBeforeExhaustion: Boolean)
 
@@ -179,7 +179,7 @@ private[declarationRedundancy] object Search {
 
   /**
    * A `Search.Method` implementation is a method, approach or heuristic to search for usages. For example,
-   * text-search is one method (see [[TextSearch]]), and true reference searching is another (see [[LocalRefSearch]]).
+   * text-search is one method (see [[TextSearch]]), and true reference searching is another (see [[TrueLocalRefSearch]]).
    */
   trait Method {
 

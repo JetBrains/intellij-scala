@@ -1,31 +1,37 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
-import com.intellij.codeInspection.SetInspectionOptionFix
+import com.intellij.codeInsight.daemon.HighlightDisplayKey
+import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.codeInspection.options.OptPane
 import com.intellij.codeInspection.options.OptPane.{checkbox, dropdown, option, pane}
+import com.intellij.codeInspection.{InspectionManager, LocalInspectionTool, ProblemDescriptor, ProblemHighlightType, ProblemsHolder, SetInspectionOptionFix}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiAnnotationOwner, PsiElement}
+import com.intellij.profile.codeInspection.InspectionProjectProfileManager
+import com.intellij.psi.impl.source.resolve.FileContextUtil
+import com.intellij.psi.{PsiAnnotationOwner, PsiElement, PsiFile}
 import org.jetbrains.annotations.{Nls, NonNls}
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
+import org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor
+import org.jetbrains.plugins.scala.codeInspection.{ProblemInfo, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
-final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
+final class ScalaUnusedDeclarationInspection extends LocalInspectionTool {
 
   import ScalaUnusedDeclarationInspection._
   import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
-
-  override def isEnabledByDefault: Boolean = true
 
   @BooleanBeanProperty
   var reportPublicDeclarations: Boolean = true
@@ -44,7 +50,17 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     )
   )
 
-  override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    e: PsiElement =>
+      ProgressManager.getInstance().getProgressIndicator.checkCanceled()
+      if (shouldProcessElement(e)) {
+        val ourInfos = invoke(e, isOnTheFly)
+        val problemDescriptors = mapOurInfosToPlatformProblemDescriptors(holder.getFile.getProject, ourInfos, isOnTheFly)
+        problemDescriptors.foreach(holder.registerProblem)
+      }
+  }
+
+  private[declarationRedundancy] def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = {
 
     val pipeline = getPipeline(element.getProject, reportPublicDeclarations)
 
@@ -101,8 +117,10 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     }
   }
 
-  override def shouldProcessElement(element: PsiElement): Boolean =
-    Search.Util.shouldProcessElement(element) && {
+  private def shouldProcessElement(element: PsiElement): Boolean = {
+    isEnabled(element) &&
+      shouldHighlightFile(element.getContainingFile) &&
+      Search.Util.shouldProcessElement(element) && {
       element match {
         case n: ScNamedElement =>
           if (isOnlyVisibleInLocalFile(n)) {
@@ -127,6 +145,24 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
         case _ => false
       }
     }
+  }
+
+  private def isEnabled(element: PsiElement): Boolean =
+    InspectionProjectProfileManager.getInstance(element.getProject)
+      .getCurrentProfile.isToolEnabled(HighlightDisplayKey.find(getShortName), element) &&
+      !inspectionSuppressor.isSuppressedFor(element, getShortName)
+
+  private def mapOurInfosToPlatformProblemDescriptors(project: Project, problemInfos: Seq[ProblemInfo], isOnTheFly: Boolean): Seq[ProblemDescriptor] = {
+    val inspectionManager = InspectionManager.getInstance(project)
+    problemInfos.map { problemInfo =>
+      inspectionManager.createProblemDescriptor(
+        problemInfo.element,
+        problemInfo.message,
+        isOnTheFly,
+        problemInfo.fixes.toArray,
+        ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+    }
+  }
 }
 
 object ScalaUnusedDeclarationInspection {
@@ -138,6 +174,8 @@ object ScalaUnusedDeclarationInspection {
 
   @NonNls
   private val reportLocalDeclarationsPropertyName: String = "reportLocalDeclarations"
+
+  private val inspectionSuppressor = new ScalaInspectionSuppressor
 
   private def hasUnusedAnnotation(holder: PsiAnnotationOwner): Boolean =
     holder.hasAnnotation("scala.annotation.unused") ||
@@ -160,5 +198,15 @@ object ScalaUnusedDeclarationInspection {
     val extensionPointImplementationSearch = searcher.IJExtensionPointImplementationSearch
 
     new Pipeline(localSearch ++ globalSearch :+ extensionPointImplementationSearch, canExit)
+  }
+
+  private def shouldHighlightFile(file: PsiFile): Boolean = {
+
+    def isInjectedFragmentEditor: Boolean = FileContextUtil.getFileContext(file).is[ScStringLiteral]
+
+    def isDebugEvaluatorExpression: Boolean = file.is[ScalaCodeFragment]
+
+    HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) &&
+      (!(isDebugEvaluatorExpression || isInjectedFragmentEditor))
   }
 }

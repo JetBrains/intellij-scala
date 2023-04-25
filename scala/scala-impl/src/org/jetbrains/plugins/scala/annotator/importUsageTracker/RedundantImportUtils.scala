@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.annotator.usageTracker
+package org.jetbrains.plugins.scala.annotator.importUsageTracker
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage, ResolveState}

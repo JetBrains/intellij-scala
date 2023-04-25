@@ -9,10 +9,13 @@ import com.intellij.openapi.project.Project
  */
 @Service(Array(Service.Level.PROJECT))
 private[declarationRedundancy] final class SearchMethodsWithProjectBoundCache private(project: Project) {
+
+  val resolveBasedLocalRefSearch = new ResolveBasedLocalRefSearch(c => c.isOnTheFly && (c.isMemberOfUnusedTypeDefinition || (c.isOnlyVisibleInLocalFile && !c.isImplicit)))
+
   val LocalSearchMethods: Seq[Search.Method] = Seq(
     new LocalImplicitSearch(c => c.isOnlyVisibleInLocalFile && c.isImplicit),
-    new RefCountHolderSearch(c => c.isOnTheFly && (c.isMemberOfUnusedTypeDefinition || (c.isOnlyVisibleInLocalFile && !c.isImplicit))),
-    new LocalRefSearch(c => !c.isMemberOfUnusedTypeDefinition && (!c.isOnlyVisibleInLocalFile || (!c.isOnTheFly && !c.isImplicit)))
+    resolveBasedLocalRefSearch,
+    new TrueLocalRefSearch(c => !c.isMemberOfUnusedTypeDefinition && (!c.isOnlyVisibleInLocalFile || (!c.isOnTheFly && !c.isImplicit)))
   )
 
   val GlobalSearchMethods: Seq[Search.Method] = Seq(

@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.util.{DocumentUtil, Processor, ThreeState}
-import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
+import org.jetbrains.plugins.scala.annotator.importUsageTracker.ImportUsageTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedImportPass.scheduleOnTheFlyImportOptimizer
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
@@ -44,7 +44,7 @@ class ScalaUnusedImportPass(override val file: PsiFile, editor: Editor, override
     case _ if HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) =>
       file.findScalaLikeFile match {
         case Some(scalaFile: ScalaFile) =>
-          val unusedImports = UsageTracker.getUnusedImports(scalaFile)
+          val unusedImports = ImportUsageTracker.getUnusedImports(scalaFile)
           val highlightInfos = collectHighlightings(unusedImports)
           myHighlights = highlightInfos.toList.asJava
 
