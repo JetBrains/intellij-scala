@@ -24,7 +24,7 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 
 import java.io.File
 import java.net.URI
-import java.nio.file.Paths
+import java.nio.file.Path
 import java.util.Collections
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -110,15 +110,23 @@ private[importing] object BspResolverLogic {
       .toMap
 
     val idToResources = resourcesItems
-      .map(item => (item.getTarget, item.getResources.asScala.iterator.map(sourceDirectory(_)).toSeq))
+      .map(item => (item.getTarget, item.getResources.asScala.iterator.map(sourceDirectory(_)).distinct.toSeq))
       .toMap
 
     val idToOutputPaths = outputPathsItems
       .map(item => (item.getTarget, item.getOutputPaths.asScala.iterator.map(_.getUri.toURI.toFile).toSeq))
       .toMap
 
+    // Source roots (repoted by BSP) that are not shared with other targets
+    val exclusiveSourceRoots = sourcesItems
+      .flatMap(item => item.getRoots.asScala.map(_ -> item.getTarget))
+      .groupBy(_._1).view.mapValues(_.map(_._2).toSet)
+      .filter(_._2.size == 1)
+      .keys
+      .toSet
+
     val idToSources = sourcesItems
-      .map(item => (item.getTarget, sourceDirectories(item)))
+      .map(item => (item.getTarget, sourceDirectories(item, idToTarget(item.getTarget), exclusiveSourceRoots)))
       .toMap
 
     val sharedResources = sharedSourceDirs(idToResources)
@@ -205,30 +213,59 @@ private[importing] object BspResolverLogic {
       .filter(_._2.size > 1)
   }
 
-  private def sourceDirectories(sourcesItem: SourcesItem): Seq[SourceDirectory] = {
-    val sourceItems: Seq[SourceItem] = sourcesItem.getSources.asScala.iterator.distinct.toSeq
+  private def sourceDirectories(
+    sourcesItem: SourcesItem,
+    target: BuildTarget,
+    exclusiveSourceRoots: Set[String]
+  ): Seq[SourceDirectory] = {
+    val sourceRoots = Option(sourcesItem.getRoots).map(_.asScala.toSeq).getOrElse(Seq.empty)
 
+    // Get source root as reported by BSP if it is exclusive to this target
+    // and is under the target base directory.
+    // This approach avoids creating more source roots than necessary.
+    // Example:
+    // src/test/scala/org/a/MyTest.scala
+    // src/test/scala/org/b/MyTest.scala
+    // By default two source roots would be created here, which makes it harder
+    // to for example run all tests in target in IntelliJ.
+    val targetBasePath: Option[Path] = Option(target.getBaseDirectory).map(_.toURI.toPath)
+    val allowedSourceRootsFromBsp = sourceRoots.filter(exclusiveSourceRoots).map(_.toURI.toPath)
+
+    def getSourceRootFromBsp(item: SourceItem): Option[File] = {
+      for {
+        targetBase <- targetBasePath
+        sourcePath = item.getUri.toURI.toPath
+        sourceRoot <- allowedSourceRootsFromBsp.find(sourcePath.startsWith)
+        if sourceRoot.startsWith(targetBase)
+      } yield sourceRoot.toFile
+    }
+
+    val sourceItems: Seq[SourceItem] = sourcesItem.getSources.asScala.iterator.distinct.toSeq
     val directories = sourceItems
       .map { item =>
-        val packagePrefix = findPackagePrefix(sourcesItem, item.getUri)
-        val file = item.getUri.toURI.toFile
-        // bsp spec used to depend on uri ending in `/` to determine directory, use both kind and uri string to determine directory
-        if (item.getKind == SourceItemKind.DIRECTORY || item.getUri.endsWith("/"))
-          SourceDirectory(file, item.getGenerated, packagePrefix)
-        else
-        // use the file's immediate parent as best guess of source dir
-        // IntelliJ project model doesn't have a concept of individual source files
-          SourceDirectory(file.getParentFile, item.getGenerated, packagePrefix)
+        getSourceRootFromBsp(item) match {
+          case Some(sourceRoot) =>
+            SourceDirectory(sourceRoot, item.getGenerated, packagePrefix = None)
+          case None =>
+            val packagePrefix = findPackagePrefix(sourceRoots, item.getUri)
+            val file = item.getUri.toURI.toFile
+            // bsp spec used to depend on uri ending in `/` to determine directory, use both kind and uri string to determine directory
+            if (item.getKind == SourceItemKind.DIRECTORY || item.getUri.endsWith("/"))
+              SourceDirectory(file, item.getGenerated, packagePrefix)
+            else
+            // use the file's immediate parent as best guess of source dir
+            // IntelliJ project model doesn't have a concept of individual source files
+              SourceDirectory(file.getParentFile, item.getGenerated, packagePrefix)
+        }
       }
     directories.distinct
   }
 
-  private def findPackagePrefix(sourcesItem: SourcesItem, sourceUri: String): Option[String] = {
-    val roots = Option(sourcesItem.getRoots).map(_.asScala).getOrElse(Nil)
+  private def findPackagePrefix(roots: Seq[String], sourceUri: String): Option[String] = {
     val matchedRoot = roots.find(root => sourceUri.startsWith(root))
     matchedRoot.map { root =>
-      val rootPath = Paths.get(new URI(root))
-      val filePath = Paths.get(new URI(sourceUri))
+      val rootPath = root.toURI.toPath
+      val filePath = sourceUri.toURI.toPath
       val dirPath = if (sourceUri.endsWith("/")) filePath else filePath.getParent
       val relativePath = rootPath.relativize(dirPath)
       relativePath.toString.replace(File.separatorChar, '.')
@@ -375,7 +412,7 @@ private[importing] object BspResolverLogic {
                                                      classPath: Seq[File],
                                                      dependencySources: Seq[File],
                                                      languageLevel: Option[LanguageLevel]
-                                               ): ModuleDescriptionData = {
+                                                    ): ModuleDescriptionData = {
     import BuildTargetTag._
 
     val moduleId = target.getId.getUri
@@ -396,7 +433,7 @@ private[importing] object BspResolverLogic {
 
     val targetDeps = target.getDependencies.asScala.toSeq
 
-    val data = if(tags.contains(TEST))
+    val data = if (tags.contains(TEST))
       dataBasic.copy(
         targetTestDependencies = targetDeps,
         testOutput = outputPath,
@@ -444,10 +481,12 @@ private[importing] object BspResolverLogic {
       .transpose
       .map(_.distinct)
     val (head, tail) = groups.partition(_.forall(_.nonEmpty))
+
     def combine(parts: Seq[String]) = {
       val nonEmptyParts = parts.filter(_.nonEmpty)
       if (nonEmptyParts.size > 1) nonEmptyParts.mkString("(", "+", ")") else nonEmptyParts.mkString
     }
+
     val ret = head.map(combine).mkString +
       (if (tail.nonEmpty) tail.map(combine).mkString("(", "", ")") else tail.mkString)
     if (ret.length > MaxFileNameLength) {
@@ -502,7 +541,7 @@ private[importing] object BspResolverLogic {
         val sourceDirs = mergeSourceDirs(dataCombined.sourceDirs, dataNext.sourceDirs)
         val resourceDirs = mergeSourceDirs(dataCombined.resourceDirs, dataNext.resourceDirs)
         val testResourceDirs = mergeSourceDirs(dataCombined.testResourceDirs, dataNext.testResourceDirs)
-        val testSourceDirs  = mergeSourceDirs(dataCombined.testSourceDirs, dataNext.testSourceDirs)
+        val testSourceDirs = mergeSourceDirs(dataCombined.testSourceDirs, dataNext.testSourceDirs)
         val outputPaths = mergeFiles(dataCombined.outputPaths, dataNext.outputPaths)
         val classPath = mergeFiles(dataCombined.classpath, dataNext.classpath)
         val classPathSources = mergeFiles(dataCombined.classpathSources, dataNext.classpathSources)
@@ -527,17 +566,17 @@ private[importing] object BspResolverLogic {
   }
 
   private def mergeBTIs(a: Seq[BuildTargetIdentifier], b: Seq[BuildTargetIdentifier]) =
-    (a++b).sortBy(_.getUri).distinct
+    (a ++ b).sortBy(_.getUri).distinct
 
   private def mergeSourceDirs(a: Seq[SourceDirectory], b: Seq[SourceDirectory]) =
-    (a++b).sortBy(_.directory.getAbsolutePath).distinct
+    (a ++ b).sortBy(_.directory.getAbsolutePath).distinct
 
   private def mergeFiles(a: Seq[File], b: Seq[File]) =
-    (a++b).sortBy(_.getAbsolutePath).distinct
+    (a ++ b).sortBy(_.getAbsolutePath).distinct
 
   private def mergeModuleKind(a: ModuleKind, b: ModuleKind) = {
     import ModuleKind._
-    (a,b) match {
+    (a, b) match {
       case (UnspecifiedModule(), other) => other
       case (other, UnspecifiedModule()) => other
       case (module1@ScalaModule(_, data1), module2@ScalaModule(_, data2)) =>
@@ -550,10 +589,11 @@ private[importing] object BspResolverLogic {
   }
 
   // extension method added as for better performance than getCanonicalPath method
-  implicit class FileExtensions(val f: File){
+  implicit class FileExtensions(val f: File) {
     def getCanonicalPathOptimized: String = {
       f.toPath.toAbsolutePath.normalize().toString
     }
+
     def getCanonicalFileOptimized: File = {
       f.toPath.toAbsolutePath.normalize().toFile
     }
@@ -562,15 +602,18 @@ private[importing] object BspResolverLogic {
   private val jarSuffix = ".jar"
   private val sourcesSuffixes = Seq("-sources", "-src")
   private val javadocSuffix = "-javadoc"
+
   private def stripSuffixes(path: String): String =
     path
       .stripSuffix(jarSuffix)
       .stripSuffixes(sourcesSuffixes)
       .stripSuffix(javadocSuffix)
+
   private def libraryPrefix(path: File): Option[String] =
     if (path.getName.endsWith(jarSuffix))
       Option(stripSuffixes(path.getCanonicalPathOptimized))
     else None
+
   private def libraryName(path: File): String =
     stripSuffixes(path.getName)
 
@@ -589,7 +632,7 @@ private[importing] object BspResolverLogic {
 
     // synthetic root module when no natural module is at root
     val rootModule =
-      if (projectModules.modules.exists (_.data.basePath.exists(_ == projectRoot))) None
+      if (projectModules.modules.exists(_.data.basePath.exists(_ == projectRoot))) None
       else {
         val name = projectRoot.getName + "-root"
         val moduleData = new ModuleData(name, BSP.ProjectSystemId, BspSyntheticModuleType.Id, name, moduleFileDirectoryPath, projectRootPath)
@@ -605,9 +648,9 @@ private[importing] object BspResolverLogic {
       projectModules.modules.toSet
         .flatMap((m: ModuleDescription) =>
           m.data.classpath ++
-          m.data.classpathSources ++
-          m.data.testClasspath ++
-          m.data.testClasspathSources)
+            m.data.classpathSources ++
+            m.data.testClasspath ++
+            m.data.testClasspathSources)
         .map(_.getCanonicalFileOptimized)
         .groupBy(libraryPrefix)
         // ignore non-standard jar libs
@@ -616,7 +659,7 @@ private[importing] object BspResolverLogic {
         .flatMap { case name -> prefixLibs =>
           if (prefixLibs.size == 1) {
             // use short name when unique
-            prefixLibs.map { case prefix -> files => prefix -> (name,files) }
+            prefixLibs.map { case prefix -> files => prefix -> (name, files) }
           }
           else {
             // add a number for uniqueness and to keep names short
@@ -669,7 +712,7 @@ private[importing] object BspResolverLogic {
 
     val idToRootModule = rootModule.toSeq.map(m => SynthId(m.getData.getId) -> m)
     val idToSyntheticModule = projectModules.synthetic.map { m => SynthId(m.data.idUri) -> toModuleNode(m) }
-    val idToTargetModule = idsToTargetModule.flatMap { case (ids,m) => ids.map(_ -> m)}
+    val idToTargetModule = idsToTargetModule.flatMap { case (ids, m) => ids.map(_ -> m) }
     val idToModuleMap: Map[DependencyId, DataNode[ModuleData]] =
       (idToRootModule ++ idToTargetModule ++ idToSyntheticModule).toMap
 
@@ -784,7 +827,7 @@ private[importing] object BspResolverLogic {
 
 
     def namedLibraries(classpath: Seq[File], sources: Seq[File]) = {
-      val (named,other) = classpath
+      val (named, other) = classpath
         .groupBy(libraryPrefix)
         .partitionMap {
           case Some(libName) -> _ => Left(libName)
@@ -796,7 +839,7 @@ private[importing] object BspResolverLogic {
 
     val (namedLibs, otherLibs, otherSources) =
       namedLibraries(moduleDescriptionData.classpath, moduleDescriptionData.classpathSources)
-    val (namedTestLibs, otherTestLibs , otherTestSources) =
+    val (namedTestLibs, otherTestLibs, otherTestSources) =
       namedLibraries(moduleDescriptionData.testClasspath, moduleDescriptionData.testClasspathSources)
 
     def configureNamedLibraryDependencyData(libPrefixes: Iterable[String], scope: DependencyScope) = libPrefixes
@@ -931,7 +974,7 @@ private[importing] object BspResolverLogic {
         val parentId = TargetId(synthParent.getId.getUri)
 
         val parentDeps = dependencyByParent.getOrElse(parentId, Seq.empty)
-        val inheritedDeps = parentDeps.map { d => ModuleDep(synthId, d.child, d.scope, `export` = false)}
+        val inheritedDeps = parentDeps.map { d => ModuleDep(synthId, d.child, d.scope, `export` = false) }
 
         val parentSynthDependency = ModuleDep(parentId, synthId, DependencyScope.COMPILE, `export` = true)
         parentSynthDependency +: inheritedDeps
@@ -1006,7 +1049,7 @@ private[importing] object BspResolverLogic {
         moduleNode.addChild(sbtBuildModuleDataNode)
 
       case ModuleKind.JvmModule(JdkData(javaHome, javaVersion)) =>
-        // FIXME set jdk from home or version
+      // FIXME set jdk from home or version
 
       case ModuleKind.UnspecifiedModule() =>
     }

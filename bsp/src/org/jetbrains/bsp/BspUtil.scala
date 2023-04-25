@@ -80,7 +80,8 @@ object BspUtil {
   }
 
   implicit class URIOps(uri: URI) {
-    def toFile: File = Paths.get(uri).toFile
+    def toFile: File = uri.toPath.toFile
+    def toPath: Path = Paths.get(uri)
   }
 
   implicit class CompletableFutureOps[T](cf: CompletableFuture[T]) {
