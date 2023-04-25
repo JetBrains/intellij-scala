@@ -54,8 +54,11 @@ class ScObjectImpl(
     else super.getContainingFile
   }
 
-  override def getName: String =
-    (if (isPackageObject) "package" else super.getName) + "$"
+  override def getName: String = if (isPackageObject) {
+    super.getName + ".package$"
+  } else {
+    super.getName + "$"
+  }
 
   //noinspection TypeAnnotation
   override protected final def baseIcon =

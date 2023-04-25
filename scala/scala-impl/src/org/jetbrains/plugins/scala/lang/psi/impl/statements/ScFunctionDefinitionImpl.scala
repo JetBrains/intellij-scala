@@ -14,12 +14,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl.{importantOrderFunction, isCalculatingFor, returnTypeInner}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
+import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.extendsAnyVal
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, api}
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S],
                                                           nodeType: ScFunctionElementType[S],
@@ -27,6 +31,13 @@ class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S
   extends ScFunctionImpl(stub, nodeType, node)
     with ScFunctionDefinition
     with ScNamedBeginImpl {
+
+  override def getContainingClass: PsiClass =
+    super.getContainingClass match {
+      case c: ScClass if c.getModifierList.isImplicit && extendsAnyVal(c) =>
+        c.fakeCompanionModule.getOrElse(super.getContainingClass)
+      case _ => super.getContainingClass
+    }
 
   override protected def shouldProcessParameters(lastParent: PsiElement): Boolean =
     super.shouldProcessParameters(lastParent) || body.contains(lastParent)

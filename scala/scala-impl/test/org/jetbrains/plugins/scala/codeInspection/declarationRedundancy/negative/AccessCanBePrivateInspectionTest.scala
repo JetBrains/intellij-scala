@@ -4,6 +4,8 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAcc
 
 final class AccessCanBePrivateInspectionTest extends ScalaAccessCanBePrivateInspectionTestBase {
 
+  def test_that_fails_to_prevent_merge(): Unit = throw new Exception
+
   def test_val(): Unit =
     checkTextHasNoErrors("private class A { val foo = 42 }; private class B { new A().foo }")
 

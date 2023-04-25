@@ -14,10 +14,12 @@ import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker,
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiImplementationHelper
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.stubOrPsiNextSibling
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScFunction}
@@ -25,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createObjectWithContext
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -216,7 +219,19 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     else findByAst
   }
 
+  private def isAnyValWithoutResolve(c: ScClass): Boolean = {
+    val extendsBlock = c.stubOrPsiChild(ScalaElementType.EXTENDS_BLOCK).collect { case eb: ScExtendsBlockImpl => eb }.toSeq
+    val templateParents = extendsBlock.flatMap(_.templateParents.toSeq)
+    val allTypeElements = templateParents.flatMap(_.allTypeElements)
+    val allTypeElementStableCodeReferences = allTypeElements.collect { case s: ScSimpleTypeElement => s }.flatMap(_.reference.toSeq)
+    val qualNames = allTypeElementStableCodeReferences.map(_.qualName)
+
+    qualNames.contains("AnyVal")
+  }
+
   override def fakeCompanionModule: Option[ScObject] = this match {
+    case c: ScClass if c.getModifierList.isImplicit && isAnyValWithoutResolve(c) && !c.qualifiedName.startsWith("scala.Predef.") =>
+      calcFakeCompanionModule()
     case _: ScObject => None
     case enm: ScEnum => enm.syntheticClass.flatMap(_.fakeCompanionModule)
     case _ =>
@@ -233,8 +248,22 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       case Some(am) => AccessModifierRenderer.simpleTextHtmlEscaped(am) + " "
     }
 
+    val isAnyVal = this match {
+      case c: ScClass if c.getModifierList.isImplicit && isAnyValWithoutResolve(c) && !c.qualifiedName.startsWith("scala.Predef.") =>
+        true
+      case _ => false
+    }
+
+    val dollar = if (isAnyVal) "$" else ""
+
+    val packageDollar = this.containingClass match {
+      case o: ScObject if o.isPackageObject && isAnyVal =>
+        "package$"
+      case _ => ""
+    }
+
     val objText =
-      s"""${accessModifier}object $name {
+      s"""${accessModifier}object $packageDollar$name$dollar {
          |  //Generated synthetic object
          |}""".stripMargin
 
