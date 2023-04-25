@@ -15,7 +15,6 @@
  */
 package org.jetbrains.plugins.scala.editor.mouseHandler;
 
-import com.intellij.codeInsight.documentation.DocumentationManager;
 import com.intellij.codeInsight.documentation.DocumentationManagerProtocol;
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.codeInsight.hint.HintManagerImpl;
@@ -95,8 +94,8 @@ public class MouseHoverHandler implements StartupActivity.DumbAware {
     private static final AbstractDocumentationTooltipAction[] ourTooltipActions = {new ShowQuickDocAtPinnedWindowFromTooltipAction()};
     @Nullable
     private TooltipProvider myTooltipProvider = null;
-    @SuppressWarnings("deprecation")
-    private final DocumentationManager myDocumentationManager;
+    @SuppressWarnings("removal")
+    private final com.intellij.codeInsight.documentation.DocumentationManager myDocumentationManager;
     @Nullable
     private Point myPrevMouseLocation;
     @Nullable
@@ -193,6 +192,7 @@ public class MouseHoverHandler implements StartupActivity.DumbAware {
 
     private final CaretListener myCaretListener = new CaretListener() {
       @Override
+      @SuppressWarnings("removal")
       public void caretPositionChanged(@NotNull CaretEvent e) {
         if (myHint != null) {
           myDocumentationManager.updateToolwindowContext();
@@ -205,12 +205,11 @@ public class MouseHoverHandler implements StartupActivity.DumbAware {
     @NotNull
     private final Alarm myTooltipAlarm;
 
+    @SuppressWarnings("removal")
     public MouseHoverHandlerListeners(final Project project) {
       myProject = project;
       myProjectDisposable = UnloadAwareDisposable.forProject(myProject);
-      @SuppressWarnings("deprecation")
-      final var documentationManager = DocumentationManager.getInstance(project);
-      myDocumentationManager = documentationManager;
+      myDocumentationManager = com.intellij.codeInsight.documentation.DocumentationManager.getInstance(project);;
       myDocAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, myProjectDisposable);
       myTooltipAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, myProjectDisposable);
     }
@@ -279,7 +278,7 @@ public class MouseHoverHandler implements StartupActivity.DumbAware {
 
       public abstract boolean isValid(Document document);
 
-      public abstract void showDocInfo(@SuppressWarnings("deprecation") @NotNull DocumentationManager docManager);
+      public abstract void showDocInfo(@SuppressWarnings("removal") @NotNull com.intellij.codeInsight.documentation.DocumentationManager docManager);
 
       protected boolean rangesAreCorrect(Document document) {
         final TextRange docRange = new TextRange(0, document.getTextLength());
@@ -324,7 +323,8 @@ public class MouseHoverHandler implements StartupActivity.DumbAware {
       }
 
       @Override
-      public void showDocInfo(@SuppressWarnings("deprecation") @NotNull DocumentationManager docManager) {
+      @SuppressWarnings("removal")
+      public void showDocInfo(@NotNull com.intellij.codeInsight.documentation.DocumentationManager docManager) {
 //      docManager.showJavaDocInfo(myTargetElement, myElementAtPointer, true, null);
         docManager.setAllowContentUpdateFromContext(false);
       }
@@ -803,6 +803,7 @@ public class MouseHoverHandler implements StartupActivity.DumbAware {
       }
 
       @Override
+      @SuppressWarnings("removal")
       public void hyperlinkUpdate(@NotNull HyperlinkEvent e) {
         if (e.getEventType() != HyperlinkEvent.EventType.ACTIVATED) {
           return;
