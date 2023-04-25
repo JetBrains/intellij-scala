@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOb
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
+import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.ImplicitValueClassDumbMode
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
@@ -217,24 +218,31 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   }
 
   override def fakeCompanionModule: Option[ScObject] = this match {
+    case ImplicitValueClassDumbMode(c) if !c.qualifiedName.startsWith("scala.Predef.") => calcFakeCompanionModule(true)
     case _: ScObject => None
     case enm: ScEnum => enm.syntheticClass.flatMap(_.fakeCompanionModule)
     case _ =>
       baseCompanion match {
         case Some(_: ScObject)                                              => None
         case _ if !isCase && !SyntheticMembersInjector.needsCompanion(this) => None
-        case _                                                              => calcFakeCompanionModule()
+        case _                                                              => calcFakeCompanionModule(false)
       }
     }
 
-  private val calcFakeCompanionModule: () => Option[ScObject] = cached("ScTypeDefinitionImpl.calcCompanionModule", ModTracker.libraryAware(this), () => {
+  private val calcFakeCompanionModule: Boolean => Option[ScObject] = cached("ScTypeDefinitionImpl.calcCompanionModule", ModTracker.libraryAware(this), (isImplicitValueClass: Boolean) => {
     val accessModifier = getModifierList.accessModifier match {
       case None     => ""
       case Some(am) => AccessModifierRenderer.simpleTextHtmlEscaped(am) + " "
     }
 
+    val packageDollar = this.containingClass match {
+      case o: ScObject if o.isPackageObject && isImplicitValueClass =>
+        "package$"
+      case _ => ""
+    }
+
     val objText =
-      s"""${accessModifier}object $name {
+      s"""${accessModifier}object $packageDollar$name {
          |  //Generated synthetic object
          |}""".stripMargin
 

@@ -687,9 +687,9 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestBase {
   def testImplicitValueClass(): Unit = {
     smartStepIntoTest()(
       Target("charAt(int)"),
-      Target("implicit toOption()")
+      Target("implicit toOption$extension(T)")
     )(
-      Breakpoint("ImplicitValueClass.scala", "main", 10) -> smartStepInto(Target("implicit toOption()")),
+      Breakpoint("ImplicitValueClass.scala", "main", 10) -> smartStepInto(Target("implicit toOption$extension(T)")),
       Breakpoint("ImplicitValueClass.scala", "toOption$extension", 6) -> resume
     )
   }
