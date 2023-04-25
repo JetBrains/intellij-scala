@@ -65,10 +65,10 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
     element match {
       case ref: ScReference =>
         val resolve = ref.multiResolveScala(false)
-        registerUsedElementsAndImports(ref, resolve, checkWrite = true)
+        registerUsedElementsAndImports(ref, resolve)
       case selfInv: ScSelfInvocation =>
         val resolve = selfInv.multiResolve
-        registerUsedElementsAndImports(selfInv, resolve, checkWrite = false)
+        registerUsedElementsAndImports(selfInv, resolve)
       case f: ScFor =>
         registerUsedImports(f, ScalaPsiUtil.getExprImports(f))
       case call: ScMethodCall =>
@@ -93,7 +93,7 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
     element.asOptionOf[ImplicitArgumentsOwner]
       .foreach { owner =>
         owner.findImplicitArguments.foreach { params =>
-          registerUsedElementsAndImports(element, params, checkWrite = false)
+          registerUsedElementsAndImports(element, params)
         }
       }
   }

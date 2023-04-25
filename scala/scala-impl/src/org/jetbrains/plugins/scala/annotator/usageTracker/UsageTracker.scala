@@ -1,17 +1,12 @@
 package org.jetbrains.plugins.scala.annotator.usageTracker
 
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiFileExt}
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
-import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.immutable.ArraySeq
@@ -19,10 +14,9 @@ import scala.collection.mutable
 
 object UsageTracker {
 
-  def registerUsedElementsAndImports(element: PsiElement, results: Iterable[ScalaResolveResult], checkWrite: Boolean): Unit = {
+  def registerUsedElementsAndImports(element: PsiElement, results: Iterable[ScalaResolveResult]): Unit = {
     for (resolveResult <- results if resolveResult != null) {
       registerUsedImports(element, resolveResult)
-      registerUsedElement(element, resolveResult, checkWrite)
     }
   }
 
@@ -90,45 +84,4 @@ object UsageTracker {
     val result1 = ImportInfoProvider.filterOutUsedImports(file, result0)
     result1
   }
-
-  private def collectAllNamedElementTargets(resolveResult: ScalaResolveResult): Seq[PsiNamedElement] = {
-    val originalsFromSynthetics = resolveResult.element match {
-      case ScEnumCase.Original(enumCase) => Seq(enumCase)
-      case ScEnum.OriginalFromObject(enum) => Seq(enum)
-      case ScEnum.OriginalFromSyntheticMethod(enum) => enum.cases
-      case f: ScFunctionDefinition if f.isSynthetic => Seq(f.syntheticNavigationElement).collect {
-        case n: ScNamedElement => n
-      }
-      case _ => Seq.empty
-    }
-    originalsFromSynthetics ++ resolveResult.parentElement.toSeq :+ resolveResult.element
-  }
-
-  private def registerTargetElement(sourceElement: PsiElement, targetElement: PsiNamedElement, checkWrite: Boolean): Unit =
-    if (targetElement.isValid && targetElement.getContainingFile == sourceElement.getContainingFile &&
-      !PsiTreeUtil.isAncestor(targetElement, sourceElement, true)) { //to filter recursive usages
-
-      val valueUseds = sourceElement match {
-        case ref: ScReferenceExpression if checkWrite && ScalaPsiUtil.isPossiblyAssignment(ref) =>
-
-          val additionalWrite = ref.getContext match {
-            case ScAssignment.resolvesTo(assignmentTarget) if assignmentTarget != targetElement =>
-              Seq(WriteValueUsed(assignmentTarget, ref))
-            case _ => Seq.empty
-          }
-
-          WriteValueUsed(targetElement, ref) +: additionalWrite
-        case _ => Seq(ReadValueUsed(targetElement, sourceElement))
-      }
-
-      val holder = ScalaRefCountHolder.getInstance(sourceElement.getContainingFile)
-      valueUseds.foreach(holder.registerValueUsed)
-    }
-
-
-  private def registerUsedElement(sourceElement: PsiElement,
-                                  resolveResult: ScalaResolveResult,
-                                  checkWrite: Boolean): Unit =
-    collectAllNamedElementTargets(resolveResult)
-      .foreach(registerTargetElement(sourceElement, _, checkWrite))
 }

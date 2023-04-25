@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection
 
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
-import com.intellij.codeInspection.{LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType}
+import com.intellij.codeInspection.LocalQuickFixAndIntentionActionOnPsiElement
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Context
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.SearchMethodsWithProjectBoundCache
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.{HighlightingPassInspection, ProblemInfo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isOnlyVisibleInLocalFile, isPossiblyAssignment}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -58,14 +59,9 @@ object VarCouldBeValInspection {
   }
 
   private def hasNoWriteUsagesOnTheFly(element: ScBindingPattern): Boolean = {
-    var hasWriteUsages = false
-    var used = false
-    val holder = ScalaRefCountHolder(element)
-    holder.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
-      hasWriteUsages = holder.isValueWriteUsed(element)
-      used = holder.isValueReadUsed(element)
-    }
-    !hasWriteUsages && used // has no write usages but is used
+    val ctx = new Context(element, _ => false)
+    val results = SearchMethodsWithProjectBoundCache(element.getProject).resolveBasedLocalRefSearch.searchForUsages(ctx)
+    !results.usages.exists(_.assignment) && results.usages.exists(!_.assignment)
   }
 
   private def hasNoWriteUsages(element: ScBindingPattern): Boolean = {

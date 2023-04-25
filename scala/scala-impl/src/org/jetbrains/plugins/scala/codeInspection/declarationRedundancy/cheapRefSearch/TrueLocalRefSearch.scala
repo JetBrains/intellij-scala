@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 
 import scala.collection.mutable.ListBuffer
 
-private[cheapRefSearch] final class LocalRefSearch(override val shouldProcess: ShouldProcess) extends Method {
+private[cheapRefSearch] final class TrueLocalRefSearch(override val shouldProcess: ShouldProcess) extends Method {
 
   private val IgnoreAccessScope = true
 

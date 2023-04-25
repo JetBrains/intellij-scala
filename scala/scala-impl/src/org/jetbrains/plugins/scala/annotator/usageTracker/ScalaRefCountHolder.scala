@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import java.lang.ref.{Reference, SoftReference}
 import java.util.concurrent.atomic.AtomicLong
 import java.{util => ju}
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 final class ScalaRefCountHolder private (file: PsiFile) {
 
@@ -31,43 +30,14 @@ final class ScalaRefCountHolder private (file: PsiFile) {
   private def currentModCount: Long = CachesUtil.fileModCount(file)
 
   private val myImportUsed = ContainerUtil.newConcurrentSet[ImportUsed]
-  private val myValueUsed = ContainerUtil.newConcurrentSet[ValueUsed]
 
   def registerImportUsed(used: ImportUsed): Unit = {
     myImportUsed.add(used)
   }
 
-  def registerValueUsed(used: ValueUsed): Unit = {
-    myValueUsed.add(used)
-  }
-
   def usageFound(used: ImportUsed): Boolean = {
     assertReady()
     myImportUsed.contains(used)
-  }
-
-  def getWriteReferences(element: PsiNamedElement): Seq[SmartPsiElementPointer[PsiElement]] =
-    myValueUsed.asScala.collect {
-      case w: WriteValueUsed if w.declaration.getElement != null && w.declaration.getElement == element => w
-    }.map(_.reference).toSeq
-
-  def getReadReferences(element: PsiNamedElement): Seq[SmartPsiElementPointer[PsiElement]] =
-    myValueUsed.asScala.collect {
-      case r: ReadValueUsed if r.declaration.getElement != null && r.declaration.getElement == element => r
-    }.map(_.reference).toSeq
-
-  def isValueWriteUsed(element: PsiNamedElement): Boolean = {
-    assertReady()
-    myValueUsed.asScala.collect {
-      case w: WriteValueUsed if w.declaration.getElement != null => w
-    }.exists(_.declaration.getElement == element)
-  }
-
-  def isValueReadUsed(element: PsiNamedElement): Boolean = {
-    assertReady()
-    myValueUsed.asScala.collect {
-      case r: ReadValueUsed if r.declaration.getElement != null => r
-    }.exists(_.declaration.getElement == element)
   }
 
   def analyze(analyze: Runnable, file: PsiFile): Boolean = {
@@ -87,7 +57,6 @@ final class ScalaRefCountHolder private (file: PsiFile) {
     isReady
   }
 
-
   def runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip(analyze: () => Unit): Boolean = {
     if (isReady) {
       analyze()
@@ -102,10 +71,8 @@ final class ScalaRefCountHolder private (file: PsiFile) {
     dirtyScope.getOrElse(defaultRange) match {
       case `defaultRange` =>
         myImportUsed.clear()
-        myValueUsed.clear()
       case Some(_) =>
         clear(myImportUsed)(_.isValid)
-        clear(myValueUsed)(_.isValid)
       case _ =>
     }
   }
