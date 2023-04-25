@@ -30,6 +30,7 @@ public class IntellijSourcesAttachListener extends ExternalSystemTaskNotificatio
     }
 
     private void tryAttach(Project project, int attempt) {
+        if (project.isDisposed()) return;
         if (attempt >= MAX_ATTEMPTS) {
             LOG.info("Failed to wait for dumb mode after " + attempt + " attempts, trying to attach sources anyway");
             attachIJSources(project);
