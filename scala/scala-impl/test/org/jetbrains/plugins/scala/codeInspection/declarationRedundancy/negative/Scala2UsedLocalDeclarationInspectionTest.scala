@@ -292,8 +292,9 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
     configureByText("class Test[A]")
     val unusedTypeParam = getFile.findElementAt(11).getContext
     assert(unusedTypeParam.isInstanceOf[ScTypeParam])
-    val problems = (new ScalaUnusedDeclarationInspection).invoke(unusedTypeParam, isOnTheFly = false)
-    assertTrue(s"Found ${problems.size} problem(s) while 0 were expected", problems.isEmpty)
+//    val problems = (new ScalaUnusedDeclarationInspection).invoke(unusedTypeParam, isOnTheFly = false)
+//    assertTrue(s"Found ${problems.size} problem(s) while 0 were expected", problems.isEmpty)
+    assertTrue(false) // Rewrite this test
   }
 
   def test_context_bounded_class_type_parameter1(): Unit = checkTextHasNoErrors(

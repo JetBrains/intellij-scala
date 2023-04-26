@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
-import com.intellij.codeInspection.SetInspectionOptionFix
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder, SetInspectionOptionFix}
 import com.intellij.codeInspection.options.OptPane
 import com.intellij.codeInspection.options.OptPane.{checkbox, dropdown, option, pane}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiAnnotationOwner, PsiElement}
 import org.jetbrains.annotations.{Nls, NonNls}
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
-final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
+final class ScalaUnusedDeclarationInspection extends LocalInspectionTool {
 
   import ScalaUnusedDeclarationInspection._
   import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
@@ -44,7 +44,15 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     )
   )
 
-  override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    e: PsiElement => if (shouldProcessElement(e)) {
+      invoke(e, isOnTheFly).foreach { info =>
+        holder.registerProblem(info.element, info.message, info.fixes: _*)
+      }
+    }
+  }
+
+  private def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = {
 
     val pipeline = getPipeline(element.getProject, reportPublicDeclarations)
 
@@ -101,7 +109,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     }
   }
 
-  override def shouldProcessElement(element: PsiElement): Boolean =
+  private def shouldProcessElement(element: PsiElement): Boolean =
     Search.Util.shouldProcessElement(element) && {
       element match {
         case n: ScNamedElement =>
