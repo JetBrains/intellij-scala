@@ -155,7 +155,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           }
 
           named.map { typedDefinition =>
-            (if (typedDefinition.isVar) "var" else "val") + s" ${typedDefinition.name} : ${typeText0(substitutor(returnType))}"
+            (if (typedDefinition.isVar) "var" else "val") + s" ${typedDefinition.name}${if (typedDefinition.name.lastOption.exists(c => !c.isLetterOrDigit && c != '`')) " " else ""}: ${typeText0(substitutor(returnType))}"
           }
         case (_: String, signature: TypeAliasSignature) =>
           val alias = signature.typeAlias
