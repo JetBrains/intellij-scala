@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 import scala.annotation.tailrec
 
@@ -308,7 +309,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         }
 
         prefix + "this" + typeTail(needDotType)
-      case TupleType(comps) =>
+      case TupleType(comps) if !ScalaApplicationSettings.PRECISE_TEXT || !t.isAliasType => // SCL-21175
         comps match {
           case Seq(head) => s"Tuple1[${innerTypeText(head)}]"
           case _ => typesText(comps)
