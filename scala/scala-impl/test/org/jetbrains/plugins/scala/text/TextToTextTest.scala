@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, ScalaReflectLibraryLoader}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert
 
@@ -120,6 +121,15 @@ class TextToTextTest extends ScalaFixtureTestCase {
     super.librariesLoaders :+ ScalaReflectLibraryLoader :+ IvyManagedLoader(Dependencies: _*)
 
   def testTextToText(): Unit = {
+    try {
+      ScalaApplicationSettings.PRECISE_TEXT = true
+      doTestTextToText()
+    } finally {
+      ScalaApplicationSettings.PRECISE_TEXT = false
+    }
+  }
+
+  private def doTestTextToText(): Unit = {
     val manager = ScalaPsiManager.instance(getProject)
 
     println("Collecting classes...")

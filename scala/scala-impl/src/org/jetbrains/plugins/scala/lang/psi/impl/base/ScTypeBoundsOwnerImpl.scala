@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
 
@@ -58,7 +59,9 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
 
   private def typeOf(typeElement: Option[ScTypeElement], isLower: Boolean): TypeResult =
     typeElement match {
-      case Some(elem) => elem.`type`().map(extractBound(_, isLower))
+      case Some(elem) =>
+        if (ScalaApplicationSettings.PRECISE_TEXT) elem.`type`() // SCL-21151
+        else elem.`type`().map(extractBound(_, isLower))
       case None => Right(if (isLower) api.Nothing else api.Any)
     }
 }
