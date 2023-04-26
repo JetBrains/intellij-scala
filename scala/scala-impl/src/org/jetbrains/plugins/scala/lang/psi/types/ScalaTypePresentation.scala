@@ -254,7 +254,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
     }
 
     def parameterizedTypeText(p: ParameterizedType)(printArgsFun: ScType => String): String = p match {
-      case ParameterizedType(InfixDesignator(op), Seq(left, right)) =>
+      case ParameterizedType(InfixDesignator(op), Seq(left, right)) if !ScalaApplicationSettings.PRECISE_TEXT => // SCL-21179
         infixTypeText(op, left, right, printArgsFun(_))
       case ParameterizedType(des, typeArgs) =>
         innerTypeText(des) + typeArgs.map(printArgsFun(_)).commaSeparated(model = Model.SquareBrackets)
