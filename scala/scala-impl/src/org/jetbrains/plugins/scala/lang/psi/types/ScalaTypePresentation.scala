@@ -284,10 +284,10 @@ trait ScalaTypePresentation extends api.TypePresentation {
       needDotType: Boolean = true,
       checkWildcard: Boolean = false
     ): String = t match {
-      case valType: ValType if options.renderValueTypes =>
-        valType.extractClass match {
+      case stdType: StdType if options.renderStdTypes =>
+        stdType.extractClass match {
           case Some(clazz) => nameRenderer.renderName(clazz)
-          case _           => nameRenderer.escapeName(valType.name)
+          case _           => nameRenderer.escapeName(stdType.name)
         }
       case namedType: NamedType => namedType.name
       case _: WildcardType => "?"

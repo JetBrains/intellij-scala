@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.NameRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 /**
  * TODO: move to presentation package
@@ -65,7 +66,7 @@ trait TypePresentation {
 
     val options = PresentationOptions(
       renderProjectionTypeName = true,
-      renderValueTypes = true,
+      renderStdTypes = true,
       renderInfixType = true
     )
     typeText(`type`, renderer, options)(context)
@@ -97,7 +98,7 @@ trait TypePresentation {
         removeKeywords(str) + pointStr(withPoint)
       }
     }
-    typeText(`type`, renderer, PresentationOptions.Default)(TypePresentationContext.emptyContext)
+    typeText(`type`, renderer, PresentationOptions(renderStdTypes = ScalaApplicationSettings.PRECISE_TEXT))(TypePresentationContext.emptyContext)
   }
 }
 
@@ -117,7 +118,7 @@ object TypePresentation {
 
   case class PresentationOptions(
     renderProjectionTypeName: Boolean = false,
-    renderValueTypes: Boolean = false,
+    renderStdTypes: Boolean = false,
     renderInfixType: Boolean = false
   )
   object PresentationOptions {
