@@ -35,7 +35,7 @@ import scala.collection.mutable.ListBuffer
  * correct", cheapRefSearch is not for you.
  */
 
-private[declarationRedundancy] object Search {
+private[codeInspection] object Search {
 
   type Usages = Seq[ElementUsage]
 
@@ -94,7 +94,7 @@ private[declarationRedundancy] object Search {
    *                      in the provided order.
    * @param canExit       The condition that should lead the pipeline to gracefully conclude execution.
    */
-  private[declarationRedundancy] final class Pipeline(val searchMethods: Seq[Method], canExit: CanExit) {
+  private[codeInspection] final class Pipeline(val searchMethods: Seq[Method], canExit: CanExit) {
 
     /**
      * Initiates a usages search and returns the results.

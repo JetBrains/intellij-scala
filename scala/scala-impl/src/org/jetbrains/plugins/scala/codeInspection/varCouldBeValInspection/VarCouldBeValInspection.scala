@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Context
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.SearchMethodsWithProjectBoundCache
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.{HighlightingPassInspection, ProblemInfo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isOnlyVisibleInLocalFile, isPossiblyAssignment}
@@ -59,9 +59,10 @@ object VarCouldBeValInspection {
   }
 
   private def hasNoWriteUsagesOnTheFly(element: ScBindingPattern): Boolean = {
-    val ctx = new Context(element, _ => false)
-    val results = SearchMethodsWithProjectBoundCache(element.getProject).resolveBasedLocalRefSearch.searchForUsages(ctx)
-    !results.usages.exists(_.assignment) && results.usages.exists(!_.assignment)
+    val search = SearchMethodsWithProjectBoundCache(element.getProject).resolveBasedLocalRefSearch
+    val pipeline = new Pipeline(Seq(search), _ => false)
+    val usages = pipeline.runSearchPipeline(element, isOnTheFly = true)
+    !usages.exists(_.assignment) && usages.exists(!_.assignment)
   }
 
   private def hasNoWriteUsages(element: ScBindingPattern): Boolean = {
