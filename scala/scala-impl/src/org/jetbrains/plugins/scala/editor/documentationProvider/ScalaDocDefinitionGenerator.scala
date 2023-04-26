@@ -77,40 +77,40 @@ private class ScalaDocDefinitionGenerator private(
     element match {
       case an: ScAnnotationsHolder =>
         val annotationsRendered = annotationsRenderer.renderAnnotations(an)
-        append(annotationsRendered)
+        if (annotationsRendered.nonEmpty) append(annotationsRendered)
       case _ =>
     }
 
     element match {
       case m: ScModifierListOwner =>
-        val renderer = new ModifiersRenderer(new AccessModifierRenderer(AccessQualifierRenderer.WithHtmlPsiLink))
-        builder.appendKeyword(renderer.render(m))
+        val modifiersRendered = modifiersRenderer.render(m)
+        if (modifiersRendered.nonEmpty) builder.appendKeyword(modifiersRendered)
       case _ =>
     }
 
-    builder.appendKeyword(ScalaDocumentationUtils.getKeyword(keywordOwner))
+    val keyword = ScalaDocumentationUtils.getKeyword(keywordOwner)
+    if (keyword.nonEmpty) builder.appendKeyword(keyword).append(" ")
 
     append(element match {
       case named: ScNamedElement => escapeHtml(named.name)
-      case value: ScValueOrVariable => escapeHtml(value.declaredNames.head) // TODO
+      case value: ScValueOrVariable if value.declaredNames.nonEmpty => escapeHtml(value.declaredNames.head) // TODO
       case _ => "_"
     })
 
     element match {
       case tpeParamOwner: ScTypeParametersOwner =>
-        val renderer = new TypeParamsRenderer(typeRenderer, new TypeBoundsRenderer(Html))
-        builder.appendKeyword(renderer.renderParams(tpeParamOwner))
+        val renderedTypeParams = typeParamsRenderer.renderParams(tpeParamOwner)
+        if (renderedTypeParams.nonEmpty) builder.appendKeyword(renderedTypeParams)
       case _ =>
     }
 
     element match {
       case params: ScParameterOwner =>
-        val renderer = definitionParamsRenderer(typeRenderer)
         // TODO: since SCL-13777 spaces are effectively not used! cause we remove all new lines and spaces after rendering
         //  review SCL-13777, maybe we should improve formatting of large classes
         //val spaces = length - start - 7
-        val paramsRendered = renderer.renderClauses(params).replaceAll("\n\\s*", "")
-        append(paramsRendered)
+        val paramsRendered = definitionParamsRenderer.renderClauses(params).replaceAll("\n\\s*", "")
+        if (paramsRendered.nonEmpty) append(paramsRendered)
       case _ =>
     }
 
@@ -120,7 +120,7 @@ private class ScalaDocDefinitionGenerator private(
       case typed: ScValueOrVariable => typeAnnotationRenderer.render(typed)
       case _                        => ""
     }
-    append(typeAnnotation)
+    if (typeAnnotation.nonEmpty) append(typeAnnotation)
   }
 
   private def appendTypeDef(typedef: ScTypeDefinition): Unit =
@@ -197,9 +197,14 @@ private class ScalaDocDefinitionGenerator private(
   private def typeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
     new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll)
 
-  private lazy val annotationsRenderer: AnnotationsRendererLike = new ScalaDocAnnotationRenderer()
+  private lazy val annotationsRenderer =
+    new ScalaDocAnnotationRenderer()
+  private lazy val modifiersRenderer =
+    new ModifiersRenderer(new AccessModifierRenderer(AccessQualifierRenderer.WithHtmlPsiLink))
+  private lazy val typeParamsRenderer =
+    new TypeParamsRenderer(typeRenderer, new TypeBoundsRenderer(Html))
 
-  private def definitionParamsRenderer(implicit typeRenderer: TypeRenderer): ParametersRenderer = {
+  private lazy val definitionParamsRenderer: ParametersRenderer = {
     val parameterRenderer = new ParameterRenderer(
       typeRenderer,
       ModifiersRenderer.WithHtmlPsiLink,

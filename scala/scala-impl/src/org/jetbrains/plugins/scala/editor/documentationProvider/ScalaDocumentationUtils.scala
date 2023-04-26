@@ -11,15 +11,15 @@ private object ScalaDocumentationUtils {
   val EmptyDoc = ""
 
   def getKeyword(element: PsiElement): String = element match {
-    case _: ScClass                     => "class "
-    case _: ScObject                    => "object "
-    case _: ScTrait                     => "trait "
-    case _: ScTypeAlias                 => "type "
-    case _: ScFunction                  => "def "
-    case c: ScClassParameter if c.isVal => "val "
-    case c: ScClassParameter if c.isVar => "var "
-    case _: ScValue                     => "val "
-    case _: ScVariable                  => "var "
+    case _: ScClass                     => "class"
+    case _: ScObject                    => "object"
+    case _: ScTrait                     => "trait"
+    case _: ScTypeAlias                 => "type"
+    case _: ScFunction                  => "def"
+    case c: ScClassParameter if c.isVal => "val"
+    case c: ScClassParameter if c.isVar => "var"
+    case _: ScValue                     => "val"
+    case _: ScVariable                  => "var"
     case _                              => ""
   }
 }
