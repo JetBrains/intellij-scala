@@ -100,9 +100,7 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
        |  type X
        |}
        |
-       |val f${caretTag}oo: Foo {
-       |  type X = Int
-       |} = new Foo {
+       |val f${caretTag}oo: Foo {type X = Int} = new Foo {
        |  override type X = Int
        |
        |  def helper(x: X): Unit = ???

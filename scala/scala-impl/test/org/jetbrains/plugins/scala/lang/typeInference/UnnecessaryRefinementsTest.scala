@@ -32,11 +32,7 @@ class UnnecessaryRefinementsTest extends TypeInferenceTestBase {
        |  def bar: Int = 123
        |  type T = Int
        |}$END
-       |/*Foo with Object {
-       |  def bar: Int
-       |
-       |  type T = Int
-       |}*/
+       |/*Foo with Object { def bar: Int; type T = Int }*/
        |""".stripMargin
   )
 

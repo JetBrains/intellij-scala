@@ -1193,9 +1193,7 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
       |  def doBar2(e: Try[(String, Exception)]) = { }
       |}
       |/*
-      |Success[(String, Exception {
-      |  def doSomething: Unit
-      |})]
+      |Success[(String, Exception { def doSomething: Unit })]
       |*/
     """.stripMargin.trim,
   )
@@ -1323,9 +1321,7 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
          |    def bar(x : A[C { type T }]) : A[C] = ${START}x$END
          |  }
          |/*
-         |A[C {
-         |  type T
-         |}]
+         |A[C { type T }]
          |*/
       """.stripMargin)
   }

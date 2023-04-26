@@ -168,7 +168,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         case _ => None
       }
 
-      val refinementText = if (declsTexts.isEmpty) Nil else Seq(declsTexts.mkString("{\n  ", "\n\n  ", "\n}"))
+      val refinementText = if (declsTexts.isEmpty) Nil else Seq(declsTexts.mkString("{ ", "; ", " }"))
 
       (componentsText ++ refinementText).mkString(" ")
     }
