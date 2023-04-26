@@ -14,7 +14,7 @@
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.highlighting.CompilerLock"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerLockImpl"/>
 
-        <compileServer.plugin classpath="scala-library.jar;compiler-shared.jar;scala-jps.jar;jps/nailgun.jar;jps/compile-server.jar;jps/compiler-jps.jar;jps/compiler-interface.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/scala-parallel-collections.jar;spray-json_2.13-1.3.6.jar;scala-compiler-indices-protocol_2.13-1.0.14.jar"/>
+        <compileServer.plugin classpath="scala-library.jar;compiler-shared.jar;scala-jps.jar;jps/nailgun.jar;jps/compile-server.jar;jps/compiler-jps.jar;jps/compiler-interface.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;jps/scala-parallel-collections.jar;scala-parser-combinators_2.13-1.1.2.jar;spray-json_2.13-1.3.6.jar;scala-compiler-indices-protocol_2.13-1.0.14.jar"/>
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.ScalaBuildProcessParametersProvider"/>
 
         <projectConfigurable bundle="messages.CompilerIntegrationBundle"
