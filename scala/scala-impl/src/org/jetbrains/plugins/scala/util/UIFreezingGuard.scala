@@ -13,7 +13,7 @@ import java.awt.Event
 import java.awt.event.MouseEvent
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
-import scala.annotation.{nowarn, unused}
+import scala.annotation.nowarn
 import scala.util.control.NoStackTrace
 
 class UIFreezingGuard extends RunOnceStartupActivity {
@@ -97,9 +97,11 @@ object UIFreezingGuard {
 
   private def canInterrupt: Boolean = !isWriteAction && !isTransaction && !isUnderProgress && !hasModalityState
 
+  @nowarn("cat=deprecation")
   private def dumpThreads(ms: Long): Unit = {
     val threshold = 1000
     if (ms > threshold) {
+      // The old method is still called in order to preserve binary compatibility.
       PerformanceWatcher.getInstance().dumpThreads("scalaEdtFreezing/", false)
     }
   }
