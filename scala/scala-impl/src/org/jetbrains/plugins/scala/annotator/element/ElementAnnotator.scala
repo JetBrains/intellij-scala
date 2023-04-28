@@ -67,6 +67,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScPolyFunctionExprAnnotator ::
       ScDerivesClauseAnnotator ::
       ScOverriddenVarAnnotator ::
+      ScGivenAliasDeclarationAnnotator ::
       Nil
 
   override def annotate(element: ScalaPsiElement, typeAware: Boolean)
