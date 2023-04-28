@@ -1,20 +1,24 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder, SetInspectionOptionFix}
+import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.codeInspection.options.OptPane
 import com.intellij.codeInspection.options.OptPane.{checkbox, dropdown, option, pane}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder, SetInspectionOptionFix}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiAnnotationOwner, PsiElement}
+import com.intellij.psi.impl.source.resolve.FileContextUtil
+import com.intellij.psi.{PsiAnnotationOwner, PsiElement, PsiFile}
 import org.jetbrains.annotations.{Nls, NonNls}
-import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 
@@ -45,7 +49,7 @@ final class ScalaUnusedDeclarationInspection extends LocalInspectionTool {
   )
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
-    e: PsiElement => if (shouldProcessElement(e)) {
+    e: PsiElement => if (shouldHighlightFile(e.getContainingFile) && shouldProcessElement(e)) {
       invoke(e, isOnTheFly).foreach { info =>
         holder.registerProblem(info.element, info.message, info.fixes: _*)
       }
@@ -168,5 +172,15 @@ object ScalaUnusedDeclarationInspection {
     val extensionPointImplementationSearch = searcher.IJExtensionPointImplementationSearch
 
     new Pipeline(localSearch ++ globalSearch :+ extensionPointImplementationSearch, canExit)
+  }
+
+  private def shouldHighlightFile(file: PsiFile): Boolean = {
+
+    def isInjectedFragmentEditor: Boolean = FileContextUtil.getFileContext(file).is[ScStringLiteral]
+
+    def isDebugEvaluatorExpression: Boolean = file.is[ScalaCodeFragment]
+
+    HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) &&
+      (!(isDebugEvaluatorExpression || isInjectedFragmentEditor))
   }
 }
