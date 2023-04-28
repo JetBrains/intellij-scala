@@ -116,7 +116,6 @@
         <editorHighlighterProvider filetype="Scala"
                                    implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighterProvider"/>
 
-        <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaLocalVarCouldBeValPassFactory"/>
         <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedImportsPassFactory"/>
 
         <lang.syntaxHighlighterFactory language="Scala"

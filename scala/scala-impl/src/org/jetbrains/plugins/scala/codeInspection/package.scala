@@ -103,4 +103,6 @@ package object codeInspection {
 
     def visitPsiElement(element: PsiElement): Unit
   }
+
+  case class ProblemInfo(element: PsiElement, @Nls message: String, fixes: Seq[LocalQuickFix])
 }
