@@ -89,7 +89,7 @@ trait TypePresentation {
             e.nameContext match {
               case m: ScMember =>
                 m.containingClass match {
-                  case o: ScObject => nameFun(o, withPoint = true) + e.name
+                  case o: ScObject => (if (ScalaApplicationSettings.PRECISE_TEXT && o.isStatic) "_root_." else "") + nameFun(o, withPoint = true) + e.name // SCL-21182
                   case _ => e.name
                 }
               case _ => e.name
