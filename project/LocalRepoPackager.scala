@@ -1,9 +1,9 @@
 import coursier.cache.FileCache
 import coursier.core.Dependency
 import coursier.ivy.IvyRepository
-import coursier.maven.MavenRepository
+import coursier.maven.{MavenRepository, SbtMavenRepository}
 import coursier.util.Artifact
-import coursier.{Classifier, Fetch, Module, ModuleName, Organization, moduleNameString, organizationString, util}
+import coursier.{Classifier, Fetch, Module, ModuleName, Organization, Repositories, moduleNameString, organizationString, util}
 import sbt.*
 import sbt.Keys.baseDirectory
 
@@ -42,6 +42,7 @@ object LocalRepoPackager extends AutoPlugin {
     }
 
     val fetch: Fetch[util.Task] = Fetch()
+      .addRepositories(SbtMavenRepository(Repositories.central))
       .withDependencies(depsWithExclusions)
       .allArtifactTypes()
       .addClassifiers(Classifier.javadoc, Classifier.sources)
@@ -79,7 +80,10 @@ object LocalRepoPackager extends AutoPlugin {
   }
 
   def relativeJarPath(dep: Dependency): Path = {
-    val fetch = Fetch().addDependencies(dep).noExtraArtifacts()
+    val fetch = Fetch()
+      .addRepositories(SbtMavenRepository(Repositories.central))
+      .addDependencies(dep)
+      .noExtraArtifacts()
 
     val artifact = fetch
       .runResult()
