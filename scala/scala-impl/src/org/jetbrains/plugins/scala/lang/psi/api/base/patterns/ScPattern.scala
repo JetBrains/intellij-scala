@@ -2,20 +2,18 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 package patterns
 
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.FakeCompanionClassOrCompanionClass
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
@@ -169,54 +167,8 @@ object ScPattern {
       expected:              Option[ScType],
       totalNumberOfPatterns: Int
     ): Option[ScType] = {
-      val bind: Option[ScalaResolveResult] = ref.bind() match {
-        case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) =>
-          val resolve = ref match {
-            case refImpl: ScStableCodeReferenceImpl =>
-              refImpl.doResolve(
-                new ExpandedExtractorResolveProcessor(
-                  ref,
-                  ref.refName,
-                  ref.getKinds(incomplete = false),
-                  ref.getContext match {
-                    case inf: ScInfixPattern          => inf.expectedType
-                    case constr: ScConstructorPattern => constr.expectedType
-                    case _                            => None
-                  }
-                )
-              )
-          }
-
-          resolve match {
-            case Array(r) => Some(r)
-            case _ => None
-          }
-        case m => m
-      }
-
-      def calculateSubstitutor(
-        tpe: ScType,
-        functionType: ScType,
-        substitutor: ScSubstitutor,
-        typeParams: Seq[ScTypeParam]
-      ): ScSubstitutor = {
-        val tp = tpe match {
-          case ScExistentialType(quantified, _) => quantified
-          case _ => tpe
-        }
-
-        val substitutedFunctionType = substitutor(functionType)
-
-        val patSubst =
-          PatternTypeInference.doTypeInference(
-            contextPattern,
-            tp,
-            substitutedFunctionType.toOption,
-            typeParams.map(TypeParameter(_)).toOption
-          )
-
-        patSubst.followed(substitutor)
-      }
+      val bind =
+        ExpandedExtractorResolveProcessor.resolveActualUnapply(ref)
 
       bind match {
         case Some(ScalaResolveResult(fun: ScFunction, _))
@@ -249,29 +201,12 @@ object ScPattern {
           }
         case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor))
           if fun.name == CommonNames.Unapply && fun.parameters.count(!_.isImplicitParameter) == 1 =>
-          val funTypeParams = fun.typeParameters
 
-          val subst =
-            if (funTypeParams.isEmpty) substitutor
-            else {
-              val clazz = PsiTreeUtil.getContextOfType(pattern, true, classOf[ScTemplateDefinition])
+          val subst = expected match {
+            case Some(tp) => PatternTypeInference.doTypeInference(contextPattern, tp)
+            case _        => substitutor
+          }
 
-              val withThisType = clazz match {
-                case clazz: ScTemplateDefinition => ScSubstitutor(ScThisType(clazz))
-                case _                           => ScSubstitutor.empty
-              }
-
-              val firstParameterType = fun.parameters.head.`type`() match {
-                case Right(tp) => tp
-                case _         => return None
-              }
-
-              val funType = withThisType(firstParameterType)
-              expected match {
-                case Some(tp) => calculateSubstitutor(tp, funType, substitutor, funTypeParams)
-                case _        => substitutor
-              }
-            }
           fun.returnType match {
             case Right(rt) =>
               val args = ScPattern.unapplySubpatternTypes(subst(rt), pattern, fun)
@@ -283,21 +218,12 @@ object ScPattern {
           }
         case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor))
           if fun.name == CommonNames.UnapplySeq && fun.parameters.count(!_.isImplicitParameter) == 1 =>
-          val typeParameters = fun.typeParameters
-          val subst =
-            if (typeParameters.isEmpty) substitutor
-            else {
-              val firstParameterRetTp = fun.parameters.head.`type`() match {
-                case Right(tp) => tp
-                case _         => return None
-              }
 
-              val funType = substitutor(firstParameterRetTp)
-              expected match {
-                case Some(tp) => calculateSubstitutor(tp, funType, substitutor, typeParameters)
-                case _        => substitutor
-              }
-            }
+          val subst = expected match {
+            case Some(tp) => PatternTypeInference.doTypeInference(contextPattern, tp)
+            case _        => substitutor
+          }
+
           fun.returnType match {
             case Right(rt) =>
               val subpatternTpes = ScPattern.unapplySubpatternTypes(subst(rt), pattern, fun)

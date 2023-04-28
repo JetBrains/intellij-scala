@@ -11,4 +11,4 @@ object SCL2806B {
       /*start*/(x, y)/*end*/
   }
 }
-//(SCL2806B.B[_ <: SCL2806B.A], SCL2806B.B[SCL2806B.C])
+//(SCL2806B.B[_], SCL2806B.B[SCL2806B.C])

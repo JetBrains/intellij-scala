@@ -9,7 +9,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *  typeArgs ::= '[' Types ']'
  */
 object TypeArgs extends TypeArgs {
-  override protected def parseComponent(isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = Type(isPattern = isPattern, typeVariables = true)
+  override protected def parseComponent(isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean =
+    Type(isPattern = isPattern, typeVariables = true)
 }
 
 trait TypeArgs {

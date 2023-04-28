@@ -127,7 +127,7 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |  case class Mapped[A, B](from: Entry[A], fun: ((String, A)) => (String, B))(implicit val manifest: Manifest[B]) extends Entry[B]
          |  sealed trait Entry[A] { def manifest: Manifest[A] }
          |}
-         |//((String, A)) => (String, A)
+         |//((String, Any)) => (String, A)
       """.stripMargin)
   }
 }

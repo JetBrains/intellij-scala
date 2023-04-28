@@ -1,110 +1,205 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.psi.PsiClass
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScConstructorPattern, ScPattern, ScTypedPatternLike}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatch
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, PsiTypeParametersExt, TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScAndType, ScCompoundType, ScOrType, ScType, SmartSuperTypeUtil}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.ExpandedExtractorResolveProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 
 
+/**
+ * SLS 8.3 [[https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#type-parameter-inference-in-patterns]]
+ * Basic idea of our implementation is as follows: every time resolve or a similar type-related subsystem
+ * does upwards PSI-tree traversal and encounters a case clause with a pattern `p`, it accumulates knowledge about type variables
+ * defined inside `p` as well as type parameters of the enclosing method in form of [[ScSubstitutor]]s (see [[ScalaResolveResult.matchClauseSubstitutor]]).
+ * Most notable usages: [[org.jetbrains.plugins.scala.lang.resolve.ReferenceExpressionResolver]], [[org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl]],
+ * [[ExpectedTypesImpl]].
+ *
+ * It is also used for calculating types of various patterns, see [[org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeVariableTypeElementImpl]],
+ * [[org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScConstructorPatternImpl]], [[org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScTypedPatternImpl]]
+ *
+ */
 object PatternTypeInference {
-  private[this] def patternType(pattern: ScPattern): TypeResult = pattern match {
-    case ScTypedPatternLike(typePattern) => typePattern.typeElement.unsubstitutedType
-    case other                           => other.`type`()
+  /**
+   * If no type inference should be done for this pattern (e.g. it is neither [[ScExtractorPattern]], nor [[ScTypedPattern]]
+   * or unapply method of this extractor pattern is directly applicable to the scrutinee type) return `Left(conformanceSubst)`,
+   * otherwise calculate type of the pattern and substitutor, corresponding to the unapply method, for further processing.
+   */
+  @tailrec
+  private[this] def getPatternType(
+    pattern:       ScPattern,
+    scrutineeType: ScType
+  ): Either[ScSubstitutor, (ScType, ScSubstitutor)] = {
+    val noTypeInference = Left(ScSubstitutor.empty)
+
+    def emptySubst(tpe: ScType): Either[ScSubstitutor, (ScType, ScSubstitutor)] =
+      Right((tpe, ScSubstitutor.empty))
+
+    pattern match {
+      case ScNamingPattern(named)           => getPatternType(named, scrutineeType)
+      case ScTypedPatternLike(typePattern)  => emptySubst(typePattern.typeElement.`type`().getOrNothing)
+      case ScParenthesisedPattern(inner)    => getPatternType(inner, scrutineeType)
+      case stable: ScStableReferencePattern => emptySubst(stable.`type`().getOrNothing)
+      case extractor: ScExtractorPattern =>
+        val unapplySrr = ExpandedExtractorResolveProcessor.resolveActualUnapply(extractor.ref)
+
+        unapplySrr match {
+          case Some(ScalaResolveResult(fun: ScFunctionDefinition, subst)) =>
+            val clsParent     = PsiTreeUtil.getContextOfType(pattern, true, classOf[ScTemplateDefinition]).toOption
+            val withThisType  = clsParent.fold(ScSubstitutor.empty)(cls => ScSubstitutor(ScThisType(cls)))
+            val combinedSubst = subst.followed(withThisType)
+            val maybeTpe      = fun.parameters.head.`type`().map(combinedSubst)
+
+            maybeTpe match {
+              case Right(tpe) =>
+                val undefineTypeParams       = ScSubstitutor.undefineTypeParams(fun.typeParameters.map(TypeParameter(_)))
+                val simpleApplicabilitySubst = scrutineeType.conformanceSubstitutor(undefineTypeParams(tpe))
+
+                simpleApplicabilitySubst match {
+                  case Some(applicabilitySubst) => Left(combinedSubst.followed(applicabilitySubst))
+                  case None                     => Right((tpe, combinedSubst))
+                }
+              case _ => noTypeInference
+            }
+
+          case _ => noTypeInference
+        }
+      case _ => noTypeInference
+    }
   }
 
+  /**
+   * Do component-wise pattern type inference and return combined substitutor.
+   */
+  private def doForTuplePattern(tuplePattern: ScTuplePattern, scrutineeType: ScType): ScSubstitutor = {
+    val patterns = tuplePattern.patternList.toSeq.flatMap(_.patterns)
+
+    scrutineeType match {
+      case TupleType(comps) if comps.size == patterns.size =>
+        patterns.zip(comps).foldLeft(ScSubstitutor.empty) {
+          case (acc, (pattern, scrutinee)) =>
+            acc.followed(doTypeInference(pattern, scrutinee))
+        }
+      case _ => ScSubstitutor.empty
+    }
+  }
+
+  /**
+   * For given `pattern` and `scrutineeType` implement a multi-step process of pattern type inference:
+   * (1) Collect initial constraints from bounds of the corresponding type parameters
+   * (2) Check if pattern type conforms to scrutinee type as is, stop if it does.
+   * (3) Instantiate type variables as undefined types in pattern type and repeat conformance check from step (2)
+   * (4) Instantiate type parameters of an enclosing method as undefined types in scrutinee type and
+   *     check if the intersection of pattern and scrutinee type is populated.
+   */
   def doTypeInference(
     pattern:       ScPattern,
-    scrutineeType: ScType,
-    patternTpe:    Option[ScType]             = None,
-    tps:           Option[Seq[TypeParameter]] = None,
-  ): ScSubstitutor = {
-    val tpe = patternTpe.getOrElse(patternType(pattern).getOrNothing)
+    scrutineeType: ScType
+  ): ScSubstitutor = pattern match {
+    case tuple: ScTuplePattern => doForTuplePattern(tuple, scrutineeType)
+    case _ =>
+      cachedInUserData(
+        "PatternTypeInference.doTypeInference",
+        pattern,
+        BlockModificationTracker(pattern)
+      ) {
+        getPatternType(pattern, scrutineeType) match {
+          case Left(subst) => subst
+          case Right((tpe, unapplySubst)) =>
+            // For constructor patterns type inference searches for max solution
+            val shouldSolveForMaxType = pattern.is[ScExtractorPattern]
+            val typeVariablesNames    = pattern.typeVariables.map(_.name).toSet
 
-    // For constructor patterns type inference searches for max solution
-    val shouldSolveForMaxType = pattern.is[ScConstructorPattern]
-    val typeVariablesNames    = pattern.typeVariables.map(_.name).toSet
+            implicit val ctx: ProjectContext = pattern.projectContext
 
-    implicit val ctx: ProjectContext = pattern.projectContext
+            val (classTypeParams, boundsSubst) =
+              (for {
+                (ctpe, subst) <- tpe.extractClassType
+                tparams       = ctpe.getTypeParameters.instantiate
+              } yield (tparams, subst)).getOrElse(Seq.empty -> ScSubstitutor.empty)
 
-    val (classTypeParams, boundSubst) =
-      tps
-        .map(_ -> ScSubstitutor.empty)
-        .orElse {
-          for {
-            (ctpe, subst) <- tpe.extractClassType
-            tparams       = ctpe.getTypeParameters.instantiate
-          } yield (tparams, subst)
-        }
-        .getOrElse(Seq.empty -> ScSubstitutor.empty)
+            val typeVarsBuilder = Seq.newBuilder[TypeParameter]
 
-    val typeVarsBuilder   = Seq.newBuilder[TypeParameter]
-    val typeParamsBuilder = Seq.newBuilder[TypeParameter]
 
-    //Collect type var constraints from corresponding type parameter bounds
-    //in class definition
-    def collectConstraintsAndTypeParams(tpe: ScType): ConstraintSystem = tpe match {
-      case ScAndType(lhs, rhs) =>
-        collectConstraintsAndTypeParams(lhs) + collectConstraintsAndTypeParams(rhs)
-      case ScOrType(lhs, rhs) =>
-        collectConstraintsAndTypeParams(lhs) + collectConstraintsAndTypeParams(rhs)
-      case ScCompoundType(comps, _, _) =>
-        comps.foldLeft(ConstraintSystem.empty) {
-          case (acc, comp) => acc + collectConstraintsAndTypeParams(comp)
-        }
-      case ParameterizedType(_, targs) if targs.size == classTypeParams.size =>
-        targs.zip(classTypeParams).foldLeft(ConstraintSystem.empty) {
-          case (acc, (tpt: TypeParameterType, tp: TypeParameter)) =>
-            val tParam = tpt.typeParameter
 
-            if (typeVariablesNames.contains(tParam.name)) typeVarsBuilder   += tParam
-            else                                          typeParamsBuilder += tParam
+            /**
+             * (1)
+             * The initial constraints set `C0` reflects just the bounds of type variables.
+             * That is, assuming `tpe` has bound type variables `a1, ..., an`
+             * which correspond to class type parameters `a'1, ..., a'n`
+             * with lower bounds `L1, ..., Ln` and upper bounds `U1, ..., Un`
+             */
+            def collectConstraintsAndTypeParams(tpe: ScType): ConstraintSystem = tpe match {
+              case ScAndType(lhs, rhs) =>
+                collectConstraintsAndTypeParams(lhs) + collectConstraintsAndTypeParams(rhs)
+              case ScOrType(lhs, rhs) =>
+                collectConstraintsAndTypeParams(lhs) + collectConstraintsAndTypeParams(rhs)
+              case ScCompoundType(comps, _, _) =>
+                comps.foldLeft(ConstraintSystem.empty) {
+                  case (acc, comp) => acc + collectConstraintsAndTypeParams(comp)
+                }
+              case ParameterizedType(_, targs) if targs.size == classTypeParams.size =>
+                targs.zip(classTypeParams).foldLeft(ConstraintSystem.empty) {
+                  case (acc, (tpt: TypeParameterType, tp: TypeParameter)) =>
+                    val tParam = tpt.typeParameter
 
-            addTypeParamBounds(acc, tParam, tp, boundSubst)
-          case (acc, _) => acc
-        }
-      case _ => ConstraintSystem.empty
-    }
+                    //@TODO: should we add constraints from unapply type parameters too
+                    //       (in case of custom unapply)???
+                    if (typeVariablesNames.contains(tParam.name) || shouldSolveForMaxType) {
+                      typeVarsBuilder += tParam
+                      addTypeParamBounds(acc, tParam, tp, boundsSubst.followed(unapplySubst))
+                    } else acc
+                  case (acc, _) => acc
+                }
+              case _ => ConstraintSystem.empty
+            }
 
-    val constraints = collectConstraintsAndTypeParams(tpe)
-    val typeVars    = typeVarsBuilder.result()
-    val typeParams  = typeParamsBuilder.result()
+            val constraints = collectConstraintsAndTypeParams(tpe)
+            val typeVars    = typeVarsBuilder.result()
 
-    val subst =
-      if (tpe.conforms(scrutineeType)) solve(constraints, shouldSolveForMaxType, typeParams, typeVars)
-      else {
-        val undefSubst  = ScSubstitutor.undefineTypeParams(typeVars ++ typeParams)
-        val conformance = undefSubst(tpe).conforms(scrutineeType, constraints)
-        val maybeSubst  = solve(conformance, shouldSolveForMaxType, typeParams, typeVars)
+            val subst =
+              /*(2)*/
+              if (tpe.conforms(scrutineeType)) solve(constraints, shouldSolveForMaxType, typeVars, Seq.empty)
+              else {
+                /*(3)*/
+                val undefSubst  = ScSubstitutor.undefineTypeParams(typeVars)
+                val conformance = undefSubst(tpe).conforms(scrutineeType, constraints)
+                val maybeSubst  = solve(conformance, shouldSolveForMaxType, typeVars, Seq.empty)
 
-        maybeSubst.orElse {
-          //If the above failed also instantiate type parameters of the enclosing method
-          //as type variables in scrutinee type
-          val enclosingFun          = pattern.parentOfType[ScFunctionDefinition]
-          val enclosingTypeParams   = enclosingFun.fold(Seq.empty[TypeParameter])(_.typeParameters.map(TypeParameter(_)))
-          val constraintsWithBounds = enclosingTypeParams.foldLeft(constraints)((acc, tp) => addTypeParamBounds(acc, tp, tp))
-          val undefScrutinee        = ScSubstitutor.undefineTypeParams(enclosingTypeParams)
+                maybeSubst.orElse {
+                  /*(4)*/
+                  val enclosingFun          = pattern.parentOfType[ScFunctionDefinition]
+                  val enclosingTypeParams   = enclosingFun.fold(Seq.empty[TypeParameter])(_.typeParameters.map(TypeParameter(_)))
+                  val constraintsWithBounds = enclosingTypeParams.foldLeft(constraints)((acc, tp) => addTypeParamBounds(acc, tp, tp))
+                  val undefScrutinee        = ScSubstitutor.undefineTypeParams(enclosingTypeParams)
 
-          val conformance =
-            isIntersectionPopulated(
-              undefSubst(tpe),
-              undefScrutinee(scrutineeType),
-              constraintsWithBounds
-            )
+                  val conformance =
+                    isIntersectionPopulated(
+                      undefSubst(tpe),
+                      undefScrutinee(scrutineeType),
+                      constraintsWithBounds
+                    )
 
-          solve(conformance, shouldSolveForMaxType, typeParams ++ enclosingTypeParams, typeVars)
+                  solve(conformance, shouldSolveForMaxType, typeVars, enclosingTypeParams)
+                }
+              }
+
+            unapplySubst.followed(subst.getOrElse(ScSubstitutor.empty))
         }
       }
-
-    boundSubst.followed(subst.getOrElse(ScSubstitutor.empty))
   }
 
   private def addTypeParamBounds(
@@ -117,6 +212,14 @@ object PatternTypeInference {
     constraints.withLower(id, boundSubst(param.lowerType)).withUpper(id, boundSubst(param.upperType))
   }
 
+  /**
+   * Checks if intersection of `patType` and `scrutineeType` is populated under given `constraints`,
+   * that is: for all common base classes `bc` of  `patType` and `scrutineeType`
+   * let `btPat`, `btScrutinee` be the base types of `patType`, `scrutineeType` relative to class bc.
+   * Then: `btPat` and `btScrutinee` designate to the same class, and
+   * any corresponding type arguments of `btPat` and `btScrutinee` are consistent with
+   * respect to their variance.
+   */
   private def isIntersectionPopulated(
     patType:       ScType,
     scrutineeType: ScType,
@@ -200,11 +303,17 @@ object PatternTypeInference {
     checkBaseClassesConsistency(patternBaseMap.iterator, constraints)
   }
 
+  /**
+   * Solve accumulated constraints, with respect to `shouldSolveForMaxType` parameter.
+   * Type variables in constructor patterns are maximized, type variable in typed patterns
+   * are replaced with fresh bounded type parameters, type parameters of the enclosing method
+   * are simply solved the usual way.
+   */
   private def solve(
     constraints:           ConstraintsResult,
     shouldSolveForMaxType: Boolean,
-    typeParams:            Seq[TypeParameter],
-    tvars:                 Seq[TypeParameter]
+    tvars:                 Seq[TypeParameter],
+    enclosingTypeParams:   Seq[TypeParameter]
   )(implicit
     ctx: ProjectContext
   ): Option[ScSubstitutor] = {
@@ -213,11 +322,11 @@ object PatternTypeInference {
     constraints match {
       case ConstraintsResult.Left => None
       case cs: ConstraintSystem   =>
-        if (!shouldSolveForMaxType) {
+        if (!shouldSolveForMaxType)
           cs.substitutionBounds(canThrowSCE = false)
             .map { bounds =>
               val tParamSubst =
-                ScSubstitutor.bind(typeParams)(tParam => {
+                ScSubstitutor.bind(enclosingTypeParams)(tParam => {
                   val id = tParam.typeParamId
                   bounds.tvMap.getOrElse(id, TypeParameterType(tParam))
                 })
@@ -225,31 +334,45 @@ object PatternTypeInference {
               val tVarSubst =
                 ScSubstitutor.bind(tvars)(tvar => {
                   val id = tvar.typeParamId
-                  TypeParameterType(
-                    TypeParameter.light(
-                      tvar.name,
-                      Seq.empty,
-                      bounds.lowerMap.getOrElse(id, stdTypes.Nothing),
-                      bounds.upperMap.getOrElse(id, stdTypes.Any)
+                  val maybeLower = bounds.lowerMap.get(id)
+                  val maybeUpper = bounds.lowerMap.get(id)
+
+                  if (maybeLower.isDefined && maybeLower == maybeUpper)
+                    maybeLower.get
+                  else
+                    TypeParameterType(
+                      TypeParameter.light(
+                        tvar.name,
+                        Seq.empty,
+                        bounds.lowerMap.getOrElse(id, TypeParameterType(tvar)),
+                        bounds.upperMap.getOrElse(id, TypeParameterType(tvar))
+                      )
                     )
-                  )
                 })
 
               tParamSubst.followed(tVarSubst)
             }
-        }
         else
           cs.substitutionBounds(canThrowSCE = false)
-            .map(bounds =>
-              ScSubstitutor.bind(typeParams) { tParam =>
-                val id = tParam.typeParamId
-                bounds.upperMap.getOrElse(id, TypeParameterType(tParam))
-              }
-            )
+            .map { bounds =>
+              val tParamSubst =
+                ScSubstitutor.bind(enclosingTypeParams)(tParam => {
+                  val id = tParam.typeParamId
+                  bounds.tvMap.getOrElse(id, TypeParameterType(tParam))
+                })
+
+              val tVarSubst =
+                ScSubstitutor.bind(tvars)(tvar => {
+                  val id = tvar.typeParamId
+                  bounds.upperMap.getOrElse(id, stdTypes.Any)
+                })
+
+              tParamSubst.followed(tVarSubst)
+            }
     }
   }
 
-  def doForMatchClause(m: ScMatch, cc: ScCaseClause): ScSubstitutor =
+  def doForMatchClause(m: ScMatch, cc: ScCaseClause): ScSubstitutor = {
     (
       for {
         scrutinee    <- m.expression
@@ -257,4 +380,5 @@ object PatternTypeInference {
         pattern      <- cc.pattern
       } yield PatternTypeInference.doTypeInference(pattern, scrutineeTpe)
     ).getOrElse(ScSubstitutor.empty)
+  }
 }

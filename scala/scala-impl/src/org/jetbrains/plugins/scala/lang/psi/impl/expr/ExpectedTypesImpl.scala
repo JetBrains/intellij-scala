@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiName
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScReferencePattern, ScTuplePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScParenthesisedPattern, ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -349,13 +349,17 @@ class ExpectedTypesImpl extends ExpectedTypes {
           val functionLikeType = FunctionLikeType(expr)
 
           expectedForPf.collect {
-            case (functionLikeType(_, resTpe, Seq(paramTpe)), elem) =>
+            case (functionLikeType(_, resTpe, paramTypes), te) =>
 
-              val subst = c.pattern.fold(ScSubstitutor.empty)(
-                PatternTypeInference.doTypeInference(_, paramTpe)
-              )
+              val subst = c.pattern.fold(ScSubstitutor.empty) { pattern =>
+                val scrutineeType =
+                  if (paramTypes.size == 1) paramTypes.head
+                  else                      TupleType(paramTypes)(pattern.elementScope)
 
-              (subst(resTpe), elem)
+                PatternTypeInference.doTypeInference(pattern, scrutineeType)
+              }
+
+              (subst(resTpe), te)
           }
         case _ => Array.empty
       }

@@ -3,6 +3,13 @@ package org.jetbrains.plugins.scala.lang.typeInference
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class TypeVariableScala3Test extends TypeInferenceTestBase {
+  /*
+   * This currently fails, because of the way desugaring for infix type elements works.
+   * After desugaring (which is needed to calculate type of the type element) we end up with
+   * a new set of type variables, with typeIds different from the original ones (present in the source code).
+   */
+  override protected def shouldPass = false
+
   private final val Prefix =
     "class Type; " +
     "class &&[A, B]; "

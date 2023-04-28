@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMac
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder.ImportPath
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatch, ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias, ScValue}
@@ -27,8 +27,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScPackage, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScPackage, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInference, ScReferenceImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -44,6 +44,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeRef
 import scala.annotation.tailrec
 
 class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) with ScStableCodeReference {
+  refThis =>
 
   override def toString: String = s"CodeReferenceElement${debugKind.fold("")(" (" + _ + ")")}: ${ifReadAllowed(getText)("")}"
   protected def debugKind: Option[String] = None
@@ -296,7 +297,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     qualifierResult match {
       case None =>
         @scala.annotation.tailrec
-        def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
+        def treeWalkUp(place: PsiElement, lastParent: PsiElement, state: ResolveState): Unit = {
           ProgressManager.checkCanceled()
           place match {
             case null =>
@@ -305,11 +306,11 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               // See ScalaPsiUtil.syntheticParamClause and StableCodeReferenceElementResolver#computeEffectiveParameterClauses
               if (!p.processDeclarations(processor, ScalaResolveState.empty, lastParent, this))
                 return
-              treeWalkUp(p.analog.get, lastParent)
+              treeWalkUp(p.analog.get, lastParent, state)
               // annotation should not walk through it's own annotee while resolving
             case p: ScAnnotationsHolder
               if processor.kinds.contains(ResolveTargets.ANNOTATION) && PsiTreeUtil.isContextAncestor(p, this, true) =>
-                treeWalkUp(place.getContext, place)
+                treeWalkUp(place.getContext, place, state)
             case export: ScExportStmt =>
               val clsContext = PsiTreeUtil.getContextOfType(export, classOf[PsiClass])
               val nodes      = MixinNodes.currentlyProcessedSigs.value.get(clsContext)
@@ -329,9 +330,30 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
                   return
                 }
               }
-              treeWalkUp(place.getContext, place)
+              treeWalkUp(place.getContext, place, state)
             case p =>
-              if (!p.processDeclarations(processor, ScalaResolveState.empty, lastParent, this))
+              // Do not call PatternTypeInference, if this reference is itself located inside a target pattern
+              def containsThisTypeElementInPattern(cc: ScCaseClause): Boolean = {
+                var contains = false
+
+                cc.pattern.foreach(_.acceptChildren(new ScalaRecursiveElementVisitor {
+                  override def visitReference(ref: ScReference): Unit =
+                    if (ref eq refThis) contains = true
+                }))
+
+                contains
+              }
+
+              val newState = place match {
+                case (cc: ScCaseClause) & Parent(Parent(m: ScMatch)) if !containsThisTypeElementInPattern(cc) =>
+                  //@TODO: partial functions as well???
+                  val subst = PatternTypeInference.doForMatchClause(m, cc)
+                  val oldSubst = state.matchClauseSubstitutor
+                  state.withMatchClauseSubstitutor(oldSubst.followed(subst))
+                case _ => state
+              }
+
+              if (!p.processDeclarations(processor, newState, lastParent, this))
                 return
               place match {
                 case _: ScTemplateBody | _: ScExtendsBlock => // template body and inherited members are at the same level.
@@ -339,7 +361,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
                   if (!processor.changedLevel)
                     return
               }
-              treeWalkUp(place.getContext, place)
+              treeWalkUp(place.getContext, place, newState)
           }
         }
 
@@ -353,7 +375,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val lastParent = enclosingTypeDef.getOrElse(this)
         val startingPlace = lastParent.getContext
 
-        treeWalkUp(startingPlace, lastParent)
+        treeWalkUp(startingPlace, lastParent, ScalaResolveState.empty)
         processor.candidates
       case Some(p: ScInterpolationPattern) =>
         val expr =

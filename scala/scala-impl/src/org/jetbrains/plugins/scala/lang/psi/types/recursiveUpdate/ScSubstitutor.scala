@@ -217,5 +217,5 @@ object ScSubstitutor {
     subst.substitutions.collectFirstByType[ThisTypeSubstitution, ScType](_.target)
   }
 
-  def undefineTypeParams(tps: Seq[TypeParameter]): ScSubstitutor = bind(tps)(UndefinedType(_))
+  def undefineTypeParams[T](tps: Seq[TypeParameter]): ScSubstitutor = bind(tps)(UndefinedType(_))
 }

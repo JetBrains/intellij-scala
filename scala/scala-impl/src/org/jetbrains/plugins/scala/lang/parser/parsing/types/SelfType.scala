@@ -15,15 +15,15 @@ object SelfType extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val selfTypeMarker = builder.mark()
-    
+
     def handleFunArrow(): Unit = {
       builder.advanceLexer() //Ate '=>'
       selfTypeMarker.done(ScalaElementType.SELF_TYPE)
     }
-    
+
     def handleColon(): Unit = {
       builder.advanceLexer() //Ate ':'
-      
+
       if (!parseType()) selfTypeMarker.rollbackTo()
         else {
           builder.getTokenType match {
@@ -32,7 +32,7 @@ object SelfType extends ParsingRule {
           }
         }
     }
-    
+
     def handleLastPart(): Unit = {
       builder.getTokenType match {
         case ScalaTokenTypes.tCOLON => handleColon()
@@ -40,7 +40,7 @@ object SelfType extends ParsingRule {
         case _ => selfTypeMarker.rollbackTo()
       }
     }
-    
+
     builder.getTokenType match {
       case ScalaTokenTypes.kTHIS | ScalaTokenTypes.tUNDER =>
         builder.advanceLexer() // Ate this or _
@@ -51,7 +51,7 @@ object SelfType extends ParsingRule {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer() //Ate identifier
         handleLastPart()
-      case ScalaTokenTypes.tLPARENTHESIS => 
+      case ScalaTokenTypes.tLPARENTHESIS =>
          if (ParserUtils.parseBalancedParenthesis(TokenSets.SELF_TYPE_ID))
            handleLastPart() else selfTypeMarker.rollbackTo()
       case _ => selfTypeMarker.rollbackTo()
@@ -59,9 +59,9 @@ object SelfType extends ParsingRule {
     true
   }
 
-  private def parseType()(implicit builder : ScalaPsiBuilder) : Boolean = {
+  private def parseType()(implicit builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark()
-    if (!InfixType(isPattern = true)) {
+    if (!InfixType()) {
       typeMarker.drop()
       return false
     }

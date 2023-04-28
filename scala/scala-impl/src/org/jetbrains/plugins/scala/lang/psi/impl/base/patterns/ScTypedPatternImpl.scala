@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInference
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -37,11 +38,13 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
         //TODO: aliases, wildcards
         if (tp.typeElement == null) return Failure(ScalaBundle.message("no.type.element.for.typed.pattern"))
 
-        val typeElementType = tp.typeElement.`type`()
+        def typeElementType = tp.typeElement.`type`()
 
         this.expectedType match {
-          case Some(expectedType) => typeElementType.map(expectedType.glb(_))
-          case _                  => typeElementType
+          case Some(expectedType) =>
+            val subst = PatternTypeInference.doTypeInference(this, expectedType)
+            typeElementType.map(tpe => expectedType.glb(subst(tpe)))
+          case _ => typeElementType
         }
       case None => Failure(ScalaBundle.message("no.type.pattern"))
     }

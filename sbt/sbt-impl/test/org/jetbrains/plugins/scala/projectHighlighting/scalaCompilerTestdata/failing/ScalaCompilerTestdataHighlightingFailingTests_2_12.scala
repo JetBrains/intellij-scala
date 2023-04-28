@@ -68,8 +68,6 @@ class ScalaCompilerTestdataHighlightingFailingTests_2_12 extends ScalaCompilerTe
 
   def test_t5958(): Unit = doTest()
 
-  def test_t6084(): Unit = doTest()
-
   def test_t6205(): Unit = doTest()
 
   def test_t6221(): Unit = doTest()
@@ -93,8 +91,6 @@ class ScalaCompilerTestdataHighlightingFailingTests_2_12 extends ScalaCompilerTe
   def test_t9008(): Unit = doTest()
 
   def test_ticket2251(): Unit = doTest()
-
-  def test_virtpatmat_gadt_array(): Unit = doTest()
 
   def test_z1720(): Unit = doTest()
 

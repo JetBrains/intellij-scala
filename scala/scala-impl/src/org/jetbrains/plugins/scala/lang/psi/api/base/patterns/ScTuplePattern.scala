@@ -12,3 +12,7 @@ trait ScTuplePattern extends ScPattern {
     Right(TupleType(types))
   }
 }
+
+object ScTuplePattern {
+  def unapply(tp: ScTuplePattern): Option[ScPatterns] = tp.patternList
+}

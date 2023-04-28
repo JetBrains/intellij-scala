@@ -115,35 +115,42 @@ trait ScExpression extends ScBlockStatement
   }
 
   override def getTypeAfterImplicitConversion(
-    checkImplicits:  Boolean        = true,
-    isShape:         Boolean        = false,
-    expectedOption:  Option[ScType] = None,
-    ignoreBaseTypes: Boolean        = false,
-    fromUnderscore:  Boolean        = false
-  ): ExpressionTypeResult = cachedWithRecursionGuard("ScExpression.getTypeAfterImplicitConversion", this, ExpressionTypeResult(Failure(NlsString.force("Recursive getTypeAfterImplicitConversion"))), BlockModificationTracker(this), (checkImplicits, isShape, expectedOption, ignoreBaseTypes, fromUnderscore)) {
-    def isJavaReflectPolymorphic =
-      this.scalaLanguageLevelOrDefault >= Scala_2_11 &&
-        ScalaPsiUtil.isJavaReflectPolymorphicSignature(this)
+    checkImplicits: Boolean = true,
+    isShape: Boolean = false,
+    expectedOption: Option[ScType] = None,
+    ignoreBaseTypes: Boolean = false,
+    fromUnderscore: Boolean = false
+  ): ExpressionTypeResult =
+    cachedWithRecursionGuard(
+      "ScExpression.getTypeAfterImplicitConversion",
+      this,
+      ExpressionTypeResult(Failure(NlsString.force("Recursive getTypeAfterImplicitConversion"))),
+      BlockModificationTracker(this),
+      (checkImplicits, isShape, expectedOption, ignoreBaseTypes, fromUnderscore)
+    ) {
+      def isJavaReflectPolymorphic =
+        this.scalaLanguageLevelOrDefault >= Scala_2_11 &&
+          ScalaPsiUtil.isJavaReflectPolymorphicSignature(this)
 
-    if (isShape) ExpressionTypeResult(Right(shape(this).getOrElse(Nothing)))
-    else {
-      val expected = expectedOption.orElse(this.expectedType(fromUnderscore = fromUnderscore))
-      val tr       = this.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+      if (isShape) ExpressionTypeResult(Right(shape(this).getOrElse(Nothing)))
+      else {
+        val expected = expectedOption.orElse(this.expectedType(fromUnderscore = fromUnderscore))
+        val tr = this.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
 
-      (expected, tr.toOption) match {
-        case (Some(expType), Some(tp))
-          if checkImplicits && !tp.conforms(expType) => //do not try implicit conversions for shape check or already correct type
+        (expected, tr.toOption) match {
+          case (Some(expType), Some(tp))
+            if checkImplicits && !tp.conforms(expType) => //do not try implicit conversions for shape check or already correct type
 
-          // isSAMEnabled is checked in tryAdaptTypeToSAM, but we can cut it right here
-          val adapted = if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, fromUnderscore) else None
-          adapted.getOrElse(
-            if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
-            else                          this.updateTypeWithImplicitConversion(tp, expType)
-          )
-        case _ => ExpressionTypeResult(tr)
+            // isSAMEnabled is checked in tryAdaptTypeToSAM, but we can cut it right here
+            val adapted = if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, fromUnderscore) else None
+            adapted.getOrElse(
+              if (isJavaReflectPolymorphic) ExpressionTypeResult(Right(expType))
+              else this.updateTypeWithImplicitConversion(tp, expType)
+            )
+          case _ => ExpressionTypeResult(tr)
+        }
       }
     }
-  }
 }
 
 object ScExpression {

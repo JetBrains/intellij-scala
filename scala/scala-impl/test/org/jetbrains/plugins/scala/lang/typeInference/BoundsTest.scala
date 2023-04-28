@@ -29,7 +29,7 @@ class BoundsTest extends TypeInferenceTestBase {
          |    case StringExample => $START"string"$END
          |  }
          |}
-         |//T""".stripMargin
+         |//String""".stripMargin
     doTest(text)
   }
 }

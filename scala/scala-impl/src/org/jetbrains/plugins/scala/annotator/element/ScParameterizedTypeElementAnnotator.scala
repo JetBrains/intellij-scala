@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeConstru
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement, ScTypeVariableTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter}
@@ -123,15 +123,21 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       contextSubstitutor.followed(ScSubstitutor.bind(ps, as))
     }
 
+    def argIsDesignatedToTypeVariable(arg: T): Boolean = arg match {
+      case _: ScTypeVariableTypeElement => true
+      case ste: ScSimpleTypeElement =>
+        ste.reference.flatMap(_.bind()).exists(_.element.is[ScTypeVariableTypeElement])
+      case _ => false
+    }
+
     for {
       // the zip will cut away missing or excessive arguments
       (arg, param) <- args.zip(params)
       argTy        <- getType(arg).toOption
       range        = if (isForContextBound) annotationRange else arg.getTextRange
-      if
-        !argTy.is[ScExistentialArgument, ScExistentialType] &&
-          !arg.isInstanceOf[ScTypeVariableTypeElement] &&
-          !KindProjectorUtil.syntaxIdsFor(arg).contains(arg.getText)
+      if !argTy.is[ScExistentialArgument, ScExistentialType] &&
+        !argIsDesignatedToTypeVariable(arg) &&
+        !KindProjectorUtil.syntaxIdsFor(arg).contains(arg.getText)
     } {
       checkBounds(range, argTy, param, substitute)
       checkHigherKindedType(range, argTy, param, substitute)

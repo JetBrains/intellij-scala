@@ -157,7 +157,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         override def candidatesS: Set[ScalaResolveResult] =
           if (!smartProcessor) super.candidatesS
           else {
-            val iterator = reference.shapeResolve.iterator
+            val shapeResolve = reference.shapeResolve
+            val iterator     = shapeResolve.iterator
             while (iterator.hasNext) {
               levelSet.add(iterator.next())
             }
@@ -298,14 +299,6 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       @tailrec
       def treeWalkUp(place: PsiElement, lastParent: PsiElement, state: ResolveState): Unit = {
         if (place == null) return
-        if (!place.processDeclarations(processor, state, lastParent, ref)) return
-
-        place match {
-          case _: ScTemplateBody | _: ScExtendsBlock => //template body and inherited members are at the same level
-          case enum: ScEnum                          =>
-            if (!enum.fakeCompanionModule.forall(_.processDeclarations(processor, state, lastParent, place))) return
-          case _                                     => if (!processor.changedLevel) return
-        }
 
         val newState = place match {
           /** An extension method `f` can be referenced by a simple identifier (and rewritten by the compiler to the qualified form)
@@ -314,12 +307,21 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
            */
           case fdef @ ExtensionMethod() => fdef.extensionMethodOwner.fold(state)(state.withExtensionContext)
           case (cc: ScCaseClause) & Parent(Parent(m: ScMatch)) =>
-            val subst    = PatternTypeInference.doForMatchClause(m, cc)
+            //@TODO: partial functions as well???
+            val subst = PatternTypeInference.doForMatchClause(m, cc)
             val oldSubst = state.matchClauseSubstitutor
             state.withMatchClauseSubstitutor(oldSubst.followed(subst))
           case _ => state
         }
 
+        if (!place.processDeclarations(processor, newState, lastParent, ref)) return
+
+        place match {
+          case _: ScTemplateBody | _: ScExtendsBlock => //template body and inherited members are at the same level
+          case enum: ScEnum                          =>
+            if (!enum.fakeCompanionModule.forall(_.processDeclarations(processor, state, lastParent, place))) return
+          case _                                     => if (!processor.changedLevel) return
+        }
 
         treeWalkUp(place.getContext, place, newState)
       }

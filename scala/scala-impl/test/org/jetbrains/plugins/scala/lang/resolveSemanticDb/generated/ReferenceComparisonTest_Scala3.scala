@@ -1362,7 +1362,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i15717(): Unit = doTest("i15717", true)
   def test_i15738(): Unit = doTest("i15738", false)
   def test_i15743(): Unit = doTest("i15743", true)
-  def `test_i15743.gadt`(): Unit = doTest("i15743.gadt", false)
+  def `test_i15743.gadt`(): Unit = doTest("i15743.gadt", true)
   def `test_i15743.pass`(): Unit = doTest("i15743.pass", true)
   def test_i15802(): Unit = doTest("i15802", true)
   def test_i15820(): Unit = doTest("i15820", true)
@@ -1370,7 +1370,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i15898(): Unit = doTest("i15898", true)
   def test_i15922(): Unit = doTest("i15922", true)
   def test_i15931(): Unit = doTest("i15931", true) // #enum
-  def test_i15934(): Unit = doTest("i15934", true)
+  def test_i15934(): Unit = doTest("i15934", false)
   def test_i15940(): Unit = doTest("i15940", true)
   def test_i15960(): Unit = doTest("i15960", true)
   def test_i15964(): Unit = doTest("i15964", false)

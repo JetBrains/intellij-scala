@@ -1142,7 +1142,7 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
       |  }$END
       |}
       |//this is a type of incorrect expression, it may change if type inference changes
-      |//SeqLike[T, SeqLike[Any, Any]]
+      |//SeqLike[Any, Any]
       |""".stripMargin
   )
 

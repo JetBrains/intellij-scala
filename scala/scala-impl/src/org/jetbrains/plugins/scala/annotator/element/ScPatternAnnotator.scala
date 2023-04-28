@@ -57,10 +57,13 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
 
     def exTpMatchesPattp = matchesPattern(exTp, widen(patType))
 
+    def hasNoFreeTypeVariables(pattern: ScPattern): Boolean =
+      pattern.typeVariables.isEmpty && freeTypeParams.isEmpty
+
     val neverMatches =
       !matchesPattern(exTp, patType) &&
         isNeverSubType(abstraction(patType), exTp) &&
-        pattern.typeVariables.isEmpty
+        hasNoFreeTypeVariables(pattern)
 
     def isEliminatedByErasure = (exprType.extractClass, patType.extractClass) match {
       case (Some(cl1), Some(cl2)) if pattern.is[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
@@ -81,10 +84,10 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     }
 
     pattern match {
-      case _: ScTypedPattern if Seq(Nothing, Null, AnyVal) contains patType =>
+      case _: ScTypedPatternLike if Seq(Nothing, Null, AnyVal) contains patType =>
         val message = ScalaBundle.message("type.cannot.be.used.in.type.pattern", patType.presentableText)
         holder.createErrorAnnotation(pattern, message)
-      case _: ScTypedPattern if exTp.isFinalType && freeTypeParams.isEmpty && !exTpMatchesPattp =>
+      case _: ScTypedPatternLike if exTp.isFinalType && freeTypeParams.isEmpty && !exTpMatchesPattp =>
         val (exprTypeText, patTypeText) = TypePresentation.different(exprType, patType)
         val message = ScalaBundle.message("scrutinee.incompatible.pattern.type", patTypeText, exprTypeText)
         holder.createErrorAnnotation(pattern, message)
@@ -101,7 +104,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
         val (exprTypeText, patTypeText) = TypePresentation.different(exprType, patType)
         val message = ScalaBundle.message("pattern.type.incompatible.with.expected", patTypeText, exprTypeText)
         holder.createErrorAnnotation(pattern, message)
-      case _: ScTypedPattern | _: ScConstructorPattern if neverMatches =>
+      case _: ScTypedPatternLike | _: ScConstructorPattern if neverMatches =>
         val erasureWarn =
           if (isEliminatedByErasure) ScalaBundle.message("erasure.warning")
           else ""

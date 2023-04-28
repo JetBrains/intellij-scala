@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -44,11 +44,6 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
   def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult = innerType
 
   protected def innerType: TypeResult
-
-  /** The same as [[getType]], but does not calculate substituted types
-   * for type variable type elements.
-   * */
-  def unsubstitutedType: TypeResult = getType
 
   /** Link from a view or context bound to the type element of the corresponding synthetic parameter. */
   def analog: Option[ScTypeElement] = {
@@ -98,17 +93,20 @@ object ScTypeElement {
 }
 
 trait ScDesugarizableTypeElement extends ScTypeElement {
-  override def unsubstitutedType: TypeResult = computeDesugarizedType match {
-    case Some(typeElement) => typeElement.unsubstitutedType
-    case _                 => Failure(ScalaBundle.message("cannot.desugarize.typename", typeName))
-  }
-
   def desugarizedText: String
 
   def computeDesugarizedType: Option[ScTypeElement] = Option(typeElementFromText(desugarizedText))
 
-  def typeElementFromText: String => ScTypeElement =
-    createTypeElementFromText(_, getContext, this, isPattern = true, typeVariables = true)
+  def typeElementFromText: String => ScTypeElement = {
+    var hasTypeVars = false
+
+    this.acceptChildren(new ScalaRecursiveElementVisitor {
+      override def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit =
+        hasTypeVars = true
+    })
+
+    createTypeElementFromText(_, getContext, this, isPattern = hasTypeVars, typeVariables = hasTypeVars)
+  }
 
   override protected def innerType: TypeResult = computeDesugarizedType match {
     case Some(typeElement) => typeElement.getType

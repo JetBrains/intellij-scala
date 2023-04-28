@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 package patterns
 
-trait ScConstructorPattern extends ScPattern {
+trait ScConstructorPattern extends ScExtractorPattern {
   def args: ScPatternArgumentList = findChild[ScPatternArgumentList].get
-  def ref: ScStableCodeReference = findChild[ScStableCodeReference].get
+  override def ref: ScStableCodeReference = findChild[ScStableCodeReference].get
 }
 
 object ScConstructorPattern {

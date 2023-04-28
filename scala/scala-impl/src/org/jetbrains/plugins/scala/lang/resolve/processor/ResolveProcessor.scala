@@ -132,7 +132,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
             renamed,
             problems = problems,
             fromType = state.fromType,
-            isAccessible = accessible
+            isAccessible = accessible,
+            matchClauseSubstitutor = state.matchClauseSubstitutor
           )
           addResult(result)
         case _: PsiClass => //do nothing, it's wrong class or object

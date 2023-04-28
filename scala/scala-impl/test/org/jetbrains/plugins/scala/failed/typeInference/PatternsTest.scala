@@ -8,8 +8,6 @@ class PatternsTest extends TypeInferenceTestBase {
 
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL9888():Unit = doTest()
-
   def testSCL4989(): Unit = {
     doTest(
       s"""

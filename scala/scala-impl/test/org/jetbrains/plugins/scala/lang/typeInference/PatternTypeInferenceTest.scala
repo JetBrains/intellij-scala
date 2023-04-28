@@ -138,6 +138,21 @@ class PatternTypeInferenceTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin
   )
 
+  def testTuplePattern(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.io.Source
+      |object Test {
+      |  def fromInput[A](in: Input[A]): Stream[A] = (in, 1) match {
+      |    case (InputFile(path), 1) => Stream.empty[Byte]
+      |    case (TextInput(path), 2) => Source.fromFile(path).getLines().toStream
+      |  }
+      |}
+      |sealed trait Input[A]
+      |case class InputFile(path: String) extends Input[Byte]
+      |case class TextInput(path: String) extends Input[String]
+      |""".stripMargin
+  )
+
   def testSCL17424(): Unit = checkTextHasNoErrors(
     """
       |object permissions {

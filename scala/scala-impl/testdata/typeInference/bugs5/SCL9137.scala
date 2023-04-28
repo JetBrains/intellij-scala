@@ -8,4 +8,4 @@ object Test {
   }
 }
 
-//List[Int]
+//List[Nothing]

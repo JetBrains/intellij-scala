@@ -9,12 +9,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScSt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeParameterType, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.PatternTypeInference
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScConstructorPattern {
 
@@ -25,58 +25,20 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
   override def isIrrefutableFor(t: Option[ScType]): Boolean =
     ScConstructorPatternImpl.isIrrefutable(t, ref, subpatterns)
 
-  override def `type`(): TypeResult = {
-    import ScSubstitutor.bind
+  override def `type`(): TypeResult =
     ref.bind() match {
-      case Some(r) =>
-        r.element match {
-          //todo: remove all classes?
-          case td: ScClass if td.typeParameters.nonEmpty =>
-            val refType: ScType = ScSimpleTypeElementImpl.
-              calculateReferenceType(ref).getOrElse(ScalaType.designator(td))
-            val newSubst = {
-              val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(UndefinedType(_)).toSeq)
-              val toAnySubst = bind(td.typeParameters)(Function.const(Any))
+      case Some(ScalaResolveResult(fun: ScFunction, _)) if
+        (fun.name == CommonNames.Unapply || fun.name == CommonNames.UnapplySeq) &&
+          fun.parameters.count(!_.isImplicitParameter) == 1 =>
 
-              this.expectedType.flatMap {
-                clazzType.conformanceSubstitutor(_)
-              }.fold(toAnySubst) {
-                _.followed(toAnySubst)
-              }
-            }
-            Right(ScParameterizedType(refType, td.getTypeParameters.map(tp => newSubst(TypeParameterType(tp))).toSeq))
-          case td: ScClass => Right(ScalaType.designator(td))
-          case obj: ScObject => Right(ScalaType.designator(obj))
-          case fun: ScFunction if (fun.name == CommonNames.Unapply || fun.name == CommonNames.UnapplySeq) &&
-                  fun.parameters.count(!_.isImplicitParameter) == 1 =>
-            //@TODO: this is prettu much duplicated in ScPattern.expectedType
-            val substitutor = r.substitutor
-            val typeParams  = fun.typeParameters
+        val subst =
+          this.expectedType.fold(
+            ScSubstitutor.empty
+          )(PatternTypeInference.doTypeInference(this, _))
 
-            val subst =
-              if (typeParams.isEmpty) substitutor
-              else {
-                val maybeSubstitutor = for {
-                  Typeable(parameterType) <- fun.parameters.headOption
-                  functionType = bind(typeParams)(UndefinedType(_)).apply(parameterType)
-
-                  expectedType <- this.expectedType
-                  newSubstitutor <- functionType.conformanceSubstitutor(expectedType)
-                } yield newSubstitutor
-
-                maybeSubstitutor.fold(substitutor) {
-                  _.followed(substitutor)
-                }.followed {
-                  bind(typeParams)(_.upperBound.getOrAny)
-                }
-              }
-            fun.paramClauses.clauses.head.parameters.head.`type`().map(subst)
-          case _ => Right(Nothing)
-        }
+        fun.paramClauses.clauses.head.parameters.head.`type`().map(subst)
       case _ => Failure(ScalaBundle.message("cannot.resolve.unknown.symbol"))
     }
-  }
-
 }
 
 object ScConstructorPatternImpl {

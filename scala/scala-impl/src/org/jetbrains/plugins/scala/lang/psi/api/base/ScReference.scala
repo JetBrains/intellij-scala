@@ -196,7 +196,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
                                                    (simpleImport: => PsiElement): PsiElement = {
     val parts: Array[String] = qualName.split('.')
     val last = parts.last
-    assert(!last.trim.isEmpty, s"Empty last part with safe bind to element with qualName: '$qualName'")
+    assert(last.trim.nonEmpty, s"Empty last part with safe bind to element with qualName: '$qualName'")
     val anotherRef: T = referenceCreator(last, true)
     val resolve = anotherRef.multiResolveScala(false)
     def checkForPredefinedTypes(): Boolean = {

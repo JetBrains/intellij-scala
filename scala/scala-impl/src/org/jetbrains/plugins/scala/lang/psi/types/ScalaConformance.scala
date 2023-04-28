@@ -1054,6 +1054,13 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           r.visitType(rightVisitor)
         }
 
+        if (result.isRight) return
+        else l match {
+          case AliasType(_, Right(lower), _) =>
+            result = conformsInner(lower, r, visited, constraints)
+          case _ => return
+        }
+
         return
       }
 
@@ -1124,8 +1131,10 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       undefines.foreach { undef =>
         val tparam = undef.typeParameter
-        constraints = constraints
-          .withLower(tparam.typeParamId, tparam.lowerType)
+
+        if (!tparam.lowerType.is[UndefinedType])
+          constraints = constraints
+            .withLower(tparam.typeParamId, tparam.lowerType)
       }
 
       val skolemizeExistentialsOnTheRight = r match {
