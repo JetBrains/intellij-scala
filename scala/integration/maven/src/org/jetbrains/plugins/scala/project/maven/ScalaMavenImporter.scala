@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
 
 import java.io.File
 import java.util
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
@@ -172,6 +173,7 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
       def pom(id: MavenId): MavenArtifactInfo = new MavenArtifactInfo(id.groupId, id.artifactId, id.version, "pom", null)
       def jar(id: MavenId): MavenArtifactInfo = new MavenArtifactInfo(id.groupId, id.artifactId, id.version, "jar", id.classifier.orNull)
 
+      @nowarn("cat=deprecation")
       def resolve(id: MavenId): MavenArtifact = {
         embedder.resolve(pom(id), repositories)
         embedder.resolve(jar(id), repositories)
