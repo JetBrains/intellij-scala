@@ -349,8 +349,9 @@ final class SyntheticClasses(project: Project) {
 package scala
 
 object Boolean {
- 	def box(x: Boolean): java.lang.Boolean = throw new Error()
- 	def unbox(x: Object): Boolean = throw new Error()
+ 	def box(x: _root_.scala.Boolean): _root_.java.lang.Boolean = ???
+
+ 	def unbox(x: _root_.java.lang.Object): _root_.scala.Boolean = ???
 }
 """
     )
@@ -360,10 +361,13 @@ object Boolean {
 package scala
 
 object Byte {
- 	def box(x: Byte): java.lang.Byte = throw new Error()
- 	def unbox(x: Object): Byte = throw new Error()
-  def MinValue = java.lang.Byte.MIN_VALUE
- 	def MaxValue = java.lang.Byte.MAX_VALUE
+ 	def box(x: _root_.scala.Byte): _root_.java.lang.Byte = ???
+
+ 	def unbox(x: _root_.java.lang.Object): _root_.scala.Byte = ???
+
+  final val MinValue = _root_.java.lang.Byte.MIN_VALUE
+
+ 	final val MaxValue = _root_.java.lang.Byte.MAX_VALUE
 }
 """
     )
@@ -373,10 +377,13 @@ object Byte {
 package scala
 
 object Char {
- 	def box(x: Char): java.lang.Character = throw new Error()
- 	def unbox(x: Object): Char = throw new Error()
- 	def MinValue = java.lang.Character.MIN_VALUE
- 	def MaxValue = java.lang.Character.MAX_VALUE
+ 	def box(x: _root_.scala.Char): _root_.java.lang.Character = ???
+  
+ 	def unbox(x: _root_.java.lang.Object): _root_.scala.Char = ???
+  
+ 	final val MinValue = _root_.java.lang.Character.MIN_VALUE
+  
+ 	final val MaxValue = _root_.java.lang.Character.MAX_VALUE
 }
 """
     )
@@ -386,18 +393,27 @@ object Char {
 package scala
 
 object Double {
- 	def box(x: Double): java.lang.Double = throw new Error()
- 	def unbox(x: Object): Double = throw new Error()
+ 	def box(x: _root_.scala.Double): _root_.java.lang.Double = ???
+  
+ 	def unbox(x: _root_.java.lang.Object): _root_.scala.Double = ???
+  
  	@deprecated("use Double.MinNegativeValue instead")
- 	def MinValue = -java.lang.Double.MAX_VALUE
- 	def MinNegativeValue = -java.lang.Double.MAX_VALUE
- 	def MaxValue = java.lang.Double.MAX_VALUE
+ 	final val MinValue = -_root_.java.lang.Double.MAX_VALUE
+  
+ 	final val MinNegativeValue = -_root_.java.lang.Double.MAX_VALUE
+  
+ 	final val MaxValue = _root_.java.lang.Double.MAX_VALUE
+  
  	@deprecated("use Double.MinPositiveValue instead")
- 	def Epsilon = java.lang.Double.MIN_VALUE
- 	def MinPositiveValue = java.lang.Double.MIN_VALUE
- 	def NaN = java.lang.Double.NaN
- 	def PositiveInfinity = java.lang.Double.POSITIVE_INFINITY
- 	def NegativeInfinity = java.lang.Double.NEGATIVE_INFINITY
+ 	final val Epsilon = _root_.java.lang.Double.MIN_VALUE
+  
+ 	final val MinPositiveValue = _root_.java.lang.Double.MIN_VALUE
+  
+ 	final val NaN = _root_.java.lang.Double.NaN
+  
+ 	final val PositiveInfinity = _root_.java.lang.Double.POSITIVE_INFINITY
+  
+ 	final val NegativeInfinity = _root_.java.lang.Double.NEGATIVE_INFINITY
 }
 """
     )
@@ -407,18 +423,27 @@ object Double {
 package scala
 
 object Float {
- 	def box(x: Float): java.lang.Float = throw new Error()
- 	def unbox(x: Object): Float = throw new Error()
+ 	def box(x: _root_.scala.Float): _root_.java.lang.Float = ???
+  
+ 	def unbox(x: _root_.java.lang.Object): _root_.scala.Float = ???
+  
  	@deprecated("use Float.MinNegativeValue instead")
- 	def MinValue = -java.lang.Float.MAX_VALUE
- 	def MinNegativeValue = -java.lang.Float.MAX_VALUE
- 	def MaxValue = java.lang.Float.MAX_VALUE
- 	@deprecated("use Float.MinPositiveValue instead")
- 	def Epsilon = java.lang.Float.MIN_VALUE
- 	def MinPositiveValue = java.lang.Float.MIN_VALUE
- 	def NaN = java.lang.Float.NaN
- 	def PositiveInfinity = java.lang.Float.POSITIVE_INFINITY
- 	def NegativeInfinity = java.lang.Float.NEGATIVE_INFINITY
+ 	final val MinValue = -_root_.java.lang.Float.MAX_VALUE
+ 	
+  final val MinNegativeValue = -_root_.java.lang.Float.MAX_VALUE
+ 	
+  final val MaxValue = _root_.java.lang.Float.MAX_VALUE
+ 	
+  @deprecated("use Float.MinPositiveValue instead")
+ 	final val Epsilon = _root_.java.lang.Float.MIN_VALUE
+ 	
+  final val MinPositiveValue = _root_.java.lang.Float.MIN_VALUE
+ 	
+  final val NaN = _root_.java.lang.Float.NaN
+ 	
+  final val PositiveInfinity = _root_.java.lang.Float.POSITIVE_INFINITY
+ 	
+  final val NegativeInfinity = _root_.java.lang.Float.NEGATIVE_INFINITY
 }
 """
     )
@@ -428,10 +453,13 @@ object Float {
 package scala
 
 object Int {
- 	def box(x: Int): java.lang.Integer = throw new Error()
- 	def unbox(x: Object): Int = throw new Error()
- 	def MinValue = java.lang.Integer.MIN_VALUE
- 	def MaxValue = java.lang.Integer.MAX_VALUE
+ 	def box(x: _root_.scala.Int): _root_.java.lang.Integer = ???
+ 	
+  def unbox(x: _root_.java.lang.Object): _root_.scala.Int = ???
+ 	
+  final val MinValue = _root_.java.lang.Integer.MIN_VALUE
+ 	
+  final val MaxValue = _root_.java.lang.Integer.MAX_VALUE
 }
 """
     )
@@ -441,10 +469,13 @@ object Int {
 package scala
 
 object Long {
- 	def box(x: Long): java.lang.Long = throw new Error()
- 	def unbox(x: Object): Long = throw new Error()
- 	def MinValue = java.lang.Long.MIN_VALUE
- 	def MaxValue = java.lang.Long.MAX_VALUE
+ 	def box(x: _root_.scala.Long): _root_.java.lang.Long = ???
+ 	
+  def unbox(x: _root_.java.lang.Object): _root_.scala.Long = ???
+ 	
+  final val MinValue = _root_.java.lang.Long.MIN_VALUE
+ 	
+  final val MaxValue = _root_.java.lang.Long.MAX_VALUE
 }
 """
     )
@@ -454,10 +485,13 @@ object Long {
 package scala
 
 object Short {
- 	def box(x: Short): java.lang.Short = throw new Error()
- 	def unbox(x: Object): Short = throw new Error()
- 	def MinValue = java.lang.Short.MIN_VALUE
- 	def MaxValue = java.lang.Short.MAX_VALUE
+ 	def box(x: _root_.scala.Short): _root_.java.lang.Short = ???
+ 	
+  def unbox(x: _root_.java.lang.Object): _root_.scala.Short = ???
+ 	
+  final val MinValue = _root_.java.lang.Short.MIN_VALUE
+ 	
+  final val MaxValue = _root_.java.lang.Short.MAX_VALUE
 }
 """
     )
