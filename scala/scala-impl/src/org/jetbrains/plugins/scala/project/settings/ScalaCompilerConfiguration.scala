@@ -21,7 +21,7 @@ import scala.jdk.CollectionConverters._
 )
 class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] with ModificationTracker {
 
-  var incrementalityType: IncrementalityType = IncrementalityType.IDEA
+  var incrementalityType: IncrementalityType = IncrementalityType.SBT
 
   var defaultProfile: ScalaCompilerSettingsProfile = new ScalaCompilerSettingsProfile(DefaultProfileName)
 
@@ -95,7 +95,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     // yes, default profile options are currently serialized as root options of element node
     val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.toState, new SkipDefaultValuesSerializationFilters(): @nowarn("cat=deprecation"))
 
-    if (incrementalityType != IncrementalityType.IDEA) {
+    if (incrementalityType != IncrementalityType.SBT) {
       val incrementalityTypeElement = new Element("option")
       incrementalityTypeElement.setAttribute("name", "incrementalityType")
       incrementalityTypeElement.setAttribute("value", incrementalityType.toString)
@@ -118,7 +118,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     incrementalityType = configurationElement.getChildren("option").asScala
       .find(_.getAttributeValue("name") == "incrementalityType")
       .map(it => IncrementalityType.valueOf(it.getAttributeValue("value")))
-      .getOrElse(IncrementalityType.IDEA)
+      .getOrElse(IncrementalityType.SBT)
 
     defaultProfile.setSettings(ScalaCompilerSettings.fromState(XmlSerializer.deserialize(configurationElement, classOf[ScalaCompilerSettingsState])))
 

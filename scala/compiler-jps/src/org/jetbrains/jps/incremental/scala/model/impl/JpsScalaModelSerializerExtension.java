@@ -92,7 +92,7 @@ public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtensio
           return IncrementalityType.valueOf(option.getAttributeValue("value"));
         }
       }
-      return IncrementalityType.IDEA;
+      return IncrementalityType.SBT;
     }
 
     private static CompilerSettingsImpl loadSettings(Element componentTag) {

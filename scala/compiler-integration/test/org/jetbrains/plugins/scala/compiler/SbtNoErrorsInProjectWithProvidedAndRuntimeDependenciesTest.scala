@@ -55,7 +55,7 @@ final class SbtNoErrorsInProjectWithProvidedAndRuntimeDependenciesTest
 
     //... and during project compilation
     val compiler: CompilerTester = new CompilerTester(myTestFixture.getModule)
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = IncrementalityType.IDEA
+    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = IncrementalityType.SBT
 
     CompilerTestUtil.withEnabledCompileServer(true).run {
       try {

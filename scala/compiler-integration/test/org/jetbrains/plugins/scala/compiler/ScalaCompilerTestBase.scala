@@ -120,7 +120,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
-  protected def incrementalityType: IncrementalityType = IncrementalityType.IDEA
+  protected def incrementalityType: IncrementalityType = IncrementalityType.SBT
 
   protected def compilerVmOptions: Option[String] = None
 

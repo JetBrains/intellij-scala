@@ -23,8 +23,8 @@ public class ScalaCompilerConfigurationPanel {
 
     public ScalaCompilerConfigurationPanel(Project project) {
         myIncrementalityType.setRenderer(SimpleMappingListCellRenderer.create(
-                Pair.create(IncrementalityType.IDEA, "IDEA"),
-                Pair.create(IncrementalityType.SBT, "Zinc")
+                Pair.create(IncrementalityType.SBT, "Zinc"),
+                Pair.create(IncrementalityType.IDEA, "IDEA")
         ));
         myIncrementalityType.setModel(new DefaultComboBoxModel<>(IncrementalityType.values()));
 

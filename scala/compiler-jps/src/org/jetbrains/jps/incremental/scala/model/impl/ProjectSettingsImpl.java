@@ -14,7 +14,7 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
   public static final ProjectSettingsImpl DEFAULT =
       new ProjectSettingsImpl(
-              IncrementalityType.IDEA,
+              IncrementalityType.SBT,
               CompilerSettingsImpl.DEFAULT,
               new HashMap<>(),
               new HashMap<>()
