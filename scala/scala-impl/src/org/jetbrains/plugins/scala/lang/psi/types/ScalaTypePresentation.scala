@@ -311,7 +311,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         prefix + "this" + typeTail(needDotType)
       case TupleType(comps) if !ScalaApplicationSettings.PRECISE_TEXT || !t.isAliasType => // SCL-21175
         comps match {
-          case Seq(head) => s"Tuple1[${innerTypeText(head)}]"
+          case Seq(head) => (if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) "_root_.scala." else "") + s"Tuple1[${innerTypeText(head)}]" // SCL-21183
           case _ => typesText(comps)
         }
       case ScDesignatorType(element) =>
@@ -325,7 +325,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         projectionTypeText(proj, needDotType)
       case p: ParameterizedType =>
         parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
-      case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
+      case JavaArrayType(argument) => (if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) "_root_.scala." else "") + s"Array[${innerTypeText(argument)}]" // SCL-21183
       case UndefinedType(tpt, _) => "NotInferred" + tpt.name
       case ScAndType(lhs, rhs) => innerTypeText(lhs) + " & " + innerTypeText(rhs)
       case ScOrType(lhs, rhs) => innerTypeText(lhs) + " | " + innerTypeText(rhs)

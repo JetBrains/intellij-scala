@@ -98,7 +98,7 @@ trait TypePresentation {
         removeKeywords(str) + pointStr(withPoint)
       }
     }
-    typeText(`type`, renderer, PresentationOptions(renderStdTypes = ScalaApplicationSettings.PRECISE_TEXT))(TypePresentationContext.emptyContext)
+    typeText(`type`, renderer, PresentationOptions(renderStdTypes = ScalaApplicationSettings.PRECISE_TEXT, canonicalForm = true))(TypePresentationContext.emptyContext)
   }
 }
 
@@ -119,7 +119,8 @@ object TypePresentation {
   case class PresentationOptions(
     renderProjectionTypeName: Boolean = false,
     renderStdTypes: Boolean = false,
-    renderInfixType: Boolean = false
+    renderInfixType: Boolean = false,
+    canonicalForm: Boolean = false // Canonical renderer is sometimes not enough, SCL-21183
   )
   object PresentationOptions {
     val Default: PresentationOptions = PresentationOptions()
