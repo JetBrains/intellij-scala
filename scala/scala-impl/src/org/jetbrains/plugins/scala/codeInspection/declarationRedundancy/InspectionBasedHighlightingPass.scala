@@ -140,7 +140,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
 object InspectionBasedHighlightingPass {
   private val isUnitTest = ApplicationManager.getApplication.isUnitTestMode
 
-  private class LocalQuickFixAsIntentionIconableAdapter(
+  private[declarationRedundancy] class LocalQuickFixAsIntentionIconableAdapter(
     delegateFix: LocalQuickFix with Iconable,
     problemDescriptor: ProblemDescriptor
   ) extends LocalQuickFixAsIntentionAdapter(delegateFix, problemDescriptor)

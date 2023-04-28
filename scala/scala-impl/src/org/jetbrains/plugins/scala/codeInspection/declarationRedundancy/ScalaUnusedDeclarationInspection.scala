@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
+import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.codeInspection.options.OptPane
 import com.intellij.codeInspection.options.OptPane.{checkbox, dropdown, option, pane}
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder, SetInspectionOptionFix}
+import com.intellij.codeInspection.{InspectionManager, LocalInspectionTool, ProblemDescriptor, ProblemHighlightType, ProblemsHolder, SetInspectionOptionFix}
 import com.intellij.openapi.project.Project
+import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.impl.source.resolve.FileContextUtil
 import com.intellij.psi.{PsiAnnotationOwner, PsiElement, PsiFile}
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
+import org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile}
@@ -49,14 +52,15 @@ final class ScalaUnusedDeclarationInspection extends LocalInspectionTool {
   )
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
-    e: PsiElement => if (shouldHighlightFile(e.getContainingFile) && shouldProcessElement(e)) {
-      invoke(e, isOnTheFly).foreach { info =>
-        holder.registerProblem(info.element, info.message, info.fixes: _*)
+    e: PsiElement =>
+      if (shouldProcessElement(e)) {
+        val ourInfos = invoke(e, isOnTheFly)
+        val problemDescriptors = mapOurInfosToPlatformProblemDescriptors(holder.getFile.getProject, ourInfos, isOnTheFly)
+        problemDescriptors.foreach(holder.registerProblem)
       }
-    }
   }
 
-  private def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = {
+  private[declarationRedundancy] def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = {
 
     val pipeline = getPipeline(element.getProject, reportPublicDeclarations)
 
@@ -113,8 +117,10 @@ final class ScalaUnusedDeclarationInspection extends LocalInspectionTool {
     }
   }
 
-  private def shouldProcessElement(element: PsiElement): Boolean =
-    Search.Util.shouldProcessElement(element) && {
+  private def shouldProcessElement(element: PsiElement): Boolean = {
+    isEnabled(element) &&
+      shouldHighlightFile(element.getContainingFile) &&
+      Search.Util.shouldProcessElement(element) && {
       element match {
         case n: ScNamedElement =>
           if (isOnlyVisibleInLocalFile(n)) {
@@ -139,6 +145,24 @@ final class ScalaUnusedDeclarationInspection extends LocalInspectionTool {
         case _ => false
       }
     }
+  }
+
+  private def isEnabled(element: PsiElement): Boolean =
+    InspectionProjectProfileManager.getInstance(element.getProject)
+      .getCurrentProfile.isToolEnabled(HighlightDisplayKey.find(getShortName), element) &&
+      !inspectionSuppressor.isSuppressedFor(element, getShortName)
+
+  private def mapOurInfosToPlatformProblemDescriptors(project: Project, problemInfos: Seq[ProblemInfo], isOnTheFly: Boolean): Seq[ProblemDescriptor] = {
+    val inspectionManager = InspectionManager.getInstance(project)
+    problemInfos.map { problemInfo =>
+      inspectionManager.createProblemDescriptor(
+        problemInfo.element,
+        problemInfo.message,
+        isOnTheFly,
+        problemInfo.fixes.toArray,
+        ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+    }
+  }
 }
 
 object ScalaUnusedDeclarationInspection {
@@ -150,6 +174,8 @@ object ScalaUnusedDeclarationInspection {
 
   @NonNls
   private val reportLocalDeclarationsPropertyName: String = "reportLocalDeclarations"
+
+  private val inspectionSuppressor = new ScalaInspectionSuppressor
 
   private def hasUnusedAnnotation(holder: PsiAnnotationOwner): Boolean =
     holder.hasAnnotation("scala.annotation.unused") ||
