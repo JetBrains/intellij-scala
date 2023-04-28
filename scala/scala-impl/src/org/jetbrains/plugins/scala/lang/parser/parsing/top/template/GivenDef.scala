@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top
 package template
 
 import com.intellij.lang.PsiBuilder
+import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -10,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, End}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ExprInIndentationRegion
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClauses, TypeParamClause}
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
 
 import scala.annotation.tailrec
 
@@ -32,9 +33,11 @@ object GivenDef {
 
     val hasSignature = GivenSig()
 
-    if (parseGivenAlias(hasSignature = hasSignature)) {
+    if (parseGivenAliasDefinition(hasSignature = hasSignature)) {
       End(iw)
-      templateMarker.done(ScalaElementType.GIVEN_ALIAS)
+      templateMarker.done(ScalaElementType.GIVEN_ALIAS_DEFINITION)
+    } else if (parseGivenAliasDeclaration(hasSignature = hasSignature)) {
+      templateMarker.done(ScalaElementType.GIVEN_ALIAS_DECLARATION)
     } else if (parseGivenDefinition()) {
       End(iw)
       templateMarker.done(ScalaElementType.GivenDefinition)
@@ -43,9 +46,22 @@ object GivenDef {
     }
   }
 
-  private def parseGivenAlias(hasSignature: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  private def parseGivenAliasDeclaration(hasSignature: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val aliasMarker = builder.mark()
-    if (Type() && builder.getTokenType == ScalaTokenTypes.tASSIGN) {
+    if (AnnotType(isPattern = false) && !LPAREN_WITH_TOKEN_SET.contains(builder.getTokenType)) {
+      if (!hasSignature) builder.mark().done(ScalaElementType.PARAM_CLAUSES)
+
+      aliasMarker.drop()
+      true
+    } else {
+      aliasMarker.rollbackTo()
+      false
+    }
+  }
+
+  private def parseGivenAliasDefinition(hasSignature: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+    val aliasMarker = builder.mark()
+    if (AnnotType(isPattern = false) && builder.getTokenType == ScalaTokenTypes.tASSIGN) {
       if (!hasSignature) builder.mark().done(ScalaElementType.PARAM_CLAUSES)
 
       // given alias
@@ -64,6 +80,7 @@ object GivenDef {
   }
 
   private val nonConstructorStartId = ScalaTokenTypes.SOFT_KEYWORDS.getTypes.map(_.toString).toSet
+
   private def parseGivenDefinition()(implicit builder: ScalaPsiBuilder): Boolean = {
     val extendsBlockMarker = builder.mark()
     val templateParents = builder.mark()
@@ -95,6 +112,7 @@ object GivenDef {
         }
       }
     }
+
     parseConstructors()
 
     templateParents.done(ScalaElementType.TEMPLATE_PARENTS)
@@ -109,6 +127,11 @@ object GivenDef {
     extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
     true
   }
+
+  private val LPAREN_WITH_TOKEN_SET = TokenSet.create(
+    ScalaTokenTypes.tLPARENTHESIS,
+    ScalaTokenTypes.kWITH
+  )
 }
 
 object GivenSig extends ParsingRule {

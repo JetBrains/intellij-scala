@@ -112,5 +112,4 @@ private object ScFunctionDefinitionImpl {
       case Some(rte: ScTypeElement) => rte.`type`()
     }
   }
-
 }

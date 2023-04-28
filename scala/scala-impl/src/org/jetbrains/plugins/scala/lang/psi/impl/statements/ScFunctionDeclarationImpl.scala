@@ -9,9 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-final class ScFunctionDeclarationImpl private[psi](stub: ScFunctionStub[ScFunctionDeclaration],
-                                                   nodeType: ScFunctionElementType[ScFunctionDeclaration],
-                                                   node: ASTNode)
+class ScFunctionDeclarationImpl[S <: ScFunctionDeclaration](stub: ScFunctionStub[S],
+                                                            nodeType: ScFunctionElementType[S],
+                                                            node: ASTNode)
   extends ScFunctionImpl(stub, nodeType, node)
     with ScFunctionDeclaration {
 
@@ -25,4 +25,3 @@ final class ScFunctionDeclarationImpl private[psi](stub: ScFunctionStub[ScFuncti
     case None => Right(Unit)
   }
 }
-                                         

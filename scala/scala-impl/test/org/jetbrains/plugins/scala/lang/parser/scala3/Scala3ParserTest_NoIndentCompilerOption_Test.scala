@@ -492,7 +492,7 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |        ReferenceExpression: ???
       |          PsiElement(identifier)('???')
       |        PsiWhiteSpace('\n\n  ')
-      |        ScGivenAlias: stringParser
+      |        ScGivenAliasDefinition: stringParser
       |          AnnotationsList
       |            <empty list>
       |          Modifiers

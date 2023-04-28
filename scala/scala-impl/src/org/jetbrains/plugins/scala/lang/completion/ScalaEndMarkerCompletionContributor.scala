@@ -310,7 +310,7 @@ object ScalaEndMarkerCompletionContributor {
 
   private object GivenWithMultilineBody {
     def unapply(scGiven: ScGiven): Option[(ScGiven, Option[ScTemplateBody])] = scGiven match {
-      case alias: ScGivenAlias =>
+      case alias: ScGivenAliasDefinition =>
         alias.body.collect {
           case body if alias.hasAssign && isMultilineWithoutBraces(body) =>
             (alias, None)

@@ -8,21 +8,21 @@ import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-class ScGivenAliasImpl(
-  stub:     ScFunctionStub[ScGivenAlias],
-  nodeType: ScFunctionElementType[ScGivenAlias],
+class ScGivenAliasDefinitionImpl(
+  stub:     ScFunctionStub[ScGivenAliasDefinition],
+  nodeType: ScFunctionElementType[ScGivenAliasDefinition],
   node:     ASTNode
 ) extends ScFunctionDefinitionImpl(stub, nodeType, node)
     with ScGivenImpl
-    with ScGivenAlias {
+    with ScGivenAliasDefinition {
 
-  override def toString: String = "ScGivenAlias: " + ifReadAllowed(name)("")
+  override def toString: String = "ScGivenAliasDefinition: " + ifReadAllowed(name)("")
 
   override def returnType: TypeResult = typeElement.`type`()
 

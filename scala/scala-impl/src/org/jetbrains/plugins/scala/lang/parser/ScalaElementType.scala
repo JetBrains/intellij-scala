@@ -42,7 +42,8 @@ object ScalaElementType {
   val FUNCTION_DECLARATION: ScFunctionElementType[ScFunctionDeclaration] = FunctionDeclaration
   val FUNCTION_DEFINITION: ScFunctionElementType[ScFunctionDefinition] = FunctionDefinition
   val MACRO_DEFINITION: ScFunctionElementType[ScMacroDefinition] = MacroDefinition
-  val GIVEN_ALIAS: ScFunctionElementType[ScGivenAlias] = GivenAlias
+  val GIVEN_ALIAS_DECLARATION: ScFunctionElementType[ScGivenAliasDeclaration] = GivenAliasDeclaration
+  val GIVEN_ALIAS_DEFINITION: ScFunctionElementType[ScGivenAliasDefinition] = GivenAliasDefinition
   val TYPE_DECLARATION = new ScTypeAliasDeclarationElementType
   val PATTERN_LIST = new ScPatternListElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType

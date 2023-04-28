@@ -9,11 +9,11 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAliasDeclaration, ScGivenAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScGivenAliasImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.{ScFunctionStub, ScGivenStub, ScImplicitStub}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScGivenAliasDeclarationImpl, ScGivenAliasDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScFunctionStub, ScGivenStub, ScImplicitStub}
 
 abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
                                                         language: Language = ScalaLanguage.INSTANCE)
@@ -87,8 +87,9 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       else None
 
     val (isGivenAlias, givenAliasClassNames) = function match {
-      case alias: ScGivenAlias => (true, ScGivenStub.givenAliasClassNames(alias))
-      case _                   => (false, EMPTY_STRING_ARRAY)
+      case alias: ScGivenAliasDefinition  => (true, ScGivenStub.givenAliasClassNames(alias))
+      case alias: ScGivenAliasDeclaration => (true, ScGivenStub.givenAliasClassNames(alias))
+      case _                              => (false, EMPTY_STRING_ARRAY)
     }
 
     new ScFunctionStubImpl(
@@ -154,8 +155,16 @@ object MacroDefinition extends ScFunctionElementType[ScMacroDefinition]("macro d
   override def createPsi(stub: ScFunctionStub[ScMacroDefinition]) = new ScMacroDefinitionImpl(stub, this, null)
 }
 
-object GivenAlias extends ScFunctionElementType[ScGivenAlias]("given alias") {
-  override def createElement(node: ASTNode): ScGivenAlias = new ScGivenAliasImpl(null, null, node)
+object GivenAliasDeclaration extends ScFunctionElementType[ScGivenAliasDeclaration]("given alias declaration") {
 
-  override def createPsi(stub: ScFunctionStub[ScGivenAlias]): ScGivenAlias = new ScGivenAliasImpl(stub, this, null)
+  override def createElement(node: ASTNode) = new ScGivenAliasDeclarationImpl(null, null, node)
+
+  override def createPsi(stub: ScFunctionStub[ScGivenAliasDeclaration]) = new ScGivenAliasDeclarationImpl(stub, this, null)
+}
+
+object GivenAliasDefinition extends ScFunctionElementType[ScGivenAliasDefinition]("given alias definition") {
+
+  override def createElement(node: ASTNode) = new ScGivenAliasDefinitionImpl(null, null, node)
+
+  override def createPsi(stub: ScFunctionStub[ScGivenAliasDefinition]) = new ScGivenAliasDefinitionImpl(stub, this, null)
 }
