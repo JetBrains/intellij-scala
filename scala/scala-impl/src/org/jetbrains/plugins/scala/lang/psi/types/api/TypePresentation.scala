@@ -81,7 +81,7 @@ trait TypePresentation {
         val str = e match {
           case c: PsiClass =>
             val qname = c.qualifiedName
-            if (qname == null || qname == c.name) c.name
+            if (qname == null || (!ScalaApplicationSettings.PRECISE_TEXT && qname == c.name)) c.name // SCL-21184
             else "_root_." + qname
           case p: PsiPackage =>
             "_root_." + p.getQualifiedName
