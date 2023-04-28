@@ -59,7 +59,8 @@ object EnumMembersInjector {
 
         s"$modifiers case class ${cse.name}$typeParamsText${cons.getText} extends $supersText"
       case None =>
-        s"$modifiers val ${cse.name}: $supersText = ???"
+        val separator = if (cse.name.lastOption.exists(c => !c.isLetterOrDigit && c != '`')) " " else ""
+        s"$modifiers val ${cse.name}$separator: $supersText = ???"
     }
   }
 
