@@ -102,12 +102,20 @@ object ScalaImportTypeFix {
 
     implicit val project: Project = ref.getProject
 
-    val kinds = ref.getKinds(incomplete = false) ++
-      Option.when(ref.isInScala3File)(ResolveTargets.CLASS) // SCL-19992
+    val kinds = ref.getKinds(incomplete = false)
     val manager = ScalaPsiManager.instance(project)
 
-    def kindMatchesAndIsAccessible(named: PsiNamedElement) = named match {
-      case member: PsiMember => kindMatches(member, kinds) && isAccessible(member, ref)
+    def enrichKinds(element: PsiNamedElement): Set[ResolveTargets.Value] =
+      if (!kinds.contains(ResolveTargets.OBJECT)) kinds
+      else element match {
+        case cls: ScClass if isCaseOrInScala3File(cls) =>
+          kinds + ResolveTargets.CLASS // SCL-19992, SCL-21187
+        case _: ScEnum => kinds + ResolveTargets.CLASS // SCL-20846
+        case _ => kinds
+      }
+
+    def kindMatchesAndIsAccessible(named: PsiNamedElement): Boolean = named match {
+      case member: PsiMember => kindMatches(member, enrichKinds(named)) && isAccessible(member, ref)
       case _ => false
     }
 
@@ -158,9 +166,12 @@ object ScalaImportTypeFix {
 
   private def hasApplyMethod(`class`: PsiClass): Boolean = `class` match {
     case `object`: ScObject => `object`.allFunctionsByName(ScFunction.CommonNames.Apply).nonEmpty
-    case cls: ScClass => cls.isInScala3File // SCL-19992
+    case cls: ScClass => isCaseOrInScala3File(cls) // SCL-19992, SCL-21187
     case _ => false
   }
+
+  private def isCaseOrInScala3File(cls: ScClass): Boolean =
+    cls.isCase || cls.isInScala3File
 
   private def importsWithPrefix(prefix: String)
                                (implicit project: Project) =

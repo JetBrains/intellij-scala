@@ -2,14 +2,50 @@ package org.jetbrains.plugins.scala.lang.autoImport
 
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.junit.runner.RunWith
 
-class Scala3ImportTypeFixTest extends ImportElementFixTestBase[ScReference] {
-
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
-
-  override def createFix(ref: ScReference) =
+abstract class ScalaImportTypeFixTestBase extends ImportElementFixTestBase[ScReference] {
+  override def createFix(ref: ScReference): Option[ScalaImportTypeFix] =
     Option(ref).map(ScalaImportTypeFix(_))
+}
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_0,
+))
+@RunWith(classOf[MultipleScalaVersionsRunner])
+class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
+  def testCaseClass(): Unit = {
+    val fileText =
+      s"""object Source {
+         |  case class Foo
+         |}
+         |
+         |object Target {
+         |  val foo = ${CARET}Foo()
+         |}
+         |""".stripMargin
+    val qNameToImport = "Source.Foo"
+
+    checkElementsToImport(
+      fileText,
+      qNameToImport
+    )
+
+    doTest(
+      fileText,
+      expectedText = s"import $qNameToImport\n\n${fileText.replace(CARET, "")}",
+      selected = qNameToImport
+    )
+  }
+}
+
+class Scala3ImportTypeFixTest extends ScalaImportTypeFixTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
 
   def testClass(): Unit = {
     val fileText =
