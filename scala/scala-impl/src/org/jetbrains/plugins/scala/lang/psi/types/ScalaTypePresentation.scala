@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 import scala.annotation.tailrec
 
@@ -154,7 +155,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           }
 
           named.map { typedDefinition =>
-            (if (typedDefinition.isVar) "var" else "val") + s" ${typedDefinition.name} : ${typeText0(substitutor(returnType))}"
+            (if (typedDefinition.isVar) "var" else "val") + s" ${typedDefinition.name}${if (typedDefinition.name.lastOption.exists(c => !c.isLetterOrDigit && c != '`')) " " else ""}: ${typeText0(substitutor(returnType))}"
           }
         case (_: String, signature: TypeAliasSignature) =>
           val alias = signature.typeAlias
@@ -167,7 +168,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         case _ => None
       }
 
-      val refinementText = if (declsTexts.isEmpty) Nil else Seq(declsTexts.mkString("{\n  ", "\n\n  ", "\n}"))
+      val refinementText = if (declsTexts.isEmpty) Nil else Seq(declsTexts.mkString("{ ", "; ", " }"))
 
       (componentsText ++ refinementText).mkString(" ")
     }
@@ -253,7 +254,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
     }
 
     def parameterizedTypeText(p: ParameterizedType)(printArgsFun: ScType => String): String = p match {
-      case ParameterizedType(InfixDesignator(op), Seq(left, right)) =>
+      case ParameterizedType(InfixDesignator(op), Seq(left, right)) if !ScalaApplicationSettings.PRECISE_TEXT => // SCL-21179
         infixTypeText(op, left, right, printArgsFun(_))
       case ParameterizedType(des, typeArgs) =>
         innerTypeText(des) + typeArgs.map(printArgsFun(_)).commaSeparated(model = Model.SquareBrackets)
@@ -283,10 +284,10 @@ trait ScalaTypePresentation extends api.TypePresentation {
       needDotType: Boolean = true,
       checkWildcard: Boolean = false
     ): String = t match {
-      case valType: ValType if options.renderValueTypes =>
-        valType.extractClass match {
+      case stdType: StdType if options.renderStdTypes =>
+        stdType.extractClass match {
           case Some(clazz) => nameRenderer.renderName(clazz)
-          case _           => nameRenderer.escapeName(valType.name)
+          case _           => nameRenderer.escapeName(stdType.name)
         }
       case namedType: NamedType => namedType.name
       case _: WildcardType => "?"
@@ -308,9 +309,9 @@ trait ScalaTypePresentation extends api.TypePresentation {
         }
 
         prefix + "this" + typeTail(needDotType)
-      case TupleType(comps) =>
+      case TupleType(comps) if !ScalaApplicationSettings.PRECISE_TEXT || !t.isAliasType => // SCL-21175
         comps match {
-          case Seq(head) => s"Tuple1[${innerTypeText(head)}]"
+          case Seq(head) => (if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) "_root_.scala." else "") + s"Tuple1[${innerTypeText(head)}]" // SCL-21183
           case _ => typesText(comps)
         }
       case ScDesignatorType(element) =>
@@ -324,7 +325,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         projectionTypeText(proj, needDotType)
       case p: ParameterizedType =>
         parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
-      case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
+      case JavaArrayType(argument) => (if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) "_root_.scala." else "") + s"Array[${innerTypeText(argument)}]" // SCL-21183
       case UndefinedType(tpt, _) => "NotInferred" + tpt.name
       case ScAndType(lhs, rhs) => innerTypeText(lhs) + " & " + innerTypeText(rhs)
       case ScOrType(lhs, rhs) => innerTypeText(lhs) + " | " + innerTypeText(rhs)

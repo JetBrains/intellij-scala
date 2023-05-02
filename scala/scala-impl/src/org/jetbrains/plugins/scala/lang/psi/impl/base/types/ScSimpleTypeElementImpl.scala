@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
 
@@ -44,10 +45,16 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   private def innerNonValueType(inferValueType: Boolean, noConstructor: Boolean = false, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult = {
     ProgressManager.checkCanceled()
 
-    def parametrise(tp: ScType, clazz: PsiClass): ScType =
+    def parametrise(tp: ScType, clazz: PsiTypeParameterListOwner): ScType =
       if (clazz.getTypeParameters.isEmpty) tp
       else
         ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_)).toSeq)
+
+    // SCL-21176
+    def parametrise1(tp: ScType, ta: ScTypeAliasDefinition): ScType =
+      if (ta.typeParameters.isEmpty) tp
+      else
+        ScParameterizedType(tp, ta.typeParameters.map(TypeParameterType(_)))
 
     def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) =
       constr match {
@@ -108,7 +115,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       val clazz = constr.containingClass
 
       val (constrTypeParameters, constrSubst) = parentElement match {
-        case _: ScTypeAliasDefinition => (Seq.empty, ScSubstitutor.empty)
+        case _: ScTypeAliasDefinition if !ScalaApplicationSettings.PRECISE_TEXT => (Seq.empty, ScSubstitutor.empty)
         case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
           constr match {
             case ScalaConstructor(c) =>
@@ -124,7 +131,9 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       val subst = _subst followed constrSubst
 
       val tp = parentElement match {
-        case ta: ScTypeAliasDefinition => ta.aliasedType.getOrElse(return Nothing)
+        case ta: ScTypeAliasDefinition =>
+          if (ScalaApplicationSettings.PRECISE_TEXT) parametrise1(calculateReferenceType(ref).getOrElse(return Nothing), ta)
+          else ta.aliasedType.getOrElse(return Nothing)
         case _ => parametrise(calculateReferenceType(ref).getOrElse(return Nothing), clazz)
       }
 
@@ -250,7 +259,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                                    p: ScParameterizedTypeElement): (ScType, ScSubstitutor) = {
           val tp = elem match {
             case ta: ScTypeAliasDefinition =>
-              ta.aliasedType.getOrElse(return (Nothing, ScSubstitutor.empty))
+              if (ScalaApplicationSettings.PRECISE_TEXT) parametrise1(calculateReferenceType(ref).getOrElse(return (Nothing, ScSubstitutor.empty)), ta)
+              else ta.aliasedType.getOrElse(return (Nothing, ScSubstitutor.empty))
             case clazz: PsiClass =>
               parametrise(calculateReferenceType(ref).
                 getOrElse(return (Nothing, ScSubstitutor.empty)), clazz)

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 import scala.language.implicitConversions
 
@@ -78,5 +79,7 @@ trait NamedType extends ScType {
 
   override def presentableText(implicit context: TypePresentationContext): String = name
 
-  override def canonicalText: String = name
+  override def canonicalText: String =
+    if (ScalaApplicationSettings.PRECISE_TEXT) super.canonicalText // #SCL-21178
+    else name
 }

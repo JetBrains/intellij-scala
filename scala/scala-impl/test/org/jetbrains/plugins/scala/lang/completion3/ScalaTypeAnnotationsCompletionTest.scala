@@ -76,18 +76,14 @@ class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionT
          |}
          |
          |object O {
-         |  val foo: Foo {
-         |    type X = Int
-         |  }$CARET = new Foo {
+         |  val foo: Foo {type X = Int}$CARET = new Foo {
          |    override type X = Int
          |
          |    def helper(x: X): Unit = ???
          |  }
          |}""".stripMargin,
     item =
-      s"""Foo {
-         |  type X = Int
-         |}""".stripMargin
+      s"""Foo { type X = Int }""".stripMargin
   )
 
   def testCompoundTypeWithMultipleTypeMembers(): Unit = doCompletionTest(
@@ -115,13 +111,7 @@ class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionT
          |}
          |
          |object O {
-         |  val foo: Foo {
-         |    type X = Int
-         |
-         |    type Y = String
-         |
-         |    type Z = Boolean
-         |  }$CARET = new Foo {
+         |  val foo: Foo {type X = Int; type Y = String; type Z = Boolean}$CARET = new Foo {
          |    override type X = Int
          |    override type Y = String
          |    override type Z = Boolean
@@ -130,13 +120,7 @@ class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionT
          |  }
          |}""".stripMargin,
     item =
-      s"""Foo {
-         |  type X = Int
-         |
-         |  type Y = String
-         |
-         |  type Z = Boolean
-         |}""".stripMargin
+      s"""Foo { type X = Int; type Y = String; type Z = Boolean }""".stripMargin
   )
 
   def testInfixType(): Unit = doCompletionTest(

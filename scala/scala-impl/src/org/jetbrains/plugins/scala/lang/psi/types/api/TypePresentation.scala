@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.NameRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 /**
  * TODO: move to presentation package
@@ -65,7 +66,7 @@ trait TypePresentation {
 
     val options = PresentationOptions(
       renderProjectionTypeName = true,
-      renderValueTypes = true,
+      renderStdTypes = true,
       renderInfixType = true
     )
     typeText(`type`, renderer, options)(context)
@@ -80,7 +81,7 @@ trait TypePresentation {
         val str = e match {
           case c: PsiClass =>
             val qname = c.qualifiedName
-            if (qname == null || qname == c.name) c.name
+            if (qname == null || (!ScalaApplicationSettings.PRECISE_TEXT && qname == c.name)) c.name // SCL-21184
             else "_root_." + qname
           case p: PsiPackage =>
             "_root_." + p.getQualifiedName
@@ -88,7 +89,7 @@ trait TypePresentation {
             e.nameContext match {
               case m: ScMember =>
                 m.containingClass match {
-                  case o: ScObject => nameFun(o, withPoint = true) + e.name
+                  case o: ScObject => (if (ScalaApplicationSettings.PRECISE_TEXT && o.isStatic) "_root_." else "") + nameFun(o, withPoint = true) + e.name // SCL-21182
                   case _ => e.name
                 }
               case _ => e.name
@@ -97,7 +98,7 @@ trait TypePresentation {
         removeKeywords(str) + pointStr(withPoint)
       }
     }
-    typeText(`type`, renderer, PresentationOptions.Default)(TypePresentationContext.emptyContext)
+    typeText(`type`, renderer, PresentationOptions(renderStdTypes = ScalaApplicationSettings.PRECISE_TEXT, canonicalForm = true))(TypePresentationContext.emptyContext)
   }
 }
 
@@ -117,8 +118,9 @@ object TypePresentation {
 
   case class PresentationOptions(
     renderProjectionTypeName: Boolean = false,
-    renderValueTypes: Boolean = false,
-    renderInfixType: Boolean = false
+    renderStdTypes: Boolean = false,
+    renderInfixType: Boolean = false,
+    canonicalForm: Boolean = false // Canonical renderer is sometimes not enough, SCL-21183
   )
   object PresentationOptions {
     val Default: PresentationOptions = PresentationOptions()
