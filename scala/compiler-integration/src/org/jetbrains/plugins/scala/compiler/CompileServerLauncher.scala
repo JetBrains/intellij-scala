@@ -199,7 +199,9 @@ object CompileServerLauncher {
             scalaCompileServerSystemDir.toFile.getCanonicalPath +:
             Nil
 
-        val builder = new ProcessBuilder(commands.asJava)
+        val builder = new GeneralCommandLine(commands.asJava)
+          .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
+          .toProcessBuilder
 
         val customWorkingDir = settings.CUSTOM_WORKING_DIR_FOR_TESTS
         if (customWorkingDir != null) {
