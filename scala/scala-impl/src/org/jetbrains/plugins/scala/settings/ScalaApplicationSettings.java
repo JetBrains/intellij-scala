@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase;
 
 @State(
@@ -85,6 +86,9 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean SUGGEST_AUTOBRACE_INSERTION = true;
 
   public boolean SUGGEST_LEGACY_IMPORT_LAYOUT = true;
+
+  @TestOnly
+  public transient boolean PRECISE_TEXT = false;
 
   @Override
   public ScalaApplicationSettings getState() {
