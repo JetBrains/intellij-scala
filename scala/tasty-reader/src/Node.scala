@@ -6,6 +6,8 @@ import dotty.tools.tasty.TastyFormat
 class Node(val addr: Addr, val tag: Int, val names: Seq[String], children0: () => Seq[Node]) {
   lazy val children: Seq[Node] = children0()
 
+  def firstChild: Node = children.head
+
   override def toString: String = toString(0)
 
   protected def toString(indent: Int): String =
