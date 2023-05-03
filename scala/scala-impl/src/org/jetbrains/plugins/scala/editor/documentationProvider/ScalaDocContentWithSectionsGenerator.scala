@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentW
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
@@ -49,9 +50,7 @@ private class ScalaDocContentWithSectionsGenerator(
     rendered
   )
 
-  def generate(
-    buffer: StringBuilder
-  ): Unit = {
+  def generate(buffer: StringBuilder): Unit = {
     val tags: Seq[ScDocTag] = comment.tags
 
     appendContentSection(buffer, tags)
@@ -63,6 +62,15 @@ private class ScalaDocContentWithSectionsGenerator(
       buffer.append(DocumentationMarkup.SECTIONS_END)
     }
   }
+
+  def generateForParam(buffer: StringBuilder, param: ScParameter): Unit =
+    comment.tags
+      .find(tag => tag.name == MyScaladocParsing.PARAM_TAG && tag.getValueElement.textMatches(param.name))
+      .foreach { tag =>
+        buffer.append(DocumentationMarkup.SECTIONS_START)
+        newContentGenerator.appendTagDescriptionText(buffer, tag)
+        buffer.append(DocumentationMarkup.SECTIONS_END)
+      }
 
   /**
    * @todo there are currently so much logic in different places to avoid adding `<p>` in the very beginning of Content

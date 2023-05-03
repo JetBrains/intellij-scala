@@ -10,19 +10,27 @@ import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScValueOrVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import java.net.URL
+import scala.annotation.tailrec
 import scala.util.Try
 
 object ScalaDocGenerator {
 
   private val Log = Logger.getInstance(this.getClass)
 
-  private final case class ActualComment(owner: PsiDocCommentOwner, comment: PsiDocComment, isInherited: Boolean)
+  private final case class ActualComment(
+    owner: PsiDocCommentOwner,
+    comment: PsiDocComment,
+    isInherited: Boolean,
+    focusOn: Option[ScParameter] = None
+  )
 
   // IDEA doesn't log exceptions occurred during doc rendering,
   // we would like to at least show them in internal mode, during development
@@ -89,31 +97,18 @@ object ScalaDocGenerator {
 
   private def generateDocContent(builder: StringBuilder, e: PsiElement): Unit =
     for {
-      commentOwner  <- getCommentOwner(e)
-      actualComment <- findActualComment(commentOwner)
+      (commentOwner, param)  <- getCommentOwner(e)
+      actualComment          <- findActualComment(commentOwner, param)
     } yield generateDocComment(builder, actualComment)
-
-  private def getCommentOwner(e: PsiElement): Option[PsiDocCommentOwner] =
-    e match {
-      case typeDef: ScTypeDefinition => Some(typeDef)
-      case fun: ScFunction           => Some(fun)
-      case tpe: ScTypeAlias          => Some(tpe)
-      case decl: ScValueOrVariable   => Some(decl)
-      case pattern: ScBindingPattern =>
-        pattern.nameContext match {
-          case (definition: ScValueOrVariable) & (_: ScPatternDefinition | _: ScVariableDefinition) =>
-            Some(definition)
-          case _ => None
-        }
-      case _ => None
-    }
 
   private def generateDocComment(builder: StringBuilder, actualComment: ActualComment): Unit = {
     if (actualComment.isInherited)
       builder.append(inheritedDisclaimer(actualComment.owner.containingClass))
 
     actualComment match {
-      case ActualComment(scalaOwner: ScDocCommentOwner, scalaDoc: ScDocComment, _) =>
+      case ActualComment(scalaOwner: ScDocCommentOwner, scalaDoc: ScDocComment, _, Some(param)) =>
+        new ScalaDocContentWithSectionsGenerator(scalaOwner, scalaDoc, rendered = false).generateForParam(builder, param)
+      case ActualComment(scalaOwner: ScDocCommentOwner, scalaDoc: ScDocComment, _, None) =>
         new ScalaDocContentWithSectionsGenerator(scalaOwner, scalaDoc, rendered = false).generate(builder)
       case _ =>
         val javadocContent = ScalaDocUtil.generateJavaDocInfoContentWithSections(actualComment.owner)
@@ -121,15 +116,39 @@ object ScalaDocGenerator {
     }
   }
 
-  private def findActualComment(docOwner: PsiDocCommentOwner): Option[ActualComment] =
+  private def getCommentOwner(e: PsiElement): Option[(PsiDocCommentOwner, Option[ScParameter])] = {
+    @tailrec
+    def findDocOwner(e: PsiElement): Option[PsiDocCommentOwner] =
+      e match {
+        case pattern: ScBindingPattern =>
+          pattern.nameContext match {
+            case (definition: ScValueOrVariable) & (_: ScPatternDefinition | _: ScVariableDefinition) => Some(definition)
+            case _ => None
+          }
+        case owner: PsiDocCommentOwner if owner.getDocComment != null => Some(owner)
+        case typ: ScTypeDefinition => Some(typ)
+        case fun: ScFunction => Some(fun)
+        case ta: ScTypeAlias => Some(ta)
+        case v: ScValueOrVariable => Some(v)
+        case elem: ScalaPsiElement => findDocOwner(elem.getParent)
+        case _ => None
+      }
+
+    e match {
+      case param: ScParameter => findDocOwner(param.getParent).map((_, Some(param)))
+      case _ => findDocOwner(e).map((_, None))
+    }
+  }
+
+  private def findActualComment(docOwner: PsiDocCommentOwner, param: Option[ScParameter]): Option[ActualComment] =
     docOwner.getDocComment match {
       case null =>
         findSuperElementWithDocComment(docOwner) match {
-          case Some((base, baseComment)) => Some(ActualComment(base, baseComment, isInherited = true))
+          case Some((base, baseComment)) => Some(ActualComment(base, baseComment, isInherited = true, param))
           case _ => None
         }
-      case docComment =>
-        Some(ActualComment(docOwner, docComment, isInherited = false))
+      case docComment: PsiDocComment =>
+        Some(ActualComment(docOwner, docComment, isInherited = false, param))
     }
 
   private def findSuperElementWithDocComment(docOwner: PsiDocCommentOwner): Option[(PsiDocCommentOwner, PsiDocComment)] =
