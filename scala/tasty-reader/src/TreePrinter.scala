@@ -272,7 +272,8 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       // Is there a more reliable way to determine whether self type refers to the same type definition?
       case Some(Node3(SELFDEF, Seq(name), Seq(tail))) if !definition.exists(_.contains(OBJECT)) &&
         definition.forall(it => !tail.refName.contains(it.name) && !tail.children.headOption.exists(_.refName.contains(it.name))) =>
-        " " + (if (name == "_") "this" else name) + ": " + simple(textOfType(tail, parens = 1)) + " =>"
+        val isWith = (tail.is(APPLIEDtpt) || tail.is(APPLIEDtype)) && !tail.firstChild.is(IDENTtpt) && textOfType(tail.firstChild) == "_root_.scala.&"
+        " " + (if (name == "_") "this" else name) + ": " + simple(textOfType(tail, parens = if (isWith) 0 else 1)) + " =>"
       case _ => ""
     }
     val members = {
