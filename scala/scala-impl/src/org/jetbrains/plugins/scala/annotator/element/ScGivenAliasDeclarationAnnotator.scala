@@ -96,7 +96,7 @@ private[element] final class NameAnonymousAbstractGivenFix(declaration: ScGivenA
     val validator = new ScalaVariableValidator(declaration, false, declContext, declContext)
     val suggestedNames =
       NameSuggester.suggestNames(declaration, validator)
-        .pipeIf(_ => ApplicationManager.getApplication.isUnitTestMode)(_.sorted.reverse)
+        .pipeIf(ApplicationManager.getApplication.isUnitTestMode)(_.sorted.reverse)
     val firstName = suggestedNames.head
 
     editor.getDocument.insertString(declaration.typeElement.getTextRange.getStartOffset, firstName + ": ")

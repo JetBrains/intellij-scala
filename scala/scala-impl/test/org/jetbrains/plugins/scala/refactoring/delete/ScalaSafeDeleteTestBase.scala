@@ -30,7 +30,7 @@ abstract class ScalaSafeDeleteTestBase extends ScalaLightCodeInsightFixtureTestC
                        fileType: String = "scala",
                        expectedUnsafeDeletions: Int = 0,
                        wrapTextInClass: Boolean = true): Unit = {
-    configureFromFileTextWithSomeName(fileType, text.pipeIf(_ => wrapTextInClass)(wrapText))
+    configureFromFileTextWithSomeName(fileType, text.pipeIf(wrapTextInClass)(wrapText))
 
     val foundNotSafeToDeletes = notSafeToDeletesIn {
       val element = myFixture.getElementAtCaret
@@ -39,7 +39,7 @@ abstract class ScalaSafeDeleteTestBase extends ScalaLightCodeInsightFixtureTestC
       )
     }
 
-    getFile.getText shouldBe expectedResult.pipeIf(_ => wrapTextInClass)(wrapText)
+    getFile.getText shouldBe expectedResult.pipeIf(wrapTextInClass)(wrapText)
     foundNotSafeToDeletes shouldBe expectedUnsafeDeletions
   }
 
