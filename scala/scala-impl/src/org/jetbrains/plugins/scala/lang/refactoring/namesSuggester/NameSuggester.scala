@@ -2,12 +2,15 @@ package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester
 
 import com.intellij.openapi.util.text.{LiteralNameSuggester, StringUtil}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScGivenAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.{GenericTypeNamesProvider, TypePluralNamesProvider}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaTypeValidator, ScalaValidator, ScalaVariableValidator}
@@ -19,13 +22,18 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 
 object NameSuggester {
 
-  private val DefaultName = "value"
+  private type TypeableScalaPsiElement = ScalaPsiElement with Typeable
 
-  def suggestNames(expression: ScExpression, validator: ScalaVariableValidator = ScalaVariableValidator.empty): ArraySeq[String] =
-    suggestNames(expression, validator, collectTypes(expression))
+  private val DefaultName = "value"
 
   def suggestNames(expression: ScExpression, validator: ScalaVariableValidator, types: Seq[ScType]): ArraySeq[String] =
     collectNames(namesByExpression(expression, types), validator)
+
+  def suggestNames(element: TypeableScalaPsiElement, validator: ScalaVariableValidator = ScalaVariableValidator.empty): ArraySeq[String] =
+    element match {
+      case expr: ScExpression => suggestNames(expr, validator, collectTypes(expr))
+      case _ => collectNames(namesByTypeableElement(element), validator)
+    }
 
   private def collectTypes(expression: ScExpression): Seq[ScType] = {
     val types = expression.`type`().toOption ++
@@ -121,6 +129,13 @@ object NameSuggester {
           .flatMap(_.names(genericType))
       case _ => Seq.empty
     }
+  }
+
+  private def namesByTypeableElement(typed: TypeableScalaPsiElement): Seq[String] = {
+    val maybeName = typed.asOptionOf[ScGivenAliasDeclaration]
+      .map(decl => ScGiven.generateAnonymousGivenName(decl.typeElement))
+
+    maybeName.toSeq ++ namesByTypes(typed.`type`().toSeq)
   }
 
   private def namesByExpression(expression: ScExpression): Seq[String] =

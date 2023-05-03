@@ -4,7 +4,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.ResolvesTo
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator}
@@ -36,7 +36,7 @@ class ScalaVariableValidator(selectedElement: PsiElement, noOccurrences: Boolean
     builder ++= validateDown(container, name, allOcc)
     builder ++= validateReference(selectedElement, name)
     var cl = container
-    while (cl != null && !cl.isInstanceOf[ScTypeDefinition]) cl = cl.getParent
+    while (cl != null && !cl.is[ScTypeDefinition]) cl = cl.getParent
     if (cl != null) {
       cl match {
         case x: ScTypeDefinition =>
@@ -50,7 +50,7 @@ class ScalaVariableValidator(selectedElement: PsiElement, noOccurrences: Boolean
             }
           }
           for (function <- x.functions; if function.name == name) {
-            builder += ((x, messageForMember(function.name)))
+            builder += ((function, messageForMember(function.name)))
           }
           x match {
             case scClass: ScClass =>
