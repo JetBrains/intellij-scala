@@ -1,19 +1,12 @@
 package org.jetbrains.plugins.scala.text
 
-import com.intellij.psi.PsiPackage
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, ScalaReflectLibraryLoader}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
+import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaReflectLibraryLoader
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
-import org.junit.Assert
 
-// SCL-21078
-class TextToTextTest extends ScalaFixtureTestCase {
-  private val Dependencies = Seq(
-    "com.typesafe.akka" %% "akka-actor" % "2.7.0",
+class TextToTextTest2 extends TextToTextTestBase {
+  override protected val dependencies = Seq(
+    "com.typesafe.akka" %%  "akka-actor" % "2.7.0",
     "com.typesafe.akka" %% "akka-http-core" % "10.5.0",
     "com.typesafe.akka" %% "akka-http" % "10.5.0",
     "com.typesafe.akka" %% "akka-parsing" % "10.5.0",
@@ -34,10 +27,9 @@ class TextToTextTest extends ScalaFixtureTestCase {
 
     "dev.zio" %% "zio" % "2.0.2",
     "dev.zio" %% "zio-streams" % "2.0.2",
-    "org.scala-lang" % "scala-reflect" % "2.13.10"
   )
 
-  private val Packages = Seq(
+  override protected val packages = Seq(
     "akka",
     "cats",
     "fs2",
@@ -46,11 +38,11 @@ class TextToTextTest extends ScalaFixtureTestCase {
     "zio",
   )
 
-  private val PackageExceptions = Set(
+  override protected val packageExceptions = Set(
     "akka.stream"
   )
 
-  private val ClassExceptions = Set(
+  override protected val classExceptions = Set(
     "akka.actor.SupervisorStrategy",
     "akka.actor.Terminated",
     "akka.actor.TypedActor",
@@ -76,7 +68,6 @@ class TextToTextTest extends ScalaFixtureTestCase {
     "akka.io.UdpConnected",
     "akka.pattern.BackoffSupervisor",
     "akka.serialization.SerializationExtension",
-    "akka.stream.",
 
     "cats.arrow.FunctionKMacros",
     "cats.arrow.FunctionKMacroMethods",
@@ -114,83 +105,11 @@ class TextToTextTest extends ScalaFixtureTestCase {
     "zio.VersionSpecific",
   )
 
+  override protected val minClassCount: Int = 5500
+
   override protected def supportedIn(version: ScalaVersion) =
     version >= LatestScalaVersions.Scala_2_13
 
   override def librariesLoaders =
-    super.librariesLoaders :+ ScalaReflectLibraryLoader :+ IvyManagedLoader(Dependencies: _*)
-
-  def testTextToText(): Unit = {
-    try {
-      ScalaApplicationSettings.PRECISE_TEXT = true
-      doTestTextToText()
-    } finally {
-      ScalaApplicationSettings.PRECISE_TEXT = false
-    }
-  }
-
-  private def doTestTextToText(): Unit = {
-    val manager = ScalaPsiManager.instance(getProject)
-
-    println("Collecting classes...")
-
-    val classes = Packages
-      .map(name => manager.getCachedPackage(name).getOrElse(throw new AssertionError(name)))
-      .flatMap(pkg => classesIn(pkg, PackageExceptions))
-
-    val total = classes.length
-
-    Assert.assertTrue(total.toString, total > 5500)
-
-    println(s"Testing $total classes:")
-
-    classes.zipWithIndex.foreach { case (cls, i) =>
-      println(f"$i%04d/$total%s: ${cls.qualifiedName}")
-
-      val expected = {
-        val s1 = cls.getContainingFile.getText
-        // TODO Function type by-name parameters, SCL-21149
-        val s2 = if (cls.qualifiedName.startsWith("scalaz.")) s1.replace("(=> ", "(").replace(", => ", ", ").replaceAll("\\((\\S+)\\) => ", "$1 => ") else s1
-        s2.replaceAll("\\.super\\[.*?\\*/\\]\\.", ".this.")
-      }
-
-      val actual = textOfCompilationUnit(cls)
-
-      if (!ClassExceptions(cls.qualifiedName)) {
-        Assert.assertEquals(cls.qualifiedName, expected, actual)
-      } else {
-        Assert.assertFalse(cls.qualifiedName, expected == actual)
-      }
-    }
-
-    println("Done.")
-  }
-
-  private def classesIn(pkg: PsiPackage, exceptions: Set[String]): Seq[ScTypeDefinition] = {
-    val packageClasses = pkg.getClasses
-      .collect({case c: ScTypeDefinition if c.isInCompiledFile && !(c.isInstanceOf[ScObject] && c.baseCompanion.isDefined) => c})
-      .sortBy(_.qualifiedName)
-
-    val subpackageClasses = pkg.getSubPackages
-      .filter(pkg => !exceptions(pkg.getQualifiedName))
-      .sortBy(_.getQualifiedName)
-      .flatMap(classesIn(_, exceptions))
-
-    packageClasses.toSeq ++ subpackageClasses.toSeq
-  }
-
-  private def textOfCompilationUnit(cls: ScTypeDefinition): String = {
-    val sb = new StringBuilder()
-
-    sb ++= "package " + cls.qualifiedName.substring(0, cls.qualifiedName.lastIndexOf('.')) + "\n"
-
-    ClassPrinter.printTo(sb, cls)
-    cls.baseCompanion.foreach { obj =>
-      ClassPrinter.printTo(sb, obj)
-    }
-
-    sb.setLength(sb.length - 1)
-
-    sb.toString
-  }
+    super.librariesLoaders :+ ScalaReflectLibraryLoader
 }
