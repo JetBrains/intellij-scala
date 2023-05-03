@@ -7,6 +7,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.compiler.CompileServerNotificationsService
+import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaHighlightingMode}
 
@@ -33,15 +34,19 @@ private final class ToggleHighlightingModeListener extends ProjectManagerListene
   
   private def compileOrEraseHighlightings(project: Project): Unit =
     DumbService.getInstance(project).runWhenSmart { () =>
-      if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-        AnnotatorHints.clearIn(project)
-      } else {
-        ExternalHighlighters.eraseAllHighlightings(project)
+      executeOnPooledThread {
+        if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+          inReadAction(AnnotatorHints.clearIn(project))
+        } else {
+          ExternalHighlighters.eraseAllHighlightings(project)
+        }
+        // TODO: we should ensure that we do not do this if the project wasn't highlighted with compiler at all,
+        //  e.g. for Scala 2 projects where it's disabled by default
+        invokeLater {
+          forceStandardHighlighting(project)
+          CompileServerNotificationsService.get(project).resetNotifications()
+        }
       }
-      // TODO: we should ensure that we do not do this if the project wasn't highlighted with compiler at all,
-      //  e.g. for Scala 2 projects where it's disabled by default
-      forceStandardHighlighting(project)
-      CompileServerNotificationsService.get(project).resetNotifications()
     }
   
   private def forceStandardHighlighting(project: Project): Unit = {
