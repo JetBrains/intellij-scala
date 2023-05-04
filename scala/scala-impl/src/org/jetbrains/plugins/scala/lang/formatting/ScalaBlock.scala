@@ -6,6 +6,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions.{&, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.{isConstructorArgOrMemberFunctionParameter, shouldIndentAfterCaseClause}
@@ -35,9 +36,9 @@ import scala.jdk.CollectionConverters._
 class ScalaBlock(val parentBlock: ScalaBlock,
                  val node: ASTNode,
                  val lastNode: ASTNode,
-                 val alignment: Alignment,
-                 val indent: Indent,
-                 val wrap: Wrap,
+                 @Nullable val alignment: Alignment,
+                 @Nullable val indent: Indent,
+                 @Nullable val wrap: Wrap,
                  val settings: CodeStyleSettings,
                  val subBlocksContext: Option[SubBlocksContext] = None)
   extends ASTBlock with ScalaTokenTypes {
@@ -52,11 +53,11 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     if (lastNode == null) node.getTextRange
     else new TextRange(node.getTextRange.getStartOffset, lastNode.getTextRange.getEndOffset)
 
-  override def getIndent: Indent = indent
+  @Nullable override def getIndent: Indent = indent
 
-  override def getWrap: Wrap = wrap
+  @Nullable override def getWrap: Wrap = wrap
 
-  override def getAlignment: Alignment = alignment
+  @Nullable override def getAlignment: Alignment = alignment
 
   override def isLeaf: Boolean = isLeaf(node)
 
