@@ -1,42 +1,40 @@
-scala.util.Properties.versionString
-
 // expression kind
-"""value: %d""".format("""123""") // call format
-"""value: %d""" format """123""" //  infix format
-"""123""".formatted("""%d""") // call formatted
-"""123""" formatted """%d""" // infix formatted
-String.format("""%d""", """123""") // java call format
-String format("""%d""", """123""") // java infix format
-printf("""%d""", """123""") // printf
-System.out.printf("""%d""", """123""") // System.out.printf
+"""value: %d""".format("""1""") // call format
+"""value: %d""" format """2""" //  infix format
+3.formatted("""%f""") // call formatted
+4 formatted """%f""" // infix formatted
+String.format("""%d""", """5""") // java call format
+String format("""%d""", """6""") // java infix format
+printf("""%d""", """7""") // printf
+System.out.printf("""%d""", """8""") // System.out.printf
 
 // warning for kind
 """value: %d""".format() // no argument
 """value: %1$d""".format() // no positional argument
-"""value: %d""".format("""123""") // inconvertible type 1
-"""value: %f""".format(123) // inconvertible type 2
-"""value: """.format(123) // unused argument
+"""value: %d""".format("""9""") // inconvertible type 1
+"""value: %f""".format(10) // inconvertible type 2
+"""value: """.format(11) // unused argument
 -----
-WARNING (66, 68) Format specifier %d cannot be used for an argument """123""" (String)
-WARNING (79, 88) Argument """123""" (String) cannot be used for a format specifier %d
-WARNING (115, 117) Format specifier %d cannot be used for an argument """123""" (String)
-WARNING (128, 137) Argument """123""" (String) cannot be used for a format specifier %d
-WARNING (155, 164) Argument """123""" (String) cannot be used for a format specifier %d
-WARNING (178, 180) Format specifier %d cannot be used for an argument """123""" (String)
-WARNING (203, 212) Argument """123""" (String) cannot be used for a format specifier %d
-WARNING (226, 228) Format specifier %d cannot be used for an argument """123""" (String)
-WARNING (268, 270) Format specifier %d cannot be used for an argument """123""" (String)
-WARNING (275, 284) Argument """123""" (String) cannot be used for a format specifier %d
-WARNING (323, 325) Format specifier %d cannot be used for an argument """123""" (String)
-WARNING (330, 339) Argument """123""" (String) cannot be used for a format specifier %d
-WARNING (372, 374) Format specifier %d cannot be used for an argument """123""" (String)
-WARNING (379, 388) Argument """123""" (String) cannot be used for a format specifier %d
-WARNING (421, 423) Format specifier %d cannot be used for an argument """123""" (String)
-WARNING (428, 437) Argument """123""" (String) cannot be used for a format specifier %d
-WARNING (491, 493) No argument for a format specifier %d
-WARNING (531, 535) No argument at position 1
-WARNING (584, 586) Format specifier %d cannot be used for an argument """123""" (String)
-WARNING (597, 606) Argument """123""" (String) cannot be used for a format specifier %d
-WARNING (642, 644) Format specifier %f cannot be used for an argument 123 (Int)
-WARNING (655, 658) Argument 123 (Int) cannot be used for a format specifier %f
-WARNING NOT_USED_ELEMENT_ATTRIBUTES (705, 708) No format specifier for an argument 123
+WARNING (29, 31) Format specifier %d cannot be used for an argument """1""" (String)
+WARNING (42, 49) Argument """1""" (String) cannot be used for a format specifier %d
+WARNING (76, 78) Format specifier %d cannot be used for an argument """2""" (String)
+WARNING (89, 96) Argument """2""" (String) cannot be used for a format specifier %d
+WARNING (114, 115) Argument 3 (Int) cannot be used for a format specifier %f
+WARNING (129, 131) Format specifier %f cannot be used for an argument 3 (Int)
+WARNING (154, 155) Argument 4 (Int) cannot be used for a format specifier %f
+WARNING (169, 171) Format specifier %f cannot be used for an argument 4 (Int)
+WARNING (211, 213) Format specifier %d cannot be used for an argument """5""" (String)
+WARNING (218, 225) Argument """5""" (String) cannot be used for a format specifier %d
+WARNING (264, 266) Format specifier %d cannot be used for an argument """6""" (String)
+WARNING (271, 278) Argument """6""" (String) cannot be used for a format specifier %d
+WARNING (311, 313) Format specifier %d cannot be used for an argument """7""" (String)
+WARNING (318, 325) Argument """7""" (String) cannot be used for a format specifier %d
+WARNING (358, 360) Format specifier %d cannot be used for an argument """8""" (String)
+WARNING (365, 372) Argument """8""" (String) cannot be used for a format specifier %d
+WARNING (426, 428) No argument for a format specifier %d
+WARNING (466, 470) No argument at position 1
+WARNING (519, 521) Format specifier %d cannot be used for an argument """9""" (String)
+WARNING (532, 539) Argument """9""" (String) cannot be used for a format specifier %d
+WARNING (575, 577) Format specifier %f cannot be used for an argument 10 (Int)
+WARNING (588, 590) Argument 10 (Int) cannot be used for a format specifier %f
+WARNING NOT_USED_ELEMENT_ATTRIBUTES (637, 639) No format specifier for an argument 11
