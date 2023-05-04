@@ -1,34 +1,67 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import com.intellij.psi.PsiClass
+import com.intellij.openapi.editor.colors.{EditorColorsManager, TextAttributesKey}
+import com.intellij.openapi.editor.richcopy.HtmlSyntaxInfoUtil
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
-
+import org.jetbrains.plugins.scala.highlighter.{DefaultHighlighter, ScalaColorsSchemeUtils}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 /**
  * @see [[com.intellij.codeInsight.documentation.DocumentationManagerProtocol]]
  * @see [[com.intellij.codeInsight.documentation.DocumentationManagerUtil]]
  * @define anonymousClassNote None if the class is anonymous.
  */
 object HtmlPsiUtils {
-
-  def psiElementLink(fqn: String, label: String, escapeLabel: Boolean = true): String = {
-    val href           = psiElementHref(fqn)
-    val escapedContent = if (escapeLabel) StringEscapeUtils.escapeHtml(label) else label
-    val contentWrapped = s"""<code>$escapedContent</code>"""
-    s"""<a href="$href">$contentWrapped</a>"""
+  def psiElement(element: PsiElement, label: Option[String] = None, escapeLabel: Boolean = true): String = {
+    val text = label.getOrElse(element.getText)
+    val escapedContent = if (escapeLabel) StringEscapeUtils.escapeHtml(text) else text
+    ScalaColorsSchemeUtils.highlightElement(element) match {
+      case (Some(key), _) => withStyledSpan(escapedContent, key)
+      case _              => escapedContent
+    }
   }
 
-  def psiElementHref(fqn: String): String =
-    s"psi_element://${StringEscapeUtils.escapeHtml(fqn)}"
-
-  def classLink(clazz: PsiClass): String =
-    psiElementLink(clazz.qualifiedName, clazz.name)
+  def classLink(clazz: PsiClass, defLinkHighlight: Boolean = true): String =
+    classLinkWithLabel(clazz, clazz.name, defLinkHighlight)
 
   /** @return link to the `clazz` psi element with a short class name. <br>$anonymousClassNote */
-  def classLinkSafe(clazz: PsiClass): Option[String] =
-    Option(clazz.qualifiedName).map(psiElementLink(_, clazz.name))
+  def classLinkSafe(clazz: PsiClass, defLinkHighlight: Boolean = true): Option[String] =
+    Option(clazz.qualifiedName).map(_ => classLinkWithLabel(clazz, clazz.name, defLinkHighlight))
 
   /** @return link to the `clazz` psi element with a full qualified class name. <br>$anonymousClassNote */
-  def classFullLinkSafe(clazz: PsiClass): Option[String] =
-    Option(clazz.qualifiedName).map(qn => psiElementLink(qn, qn))
+  def classFullLinkSafe(clazz: PsiClass, defLinkHighlight: Boolean = true): Option[String] =
+    Option(clazz.qualifiedName).map(qn => classLinkWithLabel(clazz, qn, defLinkHighlight))
+
+  private def classLinkWithLabel(clazz: PsiClass, label: String, defLinkHighlight: Boolean): String = {
+    val attributesKey =
+      if (defLinkHighlight) None
+      else Some(ScalaColorsSchemeUtils.textAttributesKey(clazz))
+    psiElementLink(clazz.qualifiedName, label, attributesKey = attributesKey)
+  }
+
+  def psiElementLink(fqn: String, label: String, escapeLabel: Boolean = true, attributesKey: Option[TextAttributesKey] = None): String = {
+    val href = psiElementHref(fqn)
+    val escapedContent = if (escapeLabel) StringEscapeUtils.escapeHtml(label) else label
+    val link = s"""<a href="$href"><code>$escapedContent</code></a>"""
+    attributesKey.fold(link) { withStyledSpan(link, _) }
+  }
+
+  def annotationLink(annotation: ScAnnotation): String = {
+    val label = annotation.annotationExpr.getText.takeWhile(_ != '(')
+    val href = psiElementHref(label)
+    val escapedContent = StringEscapeUtils.escapeHtml("@" + label)
+    val link = s"""<a href="$href"><code>$escapedContent</code></a>"""
+    withStyledSpan(link, DefaultHighlighter.ANNOTATION)
+  }
+
+  private def withStyledSpan(text: String, attributesKey: TextAttributesKey): String =
+    HtmlSyntaxInfoUtil.appendStyledSpan(
+      new java.lang.StringBuilder,
+      EditorColorsManager.getInstance.getGlobalScheme.getAttributes(attributesKey),
+      text,
+      1.0f
+    ).toString
+
+  private def psiElementHref(fqn: String): String = s"psi_element://${StringEscapeUtils.escapeHtml(fqn)}"
 }

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage}
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNamedElementExt, childOf}
+import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
@@ -56,9 +57,12 @@ trait TypePresentation {
         val res = e match {
           case o: ScObject if withPoint && isPredefined(o) => ""
           case _: PsiPackage if withPoint                  => ""
-          case clazz: PsiClass                             => classLinkSafe(clazz).getOrElse(escapeName(clazz.name))
-          case a: ScTypeAlias                              => a.qualifiedNameOpt.fold(escapeHtml(e.name))(psiElementLink(_, e.name))
-          case _                                           => escapeName(e.name)
+          case clazz: PsiClass                             =>
+            classLinkSafe(clazz, defLinkHighlight = false).getOrElse(escapeName(clazz.name))
+          case a: ScTypeAlias                              =>
+            a.qualifiedNameOpt.fold(escapeHtml(e.name))(psiElementLink(_, e.name, attributesKey = Some(DefaultHighlighter.TYPE_ALIAS)))
+          case _                                           =>
+            psiElement(e, Some(e.name))
         }
         res + pointStr(withPoint && res.nonEmpty)
       }
@@ -122,6 +126,7 @@ object TypePresentation {
     renderInfixType: Boolean = false,
     canonicalForm: Boolean = false // Canonical renderer is sometimes not enough, SCL-21183
   )
+
   object PresentationOptions {
     val Default: PresentationOptions = PresentationOptions()
   }

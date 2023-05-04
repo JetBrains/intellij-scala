@@ -4,7 +4,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{ContextBoundInfo, inNameContext}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -159,7 +159,7 @@ object ScalaDocQuickInfoGenerator {
     if (!member.getParent.getParent.getParent.isInstanceOf[ScTypeDefinition]) return ""
     val clazz = member.containingClass
     // TODO: should we remove [] from getLocationString (see renderClassHeader and unify)
-    HtmlPsiUtils.classLink(clazz) + " " + clazz.getPresentation.getLocationString + "\n"
+    HtmlPsiUtils.classLink(clazz, defLinkHighlight = false) + " " + clazz.getPresentation.getLocationString + "\n"
   }
 
   /**

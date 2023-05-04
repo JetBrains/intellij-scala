@@ -5,22 +5,21 @@ import com.intellij.psi._
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
-import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TextEscaper.Html
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ScalaDocDefinitionGenerator {
@@ -65,11 +64,8 @@ private class ScalaDocDefinitionGenerator private(
   }
 
   private def appendContainingClass(elem: ScMember): Unit =
-    containingClassHyperLink(elem) match {
-      case Some(psiLink) =>
-        builder.append(psiLink)
-        builder.append("\n")
-      case _ =>
+    containingClassHyperLink(elem).foreach { psiLink =>
+      builder.append(psiLink).append("<br/>\n")
     }
 
   private def appendDeclMainSection(element: PsiElement): Unit =
@@ -81,47 +77,42 @@ private class ScalaDocDefinitionGenerator private(
     element match {
       case an: ScAnnotationsHolder =>
         val annotationsRendered = annotationsRenderer.renderAnnotations(an)
-        append(annotationsRendered)
+        if (annotationsRendered.nonEmpty) append(annotationsRendered)
       case _ =>
     }
-
-    //        val start = length
 
     element match {
       case m: ScModifierListOwner =>
-        val renderer = new ModifiersRenderer(new AccessModifierRenderer(AccessQualifierRenderer.WithHtmlPsiLink))
-        append(renderer.render(m))
+        val modifiersRendered = modifiersRenderer.render(m)
+        if (modifiersRendered.nonEmpty) builder.appendKeyword(modifiersRendered)
       case _ =>
     }
 
-    append(ScalaDocumentationUtils.getKeyword(keywordOwner))
+    val keyword = ScalaDocumentationUtils.getKeyword(keywordOwner)
+    if (keyword.nonEmpty) builder.appendKeyword(keyword).append(" ")
 
-    builder.b {
-      append(element match {
-        case named: ScNamedElement => escapeHtml(named.name)
-        case value: ScValueOrVariable => escapeHtml(value.declaredNames.head) // TODO
-        case _ => "_"
-      })
-    }
+    append(element match {
+      case named: ScNamedElement => escapeHtml(named.name)
+      case value: ScValueOrVariable if value.declaredNames.nonEmpty => escapeHtml(value.declaredNames.head) // TODO
+      case _ => "_"
+    })
 
     element match {
       case tpeParamOwner: ScTypeParametersOwner =>
-        val renderer = new TypeParamsRenderer(typeRenderer, new TypeBoundsRenderer(Html))
-        append(renderer.renderParams(tpeParamOwner))
+        val renderedTypeParams = typeParamsRenderer.renderParams(tpeParamOwner)
+        if (renderedTypeParams.nonEmpty) builder.appendKeyword(renderedTypeParams)
       case _ =>
     }
 
     element match {
       case params: ScParameterOwner =>
-        val renderer = definitionParamsRenderer(typeRenderer)
         // TODO: since SCL-13777 spaces are effectively not used! cause we remove all new lines and spaces after rendering
         //  review SCL-13777, maybe we should improve formatting of large classes
         //val spaces = length - start - 7
-        val paramsRendered = renderer.renderClauses(params).replaceAll("\n\\s*", "")
-        append(paramsRendered)
+        val paramsRendered = definitionParamsRenderer.renderClauses(params).replaceAll("\n\\s*", "")
+        if (paramsRendered.nonEmpty) append(paramsRendered)
       case _ =>
     }
-
 
     val typeAnnotation = element match {
       case _: ScObject              => "" // ignore, object doesn't need type annotation
@@ -129,15 +120,17 @@ private class ScalaDocDefinitionGenerator private(
       case typed: ScValueOrVariable => typeAnnotationRenderer.render(typed)
       case _                        => ""
     }
-    append(typeAnnotation)
+    if (typeAnnotation.nonEmpty) append(typeAnnotation)
   }
 
   private def appendTypeDef(typedef: ScTypeDefinition): Unit =
     appendDefinitionSection {
       val path = typedef.getPath
       if (path.nonEmpty) {
-        builder.append(path)
-        builder.append("\n")
+        builder
+          .append("<icon src=\"AllIcons.Nodes.Package\"/> ")
+          .append(HtmlPsiUtils.psiElementLink(path, path))
+          .append("<br/>\n")
       }
       appendDeclMainSection(typedef)
       val extendsListRendered = parseExtendsBlock(typedef.extendsBlock)
@@ -198,32 +191,20 @@ private class ScalaDocDefinitionGenerator private(
 
   // UTILS
 
-  private def containingClassHyperLink(elem: ScMember): Option[String] = {
-    val clazz = elem.containingClass
-    if (clazz == null) None
-    else HtmlPsiUtils.classFullLinkSafe(clazz)
-  }
+  private def containingClassHyperLink(elem: ScMember): Option[String] =
+    Option(elem.containingClass).flatMap(HtmlPsiUtils.classFullLinkSafe(_, defLinkHighlight = true))
 
   private def typeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
     new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll)
 
-  private def annotationsRenderer(implicit typeRenderer: TypeRenderer): AnnotationsRendererLike =
-    new AnnotationsRenderer(typeRenderer, "\n", TextEscaper.Html) {
-      override def shouldSkipArguments(annotationType: ScType, arguments: Seq[ScExpression]): Boolean =
-        arguments.isEmpty || isThrowsAnnotationConstructor(annotationType, arguments)
+  private lazy val annotationsRenderer =
+    new ScalaDocAnnotationRenderer()
+  private lazy val modifiersRenderer =
+    new ModifiersRenderer(new AccessModifierRenderer(AccessQualifierRenderer.WithHtmlPsiLink))
+  private lazy val typeParamsRenderer =
+    new TypeParamsRenderer(typeRenderer, new TypeBoundsRenderer(Html))
 
-      // see SCL-17608
-      private def isThrowsAnnotationConstructor(annotationType: ScType, arguments: Seq[ScExpression]): Boolean =
-        if (arguments.size == 1) {
-          //assuming that @throws annotation has single constructor with parametrized type which accepts java.lang.Class
-          annotationType.extractClass.exists { clazz =>
-            clazz.qualifiedName == "scala.throws" &&
-              arguments.head.`type`().exists(_.isInstanceOf[ScParameterizedType])
-          }
-        } else false
-    }
-
-  private def definitionParamsRenderer(implicit typeRenderer: TypeRenderer): ParametersRenderer = {
+  private lazy val definitionParamsRenderer: ParametersRenderer = {
     val parameterRenderer = new ParameterRenderer(
       typeRenderer,
       ModifiersRenderer.WithHtmlPsiLink,
@@ -241,7 +222,7 @@ private class ScalaDocDefinitionGenerator private(
 
   private def parseExtendsBlock(elem: ScExtendsBlock)
                                (implicit typeToString: TypeRenderer): String = {
-    val buffer: StringBuilder = new StringBuilder()
+    val buffer = new StringBuilder
     elem.templateParents match {
       case Some(x: ScTemplateParents) =>
         val seq = x.allTypeElements
@@ -249,11 +230,12 @@ private class ScalaDocDefinitionGenerator private(
           buffer.append(typeToString(seq.head.`type`().getOrAny))
           if (seq.length > 1) {
             buffer.append("\n")
+            val typeElementsSeparator = if (seq.length > 3) "<br/>" else " "
             for (i <- 1 until seq.length) {
-              if (i > 1)
-                buffer.append(" ")
-              buffer.append("with ")
-              buffer.append(typeToString(seq(i).`type`().getOrAny))
+              if (i > 1) buffer.append(typeElementsSeparator)
+              buffer
+                .appendKeyword("with ")
+                .append(typeToString(seq(i).`type`().getOrAny))
             }
           }
         }
@@ -263,7 +245,13 @@ private class ScalaDocDefinitionGenerator private(
         }
     }
 
-    if (buffer.isEmpty) EmptyDoc
-    else "extends " + buffer
+    val result = buffer.toString.trim
+    if (result.isEmpty)
+      EmptyDoc
+    else
+      (new StringBuilder)
+        .appendKeyword("extends ")
+        .append(result)
+        .toString
   }
 }
