@@ -876,7 +876,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
   }
 
   private def id(s: String): String =
-    if (!isIdentifier(s) || Keywords(s) || s == "=") "`" + s + "`" else s
+    if (!isIdentifier(s) || Keywords(s) || s == "=" || s == "=>" || s == "?=>" | s == "=>>") "`" + s + "`" else s
 
   private def isIdentifier(s: String): Boolean = !(s.isEmpty || s.contains("//") || s.contains("/*")) && {
     if (s(0) == '_' || s(0) == '$' || Character.isUnicodeIdentifierStart(s(0))) {
