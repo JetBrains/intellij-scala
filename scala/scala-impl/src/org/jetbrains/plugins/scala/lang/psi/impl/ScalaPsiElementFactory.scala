@@ -379,7 +379,11 @@ object ScalaPsiElementFactory {
   ): ScExpression =
     getExprFromFirstDef(s"val b = ($text)", features) match {
       case ScParenthesisedExpr(e) => e
-      case e                      => e
+      case e =>
+        getExprFromFirstDef(s"val b = {\n$text\n}", features) match {
+          case ScBlockExpr.Expressions(e) => e
+          case _ => e
+        }
     }
 
   def createReferenceExpressionFromText(
