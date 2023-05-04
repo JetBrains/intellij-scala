@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.util.{RichThreadLocal, ScEquivalenceUtil}
 
 import java.util.concurrent.ConcurrentHashMap
@@ -43,8 +44,8 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
 
   def build(clazz: PsiClass, withSupers: Boolean, subst: ScSubstitutor = ScSubstitutor.empty): Map = {
     if (!clazz.isValid) MixinNodes.emptyMap[T]
-    else
-      AstLoadingFilter.disallowTreeLoading(() => {
+    else {
+      def build0: MapImpl[T] = {
         val map = new MapImpl[T]
 
         if (withSupers) {
@@ -57,7 +58,14 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
         map.sigsFinished()
 
         map
-      }, () => "Tree access is disallowed in MixinNodes.build")
+      }
+
+      if (ScalaApplicationSettings.PRECISE_TEXT) { // SCL-21199
+        build0
+      } else {
+        AstLoadingFilter.disallowTreeLoading(() => build0, () => "Tree access is disallowed in MixinNodes.build")
+      }
+    }
   }
 
   def build(andTpe: ScAndType): Map = {
