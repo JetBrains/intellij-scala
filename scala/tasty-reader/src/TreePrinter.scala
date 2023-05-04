@@ -492,6 +492,9 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
         } else {
           simpleBase + "[" + arguments.map(it => simple(textOfType(it))).mkString(", ") + "]"
         }
+      case Node3(ANDtype | ORtype, _, Seq(l, r)) =>
+        val s = simple(textOfType(l)) + (if (node.is(ANDtype)) " & " else " | ") + simple(textOfType(r))
+        if (parens > 0) "(" + s + ")" else s
       case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
         annotation match {
           case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe0, _: _*)), _: _*)), _: _*)) =>
