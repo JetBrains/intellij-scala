@@ -749,7 +749,8 @@ class getDummyBlocks(private val block: ScalaBlock) {
       }
 
       val alignment = createAlignment(node)
-      val childrenAll = node.getChildren(null).filter(isNotEmptyNode).toList
+      val childrenAll = node.getChildren(null)
+      val childrenNonEmpty = childrenAll.filter(isNotEmptyNode).toList
 
       /**
        * some edge cases with comments in the middle of a method call: {{{
@@ -760,7 +761,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
        *   {}
        * }}}
        */
-      val (comments, children) = childrenAll.partition(isComment)
+      val (comments, children) = childrenNonEmpty.partition(isComment)
 
       //don't check for element types other then absolutely required - they do not matter
       children match {
@@ -768,7 +769,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
         case caller :: args :: Nil if args.getPsi.is[ScArgumentExprList] =>
           collectChainedMethodCalls(
             caller, dotFollowedByNewLine,
-            childrenAll.filter(it => !(it eq caller)) ::: delegatedChildren
+            childrenNonEmpty.filter(it => !(it eq caller)) ::: delegatedChildren
           )
 
         // obj.foo
@@ -782,8 +783,8 @@ class getDummyBlocks(private val block: ScalaBlock) {
           val context = SubBlocksContext(id, idAdditionalNodes, Some(dotAlignment), delegatedContext)
           result.add(subBlock(dot, lastNode(id :: delegatedChildren), dotAlignment, wrap = Some(dotWrap), context = Some(context)))
 
-          assert(childrenAll.head.eq(expr), "assuming that first child is expr and comments can't go before it")
-          val commentsBeforeDot = childrenAll.tail.takeWhile(isComment)
+          assert(childrenNonEmpty.head.eq(expr), "assuming that first child is expr and comments can't go before it")
+          val commentsBeforeDot = childrenNonEmpty.tail.takeWhile(isComment)
           commentsBeforeDot.foreach { comment =>
             val commentAlign = if (comment.getPsi.startsFromNewLine()) dotAlignment else null
             result.add(subBlock(comment, comment, commentAlign, wrap = Some(dotWrap)))
