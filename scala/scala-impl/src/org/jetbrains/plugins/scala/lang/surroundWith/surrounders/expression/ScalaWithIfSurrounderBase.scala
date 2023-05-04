@@ -3,18 +3,13 @@ package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIf
 
 abstract class ScalaWithIfSurrounderBase extends ScalaExpressionSurrounder {
   override def getSurroundSelectionRange(editor: Editor, nodeWithIfNode: ASTNode): TextRange = {
     val stmt = unwrapParenthesis(nodeWithIfNode) match {
       case Some(stmt: ScIf) =>
-        val converted = ScalaPsiUtil.convertIfToBracelessIfNeeded(stmt, recursive = false)(stmt.projectContext, stmt)
-        if (stmt eq converted) stmt
-        else stmt.replace(converted).asInstanceOf[ScIf]
+        stmt.toIndentationBasedSyntax
       case _ => return nodeWithIfNode.getTextRange
     }
 
@@ -27,11 +22,7 @@ abstract class ScalaWithIfSurrounderBase extends ScalaExpressionSurrounder {
     }
 
     val offset = conditionNode.getStartOffset
-
-    PsiDocumentManager.getInstance(editor.getProject).doPostponedOperationsAndUnblockDocument(editor.getDocument)
-    editor.getDocument.deleteString(conditionNode.getStartOffset, conditionNode.getTextRange.getEndOffset)
-    editor.getDocument.commit(editor.getProject)
-
+    deleteText(editor, conditionNode)
     TextRange.from(offset, 0)
   }
 }

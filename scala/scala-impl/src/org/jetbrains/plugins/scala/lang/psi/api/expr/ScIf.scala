@@ -8,6 +8,8 @@ trait ScIf extends ScExpression {
 
   def thenExpression: Option[ScExpression]
 
+  def thenKeyword: Option[PsiElement]
+
   def elseKeyword: Option[PsiElement]
 
   def elseExpression: Option[ScExpression]

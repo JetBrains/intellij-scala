@@ -1,0 +1,8 @@
+class a:
+  <start>abc<yield>
+end a
+-----
+class a:
+  for  yield
+    abc
+end a
