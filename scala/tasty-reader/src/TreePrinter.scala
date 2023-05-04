@@ -319,7 +319,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     if (name == "<init>") {
       modifiersIn(sb, node)
       sb ++= "def this"
-      parametersIn(sb, node)
+      parametersIn(sb, node, target = Target.This)
       sb ++= " = "
       sb ++= CompiledCode
     } else {
@@ -606,6 +606,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
   }
 
   private enum Target {
+    case This
     case Definition
     case Extension
     case ExtensionMethod
@@ -624,9 +625,10 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
 
   private def parametersIn(sb: StringBuilder, node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: StringBuilder => Unit = _ => (), uniqueNames: Boolean = false): Unit = {
     val tps = target match {
+      case Target.This => Seq.empty
+      case Target.Definition => node.children
       case Target.Extension => node.children.takeWhile(!_.is(PARAM))
       case Target.ExtensionMethod => node.children.dropWhile(!_.is(PARAM))
-      case Target.Definition => node.children
     }
 
     val templateTypeParams = template.map(_.children.filter(_.is(TYPEPARAM)).iterator)
@@ -705,13 +707,13 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     val hasModifiers = sb.length > previousLength
 
     val ps = target match {
+      case Target.This | Target.Definition => node.children
       case Target.Extension =>
         popExtensionParams(mutable.Stack[Node](node.children: _*))
       case Target.ExtensionMethod =>
         val stack = mutable.Stack[Node](node.children: _*)
         popExtensionParams(stack)
         stack.toSeq.dropWhile(_.is(SPLITCLAUSE))
-      case Target.Definition => node.children
     }
 
     val templateValueParams = template.map(_.children.filter(_.is(PARAM)).iterator)
