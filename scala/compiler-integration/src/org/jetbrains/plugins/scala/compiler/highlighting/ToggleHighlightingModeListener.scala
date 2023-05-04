@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.source.resolve.ResolveCache
@@ -36,7 +37,11 @@ private final class ToggleHighlightingModeListener extends ProjectManagerListene
     DumbService.getInstance(project).runWhenSmart { () =>
       executeOnPooledThread {
         if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-          inReadAction(AnnotatorHints.clearIn(project))
+          inReadAction {
+            AnnotatorHints.clearIn(project)
+            val trigger = TriggerCompilerHighlightingService.get(project)
+            Option(FileEditorManager.getInstance(project).getSelectedEditor).foreach(trigger.triggerOnSelectedEditorChange)
+          }
         } else {
           ExternalHighlighters.eraseAllHighlightings(project)
         }
