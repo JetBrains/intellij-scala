@@ -67,7 +67,7 @@ class LegacyStringFormattingInspectionTest extends ScalaInspectionTestBase {
 
   def test_formatted_string(): Unit = {
     testQuickFix(
-      "\"abc\".formatted(\"test\")",
+      "123.formatted(\"test\")",
       "\"test\"",
       hint
     )
