@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.text
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaReflectLibraryLoader
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class TextToTextTest2 extends TextToTextTestBase {
+  override protected def isScala3: Boolean = false
+
   override protected val dependencies = Seq(
     "com.typesafe.akka" %%  "akka-actor" % "2.7.0",
     "com.typesafe.akka" %% "akka-http-core" % "10.5.0",
@@ -28,6 +29,8 @@ class TextToTextTest2 extends TextToTextTestBase {
     "dev.zio" %% "zio" % "2.0.2",
     "dev.zio" %% "zio-streams" % "2.0.2",
   )
+
+  override def librariesLoaders = super.librariesLoaders :+ ScalaReflectLibraryLoader
 
   override protected val packages = Seq(
     "akka",
@@ -105,11 +108,5 @@ class TextToTextTest2 extends TextToTextTestBase {
     "zio.VersionSpecific",
   )
 
-  override protected val minClassCount: Int = 5500
-
-  override protected def supportedIn(version: ScalaVersion) =
-    version >= LatestScalaVersions.Scala_2_13
-
-  override def librariesLoaders =
-    super.librariesLoaders :+ ScalaReflectLibraryLoader
+  override protected val minClassCount: Int = 5590
 }

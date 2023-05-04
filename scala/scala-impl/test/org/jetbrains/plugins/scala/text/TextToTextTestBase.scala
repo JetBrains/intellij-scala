@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.text
 
 import com.intellij.psi.PsiPackage
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyManagedLoader
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -11,6 +12,8 @@ import org.junit.Assert
 
 // SCL-21078
 abstract class TextToTextTestBase extends ScalaFixtureTestCase {
+  protected def isScala3: Boolean
+
   protected def dependencies: Seq[DependencyDescription]
 
   protected def packages: Seq[String]
@@ -19,7 +22,12 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
 
   protected def classExceptions: Set[String]
 
+  protected def shouldProcess(cls: ScTypeDefinition): Boolean = true
+
   protected def minClassCount: Int
+
+  override protected def supportedIn(version: ScalaVersion) =
+    version >= (if (isScala3) LatestScalaVersions.Scala_3 else LatestScalaVersions.Scala_2_13)
 
   override def librariesLoaders =
     super.librariesLoaders :+ IvyManagedLoader(dependencies: _*)
@@ -41,6 +49,7 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
     val classes = packages
       .map(name => manager.getCachedPackage(name).getOrElse(throw new AssertionError(name)))
       .flatMap(pkg => classesIn(pkg, packageExceptions))
+      .filter(shouldProcess)
 
     val total = classes.length
 
@@ -58,7 +67,15 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
         s2.replaceAll("\\.super\\[.*?\\*/\\]\\.", ".this.")
       }
 
-      val actual = textOfCompilationUnit(cls)
+      val invert = {
+        val iObject = expected.indexOf("object ")
+        val iClass = expected.indexOf("class ")
+        val iTrait = expected.indexOf("trait ")
+        val iType = if (iClass >= 0 && iTrait >= 0) math.min(iClass, iTrait) else math.max(iClass, iTrait)
+        iObject < iType
+      }
+
+      val actual = textOfCompilationUnit(cls, invert)
 
       if (!classExceptions(cls.qualifiedName)) {
         Assert.assertEquals(cls.qualifiedName, expected, actual)
@@ -83,14 +100,19 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
     packageClasses.toSeq ++ subpackageClasses.toSeq
   }
 
-  private def textOfCompilationUnit(cls: ScTypeDefinition): String = {
+  private def textOfCompilationUnit(cls: ScTypeDefinition, invert: Boolean): String = {
     val sb = new StringBuilder()
 
     sb ++= "package " + cls.qualifiedName.substring(0, cls.qualifiedName.lastIndexOf('.')) + "\n"
 
-    ClassPrinter.printTo(sb, cls)
-    cls.baseCompanion.foreach { obj =>
-      ClassPrinter.printTo(sb, obj)
+    val printer = new ClassPrinter(isScala3)
+
+    if (invert) {
+      cls.baseCompanion.foreach(printer.printTo(sb, _))
+      printer.printTo(sb, cls)
+    } else {
+      printer.printTo(sb, cls)
+      cls.baseCompanion.foreach(printer.printTo(sb, _))
     }
 
     sb.setLength(sb.length - 1)
