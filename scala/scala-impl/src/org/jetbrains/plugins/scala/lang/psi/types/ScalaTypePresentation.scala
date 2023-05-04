@@ -187,7 +187,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       }
 
       def placeholder(wildcard: ScExistentialArgument) =
-        existentialArgWithBounds(wildcard, "_")
+        existentialArgWithBounds(wildcard, if (context.compoundTypeWithAndToken) "?" else "_")
 
       def namedExistentials(wildcards: Seq[ScExistentialArgument]) =
         wildcards.map { wildcard =>

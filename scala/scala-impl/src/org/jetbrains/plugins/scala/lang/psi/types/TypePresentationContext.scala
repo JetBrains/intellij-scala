@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 trait TypePresentationContext {
   def nameResolvesTo(name: String, target: PsiElement): Boolean
-  def compoundTypeWithAndToken: Boolean
+  def compoundTypeWithAndToken: Boolean // TODO isScala3
 
   final def compoundTypeSeparatorText: String =
     if (compoundTypeWithAndToken) (if (ScalaApplicationSettings.PRECISE_TEXT) " with " else " & ") // SCL-21195

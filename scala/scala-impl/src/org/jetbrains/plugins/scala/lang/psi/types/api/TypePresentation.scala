@@ -72,7 +72,7 @@ trait TypePresentation {
     typeText(`type`, renderer, options)(context)
   }
 
-  final def canonicalText(`type`: ScType): String = {
+  final def canonicalText(`type`: ScType, context: TypePresentationContext): String = {
     val renderer: NameRenderer = new NameRenderer {
       override def renderName(e: PsiNamedElement): String = nameFun(e, withPoint = false)
       override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
@@ -98,7 +98,7 @@ trait TypePresentation {
         removeKeywords(str) + pointStr(withPoint)
       }
     }
-    typeText(`type`, renderer, PresentationOptions(renderStdTypes = ScalaApplicationSettings.PRECISE_TEXT, canonicalForm = true))(TypePresentationContext.emptyContext)
+    typeText(`type`, renderer, PresentationOptions(renderStdTypes = ScalaApplicationSettings.PRECISE_TEXT, canonicalForm = true))(context)
   }
 }
 

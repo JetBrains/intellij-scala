@@ -67,7 +67,9 @@ trait ScType extends ProjectContextOwner {
   def urlText(implicit context: TypePresentationContext): String =
     typeSystem.urlText(this)
 
-  def canonicalText: String = typeSystem.canonicalText(this)
+  def canonicalText: String = canonicalText(TypePresentationContext.emptyContext)
+
+  def canonicalText(context: TypePresentationContext): String = typeSystem.canonicalText(this, context)
 }
 
 object ScType {
