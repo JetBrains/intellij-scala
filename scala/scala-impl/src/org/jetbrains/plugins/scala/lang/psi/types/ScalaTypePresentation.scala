@@ -334,14 +334,15 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case ex: ScExistentialType =>
         existentialTypeText(ex, checkWildcard, needDotType)
       case pt@ScTypePolymorphicType(internalType, typeParameters) =>
+        def toString(tpe: ScType) = if (ScalaApplicationSettings.PRECISE_TEXT) innerTypeText(tpe) else tpe.toString // SCL-21203
         val typeParametersTexts = typeParameters.map {
           case TypeParameter(parameter, _, lowerType, upperType) =>
-            parameter.name + boundsRenderer.lowerBoundText(lowerType)(_.toString) + boundsRenderer.upperBoundText(upperType)(_.toString)
+            parameter.name + boundsRenderer.lowerBoundText(lowerType)(toString) + boundsRenderer.upperBoundText(upperType)(toString)
         }
         val typeParametersText = typeParametersTexts.commaSeparated(model = Model.SquareBrackets)
         // TODO Custom lambda and polymorphic function types, SCL-20394
         val separator = if (pt.isLambdaTypeElement) TypeLambdaArrowWithSpaces else if (FunctionType.isFunctionType(internalType)) s" ${ScalaPsiUtil.functionArrow} " else " "
-        typeParametersText + separator + internalType.toString
+        typeParametersText + separator + toString(internalType)
       case mt@ScMethodType(retType, params, _) =>
         implicit val elementScope: ElementScope = mt.elementScope
         innerTypeText(FunctionType(retType, params.map(_.paramType)), needDotType)
