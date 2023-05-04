@@ -113,6 +113,6 @@ class HighlightingCompilerConflictsDifferentJdksTest extends HighlightingCompile
 )
 
 class HighlightingCompilerConflictsSameJdksTest extends HighlightingCompilerConflictsBase(
-  compileServerLanguageLevel = LanguageLevel.JDK_11,
-  buildProcessLanguageLevel = LanguageLevel.JDK_11,
+  compileServerLanguageLevel = LanguageLevel.JDK_17,
+  buildProcessLanguageLevel = LanguageLevel.JDK_17,
 )

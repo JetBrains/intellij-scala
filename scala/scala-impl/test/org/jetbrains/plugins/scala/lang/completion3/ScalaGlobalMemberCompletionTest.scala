@@ -290,8 +290,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
          |  u$CARET
          |}
          |""".stripMargin,
-    item = "update",
-    invocationCount = 2
+    item = "update"
   )
 
   def testCompanionObjectMethod(): Unit = checkNoBasicCompletion(

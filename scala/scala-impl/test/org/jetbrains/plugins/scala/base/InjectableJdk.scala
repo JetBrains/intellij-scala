@@ -17,5 +17,5 @@ trait InjectableJdk {
 
 object InjectableJdk {
 
-  val DefaultJdk = LanguageLevel.JDK_11
+  val DefaultJdk = LanguageLevel.JDK_17
 }

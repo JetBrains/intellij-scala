@@ -28,11 +28,11 @@ case class InternalJDKLoader() extends SmartJDKLoader() {
 /**
   * Consider using this instead of HeavyJDKLoader if you don't need java interop in your tests
   */
-case class MockJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_11) extends SmartJDKLoader() {
+case class MockJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_17) extends SmartJDKLoader() {
   override protected def createSdkInstance(): Sdk = IdeaTestUtil.getMockJdk(languageLevel.toJavaVersion)
 }
 
-case class HeavyJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_11) extends SmartJDKLoader() {
+case class HeavyJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_17) extends SmartJDKLoader() {
   override protected def createSdkInstance(): Sdk = SmartJDKLoader.getOrCreateJDK(languageLevel)
 }
 
@@ -67,8 +67,7 @@ object SmartJDKLoader {
     )
   }
 
-  //NOTE: consider testing against JDK 17 by default in idea223.x
-  def getOrCreateJDK(languageLevel: LanguageLevel = LanguageLevel.JDK_11): Sdk = {
+  def getOrCreateJDK(languageLevel: LanguageLevel = LanguageLevel.JDK_17): Sdk = {
     val jdkVersion = JavaSdkVersion.fromLanguageLevel(languageLevel)
     val jdkName = jdkVersion.getDescription
 

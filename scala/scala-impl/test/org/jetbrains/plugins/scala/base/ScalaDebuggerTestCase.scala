@@ -83,7 +83,7 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
 
   override protected def getAppOutputPath: String = getModuleOutputDir.toString
 
-  override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_11
+  override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_17
 
   override protected def getProjectLanguageLevel: LanguageLevel = testProjectJdkVersion
 
