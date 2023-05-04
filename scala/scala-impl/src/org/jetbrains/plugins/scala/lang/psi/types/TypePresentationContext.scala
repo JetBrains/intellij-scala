@@ -5,14 +5,16 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 trait TypePresentationContext {
   def nameResolvesTo(name: String, target: PsiElement): Boolean
-  def compoundTypeWithAndToken: Boolean
+  def compoundTypeWithAndToken: Boolean // TODO isScala3
 
   final def compoundTypeSeparatorText: String =
-    if (compoundTypeWithAndToken) " & " else " with "
+    if (compoundTypeWithAndToken) (if (ScalaApplicationSettings.PRECISE_TEXT) " with " else " & ") // SCL-21195
+    else " with "
 }
 
 object TypePresentationContext {

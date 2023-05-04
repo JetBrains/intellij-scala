@@ -1,16 +1,18 @@
 package org.jetbrains.plugins.scala.text
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
 
-private object ClassPrinter {
+private class ClassPrinter(isScala3: Boolean) {
   def printTo(sb: StringBuilder, cls: ScTypeDefinition): Unit = printTo(sb, cls, "")
 
   private def printTo(sb: StringBuilder, cls: ScTypeDefinition, indent: String): Unit = {
@@ -32,10 +34,10 @@ private object ClassPrinter {
 
     val parents = {
       val superTypes = cls.extendsBlock.templateParents.map(_.superTypes).getOrElse(Seq.empty)
-      if (superTypes.isEmpty) "" else " extends " + superTypes.map(textOf(_, parens = 1)).mkString(" with ")
+      if (superTypes.isEmpty) "" else " extends " + superTypes.map(textOf(_, parens = 1)).mkString(if (cls.isScala3) ", " else " with ")
     }
 
-    val selfType = cls.selfType.map(t => " this: " + textOf(t) + " =>").mkString
+    val selfType = cls.selfType.map(t => s" ${cls.selfTypeElement.map(_.name).getOrElse("this")}: " + textOf(t) + " =>").mkString
 
     sb ++= annotations + "\n" + indent + modifiers + keyword + " " + name + tps + ps + parents + " {" + selfType
 
@@ -128,7 +130,7 @@ private object ClassPrinter {
   }
 
   private def textOf(clause: ScParameterClause): String =
-    clause.parameters.map(textOf).mkString(if (clause.isImplicit) "(implicit " else "(", ", ", ")")
+    clause.parameters.map(textOf).mkString(if (clause.isImplicit) "(implicit " else if (clause.isUsing) "(using " else "(", ", ", ")")
 
   private def textOf(p: ScParameter): String = {
     val annotations = p.annotations.map(textOf).mkString(" ")
@@ -160,13 +162,22 @@ private object ClassPrinter {
       (if (ml.isSealed) "sealed " else "") +
       (if (ml.isAbstract && !ml.isOverride) "abstract " else "") +
       (if (ml.isLazy) "lazy " else "") +
+      (if (ml.isTransparent) "transparent " else "") +
+      (if (ml.isInline) "inline " else "") +
       (if (ml.isCase) "case " else "")
   }
 
   private def textOf(tpe: ScType, parens: Int = 0): String = tpe match {
     case FunctionType(_, _) if !tpe.isAliasType && parens > 0 => "(" + tpe.canonicalText + ")"
 //    case AliasType(ta, _, _) => ta.containingClass.name + ".this." + ta.name
-    case _ => tpe.canonicalText
+    case _ =>
+      tpe.canonicalText(context)
+  }
+
+  private val context = new TypePresentationContext {
+    override def nameResolvesTo(name: String, target: PsiElement): Boolean = false
+
+    override def compoundTypeWithAndToken: Boolean = isScala3
   }
 
   private def textOf(tr: TypeResult): String = tr match {
