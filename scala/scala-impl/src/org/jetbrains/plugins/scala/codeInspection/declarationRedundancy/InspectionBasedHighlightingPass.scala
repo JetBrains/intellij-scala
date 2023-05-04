@@ -70,8 +70,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
     }
   }
 
-  private def shouldHighlightFile: Boolean = {
-
+  private lazy val shouldHighlightFile: Boolean = {
     def isInjectedFragmentEditor: Boolean = FileContextUtil.getFileContext(file).is[ScStringLiteral]
 
     def isDebugEvaluatorExpression: Boolean = file.is[ScalaCodeFragment]
