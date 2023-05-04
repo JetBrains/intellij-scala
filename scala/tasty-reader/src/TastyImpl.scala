@@ -11,6 +11,7 @@ class TastyImpl {
     } catch {
       // In practice, this is needed in order to skip Dotty 0.27
       case _: UnpickleException => None
+      case _: StackOverflowError => None
     }
   }
 }
