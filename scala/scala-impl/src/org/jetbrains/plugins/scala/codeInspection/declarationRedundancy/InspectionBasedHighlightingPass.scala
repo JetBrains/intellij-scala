@@ -66,12 +66,11 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
   override def doCollectInformation(progress: ProgressIndicator): Unit = {
     if (shouldHighlightFile) {
       highlightInfos.clear()
-      processFile()
+      processFile(progress)
     }
   }
 
-  private def shouldHighlightFile: Boolean = {
-
+  private lazy val shouldHighlightFile: Boolean = {
     def isInjectedFragmentEditor: Boolean = FileContextUtil.getFileContext(file).is[ScStringLiteral]
 
     def isDebugEvaluatorExpression: Boolean = file.is[ScalaCodeFragment]
@@ -93,16 +92,18 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
   private val inspectionIsDisabledForScalaFragments =
     Seq("ScalaUnusedSymbol", "ScalaWeakerAccess").contains(inspection.getShortName)
 
-  private def processFile(): Unit = {
+  private def processFile(progress: ProgressIndicator): Unit = {
     if (isEnabled(file)) {
       val infos: Iterator[ProblemInfo] = file.depthFirst().filter {
         inspection.shouldProcessElement
       }.filter {
         isEnabled
       }.flatMap {
+        progress.checkCanceled()
         inspection.invoke(_, isOnTheFly = true)
       }
       highlightInfos ++= infos.map { info: ProblemInfo =>
+        progress.checkCanceled()
         val range = info.element.getTextRange
         val severity: HighlightSeverity = getSeverity
         val infoType: HighlightInfoType = HighlightInfo.convertSeverity(severity)
