@@ -31,34 +31,39 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   project.getMessageBus.connect(this).subscribe[FileHighlightingSettingListener](
     FileHighlightingSettingListener.SETTING_CHANGE,
     (root: PsiElement, _: FileHighlightingSetting) => {
-      val psiFile = root.getContainingFile
-      if (psiFile ne null) {
-        val virtualFile = psiFile.getVirtualFile
-        if (virtualFile ne null) {
-          val document = FileDocumentManager.getInstance().getDocument(virtualFile)
-          EditorFactory.getInstance().getEditors(document).foreach { editor =>
-            UpdateHighlightersUtil.setHighlightersToEditor(
-              project, document,
-              0, document.getTextLength, Seq.empty.asJava,
-              editor.getColorsScheme, ExternalHighlighters.ScalaCompilerPassId)
-          }
-          executeOnPooledThread {
-            WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(virtualFile, ExternalHighlighters)
-          }
+      executeOnPooledThread {
+        val psiFile = root.getContainingFile
+        if (psiFile ne null) {
+          val virtualFile = psiFile.getVirtualFile
+          if (virtualFile ne null) {
+            val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
+            invokeAndWait {
+              EditorFactory.getInstance().getEditors(document).foreach { editor =>
+                UpdateHighlightersUtil.setHighlightersToEditor(
+                  project, document,
+                  0, document.getTextLength, Seq.empty.asJava,
+                  editor.getColorsScheme, ExternalHighlighters.ScalaCompilerPassId)
+              }
+            }
+            executeOnPooledThread {
+              WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(virtualFile, ExternalHighlighters)
+            }
 
-          if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {
-            val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
-            triggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
+            if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {
+              val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
+              triggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
+            }
           }
         }
       }
+      ()
     }
   )
 
-  private[highlighting] def triggerOnFileChange(psiFile: PsiFile, virtualFile: VirtualFile): Unit = {
+  private[highlighting] def triggerOnFileChange(psiFile: PsiFile, virtualFile: VirtualFile): Unit = executeOnPooledThread {
     if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
       val debugReason = s"file content changed: ${psiFile.name}"
-      val document = FileDocumentManager.getInstance().getDocument(virtualFile)
+      val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
       if (document ne null) {
         if (psiFile.isScalaWorksheet) {
           triggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
@@ -73,7 +78,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     }
   }
 
-  private[highlighting] def triggerOnSelectedEditorChange(editor: FileEditor): Unit = {
+  private[highlighting] def triggerOnSelectedEditorChange(editor: FileEditor): Unit = executeOnPooledThread {
     if (isHighlightingEnabled && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
       val virtualFile = editor.getFile
       if (virtualFile ne null) {
@@ -104,14 +109,14 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
       virtualFile.isInLocalFileSystem &&
       (psiFile match {
         case _ if psiFile.isScalaWorksheet => true
-        case _: ScalaFile | _: PsiJavaFile if !JavaProjectRootsUtil.isOutsideJavaSourceRoot(psiFile) => true
+        case _: ScalaFile | _: PsiJavaFile if !inReadAction(JavaProjectRootsUtil.isOutsideJavaSourceRoot(psiFile)) => true
         case _ => false
       }) &&
-      ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project)
+      inReadAction(ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project))
   }
 
   private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile, document: Document, psiFile: PsiFile): Unit = {
-    val module = ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile)
+    val module = inReadAction(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
     if (module ne null) {
       val sourceScope = calculateSourceScope(virtualFile)
       CompilerHighlightingService.get(project)
@@ -145,7 +150,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     document: Document,
     debugReason: String
   ): Unit = {
-    val module = ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile)
+    val module = inReadAction(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
     if (module ne null) {
       val sourceScope = calculateSourceScope(virtualFile)
       CompilerHighlightingService.get(project).triggerDocumentCompilation(virtualFile, module, sourceScope, document, debugReason)
@@ -176,6 +181,7 @@ private[scala] object TriggerCompilerHighlightingService {
   def get(project: Project): TriggerCompilerHighlightingService =
     project.getService(classOf[TriggerCompilerHighlightingService])
 
-  private def hasErrors(psiFile: PsiFile): Boolean =
+  private def hasErrors(psiFile: PsiFile): Boolean = inReadAction {
     psiFile.elements.findByType[PsiErrorElement].isDefined
+  }
 }
