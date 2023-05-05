@@ -36,6 +36,8 @@ object Versions {
   val sbtIdeaShellVersion: String = "2021.1.0"
   val compilerIndicesVersion = "1.0.14"
 
+  val java9rtExportVersion: String = "0.1.0"
+
   object Sbt {
     val binary_0_13 = "0.13"
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
@@ -57,7 +59,6 @@ object Dependencies {
 
   import Versions.*
 
-  val sbtLaunch: ModuleID = "org.scala-sbt" % "sbt-launch" % sbtVersion intransitive()
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
@@ -114,16 +115,6 @@ object Dependencies {
   /** actually this is is compilerInterface (TODO: rename, cause naming difference is misleading) */
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
   val sbtInterface = "org.scala-sbt" % "util-interface" % sbtVersion
-
-  val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
-  val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
-  val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13" % zincVersion classifier "sources"
-  val sbtBridge_Scala_3_0 = "org.scala-lang" % "scala3-sbt-bridge" % "3.0.2"
-  val sbtBridge_Scala_3_1 = "org.scala-lang" % "scala3-sbt-bridge" % "3.1.3"
-  val sbtBridge_Scala_3_2 = "org.scala-lang" % "scala3-sbt-bridge" % "3.2.2"
-  val sbtBridge_Scala_3_3 = "org.scala-lang" % "scala3-sbt-bridge" % "3.3.1-RC1-bin-20230206-21729d2-NIGHTLY"
-
-  val java9rtExport = "org.scala-sbt.rt" % "java9-rt-export" % "0.1.0"
 
   // "provided" danger: we statically depend on a single version, but need to support all the version
   // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
@@ -197,28 +188,5 @@ object DependencyGroups {
     provided.scalaTest,
     provided.utest,
     provided.specs2_4x
-  )
-
-  val runtime: Seq[ModuleID] = Seq(
-    sbtLaunch,
-    sbtInterface,
-    compilerBridgeSources_2_10,
-    compilerBridgeSources_2_11,
-    compilerBridgeSources_2_13,
-    sbtBridge_Scala_3_0,
-    java9rtExport
-  )
-
-  // workaround for https://github.com/JetBrains/sbt-idea-plugin/issues/110
-  val runtime2: Seq[ModuleID] = Seq(
-    sbtBridge_Scala_3_1,
-  )
-
-  val runtime3: Seq[ModuleID] = Seq(
-    sbtBridge_Scala_3_2
-  )
-
-  val runtime4: Seq[ModuleID] = Seq(
-    sbtBridge_Scala_3_3
   )
 }

@@ -10,6 +10,7 @@ import sbt.Keys.baseDirectory
 import java.io.File
 import java.net.URI
 import java.nio.file.{Path, Paths}
+import scala.annotation.nowarn
 
 /**
   * Download artifacts from Maven and map them into a local repository, so that sbt can resolve artifacts locally without depending on online resolvers.
@@ -31,6 +32,8 @@ object LocalRepoPackager extends AutoPlugin {
    * @return path mappings (file path -> local repo relative location)
    */
   def updateLocalRepo(dependencies: Seq[Dependency], resourceDir: Path): Seq[(Path,Path)] = {
+
+    @nowarn("cat=deprecation")
     val depsWithExclusions = dependencies
       .map(_.withExclusions(Set((org"org.scala-lang", name"scala-library"))))
 
