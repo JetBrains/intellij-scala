@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.text
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 // SCL-21078
 class TextToTextTest3 extends TextToTextTestBase {
@@ -131,8 +129,6 @@ class TextToTextTest3 extends TextToTextTestBase {
     "zio.stream.ZStreamProvideMacro", // No anonymous using parameter
     "zio.stream.ZStreamVersionSpecific", // No inline parameter modifier
   )
-
-  override protected def shouldProcess(cls: ScTypeDefinition) = cls.isInScala3File
 
   override protected val minClassCount: Int = 4560
 }
