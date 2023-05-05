@@ -35,10 +35,9 @@ class TextToTextTest2 extends TextToTextTestBase {
   )
 
   override protected val packageExceptions = Set(
-    "akka.stream"
   )
 
-  override protected val minClassCount: Int = 5860
+  override protected val minClassCount: Int = 6450
 
   override protected val classExceptions = Set(
     "akka.actor.Terminated",
@@ -52,6 +51,14 @@ class TextToTextTest2 extends TextToTextTestBase {
     "akka.http.scaladsl.server.directives.BasicDirectives",
     "akka.http.scaladsl.unmarshalling.Unmarshaller",
     "akka.pattern.BackoffSupervisor",
+    "akka.stream.Supervision",
+    "akka.stream.impl.QueueSource",
+    "akka.stream.impl.VirtualProcessor",
+    "akka.stream.impl.io.ConnectionSourceStage",
+    "akka.stream.impl.io.compression.DeflateDecompressor",
+    "akka.stream.impl.io.compression.GzipDecompressor",
+    "akka.stream.scaladsl.MergeHub",
+    "akka.stream.stage.GraphStageLogic",
 
     "cats.arrow.FunctionKMacros",
     "cats.arrow.FunctionKMacroMethods",

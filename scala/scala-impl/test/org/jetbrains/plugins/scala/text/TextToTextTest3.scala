@@ -33,11 +33,10 @@ class TextToTextTest3 extends TextToTextTestBase {
   )
 
   override protected val packageExceptions = Set(
-    "akka.stream",
     "akka.parboiled2", // No inline modifier, no anonymous using parameters
   )
 
-  override protected val minClassCount: Int = 4600
+  override protected val minClassCount: Int = 5180
 
   override protected val classExceptions = Set(
     "akka.actor.dungeon.Children", // Any
@@ -62,6 +61,87 @@ class TextToTextTest3 extends TextToTextTestBase {
     "akka.io.UdpListener", // Cannot resolve Matchable
     "akka.macros.LogHelperMacro", // Mo inline modifier
     "akka.pattern.BackoffSupervisor", // No annotation on primary constructor
+    "akka.stream.ActorMaterializerSettings", // No annotation on primary constructor
+    "akka.stream.BidiShape", // No annotation on type argument
+    "akka.stream.FanInShape", // No annotation on type argument
+    "akka.stream.FanInShape1N", // No annotation on type argument
+    "akka.stream.FanInShape2", // No annotation on type argument
+    "akka.stream.FanInShape3", // No annotation on type argument
+    "akka.stream.FanInShape4", // No annotation on type argument
+    "akka.stream.FanInShape5", // No annotation on type argument
+    "akka.stream.FanInShape6", // No annotation on type argument
+    "akka.stream.FanInShape7", // No annotation on type argument
+    "akka.stream.FanInShape8", // No annotation on type argument
+    "akka.stream.FanInShape9", // No annotation on type argument
+    "akka.stream.FanInShape10", // No annotation on type argument
+    "akka.stream.FanInShape11", // No annotation on type argument
+    "akka.stream.FanInShape12", // No annotation on type argument
+    "akka.stream.FanInShape13", // No annotation on type argument
+    "akka.stream.FanInShape14", // No annotation on type argument
+    "akka.stream.FanInShape15", // No annotation on type argument
+    "akka.stream.FanInShape16", // No annotation on type argument
+    "akka.stream.FanInShape17", // No annotation on type argument
+    "akka.stream.FanInShape18", // No annotation on type argument
+    "akka.stream.FanInShape19", // No annotation on type argument
+    "akka.stream.FanInShape20", // No annotation on type argument
+    "akka.stream.FanInShape21", // No annotation on type argument
+    "akka.stream.FanInShape22", // No annotation on type argument
+    "akka.stream.FanOutShape", // No annotation on type argument
+    "akka.stream.FanOutShape2", // No annotation on type argument
+    "akka.stream.FanOutShape3", // No annotation on type argument
+    "akka.stream.FanOutShape4", // No annotation on type argument
+    "akka.stream.FanOutShape5", // No annotation on type argument
+    "akka.stream.FanOutShape6", // No annotation on type argument
+    "akka.stream.FanOutShape7", // No annotation on type argument
+    "akka.stream.FanOutShape8", // No annotation on type argument
+    "akka.stream.FanOutShape9", // No annotation on type argument
+    "akka.stream.FanOutShape10", // No annotation on type argument
+    "akka.stream.FanOutShape11", // No annotation on type argument
+    "akka.stream.FanOutShape12", // No annotation on type argument
+    "akka.stream.FanOutShape13", // No annotation on type argument
+    "akka.stream.FanOutShape14", // No annotation on type argument
+    "akka.stream.FanOutShape15", // No annotation on type argument
+    "akka.stream.FanOutShape16", // No annotation on type argument
+    "akka.stream.FanOutShape17", // No annotation on type argument
+    "akka.stream.FanOutShape18", // No annotation on type argument
+    "akka.stream.FanOutShape19", // No annotation on type argument
+    "akka.stream.FanOutShape20", // No annotation on type argument
+    "akka.stream.FanOutShape21", // No annotation on type argument
+    "akka.stream.FanOutShape22", // No annotation on type argument
+    "akka.stream.FlowShape", // No annotation on type argument
+    "akka.stream.Graph", // No annotation on type
+    "akka.stream.SinkShape", // No annotation on type argument
+    "akka.stream.SourceShape", // No annotation on type argument
+    "akka.stream.Supervision", // Excessive parentheses in compound type
+    "akka.stream.UniformFanInShape", // No annotation on type argument
+    "akka.stream.UniformFanOutShape", // No annotation on type argument
+    "akka.stream.impl.ConstantFun", // scala.None without .type
+    "akka.stream.impl.PublisherSource", // No annotation on type argument
+    "akka.stream.impl.SourceModule", // No annotation on type argument
+    "akka.stream.impl.fusing.GraphStageModule", // No annotation on type argument
+    "akka.stream.javadsl.Flow", // No annotation on type argument
+    "akka.stream.javadsl.FlowWithContext", // No annotation on type argument
+    "akka.stream.javadsl.GraphDSL", // No annotation on type argument
+    "akka.stream.javadsl.Sink", // No annotation on type argument
+    "akka.stream.javadsl.Source", // No annotation on type argument
+    "akka.stream.javadsl.SourceWithContext", // No annotation on type argument
+    "akka.stream.javadsl.SubFlow", // No annotation on type argument
+    "akka.stream.javadsl.SubSource", // No annotation on type argument
+    "akka.stream.javadsl.Tcp", // No annotation on primary constructor
+    "akka.stream.scaladsl.Flow", // No annotation on type argument
+    "akka.stream.scaladsl.FlowOps", // No annotation on type argument
+    "akka.stream.scaladsl.FlowOpsMat", // No annotation on type argument
+    "akka.stream.scaladsl.FlowWithContext", // No annotation on type argument
+    "akka.stream.scaladsl.FlowWithContextOps", // No annotation on type argument
+    "akka.stream.scaladsl.GraphDSL", // No annotation on type argument
+    "akka.stream.scaladsl.JavaFlowSupport", // No annotation on type argument
+    "akka.stream.scaladsl.MergeHub", // Cannot resolve Event
+    "akka.stream.scaladsl.Sink", // No annotation on type argument
+    "akka.stream.scaladsl.Source", // No annotation on type argument
+    "akka.stream.scaladsl.SourceWithContext", // No annotation on type argument
+    "akka.stream.scaladsl.SubFlow", // No annotation on type argument
+    "akka.stream.scaladsl.Tcp", // No annotation on primary constructor
+    "akka.stream.stage.GraphStageLogic", // No annotation on primary constructor
 
     "cats.ApplicativeMonoid", // ApplySemigroup without qualifier
     "cats.InvariantMonoidalMonoid", // InvariantSemigroupalSemigroup without qualifier
