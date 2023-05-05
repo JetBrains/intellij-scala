@@ -15,10 +15,6 @@ import java.util.UUID;
         category = SettingsCategory.TOOLS
 )
 public class ScalaCompileServerSettings implements PersistentStateComponent<ScalaCompileServerSettings> {
-  public boolean SHOW_TYPE_TOOLTIP_ON_MOUSE_HOVER = false;
-  @ReportValue
-  public int SHOW_TYPE_TOOLTIP_DELAY = 500;
-
   //ATTENTION: these field names should be the same as in
   //org.jetbrains.jps.incremental.scala.model.impl.GlobalSettingsImpl.State (see it's JavaDoc)
   public boolean COMPILE_SERVER_ENABLED = true;

@@ -1859,7 +1859,6 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierActivity"/>
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.RegisterSyntheticClassesStartupActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
 
