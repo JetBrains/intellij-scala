@@ -46,38 +46,23 @@ class TextToTextTest2 extends TextToTextTestBase {
   )
 
   override protected val classExceptions = Set(
-    "akka.actor.SupervisorStrategy",
     "akka.actor.Terminated",
-    "akka.actor.TypedActor",
     "akka.actor.UnhandledMessage",
     "akka.dispatch.CachingConfig",
     "akka.dispatch.ExecutorServiceDelegate",
-    "akka.event.Logging",
-    "akka.event.NoLogging",
-    "akka.event.NoMarkerLogging",
     "akka.http.impl.engine.rendering.HttpResponseRendererFactory",
     "akka.http.impl.engine.server.HttpServerBluePrint",
-    "akka.http.impl.util.DefaultNoLogging",
-    "akka.http.scaladsl.Http",
-    "akka.http.scaladsl.model.MediaType",
-    "akka.http.scaladsl.model.Uri",
     "akka.http.scaladsl.server.Directive",
-    "akka.http.scaladsl.server.PathMatcher",
     "akka.http.scaladsl.server.UnsupportedRequestContentTypeRejection",
     "akka.http.scaladsl.server.directives.BasicDirectives",
     "akka.http.scaladsl.unmarshalling.Unmarshaller",
-    "akka.io.Tcp",
-    "akka.io.Udp",
-    "akka.io.UdpConnected",
     "akka.pattern.BackoffSupervisor",
-    "akka.serialization.SerializationExtension",
 
     "cats.arrow.FunctionKMacros",
     "cats.arrow.FunctionKMacroMethods",
 
     "fs2.Pull",
     "fs2.concurrent.SignallingMapRef",
-    "fs2.internal.AcquireAfterScopeClosed",
 
     "scala.concurrent.impl.Promise",
 
@@ -98,7 +83,6 @@ class TextToTextTest2 extends TextToTextTestBase {
     "scalaz.Foralls",
     "scalaz.FreeFunctions",
     "scalaz.Heap",
-    "scalaz.Ordering",
     "scalaz.LanApply",
     "scalaz.std.StringInstances",
     "scalaz.syntax.ToApplicativeErrorOps",
