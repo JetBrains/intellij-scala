@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyManagedLoader
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
@@ -21,8 +22,6 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
   protected def packageExceptions: Set[String]
 
   protected def classExceptions: Set[String]
-
-  protected def shouldProcess(cls: ScTypeDefinition): Boolean = true
 
   protected def minClassCount: Int
 
@@ -49,11 +48,11 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
     val classes = packages
       .map(name => manager.getCachedPackage(name).getOrElse(throw new AssertionError(name)))
       .flatMap(pkg => classesIn(pkg, packageExceptions))
-      .filter(shouldProcess)
+      .filter(cls => if (isScala3) cls.isInScala3File else !cls.isInScala3File)
 
     val total = classes.length
 
-    Assert.assertTrue(total.toString, total > minClassCount)
+    Assert.assertTrue(s"There must be at least $total classes", total > minClassCount)
 
     println(s"Testing $total classes:")
 
@@ -80,7 +79,7 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
       if (!classExceptions(cls.qualifiedName)) {
         Assert.assertEquals(cls.qualifiedName, expected, actual)
       } else {
-        Assert.assertFalse(cls.qualifiedName, expected == actual)
+        Assert.assertFalse(s"Must contain errors: ${cls.qualifiedName}", expected == actual)
       }
     }
 
