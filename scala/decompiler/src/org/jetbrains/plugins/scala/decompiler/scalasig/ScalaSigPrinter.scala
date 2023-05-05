@@ -691,7 +691,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
           //remove package object reference
           val path = prefixStr.removeDotPackage
           val name = processName(symbol.name)
-          val res = path + name
+          val res = path + name + (if (symbol.isModule) ".type" else "")
           val suffix =
             if (name == "_") {
               symbol.get match {
