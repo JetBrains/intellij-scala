@@ -401,7 +401,8 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     templateBodyNode.map { templateBody: ASTNode =>
       val beforeNode = anchor.map(_.getNode).getOrElse {
         val last = templateBody.getLastChildNode
-        last.getTreePrev match {
+        // `last` may be null when the template body is empty (e.g.: `given Foo with`)
+        last.nullSafe.map(_.getTreePrev).orNull match {
           case result if isNullOrLineTerminator(result) => result
           case _ => last
         }
@@ -436,7 +437,12 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
           extendsBlockNode.addChild(whitespace)
         }
       }
-      val bodyElement = createBodyFromMember(member.getText, features)
+      val isGiven = this.isInstanceOf[ScGivenDefinition]
+      if (isGiven) {
+        // given definition does not have a new line inside a template body
+        extendsBlockNode.addChild(createWhitespace("\n  ").getNode)
+      }
+      val bodyElement = createBodyFromMember(member.getText, isGiven, features)
       extendsBlockNode.addChild(bodyElement.getNode)
       members.head
     }

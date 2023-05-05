@@ -5,7 +5,8 @@ import com.intellij.lang.surroundWith.Surrounder
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -85,5 +86,20 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
   protected def unwrapParenthesis(node: ASTNode): Option[PsiElement] = node.getPsi match {
     case p: ScParenthesisedExpr => p.innerElement
     case e => Option(e)
+  }
+
+  protected def unblockDocument(editor: Editor): Unit =
+    PsiDocumentManager.getInstance(editor.getProject)
+      .doPostponedOperationsAndUnblockDocument(editor.getDocument)
+
+  protected def deleteText(editor: Editor, range: TextRange): Unit = {
+    val document = editor.getDocument
+    document.deleteString(range.getStartOffset, range.getEndOffset)
+    document.commit(editor.getProject)
+  }
+
+  protected def deleteText(editor: Editor, node: ASTNode): Unit = {
+    unblockDocument(editor)
+    deleteText(editor, node.getTextRange)
   }
 }

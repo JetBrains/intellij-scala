@@ -29,7 +29,7 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtu
     }(getProject)
 
     val expectedFileText = createTestText(expected)
-    myFixture.checkResult(expectedFileText.withNormalizedSeparator.pipeIf(_ => trimExpectedText)(_.trim), true)
+    myFixture.checkResult(expectedFileText.withNormalizedSeparator.pipeIf(trimExpectedText)(_.trim), true)
   }
 
   protected def testQuickFixAllInFile(text: String, expected: String, hint: String): Unit = {

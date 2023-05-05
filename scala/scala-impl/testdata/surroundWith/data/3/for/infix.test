@@ -1,0 +1,9 @@
+class a:
+  2 + <start>2<for>
+end a
+------
+class a:
+  2 + (for  do
+    2
+    )
+end a

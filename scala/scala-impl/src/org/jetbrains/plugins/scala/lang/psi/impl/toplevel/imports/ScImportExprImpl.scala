@@ -103,7 +103,7 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
         if (!selector.isScala2StyleAliasImport) {
           val isGivenSelector = selector.isGivenSelector
           val prefix = this.qualifier match {
-            case Some(qual) => qual.getText.pipeIf(_ => isGivenSelector)(escapeKeywordsFqn) + "."
+            case Some(qual) => qual.getText.pipeIf(isGivenSelector)(escapeKeywordsFqn) + "."
             case None       => ""
           }
           val textWithoutBraces = prefix + selector.getText

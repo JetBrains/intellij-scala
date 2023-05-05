@@ -15,7 +15,7 @@ class ScalaTypeSurrounder extends ScalaExpressionSurrounder {
     s"(${super.getTemplateAsString(elements)}: ${result.presentableText(expression)})"
   }
 
-  //noinspection ScalaExtractStringToBundle
+  //noinspection ScalaExtractStringToBundle,DialogTitleCapitalization
   override def getTemplateDescription: String = "(expr: Type)"
 
   override def isApplicable(elements: Array[PsiElement]): Boolean = {

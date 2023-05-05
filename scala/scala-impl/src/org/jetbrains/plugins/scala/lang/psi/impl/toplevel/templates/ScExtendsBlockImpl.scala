@@ -229,7 +229,8 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   private def templateBodies = templateBody.toSeq
 
   private def createEmptyTemplateBody: ScTemplateBody =
-    add(ScalaPsiElementFactory.createTemplateBody(this)).asInstanceOf[ScTemplateBody]
+    add(ScalaPsiElementFactory.createTemplateBody(getParentByStub.is[ScGivenDefinition], this))
+      .asInstanceOf[ScTemplateBody]
 }
 
 object ScExtendsBlockImpl {

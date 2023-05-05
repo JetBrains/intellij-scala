@@ -148,6 +148,7 @@ object ScalaPsiElementFactory {
     case object Class extends TemplateDefKind(ScalaTokenType.ClassKeyword)
     case object Trait extends TemplateDefKind(ScalaTokenType.TraitKeyword)
     case object Object extends TemplateDefKind(ScalaTokenType.ObjectKeyword)
+    case object Given extends TemplateDefKind(ScalaTokenType.GivenKeyword)
   }
 
   final class TemplateDefinitionBuilder private (
@@ -199,9 +200,16 @@ object ScalaPsiElementFactory {
 
       if (needsBlock || body.nonEmpty) {
         val braceless = ctx.project.indentationBasedSyntaxEnabled(features)
-        textBuilder
-          .append(if (braceless) ":" else " {")
-          .append(body)
+        if (kind == TemplateDefKind.Given) {
+          textBuilder.append(" with")
+          if (!braceless)
+            textBuilder.append(" {")
+        } else {
+          textBuilder.append(if (braceless) ":" else " {")
+        }
+
+        textBuilder.append(body)
+
         if (!braceless)
           textBuilder.append("}")
         else {
@@ -210,7 +218,7 @@ object ScalaPsiElementFactory {
           if (needsBlock) {
             textBuilder
               .append("end ")
-              .append(name)
+              .append(if (kind == TemplateDefKind.Given) kind.keyword else name)
           }
         }
       }
@@ -379,7 +387,11 @@ object ScalaPsiElementFactory {
   ): ScExpression =
     getExprFromFirstDef(s"val b = ($text)", features) match {
       case ScParenthesisedExpr(e) => e
-      case e                      => e
+      case e =>
+        getExprFromFirstDef(s"val b = {\n$text\n}", features) match {
+          case ScBlockExpr.Expressions(e) => e
+          case _ => e
+        }
     }
 
   def createReferenceExpressionFromText(
@@ -732,17 +744,23 @@ object ScalaPsiElementFactory {
 
   def createBodyFromMember(
     @NonNls memberText: String,
+    isGiven:            Boolean,
     scalaFeatures:      ScalaFeatures,
   )(implicit
     ctx: ProjectContext
-  ): ScTemplateBody =
-    createClassWithBody(memberText, scalaFeatures)
+  ): ScTemplateBody = {
+    val definition =
+      if (isGiven) createGivenDefWithBody(memberText, scalaFeatures)
+      else createClassWithBody(memberText, scalaFeatures)
+
+    definition
       .extendsBlock
       .templateBody
       .orNull
+  }
 
-  def createTemplateBody(features: ScalaFeatures)(implicit ctx: ProjectContext): ScTemplateBody =
-    createBodyFromMember("", features)
+  def createTemplateBody(isGiven: Boolean, features: ScalaFeatures)(implicit ctx: ProjectContext): ScTemplateBody =
+    createBodyFromMember("", isGiven, features)
 
   def createClassTemplateParents(
     @NonNls superName: String,
@@ -1455,6 +1473,19 @@ object ScalaPsiElementFactory {
       .withProjectContext(ctx)
       .createTemplateDefinition()
       .asInstanceOf[ScClass]
+  }
+
+  private[this] def createGivenDefWithBody(
+    @NonNls body: String,
+    scalaFeatures: ScalaFeatures,
+  )(implicit ctx: ProjectContext
+  ): ScGivenDefinition = {
+    // See comment in ScalaPsiElementFactory.createClassWithBody
+    TemplateDefinitionBuilder(kind = TemplateDefKind.Given, body = s"\n  $body\n")
+      .withScalaFeatures(scalaFeatures)
+      .withProjectContext(ctx)
+      .createTemplateDefinition()
+      .asInstanceOf[ScGivenDefinition]
   }
 
   private[this] def createMemberFromText(

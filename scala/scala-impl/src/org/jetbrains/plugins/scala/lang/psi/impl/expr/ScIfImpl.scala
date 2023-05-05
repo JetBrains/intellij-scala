@@ -4,6 +4,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
@@ -20,13 +21,12 @@ class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf with 
       if (e != null) Option(PsiTreeUtil.getPrevSiblingOfType(e, classOf[ScExpression]))
       else           None
 
-    val rpar = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
+    val rpar = findRightParen
     val cond = getPrecedingExpression(rpar)
 
     cond.orElse {
       if (this.isInScala3File) {
-        val thenKeyword = findChildByType[PsiElement](ScalaTokenType.ThenKeyword)
-        getPrecedingExpression(thenKeyword)
+        thenKeyword.flatMap(getPrecedingExpression)
       } else None
     }
   }
@@ -53,20 +53,25 @@ class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf with 
   }
 
   @inline
+  override def thenKeyword: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenType.ThenKeyword))
+
+  @inline
   override def elseKeyword: Option[PsiElement] = Option(findKElse)
 
   @inline
+  @Nullable
   private def findKElse: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.kELSE)
+
+  @inline
+  @Nullable
+  private def findRightParen: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
 
   override def leftParen: Option[PsiElement] = {
     val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     Option(leftParenthesis)
   }
 
-  override def rightParen: Option[PsiElement] = {
-    val rightParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
-    Option(rightParenthesis)
-  }
+  override def rightParen: Option[PsiElement] = Option(findRightParen)
 
   override protected def innerType: TypeResult = {
     (thenExpression, elseExpression) match {

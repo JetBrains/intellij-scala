@@ -404,6 +404,11 @@ package object extensions {
     @inline def pipeIf[U >: T](predicate: T => Boolean)(f: T => U): U =
       if (predicate(v)) f(v)
       else v
+
+    /** Converts the value by applying the function `f` if the `condition` is true. */
+    @inline def pipeIf[U >: T](condition: Boolean)(f: T => U): U =
+      if (condition) f(v)
+      else v
   }
 
   implicit class ReferenceExt[T](private val target: Reference[T]) extends AnyVal {

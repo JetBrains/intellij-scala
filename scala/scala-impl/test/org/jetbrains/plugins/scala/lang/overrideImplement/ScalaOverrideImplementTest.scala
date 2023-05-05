@@ -1661,4 +1661,84 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement, settingsWithIndentationBasedSyntax)
   }
+
+  def test_SCL_20350_ImplementUsingIndentationBasedSyntaxInsideAnEmptyGivenTemplateBody_Inner(): Unit = {
+    val fileText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  def foo(x: Int): String
+         |
+         |object Container {
+         |  given Foo w${CARET_TAG}ith
+         |}
+         |""".stripMargin
+    val expectedText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  def foo(x: Int): String
+         |
+         |object Container {
+         |  given Foo with
+         |    override def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+         |""".stripMargin
+    val methodName: String = "foo"
+    val isImplement = true
+    runTest(methodName, fileText, expectedText, isImplement, settingsWithIndentationBasedSyntax)
+  }
+
+  def test_SCL_20350_ImplementUsingIndentationBasedSyntaxInsideAnEmptyGivenTemplateBody_TopLevel(): Unit = {
+    val fileText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  def foo(x: Int): String
+         |
+         |given Foo w${CARET_TAG}ith
+         |""".stripMargin
+    val expectedText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  def foo(x: Int): String
+         |
+         |given Foo with
+         |  override def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |""".stripMargin
+    val methodName: String = "foo"
+    val isImplement = true
+    runTest(methodName, fileText, expectedText, isImplement, settingsWithIndentationBasedSyntax)
+  }
+
+  def test_SCL_20350_ImplementUsingStandardSyntaxInsideAnEmptyGivenTemplateBody_TopLevel(): Unit = {
+    val fileText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  def foo(x: Int): String
+         |
+         |given Foo w${CARET_TAG}ith
+         |""".stripMargin
+    val expectedText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  def foo(x: Int): String
+         |
+         |given Foo with {
+         |  override def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
+         |""".stripMargin
+    val methodName: String = "foo"
+    val isImplement = true
+    runTest(methodName, fileText, expectedText, isImplement, settingsWithoutIndentationBasedSyntax)
+  }
 }

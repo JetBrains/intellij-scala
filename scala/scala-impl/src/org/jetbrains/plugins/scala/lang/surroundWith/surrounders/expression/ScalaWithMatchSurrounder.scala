@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -36,18 +36,18 @@ object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
                  _: ScFor |
                  _: ScWhile |
                  _: ScThrow |
-                 _: ScReturn) => true
+                 _: ScReturn |
+                 _: ScMatch) => true
       case Array(_) => false
       case _ => true
     }
 
-    val needBraces = elements.headOption.flatMap(_.containingScalaFile).forall(!_.useIndentationBasedSyntax)
-
     val prefix = super.getTemplateAsString(elements).parenthesize(needParenthesis)
 
     implicit val project: Project = elements.headOption.map(_.getProject).orNull
-    s"""$prefix match ${if (needBraces) "{" else ""}
-       |  case a  $functionArrow${if (needBraces) "\n}" else ""}""".stripMargin
+    s"""$prefix match {
+       |case a  $functionArrow
+       |}""".stripMargin
   }
 
   //noinspection ReferencePassedToNls
@@ -55,7 +55,7 @@ object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
 
   override def getSurroundSelectionRange(editor: Editor, withMatchNode: ASTNode): TextRange = {
     val matchExpr = unwrapParenthesis(withMatchNode) match {
-      case Some(stmt: ScMatch) => stmt
+      case Some(stmt: ScMatch) => stmt.toIndentationBasedSyntax
       case _ => return null
     }
 
