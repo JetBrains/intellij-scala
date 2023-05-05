@@ -468,7 +468,8 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
         val selector = if (node.tag == SELECTtpt && node.children.headOption.exists(it => isTypeTreeTag(it.tag))) "#" else "."
         val qualifier = textOfType(tail)
-        if (qualifier.nonEmpty) qualifier + selector + id(name) else id(name)
+        val qualifierInParens = if (selector == "#" && tail.is(REFINEDtpt)) "(" + qualifier + ")" else qualifier
+        if (qualifier.nonEmpty) qualifierInParens + selector + id(name) else id(name)
       case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => if (name == "_root_") name else "_root_." + name.split('.').map(id).mkString(".")
       case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments: _*)) =>
         val base = textOfType(constructor)

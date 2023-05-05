@@ -83,29 +83,9 @@ class TextToTextTest3 extends TextToTextTestBase {
     "fs2.Stream", // No prefix in fs2.compat.NotGiven
     "fs2.concurrent.SignallingMapRef", // cats.effect.std.MapRef is Any
 
-    "scalaz.DayInstances", // Cannot parse "type lambda"
-    "scalaz.EitherTHoist", // Cannot parse "type lambda"
-    "scalaz.EitherTInstances", // Cannot parse "type lambda"
-    "scalaz.FreeFunctions", // Cannot parse "type lambda"
-    "scalaz.FreeTInstances2", // Cannot parse "type lambda"
     "scalaz.Heap", // Excessive parentheses in function type
-    "scalaz.KleisliHoist", // Cannot parse "type lambda"
-    "scalaz.KleisliInstances", // Cannot parse "type lambda"
-    "scalaz.LazyEitherTInstances", // Cannot parse "type lambda"
-    "scalaz.ReaderWriterStateTHoist", // Cannot parse "type lambda"
-    "scalaz.ReaderWriterStateTInstances", // Cannot parse "type lambda"
-    "scalaz.SelectTInstances", // Cannot parse "type lambda"
-    "scalaz.StateTHoist", // Cannot parse "type lambda"
-    "scalaz.StateTInstances0", // Cannot parse "type lambda"
-    "scalaz.StoreTCohoist", // Cannot parse "type lambda"
-    "scalaz.StoreTInstances", // Cannot parse "type lambda"
-    "scalaz.TheseTInstances0", // Cannot parse "type lambda"
-    "scalaz.TracedTInstances0", // Cannot parse "type lambda"
-    "scalaz.WriterTHoist", // Cannot parse "type lambda"
-    "scalaz.WriterTInstances", // Cannot parse "type lambda"
     "scalaz.\\&/", // id$
     "scalaz.\\/", // id$
-    "scalaz.effect.RegionTInstances1", // Cannot parse "type lambda"
 
     "zio.Experimental", // Extension
     "zio.ProvideSomePartiallyApplied", // No inline parameter modifier
