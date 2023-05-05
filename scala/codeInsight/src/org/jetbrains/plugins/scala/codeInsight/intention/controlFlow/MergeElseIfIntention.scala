@@ -11,7 +11,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
@@ -48,13 +47,10 @@ final class MergeElseIfIntention extends PsiElementBaseIntentionAction {
     val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
-    val start = ifStmt.getTextRange.getStartOffset
-    val startIndex = ifStmt.thenExpression.get.getTextRange.getEndOffset - ifStmt.getTextRange.getStartOffset
-    val endIndex = ifStmt.elseExpression.get.getTextRange.getStartOffset - ifStmt.getTextRange.getStartOffset
-    val elseIndex = ifStmt.getText.substring(startIndex, endIndex).indexOf("else") - 1
-    val diff = editor.getCaretModel.getOffset - ifStmt.thenExpression.get.getTextRange.getEndOffset - elseIndex
-    val newlineBeforeElse = ifStmt.children.find(_.getNode.getElementType == ScalaTokenTypes.kELSE).
-      exists(_.getPrevSibling.getText.contains("\n"))
+    val elseOffset = ifStmt.elseKeyword.get.getTextOffset
+    val caretOffset = editor.getCaretModel.getOffset
+
+    val newlineBeforeElse = ifStmt.elseKeyword.exists(_.startsFromNewLine(ignoreComments = false))
     val expr = new mutable.StringBuilder()
       .append("if (").append(ifStmt.condition.get.getText).append(") ")
       .append(ifStmt.thenExpression.get.getText)
@@ -65,12 +61,11 @@ final class MergeElseIfIntention extends PsiElementBaseIntentionAction {
     implicit val ctx: ProjectContext = element.getManager
     implicit val features: ScalaFeatures = element
     val newIfStmt = ScalaPsiUtil.convertIfToBracelessIfNeeded(createElementFromText[ScIf](expr.toString(), element), recursive = true)
-    val size = newIfStmt.thenExpression.get.getTextRange.getEndOffset -
-      newIfStmt.getTextRange.getStartOffset
+    val newElseOffset = ifStmt.getTextOffset + newIfStmt.elseKeyword.get.getStartOffsetInParent
 
     IntentionPreviewUtils.write { () =>
       ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)
-      editor.getCaretModel.moveToOffset(start + diff + size)
+      editor.getCaretModel.moveToOffset(newElseOffset - elseOffset + caretOffset)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }
