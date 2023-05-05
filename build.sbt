@@ -1,6 +1,7 @@
 import Common.*
 import Dependencies.provided
 import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPath, sbtDep}
+import DynamicDependenciesFetcher.*
 import org.jetbrains.sbtidea.Keys.*
 
 import java.nio.file.Paths
@@ -77,10 +78,7 @@ lazy val scalaCommunity: sbt.Project =
         copyrightIntegration,
         packageSearchIntegration,
         javaDecompilerIntegration,
-        runtimeDependencies,
-        runtimeDependencies2,
-        runtimeDependencies3,
-        runtimeDependencies4
+        runtimeDependencies
       ),
       packageLibraryMappings := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       packageMethod := PackagingMethod.Standalone(),
@@ -711,68 +709,51 @@ lazy val packageSearchIntegration =
 
 // Utility projects
 
-lazy val runtimeDependencies =
-  runtimeDependenciesProject("runtimeDependencies", file("target/tools/runtime-dependencies"))
-    .settings(
-      libraryDependencies := DependencyGroups.runtime,
-      packageLibraryMappings := Seq(
-        "org.scala-lang.modules" % "scala-.*" % ".*" -> None,
-        Dependencies.sbtLaunch -> Some("launcher/sbt-launch.jar"),
-        Dependencies.sbtInterface -> Some("lib/jps/sbt-interface.jar"),
-        Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar"),
-        Dependencies.sbtBridge_Scala_3_0 -> Some("lib/jps/scala3-sbt-bridge_3.0.jar"),
-        Dependencies.compilerBridgeSources_2_13 -> Some("lib/jps/compiler-interface-sources-2.13.jar"),
-        Dependencies.compilerBridgeSources_2_11 -> Some("lib/jps/compiler-interface-sources-2.11.jar"),
-        Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar"),
-        Dependencies.java9rtExport -> Some("java9-rt-export/java9-rt-export.jar")
-      ),
-      localRepoDependencies := List(
-        sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.binary_0_13),
-        sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.binary_1_0),
-        sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_0_13),
-        sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_1_0),
-        sbtDep("org.jetbrains.scala", "sbt-idea-compiler-indices", Versions.compilerIndicesVersion, Versions.Sbt.binary_0_13),
-        sbtDep("org.jetbrains.scala", "sbt-idea-compiler-indices", Versions.compilerIndicesVersion, Versions.Sbt.binary_1_0)
-      ),
-      update := {
-        localRepoUpdate.value
-        update.value
-      },
-      packageFileMappings ++= {
-        localRepoUpdate.value.map { case (src, trg) =>
-          val targetPath = Paths.get("repo").resolve(trg)
-          src.toFile -> targetPath.toString
-        }
+lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencies"))
+  .enablePlugins(DynamicDependenciesFetcher, LocalRepoPackager)
+  .settings(
+    name := "runtimeDependencies",
+    scalaVersion := Versions.scalaVersion,
+    autoScalaLibrary := false,
+    resolvers += Classpaths.sbtPluginReleases,
+    ideSkipProject := true,
+    packageMethod := PackagingMethod.DepsOnly(),
+    dynamicDependencies := Seq(
+      binaryDep("org.scala-sbt", "sbt-launch", Versions.sbtVersion) -> "launcher/sbt-launch.jar",
+      binaryDep("org.scala-sbt", "util-interface", Versions.sbtVersion) -> "lib/jps/sbt-interface.jar",
+      binaryDep("org.scala-sbt", "compiler-interface", Versions.zincVersion) -> "lib/jps/compiler-interface.jar",
+      binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.0.2") -> "lib/jps/scala3-sbt-bridge_3.0.jar",
+      binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.1.3") -> "lib/jps/scala3-sbt-bridge_3.1.jar",
+      binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.2.2") -> "lib/jps/scala3-sbt-bridge_3.2.jar",
+      binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.3.1-RC1-bin-20230206-21729d2-NIGHTLY") -> "lib/jps/scala3-sbt-bridge_3.3.jar",
+      binaryDep("org.scala-sbt.rt", "java9-rt-export", Versions.java9rtExportVersion) -> "java9-rt-export/java9-rt-export.jar",
+      sourceDep("org.scala-sbt", "compiler-bridge", "2.10", Versions.zincVersion) -> "lib/jps/compiler-interface-sources-2.10.jar",
+      sourceDep("org.scala-sbt", "compiler-bridge", "2.11", Versions.zincVersion) -> "lib/jps/compiler-interface-sources-2.11.jar",
+      sourceDep("org.scala-sbt", "compiler-bridge", "2.13", Versions.zincVersion) -> "lib/jps/compiler-interface-sources-2.13.jar",
+    ),
+    localRepoDependencies := List(
+      sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.binary_0_13),
+      sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.binary_1_0),
+      sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_0_13),
+      sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_1_0),
+      sbtDep("org.jetbrains.scala", "sbt-idea-compiler-indices", Versions.compilerIndicesVersion, Versions.Sbt.binary_0_13),
+      sbtDep("org.jetbrains.scala", "sbt-idea-compiler-indices", Versions.compilerIndicesVersion, Versions.Sbt.binary_1_0)
+    ),
+    update := {
+      dynamicDependenciesUpdate.value
+      localRepoUpdate.value
+      update.value
+    },
+    packageFileMappings ++= {
+      localRepoUpdate.value.map { case (src, trg) =>
+        val targetPath = Paths.get("repo").resolve(trg)
+        src.toFile -> targetPath.toString
+      } ++
+      dynamicDependenciesUpdate.value.map { case (src, trg) =>
+        src.toFile -> trg.toString
       }
-    )
-
-// workaround for https://github.com/JetBrains/sbt-idea-plugin/issues/110
-lazy val runtimeDependencies2 =
-  runtimeDependenciesProject("runtimeDependencies2", file("target/tools/runtime-dependencies2"))
-    .settings(
-      libraryDependencies := DependencyGroups.runtime2,
-      packageLibraryMappings := Seq(
-        Dependencies.sbtBridge_Scala_3_1 -> Some("lib/jps/scala3-sbt-bridge_3.1.jar")
-      )
-    )
-
-lazy val runtimeDependencies3 =
-  runtimeDependenciesProject("runtimeDependencies3", file("target/tools/runtime-dependencies3"))
-    .settings(
-      libraryDependencies := DependencyGroups.runtime3,
-      packageLibraryMappings := Seq(
-        Dependencies.sbtBridge_Scala_3_2 -> Some("lib/jps/scala3-sbt-bridge_3.2.jar")
-      )
-    )
-
-lazy val runtimeDependencies4 =
-  runtimeDependenciesProject("runtimeDependencies4", file("target/tools/runtime-dependencies4"))
-    .settings(
-      libraryDependencies := DependencyGroups.runtime4,
-      packageLibraryMappings := Seq(
-        Dependencies.sbtBridge_Scala_3_3 -> Some("lib/jps/scala3-sbt-bridge_3.3.jar")
-      )
-    )
+    }
+  )
 
 //lazy val jmhBenchmarks =
 //  newProject("benchmarks", file("scala/benchmarks"))

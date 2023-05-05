@@ -65,21 +65,6 @@ object Common {
       compilationCacheSettings
     )
 
-  def runtimeDependenciesProject(projectName: String, path: File): Project =
-    Project(projectName, path)
-      .enablePlugins(LocalRepoPackager)
-      .settings(
-        scalaVersion := Versions.scalaVersion,
-        managedScalaInstance := true,
-        conflictManager := ConflictManager.all,
-        conflictWarning := ConflictWarning.disable,
-        resolvers += Classpaths.sbtPluginReleases,
-        ideSkipProject := true,
-        packageMethod := PackagingMethod.DepsOnly(),
-        localRepoDependencies := Seq.empty,
-        packageFileMappings := Seq.empty
-      )
-
   /**
    * Manually build classpath for the JPS module.
    * Code from JPS modules is executed in JPS process which has a separate classpath.
