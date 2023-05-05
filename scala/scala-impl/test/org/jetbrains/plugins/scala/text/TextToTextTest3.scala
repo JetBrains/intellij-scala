@@ -48,6 +48,7 @@ class TextToTextTest3 extends TextToTextTestBase {
     "akka.actor.dungeon.Children", // Any
     "akka.dispatch.CachingConfig", // java.util.Map$.Entry
     "akka.dispatch.Dispatchers", // No annotation on primary constructor
+    "akka.dispatch.ExecutorServiceDelegate", // Cannot resolve
     "akka.event.Logging", // .type.type
     "akka.http.impl.engine.parsing.SpecializedHeaderValueParsers", // ContentLengthParser is Any
     "akka.http.impl.engine.rendering.RenderSupport", // .Repr

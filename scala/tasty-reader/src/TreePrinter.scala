@@ -522,7 +522,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       case Node1(TYPEBOUNDStpt | TYPEBOUNDS) =>
         val sb1 = new StringBuilder() // TODO reuse
         boundsIn(sb1, node)
-        if (legacySyntax) "_" else "?" + sb1.toString
+        (if (legacySyntax) "_" else "?") + sb1.toString
 
       case Node3(LAMBDAtpt, _, children) =>
         val sb1 = new StringBuilder() // TODO reuse
@@ -876,7 +876,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
   }
 
   private def boundsIn(sb: StringBuilder, node: Node): Unit = node match {
-    case Node3(TYPEBOUNDStpt, _, Seq(lower, upper)) =>
+    case Node3(TYPEBOUNDStpt | TYPEBOUNDS, _, Seq(lower, upper)) =>
       val l = textOfType(lower)
       if (l.nonEmpty && l != "_root_.scala.Nothing") {
         sb ++= " >: " + simple(l)
