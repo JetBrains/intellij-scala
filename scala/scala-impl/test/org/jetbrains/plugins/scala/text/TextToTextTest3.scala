@@ -8,20 +8,13 @@ class TextToTextTest3 extends TextToTextTestBase {
 
   override protected val dependencies = Seq(
     "com.typesafe.akka" %% "akka-actor" % "2.7.0",
-    "com.typesafe.akka" %% "akka-http-core" % "10.5.0",
     "com.typesafe.akka" %% "akka-http" % "10.5.0",
-    "com.typesafe.akka" %% "akka-parsing" % "10.5.0",
-    "com.typesafe.akka" %% "akka-stream" % "2.7.0",
-    "com.typesafe" % "config" % "1.4.2",
+    "com.typesafe.akka" %% "akka-stream" % "2.7.0", // Provided dependency of akka-http
 
     "org.typelevel" %% "cats-core" % "2.8.0",
-    "org.typelevel" %% "cats-kernel" % "2.8.0",
     "org.typelevel" %% "cats-effect" % "3.3.14",
-    "org.typelevel" %% "cats-effect-kernel" % "3.3.14",
-    "org.typelevel" %% "cats-effect-std" % "3.3.14",
 
     "co.fs2" %% "fs2-core" % "3.6.1",
-    "org.scodec" %% "scodec-bits" % "1.1.35",
 
     "org.scalaz" %% "scalaz-core" % "7.3.7",
     "org.scalaz" %% "scalaz-effect" % "7.3.7",
@@ -43,6 +36,8 @@ class TextToTextTest3 extends TextToTextTestBase {
     "akka.stream",
     "akka.parboiled2", // No inline modifier, no anonymous using parameters
   )
+
+  override protected val minClassCount: Int = 4600
 
   override protected val classExceptions = Set(
     "akka.actor.dungeon.Children", // Any
@@ -81,7 +76,6 @@ class TextToTextTest3 extends TextToTextTestBase {
     "fs2.CollectorPlatform", // type.Aux
     "fs2.Pull", // fs2.Pull.Terminal is Any
     "fs2.Stream", // No prefix in fs2.compat.NotGiven
-    "fs2.concurrent.SignallingMapRef", // cats.effect.std.MapRef is Any
 
     "scalaz.Heap", // Excessive parentheses in function type
     "scalaz.\\&/", // id$
@@ -94,14 +88,15 @@ class TextToTextTest3 extends TextToTextTestBase {
     "zio.VersionSpecific", // External library reference
     "zio.WirePartiallyApplied", // No inline parameter modifier
     "zio.WireSomePartiallyApplied", // No inline parameter modifier
-    "zio.ZEnvironment", // External library reference
     "zio.ZIOAppVersionSpecific", // No inline parameter modifier
     "zio.ZIOAppVersionSpecificMacros", // given
     "zio.ZIOCompanionVersionSpecific", // Context function type
     "zio.ZIOVersionSpecific", // No inline parameter modifier
-    "zio.ZLogger", // External library reference
     "zio.internal.macros.LayerMacroUtils", // No anonymous using parameter
     "zio.internal.macros.LayerMacros", // No anonymous using parameter
+    "zio.internal.stacktracer.Macros", // External library reference
+    "zio.internal.stacktracer.SourceLocation", // Given
+    "zio.internal.stacktracer.Tracer", // Given
     "zio.metrics.jvm.BufferPools", // External library reference
     "zio.metrics.jvm.GarbageCollector", // External library reference
     "zio.metrics.jvm.MemoryAllocation", // External library reference
@@ -110,6 +105,4 @@ class TextToTextTest3 extends TextToTextTestBase {
     "zio.stream.ZStreamProvideMacro", // No anonymous using parameter
     "zio.stream.ZStreamVersionSpecific", // No inline parameter modifier
   )
-
-  override protected val minClassCount: Int = 4560
 }

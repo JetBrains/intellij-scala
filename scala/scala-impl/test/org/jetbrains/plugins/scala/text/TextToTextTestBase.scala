@@ -29,7 +29,7 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
     version >= (if (isScala3) LatestScalaVersions.Scala_3 else LatestScalaVersions.Scala_2_13)
 
   override def librariesLoaders =
-    super.librariesLoaders :+ IvyManagedLoader(dependencies: _*)
+    super.librariesLoaders :+ IvyManagedLoader(dependencies.map(_.transitive()): _*)
 
   def testTextToText(): Unit = {
     try {
@@ -52,7 +52,7 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
 
     val total = classes.length
 
-    Assert.assertTrue(s"There must be at least $total classes", total > minClassCount)
+    Assert.assertTrue(s"The number of classes: $total < $minClassCount", total >= minClassCount)
 
     println(s"Testing $total classes:")
 
