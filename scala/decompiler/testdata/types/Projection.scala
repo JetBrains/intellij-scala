@@ -36,4 +36,8 @@ trait Projection {
   type T8 = O1.O2.C3
 
   type T9 = O1.O2.O3.type
+
+  class HKT[A[_]]
+
+  type T10 = HKT[({ type λ[A] = Option[A] })#λ]
 }
