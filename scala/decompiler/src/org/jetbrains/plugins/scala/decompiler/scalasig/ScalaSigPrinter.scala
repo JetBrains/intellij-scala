@@ -62,10 +62,10 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   def printSymbol(symbol: Symbol): Unit = {printSymbol(0, symbol)}
 
-  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit): Unit = s match {
+  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit, parens: Boolean = false): Unit = s match {
     case t: SymbolInfoSymbol =>
       for (a <- t.attributes) {
-        indent; print(toString(a))
+        indent; print(toString(a, parens))
         if (onNewLine) print("\n") else print(" ")
       }
     case _ =>
@@ -300,7 +300,9 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   def printPrimaryConstructor(m: MethodSymbol, c: ClassSymbol): Unit = {
-    printSymbolAttributes(m, onNewLine = false, ())
+    val hasParameters = m.infoType.asInstanceOf[MethodType].paramRefs.nonEmpty
+    val hasModifiers = m.isPrivate || m.isProtected || m.symbolInfo.privateWithin.isDefined
+    printSymbolAttributes(m, onNewLine = false, (), parens = hasParameters && !hasModifiers)
     printModifiers(m)
     printMethodType(m.infoType, printResult = false, methodSymbolAsClassParam(_, c, m))(())
   }
@@ -550,10 +552,12 @@ class ScalaSigPrinter(builder: StringBuilder) {
     print("\n")
   }
 
-  def toString(attrib: SymAnnot): String = {
+  def toString(attrib: SymAnnot): String = toString(attrib, parens = false)
+
+  def toString(attrib: SymAnnot, parens: Boolean): String = {
     val prefix = toString(attrib.typeRef, "@")
     val inScala = prefix.startsWith("@_root_.scala.")
-    if (attrib.hasArgs) {
+    if (parens || attrib.hasArgs) {
       val argTexts = attrib.args.map(annotArgText)
       val namedArgsText = attrib.namedArgs.map { case (name, value) =>
         // For some reason, positional arguments are always encoded as named arguments, even for Scala annotations.
