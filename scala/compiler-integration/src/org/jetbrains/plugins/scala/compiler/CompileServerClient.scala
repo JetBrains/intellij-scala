@@ -56,7 +56,7 @@ class CompileServerClientImpl(project: Project)
   extends CompileServerClient {
 
   override def execCommand(command: CompileServerCommand, client: Client): Unit =
-    new RemoteServerRunner(project)
+    new RemoteServerRunner()
       .buildProcess(command.id, command.asArgs, client)
       .runSync()
 }

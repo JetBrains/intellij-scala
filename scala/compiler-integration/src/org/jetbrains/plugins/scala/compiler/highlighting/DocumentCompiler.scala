@@ -112,7 +112,7 @@ private final class DocumentCompiler(project: Project) extends Disposable {
           client.compilationEnd(fixedSources)
         }
       }
-      new RemoteServerRunner(module.getProject)
+      new RemoteServerRunner()
         .buildProcess(CommandIds.Compile, arguments.asStrings, fixedClient)
         .runSync()
     }

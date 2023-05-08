@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.registry.RegistryManager
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
@@ -17,8 +16,7 @@ import scala.util.control.NonFatal
 /**
  * @see `org.jetbrains.plugins.scala.worksheet.server.NonServerRunner`
  */
-final class RemoteServerRunner(project: Project)
-  extends RemoteResourceOwner {
+final class RemoteServerRunner extends RemoteResourceOwner {
 
   override protected val address: InetAddress = InetAddress.getByName(null)
 

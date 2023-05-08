@@ -113,7 +113,7 @@ final class RemoteServerConnector(
 
       val worksheetProcess: CompilationProcess = makeType match {
         case InProcessServer | OutOfProcessServer =>
-          val runner = new RemoteServerRunner(project)
+          val runner = new RemoteServerRunner()
           runner.buildProcess(CommandIds.Compile, argumentsRaw, client)
 
         case NonServer =>
