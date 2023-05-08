@@ -17,7 +17,7 @@ import scala.collection.mutable
 // nonEmpty predicate
 // implicit StringBuilder?
 // indent: opaque type, implicit
-class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false, legacySyntax: Boolean = false) {
+class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, legacySyntax: Boolean = false) {
   private final val Indent = "  "
   private final val CompiledCode = "???"
 
@@ -402,10 +402,13 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     }
   }
 
+  private def simple(tpe: String): String =
+    if (tpe.nonEmpty) tpe else "Nothing" // TODO Remove when all types are supported
+
   // TODO include in textOfType
   // TODO keep prefixes? but those are not "relative" imports, but regular (implicit) imports of each Scala compilation unit
-  private def simple(tpe: String): String = {
-    val s4 = if (!simpleTypes) tpe else {
+  private def simple0(tpe: String): String = {
+    val s4 = {
       if (tpe.contains("this.")) tpe.substring(tpe.indexOf("this.") + (if (tpe.endsWith("this.type")) 0 else 5)) else {
         val s1 = tpe.stripPrefix("_root_.")
         val s2 = if (!s1.stripPrefix("scala.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s1.stripPrefix("scala.") else s1
@@ -455,8 +458,8 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => if (name == "_root_") name else "_root_." + name.split('.').map(id).mkString(".")
       case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments: _*)) =>
         val base = textOfType(constructor)
-        val simpleBase = simple(base)
-        val isInfix = simpleTypes && simpleBase.forall(!_.isLetterOrDigit) && arguments.length == 2
+        val simpleBase = if (infixTypes) simple0(base) else base
+        val isInfix = infixTypes && simpleBase.forall(!_.isLetterOrDigit) && arguments.length == 2
         val isWith = (legacySyntax || !constructor.is(IDENTtpt)) && base == "_root_.scala.&"
         if (isInfix || isWith) {
           val s = arguments.map(it => simple(textOfType(it, parens = if (isWith) 0 else 1))).mkString(" " + (if (isWith) "with" else simpleBase) + " ")

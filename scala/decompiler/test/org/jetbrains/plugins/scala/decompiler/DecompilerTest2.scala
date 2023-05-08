@@ -123,10 +123,9 @@ class DecompilerTest2 extends TestCase {
 
     val adjusted = if (!simpleTypes) actual else actual
       .replace("_root_.", "")
-      .replaceAll("scala\\.(?=\\p{Lu}|\\W)", "")
-      .replace("@scala.", "@")
       .replace("java.lang.", "")
-      .replace("Predef.", "")
+      .replace("scala.Predef.", "")
+      .replaceAll("scala\\.(?!\\w+\\.(?!type))", "")
       .replaceAll("\\w+\\.this\\.(?!type)", "")
       .replaceAll("\\w+\\.(?=this.type)", "")
 
