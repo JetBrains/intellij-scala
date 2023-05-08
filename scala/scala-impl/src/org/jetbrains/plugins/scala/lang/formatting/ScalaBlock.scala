@@ -295,19 +295,21 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     _suggestedWrap
   }
 
-  def getChildBlockLastNode(childNode: ASTNode): ASTNode =
-    (for {
-      context <- subBlocksContext
-      childContext <- context.childrenAdditionalContexts.get(childNode)
-    } yield childContext.lastNode(childNode)).orNull
-
-
-  def getCustomAlignment(childNode: ASTNode): Option[Alignment] =
+  def getChildBlockContext(childNode: ASTNode): Option[SubBlocksContext] =
     for {
       context <- subBlocksContext
       childContext <- context.childrenAdditionalContexts.get(childNode)
-      a <- childContext.alignment
-    } yield a
+    } yield childContext
+
+  def getChildBlockLastNode(childNode: ASTNode): ASTNode = {
+    val childContext = getChildBlockContext(childNode)
+    childContext.map(_.lastNode(childNode)).orNull
+  }
+
+  def getChildBlockCustomAlignment(childNode: ASTNode): Option[Alignment] = {
+    val childContext = getChildBlockContext(childNode)
+    childContext.flatMap(_.alignment)
+  }
 
 
   //noinspection HardCodedStringLiteral

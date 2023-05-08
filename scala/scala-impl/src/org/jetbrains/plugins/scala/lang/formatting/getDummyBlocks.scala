@@ -866,8 +866,8 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
     def childBlock(child: ASTNode): ScalaBlock = {
       val lastNode = block.getChildBlockLastNode(child)
-      val alignment = block.getCustomAlignment(child).orNull
-      val context = block.subBlocksContext.flatMap(_.childrenAdditionalContexts.get(child))
+      val alignment = block.getChildBlockCustomAlignment(child).orNull
+      val context = block.getChildBlockContext(child)
       subBlock(child, lastNode, alignment, context = context)
     }
 
@@ -1027,7 +1027,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
         case _ => alignment
       }
       val lastNode = block.getChildBlockLastNode(child)
-      val context = block.subBlocksContext.flatMap(_.childrenAdditionalContexts.get(child))
+      val context = block.getChildBlockContext(child)
       subBlocks.add(subBlock(child, lastNode, actualAlignment, context = context))
     }
     subBlocks
