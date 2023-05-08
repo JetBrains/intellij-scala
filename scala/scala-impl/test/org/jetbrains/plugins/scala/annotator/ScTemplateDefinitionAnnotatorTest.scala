@@ -63,6 +63,21 @@ class ScTemplateDefinitionAnnotatorTest extends SimpleTestCase {
     )
   }
 
+  def testSCL21122(): Unit =
+    assertNothing(
+      messages(
+        """
+          |object TraitWithDefaultPramas {
+          |  trait IFoo(x: String = "foo") {
+          |    val name = x
+          |  }
+          |
+          |  class Foo extends IFoo // compile passed, but idea reports error
+          |}
+          |""".stripMargin
+      )
+    )
+
   def messages(code: String): List[Message] = {
     val file: ScalaFile = code.parse
 

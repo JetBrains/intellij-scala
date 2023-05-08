@@ -85,20 +85,20 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     }
 
     if (!tdef.is[ScTrait]) {
-      def hasOnlyImplicitParameters(cons: ScPrimaryConstructor): Boolean =
-        cons.parameters.forall(_.isImplicitOrContextParameter)
+      def hasOnlyImplicitOrDefaultParameters(cons: ScPrimaryConstructor): Boolean =
+        cons.parameters.forall(p => p.isImplicitOrContextParameter || p.isDefaultParam)
 
       val resolvedDirectSupers = directSupersBuilder.result()
       supers.collect {
         case (tr: ScTrait) & ScConstructorOwner.constructor(cons) =>
           val isDirectlyImplemented = resolvedDirectSupers.contains(tr)
 
-          val isExtendedBySuperClass = superClass match {
+          def isExtendedBySuperClass = superClass match {
             case Some(cls: PsiClass) => ScalaPsiUtil.isInheritorDeep(cls, tr)
             case _                   => false
           }
 
-          val isOk = isDirectlyImplemented || isExtendedBySuperClass || hasOnlyImplicitParameters(cons)
+          val isOk = isDirectlyImplemented || hasOnlyImplicitOrDefaultParameters(cons) || isExtendedBySuperClass
           if (!isOk) {
             val anchor =
               if (tdef.is[ScNewTemplateDefinition]) tdef.getFirstChild
