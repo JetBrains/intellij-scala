@@ -403,7 +403,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
   }
 
   private def simple(tpe: String): String =
-    if (tpe.nonEmpty) tpe else "Nothing" // TODO Remove when all types are supported
+    if (tpe.nonEmpty) tpe else "Unknown" // TODO Remove when all types are supported
 
   // TODO include in textOfType
   // TODO keep prefixes? but those are not "relative" imports, but regular (implicit) imports of each Scala compilation unit
@@ -416,7 +416,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         if (!s3.stripPrefix("scala.Predef.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s3.stripPrefix("scala.Predef.") else s3
       }
     }
-    if (s4.nonEmpty) s4 else "Nothing" // TODO Remove when all types are supported
+    if (s4.nonEmpty) s4 else "Unknown" // TODO Remove when all types are supported
   }
 
   private def textOfType(node: Node, parens: Int = 0)(using parent: Option[Node] = None): String = {
