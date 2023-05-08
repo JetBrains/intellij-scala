@@ -54,9 +54,9 @@ object SbtData {
     for {
       sbtInterfaceJar      <- fileWithName("sbt-interface.jar")
       compilerInterfaceJar <- fileWithName("compiler-interface.jar")
-      scalaBridge_2_10     <- fileWithName("compiler-interface-sources-2.10.jar")
-      scalaBridge_2_11     <- fileWithName("compiler-interface-sources-2.11.jar")
-      scalaBridge_2_13     <- fileWithName("compiler-interface-sources-2.13.jar")
+      scalaBridge_2_10     <- fileWithName("compiler-interface-sources_2.10.jar")
+      scalaBridge_2_11     <- fileWithName("compiler-interface-sources_2.11.jar")
+      scalaBridge_2_13     <- fileWithName("compiler-interface-sources_2.13.jar")
       scalaBridge_3_0      <- fileWithName("scala3-sbt-bridge_3.0.jar")
       scalaBridge_3_1      <- fileWithName("scala3-sbt-bridge_3.1.jar")
       scalaBridge_3_2      <- fileWithName("scala3-sbt-bridge_3.2.jar")
