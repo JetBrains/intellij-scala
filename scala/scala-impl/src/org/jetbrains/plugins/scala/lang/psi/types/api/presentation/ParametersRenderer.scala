@@ -11,43 +11,46 @@ class ParametersRenderer(
   paramsSeparator: String = ", "
 ) {
 
-  def renderClauses(parameters: ScParameters): String =
-    renderClauses(parameters.clauses)
-
-  def renderClauses(parametersOwner: ScParameterOwner): String =
-    renderClauses(parametersOwner.allClauses)
-
-  def renderClauses(clauses: Seq[ScParameterClause]): String = {
+  def renderClauses(parameters: ScParameters): String = {
     val buffer = new StringBuilder()
-    for (child <- clauses) {
-      renderClause(child, buffer)
-      buffer.append(clausesSeparator)
-    }
+    renderClauses(buffer, parameters.clauses)
     buffer.result()
   }
+
+  def renderClauses(parametersOwner: ScParameterOwner): String = {
+    val buffer = new StringBuilder()
+    renderClauses(buffer, parametersOwner.allClauses)
+    buffer.result()
+  }
+
+  def renderClauses(buffer: StringBuilder, clauses: Seq[ScParameterClause]): Unit =
+    for (child <- clauses) {
+      renderClause(buffer, child)
+      buffer.append(clausesSeparator)
+    }
 
   def renderClause(clause: ScParameterClause): String = {
     val buffer = new StringBuilder()
-    renderClause(clause, buffer)
+    renderClause(buffer, clause)
     buffer.result()
   }
 
-  def renderClause(clause: ScParameterClause, buffer: StringBuilder): Unit = {
+  def renderClause(buffer: StringBuilder, clause: ScParameterClause): Unit = {
     val prefix = if (renderImplicitModifier && clause.isImplicit) "(implicit " else "("
     val suffix = ")"
     buffer.append(prefix)
-    renderParameters(clause.parameters, buffer)
+    renderParameters(buffer, clause.parameters)
     buffer.append(suffix)
   }
 
-  private def renderParameters(parameters: Seq[ScParameter], buffer: StringBuilder): Unit = {
+  private def renderParameters(buffer: StringBuilder, parameters: Seq[ScParameter]): Unit = {
     var isFirst = true
     for (param <- parameters) {
       if (isFirst)
         isFirst = false
       else
         buffer.append(paramsSeparator)
-      parameterRenderer.render(param, buffer)
+      parameterRenderer.render(buffer, param)
     }
   }
 }

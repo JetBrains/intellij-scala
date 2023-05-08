@@ -6,12 +6,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ParameterRend
 trait ParameterRendererLike {
 
   final def render(param: ScParameter): String = {
-    val builder = new StringBuilder()
-    render(param, builder)
-    builder.result()
+    val buffer = new StringBuilder()
+    render(buffer, param)
+    buffer.result()
   }
 
-  def render(param: ScParameter, buffer: StringBuilder): Unit
+  def render(buffer: StringBuilder, param: ScParameter): Unit
 }
 
 final class ParameterRenderer(
@@ -48,34 +48,31 @@ final class ParameterRenderer(
 
   private def annotationsRenderer = new AnnotationsRenderer(typeRenderer, separator = " ", escaper)
 
-  def render(param: ScParameter, buffer: StringBuilder): Unit = {
-    if (withAnnotations) {
-      buffer.append(parameterAnnotations(param))
-    }
+  def render(buffer: StringBuilder, param: ScParameter): Unit = {
+    if (withAnnotations) parameterAnnotations(buffer, param)
     if (withMemberModifiers) {
-      buffer.append(renderModifiers(param))
+      renderModifiers(buffer, param)
       buffer.append(keywordPrefix(param))
     }
     buffer.append(escaper.escape(param.name))
-    buffer.append(typeAnnotationRenderer.render(param))
+    typeAnnotationRenderer.render(buffer, param)
   }
 
-  private def parameterAnnotations(param: ScParameter): String = {
+  private def parameterAnnotations(buffer: StringBuilder, param: ScParameter): Unit = {
     val isMember = param match {
       case c: ScClassParameter => c.isClassMember
       case _                   => false
     }
     // When parameter is val, var, or case class val, annotations are related to member, not to parameter
-    if (isMember && !withMemberModifiers) "" else {
-      annotationsRenderer.renderAnnotations(param)
-    }
+    if (!isMember || withMemberModifiers)
+      buffer.append(annotationsRenderer.renderAnnotations(param))
   }
 
-  private def renderModifiers(param: ScParameter): String =
+  private def renderModifiers(buffer: StringBuilder, param: ScParameter): Unit =
     // do we really need this check? non class parameters will not contain modifiers anyway
     param match {
-      case _: ScClassParameter => modifiersRenderer.render(param)
-      case _                   => ""
+      case _: ScClassParameter => modifiersRenderer.render(buffer, param)
+      case _                   =>
     }
 }
 

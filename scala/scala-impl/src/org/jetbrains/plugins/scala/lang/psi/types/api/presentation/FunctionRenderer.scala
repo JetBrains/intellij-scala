@@ -17,12 +17,13 @@ class FunctionRenderer(
   ) = this(Some(typeParamsRenderer), parametersRenderer, typeAnnotationRenderer, renderDefKeyword)
 
   def render(function: ScFunction): String = {
-    val keyword        = if (renderDefKeyword) "def " else ""
-    val name           = function.name
-    val typeParameters = typeParamsRenderer.fold("")(_.renderParams(function))
-    val parameters     = Option(function.paramClauses).map(parametersRenderer.renderClauses).getOrElse("")
-    val typeAnnotation = typeAnnotationRenderer.render(function)
-    s"$keyword$name$typeParameters$parameters$typeAnnotation"
+    val buffer = new StringBuilder
+    if (renderDefKeyword) buffer.append("def ")
+    buffer.append(function.name)
+    typeParamsRenderer.foreach(_.renderParams(buffer, function))
+    Option(function.paramClauses).foreach(params => parametersRenderer.renderClauses(buffer, params.clauses))
+    typeAnnotationRenderer.render(buffer, function)
+    buffer.result()
   }
 }
 

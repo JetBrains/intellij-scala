@@ -20,6 +20,14 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
          |""".stripMargin
     )
 
+  def testSimpleTypeAlias(): Unit =
+    doGenerateDocTest(
+      s"""type ${|}Foo = String""",
+      s"""
+         |type Foo = <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
+         |""".stripMargin
+    )
+
   def testSimpleTrait(): Unit =
     doGenerateDocTest(
       s"""trait ${|}MyTrait""",

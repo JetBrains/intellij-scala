@@ -53,9 +53,9 @@ private class ScalaDocContentGenerator(
   def tagDescriptionText(
     tag: ScDocTag
   ): String = {
-    val buffer = newStringBuilder
+    val buffer = new StringBuilder
     appendTagDescriptionText(buffer, tag)
-    buffer.result
+    buffer.result()
   }
 
   private def tagDescriptionParts(tag: ScDocTag): Iterable[ScDocDescriptionPart] = {
@@ -66,9 +66,9 @@ private class ScalaDocContentGenerator(
   }
 
   private def nodesText(elements: Iterable[PsiElement]): String = {
-    val buffer = newStringBuilder
+    val buffer = new StringBuilder
     elements.foreach(visitNode(buffer, _))
-    buffer.result
+    buffer.result()
   }
 
   def appendDescriptionParts(
@@ -322,7 +322,7 @@ private class ScalaDocContentGenerator(
   private def appendMacroValue(result: StringBuilder, macroElement: PsiElement): Unit = {
     val macroValue = macroValueSafe(macroElement)
     val endIdx = macroValue.lastIndexWhere(!_.isWhitespace) + 1
-    result.append(macroValue, 0, endIdx)
+    result.append(macroValue.subSequence(0, endIdx))
   }
 
   private def macroValueSafe(macroElement: PsiElement): String = {
