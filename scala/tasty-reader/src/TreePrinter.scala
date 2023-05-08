@@ -461,7 +461,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         val qualifier = textOfType(tail)
         if (qualifier.endsWith("package$")) { val i = qualifier.lastIndexOf('.'); qualifier.substring(0, if (i == -1) qualifier.length - 8 else i) }
         else if (qualifier.endsWith("$")) qualifier.substring(0, qualifier.length - 1) // What is the semantics of "this" when referring to external module classes?
-        else if (qualifier == "_root_.<empty>") "this" else qualifier.split('.').last + ".this"
+        else if (qualifier == "_root_.`<empty>`") "" else qualifier.split('.').last + ".this"
       case Node3(QUALTHIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
         qualifier.split('.').last + ".this" // Simplify Foo.this in Foo?
@@ -578,7 +578,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("_root_.scala.annotation.internal.")).map(simple).getOrElse("") // TODO optimize
         if (name.nonEmpty) {
           sb ++= indent
-          sb ++= "@" + name.split('.').map(id).mkString(".")
+          sb ++= "@" + simple(name.split('.').map(id).mkString("."))
           tail match {
             case Node3(TYPEAPPLY, _, Seq(_, args: _*)) =>
               sb ++= "["
@@ -759,7 +759,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           }
           textOfAnnotationIn(sb, "", node, " ")
           val tpe = textOfType(children.head)
-          if (node.contains(INLINE) || tpe.endsWith(" @scala.annotation.internal.InlineParam")) {
+          if (node.contains(INLINE) || tpe.endsWith(" @_root_.scala.annotation.internal.InlineParam")) {
             sb ++= "inline "
           }
           if (!definition.exists(isGivenClass0)) {
@@ -789,7 +789,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
             }
             sb ++= ": "
           }
-          sb ++= simple(tpe).stripSuffix(" @scala.annotation.internal.InlineParam")
+          sb ++= simple(tpe).stripSuffix(" @_root_.scala.annotation.internal.InlineParam")
           if (node.contains(HASDEFAULT)) {
             sb ++= " = "
             sb ++= CompiledCode
