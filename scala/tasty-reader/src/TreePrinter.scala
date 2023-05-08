@@ -900,7 +900,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
   }
 
   private def id(s: String): String =
-    if (!isIdentifier(s) || Keywords(s) || s == "=" || s == "=>" || s == "?=>" | s == "=>>") "`" + s + "`" else s
+    if (Keywords(s) || !isIdentifier(s)) "`" + s + "`" else s
 
   private def isIdentifier(s: String): Boolean = !(s.isEmpty || s.contains("//") || s.contains("/*")) && {
     if (s(0) == '_' || s(0) == '$' || Character.isUnicodeIdentifierStart(s(0))) {
@@ -925,6 +925,10 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
 private object TreePrinter {
   private val Keywords = Set(
+    "=",
+    "=>",
+    "=>>",
+    "?=>",
     "abstract",
     "case",
     "catch",
