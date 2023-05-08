@@ -300,16 +300,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     case _ => false
   }
 
-  private def findPackageName(position: PsiElement): Option[String] = {
-    def packageWithName(e: PsiElement): Option[String] = e match {
-      case p: ScPackaging => Some(p.fullPackageName)
-      case obj: ScObject if obj.isPackageObject => Some(obj.qualifiedName.stripSuffix("package$"))
-      case _ => None
-    }
-
-    position.parentsInFile.flatMap(packageWithName).nextOption()
-  }
-
   private def filterAllClasses(condition: ReferenceType => Boolean, packageName: Option[String]): collection.Seq[ReferenceType] = {
     def samePackage(refType: ReferenceType) = {
       val name = nonLambdaName(refType)
@@ -881,6 +871,16 @@ object ScalaPositionManager {
       //but local classes may have suffices like $1
       !suffix.exists(_.isLetter)
     }
+  }
+
+  private[debugger] def findPackageName(position: PsiElement): Option[String] = {
+    def packageWithName(e: PsiElement): Option[String] = e match {
+      case p: ScPackaging => Some(p.fullPackageName)
+      case obj: ScObject if obj.isPackageObject => Some(obj.qualifiedName.stripSuffix("package$"))
+      case _ => None
+    }
+
+    position.parentsInFile.flatMap(packageWithName).nextOption()
   }
 
   private class MyClassPrepareRequestor(position: SourcePosition, requestor: ClassPrepareRequestor) extends ClassPrepareRequestor {

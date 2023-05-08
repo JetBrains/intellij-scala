@@ -34,6 +34,7 @@ public class NailgunRunner {
   private static final String[] COMMANDS = {
           "compile",
           "compile-jps",
+          "evaluate-expression",
           "get-metrics"
   };
   private static final String SERVER_DESCRIPTION = "Scala compile server";

@@ -1,6 +1,7 @@
 package org.jetbrains.jps.incremental.scala.data
 
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand, SourceScope}
+import org.jetbrains.plugins.scala.compiler.data.ExpressionEvaluationArguments
 
 import scala.concurrent.duration.DurationLong
 import scala.util.Try
@@ -34,6 +35,9 @@ object CompileServerCommandParser
           case _ =>
             throwIllegalArgs(commandId, args)
         }
+      case CommandIds.EvaluateExpression =>
+        val parsed = ExpressionEvaluationArguments.parse(args).get
+        CompileServerCommand.EvaluateExpression(parsed)
       case CommandIds.GetMetrics =>
         args match {
           case Seq() =>

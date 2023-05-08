@@ -1,23 +1,27 @@
 package org.jetbrains.jps.incremental.scala.remote
 
 import com.facebook.nailgun.{NGContext, NGServer}
+import com.intellij.openapi.application.PathManager
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.CompileServerCommandParser
-import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
+import org.jetbrains.jps.incremental.scala.local.{Cache, LocalServer}
 import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
-import org.jetbrains.plugins.scala.compiler.data.Arguments
 import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
+import org.jetbrains.plugins.scala.compiler.data.{Arguments, ExpressionEvaluationArguments}
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
 import java.io._
+import java.lang.reflect.Method
+import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.{Timer, TimerTask}
 import scala.annotation.unused
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -173,6 +177,9 @@ object Main {
         try {
           currentParallelism.incrementAndGet()
           action
+        } catch {
+          case t: Throwable =>
+            println(t)
         } finally {
           currentParallelism.decrementAndGet()
         }
@@ -185,6 +192,8 @@ object Main {
           compileLogic(arguments, client)
         case compileJps: CompileServerCommand.CompileJps =>
           Jps.compileJpsLogic(compileJps, client, scalaCompileServerSystemDir)
+        case CompileServerCommand.EvaluateExpression(args) =>
+          evaluateExpressionLogic(args)
         case CompileServerCommand.GetMetrics =>
           getMetricsLogic(client)
       }
@@ -203,6 +212,28 @@ object Main {
         worksheetServer.loadAndRun(wa, args, client)
       case _ =>
     }
+  }
+
+  private val expressionCompilerCache: Cache[true, (AnyRef, Method)] = new Cache(1)
+
+  private def evaluateExpressionLogic(args: ExpressionEvaluationArguments): Unit = {
+    val ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName) = args
+    val (instance, method) = expressionCompilerCache.getOrUpdate(true) {
+      val path = PathManager.getJarForClass(this.getClass)
+        .getParent.getParent.getParent
+        .resolve("debugger")
+        .resolve("scala-expression-compiler_3.3.0.jar")
+      val classLoader = new URLClassLoader((classpath :+ path).map(_.toUri.toURL).toArray, this.getClass.getClassLoader)
+      val bridgeClass = Class.forName("dotty.tools.dotc.ExpressionCompilerBridge", true, classLoader)
+      val instance = bridgeClass.getDeclaredConstructor().newInstance().asInstanceOf[AnyRef]
+      val method = bridgeClass.getMethods.find(_.getName == "run").get
+      (instance, method)
+    }
+
+    val consumer: java.util.function.Consumer[String] = _ => ()
+
+    method.invoke(instance, outDir, "CompiledExpression", classpath.mkString(":"), scalacOptions.toArray, source, line,
+      expression, localVariableNames.asJava, packageName, consumer, false)
   }
 
   private def getMetricsLogic(client: Client): Unit = {

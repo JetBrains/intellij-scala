@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala.data
 
+import org.jetbrains.jps.incremental.scala.Extractor
 import org.jetbrains.jps.incremental.scala.data.ArgumentsParser.ArgumentsParserError
-import org.jetbrains.jps.incremental.scala.extractor
 import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, _}
 import org.jetbrains.plugins.scala.compiler.data.serialization.{SerializationUtils, WorksheetArgsSerializer}
 
@@ -97,21 +97,17 @@ object ArgumentsParser
       Right(Arguments(sbtData, compilerData, compilationData, worksheetArgs))
   }
 
-  private val PathToFile = extractor[String, File] { (path: String) =>
-    new File(path)
+  private val PathToFile: Extractor[String, File] = new File(_)
+
+  private val PathsToFiles: Extractor[String, Seq[File]] = { paths =>
+    if (paths.isEmpty) Seq.empty else paths.split(SerializationUtils.Delimiter).map(PathToFile).toSeq
   }
 
-  private val PathsToFiles = extractor[String, Seq[File]] { (paths: String) =>
-    if (paths.isEmpty) Seq.empty else paths.split(SerializationUtils.Delimiter).map(new File(_)).toSeq
-  }
-
-  private val StringToOption = extractor[String, Option[String]] { (s: String) =>
+  private val StringToOption: Extractor[String, Option[String]] = { s =>
     if (s.isEmpty) None else Some(s)
   }
 
-  private val StringToSequence = extractor[String, Seq[String]](SerializationUtils.stringToSequence)
+  private val StringToSequence: Extractor[String, Seq[String]] = SerializationUtils.stringToSequence
 
-  private val StringToBoolean = extractor[String, Boolean] { (s: String) =>
-    s.toBoolean
-  }
+  private val StringToBoolean: Extractor[String, Boolean] = _.toBoolean
 }

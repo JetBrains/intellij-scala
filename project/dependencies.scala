@@ -41,6 +41,8 @@ object Versions {
 
   val java9rtExportVersion: String = "0.1.0"
 
+  val scalaExpressionCompiler: String = "3.0.9"
+
   object Sbt {
     val binary_0_13 = "0.13"
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series

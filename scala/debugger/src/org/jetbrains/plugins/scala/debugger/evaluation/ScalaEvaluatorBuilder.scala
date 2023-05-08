@@ -8,7 +8,6 @@ import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
-import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -22,12 +21,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
 import org.jetbrains.plugins.scala.util.AnonymousFunction
-import org.jetbrains.plugins.scala.NlsString
+import org.jetbrains.plugins.scala.{NlsString, Scala3Language}
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 
 object ScalaEvaluatorBuilder extends EvaluatorBuilder {
   override def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
-    if (codeFragment.getLanguage.isInstanceOf[JavaLanguage])
+    if (codeFragment.getLanguage.is(JavaLanguage.INSTANCE))
       return EvaluatorBuilderImpl.getInstance().build(codeFragment, position) //java builder (e.g. SCL-6117)
 
     ScalaDebuggerUsagesCollector.logEvaluator(codeFragment.getProject)
@@ -68,7 +67,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     } catch {
       case _: NeedCompilationException =>
         ScalaDebuggerUsagesCollector.logCompilingEvaluator(project)
-        new ScalaCompilingExpressionEvaluator(buildCompilingEvaluator)
+        if (codeFragment.getLanguage.is(Scala3Language.INSTANCE))
+          new ExpressionCompilerEvaluator(codeFragment, position)
+        else
+          new ScalaCompilingExpressionEvaluator(buildCompilingEvaluator)
       case e: EvaluateException =>
         throw e
     }
@@ -96,12 +98,12 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
     maybeContextClass.orNull
   }
 
-  def getEvaluator: Evaluator = new UnwrapRefEvaluator(fragmentEvaluator(codeFragment))
+  private def getEvaluator: Evaluator = new UnwrapRefEvaluator(fragmentEvaluator(codeFragment))
 
   protected def evaluatorFor(element: PsiElement): Evaluator = {
     element match {
       case implicitlyConvertedTo(expr)     => evaluatorFor(expr)
-      case needsCompilation(message)       => throw new NeedCompilationException(message)
+      case needsCompilation(message)       => throw new NeedCompilationException(message.nls)
       case byNameParameterFunction(p, ref) => byNameParamEvaluator(ref, p, computeValue = false)
       case thisFromFrame(eval)             => eval
       case expr: ScExpression              =>
@@ -134,7 +136,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
     }
   }
 
-  def fragmentEvaluator(fragment: ScalaCodeFragment): Evaluator = {
+  private def fragmentEvaluator(fragment: ScalaCodeFragment): Evaluator = {
     val childrenEvaluators = fragment.children.filter(!_.is[ScImportStmt]).collect {
       case e @ (_: ScBlockStatement | _: ScMember) => evaluatorFor(e)
     }
@@ -194,7 +196,7 @@ private object needsCompilation {
 }
 
 private object byNameParameterFunction {
-  val byNameFunctionSuffix = "_byNameFun"
+  private val byNameFunctionSuffix = "_byNameFun"
 
   def unapply(ref: ScReferenceExpression): Option[(ScParameter, ScReferenceExpression)] = {
     if (ref.qualifier.isDefined) None
@@ -213,7 +215,7 @@ private object byNameParameterFunction {
 }
 
 private object thisFromFrame {
-  val thisKey = "$this0"
+  private val thisKey = "$this0"
 
   def unapply(ref: ScReferenceExpression): Option[Evaluator] = {
     if (ref.qualifier.isDefined) None

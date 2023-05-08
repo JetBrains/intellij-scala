@@ -9,10 +9,8 @@ import _root_.scala.util.Using
 
 package object scala {
 
-  def extractor[A, B](f: A => B) = new Extractor[A, B](f)
-
-  class Extractor[A, B](f: A => B) {
-    def unapply(a: A): Some[B] = Some(f(a))
+  trait Extractor[A, B] extends (A => B) {
+    def unapply(a: A): Some[B] = Some(apply(a))
   }
 
   def containsScala3(files: Iterable[File]): Boolean =

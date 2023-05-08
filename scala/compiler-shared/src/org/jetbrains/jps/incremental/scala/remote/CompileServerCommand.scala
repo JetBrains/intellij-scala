@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import org.jetbrains.plugins.scala.compiler.data.Arguments
+import org.jetbrains.plugins.scala.compiler.data.{Arguments, ExpressionEvaluationArguments}
 
 sealed trait CompileServerCommand {
   def asArgs: Seq[String]
@@ -42,6 +42,14 @@ object CompileServerCommand {
       moduleName,
       sourceScope.toString,
     ) ++ externalProjectConfig
+
+    override def isCompileCommand: Boolean = true
+  }
+
+  case class EvaluateExpression(args: ExpressionEvaluationArguments) extends CompileServerCommand {
+    override def asArgs: Seq[String] = args.asStrings
+
+    override def id: String = CommandIds.EvaluateExpression
 
     override def isCompileCommand: Boolean = true
   }
