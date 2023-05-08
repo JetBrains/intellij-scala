@@ -7,21 +7,14 @@ class TextToTextTest2 extends TextToTextTestBase {
   override protected def isScala3: Boolean = false
 
   override protected val dependencies = Seq(
-    "com.typesafe.akka" %%  "akka-actor" % "2.7.0",
-    "com.typesafe.akka" %% "akka-http-core" % "10.5.0",
+    "com.typesafe.akka" %% "akka-actor" % "2.7.0",
     "com.typesafe.akka" %% "akka-http" % "10.5.0",
-    "com.typesafe.akka" %% "akka-parsing" % "10.5.0",
-    "com.typesafe.akka" %% "akka-stream" % "2.7.0",
-    "com.typesafe" % "config" % "1.4.2",
+    "com.typesafe.akka" %% "akka-stream" % "2.7.0", // Provided dependency of akka-http
 
     "org.typelevel" %% "cats-core" % "2.8.0",
-    "org.typelevel" %% "cats-kernel" % "2.8.0",
     "org.typelevel" %% "cats-effect" % "3.3.14",
-    "org.typelevel" %% "cats-effect-kernel" % "3.3.14",
-    "org.typelevel" %% "cats-effect-std" % "3.3.14",
 
     "co.fs2" %% "fs2-core" % "3.6.1",
-    "org.scodec" %% "scodec-bits" % "1.1.35",
 
     "org.scalaz" %% "scalaz-core" % "7.3.7",
     "org.scalaz" %% "scalaz-effect" % "7.3.7",
@@ -42,8 +35,9 @@ class TextToTextTest2 extends TextToTextTestBase {
   )
 
   override protected val packageExceptions = Set(
-    "akka.stream"
   )
+
+  override protected val minClassCount: Int = 6450
 
   override protected val classExceptions = Set(
     "akka.actor.Terminated",
@@ -57,12 +51,19 @@ class TextToTextTest2 extends TextToTextTestBase {
     "akka.http.scaladsl.server.directives.BasicDirectives",
     "akka.http.scaladsl.unmarshalling.Unmarshaller",
     "akka.pattern.BackoffSupervisor",
+    "akka.stream.Supervision",
+    "akka.stream.impl.QueueSource",
+    "akka.stream.impl.VirtualProcessor",
+    "akka.stream.impl.io.ConnectionSourceStage",
+    "akka.stream.impl.io.compression.DeflateDecompressor",
+    "akka.stream.impl.io.compression.GzipDecompressor",
+    "akka.stream.scaladsl.MergeHub",
+    "akka.stream.stage.GraphStageLogic",
 
     "cats.arrow.FunctionKMacros",
     "cats.arrow.FunctionKMacroMethods",
 
     "fs2.Pull",
-    "fs2.concurrent.SignallingMapRef",
 
     "scala.concurrent.impl.Promise",
 
@@ -79,6 +80,8 @@ class TextToTextTest2 extends TextToTextTestBase {
     "scala.reflect.internal.transform.Transforms",
     "scala.reflect.runtime.ReflectionUtils",
 
+    "scala.util.parsing.combinator.PackratParsers",
+
     "scalaz.Endomorphic",
     "scalaz.Foralls",
     "scalaz.FreeFunctions",
@@ -88,9 +91,5 @@ class TextToTextTest2 extends TextToTextTestBase {
     "scalaz.syntax.ToApplicativeErrorOps",
     "scalaz.syntax.ToMonadErrorOps",
     "scalaz.syntax.ToMonadTellOps",
-
-    "zio.VersionSpecific",
   )
-
-  override protected val minClassCount: Int = 5590
 }
