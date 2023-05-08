@@ -21,15 +21,7 @@ object ArgumentsParser
 
   override def parse(strings: Seq[String]): Either[ArgumentsParserError, Arguments] = strings match {
     case Seq(
-      PathToFile(sbtInterfaceJar),
-      PathToFile(compilerInterfaceJar),
-      PathToFile(scalaBridgeSourceJar_2_10),
-      PathToFile(scalaBridgeSourceJar_2_11),
-      PathToFile(scalaBridgeSourceJar_2_13),
-      PathToFile(scalaBridgeJar_3_0),
-      PathToFile(scalaBridgeJar_3_1),
-      PathToFile(scalaBridgeJar_3_2),
-      PathToFile(scalaBridgeJar_3_3),
+      PathToFile(pluginJpsDirectory),
       PathToFile(interfacesHome),
       javaClassVersion,
       StringToOption(compilerJarPaths),
@@ -42,30 +34,20 @@ object ArgumentsParser
       order,
       PathToFile(cacheFile),
       PathsToFiles(outputs),
-      PathsToFiles(caches)
-    ) :+ incrementalTypeName
-      :+ PathsToFiles(sourceRoots)
-      :+ PathsToFiles(outputDirs)
-      :+ StringToSequence(worksheetArgsRaw)
-      :+ PathsToFiles(allSources)
-      :+ startDate
-      :+ StringToBoolean(isCompile)
-     =>
+      PathsToFiles(caches),
+      incrementalTypeName,
+      PathsToFiles(sourceRoots),
+      PathsToFiles(outputDirs),
+      StringToSequence(worksheetArgsRaw),
+      PathsToFiles(allSources),
+      startDate,
+      StringToBoolean(isCompile)
+    ) =>
 
       def error(message: String): Left[ArgumentsParserError, Nothing] = Left(ArgumentsParserError(message))
 
-      val scalaBridgeSources = SbtData.ScalaSourceJars(
-        _2_10 = scalaBridgeSourceJar_2_10,
-        _2_11 = scalaBridgeSourceJar_2_11,
-        _2_13 = scalaBridgeSourceJar_2_13
-      )
-      val dottyBridges = SbtData.Scala3Jars(
-        _3_0 = scalaBridgeJar_3_0,
-        _3_1 = scalaBridgeJar_3_1,
-        _3_2 = scalaBridgeJar_3_2,
-        _3_3 = scalaBridgeJar_3_3
-      )
-      val compilerBridges = SbtData.CompilerBridges(scalaBridgeSources, dottyBridges)
+      val SbtData.Jars(sbtInterfaceJar, compilerInterfaceJar, compilerBridges) =
+        SbtData.Jars.fromPluginJpsDirectory(pluginJpsDirectory.toPath)
       val sbtData = SbtData(sbtInterfaceJar, compilerInterfaceJar, compilerBridges, interfacesHome, javaClassVersion)
 
       val compilerJars = compilerJarPaths.map {

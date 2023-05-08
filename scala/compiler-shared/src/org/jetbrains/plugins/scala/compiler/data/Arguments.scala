@@ -24,15 +24,7 @@ case class Arguments(sbtData: SbtData,
     val incrementalType = compilerData.incrementalType
 
     Seq(
-      fileToPath(sbtData.sbtInterfaceJar),
-      fileToPath(sbtData.compilerInterfaceJar),
-      fileToPath(sbtData.compilerBridges.scala._2_10),
-      fileToPath(sbtData.compilerBridges.scala._2_11),
-      fileToPath(sbtData.compilerBridges.scala._2_13),
-      fileToPath(sbtData.compilerBridges.scala3._3_0),
-      fileToPath(sbtData.compilerBridges.scala3._3_1),
-      fileToPath(sbtData.compilerBridges.scala3._3_2),
-      fileToPath(sbtData.compilerBridges.scala3._3_3),
+      fileToPath(sbtData.pluginJpsDirectory.toFile),
       fileToPath(sbtData.interfacesHome),
       sbtData.javaClassVersion,
       optionToString(compilerJarPaths),
