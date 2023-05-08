@@ -482,8 +482,10 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
         annotation match {
           case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe0, _: _*)), _: _*)), _: _*)) =>
-            if (textOfType(tpe0) == "_root_.scala.annotation.internal.Repeated") textOfType(tpe.children(1), parens = 1) + "*"
-            else textOfType(tpe) + " " + "@" + simple(textOfType(tpe0)) + {
+            val s = textOfType(tpe0)
+            if (s == "_root_.scala.annotation.internal.Repeated") textOfType(tpe.children(1), parens = 1) + "*"
+            else if (s != "_root_.scala.annotation.internal.InlineParam") textOfType(tpe) // SCL-21207
+            else textOfType(tpe) + " " + "@" + simple(s) + {
               val args = annotation.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ")
               if (args.nonEmpty) "(" + args + ")" else ""
             }
