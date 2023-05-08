@@ -448,48 +448,6 @@ object ScalaBlock {
     }
 }
 
-private[formatting]
-class SubBlocksContext(val additionalNodes: Seq[ASTNode] = Seq(),
-                       val alignment: Option[Alignment] = None,
-                       val childrenAdditionalContexts: Map[ASTNode, SubBlocksContext] = Map()) {
-  def lastNode(firstNode: ASTNode): ASTNode =
-    lastNode.filter(_ != firstNode).orNull
 
-  private def lastNode: Option[ASTNode] = {
-    val nodes1 = childrenAdditionalContexts.map { case (_, context) => context.lastNode }.collect { case Some(x) => x }
-    val nodes2 = childrenAdditionalContexts.map { case (child, _) => child }
-    val nodes = nodes1 ++ nodes2 ++ additionalNodes
-    if (nodes.nonEmpty) {
-      Some(nodes.maxBy(_.getTextRange.getEndOffset))
-    } else {
-      None
-    }
-  }
-}
 
-private[formatting]
-object SubBlocksContext {
-  def apply(node: ASTNode,
-            childNodes: Seq[ASTNode],
-            childAlignment: Option[Alignment] = None,
-            childrenAdditionalContexts: Map[ASTNode, SubBlocksContext] = Map()): SubBlocksContext = {
-    new SubBlocksContext(
-      additionalNodes = Seq(),
-      alignment = None,
-      childrenAdditionalContexts = Map(
-        node -> new SubBlocksContext(childNodes, childAlignment, childrenAdditionalContexts)
-      )
-    )
-  }
 
-  def apply(childNodesAlignment: Map[ASTNode, Alignment]): SubBlocksContext = {
-    new SubBlocksContext(
-      additionalNodes = Seq(),
-      alignment = None,
-      childrenAdditionalContexts = childNodesAlignment
-        .view
-        .mapValues(a => new SubBlocksContext(Seq(), Some(a), Map()))
-        .toMap
-    )
-  }
-}
