@@ -250,7 +250,9 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     val previousLength = sb.length
     primaryConstructor.foreach { constructor =>
       val sb1 = new StringBuilder() // TODO reuse
-      textOfAnnotationIn(sb1, "", constructor, " ")
+      val hasParameters = node.children.exists(_.is(PARAM))
+      val hasModifiers = constructor.contains(PRIVATE) || constructor.contains(PROTECTED) || constructor.contains(PRIVATEqualified) || constructor.contains(PROTECTEDqualified)
+      textOfAnnotationIn(sb1, "", constructor, " ", parens = hasParameters && !hasModifiers)
       modifiersIn(sb1, constructor)
       val modifiers = if (sb1.nonEmpty) " " + sb1.toString else ""
       parametersIn(sb, constructor, Some(node), definition, modifiers = _ ++= modifiers)
@@ -572,7 +574,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     case _ => ""
   }
 
-  private def textOfAnnotationIn(sb: StringBuilder, indent: String, node: Node, suffix: String): Unit = {
+  private def textOfAnnotationIn(sb: StringBuilder, indent: String, node: Node, suffix: String, parens: Boolean = false): Unit = {
     node.children.reverseIterator.takeWhile(_.is(ANNOTATION)).foreach {  // TODO sb.insert?
       case Node3(ANNOTATION, _, Seq(tpe, apply @ Node3(APPLY, _, Seq(tail, _: _*)))) =>
         val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("_root_.scala.annotation.internal.")).map(simple).getOrElse("") // TODO optimize
@@ -590,7 +592,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           val namedArgs = apply.children.collect {
             case Node3(NAMEDARG, Seq(name), Seq(tail)) => name + " = " + textOfConstant(tail)
           }
-          if (args.nonEmpty || namedArgs.nonEmpty) {
+          if (parens || args.nonEmpty || namedArgs.nonEmpty) {
             sb ++= "("
             sb ++= (args ++ namedArgs).mkString(", ")
             sb ++= ")"

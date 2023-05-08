@@ -25,9 +25,13 @@ trait Members {
   @inline
   def f2: Int = ???
 
-  class PrimaryConstructor @inline ()
+  class PrimaryConstructor1 @inline ()
 
-  class PrimaryProtectedConstructor @inline protected ()
+  class PrimaryConstructor2 @inline() (x: Int)
+
+  class PrimaryProtectedConstructor1 @inline protected ()
+
+  class PrimaryProtectedConstructor2 @inline protected (x: Int)
 
   class AuxiliaryConstructor {
     @inline
