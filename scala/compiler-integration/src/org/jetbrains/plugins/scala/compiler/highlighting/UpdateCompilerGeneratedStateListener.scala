@@ -53,10 +53,11 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           virtualFile <- source.toVirtualFile
         } yield virtualFile
         val emptyState = FileCompilerGeneratedState(compilationId, Set.empty)
-        val newState = vFiles.foldLeft(oldState) { case (acc, file) =>
+        val intermediateState = vFiles.foldLeft(oldState) { case (acc, file) =>
           replaceOrAppendFileState(acc, file, emptyState)
         }.copy(progress = 1.0)
-        val toHighlight = newState.highlightOnCompilationFinished
+        val toHighlight = intermediateState.highlightOnCompilationFinished
+        val newState = intermediateState.copy(highlightOnCompilationFinished = Set.empty)
 
         CompilerGeneratedStateManager.update(project, newState)
 
