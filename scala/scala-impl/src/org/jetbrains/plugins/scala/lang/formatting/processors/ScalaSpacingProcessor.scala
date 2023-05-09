@@ -140,7 +140,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
   // NOTE: align, indent, wrap don't matter in spacing processor
   private def dummyBlock(left: ScalaBlock, prev: ASTNode): ScalaBlock =
-    new ScalaBlock(left.parentBlock, prev, null, null, null, null, left.settings, None)
+    new ScalaBlock(prev, null, null, null, null, left.settings, None)
 
   private def prevOnSameLine(node: ASTNode): ASTNode =
     node.getTreePrev match {

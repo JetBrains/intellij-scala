@@ -91,10 +91,10 @@ private class getDummyBlocksScalaDoc(
     var prevTagName: Option[String] = None
     var lastTagContextAlignment: Alignment = Alignment.createAlignment(true)
 
-    for (child <- node.getChildren(null) if isNotEmptyDocNode(child)) {
-      val tagContextAlignment = child.getElementType match {
+    for (childNode <- node.getChildren(null) if isNotEmptyDocNode(childNode)) {
+      val tagContextAlignment = childNode.getElementType match {
         case ScalaDocElementTypes.DOC_TAG =>
-          val tagName = child.getFirstChildNode.withTreeNextNodes.find(_.getElementType == ScalaDocTokenType.DOC_TAG_NAME).map(_.getText)
+          val tagName = childNode.getFirstChildNode.withTreeNextNodes.find(_.getElementType == ScalaDocTokenType.DOC_TAG_NAME).map(_.getText)
           if (prevTagName.isEmpty || prevTagName != tagName) {
             lastTagContextAlignment = Alignment.createAlignment(true)
           }
@@ -104,7 +104,7 @@ private class getDummyBlocksScalaDoc(
       }
 
       val context = tagContextAlignment.map(a => new SubBlocksContext(alignment = Some(a)))
-      subBlocks.add(subBlock(child, null, alignment, context = context))
+      subBlocks.add(subBlock(childNode, null, alignment, context = context))
     }
   }
 
@@ -163,7 +163,7 @@ private class getDummyBlocksScalaDoc(
     val isInsideDocTag = parent.getElementType == ScalaDocElementTypes.DOC_TAG
     if (isInsideDocTag) {
       val tagContentAlignment = {
-        val alignmentFromParentContext = block.parentBlock.subBlocksContext.flatMap(_.alignment)
+        val alignmentFromParentContext = block.parentBlock.flatMap(_.subBlocksContext).flatMap(_.alignment)
         alignmentFromParentContext.getOrElse(Alignment.createAlignment(true))
       }
 
@@ -253,10 +253,12 @@ private class getDummyBlocksScalaDoc(
     alignment: Alignment = null,
     indent: Option[Indent] = None,
     wrap: Option[Wrap] = None,
-    context: Option[SubBlocksContext] = None
+    context: Option[SubBlocksContext] = None,
   ): ScalaBlock = {
     val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(block, node))
     val wrapFinal = wrap.getOrElse(ScalaWrapManager.arrangeSuggestedWrapForChild(block, node, block.suggestedWrap))
-    new ScalaBlock(block, node, lastNode, alignment, indentFinal, wrapFinal, settings, context)
+    val result = new ScalaBlock(node, lastNode, alignment, indentFinal, wrapFinal, settings, context)
+    result.parentBlock = Some(block)
+    result
   }
 }

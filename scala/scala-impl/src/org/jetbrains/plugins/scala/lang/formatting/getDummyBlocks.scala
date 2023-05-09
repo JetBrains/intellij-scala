@@ -68,9 +68,14 @@ object getDummyBlocks {
     Option(clause.getUserData(typeParameterTypeAnnotationAlignmentsKey))
 
 
-  private class StringLineScalaBlock(myTextRange: TextRange, mainNode: ASTNode, myParentBlock: ScalaBlock,
-                                     myAlignment: Alignment, myIndent: Indent, myWrap: Wrap, mySettings: CodeStyleSettings)
-    extends ScalaBlock(myParentBlock, mainNode, null, myAlignment, myIndent, myWrap, mySettings) {
+  private class StringLineScalaBlock(
+    myTextRange: TextRange,
+    mainNode: ASTNode,
+    myAlignment: Alignment,
+    myIndent: Indent,
+    myWrap: Wrap,
+    mySettings: CodeStyleSettings
+  ) extends ScalaBlock(mainNode, null, myAlignment, myIndent, myWrap, mySettings) {
 
     override def getTextRange: TextRange = myTextRange
     override def isLeaf = true
@@ -563,9 +568,9 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
       if (trimmedLine.startsWith(marginChar)) {
         val marginRange = relativeRange(linePrefixLength, linePrefixLength + 1, acc)
-        subBlocks.add(new StringLineScalaBlock(marginRange, node, block, marginAlignment, marginIndent, null, settings))
+        subBlocks.add(new StringLineScalaBlock(marginRange, node, marginAlignment, marginIndent, null, settings))
         val contentRange = relativeRange(linePrefixLength + 1, lineLength, acc)
-        subBlocks.add(new StringLineScalaBlock(contentRange, node, block, null, Indent.getNoneIndent, wrap, settings))
+        subBlocks.add(new StringLineScalaBlock(contentRange, node, null, Indent.getNoneIndent, wrap, settings))
       } else if (trimmedLine.nonEmpty) {
         val (range, myIndent, myAlignment) =
           if (trimmedLine.startsWith(MultilineQuotes)) {
@@ -573,7 +578,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
               val hasMarginOnFirstLine = trimmedLine.charAt(MultilineQuotes.length.min(trimmedLine.length - 1)) == '|'
               if (hasMarginOnFirstLine && lineLength > 3) {
                 val range = relativeRange(0, 3)
-                val marginBlock = new StringLineScalaBlock(range, node, block, quotesAlignment, Indent.getNoneIndent, null, settings)
+                val marginBlock = new StringLineScalaBlock(range, node, quotesAlignment, Indent.getNoneIndent, null, settings)
                 subBlocks.add(marginBlock)
                 //now, return block parameters for text after the opening quotes
                 (relativeRange(3, lineLength), Indent.getNoneIndent, marginAlignment)
@@ -586,7 +591,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
           } else {
             (relativeRange(0, lineLength, acc), Indent.getAbsoluteNoneIndent, null)
           }
-        subBlocks.add(new StringLineScalaBlock(range, node, block, myAlignment, myIndent, null, settings))
+        subBlocks.add(new StringLineScalaBlock(range, node, myAlignment, myIndent, null, settings))
       }
 
       acc += lineLength + 1
@@ -832,6 +837,6 @@ class getDummyBlocks(private val block: ScalaBlock) {
   ): ScalaBlock = {
     val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(block, node))
     val wrapFinal = wrap.getOrElse(ScalaWrapManager.arrangeSuggestedWrapForChild(block, node, block.suggestedWrap))
-    new ScalaBlock(block, node, lastNode, alignment, indentFinal, wrapFinal, settings, context)
+    new ScalaBlock(node, lastNode, alignment, indentFinal, wrapFinal, settings, context)
   }
 }

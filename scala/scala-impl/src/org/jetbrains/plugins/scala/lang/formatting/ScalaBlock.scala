@@ -33,8 +33,7 @@ import java.util
 import scala.annotation.{tailrec, unused}
 import scala.jdk.CollectionConverters._
 
-class ScalaBlock(val parentBlock: ScalaBlock,
-                 val node: ASTNode,
+class ScalaBlock(val node: ASTNode,
                  val lastNode: ASTNode,
                  @Nullable val alignment: Alignment,
                  @Nullable val indent: Indent,
@@ -44,6 +43,8 @@ class ScalaBlock(val parentBlock: ScalaBlock,
   extends ASTBlock with ScalaTokenTypes {
 
   protected var subBlocks: util.List[Block] = _
+
+  var parentBlock: Option[ScalaBlock] = None
 
   def commonSettings: CommonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
 
