@@ -10,7 +10,7 @@ import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.xml.util.XmlStringUtil
-import org.jetbrains.annotations.Nullable
+import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaOptimizeImportsFix
@@ -119,7 +119,7 @@ object ExternalHighlighters {
     }
   }
 
-  private def highlightInfoBuilder(highlightType: HighlightInfoType, highlightRange: TextRange, description: String): HighlightInfo.Builder =
+  private def highlightInfoBuilder(highlightType: HighlightInfoType, highlightRange: TextRange, @Nls description: String): HighlightInfo.Builder =
     HighlightInfo
       .newHighlightInfo(highlightType)
       .range(highlightRange)
