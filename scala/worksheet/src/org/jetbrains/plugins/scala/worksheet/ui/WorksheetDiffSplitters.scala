@@ -1,28 +1,33 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
-import java.awt.event.{MouseAdapter, MouseEvent}
-import java.awt.{Color, Graphics, Graphics2D, RenderingHints}
-
 import com.intellij.diff.util.DiffDividerDrawUtil.DividerPolygon
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor._
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
+import com.intellij.openapi.fileEditor.impl.text.TextEditorComponent
 import com.intellij.openapi.ui.{Divider, Splitter}
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.ui.JBColor
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 
+import java.awt.event.{MouseAdapter, MouseEvent}
+import java.awt.{Component, Graphics, Graphics2D, GridBagConstraints, GridBagLayout, RenderingHints}
+import javax.swing.JComponent
+
+//noinspection ApiStatus
 object WorksheetDiffSplitters {
+  private val Log = Logger.getInstance(this.getClass)
 
-  private val COLOR1 = Color.GRAY
-  private val COLOR2 = Color.LIGHT_GRAY
-
-  def createSimpleSplitter(originalEditor: Editor, viewerEditor: Editor, prop: Float): SimpleWorksheetSplitter =
-    new SimpleWorksheetSplitter(originalEditor, viewerEditor, Nil, prop)
+  private val COLOR1 = JBColor.GRAY
+  private val COLOR2 = JBColor.LIGHT_GRAY
 
   class SimpleWorksheetSplitter private[WorksheetDiffSplitters](
-    editor1: Editor, editor2: Editor,
+    editor1: Editor,
+    editor2: Editor,
     private var mappings: Iterable[DiffMapping],
     prop: Float
   ) extends Splitter (false, prop) {
@@ -37,7 +42,7 @@ object WorksheetDiffSplitters {
 
     init()
 
-    private def init(): Unit ={
+    private def init(): Unit = {
       setDividerWidth(30)
       setFirstComponent(editor1.getComponent)
       setSecondComponent(editor2.getComponent)
@@ -174,9 +179,68 @@ object WorksheetDiffSplitters {
    * @param end   (inclusive)
    */
   private case class Segment(start: Int, end: Int) {
-    def contains(point: Int): Boolean = start <= point && point <= end
-    def contains(other: Segment): Boolean = start <= other.start && other.end <= end
     def intersects(other: Segment): Boolean = start <= other.end && other.start <= end
     def * (a: Int): Segment = Segment(start * a, end * a)
+  }
+
+  @RequiresEdt
+  def addSplitter(
+    editor: Editor,
+    viewer: Editor,
+    proportion: Float,
+  ): SimpleWorksheetSplitter = {
+    val editorComponent: JComponent = editor.getComponent
+    val editorContentComponent: JComponent = editor.getContentComponent
+
+    val editorComponentParent = editorComponent.getParent
+    val textEditorComponent = editorComponentParent.asInstanceOf[TextEditorComponent]
+
+    //NOTE: we need to get constraint before creating splitter, because latter will modify the UI structure
+    val constraint =getGridBagConstraint(textEditorComponent)
+
+    //NOTE: `createSimpleSplitter` deletes `editorComponent` from `editorComponentParent` children
+    val splitter = new SimpleWorksheetSplitter(editor, viewer, Nil, proportion)
+
+    preserveFocus(editorContentComponent) {
+      textEditorComponent.remove(editorComponent) //NOTE: seems like no need to do this, after we create splitter this component is already deleted
+      textEditorComponent.__add(splitter, constraint)
+    }
+
+    splitter
+  }
+
+  private def preserveFocus(component: Component)(body: => Unit): Unit = {
+    val hadFocus = component.hasFocus
+
+    body
+
+    if (hadFocus) {
+      component.requestFocusInWindow()
+    }
+  }
+
+  private def getGridBagConstraint(textEditorComponent: TextEditorComponent): GridBagConstraints = {
+    val components = textEditorComponent.getComponents
+    val layout = textEditorComponent.getLayout.asInstanceOf[GridBagLayout]
+    Log.assertTrue(components.size == 1, s"Expected 1 child component in text editor component but got ${components.size}")
+    val firstComponent = components(0)
+    layout.getConstraints(firstComponent)
+  }
+
+  @RequiresEdt
+  def removeSplitter(
+    editor: Editor
+  ): Unit = {
+    val editorComponent = editor.getComponent
+    val splitter = editorComponent.getParent match {
+      case s: SimpleWorksheetSplitter => s
+      case _ =>
+        return
+    }
+    val textEditorComponent = splitter.getParent.asInstanceOf[TextEditorComponent]
+
+    val constraint = getGridBagConstraint(textEditorComponent)
+    textEditorComponent.remove(splitter)
+    textEditorComponent.__add(editorComponent, constraint)
   }
 }
