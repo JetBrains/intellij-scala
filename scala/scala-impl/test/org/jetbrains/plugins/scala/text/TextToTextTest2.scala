@@ -40,8 +40,6 @@ class TextToTextTest2 extends TextToTextTestBase {
   override protected val minClassCount: Int = 6450
 
   override protected val classExceptions = Set(
-    "akka.actor.Terminated",
-    "akka.actor.UnhandledMessage",
     "akka.dispatch.CachingConfig",
     "akka.dispatch.ExecutorServiceDelegate",
     "akka.http.impl.engine.rendering.HttpResponseRendererFactory",

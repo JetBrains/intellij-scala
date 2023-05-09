@@ -767,6 +767,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           if (!definition.exists(isGivenClass0)) {
             templateValueParam.foreach { valueParam =>
               if (!valueParam.contains(LOCAL)) {
+                textOfAnnotationIn(sb, "", valueParam, " ")
                 val sb1 = new StringBuilder() // TODO reuse
                 val isPrivate = valueParam.contains(PRIVATE)
                 modifiersIn(sb1, valueParam, (if (isImplicitClause) Set(IMPLICIT) else if (isGivenClause) Set(GIVEN) else Set.empty) ++ (if (privateMembers || !isPrivate) Set.empty else Set(ABSTRACT, OVERRIDE, PRIVATE, IMPLICIT, FINAL)))
