@@ -102,4 +102,11 @@ class SbtOptsTest {
     doTest(""" -d -sbt-dir "" """, Seq("-d", "-sbt-dir", ""))
     doTest("-d -sbt-dir -dummy", Seq("-d", "-sbt-dir", "-dummy"))
   }
+
+  import org.junit.Assert.assertTrue
+  @Test
+  def dummyFailingTest(): Unit = {
+    assertTrue(false)
+  }
+
 }

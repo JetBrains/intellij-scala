@@ -30,7 +30,7 @@ import org.jetbrains.sbt.project.structure.SbtStructureDump.PrintProcessOutputOn
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
-import org.jetbrains.sbt.structure.{BuildData, Configuration, ConfigurationData, DependencyData, DirectoryData, JavaData, ModuleDependencyData, ModuleIdentifier, ProjectData}
+import org.jetbrains.sbt.structure.{BuildData, Configuration, ConfigurationData, DependencyData, DirectoryData, JavaData, ModuleDependencyData, ModuleIdentifier, ProjectData, ProjectDependencies, ProjectDependency}
 import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, usingTempFile, structure => sbtStructure}
 
 import java.io.{File, FileNotFoundException}
@@ -290,7 +290,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val dummyConfigurationData = ConfigurationData("compile", Seq(DirectoryData(sourceDir, managed = false)), Seq.empty, Seq.empty, classDir)
     val dummyJavaData = JavaData(None, Seq.empty)
-    val dummyDependencyData = DependencyData(Seq.empty, Seq.empty, Seq.empty)
+    val dummyDependencyData = DependencyData(ProjectDependencies(Nil, Nil), Seq.empty, Seq.empty)
     val dummyRootProject = ProjectData(
       projectTmpName, projectRoot.toURI, projectTmpName, s"org.$projectName", "0.0", projectRoot, None, Seq.empty,
       new File(projectRoot, "target"), Seq(dummyConfigurationData), Option(dummyJavaData), None, CompileOrder.Mixed.toString, None,
@@ -437,16 +437,29 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createModuleDependencies(projectToModule: Map[ProjectData,ModuleNode]): Unit = {
     projectToModule.foreach { case (moduleProject, moduleNode) =>
-      moduleProject.dependencies.projects.foreach { dependencyId =>
-        val dependency =
-          projectToModule.values
-            .find(_.getId == ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI))
-            .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
-        val data = new ModuleDependencyNode(moduleNode, dependency)
-        data.setScope(scopeFor(dependencyId.configuration))
-        data.setExported(true)
-        moduleNode.add(data)
+      // TODO: remove it when production and test sources are separated
+      val allModuleDependencies = mergeTestAndProductionDependencies(moduleProject.dependencies.projects)
+      allModuleDependencies.foreach { projectDependency =>
+      val dependency =
+        projectToModule.values
+          .find(_.getId == ModuleNode.combinedId(projectDependency.projectDependencyIdentifier.project, projectDependency.projectDependencyIdentifier.buildURI))
+          .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + projectDependency.projectDependencyIdentifier.project))
+      val data = new ModuleDependencyNode(moduleNode, dependency)
+      data.setScope(scopeFor(projectDependency.configurations.distinct))
+      data.setExported(false)
+      moduleNode.add(data)
       }
+    }
+  }
+
+  // TODO: remove it when production and test sources are separated
+  protected def mergeTestAndProductionDependencies(projectDependencies: ProjectDependencies): Seq[ProjectDependency] = {
+    projectDependencies.forTestSources.foldLeft(projectDependencies.forProductionSources) {
+      case (acc, curr) =>
+        acc.indexWhere(_.projectDependencyIdentifier.project == curr.projectDependencyIdentifier.project) match {
+          case -1 => acc :+ curr
+          case x => acc.updated(x, ProjectDependency(curr.projectDependencyIdentifier, acc(x).configurations ++ curr.configurations))
+        }
     }
   }
 
@@ -814,14 +827,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     //note: these configuration values are calculated in
     // org.jetbrains.sbt.extractors.DependenciesExtractor.mapConfigurations (it's a separate project)
-    if (ids.contains(sbtStructure.Configuration.Compile))
+    // and in org.jetbrains.sbt.extractors.DependenciesExtractor.extractProjectDependencies
+    if (ids.equals(Configuration.Provided, Configuration.Runtime) || ids.contains(sbtStructure.Configuration.Compile))
       DependencyScope.COMPILE
+    else if (ids.contains(sbtStructure.Configuration.Provided))
+      DependencyScope.PROVIDED
     else if (ids.contains(sbtStructure.Configuration.Runtime))
       DependencyScope.RUNTIME //note: in sbt Runtime and Provided dependencies are also automatically included into Test scope
     else if (ids.contains(sbtStructure.Configuration.Test))
       DependencyScope.TEST
-    else if (ids.contains(sbtStructure.Configuration.Provided))
-      DependencyScope.PROVIDED
     else
       DependencyScope.COMPILE
   }
