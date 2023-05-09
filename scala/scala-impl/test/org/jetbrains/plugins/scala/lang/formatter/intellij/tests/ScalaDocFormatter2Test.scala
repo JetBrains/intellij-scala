@@ -237,7 +237,7 @@ final class ScalaDocFormatter2Test extends AbstractScalaFormatterTestBase {
     doTextTest(before, before)
   }
 
-  def testParamTag(): Unit =
+  def testParamTag_1(): Unit =
     doTextTest(
       """/**
         | *   @param      x      description
@@ -247,7 +247,7 @@ final class ScalaDocFormatter2Test extends AbstractScalaFormatterTestBase {
         | */""".stripMargin
     )
 
-  def testParamTag_1(): Unit =
+  def testParamTag_2(): Unit =
     doTextTest(
       """/**
         | *   @param      x      description 1
@@ -256,6 +256,20 @@ final class ScalaDocFormatter2Test extends AbstractScalaFormatterTestBase {
       """/**
         | * @param x     description 1
         | * @param xxxxx description 2
+        | */""".stripMargin
+    )
+
+  def testParamTag_3(): Unit =
+    doTextTest(
+      """/**
+        | *   @param      x      description 1
+        | *   @param    xxxxx      description 2
+        | *   @param  xxxxxxxx         description 3
+        | */""".stripMargin,
+      """/**
+        | * @param x        description 1
+        | * @param xxxxx    description 2
+        | * @param xxxxxxxx description 3
         | */""".stripMargin
     )
 

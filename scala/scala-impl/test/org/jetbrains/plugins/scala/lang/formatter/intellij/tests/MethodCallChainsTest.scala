@@ -13,11 +13,6 @@ import org.junit.Ignore
 class MethodCallChainsTest extends AbstractScalaFormatterTestBase {
 
   private val CHOP_DOWN_IF_LONG = CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
-  private val RightMarginMarker = "!"
-
-  private def setupRightMargin(rightMarginVisualHelper: String): Unit = {
-    getSettings.setRightMargin(ScalaLanguage.INSTANCE, rightMarginVisualHelper.indexOf(RightMarginMarker))
-  }
 
   //
   // Do not align when multiline
@@ -59,6 +54,22 @@ class MethodCallChainsTest extends AbstractScalaFormatterTestBase {
         |  .baz(5, 6).foo(7, 8)
         |  .bar(9, 10).baz(11, 12)
         |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def test_MethodCallChain_WrapIfLong_1(): Unit = {
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
+    setupRightMargin(
+      """                               ! """)
+    val before =
+      """fooObj.foo().foo(1,2).foo().foo().foo(1,2,3).foo()
+        |     .foo().foo()
+        |     .foo(1,2,3).foo()""".stripMargin
+    val after =
+      """fooObj.foo().foo(1, 2).foo()
+        |  .foo().foo(1, 2, 3).foo()
+        |  .foo().foo()
+        |  .foo(1, 2, 3).foo()""".stripMargin
     doTextTest(before, after)
   }
 

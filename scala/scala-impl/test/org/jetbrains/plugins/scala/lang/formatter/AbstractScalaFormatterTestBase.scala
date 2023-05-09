@@ -253,6 +253,13 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   private def runCommandInWriteAction(runnable: Runnable, name: String, groupId: String): Unit = {
     WriteCommandAction.runWriteCommandAction(getProject, name, groupId, runnable)
   }
+
+  protected val RightMarginMarker = "!"
+
+  protected def setupRightMargin(rightMarginVisualHelper: String): Unit = {
+    val rightMargin = rightMarginVisualHelper.indexOf(RightMarginMarker)
+    getSettings.setRightMargin(ScalaLanguage.INSTANCE, rightMargin)
+  }
 }
 
 private object AbstractScalaFormatterTestBase {

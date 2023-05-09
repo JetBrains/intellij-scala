@@ -172,6 +172,62 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
+  def testCallParametersWrap_WithMethodCallChain_PreferCallParameters(): Unit = {
+    getCommonSettings.CALL_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
+    getCommonSettings.PREFER_PARAMETERS_WRAP = true
+
+    setupRightMargin(
+      """                               ! """
+    )
+    doTextTest(
+      """object Foo {
+        |  def main(args: Array[String]): Unit = {
+        |    val foo = new Foo
+        |    foo.foooooooo.foooooooo.foooooooo.bar("The quick brown", "fox jumped over", "the lazy", "dog")
+        |  }
+        |}""".stripMargin,
+      """object Foo {
+        |  def main(args: Array[String]): Unit = {
+        |    val foo = new Foo
+        |    foo.foooooooo.foooooooo
+        |      .foooooooo.bar(
+        |      "The quick brown",
+        |      "fox jumped over",
+        |      "the lazy", "dog")
+        |  }
+        |}""".stripMargin
+    )
+  }
+
+  def testCallParametersWrap_WithMethodCallChain_PreferMethodCallChain(): Unit = {
+    getCommonSettings.CALL_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
+    getCommonSettings.PREFER_PARAMETERS_WRAP = false
+
+    setupRightMargin(
+      """                               ! """
+    )
+    doTextTest(
+      """object Foo {
+        |  def main(args: Array[String]): Unit = {
+        |    val foo = new Foo
+        |    foo.foooooooo.foooooooo.foooooooo.bar("The quick brown", "fox jumped over", "the lazy", "dog")
+        |  }
+        |}""".stripMargin,
+      """object Foo {
+        |  def main(args: Array[String]): Unit = {
+        |    val foo = new Foo
+        |    foo.foooooooo.foooooooo
+        |      .foooooooo
+        |      .bar("The quick brown",
+        |        "fox jumped over",
+        |        "the lazy", "dog")
+        |  }
+        |}""".stripMargin
+    )
+  }
+
   def testAlignMultilineParametersCalls(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
     val before =
