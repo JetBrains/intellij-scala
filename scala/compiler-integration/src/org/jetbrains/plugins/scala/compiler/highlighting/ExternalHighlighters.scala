@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
 
 import java.util.Collections
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 object ExternalHighlighters {
@@ -139,8 +138,8 @@ object ExternalHighlighters {
     } yield {
       val description = message.trim.stripSuffix(lineText(message))
 
-      def standardHighlightInfo =
-        highlightInfoBuilder(highlighting.highlightType, highlightRange, description).create()
+      def standardBuilder =
+        highlightInfoBuilder(highlighting.highlightType, highlightRange, description)
 
       val highlightInfo =
         if (description.trim.equalsIgnoreCase("unused import")) {
@@ -150,16 +149,14 @@ object ExternalHighlighters {
             // modify highlighting info to mimic Scala 2 unused import highlighting in Scala 3
             highlightInfoBuilder(HighlightInfoType.UNUSED_SYMBOL, unusedImportRange, ScalaInspectionBundle.message("unused.import.statement"))
               .registerFix(new ScalaOptimizeImportsFix, null, null, unusedImportRange, null)
-              .create()
-          } else standardHighlightInfo
-        } else standardHighlightInfo
+          } else standardBuilder
+        } else standardBuilder
 
       inReadAction {
         val fixes = findQuickFixes(psiFile, highlightRange, highlighting.highlightType)
-        // TODO (SCL-20741): replace with HighlightInfo.Builder#registerFix
-        fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null): @nowarn("cat=deprecation"))
+        fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
       }
-      highlightInfo
+      highlightInfo.create()
     }
   }
 
