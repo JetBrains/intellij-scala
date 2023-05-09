@@ -24,7 +24,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   protected val originalDocument: Document = originalEditor.getDocument
   protected val viewerDocument: Document = worksheetViewer.getDocument
 
-  protected val viewerFolding: FoldingModelEx = worksheetViewer.getFoldingModel.asInstanceOf[FoldingModelEx]
+  private val viewerFolding: FoldingModelEx = worksheetViewer.getFoldingModel.asInstanceOf[FoldingModelEx]
 
   protected lazy val foldGroup = new WorksheetFoldGroup(worksheetViewer, originalEditor, project, getWorksheetSplitter)
 
@@ -45,10 +45,10 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
       }
     }
 
-  protected final def internalErrorPrefix: String =
+  private final def internalErrorPrefix: String =
     WorksheetBundle.message("worksheet.internal.error")
 
-  protected final def alreadyContainsInternalErrors(document: Document): Boolean =
+  private final def alreadyContainsInternalErrors(document: Document): Boolean =
     document.getCharsSequence.startsWith(internalErrorPrefix)
 
   protected final def internalErrorMessage(ex: Throwable): String = {
@@ -59,13 +59,13 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 
   override def diffSplitter: Option[SimpleWorksheetSplitter] = getWorksheetSplitter
 
-  protected def getWorksheetSplitter: Option[SimpleWorksheetSplitter] =
+  private def getWorksheetSplitter: Option[SimpleWorksheetSplitter] =
     Option(worksheetViewer.getUserData(WorksheetEditorPrinterFactory.DIFF_SPLITTER_KEY))
 
-  protected def getWorksheetViewersRation: Float =
+  private def getWorksheetViewersRation: Float =
     getWorksheetSplitter.map(_.getProportion).getOrElse(WorksheetEditorPrinterFactory.DEFAULT_WORKSHEET_VIEWERS_RATIO)
 
-  protected def redrawViewerDiffs(): Unit =
+  private def redrawViewerDiffs(): Unit =
     getWorksheetSplitter.foreach(_.redrawDiffs())
 
   protected def saveEvaluationResult(result: String): Unit = {
