@@ -62,7 +62,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   def printSymbol(symbol: Symbol): Unit = {printSymbol(0, symbol)}
 
-  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit, parens: Boolean = false): Unit = s match {
+  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit, parens: Boolean = false): Unit = if (inRefinementClass(s)) () else s match {
     case t: SymbolInfoSymbol =>
       for (a <- t.attributes) {
         indent; print(toString(a, parens))
