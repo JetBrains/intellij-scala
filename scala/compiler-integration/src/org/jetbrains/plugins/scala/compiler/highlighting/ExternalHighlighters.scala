@@ -32,22 +32,24 @@ object ExternalHighlighters {
   // A random number of highlighters group to avoid conflicts with standard groups.
   private[highlighting] final val ScalaCompilerPassId = 979132998
 
-  def applyHighlighting(project: Project, editor: Editor, state: HighlightingState): Unit = {
+  def applyHighlighting(project: Project, editor: Editor, state: HighlightingState): Unit = executeOnPooledThread {
     val document = editor.getDocument
     for {
       virtualFile <- document.virtualFile
       psiFile <- Option(inReadAction(PsiManager.getInstance(project).findFile(virtualFile)))
       if ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
-    } invokeLater {
+    } {
       val externalHighlights = state.externalHighlightings(virtualFile)
       val highlightInfos = externalHighlights.flatMap(toHighlightInfo(_, document, psiFile))
-      UpdateHighlightersUtil.setHighlightersToEditor(
-        project,
-        document, 0, document.getTextLength,
-        highlightInfos.toSeq.asJava,
-        editor.getColorsScheme,
-        ScalaCompilerPassId
-      )
+      invokeLater {
+        UpdateHighlightersUtil.setHighlightersToEditor(
+          project,
+          document, 0, document.getTextLength,
+          highlightInfos.toSeq.asJava,
+          editor.getColorsScheme,
+          ScalaCompilerPassId
+        )
+      }
     }
   }
 
@@ -143,7 +145,7 @@ object ExternalHighlighters {
       val highlightInfo =
         if (description.trim.equalsIgnoreCase("unused import")) {
           val leaf = psiFile.findElementAt(highlightRange.getStartOffset)
-          val unusedImportRange = unusedImportElementRange(leaf)
+          val unusedImportRange = inReadAction(unusedImportElementRange(leaf))
           if (unusedImportRange != null) {
             // modify highlighting info to mimic Scala 2 unused import highlighting in Scala 3
             highlightInfoBuilder(HighlightInfoType.UNUSED_SYMBOL, unusedImportRange, ScalaInspectionBundle.message("unused.import.statement"))
@@ -152,12 +154,10 @@ object ExternalHighlighters {
           } else standardHighlightInfo
         } else standardHighlightInfo
 
-      executeOnPooledThread {
-        inReadAction {
-          val fixes = findQuickFixes(psiFile, highlightRange, highlighting.highlightType)
-          // TODO (SCL-20741): replace with HighlightInfo.Builder#registerFix
-          fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null): @nowarn("cat=deprecation"))
-        }
+      inReadAction {
+        val fixes = findQuickFixes(psiFile, highlightRange, highlighting.highlightType)
+        // TODO (SCL-20741): replace with HighlightInfo.Builder#registerFix
+        fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null): @nowarn("cat=deprecation"))
       }
       highlightInfo
     }
@@ -188,7 +188,7 @@ object ExternalHighlighters {
       case Some(endOffset) if endOffset != startOffset =>
         Some(TextRange.create(startOffset, endOffset))
       case _ => //if we have empty-length range (single offset)
-        guessRangeToHighlight(psiFile, startOffset)
+        inReadAction(guessRangeToHighlight(psiFile, startOffset))
     }
   }
 
