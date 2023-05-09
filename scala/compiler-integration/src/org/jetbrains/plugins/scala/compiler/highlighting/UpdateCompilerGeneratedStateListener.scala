@@ -15,22 +15,20 @@ import org.jetbrains.plugins.scala.project.template.FileExt
 private class UpdateCompilerGeneratedStateListener(project: Project)
   extends CompilerEventListener {
 
-  import UpdateCompilerGeneratedStateListener.HandleEventResult
-  
   override def eventReceived(event: CompilerEvent): Unit = {
     val oldState = CompilerGeneratedStateManager.get(project)
 
-    val handleEventResult: Option[HandleEventResult] = event match {
+    event match {
       case CompilerEvent.CompilationStarted(_, _) =>
         val newHighlightOnCompilationFinished = oldState.toHighlightingState.filesWithHighlightings
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
-        Some(HandleEventResult(newState, Set.empty, informWolf = false))
+        handleEventResult(newState, Set.empty, informWolf = false)
       case CompilerEvent.MessageEmitted(compilationId, _, msg) =>
         for {
           text <- Option(msg.text)
           source <- msg.source
           virtualFile <- source.toVirtualFile
-        } yield {
+        } {
           val fromOpt = Pos.fromPosInfo(msg.from)
           val rangeOpt = fromOpt.map { fromPos =>
             val toPos = Pos.fromPosInfo(msg.to).getOrElse(fromPos)
@@ -44,7 +42,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           val fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
           val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
 
-          HandleEventResult(
+          handleEventResult(
             newState = newState,
             toHighlight = Set(virtualFile).filterNot(oldState.highlightOnCompilationFinished(_)),
             informWolf = false
@@ -52,7 +50,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
         }
       case CompilerEvent.ProgressEmitted(_, _, progress) =>
         val newState = oldState.copy(progress = progress)
-        Some(HandleEventResult(newState, Set.empty, informWolf = false))
+        handleEventResult(newState, Set.empty, informWolf = false)
       case CompilerEvent.CompilationFinished(compilationId, _, sources) =>
         val vFiles = for {
           source <- sources
@@ -63,22 +61,21 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           replaceOrAppendFileState(acc, file, emptyState)
         }.copy(progress = 1.0, highlightOnCompilationFinished = Set.empty)
         val toHighlight = vFiles.filter(oldState.highlightOnCompilationFinished(_))
-        Some(HandleEventResult(newState, toHighlight, informWolf = true))
+        handleEventResult(newState, toHighlight, informWolf = true)
       case _ =>
-        None
     }
-    
-    handleEventResult.foreach { case HandleEventResult(newState, toHighlight, informWolf) =>
-      CompilerGeneratedStateManager.update(project, newState)
+  }
 
-      //don't proceed with ProgressEmitted
-      if (toHighlight.nonEmpty || informWolf) {
-        val highlightingState = newState.toHighlightingState
-        updateHighlightings(toHighlight, highlightingState)
+  private def handleEventResult(newState: CompilerGeneratedState, toHighlight: Set[VirtualFile], informWolf: Boolean): Unit = {
+    CompilerGeneratedStateManager.update(project, newState)
 
-        if (informWolf)
-          ExternalHighlighters.informWolf(project, highlightingState)
-      }
+    //don't proceed with ProgressEmitted
+    if (toHighlight.nonEmpty || informWolf) {
+      val highlightingState = newState.toHighlightingState
+      updateHighlightings(toHighlight, highlightingState)
+
+      if (informWolf)
+        ExternalHighlighters.informWolf(project, highlightingState)
     }
   }
 
@@ -128,11 +125,4 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     case _: ProcessCanceledException =>
       //ignore
   }
-}
-
-object UpdateCompilerGeneratedStateListener {
-
-  private case class HandleEventResult(newState: CompilerGeneratedState,
-                                       toHighlight: Set[VirtualFile],
-                                       informWolf: Boolean)
 }
