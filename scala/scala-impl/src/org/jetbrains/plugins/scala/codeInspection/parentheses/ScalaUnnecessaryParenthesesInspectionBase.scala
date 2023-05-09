@@ -88,8 +88,8 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase extends LocalInspection
     val quickFix = new AbstractFixOnPsiElement[ScParameterClause](ScalaInspectionBundle.message("remove.unnecessary.parentheses.with.text", getShortText(elt)), elt) {
       override protected def doApplyFix(element: ScParameterClause)(implicit project: Project): Unit = {
         if (isParenthesised(element)) {
-          elt.getNode.removeChild(elt.getNode.getFirstChildNode)
-          elt.getNode.removeChild(elt.getNode.getLastChildNode)
+          element.getNode.removeChild(element.getNode.getFirstChildNode)
+          element.getNode.removeChild(element.getNode.getLastChildNode)
         }
       }
     }
