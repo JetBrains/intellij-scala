@@ -4,7 +4,7 @@ import com.intellij.formatting.Alignment.createAlignment
 import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
+import com.intellij.psi.codeStyle.CodeStyleSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.getDummyBlocksUtils._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
@@ -126,11 +126,14 @@ private class getDummyBlocksScalaDoc(
     }
 
     childrenFromNameElement match {
+      //@param name description
       case tagName :: _ :: tagParameter :: tail
         if Option(docTag.getValueElement).exists(_.getNode == tagParameter) =>
 
         subBlocks.add(subBlock(tagName))
         subBlocks.add(subBlock(tagParameter, tail.lastOption.orNull))
+
+      //@return description
       case tagName :: tail =>
         subBlocks.add(subBlock(tagName))
 
@@ -148,74 +151,67 @@ private class getDummyBlocksScalaDoc(
     }
   }
 
-  def applyInnerScaladoc(node: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
+  def applyInnerScaladoc(firstNode: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
-    val parent = node.getTreeParent
+    val buffer = new ArrayBuffer[ASTNode]
+    flattenChildrenBetweenNodes(firstNode, lastNode, buffer)
 
-    var scaladocNode = node.getElementType match {
-      case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN =>
-        subBlocks.add(subBlock(node, indent = Some(Indent.getNoneIndent)))
-        node.getTreeNext
-      case _ =>
-        node
-    }
+    val children = buffer.filter(isNotEmptyDocNode).toSeq
 
-    val children = ArrayBuffer[ASTNode]()
-    do {
-      if (needFlattenDocElementChildren(scaladocNode)) {
-        flattenChildren(scaladocNode, children)
-      } else {
-        children += scaladocNode
+    val parent = firstNode.getTreeParent
+    val isInsideDocTag = parent.getElementType == ScalaDocElementTypes.DOC_TAG
+    if (isInsideDocTag) {
+      val tagContentAlignment = {
+        val alignmentFromParentContext = block.parentBlock.subBlocksContext.flatMap(_.alignment)
+        alignmentFromParentContext.getOrElse(Alignment.createAlignment(true))
       }
-    } while (scaladocNode != lastNode && { scaladocNode = scaladocNode.getTreeNext; true })
 
-    val normalAlignment = {
-      val alignmentFromParentContext = block.parentBlock.subBlocksContext.flatMap(_.alignment)
-      alignmentFromParentContext.getOrElse(Alignment.createAlignment(true))
+      val tagName = parent.getPsi.asInstanceOf[ScDocTag].getNameElement.getText
+      children.foreach { child =>
+        subBlocks.add(getDocTagChildBlock(tagName, child, tagContentAlignment))
+      }
     }
-
-    children.view.filter(isNotEmptyDocNode).foreach { child =>
-      import ScalaDocTokenType._
-
-      val childType = child.getElementType
-
-      val isDataInsideDocTag: Boolean =
-        parent.getElementType == ScalaDocElementTypes.DOC_TAG && (childType match {
-          case DOC_WHITESPACE | DOC_COMMENT_LEADING_ASTERISKS | DOC_TAG_NAME => false
-          case _ => true
-        })
-
-      val (childAlignment, childWrap) =
-        if (isDataInsideDocTag) {
-          val tagElement = parent.getPsi.asInstanceOf[ScDocTag]
-          val tagNameElement = tagElement.getNameElement
-          val tagName = tagNameElement.getText
-
-          val alignment = childType match {
-            case DOC_INNER_CODE |
-                 DOC_INNER_CLOSE_CODE_TAG |
-                 DOC_INNER_CODE_TAG |
-                 ScalaDocElementTypes.DOC_LIST => null
-            case _ =>
-              tagName match {
-                case "@param" | "@tparam" => if (ss.SD_ALIGN_PARAMETERS_COMMENTS) normalAlignment else null
-                case "@return"            => if (ss.SD_ALIGN_RETURN_COMMENTS) normalAlignment else null
-                case "@throws"            => if (ss.SD_ALIGN_EXCEPTION_COMMENTS) normalAlignment else null
-                case _                    => if (ss.SD_ALIGN_OTHER_TAGS_COMMENTS) normalAlignment else null
-              }
-          }
-          val noWrap = Wrap.createWrap(WrapType.NONE, false)
-          (alignment, noWrap)
-        }
-        else {
-          (null, ScalaWrapManager.arrangeSuggestedWrapForChild(block, child, block.suggestedWrap))
-        }
-
-      subBlocks.add(subBlock(child, null, childAlignment, wrap = Some(childWrap)))
+    else {
+      children.foreach { child =>
+        subBlocks.add(subBlock(child, null, null, None))
+      }
     }
 
     subBlocks
+  }
+
+  //Children within block `@param name description`
+  //                              |---------------|
+  private def getDocTagChildBlock(
+    tagName: String,
+    child: ASTNode,
+    tagContentAlignment: Alignment
+  ): ScalaBlock = {
+    import ScalaDocTokenType._
+
+    val childType = child.getElementType
+    childType match {
+      case DOC_WHITESPACE | DOC_COMMENT_LEADING_ASTERISKS | DOC_TAG_NAME =>
+        subBlock(child, wrap = Some(null))
+      case DOC_TAG_VALUE_TOKEN =>
+        subBlock(child)
+      case _ =>
+        val alignment = childType match {
+          case DOC_INNER_CODE | DOC_INNER_CLOSE_CODE_TAG | DOC_INNER_CODE_TAG | ScalaDocElementTypes.DOC_LIST =>
+            null
+          case _ =>
+            val alignTagContent = tagName match {
+              case "@param" | "@tparam" => ss.SD_ALIGN_PARAMETERS_COMMENTS
+              case "@return"            => ss.SD_ALIGN_RETURN_COMMENTS
+              case "@throws"            => ss.SD_ALIGN_EXCEPTION_COMMENTS
+              case _                    => ss.SD_ALIGN_OTHER_TAGS_COMMENTS
+            }
+            if (alignTagContent) tagContentAlignment else null
+        }
+        val noWrap = Wrap.createWrap(WrapType.NONE, false)
+        subBlock(child, null, alignment, wrap = Some(noWrap))
+    }
   }
 
   private def needFlattenDocElementChildren(node: ASTNode): Boolean = {
@@ -227,12 +223,29 @@ private class getDummyBlocksScalaDoc(
     check1 && node.getFirstChildNode != null
   }
 
-  private def flattenChildren(multilineNode: ASTNode, buffer: ArrayBuffer[ASTNode]): Unit =
-    for (nodeChild <- multilineNode.getChildren(null))
-      if (needFlattenDocElementChildren(nodeChild))
-        flattenChildren(nodeChild, buffer)
-      else
-        buffer += nodeChild
+  private def flattenChildrenBetweenNodes(firstNode: ASTNode, lastNode: ASTNode, buffer: ArrayBuffer[ASTNode]): Unit = {
+    var currNode = firstNode
+    do {
+      flattenIfNeeded(currNode, buffer)
+    } while (currNode != lastNode && {
+      currNode = currNode.getTreeNext
+      true
+    })
+  }
+
+  private def flattenChildren(node: ASTNode, buffer: ArrayBuffer[ASTNode]): Unit = {
+    val children = node.getChildren(null)
+    for (nodeChild <- children) {
+      flattenIfNeeded(nodeChild, buffer)
+    }
+  }
+
+  private def flattenIfNeeded(node: ASTNode, buffer: ArrayBuffer[ASTNode]): Unit = {
+    if (needFlattenDocElementChildren(node))
+      flattenChildren(node, buffer)
+    else
+      buffer += node
+  }
 
   private def subBlock(
     node: ASTNode,
