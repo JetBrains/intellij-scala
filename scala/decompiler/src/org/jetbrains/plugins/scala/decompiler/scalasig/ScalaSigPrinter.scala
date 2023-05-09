@@ -62,7 +62,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   def printSymbol(symbol: Symbol): Unit = {printSymbol(0, symbol)}
 
-  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit, parens: Boolean = false): Unit = s match {
+  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit, parens: Boolean = false): Unit = if (inRefinementClass(s)) () else s match {
     case t: SymbolInfoSymbol =>
       for (a <- t.attributes) {
         indent; print(toString(a, parens))
@@ -79,7 +79,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   def printSymbol(level: Int, symbol: Symbol): Unit = {
-    def isSynthetic: Boolean = symbol.isSynthetic || symbol.isCaseAccessor || symbol.isParamAccessor
+    def isSynthetic: Boolean = symbol.isSynthetic || symbol.isCaseAccessor || symbol.isParamAccessor || symbol.attributes.exists(_.typeRef == NoType)
 
     val accessibilityOk = symbol match {
       case _ if level == 0 => true
@@ -99,7 +99,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
     if (accessibilityOk && !isSynthetic) {
       symbol match {
-        case o: ObjectSymbol =>
+        case o: ObjectSymbol if !inRefinementClass(o) =>
           printSymbolAttributes(o, onNewLine = true, indent())
           indent()
           if (o.name == "package" || o.name == "`package`") {
@@ -198,9 +198,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
       }
     }
 
-    symbol.parent match {
-      case Some(cSymbol: ClassSymbol) if refinementClass(cSymbol) => return //no modifiers allowed inside refinements
-      case _ =>
+    if (inRefinementClass(symbol)) {
+      return //no modifiers allowed inside refinements
     }
 
     if (symbol.isAbstractOverride) print("abstract override ")
@@ -230,6 +229,11 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   private def refinementClass(c: ClassSymbol) = c.name == "<refinement>"
+
+  private def inRefinementClass(symbol: Symbol) = symbol.parent match {
+    case Some(cSymbol: ClassSymbol) if refinementClass(cSymbol) => true
+    case _ => false
+  }
 
   def printClass(level: Int, c: ClassSymbol, indent: () => Unit = () => ()): Unit = {
     if (c.name == "<local child>" /*scala.tools.nsc.symtab.StdNames.LOCALCHILD.toString()*/ ) {
@@ -368,6 +372,14 @@ class ScalaSigPrinter(builder: StringBuilder) {
     val paramAccessors = c.children.filter {
       case ms: MethodSymbol if ms.isParamAccessor && ms.name.startsWith(methodName) => true
       case _ => false
+    }
+    val beanAccessors = c.children.filter {
+      case ms: MethodSymbol if ms.attributes.exists(_.typeRef == NoType) &&
+        (ms.name.startsWith("get") || ms.name.startsWith("set")) && ms.name.substring(3) == methodName.capitalize => true
+      case _ => false
+    }
+    if (beanAccessors.nonEmpty) {
+      sb.append("@_root_.scala.beans.BeanProperty ")
     }
     val isMutable = paramAccessors.exists(acc => isSetterFor(acc.name, methodName))
     val toPrint = paramAccessors.find(m => !m.isPrivate || !m.isLocal)
@@ -530,10 +542,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
                 print(s": ${Constants.typeText(ct)}$compiledCodeBody")
             }
           case _                                               =>
-            val printBody = !m.isDeferred && (m.parent match {
-              case Some(c: ClassSymbol) if refinementClass(c) => false
-              case _ => true
-            })
+            val printBody = !m.isDeferred && !inRefinementClass(m)
             printMethodType(m.infoType, printResult = true, needsSpace = needsSpace(nn))(
               {if (printBody) print(compiledCodeBody /* Print body only for non-abstract methods */ )}
             )
