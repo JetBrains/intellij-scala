@@ -66,7 +66,7 @@ object ScalaColorSchemeAnnotator {
       val scalaProjectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(refElement.getProject)
 
       scalaProjectSettings.getCollectionTypeHighlightingLevel match {
-        case ScalaCollectionHighlightingLevel.None                           => return
+        case ScalaCollectionHighlightingLevel.None => return
         case ScalaCollectionHighlightingLevel.OnlyNonQualified =>
           refElement.qualifier match {
             case None =>
@@ -161,6 +161,9 @@ object ScalaColorSchemeAnnotator {
       case x: ScAnnotation => visitAnnotation(x)
       case x: ScParameter  => visitParameter(x)
       case x: ScCaseClause => visitCaseClause(x)
+      case x: ScGenerator  => visitGenerator(x)
+      case x: ScForBinding => visitForBinding(x)
+      case x: ScTypeAlias  => visitTypeAlias(x)
       case _ =>
         ScalaColorsSchemeUtils.highlightElement(element) match {
           case (_, true) =>
@@ -179,6 +182,10 @@ object ScalaColorSchemeAnnotator {
   private def visitAnnotation(annotation: ScAnnotation)(implicit holder: ScalaAnnotationHolder): Unit = {
     createInfoAnnotation(annotation.getFirstChild, DefaultHighlighter.ANNOTATION)
     createInfoAnnotation(annotation.annotationExpr.constructorInvocation.typeElement, DefaultHighlighter.ANNOTATION)
+  }
+
+  private def visitTypeAlias(typeAlias: ScTypeAlias)(implicit holder: ScalaAnnotationHolder): Unit = {
+    createInfoAnnotation(typeAlias.nameId, DefaultHighlighter.TYPE_ALIAS)
   }
 
   private def visitParameter(param: ScParameter)(implicit holder: ScalaAnnotationHolder): Unit = {
@@ -205,6 +212,14 @@ object ScalaColorSchemeAnnotator {
       case Some(x) => visitPattern(x, DefaultHighlighter.PATTERN)
       case None =>
     }
+  }
+
+  private def visitGenerator(generator: ScGenerator)(implicit holder: ScalaAnnotationHolder): Unit = {
+    visitPattern(generator.pattern, DefaultHighlighter.GENERATOR)
+  }
+
+  private def visitForBinding(forBinding: ScForBinding)(implicit holder: ScalaAnnotationHolder): Unit = {
+    visitPattern(forBinding.pattern, DefaultHighlighter.GENERATOR)
   }
 
   private def createInfoAnnotation(psiElement: PsiElement, attributes: TextAttributesKey, message: String = null)
