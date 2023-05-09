@@ -18,10 +18,14 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker.checkInspec
 abstract class ScalaUnnecessaryParenthesesInspectionBase extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
-    case p: ScParenthesizedElement if isProblem(p) =>
-      registerProblem(p, holder, isOnTheFly)
-    case f: ScFunctionExpr if hasSingleParenthesizedParam(f) && !currentSettings.ignoreAroundFunctionExprParam =>
-      f.params.clauses.headOption.foreach(clause => registerProblem(clause, holder, isOnTheFly))
+    case parenthesized: ScParenthesizedElement if isProblem(parenthesized) =>
+      val quickFix = new RemoveParenthesesFix(parenthesized)
+      registerProblem(parenthesized, quickFix, holder, isOnTheFly)
+    case functionExpr: ScFunctionExpr if hasSingleParenthesizedParam(functionExpr) && !currentSettings.ignoreAroundFunctionExprParam =>
+      functionExpr.params.clauses.headOption.foreach { clause =>
+        val quickFix = new RemoveParamClauseParenthesesFix(clause)
+        registerProblem(clause, quickFix, holder, isOnTheFly)
+      }
     case _ =>
   }
 
@@ -30,13 +34,13 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase extends LocalInspection
   @TestOnly
   def setSettings(settings: UnnecessaryParenthesesSettings): Unit
 
-  private def hasSingleParenthesizedParam(f: ScFunctionExpr): Boolean = {
+  private def hasSingleParenthesizedParam(functionExpr: ScFunctionExpr): Boolean = {
     // In the case of a single untyped formal parameter, (x) => e can be abbreviated to x => e
-    def hasNoParamType = f.parameters.headOption.exists(_.typeElement.isEmpty)
+    def hasNoParamType = functionExpr.parameters.headOption.exists(_.typeElement.isEmpty)
 
-    def hasParenthesizedClause = f.params.clauses.headOption.exists(isParenthesised)
+    def hasParenthesizedClause = functionExpr.params.clauses.headOption.exists(_.hasParenthesis)
 
-    f.parameters.size == 1 && hasParenthesizedClause && hasNoParamType
+    functionExpr.parameters.sizeIs == 1 && hasParenthesizedClause && hasNoParamType
   }
 
   protected[scala] def isParenthesesRedundant(elem: ScParenthesizedElement): Boolean =
@@ -53,51 +57,44 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase extends LocalInspection
     }
   }
 
-  private def isParenthesised(clause: ScParameterClause): Boolean =
-    clause.getNode.getFirstChildNode.getText == "(" && clause.getNode.getLastChildNode.getText == ")"
-
   private def isProblem(elem: ScParenthesizedElement): Boolean =
     !elem.isNestedParenthesis &&
       checkInspection(this, elem) &&
       isParenthesesRedundant(elem)
 
-
-  private def registerProblem(parenthesized: ScParenthesizedElement, holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
-    val description = ScalaInspectionBundle.message("remove.unnecessary.parentheses.with.text", getShortText(parenthesized))
-    val foo = new AbstractFixOnPsiElement(description, parenthesized) {
-      override protected def doApplyFix(element: ScParenthesizedElement)(implicit project: Project): Unit = {
-        val keepParentheses = element.isNestingParenthesis
-        // remove first the duplicate parentheses
-        val replaced = element.doStripParentheses(keepParentheses) match {
-          // Remove the last level of parentheses if allowed
-          case paren: ScParenthesizedElement if paren.isParenthesisRedundant => paren.doStripParentheses()
-          case other => other
-        }
-
-        element.innerElement
-          .map(RemoveBracesIntention.collectComments(_))
-          .foreach(RemoveBracesIntention.addComments(_, replaced.getParent, replaced))
-
-        ScalaPsiUtil padWithWhitespaces replaced
-      }
-    }
-    registerProblem(parenthesized, foo, holder, isOnTheFly)
-  }
-
-  private def registerProblem(elt: ScParameterClause, holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
-    val quickFix = new AbstractFixOnPsiElement[ScParameterClause](ScalaInspectionBundle.message("remove.unnecessary.parentheses.with.text", getShortText(elt)), elt) {
-      override protected def doApplyFix(element: ScParameterClause)(implicit project: Project): Unit = {
-        if (isParenthesised(element)) {
-          element.getNode.removeChild(element.getNode.getFirstChildNode)
-          element.getNode.removeChild(element.getNode.getLastChildNode)
-        }
-      }
-    }
-
-    registerProblem(elt, quickFix, holder, isOnTheFly)
-  }
-
-  private def registerProblem(elt: ScalaPsiElement, qf: LocalQuickFix, holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
+  private def registerProblem(elt: ScalaPsiElement, qf: LocalQuickFix, holder: ProblemsHolder, isOnTheFly: Boolean): Unit =
     registerRedundantParensProblem(ScalaInspectionBundle.message("displayname.unnecessary.parentheses"), elt, qf, holder, isOnTheFly)
+}
+
+private abstract class RemoveParenthesesFixBase[E <: ScalaPsiElement](element: E)
+  extends AbstractFixOnPsiElement[E](
+    ScalaInspectionBundle.message("remove.unnecessary.parentheses.with.text", getShortText(element)),
+    element
+  )
+
+private final class RemoveParenthesesFix(parenthesized: ScParenthesizedElement) extends RemoveParenthesesFixBase(parenthesized) {
+  override protected def doApplyFix(element: ScParenthesizedElement)(implicit project: Project): Unit = {
+    val keepParentheses = element.isNestingParenthesis
+    // remove first the duplicate parentheses
+    val replaced = element.doStripParentheses(keepParentheses) match {
+      // Remove the last level of parentheses if allowed
+      case paren: ScParenthesizedElement if paren.isParenthesisRedundant => paren.doStripParentheses()
+      case other => other
+    }
+
+    element.innerElement
+      .map(RemoveBracesIntention.collectComments(_))
+      .foreach(RemoveBracesIntention.addComments(_, replaced.getParent, replaced))
+
+    ScalaPsiUtil.padWithWhitespaces(replaced)
   }
+}
+
+private final class RemoveParamClauseParenthesesFix(paramClause: ScParameterClause) extends RemoveParenthesesFixBase(paramClause) {
+  override protected def doApplyFix(element: ScParameterClause)(implicit project: Project): Unit =
+    if (element.hasParenthesis) {
+      val node = element.getNode
+      node.removeChild(node.getFirstChildNode)
+      node.removeChild(node.getLastChildNode)
+    }
 }
