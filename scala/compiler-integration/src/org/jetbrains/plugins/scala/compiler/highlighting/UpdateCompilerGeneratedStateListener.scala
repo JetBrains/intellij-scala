@@ -44,7 +44,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
 
           handleEventResult(
             newState = newState,
-            toHighlight = Set(virtualFile).filterNot(oldState.highlightOnCompilationFinished(_)),
+            toHighlight = Set.empty,
             informWolf = false
           )
         }
@@ -59,8 +59,8 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
         val emptyState = FileCompilerGeneratedState(compilationId, Set.empty)
         val newState = vFiles.foldLeft(oldState) { case (acc, file) =>
           replaceOrAppendFileState(acc, file, emptyState)
-        }.copy(progress = 1.0, highlightOnCompilationFinished = Set.empty)
-        val toHighlight = vFiles.filter(oldState.highlightOnCompilationFinished(_))
+        }.copy(progress = 1.0)
+        val toHighlight = newState.highlightOnCompilationFinished
         handleEventResult(newState, toHighlight, informWolf = true)
       case _ =>
     }
@@ -107,7 +107,8 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
         fileState
     }
     val newFileStates = oldState.files.updated(file, newFileState)
-    oldState.copy(files = newFileStates)
+    val newToHighlight = oldState.highlightOnCompilationFinished + file
+    oldState.copy(files = newFileStates, highlightOnCompilationFinished = newToHighlight)
   }
 
   private def updateHighlightings(virtualFiles: Set[VirtualFile], state: HighlightingState): Unit = try {
