@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.util
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
+import com.intellij.codeInspection.{InspectionManager, LocalInspectionTool, LocalQuickFixOnPsiElement, ProblemsHolder}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.markup._
@@ -19,6 +20,7 @@ import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.ui.components.JBList
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -271,9 +273,20 @@ object ScalaRefactoringUtil {
   }
 
   private def typeWithoutExpected(expression: ScExpression): ScType = {
-    val dummyFunctionText = s"def __dummyFunction__ = {\n ${expression.getText} \n}"
+    def dummyFunctionText(needsParens: Boolean) =
+      s"def __dummyFunction__ = {\n ${expression.getText.parenthesize(needsParens)} \n}"
+
+    def createFunction(needsParens: Boolean) =
+      createMethodWithContext(dummyFunctionText(needsParens), expression.getContext, expression)
+        .asInstanceOf[ScFunctionDefinition]
+
     val definitionWithoutType =
-      createMethodWithContext(dummyFunctionText, expression.getContext, expression).asInstanceOf[ScFunctionDefinition]
+      Option(createFunction(false))
+        // if body is not parsed correctly, try wrapping in parentheses
+        .filter(fn => fn.body.filterByType[ScBlockExpr]
+          .exists(block => !PsiTreeUtil.hasErrorElements(block) && block.statements.lengthIs == 1))
+        .getOrElse(createFunction(true))
+
     definitionWithoutType.`type`().getOrAny
   }
 
@@ -1170,6 +1183,27 @@ object ScalaRefactoringUtil {
       case (bs: ScBlockStatement) childOf (_: ScBlock | _: ScEarlyDefinitions | _: ScalaFile | _: ScTemplateBody) =>
         Some(bs)
       case other => findEnclosingBlockStatement(other.getParent)
+    }
+  }
+
+  private[refactoring] def removeUnnecessaryParentheses(file: PsiFile, element: PsiElement)(implicit project: Project): Unit =
+    runInspections(file, element)(new ScalaUnnecessaryParenthesesInspection)
+
+  private[refactoring] def runInspections(file: PsiFile, element: PsiElement)
+                                         (firstInspection: LocalInspectionTool, otherInspections: LocalInspectionTool*)
+                                         (implicit project: Project): Unit = {
+    val isOnTheFly = false
+    val inspections = firstInspection +: otherInspections
+    val holder = new ProblemsHolder(InspectionManager.getInstance(project), file, isOnTheFly)
+    val visitors = inspections.map(_.buildVisitor(holder, isOnTheFly))
+
+    element.breadthFirst().foreach(e => visitors.foreach(_.visitElement(e)))
+
+    holder.getResults.forEach { descriptor =>
+      descriptor.getFixes.foreach {
+        case fix: LocalQuickFixOnPsiElement => fix.applyFix()
+        case _ =>
+      }
     }
   }
 

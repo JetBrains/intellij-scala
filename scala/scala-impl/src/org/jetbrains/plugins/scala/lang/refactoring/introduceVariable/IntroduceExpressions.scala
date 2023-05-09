@@ -332,7 +332,7 @@ object IntroduceExpressions {
     def createForBindingIn(forStmt: ScFor): ScForBinding = {
       val parent: ScEnumerators = forStmt.enumerators.orNull
       val inParentheses = parent.prevSiblings.toList.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
-      val created = createForBinding(varName, expression, typeTextIfNeeded(parent))
+      val created = createForBinding(varName, ScalaPsiUtil.wrapInParentheses(expression), typeTextIfNeeded(parent))
       val elem = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
       var result: ScForBinding = null
       if (elem != null) {
@@ -360,7 +360,7 @@ object IntroduceExpressions {
 
     def createVariableDefinition(): PsiElement = {
       if (fastDefinition) {
-        val declaration = createDeclaration(varName, typeTextIfNeeded(firstElement), isVariable, expression, expression)
+        val declaration = createDeclaration(varName, typeTextIfNeeded(firstElement), isVariable, ScalaPsiUtil.wrapInParentheses(expression), expression)
         replaceRangeByDeclaration(declaration.getText, firstRange)(declaration.getProject, editor)
 
         val start = firstRange.getStartOffset
@@ -373,7 +373,6 @@ object IntroduceExpressions {
         CodeStyleManager.getInstance(project).reformatRange(file, start, insertedDefinition.endOffset)
 
         insertedDefinition
-
       } else {
         var needFormatting = false
         val parent = commonParent match {
@@ -398,7 +397,7 @@ object IntroduceExpressions {
         }
         val anchor = parent.getChildren.find(_.getTextRange.contains(firstRange)).getOrElse(parent.getLastChild)
         if (anchor != null) {
-          val created = createDeclaration(varName, typeTextIfNeeded(anchor), isVariable, expression, expression)
+          val created = createDeclaration(varName, typeTextIfNeeded(anchor), isVariable, ScalaPsiUtil.wrapInParentheses(expression), expression)
           val result = ScalaPsiUtil.addStatementBefore(created.asInstanceOf[ScBlockStatement], parent, Some(anchor))
           CodeEditUtil.markToReformat(parent.getNode, needFormatting)
           result
@@ -415,6 +414,7 @@ object IntroduceExpressions {
 
     setPrivateModifier(createdDeclaration)
     ScalaPsiUtil.adjustTypes(createdDeclaration)
+    removeUnnecessaryParentheses(file, createdDeclaration)
     SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(createdDeclaration)
   }
 

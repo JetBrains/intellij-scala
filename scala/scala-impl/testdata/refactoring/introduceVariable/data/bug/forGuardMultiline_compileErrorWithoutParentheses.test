@@ -1,0 +1,30 @@
+class A {
+  def foo(): Unit = {
+    val condition1 = true
+    val condition2 = true
+    val condition3 = true
+
+    for {
+      _ <- List(1, 2, 3)
+      if (<begin>condition1
+        && condition2
+        && condition3<end>)
+    } yield ???
+  }
+}
+-------
+class A {
+  def foo(): Unit = {
+    val condition1 = true
+    val condition2 = true
+    val condition3 = true
+
+    for {
+      _ <- List(1, 2, 3)
+      value: Boolean = (condition1
+        && condition2
+        && condition3)
+      if value
+    } yield ???
+  }
+}

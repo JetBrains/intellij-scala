@@ -1,0 +1,24 @@
+class A {
+  def foo(): Unit = {
+    val condition1 = true
+    val condition2 = true
+    val condition3 = true
+
+    if (<begin>((condition1
+      && condition2
+      && condition3))<end>) {}
+  }
+}
+-------
+class A {
+  def foo(): Unit = {
+    val condition1 = true
+    val condition2 = true
+    val condition3 = true
+
+    val value: Boolean = (condition1
+      && condition2
+      && condition3)
+    if (value) {}
+  }
+}

@@ -601,7 +601,7 @@ object ScalaPsiElementFactory {
     def stmtText(expr: ScBlockStatement): String = expr match {
       case block @ ScBlock(st) if !block.hasRBrace =>
         stmtText(st)
-      case fun @ ScFunctionExpr(parSeq, Some(result)) =>
+      case WithParenthesesStripped(fun @ ScFunctionExpr(parSeq, Some(result))) =>
         val paramText = parSeq match {
           case Seq(parameter) if parameter.typeElement.isDefined && parameter.getPrevSiblingNotWhitespace == null =>
             parameter.getText.parenthesize()

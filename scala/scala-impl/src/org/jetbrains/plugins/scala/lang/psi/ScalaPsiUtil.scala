@@ -1825,4 +1825,10 @@ object ScalaPsiUtil {
       ScalaPsiElementFactory.createBlockWithGivenExpressions(exprs, block)
     }
   }
+
+  def wrapInParentheses(expression: ScExpression)(implicit ctx: ProjectContext): ScParenthesisedExpr = {
+    val parenthesised = ScalaPsiElementFactory.createElementFromText[ScParenthesisedExpr]("(1)", expression)
+    parenthesised.innerElement.foreach(_.replace(expression.copy()))
+    parenthesised
+  }
 }
