@@ -56,7 +56,6 @@ class TextToTextTest2 extends TextToTextTestBase {
     "akka.stream.impl.VirtualProcessor",
     "akka.stream.impl.io.ConnectionSourceStage",
     "akka.stream.impl.io.compression.DeflateDecompressor",
-    "akka.stream.impl.io.compression.GzipDecompressor",
     "akka.stream.scaladsl.MergeHub",
     "akka.stream.stage.GraphStageLogic",
 
