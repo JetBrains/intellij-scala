@@ -79,7 +79,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   def printSymbol(level: Int, symbol: Symbol): Unit = {
-    def isSynthetic: Boolean = symbol.isSynthetic || symbol.isCaseAccessor || symbol.isParamAccessor
+    def isSynthetic: Boolean = symbol.isSynthetic || symbol.isCaseAccessor || symbol.isParamAccessor || symbol.attributes.exists(_.typeRef == NoType)
 
     val accessibilityOk = symbol match {
       case _ if level == 0 => true
@@ -359,6 +359,14 @@ class ScalaSigPrinter(builder: StringBuilder) {
     val paramAccessors = c.children.filter {
       case ms: MethodSymbol if ms.isParamAccessor && ms.name.startsWith(methodName) => true
       case _ => false
+    }
+    val beanAccessors = c.children.filter {
+      case ms: MethodSymbol if ms.attributes.exists(_.typeRef == NoType) &&
+        (ms.name.startsWith("get") || ms.name.startsWith("set")) && ms.name.substring(3) == methodName.capitalize => true
+      case _ => false
+    }
+    if (beanAccessors.nonEmpty) {
+      sb.append("@_root_.scala.beans.BeanProperty ")
     }
     val isMutable = paramAccessors.exists(acc => isSetterFor(acc.name, methodName))
     val toPrint = paramAccessors.find(m => !m.isPrivate || !m.isLocal)

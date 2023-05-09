@@ -30,6 +30,7 @@ class DecompilerTest2 extends TestCase {
   def testAnnotationMultiple(): Unit = doTest("annotation/Multiple")
   def testAnnotationParameters(): Unit = doTest("annotation/Parameters")
   def testAnnotationText(): Unit = doTest("annotation/Text")
+  def testMemberBeanProperty(): Unit = doTest("member/BeanProperty")
   def testMemberBounds(): Unit = doTest("member/Bounds")
   def testMemberDef(): Unit = doTest("member/Def")
   def testMemberIdentifiers(): Unit = doTest("member/Identifiers")
