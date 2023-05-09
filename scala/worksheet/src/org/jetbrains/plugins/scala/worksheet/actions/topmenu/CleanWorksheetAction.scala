@@ -8,16 +8,16 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.psi.PsiFile
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 
-import java.awt.BorderLayout
 import javax.swing.{DefaultBoundedRangeModel, Icon}
 
 class CleanWorksheetAction extends AnAction(
@@ -44,12 +44,8 @@ object CleanWorksheetAction {
     val project = psiFile.getProject
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
 
-    if (psiFile == null || viewer == null) return
-
-    val splitPane = viewer.getComponent.getParent
-    if (splitPane == null) return
-    val parent = splitPane.getParent
-    if (parent == null && !ApplicationManager.getApplication.isUnitTestMode) return
+    if (psiFile == null || viewer == null)
+      return
 
     invokeLater {
       inWriteAction {
@@ -58,8 +54,7 @@ object CleanWorksheetAction {
         cleanWorksheet(psiFile.getVirtualFile, viewer, project)
 
         if (!ApplicationManager.getApplication.isUnitTestMode) {
-          parent.remove(splitPane)
-          parent.add(editor.getComponent, BorderLayout.CENTER)
+          WorksheetDiffSplitters.removeSplitter(editor)
         }
 
         editor.getSettings.setFoldingOutlineShown(true)

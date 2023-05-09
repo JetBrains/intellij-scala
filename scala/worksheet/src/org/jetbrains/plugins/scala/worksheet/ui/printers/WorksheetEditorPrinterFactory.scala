@@ -9,7 +9,6 @@ import com.intellij.openapi.editor.event.{CaretEvent, CaretListener, VisibleArea
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Editor, EditorFactory, VisualPosition}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Splitter
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
@@ -25,9 +24,9 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWor
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetDiffSplitters, WorksheetFoldGroup}
 import org.jetbrains.plugins.scala.worksheet.utils.FileAttributeUtilCache
 
-import java.awt.{BorderLayout, Dimension, Rectangle}
+import java.awt.{Dimension, Rectangle}
 import java.util
-import javax.swing.{JComponent, JLayeredPane}
+import javax.swing.JComponent
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 //noinspection TypeAnnotation
@@ -218,13 +217,11 @@ object WorksheetEditorPrinterFactory {
     )
   }
 
-  private def setupRightSideViewer(editor: Editor, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {
+  private def setupRightSideViewer(editor: Editor, viewer: Editor, modelSync: Boolean = false): Editor = {
     val editorComponent = editor.getComponent
     val editorContentComponent = editor.getContentComponent
 
-    val worksheetViewer = rightSideEditor.asInstanceOf[EditorImpl]
-
-    val viewerSettings = worksheetViewer.getSettings
+    val viewerSettings = viewer.getSettings
     viewerSettings.setLineMarkerAreaShown(false)
     viewerSettings.setLineNumbersShown(false)
 
@@ -237,54 +234,21 @@ object WorksheetEditorPrinterFactory {
 
     editor.getSettings.setFoldingOutlineShown(false)
 
-    worksheetViewer.getComponent.setPreferredSize(prefDim)
+    viewer.getComponent.setPreferredSize(prefDim)
 
-    if (modelSync)
-      synch(editor, worksheetViewer)
-    editorContentComponent.setPreferredSize(prefDim)
-
-    val child = editorComponent.getParent
-
-    val diffPane = WorksheetDiffSplitters.createSimpleSplitter(editor, worksheetViewer, prop)
-    worksheetViewer.putUserData(DIFF_SPLITTER_KEY, diffPane)
-
-    if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val parent = child.getParent
-
-      @inline def preserveFocus(body: => Unit): Unit = {
-        val hadFocus = editorContentComponent.hasFocus
-
-        body
-
-        if (hadFocus) editorContentComponent.requestFocusInWindow()
-      }
-
-      @inline def patchEditor(): Unit = preserveFocus {
-        (parent, child) match {
-          case (parentPane: JLayeredPane, _) =>
-            parentPane.remove(child)
-            parentPane.add(diffPane, BorderLayout.CENTER)
-          case (_, childPane: JLayeredPane) =>
-            childPane.remove(editorComponent)
-            childPane.add(diffPane, BorderLayout.CENTER)
-          case _ =>
-        }
-      }
-
-      if (parent.getComponentCount > 1) {
-        parent.getComponent(1) match {
-          case _: Splitter =>
-            preserveFocus {
-              parent.remove(1)
-              parent.add(diffPane, 1)
-            }
-          case _ => patchEditor()
-        }
-      } else patchEditor()
+    if (modelSync) {
+      synch(editor, viewer)
     }
 
-    WorksheetCache.getInstance(editor.getProject).addViewer(worksheetViewer, editor)
-    worksheetViewer
+    editorContentComponent.setPreferredSize(prefDim)
+
+    if (!ApplicationManager.getApplication.isUnitTestMode) {
+      val splitter = WorksheetDiffSplitters.addSplitter(editor, viewer, prop)
+      viewer.putUserData(DIFF_SPLITTER_KEY, splitter)
+    }
+
+    WorksheetCache.getInstance(editor.getProject).addViewer(viewer, editor)
+    viewer
   }
 
   private def getOrCreateViewerEditorFor(editor: Editor): Editor = {
