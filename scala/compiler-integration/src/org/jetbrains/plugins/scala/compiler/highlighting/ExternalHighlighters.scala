@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaOptimizeImportsFix
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.{Pos, PosRange}
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, executeOnPooledThread, inReadAction, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
@@ -69,9 +69,7 @@ object ExternalHighlighters {
         )
       }
     }
-    executeOnPooledThread {
-      ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
-    }
+    ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
   }
 
   def informWolf(project: Project, state: HighlightingState): Unit =
