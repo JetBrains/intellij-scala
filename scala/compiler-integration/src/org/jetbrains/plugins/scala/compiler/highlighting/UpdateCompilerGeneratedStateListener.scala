@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.concurrency.AppExecutorUtil
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.scala.MessageKind
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.{Pos, PosRange}
@@ -12,8 +13,12 @@ import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListene
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.project.template.FileExt
 
-private class UpdateCompilerGeneratedStateListener(project: Project)
-  extends CompilerEventListener {
+import java.util.concurrent.ExecutorService
+
+private class UpdateCompilerGeneratedStateListener(project: Project) extends CompilerEventListener {
+
+  private val executor: ExecutorService =
+    AppExecutorUtil.createBoundedApplicationPoolExecutor(getClass.getSimpleName, 1)
 
   override def eventReceived(event: CompilerEvent): Unit = {
     val oldState = CompilerGeneratedStateManager.get(project)
@@ -62,9 +67,11 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
         CompilerGeneratedStateManager.update(project, newState)
 
         if (toHighlight.nonEmpty) {
-          val highlightingState = newState.toHighlightingState
-          updateHighlightings(toHighlight, highlightingState)
-          ExternalHighlighters.informWolf(project, highlightingState)
+          executor.execute(() => {
+            val highlightingState = newState.toHighlightingState
+            updateHighlightings(toHighlight, highlightingState)
+            ExternalHighlighters.informWolf(project, highlightingState)
+          })
         }
       case _ =>
     }

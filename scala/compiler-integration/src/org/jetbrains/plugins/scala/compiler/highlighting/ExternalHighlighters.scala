@@ -31,7 +31,7 @@ object ExternalHighlighters {
   // A random number of highlighters group to avoid conflicts with standard groups.
   private[highlighting] final val ScalaCompilerPassId = 979132998
 
-  def applyHighlighting(project: Project, editor: Editor, state: HighlightingState): Unit = executeOnPooledThread {
+  def applyHighlighting(project: Project, editor: Editor, state: HighlightingState): Unit = {
     val document = editor.getDocument
     for {
       virtualFile <- document.virtualFile
