@@ -10,7 +10,6 @@ import java.util
 import com.intellij.psi.tree._
 import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.getDummyBlocks._
@@ -34,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocListItem, ScDocTag}
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -558,7 +558,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
             val enumerators = tail.dropWhile(x => ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(x.getElementType)).head
             val context = if (commonSettings.ALIGN_MULTILINE_FOR && !enumerators.getPsi.startsFromNewLine()) {
               val alignment = Alignment.createAlignment()
-              Some(SubBlocksContext(Map(rParent -> alignment, enumerators -> alignment)))
+              Some(SubBlocksContext.withChildrenAlignments(Map(rParent -> alignment, enumerators -> alignment)))
             } else {
               None
             }
@@ -780,7 +780,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
             val filterOutNodes = delegatedContext.values.flatMap(_.additionalNodes).toSet
             sorted(delegatedChildren.filterNot(filterOutNodes.contains))
           }
-          val context = SubBlocksContext(id, idAdditionalNodes, Some(dotAlignment), delegatedContext)
+          val context = SubBlocksContext.withChild(id, idAdditionalNodes, Some(dotAlignment), delegatedContext)
           result.add(subBlock(dot, lastNode(id :: delegatedChildren), dotAlignment, wrap = Some(dotWrap), context = Some(context)))
 
           assert(childrenNonEmpty.head.eq(expr), "assuming that first child is expr and comments can't go before it")
@@ -797,7 +797,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
         case expr :: typeArgs :: Nil if typeArgs.getPsi.is[ScTypeArgs] =>
           if (expr.getChildren(null).length == 1) {
             val actualAlignment = if (dotFollowedByNewLine) dotAlignment else alignment
-            val context = SubBlocksContext(typeArgs, sorted(delegatedChildren))
+            val context = SubBlocksContext.withChild(typeArgs, sorted(delegatedChildren))
             result.add(subBlock(expr, lastNode(typeArgs :: delegatedChildren), actualAlignment, context = Some(context)))
           } else {
             collectChainedMethodCalls(
@@ -809,7 +809,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
         case expr :: Nil =>
           val actualAlignment = if (dotFollowedByNewLine) dotAlignment else alignment
-          val context = SubBlocksContext(expr, delegatedChildren)
+          val context = SubBlocksContext.withChild(expr, delegatedChildren)
           result.add(subBlock(expr, lastNode(delegatedChildren), actualAlignment, context = Some(context)))
 
         case _ =>

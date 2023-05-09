@@ -26,22 +26,22 @@ class SubBlocksContext(
 
 private[formatting]
 object SubBlocksContext {
-  def apply(
-    node: ASTNode,
-    childNodes: Seq[ASTNode],
+  def withChild(
+    childNode: ASTNode,
+    childAdditionalNodes: Seq[ASTNode],
     childAlignment: Option[Alignment] = None,
     childChildrenAdditionalContexts: Map[ASTNode, SubBlocksContext] = Map()
   ): SubBlocksContext = {
+    val childContext = new SubBlocksContext(childAdditionalNodes, childAlignment, childChildrenAdditionalContexts)
+    val childrenAdditionalContexts = Map(childNode -> childContext)
     new SubBlocksContext(
       additionalNodes = Seq(),
       alignment = None,
-      childrenAdditionalContexts = Map(
-        node -> new SubBlocksContext(childNodes, childAlignment, childChildrenAdditionalContexts)
-      )
+      childrenAdditionalContexts
     )
   }
 
-  def apply(childNodesAlignment: Map[ASTNode, Alignment]): SubBlocksContext = {
+  def withChildrenAlignments(childNodesAlignment: Map[ASTNode, Alignment]): SubBlocksContext = {
     val childrenAdditionalContexts = childNodesAlignment
       .view
       .mapValues(alignment => new SubBlocksContext(Seq(), Some(alignment), Map()))
