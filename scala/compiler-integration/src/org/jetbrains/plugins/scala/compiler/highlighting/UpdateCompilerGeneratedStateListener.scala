@@ -22,7 +22,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
       case CompilerEvent.CompilationStarted(_, _) =>
         val newHighlightOnCompilationFinished = oldState.toHighlightingState.filesWithHighlightings
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
-        handleEventResult(newState, Set.empty, informWolf = false)
+        CompilerGeneratedStateManager.update(project, newState)
       case CompilerEvent.MessageEmitted(compilationId, _, msg) =>
         for {
           text <- Option(msg.text)
@@ -42,15 +42,11 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           val fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
           val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
 
-          handleEventResult(
-            newState = newState,
-            toHighlight = Set.empty,
-            informWolf = false
-          )
+          CompilerGeneratedStateManager.update(project, newState)
         }
       case CompilerEvent.ProgressEmitted(_, _, progress) =>
         val newState = oldState.copy(progress = progress)
-        handleEventResult(newState, Set.empty, informWolf = false)
+        CompilerGeneratedStateManager.update(project, newState)
       case CompilerEvent.CompilationFinished(compilationId, _, sources) =>
         val vFiles = for {
           source <- sources
@@ -61,21 +57,15 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
           replaceOrAppendFileState(acc, file, emptyState)
         }.copy(progress = 1.0)
         val toHighlight = newState.highlightOnCompilationFinished
-        handleEventResult(newState, toHighlight, informWolf = true)
+
+        CompilerGeneratedStateManager.update(project, newState)
+
+        if (toHighlight.nonEmpty) {
+          val highlightingState = newState.toHighlightingState
+          updateHighlightings(toHighlight, highlightingState)
+          ExternalHighlighters.informWolf(project, highlightingState)
+        }
       case _ =>
-    }
-  }
-
-  private def handleEventResult(newState: CompilerGeneratedState, toHighlight: Set[VirtualFile], informWolf: Boolean): Unit = {
-    CompilerGeneratedStateManager.update(project, newState)
-
-    //don't proceed with ProgressEmitted
-    if (toHighlight.nonEmpty || informWolf) {
-      val highlightingState = newState.toHighlightingState
-      updateHighlightings(toHighlight, highlightingState)
-
-      if (informWolf)
-        ExternalHighlighters.informWolf(project, highlightingState)
     }
   }
 
