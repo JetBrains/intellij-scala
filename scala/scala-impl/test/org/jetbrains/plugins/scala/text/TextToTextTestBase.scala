@@ -9,21 +9,20 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
+import org.jetbrains.plugins.scala.text.TextToTextTestBase.Library
 import org.junit.Assert
 
 // SCL-21078
 abstract class TextToTextTestBase extends ScalaFixtureTestCase {
   protected def isScala3: Boolean
 
-  protected def dependencies: Seq[DependencyDescription]
+  protected def libraries: Seq[Library]
 
-  protected def packages: Seq[String]
-
-  protected def packageExceptions: Set[String]
-
-  protected def classExceptions: Set[String]
-
-  protected def minClassCount: Int
+  private val dependencies = libraries.flatMap(_.dependencies)
+  private val packages = libraries.flatMap(_.packages)
+  private val packageExceptions = libraries.flatMap(_.packageExceptions).toSet
+  private val minClassCount = libraries.map(_.minClassCount).sum
+  private val classExceptions = libraries.flatMap(_.classExceptions).toSet
 
   override protected def supportedIn(version: ScalaVersion) =
     version >= (if (isScala3) LatestScalaVersions.Scala_3 else LatestScalaVersions.Scala_2_13)
@@ -118,4 +117,8 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
 
     sb.toString
   }
+}
+
+object TextToTextTestBase {
+  case class Library(dependencies: Seq[DependencyDescription], packages: Seq[String], packageExceptions: Seq[String], minClassCount: Int, classExceptions: Seq[String])
 }
