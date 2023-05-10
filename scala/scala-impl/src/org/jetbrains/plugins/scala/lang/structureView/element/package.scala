@@ -11,7 +11,7 @@ package object element {
   private[structureView]
   object RenderOnlyParameterTypeFromStub extends ParameterRendererLike {
 
-    override def render(param: ScParameter, buffer: StringBuilder): Unit = {
+    override def render(buffer: StringBuilder, param: ScParameter): Unit = {
       val paramTypeText = param.paramType match {
         case Some(pt) => pt.getText
         case _        => "AnyRef"

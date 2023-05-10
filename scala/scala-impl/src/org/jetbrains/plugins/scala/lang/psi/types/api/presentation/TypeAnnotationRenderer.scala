@@ -13,15 +13,15 @@ class TypeAnnotationRenderer(
   parameterTypeDecorateOptions: ParameterTypeDecorateOptions = ParameterTypeDecorateOptions.DecorateNone
 ) {
 
-  def render(typed: Typeable): String = {
+  def render(buffer: StringBuilder, typed: Typeable): Unit = {
     val typeText = renderType(typed)
 
-    val typeTextDecorated = typed match {
-      case param: ScParameter => decoratedParameterType(param, typeText)
-      case _                  => typeText
-    }
+    buffer.append(": ")
 
-    s": $typeTextDecorated"
+    typed match {
+      case param: ScParameter => decoratedParameterType(buffer, param, typeText)
+      case _                  => buffer.append(typeText)
+    }
   }
 
   private def renderType(typed: Typeable): String =
@@ -53,9 +53,7 @@ class TypeAnnotationRenderer(
       case _               => typed.`type`()
     }
 
-  private def decoratedParameterType(param: ScParameter, typeText: String): String = {
-    val buffer = new StringBuilder()
-
+  private def decoratedParameterType(buffer: StringBuilder, param: ScParameter, typeText: String): Unit = {
     if (parameterTypeDecorateOptions.showByNameArrow && param.isCallByNameParameter) {
       buffer.append(ScalaPsiUtil.functionArrow(param.getProject))
       buffer.append(" ")
@@ -79,7 +77,6 @@ class TypeAnnotationRenderer(
           buffer.append("...")
       }
     }
-    buffer.toString()
   }
 }
 

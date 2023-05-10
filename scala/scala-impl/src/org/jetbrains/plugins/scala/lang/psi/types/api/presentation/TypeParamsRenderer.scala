@@ -16,12 +16,29 @@ class TypeParamsRenderer(
   def this(typeRenderer: TypeRenderer, textEscaper: TextEscaper, stripContextTypeArgs: Boolean) =
     this(typeRenderer, new TypeBoundsRenderer(textEscaper), stripContextTypeArgs)
 
-  def renderParams(paramsOwner: ScTypeParametersOwner): String =
-    renderParams(paramsOwner.typeParameters)(render)
+  def renderParams(buffer: StringBuilder, paramsOwner: ScTypeParametersOwner): Unit =
+    renderParams(buffer, paramsOwner.typeParameters)(render)
+    
+  final def renderParams(paramsOwner: ScTypeParametersOwner): String = {
+    val buffer = new StringBuilder
+    renderParams(buffer, paramsOwner.typeParameters)(render)
+    buffer.result()
+  }
 
   def render(param: ScTypeParam): String = {
-    val parametersClauseRendered = param.typeParametersClause.fold("")(render)
+    val buffer = new StringBuilder
+    render(buffer, param)
+    buffer.result()
+  }
+
+  def render(buffer: StringBuilder, param: ScTypeParam): Unit = {
+    val parametersClauseRendered = param.typeParametersClause.fold("") { clause =>
+      val sb = new StringBuilder
+      render(sb, clause)
+      sb.result()
+    }
     renderImpl(
+      buffer,
       param.name,
       param.variance,
       parametersClauseRendered,
@@ -32,17 +49,28 @@ class TypeParamsRenderer(
     )
   }
 
-  def render(clause: ScTypeParamClause): String =
-    renderParams(clause.typeParameters)(render)
+  def render(clause: ScTypeParamClause): String = {
+    val buffer = new StringBuilder
+    render(buffer, clause)
+    buffer.result()
+  }
 
-  def render(param: TypeParameterType): String = {
+  def render(buffer: StringBuilder, clause: ScTypeParamClause): Unit =
+    renderParams(buffer, clause.typeParameters)(render)
+
+  def render(buffer: StringBuilder, param: TypeParameterType): Unit = {
     val (viewTypes, contextTypes) = param.typeParameter.psiTypeParameter match {
       case boundsOwner: ScTypeBoundsOwner => (boundsOwner.viewBound, boundsOwner.contextBound)
       case _                              => TypeParamsRenderer.EmptyTuple
     }
 
-    val parametersRendered = renderParams(param.arguments)(render)
+    val parametersRendered = {
+      val sb = new StringBuilder
+      renderParams(sb, param.arguments)(render)
+      sb.result()
+    }
     renderImpl(
+      buffer,
       param.name,
       param.variance,
       parametersRendered,
@@ -53,29 +81,24 @@ class TypeParamsRenderer(
     )
   }
 
-  private def renderParams[T](parameters: Seq[T])
-                             (renderParam: T => String): String =
-    if (parameters.isEmpty) "" else {
-      val buffer = new StringBuilder
-
-      if (parameters.nonEmpty) {
-        buffer.append("[")
-        var isFirst = true
-        parameters.foreach { p =>
-          if (isFirst)
-            isFirst = false
-          else
-            buffer.append(", ")
-          val paramRendered = renderParam(p)
-          buffer.append(paramRendered)
-        }
-        buffer.append("]")
+  private def renderParams[T](buffer: StringBuilder, parameters: Seq[T])
+                             (renderParam: (StringBuilder, T) => Unit): Unit =
+    if (parameters.nonEmpty) {
+      buffer.append("[")
+      var isFirst = true
+      parameters.foreach { p =>
+        if (isFirst)
+          isFirst = false
+        else
+          buffer.append(", ")
+        renderParam(buffer, p)
       }
-
-      buffer.result()
+      buffer.append("]")
     }
 
+
   private def renderImpl(
+    buffer: StringBuilder,
     paramName: String,
     variance: Variance,
     parametersClauseRendered: String, // for higher-kinded types case
@@ -83,9 +106,7 @@ class TypeParamsRenderer(
     upper: Option[ScType],
     view: Seq[ScType],
     context: Seq[ScType]
-  ): String = {
-    val buffer = new StringBuilder
-
+  ): Unit = {
     val varianceText = variance match {
       case Variance.Contravariant => "-"
       case Variance.Covariant     => "+"
@@ -109,8 +130,6 @@ class TypeParamsRenderer(
       val needsSpace = paramName.lastOption.exists(c => !c.isLetterOrDigit && c != '`')
       buffer.append(boundsRenderer.boundText(tpFixed, ScalaTokenTypes.tCOLON, space = needsSpace)(typeRenderer))
     }
-
-    buffer.result()
   }
 }
 

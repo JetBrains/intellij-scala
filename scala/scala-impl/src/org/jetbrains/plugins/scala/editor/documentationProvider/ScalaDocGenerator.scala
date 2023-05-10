@@ -59,7 +59,7 @@ object ScalaDocGenerator {
 
     appendFooter(builder)
 
-    builder.result
+    builder.result()
   }
 
   def generateDocRendered(commentOwner: ScDocCommentOwner, comment: ScDocComment): String = internalLog {
@@ -69,7 +69,7 @@ object ScalaDocGenerator {
     new ScalaDocContentWithSectionsGenerator(commentOwner, comment, rendered = true).generate(builder)
     appendFooter(builder)
 
-    builder.result
+    builder.result()
   }
 
   private def appendHeader(builder: StringBuilder, actualElementWithDoc: PsiElement): Unit = {

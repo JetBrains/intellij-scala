@@ -5,13 +5,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
 
 trait ModifiersRendererLike {
-  def render(modifierList: ScModifierList): String
+  protected def render(buffer: StringBuilder, modifierList: ScModifierList): Unit
 
-  final def render(elem: ScModifierListOwner): String = {
-    val list = elem.getModifierList
-    if (list != null)
-      render(list)
-    else ""
+  final def render(buffer: StringBuilder, elem: ScModifierListOwner): Unit =
+    Option(elem.getModifierList).foreach(render(buffer, _))
+
+  final def render(elem: ScModifierListOwner):String = {
+    val buffer = new StringBuilder
+    render(buffer, elem)
+    buffer.result()
   }
 }
 
@@ -20,9 +22,7 @@ class ModifiersRenderer(
 ) extends ModifiersRendererLike {
 
   // TODO: maybe we should use modifiers order defined in `Code Style Settings | Scala | Arrangement`?
-  override def render(modifierList: ScModifierList): String = {
-    val buffer: StringBuilder = new StringBuilder
-
+  override def render(buffer: StringBuilder, modifierList: ScModifierList): Unit = {
     for (modifier <- modifierList.accessModifier) {
       val modifierText = accessModifierRenderer.render(modifier)
       buffer.append(modifierText).append(" ")
@@ -32,8 +32,6 @@ class ModifiersRenderer(
 
     for (modifier <- modifiers if modifierList.hasModifierProperty(modifier))
       buffer.append(modifier).append(" ")
-
-    buffer.toString
   }
 }
 
