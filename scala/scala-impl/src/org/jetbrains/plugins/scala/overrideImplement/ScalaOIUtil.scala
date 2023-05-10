@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.collection.immutable.ArraySeq
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 //noinspection InstanceOf
@@ -210,29 +211,59 @@ object ScalaOIUtil {
     (methods ++ aliasesAndValues).toSeq
   }
 
-  def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass, visited: Set[PsiClass] = Set.empty): Boolean =
-    if (visited.contains(clazz)) false
-    else
-      clazz match {
-        case td: ScTypeDefinition if td.isCase || td.is[ScEnum] =>
-          m.name == "apply" ||
-            m.name == "canEqual" || {
-            val clazz = m.containingClass
+  private def isProductAbstractMethod(m: PsiMethod, cls: PsiClass): Boolean = {
+    val methodName = m.name
 
-            clazz != null &&
-            clazz.qualifiedName == "scala.Product" &&
-            (m.name match {
-              case "productArity" | "productElement" => true
-              case _                                 => false
-            })
-          }
-        case x: ScTemplateDefinition =>
-          x.superTypes.map(_.extractClass).exists {
-            case Some(c) => isProductAbstractMethod(m, c, visited + clazz)
-            case _       => false
-          }
-        case _ => false
+    // First observation:
+    // If the methodName is `productArity` or `productElement`, then the containing class of the method must be
+    // `scala.Product`. There is no point in recursing the type hierarchy if this is the case.
+    if (methodName == "productArity" || methodName == "productElement") {
+      val containing = m.containingClass
+      if ((containing ne null) && containing.qualifiedName == "scala.Product")
+        return true
+    }
+
+    // Second observation:
+    // If the name of the method is also not `apply` and not `canEqual`, we can immediately exit the search.
+    if (methodName != "apply" && methodName != "canEqual")
+      return false
+
+    // Third observation:
+    // If the name of the method is `apply` or `canEqual`, we now need to search for a `ScTypeDefinition` which is
+    // either a case class or an enum.
+    def isCaseClassOrEnum(cls: PsiClass): Boolean = cls match {
+      case td: ScTypeDefinition => td.isCase || td.is[ScEnum]
+      case _ => false
+    }
+
+    // Implemented as a breadth-first search written in an imperative style.
+    // Compared to non tail recursive recursion (previous implementation), this can be executed in a single
+    // stack frame and avoid potential StackOverflowErrors in deep type hierarchies.
+    val visited = mutable.Set.empty[PsiClass]
+    val queue = mutable.Queue(cls)
+
+    while (queue.nonEmpty) {
+      val current = queue.dequeue()
+      visited += current
+
+      if (isCaseClassOrEnum(current)) {
+        // The `PsiClass` which we're currently examining is a case class or an enum. Exit the search.
+        return true
       }
+
+      current match {
+        case x: ScTemplateDefinition =>
+          // The `PsiClass` which we're currently examining is a `ScTemplateDefinition`. We need to examine its
+          // supertypes, keeping in mind not to search already visited classes.
+          queue ++= x.superTypes.flatMap(_.extractClass).filterNot(visited)
+        case _ =>
+          // Ignore other types.
+      }
+    }
+
+    // The whole type hierarchy has been searched, this method is not an abstract method of `scala.Product`.
+    false
+  }
 
   private def needOverride(sign: PhysicalMethodSignature, clazz: ScTemplateDefinition): Boolean = {
     sign.method match {
