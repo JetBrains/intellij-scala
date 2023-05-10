@@ -59,7 +59,7 @@ class TextToTextTest2 extends TextToTextTestBase {
 
     Library(
       Seq.empty,
-      Seq("scala"), Seq.empty, 984,
+      Seq("scala"), Seq("scala.tools", "scala.reflect.quasiquotes", "scala.reflect.reify"), 984,
       Seq(
         "scala.concurrent.impl.Promise",
 
@@ -77,6 +77,52 @@ class TextToTextTest2 extends TextToTextTestBase {
         "scala.reflect.runtime.ReflectionUtils",
 
         "scala.util.parsing.combinator.PackratParsers",
+      ),
+    ),
+
+    Library(
+      Seq(
+        "org.jline" % "jline" % "3.21.0",
+      ),
+      Seq("scala.tools", "scala.reflect.quasiquotes", "scala.reflect.reify"), Seq.empty, 694,
+      Seq(
+        "scala.tools.nsc.Global", // Reference to object without this. prefix
+        "scala.tools.nsc.InterpreterLoop", // Standalone annotation
+        "scala.tools.nsc.PipelineMainClass", // Any
+        "scala.tools.nsc.ast.NodePrinters", // Reference to object without this. prefix
+        "scala.tools.nsc.ast.TreeDSL", // Reference to object without this. prefix
+        "scala.tools.nsc.ast.parser.Parsers", // Reference to object without this. prefix
+        "scala.tools.nsc.backend.jvm.opt.Inliner", // Reference to object without this. prefix
+        "scala.tools.nsc.doc.base.MemberLookupBase", // lazy val in type refinement
+        "scala.tools.nsc.doc.html.HtmlPage", // Reference to object without this. prefix
+        "scala.tools.nsc.interactive.Pickler", // lazy val in type refinement
+        "scala.tools.nsc.interpreter.Power", // _1 type argument
+        "scala.tools.nsc.interpreter.shell.ILoop", // Reference to object without this. prefix
+        "scala.tools.nsc.interpreter.shell.ShellConfig", // Order in type refinement
+        "scala.tools.nsc.settings.ScalaSettings", // $1
+        "scala.tools.nsc.settings.Warnings", // _1.`type`
+        "scala.tools.nsc.symtab.SymbolLoaders", // Reference to object without this. prefix
+        "scala.tools.nsc.symtab.classfile.ClassfileParser", // Reference to object without this. prefix
+        "scala.tools.nsc.tasty.bridge.AnnotationOps", // Different .this qualifier
+        "scala.tools.nsc.tasty.bridge.FlagOps", // Reference to object without this. prefix
+        "scala.tools.nsc.tasty.bridge.TypeOps", // Different .this qualifier
+        "scala.tools.nsc.transform.patmat.Logic", // Reference to object without this. prefix
+        "scala.tools.nsc.transform.patmat.MatchApproximation", // Reference to object without this. prefix
+        "scala.tools.nsc.transform.patmat.MatchTreeMaking", // No _root_ qualifier
+        "scala.tools.nsc.typechecker.Analyzer", // Reference to object without this. prefix
+        "scala.tools.nsc.typechecker.AnalyzerPlugins", // Cannot resolve reference
+        "scala.tools.nsc.typechecker.ContextErrors", // No _root_ qualifier
+        "scala.tools.nsc.typechecker.Implicits", // Cannot resolve reference
+        "scala.tools.nsc.typechecker.Namers", // Different .this qualifier
+        "scala.tools.nsc.typechecker.TreeCheckers", // Reference to object without this. prefix
+        "scala.tools.nsc.typechecker.TypeDiagnostics", // Cannot resolve reference
+        "scala.tools.nsc.typechecker.Typers", // Different .this qualifier
+        "scala.tools.nsc.typechecker.Unapplies", // Reference to object without this. prefix
+        "scala.tools.nsc.typechecker.splain.SplainErrors", // Cannot resolve reference
+        "scala.tools.nsc.util.WorkScheduler", // Excessive parentheses in function type
+        "scala.tools.reflect.FormatInterpolator", // Reference to object without this. prefix
+        "scala.tools.reflect.WrappedProperties", // Existential type
+        "scala.reflect.quasiquotes.Parsers", // Reference to object without this. prefix
       ),
     ),
 
@@ -108,6 +154,8 @@ class TextToTextTest2 extends TextToTextTestBase {
       Seq.empty,
     ),
   )
+
+  override protected val includeCompilerAsLibrary = true
 
   override def librariesLoaders = super.librariesLoaders :+ ScalaReflectLibraryLoader
 }
