@@ -285,7 +285,7 @@ lazy val worksheetReplInterfaceImpl_3_1_2: Project =
 lazy val worksheetReplInterfaceImpl_3_3_0: Project =
   newProject("worksheet-repl-interface-impl_3_3_0", file("scala/worksheet-repl-interface-impls/impl_3_3_0"))
     .dependsOn(worksheetReplInterface)
-    .settings(worksheetReplInterfaceImplCommonSettings("3.3.0-RC3"))
+    .settings(worksheetReplInterfaceImplCommonSettings("3.3.0-RC5"))
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .settings(
