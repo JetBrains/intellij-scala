@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
+import com.intellij.codeInsight.intention.FileModifier.SafeFieldForPreview
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass}
@@ -23,6 +24,7 @@ class ConvertJavaToScalaCollectionIntention extends BaseJavaConvertersIntention(
     ).flatMap(fqn => Option(facade.findClass(fqn, scope)))
   }
 
+  @SafeFieldForPreview
   override val alreadyConvertedPrefixes: Set[String] = Set("scala.collection")
 
   override def getText: String = ScalaBundle.message("convert.java.to.scala.collection.hint")

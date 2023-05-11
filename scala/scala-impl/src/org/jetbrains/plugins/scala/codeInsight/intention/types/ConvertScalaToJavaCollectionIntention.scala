@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
+import com.intellij.codeInsight.intention.FileModifier.SafeFieldForPreview
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
@@ -24,12 +25,12 @@ class ConvertScalaToJavaCollectionIntention extends BaseJavaConvertersIntention(
     ).flatMap(fqn => manager.getCachedClass(scope, fqn))
   }
 
+  @SafeFieldForPreview
   override val alreadyConvertedPrefixes: Set[String] = Set("java.")
 
   override def getText: String = ScalaBundle.message("convert.scala.to.java.collection.hint")
 
   override def getFamilyName: String = ConvertScalaToJavaCollectionIntention.getFamilyName
-
 }
 
 object ConvertScalaToJavaCollectionIntention {
