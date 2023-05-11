@@ -192,9 +192,9 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
         |    val foo = new Foo
         |    foo.foooooooo.foooooooo
         |      .foooooooo.bar(
-        |      "The quick brown",
-        |      "fox jumped over",
-        |      "the lazy", "dog")
+        |        "The quick brown",
+        |        "fox jumped over",
+        |        "the lazy", "dog")
         |  }
         |}""".stripMargin
     )

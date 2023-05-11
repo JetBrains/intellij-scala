@@ -113,12 +113,12 @@ class getDummyBlocks(private val block: ScalaBlock) {
     }
     else
       if (lastNode != null)
-        applyInner(firstNode, lastNode)
+        applyInnerForNodesBetween(firstNode, lastNode)
       else
-        applyInner(firstNode)
+        applyInnerForSingleNode(firstNode)
   }
 
-  private def applyInner(node: ASTNode): util.ArrayList[Block] = {
+  private def applyInnerForSingleNode(node: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
     val nodePsi = node.getPsi
@@ -375,6 +375,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
     subBlocks
   }
 
+  //TODO: seems a typo, rename it
   @tailrec
   private def calcGtoupChildAlignment(node: ASTNode, child: ASTNode)
                                      (getPrevGroupNode: PsiElement => ASTNode)
@@ -632,13 +633,17 @@ class getDummyBlocks(private val block: ScalaBlock) {
       case _ => false
     }
 
-  private def getMethodCallOrRefExprSubBlocks(node: ASTNode): util.ArrayList[Block] = {
-    val dotAlignment = if (cs.ALIGN_MULTILINE_CHAINED_METHODS) Alignment.createAlignment() else null
-    val dotWrap = block.suggestedWrap
+  private def getMethodCallOrRefExprSubBlocks(node: ASTNode): util.List[ScalaBlock] = {
+    val chainAlignment = if (cs.ALIGN_MULTILINE_CHAINED_METHODS) Alignment.createAlignment() else null
+    val chainWrap = block.suggestedWrap
 
-    val result = new util.ArrayList[Block]
+    val result = new util.ArrayList[ScalaBlock]
+    val smartIndent = Indent.getSmartIndent(Indent.Type.CONTINUATION, false)
 
-    @scala.annotation.tailrec
+    /**
+     * @param delegatedChildren can contain arguments, type arguments and comments between them
+     */
+    @tailrec
     def collectChainedMethodCalls(
       node: ASTNode,
       dotFollowedByNewLine: Boolean = false,
@@ -648,10 +653,11 @@ class getDummyBlocks(private val block: ScalaBlock) {
       val psi = node.getPsi
       if (canContainMethodCallChain(psi) || psi.is[ScGenericCall]) {
         //continue
-      } else {
-        result.add(subBlock(node, null))
+      }
+      else {
+        result.add(subBlock(node))
         for (child <- delegatedChildren.filter(isNotEmptyNode)) {
-          result.add(subBlock(child, null))
+          result.add(subBlock(child))
         }
         return
       }
@@ -671,59 +677,80 @@ class getDummyBlocks(private val block: ScalaBlock) {
        */
       val (comments, children) = childrenNonEmpty.partition(isComment)
 
-      //don't check for element types other then absolutely required - they do not matter
-      children match {
-        // foo(1, 2, 3)
-        case caller :: args :: Nil if args.getPsi.is[ScArgumentExprList] =>
-          collectChainedMethodCalls(
-            caller, dotFollowedByNewLine,
-            childrenNonEmpty.filter(it => !(it eq caller)) ::: delegatedChildren
-          )
+      @inline def sortByStartOffset(nodes: Seq[ASTNode]): Seq[ASTNode] = nodes.sortBy(_.getTextRange.getStartOffset)
 
-        // obj.foo
+      lazy val delegatedChildrenSorted = sortByStartOffset(delegatedChildren)
+
+      lazy val delegatedChildrenNotAlreadyInSomeContext = {
+        // using Set we imply that ASTNode equals and hashCode methods are lightweight (default implementation)
+        val filterOutNodes = delegatedContext.values.flatMap(_.additionalNodes).toSet
+        delegatedChildrenSorted.filterNot(filterOutNodes.contains)
+      }
+
+      //Example of recursive descent:
+      //value.method1.method2[String](1, 2, 3)
+      //|---------------------------||-------|
+      //|-------------------||------||~~~~~~~| delegated: args `(1, 2, 3)`
+      //|-----------|.|-----||~~~~~~||~~~~~~~| delegated: args `(1, 2, 3)` and type args `[String]`
+      //|---|.|-----|.|-----||~~~~~~||~~~~~~~| delegated: args `(1, 2, 3)` and type args `[String]`
+      children match {
+        case expr :: Nil =>
+          val actualAlignment = if (dotFollowedByNewLine) chainAlignment else alignment
+          val context = SubBlocksContext.withChild(expr, delegatedChildrenNotAlreadyInSomeContext, None, delegatedContext)
+          result.add(subBlock(expr, delegatedChildrenSorted.lastOption.orNull, actualAlignment, None, None, Some(context)))
+
+        //caller(args)
+        //expr.method1[String](1, 2, 3).method2[Int, String](4, 5, 6)
+        //|--------------------caller----------------------||-args--|
+        case caller :: args :: Nil if args.getElementType == ScalaElementType.ARG_EXPRS =>
+          val delegatedChildrenNew = args :: delegatedChildren ++ comments
+          collectChainedMethodCalls(caller, dotFollowedByNewLine, delegatedChildrenNew, delegatedContext)
+
+        //caller[typeArgs]
+        //expr.method1[String](1, 2, 3).method2[Int, String](4, 5, 6)
+        //|--------------caller---------------||-typeArgs--|
+        case caller :: typeArgs :: Nil if typeArgs.getElementType == ScalaElementType.TYPE_ARGS =>
+          val delegatedChildrenNew = typeArgs :: delegatedChildren ++ comments
+          collectChainedMethodCalls(caller, dotFollowedByNewLine, delegatedChildrenNew, Map(typeArgs -> new SubBlocksContext(sortByStartOffset(delegatedChildren))))
+
+        //expr.method1[String](1, 2, 3).method2[Int, String](4, 5, 6)
+        //|------------expr-----------|.|-id--|
         case expr :: dot :: id :: Nil if dot.getElementType == tDOT =>
-          // delegatedChildren can be args or typeArgs
-          val idAdditionalNodes = {
-            // using Set we imply that ASTNode equals and hashCode methods are lightweight (default implementation)
-            val filterOutNodes = delegatedContext.values.flatMap(_.additionalNodes).toSet
-            sorted(delegatedChildren.filterNot(filterOutNodes.contains))
-          }
-          val context = SubBlocksContext.withChild(id, idAdditionalNodes, Some(dotAlignment), delegatedContext)
-          result.add(subBlock(dot, lastNode(id :: delegatedChildren), dotAlignment, wrap = Some(dotWrap), context = Some(context)))
+          //NOTE: we shadow `dotFollowedByNewLine` parameter, cause here we are interested in the new dot
+          val dotFollowedByNewLine = dot.getPsi.followedByNewLine()
+
+          val splitAtNode = if (dotFollowedByNewLine) id else dot
 
           assert(childrenNonEmpty.head.eq(expr), "assuming that first child is expr and comments can't go before it")
-          val commentsBeforeDot = childrenNonEmpty.tail.takeWhile(isComment)
-          commentsBeforeDot.foreach { comment =>
-            val commentAlign = if (comment.getPsi.startsFromNewLine()) dotAlignment else null
-            result.add(subBlock(comment, comment, commentAlign, wrap = Some(dotWrap)))
+          val (nodesOnPrevLine, nodesOnNextLine) = childrenNonEmpty.tail.span(c => {
+            //if chain part starts with a comment, include it into block:
+            //value
+            //  /*comment*/.map(x => x)
+            val split = (c eq splitAtNode) || c.getPsi.startsFromNewLine(false)
+            !split
+          })
+
+          //add whatever goes on previous line to a separate block
+          //Example 1 (here `//comment` goes to separate block)
+          //  seq //comment
+          //    .map(x => x)
+          //Example 2 (here `. //comment` goes to separate block)
+          //  seq.//comment
+          //    map(x => x)
+          val chainCallIsSplitToTwoBlocks = nodesOnPrevLine.nonEmpty && nodesOnNextLine.nonEmpty
+          if (chainCallIsSplitToTwoBlocks) {
+            result.add(subBlock(nodesOnPrevLine.head, nodesOnPrevLine.lastOption.orNull, null, Some(Indent.getContinuationIndent), Some(null), None))
           }
 
-          val dotFollowedByNewLine = dot.getPsi.followedByNewLine()
+          val context = SubBlocksContext.withChild(id, delegatedChildrenNotAlreadyInSomeContext, None, delegatedContext)
+          val nodes = (if (nodesOnNextLine.nonEmpty) nodesOnNextLine else nodesOnPrevLine) ++ delegatedChildrenSorted
+          result.add(subBlock(nodes.head, nodes.lastOption.orNull, chainAlignment, Some(smartIndent), Some(chainWrap), Some(context)))
+
           collectChainedMethodCalls(expr, dotFollowedByNewLine)
-
-        // foo[String]
-        case expr :: typeArgs :: Nil if typeArgs.getPsi.is[ScTypeArgs] =>
-          if (expr.getChildren(null).length == 1) {
-            val actualAlignment = if (dotFollowedByNewLine) dotAlignment else alignment
-            val context = SubBlocksContext.withChild(typeArgs, sorted(delegatedChildren))
-            result.add(subBlock(expr, lastNode(typeArgs :: delegatedChildren), actualAlignment, context = Some(context)))
-          } else {
-            collectChainedMethodCalls(
-              expr, dotFollowedByNewLine,
-              typeArgs :: delegatedChildren ++ comments,
-              Map(typeArgs -> new SubBlocksContext(sorted(delegatedChildren)))
-            )
-          }
-
-        case expr :: Nil =>
-          val actualAlignment = if (dotFollowedByNewLine) dotAlignment else alignment
-          val context = SubBlocksContext.withChild(expr, delegatedChildren)
-          result.add(subBlock(expr, lastNode(delegatedChildren), actualAlignment, context = Some(context)))
-
         case _ =>
           val childrenWithDelegated = children ++ delegatedChildren
           for (child <- childrenWithDelegated.filter(isNotEmptyNode)) {
-            result.add(subBlock(child, null))
+            result.add(subBlock(child))
           }
       }
     }
@@ -731,16 +758,10 @@ class getDummyBlocks(private val block: ScalaBlock) {
     collectChainedMethodCalls(node)
 
     // we need to sort blocks because we add them in wrong order to make inner method tail recursive
-    util.Collections.sort(result, util.Comparator.comparingInt[Block](_.getTextRange.getStartOffset))
+    util.Collections.sort(result, util.Comparator.comparingInt[ScalaBlock](_.node.getTextRange.getStartOffset))
 
     result
   }
-
-  @inline
-  private def lastNode(nodes: Seq[ASTNode]): ASTNode = sorted(nodes).lastOption.orNull
-
-  @inline
-  private def sorted(nodes: Seq[ASTNode]): Seq[ASTNode] = nodes.sortBy(_.getTextRange.getStartOffset)
 
   @inline
   private def isComment(node: ASTNode) = COMMENTS_TOKEN_SET.contains(node.getElementType)
@@ -768,10 +789,10 @@ class getDummyBlocks(private val block: ScalaBlock) {
     }
   }
 
-  private def applyInner(node: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
+  private def applyInnerForNodesBetween(node: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
-    def childBlock(child: ASTNode): ScalaBlock = {
+    def getChildBlock(child: ASTNode): ScalaBlock = {
       val lastNode = block.getChildBlockLastNode(child)
       val alignment = block.getChildBlockCustomAlignment(child).orNull
       val context = block.getChildBlockContext(child)
@@ -784,7 +805,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
         if (child.getPsi.isInstanceOf[ScTemplateParents]) {
           subBlocks.addAll(getTemplateParentsBlocks(child))
         } else {
-          subBlocks.add(childBlock(child))
+          subBlocks.add(getChildBlock(child))
         }
       }
     } while (child != lastNode && {
@@ -797,14 +818,17 @@ class getDummyBlocks(private val block: ScalaBlock) {
       context <- block.subBlocksContext
       additionalNode <- context.additionalNodes
     } {
-      subBlocks.add(childBlock(additionalNode))
+      val childBlock = getChildBlock(additionalNode)
+      subBlocks.add(childBlock)
     }
 
     subBlocks
   }
 
 
-  private def getTemplateParentsBlocks(node: ASTNode): util.ArrayList[Block] = {
+  //class A() extends B() with T1 with T2
+  //                  |----this part-----|
+  private def getTemplateParentsBlocks(node: ASTNode): util.List[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
     import ScalaCodeStyleSettings._

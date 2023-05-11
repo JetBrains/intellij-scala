@@ -9,9 +9,9 @@ import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.isIndented
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.TokenSets
-import org.jetbrains.plugins.scala.lang.formatting.{ScalaBlock, isYieldOrDo}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isConstructorArgOrMemberFunctionParameter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.formatting.{ScalaBlock, isYieldOrDo}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScCodeBlockElementType.BlockExpression
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -143,6 +143,11 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         case _               =>
           return Indent.getNormalIndent
       }
+    }
+
+    //in chain method calls indentation will be added to outer block `.ref(...)` so seems like no need to add it to the dot
+    if (childElementType == ScalaTokenTypes.tDOT) {
+      return Indent.getNoneIndent
     }
 
     //the methodCall/functionExpr have dot block as optional, so cases with and without dot are considered
