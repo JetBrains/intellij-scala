@@ -4,7 +4,7 @@ import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPat
 import DynamicDependenciesFetcher.*
 import org.jetbrains.sbtidea.Keys.*
 
-import java.nio.file.Paths
+import java.nio.file.Path
 
 // Global build settings
 
@@ -746,7 +746,7 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
     },
     packageFileMappings ++= {
       localRepoUpdate.value.map { case (src, trg) =>
-        val targetPath = Paths.get("repo").resolve(trg)
+        val targetPath = Path.of("repo").resolve(trg)
         src.toFile -> targetPath.toString
       } ++
       dynamicDependenciesUpdate.value.map { case (src, trg) =>
