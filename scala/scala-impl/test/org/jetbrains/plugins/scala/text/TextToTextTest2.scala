@@ -93,9 +93,7 @@ class TextToTextTest2 extends TextToTextTestBase {
         "scala.tools.nsc.ast.TreeDSL", // Reference to object without this. prefix
         "scala.tools.nsc.ast.parser.Parsers", // Reference to object without this. prefix
         "scala.tools.nsc.backend.jvm.opt.Inliner", // Reference to object without this. prefix
-        "scala.tools.nsc.doc.base.MemberLookupBase", // lazy val in type refinement
         "scala.tools.nsc.doc.html.HtmlPage", // Reference to object without this. prefix
-        "scala.tools.nsc.interactive.Pickler", // lazy val in type refinement
         "scala.tools.nsc.interpreter.Power", // _1 type argument
         "scala.tools.nsc.interpreter.shell.ILoop", // Reference to object without this. prefix
         "scala.tools.nsc.interpreter.shell.ShellConfig", // Order in type refinement
