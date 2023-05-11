@@ -11,7 +11,7 @@ trait Refinement {
 
   type T5 = scala.collection.immutable.Seq[Int] { def member: Int }
 
-  val v1/**//*: { val v1: Int; def f1(x: Int): Unit; type T = String; type C <: AnyRef; type CC <: AnyRef with Product with Serializable; def f4(): Unit }*/ = /**/new {
+  val v1/**//*: { val v1: Int; def f1(x: Int): Unit; type T = String; type C <: AnyRef; type CC <: AnyRef with Product with Serializable; val v2: Int; def f4(): Unit }*/ = /**/new {
     val v1: Int = ???
 
     def f1(x: Int): Unit = ???
@@ -25,6 +25,8 @@ trait Refinement {
     object O
 
     case object CO
+
+    lazy val v2: Int = ???
 
     override def toString: String = ???
 
