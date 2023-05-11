@@ -95,17 +95,17 @@ class TextToTextTest3 extends TextToTextTestBase {
         "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
         "org.scalatest.matchers.CompileMacro", // Given definition
         "org.scalatest.matchers.MatchPatternMacro", // Anonymous using
-        "org.scalatest.matchers.Matcher", // T & T
+        "org.scalatest.matchers.Matcher", // Inline parameter
         "org.scalatest.matchers.TypeMatcherMacro", // Cannot resolve reference
         "org.scalatest.matchers.dsl.MatchPatternWord", // Inline parameter
-        "org.scalatest.matchers.dsl.MatcherFactory1", // T & T
-        "org.scalatest.matchers.dsl.MatcherFactory2", // T & T
-        "org.scalatest.matchers.dsl.MatcherFactory3", // T & T
-        "org.scalatest.matchers.dsl.MatcherFactory4", // T & T
-        "org.scalatest.matchers.dsl.MatcherFactory5", // T & T
-        "org.scalatest.matchers.dsl.MatcherFactory6", // T & T
-        "org.scalatest.matchers.dsl.MatcherFactory7", // T & T
-        "org.scalatest.matchers.dsl.MatcherFactory8", // T & T
+        "org.scalatest.matchers.dsl.MatcherFactory1", // Inline parameter
+        "org.scalatest.matchers.dsl.MatcherFactory2", // Inline parameter
+        "org.scalatest.matchers.dsl.MatcherFactory3", // Inline parameter
+        "org.scalatest.matchers.dsl.MatcherFactory4", // Inline parameter
+        "org.scalatest.matchers.dsl.MatcherFactory5", // Inline parameter
+        "org.scalatest.matchers.dsl.MatcherFactory6", // Inline parameter
+        "org.scalatest.matchers.dsl.MatcherFactory7", // Inline parameter
+        "org.scalatest.matchers.dsl.MatcherFactory8", // Inline parameter
         "org.scalatest.matchers.dsl.NotWord", // Inline parameter
         "org.scalatest.matchers.dsl.ResultOfNotWordForAny", // Inline parameter
         "org.scalatest.matchers.must.CompileMacro", // Anonymous using

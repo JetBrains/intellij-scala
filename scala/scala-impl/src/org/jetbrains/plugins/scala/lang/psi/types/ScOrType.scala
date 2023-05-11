@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.lang.psi.types.api.ValueType
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 /**
  * Scala 3 union type, e.g. `Foo | Bar`
@@ -42,7 +43,7 @@ object ScOrType {
   def apply(lhs: ScType, rhs: ScType): ValueType = {
     assert(lhs.isValue && rhs.isValue, "Components of a union type must be value types.")
 
-    if (lhs == rhs) lhs.asInstanceOf[ValueType]
-    else            new ScOrType(lhs, rhs)
+    if (!ScalaApplicationSettings.PRECISE_TEXT && lhs == rhs) lhs.asInstanceOf[ValueType]
+    else new ScOrType(lhs, rhs)
   }
 }

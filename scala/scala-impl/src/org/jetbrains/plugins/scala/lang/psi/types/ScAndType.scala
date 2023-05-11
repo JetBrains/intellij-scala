@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, ValueType}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 /**
  * Scala 3 intersection type, e.g. `Foo & Bar`
@@ -40,9 +41,9 @@ object ScAndType {
   def apply(lhs: ScType, rhs: ScType): ValueType = {
     assert(lhs.isValue && rhs.isValue, "Components of an intersection type must be value types.")
 
-    if (lhs == rhs || rhs.isAny) lhs.asInstanceOf[ValueType]
-    else if (lhs.isAny)          rhs.asInstanceOf[ValueType]
-    else                         makeAndType(lhs, rhs)
+    if (!ScalaApplicationSettings.PRECISE_TEXT && (lhs == rhs || rhs.isAny)) lhs.asInstanceOf[ValueType]
+    else if (!ScalaApplicationSettings.PRECISE_TEXT && lhs.isAny) rhs.asInstanceOf[ValueType]
+    else makeAndType(lhs, rhs)
   }
 
   private[this] def checkEquiv(lhs: ScType, rhs: ScType): Boolean =
@@ -50,7 +51,7 @@ object ScAndType {
 
   private[this] def makeAndType(lhs: ScType, rhs: ScType): ValueType = (lhs, rhs) match {
     case (ParameterizedType(des1, args1), ParameterizedType(des2, args2))
-      if checkEquiv(des1, des2) =>
+      if !ScalaApplicationSettings.PRECISE_TEXT && checkEquiv(des1, des2) =>
       val jointArgs = glbArgs(args1, args2, extractTypeParameters(des1))
       jointArgs.fold[ValueType](new ScAndType(lhs, rhs))(ScParameterizedType(des1, _))
     case _ => new ScAndType(lhs, rhs)
