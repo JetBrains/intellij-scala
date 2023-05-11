@@ -502,7 +502,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
     val keywords =
       if (!m.isAccessor) "def "
-      else if (m.isLazy) "lazy val "
+      else if (m.isLazy) (if (inRefinementClass(m)) "val " else "lazy val ")
       else if (hasSetter) "var "
       else "val "
 
