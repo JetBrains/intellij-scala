@@ -8,15 +8,78 @@ abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
 
   override def familyName: String = ConvertJavaToScalaCollectionIntention.getFamilyName
 
+  private def wrapInClassWithValueDefinition(rhs: String, addImport: Boolean = false): String =
+    s"""${if (addImport) "import " + converters + "\n" else ""}import scala.language.postfixOps
+       |
+       |class UsesJavaCollection {
+       |  val list = $rhs
+       |}
+       |""".stripMargin
 
-  def testIntentionIsAvailable(): Unit = {
-    checkIntentionIsAvailable(
-      """
-        |class UsesJavaCollections {
-        |  val list = new java.util.ArrayList<caret>[String]()
-        |}
-      """.stripMargin)
-  }
+  def testNew_generic_withParens(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"new java.util.ArrayList$CARET[String]()"),
+    wrapInClassWithValueDefinition(s"new java.util.ArrayList$CARET[String]().asScala", addImport = true)
+  )
+
+  def testNew_withParens(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"new java.ut${CARET}il.ArrayList()"),
+    wrapInClassWithValueDefinition(s"new java.ut${CARET}il.ArrayList().asScala", addImport = true)
+  )
+
+  def testNew_generic_withoutParens(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"new java.util.ArrayList$CARET[String]"),
+    wrapInClassWithValueDefinition(s"new java.util.ArrayList$CARET[String].asScala", addImport = true)
+  )
+
+  def testNew_withoutParens(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"new java.ut${CARET}il.ArrayList"),
+    wrapInClassWithValueDefinition(s"new java.ut${CARET}il.ArrayList.asScala", addImport = true)
+  )
+
+  def testCall_generic_withParens(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"java.util.Collec${CARET}tions.emptyList[String]()"),
+    wrapInClassWithValueDefinition(s"java.util.Collec${CARET}tions.emptyList[String]().asScala", addImport = true)
+  )
+
+  def testCall_withParens(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"java.util.Collec${CARET}tions.emptyList()"),
+    wrapInClassWithValueDefinition(s"java.util.Collec${CARET}tions.emptyList().asScala", addImport = true)
+  )
+
+  def testCall_generic_withoutParens(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"java.util.Collec${CARET}tions.emptyList[String]"),
+    wrapInClassWithValueDefinition(s"java.util.Collec${CARET}tions.emptyList[String].asScala", addImport = true)
+  )
+
+  def testCall_withoutParens(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"java.util.Collec${CARET}tions.emptyList"),
+    wrapInClassWithValueDefinition(s"java.util.Collec${CARET}tions.emptyList.asScala", addImport = true)
+  )
+
+  def testInfix_generic(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"java.util.Collections singletonList$CARET[Int] 1"),
+    wrapInClassWithValueDefinition("(java.util.Collections singletonList[Int] 1).asScala", addImport = true)
+  )
+
+  def testInfix_generic_withParens(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"java.util.Collec${CARET}tions singletonList[Boolean] (true)"),
+    wrapInClassWithValueDefinition("(java.util.Collections singletonList[Boolean] (true)).asScala", addImport = true)
+  )
+
+  def testInfix(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"java.util.Collect${CARET}ions singletonList 1"),
+    wrapInClassWithValueDefinition("(java.util.Collections singletonList 1).asScala", addImport = true)
+  )
+
+  def testInfix_withParens(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"java.util.Collections emptyList$CARET ()"),
+    wrapInClassWithValueDefinition("(java.util.Collections emptyList()).asScala", addImport = true)
+  )
+
+  def testPostfix(): Unit = doTest(
+    wrapInClassWithValueDefinition(s"java.util.Collec${CARET}tions emptyList"),
+    wrapInClassWithValueDefinition("(java.util.Collections emptyList).asScala", addImport = true)
+  )
 
   def testIntentionIsAvailable_Iterable(): Unit = {
     checkIntentionIsAvailable(
@@ -52,12 +115,23 @@ abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
 
   def testIntentionIsNotAvailable(): Unit = {
     checkIntentionIsNotAvailable(
-      """
-        |import scala.collection.JavaConverters._
-        |
-        |class UsesJavaCollections {
-        |  val list = new java.util.ArrayList<caret>[String]().asScala
-        |}
+      s"""
+         |import $converters
+         |
+         |class UsesJavaCollections {
+         |  val list = new java.util.ArrayList$CARET[String]().asScala
+         |}
+      """.stripMargin)
+  }
+
+  def testIntentionIsNotAvailable2(): Unit = {
+    checkIntentionIsNotAvailable(
+      s"""
+         |import $converters
+         |
+         |class UsesJavaCollections {
+         |  val list = (java.util.Collect${CARET}ions singletonList[Boolean] (true)).asScala
+         |}
       """.stripMargin)
   }
 
@@ -100,7 +174,6 @@ abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
 
     doTest(text, resultText)
   }
-
 
 }
 

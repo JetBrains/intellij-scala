@@ -1272,9 +1272,11 @@ package object extensions {
       delegate.find(aClass.isInstance).asInstanceOf[Option[T]]
     }
 
-    def findByType[T1 <: A: ClassTag, T2 <: A: ClassTag]: Option[A] = {
+    def findByType[T1 <: A: ClassTag, T2 <: A: ClassTag]: Option[A] =
       delegate.find(_.is[T1, T2])
-    }
+
+    def findByType[T1 <: A : ClassTag, T2 <: A : ClassTag, T3 <: A : ClassTag]: Option[A] =
+      delegate.find(_.is[T1, T2, T3])
 
     def filterByType[T <: AnyRef : ClassTag]: Iterator[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
