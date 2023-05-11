@@ -13,9 +13,6 @@ import scala.tools.nsc.interpreter.shell.{ILoop, ReplReporterImpl, ShellConfig}
 import scala.tools.nsc.interpreter.{IMain, Results}
 import scala.jdk.CollectionConverters._
 
-/**
- * ATTENTION: when editing ensure to increase the version in ILoopWrapperFactoryHandler
- */
 class ILoopWrapper213Impl(
   myOut: PrintWriter,
   wrapperReporter: ILoopWrapperReporter,

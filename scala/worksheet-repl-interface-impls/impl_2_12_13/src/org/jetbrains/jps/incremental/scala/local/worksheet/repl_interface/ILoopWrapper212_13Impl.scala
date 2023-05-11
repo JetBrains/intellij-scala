@@ -9,9 +9,6 @@ import scala.tools.nsc.interpreter.StdReplTags.tagOfIMain
 import scala.tools.nsc.interpreter.{ILoop, IMain, NamedParam, ReplReporter, Results}
 import scala.collection.JavaConverters._
 
-/**
- * ATTENTION: when editing ensure to increase the version in ILoopWrapperFactoryHandler
- */
 class ILoopWrapper212_13Impl(
   myOut: PrintWriter,
   wrapperReporter: ILoopWrapperReporter,

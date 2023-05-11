@@ -10,9 +10,6 @@ import dotty.tools.repl.State
 
 import scala.jdk.CollectionConverters._
 
-/**
- * ATTENTION: when editing ensure to increase the version in ILoopWrapperFactoryHandler
- */
 class ILoopWrapper300Impl(
   myOut: PrintStream,
   wrapperReporter: ILoopWrapperReporter, // TODO: use when ReplDriver accepts reporter
