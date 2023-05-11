@@ -24,6 +24,7 @@ private class ClassPrinter(isScala3: Boolean) {
       case _: ScTrait => "trait"
       case _: ScClass => "class"
       case _: ScObject => "object"
+      case _ => "TODO"
     }
 
     val name = cls.name
@@ -160,6 +161,7 @@ private class ClassPrinter(isScala3: Boolean) {
       (if (ml.isImplicit) "implicit " else "") +
       (if (ml.isFinal) "final " else "") +
       (if (ml.isSealed) "sealed " else "") +
+      (if (ml.isOpen) "open " else "") +
       (if (ml.isAbstract && !ml.isOverride) "abstract " else "") +
       (if (ml.isLazy) "lazy " else "") +
       (if (ml.isTransparent) "transparent " else "") +

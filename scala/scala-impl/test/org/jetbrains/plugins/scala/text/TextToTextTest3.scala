@@ -80,6 +80,56 @@ class TextToTextTest3 extends TextToTextTestBase {
 
     Library(
       Seq(
+        "org.scalatest" %% "scalatest" % "3.2.14"
+      ),
+      Seq("org.scalatest"), Seq.empty, 660,
+      Seq(
+        "org.scalatest.Assertions", // Extension, inline parameter, anonymous using
+        "org.scalatest.AssertionsMacro", // Anonymous using
+        "org.scalatest.CompileMacro", // Given definition
+        "org.scalatest.MessageRecordingInformer", // Extra default arguments
+        "org.scalatest.Suite", // FromJavaObject
+        "org.scalatest.diagrams.DiagrammedAssertionsMacro", // Anonymous using
+        "org.scalatest.diagrams.Diagrams", // Inline parameter
+        "org.scalatest.diagrams.DiagramsMacro", // Cannot resolve reference
+        "org.scalatest.enablers.Definition", // AnyRef with type refinement
+        "org.scalatest.enablers.Emptiness", // AnyRef with type refinement
+        "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
+        "org.scalatest.enablers.Length", // AnyRef with type refinement
+        "org.scalatest.enablers.Messaging", // AnyRef with type refinement
+        "org.scalatest.enablers.Readability", // AnyRef with type refinement
+        "org.scalatest.enablers.Size", // AnyRef with type refinement
+        "org.scalatest.enablers.Writability", // AnyRef with type refinement
+        "org.scalatest.matchers.CompileMacro", // Given definition
+        "org.scalatest.matchers.MatchPatternMacro", // Anonymous using
+        "org.scalatest.matchers.Matcher", // T & T
+        "org.scalatest.matchers.TypeMatcherMacro", // Cannot resolve reference
+        "org.scalatest.matchers.dsl.MatchPatternWord", // Inline parameter
+        "org.scalatest.matchers.dsl.MatcherFactory1", // T & T
+        "org.scalatest.matchers.dsl.MatcherFactory2", // T & T
+        "org.scalatest.matchers.dsl.MatcherFactory3", // T & T
+        "org.scalatest.matchers.dsl.MatcherFactory4", // T & T
+        "org.scalatest.matchers.dsl.MatcherFactory5", // T & T
+        "org.scalatest.matchers.dsl.MatcherFactory6", // T & T
+        "org.scalatest.matchers.dsl.MatcherFactory7", // T & T
+        "org.scalatest.matchers.dsl.MatcherFactory8", // T & T
+        "org.scalatest.matchers.dsl.NotWord", // Inline parameter
+        "org.scalatest.matchers.dsl.ResultOfNotWordForAny", // Inline parameter
+        "org.scalatest.matchers.must.CompileMacro", // Anonymous using
+        "org.scalatest.matchers.must.Matchers", // No this. prefix
+        "org.scalatest.matchers.must.TypeMatcherMacro", // Cannot resolve reference
+        "org.scalatest.matchers.should.CompileMacro", // Anonymous using
+        "org.scalatest.matchers.should.Matchers", // No this. prefix
+        "org.scalatest.matchers.should.TypeMatcherMacro", // Cannot resolve reference
+        "org.scalatest.tools.Framework", // Any
+        "org.scalatest.tools.Runner", // FromJavaObject
+        "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve reference
+        "org.scalatest.tools.ScalaTestFramework", // Any
+      )
+    ),
+
+    Library(
+      Seq(
         "org.scalaz" %% "scalaz-core" % "7.3.7",
         "org.scalaz" %% "scalaz-effect" % "7.3.7",
       ),

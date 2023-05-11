@@ -31,6 +31,8 @@ object ScModifierList {
 
     def isSealed: Boolean = hasModifier(Sealed)
 
+    def isOpen: Boolean = hasModifier(Open)
+
     def isLazy: Boolean = hasModifier(Lazy)
 
     def isCase: Boolean = hasModifier(Case)

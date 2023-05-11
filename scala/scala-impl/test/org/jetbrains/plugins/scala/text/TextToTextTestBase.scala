@@ -18,11 +18,13 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
 
   protected def libraries: Seq[Library]
 
-  private val dependencies = libraries.flatMap(_.dependencies)
-  private val packages = libraries.flatMap(_.packages)
-  private val packageExceptions = libraries.flatMap(_.packageExceptions).toSet
-  private val minClassCount = libraries.map(_.minClassCount).sum
-  private val classExceptions = libraries.flatMap(_.classExceptions).toSet
+  private def libraries0: Seq[Library] = libraries.find(_.exclusively).fold(libraries)(Seq(_))
+
+  private val dependencies = libraries0.flatMap(_.dependencies)
+  private val packages = libraries0.flatMap(_.packages)
+  private val packageExceptions = libraries0.flatMap(_.packageExceptions).toSet
+  private val minClassCount = libraries0.map(_.minClassCount).sum
+  private val classExceptions = libraries0.flatMap(_.classExceptions).toSet
 
   override protected def supportedIn(version: ScalaVersion) =
     version >= (if (isScala3) LatestScalaVersions.Scala_3 else LatestScalaVersions.Scala_2_13)
@@ -120,5 +122,8 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
 }
 
 object TextToTextTestBase {
-  case class Library(dependencies: Seq[DependencyDescription], packages: Seq[String], packageExceptions: Seq[String], minClassCount: Int, classExceptions: Seq[String])
+  case class Library(dependencies: Seq[DependencyDescription],
+                     packages: Seq[String], packageExceptions: Seq[String], minClassCount: Int,
+                     classExceptions: Seq[String],
+                     exclusively: Boolean = false)
 }

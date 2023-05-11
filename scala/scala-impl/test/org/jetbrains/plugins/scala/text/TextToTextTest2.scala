@@ -128,6 +128,21 @@ class TextToTextTest2 extends TextToTextTestBase {
 
     Library(
       Seq(
+        "org.scalatest" %% "scalatest" % "3.2.14"
+      ),
+      Seq("org.scalatest"), Seq.empty, 677,
+      Seq(
+        "org.scalatest.Suite", // Existential type
+        "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
+        "org.scalatest.tools.Framework", // Any
+        "org.scalatest.tools.Runner", // Existential type
+        "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve reference
+        "org.scalatest.tools.ScalaTestFramework", // Any
+      ),
+    ),
+
+    Library(
+      Seq(
         "org.scalaz" %% "scalaz-core" % "7.3.7",
         "org.scalaz" %% "scalaz-effect" % "7.3.7",
       ),
