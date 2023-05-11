@@ -126,16 +126,37 @@ class TextToTextTest2 extends TextToTextTestBase {
 
     Library(
       Seq(
+        "org.scalacheck" %% "scalacheck" % "1.17.0",
+      ),
+      Seq("org.scalacheck"), Seq.empty, 38,
+      Seq.empty,
+    ),
+
+    Library(
+      Seq(
+        "org.scalactic" %% "scalactic" % "3.2.14",
+      ),
+      Seq("org.scalactic"), Seq.empty, 170,
+      Seq(
+        "org.scalactic.Accumulation", // No parentheses for repeated function type
+        "org.scalactic.FutureSugar", // No parentheses for repeated function type
+        "org.scalactic.TrySugar", // No parentheses for repeated function type
+        "org.scalactic.source.TypeInfoMacro", // Cannot resolve reference
+      ),
+    ),
+
+    Library(
+      Seq(
         "org.scalatest" %% "scalatest" % "3.2.14"
       ),
       Seq("org.scalatest"), Seq.empty, 677,
       Seq(
         "org.scalatest.Suite", // Existential type
         "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
-        "org.scalatest.tools.Framework", // Any
+//        "org.scalatest.tools.Framework", // Any
         "org.scalatest.tools.Runner", // Existential type
         "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve reference
-        "org.scalatest.tools.ScalaTestFramework", // Any
+//        "org.scalatest.tools.ScalaTestFramework", // Any
       ),
     ),
 

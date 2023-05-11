@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase.Library
 class TextToTextTest3 extends TextToTextTestBase {
   override protected def isScala3: Boolean = true
 
-  override protected def libraries: Seq[TextToTextTestBase.Library] = Seq(
+  override protected def libraries: Seq[Library] = Seq(
     Library(
       Seq(
         "com.typesafe.akka" %% "akka-actor" % "2.7.0",
@@ -80,6 +80,31 @@ class TextToTextTest3 extends TextToTextTestBase {
 
     Library(
       Seq(
+        "org.scalacheck" %% "scalacheck" % "1.17.0",
+      ),
+      Seq("org.scalacheck"), Seq.empty, 38,
+      Seq.empty
+    ),
+
+    Library(
+      Seq(
+        "org.scalactic" %% "scalactic" % "3.2.14",
+      ),
+      Seq("org.scalactic"), Seq("org.scalactic.anyvals") /* Anonymous using */, 87,
+      Seq(
+        "org.scalactic.Accumulation", // No parentheses in repeated function type
+        "org.scalactic.BooleanMacro", // Anonymous using
+        "org.scalactic.FutureSugar", // No parentheses in repeated function type
+        "org.scalactic.Requirements", // Inline parameter
+        "org.scalactic.RequirementsMacro", // Anonymous using
+        "org.scalactic.SnapshotsMacro", // Anonymous using
+        "org.scalactic.TrySugar", // No parentheses for repeated function type
+        "org.scalactic.source.TypeInfoMacro", // Cannot resolve reference
+      )
+    ),
+
+    Library(
+      Seq(
         "org.scalatest" %% "scalatest" % "3.2.14"
       ),
       Seq("org.scalatest"), Seq.empty, 660,
@@ -114,10 +139,10 @@ class TextToTextTest3 extends TextToTextTestBase {
         "org.scalatest.matchers.should.CompileMacro", // Anonymous using
         "org.scalatest.matchers.should.Matchers", // No this. prefix
         "org.scalatest.matchers.should.TypeMatcherMacro", // Cannot resolve reference
-        "org.scalatest.tools.Framework", // Any
+//        "org.scalatest.tools.Framework", // Any
         "org.scalatest.tools.Runner", // FromJavaObject
         "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve reference
-        "org.scalatest.tools.ScalaTestFramework", // Any
+//        "org.scalatest.tools.ScalaTestFramework", // Any
       )
     ),
 
