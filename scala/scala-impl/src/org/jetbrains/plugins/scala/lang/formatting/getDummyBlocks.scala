@@ -311,7 +311,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
 
     var prevChild: ASTNode = null
     for (child <- children) {
-      val childAlignment = calcGtoupChildAlignment(node, child)(getPrevGroupNode)(FunctionTypeTokenSet)
+      val childAlignment = calcChildAlignment(node, child)(getPrevGroupNode)(FunctionTypeTokenSet)
       subBlocks.add(subBlock(child, null, childAlignment))
       prevChild = child
     }
@@ -368,16 +368,15 @@ class getDummyBlocks(private val block: ScalaBlock) {
     var prevChild: ASTNode = null
     for (child <- children) {
       //TODO process rare case of first-line comment before one of the fields  for SCL-10000 here
-      val childAlignment = calcGtoupChildAlignment(node, child)(getPrevGroupNode)(FieldGroupSubBlocksTokenSet)
+      val childAlignment = calcChildAlignment(node, child)(getPrevGroupNode)(FieldGroupSubBlocksTokenSet)
       subBlocks.add(subBlock(child, null, childAlignment))
       prevChild = child
     }
     subBlocks
   }
 
-  //TODO: seems a typo, rename it
   @tailrec
-  private def calcGtoupChildAlignment(node: ASTNode, child: ASTNode)
+  private def calcChildAlignment(node: ASTNode, child: ASTNode)
                                      (getPrevGroupNode: PsiElement => ASTNode)
                                      (implicit tokenSet: TokenSet): Alignment = {
     def createNewAlignment: Alignment = {
@@ -393,7 +392,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
           case null => createNewAlignment
           case _ =>
             prev.findChildByType(elementType) match {
-              case null => calcGtoupChildAlignment(prev, child)(getPrevGroupNode)
+              case null => calcChildAlignment(prev, child)(getPrevGroupNode)
               case prevChild =>
                 val newAlignment = prevChild.getPsi.getUserData(fieldGroupAlignmentKey) match {
                   case null => createNewAlignment
