@@ -42,11 +42,6 @@
         <externalSystemViewContributor implementation="org.jetbrains.sbt.project.SbtViewContributor"/>
         <externalIconProvider key="SBT" implementationClass="org.jetbrains.sbt.SbtIconProvider"/>
 
-        <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
-        <projectService serviceImplementation="org.jetbrains.sbt.shell.SbtShellCommunication"/>
-        <projectService serviceImplementation="org.jetbrains.sbt.shell.SbtProcessManager"/>
-        <projectService serviceImplementation="org.jetbrains.sbt.language.SbtProjectService"/>
-
         <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>
         <projectImportBuilder implementation="org.jetbrains.sbt.project.SbtProjectImportBuilder"/>
 

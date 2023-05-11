@@ -8,8 +8,6 @@
         <moduleService serviceImplementation="org.jetbrains.sbt.project.module.SbtModule"/>
         <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.module.SbtModuleType"/>
 
-        <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtSettings"/>
-
         <iconMapper mappingFile="SbtIconMappings.json"/>
     </extensions>
 </idea-plugin>

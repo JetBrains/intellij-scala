@@ -492,24 +492,18 @@
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings"/>
 
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceLookupListenerService" preload="true" />
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterService"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigServiceImpl"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ProjectCodeStyleSettingsMigrationService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerHolder"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.bm4.BetterMonadicForSupport"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.SearchMethodsWithProjectBoundCache"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>

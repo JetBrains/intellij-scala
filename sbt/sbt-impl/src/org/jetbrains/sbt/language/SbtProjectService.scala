@@ -4,12 +4,14 @@ package language
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import org.jetbrains.idea.maven.indices.MavenIndicesManager
 
 import scala.annotation.nowarn
 
+@Service(Array(Service.Level.PROJECT))
 final class SbtProjectService(project: Project) extends Disposable {
 
   setupMavenIndexes()

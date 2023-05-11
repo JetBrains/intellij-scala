@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch
 
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 
 /**
  * Each [[Search.Method]] has its own cache, and one [[Search.Method]] instance is bound to a project
  * by virtue of this class being registered as a project service in scala-plugin-common.xml.
  */
-
+@Service(Array(Service.Level.PROJECT))
 private[declarationRedundancy] final class SearchMethodsWithProjectBoundCache private(project: Project) {
   val LocalSearchMethods: Seq[Search.Method] = Seq(
     new LocalImplicitSearch(c => c.isOnlyVisibleInLocalFile && c.isImplicit),

@@ -4,6 +4,7 @@ import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.module.ModuleManager
@@ -35,6 +36,7 @@ import scala.util.{Failure, Success, Using}
 import scala.xml.factory.XMLLoader
 import scala.xml.{Elem, SAXParser}
 
+@Service(Array(Service.Level.PROJECT))
 final class LibraryExtensionsManager(project: Project) {
   import LibraryExtensionsManager._
 

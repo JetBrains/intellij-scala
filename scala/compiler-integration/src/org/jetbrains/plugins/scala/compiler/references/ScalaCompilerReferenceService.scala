@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler.references
 import com.intellij.compiler.backwardRefs.LanguageCompilerRefAdapter
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
@@ -16,11 +17,11 @@ import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.compiler.references.compilation._
 import org.jetbrains.plugins.scala.compiler.references.indices.IndexerFailure._
 import org.jetbrains.plugins.scala.compiler.references.indices.IndexingStage._
 import org.jetbrains.plugins.scala.compiler.references.indices._
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -33,6 +34,7 @@ import java.util.concurrent.atomic.{AtomicInteger, LongAdder}
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import scala.jdk.CollectionConverters._
 
+@Service(Array(Service.Level.PROJECT))
 final private[references] class ScalaCompilerReferenceService(project: Project) extends ModificationTracker with Disposable {
   import ScalaCompilerReferenceService._
 

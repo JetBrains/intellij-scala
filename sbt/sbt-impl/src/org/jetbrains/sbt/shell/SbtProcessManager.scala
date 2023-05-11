@@ -8,6 +8,7 @@ import com.intellij.notification.{Notification, NotificationAction, Notification
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleManager
@@ -38,7 +39,7 @@ import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 import org.jetbrains.sbt.shell.SbtProcessManager._
-import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtCompilationSupervisorPort, SbtUtil}
+import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtCompilationSupervisorPort}
 
 import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
 import java.util.concurrent.TimeUnit
@@ -49,6 +50,7 @@ import scala.jdk.CollectionConverters._
  * Manages the sbt shell process instance for the project.
  * Instantiates an sbt instance when initially requested.
  */
+@Service(Array(Service.Level.PROJECT))
 final class SbtProcessManager(project: Project) extends Disposable {
 
   private val messageBus: MessageBusConnection = project.getMessageBus.connect

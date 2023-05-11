@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings.migration
 
 import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
-import com.intellij.openapi.components.{State, Storage, StoragePathMacros}
+import com.intellij.openapi.components.{RoamingType, Service, State, Storage, StoragePathMacros}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleScheme
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -9,8 +9,9 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.migration.CodeStyleS
 
 @State(
   name = "ProjectCodeStyleSettingsMigration",
-  storages = Array[Storage](new Storage(value = StoragePathMacros.WORKSPACE_FILE))
+  storages = Array[Storage](new Storage(value = StoragePathMacros.WORKSPACE_FILE, roamingType = RoamingType.DISABLED))
 )
+@Service(Array(Service.Level.PROJECT))
 final class ProjectCodeStyleSettingsMigrationService(private val project: Project)
   extends CodeStyleSettingsMigrationServiceBase  {
 

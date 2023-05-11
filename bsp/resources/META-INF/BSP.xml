@@ -41,7 +41,6 @@
         <applicationService serviceImplementation="org.jetbrains.bsp.settings.BspSystemSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspLocalSettings"/>
-        <projectService serviceImplementation="org.jetbrains.bsp.BspBuildLoopService"/>
 
         <applicationService serviceImplementation="org.jetbrains.bsp.protocol.BspCommunicationService"/>
 
