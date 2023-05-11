@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.shell
 
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessAdapter, ProcessEvent}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import org.jetbrains.annotations.NonNls
@@ -17,6 +18,7 @@ import scala.util.{Success, Try}
 /**
   * Service for connecting with an sbt shell associated with project.
   */
+@Service(Array(Service.Level.PROJECT))
 final class SbtShellCommunication(project: Project) {
 
   private lazy val process: SbtProcessManager = SbtProcessManager.forProject(project)

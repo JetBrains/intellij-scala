@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
 import com.intellij.navigation.ItemPresentation
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.psi._
@@ -8,12 +9,11 @@ import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.IncorrectOperationException
 import com.intellij.util.containers.MultiMap
-import org.jetbrains.plugins.scala.{NlsString, ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.{NlsString, ScalaFileType, ScalaLanguage}
 
 import javax.swing.Icon
 import scala.collection.mutable
@@ -191,6 +192,7 @@ final class ScSyntheticValue(val name: String, val tp: ScType)
 
 import com.intellij.openapi.project.Project
 
+@Service(Array(Service.Level.PROJECT))
 final class SyntheticClasses(project: Project) {
   implicit def ctx: ProjectContext = project
 
@@ -637,4 +639,3 @@ class DeregisterSyntheticClassesListener extends ProjectManagerListener {
     SyntheticClasses.get(project).clear()
   }
 }
-

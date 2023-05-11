@@ -22,6 +22,7 @@ import scala.beans.BeanProperty
   storages = Array(new Storage(value = "sbt.xml", roamingType = RoamingType.DISABLED)),
   reportStatistic = true
 )
+@Service(Array(Service.Level.PROJECT))
 final class SbtSettings(project: Project)
   extends AbstractExternalSystemSettings[SbtSettings, SbtProjectSettings, SbtProjectSettingsListener](SbtSettings.SbtTopic, project)
   with PersistentStateComponent[SbtSettings.State] {

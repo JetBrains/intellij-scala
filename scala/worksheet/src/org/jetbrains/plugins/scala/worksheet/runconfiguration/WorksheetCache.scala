@@ -1,21 +1,22 @@
 package org.jetbrains.plugins.scala.worksheet.runconfiguration
 
-import java.io.File
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.CompilerMessagesCollector
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
 
+import java.io.File
 import java.util
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Try}
 
+@Service(Array(Service.Level.PROJECT))
 final class WorksheetCache extends Disposable {
 
   private val allViewers      = new util.WeakHashMap[Editor, List[Editor]]()

@@ -6,6 +6,7 @@ import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.extensions.LoadingOrder
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.ui.MessageType
@@ -33,6 +34,7 @@ import java.awt.event.MouseEvent
 import javax.swing.Icon
 import scala.annotation.nowarn
 
+@Service(Array(Service.Level.PROJECT))
 final class CompileServerManager(project: Project) extends Disposable with CompileServerManager.ErrorListener {
 
   private val IconRunning = Icons.COMPILE_SERVER

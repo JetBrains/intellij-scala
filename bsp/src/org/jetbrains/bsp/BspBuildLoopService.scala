@@ -1,8 +1,7 @@
 package org.jetbrains.bsp
 
-import java.util.concurrent.{ScheduledFuture, TimeUnit}
-
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.externalSystem.service.project.autoimport.FileChangeListenerBase
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -15,10 +14,13 @@ import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
+import java.util.concurrent.{ScheduledFuture, TimeUnit}
+
 /**
   * Builds bsp modules on file save. We should change this to support the bsp file change notifications.
  * TODO IDEA platform already supports a save-triggered build-in-background mode. Investigate if we can replace this service.
   */
+@Service(Array(Service.Level.PROJECT))
 final class BspBuildLoopService(project: Project) {
 
   private def bspSettings: Option[BspProjectSettings] =

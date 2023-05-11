@@ -24,8 +24,6 @@
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.EnsureModulesHaveDifferentProdAndTestOutputsTask"/>
 
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerManager"/>
-
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerClientImpl"/>
 
@@ -38,7 +36,6 @@
                              parentId="scala.compiler"
                              instance="org.jetbrains.plugins.scala.compiler.references.settings.CompilerIndicesConfigurable"/>
         <codeUsageScopeOptimizer implementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceScopeOptimizer"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.compiler.references.compilation.SbtCompilationSupervisor"/>
 

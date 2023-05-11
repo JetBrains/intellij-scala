@@ -4,7 +4,6 @@ import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.XmlSerializerUtil
 import com.intellij.util.xmlb.annotations.OptionTag
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
@@ -12,11 +11,12 @@ import scala.beans.{BeanProperty, BooleanBeanProperty}
 @State(
   name = "WorksheetDefaultProjectSettings",
   storages = Array(
-    new Storage(StoragePathMacros.WORKSPACE_FILE),
-    new Storage("scala_settings.xml")
+    new Storage(value = StoragePathMacros.WORKSPACE_FILE, roamingType = RoamingType.DISABLED),
+    new Storage(value = "scala_settings.xml", roamingType = RoamingType.DISABLED)
   ),
   reportStatistic = true
 )
+@Service(Array(Service.Level.PROJECT))
 final class WorksheetProjectDefaultPersistentSettings
   extends PersistentStateComponent[WorksheetProjectDefaultPersistentSettings.State]
     with WorksheetPersistentSettings {
