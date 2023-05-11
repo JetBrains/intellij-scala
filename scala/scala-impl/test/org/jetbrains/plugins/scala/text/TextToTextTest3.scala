@@ -92,14 +92,7 @@ class TextToTextTest3 extends TextToTextTestBase {
         "org.scalatest.diagrams.DiagrammedAssertionsMacro", // Anonymous using
         "org.scalatest.diagrams.Diagrams", // Inline parameter
         "org.scalatest.diagrams.DiagramsMacro", // Cannot resolve reference
-        "org.scalatest.enablers.Definition", // AnyRef with type refinement
-        "org.scalatest.enablers.Emptiness", // AnyRef with type refinement
         "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
-        "org.scalatest.enablers.Length", // AnyRef with type refinement
-        "org.scalatest.enablers.Messaging", // AnyRef with type refinement
-        "org.scalatest.enablers.Readability", // AnyRef with type refinement
-        "org.scalatest.enablers.Size", // AnyRef with type refinement
-        "org.scalatest.enablers.Writability", // AnyRef with type refinement
         "org.scalatest.matchers.CompileMacro", // Given definition
         "org.scalatest.matchers.MatchPatternMacro", // Anonymous using
         "org.scalatest.matchers.Matcher", // T & T

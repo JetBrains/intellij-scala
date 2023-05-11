@@ -549,7 +549,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         if (parens > 0) "(" + s + ")" else s
       case Node3(REFINEDtpt, _, Seq(tpe, members: _*)) =>
         val prefix = textOfType(tpe)
-        (if (prefix == "_root_.java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(it => { val sb = new StringBuilder(); textOfMember(sb, "", it); sb.toString }).mkString("; ") + " }" // TODO use sb directly
+        (if (prefix == "_root_.scala.AnyRef" || prefix == "_root_.java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(it => { val sb = new StringBuilder(); textOfMember(sb, "", it); sb.toString }).mkString("; ") + " }" // TODO use sb directly
 
       case _ => "" // TODO exhaustive match
     }
