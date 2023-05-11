@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiClass
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * Converts expression representing scala collection to
@@ -9,13 +13,16 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 class ConvertScalaToJavaCollectionIntention extends BaseJavaConvertersIntention("asJava") {
 
-  override val targetCollections: Set[String] = Set(
-    "scala.collection.Seq",
-    "scala.collection.Set",
-    "scala.collection.Map",
-    "scala.collection.Iterator",
-    "scala.collection.Iterable"
-  )
+  override def targetCollections(project: Project, scope: GlobalSearchScope): Set[PsiClass] = {
+    val manager = ScalaPsiManager.instance(project)
+    Set(
+      "scala.collection.Seq",
+      "scala.collection.Set",
+      "scala.collection.Map",
+      "scala.collection.Iterator",
+      "scala.collection.Iterable"
+    ).flatMap(fqn => manager.getCachedClass(scope, fqn))
+  }
 
   override val alreadyConvertedPrefixes: Set[String] = Set("java.")
 

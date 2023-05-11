@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
+import com.intellij.openapi.project.Project
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
@@ -9,13 +12,16 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 class ConvertJavaToScalaCollectionIntention extends BaseJavaConvertersIntention("asScala") {
 
-  override val targetCollections: Set[String] = Set(
-    "java.lang.Iterable",
-    "java.util.Iterator",
-    "java.util.Collection",
-    "java.util.Dictionary",
-    "java.util.Map"
-  )
+  override def targetCollections(project: Project, scope: GlobalSearchScope): Set[PsiClass] = {
+    val facade = JavaPsiFacade.getInstance(project)
+    Set(
+      "java.lang.Iterable",
+      "java.util.Iterator",
+      "java.util.Collection",
+      "java.util.Dictionary",
+      "java.util.Map"
+    ).flatMap(fqn => Option(facade.findClass(fqn, scope)))
+  }
 
   override val alreadyConvertedPrefixes: Set[String] = Set("scala.collection")
 
