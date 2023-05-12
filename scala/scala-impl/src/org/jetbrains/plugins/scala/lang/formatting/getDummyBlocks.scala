@@ -67,7 +67,6 @@ object getDummyBlocks {
   private def cachedParameterTypeAnnotationAlignment(clause: ScParameterClause): Option[Alignment] =
     Option(clause.getUserData(typeParameterTypeAnnotationAlignmentsKey))
 
-
   private class StringLineScalaBlock(
     myTextRange: TextRange,
     mainNode: ASTNode,
@@ -143,8 +142,10 @@ class getDummyBlocks(private val block: ScalaBlock) {
       case _: ScFor =>
         subBlocks.addAll(getForSubBlocks(node.getChildren(null)))
         return subBlocks
-      case e if canContainMethodCallChain(e) =>
-        subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node))
+      case e if ChainedMethodCallsBlockBuilder.canContainMethodCallChain(e) =>
+        val builder = new ChainedMethodCallsBlockBuilder(block, settings, cs, ss)
+        val result = builder.buildSubBlocks(node)
+        subBlocks.addAll(result)
         return subBlocks
       case _: ScLiteral if node.getFirstChildNode != null &&
         node.getFirstChildNode.getElementType == tMULTILINE_STRING && ss.supportMultilineString =>
@@ -623,148 +624,6 @@ class getDummyBlocks(private val block: ScalaBlock) {
     case _ => 0
   }
 
-  private def canContainMethodCallChain(psi: PsiElement): Boolean =
-    psi match {
-      case _: ScReferenceExpression |
-           _: ScThisReference |
-           _: ScSuperReference |
-           _: ScMethodCall => true
-      case _ => false
-    }
-
-  private def getMethodCallOrRefExprSubBlocks(node: ASTNode): util.List[ScalaBlock] = {
-    val chainAlignment = if (cs.ALIGN_MULTILINE_CHAINED_METHODS) Alignment.createAlignment() else null
-    val chainWrap = block.suggestedWrap
-
-    val result = new util.ArrayList[ScalaBlock]
-    val smartIndent = Indent.getSmartIndent(Indent.Type.CONTINUATION, false)
-
-    /**
-     * @param delegatedChildren can contain arguments, type arguments and comments between them
-     */
-    @tailrec
-    def collectChainedMethodCalls(
-      node: ASTNode,
-      dotFollowedByNewLine: Boolean = false,
-      delegatedChildren: List[ASTNode] = List(),
-      delegatedContext: Map[ASTNode, SubBlocksContext] = Map(),
-    ): Unit = {
-      val psi = node.getPsi
-      if (canContainMethodCallChain(psi) || psi.is[ScGenericCall]) {
-        //continue
-      }
-      else {
-        result.add(subBlock(node))
-        for (child <- delegatedChildren.filter(isNotEmptyNode)) {
-          result.add(subBlock(child))
-        }
-        return
-      }
-
-      val alignment = createAlignment(node)
-      val childrenAll = node.getChildren(null)
-      val childrenNonEmpty = childrenAll.filter(isNotEmptyNode).toList
-
-      /**
-       * some edge cases with comments in the middle of a method call: {{{
-       *   Seq(1) // comment
-       *     .map(_ * 2)
-       *
-       *   foo // comment
-       *   {}
-       * }}}
-       */
-      val (comments, children) = childrenNonEmpty.partition(isComment)
-
-      @inline def sortByStartOffset(nodes: Seq[ASTNode]): Seq[ASTNode] = nodes.sortBy(_.getTextRange.getStartOffset)
-
-      lazy val delegatedChildrenSorted = sortByStartOffset(delegatedChildren)
-
-      lazy val delegatedChildrenNotAlreadyInSomeContext = {
-        // using Set we imply that ASTNode equals and hashCode methods are lightweight (default implementation)
-        val filterOutNodes = delegatedContext.values.flatMap(_.additionalNodes).toSet
-        delegatedChildrenSorted.filterNot(filterOutNodes.contains)
-      }
-
-      //Example of recursive descent:
-      //value.method1.method2[String](1, 2, 3)
-      //|---------------------------||-------|
-      //|-------------------||------||~~~~~~~| delegated: args `(1, 2, 3)`
-      //|-----------|.|-----||~~~~~~||~~~~~~~| delegated: args `(1, 2, 3)` and type args `[String]`
-      //|---|.|-----|.|-----||~~~~~~||~~~~~~~| delegated: args `(1, 2, 3)` and type args `[String]`
-      children match {
-        case expr :: Nil =>
-          val actualAlignment = if (dotFollowedByNewLine) chainAlignment else alignment
-          val context = SubBlocksContext.withChild(expr, delegatedChildrenNotAlreadyInSomeContext, None, delegatedContext)
-          result.add(subBlock(expr, delegatedChildrenSorted.lastOption.orNull, actualAlignment, None, None, Some(context)))
-
-        //caller(args)
-        //expr.method1[String](1, 2, 3).method2[Int, String](4, 5, 6)
-        //|--------------------caller----------------------||-args--|
-        case caller :: args :: Nil if args.getElementType == ScalaElementType.ARG_EXPRS =>
-          val delegatedChildrenNew = args :: delegatedChildren ++ comments
-          collectChainedMethodCalls(caller, dotFollowedByNewLine, delegatedChildrenNew, delegatedContext)
-
-        //caller[typeArgs]
-        //expr.method1[String](1, 2, 3).method2[Int, String](4, 5, 6)
-        //|--------------caller---------------||-typeArgs--|
-        case caller :: typeArgs :: Nil if typeArgs.getElementType == ScalaElementType.TYPE_ARGS =>
-          val delegatedChildrenNew = typeArgs :: delegatedChildren ++ comments
-          collectChainedMethodCalls(caller, dotFollowedByNewLine, delegatedChildrenNew, Map(typeArgs -> new SubBlocksContext(sortByStartOffset(delegatedChildren))))
-
-        //expr.method1[String](1, 2, 3).method2[Int, String](4, 5, 6)
-        //|------------expr-----------|.|-id--|
-        case expr :: dot :: id :: Nil if dot.getElementType == tDOT =>
-          //NOTE: we shadow `dotFollowedByNewLine` parameter, cause here we are interested in the new dot
-          val dotFollowedByNewLine = dot.getPsi.followedByNewLine()
-
-          val splitAtNode = if (dotFollowedByNewLine) id else dot
-
-          assert(childrenNonEmpty.head.eq(expr), "assuming that first child is expr and comments can't go before it")
-          val (nodesOnPrevLine, nodesOnNextLine) = childrenNonEmpty.tail.span(c => {
-            //if chain part starts with a comment, include it into block:
-            //value
-            //  /*comment*/.map(x => x)
-            val split = (c eq splitAtNode) || c.getPsi.startsFromNewLine(false)
-            !split
-          })
-
-          //add whatever goes on previous line to a separate block
-          //Example 1 (here `//comment` goes to separate block)
-          //  seq //comment
-          //    .map(x => x)
-          //Example 2 (here `. //comment` goes to separate block)
-          //  seq.//comment
-          //    map(x => x)
-          val chainCallIsSplitToTwoBlocks = nodesOnPrevLine.nonEmpty && nodesOnNextLine.nonEmpty
-          if (chainCallIsSplitToTwoBlocks) {
-            result.add(subBlock(nodesOnPrevLine.head, nodesOnPrevLine.lastOption.orNull, null, Some(Indent.getContinuationIndent), Some(null), None))
-          }
-
-          val context = SubBlocksContext.withChild(id, delegatedChildrenNotAlreadyInSomeContext, None, delegatedContext)
-          val nodes = (if (nodesOnNextLine.nonEmpty) nodesOnNextLine else nodesOnPrevLine) ++ delegatedChildrenSorted
-          result.add(subBlock(nodes.head, nodes.lastOption.orNull, chainAlignment, Some(smartIndent), Some(chainWrap), Some(context)))
-
-          collectChainedMethodCalls(expr, dotFollowedByNewLine)
-        case _ =>
-          val childrenWithDelegated = children ++ delegatedChildren
-          for (child <- childrenWithDelegated.filter(isNotEmptyNode)) {
-            result.add(subBlock(child))
-          }
-      }
-    }
-
-    collectChainedMethodCalls(node)
-
-    // we need to sort blocks because we add them in wrong order to make inner method tail recursive
-    util.Collections.sort(result, util.Comparator.comparingInt[ScalaBlock](_.node.getTextRange.getStartOffset))
-
-    result
-  }
-
-  @inline
-  private def isComment(node: ASTNode) = COMMENTS_TOKEN_SET.contains(node.getElementType)
-
   private def createAlignment(node: ASTNode): Alignment = {
     import Alignment.{createAlignment => create}
     import commonSettings._
@@ -783,7 +642,6 @@ class getDummyBlocks(private val block: ScalaBlock) {
       case _: ScInfixPattern if ALIGN_MULTILINE_BINARY_OPERATION                     => create
       case _: ScInfixTypeElement if ALIGN_MULTILINE_BINARY_OPERATION                 => create
       case _: ScCompositePattern if ss.ALIGN_COMPOSITE_PATTERN                       => create
-      case e if canContainMethodCallChain(e) && ALIGN_MULTILINE_CHAINED_METHODS      => create
       case _                                                                         => null
     }
   }
