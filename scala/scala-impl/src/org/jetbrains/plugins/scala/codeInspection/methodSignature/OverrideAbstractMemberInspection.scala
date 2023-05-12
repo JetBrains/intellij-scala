@@ -44,12 +44,12 @@ class OverrideAbstractMemberInspection extends LocalInspectionTool {
   private def isApplicable(function: ScFunction): Boolean =
     !hasOverride(function) && isApplicable(function.superSignaturesIncludingSelfType)
 
-  private def createQuickFix(modifierListOwner: ScModifierListOwner): LocalQuickFix =
+  private def createQuickFix(element: ScModifierListOwner): LocalQuickFix =
     new AbstractFixOnPsiElement[ScModifierListOwner](
       ScalaInspectionBundle.message("add.override.modifier.quickfix"),
-      modifierListOwner
+      element
     ) {
-      override protected def doApplyFix(element: ScModifierListOwner)(implicit project: Project): Unit = {
+      override protected def doApplyFix(modifierListOwner: ScModifierListOwner)(implicit project: Project): Unit = {
         val modifierList = modifierListOwner.getModifierList
 
         modifierList.setModifierProperty(ScalaModifier.OVERRIDE, true)

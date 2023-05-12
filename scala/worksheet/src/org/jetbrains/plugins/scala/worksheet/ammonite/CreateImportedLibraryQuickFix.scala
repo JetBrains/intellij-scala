@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 
-class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends LocalQuickFixOnPsiElement(myPsi) {
+class CreateImportedLibraryQuickFix(myPsi: PsiElement) extends LocalQuickFixOnPsiElement(myPsi) {
   override def getText: String = WorksheetBundle.message("ammonite.create.library.from.jar")
 
   override def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
@@ -30,8 +30,7 @@ class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends Local
       name
     }
 
-
-    myPsi match {
+    startElement match {
       case stableExpr: ScStableCodeReference =>
         AmmoniteUtil.findJarRoot(stableExpr).foreach {
           jarRoot =>
