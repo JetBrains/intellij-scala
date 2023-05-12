@@ -175,7 +175,7 @@ class TextToTextTest2 extends TextToTextTestBase {
         "scalaz.Foralls", // Excessive parentheses in existential type
         "scalaz.FreeFunctions", // Tuple2
         "scalaz.Heap", // Excessive parentheses in function type
-        "scalaz.LanApply", // `<refinement>`.this.
+        "scalaz.LanApply", // Any
         "scalaz.std.StringInstances", // No this. prefix for object
         "scalaz.syntax.ToApplicativeErrorOps", // Existential type
         "scalaz.syntax.ToMonadErrorOps", // Existential type
