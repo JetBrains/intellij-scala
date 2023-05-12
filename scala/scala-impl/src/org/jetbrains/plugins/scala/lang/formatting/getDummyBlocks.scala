@@ -66,32 +66,10 @@ object getDummyBlocks {
 
   private def cachedParameterTypeAnnotationAlignment(clause: ScParameterClause): Option[Alignment] =
     Option(clause.getUserData(typeParameterTypeAnnotationAlignmentsKey))
-
-  private class StringLineScalaBlock(
-    myTextRange: TextRange,
-    mainNode: ASTNode,
-    myAlignment: Alignment,
-    myIndent: Indent,
-    myWrap: Wrap,
-    mySettings: CodeStyleSettings
-  ) extends ScalaBlock(mainNode, null, myAlignment, myIndent, myWrap, mySettings) {
-
-    override def getTextRange: TextRange = myTextRange
-    override def isLeaf = true
-    override def isLeaf(node: ASTNode): Boolean = true
-    override def getChildAttributes(newChildIndex: Int): ChildAttributes = new ChildAttributes(Indent.getNoneIndent, null)
-    override def getSpacing(child1: Block, child2: Block): Spacing = Spacing.getReadOnlySpacing
-    override def getSubBlocks: util.List[Block] = {
-      if (subBlocks == null) {
-        subBlocks = new util.ArrayList[Block]()
-      }
-      subBlocks
-    }
-  }
 }
 
 //noinspection RedundantDefaultArgument
-class getDummyBlocks(private val block: ScalaBlock) {
+private final class getDummyBlocks(private val block: ScalaBlock) {
   private val settings: CodeStyleSettings = block.settings
   private val commonSettings: CommonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
   private implicit val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
