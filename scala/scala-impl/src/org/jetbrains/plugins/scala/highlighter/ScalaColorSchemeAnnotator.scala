@@ -63,6 +63,7 @@ object ScalaColorSchemeAnnotator {
       refElement.projectContext.stdTypes.QualNameToType
     )
 
+  //See tests in [[org.jetbrains.plugins.scala.annotator.CollectionByTypeAnnotatorTestBase]]
   private def annotateCollectionType(
     refElement: ScReference,
     resolvedElement: => PsiElement
