@@ -75,6 +75,8 @@
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.bsp.codeInspection.BspScalaCliInspectionSuppressor"/>
 
         <createDirectoryCompletionContributor implementation="org.jetbrains.bsp.actions.BspDirectoryCompletionContributor"/>
+
+        <iconMapper mappingFile="BSPIconMappings.json" />
     </extensions>
 
     <projectListeners>

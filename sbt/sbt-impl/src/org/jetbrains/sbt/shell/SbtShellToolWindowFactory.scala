@@ -37,7 +37,7 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
   override def init(toolWindow: ToolWindow): Unit = {
     Log.debug("init")
     toolWindow.setStripeTitle(SbtShellToolWindowFactory.Title)
-    toolWindow.setIcon(Icons.SBT_SHELL_TOOLWINDOW)
+    toolWindow.setIcon(Icons.SBT_SHELL_TOOL_WINDOW)
 
     val toolWindowId = toolWindow.asInstanceOf[ToolWindowImpl].getId
     val actionId = ActivateToolWindowAction.getActionIdForToolWindow(toolWindowId)
@@ -101,7 +101,7 @@ object SbtShellToolWindowFactory {
   }
 
   private def currentIcon(project: Project): Icon = {
-    val baseIcon = Icons.SBT_SHELL_TOOLWINDOW
+    val baseIcon = Icons.SBT_SHELL_TOOL_WINDOW
 
     def isAlive = SbtProcessManager.forProject(project).isAlive
 
