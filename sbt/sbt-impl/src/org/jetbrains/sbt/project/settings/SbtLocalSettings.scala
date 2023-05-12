@@ -8,7 +8,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 
 @State(
   name = "SbtLocalSettings",
-  storages = Array(new Storage(value = StoragePathMacros.WORKSPACE_FILE, roamingType = RoamingType.DISABLED))
+  storages = Array(new Storage(StoragePathMacros.WORKSPACE_FILE))
 )
 @Service(Array(Service.Level.PROJECT))
 final class SbtLocalSettings(project: Project)

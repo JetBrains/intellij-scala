@@ -16,7 +16,7 @@ import scala.beans.BeanProperty
 
 @State(
   name = "SuggestScalaFmt",
-  storages = Array[Storage](new Storage(value = StoragePathMacros.WORKSPACE_FILE, roamingType = RoamingType.DISABLED))
+  storages = Array[Storage](new Storage(StoragePathMacros.WORKSPACE_FILE))
 )
 @Service(Array(Service.Level.PROJECT))
 final class ScalaFmtSuggesterService(private val project: Project)

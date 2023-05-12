@@ -11,8 +11,8 @@ import scala.beans.{BeanProperty, BooleanBeanProperty}
 @State(
   name = "WorksheetDefaultProjectSettings",
   storages = Array(
-    new Storage(value = StoragePathMacros.WORKSPACE_FILE, roamingType = RoamingType.DISABLED),
-    new Storage(value = "scala_settings.xml", roamingType = RoamingType.DISABLED)
+    new Storage(StoragePathMacros.WORKSPACE_FILE),
+    new Storage("scala_settings.xml")
   ),
   reportStatistic = true
 )
