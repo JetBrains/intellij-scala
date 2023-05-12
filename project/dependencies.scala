@@ -12,8 +12,8 @@ object Versions {
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.5.4"
-  val zincVersion = "1.8.0"
-  val intellijVersion = "231.8770.53"
+  val zincVersion = "1.8.1"
+  val intellijVersion = "231.9011.14"
 
   val (
     intellijVersion_ForManagedIntellijDependencies,
@@ -41,7 +41,7 @@ object Versions {
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
 
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.8.2"
+    val latest_1_0 = "1.8.3"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
