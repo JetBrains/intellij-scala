@@ -171,7 +171,6 @@ class TextToTextTest2 extends TextToTextTestBase {
       ),
       Seq("scalaz"), Seq.empty, 1588,
       Seq(
-        "scalaz.Endomorphic", // Infix type
         "scalaz.Foralls", // Excessive parentheses in existential type
         "scalaz.FreeFunctions", // Tuple2
         "scalaz.Heap", // Excessive parentheses in function type
