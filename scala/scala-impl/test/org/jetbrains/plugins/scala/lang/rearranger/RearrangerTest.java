@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.rearranger;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
@@ -35,7 +36,7 @@ public class RearrangerTest extends TestCase {
             }
 
             private void rearrange(@NotNull PsiFile file, @NotNull Project project) {
-                project.getService(ArrangementEngine.class)
+                ApplicationManager.getApplication().getService(ArrangementEngine.class)
                         .arrange(file, Collections.singletonList(file.getTextRange()));
 
                 PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.failed.rearranger;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
@@ -44,9 +45,10 @@ public class FailedRearrangerTest extends TestCase {
             }
 
             private void rearrange(@NotNull PsiFile file, @NotNull Project project) {
-                project.getService(ArrangementEngine.class).arrange(file, Collections.singletonList(file.getTextRange()));
+                ApplicationManager.getApplication().getService(ArrangementEngine.class)
+                        .arrange(file, Collections.singletonList(file.getTextRange()));
 
-                PsiDocumentManager documentManager = PsiDocumentManager.getInstance(file.getProject());
+                PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
                 Document document = documentManager.getDocument(file);
 
                 Assert.assertNotNull("Wrong PsiFile type provided: the file has no document.", document);
