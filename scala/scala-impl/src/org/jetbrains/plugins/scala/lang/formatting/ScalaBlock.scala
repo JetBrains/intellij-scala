@@ -7,8 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
-import org.jetbrains.plugins.scala.extensions.{&, Parent, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.{isConstructorArgOrMemberFunctionParameter, shouldIndentAfterCaseClause}
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
@@ -28,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import java.util
 import scala.annotation.{tailrec, unused}
@@ -107,7 +107,7 @@ class ScalaBlock(val node: ASTNode,
         new ChildAttributes(Indent.getNormalIndent, null)
       case l: ScLiteral if l.isMultiLineString && scalaSettings.supportMultilineString =>
         new ChildAttributes(Indent.getSpaceIndent(3, true), null)
-      case b: ScBlockExpr if b.resultExpression.exists(_.isInstanceOf[ScFunctionExpr]) || b.caseClauses.isDefined =>
+      case b: ScBlockExpr if b.resultExpression.exists(_.is[ScFunctionExpr]) || b.caseClauses.isDefined =>
         val indent = {
           val nodeBeforeLast = b.resultExpression.orElse(b.caseClauses).get.getNode.getTreePrev
           val isLineBreak = nodeBeforeLast.getElementType == TokenType.WHITE_SPACE && nodeBeforeLast.textContains('\n')
@@ -273,7 +273,7 @@ class ScalaBlock(val node: ASTNode,
 
   override def getSubBlocks: util.List[Block] = {
     if (subBlocks == null) {
-      val blocks = getDummyBlocks(this)(node, lastNode)
+      val blocks = new ScalaBlockBuilder(this).buildSubBlocks
       subBlocks = blocks
         .asScala
         .filterNot(_.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
@@ -364,7 +364,7 @@ object ScalaBlock {
   @tailrec
   final def isIncomplete(node: ASTNode): Boolean = {
     val psi = node.getPsi
-    if (psi.isInstanceOf[PsiErrorElement])
+    if (psi.is[PsiErrorElement])
       return true
 
     val lastChild = findLastNonBlankChild(node)

@@ -4,10 +4,9 @@ import com.intellij.formatting.Alignment.createAlignment
 import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.CodeStyleSettings
+import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.getDummyBlocksUtils._
-import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
@@ -16,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocLis
 import java.util
 import scala.collection.mutable.ArrayBuffer
 
-private object getDummyBlocksScalaDoc {
+private object ScalaDocBlockBuilder {
 
   def isScalaDocNode(node: ASTNode): Boolean = {
     def isInsideIncompleteScalaDocTag = {
@@ -31,15 +30,26 @@ private object getDummyBlocksScalaDoc {
   }
 }
 
-private class getDummyBlocksScalaDoc(
-  block: ScalaBlock,
+private class ScalaDocBlockBuilder(
+  parentBlock: ScalaBlock,
   settings: CodeStyleSettings,
-  private implicit val scalaSettings: ScalaCodeStyleSettings
+  commonSettings: CommonCodeStyleSettings,
+  scalaSettings: ScalaCodeStyleSettings
+) extends ScalaBlockBuilderBase(
+  parentBlock,
+  settings,
+  commonSettings,
+  scalaSettings
 ) {
-  // shortcuts to simplify long conditions that operate with settings
-  @inline private def ss = scalaSettings
 
-  def applyInnerScaladoc(node: ASTNode): util.ArrayList[Block] = {
+  def buildSubBlocks: util.ArrayList[Block] = {
+    if (parentBlock.lastNode != null)
+      buildSubBlocksInner(parentBlock.node, parentBlock.lastNode)
+    else
+      buildSubBlocksInner(parentBlock.node)
+  }
+
+  private def buildSubBlocksInner(node: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
     val nodePsi = node.getPsi
@@ -151,7 +161,7 @@ private class getDummyBlocksScalaDoc(
     }
   }
 
-  def applyInnerScaladoc(firstNode: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
+  private def buildSubBlocksInner(firstNode: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
     val buffer = new ArrayBuffer[ASTNode]
@@ -163,7 +173,7 @@ private class getDummyBlocksScalaDoc(
     val isInsideDocTag = parent.getElementType == ScalaDocElementTypes.DOC_TAG
     if (isInsideDocTag) {
       val tagContentAlignment = {
-        val alignmentFromParentContext = block.parentBlock.flatMap(_.subBlocksContext).flatMap(_.alignment)
+        val alignmentFromParentContext = parentBlock.parentBlock.flatMap(_.subBlocksContext).flatMap(_.alignment)
         alignmentFromParentContext.getOrElse(Alignment.createAlignment(true))
       }
 
@@ -245,20 +255,5 @@ private class getDummyBlocksScalaDoc(
       flattenChildren(node, buffer)
     else
       buffer += node
-  }
-
-  private def subBlock(
-    node: ASTNode,
-    lastNode: ASTNode = null,
-    alignment: Alignment = null,
-    indent: Option[Indent] = None,
-    wrap: Option[Wrap] = None,
-    context: Option[SubBlocksContext] = None,
-  ): ScalaBlock = {
-    val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(block, node))
-    val wrapFinal = wrap.getOrElse(ScalaWrapManager.arrangeSuggestedWrapForChild(block, node, block.suggestedWrap))
-    val result = new ScalaBlock(node, lastNode, alignment, indentFinal, wrapFinal, settings, context)
-    result.parentBlock = Some(block)
-    result
   }
 }

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaIndentProcess
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 abstract class ScalaBlockBuilderBase(
-  block: ScalaBlock,
+  parentBlock: ScalaBlock,
   settings: CodeStyleSettings,
   commonSettings: CommonCodeStyleSettings,
   scalaSettings: ScalaCodeStyleSettings
@@ -25,8 +25,10 @@ abstract class ScalaBlockBuilderBase(
     wrap: Option[Wrap] = None,
     context: Option[SubBlocksContext] = None
   ): ScalaBlock = {
-    val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(block, node))
-    val wrapFinal = wrap.getOrElse(ScalaWrapManager.arrangeSuggestedWrapForChild(block, node, block.suggestedWrap)(scalaSettings))
-    new ScalaBlock(node, lastNode, alignment, indentFinal, wrapFinal, settings, context)
+    val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(parentBlock, node))
+    val wrapFinal = wrap.getOrElse(ScalaWrapManager.arrangeSuggestedWrapForChild(parentBlock, node, parentBlock.suggestedWrap)(scalaSettings))
+    val block = new ScalaBlock(node, lastNode, alignment, indentFinal, wrapFinal, settings, context)
+    block.parentBlock = Some(parentBlock)
+    block
   }
 }

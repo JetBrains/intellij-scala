@@ -9,10 +9,9 @@ import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import java.util
 import com.intellij.psi.tree._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
-import org.jetbrains.plugins.scala.lang.formatting.getDummyBlocks._
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.ScalaBlockBuilder._
 import org.jetbrains.plugins.scala.lang.formatting.getDummyBlocksUtils._
-import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
@@ -33,69 +32,44 @@ import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.annotation.tailrec
 
-// TODO: rename it to some Builder/Producer/etc...
-object getDummyBlocks {
-
-  private case class InterpolatedStringAlignments(quotes: Alignment, marginChar: Alignment)
-  private val interpolatedStringAlignmentsKey: Key[InterpolatedStringAlignments] = Key.create("interpolated.string.alignment")
-  /** the alignment can be applied both to the colon and type annotation itself, depending on ScalaCodeStyleSettings.ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS  */
-  private val typeParameterTypeAnnotationAlignmentsKey: Key[Alignment] = Key.create("colon.in.type.annotation.alignments.key")
-
-  private val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
-
-  private val InfixElementsTokenSet = TokenSet.create(
-    ScalaElementType.INFIX_EXPR,
-    ScalaElementType.INFIX_PATTERN,
-    ScalaElementType.INFIX_TYPE
-  )
-
-  private val FieldGroupSubBlocksTokenSet = TokenSet.orSet(
-    TokenSet.create(tCOLON, tASSIGN),
-    VAL_VAR_TOKEN_SET
-  )
-
-  private val FunctionTypeTokenSet = TokenSet.create(
-    tFUNTYPE,
-    tFUNTYPE_ASCII
-  )
-
-  def apply(block: ScalaBlock): getDummyBlocks = new getDummyBlocks(block)
-
-  private def cachedAlignment(literal: ScInterpolatedStringLiteral): Option[InterpolatedStringAlignments] =
-    Option(literal.getUserData(interpolatedStringAlignmentsKey))
-
-  private def cachedParameterTypeAnnotationAlignment(clause: ScParameterClause): Option[Alignment] =
-    Option(clause.getUserData(typeParameterTypeAnnotationAlignmentsKey))
-}
-
 //noinspection RedundantDefaultArgument
-private final class getDummyBlocks(private val block: ScalaBlock) {
-  private val settings: CodeStyleSettings = block.settings
-  private val commonSettings: CommonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
-  private implicit val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+final class ScalaBlockBuilder(
+  parentBlock: ScalaBlock,
+  settings: CodeStyleSettings,
+  commonSettings: CommonCodeStyleSettings,
+  scalaSettings: ScalaCodeStyleSettings
+) extends ScalaBlockBuilderBase(
+  parentBlock,
+  settings,
+  commonSettings,
+  scalaSettings
+) {
 
-  // shortcuts to simplify long conditions that operate with settings
-  @inline private def cs = commonSettings
-  @inline private def ss = scalaSettings
-
-  // TODO: there are quite many unnecessary array allocations and copies, consider passing
-  //  mutable buffer/list to submethods, and measure the performance!
-  def apply(firstNode: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
-    if (getDummyBlocksScalaDoc.isScalaDocNode(firstNode)) {
-      val get = new getDummyBlocksScalaDoc(block, settings, scalaSettings)
-      if (lastNode != null)
-        get.applyInnerScaladoc(firstNode, lastNode)
-      else
-        get.applyInnerScaladoc(firstNode)
-    }
-    else
-      if (lastNode != null)
-        applyInnerForNodesBetween(firstNode, lastNode)
-      else
-        applyInnerForSingleNode(firstNode)
+  def this(parentBlock: ScalaBlock) = {
+    this(
+      parentBlock,
+      parentBlock.settings,
+      parentBlock.settings.getCommonSettings(ScalaLanguage.INSTANCE),
+      parentBlock.settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    )
   }
 
-  private def applyInnerForSingleNode(node: ASTNode): util.ArrayList[Block] = {
+  // TODO: there are quite many unnecessary array allocations and copies, consider passing
+  //  mutable buffer/list everywhere and measure the performance!
+  def buildSubBlocks: util.ArrayList[Block] = {
+    val firstNode = parentBlock.node
+    val lastNode = parentBlock.lastNode
+    if (ScalaDocBlockBuilder.isScalaDocNode(firstNode)) {
+      val builder = new ScalaDocBlockBuilder(parentBlock, settings, commonSettings, scalaSettings)
+      builder.buildSubBlocks
+    }
+    else if (lastNode != null)
+      buildSubBlocksInner(firstNode, lastNode)
+    else
+      buildSubBlocksInner(firstNode)
+  }
+
+  def buildSubBlocksInner(node: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
     val nodePsi = node.getPsi
@@ -121,7 +95,7 @@ private final class getDummyBlocks(private val block: ScalaBlock) {
         subBlocks.addAll(getForSubBlocks(node.getChildren(null)))
         return subBlocks
       case e if ChainedMethodCallsBlockBuilder.canContainMethodCallChain(e) =>
-        val builder = new ChainedMethodCallsBlockBuilder(block, settings, cs, ss)
+        val builder = new ChainedMethodCallsBlockBuilder(parentBlock, settings, cs, ss)
         val result = builder.buildSubBlocks(node)
         subBlocks.addAll(result)
         return subBlocks
@@ -155,7 +129,7 @@ private final class getDummyBlocks(private val block: ScalaBlock) {
         interpolated.putUserData(interpolatedStringAlignmentsKey, buildQuotesAndMarginAlignments)
       case paramClause: ScParameterClause =>
         paramClause.putUserData(typeParameterTypeAnnotationAlignmentsKey, Alignment.createAlignment(true))
-      case psi@(_: ScValueOrVariable | _: ScFunction) if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
+      case psi@(_: ScValueOrVariable | _: ScFunction) if node.getFirstChildNode.getPsi.is[PsiComment] =>
         val childrenFiltered: Array[ASTNode] = node.getChildren(null).filter(isNotEmptyNode)
         val childHead :: childTail = childrenFiltered.toList
         subBlocks.add(subBlock(childHead))
@@ -229,9 +203,9 @@ private final class getDummyBlocks(private val block: ScalaBlock) {
         }
       case _: ScMethodCall | _: ScReferenceExpression =>
         if (child.getElementType == tIDENTIFIER &&
-          child.getPsi.getParent.isInstanceOf[ScReferenceExpression] &&
+          child.getPsi.getParent.is[ScReferenceExpression] &&
           child.getPsi.getParent.asInstanceOf[ScReferenceExpression].qualifier.isEmpty) null
-        else if (child.getPsi.isInstanceOf[ScExpression]) null
+        else if (child.getPsi.is[ScExpression]) null
         else sharedAlignment
       case _: ScXmlStartTag | _: ScXmlEmptyTag =>
         child.getElementType match {
@@ -595,13 +569,6 @@ private final class getDummyBlocks(private val block: ScalaBlock) {
     subBlocks
   }
 
-  private def infixPriority(node: ASTNode): Int = node.getPsi match {
-    case inf: ScInfixExpr => ParserUtils.priority(inf.operation.getText, assignments = true)
-    case inf: ScInfixPattern => ParserUtils.priority(inf.operation.getText, assignments = false)
-    case inf: ScInfixTypeElement => ParserUtils.priority(inf.operation.getText, assignments = false)
-    case _ => 0
-  }
-
   private def createAlignment(node: ASTNode): Alignment = {
     import Alignment.{createAlignment => create}
     import commonSettings._
@@ -624,20 +591,20 @@ private final class getDummyBlocks(private val block: ScalaBlock) {
     }
   }
 
-  private def applyInnerForNodesBetween(node: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
+  private def buildSubBlocksInner(node: ASTNode, lastNode: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
     def getChildBlock(child: ASTNode): ScalaBlock = {
-      val lastNode = block.getChildBlockLastNode(child)
-      val alignment = block.getChildBlockCustomAlignment(child).orNull
-      val context = block.getChildBlockContext(child)
+      val lastNode = parentBlock.getChildBlockLastNode(child)
+      val alignment = parentBlock.getChildBlockCustomAlignment(child).orNull
+      val context = parentBlock.getChildBlockContext(child)
       subBlock(child, lastNode, alignment, context = context)
     }
 
     var child: ASTNode = node
     do {
       if (isNotEmptyNode(child)) {
-        if (child.getPsi.isInstanceOf[ScTemplateParents]) {
+        if (child.getPsi.is[ScTemplateParents]) {
           subBlocks.addAll(getTemplateParentsBlocks(child))
         } else {
           subBlocks.add(getChildBlock(child))
@@ -650,7 +617,7 @@ private final class getDummyBlocks(private val block: ScalaBlock) {
 
     //it is not used right now, but could come in handy later
     for {
-      context <- block.subBlocksContext
+      context <- parentBlock.subBlocksContext
       additionalNode <- context.additionalNodes
     } {
       val childBlock = getChildBlock(additionalNode)
@@ -660,7 +627,6 @@ private final class getDummyBlocks(private val block: ScalaBlock) {
     subBlocks
   }
 
-
   //class A() extends B() with T1 with T2
   //                  |----this part-----|
   private def getTemplateParentsBlocks(node: ASTNode): util.List[Block] = {
@@ -669,7 +635,7 @@ private final class getDummyBlocks(private val block: ScalaBlock) {
     import ScalaCodeStyleSettings._
     val alignSetting = ss.ALIGN_EXTENDS_WITH
     val alignment =
-      if (alignSetting == ALIGN_TO_EXTENDS) block.getAlignment
+      if (alignSetting == ALIGN_TO_EXTENDS) parentBlock.getAlignment
       else Alignment.createAlignment(true)
 
     val children = node.getChildren(null)
@@ -679,23 +645,49 @@ private final class getDummyBlocks(private val block: ScalaBlock) {
         case (`kWITH` | `kEXTENDS`, ON_FIRST_ANCESTOR) => null
         case _ => alignment
       }
-      val lastNode = block.getChildBlockLastNode(child)
-      val context = block.getChildBlockContext(child)
+      val lastNode = parentBlock.getChildBlockLastNode(child)
+      val context = parentBlock.getChildBlockContext(child)
       subBlocks.add(subBlock(child, lastNode, actualAlignment, context = context))
     }
     subBlocks
   }
+}
 
-  private def subBlock(
-    node: ASTNode,
-    lastNode: ASTNode = null,
-    alignment: Alignment = null,
-    indent: Option[Indent] = None,
-    wrap: Option[Wrap] = None,
-    context: Option[SubBlocksContext] = None
-  ): ScalaBlock = {
-    val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(block, node))
-    val wrapFinal = wrap.getOrElse(ScalaWrapManager.arrangeSuggestedWrapForChild(block, node, block.suggestedWrap))
-    new ScalaBlock(node, lastNode, alignment, indentFinal, wrapFinal, settings, context)
+object ScalaBlockBuilder {
+
+  private case class InterpolatedStringAlignments(quotes: Alignment, marginChar: Alignment)
+  private val interpolatedStringAlignmentsKey: Key[InterpolatedStringAlignments] = Key.create("interpolated.string.alignment")
+  /** the alignment can be applied both to the colon and type annotation itself, depending on ScalaCodeStyleSettings.ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS  */
+  private val typeParameterTypeAnnotationAlignmentsKey: Key[Alignment] = Key.create("colon.in.type.annotation.alignments.key")
+
+  private val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
+
+  private val InfixElementsTokenSet = TokenSet.create(
+    ScalaElementType.INFIX_EXPR,
+    ScalaElementType.INFIX_PATTERN,
+    ScalaElementType.INFIX_TYPE
+  )
+
+  private val FieldGroupSubBlocksTokenSet = TokenSet.orSet(
+    TokenSet.create(tCOLON, tASSIGN),
+    VAL_VAR_TOKEN_SET
+  )
+
+  private val FunctionTypeTokenSet = TokenSet.create(
+    tFUNTYPE,
+    tFUNTYPE_ASCII
+  )
+
+  private def cachedAlignment(literal: ScInterpolatedStringLiteral): Option[InterpolatedStringAlignments] =
+    Option(literal.getUserData(interpolatedStringAlignmentsKey))
+
+  private def cachedParameterTypeAnnotationAlignment(clause: ScParameterClause): Option[Alignment] =
+    Option(clause.getUserData(typeParameterTypeAnnotationAlignmentsKey))
+
+  private def infixPriority(node: ASTNode): Int = node.getPsi match {
+    case inf: ScInfixExpr => ParserUtils.priority(inf.operation.getText, assignments = true)
+    case inf: ScInfixPattern => ParserUtils.priority(inf.operation.getText, assignments = false)
+    case inf: ScInfixTypeElement => ParserUtils.priority(inf.operation.getText, assignments = false)
+    case _ => 0
   }
 }
