@@ -15,6 +15,7 @@ import com.intellij.util.xmlb.annotations.OptionTag;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.statistics.FeatureKey;
@@ -128,8 +129,9 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   public enum TypeChecker {BuiltIn, Compiler}
 
+  @TestOnly
   // https://youtrack.jetbrains.com/issue/SCL-19928
-  enum AliasExportSemantics {
+  public enum AliasExportSemantics {
     Definition, // Seq is scala.Seq
     Export // Seq is scala.collection.immutable.Seq
   }
@@ -395,11 +397,13 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     TYPE_AWARE_HIGHLIGHTING_ENABLED = !TYPE_AWARE_HIGHLIGHTING_ENABLED;
   }
 
-  AliasExportSemantics getAliasSemantics() {
+  @TestOnly
+  public AliasExportSemantics getAliasSemantics() {
     return ALIAS_EXPORT_SEMANTICS;
   }
 
-  void setAliasSemantics(AliasExportSemantics semantics) {
+  @TestOnly
+  public void setAliasSemantics(AliasExportSemantics semantics) {
     ALIAS_EXPORT_SEMANTICS = semantics;
   }
 

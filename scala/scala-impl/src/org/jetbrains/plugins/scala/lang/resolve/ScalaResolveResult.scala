@@ -72,6 +72,11 @@ class ScalaResolveResult(
 
   /**
    * this is important to get precedence information
+   *
+   * @todo investigate what is this method for and add some more meaningful scaladoc<br>
+   *       Some observed/inferred examples:
+   *        - for resolved java class constructor it returns the original class reference
+   *        - for resolved sugared apply method call (e.g. `Map()`) returns te containing object (or any type definition?)
    */
   def getActualElement: PsiNamedElement =
     parentElement.getOrElse(element)
