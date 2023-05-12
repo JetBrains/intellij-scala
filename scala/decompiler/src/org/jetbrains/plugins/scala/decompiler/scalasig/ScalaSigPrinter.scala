@@ -722,7 +722,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
                 case _                                 => ""
               }
           val base = res.stripPrefix("_root_.<empty>.")
-          val isInfix = base.nonEmpty && base.forall(!_.isLetterOrDigit) && typeArgs.length == 2
+          val isInfix = false // base.nonEmpty && base.forall(!_.isLetterOrDigit) && typeArgs.length == 2
           val result = if (isInfix) {
             typeArgs.map(toString(_, "", level, 1)).mkString(" " + base + " ")
           } else if (typeArgs.nonEmpty && base.startsWith("_root_.scala.Tuple") && base != "_root_.scala.Tuple1" && !base.substring(18).contains(".")) {
