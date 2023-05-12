@@ -9,28 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBloc
 
 package object formatting {
 
-  private[formatting]
-  implicit class ScArgumentExprListOps(private val args: ScArgumentExprList) extends AnyVal {
-
-    /**
-     * @example {{{
-     * seq.map { p =>
-     *   ...
-     * }
-     * }}}
-     *
-     */
-    def isSingleInfixBlockExpression: Boolean =
-      args match {
-        case ScArgumentExprList(_: ScBlockExpr) =>
-          // no need to also check for last child, cause parser will not capture it without opening parenthesis
-          val firstChild = args.firstChild
-          firstChild.forall(_.elementType != ScalaTokenTypes.tLPARENTHESIS)
-        case _ =>
-          false
-      }
-  }
-
   @inline
   private[formatting]
   def isYieldOrDo(node: ASTNode): Boolean =
