@@ -37,7 +37,7 @@ final class ScalaFormattingModelBuilder extends FormattingModelBuilder {
 
     new ScalaFormattingModel(
       containingFile,
-      new ScalaBlock(null, fileNode, null, null, Indent.getAbsoluteNoneIndent, null, styleSettings)
+      new ScalaBlock(fileNode, null, null, Indent.getAbsoluteNoneIndent, null, styleSettings)
     )
   }
 

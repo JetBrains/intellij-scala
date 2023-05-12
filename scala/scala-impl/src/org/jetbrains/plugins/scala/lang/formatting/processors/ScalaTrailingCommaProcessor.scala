@@ -7,14 +7,14 @@ import com.intellij.psi.impl.source.codeStyle.{CodeEditUtil, PostFormatProcessor
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.ScArgumentExprListOps
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaTrailingCommaVisitor.isSingleInfixBlockExpression
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.TrailingCommaMode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTupleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScTuple, ScTypedExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr, ScTuple, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -148,11 +148,11 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
             )
           }
         case TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE =>
-          val isSingleInfixBlockExpression = parent match {
-            case args: ScArgumentExprList => args.isSingleInfixBlockExpression
+          val isSingleInfixBlock = parent match {
+            case args: ScArgumentExprList => isSingleInfixBlockExpression(args)
             case _ => false
           }
-          if (!isCommaNext && trailingElement.followedByNewLine() && !isSingleInfixBlockExpression) {
+          if (!isCommaNext && trailingElement.followedByNewLine() && !isSingleInfixBlock) {
             val newComma = ScalaPsiElementFactory.createComma(project)
             CodeEditUtil.addChild(
               SourceTreeToPsiMap.psiElementToTree(parent),
@@ -174,4 +174,25 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
   protected def updateResultRange(oldTextLength: Int, newTextLength: Int): Unit = {
     postProcessor.updateResultRange(oldTextLength, newTextLength)
   }
+}
+
+object ScalaTrailingCommaVisitor {
+
+  /**
+   * @example {{{
+   * seq.map { p =>
+   *   ...
+   * }
+   * }}}
+   */
+  private def isSingleInfixBlockExpression(args: ScArgumentExprList): Boolean =
+    args match {
+      case ScArgumentExprList(_: ScBlockExpr) =>
+        // no need to also check for last child, cause parser will not capture it without opening parenthesis
+        val firstChild = args.firstChild
+        firstChild.forall(_.elementType != ScalaTokenTypes.tLPARENTHESIS)
+      case _ =>
+        false
+    }
+
 }

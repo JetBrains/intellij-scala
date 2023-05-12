@@ -6,8 +6,8 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
-import org.jetbrains.plugins.scala.extensions.{&, Parent, PsiElementExt}
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.{isConstructorArgOrMemberFunctionParameter, shouldIndentAfterCaseClause}
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
@@ -27,22 +27,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import java.util
 import scala.annotation.{tailrec, unused}
 import scala.jdk.CollectionConverters._
 
-class ScalaBlock(val parentBlock: ScalaBlock,
-                 val node: ASTNode,
+class ScalaBlock(val node: ASTNode,
                  val lastNode: ASTNode,
-                 val alignment: Alignment,
-                 val indent: Indent,
-                 val wrap: Wrap,
+                 @Nullable val alignment: Alignment,
+                 @Nullable val indent: Indent,
+                 @Nullable val wrap: Wrap,
                  val settings: CodeStyleSettings,
                  val subBlocksContext: Option[SubBlocksContext] = None)
   extends ASTBlock with ScalaTokenTypes {
 
   protected var subBlocks: util.List[Block] = _
+
+  var parentBlock: Option[ScalaBlock] = None
 
   def commonSettings: CommonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
 
@@ -52,11 +54,11 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     if (lastNode == null) node.getTextRange
     else new TextRange(node.getTextRange.getStartOffset, lastNode.getTextRange.getEndOffset)
 
-  override def getIndent: Indent = indent
+  @Nullable override def getIndent: Indent = indent
 
-  override def getWrap: Wrap = wrap
+  @Nullable override def getWrap: Wrap = wrap
 
-  override def getAlignment: Alignment = alignment
+  @Nullable override def getAlignment: Alignment = alignment
 
   override def isLeaf: Boolean = isLeaf(node)
 
@@ -105,7 +107,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         new ChildAttributes(Indent.getNormalIndent, null)
       case l: ScLiteral if l.isMultiLineString && scalaSettings.supportMultilineString =>
         new ChildAttributes(Indent.getSpaceIndent(3, true), null)
-      case b: ScBlockExpr if b.resultExpression.exists(_.isInstanceOf[ScFunctionExpr]) || b.caseClauses.isDefined =>
+      case b: ScBlockExpr if b.resultExpression.exists(_.is[ScFunctionExpr]) || b.caseClauses.isDefined =>
         val indent = {
           val nodeBeforeLast = b.resultExpression.orElse(b.caseClauses).get.getNode.getTreePrev
           val isLineBreak = nodeBeforeLast.getElementType == TokenType.WHITE_SPACE && nodeBeforeLast.textContains('\n')
@@ -271,7 +273,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
 
   override def getSubBlocks: util.List[Block] = {
     if (subBlocks == null) {
-      val blocks = getDummyBlocks(this)(node, lastNode)
+      val blocks = new ScalaBlockBuilder(this).buildSubBlocks
       subBlocks = blocks
         .asScala
         .filterNot(_.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
@@ -294,19 +296,21 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     _suggestedWrap
   }
 
-  def getChildBlockLastNode(childNode: ASTNode): ASTNode =
-    (for {
-      context <- subBlocksContext
-      childContext <- context.childrenAdditionalContexts.get(childNode)
-    } yield childContext.lastNode(childNode)).orNull
-
-
-  def getCustomAlignment(childNode: ASTNode): Option[Alignment] =
+  def getChildBlockContext(childNode: ASTNode): Option[SubBlocksContext] =
     for {
       context <- subBlocksContext
       childContext <- context.childrenAdditionalContexts.get(childNode)
-      a <- childContext.alignment
-    } yield a
+    } yield childContext
+
+  def getChildBlockLastNode(childNode: ASTNode): ASTNode = {
+    val childContext = getChildBlockContext(childNode)
+    childContext.map(_.lastNode(childNode)).orNull
+  }
+
+  def getChildBlockCustomAlignment(childNode: ASTNode): Option[Alignment] = {
+    val childContext = getChildBlockContext(childNode)
+    childContext.flatMap(_.alignment)
+  }
 
 
   //noinspection HardCodedStringLiteral
@@ -360,7 +364,7 @@ object ScalaBlock {
   @tailrec
   final def isIncomplete(node: ASTNode): Boolean = {
     val psi = node.getPsi
-    if (psi.isInstanceOf[PsiErrorElement])
+    if (psi.is[PsiErrorElement])
       return true
 
     val lastChild = findLastNonBlankChild(node)
@@ -445,48 +449,6 @@ object ScalaBlock {
     }
 }
 
-private[formatting]
-class SubBlocksContext(val additionalNodes: Seq[ASTNode] = Seq(),
-                       val alignment: Option[Alignment] = None,
-                       val childrenAdditionalContexts: Map[ASTNode, SubBlocksContext] = Map()) {
-  def lastNode(firstNode: ASTNode): ASTNode =
-    lastNode.filter(_ != firstNode).orNull
 
-  private def lastNode: Option[ASTNode] = {
-    val nodes1 = childrenAdditionalContexts.map { case (_, context) => context.lastNode }.collect { case Some(x) => x }
-    val nodes2 = childrenAdditionalContexts.map { case (child, _) => child }
-    val nodes = nodes1 ++ nodes2 ++ additionalNodes
-    if (nodes.nonEmpty) {
-      Some(nodes.maxBy(_.getTextRange.getEndOffset))
-    } else {
-      None
-    }
-  }
-}
 
-private[formatting]
-object SubBlocksContext {
-  def apply(node: ASTNode,
-            childNodes: Seq[ASTNode],
-            childAlignment: Option[Alignment] = None,
-            childrenAdditionalContexts: Map[ASTNode, SubBlocksContext] = Map()): SubBlocksContext = {
-    new SubBlocksContext(
-      additionalNodes = Seq(),
-      alignment = None,
-      childrenAdditionalContexts = Map(
-        node -> new SubBlocksContext(childNodes, childAlignment, childrenAdditionalContexts)
-      )
-    )
-  }
 
-  def apply(childNodesAlignment: Map[ASTNode, Alignment]): SubBlocksContext = {
-    new SubBlocksContext(
-      additionalNodes = Seq(),
-      alignment = None,
-      childrenAdditionalContexts = childNodesAlignment
-        .view
-        .mapValues(a => new SubBlocksContext(Seq(), Some(a), Map()))
-        .toMap
-    )
-  }
-}

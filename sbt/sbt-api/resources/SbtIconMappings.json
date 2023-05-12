@@ -5,15 +5,12 @@
         "images": {
           "expui": {
             "sbtFile.svg": "org/jetbrains/sbt/images/sbtFile.svg",
-            "sbtFile_dark.svg": "org/jetbrains/sbt/images/sbtFile_dark.svg",
             "sbtFolder.svg": "org/jetbrains/sbt/images/sbtFolder.svg",
-            "sbtFolder_dark.svg": "org/jetbrains/sbt/images/sbtFolder_dark.svg",
             "sbtIcon.svg": "org/jetbrains/sbt/images/sbtIcon.svg",
-            "sbtIcon_dark.svg": "org/jetbrains/sbt/images/sbtIcon_dark.svg",
             "sbtLoadChanges.svg": "org/jetbrains/sbt/images/sbtLoadChanges.svg",
-            "sbtLoadChanges_dark.svg": "org/jetbrains/sbt/images/sbtLoadChanges_dark.svg",
             "sbtShell.svg": "org/jetbrains/sbt/images/sbtShell.svg",
-            "sbtShell_dark.svg": "org/jetbrains/sbt/images/sbtShell_dark.svg"
+            "sbtIcon@20x20.svg": "org/jetbrains/sbt/images/sbtToolwin.svg",
+            "sbtShell@20x20.svg": "org/jetbrains/sbt/images/sbtShellToolwin.svg"
           }
         }
       }

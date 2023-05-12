@@ -52,12 +52,12 @@ object ScalaWrapManager {
       case _: ScCompositePattern =>
         Wrap.createWrap(settings.BINARY_OPERATION_WRAP, false)
       case _: ScArgumentExprList =>
-        val parentSuggestedWrap = block.parentBlock.suggestedWrap
-        val wrap = if (parentSuggestedWrap != null) {
+        val parentSuggestedWrap = block.parentBlock.map(_.suggestedWrap).orNull
+        val wrap = if (parentSuggestedWrap != null)
           Wrap.createChildWrap(parentSuggestedWrap, WrapType.byLegacyRepresentation(settings.CALL_PARAMETERS_WRAP), false)
-        } else {
+        else
           Wrap.createWrap(settings.CALL_PARAMETERS_WRAP, false)
-        }
+
         if (settings.PREFER_PARAMETERS_WRAP) {
           wrap.ignoreParentWraps()
         }

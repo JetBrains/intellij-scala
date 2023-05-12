@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatter.intellij.tests.scala3
 
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+
 class Scala3FormatterTest extends Scala3FormatterBaseTest {
 
   def testColon_AfterTypeDefinition(): Unit = doTextTest(
@@ -380,6 +382,113 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
         |    case _ => false
         |  }
         |} yield n
+        |""".stripMargin
+    )
+  }
+
+  //see also ScalaBugsTest.testSCL2066FromDiscussion
+  def testDoNotPlaceBraceOnNextLineWhenPassingBlockArgumentViaInfixNotation(): Unit = {
+    getCommonSettings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
+    doTextTest(
+      """val n = Seq(1, 2, 3)
+        |n.foreach { //this must NOT go to the next line
+        |  x => { //this must go to the next line
+        |    println(x)
+        |  }
+        |}
+        |""".stripMargin,
+      """val n = Seq(1, 2, 3)
+        |n.foreach { //this must NOT go to the next line
+        |  x =>
+        |  { //this must go to the next line
+        |    println(x)
+        |  }
+        |}
+        |""".stripMargin
+    )
+  }
+
+  //SCL-20780
+  def testMethodCallChain_IndentationBasedSyntax_WithFewerBraces_1(): Unit = {
+    doTextTest(
+      """object Formatting:
+        |  List(1).map {
+        |    case x => x
+        |  }
+        |  .filter: x =>
+        |    x > 0
+        |
+        |  List(1).map:
+        |    case x => x
+        |  .filter: x =>
+        |    x > 0
+        |end Formatting
+        |""".stripMargin,
+      """object Formatting:
+        |  List(1).map {
+        |      case x => x
+        |    }
+        |    .filter: x =>
+        |      x > 0
+        |
+        |  List(1).map:
+        |      case x => x
+        |    .filter: x =>
+        |      x > 0
+        |end Formatting
+        |""".stripMargin
+    )
+  }
+
+  //SCL-20780
+  def testMethodCallChain_IndentationBasedSyntax_WithFewerBraces_2(): Unit = {
+    doTextTest(
+      """val actual = List(id -> baseFill, sellOrder.id -> sellFill).foldM(tsPartFill): (ts, ordFillPr) =>
+        |  val (id, (aq, qaq, t)) = ordFillPr
+        |  ts.fillOrder(id, aq, qaq, t)
+        |.toOption.get
+        |""".stripMargin,
+      """val actual = List(id -> baseFill, sellOrder.id -> sellFill).foldM(tsPartFill): (ts, ordFillPr) =>
+        |    val (id, (aq, qaq, t)) = ordFillPr
+        |    ts.fillOrder(id, aq, qaq, t)
+        |  .toOption.get
+        |""".stripMargin
+    )
+  }
+
+  def testMethodCallChain_IndentationBasedSyntax_WithFewerBraces_Mix(): Unit = {
+    doTextTest(
+      """List(1, 2, 3, 4).map:
+        |    case x => x
+        |  .filter(_ > 2)
+        |
+        |List(1, 2, 3, 4).map:
+        |    case x => x
+        |  .map:
+        |    case x => x
+        |  .filter(_ > 2)
+        |
+        |List(1, 2, 3, 4)
+        |  .map:
+        |    case x => x
+        |  .map:
+        |    case x => x
+        |  .filter(_ > 2)
+        |
+        |List(1, 2, 3, 4)
+        |  .map:
+        |    case x => x
+        |  .filter(_ > 2)
+        |
+        |List(1, 2, 3, 4) //comment
+        |  .map: //comment
+        |    case x => x //comment
+        |  .filter(_ > 2) //comment
+        |
+        |List(1, 2, 3, 4)
+        |  .map[Int]:
+        |    case x => x
+        |  .filter(_ > 2)
         |""".stripMargin
     )
   }

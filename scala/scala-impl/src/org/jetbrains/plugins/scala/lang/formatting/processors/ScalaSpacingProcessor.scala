@@ -140,7 +140,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
   // NOTE: align, indent, wrap don't matter in spacing processor
   private def dummyBlock(left: ScalaBlock, prev: ASTNode): ScalaBlock =
-    new ScalaBlock(left.parentBlock, prev, null, null, null, null, left.settings, None)
+    new ScalaBlock(prev, null, null, null, null, left.settings, None)
 
   private def prevOnSameLine(node: ASTNode): ASTNode =
     node.getTreePrev match {
@@ -526,10 +526,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else if (settings.SPACE_WITHIN_PARENTHESES) WITH_SPACING
       else WITHOUT_SPACING
     }
-    if (leftElementType == tIDENTIFIER &&
-      rightPsi.isInstanceOf[ScArgumentExprList] && !nodeTextStartsWith(rightNode, fileText, '{')) {
-      return if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) WITH_SPACING
-      else WITHOUT_SPACING
+    if (leftElementType == tIDENTIFIER && rightPsi.isInstanceOf[ScArgumentExprList]) {
+      if (!nodeTextStartsWith(rightNode, fileText, '{')) {
+        return if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) WITH_SPACING else WITHOUT_SPACING
+      }
     }
 
     if (leftElementType == tLPARENTHESIS && leftPsiParent.is[ScArgumentExprList, ScPatternArgumentList]) {
@@ -617,7 +617,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                 case fun: ScFunction =>
                   (settings.SPACE_BEFORE_METHOD_LBRACE, settings.METHOD_BRACE_STYLE, fun.nameId)
                 case _: ScMethodCall if rightPsi.isInstanceOf[ScArguments] =>
-                  (scalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL, settings.BRACE_STYLE, parent)
+                  val style = settings.BRACE_STYLE
+                  //Extra check is an optimization not to check `isInScala3File` all the time when default code style is used
+                  //TODO (minor) we ask `isInScala3File` for every block, which is not optimal (it requires tree traversal to parent every time)
+                  // ideally we need to store information `isScala3` somewhere in global context when constructing blocks for entire scala file
+                  val shouldEnforceBraceAtEndOfLine = style != CommonCodeStyleSettings.END_OF_LINE && left.node.getPsi.isInScala3File
+                  val styleAdjusted = if (shouldEnforceBraceAtEndOfLine) CommonCodeStyleSettings.END_OF_LINE else style
+                  (scalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL, styleAdjusted, parent)
                 case _ =>
                   (true, settings.BRACE_STYLE, parent)
               }
@@ -1008,7 +1014,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return ON_NEW_LINE
     if (rightPsi.isInstanceOf[ScDocComment])
       return DOUBLE_LINE
-    if (rightPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiComment])
+    if (rightPsi.isInstanceOf[PsiComment])
+      return COMMON_SPACING
+    //extra check for `left.lastNode == null` is needed for cases when comment is first node in a larger block
+    //For example (notice that this method call chain uses unusual syntax, when dot is palced on previos line)
+    //myObject.
+    //  /*comment*/ bar().bar()
+    if (leftPsi.isInstanceOf[PsiComment] && (left.lastNode == null) )
       return COMMON_SPACING
 
     //; : . and , processing

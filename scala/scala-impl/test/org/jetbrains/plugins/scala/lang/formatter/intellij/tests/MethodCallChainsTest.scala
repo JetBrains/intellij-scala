@@ -13,11 +13,6 @@ import org.junit.Ignore
 class MethodCallChainsTest extends AbstractScalaFormatterTestBase {
 
   private val CHOP_DOWN_IF_LONG = CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
-  private val RightMarginMarker = "!"
-
-  private def setupRightMargin(rightMarginVisualHelper: String): Unit = {
-    getSettings.setRightMargin(ScalaLanguage.INSTANCE, rightMarginVisualHelper.indexOf(RightMarginMarker))
-  }
 
   //
   // Do not align when multiline
@@ -59,6 +54,22 @@ class MethodCallChainsTest extends AbstractScalaFormatterTestBase {
         |  .baz(5, 6).foo(7, 8)
         |  .bar(9, 10).baz(11, 12)
         |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def test_MethodCallChain_WrapIfLong_1(): Unit = {
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
+    setupRightMargin(
+      """                               ! """)
+    val before =
+      """fooObj.foo().foo(1,2).foo().foo().foo(1,2,3).foo()
+        |     .foo().foo()
+        |     .foo(1,2,3).foo()""".stripMargin
+    val after =
+      """fooObj.foo().foo(1, 2).foo()
+        |  .foo().foo(1, 2, 3).foo()
+        |  .foo().foo()
+        |  .foo(1, 2, 3).foo()""".stripMargin
     doTextTest(before, after)
   }
 
@@ -253,17 +264,17 @@ class MethodCallChainsTest extends AbstractScalaFormatterTestBase {
         |        /** comment4 */
         |        .foo().bar()
         |
-        |myObject /*comment0*/ .foo().bar()
-        |                      //comment1
-        |                      .foo().bar()
+        |myObject /*comment0*/.foo().bar()
+        |                     //comment1
+        |                     .foo().bar()
         |
-        |foo() /*comment0*/ .foo().bar()
-        |                   //comment1
-        |                   .foo().bar()
+        |foo() /*comment0*/.foo().bar()
+        |                  //comment1
+        |                  .foo().bar()
         |
-        |foo[Int]() /*comment0*/ .foo().bar()
-        |                        //comment1
-        |                        .foo().bar()
+        |foo[Int]() /*comment0*/.foo().bar()
+        |                       //comment1
+        |                       .foo().bar()
         |
         |myObject
         |  /*comment0*/
@@ -279,17 +290,40 @@ class MethodCallChainsTest extends AbstractScalaFormatterTestBase {
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
       """                  ! """)
-    val before =
-      """myObject.foo().//comment1
-        |bar()
-        |./*comment2*/foo().bar()
+    doTextTest(
+      """myObject.foo() /*comment*/
+        |  .bar()
+        |  . /*comment*/ foo()
+        |
+        |myObject.foo()
+        |  /*comment*/ .bar()
+        |  . /*comment*/ foo()
+        |
+        |myObject.foo(). /*comment*/
+        |  bar(). /*comment*/
+        |  foo()
+        |
+        |myObject.foo().
+        |  /*comment*/ bar().
+        |  /*comment*/ foo()
+        |""".stripMargin,
+      """myObject.foo() /*comment*/
+        |        .bar()
+        |        . /*comment*/ foo()
+        |
+        |myObject.foo()
+        |        /*comment*/ .bar()
+        |        . /*comment*/ foo()
+        |
+        |myObject.foo(). /*comment*/
+        |        bar(). /*comment*/
+        |        foo()
+        |
+        |myObject.foo().
+        |        /*comment*/ bar().
+        |        /*comment*/ foo()
         |""".stripMargin
-    val after =
-      """myObject.foo(). //comment1
-        |        bar()
-        |        . /*comment2*/ foo().bar()
-        |""".stripMargin
-    doTextTest(before, after)
+    )
   }
 
   def test_MethodCallChain_Align_DoNotWrap_CommentsAfterMethodName(): Unit = {
@@ -313,11 +347,38 @@ class MethodCallChainsTest extends AbstractScalaFormatterTestBase {
     getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     setupRightMargin(
       """                  ! """)
-    val before =
-      """myObject/*comment1*/./*comment2*/foo/*comment3*/()""".stripMargin
-    val after =
-      """myObject /*comment1*/ . /*comment2*/ foo /*comment3*/ ()""".stripMargin
-    doTextTest(before, after)
+    doTextTest(
+      """myObject.foo()
+        |myObject.foo[String]()
+        |myObject/*comment*/./*comment*/foo/*comment*/()/*comment*/
+        |myObject/*comment*/./*comment*/foo/*comment*/[String]/*comment*/()/*comment*/
+        |""".stripMargin,
+      """myObject.foo()
+        |myObject.foo[String]()
+        |myObject /*comment*/. /*comment*/ foo /*comment*/ () /*comment*/
+        |myObject /*comment*/. /*comment*/ foo /*comment*/ [String] /*comment*/ () /*comment*/
+        |""".stripMargin,
+      repeats = 2
+    )
+  }
+
+  def test_MethodCallChain_Align_DoNotWrap_CommentsMixed_SingleElementINChain(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    getCommonSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    setupRightMargin(
+      """                  ! """)
+    doTextTest(
+      """List(1, 2, 3)
+        |List[Int](1, 2, 3)
+        |List/*comment*/(1, 2, 3)/*comment*/
+        |List/*comment*/[Int]/*comment*/(1, 2, 3)/*comment*/
+        |""".stripMargin,
+      """List(1, 2, 3)
+        |List[Int](1, 2, 3)
+        |List /*comment*/ (1, 2, 3) /*comment*/
+        |List /*comment*/ [Int] /*comment*/ (1, 2, 3) /*comment*/""".stripMargin,
+      repeats = 2
+    )
   }
 
   def test_MethodCallChain_Align_DoNotWrap_MethodWithoutBrackets(): Unit = {
@@ -662,5 +723,79 @@ class MethodCallChainsTest extends AbstractScalaFormatterTestBase {
     )
   }
 
+  //NOTE: this test and similar tests below are not String requirements
+  //This style looked better to me comparing to this
+  //val x = List(1, 2).map { x =>
+  //  x
+  //}
+  //  .filter(_ > 1)
+  //(Note that in the example above `.filter` is strangely indented to the right)
+  def testChainWithMixedDotPosition_1(): Unit = {
+    doTextTest(
+      """val x = List(1, 2).map { x =>
+        |  x
+        |}.filter(_ > 1).map { x =>
+        |  x
+        |}
+        |""".stripMargin
+    )
+  }
 
+  def testChainWithMixedDotPosition_2(): Unit = {
+    doTextTest(
+      """val x = List(1, 2).map { x =>
+        |    x
+        |  }
+        |  .filter(_ > 1).map { x =>
+        |    x
+        |  }
+        |""".stripMargin
+    )
+  }
+
+  def testChainWithMixedDotPosition_3(): Unit = {
+    doTextTest(
+      """val x = List(1, 2).map { x =>
+        |    x
+        |  }.filter(_ > 1)
+        |  .map { x =>
+        |    x
+        |  }
+        |""".stripMargin
+    )
+  }
+
+  def testChainWithMixedDotPosition_4(): Unit = {
+    doTextTest(
+      """val x = List(1, 2).map { x =>
+        |    x
+        |  }
+        |  .filter(_ > 1)
+        |  .map { x =>
+        |    x
+        |  }""".stripMargin
+    )
+  }
+
+
+  //SCL-15163
+  def testAlignMultilineChainMethodsAndIndentArgumetns(): Unit = {
+    commonSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    doTextTest(
+      """myObject2.foo(
+        |1
+        |)
+        |.bar(
+        |2
+        |)
+        |""".stripMargin,
+      """myObject2.foo(
+        |           1
+        |         )
+        |         .bar(
+        |           2
+        |         )
+        |""".stripMargin
+    )
+  }
 }
