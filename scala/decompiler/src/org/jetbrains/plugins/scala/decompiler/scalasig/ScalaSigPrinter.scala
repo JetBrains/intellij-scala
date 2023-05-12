@@ -487,7 +487,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
     val n = m.name
     if (underObject(m) && n == CONSTRUCTOR_NAME) return
     if (underTrait(m) && n == INIT_NAME) return
-    if (n.isDefaultParameterMethodName) return // skip default function parameters
+    if (m.isSynthetic && n.isDefaultParameterMethodName) return // skip default function parameters
     if (n.startsWith("super$")) return // do not print auxiliary qualified super accessors
     if (m.isAccessor && n.endsWith(setterSuffix)) return
     if (m.isParamAccessor) return //do not print class parameters

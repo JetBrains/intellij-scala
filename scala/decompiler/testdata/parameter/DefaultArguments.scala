@@ -16,4 +16,6 @@ trait DefaultArguments {
   class ClassOverrideFinalVal(override final val hashCode: Int = /**/1/*???*/)
 
   case class CaseClass(x: Int = /**/1/*???*/)
+
+  def method2$default$1(): Int = ???
 }
