@@ -7,6 +7,10 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase.Library
 class TextToTextTest2 extends TextToTextTestBase {
   override protected def isScala3: Boolean = false
 
+  override protected val includeCompilerAsLibrary = true
+
+  override def librariesLoaders = super.librariesLoaders :+ ScalaReflectLibraryLoader
+
   override protected def libraries: Seq[Library] = Seq(
     Library(
       Seq(
@@ -16,22 +20,22 @@ class TextToTextTest2 extends TextToTextTestBase {
       ),
       Seq("akka"), Seq.empty, 2008,
       Seq(
-        "akka.dispatch.CachingConfig",
-        "akka.dispatch.ExecutorServiceDelegate",
-        "akka.http.impl.engine.rendering.HttpResponseRendererFactory",
-        "akka.http.impl.engine.server.HttpServerBluePrint",
-        "akka.http.scaladsl.server.Directive",
-        "akka.http.scaladsl.server.UnsupportedRequestContentTypeRejection",
-        "akka.http.scaladsl.server.directives.BasicDirectives",
-        "akka.http.scaladsl.unmarshalling.Unmarshaller",
-        "akka.pattern.BackoffSupervisor",
-        "akka.stream.Supervision",
-        "akka.stream.impl.QueueSource",
-        "akka.stream.impl.VirtualProcessor",
-        "akka.stream.impl.io.ConnectionSourceStage",
-        "akka.stream.impl.io.compression.DeflateDecompressor",
-        "akka.stream.scaladsl.MergeHub",
-        "akka.stream.stage.GraphStageLogic",
+        "akka.dispatch.CachingConfig", // Existential type
+        "akka.dispatch.ExecutorServiceDelegate", // Existential type
+        "akka.http.impl.engine.rendering.HttpResponseRendererFactory", // No this. prefix for object
+        "akka.http.impl.engine.server.HttpServerBluePrint", // Order in type refinement
+        "akka.http.scaladsl.server.Directive", // By-name function type parameter
+        "akka.http.scaladsl.server.UnsupportedRequestContentTypeRejection", // Standalone annotation
+        "akka.http.scaladsl.server.directives.BasicDirectives", // Excessive parentheses in function type
+        "akka.http.scaladsl.unmarshalling.Unmarshaller", // Standalone annotation
+        "akka.pattern.BackoffSupervisor", // No whitespace after primary constructor annotation
+        "akka.stream.Supervision", // Excessive parentheses in compound type
+        "akka.stream.impl.QueueSource", // Order in type refinement
+        "akka.stream.impl.VirtualProcessor", // No this. prefix for object
+        "akka.stream.impl.io.ConnectionSourceStage", // Order in type refinement
+        "akka.stream.impl.io.compression.DeflateDecompressor", // inflating.type is Any
+        "akka.stream.scaladsl.MergeHub", // Cannot resolve Event
+        "akka.stream.stage.GraphStageLogic", // Excessive parentheses in function type
       )
     ),
 
@@ -42,9 +46,9 @@ class TextToTextTest2 extends TextToTextTestBase {
       ),
       Seq("cats"), Seq.empty, 1330,
       Seq(
-        "cats.arrow.FunctionKMacros",
-        "cats.arrow.FunctionKMacroMethods",
-      ),
+        "cats.arrow.FunctionKMacros", // Any
+        "cats.arrow.FunctionKMacroMethods", // Any
+      )
     ),
 
     Library(
@@ -53,31 +57,31 @@ class TextToTextTest2 extends TextToTextTestBase {
       ),
       Seq("fs2"), Seq.empty, 56,
       Seq(
-        "fs2.Pull",
-      ),
+        "fs2.Pull", // Any
+      )
     ),
 
     Library(
       Seq.empty,
       Seq("scala"), Seq("scala.tools", "scala.reflect.quasiquotes", "scala.reflect.reify"), 984,
       Seq(
-        "scala.concurrent.impl.Promise",
+        "scala.concurrent.impl.Promise", // Function1
 
-        "scala.reflect.api.TypeTags",
-        "scala.reflect.internal.Chars",
-        "scala.reflect.internal.Definitions",
-        "scala.reflect.internal.Kinds",
-        "scala.reflect.internal.StdNames",
-        "scala.reflect.internal.Symbols",
-        "scala.reflect.internal.Types",
-        "scala.reflect.internal.tpe.CommonOwners",
-        "scala.reflect.internal.tpe.FindMembers",
-        "scala.reflect.internal.tpe.TypeMaps",
-        "scala.reflect.internal.transform.Transforms",
-        "scala.reflect.runtime.ReflectionUtils",
+        "scala.reflect.api.TypeTags", // TypeTags.this. vs Universe.this
+        "scala.reflect.internal.Chars", // No \n char
+        "scala.reflect.internal.Definitions", // type NameTypeDefinitions.this.TermName in type refinement
+        "scala.reflect.internal.Kinds", // No this. prefix for object
+        "scala.reflect.internal.StdNames", // No this. prefix for object
+        "scala.reflect.internal.Symbols", // Symbols.this. vs SymbolTable.this.
+        "scala.reflect.internal.Types", // Typs.this. vs SymbolTable.this.
+        "scala.reflect.internal.tpe.CommonOwners", // CommonOwners.this. vs SymbolTable.this.
+        "scala.reflect.internal.tpe.FindMembers", // Cannot resolve reference
+        "scala.reflect.internal.tpe.TypeMaps", // TypeMaps.this. vs SymbolTable.this.
+        "scala.reflect.internal.transform.Transforms", // $1, _1, cannot resolve reference
+        "scala.reflect.runtime.ReflectionUtils", // Existential type
 
-        "scala.util.parsing.combinator.PackratParsers",
-      ),
+        "scala.util.parsing.combinator.PackratParsers", // Any, cannot resolve reference
+      )
     ),
 
     Library(
@@ -121,7 +125,7 @@ class TextToTextTest2 extends TextToTextTestBase {
         "scala.tools.reflect.FormatInterpolator", // Reference to object without this. prefix
         "scala.tools.reflect.WrappedProperties", // Existential type
         "scala.reflect.quasiquotes.Parsers", // Reference to object without this. prefix
-      ),
+      )
     ),
 
     Library(
@@ -129,7 +133,7 @@ class TextToTextTest2 extends TextToTextTestBase {
         "org.scalacheck" %% "scalacheck" % "1.17.0",
       ),
       Seq("org.scalacheck"), Seq.empty, 38,
-      Seq.empty,
+      Seq.empty
     ),
 
     Library(
@@ -142,7 +146,7 @@ class TextToTextTest2 extends TextToTextTestBase {
         "org.scalactic.FutureSugar", // No parentheses for repeated function type
         "org.scalactic.TrySugar", // No parentheses for repeated function type
         "org.scalactic.source.TypeInfoMacro", // Cannot resolve reference
-      ),
+      )
     ),
 
     Library(
@@ -157,7 +161,7 @@ class TextToTextTest2 extends TextToTextTestBase {
         "org.scalatest.tools.Runner", // Existential type
         "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve reference
 //        "org.scalatest.tools.ScalaTestFramework", // Any
-      ),
+      )
     ),
 
     Library(
@@ -167,16 +171,16 @@ class TextToTextTest2 extends TextToTextTestBase {
       ),
       Seq("scalaz"), Seq.empty, 1588,
       Seq(
-        "scalaz.Endomorphic",
-        "scalaz.Foralls",
-        "scalaz.FreeFunctions",
-        "scalaz.Heap",
-        "scalaz.LanApply",
-        "scalaz.std.StringInstances",
-        "scalaz.syntax.ToApplicativeErrorOps",
-        "scalaz.syntax.ToMonadErrorOps",
-        "scalaz.syntax.ToMonadTellOps",
-      ),
+        "scalaz.Endomorphic", // Infix type
+        "scalaz.Foralls", // Excessive parentheses in existential type
+        "scalaz.FreeFunctions", // Tuple2
+        "scalaz.Heap", // Excessive parentheses in function type
+        "scalaz.LanApply", // `<refinement>`.this.
+        "scalaz.std.StringInstances", // No this. prefix for object
+        "scalaz.syntax.ToApplicativeErrorOps", // Existential type
+        "scalaz.syntax.ToMonadErrorOps", // Existential type
+        "scalaz.syntax.ToMonadTellOps", // Existential type
+      )
     ),
 
     Library(
@@ -185,11 +189,7 @@ class TextToTextTest2 extends TextToTextTestBase {
         "dev.zio" %% "zio-streams" % "2.0.2",
       ),
       Seq("zio"), Seq.empty, 226,
-      Seq.empty,
+      Seq.empty
     ),
   )
-
-  override protected val includeCompilerAsLibrary = true
-
-  override def librariesLoaders = super.librariesLoaders :+ ScalaReflectLibraryLoader
 }
