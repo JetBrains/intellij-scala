@@ -632,7 +632,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
               case _ => "this"
             }
             case name if thisSymbol.isModule => if (thisSymbol.isStableObject) "_root_." + processName(thisSymbol.path).stripPrefix("<empty>.") else processName(name)
-            case name => processName(name) + ".this"
+            case name => if (name == "<refinement>") "this" else processName(name) + ".this"
           }
         sep + thisSymbolName + "." + processName(symbol.name) + ".type"
       case SingleType(Ref(ThisType(Ref(exSymbol: ExternalSymbol))), symbol) if exSymbol.name == "<root>" =>
