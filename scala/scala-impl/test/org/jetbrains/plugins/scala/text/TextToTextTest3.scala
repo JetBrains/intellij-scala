@@ -80,6 +80,76 @@ class TextToTextTest3 extends TextToTextTestBase {
 
     Library(
       Seq(
+        "io.getquill" %% "quill-sql" % "4.6.0",
+        "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
+      ),
+      Seq("io.getquill"), Seq("io.getquill.metaprog", "io.getquill.parser") /* Reflect, ContextFunction */, 597,
+      Seq(
+        "io.getquill.DynamicInsert", // No parentheses for repeated function type
+        "io.getquill.EntityQueryModel", // No parentheses for repeated function type
+        "io.getquill.InfixInterpolator", // Top-level definitions
+        "io.getquill.InjectableEagerPlanter", // Function1
+        "io.getquill.Insert", // No parentheses for repeated function type
+        "io.getquill.MirrorColumnResolving", // Given
+        "io.getquill.MirrorContextBase", // Inline parameter
+        "io.getquill.OuterSelectWrap", // Enum
+        "io.getquill.SqlInfixInterpolator", // Top-level definitions
+        "io.getquill.ToDynamicAction", // Top-level definitions
+        "io.getquill.ToDynamicActionReturning", // Top-level definitions
+        "io.getquill.ToDynamicEntityQuery", // Top-level definitions
+        "io.getquill.ToDynamicInsert", // Top-level definitions
+        "io.getquill.ToDynamicQuery", // Top-level definitions
+        "io.getquill.ToDynamicUpdate", // Top-level definitions
+        "io.getquill.extras", // Extension
+        "io.getquill.ast.EqualityOperator", // No case object _==
+        "io.getquill.dsl.MetaDsl", // No parentheses for repeated function type
+        "io.getquill.dsl.QueryDsl", // No parentheses for repeated function type
+        "io.getquill.context.BatchActionType", // Enum
+        "io.getquill.context.BatchStatic", // Extension, non-canonical | type
+        "io.getquill.context.Context", // Extension
+        "io.getquill.context.ContextTranslateMacro", // Inline parameter
+        "io.getquill.context.ContextVerbPrepare", // Inline parameter
+        "io.getquill.context.ContextVerbStream", // Inline parameter
+        "io.getquill.context.DatasourceContextInjectionMacro", // Inline parameter
+        "io.getquill.context.Execution", // Enum, given
+        "io.getquill.context.InsertUpdateMacro", // Enum
+        "io.getquill.context.LiftMacro", // Function1
+        "io.getquill.context.Particularize", // Enum, extension, given
+        "io.getquill.context.PrepareDynamicExecution", // Enum
+        "io.getquill.context.QueryExecution", // Inline parameter
+        "io.getquill.context.QueryExecutionBatch", // Enum, non-canonical & type
+        "io.getquill.context.QueryExecutionBatchDynamic", // Extension, non-canonical & type
+        "io.getquill.context.QueryExecutionBatchModel", // Enum, given, non-canonical | type
+        "io.getquill.context.QuerySingleAsQuery", // Inline parameter
+        "io.getquill.context.ReflectivePathChainLookup", // Inline parameter
+        "io.getquill.context.StaticSpliceMacro", // Cannot resolve reference
+        "io.getquill.context.StaticTranslationMacro", // Enum
+        "io.getquill.context.jdbc.Decoders", // Decoders.this vs JdbcContextTypes.this
+        "io.getquill.context.jdbc.Encoders", // Encoders.this vs JdbcContextTypes.this
+        "io.getquill.context.jdbc.JdbcContext", // Inline parameter
+        "io.getquill.context.qzio.ZioJdbcContext", // Inline parameter
+        "io.getquill.context.qzio.ZioJdbcUnderlyingContext", // Inline parameter
+        "io.getquill.dsl.InfixDsl", // No annotations
+        "io.getquill.generic.ConstructDecoded", // No AnyKind upper type bound
+        "io.getquill.generic.ConstructType", // No AnyKind upper type bound
+        "io.getquill.generic.DeconstructElaboratedEntityLevels", // No AnyKind upper type bound
+        "io.getquill.generic.ElaborateStructure", // Enum, extension
+        "io.getquill.generic.ElaborationSide", // Enum
+        "io.getquill.generic.GenericDecoder", // No AnyKind upper type bound
+        "io.getquill.generic.TupleMember", // Inline parameter
+        "io.getquill.jdbczio.QuillBaseContext", // Inline parameter
+        "io.getquill.norm.SheathLeafClauses", // Cannot resolve reference
+        "io.getquill.quat.QuatMaking", // Cannot resolve reference
+        "io.getquill.quat.QuatMakingBase", // Cannot resolve reference
+        "io.getquill.util.CommonExtensions", // Extension
+        "io.getquill.util.Format", // No AnyKind upper type bound
+        "io.getquill.util.Load", // Cannot resolve reference
+        "io.getquill.util.debug.PrintMac", // Inline parameter
+      )
+    ),
+
+    Library(
+      Seq(
         "org.scalacheck" %% "scalacheck" % "1.17.0",
       ),
       Seq("org.scalacheck"), Seq.empty, 38,

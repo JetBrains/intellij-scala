@@ -60,6 +60,27 @@ class TextToTextTest2 extends TextToTextTestBase {
     ),
 
     Library(
+      Seq(
+        "io.getquill" %% "quill-sql" % "4.6.0",
+        "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
+      ),
+      Seq("io.getquill"), Seq.empty, 505,
+      Seq(
+        "io.getquill.EntityQuery", // No parentheses for repeated function type
+        "io.getquill.EntityQueryModel", // No parentheses for repeated function type
+        "io.getquill.Insert", // No parentheses for repeated function type
+        "io.getquill.ast.EqualityOperator", // No case object _==
+        "io.getquill.context.jdbc.Decoders", // Decoders.this. vs JdbcContextTypes.this.
+        "io.getquill.context.jdbc.Encoders", // Encoders.this. vs JdbcContextTypes.this.
+        "io.getquill.dsl.DynamicQueryDsl", // DynamicQueryDsl. vs CoreDsl.this.
+        "io.getquill.dsl.MetaDsl", // No parentheses for repeated function type
+        "io.getquill.dsl.QueryDsl", // No parentheses for repeated function type
+        "io.getquill.norm.SheathLeafClauses", // Cannot resolve reference
+        "io.getquill.util.EnableReflectiveCalls", // `<refinement>` is Any
+      )
+    ),
+
+    Library(
       Seq.empty,
       Seq("scala"), Seq("scala.tools", "scala.reflect.quasiquotes", "scala.reflect.reify"), 984,
       Seq(
