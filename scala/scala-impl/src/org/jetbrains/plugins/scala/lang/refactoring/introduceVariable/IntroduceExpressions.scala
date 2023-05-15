@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import java.{util => ju}
@@ -329,10 +330,14 @@ object IntroduceExpressions {
 
     editor.getCaretModel.moveToOffset(replacedOccurrences(mainOccurence).getEndOffset)
 
+    // wrap expression in parentheses to avoid parsing errors (SCL-20916)
+    val parenthesisedExpr = ScalaPsiUtil.wrapInParentheses(expression)
+    val features: ScalaFeatures = expression
+
     def createForBindingIn(forStmt: ScFor): ScForBinding = {
       val parent: ScEnumerators = forStmt.enumerators.orNull
       val inParentheses = parent.prevSiblings.toList.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
-      val created = createForBinding(varName, ScalaPsiUtil.wrapInParentheses(expression), typeTextIfNeeded(parent))
+      val created = createForBinding(varName, parenthesisedExpr, typeTextIfNeeded(parent))
       val elem = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
       var result: ScForBinding = null
       if (elem != null) {
@@ -360,7 +365,7 @@ object IntroduceExpressions {
 
     def createVariableDefinition(): PsiElement = {
       if (fastDefinition) {
-        val declaration = createDeclaration(varName, typeTextIfNeeded(firstElement), isVariable, ScalaPsiUtil.wrapInParentheses(expression), expression)
+        val declaration = createDeclaration(varName, typeTextIfNeeded(firstElement), isVariable, parenthesisedExpr, features)
         replaceRangeByDeclaration(declaration.getText, firstRange)(declaration.getProject, editor)
 
         val start = firstRange.getStartOffset
@@ -383,7 +388,7 @@ object IntroduceExpressions {
             val needBraces = !commonParent.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(commonParent, nextParentInFile)
             if (needBraces) {
               firstRange = firstRange.shiftRight(1)
-              val replaced = commonParent.replace(createExpressionFromText("{" + commonParent.getText + "}", expression))
+              val replaced = commonParent.replace(createExpressionFromText("{" + commonParent.getText + "}", features))
               replaced.getPrevSibling match {
                 case ws: PsiWhiteSpace if ws.getText.contains("\n") =>
                   firstRange = firstRange.shiftLeft(ws.getTextLength)
@@ -397,7 +402,7 @@ object IntroduceExpressions {
         }
         val anchor = parent.getChildren.find(_.getTextRange.contains(firstRange)).getOrElse(parent.getLastChild)
         if (anchor != null) {
-          val created = createDeclaration(varName, typeTextIfNeeded(anchor), isVariable, ScalaPsiUtil.wrapInParentheses(expression), expression)
+          val created = createDeclaration(varName, typeTextIfNeeded(anchor), isVariable, parenthesisedExpr, features)
           val result = ScalaPsiUtil.addStatementBefore(created.asInstanceOf[ScBlockStatement], parent, Some(anchor))
           CodeEditUtil.markToReformat(parent.getNode, needFormatting)
           result
@@ -414,7 +419,7 @@ object IntroduceExpressions {
 
     setPrivateModifier(createdDeclaration)
     ScalaPsiUtil.adjustTypes(createdDeclaration)
-    removeUnnecessaryParentheses(file, createdDeclaration)
+    removeUnnecessaryParentheses(file, createdDeclaration) // SCL-20916
     SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(createdDeclaration)
   }
 
