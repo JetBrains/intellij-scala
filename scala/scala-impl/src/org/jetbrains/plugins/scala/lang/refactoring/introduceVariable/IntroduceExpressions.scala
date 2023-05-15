@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
-import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import java.{util => ju}
@@ -331,7 +331,7 @@ object IntroduceExpressions {
     editor.getCaretModel.moveToOffset(replacedOccurrences(mainOccurence).getEndOffset)
 
     // wrap expression in parentheses to avoid parsing errors (SCL-20916)
-    val parenthesisedExpr = ScalaPsiUtil.wrapInParentheses(expression)
+    val parenthesisedExpr = wrapInParentheses(expression)
     val features: ScalaFeatures = expression
 
     def createForBindingIn(forStmt: ScFor): ScForBinding = {
@@ -481,5 +481,11 @@ object IntroduceExpressions {
     } {
       parent.addBefore(ScalaPsiElementFactory.createWhitespace("\n")(element.getProject), elem)
     }
+  }
+
+  private def wrapInParentheses(expression: ScExpression)(implicit ctx: ProjectContext): ScParenthesisedExpr = {
+    val parenthesised = ScalaPsiElementFactory.createElementFromText[ScParenthesisedExpr]("(1)", expression)
+    parenthesised.innerElement.foreach(_.replace(expression.copy()))
+    parenthesised
   }
 }
