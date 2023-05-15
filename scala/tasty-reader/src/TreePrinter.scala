@@ -964,6 +964,7 @@ private object TreePrinter {
     "return",
     "sealed",
     "super",
+    "then",
     "this",
     "throw",
     "trait",
