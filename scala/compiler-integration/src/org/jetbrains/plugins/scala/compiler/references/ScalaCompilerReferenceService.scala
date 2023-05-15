@@ -8,11 +8,13 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.startup.StartupActivity
+import com.intellij.openapi.startup.ProjectActivity
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.psi.search.{ScopeOptimizer, SearchScope}
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement, PsiFile}
+import com.intellij.util.JavaCoroutines
 import com.intellij.util.containers.ContainerUtil
+import kotlin.coroutines.Continuation
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 import org.jetbrains.plugins.scala.ScalaFileType
@@ -299,10 +301,14 @@ object ScalaCompilerReferenceService {
   def apply(project: Project): ScalaCompilerReferenceService =
     project.getService(classOf[ScalaCompilerReferenceService])
 
-  class Startup extends ProjectManagerListener with StartupActivity {
-    // ensure service is initialized with project
-    override def runActivity(project: Project): Unit =
-      ScalaCompilerReferenceService(project)
+  class Startup extends ProjectActivity with ProjectManagerListener {
+    override def execute(project: Project, continuation: Continuation[_ >: kotlin.Unit]): AnyRef = {
+      JavaCoroutines.suspendJava[kotlin.Unit](jc => {
+        // ensure service is initialized with project
+        ScalaCompilerReferenceService(project)
+        jc.resume(kotlin.Unit.INSTANCE)
+      }, continuation)
+    }
   }
 }
 
