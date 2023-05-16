@@ -5,8 +5,8 @@ package actions
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.DumbService.DumbModeListener
 import com.intellij.openapi.project.Project
@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
-import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, WorksheetFoldGroup}
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, WorksheetDiffSplitters, WorksheetFoldGroup}
 
 import java.{util => ju}
 import scala.util.control.NonFatal
@@ -139,13 +139,13 @@ object WorksheetFileHook {
           val viewer = WorksheetEditorPrinterFactory.createViewer(editor)
           val document = viewer.getDocument
 
-          val splitter = WorksheetEditorPrinterFactory.DIFF_SPLITTER_KEY.get(viewer)
+          val splitterOpt = WorksheetDiffSplitters.getSplitter(editor)
 
           inWriteAction {
             document.setText(result)
             PsiDocumentManager.getInstance(project).commitDocument(document)
 
-            if (splitter != null) {
+            splitterOpt.foreach { splitter =>
               try {
                 splitter.setProportion(ratio)
                 val group = WorksheetFoldGroup.load(viewer, editor, project, splitter, file)
@@ -181,7 +181,7 @@ object WorksheetFileHook {
     }
   }
 
-  private class WorksheetDumbModeListener(project: Project) extends DumbModeListener {
+  final class WorksheetDumbModeListener(project: Project) extends DumbModeListener {
     override def enteredDumbMode(): Unit = {}
     override def exitDumbMode(): Unit = initializeButtons()
 
