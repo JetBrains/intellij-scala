@@ -15,6 +15,8 @@ import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.util.lang.UrlClassLoader
 import com.intellij.util.messages.Topic
+import org.jetbrains.annotations.ApiStatus.Internal
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
@@ -129,7 +131,11 @@ final class LibraryExtensionsManager(project: Project) {
     ScalaProjectSettings.getInstance(project).setEnableLibraryExtensions(false)
   }
 
-  private[libextensions] def processResolvedExtension(resolved: File): Unit = {
+  @TestOnly
+  @Internal
+  //NOTE: the is 1 usage in `zio-direct-intellij` test code in `ZioDirectMacroSupportTest.registerScalaPluginExtensions`
+  //https://github.com/zio/zio-direct-intellij/blob/48fd4cb957f3be153f6395e2987fdaf229c91132/src/test/scala/ZioDirectMacroSupportTest.scala#L38
+  def processResolvedExtension(resolved: File): Unit = {
     if (myLoadedLibraries.exists(_.file.getAbsolutePath == resolved.getAbsolutePath))
       throw new ExtensionAlreadyLoadedException(resolved)
     val vFile = JarFileSystem.getInstance().findLocalVirtualFileByPath(resolved.getAbsolutePath)
