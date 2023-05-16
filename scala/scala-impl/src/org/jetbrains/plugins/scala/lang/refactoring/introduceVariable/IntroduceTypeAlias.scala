@@ -348,7 +348,7 @@ trait IntroduceTypeAlias {
       .setMovable(false)
       .setResizable(false)
       .setRequestFocus(true)
-      .setItemChoosenCallback(callback)
+      .setItemChosenCallback(callback)
       .addListener(highlightingListener)
       .createPopup
       .showInBestPositionFor(editor)

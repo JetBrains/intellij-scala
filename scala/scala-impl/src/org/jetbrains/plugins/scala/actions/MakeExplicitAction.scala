@@ -70,7 +70,7 @@ object MakeExplicitAction {
       .setMovable(false)
       .setResizable(false)
       .setRequestFocus(true)
-      .setItemChoosenCallback(() => list.getSelectedValue match {
+      .setItemChosenCallback(() => list.getSelectedValue match {
         case Parameters(navigable: NavigatablePsiElement, _, _, _, _) =>
           val maybeSynthetic = navigable match {
             case function: ScFunction =>

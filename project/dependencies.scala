@@ -13,7 +13,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.5.4"
   val zincVersion = "1.8.1"
-  val intellijVersion = "232.5150.116"
+  val intellijVersion = "232.6095.2"
 
   val (
     intellijVersion_ForManagedIntellijDependencies,

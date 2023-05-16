@@ -118,6 +118,7 @@ object Common {
 
     val platformJarNames = Seq(
       "app.jar",
+      "app-client.jar",
       "util.jar",
       "util-8.jar",
       "util_rt.jar",

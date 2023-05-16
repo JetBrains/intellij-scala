@@ -76,7 +76,7 @@ private class MyInheritorChooser(
       .setMovable(false)
       .setResizable(false)
       .setRequestFocus(true)
-      .setItemChoosenCallback(new Runnable() {
+      .setItemChosenCallback(new Runnable() {
         override def run(): Unit = {
           val values = jbList.getSelectedValuesList
           if (values == null) return

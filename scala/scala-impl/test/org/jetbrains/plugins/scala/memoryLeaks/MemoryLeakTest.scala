@@ -34,7 +34,6 @@ import org.junit.{Ignore, Test}
 
 import java.nio.file.Paths
 import java.util.function.Predicate
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[SlowTests]))
@@ -131,12 +130,15 @@ class MemoryLeakTest extends HeavyPlatformTestCase {
 
   private def allRootsForProject(implicit project: ProjectContext): java.util.Map[AnyRef, String] = {
     val allRoots = LeakHunter.allRoots().get()
-    allRoots.put(project.getPicoContainer, "project.getPicoContainer"): @nowarn("cat=deprecation")
+    // TODO: the test has been marked as @Ignored since 2020
+    //  Figure out how to migrate from the removed API and fix the tests or remove this class
+//    allRoots.put(project.getPicoContainer, "project.getPicoContainer"): @nowarn("cat=deprecation")
     allRoots
   }
 }
 
 object MemoryLeakTest {
+
   import org.jetbrains.plugins.scala.project.ProjectExt
 
   private def findFile(fileName: String)

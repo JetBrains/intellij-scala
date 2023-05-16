@@ -131,12 +131,6 @@ public abstract class ModuleDelegate implements Module {
         return module.getComponent(interfaceClass);
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public @NotNull PicoContainer getPicoContainer() {
-        return module.getPicoContainer();
-    }
-
     @Override
     public boolean isInjectionForExtensionSupported() {
         return module.isInjectionForExtensionSupported();
