@@ -10,15 +10,13 @@ import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScValueOrVariable, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import java.net.URL
-import scala.annotation.tailrec
 import scala.util.Try
 
 object ScalaDocGenerator {
@@ -116,8 +114,7 @@ object ScalaDocGenerator {
     }
   }
 
-  private def getCommentOwner(e: PsiElement): Option[(PsiDocCommentOwner, Option[ScParameter])] = {
-    @tailrec
+  private def getCommentOwner(element: PsiElement): Option[(PsiDocCommentOwner, Option[ScParameter])] = {
     def findDocOwner(e: PsiElement): Option[PsiDocCommentOwner] =
       e match {
         case pattern: ScBindingPattern =>
@@ -125,18 +122,13 @@ object ScalaDocGenerator {
             case (definition: ScValueOrVariable) & (_: ScPatternDefinition | _: ScVariableDefinition) => Some(definition)
             case _ => None
           }
-        case owner: PsiDocCommentOwner if owner.getDocComment != null => Some(owner)
-        case typ: ScTypeDefinition => Some(typ)
-        case fun: ScFunction => Some(fun)
-        case ta: ScTypeAlias => Some(ta)
-        case v: ScValueOrVariable => Some(v)
-        case elem: ScalaPsiElement => findDocOwner(elem.getParent)
+        case owner: PsiDocCommentOwner => Some(owner)
         case _ => None
       }
 
-    e match {
-      case param: ScParameter => findDocOwner(param.getParent).map((_, Some(param)))
-      case _ => findDocOwner(e).map((_, None))
+    element match {
+      case param: ScParameter => findDocOwner(param.getDeclarationScope).map((_, Some(param)))
+      case _ => findDocOwner(element).map((_, None))
     }
   }
 
