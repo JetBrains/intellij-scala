@@ -255,7 +255,7 @@ object ScalaOIUtil {
         case x: ScTemplateDefinition =>
           // The `PsiClass` which we're currently examining is a `ScTemplateDefinition`. We need to examine its
           // supertypes, keeping in mind not to search already visited classes.
-          queue ++= x.superTypes.flatMap(_.extractClass).filterNot(visited)
+          queue ++= x.supers.filterNot(visited)
         case _ =>
           // Ignore other types.
       }
