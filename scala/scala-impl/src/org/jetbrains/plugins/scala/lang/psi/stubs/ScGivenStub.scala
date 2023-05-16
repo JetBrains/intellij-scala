@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import com.intellij.psi.stubs.IndexSink
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAliasDeclaration, ScGivenAliasDefinition, ScGivenDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAlias, ScGivenDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScGivenIndex
 
 trait ScGivenStub {
@@ -13,10 +13,7 @@ trait ScGivenStub {
 }
 
 object ScGivenStub {
-  def givenAliasClassNames(alias: ScGivenAliasDeclaration): Array[String] =
-    alias.returnTypeElement.toArray.flatMap(classNames)
-
-  def givenAliasClassNames(alias: ScGivenAliasDefinition): Array[String] =
+  def givenAliasClassNames(alias: ScGivenAlias): Array[String] =
     alias.returnTypeElement.toArray.flatMap(classNames)
 
   def givenDefinitionClassNames(givenDef: ScGivenDefinition): Array[String] = for {

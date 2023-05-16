@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAliasDeclaration, ScGivenAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAlias, ScGivenAliasDeclaration, ScGivenAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScGivenAliasDeclarationImpl, ScGivenAliasDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
@@ -87,9 +87,8 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       else None
 
     val (isGivenAlias, givenAliasClassNames) = function match {
-      case alias: ScGivenAliasDefinition  => (true, ScGivenStub.givenAliasClassNames(alias))
-      case alias: ScGivenAliasDeclaration => (true, ScGivenStub.givenAliasClassNames(alias))
-      case _                              => (false, EMPTY_STRING_ARRAY)
+      case alias: ScGivenAlias => (true, ScGivenStub.givenAliasClassNames(alias))
+      case _                   => (false, EMPTY_STRING_ARRAY)
     }
 
     new ScFunctionStubImpl(
