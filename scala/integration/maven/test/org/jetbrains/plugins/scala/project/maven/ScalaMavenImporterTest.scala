@@ -6,13 +6,14 @@ import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.util.SystemProperties
 import org.jetbrains.idea.maven.utils.MavenUtil
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.compiler.data.CompileOrder
-import org.jetbrains.plugins.scala.extensions.RichFile
+import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, IncrementalityType}
+import org.jetbrains.plugins.scala.extensions.{RichFile, invokeLater}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher}
-import org.junit.Assert.{assertNotNull, assertTrue}
+import org.junit.Assert
 import org.junit.experimental.categories.Category
 
 import java.io.File
@@ -56,7 +57,7 @@ class ScalaMavenImporterTest
     val pomFile = testProjectDir / "pom.xml"
 
     val pomVFile = VirtualFileManager.getInstance().findFileByNioPath(pomFile.toPath)
-    assertNotNull("can't find 'pom.xml' file", pomVFile)
+    Assert.assertNotNull("can't find 'pom.xml' file", pomVFile)
 
     importProject(pomVFile)
     assertProjectsEqual(expected, myProject)
@@ -71,10 +72,10 @@ class ScalaMavenImporterTest
       //NOTE: if this doesn't work for some reason, also consider using
       //org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory (it doesn't respect MAVEN_OPTS though)
       val userHome = SystemProperties.getUserHome
-      assertNotNull("user.home property is not set", userHome)
+      Assert.assertNotNull("user.home property is not set", userHome)
 
       val userHomeDir = new File(userHome)
-      assertTrue("user home dir doesn't exist", userHomeDir.exists())
+      Assert.assertTrue("user home dir doesn't exist", userHomeDir.exists())
 
       (userHomeDir / ".m2").getAbsolutePath
     }.stripSuffix("/").stripSuffix("\\")
@@ -292,5 +293,19 @@ class ScalaMavenImporterTest
         compileOrder := CompileOrder.ScalaThenJava
       })
     })
+  }
+
+  def testWithKotlinIncrementalCompiler(): Unit = {
+    val pomFile = testProjectDir / "pom.xml"
+
+    val pomVFile = VirtualFileManager.getInstance().findFileByNioPath(pomFile.toPath)
+    Assert.assertNotNull("can't find 'pom.xml' file", pomVFile)
+
+    val incrementalityTypeBeforeImport = ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType
+    Assert.assertEquals(IncrementalityType.SBT, incrementalityTypeBeforeImport)
+
+    importProject(pomVFile)
+    val incrementalityTypeAfterImport = ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType
+    Assert.assertEquals(IncrementalityType.IDEA, incrementalityTypeAfterImport)
   }
 }
