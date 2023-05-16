@@ -25,14 +25,14 @@ class ScalaClassRendererTest extends RendererTestBase {
        |  private[this] val privateThisVal: Double = 1.0
        |  private val privateVal: Int = 2
        |  private[test] val packagePrivateVal: String = "3"
-       |  val publicVal: Array[Int] = Array.empty
+       |  val publicVal: Char = 'a'
        |
        |  lazy val lazyVal: String = "lazy"
        |
        |  private[this] var privateThisVar: Double = 4.0
        |  private var privateVar: Int = 5
        |  private[test] var packagePrivateVar: String = "6"
-       |  var publicVar: Array[Int] = Array.empty
+       |  var publicVar: Char = 'b'
        |
        |  override def hashCode: Int = 1
        |
@@ -52,12 +52,12 @@ class ScalaClassRendererTest extends RendererTestBase {
         "privateThisVal = 1.0",
         "privateVal = 2",
         "packagePrivateVal = 3",
-        "publicVal = {int[0]@uniqueID}[]",
+        "publicVal = 'a' 97",
         "lazyVal = lazy",
         "privateThisVar = 4.0",
         "privateVar = 5",
         "packagePrivateVar = 6",
-        "publicVar = {int[0]@uniqueID}[]"
+        "publicVar = 'b' 98"
       ))
   }
 
@@ -68,14 +68,14 @@ class ScalaClassRendererTest extends RendererTestBase {
        |  private[this] val privateThisVal: Double = 1.0
        |  private val privateVal: Int = 2
        |  private[test] val packagePrivateVal: String = "3"
-       |  val publicVal: Array[Int] = Array.empty
+       |  val publicVal: Char = 'a'
        |
        |  lazy val lazyVal: String = "lazy"
        |
        |  private[this] var privateThisVar: Double = 4.0
        |  private var privateVar: Int = 5
        |  private[test] var packagePrivateVar: String = "6"
-       |  var publicVar: Array[Int] = Array.empty
+       |  var publicVar: Char = 'b'
        |
        |  override def hashCode: Int = 1
        |
@@ -102,12 +102,12 @@ class ScalaClassRendererTest extends RendererTestBase {
         "privateThisVal = 1.0",
         "privateVal = 2",
         "packagePrivateVal = 3",
-        "publicVal = {int[0]@uniqueID}[]",
+        "publicVal = 'a' 97",
         "lazyVal = lazy",
         "privateThisVar = 4.0",
         "privateVar = 5",
         "packagePrivateVar = 6",
-        "publicVar = {int[0]@uniqueID}[]",
+        "publicVar = 'b' 98",
         "usedConstructorParam = 20"
       ))
   }
