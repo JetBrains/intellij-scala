@@ -139,7 +139,7 @@ object ScalaDocGenerator {
           case Some((base, baseComment)) => Some(ActualComment(base, baseComment, isInherited = true, param))
           case _ => None
         }
-      case docComment: PsiDocComment =>
+      case docComment =>
         Some(ActualComment(docOwner, docComment, isInherited = false, param))
     }
 
