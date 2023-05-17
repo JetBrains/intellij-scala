@@ -41,11 +41,18 @@ class TextToTextTest2 extends TextToTextTestBase {
       Seq(
         "org.typelevel" %% "cats-core" % "2.8.0",
         "org.typelevel" %% "cats-effect" % "3.3.14",
+        "org.typelevel" %% "cats-free" % "2.8.0",
+        "org.typelevel" %% "cats-laws" % "2.8.0",
       ),
-      Seq("cats"), Seq.empty, 1330,
+      Seq("cats"), Seq.empty, 1520,
       Seq(
         "cats.arrow.FunctionKMacros", // Any
         "cats.arrow.FunctionKMacroMethods", // Any
+        "cats.free.FreeFoldStep", // Incorrect types, Tuple2
+        "cats.laws.NonEmptyParallelLaws", // Order in type refinement
+        "cats.laws.ParallelLaws", // Order in type refinement
+        "cats.laws.discipline.NonEmptyParallelTests", // Order in type refinement
+        "cats.laws.discipline.ParallelTests", // Order in type refinement
       )
     ),
 
