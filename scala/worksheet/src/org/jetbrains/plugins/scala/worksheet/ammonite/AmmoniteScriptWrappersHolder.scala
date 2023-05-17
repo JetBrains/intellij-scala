@@ -13,16 +13,14 @@ import com.intellij.openapi.editor.ex.{MarkupModelEx, RangeHighlighterEx}
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
 import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerListener}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.startup.ProjectActivity
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
-import com.intellij.util.JavaCoroutines
 import com.intellij.util.containers.ContainerUtil
-import kotlin.coroutines.Continuation
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.startup.ProjectActivity
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.utils.notifications.WorksheetNotificationsGroup
 
@@ -220,11 +218,8 @@ object AmmoniteScriptWrappersHolder {
   def getOffsetFix(from: PsiFile): Int = (getWrapperName(from) + "object  {\n").length
 
   final class Startup extends ProjectActivity {
-    override def execute(project: Project, continuation: Continuation[_ >: kotlin.Unit]): AnyRef = {
-      JavaCoroutines.suspendJava[kotlin.Unit](jc => {
-        getInstance(project).init()
-        jc.resume(kotlin.Unit.INSTANCE)
-      }, continuation)
+    override def execute(project: Project): Unit = {
+      getInstance(project).init()
     }
   }
 }
