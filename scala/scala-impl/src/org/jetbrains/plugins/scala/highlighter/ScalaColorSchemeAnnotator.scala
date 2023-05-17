@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHol
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -38,8 +37,15 @@ object ScalaColorSchemeAnnotator {
   private val SCALA_COLLECTION_MUTABLE_BASE = "_root_.scala.collection.mutable."
   private val SCALA_COLLECTION_IMMUTABLE_BASE = "_root_.scala.collection.immutable."
   private val SCALA_PREDEFINED_OBJECTS = Set("scala", "scala.Predef")
-  private val SCALA_PREDEF_IMMUTABLE_BASES = Set("_root_.scala.PredefMap", "_root_.scala.PredefSet", "scalaList",
-    "scalaNil", "scalaStream", "scalaVector", "scalaSeq")
+  private val SCALA_PREDEF_IMMUTABLE_BASES = Set(
+    "_root_.scala.PredefMap",
+    "_root_.scala.PredefSet",
+    "scalaList",
+    "scalaNil",
+    "scalaStream",
+    "scalaVector",
+    "scalaSeq"
+  )
 
   private def highlightReferenceElement(refElement: ScReference)(implicit holder: ScalaAnnotationHolder): Unit = {
     val multiResolveResult = refElement.multiResolveScala(false)
@@ -156,9 +162,6 @@ object ScalaColorSchemeAnnotator {
       case r: ScReference  => highlightReferenceElement(r)
       case x: ScAnnotation => visitAnnotation(x)
       case x: ScParameter  => visitParameter(x)
-      case x: ScCaseClause => visitCaseClause(x)
-      case x: ScGenerator  => visitGenerator(x)
-      case x: ScForBinding => visitForBinding(x)
       case x: ScTypeAlias  => visitTypeAlias(x)
       case _ =>
         ScalaColorsSchemeUtils.highlightElement(element) match {
@@ -195,27 +198,6 @@ object ScalaColorSchemeAnnotator {
       if (param.isAnonymousParameter) DefaultHighlighter.ANONYMOUS_PARAMETER
       else DefaultHighlighter.PARAMETER
     createInfoAnnotation(nameId, attributesKey)
-  }
-
-  private def visitPattern(pattern: ScPattern, attribute: TextAttributesKey)(implicit holder: ScalaAnnotationHolder): Unit = {
-    for (binding <- pattern.bindings if !binding.isWildcard) {
-      createInfoAnnotation(binding.nameId, attribute)
-    }
-  }
-
-  private def visitCaseClause(clause: ScCaseClause)(implicit holder: ScalaAnnotationHolder): Unit = {
-    clause.pattern match {
-      case Some(x) => visitPattern(x, DefaultHighlighter.PATTERN)
-      case None =>
-    }
-  }
-
-  private def visitGenerator(generator: ScGenerator)(implicit holder: ScalaAnnotationHolder): Unit = {
-    visitPattern(generator.pattern, DefaultHighlighter.GENERATOR)
-  }
-
-  private def visitForBinding(forBinding: ScForBinding)(implicit holder: ScalaAnnotationHolder): Unit = {
-    visitPattern(forBinding.pattern, DefaultHighlighter.GENERATOR)
   }
 
   private def createInfoAnnotation(

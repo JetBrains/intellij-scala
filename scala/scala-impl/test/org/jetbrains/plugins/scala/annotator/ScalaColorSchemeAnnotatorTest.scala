@@ -27,12 +27,8 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
 
     testAnnotations(text, GENERATOR,
       """Info((14,15),a,Scala For statement value)
-        |Info((14,15),a,Scala For statement value)
-        |Info((17,18),b,Scala For statement value)
         |Info((17,18),b,Scala For statement value)
         |Info((32,33),c,Scala For statement value)
-        |Info((32,33),c,Scala For statement value)
-        |Info((35,36),d,Scala For statement value)
         |Info((35,36),d,Scala For statement value)
         |Info((68,69),a,Scala For statement value)
         |Info((71,72),b,Scala For statement value)
@@ -51,8 +47,6 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
 
     testAnnotations(text, PATTERN,
       """Info((20,21),a,Scala Pattern value)
-        |Info((20,21),a,Scala Pattern value)
-        |Info((23,24),b,Scala Pattern value)
         |Info((23,24),b,Scala Pattern value)
         |Info((34,35),a,Scala Pattern value)
         |Info((37,38),b,Scala Pattern value)
@@ -83,10 +77,8 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
 
     testAnnotations(text, PATTERN,
       """Info((128,132),root,Scala Pattern value)
-        |Info((128,132),root,Scala Pattern value)
         |Info((137,141),root,Scala Pattern value)
         |Info((167,171),root,Scala Pattern value)
-        |Info((261,265),root,Scala Pattern value)
         |Info((261,265),root,Scala Pattern value)
         |Info((269,273),root,Scala Pattern value)
         |Info((299,303),root,Scala Pattern value)
