@@ -55,11 +55,17 @@ class TextToTextTest3 extends TextToTextTestBase {
       Seq(
         "org.typelevel" %% "cats-core" % "2.8.0",
         "org.typelevel" %% "cats-effect" % "3.3.14",
+        "org.typelevel" %% "cats-free" % "2.8.0",
+        "org.typelevel" %% "cats-laws" % "2.8.0",
       ),
-      Seq("cats"), Seq.empty, 1328,
+      Seq("cats"), Seq.empty, 1518,
       Seq(
         "cats.ApplicativeMonoid", // ApplySemigroup without qualifier
         "cats.InvariantMonoidalMonoid", // InvariantSemigroupalSemigroup without qualifier
+        "cats.laws.NonEmptyParallelLaws", // Order in type refinement
+        "cats.laws.ParallelLaws", // Order in type refinement
+        "cats.laws.discipline.NonEmptyParallelTests", // Order in type refinement
+        "cats.laws.discipline.ParallelTests", // Order in type refinement
       )
     ),
 
@@ -75,6 +81,19 @@ class TextToTextTest3 extends TextToTextTestBase {
         "fs2.CollectorPlatform", // type.Aux
         "fs2.Pull", // fs2.Pull.Terminal is Any
         "fs2.Stream", // No prefix in fs2.compat.NotGiven
+      )
+    ),
+
+    Library(
+      Seq(
+        "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
+      ),
+      Seq("doobie"), Seq.empty, 117,
+      Seq(
+        "doobie.util.GetPlatform", // Given
+        "doobie.util.PutPlatform", // Given
+        "doobie.util.ReadPlatform", // Given, EmptyTuple is Any
+        "doobie.util.WritePlatform", // Given, EmptyTuple is Any
       )
     ),
 

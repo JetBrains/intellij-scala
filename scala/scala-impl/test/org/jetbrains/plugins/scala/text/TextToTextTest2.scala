@@ -41,11 +41,18 @@ class TextToTextTest2 extends TextToTextTestBase {
       Seq(
         "org.typelevel" %% "cats-core" % "2.8.0",
         "org.typelevel" %% "cats-effect" % "3.3.14",
+        "org.typelevel" %% "cats-free" % "2.8.0",
+        "org.typelevel" %% "cats-laws" % "2.8.0",
       ),
-      Seq("cats"), Seq.empty, 1330,
+      Seq("cats"), Seq.empty, 1520,
       Seq(
         "cats.arrow.FunctionKMacros", // Any
         "cats.arrow.FunctionKMacroMethods", // Any
+        "cats.free.FreeFoldStep", // Incorrect types, Tuple2
+        "cats.laws.NonEmptyParallelLaws", // Order in type refinement
+        "cats.laws.ParallelLaws", // Order in type refinement
+        "cats.laws.discipline.NonEmptyParallelTests", // Order in type refinement
+        "cats.laws.discipline.ParallelTests", // Order in type refinement
       )
     ),
 
@@ -56,6 +63,17 @@ class TextToTextTest2 extends TextToTextTestBase {
       Seq("fs2"), Seq.empty, 56,
       Seq(
         "fs2.Pull", // Any
+      )
+    ),
+
+    Library(
+      Seq(
+        "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
+      ),
+      Seq("doobie"), Seq.empty, 122,
+      Seq(
+        "doobie.util.EvenLower", // Excessive parentheses in existential type
+        "doobie.util.EvenLowerPriorityWrite", // Excessive parentheses in existential type
       )
     ),
 
