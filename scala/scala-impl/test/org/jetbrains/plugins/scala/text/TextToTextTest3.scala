@@ -86,6 +86,19 @@ class TextToTextTest3 extends TextToTextTestBase {
 
     Library(
       Seq(
+        "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
+      ),
+      Seq("doobie"), Seq.empty, 117,
+      Seq(
+        "doobie.util.GetPlatform", // Given
+        "doobie.util.PutPlatform", // Given
+        "doobie.util.ReadPlatform", // Given, EmptyTuple is Any
+        "doobie.util.WritePlatform", // Given, EmptyTuple is Any
+      )
+    ),
+
+    Library(
+      Seq(
         "io.getquill" %% "quill-sql" % "4.6.0",
         "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
       ),

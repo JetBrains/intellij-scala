@@ -68,6 +68,17 @@ class TextToTextTest2 extends TextToTextTestBase {
 
     Library(
       Seq(
+        "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
+      ),
+      Seq("doobie"), Seq.empty, 122,
+      Seq(
+        "doobie.util.EvenLower", // Excessive parentheses in existential type
+        "doobie.util.EvenLowerPriorityWrite", // Excessive parentheses in existential type
+      )
+    ),
+
+    Library(
+      Seq(
         "io.getquill" %% "quill-sql" % "4.6.0",
         "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
       ),
