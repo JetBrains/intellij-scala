@@ -634,6 +634,121 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     doGenerateDocSectionsTest(fileText, expectedDoc)
   }
 
+  def testTags_ParamInUse(): Unit = {
+    val fileText =
+      s"""
+         |/**
+         |  * Method description
+         |  *
+         |  * @param initB initial boolean
+         |  * @return a sequence of ints
+         |  */
+         |def foo(initB: Boolean): Seq[Int] = {
+         |  var b = ${|}initB
+         |  if (b) Vector(1) else List(1)
+         |}
+         |""".stripMargin
+    val expectedDoc = "initial boolean"
+    doGenerateDocSectionsTest(fileText, expectedDoc)
+  }
+
+  def testTags_ValueInUse(): Unit = {
+    val fileText =
+      s"""
+         |def foo(initB: Boolean): Seq[Int] = {
+         |  /**
+         |    * this is a boolean
+         |    */
+         |  val b = initB
+         |  if (${|}b) Vector(1) else List(1)
+         |}
+         |""".stripMargin
+    val expectedDoc =
+      s"""
+         |$DefinitionStart
+         |<span style="color:#000080;font-weight:bold;">val</span> b: <span style="color:#000000;"><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
+         |$DefinitionEnd
+         |$ContentStart
+         |this is a boolean
+         |$ContentEnd
+         |""".stripMargin
+    doGenerateDocBodyTest(fileText, expectedDoc)
+  }
+
+  def testTags_NestedMethodInUse(): Unit = {
+    val fileText =
+      s"""
+         |def foo(): Int = {
+         |  /**
+         |    * Increments the number
+         |    * @param n the number to be incremented
+         |    * @return the incremented number
+         |    */
+         |  def inc(n: Int): Int = n + 1
+         |
+         |  ${|}inc(2)
+         |}
+         |""".stripMargin
+    val expectedDoc =
+      s"""
+         |<tr><td valign='top' class='section'><p>Params:</td>
+         |<td valign='top'>n &ndash; the number to be incremented</td>
+         |<tr><td valign='top' class='section'><p>Returns:</td><td valign='top'>the incremented number</td>
+         |""".stripMargin
+    doGenerateDocSectionsTest(fileText, expectedDoc)
+  }
+
+  def testTags_VariableInUse(): Unit = {
+    val fileText =
+      s"""
+         |def foo(initB: Boolean): Seq[Int] = {
+         |  /**
+         |    * this is a boolean
+         |    */
+         |  var b = initB
+         |  if (${|}b) Vector(1) else List(1)
+         |}
+         |""".stripMargin
+    val expectedDoc =
+      s"""
+         |$DefinitionStart
+         |<span style="color:#000080;font-weight:bold;">var</span> b: <span style="color:#000000;"><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
+         |$DefinitionEnd
+         |$ContentStart
+         |this is a boolean
+         |$ContentEnd
+         |""".stripMargin
+    doGenerateDocBodyTest(fileText, expectedDoc)
+  }
+
+  def testTags_TupleInUse(): Unit = {
+    val fileText =
+      s"""
+         |/**
+         |  * some description
+         |  *
+         |  * @note some note
+         |  */
+         |val (v1, v2) = (1, "str")
+         |
+         |val v = Vector(${|}v1)
+         |""".stripMargin
+    val expectedDoc =
+      s"""
+         |$DefinitionStart
+         |<span style="color:#000080;font-weight:bold;">val</span> v1: <span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+         |$DefinitionEnd
+         |$ContentStart
+         |some description
+         |$ContentEnd
+         |$SectionsStart
+         |<tr><td valign='top' class='section'><p>Note:</td><td valign='top'>some note</td>
+         |$SectionsEnd
+         |""".stripMargin
+    doGenerateDocBodyTest(fileText, expectedDoc)
+  }
+
+
   def testFontStyles_Nested_Underscore_Power_Italic(): Unit =
     doGenerateDocBodyTest(
       s"""/**
