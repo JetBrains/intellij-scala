@@ -17,7 +17,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTagValue
 
-// support for "Semantic Highlighting" feature of Intellij IDEA
+/**
+ * Support for "Semantic Highlighting" feature of Intellij IDEA
+ *
+ * see also [[org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator]]
+ */
 final class ScalaRainbowVisitor extends RainbowVisitor {
 
   import ScalaRainbowVisitor._
@@ -27,7 +31,7 @@ final class ScalaRainbowVisitor extends RainbowVisitor {
     case _ => false
   }
 
-  override def visit(element: PsiElement): Unit =
+  override def visit(element: PsiElement): Unit = {
     Some(element).collect {
       case tagValue: ScDocTagValue => (tagValue, tagValue)
       case named@NameContext(context) => (context, named.nameId)
@@ -38,6 +42,7 @@ final class ScalaRainbowVisitor extends RainbowVisitor {
     }.foreach {
       addInfo
     }
+  }
 
   override def getInfo(context: PsiElement,
                        rainbowElement: PsiElement,

@@ -23,6 +23,10 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * NOTE: some non default values are specified in predefined color schemes<br>
+ * See scala/scala-impl/resources/colorSchemes/*.xml (e.g. ScalaDarcula.xml or ScalaDefault.xml)
+ */
 public class DefaultHighlighter {
 
   // TODO: can we inline all these ids?

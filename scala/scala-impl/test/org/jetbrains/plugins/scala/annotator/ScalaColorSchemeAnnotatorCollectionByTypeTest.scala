@@ -1,35 +1,16 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
-import org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.{AliasExportSemantics, ScalaCollectionHighlightingLevel}
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedSetting
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion, base}
 import org.junit.Assert.assertEquals
 
 import scala.collection.immutable.ListSet
 
-class CollectionByTypeAnnotatorTest_Scala_2_10 extends CollectionByTypeAnnotatorTestCommonTests {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_10
-}
-class CollectionByTypeAnnotatorTest_Scala_2_11 extends CollectionByTypeAnnotatorTestCommonTests {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
-}
-class CollectionByTypeAnnotatorTest_Scala_2_12 extends CollectionByTypeAnnotatorTestCommonTests {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
-}
-class CollectionByTypeAnnotatorTest_Scala_2_13 extends CollectionByTypeAnnotatorTestCommonTests {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
-}
-class CollectionByTypeAnnotatorTest_Scala_3 extends CollectionByTypeAnnotatorTestCommonTests {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
-}
-
-abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByTypeAnnotatorTestBase {
+class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnnotatorCollectionByTypeTestBase {
 
   def testAnnotateImmutable_NonQualified(): Unit = {
     val text =
@@ -59,12 +40,12 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
     testAnnotations(text, immutableCollectionMessage,
       """Info((101,108),Immutable Collection)
         |Info((121,128),Immutable Collection)
+        |Info((185,188),Immutable Collection)
         |Info((252,255),Immutable Collection)
         |Info((292,295),Immutable Collection)
         |Info((354,357),Immutable Collection)
         |Info((413,420),Immutable Collection)
         |Info((429,436),Immutable Collection)
-        |Info((185,188),Immutable Collection)
         |""".stripMargin)
   }
 
@@ -95,12 +76,12 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
       """Info((47,54),Immutable Collection)
         |Info((108,115),Immutable Collection)
         |Info((179,186),Immutable Collection)
+        |Info((252,259),Immutable Collection)
+        |Info((369,372),Immutable Collection)
         |Info((463,466),Immutable Collection)
         |Info((530,533),Immutable Collection)
-        |Info((252,259),Immutable Collection)
         |Info((619,622),Immutable Collection)
         |Info((705,712),Immutable Collection)
-        |Info((369,372),Immutable Collection)
         |""".stripMargin)
   }
 
@@ -133,12 +114,12 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
       """Info((65,72),Immutable Collection)
         |Info((109,116),Immutable Collection)
         |Info((163,170),Immutable Collection)
+        |Info((219,226),Immutable Collection)
+        |Info((319,322),Immutable Collection)
         |Info((396,399),Immutable Collection)
         |Info((446,449),Immutable Collection)
-        |Info((219,226),Immutable Collection)
         |Info((518,521),Immutable Collection)
         |Info((587,594),Immutable Collection)
-        |Info((319,322),Immutable Collection)
         |""".stripMargin
     )
   }
@@ -169,10 +150,10 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
 
       testAnnotations(text, immutableCollectionMessage,
         """Info((20,24),Immutable Collection)
-          |Info((109,112),Immutable Collection)
           |Info((44,48),Immutable Collection)
-          |Info((139,142),Immutable Collection)
           |Info((73,77),Immutable Collection)
+          |Info((109,112),Immutable Collection)
+          |Info((139,142),Immutable Collection)
           |Info((179,182),Immutable Collection)
           |""".stripMargin)
     }
@@ -194,10 +175,10 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
 
       testAnnotations(text, immutableCollectionMessage,
         """Info((20,24),Immutable Collection)
-          |Info((109,112),Immutable Collection)
           |Info((44,48),Immutable Collection)
-          |Info((139,142),Immutable Collection)
           |Info((73,77),Immutable Collection)
+          |Info((109,112),Immutable Collection)
+          |Info((139,142),Immutable Collection)
           |Info((179,182),Immutable Collection)
           |""".stripMargin)
     }
@@ -236,11 +217,11 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
     testAnnotations(text, mutableCollectionMessage,
       """Info((97,104),Mutable Collection)
         |Info((117,124),Mutable Collection)
+        |Info((181,184),Mutable Collection)
         |Info((248,251),Mutable Collection)
         |Info((288,291),Mutable Collection)
         |Info((350,353),Mutable Collection)
         |Info((409,416),Mutable Collection)
-        |Info((181,184),Mutable Collection)
         |""".stripMargin)
   }
 
@@ -271,12 +252,12 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
       """Info((45,52),Mutable Collection)
         |Info((104,111),Mutable Collection)
         |Info((173,180),Mutable Collection)
+        |Info((244,251),Mutable Collection)
+        |Info((359,362),Mutable Collection)
         |Info((451,454),Mutable Collection)
         |Info((516,519),Mutable Collection)
-        |Info((244,251),Mutable Collection)
         |Info((603,606),Mutable Collection)
         |Info((687,694),Mutable Collection)
-        |Info((359,362),Mutable Collection)
         |""".stripMargin)
   }
 
@@ -309,12 +290,12 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
       """Info((61,68),Mutable Collection)
         |Info((103,110),Mutable Collection)
         |Info((155,162),Mutable Collection)
+        |Info((209,216),Mutable Collection)
+        |Info((307,310),Mutable Collection)
         |Info((382,385),Mutable Collection)
         |Info((430,433),Mutable Collection)
-        |Info((209,216),Mutable Collection)
         |Info((500,503),Mutable Collection)
         |Info((567,574),Mutable Collection)
-        |Info((307,310),Mutable Collection)
         |""".stripMargin)
   }
 
@@ -327,8 +308,8 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
         |""".stripMargin
 
     testAnnotations(text, mutableCollectionMessage,
-      """Info((56,69),Mutable Collection)
-        |Info((24,37),Mutable Collection)
+      """Info((24,37),Mutable Collection)
+        |Info((56,69),Mutable Collection)
         |""".stripMargin)
   }
 
@@ -363,13 +344,13 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
         |""".stripMargin
 
     testAnnotations(text, javaCollectionMessage,
-      """Info((294,297),Java Collection)
-        |Info((334,337),Java Collection)
+      """Info((121,130),Java Collection)
         |Info((147,154),Java Collection)
-        |Info((396,399),Java Collection)
-        |Info((121,130),Java Collection)
         |Info((163,170),Java Collection)
         |Info((227,230),Java Collection)
+        |Info((294,297),Java Collection)
+        |Info((334,337),Java Collection)
+        |Info((396,399),Java Collection)
         |""".stripMargin)
   }
 
@@ -394,13 +375,13 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
          |""".stripMargin
 
     testAnnotations(text, javaCollectionMessage,
-      """Info((270,273),Java Collection)
-        |Info((320,323),Java Collection)
+      """Info((57,66),Java Collection)
         |Info((93,100),Java Collection)
-        |Info((392,395),Java Collection)
-        |Info((57,66),Java Collection)
         |Info((119,126),Java Collection)
         |Info((193,196),Java Collection)
+        |Info((270,273),Java Collection)
+        |Info((320,323),Java Collection)
+        |Info((392,395),Java Collection)
         |""".stripMargin)
   }
 
@@ -427,13 +408,13 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
          |""".stripMargin
 
     testAnnotations(text, javaCollectionMessage,
-      """Info((263,266),Java Collection)
-        |Info((308,311),Java Collection)
+      """Info((70,79),Java Collection)
         |Info((101,108),Java Collection)
-        |Info((375,378),Java Collection)
-        |Info((70,79),Java Collection)
         |Info((122,129),Java Collection)
         |Info((191,194),Java Collection)
+        |Info((263,266),Java Collection)
+        |Info((308,311),Java Collection)
+        |Info((375,378),Java Collection)
         |""".stripMargin)
   }
 
@@ -504,7 +485,10 @@ abstract class CollectionByTypeAnnotatorTestCommonTests extends CollectionByType
   }
 }
 
-abstract class CollectionByTypeAnnotatorTestBase extends ScalaLightCodeInsightFixtureTestCase {
+
+abstract class ScalaColorSchemeAnnotatorCollectionByTypeTestBase
+  extends ScalaColorSchemeAnnotatorTestBase[String] {
+
   protected val immutableCollectionMessage = ScalaBundle.message("scala.immutable.collection")
   protected val mutableCollectionMessage = ScalaBundle.message("scala.mutable.collection")
   protected val javaCollectionMessage = ScalaBundle.message("java.collection")
@@ -526,63 +510,25 @@ abstract class CollectionByTypeAnnotatorTestBase extends ScalaLightCodeInsightFi
     super.tearDown()
   }
 
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    base.SharedTestProjectToken(this.getClass)
-
-  protected def annotateWithColorSchemeAnnotator(text: String): AnnotatorHolderWithRangeMock = {
-    configureFromFileText("dummy.scala", text.withNormalizedSeparator)
-
-    val scalaFile = getFile.asInstanceOf[ScalaFile]
-
-    val holder = new AnnotatorHolderWithRangeMock(scalaFile)
-
-    scalaFile.breadthFirst().foreach {
-      case refElement: ScReference =>
-        ScalaColorSchemeAnnotator.highlightElement(refElement)(holder)
-      case _ =>
-    }
-
-    holder
+  override protected def needToAnnotateElement(element: PsiElement): Boolean = {
+    //collection-by-type annotations is only run for references, so optimise it
+    element.isInstanceOf[ScReference]
   }
 
-  protected def testHasNoAnnotations(
-    text: String,
-    filterAnnotationMessages: String*
-  ): Unit = {
-    testAnnotations(text, filterAnnotationMessages.to(ListSet), "")
+  override protected def buildAnnotationsTestText(annotations: Seq[Message2]): String = {
+    annotations.map(_.textWithRangeAndMessage).mkString("\n")
   }
+
+  override protected def getFilterByField(annotation: Message2): String =
+    annotation.message
+
+  protected case class MessageWithCode(message: String, fileText: String)
 
   protected def testHasNoAnnotations(
     text: String,
     filterAnnotatedMessagesWithFileText: MessageWithCode*
   )(implicit d: DummyImplicit): Unit = {
     testAnnotations(text, filterAnnotatedMessagesWithFileText.to(ListSet), "")
-  }
-
-  protected case class MessageWithCode(message: String, fileText: String)
-
-  protected def testAnnotations(
-    text: String,
-    filterAnnotationMessages: String,
-    expectedAnnotationsText: String
-  ): Unit = {
-    testAnnotations(text, Set(filterAnnotationMessages), expectedAnnotationsText)
-  }
-
-  protected def testAnnotations(
-    text: String,
-    filterAnnotationMessages: Set[String],
-    expectedAnnotationsText: String
-  ): Unit = {
-    val holder = annotateWithColorSchemeAnnotator(text)
-    val annotationsWithMatchingMessage = holder.annotations.filter(a => filterAnnotationMessages.contains(a.message))
-    val actualAnnotationsText = annotationsWithMatchingMessage.map(_.textWithoutCode).mkString("\n")
-
-    assertEquals(
-      s"Wrong annotations set for filtered message ${filterAnnotationMessages.map(m => s"`$m`").mkString(", ")}",
-      expectedAnnotationsText.replaceAll("\n+", "\n").trim,
-      actualAnnotationsText.trim
-    )
   }
 
   protected def testAnnotations(
@@ -594,7 +540,8 @@ abstract class CollectionByTypeAnnotatorTestBase extends ScalaLightCodeInsightFi
     val annotationsWithMatchingMessage = holder.annotations.filter(a => {
       filterAnnotationMessagesWithFileText.contains(MessageWithCode(a.message, a.code))
     })
-    val actualAnnotationsText = annotationsWithMatchingMessage.map(_.textWithoutCode).mkString("\n")
+    val actualAnnotationsText = buildAnnotationsTestText(annotationsWithMatchingMessage)
+
     assertEquals(
       s"Wrong annotations set for filtered message+fileText ${filterAnnotationMessagesWithFileText.map(m => s"`$m`").mkString(", ")}",
       expectedAnnotationsText.trim,

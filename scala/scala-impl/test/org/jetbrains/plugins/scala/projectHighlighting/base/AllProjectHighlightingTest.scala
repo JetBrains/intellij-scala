@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.projectHighlighting.base
 
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
@@ -191,11 +192,11 @@ object AllProjectHighlightingTest {
   ): Unit = {
     val fileRelativePath = fileRelativePathParam.getOrElse(relativePathOf(scalaFile))
     val annotatorHolder: AnnotatorHolderMock = new AnnotatorHolderMock(scalaFile) {
-      override def createMockAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Option[Message] = {
+      override def createMockAnnotation(severity: HighlightSeverity, range: TextRange, message: String, enforcedAttributes: TextAttributesKey): Option[Message] = {
         if (severity == HighlightSeverity.ERROR) {
           reporter.reportError(fileRelativePath, range, message)
         }
-        super.createMockAnnotation(severity, range, message)
+        super.createMockAnnotation(severity, range, message, enforcedAttributes)
       }
     }
     val annotator = new ScalaAnnotator()
