@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
 import com.intellij.openapi.fileEditor.impl.text.TextEditorComponent
 import com.intellij.openapi.ui.{Divider, Splitter}
+import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.ui.JBColor
 import com.intellij.util.concurrency.annotations.RequiresEdt
@@ -183,8 +184,30 @@ object WorksheetDiffSplitters {
     def * (a: Int): Segment = Segment(start * a, end * a)
   }
 
+  private val DiffSplitterKey: Key[SimpleWorksheetSplitter] = Key.create("SimpleWorksheetViewerSplitter")
+
+  def getSplitter(editor: Editor): Option[SimpleWorksheetSplitter] = Option(editor.getUserData(DiffSplitterKey))
+
   @RequiresEdt
-  def addSplitter(
+  def addSplitterIfNeeded(
+    editor: Editor,
+    viewer: Editor,
+    proportion: Float,
+  ): Unit = {
+    val existingSplitter = editor.getUserData(DiffSplitterKey)
+
+    //There can already be a splitter, in this case just do nothing.
+    //This can happen e.g. if you 1. run worksheet 2. close tab 3. open the tab back 4. evaluate the worksheet
+    //This method will be called 2 times: first time to restore the editor (splitter will also be restored),
+    // second time to initiate UI during first worksheet evaluation
+    //Another use case is when you change worksheet run type. In this case new UI initialization will be invoked
+    if (existingSplitter == null) {
+      val splitter = addSplitter(editor, viewer, proportion)
+      editor.putUserData(DiffSplitterKey, splitter)
+    }
+  }
+
+  private def addSplitter(
     editor: Editor,
     viewer: Editor,
     proportion: Float,
@@ -193,10 +216,14 @@ object WorksheetDiffSplitters {
     val editorContentComponent: JComponent = editor.getContentComponent
 
     val editorComponentParent = editorComponent.getParent
-    val textEditorComponent = editorComponentParent.asInstanceOf[TextEditorComponent]
+    val textEditorComponent = editorComponentParent match {
+      case tec: TextEditorComponent => tec
+      case other =>
+        throw new IllegalStateException(s"Unexpected type of `editorComponentParent` - ${other.getClass}")
+    }
 
     //NOTE: we need to get constraint before creating splitter, because latter will modify the UI structure
-    val constraint =getGridBagConstraint(textEditorComponent)
+    val constraint = getGridBagConstraint(textEditorComponent)
 
     //NOTE: `createSimpleSplitter` deletes `editorComponent` from `editorComponentParent` children
     val splitter = new SimpleWorksheetSplitter(editor, viewer, Nil, proportion)
@@ -242,5 +269,6 @@ object WorksheetDiffSplitters {
     val constraint = getGridBagConstraint(textEditorComponent)
     textEditorComponent.remove(splitter)
     textEditorComponent.__add(editorComponent, constraint)
+    editor.putUserData(DiffSplitterKey, null)
   }
 }

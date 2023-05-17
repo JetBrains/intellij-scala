@@ -42,7 +42,6 @@ object WorksheetEditorPrinterFactory {
 
 
   val DEFAULT_WORKSHEET_VIEWERS_RATIO = 0.5f
-  val DIFF_SPLITTER_KEY: Key[SimpleWorksheetSplitter] = Key.create("SimpleWorksheetViewerSplitter")
   private val SYNC_SCROLL_SUPPORT_KEY: Key[TwosideSyncScrollSupport] = Key.create("SyncScrollSupport")
 
   private val LAST_WORKSHEET_RUN_RESULT = new FileAttribute("LastWorksheetRunResult", 2, false)
@@ -243,8 +242,7 @@ object WorksheetEditorPrinterFactory {
     editorContentComponent.setPreferredSize(prefDim)
 
     if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val splitter = WorksheetDiffSplitters.addSplitter(editor, viewer, prop)
-      viewer.putUserData(DIFF_SPLITTER_KEY, splitter)
+      WorksheetDiffSplitters.addSplitterIfNeeded(editor, viewer, prop)
     }
 
     WorksheetCache.getInstance(editor.getProject).addViewer(viewer, editor)

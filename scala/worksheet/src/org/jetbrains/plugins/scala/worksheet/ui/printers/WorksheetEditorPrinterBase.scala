@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.{ThrowableExt, _}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetDiffSplitters, WorksheetFoldGroup}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
 
 import scala.annotation.unused
@@ -60,7 +60,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   override def diffSplitter: Option[SimpleWorksheetSplitter] = getWorksheetSplitter
 
   private def getWorksheetSplitter: Option[SimpleWorksheetSplitter] =
-    Option(worksheetViewer.getUserData(WorksheetEditorPrinterFactory.DIFF_SPLITTER_KEY))
+    WorksheetDiffSplitters.getSplitter(originalEditor)
 
   private def getWorksheetViewersRation: Float =
     getWorksheetSplitter.map(_.getProportion).getOrElse(WorksheetEditorPrinterFactory.DEFAULT_WORKSHEET_VIEWERS_RATIO)
