@@ -335,7 +335,7 @@ object PatternTypeInference {
                 ScSubstitutor.bind(tvars)(tvar => {
                   val id = tvar.typeParamId
                   val maybeLower = bounds.lowerMap.get(id)
-                  val maybeUpper = bounds.lowerMap.get(id)
+                  val maybeUpper = bounds.upperMap.get(id)
 
                   if (maybeLower.isDefined && maybeLower == maybeUpper)
                     maybeLower.get
