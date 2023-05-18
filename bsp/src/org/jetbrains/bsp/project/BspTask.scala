@@ -339,13 +339,10 @@ object BspTask {
   case class BspTarget(workspace: URI, target: URI)
 
   private final implicit class TryTraversableOps[A](private val ts: Iterable[A]) extends AnyVal {
-    def traverse[B](f: A => Try[B]): Try[Iterable[B]] =
-      ts.map(f)
-        .foldLeft(Try(Vector.empty[B])) { case (acc, tb) =>
-          for {
-            v <- acc
-            b <- tb
-          } yield v :+ b
-        }
+    def traverse[B](f: A => Try[B]): Try[Iterable[B]] = {
+      ts.iterator.foldLeft(Try(Vector.empty[B])) { case (acc, a) =>
+        acc.flatMap { xs => f(a).map(xs :+ _) }
+      }
+    }
   }
 }
