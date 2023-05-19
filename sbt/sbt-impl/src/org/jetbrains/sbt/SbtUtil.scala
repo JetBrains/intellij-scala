@@ -6,13 +6,14 @@ import com.intellij.openapi.externalSystem.model.Key
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.util.SystemProperties
+import com.intellij.util.{EnvironmentUtil, SystemProperties}
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData}
+import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOption, SbtOpts}
 import org.jetbrains.sbt.settings.SbtSettings
 
 import java.io.{BufferedInputStream, File, FileInputStream}
@@ -20,6 +21,7 @@ import java.net.URI
 import java.util.Properties
 import java.util.jar.JarFile
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.MapHasAsScala
 import scala.util.Using
 
 object SbtUtil {
@@ -304,5 +306,23 @@ object SbtUtil {
       }
     stack.isEmpty
   }
+
+  def collectAllOptionsFromJava(workingDir: File, vmOptionsFromSettings: Seq[String], passParentEnvironment: Boolean, userSetEnv: Map[String, String]): Seq[String] = {
+    val java_opts_env = environmentsToUse(passParentEnvironment, userSetEnv).get("JAVA_OPTS")
+      .map { options => JvmOpts.processJvmOptions(Seq(options)) }
+      .getOrElse(Seq.empty)
+    java_opts_env ++ JvmOpts.loadFrom(workingDir) ++ vmOptionsFromSettings
+  }
+  def collectAllOptionsFromSbt(sbtOptions: Seq[String], directory: File, passParentEnvironment: Boolean, userSetEnv: Map[String, String]): Seq[SbtOption] = {
+    val sbt_opts_env = environmentsToUse(passParentEnvironment, userSetEnv).get("SBT_OPTS")
+      .map { options =>
+        val combinedOptions = SbtOpts.combineOptionsWithArgs(options)
+        SbtOpts.mapOptionsToSbtOptions(combinedOptions, directory.getCanonicalPath)
+      }.getOrElse(Seq.empty)
+    sbt_opts_env ++ SbtOpts.loadFrom(directory) ++ SbtOpts.mapOptionsToSbtOptions(sbtOptions, directory.getCanonicalPath)
+  }
+
+  private def environmentsToUse(passParentEnvironment: Boolean, userSetEnv: Map[String, String]) =
+    if (passParentEnvironment) EnvironmentUtil.getEnvironmentMap.asScala ++ userSetEnv else userSetEnv
 
 }

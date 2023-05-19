@@ -15,16 +15,19 @@ object JvmOpts {
 
   def loadFrom(directory: File): Seq[String] = {
     val jvmOptsFile = directory / ".jvmopts"
-    if (jvmOptsFile.exists && jvmOptsFile.isFile && jvmOptsFile.canRead)
-      FileUtil.loadLines(jvmOptsFile)
-        .asScala.iterator
-        .filter(SbtUtil.areQuotesClosedCorrectly)
-        .flatMap(ParametersListUtil.parse(_, false, true).asScala.toSeq)
-        .filter(_.startsWith("-"))
-        .map(_.trim)
-        .toSeq
-    else
+    if (jvmOptsFile.exists && jvmOptsFile.isFile && jvmOptsFile.canRead) {
+      val optsFromFile = FileUtil.loadLines(jvmOptsFile).asScala.toSeq
+      processJvmOptions(optsFromFile)
+    } else
       Seq.empty
+  }
+
+  def processJvmOptions(options: Seq[String]): Seq[String] = {
+    options
+      .filter(SbtUtil.areQuotesClosedCorrectly)
+      .flatMap(ParametersListUtil.parse(_, false, true).asScala.toSeq)
+      .filter(_.startsWith("-"))
+      .map(_.trim)
   }
 
 }
