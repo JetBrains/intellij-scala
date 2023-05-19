@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.base
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
-import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.Module
@@ -18,11 +17,11 @@ import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJav
 import com.intellij.testFramework.{EditorTestUtil, LightProjectDescriptor}
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader, SmartJDKLoader, SourcesLoader}
-import org.jetbrains.plugins.scala.extensions.{StringExt, executeOnPooledThread, inReadAction}
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.{assertNotNull, fail}
 
 import scala.jdk.CollectionConverters._
 
@@ -171,7 +170,12 @@ abstract class ScalaLightCodeInsightFixtureTestCase
     val warnings = infos.filter(i => StringUtil.isNotEmpty(i.getDescription) && isAroundCaret(i))
 
     if (shouldPass) {
-      assert(warnings.nonEmpty, "No highlightings found")
+      if (warnings.isEmpty) {
+        val message =
+          if (infos.isEmpty) "No highlightings found"
+          else s"No matching highlightings found. All highlightings:\n${infos.map(_.toString).mkString("\n")}"
+        fail(message)
+      }
     } else if (warnings.nonEmpty) {
       throw new RuntimeException(failingPassed)
     }

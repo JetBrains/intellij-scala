@@ -461,16 +461,6 @@ object ScalaPsiElementFactory {
     createElementFromText[PsiElement](text, features).getFirstChild.getFirstChild.asInstanceOf[ScAnnotation]
   }
 
-  def createAnnotationExpression(
-    @NonNls text: String,
-    features:     ScalaFeatures
-  )(implicit
-    ctx: ProjectContext
-  ): ScAnnotationExpr =
-    createFromTextImpl(text, features)(expressions.AnnotationExpr.parse(_))(
-      _.getFirstChild.asInstanceOf[ScAnnotationExpr]
-    )
-
   def createBlockWithGivenExpression(
     expression: PsiElement,
     features: ScalaFeatures

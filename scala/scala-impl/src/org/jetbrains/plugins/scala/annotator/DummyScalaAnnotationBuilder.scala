@@ -18,6 +18,7 @@ abstract class DummyScalaAnnotationBuilder(severity: HighlightSeverity, @Nls mes
 
   private var rangeTransformer: TextRange => TextRange = identity
   private var range: TextRange = _
+  private var enforcedAttributes: TextAttributesKey = _
 
   override def setRangeTransformer(transformer: TextRange => TextRange): this.type = {
     rangeTransformer = transformer
@@ -39,10 +40,15 @@ abstract class DummyScalaAnnotationBuilder(severity: HighlightSeverity, @Nls mes
     this
   }
 
-  def onCreate(severity: HighlightSeverity, @Nls message: String, range: TextRange): Unit
+  override def textAttributes(enforcedAttributes: TextAttributesKey): this.type = {
+    this.enforcedAttributes = enforcedAttributes
+    this
+  }
+
+  def onCreate(severity: HighlightSeverity, @Nls message: String, range: TextRange, enforcedAttributes: TextAttributesKey): Unit
 
   override def create(): Unit =
-    onCreate(severity, message, rangeTransformer(range))
+    onCreate(severity, message, rangeTransformer(range), enforcedAttributes)
 
   override def highlightType(highlightType: ProblemHighlightType): this.type = this
   override def afterEndOfLine: this.type = this
@@ -50,7 +56,6 @@ abstract class DummyScalaAnnotationBuilder(severity: HighlightSeverity, @Nls mes
   override def gutterIconRenderer(gutterIconRenderer: GutterIconRenderer): this.type = this
   override def problemGroup(problemGroup: ProblemGroup): this.type = this
   override def enforcedTextAttributes(enforcedAttributes: TextAttributes): this.type = this
-  override def textAttributes(enforcedAttributes: TextAttributesKey): this.type = this
   override def tooltip(tooltip: String): this.type = this
   override def needsUpdateOnTyping: this.type = this
   override def needsUpdateOnTyping(value: Boolean): this.type = this

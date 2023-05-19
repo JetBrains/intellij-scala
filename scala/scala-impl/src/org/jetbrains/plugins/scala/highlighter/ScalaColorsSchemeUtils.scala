@@ -27,12 +27,8 @@ object ScalaColorsSchemeUtils {
       case _: ScAnnotation                                                    => (Some(ANNOTATION), false)
       case p: ScParameter if p.isAnonymousParameter                           => (Some(ANONYMOUS_PARAMETER), false)
       case _: ScParameter                                                     => (Some(PARAMETER), false)
-      case _: ScCaseClause                                                    => (Some(PATTERN), false)
-      case _: ScGenerator                                                     => (Some(GENERATOR), false)
-      case _: ScForBinding                                                    => (Some(GENERATOR), false)
-      case _: ScTypeAlias                                                     => (Some(TYPE_ALIAS), false)
       case _ if isSoftKeyword(element)                                        => (Some(KEYWORD), true)
-      case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => (highlightByParent(element), false)
+      case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => (highlightIdentifierByParent(element), false)
       case _: ScStringLiteral                                                 => (Some(STRING), false)
       case _: ScLiteral.Numeric                                               => (Some(NUMBER), false)
       case _: ScBooleanLiteral                                                => (Some(NUMBER), false) // todo: is this ok?
@@ -43,7 +39,7 @@ object ScalaColorsSchemeUtils {
   private def isSoftKeyword(element: PsiElement): Boolean =
     SOFT_KEYWORDS.contains(element.getNode.getElementType)
 
-  private def highlightByParent(element: PsiElement): Option[TextAttributesKey] =
+  private def highlightIdentifierByParent(element: PsiElement): Option[TextAttributesKey] =
     getParentByStub(element) match {
       case _: ScNameValuePair                         => Some(ANNOTATION_ATTRIBUTE)
       case _: ScTypeParam                             => Some(TYPEPARAM)

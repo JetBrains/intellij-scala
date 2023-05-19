@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{StubIndex, StubIndexKey}
 import com.intellij.psi.{PsiClass, PsiElement}
-import com.intellij.util.CommonProcessors.alwaysFalse
 import org.jetbrains.plugins.scala.extensions.CollectUniquesProcessorEx
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
@@ -27,10 +26,7 @@ object ScalaIndexKeys {
   val ALL_CLASS_NAMES                     = createIndexKey[String, PsiClass]("sc.all.class.names")
   val SHORT_NAME_KEY                      = createIndexKey[String, PsiClass]("sc.class.shortName")
   val NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY  = createIndexKey[String, PsiClass]("sc.not.visible.in.java.class.shortName")
-  val FQN_KEY                             = createIndexKey[Integer, PsiClass]("sc.class.fqn")
-  val PACKAGE_OBJECT_KEY                  = createIndexKey[Integer, PsiClass]("sc.package.object.fqn")
   val PACKAGE_OBJECT_SHORT_NAME_KEY       = createIndexKey[String, PsiClass]("sc.package.object.short")
-  val PACKAGE_FQN_KEY                     = createIndexKey[Integer, ScPackaging]("sc.package.fqn")
   val METHOD_NAME_KEY                     = createIndexKey[String, ScFunction]("sc.method.name")
   val CLASS_NAME_IN_PACKAGE_KEY           = createIndexKey[String, PsiClass]("sc.class.name.in.package")
   val JAVA_CLASS_NAME_IN_PACKAGE_KEY      = createIndexKey[String, PsiClass]("sc.java.class.name.in.package")
@@ -41,7 +37,6 @@ object ScalaIndexKeys {
   val CLASS_PARAMETER_NAME_KEY            = createIndexKey[String, ScClassParameter]("sc.class.parameter.name")
   val TYPE_ALIAS_NAME_KEY                 = createIndexKey[String, ScTypeAlias]("sc.type.alias.name")
   val STABLE_ALIAS_NAME_KEY               = createIndexKey[String, ScTypeAlias]("sc.stable.alias.name")
-  val STABLE_ALIAS_FQN_KEY                = createIndexKey[Integer, ScTypeAlias]("sc.stable.alias.fqn")
   val ALIASED_CLASS_NAME_KEY              = createIndexKey[String, ScTypeAlias]("sc.aliased.class.name")
   val SUPER_CLASS_NAME_KEY                = createIndexKey[String, ScExtendsBlock]("sc.super.class.name")
   val SELF_TYPE_CLASS_NAME_KEY            = createIndexKey[String, ScSelfTypeElement]("sc.self.type.class.name.key")
@@ -51,6 +46,12 @@ object ScalaIndexKeys {
   val TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY = createIndexKey[String, ScClass]("sc.top.level.implicit.class.by.package.key")
   val TOP_LEVEL_EXTENSION_BY_PKG_KEY      = createIndexKey[String, ScExtension]("sc.top.level.extension.by.package.key")
   val ALIASED_IMPORT_KEY                  = createIndexKey[String, ScImportSelector]("sc.aliased.import.key")
+
+  //FQN keys
+  val CLASS_FQN_KEY                       = createIndexKey[CharSequence, PsiClass]("sc.class.fqn")
+  val PACKAGE_OBJECT_FQN_KEY              = createIndexKey[CharSequence, PsiClass]("sc.package.object.fqn")
+  val PACKAGE_FQN_KEY                     = createIndexKey[CharSequence, ScPackaging]("sc.package.fqn")
+  val STABLE_ALIAS_FQN_KEY                = createIndexKey[CharSequence, ScTypeAlias]("sc.stable.alias.fqn")
 
   // Scala3 @main methods
   val ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY  = createIndexKey[String, ScFunction]("sc.annotated.main.function.by.package.key")
@@ -79,35 +80,6 @@ object ScalaIndexKeys {
 
     def allKeys(implicit project: Project): Iterable[Key] =
       StubIndex.getInstance.getAllKeys(indexKey, project).asScala
-
-    def hasElements(key: Key, scope: GlobalSearchScope,
-                    requiredClass: Class[Psi])
-                   (implicit project: Project): Boolean =
-      !StubIndex.getInstance.processElements(
-        indexKey,
-        key,
-        project,
-        scope,
-        requiredClass,
-        alwaysFalse[Psi]
-      ) // processElements will return true only there is no elements
-  }
-
-  implicit class StubIndexIntegerKeyExt[Psi <: PsiElement : ClassTag](private val indexKey: StubIndexKey[Integer, Psi]) {
-
-    private def key(fqn: String): Integer = ScalaNamesUtil.cleanFqn(fqn).hashCode
-
-    def allElementsByHash(name: String)
-                         (implicit project: Project): Iterable[Psi] =
-      elementsByHash(name, GlobalSearchScope.allScope(project))
-
-    def elementsByHash(name: String, scope: GlobalSearchScope)
-                      (implicit project: Project): Iterable[Psi] =
-      indexKey.elements(key(name), scope)
-
-    def hasIntegerElements(name: String, scope: GlobalSearchScope, requiredClass: Class[Psi])
-                          (implicit project: Project): Boolean =
-      indexKey.hasElements(key(name), scope, requiredClass)
   }
 
   implicit class StubIndexStringKeyExt[Psi <: PsiElement : ClassTag](private val indexKey: StubIndexKey[String, Psi]) {

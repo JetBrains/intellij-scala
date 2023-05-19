@@ -111,9 +111,9 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
 
       stub.stableQualifier.foreach(
         fqn =>
-          sink.occurrence[ScTypeAlias, Integer](
+          sink.occurrence[ScTypeAlias, CharSequence](
             ScalaIndexKeys.STABLE_ALIAS_FQN_KEY,
-            ScalaNamesUtil.cleanFqn(fqn).hashCode
+            ScalaNamesUtil.cleanFqn(fqn)
           )
       )
     }

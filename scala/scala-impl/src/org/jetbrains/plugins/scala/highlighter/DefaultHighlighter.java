@@ -23,6 +23,10 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * NOTE: some non default values are specified in predefined color schemes<br>
+ * See scala/scala-impl/resources/colorSchemes/*.xml (e.g. ScalaDarcula.xml or ScalaDefault.xml)
+ */
 public class DefaultHighlighter {
 
   // TODO: can we inline all these ids?
@@ -90,76 +94,76 @@ public class DefaultHighlighter {
   static final String XML_COMMENT_ID = "Scala XML comment";
   static final String SCALATEST_KEYWORD_ID = "Scalatest keyword";
 
-  public static TextAttributesKey LINE_COMMENT = createKey(LINE_COMMENT_ID, DefaultLanguageHighlighterColors.LINE_COMMENT);
-  public static TextAttributesKey BLOCK_COMMENT = createKey(BLOCK_COMMENT_ID, DefaultLanguageHighlighterColors.BLOCK_COMMENT);
-  public static TextAttributesKey KEYWORD = createKey(KEYWORD_ID, DefaultLanguageHighlighterColors.KEYWORD);
-  public static TextAttributesKey NUMBER = createKey(NUMBER_ID, DefaultLanguageHighlighterColors.NUMBER);
-  public static TextAttributesKey STRING = createKey(STRING_ID, DefaultLanguageHighlighterColors.STRING);
-  public static TextAttributesKey VALID_STRING_ESCAPE = createKey(VALID_STRING_ESCAPE_ID, DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE);
-  public static TextAttributesKey INVALID_STRING_ESCAPE = createKey(INVALID_STRING_ESCAPE_ID, DefaultLanguageHighlighterColors.INVALID_STRING_ESCAPE);
-  public static TextAttributesKey BRACKETS = createKey(BRACKETS_ID, DefaultLanguageHighlighterColors.BRACKETS);
-  public static TextAttributesKey BRACES = createKey(BRACES_ID, DefaultLanguageHighlighterColors.BRACES);
-  public static TextAttributesKey PARENTHESES = createKey(PARENTHESES_ID, DefaultLanguageHighlighterColors.PARENTHESES);
-  public static TextAttributesKey COLON = createKey(COLON_ID, DefaultLanguageHighlighterColors.COMMA);
-  public static TextAttributesKey SEMICOLON = createKey(SEMICOLON_ID, DefaultLanguageHighlighterColors.COMMA);
-  public static TextAttributesKey DOT = createKey(DOT_ID, DefaultLanguageHighlighterColors.DOT);
-  public static TextAttributesKey COMMA = createKey(COMMA_ID, DefaultLanguageHighlighterColors.COMMA);
-  public static TextAttributesKey INTERPOLATED_STRING_INJECTION = createKey(INTERPOLATED_STRING_INJECTION_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
-  public static TextAttributesKey MUTABLE_COLLECTION = createKey(MUTABLE_COLLECTION_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
-  public static TextAttributesKey IMMUTABLE_COLLECTION = createKey(IMMUTABLE_COLLECTION_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
-  public static TextAttributesKey JAVA_COLLECTION = createKey(JAVA_COLLECTION_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
-  public static TextAttributesKey PREDEF = createKey(PREDEF_ID, DefaultLanguageHighlighterColors.COMMA);
-  public static TextAttributesKey TYPEPARAM = createKey(TYPEPARAM_ID, JavaHighlightInfoTypes.TYPE_PARAMETER_NAME.getAttributesKey());
-  public static TextAttributesKey OBJECT = createKey(OBJECT_ID, JavaHighlightInfoTypes.CLASS_NAME.getAttributesKey());
-  public static TextAttributesKey CLASS = createKey(CLASS_ID, JavaHighlightInfoTypes.CLASS_NAME.getAttributesKey());
+  public static final TextAttributesKey LINE_COMMENT = createKey(LINE_COMMENT_ID, DefaultLanguageHighlighterColors.LINE_COMMENT);
+  public static final TextAttributesKey BLOCK_COMMENT = createKey(BLOCK_COMMENT_ID, DefaultLanguageHighlighterColors.BLOCK_COMMENT);
+  public static final TextAttributesKey KEYWORD = createKey(KEYWORD_ID, DefaultLanguageHighlighterColors.KEYWORD);
+  public static final TextAttributesKey NUMBER = createKey(NUMBER_ID, DefaultLanguageHighlighterColors.NUMBER);
+  public static final TextAttributesKey STRING = createKey(STRING_ID, DefaultLanguageHighlighterColors.STRING);
+  public static final TextAttributesKey VALID_STRING_ESCAPE = createKey(VALID_STRING_ESCAPE_ID, DefaultLanguageHighlighterColors.VALID_STRING_ESCAPE);
+  public static final TextAttributesKey INVALID_STRING_ESCAPE = createKey(INVALID_STRING_ESCAPE_ID, DefaultLanguageHighlighterColors.INVALID_STRING_ESCAPE);
+  public static final TextAttributesKey BRACKETS = createKey(BRACKETS_ID, DefaultLanguageHighlighterColors.BRACKETS);
+  public static final TextAttributesKey BRACES = createKey(BRACES_ID, DefaultLanguageHighlighterColors.BRACES);
+  public static final TextAttributesKey PARENTHESES = createKey(PARENTHESES_ID, DefaultLanguageHighlighterColors.PARENTHESES);
+  public static final TextAttributesKey COLON = createKey(COLON_ID, DefaultLanguageHighlighterColors.COMMA);
+  public static final TextAttributesKey SEMICOLON = createKey(SEMICOLON_ID, DefaultLanguageHighlighterColors.COMMA);
+  public static final TextAttributesKey DOT = createKey(DOT_ID, DefaultLanguageHighlighterColors.DOT);
+  public static final TextAttributesKey COMMA = createKey(COMMA_ID, DefaultLanguageHighlighterColors.COMMA);
+  public static final TextAttributesKey INTERPOLATED_STRING_INJECTION = createKey(INTERPOLATED_STRING_INJECTION_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
+  public static final TextAttributesKey MUTABLE_COLLECTION = createKey(MUTABLE_COLLECTION_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
+  public static final TextAttributesKey IMMUTABLE_COLLECTION = createKey(IMMUTABLE_COLLECTION_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
+  public static final TextAttributesKey JAVA_COLLECTION = createKey(JAVA_COLLECTION_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
+  public static final TextAttributesKey PREDEF = createKey(PREDEF_ID, DefaultLanguageHighlighterColors.COMMA);
+  public static final TextAttributesKey TYPEPARAM = createKey(TYPEPARAM_ID, JavaHighlightInfoTypes.TYPE_PARAMETER_NAME.getAttributesKey());
+  public static final TextAttributesKey OBJECT = createKey(OBJECT_ID, JavaHighlightInfoTypes.CLASS_NAME.getAttributesKey());
+  public static final TextAttributesKey CLASS = createKey(CLASS_ID, JavaHighlightInfoTypes.CLASS_NAME.getAttributesKey());
 
   // ScalaDoc
   private static final TextAttributesKey SCALA_DOC_COMMENT_MARKUP = DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP;
 
-  public static TextAttributesKey DOC_COMMENT = createKey(DOC_COMMENT_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
-  public static TextAttributesKey SCALA_DOC_TAG = createKey(SCALA_DOC_TAG_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
-  public static TextAttributesKey SCALA_DOC_TAG_PARAM_VALUE = createKey(SCALA_DOC_TAG_PARAM_VALUE_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
+  public static final TextAttributesKey DOC_COMMENT = createKey(DOC_COMMENT_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
+  public static final TextAttributesKey SCALA_DOC_TAG = createKey(SCALA_DOC_TAG_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
+  public static final TextAttributesKey SCALA_DOC_TAG_PARAM_VALUE = createKey(SCALA_DOC_TAG_PARAM_VALUE_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
 
-  public static TextAttributesKey SCALA_DOC_HTML_TAG = createKey(SCALA_DOC_HTML_TAG_ID, SCALA_DOC_COMMENT_MARKUP);
-  public static TextAttributesKey SCALA_DOC_WIKI_SYNTAX = createKey(SCALA_DOC_WIKI_SYNTAX_ID, SCALA_DOC_COMMENT_MARKUP);
-  public static TextAttributesKey SCALA_DOC_HTML_ESCAPE = createKey(SCALA_DOC_HTML_ESCAPE_ID, SCALA_DOC_COMMENT_MARKUP);
-  public static TextAttributesKey SCALA_DOC_MARKUP = createKey(SCALA_DOC_MARKUP_ID, SCALA_DOC_COMMENT_MARKUP);
-  public static TextAttributesKey SCALA_DOC_LIST_ITEM_HEAD = createKey(SCALA_DOC_LIST_ITEM_HEAD_ID, SCALA_DOC_COMMENT_MARKUP);
+  public static final TextAttributesKey SCALA_DOC_HTML_TAG = createKey(SCALA_DOC_HTML_TAG_ID, SCALA_DOC_COMMENT_MARKUP);
+  public static final TextAttributesKey SCALA_DOC_WIKI_SYNTAX = createKey(SCALA_DOC_WIKI_SYNTAX_ID, SCALA_DOC_COMMENT_MARKUP);
+  public static final TextAttributesKey SCALA_DOC_HTML_ESCAPE = createKey(SCALA_DOC_HTML_ESCAPE_ID, SCALA_DOC_COMMENT_MARKUP);
+  public static final TextAttributesKey SCALA_DOC_MARKUP = createKey(SCALA_DOC_MARKUP_ID, SCALA_DOC_COMMENT_MARKUP);
+  public static final TextAttributesKey SCALA_DOC_LIST_ITEM_HEAD = createKey(SCALA_DOC_LIST_ITEM_HEAD_ID, SCALA_DOC_COMMENT_MARKUP);
 
 
-  public static TextAttributesKey IMPLICIT_CONVERSIONS = createKey(IMPLICIT_CONVERSIONS_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
-  public static TextAttributesKey ABSTRACT_CLASS = createKey(ABSTRACT_CLASS_ID, JavaHighlightInfoTypes.ABSTRACT_CLASS_NAME.getAttributesKey());
-  public static TextAttributesKey TRAIT = createKey(TRAIT_ID, JavaHighlightInfoTypes.INTERFACE_NAME.getAttributesKey());
-  public static TextAttributesKey LOCAL_VALUES = createKey(LOCAL_VALUES_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
-  public static TextAttributesKey LOCAL_VARIABLES = createKey(LOCAL_VARIABLES_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
-  public static TextAttributesKey LOCAL_LAZY = createKey(LOCAL_LAZY_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
-  public static TextAttributesKey VALUES = createKey(VALUES_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
-  public static TextAttributesKey VARIABLES = createKey(VARIABLES_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
-  public static TextAttributesKey LAZY = createKey(LAZY_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
-  public static TextAttributesKey PATTERN = createKey(PATTERN_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
-  public static TextAttributesKey GENERATOR = createKey(GENERATOR_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
-  public static TextAttributesKey PARAMETER = createKey(PARAMETER_ID, JavaHighlightInfoTypes.PARAMETER.getAttributesKey());
-  public static TextAttributesKey ANONYMOUS_PARAMETER = createKey(ANONYMOUS_PARAMETER_ID, JavaHighlightInfoTypes.PARAMETER.getAttributesKey());
-  public static TextAttributesKey METHOD_CALL = createKey(METHOD_CALL_ID, JavaHighlightInfoTypes.METHOD_CALL.getAttributesKey());
-  public static TextAttributesKey OBJECT_METHOD_CALL = createKey(OBJECT_METHOD_CALL_ID, JavaHighlightInfoTypes.STATIC_METHOD.getAttributesKey());
-  public static TextAttributesKey LOCAL_METHOD_CALL = createKey(LOCAL_METHOD_CALL_ID, JavaHighlightInfoTypes.METHOD_CALL.getAttributesKey());
-  public static TextAttributesKey METHOD_DECLARATION = createKey(METHOD_DECLARATION_ID, JavaHighlightInfoTypes.METHOD_DECLARATION.getAttributesKey());
-  public static TextAttributesKey ANNOTATION = createKey(ANNOTATION_ID, JavaHighlightInfoTypes.ANNOTATION_NAME.getAttributesKey());
-  public static TextAttributesKey ANNOTATION_ATTRIBUTE = createKey(ANNOTATION_ATTRIBUTE_ID, JavaHighlightInfoTypes.ANNOTATION_ATTRIBUTE_NAME.getAttributesKey());
-  public static TextAttributesKey TYPE_ALIAS = createKey(TYPE_ALIAS_ID, JavaHighlightInfoTypes.TYPE_PARAMETER_NAME.getAttributesKey());
-  public static TextAttributesKey ASSIGN = createKey(ASSIGN_ID, DefaultLanguageHighlighterColors.OPERATION_SIGN);
+  public static final TextAttributesKey IMPLICIT_CONVERSIONS = createKey(IMPLICIT_CONVERSIONS_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
+  public static final TextAttributesKey ABSTRACT_CLASS = createKey(ABSTRACT_CLASS_ID, JavaHighlightInfoTypes.ABSTRACT_CLASS_NAME.getAttributesKey());
+  public static final TextAttributesKey TRAIT = createKey(TRAIT_ID, JavaHighlightInfoTypes.INTERFACE_NAME.getAttributesKey());
+  public static final TextAttributesKey LOCAL_VALUES = createKey(LOCAL_VALUES_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
+  public static final TextAttributesKey LOCAL_VARIABLES = createKey(LOCAL_VARIABLES_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
+  public static final TextAttributesKey LOCAL_LAZY = createKey(LOCAL_LAZY_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
+  public static final TextAttributesKey VALUES = createKey(VALUES_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
+  public static final TextAttributesKey VARIABLES = createKey(VARIABLES_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
+  public static final TextAttributesKey LAZY = createKey(LAZY_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
+  public static final TextAttributesKey PATTERN = createKey(PATTERN_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
+  public static final TextAttributesKey GENERATOR = createKey(GENERATOR_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
+  public static final TextAttributesKey PARAMETER = createKey(PARAMETER_ID, JavaHighlightInfoTypes.PARAMETER.getAttributesKey());
+  public static final TextAttributesKey ANONYMOUS_PARAMETER = createKey(ANONYMOUS_PARAMETER_ID, JavaHighlightInfoTypes.PARAMETER.getAttributesKey());
+  public static final TextAttributesKey METHOD_CALL = createKey(METHOD_CALL_ID, JavaHighlightInfoTypes.METHOD_CALL.getAttributesKey());
+  public static final TextAttributesKey OBJECT_METHOD_CALL = createKey(OBJECT_METHOD_CALL_ID, JavaHighlightInfoTypes.STATIC_METHOD.getAttributesKey());
+  public static final TextAttributesKey LOCAL_METHOD_CALL = createKey(LOCAL_METHOD_CALL_ID, JavaHighlightInfoTypes.METHOD_CALL.getAttributesKey());
+  public static final TextAttributesKey METHOD_DECLARATION = createKey(METHOD_DECLARATION_ID, JavaHighlightInfoTypes.METHOD_DECLARATION.getAttributesKey());
+  public static final TextAttributesKey ANNOTATION = createKey(ANNOTATION_ID, JavaHighlightInfoTypes.ANNOTATION_NAME.getAttributesKey());
+  public static final TextAttributesKey ANNOTATION_ATTRIBUTE = createKey(ANNOTATION_ATTRIBUTE_ID, JavaHighlightInfoTypes.ANNOTATION_ATTRIBUTE_NAME.getAttributesKey());
+  public static final TextAttributesKey TYPE_ALIAS = createKey(TYPE_ALIAS_ID, JavaHighlightInfoTypes.TYPE_PARAMETER_NAME.getAttributesKey());
+  public static final TextAttributesKey ASSIGN = createKey(ASSIGN_ID, DefaultLanguageHighlighterColors.OPERATION_SIGN);
   // TODO Inherit Java's arrow attributes when Java will support them
-  public static TextAttributesKey ARROW = createKey(ARROW_ID, DefaultLanguageHighlighterColors.OPERATION_SIGN);
-  public static TextAttributesKey BAD_CHARACTER = createKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER);
+  public static final TextAttributesKey ARROW = createKey(ARROW_ID, DefaultLanguageHighlighterColors.OPERATION_SIGN);
+  public static final TextAttributesKey BAD_CHARACTER = createKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER);
 
-  public static TextAttributesKey XML_TAG = createKey(XML_TAG_ID, XmlHighlighterColors.XML_TAG);
-  public static TextAttributesKey XML_TAG_NAME = createKey(XML_TAG_NAME_ID, XmlHighlighterColors.XML_TAG_NAME);
-  public static TextAttributesKey XML_TAG_DATA = createKey(XML_TAG_DATA_ID, XmlHighlighterColors.XML_TAG_DATA);
-  public static TextAttributesKey XML_ATTRIBUTE_NAME = createKey(XML_ATTRIBUTE_NAME_ID, XmlHighlighterColors.XML_ATTRIBUTE_NAME);
-  public static TextAttributesKey XML_ATTRIBUTE_VALUE = createKey(XML_ATTRIBUTE_VALUE_ID, XmlHighlighterColors.XML_ATTRIBUTE_VALUE);
-  public static TextAttributesKey XML_COMMENT = createKey(XML_COMMENT_ID, XmlHighlighterColors.XML_COMMENT);
+  public static final TextAttributesKey XML_TAG = createKey(XML_TAG_ID, XmlHighlighterColors.XML_TAG);
+  public static final TextAttributesKey XML_TAG_NAME = createKey(XML_TAG_NAME_ID, XmlHighlighterColors.XML_TAG_NAME);
+  public static final TextAttributesKey XML_TAG_DATA = createKey(XML_TAG_DATA_ID, XmlHighlighterColors.XML_TAG_DATA);
+  public static final TextAttributesKey XML_ATTRIBUTE_NAME = createKey(XML_ATTRIBUTE_NAME_ID, XmlHighlighterColors.XML_ATTRIBUTE_NAME);
+  public static final TextAttributesKey XML_ATTRIBUTE_VALUE = createKey(XML_ATTRIBUTE_VALUE_ID, XmlHighlighterColors.XML_ATTRIBUTE_VALUE);
+  public static final TextAttributesKey XML_COMMENT = createKey(XML_COMMENT_ID, XmlHighlighterColors.XML_COMMENT);
 
-  public static TextAttributesKey SCALATEST_KEYWORD = createKey(SCALATEST_KEYWORD_ID, DefaultLanguageHighlighterColors.KEYWORD);
+  public static final TextAttributesKey SCALATEST_KEYWORD = createKey(SCALATEST_KEYWORD_ID, DefaultLanguageHighlighterColors.KEYWORD);
 
   private static TextAttributesKey createKey(@NonNls @NotNull String externalName, TextAttributesKey prototype) {
     return TextAttributesKey.createTextAttributesKey(externalName, prototype);

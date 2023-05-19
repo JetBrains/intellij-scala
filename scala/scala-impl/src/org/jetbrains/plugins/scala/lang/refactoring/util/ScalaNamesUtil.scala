@@ -84,8 +84,11 @@ object ScalaNamesUtil {
   def cleanFqn(fqn: String): String =
     fqnWithTransformation(fqn)(clean)
 
-  def equivalentFqn(l: String, r: String): Boolean =
-    l == r || cleanFqn(l) == cleanFqn(r)
+  def equivalentFqn(l: CharSequence, r: CharSequence): Boolean = {
+    val ls = l.toString
+    val rs = r.toString
+    ls == rs || cleanFqn(ls) == cleanFqn(rs)
+  }
 
   def equivalent(l: String, r: String): Boolean =
     l == r || clean(l) == clean(r)
