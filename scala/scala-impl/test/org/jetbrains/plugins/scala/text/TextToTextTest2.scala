@@ -68,6 +68,20 @@ class TextToTextTest2 extends TextToTextTestBase {
       )
     ),
 
+  Library(
+      Seq(
+        "com.typesafe.play" %% "play" % "2.8.19",
+      ),
+      Seq("controllers", "models", "play", "views"), Seq.empty, 605,
+      Seq(
+        "controllers.AssetsModule", // _1
+        "play.api.i18n.I18nModule", // I18nModule.this._1
+        "views.html.helper.form", // By-name function type parameter
+        "views.html.helper.script", // By-name function type parameter
+        "views.html.helper.style", // By-name function type parameter
+      )
+    ),
+
     Library(
       Seq(
         "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
