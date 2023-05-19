@@ -41,10 +41,7 @@ private final class DocumentCompiler(project: Project) extends Disposable {
   }
 
   def clearOutputDirectories(): Unit = {
-    for {
-      outputDir <- outputDirectories.values().asScala
-      file <- outputDir.listFiles()
-    } FileUtil.delete(file)
+    outputDirectories.values().asScala.flatMap(dir => Option(dir.listFiles())).flatten.foreach(FileUtil.delete)
   }
 
   private def removeOutputDirectories(): Unit = {
