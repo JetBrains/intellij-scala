@@ -71,10 +71,13 @@ private class ClassPrinter(isScala3: Boolean) {
   }
 
   private def textOf(pc: ScPrimaryConstructor): String = {
-    val annotations = pc.annotations.map(textOf).mkString(" ")
     val modifiers = textOf(pc.getModifierList)
     val clauses = pc.clauses.map(_.clauses).getOrElse(Seq.empty).map(textOf).mkString
-    (if (annotations.isEmpty) "" else " " + annotations) + (if (modifiers.isEmpty) "" else " " + modifiers) + clauses
+    val annotations = pc.annotations.map(textOf(_, emptyParens = clauses.nonEmpty && modifiers.isEmpty)).mkString(" ")
+    (if (annotations.isEmpty) "" else " " + annotations) +
+      (if (modifiers.isEmpty) "" else " " + modifiers) +
+      (if (annotations.nonEmpty && modifiers.isEmpty) " " else "") +
+      (if ((annotations.nonEmpty || modifiers.nonEmpty) && clauses.isEmpty) "()" else clauses)
   }
 
   private def textOf(f: ScFunction, indent: String): String = {
@@ -146,11 +149,14 @@ private class ClassPrinter(isScala3: Boolean) {
     (if (annotations.isEmpty) "" else annotations + " ") + modifiers + keyword + (if (isAnonymous) "" else name + spaceAfter(name) + ": ") + byName + tpe + repeated + default
   }
 
-  private def textOf(annotation: ScAnnotation): String = {
+  private def textOf(annotation: ScAnnotation): String =
+    textOf(annotation, emptyParens = false)
+
+  private def textOf(annotation: ScAnnotation, emptyParens: Boolean): String = {
     val invocation = annotation.constructorInvocation
     val prefix = invocation.simpleTypeElement.map(e => textOf(e.`type`())).getOrElse("")
     val args = invocation.arguments.map(_.exprs.map(_.getText).mkString(", ")).map("(" + _ + ")").mkString
-    "@" + prefix + args
+    "@" + prefix + (if (!emptyParens && args == "()") "" else args)
   }
 
   private def textOf(ml: ScModifierList): String = {

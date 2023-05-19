@@ -26,7 +26,6 @@ class TextToTextTest2 extends TextToTextTestBase {
         "akka.http.impl.engine.server.HttpServerBluePrint", // Order in type refinement
         "akka.http.scaladsl.server.Directive", // By-name function type parameter
         "akka.http.scaladsl.server.directives.BasicDirectives", // Excessive parentheses in function type
-        "akka.pattern.BackoffSupervisor", // No whitespace after primary constructor annotation
         "akka.stream.Supervision", // Excessive parentheses in compound type
         "akka.stream.impl.QueueSource", // Order in type refinement
         "akka.stream.impl.VirtualProcessor", // No this. prefix for object
