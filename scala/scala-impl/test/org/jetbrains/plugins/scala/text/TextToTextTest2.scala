@@ -15,10 +15,13 @@ class TextToTextTest2 extends TextToTextTestBase {
     Library(
       Seq(
         "com.typesafe.akka" %% "akka-actor" % "2.7.0",
+        "com.typesafe.akka" %% "akka-actor-typed" % "2.7.0",
+        "com.typesafe.akka" %% "akka-cluster" % "2.7.0",
         "com.typesafe.akka" %% "akka-http" % "10.5.0",
-        "com.typesafe.akka" %% "akka-stream" % "2.7.0", // Provided dependency of akka-http)
+        "com.typesafe.akka" %% "akka-persistence" % "2.7.0",
+        "com.typesafe.akka" %% "akka-stream" % "2.7.0",
       ),
-      Seq("akka"), Seq.empty, 2008,
+      Seq("akka"), Seq("akka.persistence.journal.leveldb", "akka.remote.artery.aeron", "akka.remote.transport.netty") /* External references */, 2628,
       Seq(
         "akka.dispatch.CachingConfig", // Existential type
         "akka.dispatch.ExecutorServiceDelegate", // Existential type

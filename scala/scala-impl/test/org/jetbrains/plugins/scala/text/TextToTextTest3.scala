@@ -11,12 +11,17 @@ class TextToTextTest3 extends TextToTextTestBase {
     Library(
       Seq(
         "com.typesafe.akka" %% "akka-actor" % "2.7.0",
+        "com.typesafe.akka" %% "akka-actor-typed" % "2.7.0",
+        "com.typesafe.akka" %% "akka-cluster" % "2.7.0",
         "com.typesafe.akka" %% "akka-http" % "10.5.0",
-        "com.typesafe.akka" %% "akka-stream" % "2.7.0", // Provided dependency of akka-http
+        "com.typesafe.akka" %% "akka-persistence" % "2.7.0",
+        "com.typesafe.akka" %% "akka-stream" % "2.7.0",
       ),
-      Seq("akka"), Seq("akka.parboiled2"), 1962,
+      Seq("akka"), Seq("akka.parboiled2", "akka.persistence.journal.leveldb", "akka.remote.artery.aeron", "akka.remote.transport.netty") /* External references */, 2582,
       Seq(
         "akka.actor.dungeon.Children", // Any
+        "akka.actor.typed.internal.adapter.ActorSystemAdapter", // Extra default arguments
+        "akka.actor.typed.internal.receptionist.Platform", // Match type case without qualifier
         "akka.dispatch.CachingConfig", // java.util.Map$.Entry
         "akka.dispatch.ExecutorServiceDelegate", // Cannot resolve
         "akka.event.Logging", // .type.type
@@ -34,6 +39,7 @@ class TextToTextTest3 extends TextToTextTestBase {
         "akka.io.TcpListener", // Cannot resolve Matchable
         "akka.io.UdpListener", // Cannot resolve Matchable
         "akka.macros.LogHelperMacro", // Mo inline modifier
+        "akka.persistence.PersistentImpl", // Extra default argument
         "akka.stream.Supervision", // Excessive parentheses in compound type
         "akka.stream.impl.ConstantFun", // scala.None without .type
         "akka.stream.javadsl.FlowWithContext", // GraphDelegate is Any
