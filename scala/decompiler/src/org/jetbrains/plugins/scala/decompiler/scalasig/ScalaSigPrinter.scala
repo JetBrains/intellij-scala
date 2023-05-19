@@ -62,10 +62,10 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   def printSymbol(symbol: Symbol): Unit = {printSymbol(0, symbol)}
 
-  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit, parens: Boolean = false): Unit = if (inRefinementClass(s)) () else s match {
+  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit, emptyParens: Boolean = false): Unit = if (inRefinementClass(s)) () else s match {
     case t: SymbolInfoSymbol =>
       for (a <- t.attributes) {
-        indent; print(toString(a, parens))
+        indent; print(toString(a, emptyParens))
         if (onNewLine) print("\n") else print(" ")
       }
     case _ =>
@@ -319,7 +319,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
   def printPrimaryConstructor(m: MethodSymbol, c: ClassSymbol): Unit = {
     val hasParameters = m.infoType.asInstanceOf[MethodType].paramRefs.nonEmpty
     val hasModifiers = m.isPrivate || m.isProtected || m.symbolInfo.privateWithin.isDefined
-    printSymbolAttributes(m, onNewLine = false, (), parens = hasParameters && !hasModifiers)
+    printSymbolAttributes(m, onNewLine = false, (), emptyParens = hasParameters && !hasModifiers)
     printModifiers(m)
     printMethodType(m.infoType, printResult = false, methodSymbolAsClassParam(_, c, m))(())
   }
@@ -574,12 +574,12 @@ class ScalaSigPrinter(builder: StringBuilder) {
     print("\n")
   }
 
-  def toString(attrib: SymAnnot): String = toString(attrib, parens = false)
+  def toString(attrib: SymAnnot): String = toString(attrib, emptyParens = false)
 
-  def toString(attrib: SymAnnot, parens: Boolean): String = {
+  def toString(attrib: SymAnnot, emptyParens: Boolean): String = {
     val prefix = toString(attrib.typeRef, "@")
     val inScala = prefix.startsWith("@_root_.scala.")
-    if (parens || attrib.hasArgs) {
+    if (emptyParens || attrib.hasArgs) {
       val argTexts = attrib.args.map(annotArgText)
       val namedArgsText = attrib.namedArgs.map { case (name, value) =>
         // For some reason, positional arguments are always encoded as named arguments, even for Scala annotations.
@@ -735,6 +735,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
                 case _                                 => ""
               }
           val base = res.stripPrefix("_root_.<empty>.")
+          // Canonical presentation (add a class parameter?)
           val isInfix = false // base.nonEmpty && base.forall(!_.isLetterOrDigit) && typeArgs.length == 2
           val result = if (isInfix) {
             typeArgs.map(toString(_, "", level, 1)).mkString(" " + base + " ")
