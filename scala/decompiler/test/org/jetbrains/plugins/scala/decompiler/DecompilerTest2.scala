@@ -30,6 +30,7 @@ class DecompilerTest2 extends TestCase {
   def testAnnotationMultiple(): Unit = doTest("annotation/Multiple")
   def testAnnotationParameters(): Unit = doTest("annotation/Parameters")
   def testAnnotationText(): Unit = doTest("annotation/Text")
+  def testMemberBeanProperty(): Unit = doTest("member/BeanProperty")
   def testMemberBounds(): Unit = doTest("member/Bounds")
   def testMemberDef(): Unit = doTest("member/Def")
   def testMemberIdentifiers(): Unit = doTest("member/Identifiers")
@@ -75,7 +76,7 @@ class DecompilerTest2 extends TestCase {
   def testTypeDefinitionQualifier(): Unit = doTest("typeDefinition/Qualifier")
   def testTypeDefinitionSelfType(): Unit = doTest("typeDefinition/SelfType")
   def testTypeDefinitionTrait(): Unit = doTest("typeDefinition/Trait")
-//  def testTypesAnnotated(): Unit = doTest("types/Annotated")
+//  def testTypesAnnotated(): Unit = doTest("types/Annotated") // SCL-21207
   def testTypesCompound(): Unit = doTest("types/Compound")
   def testTypesConstant(): Unit = doTest("types/Constant")
   def testTypesFunction(): Unit = doTest("types/Function")
@@ -123,10 +124,9 @@ class DecompilerTest2 extends TestCase {
 
     val adjusted = if (!simpleTypes) actual else actual
       .replace("_root_.", "")
-      .replaceAll("scala\\.(?=\\p{Lu}|\\W)", "")
-      .replace("@scala.", "@")
       .replace("java.lang.", "")
-      .replace("Predef.", "")
+      .replace("scala.Predef.", "")
+      .replaceAll("scala\\.(?!\\w+\\.(?!type))", "")
       .replaceAll("\\w+\\.this\\.(?!type)", "")
       .replaceAll("\\w+\\.(?=this.type)", "")
 

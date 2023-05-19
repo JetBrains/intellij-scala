@@ -22,7 +22,7 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
   def typeParametersClause: Option[ScTypeParamClause] = {
     this match {
       case st: ScalaStubBasedElementImpl[_, _] =>
-        Option(st.getStubOrPsiChild(ScalaElementType.TYPE_PARAM_CLAUSE))
+        Option(st.getStubOrPsiChild(ScalaElementType.TYPE_PARAM_CLAUSE)).filter(_.getParent == this) // SCL-21205
       case _ =>
         findChild[ScTypeParamClause]
     }

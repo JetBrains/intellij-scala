@@ -8,7 +8,7 @@ import dotty.tools.tasty.TastyFormat.*
 
 import java.lang.Double.longBitsToDouble
 import java.lang.Float.intBitsToFloat
-import scala.annotation.tailrec
+import scala.annotation.{switch, tailrec}
 import scala.collection.mutable
 
 // TODO
@@ -17,7 +17,7 @@ import scala.collection.mutable
 // nonEmpty predicate
 // implicit StringBuilder?
 // indent: opaque type, implicit
-class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false, legacySyntax: Boolean = false) {
+class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, legacySyntax: Boolean = false) {
   private final val Indent = "  "
   private final val CompiledCode = "???"
 
@@ -74,10 +74,11 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
           }
           if (name != "<empty>" && (!containsPackageObject || name.contains('.'))) {
             sb ++= "package "
+            val parts = name.split('.').map(id)
             if (containsPackageObject) {
-              sb ++= id(name.split('.').init.mkString(".")) // TODO optimize
+              sb ++= parts.init.mkString(".")
             } else {
-              sb ++= id(name)
+              sb ++= parts.mkString(".")
             }
             sb ++= "\n\n"
           }
@@ -253,7 +254,8 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       // Is there a more reliable way to determine whether self type refers to the same type definition?
       case Some(Node3(SELFDEF, Seq(name), Seq(tail))) if !definition.exists(_.contains(OBJECT)) &&
         definition.forall(it => !tail.refName.contains(it.name) && !tail.children.headOption.exists(_.refName.contains(it.name))) =>
-        " " + (if (name == "_") "this" else name) + ": " + simple(textOfType(tail, parens = 1)) + " =>"
+        val isWith = (tail.is(APPLIEDtpt) || tail.is(APPLIEDtype)) && !tail.firstChild.is(IDENTtpt) && textOfType(tail.firstChild) == "_root_.scala.&"
+        " " + (if (name == "_") "this" else name) + ": " + simple(textOfType(tail, parens = if (isWith) 0 else 1)) + " =>"
       case _ => ""
     }
     val members = {
@@ -297,7 +299,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     if (name == "<init>") {
       modifiersIn(sb, node)
       sb ++= "def this"
-      parametersIn(sb, node)
+      parametersIn(sb, node, target = Target.This)
       sb ++= " = "
       sb ++= CompiledCode
     } else {
@@ -400,10 +402,13 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     }
   }
 
+  private def simple(tpe: String): String =
+    if (tpe.nonEmpty) tpe else "Unknown" // TODO Remove when all types are supported
+
   // TODO include in textOfType
   // TODO keep prefixes? but those are not "relative" imports, but regular (implicit) imports of each Scala compilation unit
-  private def simple(tpe: String): String = {
-    val s4 = if (!simpleTypes) tpe else {
+  private def simple0(tpe: String): String = {
+    val s4 = {
       if (tpe.contains("this.")) tpe.substring(tpe.indexOf("this.") + (if (tpe.endsWith("this.type")) 0 else 5)) else {
         val s1 = tpe.stripPrefix("_root_.")
         val s2 = if (!s1.stripPrefix("scala.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s1.stripPrefix("scala.") else s1
@@ -411,7 +416,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
         if (!s3.stripPrefix("scala.Predef.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s3.stripPrefix("scala.Predef.") else s3
       }
     }
-    if (s4.nonEmpty) s4 else "Nothing" // TODO Remove when all types are supported
+    if (s4.nonEmpty) s4 else "Unknown" // TODO Remove when all types are supported
   }
 
   private def textOfType(node: Node, parens: Int = 0)(using parent: Option[Node] = None): String = {
@@ -429,14 +434,14 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       case Node3(SINGLETONtpt, _, Seq(tail)) =>
         val literal = textOfConstant(tail)
         if (literal.nonEmpty) literal else textOfType(tail) + (if (tail.is(TERMREF)) "" else ".type")
-      case Node3(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
-      case Node3(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + name + // TODO why there's "package" in some cases?
+      case Node3(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + id(name)
+      case Node3(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + id(name) + // TODO why there's "package" in some cases?
           (if (parent.forall(_.is(SINGLETONtpt))) ".type" else "") // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
       case Node3(THIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
         if (qualifier.endsWith("package$")) { val i = qualifier.lastIndexOf('.'); qualifier.substring(0, if (i == -1) qualifier.length - 8 else i) }
         else if (qualifier.endsWith("$")) qualifier.substring(0, qualifier.length - 1) // What is the semantics of "this" when referring to external module classes?
-        else if (qualifier == "_root_.<empty>") "this" else qualifier.split('.').last + ".this"
+        else if (qualifier == "_root_.`<empty>`") "" else qualifier.split('.').last + ".this"
       case Node3(QUALTHIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
         qualifier.split('.').last + ".this" // Simplify Foo.this in Foo?
@@ -444,21 +449,22 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
         val prefix = if (node.refTag.contains(TYPEPARAM)) "" else tail.headOption.map(textOfType(_)).getOrElse("")
         val name = node.refName.getOrElse("")
         if (name == "package" || name.endsWith("$package")) prefix
-        else (if (prefix.isEmpty) name else prefix + "." + name) + (if (parent.isEmpty && node.is(TERMREFsymbol, TERMREFdirect)) ".type" else "") // TODO rely on name kind
+        else (if (prefix.isEmpty) id(name) else prefix + "." + id(name)) + (if (parent.isEmpty && node.is(TERMREFsymbol, TERMREFdirect)) ".type" else "") // TODO rely on name kind
       case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
         val selector = if (node.tag == SELECTtpt && node.children.headOption.exists(it => isTypeTreeTag(it.tag))) "#" else "."
         val qualifier = textOfType(tail)
-        if (qualifier.nonEmpty) qualifier + selector + name else name
-      case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => if (name == "_root_") name else "_root_." + name
+        val qualifierInParens = if (selector == "#" && tail.is(REFINEDtpt)) "(" + qualifier + ")" else qualifier
+        if (qualifier.nonEmpty) qualifierInParens + selector + id(name) else id(name)
+      case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => if (name == "_root_") name else "_root_." + name.split('.').map(id).mkString(".")
       case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments: _*)) =>
         val base = textOfType(constructor)
-        val simpleBase = simple(base)
-        val isInfix = simpleBase.forall(!_.isLetterOrDigit) && arguments.length == 2
+        val simpleBase = if (infixTypes) simple0(base) else base
+        val isInfix = infixTypes && simpleBase.forall(!_.isLetterOrDigit) && arguments.length == 2
         val isWith = (legacySyntax || !constructor.is(IDENTtpt)) && base == "_root_.scala.&"
         if (isInfix || isWith) {
           val s = arguments.map(it => simple(textOfType(it, parens = if (isWith) 0 else 1))).mkString(" " + (if (isWith) "with" else simpleBase) + " ")
           if (parens > 0) "(" + s + ")" else s
-        } else if (base == "_root_.scala.<repeated>") {
+        } else if (base == "_root_.scala.`<repeated>`") {
           textOfType(arguments.head, parens = 1) + "*" // TODO why repeated parameters in aliases are encoded differently?
         } else if (base.startsWith("_root_.scala.Tuple") && base != "_root_.scala.Tuple1" && !base.substring(18).contains(".")) { // TODO use regex
           val s = arguments.map(it => simple(textOfType(it))).mkString("(", ", ", ")")
@@ -470,11 +476,16 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
         } else {
           simpleBase + "[" + arguments.map(it => simple(textOfType(it))).mkString(", ") + "]"
         }
+      case Node3(ANDtype | ORtype, _, Seq(l, r)) =>
+        val s = simple(textOfType(l)) + (if (node.is(ANDtype)) " & " else " | ") + simple(textOfType(r))
+        if (parens > 0) "(" + s + ")" else s
       case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
         annotation match {
           case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe0, _: _*)), _: _*)), _: _*)) =>
-            if (textOfType(tpe0) == "_root_.scala.annotation.internal.Repeated") textOfType(tpe.children(1), parens = 1) + "*"
-            else textOfType(tpe) + " " + "@" + simple(textOfType(tpe0)) + {
+            val s = textOfType(tpe0)
+            if (s == "_root_.scala.annotation.internal.Repeated") textOfType(tpe.children(1), parens = 1) + "*"
+            else if (s != "_root_.scala.annotation.internal.InlineParam") textOfType(tpe) // SCL-21207
+            else textOfType(tpe) + " " + "@" + simple(s) + {
               val args = annotation.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ")
               if (args.nonEmpty) "(" + args + ")" else ""
             }
@@ -499,7 +510,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       case Node1(TYPEBOUNDStpt | TYPEBOUNDS) =>
         val sb1 = new StringBuilder() // TODO reuse
         boundsIn(sb1, node)
-        if (legacySyntax) "_" else "?" + sb1.toString
+        (if (legacySyntax) "_" else "?") + sb1.toString
 
       case Node3(LAMBDAtpt, _, children) =>
         val sb1 = new StringBuilder() // TODO reuse
@@ -511,14 +522,14 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
       case Node3(REFINEDtpt, _, Seq(tr @ Node1(TYPEREF), Node3(DEFDEF, Seq(name), children), _ : _*)) if textOfType(tr) == "_root_.scala.PolyFunction" && name == "apply" => // TODO check tree
         val (typeParams, tail1) = children.span(_.is(TYPEPARAM))
         val (valueParams, tails2) = tail1.span(_.is(PARAM))
-        val s = typeParams.map(_.name).mkString("[", ", ", "]") + " => " + {
+        val s = typeParams.map(tp => id(tp.name)).mkString("[", ", ", "]") + " => " + {
           val params = valueParams.flatMap(_.children.headOption.map(tpe => simple(textOfType(tpe)))).mkString(", ")
           if (valueParams.length == 1) params else "(" + params + ")"
         } + " => " + tails2.headOption.map(tpe => simple(textOfType(tpe))).getOrElse("")
         if (parens > 0) "(" + s + ")" else s
       case Node3(REFINEDtpt, _, Seq(tpe, members: _*)) =>
         val prefix = textOfType(tpe)
-        (if (prefix == "_root_.java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(it => { val sb = new StringBuilder(); textOfMember(sb, "", it); sb.toString }).mkString("; ") + " }" // TODO use sb directly
+        (if (prefix == "_root_.scala.AnyRef" || prefix == "_root_.java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(it => { val sb = new StringBuilder(); textOfMember(sb, "", it); sb.toString }).mkString("; ") + " }" // TODO use sb directly
 
       case _ => "" // TODO exhaustive match
     }
@@ -546,10 +557,10 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
   private def textOfAnnotationIn(sb: StringBuilder, indent: String, node: Node, suffix: String, parens: Boolean = false): Unit = {
     node.children.reverseIterator.takeWhile(_.is(ANNOTATION)).foreach {  // TODO sb.insert?
       case Node3(ANNOTATION, _, Seq(tpe, apply @ Node3(APPLY, _, Seq(tail, _: _*)))) =>
-        val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("_root_.scala.annotation.internal.")).map(simple).map("@" + _).getOrElse("") // TODO optimize
+        val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("_root_.scala.annotation.internal.")).map(simple).getOrElse("") // TODO optimize
         if (name.nonEmpty) {
           sb ++= indent
-          sb ++= id(name)
+          sb ++= "@" + simple(name.split('.').map(id).mkString("."))
           tail match {
             case Node3(TYPEAPPLY, _, Seq(_, args: _*)) =>
               sb ++= "["
@@ -584,6 +595,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
   }
 
   private enum Target {
+    case This
     case Definition
     case Extension
     case ExtensionMethod
@@ -602,9 +614,10 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
 
   private def parametersIn(sb: StringBuilder, node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: StringBuilder => Unit = _ => (), uniqueNames: Boolean = false): Unit = {
     val tps = target match {
+      case Target.This => Seq.empty
+      case Target.Definition => node.children
       case Target.Extension => node.children.takeWhile(!_.is(PARAM))
       case Target.ExtensionMethod => node.children.dropWhile(!_.is(PARAM))
-      case Target.Definition => node.children
     }
 
     val templateTypeParams = template.map(_.children.filter(_.is(TYPEPARAM)).iterator)
@@ -683,13 +696,13 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     val hasModifiers = sb.length > previousLength
 
     val ps = target match {
+      case Target.This | Target.Definition => node.children
       case Target.Extension =>
         popExtensionParams(mutable.Stack[Node](node.children: _*))
       case Target.ExtensionMethod =>
         val stack = mutable.Stack[Node](node.children: _*)
         popExtensionParams(stack)
         stack.toSeq.dropWhile(_.is(SPLITCLAUSE))
-      case Target.Definition => node.children
     }
 
     val templateValueParams = template.map(_.children.filter(_.is(PARAM)).iterator)
@@ -728,12 +741,13 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
           }
           textOfAnnotationIn(sb, "", node, " ")
           val tpe = textOfType(children.head)
-          if (node.contains(INLINE) || tpe.endsWith(" @scala.annotation.internal.InlineParam")) {
+          if (node.contains(INLINE) || tpe.endsWith(" @_root_.scala.annotation.internal.InlineParam")) {
             sb ++= "inline "
           }
           if (!definition.exists(isGivenClass0)) {
             templateValueParam.foreach { valueParam =>
               if (!valueParam.contains(LOCAL)) {
+                textOfAnnotationIn(sb, "", valueParam, " ")
                 val sb1 = new StringBuilder() // TODO reuse
                 val isPrivate = valueParam.contains(PRIVATE)
                 modifiersIn(sb1, valueParam, (if (isImplicitClause) Set(IMPLICIT) else if (isGivenClause) Set(GIVEN) else Set.empty) ++ (if (privateMembers || !isPrivate) Set.empty else Set(ABSTRACT, OVERRIDE, PRIVATE, IMPLICIT, FINAL)))
@@ -758,7 +772,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
             }
             sb ++= ": "
           }
-          sb ++= simple(tpe).stripSuffix(" @scala.annotation.internal.InlineParam")
+          sb ++= simple(tpe).stripSuffix(" @_root_.scala.annotation.internal.InlineParam")
           if (node.contains(HASDEFAULT)) {
             sb ++= " = "
             sb ++= CompiledCode
@@ -851,7 +865,7 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
   }
 
   private def boundsIn(sb: StringBuilder, node: Node): Unit = node match {
-    case Node3(TYPEBOUNDStpt, _, Seq(lower, upper)) =>
+    case Node3(TYPEBOUNDStpt | TYPEBOUNDS, _, Seq(lower, upper)) =>
       val l = textOfType(lower)
       if (l.nonEmpty && l != "_root_.scala.Nothing") {
         sb ++= " >: " + simple(l)
@@ -868,9 +882,25 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
     (if (i == -1) tpe else tpe.drop(i + 1)).stripSuffix("$")
   }
 
-  private def id(s: String): String = {
-    val quoted = Keywords(s) || (!s.startsWith("@") && s.headOption.exists(c => !c.isLetter && c != '_') && s.exists(_.isLetter) || s.contains(' '))
-    if (quoted) "`" + s + "`" else s
+  private def id(s: String): String =
+    if (Keywords(s) || !isIdentifier(s)) "`" + s + "`" else s
+
+  private def isIdentifier(s: String): Boolean = !(s.isEmpty || s.contains("//") || s.contains("/*")) && {
+    if (s(0) == '_' || s(0) == '$' || Character.isUnicodeIdentifierStart(s(0))) {
+      val lastIdCharIdx = s.takeWhile(c => c == '$' || Character.isUnicodeIdentifierPart(c)).length - 1
+      if (lastIdCharIdx < 0 || lastIdCharIdx == s.length - 1) true
+      else if (s.charAt(lastIdCharIdx) != '_') false
+      else s.drop(lastIdCharIdx + 1).forall(isOperatorPart)
+    } else if (isOperatorPart(s(0))) {
+      s.forall(isOperatorPart)
+    } else {
+      false
+    }
+  }
+
+  private def isOperatorPart(c: Char): Boolean = (c: @switch) match {
+    case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' | '|' | '/' | '\\' => true
+    case c => val ct = Character.getType(c); ct == Character.MATH_SYMBOL.toInt || ct == Character.OTHER_SYMBOL.toInt
   }
 
   private def needsSpace(id: String) = id.lastOption.exists(c => !c.isLetterOrDigit && c != '`')
@@ -878,6 +908,10 @@ class TreePrinter(privateMembers: Boolean = false, simpleTypes: Boolean = false,
 
 private object TreePrinter {
   private val Keywords = Set(
+    "=",
+    "=>",
+    "=>>",
+    "?=>",
     "abstract",
     "case",
     "catch",
@@ -898,6 +932,7 @@ private object TreePrinter {
     "implicit",
     "import",
     "lazy",
+    "macro",
     "match",
     "new",
     "null",
@@ -909,6 +944,7 @@ private object TreePrinter {
     "return",
     "sealed",
     "super",
+    "then",
     "this",
     "throw",
     "trait",

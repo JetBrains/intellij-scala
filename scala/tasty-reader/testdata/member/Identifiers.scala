@@ -24,6 +24,12 @@ trait Identifiers {
 
   def `foo &`: Int = ???
 
+  def foo1: Int = ???
+
+  def `foo-1`: Int = ???
+
+  def `foo-bar`: Int = ???
+
   def &(x: Int): Int = ???
 
   def &(x: Int)(y: Int): Int = ???

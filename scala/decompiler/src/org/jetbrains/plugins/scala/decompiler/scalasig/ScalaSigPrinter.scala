@@ -62,7 +62,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   def printSymbol(symbol: Symbol): Unit = {printSymbol(0, symbol)}
 
-  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit, parens: Boolean = false): Unit = s match {
+  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit, parens: Boolean = false): Unit = if (inRefinementClass(s)) () else s match {
     case t: SymbolInfoSymbol =>
       for (a <- t.attributes) {
         indent; print(toString(a, parens))
@@ -79,7 +79,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   def printSymbol(level: Int, symbol: Symbol): Unit = {
-    def isSynthetic: Boolean = symbol.isSynthetic || symbol.isCaseAccessor || symbol.isParamAccessor
+    def isSynthetic: Boolean = symbol.isSynthetic || symbol.isCaseAccessor || symbol.isParamAccessor || symbol.attributes.exists(_.typeRef == NoType)
 
     val accessibilityOk = symbol match {
       case _ if level == 0 => true
@@ -92,7 +92,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
     if (accessibilityOk && !isSynthetic) {
       symbol match {
-        case o: ObjectSymbol =>
+        case o: ObjectSymbol if !inRefinementClass(o) =>
           printSymbolAttributes(o, onNewLine = true, indent())
           indent()
           if (o.name == "package" || o.name == "`package`") {
@@ -185,9 +185,8 @@ class ScalaSigPrinter(builder: StringBuilder) {
       }
     }
 
-    symbol.parent match {
-      case Some(cSymbol: ClassSymbol) if refinementClass(cSymbol) => return //no modifiers allowed inside refinements
-      case _ =>
+    if (inRefinementClass(symbol)) {
+      return //no modifiers allowed inside refinements
     }
 
     if (symbol.isAbstractOverride) print("abstract override ")
@@ -217,6 +216,11 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   private def refinementClass(c: ClassSymbol) = c.name == "<refinement>"
+
+  private def inRefinementClass(symbol: Symbol) = symbol.parent match {
+    case Some(cSymbol: ClassSymbol) if refinementClass(cSymbol) => true
+    case _ => false
+  }
 
   def printClass(level: Int, c: ClassSymbol, indent: () => Unit = () => ()): Unit = {
     if (c.name == "<local child>" /*scala.tools.nsc.symtab.StdNames.LOCALCHILD.toString()*/ ) {
@@ -356,6 +360,14 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case ms: MethodSymbol if ms.isParamAccessor && ms.name.startsWith(methodName) => true
       case _ => false
     }
+    val beanAccessors = c.children.filter {
+      case ms: MethodSymbol if ms.attributes.exists(_.typeRef == NoType) &&
+        (ms.name.startsWith("get") || ms.name.startsWith("set")) && ms.name.substring(3) == methodName.capitalize => true
+      case _ => false
+    }
+    if (beanAccessors.nonEmpty) {
+      sb.append("@_root_.scala.beans.BeanProperty ")
+    }
     val isMutable = paramAccessors.exists(acc => isSetterFor(acc.name, methodName))
     val toPrint = paramAccessors.find(m => !m.isPrivate || !m.isLocal)
     if (!primaryConstructor.isPrivate || toPrint.exists(m => !m.isLocal && !m.isPrivate)) {
@@ -475,7 +487,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
     val n = m.name
     if (underObject(m) && n == CONSTRUCTOR_NAME) return
     if (underTrait(m) && n == INIT_NAME) return
-    if (n.isDefaultParameterMethodName) return // skip default function parameters
+    if (m.isSynthetic && n.isDefaultParameterMethodName) return // skip default function parameters
     if (n.startsWith("super$")) return // do not print auxiliary qualified super accessors
     if (m.isAccessor && n.endsWith(setterSuffix)) return
     if (m.isParamAccessor) return //do not print class parameters
@@ -490,7 +502,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
     val keywords =
       if (!m.isAccessor) "def "
-      else if (m.isLazy) "lazy val "
+      else if (m.isLazy) (if (inRefinementClass(m)) "val " else "lazy val ")
       else if (hasSetter) "var "
       else "val "
 
@@ -514,13 +526,10 @@ class ScalaSigPrinter(builder: StringBuilder) {
               case Some(expr) => print(s" = $expr")
               case None =>
                 if (needsSpace(nn)) print(" ")
-                print(s": ${Constants.typeText(ct)} $compiledCodeBody")
+                print(s": ${Constants.typeText(ct)}$compiledCodeBody")
             }
           case _                                               =>
-            val printBody = !m.isDeferred && (m.parent match {
-              case Some(c: ClassSymbol) if refinementClass(c) => false
-              case _ => true
-            })
+            val printBody = !m.isDeferred && !inRefinementClass(m)
             printMethodType(m.infoType, printResult = true, needsSpace = needsSpace(nn))(
               {if (printBody) print(compiledCodeBody /* Print body only for non-abstract methods */ )}
             )
@@ -610,7 +619,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
               case _ => "this"
             }
             case name if thisSymbol.isModule => if (thisSymbol.isStableObject) "_root_." + processName(thisSymbol.path).stripPrefix("<empty>.") else processName(name)
-            case name => processName(name) + ".this"
+            case name => if (name == "<refinement>") "this" else processName(name) + ".this"
           }
         sep + thisSymbolName + "." + processName(symbol.name) + ".type"
       case SingleType(Ref(ThisType(Ref(exSymbol: ExternalSymbol))), symbol) if exSymbol.name == "<root>" =>
@@ -691,7 +700,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
           //remove package object reference
           val path = prefixStr.removeDotPackage
           val name = processName(symbol.name)
-          val res = path + name
+          val res = path + name + (if (symbol.isModule) ".type" else "")
           val suffix =
             if (name == "_") {
               symbol.get match {
@@ -713,7 +722,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
                 case _                                 => ""
               }
           val base = res.stripPrefix("_root_.<empty>.")
-          val isInfix = base.nonEmpty && base.forall(!_.isLetterOrDigit) && typeArgs.length == 2
+          val isInfix = false // base.nonEmpty && base.forall(!_.isLetterOrDigit) && typeArgs.length == 2
           val result = if (isInfix) {
             typeArgs.map(toString(_, "", level, 1)).mkString(" " + base + " ")
           } else if (typeArgs.nonEmpty && base.startsWith("_root_.scala.Tuple") && base != "_root_.scala.Tuple1" && !base.substring(18).contains(".")) {
@@ -880,7 +889,7 @@ object ScalaSigPrinter {
   val keywordList =
     Set("true", "false", "null", "abstract", "case", "catch", "class", "def",
       "do", "else", "extends", "final", "finally", "for", "forSome", "if",
-      "implicit", "import", "lazy", "match", "new", "object", "override",
+      "implicit", "import", "lazy", "macro", "match", "new", "object", "override",
       "package", "private", "protected", "return", "sealed", "super",
       "this", "throw", "trait", "try", "type", "val", "var", "while", "with",
       "yield")
@@ -941,7 +950,7 @@ object ScalaSigPrinter {
 
     def escapeNonIdentifiers: String = {
       if (str == "<empty>") str
-      else if (!isIdentifier(str) || keywordList.contains(str) || str == "=") "`" + str + "`"
+      else if (!isIdentifier(str) || keywordList.contains(str) || str == "=" || str == "=>") "`" + str + "`"
       else str
     }
 
