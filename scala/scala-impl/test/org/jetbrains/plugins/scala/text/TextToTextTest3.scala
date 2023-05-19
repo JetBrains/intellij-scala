@@ -18,7 +18,6 @@ class TextToTextTest3 extends TextToTextTestBase {
       Seq(
         "akka.actor.dungeon.Children", // Any
         "akka.dispatch.CachingConfig", // java.util.Map$.Entry
-        "akka.dispatch.Dispatchers", // No annotation on primary constructor
         "akka.dispatch.ExecutorServiceDelegate", // Cannot resolve
         "akka.event.Logging", // .type.type
         "akka.http.impl.engine.parsing.SpecializedHeaderValueParsers", // ContentLengthParser is Any
@@ -28,7 +27,6 @@ class TextToTextTest3 extends TextToTextTestBase {
         "akka.http.impl.model.parser.ContentDispositionHeader", // Any
         "akka.http.impl.model.parser.SimpleHeaders", // .Out
         "akka.http.impl.util.JavaMapping", // Cannot resolve S, J
-        "akka.http.scaladsl.HttpExt", // No annotation on primary constructor
         "akka.http.scaladsl.server.Directive", // By-name function type parameter
         "akka.http.scaladsl.server.RequestContextImpl", // Extra default arguments
         "akka.http.scaladsl.server.directives.BasicDirectives",
@@ -36,18 +34,14 @@ class TextToTextTest3 extends TextToTextTestBase {
         "akka.io.TcpListener", // Cannot resolve Matchable
         "akka.io.UdpListener", // Cannot resolve Matchable
         "akka.macros.LogHelperMacro", // Mo inline modifier
-        "akka.pattern.BackoffSupervisor", // No annotation on primary constructor
-        "akka.stream.ActorMaterializerSettings", // No annotation on primary constructor
         "akka.stream.Supervision", // Excessive parentheses in compound type
         "akka.stream.impl.ConstantFun", // scala.None without .type
         "akka.stream.javadsl.FlowWithContext", // GraphDelegate is Any
         "akka.stream.javadsl.SourceWithContext", // GraphDelegate is Any
-        "akka.stream.javadsl.Tcp", // No annotation on primary constructor
         "akka.stream.scaladsl.FlowWithContext", // GraphDelegate is Any
         "akka.stream.scaladsl.MergeHub", // Cannot resolve Event
         "akka.stream.scaladsl.SourceWithContext", // SourceShape is Any
-        "akka.stream.scaladsl.Tcp", // No annotation on primary constructor
-        "akka.stream.stage.GraphStageLogic", // No annotation on primary constructor
+        "akka.stream.stage.GraphStageLogic", // Excessive parentheses in function type
       )
     ),
 
