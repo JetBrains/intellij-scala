@@ -12,99 +12,64 @@ object Main {
 
   private val Home: String = System.getProperty("user.home")
 
-  private val Repository = Home + "/.cache/coursier/v1/https/repo1.maven.org/maven2/"
+  private val Repository = Home + "/.ivy2/cache/"
   private val OutputDir = Home + "/IdeaProjects/scala-plugin-for-ultimate/community/scala/tasty-reader/target/comparison"
 
-  // scalaVersion := "3.2.2",
-
-  // libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.2.2",
-
-  // libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14",
-
-  // libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.17.0",
-
-  // libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.14",
-
-  // libraryDependencies += "dev.zio" %% "zio" % "2.0.2",
-  // libraryDependencies += "dev.zio" %% "zio-streams" % "2.0.2",
-
-  // libraryDependencies += "org.typelevel" %% "cats-core" % "2.8.0",
-  // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.14",
-  // libraryDependencies += "org.typelevel" %% "cats-free" % "2.8.0",
-  // libraryDependencies += "org.typelevel" %% "cats-laws" % "2.8.0",
-
-  // libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.3.7",
-  // libraryDependencies += "org.scalaz" %% "scalaz-effect" % "7.3.7",
-
-  // libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.7.0",
-  // libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % "2.7.0",
-  // libraryDependencies += "com.typesafe.akka" %% "akka-cluster" % "2.7.0",
-  // libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.5.0",
-  // libraryDependencies += "com.typesafe.akka" %% "akka-http-core" % "10.5.0",
-  // libraryDependencies += "com.typesafe.akka" %% "akka-persistence" % "2.7.0",
-
-  // libraryDependencies += "co.fs2" %% "fs2-core" % "3.6.1",
-
-  // libraryDependencies += "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
-
-  // libraryDependencies += "io.getquill" %% "quill-sql" % "4.6.0",
-  // libraryDependencies += "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
-
   private val Libraries = Seq(
-    "org/scala-lang/scala3-library_3/3.2.2/scala3-library_3-3.2.2.jar",
-    "org/scala-lang/scala3-compiler_3/3.2.2/scala3-compiler_3-3.2.2.jar",
+    "org.scala-lang/scala3-library_3/jars/scala3-library_3-3.2.2.jar",
+    "org.scala-lang/scala3-compiler_3/jars/scala3-compiler_3-3.2.2.jar",
 
-    "org/scalatest/scalatest-core_3/3.2.14/scalatest-core_3-3.2.14.jar",
-    "org/scalatest/scalatest-diagrams_3/3.2.14/scalatest-diagrams_3-3.2.14.jar",
-    "org/scalatest/scalatest-featurespec_3/3.2.14/scalatest-featurespec_3-3.2.14.jar",
-    "org/scalatest/scalatest-flatspec_3/3.2.14/scalatest-flatspec_3-3.2.14.jar",
-    "org/scalatest/scalatest-freespec_3/3.2.14/scalatest-freespec_3-3.2.14.jar",
-    "org/scalatest/scalatest-funspec_3/3.2.14/scalatest-funspec_3-3.2.14.jar",
-    "org/scalatest/scalatest-funsuite_3/3.2.14/scalatest-funsuite_3-3.2.14.jar",
-    "org/scalatest/scalatest-matchers-core_3/3.2.14/scalatest-matchers-core_3-3.2.14.jar",
-    "org/scalatest/scalatest-mustmatchers_3/3.2.14/scalatest-mustmatchers_3-3.2.14.jar",
-    "org/scalatest/scalatest-propspec_3/3.2.14/scalatest-propspec_3-3.2.14.jar",
-    "org/scalatest/scalatest-refspec_3/3.2.14/scalatest-refspec_3-3.2.14.jar",
-    "org/scalatest/scalatest-shouldmatchers_3/3.2.14/scalatest-shouldmatchers_3-3.2.14.jar",
-    "org/scalatest/scalatest-wordspec_3/3.2.14/scalatest-wordspec_3-3.2.14.jar",
+    "org.scalatest/scalatest-core_3/bundles/scalatest-core_3-3.2.14.jar",
+    "org.scalatest/scalatest-diagrams_3/bundles/scalatest-diagrams_3-3.2.14.jar",
+    "org.scalatest/scalatest-featurespec_3/bundles/scalatest-featurespec_3-3.2.14.jar",
+    "org.scalatest/scalatest-flatspec_3/bundles/scalatest-flatspec_3-3.2.14.jar",
+    "org.scalatest/scalatest-freespec_3/bundles/scalatest-freespec_3-3.2.14.jar",
+    "org.scalatest/scalatest-funspec_3/bundles/scalatest-funspec_3-3.2.14.jar",
+    "org.scalatest/scalatest-funsuite_3/bundles/scalatest-funsuite_3-3.2.14.jar",
+    "org.scalatest/scalatest-matchers-core_3/bundles/scalatest-matchers-core_3-3.2.14.jar",
+    "org.scalatest/scalatest-mustmatchers_3/bundles/scalatest-mustmatchers_3-3.2.14.jar",
+    "org.scalatest/scalatest-propspec_3/bundles/scalatest-propspec_3-3.2.14.jar",
+    "org.scalatest/scalatest-refspec_3/bundles/scalatest-refspec_3-3.2.14.jar",
+    "org.scalatest/scalatest-shouldmatchers_3/bundles/scalatest-shouldmatchers_3-3.2.14.jar",
+    "org.scalatest/scalatest-wordspec_3/bundles/scalatest-wordspec_3-3.2.14.jar",
 
-    "org/scalactic/scalactic_3/3.2.14/scalactic_3-3.2.14.jar",
+    "org.scalactic/scalactic_3/jars/scalactic_3-3.2.14.jar",
 
-    "org/scalacheck/scalacheck_3/1.17.0/scalacheck_3-1.17.0.jar",
+    "org.scalacheck/scalacheck_3/jars/scalacheck_3-1.17.0.jar",
 
-    "dev/zio/zio_3/2.0.2/zio_3-2.0.2.jar",
-    "dev/zio/zio-streams_3/2.0.2/zio-streams_3-2.0.2.jar",
+    "dev.zio/zio_3/jars/zio_3-2.0.2.jar",
+    "dev.zio/zio-streams_3/jars/zio-streams_3-2.0.2.jar",
 
-    "org/typelevel/cats-core_3/2.8.0/cats-core_3-2.8.0.jar",
-    "org/typelevel/cats-effect_3/3.3.14/cats-effect_3-3.3.14.jar",
-    "org/typelevel/cats-effect-kernel_3/3.3.14/cats-effect-kernel_3-3.3.14.jar",
-    "org/typelevel/cats-effect-std_3/3.3.14/cats-effect-std_3-3.3.14.jar",
-    "org/typelevel/cats-free_3/2.8.0/cats-free_3-2.8.0.jar",
-    "org/typelevel/cats-kernel_3/2.8.0/cats-kernel_3-2.8.0.jar",
-    "org/typelevel/cats-kernel-laws_3/2.8.0/cats-kernel-laws_3-2.8.0.jar",
-    "org/typelevel/cats-laws_3/2.8.0/cats-laws_3-2.8.0.jar",
+    "org.typelevel/cats-core_3/jars/cats-core_3-2.8.0.jar",
+    "org.typelevel/cats-effect_3/jars/cats-effect_3-3.3.14.jar",
+    "org.typelevel/cats-effect-kernel_3/jars/cats-effect-kernel_3-3.3.14.jar",
+    "org.typelevel/cats-effect-std_3/jars/cats-effect-std_3-3.3.14.jar",
+    "org.typelevel/cats-free_3/jars/cats-free_3-2.8.0.jar",
+    "org.typelevel/cats-kernel_3/jars/cats-kernel_3-2.8.0.jar",
+    "org.typelevel/cats-kernel-laws_3/jars/cats-kernel-laws_3-2.8.0.jar",
+    "org.typelevel/cats-laws_3/jars/cats-laws_3-2.8.0.jar",
 
-    "org/scalaz/scalaz-core_3/7.3.7/scalaz-core_3-7.3.7.jar",
-    "org/scalaz/scalaz-effect_3/7.3.7/scalaz-effect_3-7.3.7.jar",
+    "org.scalaz/scalaz-core_3/jars/scalaz-core_3-7.3.7.jar",
+    "org.scalaz/scalaz-effect_3/jars/scalaz-effect_3-7.3.7.jar",
 
-    "com/typesafe/akka/akka-actor_3/2.7.0/akka-actor_3-2.7.0.jar",
-    "com/typesafe/akka/akka-actor-typed_3/2.7.0/akka-actor-typed_3-2.7.0.jar",
-    "com/typesafe/akka/akka-coordination_3/2.7.0/akka-coordination_3-2.7.0.jar",
-    "com/typesafe/akka/akka-cluster_3/2.7.0/akka-cluster_3-2.7.0.jar",
-    "com/typesafe/akka/akka-http_3/10.5.0/akka-http_3-10.5.0.jar",
-    "com/typesafe/akka/akka-http-core_3/10.5.0/akka-http-core_3-10.5.0.jar",
-    "com/typesafe/akka/akka-persistence_3/2.7.0/akka-persistence_3-2.7.0.jar",
-    "com/typesafe/akka/akka-parsing_3/10.5.0/akka-parsing_3-10.5.0.jar",
-    "com/typesafe/akka/akka-remote_3/2.7.0/akka-remote_3-2.7.0.jar",
-    "com/typesafe/akka/akka-stream_3/2.7.0/akka-stream_3-2.7.0.jar",
+    "com.typesafe.akka/akka-actor_3/jars/akka-actor_3-2.7.0.jar",
+    "com.typesafe.akka/akka-actor-typed_3/jars/akka-actor-typed_3-2.7.0.jar",
+    "com.typesafe.akka/akka-coordination_3/jars/akka-coordination_3-2.7.0.jar",
+    "com.typesafe.akka/akka-cluster_3/jars/akka-cluster_3-2.7.0.jar",
+    "com.typesafe.akka/akka-http_3/jars/akka-http_3-10.5.0.jar",
+    "com.typesafe.akka/akka-http-core_3/jars/akka-http-core_3-10.5.0.jar",
+    "com.typesafe.akka/akka-persistence_3/jars/akka-persistence_3-2.7.0.jar",
+    "com.typesafe.akka/akka-parsing_3/jars/akka-parsing_3-10.5.0.jar",
+    "com.typesafe.akka/akka-remote_3/jars/akka-remote_3-2.7.0.jar",
+    "com.typesafe.akka/akka-stream_3/jars/akka-stream_3-2.7.0.jar",
 
-    "co/fs2/fs2-core_3/3.6.1/fs2-core_3-3.6.1.jar",
+    "co.fs2/fs2-core_3/jars/fs2-core_3-3.6.1.jar",
 
-    "io/getquill/quill-sql_3/4.6.0/quill-sql_3-4.6.0.jar",
-    "io/getquill/quill-jdbc-zio_3/4.6.0/quill-jdbc-zio_3-4.6.0.jar",
+    "io.getquill/quill-sql_3/jars/quill-sql_3-4.6.0.jar",
+    "io.getquill/quill-jdbc-zio_3/jars/quill-jdbc-zio_3-4.6.0.jar",
 
-    "org/tpolecat/doobie-core_3/1.0.0-RC1/doobie-core_3-1.0.0-RC1.jar",
-    "org/tpolecat/doobie-free_3/1.0.0-RC1/doobie-free_3-1.0.0-RC1.jar",
+    "org.tpolecat/doobie-core_3/jars/doobie-core_3-1.0.0-RC1.jar",
+    "org.tpolecat/doobie-free_3/jars/doobie-free_3-1.0.0-RC1.jar",
   )
 
   // TODO check for lexer & parser errors and unresolved references
@@ -150,11 +115,11 @@ object Main {
         }
       }
 
-      val sources = binaries.replaceFirst("\\.jar$", "-sources.jar")
+      val sources = Repository + "/" + binaries.replace("/jars/", "/srcs/").replaceFirst("\\.jar$", "-sources.jar")
 
-      if (mode == Mode.Parse) {
+      if (mode == Mode.Parse && new File(sources).exists()) {
         println("Extracting sources:\t" + sources)
-        new JarInputStream(new BufferedInputStream(new FileInputStream(Repository + "/" + sources))).pipe { in =>
+        new JarInputStream(new BufferedInputStream(new FileInputStream(sources))).pipe { in =>
           Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".scala")).foreach { entry =>
             val file = new File(s"$OutputDir/${entry.getName}")
             file.getParentFile.mkdirs()
