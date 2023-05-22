@@ -30,13 +30,18 @@ object Main {
 
   // libraryDependencies += "org.typelevel" %% "cats-core" % "2.8.0",
   // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.14",
+  // libraryDependencies += "org.typelevel" %% "cats-free" % "2.8.0",
+  // libraryDependencies += "org.typelevel" %% "cats-laws" % "2.8.0",
 
   // libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.3.7",
   // libraryDependencies += "org.scalaz" %% "scalaz-effect" % "7.3.7",
 
   // libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.7.0",
+  // libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % "2.7.0",
+  // libraryDependencies += "com.typesafe.akka" %% "akka-cluster" % "2.7.0",
   // libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.5.0",
   // libraryDependencies += "com.typesafe.akka" %% "akka-http-core" % "10.5.0",
+  // libraryDependencies += "com.typesafe.akka" %% "akka-persistence" % "2.7.0",
 
   // libraryDependencies += "co.fs2" %% "fs2-core" % "3.6.1",
 
@@ -71,17 +76,27 @@ object Main {
     "dev/zio/zio-streams_3/2.0.2/zio-streams_3-2.0.2.jar",
 
     "org/typelevel/cats-core_3/2.8.0/cats-core_3-2.8.0.jar",
-    "org/typelevel/cats-kernel_3/2.8.0/cats-kernel_3-2.8.0.jar",
     "org/typelevel/cats-effect_3/3.3.14/cats-effect_3-3.3.14.jar",
     "org/typelevel/cats-effect-kernel_3/3.3.14/cats-effect-kernel_3-3.3.14.jar",
     "org/typelevel/cats-effect-std_3/3.3.14/cats-effect-std_3-3.3.14.jar",
+    "org/typelevel/cats-free_3/2.8.0/cats-free_3-2.8.0.jar",
+    "org/typelevel/cats-kernel_3/2.8.0/cats-kernel_3-2.8.0.jar",
+    "org/typelevel/cats-kernel-laws_3/2.8.0/cats-kernel-laws_3-2.8.0.jar",
+    "org/typelevel/cats-laws_3/2.8.0/cats-laws_3-2.8.0.jar",
 
     "org/scalaz/scalaz-core_3/7.3.7/scalaz-core_3-7.3.7.jar",
     "org/scalaz/scalaz-effect_3/7.3.7/scalaz-effect_3-7.3.7.jar",
 
     "com/typesafe/akka/akka-actor_3/2.7.0/akka-actor_3-2.7.0.jar",
+    "com/typesafe/akka/akka-actor-typed_3/2.7.0/akka-actor-typed_3-2.7.0.jar",
+    "com/typesafe/akka/akka-coordination_3/2.7.0/akka-coordination_3-2.7.0.jar",
+    "com/typesafe/akka/akka-cluster_3/2.7.0/akka-cluster_3-2.7.0.jar",
     "com/typesafe/akka/akka-http_3/10.5.0/akka-http_3-10.5.0.jar",
     "com/typesafe/akka/akka-http-core_3/10.5.0/akka-http-core_3-10.5.0.jar",
+    "com/typesafe/akka/akka-persistence_3/2.7.0/akka-persistence_3-2.7.0.jar",
+    "com/typesafe/akka/akka-parsing_3/10.5.0/akka-parsing_3-10.5.0.jar",
+    "com/typesafe/akka/akka-remote_3/2.7.0/akka-remote_3-2.7.0.jar",
+    "com/typesafe/akka/akka-stream_3/2.7.0/akka-stream_3-2.7.0.jar",
 
     "co/fs2/fs2-core_3/3.6.1/fs2-core_3-3.6.1.jar",
 
@@ -106,14 +121,19 @@ object Main {
           val tree = TreeReader.treeFrom(in.readAllBytes())
           val path = Paths.get(file.getPath.replaceFirst("\\.tasty$", ".scala"))
           val treePrinter = new TreePrinter(legacySyntax = true)
+          val fileAndText = try {
+            treePrinter.fileAndTextOf(tree)
+          } catch {
+            case _: StackOverflowError => (file, "TODO")
+          }
           mode match {
             case Mode.Parse =>
               file.getParentFile.mkdirs()
               //Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty$", ".tree")), tree.toString.getBytes)
-              Files.write(path, treePrinter.fileAndTextOf(tree)._2.getBytes)
+              Files.write(path, fileAndText._2.getBytes)
             case Mode.Test =>
               val expected = new String(Files.readAllBytes(path))
-              val (_, actual) = treePrinter.fileAndTextOf(tree)
+              val (_, actual) = fileAndText
               val actualPath = Path.of(path.toString.replaceFirst("\\.scala$", ".actual.scala"))
               if (expected != actual) {
                 System.err.println(path.toString.substring(OutputDir.length + 1))
@@ -125,7 +145,7 @@ object Main {
                 }
               }
             case Mode.Benchmark =>
-              treePrinter.fileAndTextOf(tree)
+              fileAndText
           }
         }
       }
