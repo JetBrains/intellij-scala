@@ -69,6 +69,12 @@ object Main {
     "com.typesafe.akka/akka-remote_2.13/jars/akka-remote_2.13-2.7.0.jar",
     "com.typesafe.akka/akka-stream_2.13/jars/akka-stream_2.13-2.7.0.jar",
 
+    "com.typesafe.play/play_2.13/jars/play_2.13-2.9.0-M4.jar",
+    "com.typesafe.play/play-configuration_2.13/jars/play-configuration_2.13-2.9.0-M4.jar",
+    "com.typesafe.play/play-functional_2.13/jars/play-functional_2.13-2.10.0-RC7.jar",
+    "com.typesafe.play/play-json_2.13/jars/play-json_2.13-2.10.0-RC7.jar",
+    "com.typesafe.play/play-streams_2.13/jars/play-streams_2.13-2.9.0-M4.jar",
+
     "co.fs2/fs2-core_2.13/jars/fs2-core_2.13-3.6.1.jar",
 
     "io.getquill/quill-sql_2.13/jars/quill-sql_2.13-4.6.0.jar",
