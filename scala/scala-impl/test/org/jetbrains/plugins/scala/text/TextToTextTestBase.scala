@@ -2,35 +2,30 @@ package org.jetbrains.plugins.scala.text
 
 import com.intellij.psi.PsiPackage
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.base.libraryLoaders.IvyManagedLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, ScalaReflectLibraryLoader}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
-import org.jetbrains.plugins.scala.text.TextToTextTestBase.Library
 import org.junit.Assert
 
 // SCL-21078
-abstract class TextToTextTestBase extends ScalaFixtureTestCase {
-  protected def isScala3: Boolean
+abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
+                                  packages: Seq[String], packageExceptions: Set[String], minClassCount: Int,
+                                  classExceptions: Set[String],
+                                  includeScalaReflect: Boolean = false,
+                                  includeScalaCompiler: Boolean = false)(implicit scalaVersion: ScalaVersion) extends ScalaFixtureTestCase {
 
-  protected def libraries: Seq[Library]
+  override protected val includeCompilerAsLibrary = includeScalaCompiler
 
-  private def libraries0: Seq[Library] = libraries.find(_.exclusively).fold(libraries)(Seq(_))
-
-  private val dependencies = libraries0.flatMap(_.dependencies)
-  private val packages = libraries0.flatMap(_.packages)
-  private val packageExceptions = libraries0.flatMap(_.packageExceptions).toSet
-  private val minClassCount = libraries0.map(_.minClassCount).sum
-  private val classExceptions = libraries0.flatMap(_.classExceptions).toSet
-
-  override protected def supportedIn(version: ScalaVersion) =
-    version >= (if (isScala3) LatestScalaVersions.Scala_3 else LatestScalaVersions.Scala_2_13)
+  override protected def supportedIn(version: ScalaVersion) = version >= scalaVersion
 
   override def librariesLoaders =
-    super.librariesLoaders :+ IvyManagedLoader(dependencies.map(_.transitive()): _*)
+    super.librariesLoaders :+
+      IvyManagedLoader(dependencies.map(_.transitive()): _*) :++
+      (if (includeScalaReflect) Seq(ScalaReflectLibraryLoader) else Seq.empty)
 
   def testTextToText(): Unit = {
     try {
@@ -49,7 +44,7 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
     val classes = packages
       .map(name => manager.getCachedPackage(name).getOrElse(throw new AssertionError(name)))
       .flatMap(pkg => classesIn(pkg, packageExceptions))
-      .filter(cls => if (isScala3) cls.isInScala3File else !cls.isInScala3File)
+      .filter(cls => if (scalaVersion.isScala3) cls.isInScala3File else !cls.isInScala3File)
 
     val total = classes.length
 
@@ -105,7 +100,7 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
 
     sb ++= "package " + cls.qualifiedName.substring(0, cls.qualifiedName.lastIndexOf('.')) + "\n"
 
-    val printer = new ClassPrinter(isScala3)
+    val printer = new ClassPrinter(scalaVersion.isScala3)
 
     if (invert) {
       cls.baseCompanion.foreach(printer.printTo(sb, _))
@@ -119,11 +114,4 @@ abstract class TextToTextTestBase extends ScalaFixtureTestCase {
 
     sb.toString
   }
-}
-
-object TextToTextTestBase {
-  case class Library(dependencies: Seq[DependencyDescription],
-                     packages: Seq[String], packageExceptions: Seq[String], minClassCount: Int,
-                     classExceptions: Seq[String],
-                     exclusively: Boolean = false)
 }
