@@ -39,10 +39,12 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
   override def getUrlFor(element: PsiElement, originalElement: PsiElement): java.util.List[String] = null
 
   override def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String =
-    ScalaDocQuickInfoGenerator.getQuickNavigateInfo(element, originalElement)
+    if (!isInScalaFile(element)) null
+    else ScalaDocQuickInfoGenerator.getQuickNavigateInfo(element, originalElement)
 
   override def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement =
-    JavaDocUtil.findReferenceTarget(psiManager, link, context) match {
+    if (!isInScalaFile(context)) null
+    else JavaDocUtil.findReferenceTarget(psiManager, link, context) match {
       case null                        => findScalaReferenceTarget(psiManager, link, context).orNull
       case PsiClassWrapper(definition) => definition
       case other                       => other
@@ -59,10 +61,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
   }
 
   override def generateDoc(element: PsiElement, @Nullable originalElement: PsiElement): String = {
-    val containingFile = element.getContainingFile
-
-    if (!containingFile.isInstanceOf[ScalaFile]) {
-      if (element.isInstanceOf[ScalaPsiElement])
+    if (!isInScalaFile(originalElement)) {
+      if (element.is[ScalaPsiElement])
         debugMessage("Asked to build doc for a scala element, but it is in non scala file (1)", element)
 
       return null
@@ -133,6 +133,9 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 }
 
 object ScalaDocumentationProvider {
+
+  private def isInScalaFile(element: PsiElement): Boolean =
+    element != null && element.getContainingFile.is[ScalaFile]
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider")
 
