@@ -3,19 +3,21 @@ package org.jetbrains.plugins.scala.lang.completion.handlers
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
-import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiFile}
+import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement, PsiFile}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.InsertionContextExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createReferenceExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil.{getMembersToImplement, runAction}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
+private[completion]
 final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => String) => String,
                                           hasSubstitutionProblem: Boolean,
                                           isInterface: Boolean,
@@ -45,18 +47,22 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
           context.scheduleAutoPopup()
         }
       case clazz: PsiClass =>
-        var hasNonEmptyParams = false
+        var needsEmptyParens = false
         clazz match {
           case c: ScClass =>
             c.constructor match {
-              case Some(constr) if constr.parameters.nonEmpty => hasNonEmptyParams = true
+              case Some(constr)
+                if constr.parameters.nonEmpty ||
+                  // TODO: do not insert empty parentheses in Scala 3 after `new` keyword?
+                  c.isInScala3File =>
+                needsEmptyParens = true
               case _ =>
             }
-            c.secondaryConstructors.foreach(fun => if (fun.parameters.nonEmpty) hasNonEmptyParams = true)
+            c.secondaryConstructors.foreach(fun => if (fun.parameters.nonEmpty) needsEmptyParens = true)
           case _ =>
-            clazz.getConstructors.foreach(meth => if (meth.getParameterList.getParametersCount > 0) hasNonEmptyParams = true)
+            clazz.getConstructors.foreach(meth => if (meth.getParameterList.getParametersCount > 0) needsEmptyParens = true)
         }
-        if (context.getCompletionChar == '(') hasNonEmptyParams = true
+        if (context.getCompletionChar == '(') needsEmptyParens = true
         if (hasSubstitutionProblem) {
           document.insertString(endOffset, "[]")
           endOffset += 2
@@ -67,7 +73,7 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
           endOffset += text.length
           model.moveToOffset(endOffset)
         }
-        if (hasNonEmptyParams) {
+        if (needsEmptyParens) {
           document.insertString(endOffset, "()")
           endOffset += 2
           if (!hasSubstitutionProblem)
@@ -87,15 +93,20 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
         }
         PsiDocumentManager.getInstance(project).commitDocument(document)
 
-        onDefinition(file, endOffset - 1) {
-          newTemplateDefinition =>
-            newTemplateDefinition.extendsBlock.templateParents.toSeq.flatMap(_.typeElements) match {
-              case Seq(ScSimpleTypeElement.unwrapped(reference)) if !isRenamed =>
-                simplifyReference(clazz, reference).bindToElement(clazz)
-              case _ =>
-            }
+        onDefinitionOrMethodCall(file, endOffset - 1) { newTemplateDefinition =>
+          newTemplateDefinition.extendsBlock.templateParents.toSeq.flatMap(_.typeElements) match {
+            case Seq(ScSimpleTypeElement.unwrapped(reference)) if !isRenamed =>
+              simplifyReference(clazz, reference).bindToElement(clazz)
+            case _ =>
+          }
 
-            ScalaPsiUtil.adjustTypes(newTemplateDefinition)
+          ScalaPsiUtil.adjustTypes(newTemplateDefinition)
+        } { ref =>
+          if (context.getFile.isScala3File && isPrefixCompletion && !isRenamed) {
+            simplifyReference(clazz, ref).bindToElement(clazz)
+
+            ScalaPsiUtil.adjustTypes(ref)
+          }
         }
 
         if (isInterface && !hasSubstitutionProblem) {
@@ -117,8 +128,15 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
     }
   }
 
-  private def simplifyReference(`class`: PsiClass,
-                                reference: ScStableCodeReference): ScStableCodeReference =
+  private def simplifyReference(`class`: PsiClass, reference: ScStableCodeReference): ScStableCodeReference =
+    doSimplifyReference(`class`, reference, createReferenceFromText(_)(`class`))
+
+  private def simplifyReference(`class`: PsiClass, reference: ScReferenceExpression): ScReferenceExpression =
+    doSimplifyReference(`class`, reference, createReferenceExpressionFromText(_)(`class`))
+
+  private def doSimplifyReference[Ref <: ScReference](`class`: PsiClass,
+                                                      reference: Ref,
+                                                      createRef: String => Ref): Ref =
     if (isPrefixCompletion) {
       // TODO unify with ScalaLookupItem
       val name = `class`.qualifiedName
@@ -126,25 +144,41 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
         .takeRight(2)
         .mkString(".")
 
-      reference.replace {
-        createReferenceFromText(name)(`class`)
-      }.asInstanceOf[ScStableCodeReference]
+      val newRef = createRef(name)
+
+      reference
+        .replace(newRef)
+        .asInstanceOf[Ref]
     } else {
       reference
     }
 
   private def onDefinition(file: PsiFile, offset: Int)
-                          (action: ScNewTemplateDefinition => Unit): Unit = {
-    val element = file.findElementAt(offset) match {
-      case e if e.isWhitespace => e.getPrevNonEmptyLeaf
-      case e => e
-    }
-
-    getParentOfType(element, classOf[ScNewTemplateDefinition]) match {
+                          (action: ScNewTemplateDefinition => Unit): Unit =
+    getParentOfType(findNonWhitespaceElement(file, offset), classOf[ScNewTemplateDefinition]) match {
       case null =>
       case newTemplateDefinition => action(newTemplateDefinition)
     }
-  }
+
+  private def onDefinitionOrMethodCall(file: PsiFile, offset: Int)
+                                      (onDefinition: ScNewTemplateDefinition => Unit)
+                                      (onCall: ScReferenceExpression => Unit): Unit =
+    getParentOfType(findNonWhitespaceElement(file, offset), classOf[ScMethodCall], classOf[ScNewTemplateDefinition]) match {
+      case null =>
+      case definition: ScNewTemplateDefinition => onDefinition(definition)
+      case call: ScMethodCall => call.getInvokedExpr match {
+        case ref: ScReferenceExpression => onCall(ref)
+        case ScGenericCall(ref, _) => onCall(ref)
+        case _ =>
+      }
+    }
+
+  @Nullable
+  private def findNonWhitespaceElement(file: PsiFile, offset: Int): PsiElement =
+    file.findElementAt(offset) match {
+      case e if e.isWhitespace => e.getPrevNonEmptyLeaf
+      case e => e
+    }
 
   private def generateBlock(newTemplateDefinition: ScNewTemplateDefinition): (String, String) = {
     val defaultBlock = (" {", "}")
@@ -156,5 +190,4 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
       defaultBlock
     else (":", "")
   }
-
 }

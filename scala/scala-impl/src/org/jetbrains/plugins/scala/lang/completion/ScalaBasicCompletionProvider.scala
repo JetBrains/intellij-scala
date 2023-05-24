@@ -2,29 +2,31 @@ package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionProvider, CompletionResultSet, InsertionContext}
 import com.intellij.codeInsight.lookup.{InsertHandlerDecorator, LookupElement, LookupElementDecorator}
+import com.intellij.lang.jvm.JvmClassKind
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtOffset, getContextOfType, isAncestor}
+import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtOffset, getContextOfType}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.adjustTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScInterpolated, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScPatterned, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScReferenceExpressionImpl, ScReferenceImpl}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
 
 import scala.annotation.tailrec
@@ -81,7 +83,8 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
         )
 
         import ScalaAfterNewCompletionContributor._
-        val maybeExpectedTypes = expectedTypeAfterNew(position, context)
+        val maybeExpectedTypeAfterNew = expectedTypeAfterNew(position, context)
+        val maybeExpectedTypeInUniversalApply = expectedTypeInUniversalApply(position, context)
 
         val defaultLookupElements = processor.lookupElements().filter {
           case ScalaLookupItem(_, clazz: PsiClass) =>
@@ -90,7 +93,15 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
           case _ => !annotationsOnly
         }.map {
           case ScalaLookupItem(item, clazz: PsiClass) =>
-            maybeExpectedTypes.fold(item: LookupElement) { constructor =>
+            maybeExpectedTypeAfterNew.orElse(
+              maybeExpectedTypeInUniversalApply
+                .filter { _ =>
+                  // Create Universal Apply lookup elements only for non-abstract classes
+                  !clazz.hasAbstractModifier &&
+                    !clazz.isAnnotationType &&
+                    (clazz.is[ScClass] || !clazz.isInstanceOf[ScalaPsiElement] && clazz.getClassKind == JvmClassKind.CLASS)
+                }
+            ).fold(item: LookupElement) { constructor =>
               constructor(clazz).createLookupElement(item.isRenamed)
             }
           case item => item
@@ -116,6 +127,36 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
           && !classNameCompletion
           && (annotationsOnly || shouldRunClassNameCompletion(dummyPosition, prefixMatcher, checkInvocationCount = false)(parameters))) {
           ScalaClassNameCompletionContributor.completeClassName(dummyPosition, result)(parameters, context)
+        }
+
+        ProgressManager.checkCanceled()
+        // add class name completions for Scala 3 Universal Apply
+        reference match {
+          case ref: ScReferenceExpression if ref.isInScala3File && !classNameCompletion && !annotationsOnly =>
+            maybeExpectedTypeInUniversalApply.foreach { constructor =>
+              val processor = new DefaultCompletionProcessor(
+                ref,
+                isInSimpleString,
+                isInInterpolatedString,
+                parameters.getInvocationCount
+              ) {
+                override val kinds: Set[ResolveTargets.Value] = Set(ResolveTargets.CLASS)
+                private val lookupStrings =
+                  mutable.Set(defaultLookupElements.map(_.getLookupString): _*)
+
+                override protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] =
+                  super.validLookupElement(result).collect {
+                    case ScalaLookupItem(item, cls: ScClass)
+                      // do not add annotations, abstract classes or duplicates
+                      if lookupStrings.add(item.getLookupString) &&
+                        !cls.isAnnotationType &&
+                        !cls.hasAbstractModifier =>
+                      constructor(cls).createLookupElement(item.isRenamed)
+                  }
+              }
+              result.addAllElements(processor.lookupElements().asJava)
+            }
+          case _ =>
         }
 
         ProgressManager.checkCanceled()

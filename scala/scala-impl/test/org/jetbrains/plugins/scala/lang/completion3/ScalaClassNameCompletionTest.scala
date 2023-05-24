@@ -16,12 +16,13 @@ abstract class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
   protected def predicate(lookup: LookupElement,
                           qualifiedName: String,
                           companionObject: Boolean = false): Boolean =
-    Option(lookup).collect {
-      case lookup: ScalaLookupItem => lookup
-    }.map(_.getPsiElement).collect {
-      case o: ScObject if companionObject => o
-      case c: ScClass => c
-    }.exists(_.qualifiedName == qualifiedName)
+    Option(lookup)
+      .map(_.getPsiElement)
+      .collect {
+        case o: ScObject if companionObject => o
+        case c: ScClass => c
+      }
+      .exists(_.qualifiedName == qualifiedName)
 
   protected def codeStyleSettings: ScalaCodeStyleSettings =
     ScalaCodeStyleSettings.getInstance(getProject)
@@ -68,6 +69,60 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
          |object Sandbox extends App {
          |  val x: HashSet[Int] = new HashSet[Int]
          |  mutable.HashSet$CARET
+         |}
+      """.stripMargin,
+    invocationCount = 2
+  ) {
+    predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
+  }
+
+  def testExpressionSameNameAfterNew(): Unit = doRawCompletionTest(
+    fileText =
+      s"""
+         |import collection.immutable.HashSet
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  new HashSet$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |import collection.immutable.HashSet
+         |import scala.collection.mutable
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  new mutable.HashSet[$CARET]()
+         |}
+      """.stripMargin,
+    invocationCount = 2
+  ) {
+    predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
+  }
+
+  def testExpressionSameNameAfterNewInsideMethodCall(): Unit = doRawCompletionTest(
+    fileText =
+      s"""
+         |import collection.immutable.HashSet
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  locally {
+         |    new HashSet$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |import collection.immutable.HashSet
+         |import scala.collection.mutable
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  locally {
+         |    new mutable.HashSet[$CARET]()
+         |  }
          |}
       """.stripMargin,
     invocationCount = 2
@@ -240,9 +295,27 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
         |class MyUniversalApplyClass(val ctx: String)
         |
         |object Test:
-        |  val x: MyUniversalApplyClass = MyUniversalApplyClass
+        |  val x: MyUniversalApplyClass = MyUniversalApplyClass()
         |""".stripMargin,
     item = "MyUniversalApplyClass"
+  )
+
+  def testClassNameRenamedWithoutNew(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |import java.util.{ArrayList => BLLLL}
+         |object Test extends App {
+         |  val al: java.util.List[Int] = BL$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |import java.util.{ArrayList => BLLLL}
+         |object Test extends App {
+         |  val al: java.util.List[Int] = BLLLL[Int]($CARET)
+         |}
+      """.stripMargin,
+    item = "BLLLL"
   )
 
   def testDoNotSuggestTraitWithoutNew(): Unit = checkNoBasicCompletion(
@@ -256,6 +329,93 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
          |""".stripMargin,
     item = "MyUniversalApplyTrait"
   )
+
+  override def testExpressionSameName(): Unit = doRawCompletionTest(
+    fileText =
+      s"""
+         |import collection.immutable.HashSet
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  HashSet$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |import collection.immutable.HashSet
+         |import scala.collection.mutable
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  mutable.HashSet[$CARET]()
+         |}
+      """.stripMargin,
+    invocationCount = 2
+  ) {
+    predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
+  }
+
+  def testExpressionSameNameInsideNew(): Unit = doRawCompletionTest(
+    fileText =
+      s"""
+         |import collection.immutable.HashSet
+         |
+         |class Wrapper
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  new Wrapper {
+         |    HashSet$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |import collection.immutable.HashSet
+         |import scala.collection.mutable
+         |
+         |class Wrapper
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  new Wrapper {
+         |    mutable.HashSet[$CARET]()
+         |  }
+         |}
+      """.stripMargin,
+    invocationCount = 2
+  ) {
+    predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
+  }
+
+  def testExpressionSameNameInsideNew2(): Unit = doRawCompletionTest(
+    fileText =
+      s"""
+         |import collection.immutable.HashSet
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  new HashSet[Int] {
+         |    HashSet$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |import collection.immutable.HashSet
+         |import scala.collection.mutable
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  new HashSet[Int] {
+         |    mutable.HashSet[$CARET]()
+         |  }
+         |}
+      """.stripMargin,
+    invocationCount = 2
+  ) {
+    predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
+  }
 }
 
 class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {

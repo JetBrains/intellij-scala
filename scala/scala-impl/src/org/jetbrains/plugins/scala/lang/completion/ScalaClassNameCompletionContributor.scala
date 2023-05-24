@@ -171,7 +171,7 @@ object ScalaClassNameCompletionContributor {
     val invocationCount = parameters.getInvocationCount
     implicit val project: Project = position.getProject
     implicit val state: CompletionState = CompletionState(position, invocationCount, isInSimpleString)(context)
-    val maybeConstructor = expectedTypeAfterNew(dummyPosition, context)
+    val maybeConstructor = expectedTypeAfterNewOrInUniversalApply(dummyPosition, context)
 
     import scala.jdk.CollectionConverters._
 
