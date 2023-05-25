@@ -60,7 +60,6 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
           data.setScalaClasspath(asSerializableJavaSet(scalaCompilerClasspath))
           data.setScalaCompileOptions(compilerOptions.getOrElse(new ScalaCompileOptionsData))
-          data.setTargetCompatibility("1.5")
         }
 
         if (!separateModules) {
@@ -190,6 +189,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
     options.setOptimize(true)
     options.setUnchecked(true)
     options.setAdditionalParameters(additionalOptions.asJava)
+    options.setTargetCompatibility("1.5")
 
     importProjectData(
       generateProject(
