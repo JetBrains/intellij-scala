@@ -55,22 +55,14 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
     classes.zipWithIndex.foreach { case (cls, i) =>
       println(f"$i%04d/$total%s: ${cls.qualifiedName}")
 
+      val actual = textOfCompilationUnit(cls)
+
       val expected = {
         val s1 = cls.getContainingFile.getText
         // TODO Function type by-name parameters, SCL-21149
         val s2 = if (cls.qualifiedName.startsWith("scalaz.")) s1.replace("(=> ", "(").replace(", => ", ", ").replaceAll("\\((\\S+)\\) => ", "$1 => ") else s1
         s2.replaceAll("\\.super\\[.*?\\*/\\]\\.", ".this.")
       }
-
-      val invert = {
-        val iObject = expected.indexOf("object ")
-        val iClass = expected.indexOf("class ")
-        val iTrait = expected.indexOf("trait ")
-        val iType = if (iClass >= 0 && iTrait >= 0) math.min(iClass, iTrait) else math.max(iClass, iTrait)
-        iObject < iType
-      }
-
-      val actual = textOfCompilationUnit(cls, invert)
 
       if (!classExceptions(cls.qualifiedName)) {
         Assert.assertEquals(cls.qualifiedName, expected, actual)
@@ -95,20 +87,14 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
     packageClasses.toSeq ++ subpackageClasses.toSeq
   }
 
-  private def textOfCompilationUnit(cls: ScTypeDefinition, invert: Boolean): String = {
+  private def textOfCompilationUnit(cls: ScTypeDefinition): String = {
     val sb = new StringBuilder()
 
     sb ++= "package " + cls.qualifiedName.substring(0, cls.qualifiedName.lastIndexOf('.')) + "\n"
 
     val printer = new ClassPrinter(scalaVersion.isScala3)
-
-    if (invert) {
-      cls.baseCompanion.foreach(printer.printTo(sb, _))
-      printer.printTo(sb, cls)
-    } else {
-      printer.printTo(sb, cls)
-      cls.baseCompanion.foreach(printer.printTo(sb, _))
-    }
+    printer.printTo(sb, cls)
+    cls.baseCompanion.foreach(printer.printTo(sb, _))
 
     sb.setLength(sb.length - 1)
 
