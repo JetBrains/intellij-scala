@@ -2,6 +2,7 @@ package org.jetbrains.bsp.project.importing
 
 import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, JsonElement}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
@@ -28,8 +29,10 @@ import java.nio.file.Paths
 import java.util.Collections
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
+import scala.util.control.NonFatal
 
 private[importing] object BspResolverLogic {
+  private val Log = Logger.getInstance(this.getClass)
 
   private def extractJdkData(data: JsonElement)(implicit gson: Gson): Option[JvmBuildTarget] =
     Option(gson.fromJson[JvmBuildTarget](data, classOf[JvmBuildTarget]))
@@ -84,7 +87,7 @@ private[importing] object BspResolverLogic {
                                                      sourcesItems: Seq[SourcesItem],
                                                      resourcesItems: Seq[ResourcesItem],
                                                      outputPathsItems: Seq[OutputPathsItem],
-                                                     dependencySourcesItems: Seq[DependencySourcesItem]): ProjectModules = {
+                                                     dependencySourcesItems: Seq[DependencySourcesItem]): ProjectModules = try {
 
     val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
     val idToScalacOptions = scalacOptionsItems.map(item => (item.getTarget, item)).toMap
@@ -193,6 +196,13 @@ private[importing] object BspResolverLogic {
     //This is just in case there are any unexpected duplicated content roots issues.
     //We want normal modules to work properly (see e.g. SCL-19673)
     ProjectModules(ordinaryModules ++ sbtBuildModules, syntheticSourceModules)
+  }
+  catch {
+    case NonFatal(ex) =>
+      //We manually log the exception because stacktrace of exceptions from this place are not displayed anywhere.
+      //Only exception message is shown in the build tool window error node, which makes it not clear wher
+      Log.error(ex)
+      throw ex
   }
 
   private def sharedSourceEntries(
