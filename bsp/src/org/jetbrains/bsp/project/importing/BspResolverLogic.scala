@@ -118,8 +118,8 @@ private[importing] object BspResolverLogic {
       .toMap
 
     // Source roots (reported by BSP) that are not shared with other targets
-    val exclusiveSourceRoots = sourcesItems
-      .flatMap(item => item.getRoots.asScala.map(_ -> item.getTarget))
+    val exclusiveSourceRoots: Set[String] = sourcesItems
+      .flatMap(item => Option(item.getRoots).map(_.asScala.map(_ -> item.getTarget)).getOrElse(Nil))
       .groupBy(_._1).view.mapValues(_.map(_._2).toSet)
       .filter(_._2.size == 1)
       .keys
