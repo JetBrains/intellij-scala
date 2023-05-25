@@ -38,7 +38,7 @@ trait StringLike[+Repr] extends scala.Any with scala.collection.IndexedSeqOptimi
 
   def split(separator: scala.Char): scala.Array[scala.Predef.String] = ???
 
-  @scala.throws[java.util.regex.PatternSyntaxException](classOf[java.util.regex.PatternSyntaxException])
+  @scala.throws[java.util.regex.PatternSyntaxException](scala.Predef.classOf[java.util.regex.PatternSyntaxException])
   def split(separators: scala.Array[scala.Char]): scala.Array[scala.Predef.String] = ???
 
   def r: scala.util.matching.Regex = ???

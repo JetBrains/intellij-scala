@@ -10,9 +10,7 @@ trait Text {
   @Deprecated(since = "since")
   def f3: Int = ???
 
-  @deprecated("""line1
-line2
-""")
+  @deprecated("line1\nline2")
   def f4: Int = ???
 
   @throws[RuntimeException]

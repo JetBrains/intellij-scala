@@ -590,16 +590,15 @@ class ScalaSigPrinter(builder: StringBuilder) {
     else prefix
   }
 
-  // TODO char, float, etc.
   def annotArgText(arg: Any): String = {
     arg match {
       case s: String => quote(s)
       case Name(s: String) => quote(s)
-      case Constant(v) => annotArgText(v)
+      case c @ Constant(v) => Constants.constantExpression(c).getOrElse(annotArgText(v))
       case Ref(v) => annotArgText(v)
       case AnnotArgArray(args) =>
         args.map(ref => annotArgText(ref.get)).mkString("_root_.scala.Array(", ", ", ")")
-      case t: Type => "classOf[%s]" format toString(t)
+      case t: Type => "_root_.scala.Predef.classOf[%s]" format toString(t)
       case null => "null"
       case _ => arg.toString
     }
@@ -840,13 +839,6 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   private object Constants {
-    private def classTypeText(typeRef: TypeRefType): String = {
-      val ref = typeRef.symbol.get.path
-      val args = typeRef.typeArgs
-
-      ref + typeArgString(args, 0)
-    }
-
     def typeText(ct: Constant): String =
       (nonLiteralTypeText orElse
         literalText orElse
@@ -860,7 +852,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case _: Unit                                      => "_root_.scala.Unit"
       case _: Short                                     => "_root_.scala.Short" //there are no literals for shorts and bytes
       case _: Byte                                      => "_root_.scala.Byte"
-      case Ref(typeRef: TypeRefType)                    => s"_root_.java.lang.Class[${classTypeText(typeRef)}]"
+      case Ref(typeRef: TypeRefType)                    => s"_root_.java.lang.Class[${ScalaSigPrinter.this.toString(typeRef)}]"
       case Ref(ExternalSymbol(_, Some(Ref(parent)), _)) => parent.path  //enum type
     }
 
@@ -871,7 +863,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
     private val constantDefinitionExpr: PartialFunction[Any, String] = {
       case Ref(sym: ExternalSymbol)  => sym.path //enum value
-      case Ref(typeRef: TypeRefType) => s"_root_.scala.Predef.classOf[${classTypeText(typeRef)}]" //class literal
+      case Ref(typeRef: TypeRefType) => s"_root_.scala.Predef.classOf[${ScalaSigPrinter.this.toString(typeRef)}]" //class literal
 
       // java numeric constants with special `toString`
       // Double and Float infinities are equal, so we should check type first
