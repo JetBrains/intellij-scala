@@ -48,11 +48,11 @@ object Future {
   private[concurrent] val toBoxed: scala.collection.immutable.Map[java.lang.Class[_], java.lang.Class[_]] = ???
 
   object never extends scala.concurrent.Future[scala.Nothing] {
-    @scala.throws[scala.concurrent.TimeoutException](classOf[scala.concurrent.TimeoutException])
-    @scala.throws[scala.InterruptedException](classOf[scala.InterruptedException])
+    @scala.throws[scala.concurrent.TimeoutException](scala.Predef.classOf[scala.concurrent.TimeoutException])
+    @scala.throws[scala.InterruptedException](scala.Predef.classOf[scala.InterruptedException])
     override def ready(atMost: scala.concurrent.duration.Duration)(implicit permit: scala.concurrent.CanAwait): never.this.type = ???
 
-    @scala.throws[scala.Exception](classOf[scala.Exception])
+    @scala.throws[scala.Exception](scala.Predef.classOf[scala.Exception])
     override def result(atMost: scala.concurrent.duration.Duration)(implicit permit: scala.concurrent.CanAwait): scala.Nothing = ???
 
     override def onComplete[U](f: scala.util.Try[scala.Nothing] => U)(implicit executor: scala.concurrent.ExecutionContext): scala.Unit = ???

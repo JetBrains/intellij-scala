@@ -17,7 +17,7 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.Insert", // No parentheses for repeated function type
     "io.getquill.MirrorColumnResolving", // Given
     "io.getquill.MirrorContextBase", // Inline parameter
-    "io.getquill.OuterSelectWrap", // Enum
+    "io.getquill.OuterSelectWrap", // Given
     "io.getquill.SqlInfixInterpolator", // Top-level definitions
     "io.getquill.ToDynamicAction", // Top-level definitions
     "io.getquill.ToDynamicActionReturning", // Top-level definitions
@@ -29,26 +29,23 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.ast.EqualityOperator", // No case object _==
     "io.getquill.dsl.MetaDsl", // No parentheses for repeated function type
     "io.getquill.dsl.QueryDsl", // No parentheses for repeated function type
-    "io.getquill.context.BatchActionType", // Enum
     "io.getquill.context.BatchStatic", // Extension, non-canonical | type
     "io.getquill.context.Context", // Extension
     "io.getquill.context.ContextTranslateMacro", // Inline parameter
     "io.getquill.context.ContextVerbPrepare", // Inline parameter
     "io.getquill.context.ContextVerbStream", // Inline parameter
     "io.getquill.context.DatasourceContextInjectionMacro", // Inline parameter
-    "io.getquill.context.Execution", // Enum, given
-    "io.getquill.context.InsertUpdateMacro", // Enum
+    "io.getquill.context.Execution", // Given
+    "io.getquill.context.InsertUpdateMacro", // Given, non-canonical | type
     "io.getquill.context.LiftMacro", // Function1
-    "io.getquill.context.Particularize", // Enum, extension, given
-    "io.getquill.context.PrepareDynamicExecution", // Enum
+    "io.getquill.context.Particularize", // Extension, given
     "io.getquill.context.QueryExecution", // Inline parameter
-    "io.getquill.context.QueryExecutionBatch", // Enum, non-canonical & type
+    "io.getquill.context.QueryExecutionBatch", // Inline parameter, non-canonical & type
     "io.getquill.context.QueryExecutionBatchDynamic", // Extension, non-canonical & type
-    "io.getquill.context.QueryExecutionBatchModel", // Enum, given, non-canonical | type
+    "io.getquill.context.QueryExecutionBatchModel", // Given, non-canonical | type
     "io.getquill.context.QuerySingleAsQuery", // Inline parameter
     "io.getquill.context.ReflectivePathChainLookup", // Inline parameter
     "io.getquill.context.StaticSpliceMacro", // Cannot resolve reference
-    "io.getquill.context.StaticTranslationMacro", // Enum
     "io.getquill.context.jdbc.Decoders", // Decoders.this vs JdbcContextTypes.this
     "io.getquill.context.jdbc.Encoders", // Encoders.this vs JdbcContextTypes.this
     "io.getquill.context.jdbc.JdbcContext", // Inline parameter
@@ -58,8 +55,7 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.generic.ConstructDecoded", // No AnyKind upper type bound
     "io.getquill.generic.ConstructType", // No AnyKind upper type bound
     "io.getquill.generic.DeconstructElaboratedEntityLevels", // No AnyKind upper type bound
-    "io.getquill.generic.ElaborateStructure", // Enum, extension
-    "io.getquill.generic.ElaborationSide", // Enum
+    "io.getquill.generic.ElaborateStructure", // No AnyKind upper type bound, extension
     "io.getquill.generic.GenericDecoder", // No AnyKind upper type bound
     "io.getquill.generic.TupleMember", // Inline parameter
     "io.getquill.jdbczio.QuillBaseContext", // Inline parameter

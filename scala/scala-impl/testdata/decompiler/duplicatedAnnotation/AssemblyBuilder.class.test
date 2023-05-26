@@ -5,10 +5,10 @@ class AssemblyBuilder(name: ch.epfl.lamp.compiler.msil.AssemblyName) extends ch.
 
   def GetDynamicModule(name: scala.Predef.String): ch.epfl.lamp.compiler.msil.emit.ModuleBuilder = ???
 
-  @scala.throws[T](classOf[java.io.IOException])
+  @scala.throws[T](scala.Predef.classOf[java.io.IOException])
   def Save(fileName: scala.Predef.String): scala.Unit = ???
 
-  @scala.throws[T](classOf[java.io.IOException])
+  @scala.throws[T](scala.Predef.classOf[java.io.IOException])
   def Save(destPath: scala.Predef.String, sourceFilesPath: scala.Predef.String): scala.Unit = ???
 
   def GetGeneratedFiles(): scala.Array[scala.Predef.String] = ???
@@ -27,6 +27,6 @@ class AssemblyBuilder(name: ch.epfl.lamp.compiler.msil.AssemblyName) extends ch.
 
   var generatedFiles: scala.collection.mutable.ArrayBuffer[scala.Predef.String] = ???
 
-  @scala.throws[T](classOf[java.io.IOException])
+  @scala.throws[T](scala.Predef.classOf[java.io.IOException])
   def apply(v: ch.epfl.lamp.compiler.msil.emit.Visitor): scala.Unit = ???
 }

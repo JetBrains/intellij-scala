@@ -4,9 +4,9 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
@@ -24,7 +24,8 @@ private class ClassPrinter(isScala3: Boolean) {
       case _: ScTrait => "trait"
       case _: ScClass => "class"
       case _: ScObject => "object"
-      case _ => "TODO"
+      case _: ScEnum => "enum"
+      case _ => ""
     }
 
     val name = cls.name
@@ -43,6 +44,14 @@ private class ClassPrinter(isScala3: Boolean) {
     sb ++= annotations + "\n" + indent + modifiers + keyword + " " + name + tps + ps + parents + " {" + selfType
 
     val previousLength = sb.length
+
+    cls match {
+      case e: ScEnum =>
+        e.cases.foreach { c =>
+          sb ++= textOf(c, indent)
+        }
+      case _ =>
+    }
 
     cls.extendsBlock.members.foreach {
       case f: ScFunction =>
@@ -78,6 +87,12 @@ private class ClassPrinter(isScala3: Boolean) {
       (if (modifiers.isEmpty) "" else " " + modifiers) +
       (if (annotations.nonEmpty && modifiers.isEmpty) " " else "") +
       (if ((annotations.nonEmpty || modifiers.nonEmpty) && clauses.isEmpty) "()" else clauses)
+  }
+
+  private def textOf(c: ScEnumCase, indent: String): String = {
+    val tps = if (c.typeParameters.isEmpty) "" else c.typeParameters.map(textOf).mkString("[", ", ", "]")
+    val ps = c.constructors.filterByType[ScPrimaryConstructor].map(textOf).mkString
+    "\n" + indent + "  " + "case " + c.name + tps + ps + "\n"
   }
 
   private def textOf(f: ScFunction, indent: String): String = {

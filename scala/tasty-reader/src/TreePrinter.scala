@@ -113,10 +113,16 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
                 delimiterRequired = delimiterRequired || sb.length > previousLength
               }
             case _ =>
-              children.foreach { child =>
-                val previousLength = sb.length
-                textOfMember(sb, indent, child, if (containsPackageObject) Some(node) else None, if (delimiterRequired) "\n\n" else "")
-                delimiterRequired = delimiterRequired || sb.length > previousLength
+              children match {
+                case Seq(Node2(VALDEF, Seq(name1)), cobj @ Node3(TYPEDEF, Seq(name2), _), ctpe @ Node3(TYPEDEF, Seq(name3), _)) if name2 == name1 + "$" && name3 == name1 =>
+                  textOfMember(sb, indent, ctpe, if (containsPackageObject) Some(node) else None, "")
+                  textOfMember(sb, indent, cobj, if (containsPackageObject) Some(node) else None, "\n\n")
+                case _ =>
+                  children.foreach { child =>
+                    val previousLength = sb.length
+                    textOfMember(sb, indent, child, if (containsPackageObject) Some(node) else None, if (delimiterRequired) "\n\n" else "")
+                    delimiterRequired = delimiterRequired || sb.length > previousLength
+                  }
               }
           }
       }
@@ -566,10 +572,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     case FLOATconst => s"${intBitsToFloat(node.value.toInt)}F"
     case DOUBLEconst => s"${longBitsToDouble(node.value)}D"
     case CHARconst => "'" + node.value.toChar + "'"
-    case STRINGconst =>
-      val s = node.name
-      val quote = if (s.contains("\n")) "\"\"\"" else "\""
-      quote + s.replace("\r\n", "\n") + quote
+    case STRINGconst => "\"" + node.name.replace("\n", "\\n") + "\""
     case NULLconst => "null"
     case _ => ""
   }
