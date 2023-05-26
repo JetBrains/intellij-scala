@@ -109,8 +109,8 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
         !isEmpty(options.getEncoding) -> s"-encoding",
         // the encoding value needs to be a separate option, otherwise the -encoding flag and the value will be
         // treated as a single flag
-        !isEmpty(options.getEncoding) -> options.getEncoding,
-        !isEmpty(data.getTargetCompatibility) -> s"-target:jvm-${data.getTargetCompatibility}")
+        !isEmpty(options.getEncoding) -> options.getEncoding
+      )
 
       val additionalOptions =
         if (options.getAdditionalParameters != null) options.getAdditionalParameters.asScala else Seq.empty
