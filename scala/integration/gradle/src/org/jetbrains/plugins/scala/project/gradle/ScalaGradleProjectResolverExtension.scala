@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.project.gradle
 
-import java.util
-import java.util.Collections
-
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.util.{ExternalSystemConstants, Order}
@@ -11,12 +8,13 @@ import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaMo
 import org.jetbrains.plugins.gradle.model.scala.{ScalaCompileOptions, ScalaForkOptions, ScalaModel}
 import org.jetbrains.plugins.gradle.service.project.AbstractProjectResolverExtension
 import org.jetbrains.plugins.gradle.util.GradleConstants
-import org.jetbrains.plugins.scala.project.gradle.ScalaGradleProjectResolverExtension._
 
+import java.util
+import java.util.Collections
 import scala.annotation.nowarn
 
 @Order(ExternalSystemConstants.UNORDERED)
-class ScalaGradleProjectResolverExtension extends AbstractProjectResolverExtension {
+final class ScalaGradleProjectResolverExtension extends AbstractProjectResolverExtension {
   override def populateModuleExtraModels(gradleModule: IdeaModule, ideModule: DataNode[ModuleData]): Unit = {
     Option(resolverCtx.getExtraProject(gradleModule, classOf[ScalaModel])).foreach { scalaModel =>
       ideModule.createChild(ScalaModelData.KEY, dataOf(scalaModel))
@@ -25,10 +23,7 @@ class ScalaGradleProjectResolverExtension extends AbstractProjectResolverExtensi
   }
 
   override def getExtraProjectModelClasses: util.Set[Class[_]] = Collections.singleton(classOf[ScalaModel])
-}
 
-@Order(ExternalSystemConstants.UNORDERED)
-private object ScalaGradleProjectResolverExtension {
   private def dataOf(model: ScalaModel): ScalaModelData = {
     val data = new ScalaModelData(GradleConstants.SYSTEM_ID);
     data.setZincClasspath(model.getZincClasspath)
