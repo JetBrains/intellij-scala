@@ -60,7 +60,6 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
           data.setScalaClasspath(asSerializableJavaSet(scalaCompilerClasspath))
           data.setScalaCompileOptions(compilerOptions.getOrElse(new ScalaCompileOptionsData))
-          data.setTargetCompatibility("1.5")
         }
 
         if (!separateModules) {
@@ -209,7 +208,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
     assertEquals("debugging info level", DebuggingInfoLevel.Source, compilerConfiguration.debuggingInfoLevel)
     assertCollectionEquals("plugins", Seq("test-plugin1.jar", "test-plugin2.jar").map(toProjectAbsolutePath), compilerConfiguration.plugins)
-    assertCollectionEquals("additional compiler options", Seq("-encoding", "utf-8", "-target:jvm-1.5"), compilerConfiguration.additionalCompilerOptions)
+    assertCollectionEquals("additional compiler options", Seq("-encoding", "utf-8"), compilerConfiguration.additionalCompilerOptions)
     assertTrue("experimental", compilerConfiguration.experimental)
     assertTrue("continuations", compilerConfiguration.continuations)
     assertTrue("deprecationWarnings", compilerConfiguration.deprecationWarnings)
@@ -232,7 +231,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
       ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
     }
 
-    assertCollectionEquals("additional compiler options (tests) ", Seq("-encoding", "utf-8", "-target:jvm-1.5"), testCompilerConfiguration.additionalCompilerOptions)
+    assertCollectionEquals("additional compiler options (tests) ", Seq("-encoding", "utf-8"), testCompilerConfiguration.additionalCompilerOptions)
   }
 
   def testModuleIsNull(): Unit = {
