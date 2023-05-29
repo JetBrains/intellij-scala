@@ -167,7 +167,7 @@ private object ScalaUseScope {
         target match {
           case o: ScObject if o.isPackageObject =>
             val pName = o.qualifiedName.stripSuffix(".`package`")
-            Some(ScPackageImpl.findPackage(o.getProject, pName))
+            ScPackageImpl.findPackage(o.getProject, pName)
           case _ => Some(target)
         }
       case _ => None

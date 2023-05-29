@@ -96,7 +96,7 @@ object ScSyntheticPackage {
 
           override def getClasses(scope: GlobalSearchScope): Array[PsiClass] = Array.empty
 
-          override def getParentPackage: ScPackageImpl = ScPackageImpl.findPackage(project, parentName)
+            override def getParentPackage: ScPackageImpl = ScPackageImpl.findPackage(project, parentName).orNull
 
           override def getSubPackages: Array[PsiPackage] = Array.empty
 
@@ -144,7 +144,7 @@ object ScSyntheticPackage {
                 file != null && scope.contains(file)
               }
 
-            override def getParentPackage: ScPackageImpl = ScPackageImpl.findPackage(project, parentName)
+              override def getParentPackage: ScPackageImpl = ScPackageImpl.findPackage(project, parentName).orNull
 
             override def getSubPackages: Array[PsiPackage] = {
               val buff = new mutable.HashSet[PsiPackage]

@@ -233,8 +233,12 @@ object ImplicitProcessor {
       if (!visited.add(convertRawArgs(tp))) return
 
       tp match {
-        case AliasType(_, _, Right(t)) => collectParts(t)
-        case _                         =>
+        case AliasType(alias, _, Right(t)) =>
+          alias match {
+            case aDef: ScTypeAliasDefinition if aDef.isOpaque => ()
+            case _                                            => collectParts(t)
+          }
+        case _ => ()
       }
 
       def collectSupers(clazz: PsiClass, subst: ScSubstitutor): Unit =
@@ -250,6 +254,7 @@ object ImplicitProcessor {
         case ScDesignatorType(v: ScFieldId)        => collectPartsTr(v.`type`())
         case ScDesignatorType(p: ScParameter)      => collectPartsTr(p.`type`())
         case ScCompoundType(comps, _, _)           => collectPartsIter(comps)
+        case ScDesignatorType(alias: ScTypeAliasDefinition) if alias.isOpaque => parts += tp
         case ParameterizedType(a: ScAbstractType, args) =>
           collectParts(a)
           collectPartsIter(args)

@@ -335,10 +335,12 @@ object ScalaPsiUtil {
     if (packageFqn.isEmpty) None
     else {
       val lastDot: Int = packageFqn.lastIndexOf('.')
+
       val name =
         if (lastDot < 0) ""
-        else packageFqn.substring(0, lastDot)
-      Option(ScPackageImpl.findPackage(project, name))
+        else             packageFqn.substring(0, lastDot)
+
+      ScPackageImpl.findPackage(project, name)
     }
   }
 

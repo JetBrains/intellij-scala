@@ -154,7 +154,7 @@ object ScalaImportTypeFix {
 
     val packages = for {
       packageQualifier <- packagesList
-      pack <- ScPackageImpl.findPackage(packageQualifier)(manager).toOption
+      pack <- ScPackageImpl.findPackage(packageQualifier)(manager)
       if kindMatches(pack, kinds)
     } yield PrefixPackageToImport(pack)
 

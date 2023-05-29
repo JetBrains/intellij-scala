@@ -33,6 +33,7 @@ trait ScPackageLike extends PsiElement {
         case typed: ScTypedDefinition => !typed.isStable
         case _                        => false
       })
+
       if (!ignore)
         processor.execute(psiElement, state)
       else

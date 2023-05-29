@@ -68,7 +68,7 @@ trait FileDeclarationsHolder
     implicit val scope: GlobalSearchScope = place.resolveScope
     implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
 
-    val defaultPackage = ScPackageImpl.findPackage("")
+    val defaultPackage = ScPackageImpl.findPackage("").orNull
     if (defaultPackage != null) {
       place match {
         case ref: ScReference if ref.refName == "_root_" && ref.qualifier.isEmpty =>
@@ -148,7 +148,7 @@ trait FileDeclarationsHolder
             // Do nothing
           case _ =>
             //mind SCL-20534
-            if(lastParent.defaultImports.exists(s => s == "scala" || s == "scala.Predef") && !isInsidePackage("scala")) {
+            if (lastParent.defaultImports.exists(s => s == "scala" || s == "scala.Predef") && !isInsidePackage("scala")) {
               if (aliasImports.exists(!_.processDeclarations(processor, state, lastParent, place)))
                 return false
             }
@@ -196,9 +196,9 @@ trait FileDeclarationsHolder
               return false
           }
 
-          val cachedPackage = manager.getCachedPackage(fqn)
-          cachedPackage.foreach { `package` =>
-            if (!packageProcessDeclarations(`package`)(processor, state, null, place))
+          val cachedPackage = ScPackageImpl.findPackage(fqn)
+          cachedPackage.foreach { pkg =>
+            if (!pkg.processDeclarations(processor, state, null, place))
               return false
           }
         }
@@ -206,7 +206,7 @@ trait FileDeclarationsHolder
 
       /* scala package requires special treatment to process synthetic classes/objects */
       if (fqn == ScalaLowerCase) {
-        if(!processScalaPackage(processor, state))
+        if (!processScalaPackage(processor, state))
           return false
       }
     }

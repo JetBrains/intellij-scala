@@ -166,7 +166,7 @@ object ScopeSuggester {
     }
 
     directoriesContainingFileAndPackage(
-      ScPackageImpl.findPackage(typeElement.getProject, packageName),
+      ScPackageImpl.findPackage(typeElement.getProject, packageName).orNull,
       mutable.ArrayBuffer.empty[(PsiPackage, PsiDirectory)]
     )
   }
@@ -213,7 +213,7 @@ object ScopeSuggester {
       }
     }
 
-    val inPackage = ScPackageImpl.findPackage(typeElement.getProject, inPackageName)
+    val inPackage = ScPackageImpl.findPackage(typeElement.getProject, inPackageName).orNull
     val projectSearchScope = GlobalSearchScope.projectScope(typeElement.getProject)
     val maybePackageObject = inPackage.findPackageObject(projectSearchScope)
 

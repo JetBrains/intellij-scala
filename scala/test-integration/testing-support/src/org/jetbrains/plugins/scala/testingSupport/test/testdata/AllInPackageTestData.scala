@@ -42,7 +42,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
   }
 
   protected[test] def getPackage(path: String): PsiPackage = {
-    ScPackageImpl.findPackage(getProject, path)
+    ScPackageImpl.findPackage(getProject, path).orNull
   }
 
   override def getTestMap: Map[String, Set[String]] = {

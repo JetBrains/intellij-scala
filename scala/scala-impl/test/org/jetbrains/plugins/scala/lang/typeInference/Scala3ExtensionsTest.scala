@@ -148,7 +148,10 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
   )
 
   //actually compiles, but probably should not
-  def testAmbiguousExtensionAndConversion(): Unit = checkHasErrorAroundCaret(
+  //upd: 29.05.2023, since cases like this are in scala 3 stdlib,
+  //I had to introduce a workaround to maintain bug-to-bug compatibility
+  //with compiler.
+  def testAmbiguousExtensionAndConversion(): Unit = checkTextHasNoErrors(
     s"""
        |object A {
        |  trait F
@@ -162,7 +165,7 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
        |""".stripMargin
   )
 
-  def testAmbiguousExtensionAndConversion2(): Unit = checkHasErrorAroundCaret(
+  def testAmbiguousExtensionAndConversion2(): Unit = checkTextHasNoErrors(
     s"""
        |object A {
        |  trait F
@@ -179,7 +182,8 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
        |""".stripMargin
   )
 
-  def testAmbiguousExtensionAndConversionImplicitScope(): Unit = checkHasErrorAroundCaret(
+  //see comment above.
+  def testAmbiguousExtensionAndConversionImplicitScope(): Unit = checkTextHasNoErrors(
     s"""
        |trait List[T]
        |object List {
@@ -472,6 +476,17 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |
       |val ti = (Option(1), Option(2), Option("3")).id
       |val ti2 = (Option(1), Option(2), Option("3")).id2
+      |""".stripMargin
+  )
+
+  def testSCL21257(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  val iarr = IArray(1, 2, 3)
+      |  iarr.length
+      |  iarr.map(_ + 1)
+      |  iarr(123)
+      |}
       |""".stripMargin
   )
 }
