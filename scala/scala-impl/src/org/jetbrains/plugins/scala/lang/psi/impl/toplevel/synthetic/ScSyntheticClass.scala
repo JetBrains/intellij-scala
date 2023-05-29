@@ -219,12 +219,13 @@ final class SyntheticClasses(project: Project) {
 
   var stringPlusMethod: ScType => ScSyntheticFunction = _
 
-  val sharedClasses: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
-  val scala3Classes: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
-  var numeric: mutable.Set[ScSyntheticClass]       = mutable.HashSet.empty[ScSyntheticClass]
-  var integer: mutable.Set[ScSyntheticClass]       = mutable.HashSet.empty[ScSyntheticClass]
-  val objects: mutable.Map[String, ScObject]       = mutable.HashMap.empty[String, ScObject]
-  val aliases: mutable.Set[ScTypeAlias]            = mutable.HashSet.empty[ScTypeAlias]
+  private val sharedClasses: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
+  private val scala3Classes: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
+  private var numeric: mutable.Set[ScSyntheticClass]       = mutable.HashSet.empty[ScSyntheticClass]
+  private var integer: mutable.Set[ScSyntheticClass]       = mutable.HashSet.empty[ScSyntheticClass]
+
+  val objects: mutable.Map[String, ScObject] = mutable.HashMap.empty[String, ScObject]
+  val aliases: mutable.Set[ScTypeAlias]      = mutable.HashSet.empty[ScTypeAlias]
 
   private[synthetic]
   var file : PsiFile = _
@@ -256,6 +257,7 @@ final class SyntheticClasses(project: Project) {
       override val retType: ScType = TypeParameterType(typeParams.head)
     })
 
+    registerClass(AnyKind, "AnyKind", isScala3 = true)
     registerClass(AnyVal, "AnyVal")
     registerClass(Nothing, "Nothing")
     registerClass(Null, "Null")
@@ -380,11 +382,11 @@ package scala
 
 object Char {
  	def box(x: _root_.scala.Char): _root_.java.lang.Character = ???
-  
+
  	def unbox(x: _root_.java.lang.Object): _root_.scala.Char = ???
-  
+
  	final val MinValue = _root_.java.lang.Character.MIN_VALUE
-  
+
  	final val MaxValue = _root_.java.lang.Character.MAX_VALUE
 }
 """
@@ -396,25 +398,25 @@ package scala
 
 object Double {
  	def box(x: _root_.scala.Double): _root_.java.lang.Double = ???
-  
+
  	def unbox(x: _root_.java.lang.Object): _root_.scala.Double = ???
-  
+
  	@deprecated("use Double.MinNegativeValue instead")
  	final val MinValue = -_root_.java.lang.Double.MAX_VALUE
-  
+
  	final val MinNegativeValue = -_root_.java.lang.Double.MAX_VALUE
-  
+
  	final val MaxValue = _root_.java.lang.Double.MAX_VALUE
-  
+
  	@deprecated("use Double.MinPositiveValue instead")
  	final val Epsilon = _root_.java.lang.Double.MIN_VALUE
-  
+
  	final val MinPositiveValue = _root_.java.lang.Double.MIN_VALUE
-  
+
  	final val NaN = _root_.java.lang.Double.NaN
-  
+
  	final val PositiveInfinity = _root_.java.lang.Double.POSITIVE_INFINITY
-  
+
  	final val NegativeInfinity = _root_.java.lang.Double.NEGATIVE_INFINITY
 }
 """
@@ -426,25 +428,25 @@ package scala
 
 object Float {
  	def box(x: _root_.scala.Float): _root_.java.lang.Float = ???
-  
+
  	def unbox(x: _root_.java.lang.Object): _root_.scala.Float = ???
-  
+
  	@deprecated("use Float.MinNegativeValue instead")
  	final val MinValue = -_root_.java.lang.Float.MAX_VALUE
- 	
+
   final val MinNegativeValue = -_root_.java.lang.Float.MAX_VALUE
- 	
+
   final val MaxValue = _root_.java.lang.Float.MAX_VALUE
- 	
+
   @deprecated("use Float.MinPositiveValue instead")
  	final val Epsilon = _root_.java.lang.Float.MIN_VALUE
- 	
+
   final val MinPositiveValue = _root_.java.lang.Float.MIN_VALUE
- 	
+
   final val NaN = _root_.java.lang.Float.NaN
- 	
+
   final val PositiveInfinity = _root_.java.lang.Float.POSITIVE_INFINITY
- 	
+
   final val NegativeInfinity = _root_.java.lang.Float.NEGATIVE_INFINITY
 }
 """
@@ -456,11 +458,11 @@ package scala
 
 object Int {
  	def box(x: _root_.scala.Int): _root_.java.lang.Integer = ???
- 	
+
   def unbox(x: _root_.java.lang.Object): _root_.scala.Int = ???
- 	
+
   final val MinValue = _root_.java.lang.Integer.MIN_VALUE
- 	
+
   final val MaxValue = _root_.java.lang.Integer.MAX_VALUE
 }
 """
@@ -472,11 +474,11 @@ package scala
 
 object Long {
  	def box(x: _root_.scala.Long): _root_.java.lang.Long = ???
- 	
+
   def unbox(x: _root_.java.lang.Object): _root_.scala.Long = ???
- 	
+
   final val MinValue = _root_.java.lang.Long.MIN_VALUE
- 	
+
   final val MaxValue = _root_.java.lang.Long.MAX_VALUE
 }
 """
@@ -488,11 +490,11 @@ package scala
 
 object Short {
  	def box(x: _root_.scala.Short): _root_.java.lang.Short = ???
- 	
+
   def unbox(x: _root_.java.lang.Object): _root_.scala.Short = ???
- 	
+
   final val MinValue = _root_.java.lang.Short.MIN_VALUE
- 	
+
   final val MaxValue = _root_.java.lang.Short.MAX_VALUE
 }
 """
@@ -547,18 +549,23 @@ object Unit
     }
   }
 
-  def registerClass(t: StdType, name: String): ScSyntheticClass = {
-    val clazz = new ScSyntheticClass(name, t) {
+  def registerClass(t: StdType, name: String, isScala3: Boolean = false): ScSyntheticClass = {
+    val cls = new ScSyntheticClass(name, t) {
       override def getQualifiedName: String = "scala." + name
     }
 
-    sharedClasses += ((name, clazz)); clazz
+    if (isScala3)
+      scala3Classes += ((name, cls))
+    else
+      sharedClasses += ((name, cls))
+
+    cls
   }
 
   def registerIntegerClass(clazz : ScSyntheticClass): ScSyntheticClass = {integer += clazz; clazz}
   def registerNumericClass(clazz : ScSyntheticClass): ScSyntheticClass = {numeric += clazz; clazz}
 
-  def getAll: Iterable[PsiClass] = sharedClasses.values ++ scala3Classes.values
+  def all: Iterable[PsiClass] = sharedClasses.values ++ scala3Classes.values
 
   def sharedClassesOnly: Iterable[PsiClass] = sharedClasses.values
 

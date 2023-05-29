@@ -56,6 +56,7 @@ object StdType {
   object Name {
     val Any       = "Any"
     val AnyRef    = "AnyRef"
+    val AnyKind   = "AnyKind"
     val Null      = "Null"
     val Nothing   = "Nothing"
     val Singleton = "Singleton"
@@ -83,6 +84,8 @@ class StdTypes(implicit private val projectContext: ProjectContext) extends Disp
   lazy val Any = new StdType(Name.Any, None)
 
   lazy val AnyRef = new StdType(Name.AnyRef, Some(Any))
+
+  lazy val AnyKind = new StdType(Name.AnyKind, None)
 
   lazy val Null: StdType = new StdType(Name.Null, Some(AnyRef)) {
     override def isFinalType = true

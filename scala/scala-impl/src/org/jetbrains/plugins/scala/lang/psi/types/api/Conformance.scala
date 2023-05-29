@@ -34,7 +34,8 @@ trait Conformance {
                           checkWeak: Boolean = false): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
-    if (left.isAny || left.is[WildcardType] || right.isNothing || left == right) constraints
+    if (left.isAny || left.isAnyKind || left.is[WildcardType] || right.isNothing || left == right)
+      constraints
     else if (left.isTupleBaseType) {
       if (right.isTupleN) constraints
       else                Left

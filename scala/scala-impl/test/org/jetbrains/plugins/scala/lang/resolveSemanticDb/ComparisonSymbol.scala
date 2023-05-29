@@ -57,7 +57,7 @@ object ComparisonSymbol {
         case (s: ScSyntheticFunction, _) =>
           val synthetics = SyntheticClasses.get(e.getProject)
 
-          val clazz = synthetics.getAll.collectFirst {
+          val clazz = synthetics.all.collectFirst {
             case synth: ScSyntheticClass if synth.syntheticMethods.values().contains(s) => synth
           }
 

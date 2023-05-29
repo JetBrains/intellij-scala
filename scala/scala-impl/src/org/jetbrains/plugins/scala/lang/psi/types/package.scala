@@ -90,6 +90,8 @@ package object types {
 
     def isAny: Boolean = isStdType(Name.Any)
 
+    def isAnyKind: Boolean = isStdType(Name.AnyKind)
+
     def isAnyRef: Boolean = isStdType(Name.AnyRef)
 
     def isAnyVal: Boolean = isStdType(Name.AnyVal)

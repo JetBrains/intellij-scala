@@ -177,7 +177,7 @@ object ScalaClassNameCompletionContributor {
 
     val QualNameToType = StdTypes.instance.QualNameToType
     val syntheticLookupElements = for {
-      clazz <- SyntheticClasses.get(project).getAll
+      clazz <- SyntheticClasses.get(project).all
       if !QualNameToType.contains(clazz.qualifiedName)
 
       if state.isValidClass(clazz)

@@ -52,18 +52,13 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.context.qzio.ZioJdbcContext", // Inline parameter
     "io.getquill.context.qzio.ZioJdbcUnderlyingContext", // Inline parameter
     "io.getquill.dsl.InfixDsl", // No annotations
-    "io.getquill.generic.ConstructDecoded", // No AnyKind upper type bound
-    "io.getquill.generic.ConstructType", // No AnyKind upper type bound
-    "io.getquill.generic.DeconstructElaboratedEntityLevels", // No AnyKind upper type bound
     "io.getquill.generic.ElaborateStructure", // No AnyKind upper type bound, extension
-    "io.getquill.generic.GenericDecoder", // No AnyKind upper type bound
     "io.getquill.generic.TupleMember", // Inline parameter
     "io.getquill.jdbczio.QuillBaseContext", // Inline parameter
     "io.getquill.norm.SheathLeafClauses", // Cannot resolve reference
     "io.getquill.quat.QuatMaking", // Cannot resolve reference
     "io.getquill.quat.QuatMakingBase", // Cannot resolve reference
     "io.getquill.util.CommonExtensions", // Extension
-    "io.getquill.util.Format", // No AnyKind upper type bound
     "io.getquill.util.Load", // Cannot resolve reference
     "io.getquill.util.debug.PrintMac", // Inline parameter
   )

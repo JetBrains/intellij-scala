@@ -151,7 +151,7 @@ object ScSyntheticPackage {
               filtered.foreach{
                 p =>
                   def addPackage(tail : String): Unit = {
-                    val p = ScPackageImpl.findPackage(project, fqn + "." + tail)
+                    val p = ScPackageImpl.findPackage(project, fqn + "." + tail).orNull
                     if (p != null) buff += p
                   }
 
