@@ -201,14 +201,14 @@ abstract class DirtyScopeHolder[Scope](
   locally {
     val moduleChangeListener = new WorkspaceModelChangeListener() {
       override def beforeChanged(event: VersionedStorageChange): Unit = {
-        event.getChanges(classOf[ModuleEntity]).forEach { change =>
+        event.getChanges(classOf[ModuleEntity]).iterator().asScala.foreach { change =>
           for {
             entity <- change.getOldEntity.toOption
             module <- ModuleEntityUtils.findModule(entity, event.getStorageBefore).toOption
           } markModuleAsDirty(module)
         }
 
-        event.getChanges(classOf[ContentRootEntity]).forEach { change =>
+        event.getChanges(classOf[ContentRootEntity]).iterator().asScala.foreach { change =>
           for {
             entity <- change.getOldEntity.toOption
             module <- ModuleEntityUtils.findModule(entity.getModule, event.getStorageBefore).toOption
@@ -217,14 +217,14 @@ abstract class DirtyScopeHolder[Scope](
       }
 
       override def changed(event: VersionedStorageChange): Unit = {
-        event.getChanges(classOf[ModuleEntity]).forEach { change =>
+        event.getChanges(classOf[ModuleEntity]).iterator().asScala.foreach { change =>
           for {
             entity <- change.getNewEntity.toOption
             module <- ModuleEntityUtils.findModule(entity, event.getStorageBefore).toOption
           } markModuleAsDirty(module)
         }
 
-        event.getChanges(classOf[ContentRootEntity]).forEach { change =>
+        event.getChanges(classOf[ContentRootEntity]).iterator().asScala.foreach { change =>
           for {
             entity <- change.getNewEntity.toOption
             module <- ModuleEntityUtils.findModule(entity.getModule, event.getStorageBefore).toOption

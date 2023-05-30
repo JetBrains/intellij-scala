@@ -23,7 +23,7 @@ final class ScalaUnusedImportsPassFactory
   }
 
   override def createHighlightingPass(file: PsiFile, editor: Editor): ScalaUnusedImportPass = {
-    val dirtyRange = FileStatusMap.getDirtyTextRange(editor, Pass.UPDATE_ALL)
+    val dirtyRange = FileStatusMap.getDirtyTextRange(editor.getDocument, file, Pass.UPDATE_ALL)
     val nothingChangedInFile = dirtyRange == null && (ScalaUnusedImportPass.isUpToDate(file) || !ProblemHighlightFilter.shouldHighlightFile(file))
     if (nothingChangedInFile)
       null

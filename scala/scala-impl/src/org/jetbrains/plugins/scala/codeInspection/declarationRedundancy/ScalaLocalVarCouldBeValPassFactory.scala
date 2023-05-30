@@ -13,7 +13,7 @@ final class ScalaLocalVarCouldBeValPassFactory
 
   override def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = {
     //optimization similar to com.intellij.codeInsight.daemon.impl.GeneralHighlightingPassFactory.createHighlightingPass
-    val dirtyRange = FileStatusMap.getDirtyTextRange(editor, Pass.UPDATE_ALL)
+    val dirtyRange = FileStatusMap.getDirtyTextRange(editor.getDocument, file, Pass.UPDATE_ALL)
     val nothingChangedInFile = dirtyRange == null
     if (nothingChangedInFile)
       null

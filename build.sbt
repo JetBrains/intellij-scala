@@ -701,8 +701,10 @@ lazy val packageSearchIntegration =
   newProject("packagesearch", file("scala/integration/packagesearch"))
     .dependsOn(scalaImpl, sbtImpl)
     .settings(
-      // should be same plugins as in .../packagesearch/resources/META-INF/packagesearch.xml
-      intellijPlugins += "com.jetbrains.packagesearch.intellij-plugin".toPlugin,
+      // The packageSearch plugin is no longer distributed with IDEA. It will soon be available on the plugin
+      // marketplace once more and this workaround will be unnecessary.
+      libraryDependencies += "com.jetbrains.intellij.packageSearch" % "package-search" % "232.6095.10-EAP-SNAPSHOT" notTransitive(),
+      resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
 
