@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements._
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
@@ -228,6 +228,7 @@ object ScalaUastSourceTypeMapping {
       classOf[ScDoubleLiteralImpl],
       classOf[ScEnumCaseImpl],
       classOf[ScEnumImpl],
+      classOf[ScExistentialTypeElementImpl],
       classOf[ScExtendsBlockImpl],
       classOf[ScFieldIdImpl],
       classOf[ScFloatLiteralImpl],

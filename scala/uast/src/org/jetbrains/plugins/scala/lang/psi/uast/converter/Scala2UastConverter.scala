@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscoreFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -312,8 +312,9 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
 
         // ========================= UNSUPPORTED ================================
 
-        case e: ScFor => new ScUEmptyExpressionWithGivenType(e, _)
-        case _        => null
+        case e: ScFor                    => new ScUEmptyExpressionWithGivenType(e, _)
+        case e: ScExistentialTypeElement => new UnknownScalaElement(e, _)
+        case _                           => null
       }): LazyUElement => UElement)
         .map(Free.fromLazyConstructor[UElement](_))
 
