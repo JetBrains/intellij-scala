@@ -58,7 +58,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       moduleNode.addAll(createUnmanagedDependencies(unmanagedLibraryDependencies)(moduleNode))
 
       //add library dependencies of the representative project
-      val projectDependencies = representativeProjectDependencies.projects
+      // TODO: remove it when production and test sources are separated
+      val projectDependencies = mergeTestAndProductionDependencies(representativeProjectDependencies.projects)
       projectDependencies.foreach { dependencyId =>
         val dependency =
           projectToModuleNode.values
@@ -66,7 +67,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
             .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
 
         val dependencyNode = new ModuleDependencyNode(moduleNode, dependency)
-        dependencyNode.setScope(scopeFor(dependencyId.configuration))
+        dependencyNode.setScope(scopeFor(dependencyId.configurations))
+        dependencyNode.setExported(false)
         moduleNode.add(dependencyNode)
       }
 

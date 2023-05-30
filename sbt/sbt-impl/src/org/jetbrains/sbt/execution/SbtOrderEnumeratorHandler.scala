@@ -34,6 +34,7 @@ class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
     modules.asScala.headOption
   }
 
+  //TODO: after splitting sources to production and test it should be changes to false
   override def shouldAddRuntimeDependenciesToTestCompilationClasspath: Boolean =
     true
 
@@ -46,7 +47,7 @@ class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
     super.shouldIncludeTestsFromDependentModulesToTestClasspath
 
   override def shouldProcessDependenciesRecursively: Boolean =
-    super.shouldProcessDependenciesRecursively
+    false
 }
 
 class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
