@@ -7,6 +7,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[TypecheckerTests]))
 class RelatedGenericsTest extends ScalaLightCodeInsightFixtureTestCase {
 
+  override implicit def version: ScalaVersion = LatestScalaVersions.Scala_2_12
+
   def testSCL9347(): Unit = checkTextHasNoErrors(
     """
       |object SCL9347 {
@@ -37,6 +39,16 @@ class RelatedGenericsTest extends ScalaLightCodeInsightFixtureTestCase {
       |  def bar(mutableRecord: MutableRecord[_ <: Record]) {
       |    needTable(mutableRecord.table) // Good code red
       |  }
+      |}
+    """.stripMargin)
+
+  def testSCL11156(): Unit = checkTextHasNoErrors(
+    """
+      |trait Parser[T] extends Function[String, Option[(T, String)]]
+      |
+      |val item: Parser[Char] = {
+      |  case v => Some((v.charAt(0), v.substring(1)))
+      |  case "" => None
       |}
     """.stripMargin)
 }
