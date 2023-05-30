@@ -79,6 +79,25 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
         |""".stripMargin
     )()
 
+  def testWithExplicitExtendsParent_TopLevel(): Unit =
+    assertNoErrors(
+      """enum ToplevelEnum:
+        |  case Case extends ToplevelEnum""".stripMargin
+    )
+
+  def testWithExplicitExtendsParent_InsideFunction(): Unit =
+    assertNoErrors(
+      """def foo(): Unit =
+        |  enum EnumInsideDef:
+        |    case Case extends EnumInsideDef""".stripMargin
+    )
+
+  def testWithExplicitExtendsParent_InsideObject(): Unit =
+    assertNoErrors(
+      """object Enums:
+        |  enum EnumInsideObj:
+        |    case Case extends EnumInsideObj""".stripMargin
+    )
 
   def testWithExplicitExtendsParent_InWorksheet_TopLevel(): Unit =
     doTestInWorksheet(
