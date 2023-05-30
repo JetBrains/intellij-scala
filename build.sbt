@@ -727,7 +727,7 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
       binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.0.2") -> "lib/jps/scala3-sbt-bridge_3.0.jar",
       binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.1.3") -> "lib/jps/scala3-sbt-bridge_3.1.jar",
       binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.2.2") -> "lib/jps/scala3-sbt-bridge_3.2.jar",
-      binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.3.1-RC1-bin-20230206-21729d2-NIGHTLY") -> "lib/jps/scala3-sbt-bridge_3.3.jar",
+      binaryDep("org.scala-lang", "scala3-sbt-bridge", "3.3.1-RC1") -> "lib/jps/scala3-sbt-bridge_3.3.jar",
       binaryDep("org.scala-sbt.rt", "java9-rt-export", Versions.java9rtExportVersion) -> "java9-rt-export/java9-rt-export.jar",
       sourceDep("org.scala-sbt", "compiler-bridge", "2.10", Versions.zincVersion) -> "lib/jps/compiler-interface-sources_2.10.jar",
       sourceDep("org.scala-sbt", "compiler-bridge", "2.11", Versions.zincVersion) -> "lib/jps/compiler-interface-sources_2.11.jar",
