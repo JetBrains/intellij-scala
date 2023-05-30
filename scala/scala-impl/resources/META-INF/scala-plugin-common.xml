@@ -146,6 +146,7 @@
         <preFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService"
                             serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicServiceImpl"/>
+        <lang.floatingToolbarFilter language="Scala" implementationClass="com.intellij.ui.codeFloatingToolbar.FloatingToolbarFilter$ENABLED" />
         <lang.refactoringSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringSupportProvider"/>
         <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
         <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaDocCommentDataSurroundDescriptor"/>
