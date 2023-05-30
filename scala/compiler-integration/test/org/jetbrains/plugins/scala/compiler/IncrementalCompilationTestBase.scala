@@ -27,7 +27,7 @@ import java.io.File
   TestScalaVersion.Scala_3_0,
   TestScalaVersion.Scala_3_1,
   TestScalaVersion.Scala_3_2,
-  TestScalaVersion.Scala_3_3_RC
+  TestScalaVersion.Scala_3_Latest_RC
 ))
 @Category(Array(classOf[CompilationTests]))
 abstract class IncrementalCompilationTestBase(override protected val incrementalityType: IncrementalityType,

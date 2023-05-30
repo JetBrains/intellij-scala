@@ -12,9 +12,22 @@ import scala.language.postfixOps
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest,
-  TestScalaVersion.Scala_3_3_RC
+  TestScalaVersion.Scala_3_Latest_RC
 ))
-class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegration_Scala_3_BaseTest with FailableTest {
+class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegration_Since_3_2_TestBase
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_2
+))
+class WorksheetReplIntegration_Scala_3_2_Test extends WorksheetReplIntegration_Since_3_2_TestBase
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_0,
+  TestScalaVersion.Scala_3_1,
+))
+class WorksheetReplIntegration_Before_Scala_3_2_Test extends WorksheetReplIntegration_Scala_3_BaseTest
+
+abstract class WorksheetReplIntegration_Since_3_2_TestBase extends WorksheetReplIntegration_Scala_3_BaseTest with FailableTest {
   override def testAllInOne(): Unit = {
     val before =
       """import java.io.PrintStream
@@ -129,13 +142,6 @@ class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegrat
     }
   }
 }
-
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_3_0,
-  TestScalaVersion.Scala_3_1
-))
-class WorksheetReplIntegration_Scala_3_Old_Versions_Test extends WorksheetReplIntegration_Scala_3_BaseTest
-
 
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8))
 abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIntegrationBaseTest
