@@ -8,6 +8,7 @@ import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation, ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import java.util
@@ -22,7 +23,12 @@ class ScalaHighlightConstructorInvocationUsages(reference: Option[ScReference], 
     .flatMap(_.bind())
     .collect {
       case ScalaResolveResult(clazz: PsiClass, _) => (clazz, None)
-      case ScalaResolveResult(Constructor(constructor), _) => (constructor.containingClass, Some(constructor))
+      case ScalaResolveResult(Constructor(constructor), _) =>
+        val cls = constructor.containingClass match {
+          case ScEnum.Original(enum) => enum
+          case cls                   => cls
+        }
+        (cls, Some(constructor))
     }
 
   override def getTargets: util.List[PsiElement] = reference.fold(util.Collections.emptyList[PsiElement])(util.Collections.singletonList)

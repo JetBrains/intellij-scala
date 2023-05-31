@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScEnd, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTypeDefinition}
 import org.jetbrains.plugins.scala.util.RichThreadLocal
 
 final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
@@ -121,11 +121,25 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
           return new CompanionHighlightHandler(element, typeDefinition, editor, file)
         }
       case `tIDENTIFIER` =>
+        lazy val isInScala3File = element.isInScala3File
+
         element.getParent match {
+          case enum: ScEnum => return new ScalaHighlightEnumUsagesHandler(enum, file, editor)
+          case enumCase: ScEnumCase => return new ScalaHighlightEnumUsagesHandler(enumCase, file, editor)
           case ScConstructorInvocation.byReference(constr) => return new ScalaHighlightConstructorInvocationUsages(constr, file, editor)
           case ref@ScConstructorInvocation.byUniversalApply(_) => return new ScalaHighlightConstructorInvocationUsages(Option(ref), file, editor)
           case named: ScNamedElement => return implicitHighlighter(editor, file, named)
-          case ref: ScReference => return implicitHighlighter(editor, file, ref)
+          case ref: ScReference =>
+            if (isInScala3File) {
+              //this can potentially cause freezes, but I couldn't find
+              //a reliable way to do it the other way. Also, other implementations
+              //of HighlightUsagesHandlerFactory seem to ebe using resovle-based logic too.
+              ref.resolve() match {
+                case ScEnum.Original(enum) => return new ScalaHighlightEnumUsagesHandler(enum, file, editor)
+                case ScEnumCase.Original(enumCase) => return new ScalaHighlightEnumUsagesHandler(enumCase, file, editor)
+                case _ => return implicitHighlighter(editor, file, ref)
+              }
+            } else return implicitHighlighter(editor, file, ref)
           case _ =>
         }
 
