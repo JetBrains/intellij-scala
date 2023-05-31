@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.injection
 
-import com.intellij.lang.Language
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.editor.{Caret, Editor}
 import com.intellij.openapi.project.Project
@@ -14,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.junit.Assert
-import org.junit.Assert.{assertEquals, assertNotNull, assertNull, fail}
+import org.junit.Assert.{assertEquals, assertNotNull, assertNull, assertTrue, fail}
 
 import java.util
 import scala.collection.mutable.ArrayBuffer
@@ -64,11 +63,12 @@ class ScalaInjectionTestFixture(
   }
 
   private def injectedElementLanguage(injectedElement: PsiElement) = {
-    val language = injectedElement.getLanguage match {
-      case Language.ANY => injectedElement.getParent.getLanguage
-      case lang => lang
-    }
-    language
+    val injectedFile = injectedElement.getContainingFile
+    assertTrue("Non-physical injected file is expected", injectedFile.isPhysical)
+    //NOTE: we return `injectedFile.getLanguage` instead of `injectedElement.getLanguage` because in case of Scala 3 language
+    // only root file will return the correct Scala 3 language instance (`Scala3Language.INSTANCE`)
+    // most of other (or even all?) child elements will return Scala 2 version of language (`ScalaLanguage.INSTANCE`)
+    injectedFile.getLanguage
   }
 
   protected def assertInjected(expectedInjection: ExpectedInjection): Unit = {
