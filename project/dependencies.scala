@@ -102,7 +102,6 @@ object Dependencies {
   val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.16"
   val scalaTest: ModuleID = scalaTestNotSpecified % Test
   val scalaCheck: ModuleID = "org.scalatestplus" %% "scalacheck-1-17" % "3.2.16.0" % Test
-  val scalaTestJUnit: ModuleID = "org.scalatestplus" %% "junit-4-13" % "3.2.16.0" % Test
 
   // has to be in the compiler process classpath along with spray-json
   // when updating the version, do not forget to:
@@ -172,8 +171,7 @@ object DependencyGroups {
     ("ch.epfl.scala" % "bsp4j" % bspVersion).excludeAll(bspExclusions *),
     ("ch.epfl.scala" %% "bsp-testkit" % bspVersion).excludeAll(bspExclusions *) % Test,
     scalaTest,
-    scalaCheck,
-    scalaTestJUnit
+    scalaCheck
   )
 
   val decompiler: Seq[ModuleID] = Seq(
