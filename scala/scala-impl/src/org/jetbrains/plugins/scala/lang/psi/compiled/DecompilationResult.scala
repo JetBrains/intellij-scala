@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.tasty.{TastyFileType, TastyReader}
 
 import java.io.{DataInputStream, DataOutputStream, IOException}
 import java.lang.ref.SoftReference
+import scala.util.control.NonFatal
 
 private sealed trait DecompilationResult {
   val isScala: Boolean
@@ -118,7 +119,11 @@ private object DecompilationResult {
 
   private def sourceNameAndText(file: VirtualFile, content: () => Array[Byte]): Option[(String, String)] = {
     if (file.getExtension == TastyFileType.getDefaultExtension) {
-      TastyReader.read(content.apply())
+      try {
+        TastyReader.read(content.apply())
+      } catch {
+        case NonFatal(e) => throw new RuntimeException("Error parsing " + file.getPath, e)
+      }
     } else {
       Decompiler.sourceNameAndText(file.getName, content())
     }
