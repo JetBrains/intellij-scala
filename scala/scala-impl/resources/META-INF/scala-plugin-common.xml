@@ -493,7 +493,6 @@
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings"/>
 
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceLookupListenerService" preload="true" />
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigServiceImpl"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>

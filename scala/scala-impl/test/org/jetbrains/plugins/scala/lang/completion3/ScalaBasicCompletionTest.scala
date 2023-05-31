@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeAndWait}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
-import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.hasItemText
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
@@ -1148,7 +1147,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     resultText = s"val x: Option[$CARET]",
     char = '['
   ) { lookup =>
-    hasLookupString(lookup, "Option") && lookup.getPsiElement.isInstanceOf[ScClass]
+    hasLookupString(lookup, "Option") && lookup.getPsiElement.is[ScClass]
   }
 
   def testBracketsWithoutParentheses(): Unit = doCompletionTest(
@@ -1970,4 +1969,51 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
   override def testLocalValueName(): Unit = super.testLocalValueName()
 
   override def testLocalValueName2(): Unit = super.testLocalValueName2()
+
+  override def testNewInnerClass(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class A {
+         |  class BBBBB
+         |  new BBBB$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class A {
+         |  class BBBBB
+         |  new BBBBB($CARET)
+         |}
+      """.stripMargin,
+    item = "BBBBB"
+  )
+
+  override def testClassInPackageWithBackticks(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |package `interface` {
+         | class ScalaClass {
+         |
+         | }
+         |}
+         |
+         |object Test {
+         | new ScalaC$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |import `interface`.ScalaClass
+         |package `interface` {
+         | class ScalaClass {
+         |
+         | }
+         |}
+         |
+         |object Test {
+         | new ScalaClass($CARET)
+         |}
+      """.stripMargin,
+    item = "ScalaClass"
+  )
 }

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInse
 import org.jetbrains.plugins.scala.lang.completion.lookups.{PresentationExt, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -31,57 +31,82 @@ final class ScalaAfterNewCompletionContributor extends ScalaCompletionContributo
   extend(
     CompletionType.SMART,
     afterNewKeywordPattern,
-    new CompletionProvider[CompletionParameters] {
+    AfterNewCompletionProvider
+  )
 
-      override def addCompletions(parameters: CompletionParameters,
-                                  context: ProcessingContext,
-                                  result: CompletionResultSet): Unit = {
-        val place = positionFromParameters(parameters)
-        val (definition, types) = expectedTypes(place)
-
-        val propses = for {
-          expectedType <- types
-          prop <- collectProps(expectedType) {
-            isAccessible(_)(place)
-          }(definition.getProject)
-        } yield prop
-
-        if (propses.nonEmpty) {
-          val renamesMap = createRenamesMap(place)
-
-          for {
-            prop <- propses
-            lookupItem = prop.createLookupElement(renamesMap)
-          } result.addElement(lookupItem)
-        }
-      }
-    }
+  extend(
+    CompletionType.SMART,
+    universalApplyPattern,
+    UniversalApplyCompletionProvider
   )
 
 }
 
 object ScalaAfterNewCompletionContributor {
 
-  def expectedTypeAfterNew(place: PsiElement, context: ProcessingContext): Option[PropsConstructor] =
-  // todo: probably we need to remove all abstracts here according to variance
-    if (afterNewKeywordPattern.accepts(place, context))
-      Some {
-        val (_, types) = expectedTypes(place)
-        (clazz: PsiClass) => {
-          val (actualType, hasSubstitutionProblem) = appropriateType(clazz, types)
-          LookupElementProps(actualType, hasSubstitutionProblem, clazz)
-        }
+  private abstract class CompletionProviderBase[E <: ScExpression](parentExprClass: Class[E]) extends CompletionProvider[CompletionParameters] {
+
+    override def addCompletions(parameters: CompletionParameters,
+                                context: ProcessingContext,
+                                result: CompletionResultSet): Unit = {
+      val place = positionFromParameters(parameters)
+      val types = expectedTypes(place, parentExprClass)
+      implicit val project: Project = place.getProject
+
+      val props = for {
+        expectedType <- types
+        prop <- collectProps(expectedType)(isAccessible(_)(place))
+      } yield prop
+
+      if (props.nonEmpty) {
+        val renamesMap = createRenamesMap(place)
+
+        for {
+          prop <- props
+          lookupItem = prop.createLookupElement(renamesMap)
+        } result.addElement(lookupItem)
       }
+    }
+  }
+
+  private object AfterNewCompletionProvider extends CompletionProviderBase(classOf[ScNewTemplateDefinition])
+  private object UniversalApplyCompletionProvider extends CompletionProviderBase(classOf[ScReferenceExpression])
+
+  def expectedTypeInUniversalApply(place: PsiElement, context: ProcessingContext): Option[PropsConstructor] =
+  // todo: probably we need to remove all abstracts here according to variance
+    if (universalApplyPattern.accepts(place, context))
+      expectedTypeConstructor(place, classOf[ScReferenceExpression])
     else
       None
 
-  private def expectedTypes(place: PsiElement): (ScNewTemplateDefinition, Seq[ScType]) = {
-    val definition = getContextOfType(place, classOf[ScNewTemplateDefinition])
-    (definition, definition.expectedTypes().map {
-      case ScAbstractType(_, _, upper) => upper
-      case tp => tp
+  def expectedTypeAfterNew(place: PsiElement, context: ProcessingContext): Option[PropsConstructor] =
+  // todo: probably we need to remove all abstracts here according to variance
+    if (afterNewKeywordPattern.accepts(place, context))
+      expectedTypeConstructor(place, classOf[ScNewTemplateDefinition])
+    else
+      None
+
+  def expectedTypeAfterNewOrInUniversalApply(place: PsiElement, context: ProcessingContext): Option[PropsConstructor] =
+    expectedTypeAfterNew(place, context)
+      .orElse(expectedTypeInUniversalApply(place, context))
+
+  private def expectedTypeConstructor[E <: ScExpression](place: PsiElement, parentExprClass: Class[E]): Option[PropsConstructor] = {
+    val types = expectedTypes(place, parentExprClass)
+    Some((clazz: PsiClass) => {
+      val (actualType, hasSubstitutionProblem) = appropriateType(clazz, types)
+      LookupElementProps(actualType, hasSubstitutionProblem, clazz)
     })
   }
+
+  private def expectedTypes[E <: ScExpression](place: PsiElement, parentExprClass: Class[E]): Seq[ScType] =
+    getContextOfType(place, parentExprClass) match {
+      case null => Seq.empty
+      case expr =>
+        expr.expectedTypes().map {
+          case ScAbstractType(_, _, upper) => upper
+          case tp => tp
+        }
+    }
 
   private[completion] type RenamesMap = Map[String, (PsiNamedElement, String)]
   private[completion] type PropsConstructor = PsiClass => LookupElementProps
@@ -221,7 +246,7 @@ object ScalaAfterNewCompletionContributor {
     // filter base types (it's important for scala 2.9)
     // todo: filter inner classes smarter (how? don't forget deep inner classes)
     def isInvalid(clazz: PsiClass) =
-      clazz.isInstanceOf[ScObject] || names.contains(clazz.qualifiedName) || (clazz.containingClass match {
+      clazz.is[ScObject] || names.contains(clazz.qualifiedName) || (clazz.containingClass match {
         case null => false
         case _: ScObject => clazz.hasModifierPropertyScala("static")
         case _ => true
@@ -247,7 +272,7 @@ object ScalaAfterNewCompletionContributor {
       predefinedType.conformanceSubstitutor(t) match {
         case Some(substitutor) =>
           val valueType = fromParameters(designatorType, parameters)
-          return Some(substitutor(valueType), undefinedTypes.map(substitutor).exists(_.isInstanceOf[UndefinedType]))
+          return Some((substitutor(valueType), undefinedTypes.map(substitutor).exists(_.is[UndefinedType])))
         case _ =>
       }
     }
