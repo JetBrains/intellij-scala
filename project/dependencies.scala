@@ -176,10 +176,6 @@ object DependencyGroups {
     scalaTestJUnit
   )
 
-  val dfa: Seq[ModuleID] = Seq(
-    scalaTest
-  )
-
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
     scalaReflect

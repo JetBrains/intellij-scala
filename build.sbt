@@ -48,7 +48,6 @@ lazy val scalaCommunity: sbt.Project =
     .dependsOn(
       bsp % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
-      dfa % "test->test;compile->compile",
       conversion % "test->test;compile->compile",
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
@@ -138,25 +137,6 @@ lazy val codeInsight = newProject(
   file("scala/codeInsight")
 ).dependsOn(
   scalaImpl % "test->test;compile->compile"
-)
-
-lazy val dfa = newProject(
-  "dfa",
-  file("scala/dfa")
-).settings(
-  (Test / testFrameworks) += TestFrameworks.ScalaTest,
-  libraryDependencies ++= DependencyGroups.dfa,
-  scalacOptions ++= Seq(
-    "-deprecation",
-    "-unchecked",
-    "-feature",
-    "-Xlint",
-    "-Xfatal-warnings"
-  ),
-  // the internet says this is smart thing to do
-  (Compile / console / scalacOptions) ~= {
-    _.filterNot(Set("-Xlint"))
-  }
 )
 
 lazy val conversion = newProject(
@@ -807,9 +787,6 @@ addCommandAlias("runFastTests", s"testOnly -- $fastTestOptions")
 addCommandAlias("runFastTestsComIntelliJ", s"testOnly com.intellij.* -- $fastTestOptions")
 addCommandAlias("runFastTestsOrgJetbrains", s"testOnly org.jetbrains.* -- $fastTestOptions")
 addCommandAlias("runFastTestsScala", s"testOnly scala.* -- $fastTestOptions")
-
-// run dfa tests directly in that module
-addCommandAlias("runDfaTests", "dfa/test")
 
 // Compilation cache setup
 ThisBuild / pushRemoteCacheTo := Some(MavenCache("compilation-cache", (ThisBuild / baseDirectory).value / "compilation-cache"))
