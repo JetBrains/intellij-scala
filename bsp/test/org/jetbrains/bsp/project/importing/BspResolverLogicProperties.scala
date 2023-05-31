@@ -14,7 +14,6 @@ import org.junit.experimental.categories.Category
 import org.junit.{Ignore, Test}
 import org.scalacheck.Prop.{forAll, propBoolean}
 import org.scalacheck._
-import org.scalatestplus.junit.AssertionsForJUnit
 import org.scalatestplus.scalacheck.Checkers
 
 import java.io.File
@@ -22,7 +21,7 @@ import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[SlowTests]))
-class BspResolverLogicProperties extends AssertionsForJUnit with Checkers {
+class BspResolverLogicProperties extends Checkers {
 
   implicit val gson: Gson = new GsonBuilder().setPrettyPrinting().create()
 

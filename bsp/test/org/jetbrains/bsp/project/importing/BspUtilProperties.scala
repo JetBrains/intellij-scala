@@ -4,13 +4,12 @@ import ch.epfl.scala.bsp.testkit.gen.UtilGenerators._
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.plugins.scala.SlowTests
 import org.junit.experimental.categories.Category
-import org.junit.{Ignore, Test}
+import org.junit.Test
 import org.scalacheck.Prop.forAll
-import org.scalatestplus.junit.AssertionsForJUnit
 import org.scalatestplus.scalacheck.Checkers
 
 @Category(Array(classOf[SlowTests]))
-class BspUtilProperties extends AssertionsForJUnit with Checkers {
+class BspUtilProperties extends Checkers {
 
   @Test
   def stringOpsToUri(): Unit = check(
@@ -19,7 +18,7 @@ class BspUtilProperties extends AssertionsForJUnit with Checkers {
     }
   )
 
-  @Test @Ignore
+  @Test
   def uriOpsToFile(): Unit = check(
     forAll(genPath) { path =>
       path.toUri.toFile == path.toFile
