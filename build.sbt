@@ -531,7 +531,7 @@ lazy val scalatestFindersTestSettings = Seq(
 )
 val scalatestLatest_2   = "2.2.6"
 val scalatestLatest_3_0 = "3.0.9"
-val scalatestLatest_3_2 = "3.2.12"
+val scalatestLatest_3_2 = "3.2.16"
 
 lazy val scalatestFindersTests_2 = Project("scalatest-finders-tests-2", scalatestFindersRootDir / "tests-2")
   .dependsOn(scalatestFinders)
