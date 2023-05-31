@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.IsTemplateDefinitio
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
-import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScEnd, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScEnd, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScEnumerator, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction}
@@ -190,11 +190,12 @@ object ScalaGoToDeclarationHandler {
 
   private def syntheticTarget(element: PsiElement): Seq[PsiElement] =
     element match {
-      case ScEnum.Original(enum)                            => Seq(enum)
-      case ScEnumCase.Original(enumCase)                    => Seq(enumCase)
-      case ScGivenDefinition.DesugaredTypeDefinition(gvn)   => Seq(gvn)
-      case function: ScFunction                             => Option(function.syntheticNavigationElement).toSeq
-      case scObject: ScObject if scObject.isSyntheticObject =>
+      case ScPrimaryConstructor.ofClass(ScEnum.Original(enum)) => Seq(enum)
+      case ScEnum.Original(enum)                               => Seq(enum)
+      case ScEnumCase.Original(enumCase)                       => Seq(enumCase)
+      case ScGivenDefinition.DesugaredTypeDefinition(gvn)      => Seq(gvn)
+      case function: ScFunction                                => Option(function.syntheticNavigationElement).toSeq
+      case scObject: ScObject if scObject.isSyntheticObject    =>
         val companionClass = getCompanionModule(scObject)
         companionClass.collect {
           case ScEnum.Original(enum) => enum
