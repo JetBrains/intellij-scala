@@ -20,6 +20,36 @@ class Scala3UniversalApplyMethodTest extends ScalaLightCodeInsightFixtureTestCas
       |""".stripMargin
   )
 
+  def testSimpleScalaClassTypeMismatch(): Unit = checkTextHasNoErrors(
+    s"""
+       |class A(i: Int)
+       |
+       |object Test {
+       |  val a: A = A(${withTypeMismatchError("true", expected = "Int", actual = "Boolean")})
+       |}
+       |""".stripMargin
+  )
+
+  def testSimpleScalaClassTooFewArguments(): Unit = checkTextHasNoErrors(
+    s"""
+       |class A(i: Int, s: String)
+       |
+       |object Test {
+       |  val a: A = A${withError("()", "Unspecified value parameters: i: Int, s: String")}
+       |}
+       |""".stripMargin
+  )
+
+  def testSimpleScalaClassTooManyArguments(): Unit = checkTextHasNoErrors(
+    s"""
+       |class A
+       |
+       |object Test {
+       |  val a: A = A${withError("(1", "Too many arguments for method A")}, true)
+       |}
+       |""".stripMargin
+  )
+
   def testWithCompanionObject(): Unit = checkTextHasNoErrors(
     """
       |class A(i: Int)
@@ -29,6 +59,17 @@ class Scala3UniversalApplyMethodTest extends ScalaLightCodeInsightFixtureTestCas
       |  val a: A = A(213)
       |}
       |""".stripMargin
+  )
+
+  def testWithCompanionObjectTypeMismatch(): Unit = checkTextHasNoErrors(
+    s"""
+       |class A(i: Int)
+       |object A {}
+       |
+       |object Test {
+       |  val a: A = A(${withTypeMismatchError("true", expected = "Int", actual = "Boolean")})
+       |}
+       |""".stripMargin
   )
 
   def testAlreadyHasApply(): Unit = checkHasErrorAroundCaret(
@@ -50,6 +91,14 @@ class Scala3UniversalApplyMethodTest extends ScalaLightCodeInsightFixtureTestCas
       |""".stripMargin
   )
 
+  def testJavaClassOverloaded(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Test {
+       |  val a = ${withError("String", "Cannot resolve overloaded method 'String'")}("123", 4, 5)
+       |}
+       |""".stripMargin
+  )
+
   def testWithTypeParameters(): Unit = checkTextHasNoErrors(
     """
       |class Foo[A, B](a: A, b: B)
@@ -59,6 +108,17 @@ class Scala3UniversalApplyMethodTest extends ScalaLightCodeInsightFixtureTestCas
       |  val foo2: Foo[Double, Long] = Foo(1d, 2l)
       |}
       |""".stripMargin
+  )
+
+  def testWithTypeParametersTypeMismatch(): Unit = checkTextHasNoErrors(
+    s"""
+       |class Foo[A, B](a: A, b: B)
+       |
+       |object Test {
+       |  val foo = Foo[String, Int](${withTypeMismatchError("1213", expected = "String", actual = "Int")}, 'c')
+       |  val foo2: Foo[Boolean, Float] = Foo(false, List.empty[String])
+       |}
+       |""".stripMargin
   )
 
   def testExplicitApply(): Unit = checkTextHasNoErrors(
@@ -71,6 +131,16 @@ class Scala3UniversalApplyMethodTest extends ScalaLightCodeInsightFixtureTestCas
       |""".stripMargin
   )
 
+  def testExplicitApplyTypeMismatch(): Unit = checkTextHasNoErrors(
+    s"""
+       |class A(i: Int)
+       |
+       |object Test {
+       | val a = A.apply(${withTypeMismatchError("12d", expected = "Int", actual = "Double")})
+       |}
+       |""".stripMargin
+  )
+
   def testJavaWithTypeParameters(): Unit = checkTextHasNoErrors(
     """
       |object Test {
@@ -79,6 +149,17 @@ class Scala3UniversalApplyMethodTest extends ScalaLightCodeInsightFixtureTestCas
       |}
       |
       |""".stripMargin
+  )
+
+  def testJavaWithTypeParametersTypeMismatch(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Test {
+       |  val col: java.util.Collection[String] = ???
+       |  val opt: java.util.Set[String] =
+       |    java.util.HashSet[String](${withTypeMismatchError("col", expected = "Int", actual = "util.Collection[String]")}, col)
+       |}
+       |
+       |""".stripMargin
   )
 
   def testAccessibility(): Unit = checkHasErrorAroundCaret(
@@ -123,4 +204,10 @@ class Scala3UniversalApplyMethodTest extends ScalaLightCodeInsightFixtureTestCas
 //      |}
 //      |""".stripMargin
 //  )
+
+  private def withError(text: String, description: String): String =
+    s"""<error descr="$description">$text</error>"""
+
+  private def withTypeMismatchError(text: String, expected: String, actual: String): String =
+    withError(text, s"Type mismatch, expected: $expected, actual: $actual")
 }

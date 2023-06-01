@@ -206,7 +206,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
               /**
                * This is the case, where constructor proxy is accessed with an explicit .apply call,
                * to avoid having an unresolved reference to synthetic object, mark it with the
-               * [[ConstructorProxieHolderKey]] key.
+               * [[ReferenceExpressionResolver.ConstructorProxyHolderKey]] key.
                */
               import ReferenceExpressionResolver.ConstructorProxyHolderKey
               reference.qualifier.foreach(_.putUserData(ConstructorProxyHolderKey, true))
@@ -261,13 +261,18 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         val smartResult = smartResolve()
         val withProxies = resolveConstructorProxies(smartResult)
 
-        if (withProxies.exists(_.isApplicable())) withProxies
-        else                                      fallbackResolve(withProxies)
+        def isApplicable(srr: ScalaResolveResult): Boolean =
+          srr.isApplicable() ||
+            // resolve constructors (for Universal Apply) even if the arguments are not applicable
+            srr.element.asOptionOf[PsiMethod].exists(_.isConstructor)
+
+        if (withProxies.exists(isApplicable)) withProxies
+        else                                  fallbackResolve(withProxies)
       }
 
     val resolveAssignment: Boolean =
       result.isEmpty &&
-        (context.isInstanceOf[ScInfixExpr] || context.isInstanceOf[ScMethodCall]) &&
+        context.is[ScInfixExpr, ScMethodCall] &&
         name.endsWith("=") &&
         !name.startsWith("=") &&
         !Seq("!=", "<=", ">=").contains(name) &&
@@ -471,7 +476,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         scType <- typeable.`type`().toOption
         (clazz, subst) <- scType.extractClassType
       } {
-        if (!clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType) {
+        if (!clazz.is[ScTemplateDefinition] && clazz.isAnnotationType) {
           baseProcessor match {
             case completionProcessor: CompletionProcessor =>
               if (index == 0) {
@@ -547,7 +552,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           for (candidate <- processor.candidatesS) {
             candidate.element match {
               case method: ScMethodLike =>
-                val isFunction = method.isInstanceOf[ScFunction]
+                val isFunction = method.is[ScFunction]
                 baseProcessor match {
                   case baseProcessor: CompletionProcessor =>
                     collectNamedCompletions(
@@ -599,7 +604,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
       qualifier.getNonValueType() match {
         case Right(tpt @ ScTypePolymorphicType(internal, tp)) if tp.nonEmpty &&
-          !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[UndefinedType] /* optimization */ =>
+          !internal.is[ScMethodType, UndefinedType] /* optimization */ =>
           val substed = tpt.typeParameterOrLowerSubstitutor(internal)
           processType(substed, qualifier, processor)
           if (processor.candidates.nonEmpty) return processor
