@@ -8,8 +8,9 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler.AnnotationParameters
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElementExt}
+import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler.{AnnotationParameters, UniversalApplyCall, UniversalApplyCallContext}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeArgs, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
@@ -71,7 +72,6 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: PsiElement =>
-        implicit val project: ProjectContext = args.projectContext
         implicit val tpc: TypePresentationContext = TypePresentationContext(args)
         val color: Color = context.getDefaultParameterColor
         val index = context.getCurrentParameterIndex
@@ -161,7 +161,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                       buffer.append("(")
                       val parameters = parametersOf(clause)
                       if (parameters.nonEmpty) {
-                        applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                        applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicitOrUsing)(args, buffer, -1)
                       }
                       buffer.append(")")
                     }
@@ -169,7 +169,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     if (multipleLists) {
                       buffer.append("(")
                     }
-                    isGrey = applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, index)
+                    isGrey = applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicitOrUsing)(args, buffer, index)
                     if (multipleLists) {
                       buffer.append(")")
                     }
@@ -178,7 +178,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                       buffer.append("(")
                       val parameters = parametersOf(clause)
                       if (parameters.nonEmpty) {
-                        applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                        applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicitOrUsing)(args, buffer, -1)
                       }
                       buffer.append(")")
                     }
@@ -278,7 +278,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                 buffer.append("(")
                 val parameters = parametersOf(clause)
                 if (parameters.nonEmpty) {
-                  applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                  applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicitOrUsing)(args, buffer, -1)
                 }
                 buffer.append(")")
               }
@@ -286,7 +286,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
               if (multipleLists) {
                 buffer.append("(")
               }
-              isGrey = applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, index)
+              isGrey = applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicitOrUsing)(args, buffer, index)
               if (multipleLists) {
                 buffer.append(")")
               }
@@ -295,7 +295,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                 buffer.append("(")
                 val parameters = parametersOf(clause)
                 if (parameters.nonEmpty) {
-                  applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                  applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicitOrUsing)(args, buffer, -1)
                 }
                 buffer.append(")")
               }
@@ -524,10 +524,76 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     }
   }
 
-  def elementsForParameterInfo(args: Invocation): Seq[Object] = {
+  private def elementsForParameterInfo(args: Invocation): Seq[Object] = {
     implicit val project: ProjectContext = args.element.projectContext
+
+    def elementsForConstructorInvocationParameterInfo(clazz: PsiClass,
+                                                      subst: ScSubstitutor,
+                                                      argumentLists: Seq[ScalaPsiElement],
+                                                      maybeTypeArgs: Option[ScTypeArgs]): Seq[Object] = {
+      val resultBuilder = ArraySeq.newBuilder[Object]
+      val i = argumentLists.indexOf(args.element)
+
+      clazz match {
+        case constructorOwner: ScConstructorOwner =>
+          constructorOwner.constructor match {
+            case Some(constructor: ScPrimaryConstructor) if i < constructor.effectiveParameterClauses.length =>
+              maybeTypeArgs match {
+                case Some(typeArgs) =>
+                  val substitutor = ScSubstitutor.bind(constructorOwner.typeParameters, typeArgs.typeArgs)(_.calcType)
+                  resultBuilder += ((constructor, substitutor.followed(subst), i))
+                case _ => resultBuilder += ((constructor, subst, i))
+              }
+            case Some(_) if i == 0 => resultBuilder += ""
+            case None => resultBuilder += ""
+            case _ =>
+          }
+
+          constructorOwner.functions.foreach { function =>
+            if (function.isConstructor && function.clauses.fold(1)(_.clauses.length) > i) {
+              resultBuilder += ((new PhysicalMethodSignature(function, subst), i))
+            }
+          }
+        case annotation: PsiClass if annotation.isAnnotationType =>
+          val seq = annotation.getMethods.toSeq.collect {
+            case method: PsiAnnotationMethod =>
+              (method.name, method.getReturnType.toScType(), method.getDefaultValue)
+          }
+          resultBuilder += ((AnnotationParameters(seq), i))
+        case psiClass: PsiClass if !psiClass.is[ScTypeDefinition] =>
+          psiClass.getConstructors.foreach { constructor =>
+            maybeTypeArgs match {
+              case Some(typeArgs) =>
+                val substitutor = ScSubstitutor.bind(psiClass.getTypeParameters, typeArgs.typeArgs)(_.calcType)
+                val signature = new PhysicalMethodSignature(constructor, substitutor.followed(subst))
+                resultBuilder += ((signature, i))
+              case _ =>
+                val signature = new PhysicalMethodSignature(constructor, subst)
+                resultBuilder += ((signature, i))
+            }
+          }
+        case _ =>
+      }
+      resultBuilder.result()
+    }
+
     args.parent match {
-      case call @ (_: MethodInvocation | _: ScReferenceExpression) =>
+      case UniversalApplyCall(UniversalApplyCallContext(constructor, substitutor, argumentLists, maybeTypeArgs)) =>
+        val psiClass = constructor.containingClass
+        elementsForConstructorInvocationParameterInfo(psiClass, substitutor, argumentLists, maybeTypeArgs)
+      case constrInvocation: ScConstructorInvocation =>
+        val typeElement = constrInvocation.typeElement
+        typeElement.calcType.extractClassType match {
+          case Some((psiClass: PsiClass, substitutor: ScSubstitutor)) =>
+            val maybeTypeArgs = typeElement match {
+              case gen: ScParameterizedTypeElement =>
+                Some(gen.typeArgList)
+              case _ => None
+            }
+            elementsForConstructorInvocationParameterInfo(psiClass, substitutor, constrInvocation.arguments, maybeTypeArgs)
+          case _ => Seq.empty
+        }
+      case call@(_: MethodInvocation | _: ScReferenceExpression) =>
         val resultBuilder = ArraySeq.newBuilder[Object]
         def collectResult(): Unit = {
           val canBeUpdate = call.getParent match {
@@ -625,53 +691,6 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           }
         }
         collectResult()
-        resultBuilder.result()
-      case constrInvocation: ScConstructorInvocation =>
-        val resultBuilder = ArraySeq.newBuilder[Object]
-        val typeElement = constrInvocation.typeElement
-        val i = constrInvocation.arguments.indexOf(args.element)
-        typeElement.calcType.extractClassType match {
-          case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
-            clazz match {
-              case clazz: ScConstructorOwner =>
-                clazz.constructor match {
-                  case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameterClauses.length =>
-                    typeElement match {
-                      case gen: ScParameterizedTypeElement =>
-                        val substitutor = ScSubstitutor.bind(clazz.typeParameters, gen.typeArgList.typeArgs)(_.calcType)
-                        resultBuilder += ((constr, substitutor.followed(subst), i))
-                      case _ => resultBuilder += ((constr, subst, i))
-                    }
-                  case Some(_) if i == 0 => resultBuilder += ""
-                  case None => resultBuilder += ""
-                  case _ =>
-                }
-                for (
-                  constr <- clazz.functions
-                  if constr.isConstructor &&
-                     constr.clauses.map(_.clauses.length).getOrElse(1) > i
-                ) {
-                  resultBuilder += ((new PhysicalMethodSignature(constr, subst), i))
-                }
-              case clazz: PsiClass if clazz.isAnnotationType =>
-                val resulting: (AnnotationParameters, Int) =
-                  (AnnotationParameters(clazz.getMethods.toSeq.filter(_.is[PsiAnnotationMethod]).map(meth => (meth.name,
-                    meth.getReturnType.toScType(),
-                    meth.asInstanceOf[PsiAnnotationMethod].getDefaultValue))), i)
-                resultBuilder += resulting
-              case clazz: PsiClass if !clazz.is[ScTypeDefinition] =>
-                for (constructor <- clazz.getConstructors) {
-                  typeElement match {
-                    case gen: ScParameterizedTypeElement =>
-                      val substitutor = ScSubstitutor.bind(clazz.getTypeParameters, gen.typeArgList.typeArgs)(_.calcType)
-                      resultBuilder += ((new PhysicalMethodSignature(constructor, substitutor.followed(subst)), i))
-                    case _ => resultBuilder += ((new PhysicalMethodSignature(constructor, subst), i))
-                  }
-                }
-              case _ =>
-            }
-          case _ =>
-        }
         resultBuilder.result()
       case self: ScSelfInvocation =>
         val resultBuilder = ArraySeq.newBuilder[Object]
@@ -778,5 +797,48 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 }
 
 object ScalaFunctionParameterInfoHandler {
-  case class AnnotationParameters(seq: Seq[(String, ScType, PsiAnnotationMemberValue)])
+  final case class AnnotationParameters(seq: Seq[(String, ScType, PsiAnnotationMemberValue)])
+
+  private final case class UniversalApplyCallContext(
+    constructor: PsiMethod,
+    substitutor: ScSubstitutor,
+    argumentLists: Seq[ScArgumentExprList] = Seq.empty,
+    typeArgs: Option[ScTypeArgs] = None,
+  )
+
+  private object UniversalApplyCall {
+    def unapply(call: ScMethodCall): Option[UniversalApplyCallContext] =
+      if (!call.isInScala3File) None
+      else call.deepestInvokedExpr match {
+        case ref: ScReferenceExpression =>
+          findConstructorWithSubstitutor(ref)
+            .map(_.copy(argumentLists = getArgumentLists(call)))
+
+        case genCall @ ScGenericCall(ref, _) =>
+          findConstructorWithSubstitutor(ref)
+            .map(_.copy(
+              argumentLists = getArgumentLists(call),
+              typeArgs = Some(genCall.typeArgs)
+            ))
+        case _ => None
+      }
+
+    private[this] def findConstructorWithSubstitutor(ref: ScReferenceExpression): Option[UniversalApplyCallContext] =
+      ref.multiResolveScala(incomplete = false)
+        .headOption
+        .collect {
+          case ScalaResolveResult(method: PsiMethod, subst) if method.isConstructor =>
+            UniversalApplyCallContext(method, subst)
+        }
+
+    private[this] def getArgumentLists(call: ScMethodCall): Seq[ScArgumentExprList] = {
+      @tailrec def doGetArgs(call: ScMethodCall, acc: Vector[ScArgumentExprList]): Seq[ScArgumentExprList] =
+        call.getEffectiveInvokedExpr match {
+          case inner: ScMethodCall => doGetArgs(inner, inner.args +: acc)
+          case _ => acc
+        }
+
+      doGetArgs(call, Vector(call.args))
+    }
+  }
 }
