@@ -25,7 +25,7 @@ class EnclosingObjectResolveTest extends SimpleTestCase {
         |  }
         |}
       """.stripMargin
-    val (psi, caretPos) = parseText(code, EditorTestUtil.CARET_TAG)
+    val (psi, caretPos) = parseScalaFileAndGetCaretPosition(code, EditorTestUtil.CARET_TAG)
     val reference = psi.findElementAt(caretPos).getParent
     reference match {
       case r: ScReference => assert(!shouldPass ^ r.resolve() != null, "failed to resolve enclosing object")

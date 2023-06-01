@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle, ScalaLanguage, TypecheckerTests}
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
 /**
@@ -15,10 +15,10 @@ import org.junit.experimental.categories.Category
 abstract class ModifierCheckerTestBase extends SimpleTestCase {
   import Message._
 
-  protected def scalaLanguage: com.intellij.lang.Language
+  protected def scalaVersion: ScalaVersion
 
   protected def messages(code: String) = {
-    val file = parseText(code, scalaLanguage)
+    val file = parseScalaFile(code, scalaVersion)
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
     file.depthFirst().foreach {
@@ -110,7 +110,7 @@ abstract class ModifierCheckerTestBase extends SimpleTestCase {
 class ModifierCheckerTest_Scala_2 extends ModifierCheckerTestBase {
   import Message._
 
-  override protected def scalaLanguage: com.intellij.lang.Language = ScalaLanguage.INSTANCE
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.default
 
   def testInnerObject(): Unit = {
     assertMatches(messages("object A { final object B }")) {
@@ -245,7 +245,7 @@ class ModifierCheckerTest_Scala_2 extends ModifierCheckerTestBase {
 class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
   import Message._
 
-  override protected def scalaLanguage = Scala3Language.INSTANCE
+  override protected def scalaVersion = ScalaVersion.Latest.Scala_3
 
   override protected def messages(@Language(value = "Scala 3") code: String) =
     super.messages(code)

@@ -10,7 +10,7 @@ import org.junit.experimental.categories.Category
 abstract class FailedResolveCaretTestBase extends SimpleTestCase {
 
   def doResolveCaretTest(code: String): Unit = {
-    val (psi, caretPos) = parseText(code, EditorTestUtil.CARET_TAG)
+    val (psi, caretPos) = parseScalaFileAndGetCaretPosition(code, EditorTestUtil.CARET_TAG)
     val reference = psi.findElementAt(caretPos).getParent
     reference match {
       case r: ScReference => assert(r.resolve() == null, "failed to resolve enclosing object")

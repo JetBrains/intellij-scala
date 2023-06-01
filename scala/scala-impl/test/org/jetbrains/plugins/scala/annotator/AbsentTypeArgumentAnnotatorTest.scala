@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle, ScalaLanguage}
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
 
 abstract class AbsentTypeArgumentAnnotatorTestBase extends AnnotatorSimpleTestCase {
   import Message._
@@ -18,13 +18,13 @@ abstract class AbsentTypeArgumentAnnotatorTestBase extends AnnotatorSimpleTestCa
 
   private final val Suffix = "\n}"
 
-  protected def scalaLanguage: com.intellij.lang.Language
+  protected def scalaVersion: ScalaVersion
 
   protected def messagesInContext(@Language(value = "Scala", prefix = Prefix, suffix  = Suffix) code: String): List[Message] =
     messages(s"$Prefix$code$Suffix")
 
   protected def messages(@Language(value = "Scala") code: String): List[Message] = {
-    val file: ScalaFile = parseText(code, scalaLanguage)
+    val file: ScalaFile = parseScalaFile(code, scalaVersion)
 
     val annotator = new ScalaAnnotator()
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
@@ -37,7 +37,7 @@ abstract class AbsentTypeArgumentAnnotatorTestBase extends AnnotatorSimpleTestCa
 class AbsentTypeArgumentAnnotatorTest_Scala2 extends AbsentTypeArgumentAnnotatorTestBase {
   import Message._
 
-  override protected def scalaLanguage: com.intellij.lang.Language = ScalaLanguage.INSTANCE
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.default
 
   def testSimple(): Unit = {
     assertMatches(messagesInContext("val x: A1 = null")){
@@ -163,9 +163,8 @@ class AbsentTypeArgumentAnnotatorTest_Scala2 extends AbsentTypeArgumentAnnotator
 }
 
 class AbsentTypeArgumentAnnotatorTest_Scala3 extends AbsentTypeArgumentAnnotatorTest_Scala2 {
-  import Message._
 
-  override protected def scalaLanguage: com.intellij.lang.Language = Scala3Language.INSTANCE
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
 
   def testParameterlessFunctionWithStableReturnType(): Unit =
     assertNothing(messages(

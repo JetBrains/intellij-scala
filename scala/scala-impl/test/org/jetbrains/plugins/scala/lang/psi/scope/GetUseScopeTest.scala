@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 class GetUseScopeTest extends SimpleTestCase {
   
   private def doTest(fileText: String)(scopeAssertion: (ScNamedElement, SearchScope) => Unit): Unit = {
-    val (file, offset) = parseText(fileText.withNormalizedSeparator.trim, CARET_TAG)
+    val (file, offset) = parseScalaFileAndGetCaretPosition(fileText.withNormalizedSeparator.trim, CARET_TAG)
     val named = file.findElementAt(offset).parentOfType(classOf[ScNamedElement]).get
     scopeAssertion(named, named.getUseScope)
   }

@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala.lang
-package parser
-package scala3
+package org.jetbrains.plugins.scala.lang.parser.scala3
 
-import com.intellij.lang.Language
-import org.jetbrains.plugins.scala.Scala3Language
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.lang.parser.SimpleScalaParserTestBase
 
 trait SimpleScala3ParserTestBase extends SimpleScalaParserTestBase {
-  override protected def language: Language = Scala3Language.INSTANCE
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
 }

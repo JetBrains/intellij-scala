@@ -16,7 +16,7 @@ abstract class StatementMoverTestBase extends ScalaLightCodeInsightFixtureTestCa
   private def isAvailable(code: String, direction: Direction): Boolean = {
     val offset = code.indexOf(|)
     val cleanCode = code.replace(|, "")
-    val file = cleanCode.parse(version.language)(getProject)
+    val file = cleanCode.parse(version)(getProject)
     val editor = new EditorMock(cleanCode, offset)
 
     new ScalaStatementMover()

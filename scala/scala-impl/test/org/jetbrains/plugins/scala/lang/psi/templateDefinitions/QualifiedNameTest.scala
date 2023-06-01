@@ -10,7 +10,7 @@ class QualifiedNameTest extends SimpleTestCase {
   private val caretMarker = EditorTestUtil.CARET_TAG
 
   private def doTest(expectedScalaFQN: String, expectedJavaFQN: String, fileText: String): Unit = {
-    val (scalaFile, caret) = parseText(fileText, caretMarker)
+    val (scalaFile, caret) = parseScalaFileAndGetCaretPosition(fileText, caretMarker)
     val atCaret = scalaFile.findElementAt(caret)
     val scalaClass = PsiTreeUtil.getParentOfType(atCaret, classOf[ScTemplateDefinition])
     Assert.assertEquals("Wrong Java FQN:", expectedJavaFQN, scalaClass.getQualifiedName)

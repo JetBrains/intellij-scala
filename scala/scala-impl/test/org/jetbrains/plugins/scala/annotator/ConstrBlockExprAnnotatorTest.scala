@@ -1,12 +1,10 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.lang.Language
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle, ScalaLanguage}
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion, TypecheckerTests}
 import org.junit.Assert
 import org.junit.experimental.categories.Category
 
@@ -14,7 +12,7 @@ import org.junit.experimental.categories.Category
 abstract class ConstrBlockExprAnnotatorTestBase extends SimpleTestCase {
   import Message._
 
-  protected def language: Language
+  protected def scalaVersion: ScalaVersion
 
   def test_wrong_order_auxiliary_constructors_1(): Unit = {
     val code =
@@ -158,7 +156,7 @@ abstract class ConstrBlockExprAnnotatorTestBase extends SimpleTestCase {
   }
 
   private def messages(code: String): List[Message] = {
-    val file: ScalaFile = parseText(code, language)
+    val file: ScalaFile = parseScalaFile(code, scalaVersion)
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
@@ -174,9 +172,9 @@ abstract class ConstrBlockExprAnnotatorTestBase extends SimpleTestCase {
 
 
 class ConstrBlockExprAnnotatorTest_scala_2 extends ConstrBlockExprAnnotatorTestBase {
-  override protected def language: Language = ScalaLanguage.INSTANCE
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.default
 }
 
 class ConstrBlockExprAnnotatorTest_scala_3 extends ConstrBlockExprAnnotatorTestBase {
-  override protected def language: Language = Scala3Language.INSTANCE
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
 }

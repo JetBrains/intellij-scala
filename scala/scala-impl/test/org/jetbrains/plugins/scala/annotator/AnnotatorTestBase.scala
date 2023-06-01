@@ -19,13 +19,12 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[TypecheckerTests]))
 abstract class AnnotatorTestBase[T <: ScalaPsiElement : reflect.ClassTag] extends SimpleTestCase {
 
-  final val Prefix = "object Holder { class Object; "
-  final val Suffix = " }"
+  protected final val Prefix = "object Holder { class Object; "
+  protected final val Suffix = " }"
 
-  protected def messages(@Language(value = "Scala", prefix = Prefix, suffix = Suffix) code: String,
-                         lang: com.intellij.lang.Language = ScalaLanguage.INSTANCE): Option[List[Message]] = {
+  protected def messages(@Language(value = "Scala", prefix = Prefix, suffix = Suffix) code: String): Option[List[Message]] = {
     val s: String = Prefix + code + Suffix
-    val file: ScalaFile = s.parse(lang)
+    val file: ScalaFile = s.parse(scalaVersion)
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     val errorElements = file.depthFirst().filterByType[PsiErrorElement].map(_.getText).toList
