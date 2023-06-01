@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.meta.intellij.QuasiquoteInferUtil
@@ -34,6 +34,8 @@ object Compatibility {
   private lazy val LOG =
     Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.types.Compatibility")
 
+  //TODO: get rid of this workaround
+  // Why we even have this hack? Tests should work same way as produciton
   @TestOnly
   var seqClass: Option[PsiClass] = None
 
@@ -356,13 +358,13 @@ object Compatibility {
               val expectedTpe = ScParameterizedType(stpe, Seq(param.expectedType))
 
               for (exprType <- expr
-                                .getTypeAfterImplicitConversion(
-                                  checkWithImplicits,
-                                  isShapesResolve,
-                                  Some(expectedTpe)
-                                )
-                                .tr
-                                .toOption) {
+                .getTypeAfterImplicitConversion(
+                  checkWithImplicits,
+                  isShapesResolve,
+                  Some(expectedTpe)
+                )
+                .tr
+                .toOption) {
                 if (exprType.weakConforms(tpe)) {
                   matched ::= (param, expr, exprType)
                   constraintAccumulator += exprType
@@ -492,8 +494,8 @@ object Compatibility {
 
               constraintAccumulator += defaultTp.conforms(paramType, ConstraintSystem.empty).constraints
             case Some(defaultTp) =>
-                return ConformanceExtResult(Seq(DefaultTypeParameterMismatch(defaultTp, paramType)), constraintAccumulator,
-                  defaultParameterUsed = true, matched)
+              return ConformanceExtResult(Seq(DefaultTypeParameterMismatch(defaultTp, paramType)), constraintAccumulator,
+                defaultParameterUsed = true, matched)
             case _ =>
           }
         }
@@ -602,11 +604,12 @@ object Compatibility {
     }
   }
 
-  def checkConstructorConformance(constrInvocation: ConstructorInvocationLike,
-                                  substitutor: ScSubstitutor,
-                                  argClauses: Seq[ScArgumentExprList],
-                                  paramClauses: Seq[ScParameterClause])
-                                 (implicit project: ProjectContext): ConformanceExtResult = {
+  def checkConstructorConformance(
+    constrInvocation: ConstructorInvocationLike,
+    substitutor: ScSubstitutor,
+    argClauses: Seq[ScArgumentExprList],
+    paramClauses: Seq[ScParameterClause]
+  )(implicit project: ProjectContext): ConformanceExtResult = {
 
     // a first empty argument clause might lack
     val nonEmptyArgClause =
@@ -652,13 +655,16 @@ object Compatibility {
     // Providing more clauses than required is ok, as those might be calls to apply
     // see: class A(i: Int) { def apply(j: Int) = ??? }
     // new A(2)(3) is ok
-    val missedParameterClauseProblems = missedParameterClauseProblemsFor(paramClauses, nonEmptyArgClause.length)
+    val missedParameterClauseProblems = missedParameterClauseProblemsFor(paramClauses, nonEmptyArgClause.length, isConstructorInvocation = true)
     if (missedParameterClauseProblems.isEmpty) result
     else result.copy(problems = result.problems ++ missedParameterClauseProblems)
   }
 
-  def missedParameterClauseProblemsFor(paramClauses: Seq[ScParameterClause],
-                                       argClauseCount: Int): Seq[MissedParametersClause] = {
+  def missedParameterClauseProblemsFor(
+    paramClauses: Seq[ScParameterClause],
+    argClauseCount: Int,
+    isConstructorInvocation: Boolean
+  ): Seq[MissedParametersClause] = {
     var minParamClauses = paramClauses.length
 
     val hasImplicitClause = paramClauses.lastOption.exists(_.isImplicitOrUsing)
@@ -666,11 +672,23 @@ object Compatibility {
     if (hasImplicitClause)
       minParamClauses -= 1
 
-    if (argClauseCount < minParamClauses) {
-      val missingClauses = paramClauses.drop(argClauseCount)
-      missingClauses.map(MissedParametersClause.apply)
-    } else {
-      Seq.empty
+    val missedArgumentClauses = minParamClauses - argClauseCount
+    if (missedArgumentClauses > 0) {
+      val reportMissingClauses: Boolean = {
+        val scalaLanguageLevel = paramClauses.headOption.map(_.scalaLanguageLevelOrDefault)
+        val isBeforeScala213 = scalaLanguageLevel.exists(_ < ScalaLanguageLevel.Scala_2_13)
+        if (isBeforeScala213 && isConstructorInvocation)
+          true
+        else
+          paramClauses.drop(argClauseCount).exists(_.parameters.nonEmpty)
+      }
+
+      if (reportMissingClauses) {
+        val missingClauses = paramClauses.drop(argClauseCount)
+        missingClauses.map(MissedParametersClause.apply)
+      }
+      else Seq.empty
     }
+    else Seq.empty
   }
 }

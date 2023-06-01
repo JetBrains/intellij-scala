@@ -1,9 +1,8 @@
-package org.jetbrains.plugins.scala.failed
-package annotator
+package org.jetbrains.plugins.scala.failed.annotator
 
 import org.jetbrains.plugins.scala.annotator._
 
-class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
+class ApplicationAnnotatorTest_Failing extends ApplicationAnnotatorTestBase {
   override protected def shouldPass: Boolean = false
 
   def testSCL4655(): Unit = {

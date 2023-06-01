@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.annotator.element.ScConstructorInvocationAnnotator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
-class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
+abstract class ConstructorInvocationAnnotatorTestBase extends AnnotatorSimpleTestCase {
   import Message._
 
   final val Header = """
@@ -382,8 +383,66 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     assertNothing(messages(code))
   }
 
+  protected val EmptyTrailingParametersClausesCode =
+    """class A0
+      |class A1()
+      |class A2()()
+      |class A3()()()
+      |class A4(x: Int)()()
+      |
+      |new A0
+      |new A0()
+      |
+      |new A1
+      |new A1()
+      |
+      |new A2 //OK: 2.13, ERROR: 2.12
+      |new A2() //OK: 2.13, ERROR: 2.12
+      |new A2()()
+      |
+      |new A3 //OK: 2.13, ERROR: 2.12
+      |new A3() //OK: 2.13, ERROR: 2.12
+      |new A3()() //OK: 2.13, ERROR: 2.12
+      |new A3()()()
+      |
+      |new A4(42)
+      |new A4(42)()
+      |new A4(42)()()
+      |""".stripMargin
 
-  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
+  def testEmptyTrailingParametersClauses(): Unit
+
+  def testEmptyLeadingParametersClauses(): Unit = {
+    val EmptyLeadingParametersClausesCode =
+      """class A5()()(x: Int)
+        |
+        |new A5(42)
+        |new A5()(42)
+        |new A5()()(42)
+        |""".stripMargin
+
+    //NOTE: Actually the errors could be less excessive, and we could show less errors, but this is how it worked before
+    assertMessagesText(
+      EmptyLeadingParametersClausesCode,
+      """Error((4,Too many arguments for constructor A5()()(Int))
+        |Error(),Missing argument list for constructor A5()()(Int))
+        |Error(),Missing argument list for constructor A5()()(Int))
+        |Error((4,Too many arguments for constructor A5()()(Int))
+        |Error(),Missing argument list for constructor A5()()(Int))
+        |""".stripMargin
+    )
+  }
+
+  protected def assertMessagesText(code: String, expectedMessagesConcatenated: String): Unit = {
+    val actualMessages = messages(code)
+    assertEqualsFailable(expectedMessagesConcatenated.trim, actualMessages.mkString("\n").trim)
+  }
+
+  protected def assertNoErrors(code: String): Unit = {
+    assertMessagesText(code, "")
+  }
+
+  protected def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val file: ScalaFile = (Header + code).parseWithEventSystem
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
@@ -401,6 +460,41 @@ class ConstructorInvocationAnnotatorTest extends AnnotatorSimpleTestCase {
     finally {
       Compatibility.seqClass = None
     }
+  }
+}
+
+class ConstructorInvocationAnnotatorTest_2_12 extends ConstructorInvocationAnnotatorTestBase {
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_12
+
+  override def testEmptyTrailingParametersClauses(): Unit = {
+    assertMessagesText(EmptyTrailingParametersClausesCode,
+      """Error(A2,Missing argument list for constructor A2)
+        |Error(),Missing argument list for constructor A2)
+        |Error(A3,Missing argument list for constructor A3)
+        |Error(A3,Missing argument list for constructor A3)
+        |Error(),Missing argument list for constructor A3)
+        |Error(),Missing argument list for constructor A3)
+        |Error(),Missing argument list for constructor A3)
+        |Error(),Missing argument list for constructor A4(Int)()())
+        |Error(),Missing argument list for constructor A4(Int)()())
+        |Error(),Missing argument list for constructor A4(Int)()())
+        |""".stripMargin)
+  }
+}
+
+class ConstructorInvocationAnnotatorTest_2_13 extends ConstructorInvocationAnnotatorTestBase {
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_13
+
+  override def testEmptyTrailingParametersClauses(): Unit = {
+    assertNoErrors(EmptyTrailingParametersClausesCode)
+  }
+}
+
+class ConstructorInvocationAnnotatorTest_3 extends ConstructorInvocationAnnotatorTestBase {
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_13
+
+  override def testEmptyTrailingParametersClauses(): Unit = {
+    assertNoErrors(EmptyTrailingParametersClausesCode)
   }
 }
 
@@ -460,5 +554,4 @@ class JavaConstructorInvocationAnnotatorTest extends ScalaHighlightingTestBase w
         |new A()
       """.stripMargin))
   }
-
 }

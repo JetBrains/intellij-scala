@@ -1,11 +1,12 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.annotator.Message.Error
 
-class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
+abstract class ApplicationAnnotatorTest_Common extends ApplicationAnnotatorTestBase {
   import Message._
 
   def testEmpty(): Unit = {
-    assertNothing(messages("()"))
+    assertNoErrors("()")
   }
 
   def testFine(): Unit = {
@@ -14,9 +15,15 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
     }
   }
 
-  def testDoesNotTakeParameters(): Unit = {
+  def testDoesNotTakeParameters_1(): Unit = {
     assertMatches(messages("def f {}; f(Unit, null)")) {
       case Error("(Unit, null)", "f does not take parameters") :: Nil =>
+    }
+  }
+
+  def testDoesNotTakeParameters_2(): Unit = {
+    assertMatches(messages("def foo0: Int = 42 ; foo0()")) {
+      case Error("()", "foo0 does not take parameters") :: Nil =>
     }
   }
 
@@ -90,7 +97,7 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
   def testPositionalAfterNamed(): Unit = {
     assertMatches(messages("def f(a: Any, b: Any, c: Any) {}; f(c = null, null, Unit)")) {
       case Error("null", "Positional after named argument") ::
-              Error("Unit", "Positional after named argument") :: Nil =>
+        Error("Unit", "Positional after named argument") :: Nil =>
     }
   }
 
@@ -121,9 +128,12 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
   }
 
   def testIncorrectExpansion(): Unit = {
-    assertMatches(messages("def f(a: Any, b: Any) {}; f(Seq(null): _*, Seq(null): _*)")) {
+    assertMatches(messages(
+      """def f(a: Any, b: Any): Unit = {}
+        |f(Seq(null): _*, Seq(null): _*)
+        |""".stripMargin)) {
       case Error("Seq(null): _*", "Expansion for non-repeated parameter") ::
-              Error("Seq(null): _*", "Expansion for non-repeated parameter") :: Nil =>
+        Error("Seq(null): _*", "Expansion for non-repeated parameter") :: Nil =>
     }
   }
 
@@ -145,15 +155,19 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
     }
   }
 
-  def testNonApplicable(): Unit = {
+  def testNonApplicable_Object(): Unit = {
     assertMatches(messages("object Test; Test()")) {
       case Error("()", "'Test.type' does not take parameters") :: Nil =>
     }
+  }
 
+  def testNonApplicable_Int(): Unit = {
     assertMatches(messages("3()")) {
       case Error("()", "'Int' does not take parameters") :: Nil =>
     }
+  }
 
+  def testNonApplicable_Val(): Unit = {
     assertMatches(messages("val a: Any = (); a(3)")) {
       case Error("(3)", "'a.type' does not take parameters") :: Nil =>
     }
@@ -214,7 +228,7 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
 
 
   def testDoubleDefinedUpdate(): Unit = {
-      val code =
+    val code =
       """
         |object Test {
         |  protected def update(propName: Boolean, p: Any): Unit = ()
@@ -223,7 +237,7 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
         |Test(false) = true
       """.stripMargin
 
-    assertNothing(messages(code))
+    assertNoErrors(code)
   }
 
   val fooDef = "def foo(first: Boolean, int: Int = 3, last: Boolean): Unit = ()\n"
@@ -288,4 +302,82 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
     }
   }
 
+
+  protected val EmptyTrailingParametersClausesCode =
+    """def foo1() = null
+      |def foo2()() = null
+      |def foo3()()() = null
+      |def foo4(x: Int)()() = null
+      |def foo5()()(x: Int) = null
+      |
+      |//SHOULD BE VALID
+      |foo1
+      |foo1()
+      |
+      |foo2
+      |foo2()
+      |foo2()()
+      |
+      |foo3
+      |foo3()
+      |foo3()() //OK: 2.13, ERROR: 2.12
+      |foo3()()()
+      |
+      |foo4(42)
+      |foo4(42)()
+      |foo4(42)()()
+      |""".stripMargin
+
+  def testEmptyTrailingParametersClauses(): Unit = {
+    assertNoErrors(EmptyTrailingParametersClausesCode)
+  }
+
+  def testEmptyLeadingParametersClauses(): Unit = {
+    assertMessagesText(
+      """def foo5()()(x: Int) = null
+        |foo5(42)
+        |foo5()(42)
+        |foo5()()(42)
+        |""".stripMargin,
+      """Error(),Missing argument list () for method foo5()()(Int))
+        |Error(),Missing argument list (x: Int) for method foo5()()(Int))
+        |Error((4,Too many arguments for method foo5()()(Int))
+        |Error((4,Too many arguments)
+        |""".stripMargin
+    )
+  }
+}
+
+class ApplicationAnnotatorTest_2_11 extends ApplicationAnnotatorTest_Common {
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_12
+}
+
+class ApplicationAnnotatorTest_2_12 extends ApplicationAnnotatorTest_Common {
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_12
+}
+
+class ApplicationAnnotatorTest_2_13 extends ApplicationAnnotatorTest_Common {
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_13
+}
+
+class ApplicationAnnotatorTest_3 extends ApplicationAnnotatorTest_Common {
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
+
+  override def testEmptyTrailingParametersClauses(): Unit = {
+    //TODO: this test has wrong expected test data
+    // In Scala 3 empty arguments are mandatory and their absense is considered to be an error
+    // Right now there is an inspection
+    // `org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessAccessInspection.EmptyParenMethod`
+    // which produces warning for Scala 2 but it should be an error in Scala 3
+    // (See SCL-19504 for the details)
+    // We might consider rewriting it as Annotator, or disabling it in Scala 2 and implementing similar logic in annotator for Scala 3
+    // This is something to be discussed
+    assertMessagesText(EmptyTrailingParametersClausesCode, "")
+  }
+
+  override def testNonApplicable_Int(): Unit = {
+    assertMatches(messages("3()")) {
+      case Error("()", "'3' does not take parameters") :: Nil =>
+    }
+  }
 }
