@@ -4,7 +4,7 @@ import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, 
 
 import scala.jdk.CollectionConverters.{MapHasAsJava, MapHasAsScala}
 
-class SbtSettingsControl(settings: SbtSettings, shouldRemoveTopComponent: Boolean) extends ExternalSystemSettingsControl[SbtSettings] {
+class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsControl[SbtSettings] {
 
   private val pane = new SbtSettingsPane(settings.getProject)
 
@@ -24,17 +24,8 @@ class SbtSettingsControl(settings: SbtSettings, shouldRemoveTopComponent: Boolea
   override def showUi(show: Boolean): Unit =
     pane.getContentPanel.setVisible(show)
 
-  override def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit = {
-    if (shouldRemoveTopComponent) {
-      try {
-        canvas.remove(0)
-      } catch {
-        case _: IndexOutOfBoundsException =>
-        case exc: Throwable => throw exc
-      }
-    }
+  override def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit =
     canvas.add(pane.getContentPanel, ExternalSystemUiUtil.getFillLineConstraints(indentLevel))
-  }
 
   override def disposeUIResources(): Unit = {}
 

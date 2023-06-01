@@ -14,7 +14,7 @@ class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjec
 
   override def createProjectSettingsControl(settings: SbtProjectSettings) = new SbtProjectSettingsControl(Context.Wizard, settings)
 
-  override def createSystemSettingsControl(settings: SbtSettings) = new SbtSettingsControl(settings, shouldRemoveTopComponent = false)
+  override def createSystemSettingsControl(settings: SbtSettings) = new SbtSettingsControl(settings)
 }
 
 object SbtImportControl {
