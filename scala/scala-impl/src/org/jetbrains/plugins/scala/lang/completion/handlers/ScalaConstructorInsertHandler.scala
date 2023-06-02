@@ -102,7 +102,7 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
 
           ScalaPsiUtil.adjustTypes(newTemplateDefinition)
         } { ref =>
-          if (context.getFile.isScala3File && isPrefixCompletion && !isRenamed) {
+          if (context.getFile.isScala3File && !isRenamed) {
             simplifyReference(clazz, ref).bindToElement(clazz)
 
             ScalaPsiUtil.adjustTypes(ref)
