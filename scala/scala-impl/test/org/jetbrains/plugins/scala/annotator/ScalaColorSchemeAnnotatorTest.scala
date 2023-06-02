@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
 
 class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[TextAttributesKey] {
-  import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter.{GENERATOR, PATTERN}
+  import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter._
 
   override protected def buildAnnotationsTestText(annotations: Seq[Message2]): String =
     annotations.map(_.textWithRangeAndCodeAttribute).mkString("\n")
@@ -13,7 +13,6 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
 
   override protected def getFilterByField(annotation: Message2): TextAttributesKey = annotation.textAttributesKey
 
-  //TODO: there are some duplicating annotations generated, we need to fix it in ScalaColorSchemeAnnotator
   def testAnnotateGeneratorAndEnumerator(): Unit = {
     val text =
       s"""for {
@@ -37,7 +36,20 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin)
   }
 
-  //TODO: there are some duplicating annotations generated, we need to fix it in ScalaColorSchemeAnnotator
+  def testForYield(): Unit = {
+    val text =
+      s"""for {
+         |  c <- Seq()
+         |} yield {
+         |}
+         |""".stripMargin
+
+    testAnnotations(text, GENERATOR,
+      """
+        |Info((8,9),c,Scala For statement value)
+        |""".stripMargin)
+  }
+
   def testAnnotatePattern_1(): Unit = {
     val text =
       s"""??? match {
@@ -53,7 +65,6 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin)
   }
 
-  //TODO: there are some duplicating annotations generated, we need to fix it in ScalaColorSchemeAnnotator
   def testAnnotatePattern_2(): Unit = {
     val text =
       s"""val sourceRoots = Seq()
@@ -82,6 +93,83 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |Info((261,265),root,Scala Pattern value)
         |Info((269,273),root,Scala Pattern value)
         |Info((299,303),root,Scala Pattern value)
+        |""".stripMargin)
+  }
+
+  def testAnnotatePattern_3(): Unit = {
+    val text =
+      s"""??? match {
+         |  case a =>
+         |}""".stripMargin
+
+    testAnnotations(text, PATTERN,
+      """Info((19,20),a,Scala Pattern value)
+        |""".stripMargin)
+  }
+
+  def testBooleans(): Unit = {
+    val text =
+      """
+        |val t: Boolean = true
+        |val f: Boolean = false
+        |""".stripMargin
+
+    testAnnotations(text, PREDEF,
+      """Info((8,15),Boolean,Scala Predefined types)
+        |Info((30,37),Boolean,Scala Predefined types)
+        |""".stripMargin)
+  }
+
+  def testStringInterpolation(): Unit = {
+    val text =
+      """
+        |s"Hi ${System.currentTimeMillis()}"
+        |""".stripMargin
+
+    testAnnotations(text, OBJECT,
+      """Info((8,14),System,Scala Object)
+        |""".stripMargin)
+    testAnnotations(text, OBJECT_METHOD_CALL,
+      """Info((15,32),currentTimeMillis,Scala Object method call)
+        |""".stripMargin)
+  }
+
+  def testStringInterpolation_2(): Unit = {
+    val text =
+      """
+        |case class Bar()
+        |def foo(b: Bar): Unit = ???
+        |val bar = Bar()
+        |val str = s"one two ${foo(bar)} three"
+        |""".stripMargin
+    testAnnotations(text, LOCAL_METHOD_CALL,
+      """Info((84,87),foo,Scala Local method call)
+        |""".stripMargin)
+    testAnnotations(text, LOCAL_VALUES,
+      """Info((50,53),bar,Scala Local value)
+        |Info((66,69),str,Scala Local value)
+        |Info((88,91),bar,Scala Local value)
+        |""".stripMargin)
+  }
+
+  def testLanguageInjection(): Unit = {
+    val text =
+      """
+        |//language=Scala
+        |val scalaText = "val a = 1"
+        |""".stripMargin
+    testAnnotations(text, LOCAL_VALUES,
+      """Info((22,31),scalaText,Scala Local value)
+        |""".stripMargin)
+  }
+
+  def testSymbol(): Unit = {
+    val text =
+      """
+        |val symbol = 'Symbol
+        |""".stripMargin
+    testAnnotations(text, LOCAL_VALUES,
+      """Info((5,11),symbol,Scala Local value)
         |""".stripMargin)
   }
 }

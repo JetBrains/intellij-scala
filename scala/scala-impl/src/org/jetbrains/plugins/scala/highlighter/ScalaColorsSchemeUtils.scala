@@ -5,6 +5,8 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.{PsiClass, PsiElement, PsiField, PsiMethod, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.SOFT_KEYWORDS
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator, ScMethodCall, ScNameValuePair, ScReferenceExpression}
@@ -15,62 +17,60 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.SOFT_KEYWORDS
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScStringLiteral}
 
 object ScalaColorsSchemeUtils {
   import DefaultHighlighter._
   import DefaultLanguageHighlighterColors.IDENTIFIER
 
-  def highlightElement(element: PsiElement): (Option[TextAttributesKey], Boolean) = {
+  def findAttributesKey(element: PsiElement): Option[TextAttributesKey] =
     element match {
-      case _: ScAnnotation                                                    => (Some(ANNOTATION), false)
-      case p: ScParameter if p.isAnonymousParameter                           => (Some(ANONYMOUS_PARAMETER), false)
-      case _: ScParameter                                                     => (Some(PARAMETER), false)
-      case _ if isSoftKeyword(element)                                        => (Some(KEYWORD), true)
-      case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => (highlightIdentifierByParent(element), false)
-      case _: ScStringLiteral                                                 => (Some(STRING), false)
-      case _: ScLiteral.Numeric                                               => (Some(NUMBER), false)
-      case _: ScBooleanLiteral                                                => (Some(NUMBER), false) // todo: is this ok?
-      case _                                                                  => (None, false)
+      case _ if isSoftKeyword(element)                                        => Some(KEYWORD)
+      case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => findAttributesKeyByParent(element)
+      case _: ScAnnotation                                                    => Some(ANNOTATION)
+      case p: ScParameter if p.isAnonymousParameter                           => Some(ANONYMOUS_PARAMETER)
+      case _: ScParameter                                                     => Some(PARAMETER)
+      case s: ScStringLiteral if s.isSimpleLiteral                            => Some(STRING)
+      case _: ScLiteral.Numeric                                               => Some(NUMBER)
+      case _: ScBooleanLiteral                                                => Some(KEYWORD)
+      case _                                                                  => None
     }
-  }
 
-  private def isSoftKeyword(element: PsiElement): Boolean =
+  def isSoftKeyword(element: PsiElement): Boolean =
     SOFT_KEYWORDS.contains(element.getNode.getElementType)
 
-  private def highlightIdentifierByParent(element: PsiElement): Option[TextAttributesKey] =
+  def findAttributesKeyByParent(element: PsiElement): Option[TextAttributesKey] =
     getParentByStub(element) match {
-      case _: ScNameValuePair                         => Some(ANNOTATION_ATTRIBUTE)
-      case _: ScTypeParam                             => Some(TYPEPARAM)
-      case c: ScClass if c.getModifierList.isAbstract => Some(ABSTRACT_CLASS)
-      case _: ScClass                                 => Some(CLASS)
-      case _: ScObject                                => Some(OBJECT)
-      case _: ScTrait                                 => Some(TRAIT)
+      case _: ScNameValuePair  => Some(ANNOTATION_ATTRIBUTE)
+      case _: ScTypeParam      => Some(TYPEPARAM)
+      case c: ScClass          => Some(if (c.getModifierList.isAbstract) ABSTRACT_CLASS else CLASS)
+      case _: ScObject         => Some(DefaultHighlighter.OBJECT)
+      case _: ScTrait          => Some(DefaultHighlighter.TRAIT)
       case x: ScBindingPattern =>
         x.nameContext match {
           case r@(_: ScValue | _: ScVariable) =>
             getParentByStub(r) match {
               case _: ScTemplateBody | _: ScEarlyDefinitions =>
-                r match {
-                  case mod: ScModifierListOwner if hasModifier(mod, "lazy") => Some(LAZY)
-                  case _: ScValue                                                    => Some(VALUES)
-                  case _: ScVariable                                                 => Some(VARIABLES)
-                  case _                                                             => Some(IDENTIFIER)
+                val attributes = r match {
+                  case mod: ScModifierListOwner if hasModifier(mod, "lazy") => LAZY
+                  case _: ScValue                                                    => VALUES
+                  case _: ScVariable                                                 => VARIABLES
+                  case _                                                             => IDENTIFIER
                 }
+                Some(attributes)
               case _ =>
-                r match {
-                  case mod: ScModifierListOwner if hasModifier(mod, "lazy") => Some(LOCAL_LAZY)
-                  case _: ScValue                                                    => Some(LOCAL_VALUES)
-                  case _: ScVariable                                                 => Some(LOCAL_VARIABLES)
-                  case _                                                             => Some(IDENTIFIER)
+                val attributes = r match {
+                  case mod: ScModifierListOwner if hasModifier(mod, "lazy") => LOCAL_LAZY
+                  case _: ScValue                                                    => LOCAL_VALUES
+                  case _: ScVariable                                                 => LOCAL_VARIABLES
+                  case _                                                             => IDENTIFIER
                 }
+                Some(attributes)
             }
-          case _: ScCaseClause                  => Some(PATTERN)
-          case _: ScGenerator | _: ScForBinding => Some(GENERATOR)
-          case _                                => None
+          case _: ScCaseClause                  => Some(DefaultHighlighter.PATTERN)
+          case _: ScGenerator | _: ScForBinding => Some(DefaultHighlighter.GENERATOR)
+          case _ => None
         }
-      case _: ScFunctionDefinition | _: ScFunctionDeclaration => Some(METHOD_DECLARATION)
+      case _: ScFunctionDefinition | _: ScFunctionDeclaration => Some(DefaultHighlighter.METHOD_DECLARATION)
       case _ => None
     }
 
@@ -87,11 +87,11 @@ object ScalaColorsSchemeUtils {
       case _: ScObject                                                                   => OBJECT
       case _: ScTrait                                                                    => TRAIT
       case c: PsiClass if c.isInterface                                                  => TRAIT
-      case c: PsiClass if hasModifier(c, "abstract")                                  => ABSTRACT_CLASS
+      case c: PsiClass if hasModifier(c, "abstract")                            => ABSTRACT_CLASS
       case _: PsiClass if refElement.exists(_.is[ScStableCodeReference])                 => CLASS
       case _: PsiClass if refElement.exists(_.is[ScReferenceExpression])                 => OBJECT
       case p: ScBindingPattern                                                           => attributesKey(p)
-      case f: PsiField if !hasModifier(f, "final")                                    => VARIABLES
+      case f: PsiField if !hasModifier(f, "final")                              => VARIABLES
       case _: PsiField                                                                   => VALUES
       case p: ScParameter if p.isAnonymousParameter                                      => ANONYMOUS_PARAMETER
       case _: ScParameter                                                                => PARAMETER
@@ -156,7 +156,7 @@ object ScalaColorsSchemeUtils {
   private def attributesKey(method: PsiMethod): TextAttributesKey =
     if (hasModifier(method, "static")) OBJECT_METHOD_CALL else METHOD_CALL
 
-  private def getParentByStub(x: PsiElement): PsiElement = x match {
+  def getParentByStub(x: PsiElement): PsiElement = x match {
     case el: ScalaStubBasedElementImpl[_, _] => el.getParent
     case _ => x.getContext
   }
