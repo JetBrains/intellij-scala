@@ -4,7 +4,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{ContextBoundInfo, inNameContext}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -43,6 +43,7 @@ object ScalaDocQuickInfoGenerator {
     val buffer = new StringBuilder
     element match {
       case clazz: ScTypeDefinition                       => generateClassInfo(buffer, clazz)
+      case constructor: ScPrimaryConstructor             => generateClassInfo(buffer, constructor.containingClass)
       case function: ScFunction                          => generateFunctionInfo(buffer, function)
       case field@inNameContext(value: ScValueOrVariable) => generateValueInfo(buffer, field, value)
       case alias: ScTypeAlias                            => generateTypeAliasInfo(buffer, alias)
