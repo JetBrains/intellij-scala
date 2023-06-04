@@ -50,7 +50,10 @@ object ScalaDocQuickInfoGenerator {
       case b: ScBindingPattern                           => generateBindingPatternInfo(buffer, b)
       case _                                             =>
     }
+
     buffer.result()
+      // Do not show an empty pop up, let the platform show the fallback option
+      .pipeIf(_.isEmpty)(_ => null)
   }
 
   private def generateClassInfo(buffer: StringBuilder, clazz: ScTypeDefinition)
