@@ -152,9 +152,10 @@ object Versions {
     )
 
     val Sbt1Entity: DownloadableEntity = DownloadableEntity(
-      url = "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/",
+      url = "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/maven-metadata.xml",
       minVersion = "1.0.0",
-      hardcodedVersions = (BuildInfo.sbtLatestVersion :: BuildInfo.sbtLatest_1_0 :: Nil).distinct
+      hardcodedVersions = (BuildInfo.sbtLatestVersion :: BuildInfo.sbtLatest_1_0 :: Nil).distinct,
+      versionPattern = """^\s+<version>(\d+\.\d+\.\d+)</version>$""".r
     )
   }
 }
