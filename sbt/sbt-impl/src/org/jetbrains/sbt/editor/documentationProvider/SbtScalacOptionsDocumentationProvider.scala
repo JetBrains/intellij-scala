@@ -11,6 +11,7 @@ import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils
 import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.{getScalacOptionsForLiteralValue, withScalacOption}
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 
 class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvider {
@@ -107,6 +108,7 @@ class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvide
   }
 }
 
+@nowarn("msg=inheritance from class LinkedHashMap in package mutable is deprecated")
 private class LinkedHashMultiMap[K, V] extends mutable.LinkedHashMap[K, Vector[V]] {
   def add(key: K, value: V): this.type = {
     this(key) = get(key) match {

@@ -11,6 +11,7 @@ import java.awt.event.{FocusEvent, FocusListener}
 import java.util.Comparator
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import javax.swing.JTable
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 class DataById[Data](id: Data => String) {
@@ -76,6 +77,7 @@ class DataByIdTableModel[Data](dataById: DataById[Data],
   }
 
   def registerSpeedSearch(table: TableView[String]): Unit = {
+    @nowarn("cat=deprecation")
     val speedSearch = new TableViewSpeedSearch(table) {
       override def getItemText(id: String): String = rowText(id)
 

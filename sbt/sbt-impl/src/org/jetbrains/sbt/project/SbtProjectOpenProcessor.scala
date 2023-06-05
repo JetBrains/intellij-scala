@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.projectImport.ProjectOpenProcessor
 
 import javax.swing.Icon
+import scala.annotation.nowarn
 
 class SbtProjectOpenProcessor extends ProjectOpenProcessor {
 
@@ -20,5 +21,5 @@ class SbtProjectOpenProcessor extends ProjectOpenProcessor {
   override def doOpenProject(virtualFile: VirtualFile, projectToClose: Project, forceOpenInNewFrame: Boolean): Project =
     runUnderModalProgressIfIsEdt { (_, continuation) =>
       new SbtOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame, continuation)
-    }
+    }: @nowarn("cat=deprecation")
 }
