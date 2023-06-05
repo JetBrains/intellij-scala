@@ -33,6 +33,7 @@ import java.nio.file.{Path, Paths}
 import java.util
 import java.util.Collections
 import javax.swing._
+import scala.annotation.nowarn
 
 class BspProjectImportBuilder
   extends AbstractExternalProjectImportBuilder[BspImportControl](
@@ -242,7 +243,7 @@ class BspProjectOpenProcessor extends ProjectOpenProcessor {
   override def doOpenProject(virtualFile: VirtualFile, projectToClose: Project, forceOpenInNewFrame: Boolean): Project =
     runUnderModalProgressIfIsEdt { (_, continuation) =>
       new BspOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame, continuation)
-    }
+    }: @nowarn("cat=deprecation")
 }
 
 object BspProjectOpenProcessor {

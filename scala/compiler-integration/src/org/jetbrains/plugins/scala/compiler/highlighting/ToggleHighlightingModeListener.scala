@@ -8,7 +8,8 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.compiler.CompileServerNotificationsService
-import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, inReadAction, invokeLater}
+import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThread
+import org.jetbrains.plugins.scala.extensions.{inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaHighlightingMode}
 
@@ -35,7 +36,7 @@ private final class ToggleHighlightingModeListener extends ProjectManagerListene
   
   private def compileOrEraseHighlightings(project: Project): Unit =
     DumbService.getInstance(project).runWhenSmart { () =>
-      executeOnPooledThread {
+      executeOnBackgroundThread(project) {
         if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
           inReadAction {
             AnnotatorHints.clearIn(project)

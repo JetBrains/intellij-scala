@@ -26,6 +26,7 @@ import org.jetbrains.sbt.project.template.wizard.{SbtModuleStepLike, ScalaNewPro
 import org.jetbrains.sbt.project.template.{SbtModuleBuilder, SbtModuleBuilderSelections}
 
 import javax.swing.JLabel
+import scala.annotation.nowarn
 
 //noinspection ApiStatus,UnstableApiUsage
 final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
@@ -92,14 +93,14 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
 
     panel.row(sbtLabelText, (row: Row) => {
       row.layout(RowLayout.PARENT_GRID)
-      row.cell(sbtVersionComboBox).horizontalAlign(HorizontalAlign.FILL)
+      row.cell(sbtVersionComboBox).horizontalAlign(HorizontalAlign.FILL): @nowarn("cat=deprecation")
       row.cell(downloadSbtSourcesCheckbox)
       KUnit
     })
 
     panel.row(scalaLabelText, (row: Row) => {
       row.layout(RowLayout.PARENT_GRID)
-      row.cell(scalaVersionComboBox).horizontalAlign(HorizontalAlign.FILL)
+      row.cell(scalaVersionComboBox).horizontalAlign(HorizontalAlign.FILL): @nowarn("cat=deprecation")
       row.cell(downloadScalaSourcesCheckbox)
       KUnit
     })
@@ -110,7 +111,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       val cb = row.checkBox(UIBundle.message("label.project.wizard.new.project.add.sample.code"))
       ButtonKt.bindSelected(cb, addSampleCodeProperty: com.intellij.openapi.observable.properties.ObservableMutableProperty[java.lang.Boolean])
       ButtonKt.whenStateChangedFromUi(cb, null, value => {
-        BSLog.logAddSampleCodeChanged(parent, value)
+        BSLog.logAddSampleCodeChanged(parent, value): @nowarn("cat=deprecation")
         KUnit
       })
       KUnit
@@ -125,7 +126,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
           TextFieldKt.bindText(row.textField, moduleNameProperty: com.intellij.openapi.observable.properties.ObservableMutableProperty[String])
             .horizontalAlign(HorizontalAlign.FILL)
             .validationOnInput(validator)
-            .validationOnApply(validator)
+            .validationOnApply(validator): @nowarn("cat=deprecation")
           KUnit
         })
       }

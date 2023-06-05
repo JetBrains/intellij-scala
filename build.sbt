@@ -238,7 +238,7 @@ lazy val worksheetReplInterfaceImpl_2_12_13: Project =
   newProject("worksheet-repl-interface-impl_2_12_13", file("scala/worksheet-repl-interface-impls/impl_2_12_13"))
     .dependsOn(worksheetReplInterface)
     .settings(
-      worksheetReplInterfaceImplCommonSettings("2.12.17"),
+      worksheetReplInterfaceImplCommonSettings("2.12.18"),
       (Compile / scalacOptions) += "-deprecation"
     )
 
@@ -250,7 +250,7 @@ lazy val worksheetReplInterfaceImpl_2_13_0: Project =
 lazy val worksheetReplInterfaceImpl_2_13: Project =
   newProject("worksheet-repl-interface-impl_2_13", file("scala/worksheet-repl-interface-impls/impl_2_13"))
     .dependsOn(worksheetReplInterface)
-    .settings(worksheetReplInterfaceImplCommonSettings("2.13.10"))
+    .settings(worksheetReplInterfaceImplCommonSettings("2.13.11"))
 
 lazy val worksheetReplInterfaceImpl_3_0_0: Project =
   newProject("worksheet-repl-interface-impl_3_0_0", file("scala/worksheet-repl-interface-impls/impl_3_0_0"))

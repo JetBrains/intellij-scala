@@ -106,6 +106,10 @@ trait WorksheetItAssertions {
         case CompilerMessageCategory.WARNING     => "warnings"
         case CompilerMessageCategory.INFORMATION => "information messages"
         case CompilerMessageCategory.STATISTICS  => "???"
+        case _ =>
+          // This case should not be necessary, as all enum cases are covered above.
+          // TODO: report compiler error for Scala 2.13.11.
+          ???
       }
       fail(s"Unexpected compilation $typ occurred during worksheet evaluation:\n${messagesRenders.mkString("\n")}")
     }

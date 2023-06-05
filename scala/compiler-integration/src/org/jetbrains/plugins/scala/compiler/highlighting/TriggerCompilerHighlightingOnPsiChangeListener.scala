@@ -18,8 +18,6 @@ private object TriggerCompilerHighlightingOnPsiChangeListener {
 
   private class PsiChangeListener(project: Project) extends PsiTreeChangeAdapter {
 
-    private val triggerService: TriggerCompilerHighlightingService = TriggerCompilerHighlightingService.get(project)
-
     override def childrenChanged(event: PsiTreeChangeEvent): Unit = {
       triggerOnFileChange(event.getFile)
     }
@@ -38,7 +36,7 @@ private object TriggerCompilerHighlightingOnPsiChangeListener {
       if (psiFile ne null) {
         val virtualFile = psiFile.getVirtualFile
         if (virtualFile ne null) {
-          triggerService.triggerOnFileChange(psiFile, virtualFile)
+          TriggerCompilerHighlightingService.get(project).triggerOnFileChange(psiFile, virtualFile)
         }
       }
     }

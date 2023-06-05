@@ -4,15 +4,15 @@ import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
 import sbt.*
 
 object Versions {
-  val scalaVersion: String = "2.13.10"
-  val scala3Version: String = "3.2.2"
+  val scalaVersion: String = "2.13.11"
+  val scala3Version: String = "3.3.0"
 
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
-  val bloopVersion = "1.5.4"
-  val zincVersion = "1.8.1"
+  val bloopVersion = "1.5.6"
+  val zincVersion = "1.9.0"
   val intellijVersion = "232.6734.9"
 
   val (
@@ -43,7 +43,7 @@ object Versions {
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
 
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.8.3"
+    val latest_1_0 = "1.9.0"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
