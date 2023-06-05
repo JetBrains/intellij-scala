@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService
 private final class BackgroundExecutorService(project: Project) extends Disposable {
 
   private val executor: ExecutorService =
-    AppExecutorUtil.createBoundedApplicationPoolExecutor(getClass.getSimpleName, 1)
+    AppExecutorUtil.createBoundedApplicationPoolExecutor("Scala Compiler Based Highlighting background executor", 1)
 
   private def executeOnBackgroundThread(runnable: Runnable): Unit = {
     executor.execute(runnable)
