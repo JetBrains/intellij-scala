@@ -34,16 +34,8 @@ class AnnotationsRenderer(
     buffer.append(typeRenderer(typ))
 
     val arguments = elem.annotationExpr.getAnnotationParameters
-    if (!shouldSkipArguments(typ, arguments)) {
-      buffer.append("(")
-      val it = arguments.iterator
-      while (it.hasNext) {
-        val a = it.next()
-        buffer.append(escaper.escape(a.getText))
-        if (it.hasNext) buffer.append(", ")
-      }
-      buffer.append(")")
-    }
+    if (!shouldSkipArguments(typ, arguments))
+      buffer.append(arguments.iterator.map(a => escaper.escape(a.getText)).mkString("(", ", ", ")"))
     buffer.result()
   }
 
