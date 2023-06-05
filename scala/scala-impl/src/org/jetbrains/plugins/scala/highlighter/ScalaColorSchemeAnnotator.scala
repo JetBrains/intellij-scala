@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -32,6 +33,8 @@ final class ScalaColorSchemeAnnotator extends Annotator {
 }
 
 object ScalaColorSchemeAnnotator {
+  import DefaultHighlighter._
+
   private val JAVA_COLLECTIONS_BASES = List("java.util.Map", "java.util.Collection")
   private val SCALA_FACTORY_METHODS_NAMES = Set("make", "apply")
   private val SCALA_COLLECTION_MUTABLE_BASE = "_root_.scala.collection.mutable."
@@ -116,13 +119,13 @@ object ScalaColorSchemeAnnotator {
       if (typeText == null) return
 
       if (typeText.startsWith(SCALA_COLLECTION_IMMUTABLE_BASE) || SCALA_PREDEF_IMMUTABLE_BASES.contains(typeText)) {
-        simpleAnnotate(ScalaBundle.message("scala.immutable.collection"), DefaultHighlighter.IMMUTABLE_COLLECTION)
+        simpleAnnotate(ScalaBundle.message("scala.immutable.collection"), IMMUTABLE_COLLECTION)
       }
       else if (typeText.startsWith(SCALA_COLLECTION_MUTABLE_BASE)) {
-        simpleAnnotate(ScalaBundle.message("scala.mutable.collection"), DefaultHighlighter.MUTABLE_COLLECTION)
+        simpleAnnotate(ScalaBundle.message("scala.mutable.collection"), MUTABLE_COLLECTION)
       }
       else if (conformsByNames(resolvedType, JAVA_COLLECTIONS_BASES)) {
-        simpleAnnotate(ScalaBundle.message("java.collection"), DefaultHighlighter.JAVA_COLLECTION)
+        simpleAnnotate(ScalaBundle.message("java.collection"), JAVA_COLLECTION)
       }
     }
 
@@ -163,29 +166,27 @@ object ScalaColorSchemeAnnotator {
       case x: ScAnnotation => visitAnnotation(x)
       case x: ScParameter  => visitParameter(x)
       case x: ScTypeAlias  => visitTypeAlias(x)
+      case _ if ScalaColorsSchemeUtils.isSoftKeyword(element) =>
+        // TODO: investigate ways to highlight soft keywords in another way
+        holder
+          .newSilentAnnotation(HighlightSeverity.INFORMATION)
+          .textAttributes(KEYWORD)
+          .create()
+        createInfoAnnotation(element, KEYWORD)
+      case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
+        ScalaColorsSchemeUtils
+          .findAttributesKeyByParent(element)
+          .foreach(createInfoAnnotation(element, _))
       case _ =>
-        ScalaColorsSchemeUtils.highlightElement(element) match {
-          case (_, true) =>
-            // TODO: investigate ways to highlight soft keywords in another way
-            holder
-              .newSilentAnnotation(HighlightSeverity.INFORMATION)
-              .textAttributes(DefaultHighlighter.KEYWORD)
-              .create()
-            createInfoAnnotation(element, DefaultHighlighter.KEYWORD)
-          case (Some(key), _) =>
-            createInfoAnnotation(element, key)
-          case _ =>
-        }
     }
 
   private def visitAnnotation(annotation: ScAnnotation)(implicit holder: ScalaAnnotationHolder): Unit = {
-    createInfoAnnotation(annotation.getFirstChild, DefaultHighlighter.ANNOTATION)
-    createInfoAnnotation(annotation.annotationExpr.constructorInvocation.typeElement, DefaultHighlighter.ANNOTATION)
+    createInfoAnnotation(annotation.getFirstChild, ANNOTATION)
+    createInfoAnnotation(annotation.annotationExpr.constructorInvocation.typeElement, ANNOTATION)
   }
 
-  private def visitTypeAlias(typeAlias: ScTypeAlias)(implicit holder: ScalaAnnotationHolder): Unit = {
-    createInfoAnnotation(typeAlias.nameId, DefaultHighlighter.TYPE_ALIAS)
-  }
+  private def visitTypeAlias(typeAlias: ScTypeAlias)(implicit holder: ScalaAnnotationHolder): Unit =
+    createInfoAnnotation(typeAlias.nameId, TYPE_ALIAS)
 
   private def visitParameter(param: ScParameter)(implicit holder: ScalaAnnotationHolder): Unit = {
     val nameId = param.nameId
@@ -194,9 +195,7 @@ object ScalaColorSchemeAnnotator {
     if (!nameId.isPhysical)
       return
 
-    val attributesKey =
-      if (param.isAnonymousParameter) DefaultHighlighter.ANONYMOUS_PARAMETER
-      else DefaultHighlighter.PARAMETER
+    val attributesKey = if (param.isAnonymousParameter) ANONYMOUS_PARAMETER else PARAMETER
     createInfoAnnotation(nameId, attributesKey)
   }
 
