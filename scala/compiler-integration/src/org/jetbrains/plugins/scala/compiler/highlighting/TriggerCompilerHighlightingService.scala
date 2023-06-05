@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorServi
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
+import org.jetbrains.plugins.scala.ScalaLanguage
 
 import scala.collection.concurrent.TrieMap
 import scala.jdk.CollectionConverters._
@@ -32,32 +33,33 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   project.getMessageBus.connect(this).subscribe[FileHighlightingSettingListener](
     FileHighlightingSettingListener.SETTING_CHANGE,
     (root: PsiElement, _: FileHighlightingSetting) => {
-      executeOnBackgroundThread(project) {
-        val psiFile = root.getContainingFile
-        if (psiFile ne null) {
-          val virtualFile = psiFile.getVirtualFile
-          if (virtualFile ne null) {
-            val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
-            invokeAndWait {
-              EditorFactory.getInstance().getEditors(document).foreach { editor =>
-                UpdateHighlightersUtil.setHighlightersToEditor(
-                  project, document,
-                  0, document.getTextLength, Seq.empty.asJava,
-                  editor.getColorsScheme, ExternalHighlighters.ScalaCompilerPassId)
+      if (root.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
+        executeOnBackgroundThread(project) {
+          val psiFile = root.getContainingFile
+          if (psiFile ne null) {
+            val virtualFile = psiFile.getVirtualFile
+            if (virtualFile ne null) {
+              val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
+              invokeAndWait {
+                EditorFactory.getInstance().getEditors(document).foreach { editor =>
+                  UpdateHighlightersUtil.setHighlightersToEditor(
+                    project, document,
+                    0, document.getTextLength, Seq.empty.asJava,
+                    editor.getColorsScheme, ExternalHighlighters.ScalaCompilerPassId)
+                }
               }
-            }
-            executeOnBackgroundThread(project) {
-              WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(virtualFile, ExternalHighlighters)
-            }
+              executeOnBackgroundThread(project) {
+                WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(virtualFile, ExternalHighlighters)
+              }
 
-            if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {
-              val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
-              triggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
+              if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {
+                val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
+                triggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
+              }
             }
           }
         }
       }
-      ()
     }
   )
 
