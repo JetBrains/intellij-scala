@@ -304,6 +304,38 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
       |}""".stripMargin,
   "mySyntax.syntaxDoubleParam")
 
+  def testImplicitConversionOnObject(): Unit = doTest(
+    fileText =
+      s"""
+         |object Tool
+         |
+         |object conversions {
+         |  implicit class ObjectExt(private val tool: Tool.type) extends AnyVal {
+         |    def toOption() = Option(tool)
+         |  }
+         |}
+         |object Test {
+         |  Tool.${CARET}toOption()
+         |}
+         |""".stripMargin,
+    expectedText =
+      """
+        |import conversions.ObjectExt
+        |
+        |object Tool
+        |
+        |object conversions {
+        |  implicit class ObjectExt(private val tool: Tool.type) extends AnyVal {
+        |    def toOption() = Option(tool)
+        |  }
+        |}
+        |object Test {
+        |  Tool.toOption()
+        |}""".stripMargin,
+
+    "conversions.ObjectExt"
+  )
+
   def testTopLevelConversion(): Unit = checkElementsToImport(
     s"""package tests
        |
