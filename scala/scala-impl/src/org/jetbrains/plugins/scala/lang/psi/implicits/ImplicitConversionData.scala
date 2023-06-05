@@ -6,9 +6,10 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
@@ -105,7 +106,9 @@ object ImplicitConversionData {
       case None => Map.empty
       case Some(originalType) =>
         val withSuperClasses = originalType.widen.extractClass match {
-          case Some(clazz) => MixinNodes.allSuperClasses(clazz).map(_.qualifiedName) + clazz.qualifiedName + AnyFqn
+          case Some(clazz) =>
+            val classQualifiedName = clazz.qualifiedName.pipeIf(clazz.is[ScObject])(_ + ".type") // SCL-21153
+            MixinNodes.allSuperClasses(clazz).map(_.qualifiedName) + classQualifiedName + AnyFqn
           case _ => Set(AnyFqn)
         }
         val scope = expr.resolveScope

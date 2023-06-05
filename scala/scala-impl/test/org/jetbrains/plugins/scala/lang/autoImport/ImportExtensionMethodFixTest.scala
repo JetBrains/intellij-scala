@@ -4,11 +4,12 @@ import org.jetbrains.plugins.scala.autoImport.quickFix._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class ImportExtensionMethodFixText
+class ImportExtensionMethodFixTest
   extends ImportElementFixTestBase[ScReferenceExpression] {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
+  //noinspection InstanceOf
   override def createFix(ref: ScReferenceExpression): Option[ScalaImportElementFix[_ <: ElementToImport]] =
     ImportImplicitConversionFixes(ref).find(_.isInstanceOf[ImportExtensionMethodFix])
 
@@ -60,6 +61,20 @@ class ImportExtensionMethodFixText
        |class Test:
        |  def foo[T](t: T): Unit =
        |    t.${CARET}toOption
+       |""".stripMargin,
+
+    "Extensions.toOption"
+  )
+
+  def testExtensionOnObject(): Unit = checkElementsToImport(
+    s"""object Tool
+       |
+       |object Extensions:
+       |  extension (tool: Tool.type)
+       |    def toOption = Option(tool)
+       |
+       |object Test:
+       |  Tool.${CARET}toOption
        |""".stripMargin,
 
     "Extensions.toOption"
