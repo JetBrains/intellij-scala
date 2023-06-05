@@ -9,9 +9,8 @@ import org.jetbrains.plugins.scala.extensions.ToNullSafe
 private final class TriggerCompilerHighlightingOnEditorSelectionChangedListener(project: Project)
   extends FileEditorManagerListener {
 
-  private val triggerService: TriggerCompilerHighlightingService = TriggerCompilerHighlightingService.get(project)
-
   override def selectionChanged(event: FileEditorManagerEvent): Unit = {
+    val triggerService = TriggerCompilerHighlightingService.get(project)
     event.getOldFile.nullSafe.foreach(triggerService.disableDocumentCompiler)
     event.getNewEditor.nullSafe.foreach(triggerService.triggerOnSelectedEditorChange)
   }
