@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.settings.uiControls;
 
+import com.intellij.lang.Language;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.table.JBTable;
@@ -16,7 +17,6 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("WeakerAccess")
 public class ScalaInterpolatedPrefixMappingTable extends JBTable implements DependencyAwareInjectionSettings.ComponentWithSettings {
@@ -26,7 +26,7 @@ public class ScalaInterpolatedPrefixMappingTable extends JBTable implements Depe
   public ScalaInterpolatedPrefixMappingTable() {
     super(new MyTableModel(new ArrayList<>()));
     tableModel = (MyTableModel) getModel();
-    availableIds = Arrays.stream(InjectedLanguage.getAvailableLanguageIDs()).sorted().collect(Collectors.toList());
+    availableIds = Arrays.stream(InjectedLanguage.getAvailableLanguages()).map(Language::getID).sorted().toList();
 
     TableColumn column = getColumnModel().getColumn(1);
 
