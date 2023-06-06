@@ -1830,6 +1830,24 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
   }
 
+  def testAnnotation_InterpolatedString(): Unit = {
+    val fileContent =
+      """
+        |@deprecated(s"test ${42}")
+        |def """.stripMargin + | + """foo() = {}
+        |""".stripMargin
+
+    // For now interpolated strings are displayed in ScalaDoc popups as regular strings, with no additional highlighting
+    val expectedDoc =
+      """
+         |<span style="color:#808000;"><a href="psi_element://deprecated"><code>@deprecated</code></a></span>
+         |(<span style="color:#008000;font-weight:bold;">s&quot;test ${42}&quot;</span>)<br/>
+         |<span style="color:#000080;font-weight:bold;">def</span>foo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+         |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedDoc)
+  }
+
   def testTrait_SpecialChars_InfixType(): Unit =
     doGenerateDocDefinitionTest(
       s"""object A {
