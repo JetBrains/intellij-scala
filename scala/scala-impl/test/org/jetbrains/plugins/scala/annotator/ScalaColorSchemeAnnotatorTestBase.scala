@@ -70,6 +70,8 @@ abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsigh
     val holder = annotateWithColorSchemeAnnotator(text)
     val annotationsAll = holder.annotations.sortBy(_.range.getStartOffset)
 
+    annotationsAll.foreach(a => println(a))
+
     val annotationsWithMatchingMessage = annotationsAll.filter { a =>
       filterAnnotationItems.contains(getFilterByField(a))
     }
