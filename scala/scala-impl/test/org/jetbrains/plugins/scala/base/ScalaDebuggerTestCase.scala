@@ -66,6 +66,8 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
 
   private val sourceFiles: mutable.Map[String, String] = mutable.Map.empty
 
+  private val javaClasses: mutable.Set[String] = mutable.Set.empty
+
   override protected def initOutputChecker(): OutputChecker =
     new OutputChecker(() => getTestAppPath, () => getAppOutputPath) {
       override def checkValid(jdk: Sdk, sortClassPath: Boolean): Unit = {}
@@ -204,6 +206,11 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
   }
 
   override protected def createBreakpoints(className: String): Unit = {
+    if (javaClasses(className)) {
+      super.createBreakpoints(className)
+      return
+    }
+
     val classFilePath = s"${className.split('.').mkString(File.separator)}.class"
     if (!classFilesOutputPath.resolve(classFilePath).toFile.exists()) {
       org.junit.Assert.fail(s"Could not find compiled class $className")
@@ -258,6 +265,11 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
 
   protected def addSourceFile(path: String, contents: String): Unit = {
     sourceFiles.update(path, contents)
+  }
+
+  protected def addJavaSourceFile(path: String, className: String, contents: String): Unit = {
+    addSourceFile(path, contents)
+    javaClasses += className
   }
 
   protected def addBreakpointInLibrary(className: String, methodName: String): Unit = {

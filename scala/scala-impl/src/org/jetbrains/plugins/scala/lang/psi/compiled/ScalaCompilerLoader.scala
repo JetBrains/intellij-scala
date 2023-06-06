@@ -6,14 +6,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilerLoader._
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 class ScalaCompilerLoader extends StartupActivity.DumbAware {
   override def runActivity(project: Project): Unit = {
     if (!isDisabled) {
-      val mapper = new ScalaNameMapper
+      val mapper = new ScalaNameMapper()
       DebuggerManager.getInstance(project).addClassNameMapper(mapper)
 
       invokeOnDispose(project.unloadAwareDisposable) {
@@ -33,12 +33,8 @@ object ScalaCompilerLoader {
 
   private class ScalaNameMapper extends NameMapper {
     override def getQualifiedName(clazz: PsiClass): String = clazz match {
-      case tmpl: ScTemplateDefinition => inReadAction { javaName(tmpl) }
+      case tpeDef: ScTypeDefinition => inReadAction(tpeDef.getQualifiedNameForDebugger)
       case _ => null
     }
-  }
-
-  private def javaName(clazz: ScTemplateDefinition): String = {
-    clazz.qualifiedName + (if (clazz.isInstanceOf[ScObject]) "$" else "")
   }
 }
