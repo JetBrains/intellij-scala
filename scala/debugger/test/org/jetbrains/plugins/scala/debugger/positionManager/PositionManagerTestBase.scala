@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.sun.jdi.Location
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 import org.junit.Assert.fail
 

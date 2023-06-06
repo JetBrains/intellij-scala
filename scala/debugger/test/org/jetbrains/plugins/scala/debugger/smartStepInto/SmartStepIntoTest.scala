@@ -4,6 +4,7 @@ package smartStepInto
 
 import com.intellij.debugger.actions.SmartStepTarget
 import com.intellij.debugger.engine.{ContextUtil, SuspendContextImpl}
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert.{assertTrue, fail}
 
 import java.util.concurrent.ConcurrentLinkedQueue

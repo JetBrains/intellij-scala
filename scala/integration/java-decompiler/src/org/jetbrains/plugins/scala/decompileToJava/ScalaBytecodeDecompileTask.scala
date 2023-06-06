@@ -10,7 +10,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.ex.dummy.DummyFileSystem
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.inWriteAction
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 
 import scala.util.{Failure, Success}

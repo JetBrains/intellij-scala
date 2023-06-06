@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.testFramework.LightPlatformTestCase
-import org.jetbrains.plugins.scala.inWriteAction
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 
 object ConfigureJavaFile {
   def configureJavaFile(fileText: String,

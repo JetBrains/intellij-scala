@@ -11,12 +11,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.ui.{CollectionListModel, ColoredListCellRenderer, GuiUtils, ScrollPaneFactory, SimpleTextAttributes}
 import com.intellij.ui.components.JBList
-import org.jetbrains.plugins.scala.{ScalaFileType, inWriteAction}
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.packagesearch.PackageSearchSbtBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.language
-import org.jetbrains.sbt.language.utils.{SbtArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtDependencyUtils}
+import org.jetbrains.sbt.language.utils.{DependencyOrRepositoryPlaceInfo, SbtArtifactInfo, SbtDependencyUtils}
 
 import java.awt.BorderLayout
 import javax.swing.{JList, JPanel, JSplitPane, ListSelectionModel, ScrollPaneConstants}

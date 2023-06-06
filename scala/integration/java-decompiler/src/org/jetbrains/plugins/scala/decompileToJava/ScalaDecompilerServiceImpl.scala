@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.java.decompiler.IdeaLogger
 import org.jetbrains.java.decompiler.main.decompiler.BaseDecompiler
 import org.jetbrains.java.decompiler.main.extern.{IBytecodeProvider, IFernflowerPreferences, IResultSaver}
-import org.jetbrains.plugins.scala.inReadAction
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 
 import java.io.File

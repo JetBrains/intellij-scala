@@ -4,6 +4,7 @@ package stepInto
 
 import com.intellij.debugger.engine.SuspendContextImpl
 import com.intellij.debugger.settings.DebuggerSettings
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert.{assertTrue, fail}
 
 import java.util.concurrent.ConcurrentLinkedQueue

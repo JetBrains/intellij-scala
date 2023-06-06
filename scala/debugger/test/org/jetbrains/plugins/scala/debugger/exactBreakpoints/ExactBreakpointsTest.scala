@@ -9,6 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.DocumentUtil
 import com.intellij.xdebugger.XDebuggerUtil
 import org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.junit.Assert
 import org.junit.Assert.{assertTrue, fail}
