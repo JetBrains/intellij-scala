@@ -8,11 +8,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
-import scala.annotation.nowarn
-
 final class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
 
-  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   override def fillActions(element: LookupElement,
                            lookup: Lookup,
                            consumer: Consumer[_ >: LookupElementAction]): Unit = element match {

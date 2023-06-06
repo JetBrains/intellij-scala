@@ -5,10 +5,8 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, L
 import com.intellij.openapi.util.text.StringUtil.{capitalize, decapitalize}
 import com.intellij.util.{Consumer => IJConsumer}
 
-import scala.annotation.nowarn
 import scala.collection.mutable
 
-@nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
 private[completion] sealed abstract class Consumer(originalResultSet: CompletionResultSet)
   extends IJConsumer[CompletionResult] {
 

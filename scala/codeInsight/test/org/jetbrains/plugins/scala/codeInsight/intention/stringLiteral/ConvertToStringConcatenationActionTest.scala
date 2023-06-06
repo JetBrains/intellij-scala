@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import org.jetbrains.plugins.scala.codeInspection.parentheses.{ScalaUnnecessaryParenthesesInspection, UnnecessaryParenthesesSettings}
 
-import scala.annotation.nowarn
-
 // TODO: rewrite the tests: use file-based test cases to avoid all this backslashes escaping staff...
 class ConvertToStringConcatenationActionTest extends StringConversionTestBase {
 
@@ -606,7 +604,6 @@ class ConvertToStringConcatenationActionTest extends StringConversionTestBase {
   }
 
   //SCL-18617, SCL-18583
-  @nowarn("cat=deprecation")
   def testFromInterpolated_WithEscapeSequences(): Unit =
     doBulkTest(
       s"""s"\\\\ $${42} \\\\ \\t"
@@ -625,7 +622,6 @@ class ConvertToStringConcatenationActionTest extends StringConversionTestBase {
         |""".stripMargin.fixTripleQuotes
     )
 
-  @nowarn("cat=deprecation")
   def testFromInterpolated_WithEscapeSequences_UnicodeEscape(): Unit =
     doBulkTest(
       s"""val str = " text"
@@ -653,7 +649,6 @@ class ConvertToStringConcatenationActionTest extends StringConversionTestBase {
   // raw"\\u0025" == "\\u0025"
   // raw"\\\u0025" == "\\%"
   // raw"\\\\u0025" == "\\\\u0025"
-  @nowarn("cat=deprecation")
   def testFromInterpolated_WithEscapeSequences_UnicodeEscape_WeirdCase(): Unit =
     doBulkTest(
       s"""val str = " text"
@@ -676,21 +671,18 @@ class ConvertToStringConcatenationActionTest extends StringConversionTestBase {
          |""".stripMargin.fixTripleQuotes
     )
 
-  @nowarn("cat=deprecation")
   def testFromFormatted_WithEscapeSequences(): Unit =
     doBulkTest(
       s""""\\b \\t \\n \\f \\r \\\\ \\" \\n".format()""",
       s""""\\b \\t \\n \\f \\r \\\\ \\" \\n""""
     )
 
-  @nowarn("cat=deprecation")
   def testFromFormatted_WithEscapeSequences_RawContent(): Unit =
     doBulkTest(
       s"""'''\\b \\t \\n \\f \\r \\\\ \\\\" \\n'''.format()""".fixTripleQuotes,
       s""""\\\\b \\\\t \\\\n \\\\f \\\\r \\\\\\\\ \\\\\\\\\\" \\\\n""""
     )
 
-  @nowarn("cat=deprecation")
   def testFromFormatted_WithEscapeSequences_WithUnicode(): Unit =
     doBulkTest(
       s""""\\u0023 \\\\u0023 \\\\\\u0023 \\\\\\\\u0023".format()""",

@@ -63,7 +63,6 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   override def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 
-  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   override def createCallerChooser(title: String, treeToReuse: Tree, callback: Consumer[_ >: util.Set[ScFunction]]): CallerChooserBase[ScFunction] = null
 
   override def createRefactoringProcessor(): BaseRefactoringProcessor = {
@@ -353,7 +352,6 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
     myParametersTableModel.getItems.asScala.toSeq
   }
 
-  @nowarn("cat=deprecation")
   protected def createAddClauseButton(): AnActionButton = {
     val addClauseButton = new AnActionButton(ScalaBundle.message("change.signature.add.parameter.clause"), null, Icons.ADD_CLAUSE) {
       override def actionPerformed(e: AnActionEvent): Unit = {
@@ -377,7 +375,6 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
     addClauseButton
   }
 
-  @nowarn("cat=deprecation")
   protected def createRemoveClauseButton(): AnActionButton = {
     val removeClauseButton = new AnActionButton(ScalaBundle.message("change.signature.remove.parameter.clause"), null, Icons.REMOVE_CLAUSE) {
       override def actionPerformed(e: AnActionEvent): Unit = {
@@ -402,7 +399,6 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   }
 
   protected def downAction: AnActionButtonRunnable = new AnActionButtonRunnable {
-    @nowarn("cat=deprecation")
     override def run(t: AnActionButton): Unit = {
       val table = parametersTable
       val selected = table.getSelectedRow
@@ -430,7 +426,6 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   }
 
   protected def upAction: AnActionButtonRunnable = new AnActionButtonRunnable {
-    @nowarn("cat=deprecation")
     override def run(t: AnActionButton): Unit = {
       val table = parametersTable
       val selected = table.getSelectedRow

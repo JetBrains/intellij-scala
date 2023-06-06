@@ -56,7 +56,6 @@ object ScalaProjectSettingsUtil {
     }
   }
 
-  @nowarn("cat=deprecation")
   def getPatternListPanel(parent: JComponent, patternJBList: JBList[String], @Nls inputMessage: String, @Nls inputTitle: String): JPanel = {
     def addPattern(pattern: String, patternJBList: JBList[String]): Unit = {
       if (pattern == null) return

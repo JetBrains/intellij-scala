@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import java.util
 import java.util.Collections
-import scala.annotation.nowarn
 
 class ScalaHighlightExitPointsHandler(fun: ScFunctionDefinition, editor: Editor,
                                       file: PsiFile, keyword: PsiElement)
@@ -24,7 +23,6 @@ class ScalaHighlightExitPointsHandler(fun: ScFunctionDefinition, editor: Editor,
     usages.map(_.getTextRange).foreach(myReadUsages.add)
   }
 
-  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   override def selectTargets(targets: util.List[_ <: PsiElement],
                              selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit = {
     selectionConsumer.consume(targets)

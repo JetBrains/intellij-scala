@@ -40,7 +40,6 @@ class ScalaMethodImplementor extends MethodImplementor {
     new ScalaPsiMethodGenerationInfo(method, baseMethod.orNull)
   }
 
-  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   @nowarn("msg=class EmptyConsumer in package util is deprecated")
   override def createDecorator(targetClass: PsiClass, baseMethod: PsiMethod, toCopyJavaDoc: Boolean, insertOverrideIfPossible: Boolean): Consumer[PsiMethod] = EmptyConsumer.getInstance()
 

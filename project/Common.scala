@@ -18,6 +18,7 @@ object Common {
     "-Xfatal-warnings",
     "-language:existentials",
     "-Ytasty-reader",
+    "-Wunused:nowarn"
   )
 
   // options for modules which classes can only be used in IDEA process (uses JRE 11)

@@ -10,14 +10,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 import java.util
 import java.util.Collections
-import scala.annotation.nowarn
 
 abstract class ScHighlightEndMarkerUsagesHandler private(element: ScalaPsiElement, editor: Editor, file: PsiFile) extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
   protected def elementNameId: PsiElement
 
   override def getTargets: util.List[PsiElement] = Collections.singletonList(elementNameId)
 
-  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   override def selectTargets(targets: util.List[_ <: PsiElement], selectionConsumer: com.intellij.util.Consumer[_ >: util.List[_ <: PsiElement]]): Unit = {
     selectionConsumer.consume(targets)
   }

@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import java.util
-import scala.annotation.nowarn
 
 class ScalaHighlightConstructorInvocationUsages(reference: Option[ScReference], file: PsiFile, editor: Editor)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file)
@@ -28,7 +27,6 @@ class ScalaHighlightConstructorInvocationUsages(reference: Option[ScReference], 
 
   override def getTargets: util.List[PsiElement] = reference.fold(util.Collections.emptyList[PsiElement])(util.Collections.singletonList)
 
-  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   override def selectTargets(targets: util.List[_ <: PsiElement], selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit =
     selectionConsumer.consume(targets)
 

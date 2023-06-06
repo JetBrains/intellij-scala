@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.ui.RegexpPanel._
 
 import javax.swing.JPanel
 import javax.swing.table.DefaultTableModel
-import scala.annotation.nowarn
 
 final class RegexpPanel extends JPanel {
 
@@ -32,7 +31,6 @@ final class RegexpPanel extends JPanel {
     table
   }
 
-  @nowarn("cat=deprecation")
   private def createRegexpPanel(regexpTable: JBTable): JPanel = {
     val addAction: AnActionButtonRunnable   = (_: AnActionButton) => {
       val editor = regexpTable.getCellEditor
@@ -49,7 +47,6 @@ final class RegexpPanel extends JPanel {
       regexpTable.setColumnSelectionInterval(0, 0)
     }
 
-    @nowarn("cat=deprecation")
     val removeAction: AnActionButtonRunnable = (_: AnActionButton) => {
       val row = regexpTable.getSelectedRow
       if (row != -1) {

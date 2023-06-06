@@ -8,7 +8,6 @@ import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.project.ModuleExt
 
 import java.io.File
-import scala.annotation.nowarn
 
 trait ThirdPartyLibraryLoader extends LibraryLoader {
   protected val name: String
@@ -23,7 +22,7 @@ trait ThirdPartyLibraryLoader extends LibraryLoader {
     val path = this.path
     val file = new File(path).getCanonicalFile
     assert(file.exists(), s"library root for $name does not exist at $file")
-    VfsRootAccess.allowRootAccess(module, path): @nowarn("cat=deprecation")
+    VfsRootAccess.allowRootAccess(module, path)
     PsiTestUtil.addLibrary(module, name, file.getParent, file.getName)
   }
 

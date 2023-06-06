@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 
 import java.util
 import java.util.Collections
-import scala.annotation.nowarn
 
 private class CompanionHighlightHandler(keyword: PsiElement, definition: ScTypeDefinition, editor: Editor, file: PsiFile)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
@@ -25,7 +24,6 @@ private class CompanionHighlightHandler(keyword: PsiElement, definition: ScTypeD
       myReadUsages.add(companionKeyword.getTextRange)
     }
 
-  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   override def selectTargets(targets: util.List[_ <: PsiElement], selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit = {
     selectionConsumer.consume(targets)
   }

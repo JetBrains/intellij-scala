@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import java.awt.{BorderLayout, Component, Container}
 import javax.swing._
-import scala.annotation.nowarn
 
 private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
   extends PsiElementListCellRenderer[PsiNamedElement] {
@@ -78,7 +77,6 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
     comp
   }
 
-  @nowarn("cat=deprecation")
   override def getElementText(element: PsiNamedElement): String =
     element match {
       case method: ScFunction  => functionRenderer.render(method)

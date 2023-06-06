@@ -21,8 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.annotation.nowarn
-
 class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaClassNameCompletionContributor._
@@ -202,7 +200,7 @@ object ScalaClassNameCompletionContributor {
               lookupElement = state.createLookupElement(companionOrClass, maybeConstructor)
             } result.addElement(lookupElement)
         }
-      }: @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
+      }
     )
 
     if (!state.annotationsOnly) {

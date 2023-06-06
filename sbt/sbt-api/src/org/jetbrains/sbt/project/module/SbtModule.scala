@@ -7,7 +7,6 @@ import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolve
 
 import java.net.URI
 import java.util.regex.Pattern
-import scala.annotation.nowarn
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
 
@@ -45,14 +44,12 @@ object SbtModule {
         .replace(SubstitutePrefix + SubstitutePrefix, SubstitutePrefix)
         .replace(SubstitutePrefix + SubstituteDollar, "$")
 
-    @nowarn("cat=deprecation")
     def apply(module: Module): Seq[String] = {
       val state = getState(module)
       val importsStrOpt = Option(state.imports).filter(_.nonEmpty)
       importsStrOpt.fold(Sbt.DefaultImplicitImports)(deserializeSeq)
     }
 
-    @nowarn("cat=deprecation")
     def update(module: Module, imports: java.util.List[String]): Unit = {
       val newImports = serializeSeq(imports.asScala.toSeq)
       getState(module).imports = newImports

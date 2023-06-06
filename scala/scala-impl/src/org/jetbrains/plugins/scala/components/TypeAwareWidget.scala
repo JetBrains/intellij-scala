@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import java.awt.event.MouseEvent
 import javax.swing.Icon
-import scala.annotation.nowarn
 
 private final class TypeAwareWidget(project: Project, factory: TypeAwareWidgetFactory)
   extends StatusBarWidget
@@ -59,7 +58,6 @@ private final class TypeAwareWidget(project: Project, factory: TypeAwareWidgetFa
     s"$title: $status $toChange"
   }
 
-  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   override def getClickConsumer: Consumer[MouseEvent] =
     _ => ToggleTypeAwareHighlightingAction.toggleSettingAndRehighlight(project)
 

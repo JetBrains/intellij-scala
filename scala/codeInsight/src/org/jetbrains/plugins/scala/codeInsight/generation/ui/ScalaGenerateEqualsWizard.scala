@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 import java.util
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 final class ScalaGenerateEqualsWizard(clazz: ScClass, needEquals: Boolean, needHashCode: Boolean)
@@ -41,9 +40,9 @@ object ScalaGenerateEqualsWizard {
       if (needEquals) new ScalaMemberSelectionPanel(JavaBundle.message("generate.equals.hashcode.equals.fields.chooser.title"), getClassFields)(ScalaEqualsMemberInfoModel)
       else null
 
-    override protected val getFieldsToHashCode: util.HashMap[ScNamedElement, ScalaMemberInfo] @nowarn("cat=deprecation") =
+    override protected val getFieldsToHashCode: util.HashMap[ScNamedElement, ScalaMemberInfo] =
       if (needEquals && needHashCode) {
-        val result = new util.HashMap[ScNamedElement, ScalaMemberInfo]: @nowarn("cat=deprecation")
+        val result = new util.HashMap[ScNamedElement, ScalaMemberInfo]()
         for {
           (info, member) <- extractFields(Function.const(true))
         } result.put(member, info)
@@ -66,7 +65,7 @@ object ScalaGenerateEqualsWizard {
         case panel => panel.getTable.setMemberInfos(updateInfos(equalsMemberInfos))
       }
 
-    override protected def getFieldsToNonNull: util.HashMap[ScNamedElement, ScalaMemberInfo] @nowarn("cat=deprecation") = null
+    override protected def getFieldsToNonNull: util.HashMap[ScNamedElement, ScalaMemberInfo] = null
 
     override protected def getNonNullPanel: AbstractMemberSelectionPanel[ScNamedElement, ScalaMemberInfo] = null
 

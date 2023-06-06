@@ -32,7 +32,6 @@ import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ShowSet
 import java.awt.Point
 import java.awt.event.MouseEvent
 import javax.swing.Icon
-import scala.annotation.nowarn
 
 @Service(Array(Service.Level.PROJECT))
 final class CompileServerManager(project: Project) extends Disposable with CompileServerManager.ErrorListener {
@@ -108,7 +107,6 @@ final class CompileServerManager(project: Project) extends Disposable with Compi
     statusBar.foreach(_.updateWidget(Widget.ID))
   }
 
-  @nowarn("msg=trait Consumer in package util is deprecated") //We have to use deprecated consumer because it's still used in upstream API
   private object Widget extends StatusBarWidget
     with StatusBarWidget.IconPresentation
     with Consumer[MouseEvent]
