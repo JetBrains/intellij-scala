@@ -3,7 +3,7 @@ package base
 
 import com.intellij.debugger.impl.OutputChecker
 import com.intellij.debugger.settings.NodeRendererSettings
-import com.intellij.debugger.ui.breakpoints.{BreakpointManager, JavaLineBreakpointType}
+import com.intellij.debugger.ui.breakpoints.{Breakpoint, BreakpointManager, JavaLineBreakpointType}
 import com.intellij.debugger.{BreakpointComment, DebuggerInvocationUtil, DebuggerTestCase}
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.application.ModalityState
@@ -15,6 +15,7 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.xdebugger.{XDebuggerManager, XDebuggerUtil}
+import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -237,9 +238,11 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
                 if (ordinalStr == null) null
                 else ordinalStr.toInt
               }
-            props.setLambdaOrdinal(lambdaOrdinal)
+            props.setEncodedInlinePosition(lambdaOrdinal)
             val xbp = inWriteAction(breakpointManager.addLineBreakpoint(bpType, virtualFile.getUrl, lineNumber, props))
-            BreakpointManager.addBreakpoint(BreakpointManager.getJavaBreakpoint(xbp))
+            val javaBp = BreakpointManager.getJavaBreakpoint(xbp)
+              .asInstanceOf[Breakpoint[_ <: JavaLineBreakpointProperties]]
+            BreakpointManager.addBreakpoint(javaBp)
           }
         }
       }
@@ -279,9 +282,11 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
 
       if (bpType.canPutAt(vFile, lineNumber, getProject)) {
         val props = bpType.createBreakpointProperties(vFile, lineNumber)
-        props.setLambdaOrdinal(null)
+        props.setEncodedInlinePosition(null)
         val xbp = inWriteAction(breakpointManager.addLineBreakpoint(bpType, vFile.getUrl, lineNumber, props))
-        BreakpointManager.addBreakpoint(BreakpointManager.getJavaBreakpoint(xbp))
+        val javaBp = BreakpointManager.getJavaBreakpoint(xbp)
+          .asInstanceOf[Breakpoint[_ <: JavaLineBreakpointProperties]]
+        BreakpointManager.addBreakpoint(javaBp)
       }
     }
 

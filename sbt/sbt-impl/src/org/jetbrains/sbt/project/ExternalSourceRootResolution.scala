@@ -11,6 +11,7 @@ import org.jetbrains.sbt.structure.ProjectData
 import org.jetbrains.sbt.{structure => sbtStructure}
 
 import java.io.File
+import scala.annotation.nowarn
 
 trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
@@ -72,7 +73,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
       projectToModuleNode.get(representativeProject).foreach { reprProjectModule =>
         //put source module to the same module group
-        moduleNode.setIdeModuleGroup(reprProjectModule.getIdeModuleGroup)
+        moduleNode.setIdeModuleGroup(reprProjectModule.getIdeModuleGroup): @nowarn("cat=deprecation") // TODO: SCL-21288
       }
 
       moduleNode

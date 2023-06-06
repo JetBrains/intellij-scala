@@ -36,6 +36,7 @@ import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, usingTempFile, s
 import java.io.{File, FileNotFoundException}
 import java.nio.file.Path
 import java.util.{Collections, Locale, UUID}
+import scala.annotation.nowarn
 import scala.collection.{MapView, mutable}
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -360,7 +361,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val buildModules = data.builds.map(buildModuleForProject)
 
     if (buildModules.size > 1) {
-      buildModules.foreach(_.moduleNode.setIdeModuleGroup(Array("sbt-build-modules")))
+      buildModules.foreach(_.moduleNode.setIdeModuleGroup(Array("sbt-build-modules")): @nowarn("cat=deprecation")) // TODO: SCL-21288
     }
 
     configureBuildModuleDependencies(buildModules)
@@ -467,7 +468,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
       val moduleNode = createModule(project, moduleFilesDirectory, moduleName)
 
-      moduleNode.setIdeModuleGroup(groupName)
+      moduleNode.setIdeModuleGroup(groupName): @nowarn("cat=deprecation") // TODO: SCL-21288
 
       val contentRootNode = createContentRoot(project)
       project.android.foreach(a => a.apklibs.foreach(addApklibDirs(contentRootNode, _)))
