@@ -56,7 +56,7 @@ public class ScalaInterpolatedPrefixMappingTable extends JBTable implements Depe
   public void setMyMainPanel(JPanel myMainPanel) {
     final ToolbarDecorator decorator = ToolbarDecorator.createDecorator(this)
         .setAddAction(anActionButton -> {
-          if (availableIds.size() > 0) tableModel.data.add(new PrefixLanguagePair("prefix", 0));
+          if (!availableIds.isEmpty()) tableModel.data.add(new PrefixLanguagePair("prefix", 0));
           tableModel.fireTableDataChanged();
         })
         .setRemoveAction(anActionButton -> {
