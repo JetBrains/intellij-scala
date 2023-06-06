@@ -256,7 +256,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
          |}
          |""".stripMargin
 
-    doTest(code, Seq("Red", "Red"))
+    doTest(code, Seq("Red", "Color.Red"))
   }
 
   def assertHandlerIsNull(fileText: String): Unit = {

@@ -34,8 +34,12 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
     val secondaryConstructorsText = secondaryConstructors.map(_.getText).mkString("\n")
     val derivesText               = derivesClause.fold("")(_.getText)
 
+    val extendsText =
+      if (supersText.isEmpty) "extends scala.Enum"
+      else                    s"extends $supersText with scala.Enum"
+
     s"""
-       |sealed abstract class $name$typeParametersText$constructorText extends $supersText with scala.Enum $derivesText {
+       |sealed abstract class $name$typeParametersText$constructorText $extendsText $derivesText {
        |  $secondaryConstructorsText
        |}
        |""".stripMargin

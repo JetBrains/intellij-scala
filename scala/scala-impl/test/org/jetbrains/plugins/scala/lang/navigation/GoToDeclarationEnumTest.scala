@@ -112,6 +112,7 @@ class GoToDeclarationEnumTest extends GotoDeclarationTestBase {
        |  case Paper extends Mo${CARET}ve(2)
        |  case Scissors extends Move(3)
        |}
-       |""".stripMargin
+       |""".stripMargin,
+    expected = (is[ScEnum], "Move")
   )
 }

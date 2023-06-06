@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
 
 import java.util
 import java.util.Collections
-import scala.annotation.nowarn
 
 class ScalaHighlightEnumUsagesHandler(target: ScalaPsiElement, file: PsiFile, editor: Editor)
     extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
@@ -28,7 +27,6 @@ class ScalaHighlightEnumUsagesHandler(target: ScalaPsiElement, file: PsiFile, ed
     case _                    => Collections.emptyList()
   }
 
-  @nowarn("msg=trait Consumer in package util is deprecated")
   override def selectTargets(
     targets:           util.List[_ <: PsiElement],
     selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]
