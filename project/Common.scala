@@ -46,6 +46,7 @@ object Common {
       name := projectName,
       organization := "JetBrains",
       scalaVersion := Versions.scalaVersion,
+      dependencyOverrides += "org.scala-lang" % "scala3-library_3" % "3.2.2-RC2", // TODO Workaround for SCL-18866
       (Compile / javacOptions) := globalJavacOptions,
       (Compile / scalacOptions) := globalScalacOptions,
       (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
