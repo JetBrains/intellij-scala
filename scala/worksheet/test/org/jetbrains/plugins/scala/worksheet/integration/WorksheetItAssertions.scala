@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData, WorksheetEditorAndFile}
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
 
+import scala.annotation.nowarn
+
 trait WorksheetItAssertions {
   self: WorksheetIntegrationBaseTest =>
 
@@ -101,16 +103,12 @@ trait WorksheetItAssertions {
       val messagesRenders = messages.map { err =>
         s"${err.getCategory} (${err.getLine}, ${err.getColumn}) ${err.getMessage}"
       }
-      val typ = category match {
+      val typ = (category match {
         case CompilerMessageCategory.ERROR       => "errors"
         case CompilerMessageCategory.WARNING     => "warnings"
         case CompilerMessageCategory.INFORMATION => "information messages"
         case CompilerMessageCategory.STATISTICS  => "???"
-        case _ =>
-          // This case should not be necessary, as all enum cases are covered above.
-          // TODO: report compiler error for Scala 2.13.11.
-          ???
-      }
+      }): @nowarn("msg=match may not be exhaustive") // TODO: https://github.com/scala/bug/issues/12800
       fail(s"Unexpected compilation $typ occurred during worksheet evaluation:\n${messagesRenders.mkString("\n")}")
     }
   }
