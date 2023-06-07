@@ -12,7 +12,7 @@ class JvmOptsTest {
   private val input =
     """
       |# My jvm options
-      |-Xmx2G
+      |-Xmx2G # -Dsbt.color=always
       |-Dhoodlump=bloom
     """.stripMargin
 

@@ -24,7 +24,7 @@ object JvmOpts {
 
   def processJvmOptions(options: Seq[String]): Seq[String] = {
     options
-      .filter(SbtUtil.areQuotesClosedCorrectly)
+      .flatMap(SbtUtil.removeCommentedOutPartsAndCheckQuotes)
       .flatMap(ParametersListUtil.parse(_, false, true).asScala.toSeq)
       .filter(_.startsWith("-"))
       .map(_.trim)
