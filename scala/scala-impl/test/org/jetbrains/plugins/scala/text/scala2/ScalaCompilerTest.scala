@@ -9,6 +9,7 @@ class ScalaCompilerTest extends TextToTextTestBase(
   ),
   Seq("scala.tools", "scala.reflect.quasiquotes", "scala.reflect.reify"), Set.empty, 694,
   Set(
+    "scala.tools.nsc.CompilationUnits", // Reference to object without this. prefix
     "scala.tools.nsc.Global", // Reference to object without this. prefix
     "scala.tools.nsc.InterpreterLoop", // Standalone annotation
     "scala.tools.nsc.PipelineMainClass", // Any
