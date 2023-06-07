@@ -101,14 +101,20 @@ class SbtUtilTest {
 
   @Test
   def testAreQuotesClosedCorrectly():Unit = {
-    assertTrue(SbtUtil.areQuotesClosedCorrectly(""" "sb's'b" """))
-    assertTrue(SbtUtil.areQuotesClosedCorrectly(""" "sb'sb" """))
-    assertTrue(SbtUtil.areQuotesClosedCorrectly(""" 'sb"sb' """))
-    assertTrue(SbtUtil.areQuotesClosedCorrectly(""" 'sb"sb'"b  c" """))
-    assertFalse(SbtUtil.areQuotesClosedCorrectly(""" 'sb"sb'b  " """))
-    assertFalse(SbtUtil.areQuotesClosedCorrectly(""" 'sb"sb'b  "c """))
-    assertFalse(SbtUtil.areQuotesClosedCorrectly(""" 'sb"sb'b  'c """))
-    assertFalse(SbtUtil.areQuotesClosedCorrectly(""" 'sb"sb"b  c """))
+    val inputs = Seq(
+      """ "sb's'b" """, """ "sb'sb" #aaaa """,
+      """ 'sb"sb''#fdfdfd' """, """ 'sb"sb'"b #" c """,
+      """ "sb's'#b """, """ 'sb"sb'b  " """, """ 'sb"sb'b  "c """, """ 'sb"sb'b  'c """, """ 'sb"sb"b  c """,
+      """ 'sb"sb"b'#  c """, """#'sb"sb"b'#  c """
+    )
+    val outputs = Seq(
+      Some(""" "sb's'b" """), Some(""" "sb'sb" """),
+      Some(""" 'sb"sb''#fdfdfd' """), Some(""" 'sb"sb'"b #" c """),
+      None, None, None, None, None,
+      Some(""" 'sb"sb"b'"""), Some("")
+    )
+    inputs.zip(outputs).foreach { case(input, output) =>
+      assertEquals(output, SbtUtil.removeCommentedOutPartsAndCheckQuotes(input))
+    }
   }
-
 }
