@@ -31,7 +31,7 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 /**
- * This is a port of the static, private mtehods in JavaSafeDeleteProcessor.
+ * This is a port of the static, private methods in JavaSafeDeleteProcessor.
  *
  * Much still needs to be made Scala aware.
  *
@@ -40,7 +40,7 @@ import scala.jdk.CollectionConverters._
 object SafeDeleteProcessorUtil {
   def getUsageInsideDeletedFilter(allElementsToDelete: Array[PsiElement]): Condition[PsiElement] = {
     (usage: PsiElement) => {
-      !usage.isInstanceOf[PsiFile] && isInside(usage, allElementsToDelete)
+      !usage.is[PsiFile] && isInside(usage, allElementsToDelete)
     }
   }
 
@@ -53,7 +53,7 @@ object SafeDeleteProcessorUtil {
         val element: PsiElement = reference.getElement
         if (!isInside(element, allElementsToDelete)) {
           val parent: PsiElement = element.getParent
-          if (parent.isInstanceOf[PsiReferenceList]) {
+          if (parent.is[PsiReferenceList]) {
             val pparent: PsiElement = parent.getParent
             pparent match {
               case inheritor: PsiClass =>
@@ -163,7 +163,7 @@ object SafeDeleteProcessorUtil {
 
     new Condition[PsiElement] {
       override def value(usage: PsiElement): Boolean = {
-        if (usage.isInstanceOf[PsiFile]) return false
+        if (usage.is[PsiFile]) return false
         isInside(usage, allElementsToDelete) || isInside(usage, validOverriding)
       }
     }
@@ -195,7 +195,7 @@ object SafeDeleteProcessorUtil {
     val validOverriding: util.Set[PsiMethod] = validateOverridingMethods(constructor, originalReferences, constructorsToRefs.keySet, constructorsToRefs, usages, allElementsToDelete)
     new Condition[PsiElement] {
       override def value(usage: PsiElement): Boolean = {
-        if (usage.isInstanceOf[PsiFile]) return false
+        if (usage.is[PsiFile]) return false
         isInside(usage, allElementsToDelete) || isInside(usage, validOverriding)
       }
     }
@@ -274,13 +274,13 @@ object SafeDeleteProcessorUtil {
   }
 
   @Nullable def getOverridingConstructorOfSuperCall(element: PsiElement): PsiMethod = {
-    if (element.isInstanceOf[PsiReferenceExpression] && element.textMatches("super")) {
+    if (element.is[PsiReferenceExpression] && element.textMatches("super")) {
       var parent: PsiElement = element.getParent
-      if (parent.isInstanceOf[PsiMethodCallExpression]) {
+      if (parent.is[PsiMethodCallExpression]) {
         parent = parent.getParent
-        if (parent.isInstanceOf[PsiExpressionStatement]) {
+        if (parent.is[PsiExpressionStatement]) {
           parent = parent.getParent
-          if (parent.isInstanceOf[PsiCodeBlock]) {
+          if (parent.is[PsiCodeBlock]) {
             parent = parent.getParent
             parent match {
               case Constructor(constr) =>
@@ -430,7 +430,7 @@ object SafeDeleteProcessorUtil {
               val methodExpression: PsiReferenceExpression = call.getMethodExpression
               if (methodExpression.textMatches(PsiKeyword.SUPER)) {
                 true
-              } else if (methodExpression.getQualifierExpression.isInstanceOf[PsiSuperExpression]) {
+              } else if (methodExpression.getQualifierExpression.is[PsiSuperExpression]) {
                 owner match {
                   case method: PsiMethod =>
                     val superMethod: PsiMethod = call.resolveMethod
@@ -466,7 +466,7 @@ object SafeDeleteProcessorUtil {
 
   def isInside(place: PsiElement, ancestor: PsiElement): Boolean = {
     if (SafeDeleteProcessor.isInside(place, ancestor)) return true
-    if (place.isInstanceOf[PsiComment] && ancestor.isInstanceOf[PsiClass]) {
+    if (place.is[PsiComment] && ancestor.is[PsiClass]) {
       val aClass: PsiClass = ancestor.asInstanceOf[PsiClass]
       aClass.getParent match {
         case file: PsiJavaFile =>
