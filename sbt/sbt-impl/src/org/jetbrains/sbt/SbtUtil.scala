@@ -289,22 +289,24 @@ object SbtUtil {
   private val MayUpgradeSbtVersion = Version("0.13.0")
 
   /** It is needed as we want to behave exactly like sbt. Sbt does not take into account options with unbalanced quoted derived from a single line from
-   * .jvmopts/.sbtopts file. When options entered in the terminal contains unbalanced quotes it still waits until the user aligns the quotes. */
-  def areQuotesClosedCorrectly(options: String): Boolean = {
+   * .jvmopts/.sbtopts file. When options entered in the terminal contains unbalanced quotes it still waits until the user aligns the quotes. Additional we don't take into account
+   * those parts of line which are commented out (user can comment the whole line or part of them - everything after # will be discarded, provided that # is not in quotes)
+   * */
+  def removeCommentedOutPartsAndCheckQuotes(options: String): Option[String] = {
     val quotes = "\"'"
-    val stack = mutable.Stack[Char]()
+    val quotesStack = mutable.Stack[Char]()
     var firstQuote = 0
-    options
-      .filter { char => quotes.contains(char) }
-      .foreach { char =>
-        if (stack.isEmpty) {
+    val result = options.foldLeft("") { (acc, char) =>
+      if (quotes.contains(char)) {
+        if (quotesStack.isEmpty) {
           firstQuote = char
-          stack.push(char)
-        } else if (stack.nonEmpty && char == firstQuote) {
-          stack.pop()
-        }
+          quotesStack.push(char)
+        } else if (char == firstQuote) quotesStack.pop()
       }
-    stack.isEmpty
+      if (char == '#' && quotesStack.isEmpty) return Some(acc)
+      else acc :+ char
+    }
+    if (quotesStack.isEmpty) Some(result) else None
   }
 
   def collectAllOptionsFromJava(workingDir: File, vmOptionsFromSettings: Seq[String], passParentEnvironment: Boolean, userSetEnv: Map[String, String]): Seq[String] = {

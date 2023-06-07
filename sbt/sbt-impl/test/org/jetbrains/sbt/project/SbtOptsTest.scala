@@ -12,34 +12,59 @@ import java.io.File
 
 class SbtOptsTest {
 
-  private val input =
-    """
-      |--sbt-boot /some/where/sbt/boot -sbt-dir      /some/where/else/sbt
-      |--ivy /some/where/ivy -color=   always -debug
-      |-jvm-debug 4711
-      |--d
-      |-error
-      |debug
-      |--warn
-      |--debug
-      |
-    """.stripMargin
-
-  private val expected = Seq(
-    JvmOptionGlobal("-Dsbt.boot.directory=/some/where/sbt/boot")(),
-    JvmOptionGlobal("-Dsbt.global.base=/some/where/else/sbt")(),
-    JvmOptionGlobal("-Dsbt.ivy.home=/some/where/ivy")(),
-    SbtLauncherOption("--debug")(),
-    JvmOptionGlobal("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=4711")(),
-    SbtLauncherOption("--error")(),
-    SbtLauncherOption("--warn")(),
-    SbtLauncherOption("--debug")()
-  )
-
   @Test
   def testLoad(): Unit = {
+    val input =
+      """
+        |--sbt-boot /some/where/sbt/boot -sbt-dir      /some/where/else/sbt
+        |--ivy /some/where/ivy -color=   always -debug
+        |-jvm-debug 4711
+        |--d
+        |-error
+        |debug
+        |--warn
+        |--debug
+        |
+      """.stripMargin
+    val expected = Seq(
+      JvmOptionGlobal("-Dsbt.boot.directory=/some/where/sbt/boot")(),
+      JvmOptionGlobal("-Dsbt.global.base=/some/where/else/sbt")(),
+      JvmOptionGlobal("-Dsbt.ivy.home=/some/where/ivy")(),
+      SbtLauncherOption("--debug")(),
+      JvmOptionGlobal("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=4711")(),
+      SbtLauncherOption("--error")(),
+      SbtLauncherOption("--warn")(),
+      SbtLauncherOption("--debug")()
+    )
+
     val optsDir = FileUtil.createTempDirectory("sbtOptsTest","",true)
     val optsFile = new File(optsDir,SbtOpts.SbtOptsFile)
+    FileUtil.writeToFile(optsFile, input)
+    val opts = SbtOpts.loadFrom(optsDir)
+    assertEquals(expected, opts)
+  }
+  @Test
+  def testWithComments(): Unit = {
+    val input =
+      """
+        |#--sbt-boot /some/where/sbt/boot -sbt-dir      /some/where/else/sbt
+        |--ivy /some/where/ivy -color=   always -debug #-jvm-debug 4711
+        |--d "#" -error
+        |debug #--sbt-boot /some/where/sbt/boot
+        |--warn
+        |--debug
+        |
+      """.stripMargin
+    val expected = Seq(
+      JvmOptionGlobal("-Dsbt.ivy.home=/some/where/ivy")(),
+      SbtLauncherOption("--debug")(),
+      SbtLauncherOption("--error")(),
+      SbtLauncherOption("--warn")(),
+      SbtLauncherOption("--debug")()
+    )
+
+    val optsDir = FileUtil.createTempDirectory("sbtOptsTest", "", true)
+    val optsFile = new File(optsDir, SbtOpts.SbtOptsFile)
     FileUtil.writeToFile(optsFile, input)
     val opts = SbtOpts.loadFrom(optsDir)
     assertEquals(expected, opts)

@@ -62,7 +62,7 @@ object SbtOpts {
       Seq.empty
   }
 
-  def combineOptionsWithArgs(opts: String): Seq[String] = {
+  def combineOptionsWithArgs(options: String): Seq[String] = {
     @tailrec
     def prependArgsToOpts(optsToCombine: Seq[String], result: Seq[String]): Seq[String] = {
       def shouldPrepend(opt: String): Boolean = {
@@ -86,10 +86,10 @@ object SbtOpts {
         case Nil => result
       }
     }
-    if (SbtUtil.areQuotesClosedCorrectly(opts)) {
+    SbtUtil.removeCommentedOutPartsAndCheckQuotes(options).map { opts =>
       val parsedOpts = ParametersListUtil.parse(opts, false, true)
       prependArgsToOpts(parsedOpts.asScala.toSeq.map(removeDoubleDash), Seq.empty)
-    } else Seq.empty
+    }.getOrElse(Seq.empty)
   }
 
   def mapOptionsToSbtOptions(opts: Seq[String], projectPath: String)(implicit reporter: BuildReporter = null): Seq[SbtOption] = {
