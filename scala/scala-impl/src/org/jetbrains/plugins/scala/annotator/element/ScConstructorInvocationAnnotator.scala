@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiComment, PsiWhiteSpace}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiComment, PsiNamedElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
@@ -10,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation, ScMethodLike, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScEnum, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -98,8 +99,15 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
     }
   }
 
+
+  def isJavaEnumExtendedByScalaEnum(target: PsiNamedElement, invocation: ConstructorInvocationLike): Boolean =
+    invocation.asOptionOf[ScConstructorInvocation].flatMap(_.templateDefinitionContext).exists(_.is[ScEnum]) && {
+      val cls = PsiTreeUtil.getContextOfType(target, classOf[PsiClass], false)
+      cls != null && cls.qualifiedName == "java.lang.Enum"
+    }
+
   def annotateProblems(problems: Seq[ApplicabilityProblem], r: ScalaResolveResult, constrInvocation: ConstructorInvocationLike)
-                      (implicit holder: ScalaAnnotationHolder): Unit = {
+                      (implicit holder: ScalaAnnotationHolder): Unit = if (!isJavaEnumExtendedByScalaEnum(r.element, constrInvocation)) {
     val element = r.element
     def argsElements = argsElementsTextRange(constrInvocation)
     // TODO decouple

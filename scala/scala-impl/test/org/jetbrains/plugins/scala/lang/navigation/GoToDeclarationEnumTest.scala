@@ -104,4 +104,15 @@ class GoToDeclarationEnumTest extends GotoDeclarationTestBase {
        |""".stripMargin,
     expected = (is[ScEnumCase], "Model.Foo.Baz")
   )
+
+  def testSCL21150(): Unit = doTest(
+    s"""
+       |enum Move(val score: Int) {
+       |  case Rock extends Move(1)
+       |  case Paper extends Mo${CARET}ve(2)
+       |  case Scissors extends Move(3)
+       |}
+       |""".stripMargin,
+    expected = (is[ScEnum], "Move")
+  )
 }

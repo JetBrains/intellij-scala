@@ -239,6 +239,14 @@ class EnumResolveTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
+  def testSCL21269(): Unit = checkTextHasNoErrors(
+    """
+      |enum MyEnum extends java.lang.Enum[MyEnum] {
+      |  case Foo
+      |}
+      |""".stripMargin
+  )
+
   def testCreateBaseClassInstance(): Unit = {
   //@TODO: prohibit extending from enum class
 //    checkHasErrorAroundCaret(

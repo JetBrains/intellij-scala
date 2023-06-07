@@ -29,13 +29,17 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
 
   private[this] def syntheticClassText = {
     val typeParametersText        = typeParametersClause.fold("")(_.getTextByStub)
-    val supersText                = superTypes.map(_.canonicalText).mkString(" with ")
+    val supersText                = extendsBlock.templateParents.fold("")(_.getText)
     val constructorText           = constructor.fold("")(_.getText)
     val secondaryConstructorsText = secondaryConstructors.map(_.getText).mkString("\n")
     val derivesText               = derivesClause.fold("")(_.getText)
 
+    val extendsText =
+      if (supersText.isEmpty) "extends scala.Enum"
+      else                    s"extends $supersText with scala.Enum"
+
     s"""
-       |sealed abstract class $name$typeParametersText$constructorText extends $supersText $derivesText {
+       |sealed abstract class $name$typeParametersText$constructorText $extendsText $derivesText {
        |  $secondaryConstructorsText
        |}
        |""".stripMargin
