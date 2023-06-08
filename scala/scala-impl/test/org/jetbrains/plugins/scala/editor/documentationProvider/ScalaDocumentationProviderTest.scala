@@ -1794,7 +1794,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val fileContent =
       s"""class Outer {
          |  @deprecatedName("inner tags <p>example</p>", "since 2020")
-         |  def ${|}boo() {}
+         |  def ${|}boo() = {}
          |}""".stripMargin
 
     val expectedDoc =
@@ -1844,6 +1844,40 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |(<span style="color:#008000;font-weight:bold;">s&quot;test ${42}&quot;</span>)<br/>
          |<span style="color:#000080;font-weight:bold;">def</span>foo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedDoc)
+  }
+
+  def testAnnotation_Number(): Unit = {
+    val fileContent =
+      s"""
+        |@deprecated(42)
+        |def ${|}foo() = {}
+        |""".stripMargin
+
+    val expectedDoc =
+      """
+        |<span style="color:#808000;"><a href="psi_element://deprecated"><code>@deprecated</code></a></span>(<span style="color:#0000ff;">42</span>)
+        |<br/>
+        |<span style="color:#000080;font-weight:bold;">def</span>foo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+        |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedDoc)
+  }
+
+  def testAnnotation_Boolean(): Unit = {
+    val fileContent =
+      s"""
+         |@deprecated(true)
+         |def ${|}foo() = {}
+         |""".stripMargin
+
+    val expectedDoc =
+      """
+        |<span style="color:#808000;"><a href="psi_element://deprecated"><code>@deprecated</code></a></span>(<span style="color:#000080;font-weight:bold;">true</span>)
+        |<br/>
+        |<span style="color:#000080;font-weight:bold;">def</span>foo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+        |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
   }

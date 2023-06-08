@@ -166,7 +166,7 @@ object ScalaColorSchemeAnnotator {
       case x: ScAnnotation => visitAnnotation(x)
       case x: ScParameter  => visitParameter(x)
       case x: ScTypeAlias  => visitTypeAlias(x)
-      case _ if ScalaColorsSchemeUtils.isSoftKeyword(element) =>
+      case _ if isSoftKeyword(element) =>
         createInfoAnnotation(element, KEYWORD)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
         ScalaColorsSchemeUtils
@@ -174,6 +174,11 @@ object ScalaColorSchemeAnnotator {
           .foreach(createInfoAnnotation(element, _))
       case _ =>
     }
+
+  private def isSoftKeyword(element: PsiElement): Boolean = {
+    import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.SOFT_KEYWORDS
+    SOFT_KEYWORDS.contains(element.getNode.getElementType)
+  }
 
   private def visitAnnotation(annotation: ScAnnotation)(implicit holder: ScalaAnnotationHolder): Unit = {
     createInfoAnnotation(annotation.getFirstChild, ANNOTATION)

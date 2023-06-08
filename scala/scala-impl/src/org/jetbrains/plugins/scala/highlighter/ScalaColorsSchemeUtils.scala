@@ -4,11 +4,8 @@ import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.{PsiClass, PsiElement, PsiField, PsiMethod, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiMemberExt}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.SOFT_KEYWORDS
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral, ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator, ScMethodCall, ScNameValuePair, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -19,23 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 
 object ScalaColorsSchemeUtils {
-  def findAttributesKey(element: PsiElement): Option[TextAttributesKey] =
-    element match {
-      // TODO: Re-enable after implementing soft keywords in ScalaDoc popups
-      //case _ if isSoftKeyword(element)                                        => Some(DefaultHighlighter.KEYWORD)
-      case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => findAttributesKeyByParent(element)
-      case _: ScAnnotation                                                    => Some(DefaultHighlighter.ANNOTATION)
-      case p: ScParameter if p.isAnonymousParameter                           => Some(DefaultHighlighter.ANONYMOUS_PARAMETER)
-      case _: ScParameter                                                     => Some(DefaultHighlighter.PARAMETER)
-      case _: ScStringLiteral                                                 => Some(DefaultHighlighter.STRING)
-      case _: ScLiteral.Numeric                                               => Some(DefaultHighlighter.NUMBER)
-      case _: ScBooleanLiteral                                                => Some(DefaultHighlighter.KEYWORD)
-      case _                                                                  => None
-    }
-
-  def isSoftKeyword(element: PsiElement): Boolean =
-    SOFT_KEYWORDS.contains(element.getNode.getElementType)
-
   def findAttributesKeyByParent(element: PsiElement): Option[TextAttributesKey] =
     getParentByStub(element) match {
       case _: ScNameValuePair                         => Some(DefaultHighlighter.ANNOTATION_ATTRIBUTE)
@@ -155,7 +135,7 @@ object ScalaColorsSchemeUtils {
   private def attributesKey(method: PsiMethod): TextAttributesKey =
     if (hasModifier(method, "static")) DefaultHighlighter.OBJECT_METHOD_CALL else DefaultHighlighter.METHOD_CALL
 
-  def getParentByStub(x: PsiElement): PsiElement = x match {
+  private def getParentByStub(x: PsiElement): PsiElement = x match {
     case el: ScalaStubBasedElementImpl[_, _] => el.getParent
     case _ => x.getContext
   }

@@ -6,7 +6,8 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.highlighter.{DefaultHighlighter, ScalaColorsSchemeUtils}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScStringLiteral}
 /**
  * @see [[com.intellij.codeInsight.documentation.DocumentationManagerProtocol]]
  * @see [[com.intellij.codeInsight.documentation.DocumentationManagerUtil]]
@@ -16,9 +17,13 @@ object HtmlPsiUtils {
   def psiElement(element: PsiElement, label: Option[String] = None, escapeLabel: Boolean = true): String = {
     val text = label.getOrElse(element.getText)
     val escapedContent = if (escapeLabel) StringEscapeUtils.escapeHtml(text) else text
-    ScalaColorsSchemeUtils.findAttributesKey(element) match {
-      case Some(key) => withStyledSpan(escapedContent, key)
-      case _         => escapedContent
+    element match {
+      // TODO: Re-implement after implementing soft keywords in ScalaDoc popups
+      //case _ if isSoftKeyword(element) => withStyledSpan(escapedContent, DefaultHighlighter.KEYWORD)
+      case _: ScStringLiteral   => withStyledSpan(escapedContent, DefaultHighlighter.STRING)
+      case _: ScLiteral.Numeric => withStyledSpan(escapedContent, DefaultHighlighter.NUMBER)
+      case _: ScBooleanLiteral  => withStyledSpan(escapedContent, DefaultHighlighter.KEYWORD)
+      case _                    => escapedContent
     }
   }
 
