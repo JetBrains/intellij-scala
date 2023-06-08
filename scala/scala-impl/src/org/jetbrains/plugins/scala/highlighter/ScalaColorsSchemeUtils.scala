@@ -19,19 +19,16 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 
 object ScalaColorsSchemeUtils {
-  import DefaultHighlighter._
-  import DefaultLanguageHighlighterColors.IDENTIFIER
-
   def findAttributesKey(element: PsiElement): Option[TextAttributesKey] =
     element match {
-      case _ if isSoftKeyword(element)                                        => Some(KEYWORD)
+      case _ if isSoftKeyword(element)                                        => Some(DefaultHighlighter.KEYWORD)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => findAttributesKeyByParent(element)
-      case _: ScAnnotation                                                    => Some(ANNOTATION)
-      case p: ScParameter if p.isAnonymousParameter                           => Some(ANONYMOUS_PARAMETER)
-      case _: ScParameter                                                     => Some(PARAMETER)
-      case s: ScStringLiteral if s.isSimpleLiteral                            => Some(STRING)
-      case _: ScLiteral.Numeric                                               => Some(NUMBER)
-      case _: ScBooleanLiteral                                                => Some(KEYWORD)
+      case _: ScAnnotation                                                    => Some(DefaultHighlighter.ANNOTATION)
+      case p: ScParameter if p.isAnonymousParameter                           => Some(DefaultHighlighter.ANONYMOUS_PARAMETER)
+      case _: ScParameter                                                     => Some(DefaultHighlighter.PARAMETER)
+      case _: ScStringLiteral                                                 => Some(DefaultHighlighter.STRING)
+      case _: ScLiteral.Numeric                                               => Some(DefaultHighlighter.NUMBER)
+      case _: ScBooleanLiteral                                                => Some(DefaultHighlighter.KEYWORD)
       case _                                                                  => None
     }
 
@@ -40,29 +37,30 @@ object ScalaColorsSchemeUtils {
 
   def findAttributesKeyByParent(element: PsiElement): Option[TextAttributesKey] =
     getParentByStub(element) match {
-      case _: ScNameValuePair  => Some(ANNOTATION_ATTRIBUTE)
-      case _: ScTypeParam      => Some(TYPEPARAM)
-      case c: ScClass          => Some(if (c.getModifierList.isAbstract) ABSTRACT_CLASS else CLASS)
-      case _: ScObject         => Some(DefaultHighlighter.OBJECT)
-      case _: ScTrait          => Some(DefaultHighlighter.TRAIT)
+      case _: ScNameValuePair                         => Some(DefaultHighlighter.ANNOTATION_ATTRIBUTE)
+      case _: ScTypeParam                             => Some(DefaultHighlighter.TYPEPARAM)
+      case c: ScClass if c.getModifierList.isAbstract => Some(DefaultHighlighter.ABSTRACT_CLASS)
+      case c: ScClass                                 => Some(DefaultHighlighter.CLASS)
+      case _: ScObject                                => Some(DefaultHighlighter.OBJECT)
+      case _: ScTrait                                 => Some(DefaultHighlighter.TRAIT)
       case x: ScBindingPattern =>
         x.nameContext match {
           case r@(_: ScValue | _: ScVariable) =>
             getParentByStub(r) match {
               case _: ScTemplateBody | _: ScEarlyDefinitions =>
                 val attributes = r match {
-                  case mod: ScModifierListOwner if hasModifier(mod, "lazy") => LAZY
-                  case _: ScValue                                                    => VALUES
-                  case _: ScVariable                                                 => VARIABLES
-                  case _                                                             => IDENTIFIER
+                  case mod: ScModifierListOwner if hasModifier(mod, "lazy") => DefaultHighlighter.LAZY
+                  case _: ScValue                                                    => DefaultHighlighter.VALUES
+                  case _: ScVariable                                                 => DefaultHighlighter.VARIABLES
+                  case _                                                             => DefaultLanguageHighlighterColors.IDENTIFIER
                 }
                 Some(attributes)
               case _ =>
                 val attributes = r match {
-                  case mod: ScModifierListOwner if hasModifier(mod, "lazy") => LOCAL_LAZY
-                  case _: ScValue                                                    => LOCAL_VALUES
-                  case _: ScVariable                                                 => LOCAL_VARIABLES
-                  case _                                                             => IDENTIFIER
+                  case mod: ScModifierListOwner if hasModifier(mod, "lazy") => DefaultHighlighter.LOCAL_LAZY
+                  case _: ScValue                                                    => DefaultHighlighter.LOCAL_VALUES
+                  case _: ScVariable                                                 => DefaultHighlighter.LOCAL_VARIABLES
+                  case _                                                             => DefaultLanguageHighlighterColors.IDENTIFIER
                 }
                 Some(attributes)
             }
@@ -78,26 +76,26 @@ object ScalaColorsSchemeUtils {
                         refElement: Option[ScReference] = None,
                         qualNameToType: Map[String, StdType] = Map.empty): TextAttributesKey =
     resolvedElement match {
-      case c: PsiClass if qualNameToType.contains(c.qualifiedName)                       => PREDEF //this is td, it's important!
-      case c: ScClass if c.getModifierList.isAbstract                                    => ABSTRACT_CLASS
-      case _: ScTypeParam                                                                => TYPEPARAM
-      case _: ScTypeAlias                                                                => TYPE_ALIAS
-      case _: ScClass if refElement.exists(referenceIsToCompanionObjectOfClass)          => OBJECT
-      case _: ScClass                                                                    => CLASS
-      case _: ScObject                                                                   => OBJECT
-      case _: ScTrait                                                                    => TRAIT
-      case c: PsiClass if c.isInterface                                                  => TRAIT
-      case c: PsiClass if hasModifier(c, "abstract")                            => ABSTRACT_CLASS
-      case _: PsiClass if refElement.exists(_.is[ScStableCodeReference])                 => CLASS
-      case _: PsiClass if refElement.exists(_.is[ScReferenceExpression])                 => OBJECT
+      case c: PsiClass if qualNameToType.contains(c.qualifiedName)                       => DefaultHighlighter.PREDEF //this is td, it's important!
+      case c: ScClass if c.getModifierList.isAbstract                                    => DefaultHighlighter.ABSTRACT_CLASS
+      case _: ScTypeParam                                                                => DefaultHighlighter.TYPEPARAM
+      case _: ScTypeAlias                                                                => DefaultHighlighter.TYPE_ALIAS
+      case _: ScClass if refElement.exists(referenceIsToCompanionObjectOfClass)          => DefaultHighlighter.OBJECT
+      case _: ScClass                                                                    => DefaultHighlighter.CLASS
+      case _: ScObject                                                                   => DefaultHighlighter.OBJECT
+      case _: ScTrait                                                                    => DefaultHighlighter.TRAIT
+      case c: PsiClass if c.isInterface                                                  => DefaultHighlighter.TRAIT
+      case c: PsiClass if hasModifier(c, "abstract")                            => DefaultHighlighter.ABSTRACT_CLASS
+      case _: PsiClass if refElement.exists(_.is[ScStableCodeReference])                 => DefaultHighlighter.CLASS
+      case _: PsiClass if refElement.exists(_.is[ScReferenceExpression])                 => DefaultHighlighter.OBJECT
       case p: ScBindingPattern                                                           => attributesKey(p)
-      case f: PsiField if !hasModifier(f, "final")                              => VARIABLES
-      case _: PsiField                                                                   => VALUES
-      case p: ScParameter if p.isAnonymousParameter                                      => ANONYMOUS_PARAMETER
-      case _: ScParameter                                                                => PARAMETER
+      case f: PsiField if !hasModifier(f, "final")                              => DefaultHighlighter.VARIABLES
+      case _: PsiField                                                                   => DefaultHighlighter.VALUES
+      case p: ScParameter if p.isAnonymousParameter                                      => DefaultHighlighter.ANONYMOUS_PARAMETER
+      case _: ScParameter                                                                => DefaultHighlighter.PARAMETER
       case f@(_: ScFunctionDefinition | _: ScFunctionDeclaration | _: ScMacroDefinition) => attributesKey(f.asInstanceOf[ScFunction])
       case m: PsiMethod                                                                  => attributesKey(m)
-      case _                                                                             => IDENTIFIER
+      case _                                                                             => DefaultLanguageHighlighterColors.IDENTIFIER
     }
 
   private def attributesKey(pattern: ScBindingPattern): TextAttributesKey = {
@@ -107,43 +105,43 @@ object ScalaColorsSchemeUtils {
         getParentByStub(parent) match {
           case _: ScTemplateBody | _: ScEarlyDefinitions =>
             r match {
-              case mod: ScModifierListOwner if hasModifier(mod, "lazy") => LAZY
-              case v: ScValue if isHighlightableScalaTestKeyword(v)     => SCALATEST_KEYWORD
-              case _: ScValue                                           => VALUES
-              case _: ScVariable                                        => VARIABLES
-              case _                                                    => IDENTIFIER
+              case mod: ScModifierListOwner if hasModifier(mod, "lazy") => DefaultHighlighter.LAZY
+              case v: ScValue if isHighlightableScalaTestKeyword(v)     => DefaultHighlighter.SCALATEST_KEYWORD
+              case _: ScValue                                           => DefaultHighlighter.VALUES
+              case _: ScVariable                                        => DefaultHighlighter.VARIABLES
+              case _                                                    => DefaultLanguageHighlighterColors.IDENTIFIER
             }
           case _ =>
             r match {
-              case mod: ScModifierListOwner if hasModifier(mod, "lazy") => LOCAL_LAZY
-              case _: ScValue                                           => LOCAL_VALUES
-              case _: ScVariable                                        => LOCAL_VARIABLES
-              case _                                                    => IDENTIFIER
+              case mod: ScModifierListOwner if hasModifier(mod, "lazy") => DefaultHighlighter.LOCAL_LAZY
+              case _: ScValue                                           => DefaultHighlighter.LOCAL_VALUES
+              case _: ScVariable                                        => DefaultHighlighter.LOCAL_VARIABLES
+              case _                                                    => DefaultLanguageHighlighterColors.IDENTIFIER
             }
         }
-      case _: ScCaseClause                                              => PATTERN
-      case _: ScGenerator | _: ScForBinding                             => GENERATOR
-      case _                                                            => IDENTIFIER
+      case _: ScCaseClause                                              => DefaultHighlighter.PATTERN
+      case _: ScGenerator | _: ScForBinding                             => DefaultHighlighter.GENERATOR
+      case _                                                            => DefaultLanguageHighlighterColors.IDENTIFIER
     }
   }
 
   private def attributesKey(function: ScFunction): TextAttributesKey =
     if (isHighlightableScalaTestKeyword(function))
-      SCALATEST_KEYWORD
+      DefaultHighlighter.SCALATEST_KEYWORD
     else
       function.containingClass match {
         case o: ScObject if o.syntheticMethods.contains(function) =>
-          OBJECT_METHOD_CALL
+          DefaultHighlighter.OBJECT_METHOD_CALL
         case _ =>
           getParentByStub(function) match {
             case _: ScTemplateBody | _: ScEarlyDefinitions =>
               getParentByStub(getParentByStub(getParentByStub(function))) match {
-                case _: ScClass | _: ScTrait => METHOD_CALL
-                case _: ScObject             => OBJECT_METHOD_CALL
-                case _                       => IDENTIFIER
+                case _: ScClass | _: ScTrait => DefaultHighlighter.METHOD_CALL
+                case _: ScObject             => DefaultHighlighter.OBJECT_METHOD_CALL
+                case _                       => DefaultLanguageHighlighterColors.IDENTIFIER
               }
             case _ =>
-              LOCAL_METHOD_CALL
+              DefaultHighlighter.LOCAL_METHOD_CALL
           }
       }
 
@@ -154,7 +152,7 @@ object ScalaColorsSchemeUtils {
     Option(owner.getModifierList).exists(_.hasModifierProperty(property))
 
   private def attributesKey(method: PsiMethod): TextAttributesKey =
-    if (hasModifier(method, "static")) OBJECT_METHOD_CALL else METHOD_CALL
+    if (hasModifier(method, "static")) DefaultHighlighter.OBJECT_METHOD_CALL else DefaultHighlighter.METHOD_CALL
 
   def getParentByStub(x: PsiElement): PsiElement = x match {
     case el: ScalaStubBasedElementImpl[_, _] => el.getParent
