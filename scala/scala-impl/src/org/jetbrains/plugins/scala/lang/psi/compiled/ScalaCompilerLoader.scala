@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilerLoader._
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -33,8 +33,14 @@ object ScalaCompilerLoader {
 
   private class ScalaNameMapper extends NameMapper {
     override def getQualifiedName(clazz: PsiClass): String = clazz match {
-      case tpeDef: ScTypeDefinition => inReadAction(tpeDef.getQualifiedNameForDebugger)
+      case tmpl: ScTemplateDefinition => inReadAction {
+        javaName(tmpl)
+      }
       case _ => null
     }
+  }
+
+  private def javaName(clazz: ScTemplateDefinition): String = {
+    clazz.qualifiedName + (if (clazz.isInstanceOf[ScObject]) "$" else "")
   }
 }
