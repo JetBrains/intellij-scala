@@ -172,4 +172,81 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
       """Info((5,11),symbol,Scala Local value)
         |""".stripMargin)
   }
+
+  def testTypeAlias(): Unit = {
+    val text =
+      """
+        |type A = String
+        |""".stripMargin
+    testAnnotations(text, TYPE_ALIAS,
+      """Info((6,7),A,Scala Type Alias)
+        |""".stripMargin)
+  }
+
+  def testAbstractClass(): Unit = {
+    val text =
+      """
+        |abstract class AbstractClass
+        |""".stripMargin
+
+    testAnnotations(text, ABSTRACT_CLASS,
+      "Info((16,29),AbstractClass,Scala Abstract class)"
+    )
+  }
+
+  def testAnnotation(): Unit = {
+    val text =
+      """
+        |@Source(url = "https://foo.com/")
+        |trait Foo
+        |""".stripMargin
+
+    testAnnotations(text, ANNOTATION,
+      """
+        |Info((1,2),@,Scala Annotation name)
+        |Info((2,8),Source,Scala Annotation name)
+        |""".stripMargin
+    )
+  }
+
+  def testAnonymousParameter(): Unit = {
+    val text =
+      """
+        |(x: Int) => x
+        |""".stripMargin
+
+    testAnnotations(text, ANONYMOUS_PARAMETER,
+      """
+        |Info((2,3),x,Scala Anonymous Parameter)
+        |Info((13,14),x,Scala Anonymous Parameter)
+        |""".stripMargin
+    )
+  }
+
+  def testMethodVsValueVsVariable(): Unit = {
+    val text =
+      """
+        |def a = 0
+        |val b = 1
+        |var c = 2
+        |""".stripMargin
+
+    testAnnotations(text, METHOD_DECLARATION,
+      """
+        |Info((5,6),a,Scala Method declaration)
+        |""".stripMargin
+    )
+
+    testAnnotations(text, LOCAL_VALUES,
+      """
+        |Info((15,16),b,Scala Local value)
+        |""".stripMargin
+    )
+
+    testAnnotations(text, LOCAL_VARIABLES,
+      """
+        |Info((25,26),c,Scala Local variable)
+        |""".stripMargin
+    )
+  }
 }

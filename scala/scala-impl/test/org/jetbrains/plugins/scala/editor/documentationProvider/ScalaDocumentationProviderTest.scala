@@ -2281,4 +2281,52 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |text after""".stripMargin
     )
   }
+
+  def testAbstractClass(): Unit = {
+    val fileContent =
+      s"""
+         |abstract class ${|}AbstractClass
+         |""".stripMargin
+
+    val expectedContent =
+      """
+        |<span style="color:#000080;font-weight:bold;">abstract</span>
+        |<span style="color:#000080;font-weight:bold;">class</span>
+        |AbstractClass
+        |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testAnnotation(): Unit = {
+    val fileContent =
+      s"""
+         |@Source(url = "https://foo.com/")
+         |trait ${|}Foo
+         |""".stripMargin
+
+    val expectedContent =
+      """
+        |<span style="color:#808000;"><a href="psi_element://Source"><code>@Source</code></a></span>
+        |(url =<span style="color:#008000;font-weight:bold;">&quot;https://foo.com/&quot;</span>)
+        |<br/>
+        |<span style="color:#000080;font-weight:bold;">trait</span>Foo
+        |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testFunction(): Unit = {
+    val fileContent =
+      s"""
+         |val ${|}f = (x: Int) => x
+         |""".stripMargin
+
+    val expectedContent =
+      """
+        |<span style="color:#000080;font-weight:bold;">val</span>f:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>=><span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+        |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
 }

@@ -21,7 +21,6 @@ import scala.collection.immutable.ListSet
   TestScalaVersion.Scala_3_Latest
 ))
 abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsightFixtureTestCase {
-
   override protected def sharedProjectToken: SharedTestProjectToken =
     base.SharedTestProjectToken(this.getClass)
 
@@ -69,8 +68,6 @@ abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsigh
   ): Unit = {
     val holder = annotateWithColorSchemeAnnotator(text)
     val annotationsAll = holder.annotations.sortBy(_.range.getStartOffset)
-
-    annotationsAll.foreach(a => println(a))
 
     val annotationsWithMatchingMessage = annotationsAll.filter { a =>
       filterAnnotationItems.contains(getFilterByField(a))

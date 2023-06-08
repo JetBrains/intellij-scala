@@ -21,7 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 object ScalaColorsSchemeUtils {
   def findAttributesKey(element: PsiElement): Option[TextAttributesKey] =
     element match {
-      case _ if isSoftKeyword(element)                                        => Some(DefaultHighlighter.KEYWORD)
+      // TODO: Re-enable after implementing soft keywords in ScalaDoc popups
+      //case _ if isSoftKeyword(element)                                        => Some(DefaultHighlighter.KEYWORD)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => findAttributesKeyByParent(element)
       case _: ScAnnotation                                                    => Some(DefaultHighlighter.ANNOTATION)
       case p: ScParameter if p.isAnonymousParameter                           => Some(DefaultHighlighter.ANONYMOUS_PARAMETER)

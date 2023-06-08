@@ -167,11 +167,6 @@ object ScalaColorSchemeAnnotator {
       case x: ScParameter  => visitParameter(x)
       case x: ScTypeAlias  => visitTypeAlias(x)
       case _ if ScalaColorsSchemeUtils.isSoftKeyword(element) =>
-        // TODO: investigate ways to highlight soft keywords in another way
-        holder
-          .newSilentAnnotation(HighlightSeverity.INFORMATION)
-          .textAttributes(KEYWORD)
-          .create()
         createInfoAnnotation(element, KEYWORD)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
         ScalaColorsSchemeUtils
