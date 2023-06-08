@@ -13,7 +13,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi._
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
-import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThread
+import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
@@ -34,7 +34,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     FileHighlightingSettingListener.SETTING_CHANGE,
     (root: PsiElement, _: FileHighlightingSetting) => {
       if (root.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
-        executeOnBackgroundThread(project) {
+        executeOnBackgroundThreadInNotDisposed(project) {
           val psiFile = root.getContainingFile
           if (psiFile ne null) {
             val virtualFile = psiFile.getVirtualFile
@@ -48,7 +48,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
                     editor.getColorsScheme, ExternalHighlighters.ScalaCompilerPassId)
                 }
               }
-              executeOnBackgroundThread(project) {
+              executeOnBackgroundThreadInNotDisposed(project) {
                 WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(virtualFile, ExternalHighlighters)
               }
 
@@ -63,7 +63,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     }
   )
 
-  private[highlighting] def triggerOnFileChange(psiFile: PsiFile, virtualFile: VirtualFile): Unit = executeOnBackgroundThread(project) {
+  private[highlighting] def triggerOnFileChange(psiFile: PsiFile, virtualFile: VirtualFile): Unit = executeOnBackgroundThreadInNotDisposed(project) {
     if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
       val debugReason = s"file content changed: ${psiFile.name}"
       val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
@@ -81,7 +81,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     }
   }
 
-  private[highlighting] def triggerOnSelectedEditorChange(editor: FileEditor): Unit = executeOnBackgroundThread(project) {
+  private[highlighting] def triggerOnSelectedEditorChange(editor: FileEditor): Unit = executeOnBackgroundThreadInNotDisposed(project) {
     if (isHighlightingEnabled && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
       val virtualFile = editor.getFile
       if (virtualFile ne null) {
