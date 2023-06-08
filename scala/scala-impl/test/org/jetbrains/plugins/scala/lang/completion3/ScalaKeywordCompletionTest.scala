@@ -283,6 +283,16 @@ class ScalaKeywordCompletionTest_2_13 extends ScalaCompletionTestBase {
          |}""".stripMargin,
     item = "match"
   )
+
+  def testCatch(): Unit = doCompletionTest(
+    fileText =
+      s"try 42 c$CARET",
+    resultText =
+      s"""try 42 catch {
+         |  case $CARET
+         |}""".stripMargin,
+    item = "catch"
+  )
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
@@ -306,5 +316,14 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
       s"""42 match
          |  case $CARET""".stripMargin,
     item = "match"
+  )
+
+  def testCatch(): Unit = doCompletionTest(
+    fileText =
+      s"try 42 c$CARET",
+    resultText =
+      s"""try 42 catch
+         |  case $CARET""".stripMargin,
+    item = "catch"
   )
 }

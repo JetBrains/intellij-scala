@@ -9,9 +9,9 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.{CodeStyleManager, CommonCodeStyleSettings}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.util.ui.EmptyIcon
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions.{BooleanExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.completion.InsertionContextExt
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 object ScalaKeywordLookupItem {
 
@@ -78,7 +78,7 @@ object ScalaKeywordLookupItem {
         keyword match {
           case CASE =>
             adjustLineIndent(targetRange)
-          case MATCH =>
+          case MATCH | CATCH =>
             val caretOffset = caretModel.getOffset
 
             val useIndentationBasedSyntax = file.useIndentationBasedSyntax
