@@ -204,6 +204,16 @@ abstract class WorksheetIntegrationBaseTest
     result
   }
 
+  protected def doRenderTestWithoutCompilationChecks(
+    editorAndFile: WorksheetEditorAndFile,
+    afterWithFoldings: String,
+  ): TestRunResult = {
+    val (afterFixed, foldings) = preprocessViewerText(afterWithFoldings)
+    val result = runWorksheetEvaluationAndWait(editorAndFile)
+    assertViewerOutput(editorAndFile.editor, afterFixed, foldings)
+    result
+  }
+
   private def doRenderTestWithoutCompilationChecks(
     editorAndFile: WorksheetEditorAndFile,
     after: String,
