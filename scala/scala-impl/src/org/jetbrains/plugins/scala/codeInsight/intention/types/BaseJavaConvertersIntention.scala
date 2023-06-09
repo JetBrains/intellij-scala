@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScNewTemplateDefinition, ScParenthesisedExpr, ScReferenceExpression, ScSugarCallExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScExpression, ScGenericCall, ScNewTemplateDefinition, ScParenthesisedExpr, ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
@@ -71,8 +71,12 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
 
     def appendAsMethod(): Unit = {
       val expression: ScExpression = getTargetExpression(element)
-      // add parentheses around infix and postfix calls
-      val replacementText = s"${expression.getText.parenthesize(expression.is[ScSugarCallExpr])}.$methodName"
+      // add parentheses around infix, postfix and Scala 3 fewer-braces calls
+      val needsParentheses = expression.is[ScSugarCallExpr] || expression.isInScala3File && (expression match {
+        case MethodInvocation(_, Seq(block: ScBlockExpr)) => block.isEnclosedByColon
+        case _ => false
+      })
+      val replacementText = s"${expression.getText.parenthesize(needsParentheses)}.$methodName"
       val replacement = createExpressionFromText(replacementText, expression)(expression.getManager)
       CodeEditUtil.replaceChild(expression.getParent.getNode, expression.getNode, replacement.getNode)
     }

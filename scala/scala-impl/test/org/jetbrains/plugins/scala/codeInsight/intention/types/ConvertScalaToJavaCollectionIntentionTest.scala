@@ -3,7 +3,7 @@ package codeInsight.intention.types
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
-abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String) extends ScalaIntentionTestBase {
+abstract class ConvertScalaToJavaCollectionIntentionBaseTest(protected val converters: String) extends ScalaIntentionTestBase {
 
   override def familyName: String = ConvertScalaToJavaCollectionIntention.getFamilyName
 
@@ -124,6 +124,44 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
     doTest(text, resultText)
   }
 
+  def testIntentionAction_Postfix(): Unit = {
+    val text =
+      s"""val xs: Seq[Option[Int]] = ???
+         |import scala.language.postfixOps
+         |
+         |xs fla${CARET}tten
+         |""".stripMargin
+    val resultText =
+      s"""import $converters
+         |
+         |val xs: Seq[Option[Int]] = ???
+         |import scala.language.postfixOps
+         |
+         |(xs flatten).asJava
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testIntentionAction_Postfix2(): Unit = {
+    val text =
+      s"""val xs: Seq[Option[Int]] = ???
+         |import scala.language.postfixOps
+         |
+         |x${CARET}s flatten
+         |""".stripMargin
+    val resultText =
+      s"""import $converters
+         |
+         |val xs: Seq[Option[Int]] = ???
+         |import scala.language.postfixOps
+         |
+         |(xs flatten).asJava
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
   def testIntentionAction_Import_Already_Exists(): Unit = {
     val text =
       s"""
@@ -159,4 +197,70 @@ class ConvertScalaToJavaCollectionIntention_2_13Test
   extends ConvertScalaToJavaCollectionIntentionBaseTest("scala.jdk.CollectionConverters._") {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
+}
+
+class ConvertScalaToJavaCollectionIntention_3Test
+  extends ConvertScalaToJavaCollectionIntentionBaseTest("scala.jdk.CollectionConverters.*") {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  def testIntentionAction_FewerBraces(): Unit = {
+    val text =
+      s"""1.t${CARET}o:
+         |  5
+         |""".stripMargin
+    val resultText =
+      s"""import $converters
+         |
+         |(1.to:
+         |  5).asJava
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testIntentionAction_FewerBraces_Infix(): Unit = {
+    val text =
+      s"""1 t${CARET}o:
+         |  5
+         |""".stripMargin
+    val resultText =
+      s"""import $converters
+         |
+         |(1 to :
+         |  5).asJava
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testIntentionAction_FewerBraces2(): Unit = {
+    val text =
+      s"""List(1).ma${CARET}p: (x: Int) =>
+         |  x + 1
+         |""".stripMargin
+    val resultText =
+      s"""import $converters
+         |
+         |(List(1).map: (x: Int) =>
+         |  x + 1).asJava
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
+
+  def testIntentionAction_FewerBraces3(): Unit = {
+    val text =
+      s"""Lis${CARET}t(1).map: (x: Int) =>
+         |  x + 1
+         |""".stripMargin
+    val resultText =
+      s"""import $converters
+         |
+         |List(1).asJava.map: (x: Int) =>
+         |  x + 1
+         |""".stripMargin
+
+    doTest(text, resultText)
+  }
 }
