@@ -154,10 +154,10 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     tpc:    TypePresentationContext
   ): Unit = {
     lazy val argTyText = argTy.presentableText
-    val upper = param.upperType
-    val lower = param.lowerType
+    val upper = substitute(param.upperType).removeAbstracts
+    val lower = substitute(param.lowerType).removeAbstracts
 
-    if (!argTy.conforms(substitute(upper))) {
+    if (!argTy.conforms(upper)) {
       holder
         .createErrorAnnotation(
           range,
@@ -166,7 +166,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
         )
     }
 
-    if (!substitute(lower).conforms(argTy)) {
+    if (!lower.conforms(argTy)) {
       holder
         .createErrorAnnotation(
           range,
