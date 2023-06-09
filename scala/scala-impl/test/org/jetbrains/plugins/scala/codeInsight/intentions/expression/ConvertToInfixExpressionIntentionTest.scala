@@ -3,9 +3,11 @@ package codeInsight.intentions.expression
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
-class ConvertToInfixExpressionIntentionTest extends ScalaIntentionTestBase {
+abstract class ConvertToInfixExpressionIntentionTestBase extends ScalaIntentionTestBase {
   override val familyName = ScalaBundle.message("family.name.convert.to.infix.expression")
+}
 
+final class ConvertToInfixExpressionIntentionTest extends ConvertToInfixExpressionIntentionTestBase {
   def testConvertToInfixExpression(): Unit = {
     val text = "1.<caret>to(5)"
     val resultText = "1 <caret>to 5"
@@ -110,5 +112,78 @@ class ConvertToInfixExpressionIntentionTest extends ScalaIntentionTestBase {
 
     doTest(text, resultText)
   }
+}
 
+final class ConvertToInfixExpressionIntentionTest_FewerBraces extends ConvertToInfixExpressionIntentionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
+
+  def testConvertToInfixExpression(): Unit = doTest(
+    s"""1.${CARET}to:
+       |  5""".stripMargin,
+    s"""1 ${CARET}to 5"""
+  )
+
+  def testConvertToInfixExpression2(): Unit = doTest(
+    s"""class A:
+       |  def foo(i: Int): Unit = ()
+       |
+       |new A().${CARET}foo:
+       |  1""".stripMargin,
+    s"""class A:
+       |  def foo(i: Int): Unit = ()
+       |
+       |new A() ${CARET}foo 1""".stripMargin
+  )
+
+  def testConvertToInfixExpression3(): Unit = doTest(
+    s"""1 :: Nil.:$CARET: :
+       |  2""".stripMargin,
+    s"""1 :: 2 :$CARET: Nil"""
+  )
+
+  def testConvertToInfixExpression4(): Unit = doTest(
+    s"""(2 :: Nil).:$CARET: :
+       |  1""".stripMargin,
+    s"""1 :$CARET: 2 :: Nil"""
+  )
+
+  def testConvertToInfixExpression5(): Unit = doTest(
+    s"""1 + 2 :: Nil.:$CARET: :
+       |  3 + 4""".stripMargin,
+    s"""1 + 2 :: 3 + 4 :$CARET: Nil"""
+  )
+
+  def testConvertToInfixExpression6(): Unit = doTest(
+    s"""1.$CARET+ :
+       |  2 * 3""".stripMargin,
+    s"""1 $CARET+ 2 * 3"""
+  )
+
+  def testConvertToInfixExpression7(): Unit = doTest(
+    s"""val x: Seq[Int] = ???
+       |x.${CARET}map:
+       |  _ > 9""".stripMargin,
+    s"""val x: Seq[Int] = ???
+       |x ${CARET}map (_ > 9)""".stripMargin
+  )
+
+  def testConvertToInfixExpression8(): Unit = doTest(
+    s"""class M[A](a: A):
+       |  def map[B](f: A => B): M[B] = M(f(a))
+       |
+       |M(1).${CARET}map[String]:
+       |  _.toString""".stripMargin,
+    s"""class M[A](a: A):
+       |  def map[B](f: A => B): M[B] = M(f(a))
+       |
+       |M(1) ${CARET}map[String] (_.toString)""".stripMargin
+  )
+
+  def testConvertToInfixExpression9(): Unit = doTest(
+    s"""List(1).m${CARET}ap: (x: Int) =>
+       |  x + 1""".stripMargin,
+    s"""List(1) m${CARET}ap ((x: Int) =>
+       |  x + 1)""".stripMargin
+  )
 }
