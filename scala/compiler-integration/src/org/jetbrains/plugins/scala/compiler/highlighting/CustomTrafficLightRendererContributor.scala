@@ -22,38 +22,46 @@ class CustomTrafficLightRendererContributor
   import CustomTrafficLightRendererContributor.FakeHighlightingPass
 
   override def createRenderer(editor: Editor, file: PsiFile): TrafficLightRenderer = {
-    val project = editor.getProject
-    new TrafficLightRenderer(project, editor.getDocument) {
-      override def getDaemonCodeAnalyzerStatus(severityRegistrar: SeverityRegistrar): DaemonCodeAnalyzerStatus = {
-        def isHighlightingCompilerRunning(project: Project): Boolean =
-          CompilerHighlightingService.get(project).isCompiling
+    new CustomTrafficLightRenderer(editor, file)
+  }
 
-        val status = super.getDaemonCodeAnalyzerStatus(severityRegistrar)
+  //noinspection UnstableApiUsage,ApiStatus
+  private class CustomTrafficLightRenderer(
+    editor: Editor,
+    file: PsiFile
+  ) extends TrafficLightRenderer(editor.getProject, editor.getDocument) {
+    private val project = editor.getProject
 
-        if (!project.isDisposed) { // EA-246923
-          val compilerHighlightingInProgress =
-            isHighlightingCompilerRunning(project) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
+    override def getDaemonCodeAnalyzerStatus(severityRegistrar: SeverityRegistrar): DaemonCodeAnalyzerStatus = {
+      val status = super.getDaemonCodeAnalyzerStatus(severityRegistrar)
 
-          val errorAnalyzingFinished = status.errorAnalyzingFinished && !compilerHighlightingInProgress
-          status.errorAnalyzingFinished = errorAnalyzingFinished
+      def isHighlightingCompilerRunning(project: Project): Boolean =
+        CompilerHighlightingService.get(project).isCompiling
 
-          if (compilerHighlightingInProgress) {
-            val passesField = classOf[DaemonCodeAnalyzerStatus].getDeclaredField("passes")
-            passesField.setAccessible(true)
-            val oldPasses = passesField.get(status).asInstanceOf[JList[ProgressableTextEditorHighlightingPass]]
-            val newPasses = new JArrayList[ProgressableTextEditorHighlightingPass](oldPasses)
-            val progress = CompilerGeneratedStateManager.get(project).progress
-            newPasses.add(new FakeHighlightingPass(editor, file, progress))
-            passesField.set(status, newPasses)
-          }
+      if (!project.isDisposed) { // EA-246923
+        val compilerHighlightingInProgress =
+          isHighlightingCompilerRunning(project) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
+
+        val errorAnalyzingFinished = status.errorAnalyzingFinished && !compilerHighlightingInProgress
+        status.errorAnalyzingFinished = errorAnalyzingFinished
+
+        if (compilerHighlightingInProgress) {
+          val passesField = classOf[DaemonCodeAnalyzerStatus].getDeclaredField("passes")
+          passesField.setAccessible(true)
+          val oldPasses = passesField.get(status).asInstanceOf[JList[ProgressableTextEditorHighlightingPass]]
+          val newPasses = new JArrayList[ProgressableTextEditorHighlightingPass](oldPasses)
+          val progress = CompilerGeneratedStateManager.get(project).progress
+          newPasses.add(new FakeHighlightingPass(editor, file, progress))
+          passesField.set(status, newPasses)
         }
-
-        status
       }
 
-      override def createUIController(): UIController = super.createUIController(editor)
+      status
     }
+
+    override def createUIController(): UIController = super.createUIController(editor)
   }
+
 }
 
 object CustomTrafficLightRendererContributor {
