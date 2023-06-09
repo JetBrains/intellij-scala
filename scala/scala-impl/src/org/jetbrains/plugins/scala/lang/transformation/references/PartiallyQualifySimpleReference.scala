@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation.references
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceExpressionFromText
 import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, targetFor}
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class PartiallyQualifySimpleReference extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e: ScReferenceExpression
-      if !e.getParent.isInstanceOf[ScReferenceExpression] && !e.getText.contains(".") =>
+      if !e.getParent.is[ScReferenceExpression] && !e.getText.contains(".") =>
 
       e.bind().foreach { result =>
         val paths = targetFor(result).split("\\.").toVector

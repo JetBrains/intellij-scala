@@ -20,7 +20,7 @@ class ExpandDynamicCall extends AbstractTransformer {
       e.replace(code"${r.qualifier.get}.applyDynamicNamed(${quote(id)})(${@@(assignments.map(asTuple))})")
 
     case e @ ScInfixExpr(l, RenamedReference(id, "applyDynamicNamed"), r) =>
-      val assignments = r.breadthFirst().filter(_.isInstanceOf[ScAssignment]).toVector
+      val assignments = r.breadthFirst().filter(_.is[ScAssignment]).toVector
       e.replace(code"$l.applyDynamicNamed(${quote(id)})(${@@(assignments.map(asTuple))})")
 
     case (e: ScReferenceExpression) & (r @ RenamedReference(id, "selectDynamic")) if r.qualifier.isDefined =>
