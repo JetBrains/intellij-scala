@@ -384,6 +384,37 @@ class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTyp
       |}
       |""".stripMargin
   ))
+
+  def testSCL20735(): Unit = assertNothing(messages(
+    """
+      |object BB {
+      |  class N[A <: N[A]] {
+      |    self: A =>
+      |  }
+      |
+      |  class E[A <: N[A], B <: N[B], EE[
+      |      AA <: N[AA],
+      |      BB <: N[BB],
+      |  ] <: E[AA, BB, EE]]
+      |
+      |  class A extends N[A]
+      |
+      |  class B extends N[B]
+      |
+      |  class C[A <: N[A], B <: N[B]] extends E[A, B, C]
+      |
+      |  def foo[
+      |      A <: N[A],
+      |      B <: N[B],
+      |      EE[
+      |          AA <: N[AA],
+      |          BB <: N[BB],
+      |      ] <: E[AA, BB, EE],
+      |  ](a: A, b: B, c: EE[A, B]): EE[A, B] = ???
+      |
+      |  val a: C[A, B] = foo[A, B, C](new A, new B, new C[A, B])
+      |}""".stripMargin
+  ))
 }
 
 @Category(Array(classOf[TypecheckerTests]))
