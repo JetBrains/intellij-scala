@@ -422,6 +422,13 @@ class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTyp
       |trait Cheese[C <: Fish[_, C]]
       |""".stripMargin
   ))
+
+  def testSCL20981(): Unit = assertNothing(messages(
+    """
+      |case class Row()
+      |def xxx[X <: Product with Serializable](x: X): Unit = ???
+      |xxx[Row]""".stripMargin
+  ))
 }
 
 @Category(Array(classOf[TypecheckerTests]))

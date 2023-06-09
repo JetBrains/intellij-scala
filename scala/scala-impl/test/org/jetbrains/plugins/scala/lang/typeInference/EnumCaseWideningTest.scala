@@ -14,7 +14,7 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
        |object Test {
        |  val bar = ${START}Foo.Bar(1)$END
        |}
-       |//Foo with Product
+       |//Foo with Product with Serializable
        |""".stripMargin
   )
 
@@ -29,7 +29,7 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
        |  import Either._
        |  val r = ${START}Right(123)$END
        |}
-       |//Either[Nothing, Int] with Product
+       |//Either[Nothing, Int] with Product with Serializable
        |""".stripMargin
   )
 
@@ -92,7 +92,7 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
        |object A {
        |  val x = ${START}Foo.Bar(1)$END
        |}
-       |//Foo with X with Y with Product
+       |//Foo with X with Y with Product with Serializable
        |""".stripMargin
   )
 
@@ -107,7 +107,7 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
       |  import Option._
       |  val a = ${START}Option.Some(12223)$END
       |}
-      |//Int => Option[Int] with Product
+      |//Int => Option[Int] with Product with Serializable
       |""".stripMargin
   )
 }
