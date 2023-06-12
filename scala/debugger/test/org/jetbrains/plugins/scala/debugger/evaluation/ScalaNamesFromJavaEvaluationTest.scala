@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.debugger.evaluation
+//package org.jetbrains.plugins.scala.debugger.evaluation
 
 // TODO Reinstate when SCL-21276 is resolved.
 //  See https://youtrack.jetbrains.com/issue/SCL-21276/Java-debugger-expression-evaluator-cant-resolve-names-with-backticks#focus=Comments-27-7434602.0-0
