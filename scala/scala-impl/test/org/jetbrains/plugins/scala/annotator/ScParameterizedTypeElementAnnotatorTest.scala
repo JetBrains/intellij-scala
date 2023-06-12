@@ -376,6 +376,59 @@ class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTyp
       |class A() extends Example[(Int, Long)]
       |""".stripMargin
   ))
+
+  def testSCL20610(): Unit = assertNothing(messages(
+    """
+      |object A {
+      |  Right("Foo").withLeft[String]
+      |}
+      |""".stripMargin
+  ))
+
+  def testSCL20735(): Unit = assertNothing(messages(
+    """
+      |object BB {
+      |  class N[A <: N[A]] {
+      |    self: A =>
+      |  }
+      |
+      |  class E[A <: N[A], B <: N[B], EE[
+      |      AA <: N[AA],
+      |      BB <: N[BB],
+      |  ] <: E[AA, BB, EE]]
+      |
+      |  class A extends N[A]
+      |
+      |  class B extends N[B]
+      |
+      |  class C[A <: N[A], B <: N[B]] extends E[A, B, C]
+      |
+      |  def foo[
+      |      A <: N[A],
+      |      B <: N[B],
+      |      EE[
+      |          AA <: N[AA],
+      |          BB <: N[BB],
+      |      ] <: E[AA, BB, EE],
+      |  ](a: A, b: B, c: EE[A, B]): EE[A, B] = ???
+      |
+      |  val a: C[A, B] = foo[A, B, C](new A, new B, new C[A, B])
+      |}""".stripMargin
+  ))
+
+  def testSCL21054(): Unit = assertNothing(messages(
+    """
+      |trait Fish[E, Q <: Fish[E, Q]]
+      |trait Cheese[C <: Fish[_, C]]
+      |""".stripMargin
+  ))
+
+  def testSCL20981(): Unit = assertNothing(messages(
+    """
+      |case class Row()
+      |def xxx[X <: Product with Serializable](x: X): Unit = ???
+      |xxx[Row]""".stripMargin
+  ))
 }
 
 @Category(Array(classOf[TypecheckerTests]))

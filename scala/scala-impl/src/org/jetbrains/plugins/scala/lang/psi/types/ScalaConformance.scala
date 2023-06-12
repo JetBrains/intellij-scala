@@ -1484,6 +1484,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           val typeParameters2 = t2.typeParameters
           val internalType1   = t1.internalType
           val internalType2   = t2.internalType
+          val subst           = ScSubstitutor.bind(typeParameters1, typeParameters2)(TypeParameterType(_))
 
           if (typeParameters1.length != typeParameters2.length) {
             result = ConstraintsResult.Left
@@ -1491,13 +1492,27 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           }
           var i = 0
           while (i < typeParameters1.length) {
-            var t = conformsInner(typeParameters1(i).lowerType, typeParameters2(i).lowerType, HashSet.empty, constraints)
+            var t =
+              conformsInner(
+                subst(typeParameters1(i).lowerType),
+                typeParameters2(i).lowerType,
+                HashSet.empty,
+                constraints
+              )
+
             if (t.isLeft) {
               result = ConstraintsResult.Left
               return
             }
             constraints = t.constraints
-            t = conformsInner(typeParameters2(i).upperType, typeParameters1(i).upperType, HashSet.empty, constraints)
+
+            t = conformsInner(
+              typeParameters2(i).upperType,
+              subst(typeParameters1(i).upperType),
+              HashSet.empty,
+              constraints
+            )
+
             if (t.isLeft) {
               result = ConstraintsResult.Left
               return
@@ -1505,7 +1520,6 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
             constraints = t.constraints
             i = i + 1
           }
-          val subst = ScSubstitutor.bind(typeParameters1, typeParameters2)(TypeParameterType(_))
           val t = conformsInner(subst(internalType1), internalType2, HashSet.empty, constraints)
           if (t.isLeft) {
             result = ConstraintsResult.Left

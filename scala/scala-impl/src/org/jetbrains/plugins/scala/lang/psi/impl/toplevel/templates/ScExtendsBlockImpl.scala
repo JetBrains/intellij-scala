@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaLanguageLevel}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -118,13 +118,19 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   private def cachedClass(name: String): Option[PsiClass] =
     ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, name)
 
-  private def scalaProductClass: Option[PsiClass]      = cachedClass(ScalaProduct)
-  private def scalaSerializableClass: Option[PsiClass] = cachedClass(ScalaSerializable)
+  private def scalaProductClass: Option[PsiClass] = cachedClass(ScalaProduct)
+
+  private def scalaSerializableClass: Option[PsiClass] =
+    if (this.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13)
+      cachedClass(JavaSerializable)
+    else cachedClass(ScalaSerializable)
+
+  private def scalaSerializable: Option[ScType] = scalaSerializableClass.map(ScalaType.designator)
+
   private def javaObjectClass: Option[PsiClass]        = cachedClass(JavaLangObject)
   private def scalaReflectEnumClass: Option[PsiClass]  = cachedClass(ScalaReflectEnum)
 
   private def scalaProduct: Option[ScType]         = scalaProductClass.map(ScalaType.designator)
-  private def scalaSerializable: Option[ScType]    = scalaSerializableClass.map(ScalaType.designator)
   private def scalaReflectEnum: Option[ScType]     = scalaReflectEnumClass.map(ScalaType.designator)
   private def javaObject: Option[ScDesignatorType] = javaObjectClass.map(ScDesignatorType(_))
 
@@ -236,6 +242,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 object ScExtendsBlockImpl {
   private val ScalaProduct      = "scala.Product"
   private val ScalaSerializable = "scala.Serializable"
+  private val JavaSerializable  = "java.io.Serializable"
   private val ScalaReflectEnum  = "scala.reflect.Enum"
   private val JavaLangObject    = "java.lang.Object"
 
