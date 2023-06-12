@@ -81,14 +81,25 @@ final class ScPackageImpl private (val pack: PsiPackage)
   override def getParentPackage: PsiPackageImpl =
     ScalaPsiUtil.parentPackage(getQualifiedName, getProject).orNull
 
-  override def getSubPackages: Array[PsiPackage] =
+  override def getSubPackages: Array[PsiPackage] = cachedInUserData(
+    "ScPackageImpl.getSubPackages",
+    this,
+    ScalaPsiManager.instance(getProject).TopLevelModificationTracker
+  ) {
     super.getSubPackages
       .map(ScPackageImpl(_))
+  }
 
-  override def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] =
+  override def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = cachedInUserData(
+    "ScPackageImpl.getSubPackages(GlobalSearchScope)",
+    this,
+    ScalaPsiManager.instance(getProject).TopLevelModificationTracker,
+    Tuple1(scope)
+  ) {
     super
       .getSubPackages(scope)
       .map(ScPackageImpl(_))
+  }
 
   override def isValid: Boolean = true
 

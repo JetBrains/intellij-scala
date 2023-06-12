@@ -68,7 +68,7 @@ trait FileDeclarationsHolder
     implicit val scope: GlobalSearchScope = place.resolveScope
     implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
 
-    val defaultPackage = ScPackageImpl.findPackage("").orNull
+    val defaultPackage = manager.noNamePackage
     if (defaultPackage != null) {
       place match {
         case ref: ScReference if ref.refName == "_root_" && ref.qualifier.isEmpty =>
