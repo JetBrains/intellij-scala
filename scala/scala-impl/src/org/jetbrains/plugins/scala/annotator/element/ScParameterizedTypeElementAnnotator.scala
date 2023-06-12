@@ -4,17 +4,18 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeConstructorDiff, tooltipForDiffTrees}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeConstructorDiff, tooltipForDiffTrees}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeVariableTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeVariableTypeElement, ScWildcardTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, TypePresentationContext, extractTypeParameters}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameterizedTypeElement] {
 
@@ -130,6 +131,8 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       case _ => false
     }
 
+    val isExistentiallyBounded = args.exists(_.isInstanceOf[ScWildcardTypeElement])
+
     for {
       // the zip will cut away missing or excessive arguments
       (arg, param) <- args.zip(params)
@@ -139,23 +142,36 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
         !argIsDesignatedToTypeVariable(arg) &&
         !KindProjectorUtil.syntaxIdsFor(arg).contains(arg.getText)
     } {
-      checkBounds(range, argTy, param, substitute)
+      checkBounds(range, argTy, param, substitute, isExistentiallyBounded = isExistentiallyBounded)
       checkHigherKindedType(range, argTy, param, substitute)
     }
   }
 
   private def checkBounds(
-    range:      TextRange,
-    argTy:      ScType,
-    param:      TypeParameter,
-    substitute: ScSubstitutor
+    range:                  TextRange,
+    argTy:                  ScType,
+    param:                  TypeParameter,
+    substitute:             ScSubstitutor,
+    isExistentiallyBounded: Boolean
   )(implicit
     holder: ScalaAnnotationHolder,
     tpc:    TypePresentationContext
   ): Unit = {
     lazy val argTyText = argTy.presentableText
-    val upper = substitute(param.upperType).removeAbstracts
-    val lower = substitute(param.lowerType).removeAbstracts
+
+    val upper = {
+      val substed = substitute(param.upperType).removeAbstracts
+
+      if (isExistentiallyBounded) ScExistentialType(substed)
+      else                        substed
+    }
+
+    val lower = {
+     val substed = substitute(param.lowerType).removeAbstracts
+
+      if (isExistentiallyBounded) ScExistentialType(substed)
+      else                        substed
+    }
 
     if (!argTy.conforms(upper)) {
       holder
