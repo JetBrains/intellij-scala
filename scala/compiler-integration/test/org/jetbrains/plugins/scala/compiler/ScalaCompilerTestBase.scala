@@ -27,6 +27,7 @@ import org.junit.Assert._
 
 import java.io.File
 import java.util.{List => JList}
+import scala.collection.mutable
 import scala.concurrent.duration
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
@@ -34,6 +35,8 @@ import scala.language.implicitConversions
 abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwner {
 
   private var compilerTester: CompilerTester = _
+
+  private val createdFiles: mutable.Set[VirtualFile] = mutable.Set.empty
 
   /**
    * Called on each project, but before initializing ThreadWatcher.
@@ -93,6 +96,7 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
       disposeLibraries(getModule)
     }
   } finally {
+    createdFiles.foreach(VfsTestUtil.deleteFile)
     compilerTester = null
     EdtTestUtil.runInEdtAndWait { () =>
       ScalaCompilerTestBase.super.tearDown()
@@ -137,11 +141,11 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
 
   protected def getSourceRootDir: VirtualFile = getBaseDir.findChild("src")
 
-  protected def addFileToProjectSources(relativePath: String, text: String): VirtualFile = VfsTestUtil.createFile(
-    getSourceRootDir,
-    relativePath,
-    StringUtil.convertLineSeparators(text)
-  )
+  protected def addFileToProjectSources(relativePath: String, text: String): VirtualFile = {
+    val file = VfsTestUtil.createFile(getSourceRootDir, relativePath, StringUtil.convertLineSeparators(text))
+    createdFiles += file
+    file
+  }
 
   private def getOrCreateChildDir(name: String) = {
     val file = new File(getBaseDir.getCanonicalPath, name)
