@@ -1,0 +1,43 @@
+Document tests/pos/i8577.scala
+(3:18..3:19) i8577/i8577$package.A# -> 3:6
+(3:22..3:25) scala/Predef.`???`().
+(4:18..4:19) i8577/i8577$package.B# -> 4:6
+(4:22..4:25) scala/Predef.`???`().
+(5:18..5:19) i8577/i8577$package.C# -> 5:6
+(5:22..5:25) scala/Predef.`???`().
+(6:18..6:19) i8577/i8577$package.D# -> 6:6
+(6:22..6:25) scala/Predef.`???`().
+(7:18..7:19) i8577/i8577$package.E# -> 7:6
+(7:22..7:25) scala/Predef.`???`().
+(8:18..8:19) i8577/i8577$package.F# -> 8:6
+(8:22..8:25) scala/Predef.`???`().
+(12:24..12:37) scala/StringContext#
+(13:18..13:31) scala/StringContext#
+(13:34..13:40) i8577/Macro.StrCtx# -> 12:15
+(13:43..13:46) i8577/Macro.apply().(ctx) -> 13:13
+(14:20..14:26) i8577/Macro.StrCtx# -> 12:15
+(14:29..14:35) scala/Option#
+(14:36..14:49) scala/StringContext#
+(14:53..14:57) scala/Some.
+(14:58..14:61) i8577/Macro.unapply().(ctx) -> 14:15
+(16:11..16:15) scala/Unit#
+(17:19..17:32) scala/StringContext#
+(17:43..17:48) i8577/Macro. -> 11:8
+(17:49..17:55) i8577/Macro.StrCtx# -> 12:15
+(17:58..17:63) i8577/Macro. -> 11:8
+(17:64..17:67) local0 -> 17:14
+(18:24..18:25) i8577/i8577$package.A# -> 3:6
+(18:39..18:44) i8577/Macro. -> 11:8
+(18:45..18:51) i8577/Macro.StrCtx# -> 12:15
+(18:59..18:60) i8577/i8577$package.B# -> 4:6
+(18:93..18:94) i8577/i8577$package.C# -> 5:6
+(18:110..18:111) local2 -> 18:14
+(18:119..18:120) i8577/i8577$package.D# -> 6:6
+(18:128..18:129) i8577/i8577$package.F# -> 8:6
+(18:132..18:138) scala/Option#
+(18:139..18:142) scala/package.Seq#
+(18:143..18:144) local2 -> 18:14
+(18:149..18:152) scala/Predef.`???`().
+(20:4..20:7) scala/Predef.`???`().
+(20:10..20:13) scala/Int#
+

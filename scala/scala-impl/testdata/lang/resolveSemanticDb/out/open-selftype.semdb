@@ -1,0 +1,10 @@
+Document tests/pos/open-selftype.scala
+(2:17..2:18) _empty_/Y# -> 3:7
+(3:17..3:18) _empty_/Z# -> 4:7
+(7:23..7:31) squants/Quantity# -> 7:9
+(7:32..7:33) squants/Quantity#[A] -> 7:18
+(7:44..7:45) squants/Quantity#[A] -> 7:18
+(8:29..8:37) squants/Quantity# -> 7:9
+(8:38..8:39) squants/TimeDerivative#[A] -> 8:24
+(8:50..8:58) squants/Quantity# -> 7:9
+

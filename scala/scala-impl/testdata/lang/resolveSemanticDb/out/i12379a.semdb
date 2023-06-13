@@ -1,16 +1,16 @@
 Document tests/pos/i12379a.scala
-(1:45..1:49) _empty_/i12379a$package.convFail().[From] -> 1:25
-(1:53..1:57) scala/Unit#
+(1:38..1:42) _empty_/i12379a$package.convFail().[From] -> 1:25
+(1:46..1:50) scala/Unit#
 (2:11..2:22) scala/compiletime/
 (2:23..2:35) scala/compiletime/package$package.summonInline().
 (2:36..2:46) scala/Conversion#
-(2:47..2:51) _empty_/i12379a$package.convFail().(from) -> 1:38
+(2:47..2:51) _empty_/i12379a$package.convFail().(from) -> 1:31
 (2:58..2:60) _empty_/i12379a$package.convFail().[Of] -> 1:21
-(4:43..4:47) _empty_/i12379a$package.convOK().[From] -> 4:23
-(4:59..4:69) scala/Conversion#
-(4:70..4:74) _empty_/i12379a$package.convOK().(from) -> 4:36
-(4:81..4:83) _empty_/i12379a$package.convOK().[Of] -> 4:19
-(4:88..4:92) scala/Unit#
+(4:36..4:40) _empty_/i12379a$package.convOK().[From] -> 4:23
+(4:52..4:62) scala/Conversion#
+(4:63..4:67) _empty_/i12379a$package.convOK().(from) -> 4:29
+(4:74..4:76) _empty_/i12379a$package.convOK().[Of] -> 4:19
+(4:81..4:85) scala/Unit#
 (6:22..6:23) _empty_/Bar#[T] -> 6:11
 (7:13..7:16) scala/Int#
 (7:20..7:30) scala/Conversion#

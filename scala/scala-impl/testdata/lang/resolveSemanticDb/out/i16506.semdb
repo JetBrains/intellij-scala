@@ -1,0 +1,18 @@
+Document tests/pos/i16506.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:35) scala/annotation/targetName#
+(5:12..5:15) _empty_/Ctx# -> 3:7
+(5:19..5:22) scala/Int#
+(5:26..5:29) scala/Predef.`???`().
+(7:2..7:12) scala/annotation/targetName#
+(8:12..8:15) _empty_/Ctx# -> 3:7
+(8:20..8:23) scala/Int#
+(8:27..8:30) scala/Predef.`???`().
+(10:12..10:15) _empty_/i16506$package.foo(). -> 8:5
+(11:12..11:15) _empty_/i16506$package.foo(). -> 8:5
+(11:22..11:25) _empty_/Ctx# -> 3:7
+(12:12..12:15) _empty_/i16506$package.foo(). -> 8:5
+(13:12..13:15) _empty_/i16506$package.foo(). -> 8:5
+(13:22..13:25) _empty_/Ctx# -> 3:7
+

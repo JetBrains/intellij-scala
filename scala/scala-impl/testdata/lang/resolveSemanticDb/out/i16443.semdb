@@ -1,0 +1,27 @@
+Document tests/pos/i16443/Test_2.scala
+(1:2..1:6) scala/main#
+(2:3..2:10) scala/Predef.println(+1).
+(2:11..2:22) _empty_/NoTypeHints. -> 13:13
+
+Document tests/pos/i16443/TypeHints_1.scala
+(3:14..3:18) scala/package.List#
+(3:19..3:24) scala/Predef.Class#
+(4:19..4:23) scala/package.List#
+(4:24..4:33) _empty_/TypeHints# -> 2:7
+(4:37..4:41) scala/package.List.
+(6:17..6:26) _empty_/TypeHints# -> 2:7
+(6:29..6:38) _empty_/TypeHints# -> 2:7
+(6:41..6:59) _empty_/TypeHints#CompositeTypeHints.
+(6:75..6:80) _empty_/TypeHints#`+`().(hints) -> 6:10
+(6:81..6:91) _empty_/TypeHints#components(). -> 4:7
+(8:66..8:70) scala/package.List#
+(8:71..8:80) _empty_/TypeHints# -> 2:7
+(8:91..8:100) _empty_/TypeHints# -> 2:7
+(9:25..9:29) scala/package.List#
+(9:30..9:35) scala/Predef.Class#
+(9:42..9:52) _empty_/TypeHints#CompositeTypeHints#components. -> 8:54
+(9:53..9:60) scala/collection/immutable/List#flatMap().
+(9:63..9:68) _empty_/TypeHints#hints. -> 3:7
+(13:33..13:42) _empty_/TypeHints# -> 2:7
+(14:24..14:27) scala/package.Nil.
+

@@ -2,9 +2,6 @@ Document tests/pos/i11163.scala
 (1:32..1:33) _empty_/i11163$package.summonA().[T] -> 1:20
 (1:36..1:37) _empty_/i11163$package.summonA().(x) -> 1:29
 (1:45..1:46) _empty_/i11163$package.summonA().(x) -> 1:29
-(2:39..2:40) _empty_/i11163$package.summonB().[T] -> 2:20
-(2:43..2:44) _empty_/i11163$package.summonB().(x) -> 2:36
-(2:52..2:53) _empty_/i11163$package.summonB().(x) -> 2:36
 (3:39..3:40) _empty_/i11163$package.summonC().[T] -> 3:20
 (3:43..3:44) _empty_/i11163$package.summonC().[T] -> 3:20
 (3:47..3:48) _empty_/i11163$package.summonC().(x) -> 3:36
@@ -13,9 +10,6 @@ Document tests/pos/i11163.scala
 (9:3..9:10) _empty_/i11163$package.summonA(). -> 1:12
 (9:11..9:14) _empty_/Foo# -> 5:7
 (9:16..9:17) _empty_/Foo#f(). -> 6:7
-(10:3..10:10) _empty_/i11163$package.summonB(). -> 2:12
-(10:11..10:14) _empty_/Foo# -> 5:7
-(10:16..10:17) _empty_/Foo#f(). -> 6:7
 (11:3..11:10) _empty_/i11163$package.summonC(). -> 3:12
 (11:11..11:14) _empty_/Foo# -> 5:7
 (11:16..11:17) _empty_/Foo#f(). -> 6:7

@@ -1,0 +1,46 @@
+Document tests/pos/i16311a.scala
+(4:25..4:26) _empty_/test.WithTag#[T] -> 4:17
+(4:27..4:28) scala/`&`#
+(4:29..4:35) _empty_/test.Tagged# -> 3:9
+(4:36..4:37) _empty_/test.WithTag#[U] -> 4:20
+(7:38..7:47) _empty_/test.FromInput# -> 6:9
+(7:48..7:55) _empty_/test.WithTag# -> 4:8
+(7:56..7:57) _empty_/test.coercedScalaInput().[T] -> 7:34
+(7:59..7:62) scala/Int#
+(7:67..7:70) scala/Predef.`???`().
+(8:44..8:53) _empty_/test.FromInput# -> 6:9
+(8:54..8:55) _empty_/test.optionInput().[T] -> 8:28
+(8:59..8:68) _empty_/test.FromInput# -> 6:9
+(8:69..8:75) scala/Option#
+(8:76..8:77) _empty_/test.optionInput().[T] -> 8:28
+(8:82..8:85) scala/Predef.`???`().
+(11:37..11:57) _empty_/test.WithoutInputTypeTags# -> 10:9
+(11:58..11:64) scala/Option#
+(11:65..11:66) _empty_/test.coercedOptArgTpe().[T] -> 11:33
+(11:67..11:68) scala/`&`#
+(11:69..11:75) _empty_/test.Tagged# -> 3:9
+(11:76..11:79) scala/Int#
+(11:85..11:88) scala/Predef.`???`().
+(14:36..14:45) _empty_/test.InputType# -> 13:9
+(14:46..14:47) _empty_/test.OptionInputType#[T] -> 14:25
+(14:58..14:67) _empty_/test.InputType# -> 13:9
+(14:68..14:74) scala/Option#
+(14:75..14:76) _empty_/test.OptionInputType#[T] -> 14:25
+(17:33..17:42) _empty_/test.InputType# -> 13:9
+(17:43..17:44) _empty_/test.argument().[T] -> 17:16
+(17:67..17:76) _empty_/test.FromInput# -> 6:9
+(17:77..17:78) _empty_/test.argument().[T] -> 17:16
+(17:86..17:106) _empty_/test.WithoutInputTypeTags# -> 10:9
+(17:107..17:108) _empty_/test.argument().[T] -> 17:16
+(17:112..17:120) _empty_/test.Argument# -> 16:8
+(17:121..17:127) scala/Option#
+(17:128..17:129) _empty_/test.argument().[T] -> 17:16
+(17:134..17:137) scala/Predef.`???`().
+(19:14..19:22) _empty_/test.argument(). -> 17:7
+(19:39..19:42) scala/Predef.`???`().
+(19:45..19:54) _empty_/test.InputType# -> 13:9
+(19:55..19:62) scala/Boolean#
+(19:63..19:64) scala/`&`#
+(19:65..19:71) _empty_/test.Tagged# -> 3:9
+(19:72..19:75) scala/Int#
+

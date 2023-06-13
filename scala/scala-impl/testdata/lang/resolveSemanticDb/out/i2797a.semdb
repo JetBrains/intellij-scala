@@ -9,4 +9,5 @@ Document tests/pos/i2797a/Fork.scala
 Document tests/pos/i2797a/Test.scala
 (4:2..4:6) _empty_/Fork# -> 4:7
 (4:7..4:14) _empty_/Fork#`<init>`().(jvmArgs)
+(4:17..4:22) scala/Array.
 

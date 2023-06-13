@@ -1,7 +1,6 @@
 Document tests/pos/indent-colons.scala
 (1:8..1:16) scala/language.
-(1:17..1:29) scala/language.experimental.
-(1:30..1:41) scala/language.experimental.fewerBraces.
+(1:17..1:22) scala/language.`3.3`.
 (4:3..4:10) scala/Predef.locally().
 (6:11..6:12) local0 -> 5:9
 (6:13..6:14) scala/Int#`<`(+3).

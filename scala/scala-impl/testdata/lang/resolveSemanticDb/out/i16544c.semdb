@@ -1,0 +1,52 @@
+Document tests/pos/i16544c.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:31) scala/language.dynamics.
+(3:20..3:27) scala/Dynamic#
+(4:27..4:33) scala/Predef.String#
+(4:36..4:39) _empty_/Foo. -> 3:8
+(7:15..7:18) _empty_/Foo. -> 3:8
+(8:5..8:8) _empty_/Foo. -> 3:8
+(8:8..8:12) _empty_/Foo.selectDynamic(). -> 4:7
+(8:12..9:11) _empty_/Foo.selectDynamic(). -> 4:7
+(9:11..10:11) _empty_/Foo.selectDynamic(). -> 4:7
+(10:11..11:11) _empty_/Foo.selectDynamic(). -> 4:7
+(11:11..12:11) _empty_/Foo.selectDynamic(). -> 4:7
+(12:11..13:11) _empty_/Foo.selectDynamic(). -> 4:7
+(13:11..14:11) _empty_/Foo.selectDynamic(). -> 4:7
+(14:11..15:11) _empty_/Foo.selectDynamic(). -> 4:7
+(15:11..16:11) _empty_/Foo.selectDynamic(). -> 4:7
+(16:11..17:11) _empty_/Foo.selectDynamic(). -> 4:7
+(17:11..18:11) _empty_/Foo.selectDynamic(). -> 4:7
+(18:11..19:11) _empty_/Foo.selectDynamic(). -> 4:7
+(19:11..20:11) _empty_/Foo.selectDynamic(). -> 4:7
+(20:11..21:11) _empty_/Foo.selectDynamic(). -> 4:7
+(21:11..22:11) _empty_/Foo.selectDynamic(). -> 4:7
+(22:11..23:11) _empty_/Foo.selectDynamic(). -> 4:7
+(23:11..24:11) _empty_/Foo.selectDynamic(). -> 4:7
+(24:11..25:11) _empty_/Foo.selectDynamic(). -> 4:7
+(25:11..26:11) _empty_/Foo.selectDynamic(). -> 4:7
+(26:11..27:11) _empty_/Foo.selectDynamic(). -> 4:7
+(27:11..28:11) _empty_/Foo.selectDynamic(). -> 4:7
+(28:11..29:11) _empty_/Foo.selectDynamic(). -> 4:7
+(29:11..30:11) _empty_/Foo.selectDynamic(). -> 4:7
+(30:11..31:11) _empty_/Foo.selectDynamic(). -> 4:7
+(31:11..32:11) _empty_/Foo.selectDynamic(). -> 4:7
+(32:11..33:11) _empty_/Foo.selectDynamic(). -> 4:7
+(33:11..34:11) _empty_/Foo.selectDynamic(). -> 4:7
+(34:11..35:11) _empty_/Foo.selectDynamic(). -> 4:7
+(35:11..36:11) _empty_/Foo.selectDynamic(). -> 4:7
+(36:11..37:11) _empty_/Foo.selectDynamic(). -> 4:7
+(37:11..38:11) _empty_/Foo.selectDynamic(). -> 4:7
+(38:11..39:11) _empty_/Foo.selectDynamic(). -> 4:7
+(39:11..40:11) _empty_/Foo.selectDynamic(). -> 4:7
+(40:11..41:11) _empty_/Foo.selectDynamic(). -> 4:7
+(41:11..42:11) _empty_/Foo.selectDynamic(). -> 4:7
+(42:11..43:11) _empty_/Foo.selectDynamic(). -> 4:7
+(43:11..44:11) _empty_/Foo.selectDynamic(). -> 4:7
+(44:11..45:11) _empty_/Foo.selectDynamic(). -> 4:7
+(45:11..46:11) _empty_/Foo.selectDynamic(). -> 4:7
+(46:11..47:11) _empty_/Foo.selectDynamic(). -> 4:7
+(47:11..48:11) _empty_/Foo.selectDynamic(). -> 4:7
+(48:11..49:11) _empty_/Foo.selectDynamic(). -> 4:7
+

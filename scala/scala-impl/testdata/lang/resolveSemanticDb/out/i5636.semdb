@@ -1,9 +1,0 @@
-Document tests/pos/i5636.scala
-(4:12..4:13) _empty_/Bar#[X] -> 2:11
-(4:16..4:19) scala/Predef.`???`().
-(7:18..7:19) _empty_/A# -> 1:7
-(7:29..7:32) _empty_/Bar# -> 2:7
-(7:33..7:34) _empty_/Foo#a. -> 7:15
-(8:13..8:14) _empty_/Foo#a. -> 7:15
-(8:22..8:25) _empty_/Bar#foo(). -> 4:7
-

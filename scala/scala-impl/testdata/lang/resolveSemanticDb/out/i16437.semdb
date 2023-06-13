@@ -1,0 +1,12 @@
+Document tests/pos/i16437/def_1.scala
+(2:11..2:17) scala/Predef.String#
+(6:24..6:26) _empty_/OU# -> 1:7
+(7:13..7:18) _empty_/Inventory#NODES. -> 6:10
+(7:19..7:21) _empty_/OU#dn(). -> 2:7
+
+Document tests/pos/i16437/use_2.scala
+(1:2..1:6) scala/main#
+(2:7..2:16) _empty_/Inventory# -> 5:7
+(2:19..2:24) _empty_/Inventory#NODES. -> 6:10
+(2:25..2:27) _empty_/OU#dn(). -> 2:7
+

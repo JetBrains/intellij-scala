@@ -1,12 +1,20 @@
 Document tests/pos/byname-purefuns-adapt/A_1.scala
-(2:15..2:18) scala/Int#
+(3:15..3:18) scala/Int#
+(4:13..4:16) _empty_/Ctx# -> 1:7
+(4:21..4:24) scala/Int#
+(4:28..4:30) _empty_/A.g().(op) -> 4:9
+(4:37..4:40) _empty_/Ctx# -> 1:7
 
 Document tests/pos/byname-purefuns-adapt/B_2.scala
 (1:8..1:16) scala/language.
 (1:17..1:29) scala/language.experimental.
 (1:30..1:45) scala/language.experimental.captureChecking.
 (3:18..3:21) scala/Int#
-(3:25..3:26) _empty_/A. -> 1:8
-(3:27..3:28) _empty_/A.f(). -> 2:7
+(3:25..3:26) _empty_/A. -> 2:8
+(3:27..3:28) _empty_/A.f(). -> 3:7
 (3:29..3:30) _empty_/B.test().(x) -> 3:12
+(4:17..4:20) _empty_/Ctx# -> 1:7
+(5:3..5:4) _empty_/A. -> 2:8
+(5:5..5:6) _empty_/A.g(). -> 4:7
+(5:7..5:10) _empty_/B.opp(). -> 4:7
 

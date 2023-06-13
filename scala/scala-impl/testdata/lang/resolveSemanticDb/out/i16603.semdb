@@ -1,0 +1,27 @@
+Document tests/pos/i16603.scala
+(4:17..4:23) _empty_/MyData# -> 1:7
+(5:21..5:28) scala/Predef.println(+1).
+(8:14..8:20) scala/Predef.String#
+(8:23..8:26) scala/Int#
+(8:29..8:30) _empty_/MyClass#sel().(s) -> 8:11
+(8:31..8:39) java/lang/String#hashCode().
+(11:27..11:32) _empty_/MyTag# -> 10:6
+(11:33..11:39) _empty_/MyData# -> 1:7
+(12:27..12:32) _empty_/MyTag# -> 10:6
+(12:33..12:40) _empty_/MyClass# -> 7:7
+(14:27..14:32) _empty_/MyTag# -> 10:6
+(14:33..14:34) _empty_/i16603$package.callExtension().[A] -> 14:19
+(14:39..14:40) _empty_/i16603$package.callExtension().[A] -> 14:19
+(14:43..14:47) scala/Unit#
+(15:3..15:6) _empty_/i16603$package.callExtension().(tag) -> 14:22
+(16:10..16:15) _empty_/MyTag.
+(16:16..16:25) _empty_/MyTag.MyDataTag. -> 11:8
+(16:30..16:31) _empty_/i16603$package.callExtension().(a) -> 14:37
+(17:10..17:15) _empty_/MyTag.
+(17:16..17:26) _empty_/MyTag.MyClassTag. -> 12:8
+(17:30..17:31) _empty_/i16603$package.callExtension().(a) -> 14:37
+(17:32..17:35) _empty_/MyClass#sel(). -> 8:7
+(19:30..19:36) _empty_/MyData# -> 1:7
+(19:39..19:43) scala/Unit#
+(20:3..20:4) _empty_/i16603$package.callExtensionDirectly().(m) -> 19:27
+

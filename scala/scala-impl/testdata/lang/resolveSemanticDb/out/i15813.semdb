@@ -1,0 +1,10 @@
+Document tests/pos/i15813.scala
+(2:16..2:25) scala/Singleton#
+(2:33..2:35) _empty_/i15813$package.dep1().[T1] -> 2:10
+(2:41..2:43) _empty_/i15813$package.dep1().[T1] -> 2:10
+(2:49..2:51) _empty_/i15813$package.dep1().[T2] -> 2:27
+(2:54..2:57) _empty_/Box# -> 1:7
+(2:58..2:60) _empty_/i15813$package.dep1().[T1] -> 2:10
+(2:64..2:67) scala/Predef.`???`().
+(3:10..3:14) _empty_/i15813$package.dep1(). -> 2:5
+

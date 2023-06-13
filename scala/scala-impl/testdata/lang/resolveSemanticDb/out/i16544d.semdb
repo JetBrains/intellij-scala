@@ -1,0 +1,56 @@
+Document tests/pos/i16544d.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:31) scala/language.dynamics.
+(3:20..3:27) scala/Dynamic#
+(4:26..4:32) scala/Predef.String#
+(4:37..4:40) _empty_/Foo. -> 3:8
+(5:31..5:37) scala/Predef.String#
+(5:46..5:52) scala/Predef.String#
+(5:54..5:57) scala/Int#
+(5:61..5:64) _empty_/Foo. -> 3:8
+(6:27..6:33) scala/Predef.String#
+(6:36..6:39) _empty_/Foo. -> 3:8
+(9:15..9:18) _empty_/Foo. -> 3:8
+(10:5..10:8) _empty_/Foo. -> 3:8
+(10:8..10:12) _empty_/Foo.selectDynamic(). -> 6:7
+(10:12..11:11) _empty_/Foo.applyDynamic(). -> 4:7
+(11:11..12:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(12:17..13:11) _empty_/Foo.selectDynamic(). -> 6:7
+(13:11..14:11) _empty_/Foo.applyDynamic(). -> 4:7
+(14:11..15:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(15:17..16:11) _empty_/Foo.selectDynamic(). -> 6:7
+(16:11..17:11) _empty_/Foo.applyDynamic(). -> 4:7
+(17:11..18:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(18:17..19:11) _empty_/Foo.selectDynamic(). -> 6:7
+(19:11..20:11) _empty_/Foo.applyDynamic(). -> 4:7
+(20:11..21:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(21:17..22:11) _empty_/Foo.selectDynamic(). -> 6:7
+(22:11..23:11) _empty_/Foo.applyDynamic(). -> 4:7
+(23:11..24:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(24:17..25:11) _empty_/Foo.selectDynamic(). -> 6:7
+(25:11..26:11) _empty_/Foo.applyDynamic(). -> 4:7
+(26:11..27:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(27:17..28:11) _empty_/Foo.selectDynamic(). -> 6:7
+(28:11..29:11) _empty_/Foo.applyDynamic(). -> 4:7
+(29:11..30:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(30:17..31:11) _empty_/Foo.selectDynamic(). -> 6:7
+(31:11..32:11) _empty_/Foo.applyDynamic(). -> 4:7
+(32:11..33:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(33:17..34:11) _empty_/Foo.selectDynamic(). -> 6:7
+(34:11..35:11) _empty_/Foo.applyDynamic(). -> 4:7
+(35:11..36:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(36:17..37:11) _empty_/Foo.selectDynamic(). -> 6:7
+(37:11..38:11) _empty_/Foo.applyDynamic(). -> 4:7
+(38:11..39:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(39:17..40:11) _empty_/Foo.selectDynamic(). -> 6:7
+(40:11..41:11) _empty_/Foo.applyDynamic(). -> 4:7
+(41:11..42:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(42:17..43:11) _empty_/Foo.selectDynamic(). -> 6:7
+(43:11..44:11) _empty_/Foo.applyDynamic(). -> 4:7
+(44:11..45:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(45:17..46:11) _empty_/Foo.selectDynamic(). -> 6:7
+(46:11..47:11) _empty_/Foo.applyDynamic(). -> 4:7
+(47:11..48:11) _empty_/Foo.applyDynamicNamed(). -> 5:7
+(48:17..49:11) _empty_/Foo.selectDynamic(). -> 6:7
+

@@ -1,0 +1,222 @@
+Document tests/pos/i16777.scala
+(4:4..4:10) scala/inline#
+(4:41..4:42) _empty_/Free#[S] -> 3:29
+(4:43..4:44) _empty_/Free#flatMap().[S1][e] -> 4:32
+(4:46..4:47) _empty_/Free#flatMap().[S1][a] -> 4:35
+(4:59..4:60) _empty_/Free#[E] -> 3:39
+(4:67..4:68) _empty_/Free#[A] -> 3:43
+(4:72..4:76) _empty_/Free# -> 3:23
+(4:77..4:79) _empty_/Free#flatMap().[S1] -> 4:29
+(4:81..4:83) _empty_/Free#flatMap().[E1] -> 4:53
+(4:85..4:86) _empty_/Free#flatMap().[B] -> 4:50
+(4:90..4:94) _empty_/Free# -> 3:23
+(4:95..4:97) _empty_/Free#flatMap().[S1] -> 4:29
+(4:99..4:101) _empty_/Free#flatMap().[E1] -> 4:53
+(4:103..4:104) _empty_/Free#flatMap().[B] -> 4:50
+(4:108..4:112) _empty_/Free. -> 31:8
+(4:113..4:123) _empty_/Free.FlatMapped.
+(4:124..4:126) _empty_/Free#flatMap().[S1] -> 4:29
+(4:128..4:129) _empty_/Free#[E] -> 3:39
+(4:131..4:133) _empty_/Free#flatMap().[E1] -> 4:53
+(4:135..4:136) _empty_/Free#[A] -> 3:43
+(4:138..4:139) _empty_/Free#flatMap().[B] -> 4:50
+(4:147..4:150) _empty_/Free#flatMap().(fun) -> 4:62
+(5:4..5:10) scala/inline#
+(5:33..5:34) _empty_/Free#[A] -> 3:43
+(5:38..5:39) _empty_/Free#map().[B] -> 5:25
+(5:42..5:46) _empty_/Free# -> 3:23
+(5:47..5:48) _empty_/Free#[S] -> 3:29
+(5:50..5:51) _empty_/Free#[E] -> 3:39
+(5:53..5:54) _empty_/Free#map().[B] -> 5:25
+(5:58..5:65) _empty_/Free#flatMap(). -> 4:21
+(5:71..5:75) _empty_/Free. -> 31:8
+(5:76..5:80) _empty_/Free.pure(). -> 32:15
+(5:81..5:82) _empty_/Free#[S] -> 3:29
+(5:84..5:85) _empty_/Free#map().[B] -> 5:25
+(5:87..5:90) _empty_/Free#map().(fun) -> 5:28
+(5:91..5:92) local0 -> 5:66
+(6:4..6:10) scala/inline#
+(6:34..6:35) _empty_/Free#as().[B] -> 6:24
+(6:38..6:42) _empty_/Free# -> 3:23
+(6:43..6:44) _empty_/Free#[S] -> 3:29
+(6:46..6:47) _empty_/Free#[E] -> 3:39
+(6:49..6:50) _empty_/Free#as().[B] -> 6:24
+(6:54..6:57) _empty_/Free#map(). -> 5:21
+(6:63..6:65) _empty_/Free#as().(as) -> 6:27
+(7:4..7:10) scala/inline#
+(7:36..7:37) _empty_/Free#[S] -> 3:29
+(7:38..7:39) _empty_/Free#`*>`().[S1][e] -> 7:27
+(7:41..7:42) _empty_/Free#`*>`().[S1][a] -> 7:30
+(7:54..7:55) _empty_/Free#[E] -> 3:39
+(7:61..7:65) _empty_/Free# -> 3:23
+(7:66..7:68) _empty_/Free#`*>`().[S1] -> 7:24
+(7:70..7:72) _empty_/Free#`*>`().[E1] -> 7:48
+(7:74..7:75) _empty_/Free#`*>`().[B] -> 7:45
+(7:79..7:83) _empty_/Free# -> 3:23
+(7:84..7:86) _empty_/Free#`*>`().[S1] -> 7:24
+(7:88..7:90) _empty_/Free#`*>`().[E1] -> 7:48
+(7:92..7:93) _empty_/Free#`*>`().[B] -> 7:45
+(7:97..7:104) _empty_/Free#flatMap(). -> 4:21
+(7:110..7:112) _empty_/Free#`*>`().(sc) -> 7:57
+(8:4..8:10) scala/inline#
+(8:36..8:37) _empty_/Free#[S] -> 3:29
+(8:38..8:39) _empty_/Free#`<*`().[S1][e] -> 8:27
+(8:41..8:42) _empty_/Free#`<*`().[S1][a] -> 8:30
+(8:54..8:55) _empty_/Free#[E] -> 3:39
+(8:61..8:65) _empty_/Free# -> 3:23
+(8:66..8:68) _empty_/Free#`<*`().[S1] -> 8:24
+(8:70..8:72) _empty_/Free#`<*`().[E1] -> 8:48
+(8:74..8:75) _empty_/Free#`<*`().[B] -> 8:45
+(8:79..8:83) _empty_/Free# -> 3:23
+(8:84..8:86) _empty_/Free#`<*`().[S1] -> 8:24
+(8:88..8:90) _empty_/Free#`<*`().[E1] -> 8:48
+(8:92..8:93) _empty_/Free#[A] -> 3:43
+(8:97..8:104) _empty_/Free#flatMap(). -> 4:21
+(8:110..8:112) _empty_/Free#`<*`().(sc) -> 8:57
+(8:113..8:115) _empty_/Free#as(). -> 6:21
+(8:116..8:117) local1 -> 8:105
+(10:4..10:10) scala/inline#
+(10:27..10:31) _empty_/Free# -> 3:23
+(10:32..10:33) _empty_/Free#[S] -> 3:29
+(10:35..10:36) _empty_/Free#[E] -> 3:39
+(10:38..10:42) scala/Unit#
+(10:46..10:49) _empty_/Free#map(). -> 5:21
+(14:4..14:10) scala/inline#
+(14:41..14:42) _empty_/Free#[S] -> 3:29
+(14:43..14:44) _empty_/Free#foldMap().[S1][e] -> 14:32
+(14:46..14:47) _empty_/Free#foldMap().[S1][a] -> 14:35
+(14:72..14:74) _empty_/Free#foldMap().[S1] -> 14:29
+(14:75..14:78) _empty_/`~>>`# -> 27:7
+(14:79..14:80) _empty_/Free#foldMap().[G] -> 14:50
+(14:94..14:100) _empty_/i16777$package.Monad2# -> 46:6
+(14:101..14:102) _empty_/Free#foldMap().[G] -> 14:50
+(14:106..14:107) _empty_/Free#foldMap().[G] -> 14:50
+(14:108..14:109) _empty_/Free#[E] -> 3:39
+(14:111..14:112) _empty_/Free#[A] -> 3:43
+(16:12..16:16) _empty_/Free. -> 31:8
+(16:17..16:21) _empty_/Free.Pure.
+(16:28..16:29) _empty_/Free#foldMap().(G) -> 14:91
+(16:30..16:34) _empty_/Monad3#pure(). -> 51:7
+(16:35..16:36) local4 -> 16:22
+(17:12..17:16) _empty_/Free. -> 31:8
+(17:17..17:24) _empty_/Free.Suspend.
+(17:31..17:40) _empty_/Free#foldMap().(transform) -> 14:61
+(17:41..17:46) _empty_/`~>>`#apply(). -> 28:7
+(17:47..17:48) local8 -> 17:25
+(18:12..18:16) _empty_/Free. -> 31:8
+(18:17..18:27) _empty_/Free.FlatMapped.
+(19:9..19:12) local14 -> 18:28
+(20:16..20:20) _empty_/Free. -> 31:8
+(20:21..20:31) _empty_/Free.FlatMapped.
+(20:48..20:52) local21 -> 20:32
+(20:53..20:60) _empty_/Free#flatMap(). -> 4:21
+(20:66..20:71) local22 -> 20:38
+(20:72..20:73) local23 -> 20:61
+(20:75..20:82) _empty_/Free#flatMap(). -> 4:21
+(20:83..20:87) local15 -> 18:33
+(20:90..20:97) _empty_/Free#foldMap(). -> 14:21
+(20:98..20:107) _empty_/Free#foldMap().(transform) -> 14:61
+(21:27..21:28) _empty_/Free#foldMap().(G) -> 14:91
+(21:29..21:36) _empty_/Monad3#flatMap(). -> 49:7
+(21:37..21:44) local24 -> 21:16
+(21:45..21:52) _empty_/Free#foldMap(). -> 14:21
+(21:53..21:62) _empty_/Free#foldMap().(transform) -> 14:61
+(21:65..21:69) local15 -> 18:33
+(21:73..21:80) _empty_/Free#foldMap(). -> 14:21
+(21:81..21:90) _empty_/Free#foldMap().(transform) -> 14:61
+(28:22..28:23) _empty_/`~>>`#[F] -> 27:12
+(28:24..28:25) _empty_/`~>>`#apply().[E] -> 28:13
+(28:27..28:28) _empty_/`~>>`#apply().[A] -> 28:16
+(28:32..28:33) _empty_/`~>>`#[G] -> 27:22
+(28:34..28:35) _empty_/`~>>`#apply().[E] -> 28:13
+(28:37..28:38) _empty_/`~>>`#apply().[A] -> 28:16
+(32:4..32:10) scala/inline#
+(32:35..32:36) _empty_/Free.pure().[A] -> 32:29
+(32:39..32:43) _empty_/Free# -> 3:23
+(32:44..32:45) _empty_/Free.pure().[S] -> 32:20
+(32:47..32:54) scala/Nothing#
+(32:56..32:57) _empty_/Free.pure().[A] -> 32:29
+(32:61..32:65) _empty_/Free.Pure.
+(32:66..32:67) _empty_/Free.pure().(a) -> 32:32
+(33:4..33:10) scala/inline#
+(33:38..33:39) _empty_/Free.lift().[S] -> 33:20
+(33:40..33:41) _empty_/Free.lift().[E] -> 33:29
+(33:43..33:44) _empty_/Free.lift().[A] -> 33:32
+(33:48..33:52) _empty_/Free# -> 3:23
+(33:53..33:54) _empty_/Free.lift().[S] -> 33:20
+(33:56..33:57) _empty_/Free.lift().[E] -> 33:29
+(33:59..33:60) _empty_/Free.lift().[A] -> 33:32
+(33:64..33:71) _empty_/Free.Suspend.
+(33:72..33:73) _empty_/Free.lift().(s) -> 33:35
+(35:40..35:41) _empty_/Free.Pure#[A] -> 35:34
+(35:51..35:55) _empty_/Free# -> 3:23
+(35:56..35:57) _empty_/Free.Pure#[S] -> 35:25
+(35:59..35:66) scala/Nothing#
+(35:68..35:69) _empty_/Free.Pure#[A] -> 35:34
+(36:28..36:34) scala/Predef.String#
+(36:46..36:47) _empty_/Free.Pure#a. -> 35:37
+(36:48..36:49) scala/StringContext#s().
+(38:46..38:47) _empty_/Free.Suspend#[S] -> 38:28
+(38:48..38:49) _empty_/Free.Suspend#[E] -> 38:37
+(38:51..38:52) _empty_/Free.Suspend#[A] -> 38:40
+(38:63..38:67) _empty_/Free# -> 3:23
+(38:68..38:69) _empty_/Free.Suspend#[S] -> 38:28
+(38:71..38:72) _empty_/Free.Suspend#[E] -> 38:37
+(38:74..38:75) _empty_/Free.Suspend#[A] -> 38:40
+(39:28..39:34) scala/Predef.String#
+(39:49..39:50) _empty_/Free.Suspend#a. -> 38:43
+(39:51..39:52) scala/StringContext#s().
+(41:49..41:50) _empty_/Free.FlatMapped#[E] -> 41:40
+(41:63..41:67) _empty_/Free# -> 3:23
+(41:68..41:69) _empty_/Free.FlatMapped#[S] -> 41:31
+(41:71..41:72) _empty_/Free.FlatMapped#[E] -> 41:40
+(41:74..41:75) _empty_/Free.FlatMapped#[A] -> 41:52
+(41:84..41:85) _empty_/Free.FlatMapped#[A] -> 41:52
+(41:89..41:93) _empty_/Free# -> 3:23
+(41:94..41:95) _empty_/Free.FlatMapped#[S] -> 41:31
+(41:97..41:99) _empty_/Free.FlatMapped#[E1] -> 41:43
+(41:101..41:102) _empty_/Free.FlatMapped#[B] -> 41:55
+(41:113..41:117) _empty_/Free# -> 3:23
+(41:118..41:119) _empty_/Free.FlatMapped#[S] -> 41:31
+(41:121..41:123) _empty_/Free.FlatMapped#[E1] -> 41:43
+(41:125..41:126) _empty_/Free.FlatMapped#[B] -> 41:55
+(42:28..42:34) scala/Predef.String#
+(42:56..42:59) _empty_/Free.FlatMapped#sub. -> 41:58
+(42:60..42:61) scala/StringContext#s().
+(46:26..46:32) _empty_/Monad3# -> 48:7
+(46:57..46:58) _empty_/i16777$package.Monad2#[F] -> 46:13
+(46:59..46:60) _empty_/i16777$package.Monad2#[E]
+(46:62..46:63) _empty_/i16777$package.Monad2#[A]
+(49:30..49:31) _empty_/Monad3#[F] -> 48:14
+(49:32..49:33) _empty_/Monad3#flatMap().[R] -> 49:15
+(49:35..49:36) _empty_/Monad3#flatMap().[E] -> 49:18
+(49:38..49:39) _empty_/Monad3#flatMap().[A] -> 49:21
+(49:45..49:46) _empty_/Monad3#flatMap().[A] -> 49:21
+(49:50..49:51) _empty_/Monad3#[F] -> 48:14
+(49:52..49:53) _empty_/Monad3#flatMap().[R] -> 49:15
+(49:55..49:56) _empty_/Monad3#flatMap().[E] -> 49:18
+(49:58..49:59) _empty_/Monad3#flatMap().[B] -> 49:24
+(49:63..49:64) _empty_/Monad3#[F] -> 48:14
+(49:65..49:66) _empty_/Monad3#flatMap().[R] -> 49:15
+(49:68..49:69) _empty_/Monad3#flatMap().[E] -> 49:18
+(49:71..49:72) _empty_/Monad3#flatMap().[B] -> 49:24
+(50:27..50:28) _empty_/Monad3#[F] -> 48:14
+(50:29..50:30) _empty_/Monad3#flatten().[R] -> 50:15
+(50:32..50:33) _empty_/Monad3#flatten().[E] -> 50:18
+(50:35..50:36) _empty_/Monad3#[F] -> 48:14
+(50:37..50:38) _empty_/Monad3#flatten().[R] -> 50:15
+(50:40..50:41) _empty_/Monad3#flatten().[E] -> 50:18
+(50:43..50:44) _empty_/Monad3#flatten().[A] -> 50:21
+(50:49..50:50) _empty_/Monad3#[F] -> 48:14
+(50:51..50:52) _empty_/Monad3#flatten().[R] -> 50:15
+(50:54..50:55) _empty_/Monad3#flatten().[E] -> 50:18
+(50:57..50:58) _empty_/Monad3#flatten().[A] -> 50:21
+(50:62..50:69) _empty_/Monad3#flatMap(). -> 49:7
+(50:70..50:71) _empty_/Monad3#flatten().(r) -> 50:24
+(50:73..50:81) scala/Predef.identity().
+(51:18..51:19) _empty_/Monad3#pure().[A] -> 51:12
+(51:22..51:23) _empty_/Monad3#[F] -> 48:14
+(51:24..51:27) scala/Any#
+(51:29..51:36) scala/Nothing#
+(51:38..51:39) _empty_/Monad3#pure().[A] -> 51:12
+
