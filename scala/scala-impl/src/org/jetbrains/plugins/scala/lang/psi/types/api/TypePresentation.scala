@@ -58,9 +58,11 @@ trait TypePresentation {
           case o: ScObject if withPoint && isPredefined(o) => ""
           case _: PsiPackage if withPoint                  => ""
           case clazz: PsiClass                             =>
-            classLinkSafe(clazz, defLinkHighlight = false).getOrElse(escapeName(clazz.name))
+            clazz.qualifiedNameOpt
+              .fold(escapeName(clazz.name))(_ => classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false))
           case a: ScTypeAlias                              =>
-            a.qualifiedNameOpt.fold(escapeHtml(e.name))(psiElementLink(_, e.name, attributesKey = Some(DefaultHighlighter.TYPE_ALIAS)))
+            a.qualifiedNameOpt
+              .fold(escapeHtml(e.name))(psiElementLink(_, e.name, attributesKey = Some(DefaultHighlighter.TYPE_ALIAS)))
           case _                                           =>
             psiElement(e, Some(e.name))
         }

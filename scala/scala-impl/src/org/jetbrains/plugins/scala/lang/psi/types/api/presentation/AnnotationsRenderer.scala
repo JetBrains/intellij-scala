@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api.presentation
 
+import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
+import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
@@ -57,7 +59,14 @@ final class ScalaDocAnnotationRenderer extends AnnotationsRenderer(null, "<br/>"
       } else false
 
     override def renderAnnotation(elem: ScAnnotation): String = {
-      val link = HtmlPsiUtils.annotationLink(elem)
+      val label = elem.annotationExpr.getText.takeWhile(_ != '(')
+      val href = HtmlPsiUtils.psiElementHref(label)
+      val escapedContent = StringEscapeUtils.escapeHtml("@" + label)
+      val link =
+        HtmlPsiUtils.withStyledSpan(
+          s"""<a href="$href"><code>$escapedContent</code></a>""",
+          DefaultHighlighter.ANNOTATION
+        )
       val arguments = elem.annotationExpr.getAnnotationParameters
       val constrInvocation = elem.constructorInvocation
       val typ = constrInvocation.typeElement.`type`().getOrAny
