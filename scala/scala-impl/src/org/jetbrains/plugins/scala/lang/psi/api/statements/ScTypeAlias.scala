@@ -13,6 +13,7 @@ trait ScTypeAlias extends ScNamedElement
   //  it affects Enter handling after `type X =`
   with ScDefinitionWithAssignment
   with ScPolymorphicElement
+  with ScMember
   with ScMember.WithBaseIconProvider
   with ScDocCommentOwner
   with ScCommentOwner {

@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 trait ScValueOrVariable extends ScBlockStatement
+  with ScMember
   with ScMember.WithBaseIconProvider
   with ScDocCommentOwner
   with ScDeclaredElementsHolder
