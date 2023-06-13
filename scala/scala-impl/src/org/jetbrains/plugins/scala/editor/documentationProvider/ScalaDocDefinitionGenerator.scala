@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentati
 import org.jetbrains.plugins.scala.extensions.{&, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
+import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils.classLinkWithLabel
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -64,7 +65,11 @@ private class ScalaDocDefinitionGenerator private(
   }
 
   private def appendContainingClass(elem: ScMember): Unit =
-    containingClassHyperLink(elem).foreach { psiLink =>
+    for {
+      clazz   <- Option(elem.containingClass)
+      qn      <- Option(clazz.qualifiedName)
+      psiLink =  classLinkWithLabel(clazz, qn, defLinkHighlight = true)
+    } {
       builder.append(psiLink).append("<br/>\n")
     }
 
@@ -189,9 +194,6 @@ private class ScalaDocDefinitionGenerator private(
     }
 
   // UTILS
-
-  private def containingClassHyperLink(elem: ScMember): Option[String] =
-    Option(elem.containingClass).flatMap(HtmlPsiUtils.classFullLinkSafe(_, defLinkHighlight = true))
 
   private def typeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
     new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll)
