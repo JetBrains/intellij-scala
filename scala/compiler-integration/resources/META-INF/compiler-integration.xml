@@ -34,6 +34,8 @@
 
         <projectConfigurable id="Bytecode Indices"
                              parentId="scala.compiler"
+                             bundle="messages.CompilerIntegrationBundle"
+                             key="bytecode.indices"
                              instance="org.jetbrains.plugins.scala.compiler.references.settings.CompilerIndicesConfigurable"/>
         <codeUsageScopeOptimizer implementation="org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceScopeOptimizer"/>
 
