@@ -115,13 +115,13 @@ class ScalaWorksheetCompilerHighlightingTest_3_0 extends ScalaWorksheetCompilerH
     expectedResult = expectedResult(
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(14, 17)),
+        range = Some(new TextRange(12, 17)),
         quickFixDescriptions = Nil,
         msgPrefix = "value foo is not a member of object X"
       ),
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(25, 28)),
+        range = Some(new TextRange(20, 28)),
         quickFixDescriptions = Nil,
         msgPrefix = "value bar is not a member of worksheet.sc"
       )

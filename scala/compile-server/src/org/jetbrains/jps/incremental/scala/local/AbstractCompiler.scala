@@ -120,9 +120,9 @@ abstract class AbstractCompiler extends Compiler {
     private def logInClient(msg: String, pos: Position, kind: MessageKind): Unit = {
       val source = pos.sourceFile.toScala
       val from = PosInfo(
-        line = pos.line().toScala.map(_.toLong),
-        column = pos.pointer().toScala.map(_.toLong + 1L),
-        offset = pos.offset().toScala.map(_.toLong)
+        line = pos.startLine().toScala.orElse(pos.line().toScala).map(_.toLong),
+        column = pos.startColumn().toScala.orElse(pos.pointer().toScala).map(_.toLong + 1L),
+        offset = pos.startOffset().toScala.orElse(pos.offset().toScala).map(_.toLong)
       )
       val to = PosInfo(
         line = pos.endLine().toScala.map(_.toLong),

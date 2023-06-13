@@ -19,11 +19,43 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     expectedResult = expectedResult(
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(50, 58)),
+        range = Some(new TextRange(48, 58)),
         quickFixDescriptions = Seq.empty,
-        msgPrefix = s"type mismatch;"
+        msgPrefix = "type mismatch;"
       )
     )
+  )
+
+  def testErrorHighlighting(): Unit = runTestCase(
+    fileName = "AbstractMethodInClassError.scala",
+    content =
+      """
+        |class AbstractMethodInClassError {
+        |  def method: Int
+        |}
+        |""".stripMargin,
+    expectedResult = expectedResult(ExpectedHighlighting(
+      severity = HighlightSeverity.ERROR,
+      range = Some(new TextRange(1, 55)),
+      quickFixDescriptions = Nil,
+      msgPrefix = "class AbstractMethodInClassError needs to be abstract"
+    ))
+  )
+
+  def testWrongReturnType(): Unit = runTestCase(
+    fileName = "WrongReturnType.scala",
+    content =
+      """object WrongReturnType {
+        |  def fn1(n: Int): String = fn2(n)
+        |  def fn2(n: Int): Int = n
+        |}
+        |""".stripMargin,
+    expectedResult = expectedResult(ExpectedHighlighting(
+      severity = HighlightSeverity.ERROR,
+      range = Some(new TextRange(53, 59)),
+      quickFixDescriptions = Nil,
+      msgPrefix = "type mismatch;"
+    ))
   )
 }
 
@@ -110,9 +142,39 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
         severity = HighlightSeverity.ERROR,
         range = Some(new TextRange(21, 31)),
         quickFixDescriptions = Seq.empty,
-        msgPrefix = s"Found:    String"
+        msgPrefix = "Found:    String"
       )
     )
+  )
+
+  def testErrorHighlighting(): Unit = runTestCase(
+    fileName = "AbstractMethodInClassError.scala",
+    content =
+      """
+        |class AbstractMethodInClassError {
+        |  def method: Int
+        |}
+        |""".stripMargin,
+    expectedResult = expectedResult(ExpectedHighlighting(
+      severity = HighlightSeverity.ERROR,
+      range = Some(new TextRange(7, 33)),
+      quickFixDescriptions = Nil,
+      msgPrefix = "class AbstractMethodInClassError needs to be abstract"
+    ))
+  )
+
+  def testWrongReturnType(): Unit = runTestCase(
+    fileName = "WrongReturnType.scala",
+    content =
+      """def fn1(n: Int): String = fn2(n)
+        |def fn2(n: Int): Int = n
+        |""".stripMargin,
+    expectedResult = expectedResult(ExpectedHighlighting(
+      severity = HighlightSeverity.ERROR,
+      range = Some(new TextRange(26, 32)),
+      quickFixDescriptions = Nil,
+      msgPrefix = "Found:    Int"
+    ))
   )
 }
 
@@ -135,22 +197,6 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
       range = Some(new TextRange(70, 76)),
       quickFixDescriptions = Nil,
       msgPrefix = "match may not be exhaustive"
-    ))
-  )
-
-  def testErrorHighlighting(): Unit = runTestCase(
-    fileName = "AbstractMethodInClassError.scala",
-    content =
-      """
-        |class AbstractMethodInClassError {
-        |  def method: Int
-        |}
-        |""".stripMargin,
-    expectedResult = expectedResult(ExpectedHighlighting(
-      severity = HighlightSeverity.ERROR,
-      range = Some(new TextRange(7, 33)),
-      quickFixDescriptions = Nil,
-      msgPrefix = "class AbstractMethodInClassError needs to be abstract"
     ))
   )
 }
