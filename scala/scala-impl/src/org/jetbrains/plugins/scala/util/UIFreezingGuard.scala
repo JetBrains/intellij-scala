@@ -13,7 +13,7 @@ import java.awt.Event
 import java.awt.event.MouseEvent
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
-import scala.annotation.{nowarn, unused}
+import scala.annotation.nowarn
 import scala.util.control.NoStackTrace
 
 class UIFreezingGuard extends RunOnceStartupActivity {
@@ -93,7 +93,7 @@ object UIFreezingGuard {
     val indicator = ProgressManager.getInstance().getProgressIndicator
     indicator != progress
   }
-  private def hasModalityState: Boolean = ModalityState.current() != ModalityState.NON_MODAL
+  private def hasModalityState: Boolean = ModalityState.current() != ModalityState.nonModal()
 
   private def canInterrupt: Boolean = !isWriteAction && !isTransaction && !isUnderProgress && !hasModalityState
 

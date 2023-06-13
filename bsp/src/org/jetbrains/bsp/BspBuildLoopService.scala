@@ -103,7 +103,7 @@ final class BspBuildLoopService(project: Project) {
           .build(modulesToCompile.toArray: _*)
           .onSuccess(clearOnSuccess(_)): Unit
       }
-      ApplicationManager.getApplication.invokeLater(runnable, ModalityState.NON_MODAL)
+      ApplicationManager.getApplication.invokeLater(runnable, ModalityState.nonModal())
     }
 
     // TODO should allow all bsp-compiled types, depending on build server compatibility

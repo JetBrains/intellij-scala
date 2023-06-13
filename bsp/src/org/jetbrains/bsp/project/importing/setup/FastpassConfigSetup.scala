@@ -72,7 +72,7 @@ class FastpassConfigSetupEmpty(bspWorkspace: Path) extends BspConfigSetup {
     notification.setImportant(true)
     ApplicationManager.getApplication.invokeLater(new Runnable {
       override def run(): Unit = notification.notify(null)
-    }, ModalityState.NON_MODAL)
+    }, ModalityState.nonModal())
 
     Success(BuildMessages.empty)
   }

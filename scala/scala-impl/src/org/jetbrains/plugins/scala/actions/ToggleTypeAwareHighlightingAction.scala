@@ -37,7 +37,7 @@ object ToggleTypeAwareHighlightingAction {
       .syncPublisher(TypeAwareWidgetFactory.Topic)
       .updateWidget()
 
-    invokeLater(ModalityState.NON_MODAL) {
+    invokeLater(ModalityState.nonModal()) {
       reparseActiveFiles(project)
     }
   }

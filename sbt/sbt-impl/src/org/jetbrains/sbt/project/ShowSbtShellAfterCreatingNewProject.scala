@@ -55,7 +55,7 @@ final class ShowSbtShellAfterCreatingNewProject extends ExternalSystemSettingsLi
       else {
         //in some rare cases, toolwindow can be non-initialized by this moment ¯\_(ツ)_/¯
         //this hack comes from ExternalToolWindowManager
-        AppUIExecutor.onUiThread(ModalityState.NON_MODAL).expireWith(settings).later.execute(() => {
+        AppUIExecutor.onUiThread(ModalityState.nonModal()).expireWith(settings).later.execute(() => {
           ToolWindowManager.getInstance(settings.getProject).invokeLater(() => {
             val toolWindow1 = getSbtShellToolWindowInstance(project)
             if (toolWindow1 != null) {

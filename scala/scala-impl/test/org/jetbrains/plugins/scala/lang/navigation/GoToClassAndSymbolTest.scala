@@ -45,7 +45,7 @@ abstract class GoToClassAndSymbolTestBase extends GoToTestBase {
   private def calcPopupElements(popup: ChooseByNamePopup, text: String): Set[Any] = {
     val semaphore = new Semaphore(1)
     var result: Set[Any] = null
-    popup.scheduleCalcElements(text, false, ModalityState.NON_MODAL, SelectMostRelevant.INSTANCE, set => {
+    popup.scheduleCalcElements(text, false, ModalityState.nonModal(), SelectMostRelevant.INSTANCE, set => {
       result = set.asScala.toSet
       semaphore.up()
     })
