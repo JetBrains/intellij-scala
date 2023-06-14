@@ -149,11 +149,11 @@ object ScalaCompletionUtil {
     checkWith(manager.getProject, text)
   }
 
-  def checkGivenWith(definition: ScGivenDefinition, additionText: String): Boolean = {
-    val language = if (definition.isInScala3File) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE
-    val fileText = replaceDummy(definition.getText + " " + additionText)
+  def checkGivenWith(scGiven: ScGiven, additionText: String): Boolean = {
+    val language = if (scGiven.isInScala3File) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE
+    val fileText = replaceDummy(scGiven.getText + " " + additionText)
 
-    checkWith(definition.getProject, fileText, language)
+    checkWith(scGiven.getProject, fileText, language)
   }
 
   def checkElseWith(text: String, context: PsiElement): Boolean = {
@@ -269,6 +269,10 @@ object ScalaCompletionUtil {
 
   def isInExcludedPackage(qualifiedName: String, project: Project): Boolean =
     JavaProjectCodeInsightSettings.getSettings(project).isExcluded(qualifiedName)
+
+  private[completion] def isAfterEmptyLine(leaf: PsiElement): Boolean =
+    leaf.prevLeafs.takeWhile(_.is[PsiComment, PsiWhiteSpace])
+      .exists(e => e.is[PsiWhiteSpace] && e.getText.count(_ == '\n') > 1)
 
   private def checkWith(project: Project, fileText: String, language: Language = ScalaFileType.INSTANCE.getLanguage): Boolean = {
     val fileName = "dummy." + ScalaFileType.INSTANCE.getDefaultExtension

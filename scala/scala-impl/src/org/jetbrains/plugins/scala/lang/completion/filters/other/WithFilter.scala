@@ -1,67 +1,68 @@
 package org.jetbrains.plugins.scala.lang.completion.filters.other
 
 import com.intellij.psi.filters.ElementFilter
-import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiWhiteSpace}
 import org.jetbrains.annotations.{NonNls, Nullable}
-import org.jetbrains.plugins.scala.extensions.PsiFileExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import org.jetbrains.plugins.scala.lang.completion.filters.other.WithFilter.{checkWith, isBeforeWith}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScTypeDefinition}
 
-class WithFilter extends ElementFilter {
+final class WithFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
-    if (context == null || context.isInstanceOf[PsiComment]) return false
+    if (context == null || context.is[PsiComment]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
+    if (leaf == null ||
+      // do not suggest if there is already a `with` keyword. e.g.:
+      // class Test extends Base w<caret> with
+      isBeforeWith(leaf) ||
+      isAfterEmptyLine(leaf)) return false
 
-    if (leaf != null) {
-      var i = context.getTextRange.getStartOffset - 1
-      val file = context.getContainingFile
-      val text = file.charSequence
-      while (i >= 0 && text.charAt(i) == ' ') {
-        i = i - 1
-      }
-      if (i >= 0) {
-        var leaf1 = getLeafByOffset(i, context)
-        while (leaf1 != null &&
-                !leaf1.isInstanceOf[ScTypeDefinition]) {
-          leaf1 = leaf1.getParent
-        }
-        if (leaf1 != null && leaf1.getTextRange.getEndOffset != i+1 && leaf1.getTextRange.getEndOffset != leaf.getTextRange.getEndOffset &&
-          leaf1.getTextRange.getEndOffset != leaf.getTextRange.getStartOffset) leaf1 = null
-        leaf1 match {
-          case null =>
-          case g: ScGivenDefinition =>
-            return checkGivenWith(g, "with { ??? }")
-          case x: ScTypeDefinition =>
-            return checkClassWith(x, "with A", x.getManager)
-        }
-        leaf1 = getLeafByOffset(i, context)
-        while (leaf1 != null && !leaf1.isInstanceOf[ScTypeElement] &&
-                !leaf1.isInstanceOf[ScNewTemplateDefinition]) {
-          leaf1 = leaf1.getParent
-        }
-        if (leaf1 != null && leaf1.getTextRange.getEndOffset != i+1 && leaf1.getTextRange.getEndOffset != leaf.getTextRange.getEndOffset &&
-          leaf1.getTextRange.getEndOffset != leaf.getTextRange.getStartOffset) leaf1 = null
-        leaf1 match {
-          case null => return false
-          case x: ScTypeElement =>
-            return checkTypeWith(x, "with A", x.getManager)
-          case x: ScNewTemplateDefinition =>
-            return checkNewWith(x, "with A", x.getManager)
-        }
-      } 
+    // class A extends B wi
+    //                  ^ find error here
+    // there will be no error if `with` is on new line
+    val maybeErrorBeforeWithStart = leaf.prevLeafs
+      .dropWhile(_.is[PsiComment, PsiWhiteSpace])
+      .nextOption()
+
+    maybeErrorBeforeWithStart match {
+      case Some(error: PsiErrorElement) =>
+        error.prevSibling
+          .exists(checkWith)
+      case Some(_) =>
+        leaf.parentOfType[ScReference]
+          .flatMap(_.prevSiblingNotWhitespaceComment)
+          .exists(checkWith)
+      case _ => false
     }
-    false
   }
 
-  override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    true
-  }
+  override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
 
   @NonNls
-  override def toString: String = {
-    "'with' keyword filter"
-  }
+  override def toString: String = "'with' keyword filter"
+}
+
+object WithFilter {
+  private def checkWith(element: PsiElement): Boolean =
+    element match {
+      case g: ScGiven =>
+        checkGivenWith(g, "with { ??? }")
+      case td: ScTypeDefinition =>
+        checkClassWith(td, "with A", td.getManager)
+      case td: ScNewTemplateDefinition =>
+        checkNewWith(td, "with A", td.getManager)
+      case te: ScTypeElement =>
+        checkTypeWith(te, "with A", te.getManager)
+      case _ => false
+    }
+
+  private def isBeforeWith(elem: PsiElement): Boolean =
+    elem.nextVisibleLeaf(skipComments = true)
+      .exists(_.elementType == ScalaTokenTypes.kWITH)
 }

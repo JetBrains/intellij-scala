@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
+import com.intellij.codeInsight.lookup.Lookup
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
@@ -167,6 +168,8 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     char = '('
   )
 
+  /// extends
+
   def testExtendsAsLastInFile(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -175,6 +178,46 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     resultText =
       s"""
          |class Test extends $CARET
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  def testExtendsOnANewLine(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Test
+         |e$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |class Test
+         |extends $CARET
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  def testExtendsAfterBlockComment(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Test /*comment*/ e$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |class Test /*comment*/ extends $CARET
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  def testExtendsAfterLineComment(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Test // comment
+         |e$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |class Test // comment
+         |extends $CARET
          |""".stripMargin,
     item = "extends"
   )
@@ -219,6 +262,32 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extends"
   )
 
+  // This one is highly opinionated
+  def testExtendsBetweenClasses2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Test
+         |e${CARET}class Test2
+         |""".stripMargin,
+    resultText =
+      s"""
+         |class Test
+         |extends ${CARET}class Test2
+         |""".stripMargin,
+    item = "extends",
+    char = Lookup.NORMAL_SELECT_CHAR
+  )
+
+  def testExtendsBetweenClasses3(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |class Test
+         |
+         |e${CARET}class Test2
+         |""".stripMargin,
+    item = "extends"
+  )
+
   // SCL-19022
   def testExtendsBeforeBody(): Unit = doCompletionTest(
     fileText =
@@ -254,6 +323,304 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
          |object Obj e$CARET extends
          |""".stripMargin,
     item = "extends"
+  )
+
+  def testExtendsBeforeExtendsWithComment(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |object Obj e$CARET /*comment*/ extends
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  def testExtendsAfterExtends(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |object Obj extends e$CARET
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  def testExtendsAfterExtendsWithComment(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |object Obj extends /*comment*/ e$CARET
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  /// with
+
+  def testWithAsLastInFile(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |trait A
+         |class Test extends A w$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |trait A
+         |class Test extends A with $CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithOnANewLine(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |trait A
+         |class Test extends A
+         |w$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |trait A
+         |class Test extends A
+         |with $CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithAfterBlockComment(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |trait A
+         |class Test extends A /*comment*/ w$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |trait A
+         |class Test extends A /*comment*/ with $CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithAfterBlockComment2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |trait A
+         |class Test extends A
+         |/*comment*/ w$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |trait A
+         |class Test extends A
+         |/*comment*/ with $CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithAfterBlockComment3(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |trait A
+         |class Test extends A
+         |/*comment*/
+         |w$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |trait A
+         |class Test extends A
+         |/*comment*/
+         |with $CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithAfterLineComment(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |trait A
+         |class Test extends A // comment
+         |w$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |trait A
+         |class Test extends A // comment
+         |with $CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithAfterLineComment2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |trait A
+         |class Test extends A
+         |// comment
+         |w$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |trait A
+         |class Test extends A
+         |// comment
+         |with $CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithBeforeSemicolon(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |trait A
+         |class Test extends A w$CARET;
+         |""".stripMargin,
+    resultText =
+      s"""
+         |trait A
+         |class Test extends A with $CARET;
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithBeforeId(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |trait A
+         |trait B
+         |class Test extends A w$CARET B
+         |""".stripMargin,
+    resultText =
+      s"""
+         |trait A
+         |trait B
+         |class Test extends A with ${CARET}B
+         |""".stripMargin,
+    item = "with"
+  )
+
+
+  def testWithBetweenClasses(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |trait A
+         |class Test extends A w$CARET
+         |class Test2
+         |""".stripMargin,
+    resultText =
+      s"""
+         |trait A
+         |class Test extends A with $CARET
+         |class Test2
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithBeforeBody(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |trait A
+         |class Test extends A w$CARET {
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |trait A
+         |class Test extends A with $CARET{
+         |}
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithBeforeWith(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |trait A
+         |object Obj extends A w$CARET with
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithBeforeWithWithComment(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |trait A
+         |object Obj extends A w$CARET /*comment*/ with
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithAfterTwoNewlines(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |trait A
+         |object Obj extends A
+         |
+         |w$CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithAfterTwoNewlinesAndComment(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |trait A
+         |object Obj extends A
+         |
+         |//comment
+         |w$CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithAfterTwoNewlinesAndComment2(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |trait A
+         |object Obj extends A
+         |//comment
+         |
+         |w$CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithAfterWith(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |trait A
+         |object Obj extends A with w$CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithAfterWithWithComment(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |trait A
+         |object Obj extends A with /*comment*/ w$CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testNoWithOnANewLine(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |trait A
+         |w$CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testNoWithOnANewLine2(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |def foo = 2
+         |w$CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testNoWithOnANewLine3(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |w$CARET
+         |""".stripMargin,
+    item = "with"
   )
 }
 
@@ -325,5 +692,25 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
       s"""try 42 catch
          |  case $CARET""".stripMargin,
     item = "catch"
+  )
+
+  def testWithInGivenDefinition(): Unit = doCompletionTest(
+    fileText =
+      s"""given foo: AnyRef w$CARET""".stripMargin,
+    resultText =
+      s"""given foo: AnyRef with $CARET""".stripMargin,
+    item = "with"
+  )
+
+  def testWithInGivenDefinitionWithBody(): Unit = doCompletionTest(
+    fileText =
+      s"""given foo: AnyRef w$CARET {
+         |  val bar = 2
+         |}""".stripMargin,
+    resultText =
+      s"""given foo: AnyRef with $CARET{
+         |  val bar = 2
+         |}""".stripMargin,
+    item = "with"
   )
 }
