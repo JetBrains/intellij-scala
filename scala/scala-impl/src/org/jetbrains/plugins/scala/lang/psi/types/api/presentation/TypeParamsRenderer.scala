@@ -133,7 +133,6 @@ class TypeParamsRenderer(
   }
 }
 
-
 private object TypeParamsRenderer {
   private val EmptyTuple = (Seq.empty, Seq.empty)
 }

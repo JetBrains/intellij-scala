@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwn
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.shouldExpand
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, Parameter, ScMethodType, ScTypePolymorphicType}

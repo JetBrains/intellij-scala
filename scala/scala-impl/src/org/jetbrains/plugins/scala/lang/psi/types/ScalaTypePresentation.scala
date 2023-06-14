@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.PresentationOptions
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.PresentationOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
@@ -25,12 +25,12 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstanc
 
 import scala.annotation.tailrec
 
-trait ScalaTypePresentation extends api.TypePresentation {
+trait ScalaTypePresentation extends TypePresentation {
   typeSystem: api.TypeSystem =>
 
   import ScalaTypePresentation._
 
-  override protected def typeText(
+  override def typeText(
     `type`: ScType,
     nameRenderer: NameRenderer,
     options: PresentationOptions
@@ -291,7 +291,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         }
       case namedType: NamedType => namedType.name
       case _: WildcardType => "?"
-      case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.TypePresentation.ABSTRACT_TYPE_POSTFIX
+      case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.presentation.TypePresentation.ABSTRACT_TYPE_POSTFIX
       case TypeLambda(text)          => text
       case FunctionType(ret, params) if !t.isAliasType =>
         val paramsText = params match {

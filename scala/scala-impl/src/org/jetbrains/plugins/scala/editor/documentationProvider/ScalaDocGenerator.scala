@@ -9,7 +9,6 @@ import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiMemberExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
