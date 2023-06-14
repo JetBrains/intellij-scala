@@ -13,11 +13,22 @@ private final class ConfigureIncrementalCompilerStartupActivity extends StartupA
   override def runActivity(project: Project): Unit = {
     project.subscribeToModuleRootChanged() { _ =>
       if (!project.isDisposed) {
+        var scalaSdkFound = false
+        var kotlinLibraryFound = false
+
         OrderEnumerator.orderEntries(project).librariesOnly().recursively().forEachLibrary { lib =>
-          if (isKotlinRuntimeOrLibrary(lib)) {
-            ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.IDEA
-            false
-          } else true
+          if (!scalaSdkFound && lib.isScalaSdk) {
+            scalaSdkFound = true
+          } else if (isKotlinRuntimeOrLibrary(lib)) {
+            kotlinLibraryFound = true
+          }
+
+          // Stop processing libraries only if both a Scala SDK and a Kotlin library have been found.
+          !scalaSdkFound || !kotlinLibraryFound
+        }
+
+        if (scalaSdkFound && kotlinLibraryFound) {
+          ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.IDEA
         }
       }
     }
