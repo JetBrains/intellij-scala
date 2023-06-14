@@ -36,4 +36,25 @@ class ConfigureIncrementalCompilerTest extends JavaCodeInsightFixtureTestCase {
       loaders.foreach(_.clean(getModule))
     }
   }
+
+  def testOnlyKotlinNoScalaProjectIncrementalityType(): Unit = {
+    val loaders = Array(ScalaSDKLoader(), IvyManagedLoader("org.jetbrains.kotlin" % "kotlin-stdlib" % "1.8.21"))
+
+    try {
+      val scalaVersion = LatestScalaVersions.Scala_2_13
+
+      // Check default value of incrementality type.
+      val project = getProject
+      var incrementalityType = ScalaCompilerConfiguration.instanceIn(project).incrementalityType
+      assertEquals(IncrementalityType.SBT, incrementalityType)
+
+      loaders(0).init(getModule, scalaVersion)
+
+      // Check incrementality type after setting up the Kotlin standard library.
+      incrementalityType = ScalaCompilerConfiguration.instanceIn(project).incrementalityType
+      assertEquals(IncrementalityType.SBT, incrementalityType)
+    } finally {
+      loaders.foreach(_.clean(getModule))
+    }
+  }
 }
