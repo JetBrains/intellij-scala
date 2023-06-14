@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl.{importantOrderFunction, isCalculatingFor, returnTypeInner}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
+import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.{ImplicitValueClass, ImplicitValueClassDumbMode}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, api}
 
@@ -27,6 +28,29 @@ class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S
   extends ScFunctionImpl(stub, nodeType, node)
     with ScFunctionDefinition
     with ScNamedBeginImpl {
+
+  override def getContainingClass: PsiClass =
+    super.getContainingClass match {
+      case containingClazz@ImplicitValueClass(c) => c.fakeCompanionModule.getOrElse(containingClazz)
+      case containingClazz => containingClazz
+    }
+
+  /**
+   * Note that this method is only called in non-Scala contexts. For Scala contexts super#name is used.
+   *
+   * The below represents the special case for public function definitions of implicit classes that extend AnyVal -- a
+   * common approach for Scala 2 extension methods. Such functions, from the perspective of non-Scala JVM languages,
+   * have `$extension` appended to their name. See https://docs.scala-lang.org/overviews/core/value-classes.html#extension-methods.
+   */
+  override def getName: String =
+    if (this.isPrivate || this.isProtected) {
+      super.getName
+    } else {
+      containingClass match {
+        case ImplicitValueClassDumbMode(_) => super.getName + "$extension"
+        case _ => super.getName
+      }
+    }
 
   override protected def shouldProcessParameters(lastParent: PsiElement): Boolean =
     super.shouldProcessParameters(lastParent) || body.contains(lastParent)

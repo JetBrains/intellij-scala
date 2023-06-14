@@ -3,6 +3,8 @@ package params
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.{ImplicitValueClass, extendsAnyVal}
 
 trait ScParameters extends ScalaPsiElement with PsiParameterList {
 
@@ -19,5 +21,33 @@ trait ScParameters extends ScalaPsiElement with PsiParameterList {
 
   override def getParametersCount: Int = params.length
 
-  override def getParameters: Array[PsiParameter] = params.toArray
+  /**
+   * Note that this method is only called in non-Scala contexts. For Scala contexts ScParameters#params is used.
+   *
+   * With that out of the way, I have added a special case below for public function definitions in implicit classes
+   * that extend AnyVal. For example:
+   * {{{
+   * implicit class RichInt(i: Int) extends AnyVal {
+   *   def addOne(): Int = i + 1
+   * }
+   * }}}
+   *
+   * In such cases, from the perspective of non-Scala JVM languages, addOne should be treated like it accepts the one
+   * class parameter of RichInt, congruent with the optimization mentioned here:
+   * https://docs.scala-lang.org/overviews/core/value-classes.html#extension-methods
+   */
+  override def getParameters: Array[PsiParameter] = {
+    val anyValParams = this.getContext match {
+      case f: ScFunctionDefinition if !f.isPrivate && !f.isProtected =>
+
+        f.containingClass match {
+          case ImplicitValueClass(c) => c.parameters.headOption
+          case _ => None
+        }
+
+      case _ => None
+    }
+
+    (params ++ anyValParams).toArray
+  }
 }
