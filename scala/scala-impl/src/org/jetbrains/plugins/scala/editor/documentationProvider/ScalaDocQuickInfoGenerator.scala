@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.ScalaDocTypeRenderer
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{ContextBoundInfo, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference}
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 // TODO 1: analyze performance and whether rendered info is cached?
@@ -39,7 +40,7 @@ object ScalaDocQuickInfoGenerator {
   }
 
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement, substitutor: ScSubstitutor): String = {
-    implicit val typeRenderer: TypeRenderer = substitutor(_).urlText(originalElement)
+    implicit val typeRenderer: TypeRenderer = ScalaDocTypeRenderer(originalElement, substitutor)
     val buffer = new StringBuilder
     element match {
       case clazz: ScTypeDefinition                       => generateClassInfo(buffer, clazz)

@@ -5,10 +5,11 @@ import com.intellij.psi._
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
+import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocAnnotationRenderer, ScalaDocTypeRenderer}
 import org.jetbrains.plugins.scala.extensions.{&, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi
-import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
-import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils.classLinkWithLabel
+import HtmlPsiUtils.classLinkWithLabel
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -19,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TextEscaper.Html
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -42,10 +42,7 @@ private class ScalaDocDefinitionGenerator private(
 ) {
 
   private implicit val projectContext: ProjectContext = elementWithDoc.projectContext
-  private implicit val typeRenderer: TypeRenderer = {
-    val presentableContext = originalElement.fold(TypePresentationContext.emptyContext)(TypePresentationContext.psiElementPresentationContext)
-    _.urlText(presentableContext)
-  }
+  private implicit val typeRenderer: TypeRenderer = ScalaDocTypeRenderer(originalElement)
 
   private def generate(): Unit =
     elementWithDoc match {

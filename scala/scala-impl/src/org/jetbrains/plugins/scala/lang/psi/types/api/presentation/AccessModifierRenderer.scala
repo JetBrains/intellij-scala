@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api.presentation
 
 import com.intellij.psi.{PsiClass, PsiModifier}
+import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, ResolvesTo}
-import org.jetbrains.plugins.scala.lang.psi.HtmlPsiUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
 

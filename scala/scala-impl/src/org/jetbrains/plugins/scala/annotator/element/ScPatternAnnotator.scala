@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil.{isNeverSubClass, isNeverSubType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal, Nothing, Null, TupleType, TypeParameterType, TypePresentation, arrayType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal, Nothing, Null, TupleType, TypeParameterType, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTyp
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.junit.Assert._
 import org.junit.experimental.categories.Category

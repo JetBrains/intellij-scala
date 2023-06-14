@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.PresentationOptions
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.NameRenderer
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
@@ -64,12 +66,12 @@ trait ScType extends ProjectContextOwner {
   def presentableText(implicit context: TypePresentationContext): String =
     typeSystem.presentableText(this)
 
-  def urlText(implicit context: TypePresentationContext): String =
-    typeSystem.urlText(this)
-
   def canonicalText: String = canonicalText(TypePresentationContext.emptyContext)
 
   def canonicalText(context: TypePresentationContext): String = typeSystem.canonicalText(this, context)
+
+  def typeText(nameRenderer: NameRenderer, options: PresentationOptions)(implicit context: TypePresentationContext): String =
+    typeSystem.typeText(this, nameRenderer, options)
 }
 
 object ScType {

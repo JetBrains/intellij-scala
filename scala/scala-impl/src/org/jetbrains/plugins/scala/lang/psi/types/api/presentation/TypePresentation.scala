@@ -1,25 +1,19 @@
-package org.jetbrains.plugins.scala.lang.psi.types.api
+package org.jetbrains.plugins.scala.lang.psi.types.api.presentation
 
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage}
-import org.apache.commons.lang.StringEscapeUtils
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNamedElementExt, childOf}
-import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt, childOf}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation._
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.NameRenderer
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
-import org.jetbrains.plugins.scala.lang.psi.{HtmlPsiUtils, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
-/**
- * TODO: move to presentation package
- */
 trait TypePresentation {
 
-  protected def typeText(
+  def typeText(
     `type`: ScType,
     nameRenderer: NameRenderer,
     options: PresentationOptions = PresentationOptions.Default
@@ -40,42 +34,6 @@ trait TypePresentation {
       }
     }
     typeText(`type`, renderer, PresentationOptions.Default)(context)
-  }
-
-  // For now only used in `documentationProvider` package
-  final def urlText(`type`: ScType)
-                   (implicit context: TypePresentationContext): String = {
-    import StringEscapeUtils.escapeHtml
-
-    val renderer: NameRenderer = new NameRenderer {
-      override def escapeName(e: String): String = escapeHtml(e)
-      override def renderName(e: PsiNamedElement): String = nameFun(e, withPoint = false)
-      override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
-
-      private def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
-        import HtmlPsiUtils._
-        val res = e match {
-          case o: ScObject if withPoint && isPredefined(o) => ""
-          case _: PsiPackage if withPoint                  => ""
-          case clazz: PsiClass                             =>
-            clazz.qualifiedNameOpt
-              .fold(escapeName(clazz.name))(_ => classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false))
-          case a: ScTypeAlias                              =>
-            a.qualifiedNameOpt
-              .fold(escapeHtml(e.name))(psiElementLink(_, e.name, attributesKey = Some(DefaultHighlighter.TYPE_ALIAS)))
-          case _                                           =>
-            psiElement(e, Some(e.name))
-        }
-        res + pointStr(withPoint && res.nonEmpty)
-      }
-    }
-
-    val options = PresentationOptions(
-      renderProjectionTypeName = true,
-      renderStdTypes = true,
-      renderInfixType = true
-    )
-    typeText(`type`, renderer, options)(context)
   }
 
   final def canonicalText(`type`: ScType, context: TypePresentationContext): String = {
@@ -113,10 +71,10 @@ object TypePresentation {
   val ABSTRACT_TYPE_POSTFIX = "_"
 
   private val PredefinedPackages = Set("scala.Predef", "scala")
-  private def isPredefined(td: ScTypeDefinition): Boolean =
+  def isPredefined(td: ScTypeDefinition): Boolean =
     PredefinedPackages.contains(td.qualifiedName)
 
-  private def pointStr(withPoint: Boolean): String =
+  def pointStr(withPoint: Boolean): String =
     if (withPoint) "." else ""
 
   private def removeKeywords(text: String): String =
