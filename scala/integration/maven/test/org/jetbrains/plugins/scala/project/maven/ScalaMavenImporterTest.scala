@@ -295,7 +295,7 @@ class ScalaMavenImporterTest
     })
   }
 
-  def testWithKotlinIncrementalCompiler(): Unit = {
+  private def kotlinLibraryDetectionTest(expectedIncrementalityType: IncrementalityType): Unit = {
     val pomFile = testProjectDir / "pom.xml"
 
     val pomVFile = VirtualFileManager.getInstance().findFileByNioPath(pomFile.toPath)
@@ -306,6 +306,14 @@ class ScalaMavenImporterTest
 
     importProject(pomVFile)
     val incrementalityTypeAfterImport = ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType
-    Assert.assertEquals(IncrementalityType.IDEA, incrementalityTypeAfterImport)
+    Assert.assertEquals(expectedIncrementalityType, incrementalityTypeAfterImport)
+  }
+
+  def testWithKotlinIncrementalCompiler(): Unit = {
+    kotlinLibraryDetectionTest(IncrementalityType.IDEA)
+  }
+
+  def testOnlyKotlinNoScalaIncrementalCompiler(): Unit = {
+    kotlinLibraryDetectionTest(IncrementalityType.SBT)
   }
 }
