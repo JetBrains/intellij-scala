@@ -308,4 +308,18 @@ class ScalaMavenImporterTest
     val incrementalityTypeAfterImport = ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType
     Assert.assertEquals(IncrementalityType.IDEA, incrementalityTypeAfterImport)
   }
+
+  def testOnlyKotlinNoScalaIncrementalCompiler(): Unit = {
+    val pomFile = testProjectDir / "pom.xml"
+
+    val pomVFile = VirtualFileManager.getInstance().findFileByNioPath(pomFile.toPath)
+    Assert.assertNotNull("can't find 'pom.xml' file", pomVFile)
+
+    val incrementalityTypeBeforeImport = ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType
+    Assert.assertEquals(IncrementalityType.SBT, incrementalityTypeBeforeImport)
+
+    importProject(pomVFile)
+    val incrementalityTypeAfterImport = ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType
+    Assert.assertEquals(IncrementalityType.SBT, incrementalityTypeAfterImport)
+  }
 }
