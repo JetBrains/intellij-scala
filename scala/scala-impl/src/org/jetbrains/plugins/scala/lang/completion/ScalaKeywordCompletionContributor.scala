@@ -131,6 +131,14 @@ final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor
   registerStandardCompletion(new other.DerivesFilter, DERIVES)
 
   registerFor(Seq(AfterDotFilter, new other.TypeFilter), TYPE)
+
+  registerFor(
+    Seq(
+      or(AfterDotFilter, not(AfterRightBraceExpectedErrorFilter)),
+      new modifiers.GivenImportSelectorFilter
+    ),
+    GIVEN
+  )
 }
 
 object ScalaKeywordCompletionContributor {
@@ -151,31 +159,39 @@ object ScalaKeywordCompletionContributor {
       }
   }
 
-  //example: dont allow completing anything after `package org.example <caret>`
-  private object AfterSemicolonOrNewLineExpectedErrorFilter extends ElementFilter {
-
-    override def toString: String = "AfterSemicolonOrNewLineExpectedErrorFilter"
+  private abstract class AfterErrorFilter(errorDescription: String) extends ElementFilter {
 
     override def isClassAcceptable(hintClass: Class[_]): Boolean = true
 
-    override def isAcceptable(element: Any, context: PsiElement): Boolean = {
+    override def isAcceptable(element: Any, context: PsiElement): Boolean =
       element match {
         case psiElement: PsiElement =>
           val prevNonWsElement = PsiTreeUtil.prevLeaf(psiElement) match {
             case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws)
             case el => el
           }
-          isSemiOrNewlineExpectedError(prevNonWsElement)
+          checkError(prevNonWsElement)
         case _ =>
           false
       }
-    }
 
-    private def isSemiOrNewlineExpectedError(element: PsiElement): Boolean = element match {
+    private def checkError(element: PsiElement): Boolean = element match {
       case error: PsiErrorElement =>
-        error.getErrorDescription == ScalaBundle.message("semi.expected")
+        error.getErrorDescription == errorDescription
       case _ => false
     }
+  }
+
+  // example: don't allow completing anything after `package org.example <caret>`
+  private object AfterSemicolonOrNewLineExpectedErrorFilter
+    extends AfterErrorFilter(ScalaBundle.message("semi.expected")) {
+    override def toString: String = "AfterSemicolonOrNewLineExpectedErrorFilter"
+  }
+
+  // example: don't allow completing anything after `import Foo.{bar <caret>}`
+  private object AfterRightBraceExpectedErrorFilter
+    extends AfterErrorFilter(ScalaBundle.message("right.brace.expected")) {
+    override def toString: String = "AfterRightBraceExpectedErrorFilter"
   }
 
   private def or(filter: ElementFilter*): OrFilter = new OrFilter(filter: _*)

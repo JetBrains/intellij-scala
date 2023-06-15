@@ -1566,6 +1566,172 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  /// GIVEN in import
+
+  def testGivenInSimpleImport(): Unit = doCompletionTest(
+    fileText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.g$CARET
+         |""".stripMargin,
+    resultText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testGivenInImportWithSelectors(): Unit = doCompletionTest(
+    fileText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{g$CARET}
+         |""".stripMargin,
+    resultText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{given $CARET}
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testGivenInImportWithSelectorsWithoutClosingBrace(): Unit = doCompletionTest(
+    fileText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{g$CARET
+         |""".stripMargin,
+    resultText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testGivenInImportWithSelectorsAfterComma(): Unit = doCompletionTest(
+    fileText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{*, g$CARET}
+         |""".stripMargin,
+    resultText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{*, given $CARET}
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testGivenInImportWithSelectorsBeforeComma(): Unit = doCompletionTest(
+    fileText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{g$CARET, *}
+         |""".stripMargin,
+    resultText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{given $CARET, *}
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testGivenInImportAlreadyHavingGivenSelector(): Unit = doCompletionTest(
+    fileText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{given, g$CARET}
+         |""".stripMargin,
+    resultText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{given, given $CARET}
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testGivenInImportAlreadyHavingGivenSelector2(): Unit = doCompletionTest(
+    fileText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{given Int, g$CARET}
+         |""".stripMargin,
+    resultText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{given Int, given $CARET}
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testGivenTypeInSimpleImport(): Unit = doCompletionTest(
+    fileText =
+      s"""object Givens { given Int = 1 }
+         |
+         |object Test:
+         |  import Givens.given I$CARET
+         |""".stripMargin,
+    resultText =
+      s"""object Givens { given Int = 1 }
+         |
+         |object Test:
+         |  import Givens.given Int$CARET
+         |""".stripMargin,
+    item = "Int"
+  )
+
+  def testGivenTypeInImportSelector(): Unit = doCompletionTest(
+    fileText =
+      s"""object Givens { given Int = 1 }
+         |
+         |object Test:
+         |  import Givens.{given I$CARET}
+         |""".stripMargin,
+    resultText =
+      s"""object Givens { given Int = 1 }
+         |
+         |object Test:
+         |  import Givens.{given Int$CARET}
+         |""".stripMargin,
+    item = "Int"
+  )
+
+  def testGivenInImportWithoutQualifier(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import g$CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testGivenInImportWrongPlace(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""object Givens
+         |
+         |object Test:
+         |  import Givens.{* g$CARET}
+         |""".stripMargin,
+    item = "given"
+  )
+
   /// given - WITH
 
   def testWithOnGiven(): Unit = doCompletionTest(
