@@ -40,6 +40,104 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
       selected = qNameToImport
     )
   }
+
+  def testClassInAnnotationPosition(): Unit = checkNoImportFix(
+    s"""object Source {
+       |  class Foo
+       |}
+       |
+       |@${CARET}Foo
+       |object Target
+       |""".stripMargin
+  )
+
+  def testCaseClassInAnnotationPosition(): Unit = checkNoImportFix(
+    s"""object Source {
+       |  case class Foo
+       |}
+       |
+       |@${CARET}Foo
+       |object Target
+       |""".stripMargin
+  )
+
+  def testTraitInAnnotationPosition(): Unit = checkNoImportFix(
+    s"""object Source {
+       |  trait Foo
+       |}
+       |
+       |@${CARET}Foo
+       |object Target
+       |""".stripMargin
+  )
+
+  def testObjectInAnnotationPosition(): Unit = checkNoImportFix(
+    s"""object Source {
+       |  object Foo
+       |}
+       |
+       |@${CARET}Foo
+       |object Target
+       |""".stripMargin
+  )
+
+  def testScalaAnnotationClassInAnnotationPosition(): Unit = {
+    val fileText =
+      s"""object Source {
+         |  class Foo extends scala.annotation.StaticAnnotation
+         |}
+         |
+         |@${CARET}Foo
+         |object Target
+         |""".stripMargin
+    val qNameToImport = "Source.Foo"
+
+    checkElementsToImport(
+      fileText,
+      qNameToImport
+    )
+
+    doTest(
+      fileText,
+      expectedText = s"import $qNameToImport\n\n${fileText.replace(CARET, "")}",
+      selected = qNameToImport
+    )
+  }
+
+  def testJavaAnnotationInAnnotationPosition(): Unit = {
+    val fileText =
+      s"""@${CARET}Baz
+         |object Target
+         |""".stripMargin
+    val qNameToImport = "Bar.Baz"
+
+    myFixture.addFileToProject(
+      "Bar.java",
+      """import java.lang.annotation.Retention;
+        |import java.lang.annotation.RetentionPolicy;
+        |import java.lang.annotation.Target;
+        |
+        |import static java.lang.annotation.ElementType.*;
+        |
+        |public class Bar {
+        |    @Retention(RetentionPolicy.RUNTIME)
+        |    @Target(value={TYPE})
+        |    public static @interface Baz {}
+        |}
+        |""".stripMargin
+    )
+
+    checkElementsToImport(
+      fileText,
+      qNameToImport
+    )
+
+    doTest(
+      fileText,
+      expectedText = s"import $qNameToImport\n\n${fileText.replace(CARET, "")}",
+      selected = qNameToImport
+    )
+  }
 }
 
 class Scala3ImportTypeFixTest extends ScalaImportTypeFixTestBase {

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -121,6 +121,7 @@ object ScalaImportTypeFix {
 
     val predicate: PsiClass => Boolean = ref.getParent match {
       case _: ScMethodCall => hasApplyMethod
+      case te: ScSimpleTypeElement if te.annotation => isAnnotation
       case _ => Function.const(true)
     }
 
@@ -169,6 +170,8 @@ object ScalaImportTypeFix {
     case cls: ScClass => isCaseOrInScala3File(cls) // SCL-19992, SCL-21187
     case _ => false
   }
+
+  private def isAnnotation(cls: PsiClass): Boolean = cls.isAnnotationType
 
   private def isCaseOrInScala3File(cls: ScClass): Boolean =
     cls.isCase || cls.isInScala3File
