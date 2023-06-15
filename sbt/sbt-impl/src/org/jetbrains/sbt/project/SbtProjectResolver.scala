@@ -622,7 +622,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.storePaths(ExternalSystemSourceType.TEST_GENERATED, managedDirectories(testSources))
     result.storePaths(ExternalSystemSourceType.TEST_RESOURCE, allDirectories(testResources))
 
-    getExcludedTargetDirs(project).foreach { path =>
+    val excludedDirs = getExcludedDirs(project)
+    excludedDirs.foreach { path =>
       result.storePath(ExternalSystemSourceType.EXCLUDED, path.path)
     }
 
@@ -638,29 +639,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def unmanagedDirectories(dirs: Seq[sbtStructure.DirectoryData]) =
     dirs.filterNot(_.managed).map(_.file.canonicalPath)
 
-  // We cannot always exclude the whole ./target/ directory because of
-  // the generated sources, so we resort to an heuristic.
-  private def getExcludedTargetDirs(project: sbtStructure.ProjectData): Seq[File] = {
+  private def getExcludedDirs(project: sbtStructure.ProjectData): Seq[File] = {
     val extractedExcludes = project.configurations.flatMap(_.excludes)
     if (extractedExcludes.nonEmpty)
-      return extractedExcludes.distinct
-
-    val managedDirectories = project.configurations
-      .flatMap(configuration => configuration.sources ++ configuration.resources)
-      .filter(_.managed)
-      .map(_.file)
-
-    val defaultNames = Set("main", "test")
-
-    val relevantDirectories = managedDirectories.filter(file => file.exists || !defaultNames.contains(file.getName))
-    def isRelevant(f: File): Boolean = !relevantDirectories.forall(_.isOutsideOf(f))
-
-    if (isRelevant(project.target)) {
-      // If we can't exclude the target directory, go one level deeper (which may hit resolution-cache and streams)
-      Option(project.target.listFiles()).toList.flatten.filter {
-        child => child.isDirectory && !isRelevant(child)
-      }
-    } else List(project.target)
+      extractedExcludes.distinct
+    else
+      Seq(project.target)
   }
 
   private case class BuildModuleNodeWithBuildBaseDir(

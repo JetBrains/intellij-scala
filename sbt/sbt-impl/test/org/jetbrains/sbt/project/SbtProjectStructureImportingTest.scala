@@ -250,7 +250,7 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
     }
   )
 
-  def testExcludedDirectories(): Unit = runTest(
+  def testSbtIdeSettingsRespectIdeExcludedDirectoriesSetting(): Unit = runTest(
     new project("root") {
       modules += new module("root") {
         excluded := Seq(
@@ -621,4 +621,25 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
       )
     })
   }
+
+  def testSimpleProjectWithGeneratedSources(): Unit = runTest(
+    new project("SimpleProjectWithGeneratedSources") {
+      modules := Seq(
+        new module("SimpleProjectWithGeneratedSources") {
+          sources := Seq(
+            "src/main/scala",
+            "target/scala-2.13/src_managed/main",
+            "target/myGenerated/main",
+          )
+          testSources := Seq(
+            "src/test/scala",
+            "target/scala-2.13/src_managed/test",
+            "target/myGenerated/test",
+          )
+          excluded := Seq("target")
+        },
+        new module("SimpleProjectWithGeneratedSources-build") {},
+      )
+    }
+  )
 }
