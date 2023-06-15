@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.collectors
+package org.jetbrains.plugins.scala.statistics
 
 import com.intellij.facet.frameworks.LibrariesDownloadConnectionService
 import com.intellij.internal.statistic.libraryJar.LibraryJarDescriptors
@@ -8,7 +8,7 @@ import com.intellij.util.xmlb.XmlSerializer
 import java.net.URL
 import scala.util.Try
 
-object CompilerPluginsWhiteList {
+private object CompilerPluginsWhiteList {
 
   lazy val get: Set[String] = {
     val result = for {

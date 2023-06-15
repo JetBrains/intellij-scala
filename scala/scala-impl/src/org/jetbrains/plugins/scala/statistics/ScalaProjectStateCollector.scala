@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.collectors
+package org.jetbrains.plugins.scala.statistics
 
 //noinspection ApiStatus,UnstableApiUsage
 import com.intellij.internal.statistic.beans.MetricEvent
@@ -7,9 +7,9 @@ import com.intellij.internal.statistic.eventLog.events.EventFields.{StringValida
 //noinspection ApiStatus,UnstableApiUsage
 import com.intellij.internal.statistic.service.fus.collectors.ProjectUsagesCollector
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.collectors.ScalaProjectStateCollector._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
+import org.jetbrains.plugins.scala.statistics.ScalaProjectStateCollector._
 import org.jetbrains.sbt.settings.SbtSettings
 
 import java.io.File
