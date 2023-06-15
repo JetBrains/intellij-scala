@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier;
 import org.jetbrains.plugins.scala.components.libextensions.ui.LibExtensionsSettingsPanelWrapper;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
@@ -313,8 +314,13 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setIvy2IndexingMode((Ivy2IndexingMode) ivy2IndexingModeCBB.getModel().getSelectedItem());
 
         Object type = scTypeSelectionCombobox.getSelectedItem();
-        if (type != null)
-            scalaProjectSettings.setScFileMode(ScFileMode.valueOf(type.toString()));
+        if (type != null) {
+            ScFileMode newMode = ScFileMode.valueOf(type.toString());
+            if (newMode != scalaProjectSettings.getScFileMode()) {
+                ScalaActionUsagesCollector.logScFileModeSet(newMode, myProject);
+            }
+            scalaProjectSettings.setScFileMode(newMode);
+        }
         Object trailingComa = trailingCommasComboBox.getSelectedItem();
         if (trailingComa != null)
             scalaProjectSettings.setTrailingCommasMode(TrailingCommasMode.valueOf(trailingComa.toString()));

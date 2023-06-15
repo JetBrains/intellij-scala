@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaLanguage;
-import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector;
 
 import java.io.File;
 import java.util.Arrays;
@@ -533,7 +532,6 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   }
   
   public void setScFileMode(ScFileMode mode) {
-    ScalaActionUsagesCollector.logScFileModeSet(mode, myProject);
     SC_FILE_MODE = mode;
   }
 
