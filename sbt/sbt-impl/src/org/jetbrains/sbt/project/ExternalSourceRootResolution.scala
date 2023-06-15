@@ -4,6 +4,7 @@ package project
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
 import com.intellij.openapi.util.io.FileUtilRt
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
@@ -73,7 +74,10 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
       projectToModuleNode.get(representativeProject).foreach { reprProjectModule =>
         //put source module to the same module group
-        moduleNode.setIdeModuleGroup(reprProjectModule.getIdeModuleGroup): @nowarn("cat=deprecation") // TODO: SCL-21288
+        val groupName = reprProjectModule.getInternalName.stripSuffix(reprProjectModule.getModuleName)
+        if (groupName.nonEmpty) {
+          moduleNode.setInternalName(s"$groupName${moduleNode.getInternalName}")
+        }
       }
 
       moduleNode

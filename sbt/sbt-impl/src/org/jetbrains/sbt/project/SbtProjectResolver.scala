@@ -361,7 +361,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val buildModules = data.builds.map(buildModuleForProject)
 
     if (buildModules.size > 1) {
-      buildModules.foreach(_.moduleNode.setIdeModuleGroup(Array("sbt-build-modules")): @nowarn("cat=deprecation")) // TODO: SCL-21288
+      buildModules.map(_.moduleNode).foreach { moduleNode =>
+        moduleNode.setInternalName(s"sbt-build-modules.${moduleNode.getModuleName}")
+      }
     }
 
     configureBuildModuleDependencies(buildModules)
@@ -463,12 +465,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         else project.id
 
       val groupName =
-        if (nameToProjects(project.name).size > 1) Array(project.name)
-        else null
+        if (nameToProjects(project.name).size > 1) Some(project.name)
+        else None
 
-      val moduleNode = createModule(project, moduleFilesDirectory, moduleName)
-
-      moduleNode.setIdeModuleGroup(groupName): @nowarn("cat=deprecation") // TODO: SCL-21288
+      val moduleNode = createModule(project, moduleFilesDirectory, moduleName, groupName)
 
       val contentRootNode = createContentRoot(project)
       project.android.foreach(a => a.apklibs.foreach(addApklibDirs(contentRootNode, _)))
@@ -586,12 +586,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  private def createModule(project: sbtStructure.ProjectData, moduleFilesDirectory: File, moduleName: String): ModuleNode = {
+  private def createModule(project: sbtStructure.ProjectData, moduleFilesDirectory: File, moduleName: String, groupName: Option[String]): ModuleNode = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val projectId = ModuleNode.combinedId(project.id, Option(project.buildURI))
     val result = new ModuleNode(StdModuleTypes.JAVA.getId, projectId, moduleName,
       moduleFilesDirectory.path, project.base.canonicalPath)
+
+    groupName.foreach { groupName => result.setInternalName(s"$groupName.$moduleName") }
 
     result.setInheritProjectCompileOutputPath(false)
 
