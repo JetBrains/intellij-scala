@@ -476,6 +476,9 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   private[this] def createFixesByUsages(reference: ScStableCodeReference): List[CreateTypeDefinitionQuickFix] =
     reference.getParent match {
       case st: ScSimpleTypeElement if st.isSingleton => Nil
+      case st: ScSimpleTypeElement if st.annotation =>
+        new CreateAnnotationClassQuickFix(reference) ::
+          Nil
       case pattern@(_: ScConstructorPattern | _: ScInfixPattern) =>
         new CreateCaseClassQuickFix(reference) ::
           new CreateExtractorObjectQuickFix(reference, pattern.asInstanceOf[ScPattern]) ::

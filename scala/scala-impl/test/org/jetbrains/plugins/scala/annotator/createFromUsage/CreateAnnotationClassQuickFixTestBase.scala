@@ -5,69 +5,21 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
-abstract class CreateClassQuickFixTestBase extends ScalaAnnotatorQuickFixTestBase {
-  protected def className: String
-
-  protected lazy val hint = ScalaBundle.message("create.class.named", className)
-  override protected lazy val description = ScalaBundle.message("cannot.resolve", className)
+abstract class CreateAnnotationClassQuickFixTestBase(protected val className: String) extends ScalaAnnotatorQuickFixTestBase {
+  protected lazy val hint = ScalaBundle.message("create.annotation.class.named", className)
+  override protected lazy val description: String = ScalaBundle.message("cannot.resolve", className)
 
   protected def doTest(classUsageText: String, classDefinitionText: String): Unit = {
-    val before =
-      s"""object Usage {
-         |  val f = $CARET$classUsageText
-         |}""".stripMargin
-
+    val before = s"@$CARET$classUsageText object Usage"
     val after =
-      s"""object Usage {
-         |  val f = $classUsageText
-         |}
+      s"""import scala.annotation.StaticAnnotation
          |
-         |$classDefinitionText""".stripMargin
+         |@$classUsageText object Usage
+         |
+         |$classDefinitionText extends StaticAnnotation""".stripMargin
 
     testQuickFix(before, after, hint)
   }
-
-  protected def doTestNotFixable(classUsageText: String): Unit = {
-    val text =
-      s"""object Usage {
-         |  val f = $CARET$classUsageText
-         |}""".stripMargin
-
-    checkNotFixable(text, hint)
-  }
-}
-
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest,
-))
-final class CreateClassQuickFixTest_LowerCased extends CreateClassQuickFixTestBase {
-  override val className = "foo"
-
-  def testNotFixableWhenLowerCased(): Unit =
-    doTestNotFixable("foo()")
-}
-
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_2_13,
-))
-final class CreateClassQuickFixTest_Scala2 extends CreateClassQuickFixTestBase {
-  override val className = "Foo"
-
-  def testNotFixableInScala2(): Unit =
-    doTestNotFixable("Foo()")
-}
-
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_3_Latest,
-))
-final class CreateClassQuickFixTest_Scala3 extends CreateClassQuickFixTestBase {
-  override val className = "Foo"
 
   def testCreateClass(): Unit = {
     val usage = s"$className()"
@@ -118,3 +70,21 @@ final class CreateClassQuickFixTest_Scala3 extends CreateClassQuickFixTestBase {
     doTest(usage, definition)
   }
 }
+
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_Latest,
+))
+final class CreateAnnotationClassQuickFixTest_LowerCased
+  extends CreateAnnotationClassQuickFixTestBase("foo")
+
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_Latest,
+))
+final class CreateAnnotationClassQuickFixTest
+  extends CreateAnnotationClassQuickFixTestBase("Foo")

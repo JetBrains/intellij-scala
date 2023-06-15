@@ -13,23 +13,23 @@ import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, isUnitTestMode}
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, isUnitTestMode}
 
 import javax.swing.Icon
 
 abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
-        extends CreateFromUsageQuickFixBase(ref) {
+  extends CreateFromUsageQuickFixBase(ref) {
+
   private final val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.annotator.createFromUsage.CreateTemplateDefinitionQuickFix")
   private val name = ref.refName
 
@@ -40,6 +40,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
       case None => true
       case _ => false
     }
+
     super.isAvailable(project, editor, file) && goodQualifier
   }
 
@@ -83,7 +84,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
 
   private def createSyntheticDefinitionForPreview = {
     val text = s"${kind.keyword} $name"
-    val file = ScalaPsiElementFactory.createScalaFileFromText(text, ref)
+    val file = createScalaFileFromText(text, ref)
     val definition = PsiTreeUtil.findChildOfType(file, classOf[ScTypeDefinition])
     afterCreationWork(definition)
     val fileType = ScalaFileType.INSTANCE
@@ -99,7 +100,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
       case Array() => throw new IllegalStateException(s"Cannot find directory for the package `${psiPackage.name}`")
       case dirs =>
         val currentDir = dirs.find(PsiTreeUtil.isAncestor(_, ref, true))
-                .orElse(dirs.find(ScalaPsiUtil.getModule(_) == ScalaPsiUtil.getModule(ref)))
+          .orElse(dirs.find(ScalaPsiUtil.getModule(_) == ScalaPsiUtil.getModule(ref)))
         currentDir.getOrElse(dirs(0))
     }
     createClassInDirectory(directory)
@@ -224,7 +225,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
     case pt: ScParameterizedTypeElement =>
       val paramsText = pt.typeArgList.typeArgs match {
         case args if args.size == 1 => "[T]"
-        case args => args.indices.map(i => s"T${i + 1}").mkString("[",", ", "]")
+        case args => args.indices.map(i => s"T${i + 1}").mkString("[", ", ", "]")
       }
       val nameId = clazz.nameId
       val clause = createTypeParameterClauseFromTextWithContext(paramsText, clazz, nameId)
@@ -237,7 +238,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
       case cl: ScClass =>
         val constr = cl.constructor.get
         val text = parametersText(ref)
-        val parameters = createParamClausesWithContext(text, constr, constr.getFirstChild)
+        val parameters = createClassParamClausesWithContext(text, constr)
         constr.parameterList.replace(parameters)
       case _ =>
     }
@@ -245,7 +246,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
 }
 
 class CreateObjectQuickFix(ref: ScReference)
-        extends CreateTypeDefinitionQuickFix(ref, Object) {
+  extends CreateTypeDefinitionQuickFix(ref, Object) {
 
   override val getText: String = ScalaBundle.message("create.object.named", ref.nameId.getText)
   override val getFamilyName: String = ScalaBundle.message("family.name.create.object")
@@ -253,7 +254,7 @@ class CreateObjectQuickFix(ref: ScReference)
 
 
 class CreateTraitQuickFix(ref: ScReference)
-        extends CreateTypeDefinitionQuickFix(ref, Trait) {
+  extends CreateTypeDefinitionQuickFix(ref, Trait) {
 
   override val getText: String = ScalaBundle.message("create.trait.named", ref.nameId.getText)
   override val getFamilyName: String = ScalaBundle.message("family.name.create.trait")
@@ -264,14 +265,14 @@ class CreateTraitQuickFix(ref: ScReference)
 }
 
 class CreateClassQuickFix(ref: ScReference)
-        extends CreateTypeDefinitionQuickFix(ref, Class) {
+  extends CreateTypeDefinitionQuickFix(ref, Class) {
 
   override val getText: String = ScalaBundle.message("create.class.named", ref.nameId.getText)
   override val getFamilyName: String = ScalaBundle.message("family.name.create.class")
 }
 
 class CreateCaseClassQuickFix(ref: ScReference)
-        extends CreateTypeDefinitionQuickFix(ref, Class) {
+  extends CreateTypeDefinitionQuickFix(ref, Class) {
 
   override val getText: String = ScalaBundle.message("create.case.class.named", ref.nameId.getText)
   override val getFamilyName: String = ScalaBundle.message("family.name.create.case.class")
@@ -279,5 +280,22 @@ class CreateCaseClassQuickFix(ref: ScReference)
   override protected def afterCreationWork(clazz: ScTypeDefinition): Unit = {
     clazz.setModifierProperty("case")
     super.afterCreationWork(clazz)
+  }
+}
+
+final class CreateAnnotationClassQuickFix(ref: ScReference)
+  extends CreateTypeDefinitionQuickFix(ref, Class) {
+
+  override val getText: String = ScalaBundle.message("create.annotation.class.named", ref.nameId.getText)
+  override val getFamilyName: String = ScalaBundle.message("family.name.create.annotation.class")
+
+  override protected def afterCreationWork(td: ScTypeDefinition): Unit = {
+    createTypeElementFromText("scala.annotation.StaticAnnotation", td) match {
+      case ScSimpleTypeElement(ScReference(staticAnnotation: ScTypeDefinition)) =>
+        org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ExtractSuperUtil.addExtendsTo(td, staticAnnotation)
+      case _ =>
+    }
+
+    super.afterCreationWork(td)
   }
 }
