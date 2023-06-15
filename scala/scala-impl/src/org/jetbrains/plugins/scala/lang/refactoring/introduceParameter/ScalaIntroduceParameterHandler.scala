@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntr
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaVariableValidator}
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
@@ -83,7 +83,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
 
   private def invoke(file: ScalaFile)
                     (implicit project: Project, editor: Editor): Unit = {
-    Stats.trigger(FeatureKey.introduceParameter)
+    ScalaRefactoringUsagesCollector.logIntroduceParameter(project)
 
     trimSpacesAndComments(editor, file)
     PsiDocumentManager.getInstance(project).commitAllDocuments()

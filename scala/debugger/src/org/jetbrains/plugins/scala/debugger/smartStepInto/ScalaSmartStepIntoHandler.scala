@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
 import org.jetbrains.plugins.scala.util.AnonymousFunction
 
 import java.util.{Collections, List => JList}
@@ -48,7 +48,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       return Collections.emptyList[SmartStepTarget]
     }
 
-    Stats.trigger(FeatureKey.debuggerSmartStepInto)
+    ScalaDebuggerUsagesCollector.logSmartStepInto(position.getFile.toOption.map(_.getProject).orNull)
 
     val (element, doc) =
       (for {

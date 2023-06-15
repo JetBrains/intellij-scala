@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
 import org.jetbrains.plugins.scala.ScalaLanguage
 
 import java.util.{Collections, List => JList}
@@ -118,7 +118,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
     if (!breakpoint.isInstanceOf[RunToCursorBreakpoint] && isMatchAll(breakpoint)) return true
 
     if (isLambda(breakpoint)) {
-      Stats.trigger(FeatureKey.debuggerLambdaBreakpoint)
+      ScalaDebuggerUsagesCollector.logLambdaBreakpoint(breakpoint.getProject)
     }
 
     DebuggerUtil.inTheMethod(position, method)

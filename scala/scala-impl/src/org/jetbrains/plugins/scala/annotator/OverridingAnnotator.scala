@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TermSignature, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ExtensionMethod
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
 
 trait OverridingAnnotator {
   import OverridingAnnotator._
@@ -28,7 +28,9 @@ trait OverridingAnnotator {
     if (!isInSources) return
     element.getParent match {
       case _: ScRefinement =>
-        Stats.trigger(supers.isEmpty, FeatureKey.structuralType)
+        if (supers.isEmpty) {
+          ScalaAnnotatorUsagesCollector.logStructuralType(element.getProject)
+        }
       case _ =>
     }
   }

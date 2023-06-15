@@ -5,12 +5,12 @@ import com.intellij.lang.PsiStructureViewFactory
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaLanguageConsole}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 class ScalaStructureViewFactory extends PsiStructureViewFactory {
   override def getStructureViewBuilder(file: PsiFile): StructureViewBuilder = file match {
     case scalaFile: ScalaFile =>
-      Stats.trigger(FeatureKey.structureView)
+      ScalaActionUsagesCollector.logStructureView(file.getProject)
 
       if (ScalaLanguageConsole.isScalaConsoleFile(scalaFile)) {
         new ScalaStructureViewBuilder(scalaFile, Some(ScalaConsoleInfo.getConsole(scalaFile)))

@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
@@ -95,7 +95,7 @@ object ScalaOIUtil {
 
   def invokeOverrideImplement(clazz: ScTemplateDefinition, isImplement: Boolean, methodName: Option[String])
                              (implicit project: Project, editor: Editor): Unit = {
-    Stats.trigger(FeatureKey.overrideImplement)
+    ScalaActionUsagesCollector.logOverrideImplement(project)
     val classMembers =
       if (isImplement) getMembersToImplement(clazz, withSelfType = true)
       else getMembersToOverride(clazz)

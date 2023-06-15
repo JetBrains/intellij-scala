@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduc
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandlerBase {
 
@@ -31,7 +31,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
   def invoke(file: PsiFile, startOffset: Int, endOffset: Int)
             (implicit project: Project, editor: Editor): Unit = {
     try {
-      Stats.trigger(FeatureKey.introduceField)
+      ScalaRefactoringUsagesCollector.logIntroduceFiled(project)
 
       trimSpacesAndComments(editor, file)
       PsiDocumentManager.getInstance(project).commitAllDocuments()

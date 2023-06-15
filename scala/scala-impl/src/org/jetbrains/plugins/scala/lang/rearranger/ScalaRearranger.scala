@@ -15,7 +15,7 @@ import com.intellij.psi.codeStyle.arrangement.std._
 import com.intellij.psi.codeStyle.arrangement._
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.rearranger.RearrangerUtils._
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import java.util
 import scala.collection.immutable.HashSet
@@ -50,7 +50,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
     ranges:   util.Collection[_ <: TextRange],
     settings: ArrangementSettings
   ): util.List[ScalaArrangementEntry] = {
-    Stats.trigger(FeatureKey.rearrange)
+    ScalaActionUsagesCollector.logRearrange(root.getProject)
     val info = new ScalaArrangementParseInfo
     root.accept(new ScalaArrangementVisitor(info, document, ranges.asScala, getGroupingRules(settings)))
     if (settings != null) {

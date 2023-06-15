@@ -61,6 +61,12 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
+        <statistics.counterUsagesCollector implementationClass="org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector"/>
+        <statistics.counterUsagesCollector implementationClass="org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector"/>
+        <statistics.counterUsagesCollector implementationClass="org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector"/>
+        <statistics.counterUsagesCollector implementationClass="org.jetbrains.plugins.scala.statistics.ScalaJsUsagesCollector"/>
+        <statistics.counterUsagesCollector implementationClass="org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector"/>
+        <statistics.counterUsagesCollector implementationClass="org.jetbrains.plugins.scala.statistics.ScalaSbtUsagesCollector"/>
         <statistics.projectUsagesCollector implementation="org.jetbrains.plugins.scala.collectors.ScalaProjectStateCollector"/>
         <internal.statistic.libraryUsageImportProcessor language="Scala"
                                                         implementationClass="org.jetbrains.plugins.scala.statistics.ScalaUsageImportProcessor"/>

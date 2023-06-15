@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 import org.jetbrains.sbt.language.SbtFile
 
@@ -72,7 +72,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
         return EmptyRunnable.getInstance()
     }
 
-    Stats.trigger(FeatureKey.optimizeImports)
+    ScalaActionUsagesCollector.logOptimizeImports(scalaFile.getProject)
 
     val project: Project = scalaFile.getProject
     val documentManager = PsiDocumentManager.getInstance(project)

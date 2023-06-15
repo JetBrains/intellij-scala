@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.Dup
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
@@ -38,7 +38,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
                      (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
 
-    Stats.trigger(FeatureKey.extractMethod)
+    ScalaRefactoringUsagesCollector.logExtractMethod(project)
 
     file.findScalaLikeFile.foreach { scalaFile =>
       afterExpressionChoosing(scalaFile, REFACTORING_NAME) {

@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 import java.{util => ju}
 import scala.collection.immutable.ArraySeq
@@ -53,7 +53,7 @@ trait IntroduceExpressions {
     dataContext: DataContext
   ): Unit = {
     try {
-      Stats.trigger(FeatureKey.introduceVariable)
+      ScalaRefactoringUsagesCollector.logIntroduceVariable(project)
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       writableScalaFile(file, INTRODUCE_VARIABLE_REFACTORING_NAME)

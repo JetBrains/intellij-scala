@@ -4,12 +4,14 @@ import com.intellij.debugger.engine.DebugProcess
 import com.intellij.debugger.{PositionManager, PositionManagerFactory}
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
 
 class ScalaPositionManagerFactory extends PositionManagerFactory {
   override def createPositionManager(process: DebugProcess): PositionManager = {
     invokeLater {
-      Stats.trigger(process.getProject.hasScala, FeatureKey.debuggerTotal)
+      if (process.getProject.hasScala) {
+        ScalaDebuggerUsagesCollector.logDebugger(process.getProject)
+      }
     }
     new ScalaPositionManager(process)
   }

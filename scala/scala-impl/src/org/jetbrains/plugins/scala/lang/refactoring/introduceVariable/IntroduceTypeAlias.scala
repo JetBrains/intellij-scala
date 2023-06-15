@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.IntroduceT
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaRefactoringUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 import java.awt.Component
 import java.util
@@ -45,7 +45,7 @@ trait IntroduceTypeAlias {
   def invokeTypeElement(file: PsiFile, inTypeElement: ScTypeElement)
                        (implicit project: Project, editor: Editor, dataContext: DataContext): Unit = {
     try {
-      Stats.trigger(FeatureKey.introduceTypeAlias)
+      ScalaRefactoringUsagesCollector.logIntroduceTypeAlias(project)
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       writableScalaFile(file, INTRODUCE_TYPEALIAS_REFACTORING_NAME)

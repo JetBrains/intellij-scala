@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFi
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getSelectedExpression
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import java.awt.event.MouseEvent
 import java.awt.{BorderLayout, Dimension}
@@ -50,7 +50,7 @@ class ShowImplicitArgumentsAction extends AnAction(
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.is[ScalaFile]) return
 
-    Stats.trigger(FeatureKey.showImplicitParameters)
+    ScalaActionUsagesCollector.logShowImplicitParameters(file.getProject)
 
     val targets = findAllTargets(file)
 

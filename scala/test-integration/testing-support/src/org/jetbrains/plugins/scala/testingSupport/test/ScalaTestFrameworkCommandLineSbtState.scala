@@ -7,7 +7,7 @@ import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.{ExecutionResult, Executor}
 import org.jetbrains.annotations.ApiStatus
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaSbtUsagesCollector
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{ReportingSbtTestEventHandler, SbtProcessHandlerWrapper, SbtShellTestsRunner, SbtTestRunningSupport}
 import org.jetbrains.plugins.scala.testingSupport.test.utils.RawProcessOutputDebugLogger
 import org.jetbrains.sbt.shell.SbtProcessManager
@@ -49,7 +49,7 @@ class ScalaTestFrameworkCommandLineSbtState(
 
     val executionResult = createExecutionResult(consoleView, processHandler)
 
-    Stats.trigger(FeatureKey.sbtShellTestRunConfig)
+    ScalaSbtUsagesCollector.logShellTestRunCommand(project)
     val suitesToTestsMap = buildSuitesToTestsMap
     val future = SbtShellTestsRunner.runTestsInSbtShell(
       sbtSupport,

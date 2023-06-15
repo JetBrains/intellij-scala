@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScalaType, TypePre
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
 import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -90,7 +90,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
   private def invokeOnClass(clazz: ScTemplateDefinition, project: Project): Unit = {
     if (clazz == null) return
 
-    Stats.trigger(FeatureKey.extractTrait)
+    ScalaRefactoringUsagesCollector.logExtractTrait(project)
 
     val dialog = new ScalaExtractTraitDialog(project, clazz)
     dialog.show()

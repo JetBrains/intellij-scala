@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParamet
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.highlightOccurrences
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
@@ -133,7 +133,7 @@ class ScalaInlineHandler extends InlineHandler {
 
     def isParametrizedTypeAlias(typeAlias: ScTypeAliasDefinition) = typeAlias.typeParameters.nonEmpty
 
-    Stats.trigger(FeatureKey.inline)
+    ScalaRefactoringUsagesCollector.logInline(element.getProject)
 
     implicit val project: ProjectContext = element.projectContext
 

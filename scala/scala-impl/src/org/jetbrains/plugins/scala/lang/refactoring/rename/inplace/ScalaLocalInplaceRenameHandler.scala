@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, VariableInplaceRenameHandler, VariableInplaceRenamer}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 class ScalaLocalInplaceRenameHandler extends VariableInplaceRenameHandler with ScalaInplaceRenameHandler {
 
@@ -31,7 +31,7 @@ class ScalaLocalInplaceRenameHandler extends VariableInplaceRenameHandler with S
   }
 
   override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
-    Stats.trigger(FeatureKey.renameLocal)
+    ScalaRefactoringUsagesCollector.logRenameLocal(project)
     super.invoke(project, editor, file, dataContext)
   }
 

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getSelectedExpression
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 class ShowTypeInfoAction extends AnAction(
   ScalaBundle.message("type.info.text"),
@@ -38,7 +38,7 @@ class ShowTypeInfoAction extends AnAction(
     val file = PsiUtilBase.getPsiFileInEditor(editor, CommonDataKeys.PROJECT.getData(context))
     if (!file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
 
-    Stats.trigger(FeatureKey.showTypeInfo)
+    ScalaActionUsagesCollector.logTypeInfo(file.getProject)
 
     val selectionModel = editor.getSelectionModel
     if (selectionModel.hasSelection) {

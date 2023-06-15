@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 abstract class CreateFromUsageQuickFixBase(ref: ScReference)
   extends IntentionAction with ProjectContextOwner {
@@ -28,7 +28,7 @@ abstract class CreateFromUsageQuickFixBase(ref: ScReference)
     PsiDocumentManager.getInstance(project).commitAllDocuments()
     if (!ref.isValid) return
 
-    Stats.trigger(FeatureKey.createFromUsage)
+    ScalaActionUsagesCollector.logCreateFromUsage(project)
     invokeInner(project, editor, file)
   }
 

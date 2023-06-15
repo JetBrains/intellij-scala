@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.conversion.{ConverterUtil, JavaToScala}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import java.awt.datatransfer.{DataFlavor, Transferable}
 
@@ -76,7 +76,7 @@ final class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcesso
     javaCodeWithContextOpt.foreach { javaCodeWithContext =>
       val proceedWithConversion = ScalaPasteFromJavaDialog.showAndGet(CopyFrom.Text, project)
       if (proceedWithConversion) {
-        Stats.trigger(FeatureKey.convertFromJavaText)
+        ScalaActionUsagesCollector.logConvertFromJava(project)
 
         inWriteAction {
           val javaFileOpt = javaCodeWithContext.createJavaFile

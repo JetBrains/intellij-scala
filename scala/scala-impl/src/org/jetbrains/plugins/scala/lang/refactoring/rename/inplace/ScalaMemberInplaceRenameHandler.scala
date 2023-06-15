@@ -8,7 +8,7 @@ import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, MemberInplac
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScPrimaryConstructorWrapper}
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with ScalaInplaceRenameHandler {
 
@@ -21,7 +21,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
   }
 
   override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
-    Stats.trigger(FeatureKey.renameMember)
+    ScalaRefactoringUsagesCollector.logRenameMember(project)
     super.invoke(project, editor, file, dataContext)
   }
 

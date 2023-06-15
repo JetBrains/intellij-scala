@@ -8,7 +8,7 @@ import com.intellij.openapi.options.Configurable.Composite
 import com.intellij.openapi.options.{Configurable, SearchableConfigurable}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import javax.swing.JPanel
 
@@ -55,7 +55,7 @@ class ScalaCompilerConfigurable(project: Project)
   override def apply(): Unit = {
     val newIncType = form.getIncrementalityType
     if (newIncType != configuration.incrementalityType) {
-      Stats.trigger(FeatureKey.incrementalTypeSet(newIncType.name()))
+      ScalaActionUsagesCollector.logIncrementalityTypeSet(newIncType, project)
     }
 
     configuration.incrementalityType = newIncType

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 import scala.annotation.tailrec
 
@@ -25,7 +25,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
 
   def invokeWithDialog(fun: ScMethodLike)
                       (implicit project: Project): Unit = {
-    Stats.trigger(FeatureKey.changeSignature)
+    ScalaRefactoringUsagesCollector.logChangeSignature(project)
     new ScalaChangeSignatureDialog(
       new ScalaMethodDescriptor(fun),
       needSpecifyTypeChb = true

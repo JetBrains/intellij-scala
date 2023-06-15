@@ -13,7 +13,7 @@ import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
 import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, inWriteAction, invokeAndWait, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.WorksheetCompilerError
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetEvaluationErrorReporter}
@@ -98,7 +98,7 @@ object RunWorksheetAction {
     val future = if (DumbService.getInstance(project).isDumb)
        Future.successful(RunWorksheetActionResult.IndexNotReady())
     else {
-      Stats.trigger(FeatureKey.runWorksheet)
+      ScalaActionUsagesCollector.logRunWorksheet(project)
       runCompiler(editor, psiFile, auto)
     }
 

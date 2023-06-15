@@ -32,8 +32,7 @@ import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.refactoring.Associations;
-import org.jetbrains.plugins.scala.statistics.FeatureKey;
-import org.jetbrains.plugins.scala.statistics.Stats;
+import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,7 +58,7 @@ public class MoveScalaFileHandler extends MoveFileHandler {
   @Override
   public void prepareMovedFile(PsiFile file, PsiDirectory moveDestination, Map<PsiElement, PsiElement> oldToNewMap) {
     if (file instanceof ScalaFile) {
-      Stats.trigger(FeatureKey.moveFile());
+      ScalaRefactoringUsagesCollector.logMoveFile(file.getProject());
       ChangeContextUtil.encodeContextInfo(file, true);
       encodeContextInfo(file);
     }

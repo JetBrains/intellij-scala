@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
 import org.jetbrains.plugins.scala.util.AnonymousFunction
 import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
@@ -30,7 +30,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     if (codeFragment.getLanguage.isInstanceOf[JavaLanguage])
       return EvaluatorBuilderImpl.getInstance().build(codeFragment, position) //java builder (e.g. SCL-6117)
 
-    Stats.trigger(FeatureKey.debuggerEvaluator)
+    ScalaDebuggerUsagesCollector.logEvaluator(codeFragment.getProject)
 
     val scalaFragment = codeFragment match {
       case sf: ScalaCodeFragment => sf
@@ -67,7 +67,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       new ExpressionEvaluatorImpl(ev)
     } catch {
       case _: NeedCompilationException =>
-        Stats.trigger(FeatureKey.debuggerCompilingEvaluator)
+        ScalaDebuggerUsagesCollector.logCompilingEvaluator(project)
         new ScalaCompilingExpressionEvaluator(buildCompilingEvaluator)
       case e: EvaluateException =>
         throw e

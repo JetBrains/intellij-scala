@@ -18,8 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaLanguage;
-import org.jetbrains.plugins.scala.statistics.FeatureKey;
-import org.jetbrains.plugins.scala.statistics.Stats;
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector;
 
 import java.io.File;
 import java.util.Arrays;
@@ -34,7 +33,9 @@ import java.util.Map;
     },
     reportStatistic = true
 )
-public class ScalaProjectSettings implements PersistentStateComponent<ScalaProjectSettings> {
+public class ScalaProjectSettings implements PersistentStateComponent<ScalaProjectSettings> { // TODO ScalaProjectSettings.State
+  private transient final Project myProject;
+
   @ReportValue
   private int IMPLICIT_PARAMETERS_SEARCH_DEPTH = -1;
 
@@ -125,6 +126,16 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     INTERPOLATED_INJECTION_MAPPING.put("xpath", "XPath");
     INTERPOLATED_INJECTION_MAPPING.put("yaml", "yaml");
     INTERPOLATED_INJECTION_MAPPING.put("protobuf", "protobuf");
+  }
+
+  // For state
+  ScalaProjectSettings() {
+    myProject = null;
+  }
+
+  // For service
+  public ScalaProjectSettings(Project project) {
+    myProject = project;
   }
 
   public enum TypeChecker {BuiltIn, Compiler}
@@ -522,7 +533,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   }
   
   public void setScFileMode(ScFileMode mode) {
-    Stats.trigger(FeatureKey.scFileModeSet(mode.name()));
+    ScalaActionUsagesCollector.logScFileModeSet(mode, myProject);
     SC_FILE_MODE = mode;
   }
 

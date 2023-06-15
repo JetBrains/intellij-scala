@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.refactoring.Associations
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaNamesUtil}
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 import java.{util => ju}
 import scala.jdk.CollectionConverters._
@@ -22,7 +22,7 @@ final class MoveScalaClassHandler extends MoveClassHandler {
 
   override def prepareMove(clazz: PsiClass): Unit = clazz.getContainingFile match {
     case scalaFile: ScalaFile =>
-      Stats.trigger(FeatureKey.moveClass)
+      ScalaRefactoringUsagesCollector.logMoveClass(clazz.getProject)
       collectAssociations(clazz, scalaFile, moveCompanion)
     case _ =>
   }

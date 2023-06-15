@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 class DesugarCodeAction extends AnAction(
   ScalaBundle.message("desugar.scala.code.action.text"),
@@ -15,7 +15,7 @@ class DesugarCodeAction extends AnAction(
 ) {
   // TODO support read-only files (create duplicate scratch buffer)
   override def actionPerformed(event: AnActionEvent): Unit = {
-    Stats.trigger(FeatureKey.desugarCode)
+    ScalaActionUsagesCollector.logDesugarCode(event.getProject)
 
     implicit val project: Project = event.getProject
     if (project == null) return

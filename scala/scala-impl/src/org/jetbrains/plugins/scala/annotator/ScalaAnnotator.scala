@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.Pr
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
 
 class ScalaAnnotator extends Annotator
   with FunctionAnnotator
@@ -69,10 +69,10 @@ class ScalaAnnotator extends Annotator
     }
 
     if (isInSources && (element eq file)) {
-      Stats.trigger {
-        import FeatureKey._
-        if (typeAware) annotatorTypeAware
-        else annotatorNotTypeAware
+      if (typeAware) {
+        ScalaAnnotatorUsagesCollector.logTypeAware(file.getProject)
+      } else {
+        ScalaAnnotatorUsagesCollector.logNoneTypeAware(file.getProject)
       }
     }
 
@@ -100,7 +100,9 @@ class ScalaAnnotator extends Annotator
       }
 
       override def visitMacroDefinition(fun: ScMacroDefinition): Unit = {
-        Stats.trigger(isInSources, FeatureKey.macroDefinition)
+        if (isInSources) {
+          ScalaAnnotatorUsagesCollector.logMacroDefinition(fun.getProject)
+        }
         super.visitMacroDefinition(fun)
       }
 
@@ -141,7 +143,9 @@ class ScalaAnnotator extends Annotator
       }
 
       override def visitExistentialTypeElement(exist: ScExistentialTypeElement): Unit = {
-        Stats.trigger(isInSources, FeatureKey.existentialType)
+        if (isInSources) {
+          ScalaAnnotatorUsagesCollector.logExistentialType(exist.getProject)
+        }
         super.visitExistentialTypeElement(exist)
       }
 

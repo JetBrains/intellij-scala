@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getSelectedExpression
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import java.awt.Color
 import java.awt.event.{MouseAdapter, MouseEvent}
@@ -109,7 +109,7 @@ final class ShowImplicitConversionsAction extends AnAction(
       false
     }
 
-    Stats.trigger(FeatureKey.goToImplicitConversion)
+    ScalaActionUsagesCollector.logGoToImplicitConversion(file.getProject)
 
     if (editor.getSelectionModel.hasSelection) {
       getSelectedExpression(file).foreach(forExpr)

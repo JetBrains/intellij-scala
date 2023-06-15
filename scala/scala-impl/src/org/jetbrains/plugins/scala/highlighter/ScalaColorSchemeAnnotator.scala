@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType,
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaCollectionHighlightingLevel
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
 
 /**
  * See also `org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor`
@@ -99,7 +99,7 @@ object ScalaColorSchemeAnnotator {
         case ScalaCollectionHighlightingLevel.All =>
       }
 
-      Stats.trigger(FeatureKey.collectionPackHighlighting)
+      ScalaAnnotatorUsagesCollector.logCollectionTypeHighlighting(refElement.getProject)
 
       def conformsByNames(tp: ScType, fqns: List[String]): Boolean = {
         val cachedClasses = fqns.flatMap(refElement.elementScope.getCachedClass)
