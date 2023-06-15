@@ -288,7 +288,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val sourceDir = new File(projectRoot, "src/main/scala")
     val classDir = new File(projectRoot, "target/dummy")
 
-    val dummyConfigurationData = ConfigurationData("compile", Seq(DirectoryData(sourceDir, managed = false)), Seq.empty, Seq.empty, classDir)
+    val dummyConfigurationData = ConfigurationData(CompileScope, Seq(DirectoryData(sourceDir, managed = false)), Seq.empty, Seq.empty, classDir)
     val dummyJavaData = JavaData(None, Seq.empty)
     val dummyDependencyData = DependencyData(Seq.empty, Seq.empty, Seq.empty)
     val dummyRootProject = ProjectData(
@@ -590,27 +590,33 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val projectId = ModuleNode.combinedId(project.id, Option(project.buildURI))
-    val result = new ModuleNode(StdModuleTypes.JAVA.getId, projectId, moduleName,
-      moduleFilesDirectory.path, project.base.canonicalPath)
-
+    val result = new ModuleNode(
+      StdModuleTypes.JAVA.getId,
+      projectId,
+      moduleName,
+      moduleFilesDirectory.path,
+      project.base.canonicalPath
+    )
     result.setInheritProjectCompileOutputPath(false)
 
-    project.configurations.find(_.id == "compile").foreach { configuration =>
-      result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, configuration.classes.path)
+    def setCompileOutputPath(scope: String, sourceType: ExternalSystemSourceType): Unit = {
+      val configuration = project.configurations.find(_.id == scope)
+      configuration.foreach { configuration =>
+        result.setCompileOutputPath(sourceType, configuration.classes.path)
+      }
     }
 
-    project.configurations.find(_.id == "test").foreach { configuration =>
-      result.setCompileOutputPath(ExternalSystemSourceType.TEST, configuration.classes.path)
-    }
+    setCompileOutputPath(CompileScope, ExternalSystemSourceType.SOURCE)
+    setCompileOutputPath(TestScope, ExternalSystemSourceType.TEST)
 
     result
   }
 
   private def createContentRoot(project: sbtStructure.ProjectData): ContentRootNode = {
-    val productionSources = validRootPathsIn(project, "compile")(_.sources)
-    val productionResources = validRootPathsIn(project, "compile")(_.resources)
-    val testSources = validRootPathsIn(project, "test")(_.sources) ++ validRootPathsIn(project, "it")(_.sources)
-    val testResources = validRootPathsIn(project, "test")(_.resources) ++ validRootPathsIn(project, "it")(_.resources)
+    val productionSources = validRootPathsIn(project, CompileScope)(_.sources)
+    val productionResources = validRootPathsIn(project, CompileScope)(_.resources)
+    val testSources = validRootPathsIn(project, TestScope)(_.sources) ++ validRootPathsIn(project, IntegrationTestScope)(_.sources)
+    val testResources = validRootPathsIn(project, TestScope)(_.resources) ++ validRootPathsIn(project, IntegrationTestScope)(_.resources)
 
     val result = new ContentRootNode(project.base.path)
 
@@ -819,6 +825,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 }
 
 object SbtProjectResolver {
+
+  private val CompileScope = "compile"
+  private val TestScope = "test"
+  private val IntegrationTestScope = "it"
 
   val IJ_SDK_CLASSIFIERS: Set[String] = Set("IJ-SDK", "IJ-PLUGIN")
 
