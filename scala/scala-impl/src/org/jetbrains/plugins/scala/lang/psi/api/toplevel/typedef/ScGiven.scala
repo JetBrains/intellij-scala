@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScDe
 trait ScGiven extends ScalaPsiElement
   with ScNamedElement
   with ScTypedDefinition // TODO It's a subtype of ScNamedElement
+  with ScMember
   with ScMember.WithBaseIconProvider
   with ScCommentOwner
   with ScDocCommentOwner

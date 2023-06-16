@@ -1,0 +1,14 @@
+Document tests/pos/t1406.scala
+(4:12..4:15) scala/Any#
+(4:18..4:25) scala/Boolean#
+(4:28..4:29) _empty_/Identifiers#f().(x) -> 4:9
+(5:17..5:23) scala/Predef.String#
+(8:12..8:15) scala/Any#
+(8:19..8:20) _empty_/Identifiers#g().(x) -> 8:9
+(9:20..9:22) local2 -> 9:10
+(25:30..25:43) scala/StringContext#
+(26:19..26:22) scala/Any#
+(29:25..29:27) _empty_/Strings#`𝓅`(). -> 28:7
+(29:27..29:28) scala/StringContext#s().
+(31:17..31:18) _empty_/Strings#Interps#`𝓅`(). -> 26:9
+

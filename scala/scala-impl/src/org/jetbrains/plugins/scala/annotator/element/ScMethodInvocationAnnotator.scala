@@ -199,7 +199,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
           if (!ResolveUtils.isExtensionMethodCall(ref, fun)) fun.effectiveParameterClauses
           else                                               fun.effectiveParameterClauses.dropWhile(_.owner != fun)
 
-        problems = Compatibility.missedParameterClauseProblemsFor(clauses, numArgumentClauses)
+        problems = Compatibility.missedParameterClauseProblemsFor(clauses, numArgumentClauses, isConstructorInvocation = false)
         MissedParametersClause(missedClause) <- problems
       } {
         val endOffset = call.getTextRange.getEndOffset

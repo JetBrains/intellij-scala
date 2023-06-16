@@ -26,6 +26,7 @@ import javax.swing.Icon
  */
 trait ScFunction
     extends ScalaPsiElement
+    with ScMember
     with ScMember.WithBaseIconProvider
     with ScParameterOwner
     with ScDocCommentOwner

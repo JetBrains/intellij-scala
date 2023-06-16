@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import org.jetbrains.plugins.scala.TestDependencyManager
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 import org.jetbrains.plugins.scala.util.runners._
@@ -741,4 +742,28 @@ class WorksheetReplIntegration_Scala_2_13_Test
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
       assertCompilerMessages(editorAndFile.editor)(expectedCompilerOutput)
     }
+
+  def testIgnoreFatalWarningsCompilerOption(): Unit = {
+    val worksheetText =
+      """//warning since scala 2.13.11: Implicit definition should have explicit type (inferred String)
+        |implicit def foo = "42"
+        |""".stripMargin
+
+    val editorAndFile = prepareWorksheetEditor(worksheetText, scratchFile = true)
+    val profile = getModule.scalaCompilerSettingsProfile
+    val newSettings = profile.getSettings.copy(
+      additionalCompilerOptions = Seq("-Werror", "-Xfatal-warnings")
+    )
+    profile.setSettings(newSettings)
+
+    doRenderTestWithoutCompilationChecks(editorAndFile,
+      s"""
+         |def foo: String""".stripMargin
+    )
+    assertCompilerMessages(editorAndFile.editor)(
+      """Warning:(2, 14) Implicit definition should have explicit type (inferred String)
+        |implicit def foo = "42"
+        |""".stripMargin
+    )
+  }
 }

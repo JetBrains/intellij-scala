@@ -1,8 +1,0 @@
-Document tests/pos/i5690.scala
-(5:15..5:20) scala/Array#
-(5:21..5:27) scala/Predef.String#
-(6:9..6:13) java/
-(6:14..6:18) java/lang/
-(6:19..6:29) java/lang/annotation/
-(6:30..6:39) java/lang/annotation/Inherited#
-

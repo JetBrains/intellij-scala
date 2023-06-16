@@ -11,7 +11,7 @@ import scala.reflect.ClassTag
 abstract class ScalaStubTestBase extends SimpleTestCase {
 
   def doTest[Stub <: StubElement[_] : ClassTag](fileText: String)(stubCheck: Stub => Unit): Unit = {
-    val psiFile = parseText(fileText)
+    val psiFile = parseScalaFile(fileText)
     val stubTree = psiFile.asInstanceOf[PsiFileImpl].calcStubTree()
     val list = stubTree.getPlainList.asScala
     list.filterByType[Stub].foreach(stubCheck)

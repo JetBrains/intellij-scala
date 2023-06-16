@@ -1,0 +1,14 @@
+Document tests/pos/i15188.scala
+(3:21..3:22) _empty_/O. -> 1:8
+(3:58..3:59) _empty_/i15188$package.unapplySeq().[T] -> 3:12
+(3:62..3:68) scala/Option#
+(3:69..3:72) scala/package.Seq#
+(3:73..3:74) _empty_/i15188$package.unapplySeq().[T] -> 3:12
+(3:79..3:83) scala/Some.
+(3:84..3:87) scala/package.Seq.
+(3:88..3:93) _empty_/i15188$package.unapplySeq().(input) -> 3:51
+(5:2..5:6) scala/main#
+(8:3..8:10) scala/Predef.println(+1).
+(8:17..8:18) local4 -> 7:9
+(8:18..8:19) scala/StringContext#s().
+

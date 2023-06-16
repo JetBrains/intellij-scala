@@ -1,0 +1,23 @@
+Document tests/pos/i10715-java/caller_2.scala
+(1:13..1:18) _empty_/Child#
+(1:21..1:25) scala/Unit#
+(2:3..2:4) _empty_/caller_2$package.test().(c) -> 1:10
+(2:5..2:6) _empty_/C_1#f().
+(3:3..3:4) _empty_/caller_2$package.test().(c) -> 1:10
+(3:5..3:6) _empty_/C_1#f().
+(4:3..4:4) _empty_/caller_2$package.test().(c) -> 1:10
+(4:5..4:6) _empty_/Child#f().
+(5:3..5:4) _empty_/caller_2$package.test().(c) -> 1:10
+(5:5..5:6) _empty_/C_1#f().
+(5:7..5:15) scala/Any#toString().
+(9:15..9:19) java/
+(9:20..9:23) java/nio/
+(9:24..9:34) java/nio/ByteBuffer#
+(9:37..9:41) scala/Unit#
+(10:3..10:4) _empty_/caller_2$package.buffer().(c) -> 9:12
+(10:5..10:13) java/nio/Buffer#position().
+(11:3..11:4) _empty_/caller_2$package.buffer().(c) -> 9:12
+(11:5..11:13) java/nio/ByteBuffer#position().
+(11:18..11:26) java/nio/Buffer#position().
+(11:27..11:35) scala/Any#toString().
+

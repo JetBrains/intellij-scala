@@ -1,0 +1,4 @@
+Document tests/pos/i9996.scala
+(1:42..1:45) scala/Int#
+(1:48..1:49) _empty_/i9996$package.takesId().(f) -> 1:13
+

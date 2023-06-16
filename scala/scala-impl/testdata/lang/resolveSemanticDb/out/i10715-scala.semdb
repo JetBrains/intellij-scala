@@ -1,0 +1,49 @@
+Document tests/pos/i10715-scala/test.scala
+(2:12..2:15) scala/Int#
+(2:18..2:24) _empty_/Parent# -> 1:7
+(2:27..2:30) scala/Predef.`???`().
+(3:10..3:13) scala/Int#
+(5:15..5:18) scala/Int#
+(5:21..5:27) _empty_/Parent# -> 1:7
+(5:30..5:33) scala/Predef.`???`().
+(6:13..6:16) scala/Int#
+(10:19..10:25) _empty_/Parent# -> 1:7
+(11:21..11:24) scala/Int#
+(11:27..11:33) _empty_/Parent# -> 1:7
+(11:36..11:39) scala/Predef.`???`().
+(12:24..12:27) scala/Int#
+(12:30..12:36) _empty_/Parent# -> 1:7
+(12:39..12:42) scala/Predef.`???`().
+(14:13..14:16) _empty_/Sub# -> 10:7
+(14:19..14:23) scala/Unit#
+(15:3..15:4) _empty_/test$package.test().(c) -> 14:10
+(15:5..15:6) _empty_/Sub#f(). -> 11:16
+(16:3..16:4) _empty_/test$package.test().(c) -> 14:10
+(16:5..16:6) _empty_/Parent#f(+1). -> 3:7
+(17:3..17:4) _empty_/test$package.test().(c) -> 14:10
+(17:5..17:6) _empty_/Parent#f(+1). -> 3:7
+(17:7..17:8) scala/Int#`+`(+4).
+(18:3..18:4) _empty_/test$package.test().(c) -> 14:10
+(18:5..18:6) _empty_/Parent#f(+1). -> 3:7
+(18:7..18:15) scala/Any#toString().
+(20:3..20:4) _empty_/test$package.test().(c) -> 14:10
+(20:5..20:6) _empty_/Sub#g(). -> 12:16
+(21:3..21:4) _empty_/test$package.test().(c) -> 14:10
+(21:5..21:6) _empty_/Parent#g(+1). -> 6:7
+(22:3..22:4) _empty_/test$package.test().(c) -> 14:10
+(22:5..22:6) _empty_/Parent#g(+1). -> 6:7
+(22:7..22:10) scala/Int#
+(23:3..23:4) _empty_/test$package.test().(c) -> 14:10
+(23:5..23:6) _empty_/Parent#g(+1). -> 6:7
+(23:7..23:8) scala/Int#`+`(+4).
+(24:3..24:4) _empty_/test$package.test().(c) -> 14:10
+(24:5..24:6) _empty_/Parent#g(+1). -> 6:7
+(24:7..24:15) scala/Any#toString().
+(25:3..25:4) _empty_/test$package.test().(c) -> 14:10
+(25:5..25:6) _empty_/Parent#g(+1). -> 6:7
+(25:7..25:10) scala/Int#
+(25:12..25:13) scala/Int#`+`(+4).
+(26:3..26:4) _empty_/test$package.test().(c) -> 14:10
+(26:5..26:6) _empty_/Parent#g(+1). -> 6:7
+(26:7..26:15) scala/Any#toString().
+

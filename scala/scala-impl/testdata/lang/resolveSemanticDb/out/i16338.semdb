@@ -1,0 +1,46 @@
+Document tests/pos/i16338.scala
+(1:9..1:11) de/
+(1:12..1:17) de/sciss/
+(3:8..3:13) scala/
+(3:14..3:24) scala/collection/
+(5:33..5:34) de/sciss/kollflitz/i16338$package.Tagged#[U] -> 5:13
+(6:19..6:20) de/sciss/kollflitz/i16338$package.`@@`#[T] -> 6:11
+(6:26..6:32) de/sciss/kollflitz/i16338$package.Tagged# -> 5:6
+(6:33..6:34) de/sciss/kollflitz/i16338$package.`@@`#[U] -> 6:14
+(7:29..7:35) de/sciss/kollflitz/Tagger# -> 8:13
+(7:36..7:39) scala/Any#
+(8:31..8:40) de/sciss/kollflitz/ -> 1:18
+(9:20..9:21) de/sciss/kollflitz/Tagger#apply().[T] -> 9:13
+(9:24..9:25) de/sciss/kollflitz/Tagger#apply().[T] -> 9:13
+(9:26..9:28) de/sciss/kollflitz/i16338$package.`@@`# -> 6:6
+(9:29..9:30) de/sciss/kollflitz/Tagger#[U] -> 8:20
+(9:33..9:34) de/sciss/kollflitz/Tagger#apply().(t) -> 9:16
+(9:35..9:47) scala/Any#asInstanceOf().
+(9:48..9:49) de/sciss/kollflitz/Tagger#apply().[T] -> 9:13
+(9:50..9:52) de/sciss/kollflitz/i16338$package.`@@`# -> 6:6
+(9:53..9:54) de/sciss/kollflitz/Tagger#[U] -> 8:20
+(11:13..11:19) de/sciss/kollflitz/Tagger# -> 8:13
+(11:20..11:21) de/sciss/kollflitz/i16338$package.tag().[U] -> 11:9
+(11:25..11:34) de/sciss/kollflitz/i16338$package.anyTagger. -> 7:13
+(11:35..11:47) scala/Any#asInstanceOf().
+(11:48..11:54) de/sciss/kollflitz/Tagger# -> 8:13
+(11:55..11:56) de/sciss/kollflitz/i16338$package.tag().[U] -> 11:9
+(17:74..17:80) scala/collection/SeqOps#
+(17:81..17:82) de/sciss/kollflitz/i16338$package.KollFlitzSortedIndexedSeq#[A] -> 17:48
+(17:84..17:86) de/sciss/kollflitz/i16338$package.KollFlitzSortedIndexedSeq#[CC] -> 17:51
+(17:88..17:92) de/sciss/kollflitz/i16338$package.KollFlitzSortedIndexedSeq#[Repr] -> 17:58
+(17:94..17:96) de/sciss/kollflitz/i16338$package.`@@`# -> 6:6
+(17:97..17:103) de/sciss/kollflitz/Sorted# -> 13:14
+(18:11..18:17) scala/AnyVal#
+(21:21..21:24) scala/Int#
+(21:27..21:28) de/sciss/kollflitz/i16338$package.KollFlitzSortedIndexedSeq#[A] -> 17:48
+(21:31..21:35) de/sciss/kollflitz/i16338$package.KollFlitzSortedIndexedSeq#self. -> 17:68
+(21:37..21:41) de/sciss/kollflitz/i16338$package.KollFlitzSortedIndexedSeq#self. -> 17:68
+(21:42..21:46) scala/collection/SeqOps#size().
+(21:47..21:48) scala/Int#`*`(+3).
+(21:49..21:50) de/sciss/kollflitz/i16338$package.KollFlitzSortedIndexedSeq#percentile().(n) -> 21:18
+(21:51..21:52) scala/Int#`-`(+3).
+(21:57..21:58) scala/Int#`/`(+3).
+(24:15..24:16) de/sciss/kollflitz/i16338$package.KollFlitzSortedIndexedSeq#[A] -> 17:48
+(24:19..24:29) de/sciss/kollflitz/i16338$package.KollFlitzSortedIndexedSeq#percentile(). -> 21:7
+

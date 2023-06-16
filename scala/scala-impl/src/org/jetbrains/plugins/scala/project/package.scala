@@ -534,7 +534,14 @@ package object project {
 
     def isCompilerStrictMode: Boolean = module.exists(_.isCompilerStrictMode)
 
-    def scalaLanguageLevel: Option[ScalaLanguageLevel] = module.flatMap(_.scalaLanguageLevel)
+    def scalaLanguageLevel: Option[ScalaLanguageLevel] =
+      fromFeaturesOrModule(_.languageLevel, _.scalaLanguageLevel)
+
+    private def fromFeaturesOrModule[T](getFromFeatures: ScalaFeatures => T, getFromModule: Module => Option[T]): Option[T] = {
+      val fromFeatures = featuresOpt.map(getFromFeatures)
+      val orFromModule = fromFeatures.orElse(module.flatMap(getFromModule))
+      orFromModule
+    }
 
     def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.getDefault)
 
@@ -571,8 +578,21 @@ package object project {
 
     def isScala3OrSource3Enabled: Boolean = isDefinedInModuleOrProject(m => m.hasScala3 || m.isSource3Enabled)
 
+    private def featuresOpt: Option[SerializableScalaFeatures] = {
+      val file = Option(element.getContainingFile)
+      val featuresFromFile = file.flatMap(ScalaFeatures.getAttachedScalaFeatures)
+
+      val orFeaturesFromModule = (featuresFromFile match {
+          case Some(s: SerializableScalaFeatures) => Some(s)
+          case _ => None
+        })
+        .orElse(inThisModuleOrProject(_.features))
+
+      orFeaturesFromModule
+    }
+
     def features: SerializableScalaFeatures =
-      inThisModuleOrProject(_.features).getOrElse(ScalaFeatures.default)
+      featuresOpt.getOrElse(ScalaFeatures.default)
 
     def literalTypesEnabled: Boolean = {
       val file = element.getContainingFile

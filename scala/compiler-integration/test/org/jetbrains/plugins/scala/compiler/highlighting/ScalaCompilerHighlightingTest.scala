@@ -72,7 +72,7 @@ class ScalaCompilerHighlightingTest_3_2 extends ScalaCompilerHighlightingTest_3 
 }
 
 class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 {
-  override implicit def version: ScalaVersion = ScalaVersion.Latest.Scala_3_3_RC
+  override implicit def version: ScalaVersion = ScalaVersion.Latest.Scala_3_RC
 
   def testUnusedImports(): Unit = {
     setCompilerOptions("-Wunused:imports")

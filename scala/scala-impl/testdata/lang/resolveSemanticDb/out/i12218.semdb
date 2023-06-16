@@ -1,7 +1,6 @@
 Document tests/pos/i12218.scala
 (1:8..1:16) scala/language.
-(1:17..1:29) scala/language.experimental.
-(1:30..1:41) scala/language.experimental.fewerBraces.
+(1:17..1:22) scala/language.`3.3`.
 (2:2..2:6) scala/main#
 (2:22..2:26) scala/Unit#
 (3:13..3:18) scala/Array.

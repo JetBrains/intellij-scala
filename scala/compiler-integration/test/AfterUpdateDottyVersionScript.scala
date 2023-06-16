@@ -12,8 +12,9 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.sbt.lang.completion.UpdateScalacOptionsInfo
 import org.junit.Assert.{assertEquals, assertTrue, fail}
-import org.junit.Ignore
+import org.junit.{FixMethodOrder, Ignore, Test}
 import org.junit.runner.JUnitCore
+import org.junit.runners.MethodSorters
 
 import java.io.{File, PrintWriter}
 import java.nio.charset.StandardCharsets
@@ -26,58 +27,86 @@ import scala.util.Using
 /**
  * NOTE: tests are used instead of `main` method,
  * because `BasePlatformTestCase` contains logic to run IDEA instance, to which we delegate some logic
+ *
+ * NOTE: we use `@FixMethodOrder(MethodSorters.NAME_ASCENDING)` to control the order of test execution
  */
 @Ignore("for local running only")
-class AfterUpdateDottyVersionScript
-  extends TestCase {
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+class AfterUpdateDottyVersionScript {
 
   import AfterUpdateDottyVersionScript._
 
-  def testRunAllScripts(): Unit = {
-    val tests =
-      Script.FromTestCase(classOf[RecompileMacroPrinter3]) #::
-        Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory]) #::
-        Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests.Scala3ImportedParserTest_Move_Fixed_Tests) #::
-        Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory]) #::
-        Script.FromTestCase(classOf[ReferenceComparisonTestsGenerator_Scala3.ScriptTestCase]) #::
-        Script.FromTestCase(classOf[UpdateScalacOptionsInfo.ScriptTestCase]) #::
-        LazyList.empty
-    tests.foreach(runScript)
+  @Test def test_1_RecompileMacroPrinter3(): Unit =
+    runScript(Script.FromTestCase(classOf[RecompileMacroPrinter3]))
+
+  @Test def test_2_CloneDottyRepository(): Unit = {
+    // we have to clone the repo because it needs a git history
+    //example of release branch: release-3.1.3
+    val branch = "release-" + ScalaVersion.Latest.Scala_3.minor
+    repoPath = cloneRepository("https://github.com/lampepfl/dotty/", Some(branch)).toPath
   }
 
-  private def runScript(script: Script): Unit = script match {
-    case Script.FromTestCase(clazz) =>
-      val classSimpleName = clazz.getSimpleName
-      println(s"$classSimpleName STARTED")
-      val result = new JUnitCore().run(clazz)
-      if (result.getIgnoreCount > 0) {
-        fail(s"Don't expect ignored tests for $classSimpleName")
-      }
-      result.getFailures.asScala.headOption match {
-        case Some(failure) =>
-          System.err.println(s"$classSimpleName FAILED")
-          throw failure.getException
-        case None =>
-          println(s"$classSimpleName COMPLETED")
-      }
-    case Script.FromTestSuite(suite) =>
-      val result = new TestResult
-      suite.run(result)
-      result.stop()
+  @Test def test_3_Scala3ImportedParserTest_Import_FromDottyDirectory(): Unit =
+    runScript(Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory]))
 
-      val problems = (result.errors().asScala.toList ++ result.failures().asScala.toList)
-        .asInstanceOf[List[TestFailure]] // It can't be compiled on TC by some reason. So we need asInstanceOf here.
-      problems.headOption match {
-        case Some(problem) =>
-          println(s"${suite.getClass.getSimpleName} FAILED")
-          throw problem.thrownException()
-        case None =>
-          println(s"${suite.getClass.getSimpleName} COMPLETED")
-      }
-  }
+  @Test def test_4_Scala3ImportedParserTest_Move_Fixed_Tests(): Unit =
+    runScript(Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests.Scala3ImportedParserTest_Move_Fixed_Tests))
+
+  @Test def test_5_Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(): Unit =
+    runScript(Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory]))
+
+  @Test def test_6_ReferenceComparisonTestsGenerator(): Unit =
+    runScript(Script.FromTestCase(classOf[ReferenceComparisonTestsGenerator_Scala3.ScriptTestCase]))
+
+  @Test def test_7_UpdateScalacOptionsInfo(): Unit =
+    runScript(Script.FromTestCase(classOf[UpdateScalacOptionsInfo.ScriptTestCase]))
 }
 
 object AfterUpdateDottyVersionScript {
+
+  //Is initialized during one of the tests run
+  private var repoPath: Path = _
+  private lazy val `pos-from-tasty.blacklist` =
+    repoPath.resolve("compiler/test/dotc/pos-from-tasty.blacklist")
+
+  private var someTestAlreadyFailed = false
+
+  private def runScript(script: Script): Unit = {
+    if (someTestAlreadyFailed)
+      return
+
+    try script match {
+      case Script.FromTestCase(clazz) =>
+        val classSimpleName = clazz.getSimpleName
+        val result = new JUnitCore().run(clazz)
+        if (result.getIgnoreCount > 0) {
+          fail(s"Don't expect ignored tests for $classSimpleName")
+        }
+        result.getFailures.asScala.headOption match {
+          case Some(failure) =>
+            throw failure.getException
+          case None =>
+        }
+
+      case Script.FromTestSuite(suite) =>
+        val result = new TestResult
+        suite.run(result)
+        result.stop()
+
+        val problems = (result.errors().asScala.toList ++ result.failures().asScala.toList)
+          .asInstanceOf[List[TestFailure]] // It can't be compiled on TC by some reason. So we need asInstanceOf here.
+        problems.headOption match {
+          case Some(problem) =>
+            throw problem.thrownException()
+          case None =>
+        }
+    } catch {
+      case _: Throwable =>
+        someTestAlreadyFailed = true
+    }
+  }
+
+
   import Scala3ImportedParserTest_Move_Fixed_Tests.{dottyParserTestsFailDir, dottyParserTestsSuccessDir}
   private val rangesDirectory: String = TestUtils.getTestDataPath + Scala3ImportedParserTest.rangesDirectory
 
@@ -90,8 +119,23 @@ object AfterUpdateDottyVersionScript {
     repoDir
   }
 
+  //noinspection ScalaUnusedSymbol
+  //might be used during local tests, e.g. if we use to reuse dotty repository and not clone it every time we run tests
+  private def gitStashChanges(repository: File): Unit = {
+    //stash any modifications to repository
+    val commands: Seq[String] = "git" :: "stash" :: Nil
+    val rc = Process(commands, repository).!
+    assert(rc == 0, s"Failed to stash changes in repository $repository")
+  }
+
   private def cloneRepository(url: String, branchOpt: Option[String]): File = {
     val cloneDir = newTempDir()
+    println(
+      s"""Clone repository to: $cloneDir
+         |Repository : $url
+         |Branch     : ${branchOpt.orNull}
+         |""".stripMargin
+    )
 
     val branchOption: List[String] = branchOpt match {
       case Some(branch) => "--branch" :: branch :: Nil
@@ -100,8 +144,8 @@ object AfterUpdateDottyVersionScript {
     val commands: Seq[String] =
       "git" :: "clone" :: branchOption ::: url :: "." :: "--depth=1" :: Nil
 
-    val sc = Process(commands, cloneDir).!
-    assert(sc == 0, s"Failed ($sc) to clone $url into $cloneDir")
+    val rc = Process(commands, cloneDir).!
+    assert(rc == 0, s"Failed ($rc) to clone $url into $cloneDir")
     cloneDir
   }
 
@@ -173,10 +217,8 @@ object AfterUpdateDottyVersionScript {
     extends TestCase {
 
     def test(): Unit = {
-      // we have to clone the repo because it needs a git history
-      //example of release branch: release-3.1.3
-      val branch =  "release-" + ScalaVersion.Latest.Scala_3.minor
-      val repoPath = cloneRepository("https://github.com/lampepfl/dotty/", Some(branch)).toPath
+      gitStashChanges(repoPath.toFile)
+
       val srcDir = repoPath.resolve(Paths.get("tests", "pos")).toAbsolutePath.toString
 
       clearDirectory(dottyParserTestsSuccessDir)
@@ -246,9 +288,7 @@ object AfterUpdateDottyVersionScript {
     extends TestCase {
 
     def test(): Unit = {
-      val branch = "release-" + ScalaVersion.Latest.Scala_3.minor
-      val repoPath = cloneRepository("https://github.com/lampepfl/dotty/", Some(branch)).toPath
-      println(s"### Repo path: $repoPath")
+      gitStashChanges(repoPath.toFile) //stash changes from previous tests run (it modifies some files)
 
       clearDirectory(ComparisonTestBase.sourcePath.toString)
       clearDirectory(ComparisonTestBase.outPath.toString)
@@ -337,7 +377,7 @@ object AfterUpdateDottyVersionScript {
 
       // these files fail in dotty repository since 3.2
       patchFile(
-        repoPath.resolve("compiler/test/dotc/pos-from-tasty.blacklist"),
+        `pos-from-tasty.blacklist`,
         """# Tree is huge and blows stack for printing Text
           |i7034.scala""".stripMargin,
         """# Tree is huge and blows stack for printing Text
@@ -353,10 +393,23 @@ object AfterUpdateDottyVersionScript {
           |i15991.orig.scala
           |
           |# EnumValue[E] is not a class
-          |i15155.scala""".stripMargin
+          |i15155.scala
+          |
+          |#class i15523.avoid$package cannot be unpickled because no class file was found for denot: val <none>
+          |i15523.avoid.scala
+          |
+          |#class i15029.orig$package cannot be unpickled because no class file was found for denot: val <none>
+          |i15029.orig.scala
+          |
+          |#Fatal compiler crash when compiling: tests\pos\i16785.scala:
+          |i16785.scala
+          |
+          |#Fatal compiler crash when compiling: tests\pos\i15827.scala:
+          |i15827.scala
+          |""".stripMargin.trim
       )
 
-      runSbt(s"testCompilation --from-tasty pos", repoPath)
+      runSbt("testCompilation --from-tasty pos", repoPath)
 
       copyRecursively(repoPath.resolve("tests/pos"), ComparisonTestBase.sourcePath)
 
@@ -384,12 +437,13 @@ object AfterUpdateDottyVersionScript {
   }
 
   //noinspection MutatorLikeMethodIsParameterless
-  private def deleteTempFileOnExit = true
+  private def needDeleteTempFileOnExit = true
+
   private def newTempFile(): File =
-    FileUtilRt.createTempFile("imported-dotty-tests", "", deleteTempFileOnExit)
+    FileUtilRt.createTempFile("imported-dotty-tests", "", needDeleteTempFileOnExit)
 
   private def newTempDir(): File =
-    FileUtilRt.createTempDirectory("imported-dotty-tests", "", deleteTempFileOnExit)
+    FileUtilRt.createTempDirectory("imported-dotty-tests", "", needDeleteTempFileOnExit)
 
   private def allFilesIn(path: String): Iterator[File] =
     allFilesIn(new File(path))
@@ -453,8 +507,8 @@ object AfterUpdateDottyVersionScript {
     // patch test source to take our own source files
     patchFile(
       repoPath.resolve("compiler/test/dotty/tools/dotc/FromTastyTests.scala"),
-      "compileTastyInDir(s\"tests${JFile.separator}pos\"",
-      s"compileTastyInDir(${"\"" + normalisedPathSeparator1(testFilePath) + "\""}"
+      """compileTastyInDir(s"tests${JFile.separator}pos"""",
+      s"""compileTastyInDir(${s""""${normalisedPathSeparator1(testFilePath)}""""}"""
     )
 
     /* not needed anymore?
@@ -519,11 +573,28 @@ object AfterUpdateDottyVersionScript {
 
     runSbt("testCompilation --from-tasty pos", repoPath)
 
-    val blacklisted = linesInFile(repoPath.resolve("compiler/test/dotc/pos-from-tasty.blacklist"))
+    val allFilesInFailed = allFilesIn(dottyParserTestsFailDir).toSet
+    val allFilesInRanges = allFilesIn(rangesDirectory).toSet
+    val blacklistedFileNames = linesInFile(`pos-from-tasty.blacklist`)
       .filterNot(_.isBlank)
       .filterNot(_.startsWith("#"))
-      .size
-    assert(allFilesIn(dottyParserTestsFailDir).size - blacklisted == allFilesIn(rangesDirectory).size)
+
+    val allFilesInFailedSize = allFilesInFailed.size
+    val allFilesInRangesSize = allFilesInRanges.size
+    val blacklistedSize = blacklistedFileNames.size
+
+    val diff = allFilesInFailedSize - blacklistedSize - allFilesInRangesSize
+    if (diff != 0) {
+      fail(
+        s"""Condition failed
+           |allFilesInFailedSize : $allFilesInFailedSize
+           |allFilesInRangesSize : $allFilesInRangesSize
+           |blacklisted          : $blacklistedSize
+           |diff                 : $diff (${if (diff < 0) "Failed less then expected" else "Failed more then expected"})
+           |Blacklisted files:
+           |  ${blacklistedFileNames.mkString("\n  ")}
+           |""".stripMargin.trim)
+    }
   }
 
   private def runSbt(cmdline: String, dir: Path): Unit = {
@@ -548,9 +619,13 @@ object AfterUpdateDottyVersionScript {
   private def patchFile(path: Path, searchString0: String, replacement0: String): Unit = {
     val searchString = searchString0.replace("\r", "")
     val replacement = replacement0.replace("\r", "")
-    val content = readFile(path)
+    val content = readFile(path).replace("\r", "")
     if (!content.contains(searchString) && !content.contains(replacement)) {
-      throw new Exception(s"Couldn't patch file $path because $searchString was not found in the content")
+      throw new Exception(
+        s"""Couldn't patch file $path because expected string was not found in the content
+           |Expected string: `$searchString`
+           |Alternative expected string: `$replacement`
+           |""".stripMargin.trim)
     }
     val newContent = content.replace(searchString, replacement)
     val w = new PrintWriter(path.toFile, StandardCharsets.UTF_8)

@@ -27,6 +27,17 @@ import scala.annotation.{nowarn, tailrec}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
+/**
+ * ATTENTION: Description copied from commit message of commit 28489efa
+ *
+ * Type adjuster works in three steps:<br>
+ * 1. collects all information about ScTypeElement's in the given PsiElements<br>
+ * 2. replaces all type elements with simplified ones<br>
+ * 3. adds imports for all replaced types<br>
+ *
+ * Caches are invalidated only twice, after 2) and 3)
+ * Also it is possible to postpone adjusting types to the end of a write action.
+ */
 object TypeAdjuster extends ApplicationListener {
 
   private val LOG = Logger.getInstance(getClass)

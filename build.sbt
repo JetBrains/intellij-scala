@@ -684,7 +684,7 @@ lazy val packageSearchIntegration =
       // marketplace once more and this workaround will be unnecessary.
       // TODO: use `intellijVersion_ForManagedIntellijDependencies` as version once the plugin is published properly
       libraryDependencies += "com.jetbrains.intellij.packageSearch" % "package-search" % "232.6095.10-EAP-SNAPSHOT" % Provided notTransitive(),
-      resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
+      resolvers += MavenRepository("intellij-repository-snapshots", "https://www.jetbrains.com/intellij-repository/snapshots"),
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
 

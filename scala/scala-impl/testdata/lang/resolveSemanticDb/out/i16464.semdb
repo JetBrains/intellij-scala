@@ -1,0 +1,48 @@
+Document tests/pos/i16464.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:35) scala/annotation/targetName#
+(4:35..4:38) scala/Int#
+(4:48..4:54) scala/AnyVal#
+(5:6..5:16) scala/annotation/targetName#
+(6:18..6:21) scala/package.Seq#
+(6:22..6:25) scala/Int#
+(6:30..6:34) scala/package.List.
+(7:6..7:16) scala/annotation/targetName#
+(8:18..8:21) scala/package.Seq#
+(8:22..8:26) scala/Long#
+(8:31..8:35) scala/package.List.
+(10:15..10:19) scala/Unit#
+(10:24..10:25) _empty_/test1.SomeOps#`-`(). -> 8:9
+(10:26..10:29) scala/package.Seq.
+(10:30..10:35) scala/collection/SeqFactory.Delegate#empty().
+(10:36..10:39) scala/Int#
+(13:35..13:38) scala/Int#
+(13:48..13:54) scala/AnyVal#
+(14:6..14:16) scala/annotation/targetName#
+(15:18..15:21) scala/package.Seq#
+(15:22..15:25) scala/Int#
+(15:30..15:34) scala/package.List.
+(16:18..16:21) scala/package.Seq#
+(16:22..16:26) scala/Long#
+(16:31..16:35) scala/package.List.
+(18:15..18:19) scala/Unit#
+(18:24..18:25) _empty_/test2.SomeOps#`-`(). -> 16:9
+(18:26..18:29) scala/package.Seq.
+(18:30..18:35) scala/collection/SeqFactory.Delegate#empty().
+(18:36..18:39) scala/Int#
+(21:35..21:38) scala/Int#
+(21:48..21:54) scala/AnyVal#
+(22:18..22:21) scala/package.Seq#
+(22:22..22:25) scala/Int#
+(22:30..22:34) scala/package.List.
+(23:6..23:16) scala/annotation/targetName#
+(24:18..24:21) scala/package.Seq#
+(24:22..24:26) scala/Long#
+(24:31..24:35) scala/package.List.
+(26:15..26:19) scala/Unit#
+(26:24..26:25) _empty_/test3.SomeOps#`-`(). -> 24:9
+(26:26..26:29) scala/package.Seq.
+(26:30..26:35) scala/collection/SeqFactory.Delegate#empty().
+(26:36..26:39) scala/Int#
+

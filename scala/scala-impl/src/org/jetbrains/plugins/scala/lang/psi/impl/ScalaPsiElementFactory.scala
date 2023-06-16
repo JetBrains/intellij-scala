@@ -1172,7 +1172,8 @@ object ScalaPsiElementFactory {
     @NonNls text:   String,
     features:       ScalaFeatures,
     checkLength:    Boolean = false,
-    shouldTrimText: Boolean = true
+    shouldTrimText: Boolean = true,
+    eventSystemEnabled: Boolean = false
   )(implicit
     ctx: ProjectContext
   ): ScalaFile =
@@ -1184,54 +1185,59 @@ object ScalaPsiElementFactory {
     )(CompilationUnit()(_))(identity)
 
   private def createFromTextImpl[R <: PsiElement](
-    @NonNls text:   String,
-    features:       ScalaFeatures,
-    checkLength:    Boolean = false,
-    shouldTrimText: Boolean = true
+    @NonNls text:       String,
+    features:           ScalaFeatures,
+    checkLength:        Boolean = false,
+    shouldTrimText:     Boolean = true,
+    eventSystemEnabled: Boolean = false
   )(parse:         ScalaPsiBuilder => Any
   )(getResult:     ScalaFile => R
   )(implicit
     ctx: ProjectContext
   ): R = {
-    val convertedSeparators = convertLineSeparators(text)
-    val seq                 = if (shouldTrimText) convertedSeparators.trim else convertedSeparators
+    val text1 = convertLineSeparators(text)
+    val text2 = if (shouldTrimText) text1.trim else text1
+    val textFinal = text2
 
     val language = if (features.isScala3) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE
-    val vfile    = new LightVirtualFile("dummy.scala", "")
-    val factory  = LanguageFileViewProviders.INSTANCE.forLanguage(language)
+    val lightVirtualFile = new LightVirtualFile("dummy.scala", "")
+    val fileViewProviderFactory = LanguageFileViewProviders.INSTANCE.forLanguage(language)
 
     val viewProvider =
-      factory.createFileViewProvider(vfile, language, PsiManager.getInstance(ctx.getProject), false)
+      fileViewProviderFactory.createFileViewProvider(lightVirtualFile, language, PsiManager.getInstance(ctx.getProject), eventSystemEnabled)
 
-    val scalaFile        = new ScalaFileImpl(viewProvider)
+    val scalaFile = new ScalaFileImpl(viewProvider)
     scalaFile.putUserData(SyntheticFileKey, true)
-    val project          = ctx.getProject
+
+    val project = ctx.getProject
     val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language)
 
-    val chameleon           = scalaFile.getTreeElement
+    val chameleon = scalaFile.getTreeElement
 
     val delegate = PsiBuilderFactory.getInstance.createBuilder(
       project,
       chameleon,
       parserDefinition.createLexer(project),
       language,
-      seq
+      textFinal
     )
 
-    val psiBuilder = new ScalaPsiBuilderImpl(delegate, features.isScala3, Option(features))
-    val marker     = psiBuilder.mark()
-    parse(psiBuilder)
-    advanceLexer(psiBuilder)(marker, parserDefinition.getFileNodeType)
+    val scalaPsiBuilder = new ScalaPsiBuilderImpl(delegate, features.isScala3, Some(features))
+    val marker = scalaPsiBuilder.mark()
+    parse(scalaPsiBuilder)
+    advanceLexer(scalaPsiBuilder)(marker, parserDefinition.getFileNodeType)
 
-    val first = psiBuilder.getTreeBuilt.getFirstChildNode.asInstanceOf[TreeElement]
+    val first = scalaPsiBuilder.getTreeBuilt.getFirstChildNode.asInstanceOf[TreeElement]
     chameleon.getFirstChildNode
 
-    if (first ne null) chameleon.rawAddChildren(first)
+    if (first ne null) {
+      chameleon.rawAddChildren(first)
+    }
 
     val result = getResult(scalaFile)
-    if (checkLength && chameleon.getTextLength != seq.length) {
+    if (checkLength && chameleon.getTextLength != text2.length) {
       throw new ScalaPsiElementCreationException(
-        s"Text length differs; actual: ${chameleon.getText}, expected: $seq",
+        s"Text length differs; actual: ${chameleon.getText}, expected: $text2",
         null
       )
     }

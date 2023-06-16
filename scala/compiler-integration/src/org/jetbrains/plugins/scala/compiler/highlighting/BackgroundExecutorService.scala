@@ -23,8 +23,12 @@ private final class BackgroundExecutorService(project: Project) extends Disposab
 }
 
 private object BackgroundExecutorService {
-  def executeOnBackgroundThread(project: Project)(action: => Unit): Unit = {
-    instance(project).executeOnBackgroundThread(() => action)
+  def executeOnBackgroundThreadInNotDisposed(project: Project)(action: => Unit): Unit = {
+    instance(project).executeOnBackgroundThread(() => {
+      if (!project.isDisposed) {
+        action
+      }
+    })
   }
 
   private def instance(project: Project): BackgroundExecutorService =

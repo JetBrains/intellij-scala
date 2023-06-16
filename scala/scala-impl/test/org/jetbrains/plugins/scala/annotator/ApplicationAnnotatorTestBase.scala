@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package annotator
-
+package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
@@ -22,9 +20,17 @@ object A extends A
 object B extends B
 """
 
+  protected def assertMessagesText(code: String, expectedMessagesConcatenated: String): Unit = {
+    val actualMessages = messages(code)
+    assertEqualsFailable(expectedMessagesConcatenated.trim, actualMessages.mkString("\n").trim)
+  }
+
+  protected def assertNoErrors(code: String): Unit = {
+    assertMessagesText(code, "")
+  }
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val file = (Header + code).parse
+    val file = (Header + code).parse(ctx)
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 

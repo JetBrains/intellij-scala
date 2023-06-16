@@ -127,7 +127,7 @@ class ScalaFileImplTest extends SimpleTestCase {
 //  }
 
   private def assertPathIs(code: String, path: List[List[String]]): Unit = {
-    Assert.assertEquals(path, ScalaFileImpl.pathIn(parseText(code)))
+    Assert.assertEquals(path, ScalaFileImpl.pathIn(parseScalaFile(code)))
   }
 
 //  private def assertPathAddedAs(before: String, path: List[List[String]], after: String) {
@@ -145,8 +145,8 @@ class ScalaFileImplTest extends SimpleTestCase {
   }
 
   private def assertPackageNameSetAs(before: String, name: (String,  String), after: String ): Unit = {
-    val file = parseText(before).asInstanceOf[ScalaFileImpl]
+    val file = parseScalaFile(before).asInstanceOf[ScalaFileImpl]
     file.setPackageName(name._1, name._2)
-    Assert.assertEquals(describe(parseText(after)), describe(file))
+    Assert.assertEquals(describe(parseScalaFile(after)), describe(file))
   }
 }

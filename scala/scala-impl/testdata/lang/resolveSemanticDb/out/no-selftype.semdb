@@ -1,7 +1,6 @@
 Document tests/pos/no-selftype.scala
 (1:8..1:16) scala/language.
-(1:17..1:29) scala/language.experimental.
-(1:30..1:41) scala/language.experimental.fewerBraces.
+(1:17..1:22) scala/language.`3.3`.
 (3:16..3:19) scala/Int#
 (3:23..3:30) scala/Predef.println(+1).
 (3:31..3:32) _empty_/f.apply().(x) -> 3:13

@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.scala.MessageKind
-import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThread
+import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.{Pos, PosRange}
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.editor.DocumentExt
@@ -62,7 +62,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         CompilerGeneratedStateManager.update(project, newState)
 
         if (toHighlight.nonEmpty) {
-          executeOnBackgroundThread(project) {
+          executeOnBackgroundThreadInNotDisposed(project) {
             val highlightingState = newState.toHighlightingState
             updateHighlightings(toHighlight, highlightingState)
             ExternalHighlighters.informWolf(project, highlightingState)

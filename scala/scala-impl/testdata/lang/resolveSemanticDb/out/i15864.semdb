@@ -1,0 +1,58 @@
+Document tests/pos/i15864.scala
+(2:20..2:24) scala/package.List#
+(2:25..2:26) _empty_/Test.op().[O] -> 2:10
+(2:33..2:37) scala/package.List#
+(2:38..2:39) _empty_/Test.op().[P] -> 2:13
+(2:43..2:47) scala/package.List#
+(2:48..2:49) _empty_/Test.op().[P] -> 2:13
+(2:53..2:56) scala/Predef.`???`().
+(6:22..6:27) _empty_/Test.Graph# -> 4:9
+(6:30..6:34) scala/package.List#
+(6:35..6:39) scala/package.List#
+(6:40..6:41) _empty_/Test.outsQ().(g) -> 6:19
+(6:42..6:46) _empty_/Test.Graph#Node# -> 4:23
+(6:51..6:54) scala/Predef.`???`().
+(8:25..8:30) _empty_/Test.Graph# -> 4:9
+(9:16..9:22) _empty_/Test.aGraph. -> 8:10
+(9:30..9:36) _empty_/Test.aGraph. -> 8:10
+(11:11..11:15) scala/package.List#
+(11:16..11:20) scala/package.List#
+(11:21..11:27) _empty_/Test.aGraph. -> 8:10
+(11:28..11:32) _empty_/Test.Graph#Node# -> 4:23
+(11:37..11:39) _empty_/Test.op(). -> 2:7
+(11:40..11:45) _empty_/Test.outsQ(). -> 6:7
+(11:47..11:49) _empty_/Test.op(). -> 2:7
+(11:50..11:55) _empty_/Test.outsQ(). -> 6:7
+(11:57..11:62) _empty_/Test.outsQ(). -> 6:7
+(12:3..12:13) scala/Predef.implicitly().
+(12:14..12:16) _empty_/Test.q1. -> 11:7
+(12:22..12:25) scala/`<:<`#
+(12:26..12:30) scala/package.List#
+(12:31..12:35) scala/package.List#
+(12:36..12:42) _empty_/Test.aGraph. -> 8:10
+(12:43..12:47) _empty_/Test.Graph#Node# -> 4:23
+(14:12..14:17) _empty_/Test.outsQ(). -> 6:7
+(15:12..15:14) _empty_/Test.op(). -> 2:7
+(15:15..15:20) _empty_/Test.outsQ(). -> 6:7
+(15:22..15:27) _empty_/Test.outsQ(). -> 6:7
+(16:12..16:14) _empty_/Test.op(). -> 2:7
+(16:15..16:17) _empty_/Test.a1. -> 14:7
+(16:19..16:21) _empty_/Test.a2. -> 15:7
+(18:12..18:14) _empty_/Test.op(). -> 2:7
+(18:15..18:20) _empty_/Test.outsQ(). -> 6:7
+(18:22..18:24) _empty_/Test.op(). -> 2:7
+(18:25..18:30) _empty_/Test.outsQ(). -> 6:7
+(18:32..18:37) _empty_/Test.outsQ(). -> 6:7
+(19:11..19:15) scala/package.List#
+(19:16..19:20) scala/package.List#
+(19:21..19:27) _empty_/Test.aGraph. -> 8:10
+(19:28..19:32) _empty_/Test.Graph#Node# -> 4:23
+(19:37..19:39) _empty_/Test.q2. -> 18:7
+(20:3..20:13) scala/Predef.implicitly().
+(20:14..20:16) _empty_/Test.q2. -> 18:7
+(20:22..20:25) scala/`<:<`#
+(20:26..20:30) scala/package.List#
+(20:31..20:35) scala/package.List#
+(20:36..20:42) _empty_/Test.aGraph. -> 8:10
+(20:43..20:47) _empty_/Test.Graph#Node# -> 4:23
+

@@ -1,0 +1,52 @@
+Document tests/pos/i16544a.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:31) scala/language.dynamics.
+(3:20..3:27) scala/Dynamic#
+(4:26..4:32) scala/Predef.String#
+(4:37..4:40) _empty_/Foo. -> 3:8
+(7:15..7:18) _empty_/Foo. -> 3:8
+(8:5..8:8) _empty_/Foo. -> 3:8
+(8:8..8:12) _empty_/Foo.applyDynamic(). -> 4:7
+(8:13..9:11) _empty_/Foo.applyDynamic(). -> 4:7
+(9:12..10:11) _empty_/Foo.applyDynamic(). -> 4:7
+(10:12..11:11) _empty_/Foo.applyDynamic(). -> 4:7
+(11:12..12:11) _empty_/Foo.applyDynamic(). -> 4:7
+(12:12..13:11) _empty_/Foo.applyDynamic(). -> 4:7
+(13:12..14:11) _empty_/Foo.applyDynamic(). -> 4:7
+(14:12..15:11) _empty_/Foo.applyDynamic(). -> 4:7
+(15:12..16:11) _empty_/Foo.applyDynamic(). -> 4:7
+(16:12..17:11) _empty_/Foo.applyDynamic(). -> 4:7
+(17:12..18:11) _empty_/Foo.applyDynamic(). -> 4:7
+(18:12..19:11) _empty_/Foo.applyDynamic(). -> 4:7
+(19:12..20:11) _empty_/Foo.applyDynamic(). -> 4:7
+(20:12..21:11) _empty_/Foo.applyDynamic(). -> 4:7
+(21:12..22:11) _empty_/Foo.applyDynamic(). -> 4:7
+(22:12..23:11) _empty_/Foo.applyDynamic(). -> 4:7
+(23:12..24:11) _empty_/Foo.applyDynamic(). -> 4:7
+(24:12..25:11) _empty_/Foo.applyDynamic(). -> 4:7
+(25:12..26:11) _empty_/Foo.applyDynamic(). -> 4:7
+(26:12..27:11) _empty_/Foo.applyDynamic(). -> 4:7
+(27:12..28:11) _empty_/Foo.applyDynamic(). -> 4:7
+(28:12..29:11) _empty_/Foo.applyDynamic(). -> 4:7
+(29:12..30:11) _empty_/Foo.applyDynamic(). -> 4:7
+(30:12..31:11) _empty_/Foo.applyDynamic(). -> 4:7
+(31:12..32:11) _empty_/Foo.applyDynamic(). -> 4:7
+(32:12..33:11) _empty_/Foo.applyDynamic(). -> 4:7
+(33:12..34:11) _empty_/Foo.applyDynamic(). -> 4:7
+(34:12..35:11) _empty_/Foo.applyDynamic(). -> 4:7
+(35:12..36:11) _empty_/Foo.applyDynamic(). -> 4:7
+(36:12..37:11) _empty_/Foo.applyDynamic(). -> 4:7
+(37:12..38:11) _empty_/Foo.applyDynamic(). -> 4:7
+(38:12..39:11) _empty_/Foo.applyDynamic(). -> 4:7
+(39:12..40:11) _empty_/Foo.applyDynamic(). -> 4:7
+(40:12..41:11) _empty_/Foo.applyDynamic(). -> 4:7
+(41:12..42:11) _empty_/Foo.applyDynamic(). -> 4:7
+(42:12..43:11) _empty_/Foo.applyDynamic(). -> 4:7
+(43:12..44:11) _empty_/Foo.applyDynamic(). -> 4:7
+(44:12..45:11) _empty_/Foo.applyDynamic(). -> 4:7
+(45:12..46:11) _empty_/Foo.applyDynamic(). -> 4:7
+(46:12..47:11) _empty_/Foo.applyDynamic(). -> 4:7
+(47:12..48:11) _empty_/Foo.applyDynamic(). -> 4:7
+(48:12..49:11) _empty_/Foo.applyDynamic(). -> 4:7
+

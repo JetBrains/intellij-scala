@@ -21,9 +21,7 @@ Document tests/pos/patmat.scala
 (18:7..18:13) scala/collection/immutable/List#length().
 (18:15..18:17) _empty_/Test.xs. -> 2:7
 (19:14..19:17) scala/package.Nil.
-(19:19..19:23) scala/package.List#
-(19:24..19:27) scala/Int#
-(19:33..19:40) scala/Predef.println(+1).
+(19:22..19:29) scala/Predef.println(+1).
 (20:14..20:17) scala/package.Nil.
 (20:22..20:29) scala/Predef.println(+1).
 (21:22..21:29) scala/Predef.println(+1).
@@ -58,11 +56,4 @@ Document tests/pos/patmat.scala
 (46:29..46:30) local8 -> 46:15
 (47:10..47:14) _empty_/Test.Option.None. -> 39:10
 (47:18..47:25) scala/Predef.println(+1).
-(50:19..50:22) scala/Int#
-(50:24..50:27) scala/Int#
-(51:3..51:6) scala/Predef.`???`().
-(52:18..52:25) _empty_/Test.IntPair# -> 50:8
-(52:29..52:30) local9 -> 52:11
-(52:31..52:32) scala/Int#`*`(+3).
-(52:33..52:34) local10 -> 52:14
 

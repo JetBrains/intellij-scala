@@ -1,0 +1,47 @@
+Document tests/pos/i14287.scala
+(3:18..3:19) _empty_/Free.Return#[A]
+(4:19..4:20) _empty_/Free.Suspend#[F]
+(4:21..4:22) _empty_/Free.Suspend#[A]
+(6:8..6:12) _empty_/Free# -> 2:6
+(6:13..6:14) _empty_/Free.FlatMap#[F] -> 5:16
+(6:16..6:17) _empty_/Free.FlatMap#[A] -> 5:22
+(7:8..7:9) _empty_/Free.FlatMap#[A] -> 5:22
+(7:13..7:17) _empty_/Free# -> 2:6
+(7:18..7:19) _empty_/Free.FlatMap#[F] -> 5:16
+(7:21..7:22) _empty_/Free.FlatMap#[B] -> 5:25
+(7:33..7:37) _empty_/Free# -> 2:6
+(7:38..7:39) _empty_/Free.FlatMap#[F] -> 5:16
+(7:41..7:42) _empty_/Free.FlatMap#[B] -> 5:25
+(9:24..9:25) _empty_/Free#[F] -> 2:12
+(9:26..9:27) _empty_/Free#flatMap().[F2][x] -> 9:18
+(9:36..9:37) _empty_/Free#[A] -> 2:18
+(9:41..9:45) _empty_/Free# -> 2:6
+(9:46..9:48) _empty_/Free#flatMap().[F2] -> 9:15
+(9:49..9:50) _empty_/Free#flatMap().[B] -> 9:30
+(9:54..9:58) _empty_/Free# -> 2:6
+(9:59..9:61) _empty_/Free#flatMap().[F2] -> 9:15
+(9:62..9:63) _empty_/Free#flatMap().[B] -> 9:30
+(10:5..10:12) _empty_/Free.FlatMap.
+(10:19..10:20) _empty_/Free#flatMap().(f) -> 9:33
+(12:4..12:9) scala/
+(12:10..12:20) scala/annotation/
+(12:21..12:28) scala/annotation/tailrec#
+(13:19..13:23) _empty_/Free# -> 2:6
+(13:24..13:25) _empty_/Free#[F] -> 2:12
+(13:27..13:28) _empty_/Free#[A] -> 2:18
+(14:10..14:17) _empty_/Free.FlatMap.
+(14:18..14:25) _empty_/Free.FlatMap.
+(14:40..14:42) local4 -> 14:26
+(14:43..14:50) _empty_/Free#flatMap(). -> 9:7
+(14:56..14:57) local5 -> 14:30
+(14:58..14:59) local7 -> 14:51
+(14:61..14:68) _empty_/Free#flatMap(). -> 9:7
+(14:74..14:75) local6 -> 14:34
+(14:76..14:77) local8 -> 14:69
+(14:81..14:85) _empty_/Free#step(). -> 13:13
+(15:10..15:17) _empty_/Free.FlatMap.
+(15:18..15:24) _empty_/Free.Return.
+(15:35..15:36) local12 -> 15:29
+(15:37..15:38) local11 -> 15:25
+(15:40..15:44) _empty_/Free#step(). -> 13:13
+

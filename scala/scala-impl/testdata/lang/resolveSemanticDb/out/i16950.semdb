@@ -1,0 +1,15 @@
+Document tests/pos/i16950.scala
+(2:15..2:18) _empty_/Bar. -> 10:8
+(2:19..2:22) _empty_/Bar.YOf# -> 11:8
+(2:23..2:26) scala/Any#
+(2:30..2:34) scala/Unit#
+(2:37..2:40) scala/Predef.`???`().
+(5:17..5:20) _empty_/Bar. -> 10:8
+(5:21..5:24) _empty_/Bar.YOf# -> 11:8
+(5:25..5:28) scala/Any#
+(6:13..6:14) _empty_/K# -> 4:7
+(7:13..7:18) _empty_/K#CType# -> 5:8
+(7:21..7:24) scala/Predef.`???`().
+(8:5..8:6) local0 -> 7:9
+(11:17..11:18) _empty_/K# -> 4:7
+

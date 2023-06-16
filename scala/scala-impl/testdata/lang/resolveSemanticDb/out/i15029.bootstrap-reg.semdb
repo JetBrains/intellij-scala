@@ -1,0 +1,6 @@
+Document tests/pos/i15029.bootstrap-reg.scala
+(4:12..4:19) scala/Boolean#
+(4:24..4:31) scala/Boolean#
+(4:36..4:37) _empty_/Test#t().(a) -> 4:9
+(4:39..4:40) _empty_/Test#t().(b) -> 4:21
+

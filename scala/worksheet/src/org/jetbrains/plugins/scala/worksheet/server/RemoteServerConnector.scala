@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package worksheet.server
+package org.jetbrains.plugins.scala.worksheet.server
 
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerPaths}
 import com.intellij.openapi.diagnostic.Logger
@@ -69,15 +68,17 @@ final class RemoteServerConnector(
     }
 
   override val scalaParameters: Seq[String] = {
-    val options = super.scalaParameters
-    if (module.hasScala3) {
+    val optionsOriginal = super.scalaParameters
+    val optionsWithExtra = if (module.hasScala3) {
       val extraOptions = Seq(
         "-color:never", // by default dotty prints lots of color, can't handle for now
       )
-      options ++ extraOptions
+      optionsOriginal ++ extraOptions
     } else {
-      options
+      optionsOriginal
     }
+    val optionsWithoutIgnored = optionsWithExtra.filterNot(IgnoredScalacOptions.contains)
+    optionsWithoutIgnored
   }
 
   private def project = module.getProject
@@ -210,4 +211,9 @@ object RemoteServerConnector {
 
     def start(runnable: Runnable): Unit
   }
+
+  private val IgnoredScalacOptions = Set(
+    "-Xfatal-warnings", //before 2.12 and in 2.13
+    "-Werror" //since 2.13 only
+  )
 }

@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api._
 
 class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_10
+
   import Message._
 
   import IntegerLiteralCheckTest._

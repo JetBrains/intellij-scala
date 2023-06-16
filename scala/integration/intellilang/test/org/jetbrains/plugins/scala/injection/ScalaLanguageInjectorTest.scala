@@ -4,7 +4,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.patterns.compiler.PatternCompilerImpl.LazyPresentablePattern
 import com.intellij.testFramework.EditorTestUtil
 import org.intellij.plugins.intelliLang.inject.config.{BaseInjection, InjectionPlace}
-import org.jetbrains.plugins.scala.injection.InjectionTestUtils.{JsonLangId, RegexpLangId}
+import org.jetbrains.plugins.scala.injection.InjectionTestUtils._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.junit.Assert._
 
@@ -228,6 +228,31 @@ class ScalaLanguageInjectorTest extends ScalaLanguageInjectionTestBase {
       """{ "a" : 42 }"""
 
     doAnnotationTestInBody(JsonLangId, body, expected)
+  }
+
+  def testAnnotationInjection_Scala2Language(): Unit = {
+    val body =
+      raw"""def foo(@Language("Scala") param: String): Unit = ???
+           |foo("class A ${CARET}extends AnyRef")
+           |""".stripMargin
+
+    val expected =
+      """class A extends AnyRef"""
+
+    doAnnotationTestInBody(ScalaLangId, body, expected)
+  }
+
+  //todo: it doesn't work
+  def testAnnotationInjection_Scala3Language(): Unit = {
+    val body =
+      raw"""def foo(@Language("Scala 3") param: String): Unit = ???
+           |foo("enum MyEnum ${CARET}{ case A, B; case C } ; given value: String = ???")
+           |""".stripMargin
+
+    val expected =
+      """enum MyEnum { case A, B; case C } ; given value: String = ???"""
+
+    doAnnotationTestInBody(Scala3LangId, body, expected)
   }
 
   def testAnnotationInjection_MultilineOnSingleLine(): Unit = {

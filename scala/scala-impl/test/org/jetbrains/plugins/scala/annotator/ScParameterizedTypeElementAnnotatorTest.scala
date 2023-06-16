@@ -1,7 +1,5 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.lang.Language
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.annotator.ScParameterizedTypeElementAnnotatorTestBase.messagesForParameterizedTypeElements
 import org.jetbrains.plugins.scala.annotator.element.ScParameterizedTypeElementAnnotator
@@ -10,15 +8,15 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
+import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 trait ScParameterizedTypeElementAnnotatorTestBase extends SimpleTestCase {
-  protected val language: Language
+  protected def scalaVersion: ScalaVersion
 
   def messages(code: String): List[Message] = {
-    val file: ScalaFile = parseText(code, language)
+    val file: ScalaFile = parseScalaFile(code, scalaVersion)
     messagesForParameterizedTypeElements(file)
   }
 }
@@ -38,7 +36,7 @@ object ScParameterizedTypeElementAnnotatorTestBase {
 class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTypeElementAnnotatorTestBase {
   import Message._
 
-  override protected val language: Language = ScalaLanguage.INSTANCE
+  override protected val scalaVersion: ScalaVersion = ScalaVersion.default
 
   def testTooFewTypeParameter(): Unit = {
     assertMessagesInAllContexts("Test[Int]")(
@@ -350,7 +348,7 @@ class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTyp
 }
 
 class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTypeElementAnnotatorTestBase {
-  override protected val language: Language = Scala3Language.INSTANCE
+  override protected val scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
 
   def testTypeLambdaAsTypeConstuctor(): Unit = assertNothing(messages(
     """

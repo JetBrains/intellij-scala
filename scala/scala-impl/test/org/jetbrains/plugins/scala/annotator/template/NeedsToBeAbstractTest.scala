@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
@@ -148,10 +149,15 @@ class NeedsToBeAbstractTest_WithScalaSdk extends NeedsToBeAbstractTestBase with 
 class NeedsToBeAbstractTest_Scala3 extends NeedsToBeAbstractTestBase {
   import Message._
 
+  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
+
+  override protected def messages(@Language(value = "Scala 3", prefix = Prefix, suffix = Suffix) code: String): Option[List[Message]] =
+    super.messages(code)
+
   def testClassWithMultipleParents(): Unit = {
     val message = this.message("Class", "C", "f: Unit", "Holder.T")
 
-    assertMatches(messages("trait T { def f }; trait R; class C extends T, R {}", Scala3Language.INSTANCE)) {
+    assertMatches(messages("trait T { def f }; trait R; class C extends T, R {}")) {
       case Error("class C extends T, R", `message`) :: Nil =>
     }
   }
@@ -159,7 +165,7 @@ class NeedsToBeAbstractTest_Scala3 extends NeedsToBeAbstractTestBase {
   def testClassWithDerivesClause(): Unit = {
     val message = this.message("Class", "C", "f: Unit", "Holder.T")
 
-    assertMatches(messages("trait T { def f }; trait R[A]; object R { def derived[A]: R[A] = null }; class C extends T derives R {}", Scala3Language.INSTANCE)) {
+    assertMatches(messages("trait T { def f }; trait R[A]; object R { def derived[A]: R[A] = null }; class C extends T derives R {}")) {
       case Error("class C extends T derives R", `message`) :: Nil =>
     }
   }
@@ -167,7 +173,7 @@ class NeedsToBeAbstractTest_Scala3 extends NeedsToBeAbstractTestBase {
   def testGivenDefinition(): Unit = {
     val message = this.message("Class", "given_T", "f: Unit", "Holder.T")
 
-    assertMatches(messages("trait T { def f }; given T with {}", Scala3Language.INSTANCE)) {
+    assertMatches(messages("trait T { def f }; given T with {}")) {
       case Error("given T with", `message`) :: Nil =>
     }
   }
@@ -175,7 +181,7 @@ class NeedsToBeAbstractTest_Scala3 extends NeedsToBeAbstractTestBase {
   def testEnum(): Unit = {
     val message = this.message("Class", "E", "f: Unit", "Holder.T")
 
-    assertMatches(messages("trait T { def f }; enum E extends T {}", Scala3Language.INSTANCE)) {
+    assertMatches(messages("trait T { def f }; enum E extends T {}")) {
       case Error("enum E extends T", `message`) :: Nil =>
     }
   }
