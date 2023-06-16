@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ExtensionMethod
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -381,13 +382,14 @@ class ImplicitCollector(
     val tp    = InferUtil.extractImplicitParameterType(result)
 
     tp.foreach { t =>
-      val state = ScalaResolveState.withImplicitScopeObject(t)
+      val state = ScalaResolveState
+        .withImplicitScopeObject(t)
+        .withImportsUsed(result.importsUsed)
       proc.processType(t, place, state)
     }
 
     proc.candidatesS
   }
-
 
   //@TODO: apply context function to implicit args if type of `c` does not conform
   //       to expected type

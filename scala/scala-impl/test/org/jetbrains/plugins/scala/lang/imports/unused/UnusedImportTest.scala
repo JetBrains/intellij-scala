@@ -950,4 +950,102 @@ class UnusedImportTest_3 extends UnusedImportTestBase with MatcherAssertions {
     assertNothing(messages(text))
   }
 
+  def testUnusedGivenDefinitionImport(): Unit = {
+    val text =
+      """
+        |trait MyTrait { def i: Int }
+        |object Source:
+        |  given myTrait: MyTrait with
+        |    val i = 1
+        |
+        |object Target:
+        |  def foo: Unit = {
+        |    import Source.given
+        |  }
+        |  def bar: Unit = {
+        |    import Source.myTrait
+        |  }
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("import Source.given", UnusedImportStatement) ::
+        HighlightMessage("import Source.myTrait", UnusedImportStatement) ::
+        Nil =>
+    }
+  }
+
+  def testUsedGivenDefinitionImport(): Unit = {
+    val text =
+      """
+        |trait MyTrait { def i: Int }
+        |object Source:
+        |  given myTrait: MyTrait with
+        |    val i = 1
+        |
+        |object Target:
+        |  def foo: Unit = {
+        |    import Source.given
+        |    println(myTrait.i)
+        |  }
+        |  def bar: Unit = {
+        |    import Source.myTrait
+        |    println(summon[MyTrait].i)
+        |  }
+      """.stripMargin
+
+    assertNothing(messages(text))
+  }
+
+  // SCL-21320
+  def testUnusedExtensionMethodInsideGivenImport(): Unit = {
+    val text =
+      """
+        |trait MyTrait:
+        |  def i: Int
+        |
+        |object Source:
+        |  given myTrait: MyTrait with
+        |    val i = 8
+        |    extension (s: String)
+        |      def upper: String = s.toUpperCase
+        |
+        |object Target:
+        |  def test: Unit =
+        |    import Source.given
+        |    import Source.myTrait
+        |    println("nothing is used")
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("import Source.given", UnusedImportStatement) ::
+        HighlightMessage("import Source.myTrait", UnusedImportStatement) ::
+        Nil =>
+    }
+  }
+
+  // SCL-21320
+  def testUsedExtensionMethodInsideGivenImport(): Unit = {
+    val text =
+      """
+        |trait MyTrait:
+        |  def i: Int
+        |
+        |object Source:
+        |  given myTrait: MyTrait with
+        |    val i = 8
+        |    extension (s: String)
+        |      def upper: String = s.toUpperCase
+        |
+        |object Target:
+        |  def extensionFromGivenDefWildcard: Unit =
+        |    import Source.given
+        |    println("abcde".upper)
+        |
+        |  def extensionFromGivenDefByName: Unit =
+        |    import Source.myTrait
+        |    println("abcde".upper)
+      """.stripMargin
+
+    assertNothing(messages(text))
+  }
 }
