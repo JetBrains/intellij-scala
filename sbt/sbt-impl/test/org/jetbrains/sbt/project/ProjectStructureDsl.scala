@@ -93,11 +93,15 @@ object ProjectStructureDsl {
       new AttributeSeqDef(attribute, attributes)
   }
 
-  class module(override val name: String, val group: Array[String] = null) extends Attributed with Named {
-    protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ModuleAttribute): AttributeDef[T] =
+  class module(override val name: String, var group: Array[String] = null) extends Attributed with Named {
+    implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ModuleAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
-    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ModuleAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
+    implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ModuleAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
+
+    def dependsOn(modules: dependency[module]*): Unit = {
+      defineAttribute(moduleDependencies) := modules
+    }
 
     def isBuildModule: Boolean =
       name.contains("-build")

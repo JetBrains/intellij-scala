@@ -26,7 +26,7 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
 
   protected var codeInsightFixture: CodeInsightTestFixture = _
 
-  private val projectFileName = "testHighlighting"
+  protected val projectFileName = "testHighlighting"
   private def getProjectFilePath: Path = Paths.get(getTestProjectPath, s"$projectFileName.ipr")
   private def isProjectAlreadyCached = Files.exists(getProjectFilePath)
 
