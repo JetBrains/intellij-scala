@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import java.util
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
+//noinspection UnstableApiUsage
 class ScalaUsageImportProcessor extends LibraryUsageImportProcessor[ScImportExpr] {
   override def imports(psiFile: PsiFile): util.List[ScImportExpr] = psiFile match {
     case scalaFile: ScalaFile =>

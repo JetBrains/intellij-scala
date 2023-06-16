@@ -1,29 +1,33 @@
-/*
 package org.jetbrains.plugins.scala.statistics
+
+import com.intellij.internal.statistic.beans.MetricEvent
+import com.intellij.internal.statistic.eventLog.EventLogGroup
+import com.intellij.internal.statistic.eventLog.events.EventId
+import com.intellij.internal.statistic.service.fus.collectors.ProjectUsagesCollector
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
+import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaProjectSettings}
+import org.jetbrains.plugins.scala.statistics.ScalaProjectSettingsCollector._
+import org.jetbrains.sbt.settings.SbtSettings
 
 import java.util
 
-import com.intellij.internal.statistic.AbstractProjectsUsagesCollector
-import com.intellij.internal.statistic.beans.{GroupDescriptor, UsageDescriptor}
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
-import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.sbt.settings.SbtSettings
+//noinspection UnstableApiUsage
+class ScalaProjectSettingsCollector extends ProjectUsagesCollector {
+  override def getGroup: EventLogGroup = Group
 
-class ScalaProjectSettingsCollector extends AbstractProjectsUsagesCollector {
-  override def getProjectUsages(project: Project): util.Set[UsageDescriptor] = {
-    val result = new util.HashSet[UsageDescriptor]
+  override def getMetrics(project: Project): util.Set[MetricEvent] = {
+    val result = new util.HashSet[MetricEvent]
 
     if (!project.hasScala) return result
 
-    def addUsageIf(condition: Boolean, key: String): Unit = {
-      if (condition) result.add(new UsageDescriptor(key))
+    def addUsageIf(condition: Boolean, event: EventId): Unit = {
+      if (condition) result.add(event.metric())
     }
 
-    def addUsage(key: String): Unit = addUsageIf(condition = true, key)
-
+    def addUsage(event: EventId): Unit = addUsageIf(condition = true, event)
 
     val modules = project.modules
     val sbtSettings = SbtSettings.getInstance(project)
@@ -34,23 +38,33 @@ class ScalaProjectSettingsCollector extends AbstractProjectsUsagesCollector {
     val isSbtProject = sbtProjectSettings.nonEmpty
     val isSbtShellBuild = sbtProjectSettings.exists(_.useSbtShellForBuild)
 
-    addUsageIf(isSbtProject && isSbtShellBuild, "scala.sbt.shell.build")
-    addUsageIf(isSbtProject && !isSbtShellBuild, "scala.sbt.idea.build")
+    addUsageIf(isSbtProject && isSbtShellBuild, SbtShellBuildEvent)
+    addUsageIf(isSbtProject && !isSbtShellBuild, SbtIdeaBuildEvent)
 
     if (!isSbtShellBuild) {
-      val incType = compilerSettings.incrementalityType.name()
-      val compileServerEnabled = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED
-
-      addUsage(s"scala.compiler.inc.type.used.$incType")
-      addUsageIf(compileServerEnabled, "scala.compiler.compile.server.used")
+      val incType = compilerSettings.incrementalityType match {
+        case IncrementalityType.SBT => CompilerIncTypeUsedSbtEvent
+        case IncrementalityType.IDEA => CompilerIncTypeUsedIdeaEvent
+      }
+      val compileServerEnabled = ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED
+      addUsage(incType)
+      addUsageIf(compileServerEnabled, CompilerCompileServerUsedEvent)
     }
 
-    addUsageIf(projectSettings.isProjectViewHighlighting, "scala.project.view.highlighting")
-
+    addUsageIf(projectSettings.isProjectViewHighlighting, ProjectViewHighlightingEvent)
 
     result
   }
-
-  override def getGroupId: GroupDescriptor = GroupDescriptor.create("Scala Settings")
 }
-*/
+
+//noinspection UnstableApiUsage
+private object ScalaProjectSettingsCollector {
+  private val Group = new EventLogGroup("scala.project.settings", 1)
+
+  private val SbtShellBuildEvent = Group.registerEvent("sbt.shell.build")
+  private val SbtIdeaBuildEvent = Group.registerEvent("sbt.idea.build")
+  private val CompilerIncTypeUsedSbtEvent = Group.registerEvent("compiler.inc.type.used.sbt")
+  private val CompilerIncTypeUsedIdeaEvent = Group.registerEvent("compiler.inc.type.used.idea")
+  private val CompilerCompileServerUsedEvent = Group.registerEvent("compiler.compile.server.used")
+  private val ProjectViewHighlightingEvent = Group.registerEvent("project.view.highlighting")
+}

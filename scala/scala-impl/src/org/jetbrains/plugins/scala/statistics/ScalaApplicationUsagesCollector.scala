@@ -1,3 +1,4 @@
+// See ScalaProjectStateCollector & ScalaUsageImportProcessor
 /*
 package org.jetbrains.plugins.scala.statistics
 
