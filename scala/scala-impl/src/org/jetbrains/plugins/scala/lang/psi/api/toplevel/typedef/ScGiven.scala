@@ -33,4 +33,12 @@ object ScGiven {
 
     "given_" + text
   }
+
+  object Original {
+    def unapply(element: ScNamedElement): Option[ScGiven] = element match {
+      case originalGiven: ScGiven                              => Some(originalGiven)
+      case ScGivenDefinition.DesugaredTypeDefinition(givenDef) => Some(givenDef)
+      case _                                                   => None
+    }
+  }
 }

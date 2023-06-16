@@ -163,4 +163,22 @@ class Scala3ImplicitParametersTest extends ImplicitParametersTestBase {
         |""".stripMargin
     )
 
+  // SCL-21319
+  def testWildcardImportedGivenDefinition(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |trait SomeTrait:
+       |  def foo: Int
+       |
+       |object Givens:
+       |  given someTrait: SomeTrait with
+       |    val foo = 2
+       |
+       |object Test:
+       |  def foo(using someTrait: SomeTrait): Unit = println(someTrait.foo)
+       |
+       |  import Givens.given
+       |  ${START}foo$END
+       |""".stripMargin
+  )
+
 }

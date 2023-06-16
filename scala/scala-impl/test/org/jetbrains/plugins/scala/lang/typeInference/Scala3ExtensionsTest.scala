@@ -147,6 +147,24 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin
   )
 
+  // SCL-21319
+  def testImportedExtensionFromGiven(): Unit = checkTextHasNoErrors(
+    """
+      |object GivensWithExtensions:
+      |  given anyref: AnyRef with
+      |    extension (s: String)
+      |      def upper: String = s.toUpperCase
+      |
+      |object Import:
+      |  def foo: Unit =
+      |    import GivensWithExtensions.given
+      |    println("abcde".upper)
+      |  def bar: Unit =
+      |    import GivensWithExtensions.anyref
+      |    println("abcde".upper)
+      |""".stripMargin
+  )
+
   //actually compiles, but probably should not
   //upd: 29.05.2023, since cases like this are in scala 3 stdlib,
   //I had to introduce a workaround to maintain bug-to-bug compatibility

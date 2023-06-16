@@ -187,7 +187,7 @@ object ScImportOrExportImpl {
           val importedByGiven = if (isScala3) {
             // given elements are handled in a special way by given imports
             namedElement match {
-              case givenElement: ScGiven =>
+              case ScGiven.Original(givenElement) =>
                 // check if there are any given imports
                 if (!givenImports.hasImports) {
                   // no given selector at all, so don't import, because a normal wildcard doesn't import givens
@@ -234,7 +234,6 @@ object ScImportOrExportImpl {
       val elem        = next.getElement
       val importsUsed = getFirstReference(qualifier).bind().fold(next.importsUsed)(r => r.importsUsed ++ next.importsUsed)
       val subst       = state.substitutor.followed(next.substitutor)
-
 
       (elem, processor) match {
         case (pack: PsiPackage, completionProcessor: CompletionProcessor) if completionProcessor.includePrefixImports =>
