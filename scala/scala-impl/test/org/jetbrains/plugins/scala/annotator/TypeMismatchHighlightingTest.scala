@@ -510,6 +510,56 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     )
   }
 
+  def testSCL14386_1(): Unit = {
+    assertNoErrors(
+      """package example
+        |
+        |import scala.annotation.tailrec
+        |
+        |trait IO[A] { self =>
+        |
+        |  def map[B](f: A => B): IO[B] = flatMap(f andThen (Return(_)))
+        |  def flatMap[B](f: A => IO[B]): IO[B] = FlatMap(this, f)
+        |}
+        |
+        |object IO {
+        |
+        |  @tailrec def run[A](io: IO[A]): A = io match {
+        |    case Return(a) => a
+        |    case Suspend(r) => r()
+        |    case FlatMap(x, f) => x match {
+        |      case Return(a) => run(f(a))
+        |      case Suspend(r) => run(f(r()))
+        |      case FlatMap(y, g) => run(y flatMap (a => g(a) flatMap f))
+        |    }
+        |  }
+        |}
+        |
+        |case class Return[A](a: A) extends IO[A]
+        |case class Suspend[A](resume: () => A) extends IO[A]
+        |case class FlatMap[B, A](sub: IO[B], k: B => IO[A]) extends IO[A]
+        |""".stripMargin
+    )
+  }
+
+  def testSCL14386_2(): Unit = {
+    assertNoErrors(
+      """package example
+        |
+        |sealed trait Value[A] {
+        |
+        |  def get: A = this match {
+        |    case Val(a) => a
+        |    case Calc(b, f) => f(b)
+        |  }
+        |}
+        |
+        |case class Val[A](a: A) extends Value[A]
+        |case class Calc[B, A](b: B, f: B => A) extends Value[A]
+        |""".stripMargin
+    )
+  }
+
   // TODO
   // Aggregate try-catch (why error for { case _ => x } block ?
   // aggregation: nesting
