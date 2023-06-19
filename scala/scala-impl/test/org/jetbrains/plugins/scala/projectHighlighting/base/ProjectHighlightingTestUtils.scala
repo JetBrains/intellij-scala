@@ -5,8 +5,8 @@ import org.jetbrains.plugins.scala.util.{RevertableChange, TestUtils}
 
 object ProjectHighlightingTestUtils {
 
-  val isProjectCachingDisabledPropertySet: Boolean =
-    sys.props.get("project.highlighting.disable.cache").contains("true")
+  val isProjectCachingEnabledPropertySet: Boolean =
+    sys.props.get("project.highlighting.enable.cache").contains("true")
 
   //NOTE: when updating, please also update `org.jetbrains.scalateamcity.common.Caching.highlightingPatterns`
   def projectsRootPath: String = s"${TestUtils.getTestDataPath}/projectsForHighlightingTests"

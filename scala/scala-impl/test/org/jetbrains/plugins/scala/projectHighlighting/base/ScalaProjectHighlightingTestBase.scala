@@ -31,7 +31,7 @@ abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImpor
   private def isProjectAlreadyCached = Files.exists(getProjectFilePath)
 
   protected def isProjectCachingEnabled: Boolean =
-    !ProjectHighlightingTestUtils.isProjectCachingDisabledPropertySet
+    ProjectHighlightingTestUtils.isProjectCachingEnabledPropertySet
 
   override protected def setUpFixtures(): Unit = {
     //Skip creating fixtures in `com.intellij.platform.externalSystem.testFramework.ExternalSystemTestCase.setUpFixtures`
