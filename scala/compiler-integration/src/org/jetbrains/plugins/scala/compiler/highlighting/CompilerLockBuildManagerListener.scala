@@ -20,7 +20,7 @@ class CompilerLockBuildManagerListener
   override def buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = suppressAlreadyDisposed {
     CompilerLock.get(project).unlock(sessionId.toString, exceptionIfNotLocked = false)
     if (ScalaHighlightingMode.showCompilerErrorsScala3(project) && !JpsSessionErrorTrackerService.instance(project).hasError(sessionId)) {
-      CompilerHighlightingService.get(project).triggerDocumentCompilationInAllOpenEditors()
+      CompilerHighlightingService.get(project).triggerDocumentCompilationInAllOpenEditors(None)
     }
   }
 }

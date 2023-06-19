@@ -186,7 +186,12 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     performCompilation(delayIndicator = false) { client =>
       val triggerService = TriggerCompilerHighlightingService.get(project)
       triggerService.beforeIncrementalCompilation()
-      try IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
+      try {
+        IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
+        if (client.successful) {
+          triggerDocumentCompilationInAllOpenEditors(Some(client))
+        }
+      }
       finally {
         if (psiFile.is[ScalaFile]) {
           triggerService.enableDocumentCompiler(virtualFile)
@@ -201,7 +206,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     performCompilation(delayIndicator = true)(DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, _))
   }
 
-  private[highlighting] def triggerDocumentCompilationInAllOpenEditors(): Unit = {
+  private[highlighting] def triggerDocumentCompilationInAllOpenEditors(client: Option[CompilerEventGeneratingClient]): Unit = {
     FileEditorManager.getInstance(project).getSelectedFiles.flatMap { vf =>
       val (document, module) = inReadAction {
         (FileDocumentManager.getInstance().getDocument(vf), ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(vf))
@@ -211,11 +216,16 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
         Some((module, sourceScope, document, vf))
       } else None
     }.foreach { case (module, sourceScope, document, virtualFile) =>
-      performCompilation(delayIndicator = true)(DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, _))
+      client match {
+        case Some(c) =>
+          DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, c)
+        case None =>
+          performCompilation(delayIndicator = true)(DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, _))
+      }
     }
   }
 
-  private def performCompilation(delayIndicator: Boolean)(compile: Client => Unit): Unit = {
+  private def performCompilation(delayIndicator: Boolean)(compile: CompilerEventGeneratingClient => Unit): Unit = {
     saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
     val promise = Promise[Unit]()
