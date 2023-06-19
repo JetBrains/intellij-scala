@@ -18,39 +18,39 @@ sealed trait CompilerEvent {
 object CompilerEvent {
 
   // can be sent multiple times for different modules by jps compiler
-  case class CompilationStarted(override val compilationId: CompilationId,
-                                override val compilationUnitId: Option[CompilationUnitId])
+  case class CompilationStarted(compilationId: CompilationId,
+                                compilationUnitId: Option[CompilationUnitId])
     extends CompilerEvent {
     
     override def eventType: CompilerEventType = CompilerEventType.CompilationStarted
   }
 
-  case class CompilationPhase(override val compilationId: CompilationId,
-                              override val compilationUnitId: Option[CompilationUnitId],
+  case class CompilationPhase(compilationId: CompilationId,
+                              compilationUnitId: Option[CompilationUnitId],
                               phase: String)
     extends CompilerEvent {
 
     override def eventType: CompilerEventType = CompilerEventType.CompilationPhase
   }
 
-  case class CompilationUnit(override val compilationId: CompilationId,
-                             override val compilationUnitId: Option[CompilationUnitId],
+  case class CompilationUnit(compilationId: CompilationId,
+                             compilationUnitId: Option[CompilationUnitId],
                              path: String)
     extends CompilerEvent {
 
     override def eventType: CompilerEventType = CompilerEventType.CompilationUnit
   }
 
-  case class MessageEmitted(override val compilationId: CompilationId,
-                            override val compilationUnitId: Option[CompilationUnitId],
+  case class MessageEmitted(compilationId: CompilationId,
+                            compilationUnitId: Option[CompilationUnitId],
                             msg: Client.ClientMsg)
     extends CompilerEvent {
 
     override def eventType: CompilerEventType = CompilerEventType.MessageEmitted
   }
 
-  case class ProgressEmitted(override val compilationId: CompilationId,
-                             override val compilationUnitId: Option[CompilationUnitId],
+  case class ProgressEmitted(compilationId: CompilationId,
+                             compilationUnitId: Option[CompilationUnitId],
                              progress: Double)
     extends CompilerEvent {
 
@@ -58,8 +58,8 @@ object CompilerEvent {
   }
   
   // can be sent multiple times for different modules by jps compiler
-  case class CompilationFinished(override val compilationId: CompilationId,
-                                 override val compilationUnitId: Option[CompilationUnitId],
+  case class CompilationFinished(compilationId: CompilationId,
+                                 compilationUnitId: Option[CompilationUnitId],
                                  sources: Set[File])
     extends CompilerEvent {
 
