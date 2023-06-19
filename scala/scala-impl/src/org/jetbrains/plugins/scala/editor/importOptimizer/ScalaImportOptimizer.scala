@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
+import org.jetbrains.sbt.language.SbtFile
 
 import java.util
 import java.util.concurrent.atomic.AtomicInteger
@@ -218,12 +219,16 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       (IntentionPreviewUtils.isPreviewElement(file) || // show changed imports in intention preview
         (!file.getVirtualFile.getName.endsWith(".html") && {
           val vFile = file.getViewProvider.getVirtualFile
+          val projectRootManager = ProjectRootManager.getInstance(file.getProject)
+          val fileIndex = projectRootManager.getFileIndex
           //only process
           // - files from sources and scratch files, this is a similar to Java & Kotlin (see IDEA-136712)
           // - synthetic files created for Scala REPL (see SCL-20571)
-          ProjectRootManager.getInstance(file.getProject).getFileIndex.isInSource(vFile) ||
+          // - sbt files that are not considered "in source" but are still "in project" (e.g.: top-level build.sbt, see SCL-21336)
+          fileIndex.isInSource(vFile) ||
             ScratchUtil.isScratch(vFile) ||
-            ScalaLanguageConsole.ScalaConsoleFileMarkerKey.isIn(vFile)
+            ScalaLanguageConsole.ScalaConsoleFileMarkerKey.isIn(vFile) ||
+            file.is[SbtFile] && fileIndex.isInProject(vFile)
         }))
 
   def replaceWithNewImportInfos(
