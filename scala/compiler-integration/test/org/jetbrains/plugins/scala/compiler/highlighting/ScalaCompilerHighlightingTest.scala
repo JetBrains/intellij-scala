@@ -72,7 +72,7 @@ class ScalaCompilerHighlightingTest_3_2 extends ScalaCompilerHighlightingTest_3 
 }
 
 class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 {
-  override implicit def version: ScalaVersion = ScalaVersion.Latest.Scala_3_RC
+  override implicit def version: ScalaVersion = ScalaVersion.Latest.Scala_3_3
 
   def testUnusedImports(): Unit = {
     setCompilerOptions("-Wunused:imports")
@@ -93,6 +93,29 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 
           |import scala.collection.mutable.Set
           |
           |class UnusedImportsWithFlag {
+          |  val long = new AtomicLong()
+          |}""".stripMargin,
+      expectedResult = expectedResult(highlighting(0, 27), highlighting(64, 77), highlighting(91, 126))
+    )
+  }
+
+  def testAutomaticUnusedImports(): Unit = {
+    def highlighting(startOffset: Int, endOffset: Int): ExpectedHighlighting =
+      ExpectedHighlighting(
+        severity = HighlightSeverity.WARNING,
+        range = Some(TextRange.create(startOffset, endOffset)),
+        quickFixDescriptions = List(QuickFixBundle.message("optimize.imports.fix")),
+        msgPrefix = ScalaInspectionBundle.message("unused.import.statement")
+      )
+
+    runTestCase(
+      fileName = "AutomaticUnusedImports.scala",
+      content =
+        """import scala.util.control.*
+          |import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
+          |import scala.collection.mutable.Set
+          |
+          |class AutomaticUnusedImports {
           |  val long = new AtomicLong()
           |}""".stripMargin,
       expectedResult = expectedResult(highlighting(0, 27), highlighting(64, 77), highlighting(91, 126))
