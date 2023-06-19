@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.compiler.CompilerEventType.CompilerEventType
 import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.io.File
+import java.util.UUID
 
 sealed trait CompilerEvent {
 
@@ -43,6 +44,7 @@ object CompilerEvent {
 
   case class MessageEmitted(compilationId: CompilationId,
                             compilationUnitId: Option[CompilationUnitId],
+                            jpsSessionId: Option[UUID],
                             msg: Client.ClientMsg)
     extends CompilerEvent {
 

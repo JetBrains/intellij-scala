@@ -28,7 +28,7 @@ private class CompilerEventGeneratingClient(
   }
 
   override def message(msg: Client.ClientMsg): Unit =
-    sendEvent(CompilerEvent.MessageEmitted(compilationId, None, msg))
+    sendEvent(CompilerEvent.MessageEmitted(compilationId, None, None, msg))
 
   override def compilationStart(): Unit =
     sendEvent(CompilerEvent.CompilationStarted(compilationId, None))

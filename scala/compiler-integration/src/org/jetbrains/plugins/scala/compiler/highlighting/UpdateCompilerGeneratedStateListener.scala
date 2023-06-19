@@ -23,7 +23,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         val newHighlightOnCompilationFinished = oldState.toHighlightingState.filesWithHighlightings
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
         CompilerGeneratedStateManager.update(project, newState)
-      case CompilerEvent.MessageEmitted(compilationId, _, msg) =>
+      case CompilerEvent.MessageEmitted(compilationId, _, _, msg) =>
         for {
           text <- Option(msg.text)
           source <- msg.source

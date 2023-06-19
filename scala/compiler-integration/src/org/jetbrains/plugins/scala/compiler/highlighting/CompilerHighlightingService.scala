@@ -10,11 +10,12 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, EditorFactory}
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.TestSourcesFilter
+import com.intellij.openapi.roots.{ProjectRootManager, TestSourcesFilter}
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
@@ -198,6 +199,20 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     val CompilationRequest.DocumentRequest(module, sourceScope, document, debugReason) = request
     debug(s"documentCompilation: $debugReason")
     performCompilation(delayIndicator = true)(DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, _))
+  }
+
+  private[highlighting] def triggerDocumentCompilationInAllOpenEditors(): Unit = {
+    FileEditorManager.getInstance(project).getSelectedFiles.flatMap { vf =>
+      val (document, module) = inReadAction {
+        (FileDocumentManager.getInstance().getDocument(vf), ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(vf))
+      }
+      if (module ne null) {
+        val sourceScope = if (TestSourcesFilter.isTestSources(vf, project)) SourceScope.Test else SourceScope.Production
+        Some((module, sourceScope, document, vf))
+      } else None
+    }.foreach { case (module, sourceScope, document, virtualFile) =>
+      performCompilation(delayIndicator = true)(DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, _))
+    }
   }
 
   private def performCompilation(delayIndicator: Boolean)(compile: Client => Unit): Unit = {

@@ -78,6 +78,9 @@ private final class DocumentCompiler(project: Project) extends Disposable {
                                       outputDir: File)
     extends RemoteServerConnectorBase(module, Some(Seq(tempSourceFile)), outputDir) {
 
+    override protected def scalaParameters: Seq[String] =
+      (super.scalaParameters :+ "-Wunused:imports").distinct
+
     override protected def assemblyRuntimeClasspath(): Seq[File] = {
       val fromSuper = super.assemblyRuntimeClasspath()
       val forTestClasses = sourceScope match {

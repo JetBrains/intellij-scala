@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.util.{CompilationId, ObjectSerialization}
 
 import java.io.File
 import java.util
+import java.util.UUID
+import scala.util.Try
 
 abstract class IdeClient(compilerName: String,
                          context: CompileContext,
@@ -44,9 +46,16 @@ abstract class IdeClient(compilerName: String,
         case MessageKind.Other => BuildMessage.Kind.OTHER
       }
 
+      val uuid = Try {
+        val cancelStatus = context.getCancelStatus
+        val mySessionIdField = cancelStatus.getClass.getDeclaredField("mySessionId")
+        mySessionIdField.setAccessible(true)
+        mySessionIdField.get(cancelStatus).asInstanceOf[UUID]
+      }.toOption
+
       context.processMessage(new CompilerMessage(name, jpsKind, text, sourcePath.orNull,
         -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
-      context.processMessage(CompilerEvent.MessageEmitted(compilationId, compilationUnitId, msg).toCustomMessage)
+      context.processMessage(CompilerEvent.MessageEmitted(compilationId, compilationUnitId, uuid, msg).toCustomMessage)
     }
   }
 

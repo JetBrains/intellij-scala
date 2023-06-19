@@ -34,7 +34,7 @@ private object Jps {
       override def processMessage(msg: BuildMessage): Unit = msg match {
         case customMessage: CustomBuilderMessage =>
           fromCustomMessage(customMessage).foreach {
-            case CompilerEvent.MessageEmitted(_, _, msg) => client.message(msg)
+            case CompilerEvent.MessageEmitted(_, _, _, msg) => client.message(msg)
             case CompilerEvent.CompilationFinished(_, _, sources) => compiledFiles ++= sources
             case _ => ()
           }
