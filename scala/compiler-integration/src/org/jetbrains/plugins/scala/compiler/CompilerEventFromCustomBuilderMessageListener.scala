@@ -17,8 +17,12 @@ private class CompilerEventFromCustomBuilderMessageListener(project: Project)
                                messageText: String): Unit =
     fromCustomMessage(new CustomBuilderMessage(builderId, messageType, messageText))
       .foreach {
-        case event @ CompilerEvent.MessageEmitted(_, _, Some(uuid), ClientMsg(MessageKind.Error, _, _, _, _)) =>
-          JpsSessionErrorTrackerService.instance(project).register(uuid)
+        case event @ CompilerEvent.MessageEmitted(_, _, Some(uuid), ClientMsg(kind, _, _, _, _)) =>
+          kind match {
+            case MessageKind.Error | MessageKind.InternalBuilderError =>
+              JpsSessionErrorTrackerService.instance(project).register(uuid)
+            case _ =>
+          }
           project.getMessageBus.syncPublisher(CompilerEventListener.topic).eventReceived(event)
         case event =>
           project.getMessageBus.syncPublisher(CompilerEventListener.topic).eventReceived(event)

@@ -30,8 +30,9 @@ private class CompilerEventGeneratingClient(
   }
 
   override def message(msg: Client.ClientMsg): Unit = {
-    if (msg.kind == MessageKind.Error) {
-      hasErrors = true
+    msg.kind match {
+      case MessageKind.Error | MessageKind.InternalBuilderError => hasErrors = true
+      case _ =>
     }
     sendEvent(CompilerEvent.MessageEmitted(compilationId, None, None, msg))
   }
