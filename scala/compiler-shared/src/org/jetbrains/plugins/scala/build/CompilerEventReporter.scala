@@ -34,7 +34,7 @@ class CompilerEventReporter(project: Project,
         offset = None
       )
       val msg = Client.ClientMsg(kind, text, Some(pos.getFile), from, to)
-      val event = CompilerEvent.MessageEmitted(compilationId, None, msg)
+      val event = CompilerEvent.MessageEmitted(compilationId, None, None, msg)
       files.add(pos.getFile)
       publisher.eventReceived(event)
     }

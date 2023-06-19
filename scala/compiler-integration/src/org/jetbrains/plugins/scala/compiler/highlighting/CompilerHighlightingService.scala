@@ -10,11 +10,12 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, EditorFactory}
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.TestSourcesFilter
+import com.intellij.openapi.roots.{ProjectRootManager, TestSourcesFilter}
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
@@ -185,7 +186,12 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     performCompilation(delayIndicator = false) { client =>
       val triggerService = TriggerCompilerHighlightingService.get(project)
       triggerService.beforeIncrementalCompilation()
-      try IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
+      try {
+        IncrementalCompiler.compile(project, module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, client)
+        if (client.successful) {
+          triggerDocumentCompilationInAllOpenEditors(Some(client))
+        }
+      }
       finally {
         if (psiFile.is[ScalaFile]) {
           triggerService.enableDocumentCompiler(virtualFile)
@@ -200,7 +206,26 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     performCompilation(delayIndicator = true)(DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, _))
   }
 
-  private def performCompilation(delayIndicator: Boolean)(compile: Client => Unit): Unit = {
+  private[highlighting] def triggerDocumentCompilationInAllOpenEditors(client: Option[CompilerEventGeneratingClient]): Unit = {
+    FileEditorManager.getInstance(project).getSelectedFiles.flatMap { vf =>
+      val (document, module) = inReadAction {
+        (FileDocumentManager.getInstance().getDocument(vf), ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(vf))
+      }
+      if (module ne null) {
+        val sourceScope = if (TestSourcesFilter.isTestSources(vf, project)) SourceScope.Test else SourceScope.Production
+        Some((module, sourceScope, document, vf))
+      } else None
+    }.foreach { case (module, sourceScope, document, virtualFile) =>
+      client match {
+        case Some(c) =>
+          DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, c)
+        case None =>
+          performCompilation(delayIndicator = true)(DocumentCompiler.get(project).compile(module.findRepresentativeModuleForSharedSourceModuleOrSelf, sourceScope, document, virtualFile, _))
+      }
+    }
+  }
+
+  private def performCompilation(delayIndicator: Boolean)(compile: CompilerEventGeneratingClient => Unit): Unit = {
     saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
     val promise = Promise[Unit]()

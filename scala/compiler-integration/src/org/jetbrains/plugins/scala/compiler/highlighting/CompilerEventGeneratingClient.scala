@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
+import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.util.CompilationId
 
@@ -17,6 +17,8 @@ private class CompilerEventGeneratingClient(
 
   final val compilationId = CompilationId.generate()
 
+  private var hasErrors: Boolean = false
+
   indicator.setIndeterminate(false)
 
   override def progress(text: String, done: Option[Float]): Unit = {
@@ -27,8 +29,13 @@ private class CompilerEventGeneratingClient(
     }
   }
 
-  override def message(msg: Client.ClientMsg): Unit =
-    sendEvent(CompilerEvent.MessageEmitted(compilationId, None, msg))
+  override def message(msg: Client.ClientMsg): Unit = {
+    msg.kind match {
+      case MessageKind.Error | MessageKind.InternalBuilderError => hasErrors = true
+      case _ =>
+    }
+    sendEvent(CompilerEvent.MessageEmitted(compilationId, None, None, msg))
+  }
 
   override def compilationStart(): Unit =
     sendEvent(CompilerEvent.CompilationStarted(compilationId, None))
@@ -40,6 +47,8 @@ private class CompilerEventGeneratingClient(
 
   override def trace(exception: Throwable): Unit =
     log.error(s"[${project.getName}] ${exception.getMessage}", exception)
+
+  def successful: Boolean = !hasErrors
 
   private def sendEvent(event: CompilerEvent): Unit =
     project.getMessageBus

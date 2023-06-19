@@ -12,7 +12,7 @@ import org.jetbrains.jps.incremental.scala.remote.{CommandIds, SourceScope}
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
 import org.jetbrains.plugins.scala.compiler.{RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.project.VirtualFileExt
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel, VirtualFileExt}
 
 import java.io.File
 import java.nio.file.{Files, Path}
@@ -77,6 +77,14 @@ private final class DocumentCompiler(project: Project) extends Disposable {
                                       sourceScope: SourceScope,
                                       outputDir: File)
     extends RemoteServerConnectorBase(module, Some(Seq(tempSourceFile)), outputDir) {
+
+    override protected def scalaParameters: Seq[String] = {
+      val original = super.scalaParameters
+      if (module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3))
+        (original :+ "-Wunused:imports").distinct
+      else
+        original
+    }
 
     override protected def assemblyRuntimeClasspath(): Seq[File] = {
       val fromSuper = super.assemblyRuntimeClasspath()
