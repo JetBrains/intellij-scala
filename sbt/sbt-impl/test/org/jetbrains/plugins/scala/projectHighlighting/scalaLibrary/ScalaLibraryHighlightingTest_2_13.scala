@@ -51,8 +51,8 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
         (7418, 7512), // Expression of type mutable.Builder[(K, Nothing), WithDefault[K, V]] doesn't conform to expected type mutable.Builder[(K, V), WithDefault[K, V]]
       ),
       "scala/collection/mutable/HashMap.scala" -> Set(
-        (17245, 17267), // Cannot resolve symbol DeserializationFactory
-        (17273, 17299), // No constructor accessible from here
+        (17733, 17755), // Cannot resolve symbol DeserializationFactory
+        (17761, 17787), // No constructor accessible from here
       ),
       "scala/collection/mutable/SortedMap.scala" -> Set(
         (2271, 2277), // Cannot resolve symbol addOne
