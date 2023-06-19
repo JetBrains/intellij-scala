@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, TypePresentationContext, extractTypeParameters}
@@ -131,8 +132,6 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       case _ => false
     }
 
-    val isExistentiallyBounded = args.exists(_.isInstanceOf[ScWildcardTypeElement])
-
     for {
       // the zip will cut away missing or excessive arguments
       (arg, param) <- args.zip(params)
@@ -142,7 +141,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
         !argIsDesignatedToTypeVariable(arg) &&
         !KindProjectorUtil.syntaxIdsFor(arg).contains(arg.getText)
     } {
-      checkBounds(range, argTy, param, substitute, isExistentiallyBounded = isExistentiallyBounded)
+      checkBounds(range, argTy, param, substitute)
       checkHigherKindedType(range, argTy, param, substitute)
     }
   }
@@ -152,25 +151,36 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     argTy:                  ScType,
     param:                  TypeParameter,
     substitute:             ScSubstitutor,
-    isExistentiallyBounded: Boolean
   )(implicit
     holder: ScalaAnnotationHolder,
     tpc:    TypePresentationContext
   ): Unit = {
     lazy val argTyText = argTy.presentableText
 
+    def hasUnboundedWildcards(tpe: ScType): Boolean = {
+      var res = false
+
+      tpe.recursiveUpdate {
+        case _: ScExistentialType => Stop
+        case _: ScExistentialArgument => res = true; Stop
+        case _ => ProcessSubtypes
+      }
+
+      res
+    }
+
     val upper = {
       val substed = substitute(param.upperType).removeAbstracts
 
-      if (isExistentiallyBounded) ScExistentialType(substed)
-      else                        substed
+      if (hasUnboundedWildcards(substed)) ScExistentialType(substed)
+      else                                substed
     }
 
     val lower = {
-     val substed = substitute(param.lowerType).removeAbstracts
+      val substed = substitute(param.lowerType).removeAbstracts
 
-      if (isExistentiallyBounded) ScExistentialType(substed)
-      else                        substed
+      if (hasUnboundedWildcards(substed)) ScExistentialType(substed)
+      else                                substed
     }
 
     if (!argTy.conforms(upper)) {
