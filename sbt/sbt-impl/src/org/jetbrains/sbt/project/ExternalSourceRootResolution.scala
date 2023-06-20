@@ -95,16 +95,23 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
    * Also see [[org.jetbrains.plugins.scala.project.ModuleExt.findRepresentativeModuleForSharedSourceModule]]
    */
   private def representativeProjectIn(projects: Seq[ProjectData]): ProjectData = {
-    val isNonJvmTitle = (title: String) =>
-      title.endsWith("js") || title.endsWith("native")
+    val isNonJvmTitle = (title: String) => {
+      val titleLower = title.toLowerCase()
+      titleLower.endsWith("js") || titleLower.endsWith("native")
+    }
 
     val isNonJvmProject = (project: ProjectData) =>
-      isNonJvmTitle(project.id.toLowerCase) || isNonJvmTitle(project.name.toLowerCase)
+      isNonJvmTitle(project.id) || isNonJvmTitle(project.name)
 
-    projects.partition(isNonJvmProject) match {
-      case (nonJvmProjects, Seq()) => nonJvmProjects.head
-      case (_, jvmProjects) => jvmProjects.head
-    }
+    //We sort projects by name to have a more deterministic way of how representative projects are picked in cross-build projects
+    //If we don't do that, different projects might have dependencies on representative projects with different scala version
+    //NOTE: we assume that all subprojects have same prefix and are only different in the suffix
+    val projectsSorted = projects.sortBy(_.id)
+    val (nonJvmProjects, jvmProjects) = projectsSorted.partition(isNonJvmProject)
+    if (jvmProjects.nonEmpty)
+      jvmProjects.head
+    else
+      nonJvmProjects.head
   }
 
   private def createSourceModule(group: RootGroup, moduleFilesDirectory: File): ModuleNode = {

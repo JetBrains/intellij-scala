@@ -156,7 +156,7 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
       `upstream2_11`.dependsOn(`upstream-sources`)
       `upstream2_12`.dependsOn(`upstream-sources`)
 
-      `downstreamBothPlatforms-sources`.dependsOn(`upstreamBothPlatforms2_12`)
+      `downstreamBothPlatforms-sources`.dependsOn(`upstreamBothPlatforms`)
       `downstreamBothPlatforms`.dependsOn(`upstreamBothPlatforms`, `downstreamBothPlatforms-sources`)
       `downstreamBothPlatforms2_11`.dependsOn(`upstreamBothPlatforms2_11`, `downstreamBothPlatforms-sources`)
       `downstreamBothPlatforms2_12`.dependsOn(`upstreamBothPlatforms2_12`, `downstreamBothPlatforms-sources`)
