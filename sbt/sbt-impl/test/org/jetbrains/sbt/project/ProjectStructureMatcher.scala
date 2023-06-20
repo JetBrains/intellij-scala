@@ -173,7 +173,7 @@ trait ProjectStructureMatcher {
     if (expected.isEmpty) {
       val contentRoots = getContentRoots(module)
       val sourceFolders = contentRoots.flatMap(_.getSourceFolders(folderType).asScala.toSeq).map(_.getUrl)
-      assertMatchWithIgnoredOrder(s"$folderType of module '${module.getName}'", Nil, sourceFolders)(mt)
+      assertMatchWithIgnoredOrder(s"$folderTypeDisplayName of module '${module.getName}'", Nil, sourceFolders)(mt)
     }
     else {
       val contentRoot = getSingleContentRoot(module)
@@ -183,8 +183,15 @@ trait ProjectStructureMatcher {
   }
 
   private def assertModuleExcludedFoldersEqual(module: Module)(expected: Seq[String])(mt: Option[MatchType]): Unit = {
-    val contentRoot = getSingleContentRoot(module)
-    assertContentRootFoldersEqual("Excluded folders", module, contentRoot, contentRoot.getExcludeFolders.toSeq, expected)(mt)
+    if (expected.isEmpty) {
+      val contentRoots = getContentRoots(module)
+      val excludedFolderFiles = contentRoots.flatMap(_.getExcludeFolderFiles).map(_.getUrl)
+      assertMatchWithIgnoredOrder(s"Excluded folders of module '${module.getName}'", Nil, excludedFolderFiles)(mt)
+    }
+    else {
+      val contentRoot = getSingleContentRoot(module)
+      assertContentRootFoldersEqual(s"Excluded folders", module, contentRoot, contentRoot.getExcludeFolders.toSeq, expected)(mt)
+    }
   }
 
   private def assertContentRootFoldersEqual(folderType: String, module: Module, contentRoot: roots.ContentEntry, actual: Seq[roots.ContentFolder], expected: Seq[String])
@@ -212,21 +219,21 @@ trait ProjectStructureMatcher {
     project.modules.filterNot(_.isBuildModule).foreach { module =>
       val contentRoot = getSingleContentRoot(module)
       contentRoot.getSourceFolders.foreach { source =>
-        assertEquals(s"package prefix for source folder $source of module ${module.getName}", expectedPrefix, source.getPackagePrefix)
+        assertEquals(s"package prefix for source folder $source of module `${module.getName}`", expectedPrefix, source.getPackagePrefix)
       }
     }
   }
 
   private def assertModuleDependenciesEqual(module: Module)(expected: Seq[dependency[module]])(mt: Option[MatchType]): Unit = {
     val actualModuleEntries = roots.OrderEnumerator.orderEntries(module).moduleEntries
-    assertNamesEqualIgnoreOrder(s"Module dependency of module ${module.getName}", expected.map(_.reference), actualModuleEntries.map(_.getModule))(mt)
+    assertNamesEqualIgnoreOrder(s"Module dependency of module `${module.getName}`", expected.map(_.reference), actualModuleEntries.map(_.getModule))(mt)
     val paired = pairModules(expected, actualModuleEntries)
     paired.foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
   }
 
   private def assertLibraryDependenciesEqual(module: Module)(expected: Seq[dependency[library]])(mt: Option[MatchType]): Unit = {
     val actualLibraryEntries = roots.OrderEnumerator.orderEntries(module).libraryEntries
-    assertNamesEqualIgnoreOrder(s"Library dependency of module ${module.getName}", expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))(mt)
+    assertNamesEqualIgnoreOrder(s"Library dependency of module `${module.getName}`", expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))(mt)
     pairByName(expected, actualLibraryEntries).foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
   }
 

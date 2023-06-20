@@ -24,7 +24,7 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
 
   override def testHighlighting(): Unit = {
     //TODO: remove `return` when SCL-15611 is fixed
-    return
+    //return
     super.testHighlighting()
   }
 
@@ -54,12 +54,16 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
       resources := Seq()
       testResources := Seq()
       moduleDependencies := Seq()
+      excluded := Seq()
     }
 
     val expectedProject: project = new project(projectName) {
-      val `sbt-projectmatrix-with-source-generator` = new myModule("sbt-projectmatrix-with-source-generators", "")
+      val `sbt-projectmatrix-with-source-generator` = new myModule("sbt-projectmatrix-with-source-generators", "") {
+        excluded := Seq("target")
+      }
       val `sbt-projectmatrix-with-source-generators-build` = new myModule("sbt-projectmatrix-with-source-generators-build", "project") {
         sources := Seq("")
+        excluded := Seq("target", "project/target")
       }
 
       val `downstream` = new myModule("downstream")
@@ -67,6 +71,7 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
       val `downstream2_12` = new myModule("downstream2_12")
       val `downstream-sources` = new myModule("downstream-sources", "downstream") {
         sources := Seq("src/main/scala")
+        excluded := Seq("target")
       }
       val `shared-sources` = new myModule("shared-sources", Some(Nil))
 
@@ -75,6 +80,7 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
       val `upstream2_12` = new myModule("upstream2_12")
       val `upstream-sources` = new myModule("upstream-sources", "upstream") {
         sources := Seq("src/main/scala")
+        excluded := Seq("target")
       }
 
       val `downstreamBothPlatforms` = new myModule("downstreamBothPlatforms")
@@ -85,6 +91,7 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
       val `downstreamBothPlatformsJS2_12` = new myModule("downstreamBothPlatformsJS2_12")
       val `downstreamBothPlatforms-sources` = new myModule("downstreamBothPlatforms-sources", "downstreamBothPlatforms") {
         sources := Seq("src/main/scala")
+        excluded := Seq("target")
       }
 
       val `upstreamBothPlatforms` = new myModule("upstreamBothPlatforms")
@@ -95,6 +102,7 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
       val `upstreamBothPlatformsJS2_12` = new myModule("upstreamBothPlatformsJS2_12")
       val `upstreamBothPlatforms-sources` = new myModule("upstreamBothPlatforms-sources", "upstreamBothPlatforms") {
         sources := Seq("src/main/scala")
+        excluded := Seq("target")
       }
 
       //
