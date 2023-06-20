@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter.CustomScal
 import org.jetbrains.plugins.scala.highlighter.lexer.{ScalaInterpolatedStringLiteralLexer, ScalaMultilineStringLiteralLexer, ScalaStringLiteralLexer}
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
+import org.jetbrains.plugins.scalaCli.lang.lexer.ScalaCliTokenTypes
+import org.jetbrains.plugins.scalaCli.lang.parser.ScalaCliElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
@@ -28,6 +30,7 @@ import java.{util => ju}
 final class ScalaSyntaxHighlighter(
   scalaLexer: CustomScalaLexer,
   scalaDocHighlighter: SyntaxHighlighter,
+  scalaCliHighlighter: SyntaxHighlighter,
   htmlHighlighter: SyntaxHighlighter
 ) extends SyntaxHighlighterBase {
 
@@ -37,6 +40,7 @@ final class ScalaSyntaxHighlighter(
     new CompoundLexer(
       scalaLexer,
       scalaDocHighlighter.getHighlightingLexer,
+      scalaCliHighlighter.getHighlightingLexer,
       htmlHighlighter.getHighlightingLexer
     )
 
@@ -49,6 +53,7 @@ final class ScalaSyntaxHighlighter(
 
 object ScalaSyntaxHighlighter {
 
+  import ScalaCliTokenTypes._
   import ScalaDocElementTypes.SCALA_DOC_COMMENT
   import ScalaDocTokenType._
   import ScalaTokenTypes._
@@ -216,7 +221,12 @@ object ScalaSyntaxHighlighter {
         -- DOC_LIST_ITEM_HEAD
         ) -> DOC_COMMENT,
 
-      tINTERPOLATED_STRINGS -> INTERPOLATED_STRING_INJECTION
+      tINTERPOLATED_STRINGS -> INTERPOLATED_STRING_INJECTION,
+
+      TokenSet.create(tCLI_DIRECTIVE_PREFIX) -> SCALA_CLI_DIRECTIVE_PREFIX,
+      TokenSet.create(tCLI_DIRECTIVE_COMMAND) -> SCALA_CLI_DIRECTIVE_COMMAND,
+      TokenSet.create(tCLI_DIRECTIVE_KEY) -> SCALA_CLI_DIRECTIVE_KEY,
+      TokenSet.create(tCLI_DIRECTIVE_VALUE) -> SCALA_CLI_DIRECTIVE_VALUE
     )
   }
 
@@ -238,6 +248,7 @@ object ScalaSyntaxHighlighter {
   private class CompoundLexer(
     scalaLexer: Lexer,
     scalaDocLexer: Lexer,
+    scalaCliLexer: Lexer,
     htmlLexer: Lexer
   ) extends com.intellij.lexer.LayeredLexer(scalaLexer) {
 
@@ -299,6 +310,8 @@ object ScalaSyntaxHighlighter {
         )),
         tINTERPOLATED_MULTILINE_RAW_STRING
       )
+
+      registerSelfStoppingLayer(scalaCliLexer, Array(ScalaCliElementTypes.SCALA_CLI_DIRECTIVE), IElementType.EMPTY_ARRAY)
 
       //scalaDoc highlighting
       val scalaDocLayer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper(scalaDocLexer))

@@ -131,6 +131,8 @@
                                        implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
         <lang.syntaxHighlighter language="ScalaDoc"
                                 implementationClass="org.jetbrains.plugins.scalaDoc.highlighter.ScalaDocSyntaxHighlighter"/>
+        <lang.syntaxHighlighter language="ScalaCli"
+                                implementationClass="org.jetbrains.plugins.scalaCli.highlighter.ScalaCliSyntaxHighlighter"/>
         <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>
         <additionalTextAttributes scheme="Darcula" file="colorSchemes/ScalaDarcula.xml"/>
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider" order="last"/>
@@ -141,6 +143,7 @@
         <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
         <lang.parserDefinition language="Scala 3" implementationClass="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition"/>
         <lang.parserDefinition language="ScalaDoc" implementationClass="org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition"/>
+        <lang.parserDefinition language="ScalaCli" implementationClass="org.jetbrains.plugins.scalaCli.lang.parser.ScalaCliParserDefinition"/>
         <lang.ast.factory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory"/>
         <lang.substitutor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaLanguageSubstitutor"/>
         <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
