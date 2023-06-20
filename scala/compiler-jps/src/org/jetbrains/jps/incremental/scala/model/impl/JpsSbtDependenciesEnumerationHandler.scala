@@ -14,7 +14,7 @@ import scala.jdk.CollectionConverters.IterableHasAsScala
 final class JpsSbtDependenciesEnumerationHandler extends JpsJavaDependenciesEnumerationHandler {
 
   override def shouldAddRuntimeDependenciesToTestCompilationClasspath: Boolean =
-    true
+    false
 
   override def shouldIncludeTestsFromDependentModulesToTestClasspath: Boolean =
     super.shouldIncludeTestsFromDependentModulesToTestClasspath

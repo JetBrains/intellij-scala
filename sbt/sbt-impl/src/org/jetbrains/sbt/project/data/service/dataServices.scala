@@ -6,7 +6,8 @@ import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsPr
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.project.external.ScalaAbstractProjectDataService
-import org.jetbrains.sbt.project.data.{SbtCommandData, SbtModuleData, SbtSettingData, SbtTaskData}
+import org.jetbrains.sbt.SbtModuleData
+import org.jetbrains.sbt.project.data.{SbtCommandData, SbtSettingData, SbtTaskData}
 
 import java.util
 

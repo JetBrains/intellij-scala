@@ -33,10 +33,8 @@ class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
     enumerator.processRootModules(new CommonProcessors.CollectProcessor[Module](modules))
     modules.asScala.headOption
   }
-
-  //TODO: after splitting sources to production and test it should be changes to false
   override def shouldAddRuntimeDependenciesToTestCompilationClasspath: Boolean =
-    true
+    false
 
   //TODO: sbt doesn't copy resources which are located near main sources to the `target/scala-xy/classes` folder
   //  but looks like simply changing this method return value to `true` doesn't help, investigate...

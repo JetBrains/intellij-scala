@@ -81,12 +81,17 @@ object ExternalSystemUtil {
         return Left(error)
     }
 
-    val moduleDataNode: DataNode[ModuleData] = ExternalSystemApiUtil.findChild(projectDataNode, ProjectKeys.MODULE, (node: DataNode[ModuleData]) => {
-      // seems hacky. but apparently there isn't yet any better way to get the data for selected module?
-      node.getData.getId == moduleId
-    })
-    if (moduleDataNode != null)
-      Right(moduleDataNode)
+    val moduleDataNode = ExternalSystemApiUtil.findAll(projectDataNode, ProjectKeys.MODULE).asScala.view.map { child =>
+      if (child.getData.getId == moduleId) child
+      else ExternalSystemApiUtil.findChild(child, ProjectKeys.MODULE, (node: DataNode[ModuleData]) => node.getData.getId == moduleId)
+    }.find(_ != null)
+
+//    val moduleDataNode: DataNode[ModuleData] = ExternalSystemApiUtil.findChild(projectDataNode, ProjectKeys.MODULE, (node: DataNode[ModuleData]) => {
+//      // seems hacky. but apparently there isn't yet any better way to get the data for selected module?
+//      node.getData.getId == moduleId
+//    })
+    if (moduleDataNode.nonEmpty)
+      Right(moduleDataNode.get)
     else
       Left(s"can't find module data node with id `$moduleId` for project $project, $projectInfo")
   }

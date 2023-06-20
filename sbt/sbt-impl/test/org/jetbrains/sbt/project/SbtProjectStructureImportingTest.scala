@@ -86,11 +86,18 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
         modules := Seq(
           new module(projectName) {
             contentRoots += getProjectPath
-            ProjectStructureDsl.sources := Seq("src/main/scala", "src/main/java")
-            testSources := Seq("src/test/scala", "src/test/java")
-            resources := Seq("src/main/resources")
-            testResources := Seq("src/test/resources")
             excluded := Seq("target")
+          },
+          new module(s"$projectName.test") {
+            contentRoots += s"$getProjectPath/src/test"
+            testSources := Seq("scala", "java")
+            testResources := Seq("resources")
+            libraryDependencies := expectedScalaLibraries
+          },
+          new module(s"$projectName.main") {
+            contentRoots += s"$getProjectPath/src/main"
+            ProjectStructureDsl.sources := Seq("scala", "java")
+            resources := Seq("resources")
             libraryDependencies := expectedScalaLibraries
           },
           new module(s"$projectName-build") {
@@ -113,10 +120,10 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
     directory: VirtualFile,
     expectedVariants: Seq[ExpectedDirectoryCompletionVariant]
   ): Unit = {
-    val psiDirectory = PsiManager.getInstance(myProject).findDirectory(directory)
+    val psiDirectoryMain = PsiManager.getInstance(myProject).findDirectory(directory)
     val directoryPath = directory.getPath
 
-    val variants = new SbtDirectoryCompletionContributor().getVariants(psiDirectory).asScala.toSeq
+    val variants = new SbtDirectoryCompletionContributor().getVariants(psiDirectoryMain).asScala.toSeq
     val actualVariants = variants.map(v => ExpectedDirectoryCompletionVariant(
       v.getPath.stripPrefix(directoryPath).stripPrefix("/"),
       v.getRootType
@@ -252,12 +259,13 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
 
   def testExcludedDirectories(): Unit = runTest(
     new project("root") {
-      modules += new module("root") {
+      modules := Seq(new module("root") {
         excluded := Seq(
           "directory-to-exclude-1",
           "directory/to/exclude/2"
         )
-      }
+      },
+      new module("root.main"), new module("root.test") )
     }
   )
 
@@ -266,19 +274,30 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
    */
   def testSCL12520(): Unit = runTest(
     new project("scl12520") {
-      val sharedModule: module = new module("p1-sources") {
-        contentRoots += getProjectPath + "/p1/shared"
-      }
+      val sharedModule: Seq[module] = Seq(
+        new module("p1-sources"),
+        new module("p1-sources.main") {
+          contentRoots += getProjectPath + "/p1/shared/src/main"
+        },
+        new module("p1-sources.test")
+      )
 
-      val jvmModule: module = new module("p1") {
-        moduleDependencies += sharedModule
-        contentRoots += getProjectPath + "/p1/jvm"
+      val jvmModuleMain: module = new module("p1.main") {
+        moduleDependencies += sharedModule(1)
       }
+      val jvmModule: Seq[module] = Seq(
+        new module("p1") {
+          contentRoots += getProjectPath + "/p1/jvm"
+        }, jvmModuleMain,
+        new module("p1.test") {
+          moduleDependencies := Seq(jvmModuleMain, sharedModule(2))
+        }
+      )
 
-      val rootModule: module = new module("scl12520") {}
+      val rootModule: Seq[module] = Seq(new module("scl12520"), new module("scl12520.main"), new module("scl12520.test"))
       val rootBuildModule: module = new module("scl12520-build") {}
 
-      modules := Seq(sharedModule, rootModule, rootBuildModule, jvmModule)
+      modules := sharedModule ++ jvmModule ++ rootModule ++ Seq(rootBuildModule)
     }
   )
 
@@ -375,19 +394,29 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
 
   def testCrossplatform(): Unit = runTest(
     new project("crossplatform") {
-      lazy val root = new module("crossplatform")
-      lazy val crossJS = new module("crossJS", Array("cross"))
-      lazy val crossJVM = new module("crossJVM", Array("cross"))
-      lazy val crossNative = new module("crossNative", Array("cross"))
-      lazy val crossSources = new module("cross-sources", Array("cross"))
-      lazy val jsJvmSources = new module("js-jvm-sources", Array("cross"))
-      lazy val jsNativeSources = new module("js-native-sources", Array("cross"))
-      lazy val jvmNativeSources = new module("jvm-native-sources", Array("cross"))
+      lazy val root = createModulesForProject("crossplatform", null, null, None)
+      lazy val crossJS = createModulesForProject("crossJS", null, null, None)
+      lazy val crossJVM = createModulesForProject("crossJVM", null, null, None)
+      lazy val crossNative = createModulesForProject("crossNative", null, null, None)
+      lazy val crossSources = createModulesForProject("cross-sources", null, null, None)
+      lazy val jsJvmSources = createModulesForProject("js-jvm-sources", null, null, None)
+      lazy val jsNativeSources = createModulesForProject("js-native-sources", null, null, None)
+      lazy val jvmNativeSources = createModulesForProject("jvm-native-sources", null, null, None)
 
-      modules := Seq(root, crossJS, crossJVM, crossNative, crossSources, jsJvmSources, jsNativeSources, jvmNativeSources)
+      modules := root ++ crossJS ++ crossJVM ++ crossNative ++ crossSources ++ jsJvmSources ++ jsNativeSources ++ jvmNativeSources
     }
   )
 
+  def createModulesForProject(name: String, @Nullable source: LanguageLevel, @Nullable target: String, jdkName: Option[String]): Seq[module] = {
+    def createSourceModule(name: String) = new module(name) {
+      javaLanguageLevel := source
+      javaTargetBytecodeLevel := target
+      javacOptions := Nil
+      sdk := jdkName.map(JdkByName).orNull
+    }
+
+    Seq(new module(name), createSourceModule(s"$name.main"), createSourceModule(s"$name.test"))
+  }
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
   def testJavaLanguageLevelAndTargetByteCodeLevel(): Unit = {
@@ -408,12 +437,8 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
         javacOptions := Nil
         sdk := JdkByName(projectSdk9.getName)
 
-        def moduleX(name: String, source: LanguageLevel, @Nullable target: String): module = new module(name) {
-          javaLanguageLevel := source
-          javaTargetBytecodeLevel := target
-          javacOptions := Nil
-          sdk := JdkByName(projectSdk9.getName)
-        }
+        def moduleX(name: String, source: LanguageLevel, @Nullable target: String): Seq[module] =
+          createModulesForProject(name, source, target, Some(projectSdk9.getName))
 
         val sdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_9
 
@@ -455,16 +480,13 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
         val module_x_x_14_preview = moduleX("module_x_x_14_preview", LanguageLevel.JDK_14, "14")
         val module_x_x_18_preview = moduleX("module_x_x_18_preview", LanguageLevel.JDK_18_PREVIEW, "18")
 
-        modules := Seq(
-          root,
-          module_x_x_x,
-          module_8_8_x, module_8_11_x, module_11_8_x, module_11_11_x,
-          module_8_x_x, module_11_x_x, module_14_x_x, module_15_x_x,
-          module_x_8_x, module_x_11_x,
-          module_x_x_8, module_x_x_11,
-          module_8_x_x_preview, module_11_x_x_preview, module_14_x_x_preview, module_18_x_x_preview,
-          module_x_x_8_preview, module_x_x_11_preview, module_x_x_14_preview, module_x_x_18_preview,
-        )
+        modules := root ++ module_x_x_x ++
+          module_8_8_x ++ module_8_11_x ++ module_11_8_x ++ module_11_11_x ++
+          module_8_x_x++ module_11_x_x++ module_14_x_x++ module_15_x_x++
+          module_x_8_x++ module_x_11_x++
+          module_x_x_8++ module_x_x_11++
+          module_8_x_x_preview ++ module_11_x_x_preview ++ module_14_x_x_preview ++ module_18_x_x_preview ++
+          module_x_x_8_preview ++ module_x_x_11_preview ++ module_x_x_14_preview ++ module_x_x_18_preview
       }
     ) finally {
       inWriteAction {

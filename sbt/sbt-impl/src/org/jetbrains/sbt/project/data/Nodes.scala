@@ -147,6 +147,10 @@ abstract class Node[T] {
     children ++= nodes
   }
 
+  def addAll(nodes: Node[_]*): Unit = {
+    children ++= nodes
+  }
+
   def toDataNode: DataNode[T] = toDataNode(None)
 
   private def toDataNode(parent: Option[DataNode[_]]): DataNode[T] = {

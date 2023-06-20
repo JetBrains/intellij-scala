@@ -1,10 +1,16 @@
 package org.jetbrains.sbt
 
-import org.jetbrains.annotations.NonNls
+import com.intellij.openapi.externalSystem.model.Key
+import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
+import com.intellij.serialization.PropertyMapping
+import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.icons.Icons
+import org.jetbrains.sbt.project.SbtProjectSystem
 
+import java.net.URI
+import java.util.Objects
 import javax.swing.Icon
 
 object Sbt {
@@ -58,4 +64,66 @@ object Sbt {
    */
   def Icon: Icon = Icons.SBT
   def FolderIcon: Icon = Icons.SBT_FOLDER
+}
+import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
+
+object OO {
+  def datakey[T](clazz: Class[T],
+                 weight: Int = ProjectKeys.MODULE.getProcessingWeight + 1
+                ): Key[T] = new Key(clazz.getName, weight)
+
+}
+
+
+abstract class SbtEntityData extends AbstractExternalEntityData(SbtProjectSystem.Id) with Product {
+
+  // need to manually specify equals/hashCode here because it is not generated for case classes inheriting from
+  // AbstractExternalEntityData
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case data: SbtEntityData =>
+      //noinspection CorrespondsUnsorted
+      this.canEqual(data) &&
+        (this.productIterator sameElements data.productIterator)
+    case _ => false
+  }
+
+  override def hashCode(): Int = runtime.ScalaRunTime._hashCode(this)
+
+}
+
+@SerialVersionUID(2)
+final class MyURI @PropertyMapping(Array("string"))(
+  private val string: String
+) extends Serializable {
+  assert(string != null)
+
+  @transient val uri: URI = new URI(string)
+
+  def this(uri: URI) = {
+    this(uri.toString)
+  }
+
+  override def toString: String = Objects.toString(uri)
+
+  override def hashCode(): Int = Objects.hashCode(uri)
+
+  override def equals(obj: Any): Boolean = obj match {
+    case other: MyURI => uri == other.uri
+    case _ => false
+  }
+}
+
+/** Data describing a project which is part of an sbt build. */
+@SerialVersionUID(3)
+case class SbtModuleData @PropertyMapping(Array("id", "buildURI", "isSourceModule")) (
+  id: String,
+  @Nullable buildURI: MyURI,
+  isSourceModule: Boolean
+) extends SbtEntityData
+
+object SbtModuleData {
+  val Key: Key[SbtModuleData] = OO.datakey(classOf[SbtModuleData])
+
+  def apply(id: String, buildURI: Option[URI], isSourceModule: Boolean): SbtModuleData =
+    new SbtModuleData(id, buildURI.map(new MyURI(_)).orNull, isSourceModule)
 }

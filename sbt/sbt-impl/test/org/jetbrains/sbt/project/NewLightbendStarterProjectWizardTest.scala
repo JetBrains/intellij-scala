@@ -51,11 +51,15 @@ class NewLightbendStarterProjectWizardTest extends NewScalaProjectWizardTestBase
       libraries ++= myLibraries
       modules := Seq(
         new module(projectName) {
-          libraryDependencies ++= myLibraries
-
-          sources := Seq("src/main/scala")
-          testSources := Seq("src/test/scala")
           excluded := Seq("target")
+        },
+        new module(s"$projectName.main") {
+          libraryDependencies ++= Seq(scalaLibrary, scalaSdkLibrary)
+          sources := Seq("scala")
+        },
+        new module(s"$projectName.test") {
+          libraryDependencies ++= myLibraries
+          testSources := Seq("scala")
         },
         new module(s"$projectName-build") {
           sources := Seq("")

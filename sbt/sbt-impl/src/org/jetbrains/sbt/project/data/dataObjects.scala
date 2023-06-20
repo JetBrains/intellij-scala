@@ -62,19 +62,6 @@ object SbtBuildModuleData {
     new SbtBuildModuleData(imports.toJavaList, toJavaSet(resolvers), buildFor)
 }
 
-/** Data describing a project which is part of an sbt build. */
-@SerialVersionUID(2)
-case class SbtModuleData @PropertyMapping(Array("id", "buildURI")) (
-  id: String,
-  buildURI: MyURI
-) extends SbtEntityData
-
-object SbtModuleData {
-  val Key: Key[SbtModuleData] = datakey(classOf[SbtModuleData])
-
-  def apply(id: String, buildURI: URI): SbtModuleData =
-    new SbtModuleData(id, new MyURI(buildURI))
-}
 
 @SerialVersionUID(1)
 case class SbtProjectData @PropertyMapping(Array("jdk", /*"javacOptions",*/ "sbtVersion", "projectPath"))(

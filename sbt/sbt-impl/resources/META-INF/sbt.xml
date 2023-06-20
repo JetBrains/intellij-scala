@@ -30,6 +30,7 @@
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
 
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleExtDataService" order="last"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtSourceModuleDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtBuildModuleDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleDataService"/>
