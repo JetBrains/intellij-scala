@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ScalaLibraryType
 
 import javax.swing.{JLabel, JPanel}
+import scala.annotation.nowarn
 
 trait ScalaSDKStepLike extends PackagePrefixStepLike {
 
@@ -49,7 +50,7 @@ trait PackagePrefixStepLike {
   protected val packagePrefixPanelWithTooltip: JPanel = UI.PanelFactory
     .panel(packagePrefixTextField)
     .withTooltip(packagePrefixHelpText)
-    .createPanel()
+    .createPanel(): @nowarn("cat=deprecation")
 
   protected val packagePrefixLabelText: String = ScalaBundle.message("package.prefix.label")
 

@@ -10,6 +10,7 @@ import org.jetbrains.sbt.project.settings.SbtExtraControls.JCheckBoxWithTooltip
 
 import java.awt._
 import javax.swing._
+import scala.annotation.nowarn
 
 final class SbtExtraControls {
   private val content: JComponent = new JPanel
@@ -54,7 +55,7 @@ final class SbtExtraControls {
   }
 
   private def withTooltip(component: JComponent, @Nls tooltip: String): JPanel =
-    UI.PanelFactory.panel(component).withTooltip(tooltip).createPanel()
+    UI.PanelFactory.panel(component).withTooltip(tooltip).createPanel(): @nowarn("cat=deprecation")
 
   private def ct(@Nls boxLabel: String, @Nls tooltip: String): JCheckBoxWithTooltip = {
     val box = new JCheckBox(boxLabel)
