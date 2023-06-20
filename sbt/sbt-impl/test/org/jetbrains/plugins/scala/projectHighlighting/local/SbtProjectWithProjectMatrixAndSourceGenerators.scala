@@ -23,8 +23,6 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
   override protected val projectFileName = projectName
 
   override def testHighlighting(): Unit = {
-    //TODO: remove `return` when SCL-15611 is fixed
-    //return
     super.testHighlighting()
   }
 
@@ -70,7 +68,10 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
       val `downstream2_11` = new myModule("downstream2_11")
       val `downstream2_12` = new myModule("downstream2_12")
       val `downstream-sources` = new myModule("downstream-sources", "downstream") {
-        sources := Seq("src/main/scala")
+        sources := Seq(
+          "src/main/scala",
+          "target/jvm-2.13/src_managed/main"
+        )
         excluded := Seq("target")
       }
 
@@ -78,7 +79,10 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
       val `upstream2_11` = new myModule("upstream2_11")
       val `upstream2_12` = new myModule("upstream2_12")
       val `upstream-sources` = new myModule("upstream-sources", "upstream") {
-        sources := Seq("src/main/scala")
+        sources := Seq(
+          "src/main/scala",
+          "target/jvm-2.13/src_managed/main"
+        )
         excluded := Seq("target")
       }
 
@@ -89,7 +93,10 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
       val `downstreamBothPlatformsJS2_11` = new myModule("downstreamBothPlatformsJS2_11")
       val `downstreamBothPlatformsJS2_12` = new myModule("downstreamBothPlatformsJS2_12")
       val `downstreamBothPlatforms-sources` = new myModule("downstreamBothPlatforms-sources", "downstreamBothPlatforms") {
-        sources := Seq("src/main/scala")
+        sources := Seq(
+          "src/main/scala",
+          "target/jvm-2.13/src_managed/main"
+        )
         excluded := Seq("target")
       }
 
@@ -100,7 +107,10 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
       val `upstreamBothPlatformsJS2_11` = new myModule("upstreamBothPlatformsJS2_11")
       val `upstreamBothPlatformsJS2_12` = new myModule("upstreamBothPlatformsJS2_12")
       val `upstreamBothPlatforms-sources` = new myModule("upstreamBothPlatforms-sources", "upstreamBothPlatforms") {
-        sources := Seq("src/main/scala")
+        sources := Seq(
+          "src/main/scala",
+          "target/jvm-2.13/src_managed/main"
+        )
         excluded := Seq("target")
       }
 

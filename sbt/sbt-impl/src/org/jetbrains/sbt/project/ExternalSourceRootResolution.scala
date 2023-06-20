@@ -37,8 +37,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     val projects = rootGroup.projects
 
     val sourceModuleNode = {
-      val moduleNode = createSourceModule(rootGroup, moduleFilesDirectory)
-
+      val (moduleNode, contentRootNode) = createSourceModule(rootGroup, moduleFilesDirectory)
       //todo: get jdk from a corresponding jvm module ?
       moduleNode.add(ModuleSdkNode.inheritFromProject)
 
@@ -69,6 +68,14 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
         val dependencyNode = new ModuleDependencyNode(moduleNode, dependency)
         dependencyNode.setScope(scopeFor(dependencyId.configuration))
         moduleNode.add(dependencyNode)
+      }
+
+      //add some managed sources of the representative project
+      //(see description of `getManagedSourceRootsFromRepresentativeProjectToIncludeAsBaseModelSourceRoots` method for the details)
+      val representativeProjectManagedSources = getManagedSourceRootsFromRepresentativeProjectToIncludeAsBaseModelSourceRoots(rootGroup, representativeProject)
+      representativeProjectManagedSources.foreach { root =>
+        val esSourceType = calculateEsSourceType(root)
+        contentRootNode.storePath(esSourceType, root.directory.path)
       }
 
       projectToModuleNode.get(representativeProject).foreach { reprProjectModule =>
@@ -114,25 +121,76 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       nonJvmProjects.head
   }
 
-  private def createSourceModule(group: RootGroup, moduleFilesDirectory: File): ModuleNode = {
-    val moduleNode = new ModuleNode(SharedSourcesModuleType.instance.getId,
-      group.name, group.name, moduleFilesDirectory.path, group.base.canonicalPath)
+  private def createSourceModule(
+    group: RootGroup,
+    moduleFilesDirectory: File,
+  ): (ModuleNode, ContentRootNode) = {
+    val groupBase = group.base
+    val moduleNode = new ModuleNode(
+      SharedSourcesModuleType.instance.getId,
+      group.name,
+      group.name,
+      moduleFilesDirectory.path,
+      groupBase.canonicalPath
+    )
 
-    val contentRootNode = {
-      val node = new ContentRootNode(group.base.path)
-
-      group.roots.foreach { root =>
-        node.storePath(scopeAndKindToSourceType(root.scope, root.kind), root.directory.path)
-      }
-
-      node
+    val contentRootNode = new ContentRootNode(groupBase.path)
+    group.roots.foreach { root =>
+      val esSourceType = calculateEsSourceType(root)
+      contentRootNode.storePath(esSourceType, root.directory.path)
     }
 
     moduleNode.add(contentRootNode)
 
     setupOutputDirectories(moduleNode, contentRootNode)
 
-    moduleNode
+    (moduleNode, contentRootNode)
+  }
+
+
+  /**
+   * The primary use case for this logic is to handle SBT projects with `projectmatrix` sbt plugin.<br>
+   * You can inspect `sbt-projectmatrix-with-source-generators` test project as an example.
+   *
+   * Details:<br>
+   * In sbt build with `projectmatrix` sbt plugin, for a single project multiple subprojects are generated
+   * For example if we define single project {{{
+   *     val downstream = (projectMatrix in file("downstream"))
+   *         .settings(commonSettings(false) *)
+   *         .jvmPlatform(scalaVersions = Seq("2.12.17", "2.13.10"))
+   *         .jsPlatform(scalaVersions = Seq("2.12.17", "2.13.10"))
+   * }}}
+   * 4 extra subprojects will be generated (2 JVM projects with 2 scala versions and 2 JS projects with 2 scala version)
+   *
+   * But generated sources for such projects will be located outside their base directory (or "contentRoot" in terms of IDEA)
+   * Instead, they will be located in the content root of the original project, but in a special folders, like: {{{
+   *     target/jvm-2.12/src_managed/main
+   *     target/jvm-2.13/src_managed/main
+   *     target/js-2.12/src_managed/main
+   *     target/js-2.13/src_managed/main
+   * }}}
+   * So they will not be registered as source roots for IntelliJ Module (source roots must be located under the content root).
+   * That's why we need to explicitly add source dependency from the representative project, by analogy with it's module/library/jars dependencies
+   *
+   * In case some logic is not clear, try to comment it out and run project structure/highlighting tests
+   */
+  private def getManagedSourceRootsFromRepresentativeProjectToIncludeAsBaseModelSourceRoots(
+    rootGroup: RootGroup,
+    representativeProject: ProjectData
+  ): Set[Root] = {
+    val rootGroupBase = rootGroup.base
+    val representativeProjectBase = representativeProject.base
+
+    val sourceRootsFromRepresentative: Seq[Root] = sourceRootsIn(representativeProject)
+    sourceRootsFromRepresentative
+      .filter(_.managed)
+      .toSet
+      //ensure that source roots are not already listed in root group roots to avoid duplicates
+      .diff(rootGroup.roots.toSet)
+      //ensure that source roots are in the content root of base module
+      .filter(_.directory.isUnder(rootGroupBase))
+      //get those source roots which are outside representative project content root
+      .filterNot(_.directory.isUnder(representativeProjectBase))
   }
 
   //target directory are expected by jps compiler:
@@ -158,13 +216,13 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     file
   }
 
-  private def scopeAndKindToSourceType(scope: Root.Scope, kind: Root.Kind): ExternalSystemSourceType =
-    (scope, kind) match {
-      case (Root.Scope.Compile, Root.Kind.Sources)    => ExternalSystemSourceType.SOURCE
-      case (Root.Scope.Compile, Root.Kind.Resources)  => ExternalSystemSourceType.RESOURCE
-      case (Root.Scope.Test, Root.Kind.Sources)       => ExternalSystemSourceType.TEST
-      case (Root.Scope.Test, Root.Kind.Resources)     => ExternalSystemSourceType.TEST_RESOURCE
-    }
+  private def calculateEsSourceType(root: Root): ExternalSystemSourceType =
+    ExternalSystemSourceType.from(
+      root.scope == Root.Scope.Test,
+      root.managed,
+      root.kind == Root.Kind.Resources,
+      false
+    )
 
   private def sharedAndExternalRootsIn(projects: Seq[sbtStructure.ProjectData]): Seq[SharedRoot] = {
     val projectRoots = projects.flatMap(project => sourceRootsIn(project).map(ProjectRoot(project,_)))
@@ -184,7 +242,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     val nameProvider = new SharedSourceRootNameProvider()
 
     // TODO consider base/projects correspondence
-    val rootsGroupedByBase = roots.groupBy(_.root.base)
+    val rootsGroupedByBase = roots.groupBy(_.root.basePathFromKnownHardcodedDefaultPaths)
     rootsGroupedByBase.toList.collect {
       //NOTE: ignore roots with empty base to avoid dangling "shared-sources" module
       case (Some(base), sharedRoots) =>
@@ -200,23 +258,24 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     val relevantConfigurations = project.configurations.filter(it => relevantScopes.contains(it.id))
 
     relevantConfigurations.flatMap { configuration =>
-      def createRoot(kind: Root.Kind)(directory: sbtStructure.DirectoryData) = {
+      def createRoot(kind: Root.Kind)(directory: sbtStructure.DirectoryData): Root = {
         val scope = if (configuration.id == "compile") Root.Scope.Compile else Root.Scope.Test
-        Root(scope, kind, directory.file.canonicalFile)
+        Root(scope, kind, directory.file.canonicalFile, directory.managed)
       }
 
-      configuration.sources.map(createRoot(Root.Kind.Sources)) ++
-              configuration.resources.map(createRoot(Root.Kind.Resources))
+      val sourceRoots = configuration.sources.map(createRoot(Root.Kind.Sources))
+      val resourceRoots = configuration.resources.map(createRoot(Root.Kind.Resources))
+      sourceRoots ++ resourceRoots
     }
   }
 
   private case class RootGroup(name: String, roots: Seq[Root], projects: Seq[sbtStructure.ProjectData]) {
-    def base: File = commonBase(roots)
+    lazy val base: File = commonBase(roots)
 
-    private def commonBase(roots: Seq[Root]) = {
+    private def commonBase(roots: Seq[Root]): File = {
       import scala.jdk.CollectionConverters._
       val paths = roots.map { root =>
-        root.base.getOrElse(root.directory)
+        root.basePathFromKnownHardcodedDefaultPaths.getOrElse(root.directory)
           .getCanonicalFile.toPath.normalize
       }
 
@@ -237,14 +296,23 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     def isExternal: Boolean = root.directory.isOutsideOf(project.base)
   }
 
-  private case class Root(scope: Root.Scope, kind: Root.Kind, directory: File) {
-    def base: Option[File] = Root.DefaultPaths.collectFirst {
+  private case class Root(
+    scope: Root.Scope,
+    kind: Root.Kind,
+    directory: File,
+    managed: Boolean
+  ) {
+    lazy val basePathFromKnownHardcodedDefaultPaths: Option[File] = Root.DefaultPaths.collectFirst {
+      //Example directory: /c/example-project/downstream/src/test/java (check if it parent ends with `src/test`)
       case paths if directory.parent.exists(_.endsWith(paths: _*)) => directory << (paths.length + 1)
     }
   }
 
   private object Root {
-    private val DefaultPaths = Seq(Seq("src", "main"), Seq("src", "test"))
+    private val DefaultPaths = Seq(
+      Seq("src", "main"),
+      Seq("src", "test"),
+    )
 
     sealed trait Scope
     object Scope {
