@@ -13,11 +13,12 @@
 
   <property name="scala.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scala/lang/lexer/core"/>
   <property name="scaladoc.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scala/lang/scaladoc/lexer"/>
+  <property name="scalacli.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scalaCli/lang/lexer"/>
 
   <!-- TARGETS DEFINITION -->
 
   <target name="generate.lexer.all"
-          depends="generate.lexer.scala.core, generate.lexer.scaladoc, generate.lexer.sbt.shell"
+          depends="generate.lexer.scala.core, generate.lexer.scaladoc, generate.lexer.sbt.shell, generate.lexer.scalacli"
           description="main target"/>
 
   <target name="generate.lexer.scala.core" depends="generate.lexer.scala.splitting">
@@ -30,6 +31,10 @@
 
   <target name="generate.lexer.scaladoc">
     <flex flexFileName="_ScalaDocLexer.flex" flexFileDir="${scaladoc.lexer.path}"/>
+  </target>
+
+  <target name="generate.lexer.scalacli">
+    <flex flexFileName="_ScalaCliLexer.flex" flexFileDir="${scalacli.lexer.path}"/>
   </target>
 
   <target name="generate.lexer.sbt.shell">
