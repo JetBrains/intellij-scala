@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package base
 
 import com.intellij.openapi.actionSystem.IdeActions.{ACTION_EDITOR_BACKSPACE, ACTION_EDITOR_ENTER, ACTION_EXPAND_LIVE_TEMPLATE_BY_TAB}
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.editor.CaretState
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.editor.impl.{DocumentImpl, TrailingSpacesStripper}
@@ -10,12 +12,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
 import com.intellij.testFramework.fixtures.IdeaTestExecutionPolicy
+import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, startCommand}
+import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffsets
 import org.jetbrains.plugins.scala.util.ShortCaretMarker
 import org.jetbrains.plugins.scala.util.extensions.ComparisonFailureOps
-import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffsets
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -158,6 +161,11 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase
   protected def checkGeneratedTextAfterLiveTemplate(textBefore: String, textAfter: String): Unit =
     performTest(textBefore, textAfter) { () =>
       performLiveTemplateAction()
+
+      if (ApplicationManager.getApplication.isDispatchThread) {
+        NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
+        UIUtil.dispatchAllInvocationEvents()
+      }
     }
 
   private def performEditorAction(action: String): Unit =
