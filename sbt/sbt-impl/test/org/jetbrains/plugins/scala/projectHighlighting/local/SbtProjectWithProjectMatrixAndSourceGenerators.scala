@@ -73,7 +73,6 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
         sources := Seq("src/main/scala")
         excluded := Seq("target")
       }
-      val `shared-sources` = new myModule("shared-sources", Some(Nil))
 
       val `upstream` = new myModule("upstream")
       val `upstream2_11` = new myModule("upstream2_11")
@@ -113,7 +112,6 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
         `downstream`,
         `downstream2_11`,
         `downstream2_12`,
-        `shared-sources`
       )
       val upstreamGroup: Seq[myModule] = Seq(
         `upstream-sources`,
@@ -149,31 +147,30 @@ class SbtProjectWithProjectMatrixAndSourceGenerators
       // Define dependencies between modules separately for better test data readability
       //
       `downstream-sources`.dependsOn(`upstream`)
-      `downstream`.dependsOn(`shared-sources`, `upstream`, `downstream-sources`)
-      `downstream2_11`.dependsOn(`shared-sources`, `upstream2_11`, `downstream-sources`)
-      `downstream2_12`.dependsOn(`shared-sources`, `upstream2_12`, `downstream-sources`)
-      `shared-sources`.dependsOn(`upstream2_12`)
+      `downstream`.dependsOn(`upstream`, `downstream-sources`)
+      `downstream2_11`.dependsOn(`upstream2_11`, `downstream-sources`)
+      `downstream2_12`.dependsOn(`upstream2_12`, `downstream-sources`)
 
       `upstream-sources`.dependsOn()
-      `upstream`.dependsOn(`shared-sources`, `upstream-sources`)
-      `upstream2_11`.dependsOn(`shared-sources`, `upstream-sources`)
-      `upstream2_12`.dependsOn(`shared-sources`, `upstream-sources`)
+      `upstream`.dependsOn(`upstream-sources`)
+      `upstream2_11`.dependsOn(`upstream-sources`)
+      `upstream2_12`.dependsOn(`upstream-sources`)
 
       `downstreamBothPlatforms-sources`.dependsOn(`upstreamBothPlatforms2_12`)
-      `downstreamBothPlatforms`.dependsOn(`shared-sources`, `upstreamBothPlatforms`, `downstreamBothPlatforms-sources`)
-      `downstreamBothPlatforms2_11`.dependsOn(`shared-sources`, `upstreamBothPlatforms2_11`, `downstreamBothPlatforms-sources`)
-      `downstreamBothPlatforms2_12`.dependsOn(`shared-sources`, `upstreamBothPlatforms2_12`, `downstreamBothPlatforms-sources`)
-      `downstreamBothPlatformsJS`.dependsOn(`shared-sources`, `upstreamBothPlatformsJS`, `downstreamBothPlatforms-sources`)
-      `downstreamBothPlatformsJS2_11`.dependsOn(`shared-sources`, `upstreamBothPlatformsJS2_11`, `downstreamBothPlatforms-sources`)
-      `downstreamBothPlatformsJS2_12`.dependsOn(`shared-sources`, `upstreamBothPlatformsJS2_12`, `downstreamBothPlatforms-sources`)
+      `downstreamBothPlatforms`.dependsOn(`upstreamBothPlatforms`, `downstreamBothPlatforms-sources`)
+      `downstreamBothPlatforms2_11`.dependsOn(`upstreamBothPlatforms2_11`, `downstreamBothPlatforms-sources`)
+      `downstreamBothPlatforms2_12`.dependsOn(`upstreamBothPlatforms2_12`, `downstreamBothPlatforms-sources`)
+      `downstreamBothPlatformsJS`.dependsOn(`upstreamBothPlatformsJS`, `downstreamBothPlatforms-sources`)
+      `downstreamBothPlatformsJS2_11`.dependsOn(`upstreamBothPlatformsJS2_11`, `downstreamBothPlatforms-sources`)
+      `downstreamBothPlatformsJS2_12`.dependsOn(`upstreamBothPlatformsJS2_12`, `downstreamBothPlatforms-sources`)
 
       `upstreamBothPlatforms-sources`.dependsOn()
-      `upstreamBothPlatforms`.dependsOn(`shared-sources`, `upstreamBothPlatforms-sources`)
-      `upstreamBothPlatforms2_11`.dependsOn(`shared-sources`, `upstreamBothPlatforms-sources`)
-      `upstreamBothPlatforms2_12`.dependsOn(`shared-sources`, `upstreamBothPlatforms-sources`)
-      `upstreamBothPlatformsJS`.dependsOn(`shared-sources`, `upstreamBothPlatforms-sources`)
-      `upstreamBothPlatformsJS2_11`.dependsOn(`shared-sources`, `upstreamBothPlatforms-sources`)
-      `upstreamBothPlatformsJS2_12`.dependsOn(`shared-sources`, `upstreamBothPlatforms-sources`)
+      `upstreamBothPlatforms`.dependsOn(`upstreamBothPlatforms-sources`)
+      `upstreamBothPlatforms2_11`.dependsOn(`upstreamBothPlatforms-sources`)
+      `upstreamBothPlatforms2_12`.dependsOn(`upstreamBothPlatforms-sources`)
+      `upstreamBothPlatformsJS`.dependsOn(`upstreamBothPlatforms-sources`)
+      `upstreamBothPlatformsJS2_11`.dependsOn(`upstreamBothPlatforms-sources`)
+      `upstreamBothPlatformsJS2_12`.dependsOn(`upstreamBothPlatforms-sources`)
 
       modules := Seq(
         `sbt-projectmatrix-with-source-generator`,
