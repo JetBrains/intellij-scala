@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.ScalaDocTypeRenderer
+import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocTypeRenderer, WithHtmlPsiLink}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{ContextBoundInfo, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference}
@@ -275,7 +275,7 @@ object ScalaDocQuickInfoGenerator {
     new TypeParamsRenderer(typeRenderer, TextEscaper.Html, stripContextTypeArgs = false)
 
   private def functionParametersRenderer(implicit typeRenderer: TypeRenderer): ParametersRenderer = {
-    val paramRenderer = new ParameterRenderer(typeRenderer, ModifiersRenderer.WithHtmlPsiLink, simpleTypeAnnotationRenderer)
+    val paramRenderer = new ParameterRenderer(typeRenderer, WithHtmlPsiLink.renderer, simpleTypeAnnotationRenderer)
     new ParametersRenderer(paramRenderer)
   }
 

@@ -37,10 +37,6 @@ class ModifiersRenderer(
 
 
 object ModifiersRenderer {
-
-  val WithHtmlPsiLink: ModifiersRenderer =
-    new ModifiersRenderer(new AccessModifierRenderer(AccessQualifierRenderer.WithHtmlPsiLink))
-
   def SimpleText(
     textEscaper: TextEscaper = TextEscaper.Noop
   ): ModifiersRenderer =

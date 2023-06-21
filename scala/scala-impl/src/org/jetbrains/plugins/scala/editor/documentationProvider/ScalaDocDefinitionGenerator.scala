@@ -6,7 +6,7 @@ import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
-import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocAnnotationRenderer, ScalaDocTypeRenderer}
+import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocAnnotationRenderer, ScalaDocTypeRenderer, WithHtmlPsiLink}
 import org.jetbrains.plugins.scala.extensions.{&, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi
 import HtmlPsiUtils.classLinkWithLabel
@@ -17,8 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TextEscaper.Html
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -85,7 +83,7 @@ private class ScalaDocDefinitionGenerator private(
 
     element match {
       case m: ScModifierListOwner =>
-        val modifiersRendered = modifiersRenderer.render(m)
+        val modifiersRendered = WithHtmlPsiLink.renderer.render(m)
         if (modifiersRendered.nonEmpty) builder.appendKeyword(modifiersRendered)
       case _ =>
     }
@@ -197,15 +195,13 @@ private class ScalaDocDefinitionGenerator private(
 
   private lazy val annotationsRenderer =
     new ScalaDocAnnotationRenderer()
-  private lazy val modifiersRenderer =
-    new ModifiersRenderer(new AccessModifierRenderer(AccessQualifierRenderer.WithHtmlPsiLink))
   private lazy val typeParamsRenderer =
     new TypeParamsRenderer(typeRenderer, new TypeBoundsRenderer(Html))
 
   private lazy val definitionParamsRenderer: ParametersRenderer = {
     val parameterRenderer = new ParameterRenderer(
       typeRenderer,
-      ModifiersRenderer.WithHtmlPsiLink,
+      WithHtmlPsiLink.renderer,
       typeAnnotationRenderer(typeRenderer),
       TextEscaper.Html,
       withMemberModifiers = false,
