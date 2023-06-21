@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter.CustomScal
 import org.jetbrains.plugins.scala.highlighter.lexer.{ScalaInterpolatedStringLiteralLexer, ScalaMultilineStringLiteralLexer, ScalaStringLiteralLexer}
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
+import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliTokenTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
@@ -28,6 +29,7 @@ import java.{util => ju}
 final class ScalaSyntaxHighlighter(
   scalaLexer: CustomScalaLexer,
   scalaDocHighlighter: SyntaxHighlighter,
+  scalaCliHighlighter: SyntaxHighlighter,
   htmlHighlighter: SyntaxHighlighter
 ) extends SyntaxHighlighterBase {
 
@@ -37,6 +39,7 @@ final class ScalaSyntaxHighlighter(
     new CompoundLexer(
       scalaLexer,
       scalaDocHighlighter.getHighlightingLexer,
+      scalaCliHighlighter.getHighlightingLexer,
       htmlHighlighter.getHighlightingLexer
     )
 
@@ -53,6 +56,7 @@ object ScalaSyntaxHighlighter {
   import ScalaDocTokenType._
   import ScalaTokenTypes._
   import ScalaXmlTokenTypes._
+  import ScalaCliTokenTypes._
 
   // Comments
   private val tLINE_COMMENTS = TokenSet.create(tLINE_COMMENT)
@@ -216,7 +220,9 @@ object ScalaSyntaxHighlighter {
         -- DOC_LIST_ITEM_HEAD
         ) -> DOC_COMMENT,
 
-      tINTERPOLATED_STRINGS -> INTERPOLATED_STRING_INJECTION
+      tINTERPOLATED_STRINGS -> INTERPOLATED_STRING_INJECTION,
+
+      TokenSet.create(tCLI_DIRECTIVE_COMMAND) -> SCALA_CLI_DIRECTIVE_COMMAND
     )
   }
 
@@ -238,6 +244,7 @@ object ScalaSyntaxHighlighter {
   private class CompoundLexer(
     scalaLexer: Lexer,
     scalaDocLexer: Lexer,
+    scalaCliLexer: Lexer,
     htmlLexer: Lexer
   ) extends com.intellij.lexer.LayeredLexer(scalaLexer) {
 
@@ -298,6 +305,14 @@ object ScalaSyntaxHighlighter {
           isRawLiteral = true
         )),
         tINTERPOLATED_MULTILINE_RAW_STRING
+      )
+
+      //scalaCli highlighting
+      val scalaCliLayer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper(scalaCliLexer))
+
+      scalaCliLayer.registerLayer(
+        scalaCliLexer,
+        ScalaCliTokenTypes.tCLI_DIRECTIVE_COMMAND
       )
 
       //scalaDoc highlighting

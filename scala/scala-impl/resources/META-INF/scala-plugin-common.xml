@@ -131,6 +131,8 @@
                                        implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
         <lang.syntaxHighlighter language="ScalaDoc"
                                 implementationClass="org.jetbrains.plugins.scalaDoc.highlighter.ScalaDocSyntaxHighlighter"/>
+        <lang.syntaxHighlighter language="ScalaCli"
+                                implementationClass="org.jetbrains.plugins.scalaCli.highlighter.ScalaCliSyntaxHighlighter"/>
         <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>
         <additionalTextAttributes scheme="Darcula" file="colorSchemes/ScalaDarcula.xml"/>
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider" order="last"/>

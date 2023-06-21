@@ -29,7 +29,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
+import org.jetbrains.plugins.scala.lang.scalacli.parser.ScalaCliElementTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
+import org.jetbrains.plugins.scalaCli.ScalaCliLanguage;
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;
 
 import static com.intellij.openapi.fileTypes.SyntaxHighlighterFactory.getSyntaxHighlighter;
@@ -45,6 +47,7 @@ public final class ScalaEditorHighlighterProvider implements EditorHighlighterPr
                 getSyntaxHighlighter(ScalaLanguage.INSTANCE, project, virtualFile),
                 getSyntaxHighlighter(XMLLanguage.INSTANCE, project, virtualFile),
                 getSyntaxHighlighter(ScalaDocLanguage.INSTANCE, project, virtualFile),
+                getSyntaxHighlighter(ScalaCliLanguage.INSTANCE, project, virtualFile),
                 colors
         );
     }
@@ -55,6 +58,7 @@ public final class ScalaEditorHighlighterProvider implements EditorHighlighterPr
         private ScalaEditorHighlighter(@NotNull SyntaxHighlighter scalaHighlighter,
                                        @NotNull SyntaxHighlighter xmlHighlighter,
                                        @NotNull SyntaxHighlighter scalaDocHighlighter,
+                                       @NotNull SyntaxHighlighter scalaCliHighlighter,
                                        @NotNull EditorColorsScheme colors) {
             super(scalaHighlighter, colors);
 
@@ -66,6 +70,11 @@ public final class ScalaEditorHighlighterProvider implements EditorHighlighterPr
             registerLayer(
                     ScalaDocElementTypes.SCALA_DOC_COMMENT,
                     new LayerDescriptor(scalaDocHighlighter, "\n", DefaultHighlighter.DOC_COMMENT)
+            );
+
+            registerLayer(
+                    ScalaCliElementTypes.SCALA_CLI_DIRECTIVE,
+                    new LayerDescriptor(scalaCliHighlighter, "\n", DefaultHighlighter.JAVA_COLLECTION)
             );
         }
 
