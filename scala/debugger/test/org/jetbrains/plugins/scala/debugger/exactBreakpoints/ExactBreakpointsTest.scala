@@ -140,8 +140,8 @@ abstract class ExactBreakpointsTestWithEarlyDefinitions extends ExactBreakpoints
   )
 
   def testEarlyDefAndTemplateBody(): Unit = {
-    checkVariants()(7, "All", "early definitions of CCC", "Seq(1)", "_ > 0")
-    checkVariants()(9, "All", "line in containing block", "x => x + 1", "_ > 10")
+    checkVariants()(7, "Line and Lambda(s)", "early definitions of CCC", "Seq(1)", "_ > 0")
+    checkVariants()(9, "Line and Lambda(s)", "line in containing block", "x => x + 1", "_ > 10")
 
     exactBreakpointTest()("val x = ...", "Seq(1)", "_ > 0", "Seq(1).map...", "x => x + 1", "_ > 10")
   }
@@ -209,7 +209,7 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
   )
 
   def testOneLine(): Unit = {
-    checkVariants()(2, "All", "line in function main", "x => x + 1", "_ > 10", "println")
+    checkVariants()(2, "Line and Lambda(s)", "line in function main", "x => x + 1", "_ > 10", "println")
 
     exactBreakpointTest()("Seq(1).map(...", "x => x + 1", "_ > 10")
   }
@@ -227,7 +227,7 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
   )
 
   def testEither(): Unit = {
-    checkVariants()(5, "All", "line in function main", "_.substring(1)", "_ + 1")
+    checkVariants()(5, "Line and Lambda(s)", "line in function main", "_.substring(1)", "_ + 1")
     exactBreakpointTest()("x.fold(...", "_ + 1", "y.fold(...", "_.substring(2)")
   }
 
@@ -241,8 +241,8 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
   )
 
   def testSeveralLines1(): Unit = {
-    checkVariants()(2, "All", "line in function main", "_.headOption")
-    checkVariants()(3, "All", "line in function main", "c => c.isDigit", "'0'")
+    checkVariants()(2, "Line and Lambda(s)", "line in function main", "_.headOption")
+    checkVariants()(3, "Line and Lambda(s)", "line in function main", "c => c.isDigit", "'0'")
 
     exactBreakpointTest()("Option(\"aaa\")...", "_.headOption", ".find(...", "c => c.isDigit", "'0'")
   }
@@ -257,8 +257,8 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
   )
 
   def testSeveralLines2(): Unit = {
-    checkVariants()(2, "All", "line in function main", "_.headOption")
-    checkVariants()(3, "All", "line in function main", "c => c.isDigit", "'0'")
+    checkVariants()(2, "Line and Lambda(s)", "line in function main", "_.headOption")
+    checkVariants()(3, "Line and Lambda(s)", "line in function main", "c => c.isDigit", "'0'")
 
     exactBreakpointTest()("Option(...", ".find(...")
   }
@@ -273,8 +273,8 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
   )
 
   def testSeveralLines3(): Unit = {
-    checkVariants()(2, "All", "line in function main", "_.headOption")
-    checkVariants()(3, "All", "line in function main", "c => c.isDigit", "'0'")
+    checkVariants()(2, "Line and Lambda(s)", "line in function main", "_.headOption")
+    checkVariants()(3, "Line and Lambda(s)", "line in function main", "c => c.isDigit", "'0'")
 
     exactBreakpointTest()("_.headOption", "c => c.isDigit")
   }
@@ -289,7 +289,7 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
 
   def testNestedLambdas(): Unit = {
     checkVariants()(2,
-      "All",
+      "Line and Lambda(s)",
       "line in function main",
       "x => x.find(_ == 'a').getOrElse('a').toString",
       "_ == 'a'",
@@ -311,7 +311,7 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
 
   def testNestedLambdas2(): Unit = {
     checkVariants()(2,
-      "All",
+      "Line and Lambda(s)",
       "line in function main",
       "x => x.find(_ == 'a').getOrElse('a').toString",
       "_ == 'a'",
@@ -338,7 +338,7 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
   )
 
   def testConstructorAndClassParam(): Unit = {
-    checkVariants()(6, "All", "constructor of BBB", "_.isDigit")
+    checkVariants()(6, "Line and Lambda(s)", "constructor of BBB", "_.isDigit")
     exactBreakpointTest()("class BBB ...", "_.isDigit", "_.isDigit", "class AAA(...")
   }
 
@@ -353,7 +353,7 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
   )
 
   def testNewTemplateDefinitionAsLambda(): Unit = {
-    checkVariants()(2, "All", "line in function main", "new ZZZ(_)", "_ => false", "new ZZZ(\"1\")")
+    checkVariants()(2, "Line and Lambda(s)", "line in function main", "new ZZZ(_)", "_ => false", "new ZZZ(\"1\")")
     exactBreakpointTest()("Seq(\"a\")...", "new ZZZ(_)", "_ => false", "new ZZZ(\"1\")")
   }
 
@@ -370,9 +370,9 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
 
   def testLineStartsWithDot(): Unit = {
     checkVariants()(2) //no variants
-    checkVariants()(3, "All", "line in function main", "_ + 1")
-    checkVariants()(4, "All", "line in function main", "i => i % 2 == 0")
-    checkVariants()(5, "All", "line in function main", "println")
+    checkVariants()(3, "Line and Lambda(s)", "line in function main", "_ + 1")
+    checkVariants()(4, "Line and Lambda(s)", "line in function main", "i => i % 2 == 0")
+    checkVariants()(5, "Line and Lambda(s)", "line in function main", "println")
 
     exactBreakpointTest()("Some(1)", ".map...", "i => i % 2 == 0", ".foreach...", "println")
   }
