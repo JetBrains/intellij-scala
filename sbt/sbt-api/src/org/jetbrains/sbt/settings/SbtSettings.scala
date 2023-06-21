@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter}
 import org.jetbrains.sbt.settings.SbtSettings.defaultMaxHeapSize
 
-import java.util
+import java.{util => j}
 import scala.beans.BeanProperty
 
 @State(
@@ -35,7 +35,7 @@ final class SbtSettings(project: Project)
   @BeanProperty var customVMEnabled: Boolean = false
   @BeanProperty var customVMPath: String = ""
   @BeanProperty var customSbtStructurePath: String = ""
-  @BeanProperty var sbtEnvironment: Map[String, String] = Map.empty
+  @BeanProperty var sbtEnvironment: j.Map[String, String] = j.Collections.emptyMap
   @BeanProperty var sbtPassParentEnvironment: Boolean = true
 
   override def getState: SbtSettings.State = {
@@ -141,18 +141,18 @@ object SbtSettings {
     var customSbtStructurePath: String = ""
 
     @BeanProperty
-    var sbtEnvironment: Map[String, String] = Map.empty
+    var sbtEnvironment: j.Map[String, String] = j.Collections.emptyMap()
 
     @BeanProperty
     var sbtPassParentEnvironment: Boolean = true
 
-    private val linkedProjectSettings: util.TreeSet[SbtProjectSettings] = new util.TreeSet[SbtProjectSettings]
+    private val linkedProjectSettings: j.TreeSet[SbtProjectSettings] = new j.TreeSet[SbtProjectSettings]
 
     @XCollection(style = XCollection.Style.v1, elementTypes = Array(classOf[SbtProjectSettings]))
-    override def getLinkedExternalProjectsSettings: util.Set[SbtProjectSettings] =
+    override def getLinkedExternalProjectsSettings: j.Set[SbtProjectSettings] =
       linkedProjectSettings
 
-    override def setLinkedExternalProjectsSettings(settings: util.Set[SbtProjectSettings]): Unit = {
+    override def setLinkedExternalProjectsSettings(settings: j.Set[SbtProjectSettings]): Unit = {
       linkedProjectSettings.addAll(settings)
     }
   }

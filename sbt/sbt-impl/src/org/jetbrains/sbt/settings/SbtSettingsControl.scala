@@ -2,8 +2,6 @@ package org.jetbrains.sbt.settings
 
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, ExternalSystemUiUtil, PaintAwarePanel}
 
-import scala.jdk.CollectionConverters.{MapHasAsJava, MapHasAsScala}
-
 class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsControl[SbtSettings] {
 
   private val pane = new SbtSettingsPane(settings.getProject)
@@ -16,7 +14,7 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
       pane.getSbtCommandArgs == settings.sbtOptions &&
       pane.isCustomVM == settings.customVMEnabled &&
       pane.getCustomVMPath == settings.customVMPath &&
-      pane.getSbtEnvironment == settings.sbtEnvironment.asJava &&
+      pane.getSbtEnvironment == settings.sbtEnvironment &&
       pane.getSbtPassParentEnvironment == settings.sbtPassParentEnvironment
 
   }
@@ -37,7 +35,7 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
     settings.sbtOptions = pane.getSbtCommandArgs
     settings.customVMEnabled = pane.isCustomVM
     settings.customVMPath = pane.getCustomVMPath
-    settings.sbtEnvironment = pane.getSbtEnvironment.asScala.toMap
+    settings.sbtEnvironment = pane.getSbtEnvironment
     settings.sbtPassParentEnvironment = pane.getSbtPassParentEnvironment
   }
 
@@ -47,7 +45,7 @@ class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsCo
     pane.setMyVmParameters(settings.vmParameters)
     pane.setSbtCommandArgs(settings.sbtOptions)
     pane.setCustomVMPath(settings.customVMPath, settings.customVMEnabled)
-    pane.setSbtEnvironment(settings.sbtEnvironment.asJava)
+    pane.setSbtEnvironment(settings.sbtEnvironment)
     pane.setSbtPassParentEnvironment(settings.sbtPassParentEnvironment)
   }
 
