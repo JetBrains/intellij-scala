@@ -16,6 +16,8 @@ trait ScalaHintsSettings {
 }
 
 object ScalaHintsSettings {
+  var xRayMode = false
+
   class Defaults extends ScalaHintsSettings {
     override def showMethodResultType: Boolean = ScalaCodeInsightSettings.SHOW_METHOD_RESULT_TYPE_DEFAULT
     override def showMemberVariableType: Boolean = ScalaCodeInsightSettings.SHOW_MEMBER_VARIABLE_TYPE_DEFAULT
@@ -33,16 +35,16 @@ object ScalaHintsSettings {
   class CodeInsightSettingsAdapter extends ScalaHintsSettings {
     private val settings = ScalaCodeInsightSettings.getInstance()
 
-    override def showMethodResultType: Boolean = settings.showTypeHints && settings.showFunctionReturnType
-    override def showMemberVariableType: Boolean = settings.showTypeHints && settings.showPropertyType
-    override def showLocalVariableType: Boolean = settings.showTypeHints && settings.showLocalVariableType
-    override def showMethodChainInlayHints: Boolean = settings.showMethodChainInlayHints
+    override def showMethodResultType: Boolean = xRayMode || (settings.showTypeHints && settings.showFunctionReturnType)
+    override def showMemberVariableType: Boolean = xRayMode || (settings.showTypeHints && settings.showPropertyType)
+    override def showLocalVariableType: Boolean = xRayMode || (settings.showTypeHints && settings.showLocalVariableType)
+    override def showMethodChainInlayHints: Boolean = xRayMode || settings.showMethodChainInlayHints
     override def alignMethodChainInlayHints: Boolean = settings.alignMethodChainInlayHints
-    override def uniqueTypesToShowMethodChains: Int = settings.uniqueTypesToShowMethodChains
+    override def uniqueTypesToShowMethodChains: Int = if (xRayMode) 1 else settings.uniqueTypesToShowMethodChains
     override def presentationLength: Int = settings.presentationLength
-    override def showObviousType: Boolean = settings.showObviousType
+    override def showObviousType: Boolean = xRayMode || settings.showObviousType
     override def preserveIndents: Boolean = settings.preserveIndents
-    override def showRangeHintsForToAndUntil: Boolean = settings.showRangeHintsForToAndUntil
-    override def showExclusiveRangeHint: Boolean = settings.showExclusiveRangeHint
+    override def showRangeHintsForToAndUntil: Boolean = xRayMode || settings.showRangeHintsForToAndUntil
+    override def showExclusiveRangeHint: Boolean = xRayMode || settings.showExclusiveRangeHint
   }
 }

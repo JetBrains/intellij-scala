@@ -29,6 +29,8 @@
 
         <config.inlaySettingsProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsSettingsProvider" />
 
+        <editorFactoryListener implementation="org.jetbrains.plugins.scala.codeInsight.hints.ScalaEditorFactoryListener"/>
+
         <defaultLiveTemplates file="liveTemplates/scala"/>
         <liveTemplatePreprocessor implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaTemplatePreprocessor"/>
         <liveTemplateContext contextId="SCALA"
