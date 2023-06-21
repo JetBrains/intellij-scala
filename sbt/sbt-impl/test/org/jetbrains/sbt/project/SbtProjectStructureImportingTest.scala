@@ -15,13 +15,13 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{RichFile, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
-import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.jetbrains.sbt.settings.SbtSettings
@@ -448,12 +448,12 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
         val module_8_x_x_preview  = moduleX("module_8_x_x_preview", LanguageLevel.JDK_1_8, null) // no preview for Java 8
         val module_11_x_x_preview = moduleX("module_11_x_x_preview", LanguageLevel.JDK_11, null) // no preview for Java 11
         val module_14_x_x_preview = moduleX("module_14_x_x_preview", LanguageLevel.JDK_14, null) // no preview for Java 11
-        val module_18_x_x_preview = moduleX("module_18_x_x_preview", LanguageLevel.JDK_18_PREVIEW, null)
+        val module_19_x_x_preview = moduleX("module_19_x_x_preview", LanguageLevel.JDK_19_PREVIEW, null)
 
         val module_x_x_8_preview  = moduleX("module_x_x_8_preview", LanguageLevel.JDK_1_8, "8")
         val module_x_x_11_preview = moduleX("module_x_x_11_preview", LanguageLevel.JDK_11, "11")
         val module_x_x_14_preview = moduleX("module_x_x_14_preview", LanguageLevel.JDK_14, "14")
-        val module_x_x_18_preview = moduleX("module_x_x_18_preview", LanguageLevel.JDK_18_PREVIEW, "18")
+        val module_x_x_19_preview = moduleX("module_x_x_19_preview", LanguageLevel.JDK_19_PREVIEW, "19")
 
         modules := Seq(
           root,
@@ -462,8 +462,8 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
           module_8_x_x, module_11_x_x, module_14_x_x, module_15_x_x,
           module_x_8_x, module_x_11_x,
           module_x_x_8, module_x_x_11,
-          module_8_x_x_preview, module_11_x_x_preview, module_14_x_x_preview, module_18_x_x_preview,
-          module_x_x_8_preview, module_x_x_11_preview, module_x_x_14_preview, module_x_x_18_preview,
+          module_8_x_x_preview, module_11_x_x_preview, module_14_x_x_preview, module_19_x_x_preview,
+          module_x_x_8_preview, module_x_x_11_preview, module_x_x_14_preview, module_x_x_19_preview,
         )
       }
     ) finally {

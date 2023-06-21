@@ -9,14 +9,14 @@ import com.intellij.openapi.util.{ModificationTracker, UserDataHolderBase}
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events._
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.platform.backend.workspace.{WorkspaceModelChangeListener, WorkspaceModelTopics}
+import com.intellij.platform.workspace.jps.entities.{ContentRootEntity, ModuleEntity}
+import com.intellij.platform.workspace.storage.VersionedStorageChange
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiModificationTracker}
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.workspaceModel.ide.impl.legacyBridge.module.ModuleEntityUtils
-import com.intellij.workspaceModel.ide.{WorkspaceModelChangeListener, WorkspaceModelTopics}
-import com.intellij.workspaceModel.storage.VersionedStorageChange
-import com.intellij.workspaceModel.storage.bridgeEntities.{ContentRootEntity, ModuleEntity}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._

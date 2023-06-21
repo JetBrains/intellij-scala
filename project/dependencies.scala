@@ -14,7 +14,7 @@ object Versions {
   val bloopVersion = "1.5.6"
   val zincVersion = "1.9.0"
 
-  val intellijVersion = "232.7754.73"
+  val intellijVersion = "232.8296.3"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 

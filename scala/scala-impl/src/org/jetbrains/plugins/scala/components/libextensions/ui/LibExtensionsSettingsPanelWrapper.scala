@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.components.libextensions._
 import java.awt.BorderLayout
 import java.io.File
 import javax.swing._
+import scala.annotation.nowarn
 
 class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
                                         private val project: Project) {
@@ -58,7 +59,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
         ScalaBundle.message("how.to.add.custom.macro.support.help.link.title"),
         () => BrowserUtil.browse(CustomMacrosSupportHelpLink)
       )
-      .createPanel())
+      .createPanel(): @nowarn("cat=deprecation"))
 
     val settingsPanel = new JPanel(new BorderLayout())
     settingsPanel.add(checkBoxes, BorderLayout.CENTER)

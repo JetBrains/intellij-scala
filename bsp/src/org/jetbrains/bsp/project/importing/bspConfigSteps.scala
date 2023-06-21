@@ -25,6 +25,7 @@ import java.awt.BorderLayout
 import java.io.File
 import java.nio.file.Path
 import javax.swing.{DefaultListModel, JComponent, JPanel, ListSelectionModel}
+import scala.annotation.nowarn
 
 object bspConfigSteps {
 
@@ -49,7 +50,7 @@ object bspConfigSteps {
     s"${config.getName} ${config.getVersion}"
 
   private[importing] def withTooltip(component: JComponent, @Nls tooltip: String) =
-    UI.PanelFactory.panel(component).withTooltip(tooltip).createPanel()
+    UI.PanelFactory.panel(component).withTooltip(tooltip).createPanel(): @nowarn("cat=deprecation")
 
   private[importing] def addTitledList(parent: JComponent, title: JComponent, list: JBList[String]): Unit = {
     val manager = new GridLayoutManager(3,1)
