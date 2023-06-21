@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral,
  * @see [[com.intellij.codeInsight.documentation.DocumentationManagerUtil]]
  * @define anonymousClassNote None if the class is anonymous.
  */
-object HtmlPsiUtils {
+private [documentationProvider] object HtmlPsiUtils {
 
   def psiElementLink(fqn: String, label: String, escapeLabel: Boolean = true, attributesKey: Option[TextAttributesKey] = None): String = {
     val href = psiElementHref(fqn)
@@ -23,7 +23,7 @@ object HtmlPsiUtils {
     attributesKey.fold(link) { withStyledSpan(link, _) }
   }
 
-  private [documentationProvider] def psiElement(element: PsiElement, label: Option[String] = None, escapeLabel: Boolean = true): String = {
+  def psiElement(element: PsiElement, label: Option[String] = None, escapeLabel: Boolean = true): String = {
     val text = label.getOrElse(element.getText)
     val escapedContent = if (escapeLabel) StringEscapeUtils.escapeHtml(text) else text
     element match {
@@ -36,14 +36,14 @@ object HtmlPsiUtils {
     }
   }
 
-  private [documentationProvider] def classLinkWithLabel(clazz: PsiClass, label: String, defLinkHighlight: Boolean): String = {
+  def classLinkWithLabel(clazz: PsiClass, label: String, defLinkHighlight: Boolean): String = {
     val attributesKey =
       if (defLinkHighlight) None
       else Some(ScalaColorsSchemeUtils.textAttributesKey(clazz))
     psiElementLink(clazz.qualifiedName, label, attributesKey = attributesKey)
   }
 
-  private [documentationProvider] def withStyledSpan(text: String, attributesKey: TextAttributesKey): String =
+  def withStyledSpan(text: String, attributesKey: TextAttributesKey): String =
     HtmlSyntaxInfoUtil.appendStyledSpan(
       new java.lang.StringBuilder,
       EditorColorsManager.getInstance.getGlobalScheme.getAttributes(attributesKey),
@@ -51,5 +51,5 @@ object HtmlPsiUtils {
       1.0f
     ).toString
 
-  private [documentationProvider] def psiElementHref(fqn: String): String = s"psi_element://${StringEscapeUtils.escapeHtml(fqn)}"
+  def psiElementHref(fqn: String): String = s"psi_element://${StringEscapeUtils.escapeHtml(fqn)}"
 }
