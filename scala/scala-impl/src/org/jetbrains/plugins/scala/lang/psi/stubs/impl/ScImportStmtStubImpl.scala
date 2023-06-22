@@ -21,5 +21,8 @@ class ScImportStmtStubImpl(
 class ScExportStmtStubImpl(
   parent: StubElement[_ <: PsiElement],
   elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-  importText: String
-) extends ScImportOrExportStmtStubImpl[ScExportStmt](parent, elementType, importText) with ScExportStmtStub
+  importText: String,
+  override val isTopLevel: Boolean,
+  override val topLevelQualifier: Option[String]
+) extends ScImportOrExportStmtStubImpl[ScExportStmt](parent, elementType, importText)
+  with ScExportStmtStub

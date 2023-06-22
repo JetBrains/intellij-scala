@@ -8,4 +8,4 @@ trait ScImportOrExportStmtStub[Psi <: ScImportOrExportStmt] extends StubElement[
 }
 
 trait ScImportStmtStub extends ScImportOrExportStmtStub[ScImportStmt]
-trait ScExportStmtStub extends ScImportOrExportStmtStub[ScExportStmt]
+trait ScExportStmtStub extends ScImportOrExportStmtStub[ScExportStmt] with ScTopLevelElementStub[ScExportStmt]

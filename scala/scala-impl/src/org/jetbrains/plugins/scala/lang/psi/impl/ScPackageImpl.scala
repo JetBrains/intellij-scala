@@ -59,7 +59,7 @@ final class ScPackageImpl private (val pack: PsiPackage)
       val foundPackageObject = findPackageObject(scope)
       if (!foundPackageObject.forall(processPackageObject))
         false
-      else if (!processTopLevelDeclarations(processor, state, place))
+      else if (!processTopLevelDeclarations(processor, state, lastParent, place))
         false
       else
         true

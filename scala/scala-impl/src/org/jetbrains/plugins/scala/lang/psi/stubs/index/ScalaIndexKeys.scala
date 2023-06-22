@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiven, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -45,6 +45,7 @@ object ScalaIndexKeys {
   val TOP_LEVEL_FUNCTION_BY_PKG_KEY       = createIndexKey[String, ScFunction]("sc.top.level.function.by.package.key")
   val TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY = createIndexKey[String, ScClass]("sc.top.level.implicit.class.by.package.key")
   val TOP_LEVEL_EXTENSION_BY_PKG_KEY      = createIndexKey[String, ScExtension]("sc.top.level.extension.by.package.key")
+  val TOP_LEVEL_EXPORT_BY_PKG_KEY         = createIndexKey[String, ScExportStmt]("sc.top.level.export.by.package.key")
   val ALIASED_IMPORT_KEY                  = createIndexKey[String, ScImportSelector]("sc.aliased.import.key")
 
   //FQN keys

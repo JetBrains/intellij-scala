@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScBegin
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder, ScalaPsiUtil}
 
 final class ScPackagingImpl private[psi](stub: ScPackagingStub,
                                          nodeType: ScStubElementType[ScPackagingStub, ScPackaging],
@@ -30,6 +30,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
   extends ScalaStubBasedElementImpl(stub, nodeType, node)
     with ScPackaging
     with ScImportsHolder // todo: to be removed
+    with ScExportsHolder
     with ScDeclarationSequenceHolder
     with ScBegin {
   import ScPackageLike._
@@ -105,7 +106,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
         return false
 
       if (this.isInScala3Module) {
-        if (!processTopLevelDeclarations(processor, state, place))
+        if (!processTopLevelDeclarations(processor, state, lastParent, place))
           return false
       }
     }

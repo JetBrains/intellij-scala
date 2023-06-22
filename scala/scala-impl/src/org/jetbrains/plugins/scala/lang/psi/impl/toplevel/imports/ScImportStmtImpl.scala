@@ -12,7 +12,9 @@ import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScObject, ScTemplateDefinition, ScTypeDefinition}
@@ -46,7 +48,21 @@ class ScExportStmtImpl(
   node: ASTNode,
   toString: String
 ) extends ScImportOrExportImpl[ScExportStmt, ScExportStmtStub](stub, nodeType, node, toString)
-  with ScExportStmt
+  with ScExportStmt {
+  override def isTopLevel: Boolean = getContext match {
+    case _: ScPackaging | _: ScFile => true
+    case _                          => false
+  }
+
+  override def topLevelQualifier: Option[String] = {
+    val parent = PsiTreeUtil.getStubOrPsiParent(this)
+    parent match {
+      case p: ScPackaging => Option(p.fullPackageName)
+      case _: ScalaFile   => Option("") //default package
+      case _              => None
+    }
+  }
+}
 
 abstract sealed class ScImportOrExportImpl[
   Psi <: ScImportOrExportStmt,

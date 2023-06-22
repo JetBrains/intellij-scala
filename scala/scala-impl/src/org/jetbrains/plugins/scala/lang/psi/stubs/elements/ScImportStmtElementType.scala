@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportOrExportStmt, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.{ScExportStmtImpl, ScImportStmtImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExportStmtStubImpl, ScImportStmtStubImpl}
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.TOP_LEVEL_EXPORT_BY_PKG_KEY
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportOrExportStmtStub, ScImportStmtStub}
 
 abstract sealed class ScImportOrExportStmtElementType[
@@ -36,11 +37,35 @@ class ScExportStmtElementType extends ScImportOrExportStmtElementType[ScExportSt
     new ScExportStmtImpl(stub, nodeType, node, debugName)
 
   override final def createStubImpl(statement: ScExportStmt, parentStub: StubElement[_ <: PsiElement]) =
-    new ScExportStmtStubImpl(parentStub, this, importText = statement.getText)
+    new ScExportStmtStubImpl(
+      parentStub,
+      this,
+      importText        = statement.getText,
+      isTopLevel        = statement.isTopLevel,
+      topLevelQualifier = statement.topLevelQualifier
+    )
 
-  override final def serialize(stub: ScExportStmtStub, dataStream: StubOutputStream): Unit =
+  override final def serialize(stub: ScExportStmtStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.importText)
+    dataStream.writeBoolean(stub.isTopLevel)
+    dataStream.writeOptionName(stub.topLevelQualifier)
+  }
 
   override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]) =
-    new ScExportStmtStubImpl(parentStub, this, importText = dataStream.readNameString)
+    new ScExportStmtStubImpl(
+      parentStub,
+      this,
+      importText        = dataStream.readNameString,
+      isTopLevel        = dataStream.readBoolean,
+      topLevelQualifier = dataStream.readOptionName
+    )
+
+  override def indexStub(stub: ScExportStmtStub, sink: IndexSink): Unit = {
+    stub.getParentStub
+    if (stub.isTopLevel) {
+      stub.topLevelQualifier.foreach(qual =>
+        sink.occurrence(TOP_LEVEL_EXPORT_BY_PKG_KEY, qual)
+      )
+    }
+  }
 }

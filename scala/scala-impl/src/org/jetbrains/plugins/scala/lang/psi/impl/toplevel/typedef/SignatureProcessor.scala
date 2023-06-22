@@ -214,8 +214,6 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
   }
 
   override protected def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
-    implicit val ctx: ProjectContext = template
-
     def addSignature(s: TermSignature): Unit = {
       process(s, sink)
     }

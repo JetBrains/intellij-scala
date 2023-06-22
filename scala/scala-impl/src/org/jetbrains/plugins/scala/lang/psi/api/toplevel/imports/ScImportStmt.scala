@@ -26,5 +26,8 @@ trait ScImportStmt extends ScImportOrExportStmt with ScBlockStatement
  * Export clauses can appear in classes or they can appear at the top-level.
  * An export clause cannot appear as a statement in a block.
  */
-trait ScExportStmt extends ScImportOrExportStmt
+trait ScExportStmt extends ScImportOrExportStmt {
+  def isTopLevel: Boolean
+  def topLevelQualifier: Option[String]
+}
 
