@@ -107,6 +107,50 @@ class ExactBreakpointsTest_3_0 extends ExactBreakpointsTestBase {
     exactBreakpointTest("mainInInnerObject")("println(42)")
   }
 
+  addSourceFile("SCL21348.scala",
+    s"""@main def helloMe() = {
+       |  println("this is way cooler")
+       |  val m = Map("lau" -> "yeser",
+       |    "data" -> "base")
+       |
+       |  for ((k, v) <- m) {
+       |    val k1 = "hello" $breakpoint
+       |    val k = k1.length + 320 $breakpoint
+       |    println(s"$${k} - $${v}") $breakpoint
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testSCL21348(): Unit = {
+    exactBreakpointTest("helloMe")(
+    """val k1 = "hello"""", "val k = k1.length + 320", """println(s"${k} - ${v}")""",
+    """val k1 = "hello"""", "val k = k1.length + 320", """println(s"${k} - ${v}")"""
+    )
+  }
+
+  addSourceFile("mypackage/SCL21348.scala",
+    s"""package mypackage
+       |
+       |@main def helloMe() = {
+       |  println("this is way cooler")
+       |  val m = Map("lau" -> "yeser",
+       |    "data" -> "base")
+       |
+       |  for ((k, v) <- m) {
+       |    val k1 = "hello" $breakpoint
+       |    val k = k1.length + 320 $breakpoint
+       |    println(s"$${k} - $${v}") $breakpoint
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testSCL21348_withPackage(): Unit = {
+    exactBreakpointTest("mypackage.helloMe")(
+      """val k1 = "hello"""", "val k = k1.length + 320", """println(s"${k} - ${v}")""",
+      """val k1 = "hello"""", "val k = k1.length + 320", """println(s"${k} - ${v}")"""
+    )
+  }
+
   override def testConstructorAndClassParam(): Unit = {}
 
   override def testSeveralLines1(): Unit = {}
