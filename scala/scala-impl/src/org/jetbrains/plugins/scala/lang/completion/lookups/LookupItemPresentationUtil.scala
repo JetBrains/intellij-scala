@@ -55,7 +55,7 @@ private object LookupItemPresentationUtil {
 
     def paramsRenderer: ParametersRenderer = new ParametersRenderer(
       paramRenderer(),
-      renderImplicitModifier = true,
+      shouldRenderImplicitModifier = true,
       clausesSeparator = ""
     )
 

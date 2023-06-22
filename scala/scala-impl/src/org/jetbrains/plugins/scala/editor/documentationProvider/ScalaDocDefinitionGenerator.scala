@@ -6,7 +6,7 @@ import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
-import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocAnnotationRenderer, ScalaDocTypeRenderer, WithHtmlPsiLink}
+import org.jetbrains.plugins.scala.editor.documentationProvider.renderers.{ScalaDocAnnotationRenderer, ScalaDocParametersRenderer, ScalaDocTypeRenderer, WithHtmlPsiLink}
 import org.jetbrains.plugins.scala.extensions.{&, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi
 import HtmlPsiUtils.classLinkWithLabel
@@ -190,29 +190,14 @@ private class ScalaDocDefinitionGenerator private(
 
   // UTILS
 
-  private def typeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =
+  private lazy val typeAnnotationRenderer: TypeAnnotationRenderer =
     new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll)
-
   private lazy val annotationsRenderer =
     new ScalaDocAnnotationRenderer()
   private lazy val typeParamsRenderer =
     new TypeParamsRenderer(typeRenderer, new TypeBoundsRenderer(Html))
-
-  private lazy val definitionParamsRenderer: ParametersRenderer = {
-    val parameterRenderer = new ParameterRenderer(
-      typeRenderer,
-      WithHtmlPsiLink.renderer,
-      typeAnnotationRenderer(typeRenderer),
-      TextEscaper.Html,
-      withMemberModifiers = false,
-      withAnnotations = true
-    )
-    new ParametersRenderer(
-      parameterRenderer,
-      renderImplicitModifier = true,
-      clausesSeparator = "",
-    )
-  }
+  private lazy val definitionParamsRenderer: ParametersRenderer =
+    ScalaDocParametersRenderer(typeRenderer, typeAnnotationRenderer)
 
   private def parseExtendsBlock(elem: ScExtendsBlock)
                                (implicit typeToString: TypeRenderer): String = {

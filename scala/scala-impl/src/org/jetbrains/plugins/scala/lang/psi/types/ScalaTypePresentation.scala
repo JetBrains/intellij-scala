@@ -135,7 +135,7 @@ trait ScalaTypePresentation extends TypePresentation {
             )
             val paramsRenderer = new ParametersRenderer(
               paramRenderer,
-              renderImplicitModifier = true
+              shouldRenderImplicitModifier = true
             )
             paramsRenderer.renderClauses(function)
           }

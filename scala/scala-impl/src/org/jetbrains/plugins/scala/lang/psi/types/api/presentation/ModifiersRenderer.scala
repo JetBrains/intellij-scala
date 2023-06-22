@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api.presentation
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
+import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ModifiersRenderer.modifiers
 
 trait ModifiersRendererLike {
   protected def render(buffer: StringBuilder, modifierList: ScModifierList): Unit
@@ -28,8 +29,6 @@ class ModifiersRenderer(
       buffer.append(modifierText).append(" ")
     }
 
-    val modifiers: Array[String] = Array("abstract", "override", "final", "sealed", "implicit", "lazy")
-
     for (modifier <- modifiers if modifierList.hasModifierProperty(modifier))
       buffer.append(modifier).append(" ")
   }
@@ -37,6 +36,11 @@ class ModifiersRenderer(
 
 
 object ModifiersRenderer {
+  val modifiers: Array[String] = Array(
+    "abstract", "override", "final", "sealed", "implicit", "lazy",
+    "opaque", "inline", "transparent", "open", "infix"
+  )
+
   def SimpleText(
     textEscaper: TextEscaper = TextEscaper.Noop
   ): ModifiersRenderer =

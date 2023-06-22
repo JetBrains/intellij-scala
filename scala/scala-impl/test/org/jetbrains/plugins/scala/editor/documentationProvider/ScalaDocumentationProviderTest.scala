@@ -4,7 +4,6 @@ import org.jetbrains.plugins.scala.util.AliasExports._
 
 // TODO: split tests per-sections: definition part & content part (rendered scaladoc)
 class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase {
-
   def testClass(): Unit =
     doGenerateDocDefinitionTest(
       s"""package a.b.c
@@ -2359,6 +2358,23 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedContent =
       """
         |<span style="color:#000080;font-weight:bold;">val</span>f:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>=><span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
+        |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testImplicit(): Unit = {
+    val fileContent =
+      s"""
+         |import scala.concurrent.ExecutionContext
+         |def ${|}f()(implicit ec: ExecutionContext): Int = ???
+         |""".stripMargin
+
+    val expectedContent =
+      """
+        |<span style="color:#000080;font-weight:bold;">def</span>
+        |f()(<span style="color:#000080;font-weight:bold;">implicit</span>ec:<span style="color:#000000;"><a href="psi_element://scala.concurrent.ExecutionContext"><code>ExecutionContext</code></a></span>):
+        |<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>
         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)

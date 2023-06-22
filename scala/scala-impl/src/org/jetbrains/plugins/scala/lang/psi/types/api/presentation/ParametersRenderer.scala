@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 
 class ParametersRenderer(
   parameterRenderer: ParameterRendererLike,
-  renderImplicitModifier: Boolean = false,
+  shouldRenderImplicitModifier: Boolean = false,
   clausesSeparator: String = "",
   paramsSeparator: String = ", "
 ) {
@@ -35,13 +35,16 @@ class ParametersRenderer(
     buffer.result()
   }
 
-  def renderClause(buffer: StringBuilder, clause: ScParameterClause): Unit = {
-    val prefix = if (renderImplicitModifier && clause.isImplicit) "(implicit " else "("
-    val suffix = ")"
-    buffer.append(prefix)
+  private def renderClause(buffer: StringBuilder, clause: ScParameterClause): Unit = {
+    buffer.append("(")
+    if (shouldRenderImplicitModifier) renderImplicitModifier(buffer, clause)
     renderParameters(buffer, clause.parameters)
-    buffer.append(suffix)
+    buffer.append(")")
   }
+
+  protected def renderImplicitModifier(buffer: StringBuilder, clause: ScParameterClause): Unit =
+    if (clause.isImplicit) buffer.append("implicit ")
+    else if (clause.isUsing) buffer.append("using ")
 
   private def renderParameters(buffer: StringBuilder, parameters: Seq[ScParameter]): Unit = {
     var isFirst = true

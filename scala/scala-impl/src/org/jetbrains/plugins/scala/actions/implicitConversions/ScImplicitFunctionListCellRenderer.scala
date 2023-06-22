@@ -110,7 +110,7 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
 
   private def paramsRenderer: ParametersRenderer = new ParametersRenderer(
     paramRenderer,
-    renderImplicitModifier = true,
+    shouldRenderImplicitModifier = true,
     clausesSeparator = ""
   )
 
