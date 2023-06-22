@@ -27,7 +27,7 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
   public static final int COMMAND_FOUND = 6;
   public static final int FINDING_KEY = 8;
   public static final int KEY_FOUND = 10;
-  public static final int FINDING_VALUES = 12;
+  public static final int FINDING_NEXT_VALUE = 12;
   public static final int VALUE_FOUND = 14;
 
   /**
@@ -37,7 +37,7 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
    * l is of the form l = 2*k, k a non negative integer
    */
   private static final int ZZ_LEXSTATE[] = { 
-     0,  0,  1,  1,  2,  2,  1,  1,  3,  3,  1,  1,  4,  4,  1, 1
+     0,  0,  1,  1,  2,  2,  1,  1,  3,  3,  1,  1,  4,  4,  5, 5
   };
 
   /** 
@@ -59,8 +59,9 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
 
   /* The ZZ_CMAP_A table has 640 entries */
   static final char ZZ_CMAP_A[] = zzUnpackCMap(
-    "\11\0\5\3\22\0\1\3\15\0\1\5\1\1\13\6\3\0\1\2\42\0\32\4\12\0\1\3\32\0\1\3\337"+
-    "\0\1\3\177\0\13\3\35\0\2\3\5\0\1\3\57\0\1\3\40\0");
+    "\11\0\5\3\22\0\1\3\13\0\1\7\1\6\1\5\1\1\13\6\3\0\1\2\2\0\32\4\4\0\1\6\1\0"+
+    "\32\4\12\0\1\3\32\0\1\3\337\0\1\3\177\0\13\3\35\0\2\3\5\0\1\3\57\0\1\3\40"+
+    "\0");
 
   /** 
    * Translates DFA states to action switch labels.
@@ -68,10 +69,11 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
-    "\5\0\2\1\1\2\1\3\1\4\1\5\1\0\1\6";
+    "\6\0\2\1\1\2\1\3\1\4\1\5\1\6\1\0"+
+    "\1\7";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[13];
+    int [] result = new int[15];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -96,11 +98,11 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\7\0\16\0\25\0\34\0\43\0\52\0\61"+
-    "\0\70\0\77\0\106\0\115\0\43";
+    "\0\0\0\10\0\20\0\30\0\40\0\50\0\60\0\70"+
+    "\0\100\0\110\0\120\0\130\0\140\0\150\0\60";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[13];
+    int [] result = new int[15];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -123,12 +125,13 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
   private static final int [] ZZ_TRANS = zzUnpackTrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
-    "\1\6\1\7\10\6\1\10\7\6\1\11\6\6\2\12"+
-    "\5\6\3\13\10\0\1\14\10\0\1\10\7\0\1\11"+
-    "\6\0\2\12\5\0\3\13\2\0\1\15\4\0";
+    "\1\7\1\10\11\7\1\11\10\7\1\12\7\7\2\13"+
+    "\6\7\3\14\4\7\1\15\3\7\1\15\11\0\1\16"+
+    "\11\0\1\11\10\0\1\12\7\0\2\13\6\0\3\14"+
+    "\4\0\1\15\3\0\1\15\2\0\1\17\5\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[84];
+    int [] result = new int[112];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -166,10 +169,10 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\5\0\1\11\5\1\1\0\1\11";
+    "\6\0\1\11\6\1\1\0\1\11";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[13];
+    int [] result = new int[15];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -486,42 +489,47 @@ public void resetCustom() {}
             { return tCLI_DIRECTIVE_ERROR;
             } 
             // fall through
-          case 7: break;
+          case 8: break;
           case 2: 
             { switch (yystate()) {
         case PREFIX_FOUND -> yybegin(FINDING_COMMAND);
         case COMMAND_FOUND -> yybegin(FINDING_KEY);
-        case KEY_FOUND -> yybegin(FINDING_VALUES);
-        case VALUE_FOUND -> yybegin(FINDING_VALUES);
+        case KEY_FOUND -> yybegin(FINDING_NEXT_VALUE);
     }
     return tCLI_DIRECTIVE_WHITESPACE;
             } 
             // fall through
-          case 8: break;
+          case 9: break;
           case 3: 
             { yybegin(COMMAND_FOUND);
     return tCLI_DIRECTIVE_COMMAND;
             } 
             // fall through
-          case 9: break;
+          case 10: break;
           case 4: 
             { yybegin(KEY_FOUND);
     return tCLI_DIRECTIVE_KEY;
             } 
             // fall through
-          case 10: break;
+          case 11: break;
           case 5: 
             { yybegin(VALUE_FOUND);
     return tCLI_DIRECTIVE_VALUE;
             } 
             // fall through
-          case 11: break;
+          case 12: break;
           case 6: 
+            { yybegin(FINDING_NEXT_VALUE);
+    return tCLI_DIRECTIVE_WHITESPACE;
+            } 
+            // fall through
+          case 13: break;
+          case 7: 
             { yybegin(PREFIX_FOUND);
     return tCLI_DIRECTIVE_PREFIX;
             } 
             // fall through
-          case 12: break;
+          case 14: break;
           default:
             zzScanError(ZZ_NO_MATCH);
           }
