@@ -217,6 +217,13 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       notLocalEnclosingTypeDefinition(element)
     }
 
+    def findEnclosingPackageOrFile: Option[Either[ScPackaging, ScalaFile]] =
+      nonWhitespaceElement(position).parentOfType(Seq(classOf[ScPackaging], classOf[ScalaFile]))
+        .map {
+          case pkg: ScPackaging => Left(pkg)
+          case file: ScalaFile => Right(file)
+        }
+
     def createClassPrepareRequests(classPrepareRequestor: ClassPrepareRequestor,
                                    classPreparePattern: String): Seq[ClassPrepareRequest] = {
       val reqManager = debugProcess.getRequestsManager
@@ -253,7 +260,16 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           case pckg: ScPackaging =>
             qName.set(topLevelMemberClassName(pckg.getContainingFile, Some(pckg)))
           case _ =>
-            findEnclosingTypeDefinition.foreach(typeDef => qName.set(typeDef.getQualifiedNameForDebugger + "*"))
+            val name =
+              findEnclosingTypeDefinition match {
+                case Some(td) => Some(td.getQualifiedNameForDebugger + "*")
+                case None =>
+                  findEnclosingPackageOrFile.map {
+                    case Left(pkg) => topLevelMemberClassName(pkg.getContainingFile, Some(pkg))
+                    case Right(file) => topLevelMemberClassName(file, None)
+                  }
+              }
+            name.foreach(qName.set)
         }
         // Enclosing type definition is not found
         if (qName.get == null) {
