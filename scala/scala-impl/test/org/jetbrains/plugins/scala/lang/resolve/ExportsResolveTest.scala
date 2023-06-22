@@ -224,4 +224,73 @@ class ExportsResolveTest extends SimpleResolveTestBase {
         |}
         |""".stripMargin
     )
+
+  def testSCL20658(): Unit =
+    checkTextHasNoErrors(
+      """
+        |enum MyEnum { case MyCase }
+        |object MyObject { def foo: String = ??? }
+        |
+        |export MyEnum.*
+        |export MyObject.*
+        |
+        |@main
+        |def main(): Unit = {
+        |  println(MyCase)
+        |  println(foo)
+        |}
+        |""".stripMargin
+    )
+
+  def testTopLevelExportSimple(): Unit = {
+    myFixture.addFileToProject(
+      "foo.scala",
+      """
+        |package foo
+        |
+        |export Bar.bar
+        |
+        |object Bar { def bar: Int = 123 }
+        |""".stripMargin
+    )
+
+    doResolveTest(
+      s"""
+        |package foo
+        |object A {
+        |  val x = ba${REFSRC}r
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testTopLevelExportNested(): Unit = {
+    myFixture.addFileToProject(
+      "foo.scala",
+      """
+        |package foo
+        |
+        |export Bar._
+        |export Baz._
+        |export Qux._
+        |
+        |object Bar {
+        |  object Baz {
+        |    object Qux {
+        |      def foo: String = ???
+        |    }
+        |  }
+        |}
+        |""".stripMargin
+    )
+
+    doResolveTest(
+      s"""
+         |package foo
+         |object A {
+         |  val x = fo${REFSRC}o
+         |}
+         |""".stripMargin
+    )
+  }
 }

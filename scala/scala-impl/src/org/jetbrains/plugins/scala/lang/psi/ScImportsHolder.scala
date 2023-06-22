@@ -716,9 +716,9 @@ trait ScExportsHolder extends ScImportsOrExportsHolder {
   ): Boolean = {
     val exports = getExportStatements
 
-    //Resolve all references in previous exports expressions in direct order to avoid SOE
-    exports.foreach(updateResolveCaches)
-
+//    Resolve all references in previous exports expressions in direct order to avoid SOE
+//    exports.foreach(updateResolveCaches)
+//
     val shouldStop = exports.findLast(!_.processDeclarations(processor, state, lastParent, place))
 
     if (shouldStop.nonEmpty)

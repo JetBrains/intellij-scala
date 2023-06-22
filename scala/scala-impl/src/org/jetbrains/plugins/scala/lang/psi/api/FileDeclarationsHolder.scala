@@ -87,7 +87,7 @@ trait FileDeclarationsHolder
             //See SCL-20481
             val processTopLevelDeclarations = this.isInScala3Module || isUnitTestMode
             if (processTopLevelDeclarations) {
-              if (!defaultPackage.processTopLevelDeclarations(processor, state, place))
+              if (!defaultPackage.processTopLevelDeclarations(processor, state, lastParent, place))
                 return false
             }
           }
