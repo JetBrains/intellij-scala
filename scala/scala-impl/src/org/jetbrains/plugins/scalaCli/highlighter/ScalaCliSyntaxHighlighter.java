@@ -22,8 +22,8 @@ public final class ScalaCliSyntaxHighlighter extends SyntaxHighlighterBase {
         ATTRIBUTES = new HashMap<>();
         ATTRIBUTES.put(ScalaCliTokenTypes.tCLI_DIRECTIVE_PREFIX, DefaultHighlighter.SCALA_CLI_DIRECTIVE_PREFIX);
         ATTRIBUTES.put(ScalaCliTokenTypes.tCLI_DIRECTIVE_COMMAND, DefaultHighlighter.SCALA_CLI_DIRECTIVE_COMMAND);
-        ATTRIBUTES.put(ScalaCliTokenTypes.tCLI_DIRECTIVE_KEY, DefaultHighlighter.OBJECT);
-        ATTRIBUTES.put(ScalaCliTokenTypes.tCLI_DIRECTIVE_VALUE, DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE);
+        ATTRIBUTES.put(ScalaCliTokenTypes.tCLI_DIRECTIVE_KEY, DefaultHighlighter.SCALA_CLI_DIRECTIVE_KEY);
+        ATTRIBUTES.put(ScalaCliTokenTypes.tCLI_DIRECTIVE_VALUE, DefaultHighlighter.SCALA_CLI_DIRECTIVE_VALUE);
     }
 
     public ScalaCliSyntaxHighlighter() {
