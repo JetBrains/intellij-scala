@@ -22,14 +22,16 @@ object Common {
   )
 
   // options for modules which classes can only be used in IDEA process (uses JRE 11)
-  val globalJavacOptions : Seq[String] = globalJavacOptionsCommon ++ Seq("--release", "17")
-  val globalScalacOptions: Seq[String] = globalScalacOptionsCommon ++ Seq("--release", "17")
+  val globalIdeaProcessReleaseOptions: Seq[String] = Seq("--release", "17")
+  val globalJavacOptions             : Seq[String] = globalJavacOptionsCommon ++ globalIdeaProcessReleaseOptions
+  val globalScalacOptions            : Seq[String] = globalScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
 
   // options for modules which classes can be used outside IDEA process with arbitrary JVM version, e.g.:
   //  - in JPS process (JDK is calculated based on project & module JDK)
   //  - in Compile server (by default used project JDK version, can be explicitly changed by user)
-  val outOfIDEAProcessJavacOptions : Seq[String] = globalJavacOptionsCommon ++ Seq("--release", "8")
-  val outOfIDEAProcessScalacOptions: Seq[String] = globalScalacOptionsCommon ++ Seq("--release", "8")
+  val globalExternalProcessReleaseOptions: Seq[String] = Seq("--release", "8")
+  val outOfIDEAProcessJavacOptions       : Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions
+  val outOfIDEAProcessScalacOptions      : Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
 
   val headCommitSum: String =
     scala.sys.process.Process("git rev-parse HEAD").!!.trim.take(7)
