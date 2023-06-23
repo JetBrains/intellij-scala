@@ -17,7 +17,7 @@ trait ConstructorInvocationLikeImpl extends ConstructorInvocationLike {
 
   def matchedParametersByClauses: Seq[Seq[(ScExpression, Parameter)]] = _matchedParametersByClauses()
 
-  private val _matchedParametersByClauses = cached("ConstructorInvocationLikeImpl.matchedParametersByClauses", BlockModificationTracker(this), () => {
+  private val _matchedParametersByClauses = cached("matchedParametersByClauses", BlockModificationTracker(this), () => {
     val paramClauses = resolveConstructor() match {
       case ScalaConstructor(constr) => constr.effectiveParameterClauses.map(_.effectiveParameters)
       case JavaConstructor(constr)  => Seq(constr.parameters)

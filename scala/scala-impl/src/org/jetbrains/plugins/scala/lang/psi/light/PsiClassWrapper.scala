@@ -119,7 +119,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     }
   }
 
-  private val getEmptyConstructor = cached("PsiClassWrapper.getEmptyConstructor", BlockModificationTracker(this), () => {
+  private val getEmptyConstructor = cached("getEmptyConstructor", BlockModificationTracker(this), () => {
     new EmptyPrivateConstructor(PsiClassWrapper.this)
   })
 

@@ -54,7 +54,7 @@ object ScalaMainMethodUtil {
         case funDef: ScFunctionDefinition if isScala2MainMethod(funDef) => funDef
       }
 
-    if (!obj.isTopLevel) None else cachedInUserData("ScalaMainMethodUtil.findScala2MainMethod", obj, BlockModificationTracker(obj)) {
+    if (!obj.isTopLevel) None else cachedInUserData("findScala2MainMethod", obj, BlockModificationTracker(obj)) {
       val declared = declaredScala2Main(obj)
       val res = declared.orElse(Option(PsiMethodUtil.findMainMethod(new PsiClassWrapper(obj, obj.qualifiedName, obj.name))))
       res

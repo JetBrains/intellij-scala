@@ -273,7 +273,7 @@ private object ScalaModuleSettings {
     }
   }
 
-  private val isMetaParadiseJar = cached("ScalaModuleSettings.isMetaParadiseJar", ModificationTracker.NEVER_CHANGED, (pathname: String) => {
+  private val isMetaParadiseJar = cached("isMetaParadiseJar", ModificationTracker.NEVER_CHANGED, (pathname: String) => {
     new File(pathname) match {
       case file if containsEntry(file, "scalac-plugin.xml") =>
         def hasAttribute(nameSuffix: String, value: String) = getJarAttribute(

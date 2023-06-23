@@ -185,7 +185,7 @@ object KindProjectorUtil {
     *
     * Returns parameterized type designated to generated trait, with `f` and `g` as it's type arguments.
     */
-    def synhteticPolyLambdaBuilder(f: ScTypeElement, g: ScTypeElement): Option[ScType] = cachedInUserData("KindProjectorUtil.syntheticPolyLambdaBuilder", tdef, containingFileModTracker(tdef), (f, g)) {
+    def synhteticPolyLambdaBuilder(f: ScTypeElement, g: ScTypeElement): Option[ScType] = cachedInUserData("syntheticPolyLambdaBuilder", tdef, containingFileModTracker(tdef), (f, g)) {
       val tparams = tdef.typeParameters
       val methods = tdef.functions.filter(canBeRewritten(_, tparams))
 

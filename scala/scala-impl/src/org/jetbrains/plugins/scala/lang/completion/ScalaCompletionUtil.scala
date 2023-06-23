@@ -246,11 +246,11 @@ object ScalaCompletionUtil {
     member.containingClass match {
       case null => Set.empty
       case clazz =>
-        val inheritorObjectsInProject: Set[ScObject] = cachedInUserData("ScalaCompletionUtil.findAllInheritorObjectsForOwner.inheritorObjectsInProject", clazz, BlockModificationTracker(clazz), Tuple1(clazz)) {
+        val inheritorObjectsInProject: Set[ScObject] = cachedInUserData("findAllInheritorObjectsForOwner.inheritorObjectsInProject", clazz, BlockModificationTracker(clazz), Tuple1(clazz)) {
           ScalaInheritors.allInheritorObjects(clazz)
         }
 
-        val inheritorObjectsInLibraries: Set[ScObject] = cachedInUserData("ScalaCompletionUtil.findAllInheritorObjectsForOwner.inheritorObjectsInLibraries", clazz, ModTracker.libraryAware(clazz), Tuple1(clazz)) {
+        val inheritorObjectsInLibraries: Set[ScObject] = cachedInUserData("findAllInheritorObjectsForOwner.inheritorObjectsInLibraries", clazz, ModTracker.libraryAware(clazz), Tuple1(clazz)) {
           ScalaInheritors.allInheritorObjects(clazz)
         }
 

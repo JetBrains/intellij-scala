@@ -65,7 +65,7 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
 
   override def selfTypeElement: Option[ScSelfTypeElement] = _selfTypeElement()
 
-  private val _selfTypeElement = cached("ScTemplateBodyImpl.selfTypeElement", ModTracker.anyScalaPsiChange, () => {
+  private val _selfTypeElement = cached("selfTypeElement", ModTracker.anyScalaPsiChange, () => {
     Option(getStubOrPsiChild(SELF_TYPE))
   })
 

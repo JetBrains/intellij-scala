@@ -127,7 +127,7 @@ object MixinNodes {
   private object SuperTypesData {
 
     def apply(thisClass: PsiClass): SuperTypesData =
-      cachedInUserData("MixinNodes.SuperTypesData.apply", thisClass, ModTracker.libraryAware(thisClass), Tuple1(thisClass)) {
+      cachedInUserData("SuperTypesData.apply", thisClass, ModTracker.libraryAware(thisClass), Tuple1(thisClass)) {
         val superTypes = thisClass match {
           case syn: ScSyntheticClass          => syn.getSuperTypes.map(_.toScType()(syn)).toSeq
           case newTd: ScNewTemplateDefinition => MixinNodes.linearization(newTd)

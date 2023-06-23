@@ -297,7 +297,7 @@ package object types {
   }
 
   implicit class ScalaSeqExt(private val context: PsiElement) {
-    def scalaSeqFqn: String = cachedInUserData("ScalaSeqExt.scalaSeqFqn", context, ScalaPsiManager.instance(context.getProject).TopLevelModificationTracker) {
+    def scalaSeqFqn: String = cachedInUserData("scalaSeqFqn", context, ScalaPsiManager.instance(context.getProject).TopLevelModificationTracker) {
       if (context.newCollectionsFramework) "scala.collection.immutable.Seq"
       else "scala.collection.Seq"
     }

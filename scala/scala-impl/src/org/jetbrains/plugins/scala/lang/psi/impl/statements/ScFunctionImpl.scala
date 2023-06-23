@@ -82,11 +82,11 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override def paramClauses: ScParameters = _paramClauses()
 
-  private val _paramClauses = cached("ScFunctionImpl.paramClauses", ModTracker.anyScalaPsiChange, () => {
+  private val _paramClauses = cached("paramClauses", ModTracker.anyScalaPsiChange, () => {
     getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
   })
 
-  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] = cachedInUserData("ScFunctionImpl.syntheticContextAppliedDefs", this, BlockModificationTracker(this)) {
+  override def syntheticContextAppliedDefs: Seq[ScalaPsiElement] = cachedInUserData("syntheticContextAppliedDefs", this, BlockModificationTracker(this)) {
     ContextAppliedUtil.createSyntheticElementsFor(this, this.containingClass, parameters, typeParameters)
   }
 
@@ -138,7 +138,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override def returnTypeElement: Option[ScTypeElement] = _returnTypeElement()
 
-  private val _returnTypeElement = cached("ScFunctionImpl.returnTypeElement", ModTracker.anyScalaPsiChange, () => {
+  private val _returnTypeElement = cached("returnTypeElement", ModTracker.anyScalaPsiChange, () => {
     byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
   })
 
@@ -168,7 +168,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered || isConstructor) {
       return null //no resolve during dumb mode or while synthetic classes is not registered
     }
-    cachedInUserData("ScFunctionImpl.getReturnType", this, BlockModificationTracker(this)) {
+    cachedInUserData("getReturnType", this, BlockModificationTracker(this)) {
       val resultType = `type`().getOrAny match {
         case FunctionType(rt, _) => rt
         case tp => tp
@@ -230,7 +230,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     byStubOrPsi(_.isExtensionMethod)(extensionMethodOwner.nonEmpty)
 
   override def effectiveParameterClauses: Seq[ScParameterClause] =
-    cachedInUserData("ScFunctionImpl.effectiveParameterClauses", this, BlockModificationTracker(this)) {
+    cachedInUserData("effectiveParameterClauses", this, BlockModificationTracker(this)) {
       val maybeOwner = if (isConstructor) {
         containingClass match {
           case owner: ScTypeParametersOwner => Some(owner)
@@ -256,7 +256,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   private val _getFunctionWrappers =
     cached(
-      "ScFunctionImpl.getFunctionWrappers",
+      "getFunctionWrappers",
       BlockModificationTracker(this),
       (isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass]) => {
         val builder = Seq.newBuilder[ScFunctionWrapper]

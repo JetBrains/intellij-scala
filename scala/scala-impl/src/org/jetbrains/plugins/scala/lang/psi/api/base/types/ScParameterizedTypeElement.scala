@@ -28,7 +28,7 @@ object ScParameterizedTypeElement {
 trait ScDesugarizableToParametrizedTypeElement extends ScDesugarizableTypeElement {
   override final def computeDesugarizedType: Option[ScParameterizedTypeElement] = _computeDesugarizedType()
 
-  private val _computeDesugarizedType = cached("ScParameterizedTypeElement.computeDesugarizedType", BlockModificationTracker(this), () => {
+  private val _computeDesugarizedType = cached("computeDesugarizedType", BlockModificationTracker(this), () => {
     super.computeDesugarizedType match {
       case Some(typeElement: ScParameterizedTypeElement) => Some(typeElement)
       case _ => None

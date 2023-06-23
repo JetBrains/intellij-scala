@@ -26,7 +26,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
 
   def name: String = _name()
 
-  private val _name = cached("ScNamedElement.name", ModTracker.anyScalaPsiChange, () => {
+  private val _name = cached("name", ModTracker.anyScalaPsiChange, () => {
     this match {
       case st: StubBasedPsiElementBase[_] => st.getGreenStub match {
         case namedStub: NamedStub[_] => namedStub.getName
@@ -40,7 +40,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
 
   def nameContext: PsiElement = _nameContext()
 
-  private val _nameContext = cached("ScNamedElement.nameContext", ModTracker.anyScalaPsiChange, () => {
+  private val _nameContext = cached("nameContext", ModTracker.anyScalaPsiChange, () => {
     @tailrec
     def byStub(stub: StubElement[_]): PsiElement = {
       if (stub == null) null

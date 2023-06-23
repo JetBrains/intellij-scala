@@ -137,7 +137,7 @@ class ImplicitHintsPass(
         if (injectedConstructors.isEmpty) Seq.empty
         else
           cachedInUserData(
-            "ImplicitHintPass.injectedConstructorHintsFor",
+            "injectedConstructorHintsFor",
             tdef,
             ModTracker.physicalPsiChange(tdef.getProject)
           ) {

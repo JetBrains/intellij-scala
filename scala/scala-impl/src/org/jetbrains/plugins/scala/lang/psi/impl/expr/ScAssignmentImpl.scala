@@ -34,19 +34,19 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
 
   override def resolveAssignment: Option[ScalaResolveResult] = _resolveAssignment()
 
-  private val _resolveAssignment = cached("ScAssignmentImpl.resolveAssignment", BlockModificationTracker(this), () => {
+  private val _resolveAssignment = cached("resolveAssignment", BlockModificationTracker(this), () => {
     resolveAssignmentInner(shapeResolve = false)
   })
 
   override def shapeResolveAssignment: Option[ScalaResolveResult] = _shapeResolveAssignment()
 
-  private val _shapeResolveAssignment = cached("ScAssignmentImpl.shareResolveAssignment", BlockModificationTracker(this), () => {
+  private val _shapeResolveAssignment = cached("shareResolveAssignment", BlockModificationTracker(this), () => {
     resolveAssignmentInner(shapeResolve = true)
   })
 
   override def mirrorMethodCall: Option[ScMethodCall] = _mirrorMethodCall()
 
-  private val _mirrorMethodCall = cached("ScAssignmentImpl.mirrorMethodCall", BlockModificationTracker(this), () => {
+  private val _mirrorMethodCall = cached("mirrorMethodCall", BlockModificationTracker(this), () => {
     leftExpression match {
       case ref: ScReferenceExpression =>
         val text = s"${ref.getText}_=(${rightExpression.map(_.getText).getOrElse("")})"

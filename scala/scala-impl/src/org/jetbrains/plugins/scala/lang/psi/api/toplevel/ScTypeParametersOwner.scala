@@ -12,7 +12,7 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
 
   def typeParameters: Seq[ScTypeParam] = _typeParameters()
 
-  private val _typeParameters = cached("ScTypeParametersOwner.typeParameters", ModTracker.anyScalaPsiChange, () => {
+  private val _typeParameters = cached("typeParameters", ModTracker.anyScalaPsiChange, () => {
     typeParametersClause match {
       case Some(clause) => clause.typeParameters
       case _ => Seq.empty

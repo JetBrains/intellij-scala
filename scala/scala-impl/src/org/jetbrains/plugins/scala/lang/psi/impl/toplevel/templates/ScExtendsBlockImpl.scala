@@ -37,7 +37,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   override def templateBody: Option[ScTemplateBody] = _templateBody()
 
-  private val _templateBody = cached("ScExtendsBlockImpl.templateBody", ModTracker.anyScalaPsiChange, () => {
+  private val _templateBody = cached("templateBody", ModTracker.anyScalaPsiChange, () => {
     def childStubTemplate(stub: ScExtendsBlockStub) =
       Option(stub.findChildStubByType(TEMPLATE_BODY))
         .map(_.getPsi)
@@ -61,7 +61,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       _.`type`().toOption
     }
 
-  override def superTypes: List[ScType] = cachedInUserData("ScExtendsBlockImpl.superTypes", this, ModTracker.libraryAware(this)) {
+  override def superTypes: List[ScType] = cachedInUserData("superTypes", this, ModTracker.libraryAware(this)) {
     val buffer = ArrayBuffer.empty[ScType]
 
     val stdTypes = projectContext.stdTypes
@@ -142,7 +142,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   def syntheticTypeElements: Seq[ScTypeElement] = _syntheticTypeElements()
 
-  private val _syntheticTypeElements = cached("ScExtendsBlockImpl.syntheticTypeElements", BlockModificationTracker(this), () => {
+  private val _syntheticTypeElements = cached("syntheticTypeElements", BlockModificationTracker(this), () => {
     if (templateParents.nonEmpty) Seq.empty //will be handled separately
     else getContext match {
       case td: ScTypeDefinition => SyntheticMembersInjector.injectSupers(td)
@@ -150,7 +150,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
   })
 
-  override def supers: Seq[PsiClass] = cachedInUserData("ScExtendsBlockImpl.supers", this, ModTracker.libraryAware(this)) {
+  override def supers: Seq[PsiClass] = cachedInUserData("supers", this, ModTracker.libraryAware(this)) {
     val typeElements = templateParents.fold(syntheticTypeElements) {
       _.allTypeElements
     }

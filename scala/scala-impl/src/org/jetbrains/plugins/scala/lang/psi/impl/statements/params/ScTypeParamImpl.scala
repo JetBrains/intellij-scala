@@ -69,7 +69,7 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
 
   override def isCovariant: Boolean = _isCovariant()
 
-  private val _isCovariant = cached("ScTypeParamImpl.isCovariant", ModTracker.anyScalaPsiChange, () => {
+  private val _isCovariant = cached("isCovariant", ModTracker.anyScalaPsiChange, () => {
     byStubOrPsi(_.isCovariant) {
       Option(findChildByType[PsiElement](tIDENTIFIER))
         .exists(_.textMatches("+"))
@@ -78,7 +78,7 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
 
   override def isContravariant: Boolean = _isContravariant()
 
-  private val _isContravariant = cached("ScTypeParamImpl.isContravariant", ModTracker.anyScalaPsiChange, () => {
+  private val _isContravariant = cached("isContravariant", ModTracker.anyScalaPsiChange, () => {
     byStubOrPsi(_.isContravariant) {
       Option(findChildByType[PsiElement](tIDENTIFIER))
         .exists(_.textMatches("-"))

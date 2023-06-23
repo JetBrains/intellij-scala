@@ -12,7 +12,7 @@ trait ScControlFlowOwner extends ScalaPsiElement {
 
   def getControlFlow: Seq[Instruction] = _getControlFlow()
 
-  private val _getControlFlow = cached("ScControlFlowOwner.getControlFlow", ModTracker.physicalPsiChange(getProject), () => {
+  private val _getControlFlow = cached("getControlFlow", ModTracker.physicalPsiChange(getProject), () => {
     val builder = new ScalaControlFlowBuilder(null, null)
     controlFlowScope match {
       case Some(elem) => builder.buildControlflow(elem)

@@ -39,7 +39,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
         file.processDeclarations(processor, state, file.getLastChild, place)
       }
 
-  private val syntheticFile = cached("SbtFileImpl.syntheticFile", ModTracker.physicalPsiChange(getProject), () => {
+  private val syntheticFile = cached("syntheticFile", ModTracker.physicalPsiChange(getProject), () => {
     implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
     @NonNls val imports = importsFor(targetModule).map {
       // TODO this is a workaround, we need to find out why references stopped resolving via the chained imports
@@ -70,7 +70,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
     }
   }
 
-  private def targetModule: TargetModule = cachedInUserData("SbtFileImpl.targetModule", this, ProjectRootManager.getInstance(getProject)) {
+  private def targetModule: TargetModule = cachedInUserData("targetModule", this, ProjectRootManager.getInstance(getProject)) {
     val moduleForFile = ModuleUtilCore.findModuleForPsiElement(this)
     moduleForFile match {
       case null =>

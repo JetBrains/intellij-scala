@@ -141,7 +141,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
   //computes desugarized type either for existential type or one of kind projector types
   override def computeDesugarizedType: Option[ScTypeElement] = _computeDesugarizedType()
 
-  private val _computeDesugarizedType = cached("ScParameterizedTypeElementImpl.computeDesugarizedType", BlockModificationTracker(this), () => {
+  private val _computeDesugarizedType = cached("computeDesugarizedType", BlockModificationTracker(this), () => {
     Option(desugarizedText) match {
       case Some(text) => Option(createTypeElementFromText(text, getContext, this))
       case _ => None

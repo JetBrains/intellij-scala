@@ -56,7 +56,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   @Nullable
   def containingClass: ScTemplateDefinition = _containingClass()
 
-  private val _containingClass = cached("ScMember.containingClass", ModTracker.anyScalaPsiChange, () => {
+  private val _containingClass = cached("containingClass", ModTracker.anyScalaPsiChange, () => {
     containingClass0
   })
 

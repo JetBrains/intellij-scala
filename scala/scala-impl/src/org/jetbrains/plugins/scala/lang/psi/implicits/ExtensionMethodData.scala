@@ -82,7 +82,7 @@ object ExtensionMethodData {
   def apply(function: ScFunction, substitutor: ScSubstitutor): Option[ExtensionMethodData] = {
     ProgressManager.checkCanceled()
 
-    val rawCheck: Option[ExtensionMethodData] = cachedInUserData("ExtensionMethodData.apply.rawExtensionMethodCheck", function, ModTracker.libraryAware(function), Tuple1(function)) {
+    val rawCheck: Option[ExtensionMethodData] = cachedInUserData("apply.rawExtensionMethodCheck", function, ModTracker.libraryAware(function), Tuple1(function)) {
       for {
         retType <- function.returnType.toOption
         ext <- function.extensionMethodOwner

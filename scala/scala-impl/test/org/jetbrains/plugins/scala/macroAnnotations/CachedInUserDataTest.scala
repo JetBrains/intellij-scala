@@ -89,7 +89,7 @@ class CachedInUserDataTest extends CachedWithRecursionGuardTestBase {
       System.currentTimeMillis()
     }
 
-    checkTracer("testTracer.currentTime", totalCount = 3, actualCount = 2) {
+    checkTracer("CachedInUserDataTest.testTracer.currentTime", totalCount = 3, actualCount = 2) {
       currentTime()
       currentTime()
 

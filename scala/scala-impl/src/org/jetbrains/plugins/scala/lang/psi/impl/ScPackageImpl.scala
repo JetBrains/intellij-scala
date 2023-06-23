@@ -68,7 +68,7 @@ final class ScPackageImpl private (val pack: PsiPackage)
   }
 
   override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] = cachedInUserData(
-    "ScPackageImpl.findPackageObject",
+    "findPackageObject",
     this,
     ScalaPsiManager.instance(getProject).TopLevelModificationTracker,
     Tuple1(scope: GlobalSearchScope)
@@ -91,7 +91,7 @@ final class ScPackageImpl private (val pack: PsiPackage)
   }
 
   override def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = cachedInUserData(
-    "ScPackageImpl.getSubPackages(GlobalSearchScope)",
+    "getSubPackages(GlobalSearchScope)",
     this,
     ScalaPsiManager.instance(getProject).TopLevelModificationTracker,
     Tuple1(scope)

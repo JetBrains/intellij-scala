@@ -32,11 +32,11 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
   override def parameters: Seq[ScParameter] = _parameters()
 
-  private val _parameters = cached("ScParameterClauseImpl.parameters", ModTracker.anyScalaPsiChange, () => {
+  private val _parameters = cached("parameters", ModTracker.anyScalaPsiChange, () => {
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory).toSeq
   })
 
-  override def effectiveParameters: Seq[ScParameter] = cachedInUserData("ScParameterClauseImpl.effectiveParameters", this, BlockModificationTracker(this)) {
+  override def effectiveParameters: Seq[ScParameter] = cachedInUserData("effectiveParameters", this, BlockModificationTracker(this)) {
     if (isImplicitOrUsing) {
       val syntheticParameters = getSyntheticParameters
       syntheticParameters ++ parameters
@@ -79,7 +79,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
   override def isImplicit: Boolean = _isImplicit()
 
-  private val _isImplicit = cached("ScParameterClauseImpl.isImplicit", ModTracker.anyScalaPsiChange, () => {
+  private val _isImplicit = cached("isImplicit", ModTracker.anyScalaPsiChange, () => {
     import ScModifierList._
 
     def hasImplicitKeyword =
@@ -92,7 +92,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
   override def isUsing: Boolean = _isUsing()
 
-  private val _isUsing = cached("ScParameterClauseImpl.isUsing", ModTracker.anyScalaPsiChange, () => {
+  private val _isUsing = cached("isUsing", ModTracker.anyScalaPsiChange, () => {
     def hasUsingKeyword =
       findChildByType(ScalaTokenType.UsingKeyword) != null
 

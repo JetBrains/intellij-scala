@@ -10,7 +10,7 @@ private[testingSupport]
 object MUnitTestLocationsFinder {
 
   @RequiresReadLock
-  def calculateTestLocations(definition: ScTypeDefinition): Option[Seq[PsiElement]] = cachedInUserData("MUnitTestLocationsFinder.calculateTestLocations", definition, CachesUtil.fileModTracker(definition.getContainingFile), Tuple1(definition)) {
+  def calculateTestLocations(definition: ScTypeDefinition): Option[Seq[PsiElement]] = cachedInUserData("calculateTestLocations", definition, CachesUtil.fileModTracker(definition.getContainingFile), Tuple1(definition)) {
     import ScalaTestLocationsFinderUtils.collectTestLocations
 
     val templateBodyOpt = definition.extendsBlock.templateBody

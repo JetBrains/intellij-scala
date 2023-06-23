@@ -12,7 +12,7 @@ trait ScDocCommentOwner extends PsiDocCommentOwner {
 
   final def docComment: Option[ScDocComment] = _docComment()
 
-  private val _docComment = cached("ScDocCommentOwner.docComment", ModTracker.anyScalaPsiChange, () => {
+  private val _docComment = cached("docComment", ModTracker.anyScalaPsiChange, () => {
     this.children.dropWhile(_.is[ScAnnotations, ScModifierList, PsiWhiteSpace])
       .nextOption()
       .filterByType[ScDocComment]

@@ -52,7 +52,7 @@ case class CachedRecursiveFunction(name: String)(implicit projectContext: Projec
 
   def apply(): String = {
     val oldCount = calcCounter
-    val result = cachedWithRecursionGuard("CachedRecursiveFunction.apply.result", psi, "#" + name, ModTracker.physicalPsiChange(psi.getProject)) {
+    val result = cachedWithRecursionGuard("apply.result", psi, "#" + name, ModTracker.physicalPsiChange(psi.getProject)) {
       calcCounter += 1
       innerCalls.map(_.apply()).mkString(name + "(", "+", ")")
     }
@@ -61,7 +61,8 @@ case class CachedRecursiveFunction(name: String)(implicit projectContext: Projec
 
     if (wasCached) {
       import RecursionManager.RecursionGuard
-      val Seq(id) = RecursionGuard.ids.filter(_.startsWith(classOf[CachedRecursiveFunction].getName)).toSeq
+      val functionClassName = classOf[CachedRecursiveFunction].getName.replace('.', '$')
+      val Seq(id) = RecursionGuard.ids.filter(_.startsWith(functionClassName)).toSeq
       val localResult = RecursionGuard[PsiElement, String](id).getFromLocalCache(psi)
       if (localResult == null) {
         "@" + result

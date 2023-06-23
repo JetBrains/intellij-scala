@@ -62,7 +62,7 @@ private[scala] object AnonymousFunction {
   def isGenerateAnonfun211(elem: PsiElement): Boolean = {
     def isGenerateAnonfunWithCache: Boolean = {
       if (elem == null || !elem.isValid || DumbService.isDumb(elem.getProject)) false
-      else cachedInUserData("AnonymousFunction.isGenerateAnonfun211.isAnonfunCached", elem, BlockModificationTracker(elem)) {
+      else cachedInUserData("isGenerateAnonfun211.isAnonfunCached", elem, BlockModificationTracker(elem)) {
         elem match {
           case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
           case b: ScBlock if b.isPartialFunction => false //handled in isGenerateAnonfunSimple
