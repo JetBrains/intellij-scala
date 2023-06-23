@@ -81,7 +81,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       .map(substPolymorphicType)
   }
 
-  private val polymorphicLambdaType = cached("ScGenericCallImpl.polymorphicLambdaType", ModTracker.physicalPsiChange(getProject), () => {
+  private val polymorphicLambdaType = cached("polymorphicLambdaType", ModTracker.physicalPsiChange(getProject), () => {
     this match {
       case PolymorphicLambda(des, lhs, rhs) => kindProjectorPolymorphicLambdaType(des, lhs, rhs).asTypeResult
       case _                                => Failure(ScalaBundle.message("not.a.polymorphic.lambda"))

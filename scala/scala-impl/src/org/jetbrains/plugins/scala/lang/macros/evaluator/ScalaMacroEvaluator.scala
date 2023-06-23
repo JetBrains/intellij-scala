@@ -31,11 +31,11 @@ import scala.reflect.ClassTag
 class ScalaMacroEvaluator(project: Project) {
   import ScalaMacroEvaluator._
 
-  private val typingRules = cached("ScalaMacroEvaluator.typingRules", LibraryExtensionsManager.MOD_TRACKER, () => {
+  private val typingRules = cached("typingRules", LibraryExtensionsManager.MOD_TRACKER, () => {
     loadRules(defaultTypeProviders)
   })
 
-  private val expansionRules = cached("ScalaMacroEvaluator.expansionRules", LibraryExtensionsManager.MOD_TRACKER, () => {
+  private val expansionRules = cached("expansionRules", LibraryExtensionsManager.MOD_TRACKER, () => {
     loadRules(defaultExprProviders)
   })
 

@@ -76,7 +76,7 @@ object PrecedenceTypes {
       case _                               => false
     }
 
-  def forModule(module: Module): PrecedenceTypes = cachedInUserData("PrecedenceTypes.forModule", module, ScalaCompilerConfiguration.modTracker(module.getProject), Tuple1(module)) {
+  def forModule(module: Module): PrecedenceTypes = cachedInUserData("forModule", module, ScalaCompilerConfiguration.modTracker(module.getProject), Tuple1(module)) {
     module.customDefaultImports.fold(defaultPrecedenceTypes)(new PrecedenceTypes(_))
   }
 

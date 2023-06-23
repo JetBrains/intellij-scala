@@ -125,7 +125,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
 
   def isDefaultParam: Boolean = _isDefaultParam()
 
-  private val _isDefaultParam = cached("ScParamerer.isDefaultParam", BlockModificationTracker(this), () => {
+  private val _isDefaultParam = cached("isDefaultParam", BlockModificationTracker(this), () => {
     calcIsDefaultParam(this, Set.empty)
   })
 

@@ -202,7 +202,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   override final def findInnerClassByName(name: String, checkBases: Boolean): PsiClass =
     PsiClassImplUtil.findInnerByName(this, name, checkBases)
 
-  override final def getVisibleSignatures: ju.Collection[HierarchicalMethodSignature] = cachedInUserData("ScTemplateDefinitionImpl.getVisibleSignatures", this, ModTracker.libraryAware(this)) {
+  override final def getVisibleSignatures: ju.Collection[HierarchicalMethodSignature] = cachedInUserData("getVisibleSignatures", this, ModTracker.libraryAware(this)) {
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
   }
 
@@ -214,11 +214,11 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       case path => (if (checkDeep) superPathsDeep() else superPaths()).contains(path)
     }
 
-  private val superPaths = cached("ScTemplateDefinitionImpl.superPaths", ModTracker.physicalPsiChange(getProject), () => {
+  private val superPaths = cached("superPaths", ModTracker.physicalPsiChange(getProject), () => {
     supers.map(Path.apply).toSet
   })
 
-  private val superPathsDeep = cached("ScTemplateDefinitionImpl.superPathsDeep", ModTracker.physicalPsiChange(getProject), () => {
+  private val superPathsDeep = cached("superPathsDeep", ModTracker.physicalPsiChange(getProject), () => {
     val collected = mutable.Set.empty[Path]
 
     def dfs(clazz: PsiClass): Unit = {

@@ -256,7 +256,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   }
 
   // SCL-17295
-  private val saveProjectOnce = cached("CompilerHighlightingService.saveProjectOnce", ModificationTracker.NEVER_CHANGED, () => {
+  private val saveProjectOnce = cached("saveProjectOnce", ModificationTracker.NEVER_CHANGED, () => {
     if (!project.isDisposed || project.isDefault) project.save()
   })
 

@@ -215,7 +215,7 @@ package object completion {
         case element => locallyStableParent(element.getParent)
       }
 
-    cachedInUserData("completion.mirrorPosition", originalFile, CachesUtil.fileModTracker(originalFile), Tuple1(positionInCompletionFile)) {
+    cachedInUserData("mirrorPosition", originalFile, CachesUtil.fileModTracker(originalFile), Tuple1(positionInCompletionFile)) {
       val placeOffset = positionInCompletionFile match {
         case ElementType(ScalaTokenTypes.tIDENTIFIER) => positionInCompletionFile.getParent.startOffset
         case _                                        => positionInCompletionFile.startOffset

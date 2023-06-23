@@ -106,7 +106,7 @@ class ScObjectImpl(
 
   override def fakeCompanionClass: Option[PsiClass] = _fakeCompanionClass()
 
-  private val _fakeCompanionClass = cached("ScObjectImpl.fakeCompanionClass", BlockModificationTracker(this), () => {
+  private val _fakeCompanionClass = cached("fakeCompanionClass", BlockModificationTracker(this), () => {
     getCompanionModule(this) match {
       case Some(_) => None
       case None =>
@@ -121,7 +121,7 @@ class ScObjectImpl(
     case _ => getCompanionModule(this).get
   }
 
-  private val getModuleField: () => Option[PsiField] = cached("ScObjectImpl.getModuleField", BlockModificationTracker(this), () => {
+  private val getModuleField: () => Option[PsiField] = cached("getModuleField", BlockModificationTracker(this), () => {
     def hasJavaKeywords(qName: String) =
       qName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this.getProject)))
 
@@ -146,7 +146,7 @@ class ScObjectImpl(
 
   override def getConstructors: Array[PsiMethod] = _getConstructors()
 
-  private val _getConstructors: () => Array[PsiMethod] = cached("ScObjectImpl.getConstructors", BlockModificationTracker(this), () => {
+  private val _getConstructors: () => Array[PsiMethod] = cached("getConstructors", BlockModificationTracker(this), () => {
     Array(new EmptyPrivateConstructor(this))
   })
 

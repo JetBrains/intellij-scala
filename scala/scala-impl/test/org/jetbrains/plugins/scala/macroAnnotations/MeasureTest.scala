@@ -7,12 +7,12 @@ class MeasureTest extends ScalaFixtureTestCase {
 
   def testTracing(): Unit = {
     class Foo {
-      def currentTime(): Long = measure("Foo.currentTime") {
+      def currentTime(): Long = measure("currentTime") {
         System.currentTimeMillis()
       }
     }
 
-    checkTracer("Foo.currentTime", totalCount = 4, actualCount = 4) {
+    checkTracer("MeasureTest$Foo$1.currentTime", totalCount = 4, actualCount = 4) {
       val foo = new Foo
       foo.currentTime()
       foo.currentTime()

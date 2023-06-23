@@ -49,7 +49,7 @@ object ScPattern {
 
     import pattern.{elementScope, projectContext}
 
-    def expectedType: Option[ScType] = cachedInUserData("ScPattern.expectedType", pattern, BlockModificationTracker(pattern)) {
+    def expectedType: Option[ScType] = cachedInUserData("expectedType", pattern, BlockModificationTracker(pattern)) {
       _expectedType
     }
 

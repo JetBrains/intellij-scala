@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with PsiModifierListOwnerAdapter {
   override def getModifierList: ScModifierList = _getModifierList()
 
-  private val _getModifierList = cached("ScModifierListOwner.getModifierList", ModTracker.anyScalaPsiChange, () => {
+  private val _getModifierList = cached("getModifierList", ModTracker.anyScalaPsiChange, () => {
     val child = this.stubOrPsiChild(ScalaElementType.MODIFIERS)
     child.getOrElse(ScalaPsiElementFactory.createEmptyModifierList(this))
   })

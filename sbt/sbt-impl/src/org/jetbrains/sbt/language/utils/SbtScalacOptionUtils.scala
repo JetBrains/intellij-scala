@@ -69,11 +69,11 @@ object SbtScalacOptionUtils {
 
   def scalacOptionsByFlag: Map[String, Seq[SbtScalacOptionInfo]] = _scalacOptionsByFlag()
 
-  private val _scalacOptionsByFlag = cached("SbtScalacOptionUtils.scalacOptionsByFlag", ModificationTracker.NEVER_CHANGED, () => {
+  private val _scalacOptionsByFlag = cached("scalacOptionsByFlag", ModificationTracker.NEVER_CHANGED, () => {
     getScalacOptions.groupBy(_.flag)
   })
 
-  private val scalacOptionFlagsWithPrefix = cached("SbtScalacOptionUtils.scalacOptionsFlagsWithPrefix", ModificationTracker.NEVER_CHANGED, () => {
+  private val scalacOptionFlagsWithPrefix = cached("scalacOptionsFlagsWithPrefix", ModificationTracker.NEVER_CHANGED, () => {
     getScalacOptions.collect {
       case SbtScalacOptionInfo(flag, _, _, ArgType.OneAfterPrefix(prefix), _, _) =>
         prefix -> flag
@@ -82,7 +82,7 @@ object SbtScalacOptionUtils {
 
   def getScalacOptions: Seq[SbtScalacOptionInfo] = _getScalacOptions()
 
-  private val _getScalacOptions = cached("SbtScalacOptionUtils.getScalacOptions", ModificationTracker.NEVER_CHANGED, () => {
+  private val _getScalacOptions = cached("getScalacOptions", ModificationTracker.NEVER_CHANGED, () => {
     def scalacOptionsSource = {
       val completionContributorClass = SbtScalacOptionsCompletionContributor.getClass
       val inputStream = completionContributorClass.getResourceAsStream("scalac-options.json")

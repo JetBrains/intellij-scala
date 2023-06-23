@@ -15,7 +15,7 @@ object MethodRepr {
   def unapply(expr: ScExpression): Option[(ScExpression, Option[ScExpression], Option[ScReferenceExpression], Seq[ScExpression])] = expr match {
     case null => None
     //it is invoked very often in inspection, so BlockModificationTracker would be to heavy
-    case expr => cachedInUserData("MethodRepr.unapply", expr, ModTracker.anyScalaPsiChange, Tuple1(expr)) {
+    case expr => cachedInUserData("unapply", expr, ModTracker.anyScalaPsiChange, Tuple1(expr)) {
       expr match {
         case call: ScMethodCall =>
           val args = call.args match {

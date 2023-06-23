@@ -53,7 +53,7 @@ final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: AST
     builder.result()
   }
 
-  private val syntheticTypeElements = cached("ScTemplateParentsImpl.synteticTypeElements", BlockModificationTracker(this), () => {
+  private val syntheticTypeElements = cached("synteticTypeElements", BlockModificationTracker(this), () => {
     getContext.getContext match {
       case td: ScTypeDefinition => SyntheticMembersInjector.injectSupers(td)
       case _ => Seq.empty

@@ -17,7 +17,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner with ScDef
 
   def getStaticTraitFunctionWrapper(cClass: PsiClassWrapper): StaticTraitScFunctionWrapper = _getStaticTraitFunctionWrapper(cClass)
 
-  private val _getStaticTraitFunctionWrapper = cached("ScFunctionDefinition.getStaticTraitFunctionWrapper", BlockModificationTracker(this), (cClass: PsiClassWrapper) => {
+  private val _getStaticTraitFunctionWrapper = cached("getStaticTraitFunctionWrapper", BlockModificationTracker(this), (cClass: PsiClassWrapper) => {
     new StaticTraitScFunctionWrapper(this, cClass)
   })
 }

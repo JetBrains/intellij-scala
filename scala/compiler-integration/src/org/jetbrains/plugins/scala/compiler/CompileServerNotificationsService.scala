@@ -30,7 +30,7 @@ final class CompileServerNotificationsService(project: Project) {
    */
   def warnIfCompileServerJdkMayLeadToCompilationProblems(): Unit = _warnIfCompileServerJdkMayLeadToCompilationProblems()
 
-  private val _warnIfCompileServerJdkMayLeadToCompilationProblems = cached("CompileServerNotificationService.warnIfCompileServerJdkMayLeadToCompilationProblems", modificationTracker, () => {
+  private val _warnIfCompileServerJdkMayLeadToCompilationProblems = cached("warnIfCompileServerJdkMayLeadToCompilationProblems", modificationTracker, () => {
     if (project.hasScala) {
       for {
         (serverSdk, serverJdkVersion) <- CompileServerJdkManager.compileServerJdk(project)

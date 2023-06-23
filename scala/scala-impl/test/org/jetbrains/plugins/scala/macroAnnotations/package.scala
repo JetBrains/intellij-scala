@@ -27,7 +27,7 @@ package object macroAnnotations {
 
   private def checkTracerHas(name: String, totalCount: Int, actualCount: Int): Unit = {
     val dataWithName = Tracer.getCurrentData.asScala.filter(_.name == name)
-    assertTrue(s"No tracer data with name $name", dataWithName.nonEmpty)
+    assertTrue(s"No tracer data with name $name (${Tracer.getCurrentData.asScala.map(_.name).mkString(", ")})", dataWithName.nonEmpty)
     for {
       data <- dataWithName
     } {

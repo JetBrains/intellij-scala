@@ -105,7 +105,7 @@ package object project {
 
   implicit class ModuleExt(private val module: Module) extends AnyVal {
 
-    private def scalaModuleSettings: Option[ScalaModuleSettings] = cachedInUserData("ModuleExt.scalaModuleSettings", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
+    private def scalaModuleSettings: Option[ScalaModuleSettings] = cachedInUserData("scalaModuleSettings", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
       ScalaModuleSettings(module)
     }
 
@@ -188,7 +188,7 @@ package object project {
      * Selects dependent module for shared-sources module<br>
      * It first search for JVM, then for Js and then for Native
      */
-    def findRepresentativeModuleForSharedSourceModule: Option[Module] = cachedInUserData("ModuleExt.findRepresentativeModuleForSharedSourceModule", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
+    def findRepresentativeModuleForSharedSourceModule: Option[Module] = cachedInUserData("findRepresentativeModuleForSharedSourceModule", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
       if (isSharedSourceModule) {
         val moduleManager = ModuleManager.getInstance(module.getProject)
         val dependents = moduleManager.getModuleDependentModules(module).asScala
@@ -381,7 +381,7 @@ package object project {
     def hasScala: Boolean = modulesWithScala.nonEmpty
 
     // TODO Generalize: hasScala(Version => Boolean), hasScala(_ >= Scala3)
-    def hasScala3: Boolean = cachedInUserData("ProjectExt.hasScala3", project, ProjectRootManager.getInstance(project)) {
+    def hasScala3: Boolean = cachedInUserData("hasScala3", project, ProjectRootManager.getInstance(project)) {
       modulesWithScala.exists(_.hasScala3)
     }
 
@@ -398,7 +398,7 @@ package object project {
       if (project.isDisposed) Seq.empty
       else modulesWithScalaCached
 
-    private def modulesWithScalaCached: Seq[Module] = cachedInUserData("ProjectExt.modulesWithScalaCached", project, ProjectRootManager.getInstance(project)) {
+    private def modulesWithScalaCached: Seq[Module] = cachedInUserData("modulesWithScalaCached", project, ProjectRootManager.getInstance(project)) {
       modules.filter(m => m.hasScala && !m.isBuildModule)
     }
 
@@ -461,7 +461,7 @@ package object project {
 
     /** TODO: document, maybe even rename to something better, like "actual module", "effective module" */
     def module: Option[Module] = attachedFileModule.orElse {
-      cachedInUserData("ProjectPsiFileExt.module", file, ProjectRootManager.getInstance(file.getProject)) {
+      cachedInUserData("module", file, ProjectRootManager.getInstance(file.getProject)) {
         inReadAction { // assuming that most of the time it will be read from cache
           val module = {
             val virtualFile = if (file.getVirtualFile != null) file.getVirtualFile else file.getOriginalFile.getVirtualFile

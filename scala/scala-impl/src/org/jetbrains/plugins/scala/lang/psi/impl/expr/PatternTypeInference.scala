@@ -112,7 +112,7 @@ object PatternTypeInference {
     case tuple: ScTuplePattern => doForTuplePattern(tuple, scrutineeType)
     case _ =>
       cachedInUserData(
-        "PatternTypeInference.doTypeInference",
+        "doTypeInference",
         pattern,
         BlockModificationTracker(pattern)
       ) {

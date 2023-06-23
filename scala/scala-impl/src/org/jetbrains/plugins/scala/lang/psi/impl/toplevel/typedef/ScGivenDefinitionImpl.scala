@@ -53,7 +53,7 @@ class ScGivenDefinitionImpl(
 
   override def clauses: Option[ScParameters] = _clauses()
 
-  private val _clauses = cached("ScGivenDefinitionImpl.clauses", ModTracker.anyScalaPsiChange, () => {
+  private val _clauses = cached("clauses", ModTracker.anyScalaPsiChange, () => {
     getStubOrPsiChild(PARAM_CLAUSES).toOption
   })
 
@@ -61,7 +61,7 @@ class ScGivenDefinitionImpl(
     clauses.fold(Seq.empty[ScParameter])(_.params)
 
   override def desugaredDefinitions: Seq[ScMember] =
-    cachedInUserData("ScGivenDefinitionImpl.desugaredDefinitions", this, ModTracker.libraryAware(this)) {
+    cachedInUserData("desugaredDefinitions", this, ModTracker.libraryAware(this)) {
       try {
         val supersText = extendsBlock.templateParents.fold("")(_.supersText)
 

@@ -229,7 +229,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       }
     }
 
-  private val calcFakeCompanionModule: Boolean => Option[ScObject] = cached("ScTypeDefinitionImpl.calcCompanionModule", ModTracker.libraryAware(this), (isImplicitValueClass: Boolean) => {
+  private val calcFakeCompanionModule: Boolean => Option[ScObject] = cached("calcCompanionModule", ModTracker.libraryAware(this), (isImplicitValueClass: Boolean) => {
     val accessModifier = getModifierList.accessModifier match {
       case None     => ""
       case Some(am) => AccessModifierRenderer.simpleTextHtmlEscaped(am) + " "
@@ -265,7 +265,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   override final def getQualifiedName: String = _getQualifiedName()
 
-  private val _getQualifiedName = cached("ScTypeDefinitionImpl.getQualifiedName", ModTracker.anyScalaPsiChange, () => {
+  private val _getQualifiedName = cached("getQualifiedName", ModTracker.anyScalaPsiChange, () => {
     if (hasNoJavaFQName(this)) null else {
       byStubOrPsi(_.javaQualifiedName) {
         val suffix = this match {
@@ -287,7 +287,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   override def qualifiedName: String = _qualifiedName()
 
-  private val _qualifiedName = cached("ScTypeDefinitionImpl.qualifiedName", ModTracker.anyScalaPsiChange, () => {
+  private val _qualifiedName = cached("qualifiedName", ModTracker.anyScalaPsiChange, () => {
     if (isLocalOrInsideAnonymous(this)) name
     else byStubOrPsi(_.getQualifiedName) {
       qualifiedName(DefaultSeparator)(identity)

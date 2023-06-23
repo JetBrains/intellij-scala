@@ -26,7 +26,7 @@ class ScalaSharedSourcesUseScopeEnlarger extends UseScopeEnlarger {
     if (!ScalaProjectSettings.getInstance(psiFile.getProject).isEnableBackReferencesFromSharedSources)
       return null
 
-    val sharedModules: Array[module.Module] = cachedInUserData("ScalaSharedSourcesUseScopeEnlarger.getAdditionalUseScope.sharedModules", psiFile, ScalaPsiManager.instance(psiFile.getProject).TopLevelModificationTracker, Tuple1(psiFile)) {
+    val sharedModules: Array[module.Module] = cachedInUserData("getAdditionalUseScope.sharedModules", psiFile, ScalaPsiManager.instance(psiFile.getProject).TopLevelModificationTracker, Tuple1(psiFile)) {
       val module = ModuleUtilCore.findModuleForPsiElement(psiFile)
       if (module == null) Array.empty else module.sharedSourceDependencies.toArray
     }

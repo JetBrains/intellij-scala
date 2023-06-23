@@ -720,7 +720,7 @@ object ScalaPositionManager {
     }
 
     //stored in `file`, invalidated on `file` change
-    val map: ConcurrentIntObjectMap[Seq[PsiElement]] = cachedInUserData("ScalaPositionManager.positionsOnLine.map", file, file) {
+    val map: ConcurrentIntObjectMap[Seq[PsiElement]] = cachedInUserData("positionsOnLine.map", file, file) {
       ConcurrentCollectionFactory.createConcurrentIntObjectMap()
     }
 

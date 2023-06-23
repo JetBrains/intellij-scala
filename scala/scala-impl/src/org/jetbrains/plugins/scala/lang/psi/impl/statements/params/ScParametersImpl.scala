@@ -23,7 +23,7 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
 
   override def clauses: Seq[ScParameterClause] = _clauses()
 
-  private val _clauses = cached("ScParameterImpl.clauses", ModTracker.anyScalaPsiChange, () => {
+  private val _clauses = cached("clauses", ModTracker.anyScalaPsiChange, () => {
     getStubOrPsiChildren(ScalaElementType.PARAM_CLAUSE, JavaArrayFactoryUtil.ScParameterClauseFactory).toSeq
   })
 

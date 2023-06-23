@@ -148,7 +148,7 @@ private[declarationRedundancy] object SymbolEscaping {
    *
    * For a typical usage example, see [[elementIsSymbolWhichEscapesItsDefiningScopeWhenItIsPrivate]].
    */
-  private def getEscapeInfos(typeDef: ScTypeDefinition): Seq[EscapeInfo] = cachedInUserData("TypeDefEscaping.getEscapeInfosOfTypeDefMembers", typeDef, ModTracker.anyScalaPsiChange, Tuple1(typeDef)) {
+  private def getEscapeInfos(typeDef: ScTypeDefinition): Seq[EscapeInfo] = cachedInUserData("getEscapeInfosOfTypeDefMembers", typeDef, ModTracker.anyScalaPsiChange, Tuple1(typeDef)) {
 
     val typeDefFile = typeDef.getContainingFile
 

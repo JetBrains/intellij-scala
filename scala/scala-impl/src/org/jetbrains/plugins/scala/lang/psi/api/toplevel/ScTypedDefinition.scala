@@ -33,13 +33,13 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
 
   def getTypedDefinitionWrapper(isStatic: Boolean, isAbstract: Boolean, role: DefinitionRole, cClass: Option[PsiClass] = None): PsiTypedDefinitionWrapper = _getTypedDefinitionWrapper(isStatic, isAbstract, role, cClass)
 
-  private val _getTypedDefinitionWrapper = cached("ScTypedDefinition.getTypedDefinitionWrapper", BlockModificationTracker(this), (isStatic: Boolean, isAbstract: Boolean, role: DefinitionRole, cClass: Option[PsiClass]) => {
+  private val _getTypedDefinitionWrapper = cached("getTypedDefinitionWrapper", BlockModificationTracker(this), (isStatic: Boolean, isAbstract: Boolean, role: DefinitionRole, cClass: Option[PsiClass]) => {
     new PsiTypedDefinitionWrapper(this, isStatic, isAbstract, role, cClass)
   })
 
   def getStaticTypedDefinitionWrapper(role: DefinitionRole, cClass: PsiClassWrapper): StaticPsiTypedDefinitionWrapper = _getStaticTypedDefinitionWrapper(role, cClass)
 
-  private val _getStaticTypedDefinitionWrapper = cached("ScTypedDefinition.getStaticTypedDefinitionWrapper", BlockModificationTracker(this), (role: DefinitionRole, cClass: PsiClassWrapper) => {
+  private val _getStaticTypedDefinitionWrapper = cached("getStaticTypedDefinitionWrapper", BlockModificationTracker(this), (role: DefinitionRole, cClass: PsiClassWrapper) => {
     new StaticPsiTypedDefinitionWrapper(this, role, cClass)
   })
 }
