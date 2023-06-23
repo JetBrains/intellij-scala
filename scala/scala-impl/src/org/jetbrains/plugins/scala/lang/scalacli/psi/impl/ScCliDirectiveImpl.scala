@@ -4,19 +4,23 @@ import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.scalacli.psi.api.ScCliDirective
-
-import java.util
+import org.jetbrains.plugins.scala.lang.scalacli.psi.api.inner.{ScCliDirectiveCommand, ScCliDirectiveKey, ScCliDirectiveValue}
 
 final class ScCliDirectiveImpl(buffer: CharSequence, tokenType: IElementType)
   extends LazyParseablePsiElement(tokenType, buffer)
     with ScCliDirective {
 
-  override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = {
-    val result: util.List[T] = new util.ArrayList[T]
-    result.toArray[T](java.lang.reflect.Array.newInstance(clazz, result.size).asInstanceOf[Array[T]])
-  }
+  override def command: Option[ScCliDirectiveCommand] =
+    findChildrenByClassScala(classOf[ScCliDirectiveCommand]).headOption
 
-  override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = {
-    null
-  }
+  override def key: Option[ScCliDirectiveKey] =
+    findChildrenByClassScala(classOf[ScCliDirectiveKey]).headOption
+
+  override def values: Seq[ScCliDirectiveValue] =
+    findChildrenByClassScala(classOf[ScCliDirectiveValue]).toSeq
+
+  override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
+    findChildrenByClass[T](clazz)
+
+  override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 }

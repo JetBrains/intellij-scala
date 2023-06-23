@@ -56,9 +56,17 @@ class ScalaCliParser implements PsiParser, LightPsiParser {
 
         if (finalizeIfTokenTypeIsUnexpectedOrError(builder.getTokenType(), tCLI_DIRECTIVE_VALUE, rootMarker, builder)) return;
 
-        final PsiBuilder.Marker valueMarker = builder.mark();
-        builder.advanceLexer();
-        valueMarker.done(tCLI_DIRECTIVE_VALUE);
+        while (builder.getTokenType() == tCLI_DIRECTIVE_VALUE || builder.getTokenType() == tCLI_DIRECTIVE_WHITESPACE) {
+
+            if (builder.getTokenType() == tCLI_DIRECTIVE_WHITESPACE) {
+                builder.advanceLexer();
+                continue;
+            }
+
+            final PsiBuilder.Marker valueMarker = builder.mark();
+            builder.advanceLexer();
+            valueMarker.done(tCLI_DIRECTIVE_VALUE);
+        }
 
         while (builder.getTokenType() != null) {
             builder.advanceLexer();
