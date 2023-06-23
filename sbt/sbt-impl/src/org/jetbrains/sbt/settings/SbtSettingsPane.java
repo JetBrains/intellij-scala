@@ -70,9 +70,13 @@ public class SbtSettingsPane {
         JPanel sbtOptionsLabelTooltip = UI.PanelFactory.panel(sbtOptionsLabel).withTooltip(SbtBundle.message("sbt.settings.sbtOptions.tooltip")).createPanel();
         vmSettingsPanel.add(sbtOptionsLabelTooltip, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 
-        jrePathEditor.setText(SbtBundle.message("sbt.settings.jrePathEditor.text"));
         addListenersToJrePathEditor();
 
+        //it is needed for mnemonics
+        vmParametersLabel.setLabelFor(vmParameters);
+        sbtOptionsLabel.setLabelFor(sbtOptions);
+        envVarLabel.setLabelFor(sbtEnvironment);
+        sbtLauncherLabel.setLabelFor(sbtLauncherChooser);
     }
 
     public static <T> Optional<T> castSafely(Object value, Class<T> expectedClass) {
@@ -265,10 +269,6 @@ public class SbtSettingsPane {
         maximumHeapSize.setColumns(5);
         maximumHeapSize.setMargin(new Insets(2, 6, 2, 6));
         vmSettingsPanel.add(maximumHeapSize, new GridConstraints(1, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(287, -1), new Dimension(287, -1), null, 0, false));
-        vmParameters = new RawCommandLineEditor();
-        vmParameters.setDialogCaption(this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.vmParams"));
-        vmParameters.setEnabled(true);
-        vmSettingsPanel.add(vmParameters, new GridConstraints(2, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(287, -1), new Dimension(287, -1), null, 0, false));
         sbtOptions = new RawCommandLineEditor();
         sbtOptions.setDialogCaption(this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.sbtOptions"));
         sbtOptions.setEnabled(true);
@@ -290,6 +290,10 @@ public class SbtSettingsPane {
         sbtEnvironment.setText("");
         sbtEnvironment.setToolTipText("");
         vmSettingsPanel.add(sbtEnvironment, new GridConstraints(4, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(287, -1), new Dimension(287, -1), null, 0, false));
+        vmParameters = new RawCommandLineEditor();
+        vmParameters.setDialogCaption(this.$$$getMessageFromBundle$$$("messages/SbtBundle", "sbt.settings.vmParams"));
+        vmParameters.setEnabled(true);
+        vmSettingsPanel.add(vmParameters, new GridConstraints(2, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(287, -1), new Dimension(287, -1), null, 0, false));
         final Spacer spacer2 = new Spacer();
         myContentPanel.add(spacer2, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final Spacer spacer3 = new Spacer();
