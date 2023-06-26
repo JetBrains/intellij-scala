@@ -2379,4 +2379,53 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
+
+  def testTwoParameters(): Unit = {
+    val fileContent =
+      s"""
+         |def ${|}foo(a: Int, b: Int): Unit = ???
+         |""".stripMargin
+
+    val expectedContent =
+      """
+        |<span style="color:#000080;font-weight:bold;">def</span>
+        |foo(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>):
+        |<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+        |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testThreeParameters(): Unit = {
+    val fileContent =
+      s"""
+         |def ${|}foo(a: Int, b: Int, c: Int): Unit = ???
+         |""".stripMargin
+
+    val expectedContent =
+      """
+        |<span style="color:#000080;font-weight:bold;">def</span>
+        |foo(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, c:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>):
+        |<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+        |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testImplicitParameters(): Unit = {
+    val fileContent =
+      s"""
+         |def ${|}foo(a: Int, b: Int)(implicit c: Int, d: Int): Unit = ???
+         |""".stripMargin
+
+    val expectedContent =
+      """
+        |<span style="color:#000080;font-weight:bold;">def</span>
+        |foo(a:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, b:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
+        |(<span style="color:#000080;font-weight:bold;">implicit</span>c:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>, d:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>):
+        |<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+        |""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
 }
