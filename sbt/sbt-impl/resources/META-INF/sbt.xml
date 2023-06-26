@@ -98,6 +98,8 @@
 
         <typedHandler implementation="org.jetbrains.sbt.language.completion.ScalacOptionsAutoPopupCompletionHandler" order="first"/>
 
+        <search.topHitProvider implementation="org.jetbrains.sbt.SbtTopHitProvider"/>
+
         <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                  id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher"/>
 
