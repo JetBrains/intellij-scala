@@ -23,9 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
 
-import java.text.Collator
 import java.util.Collections
-import scala.io.Source
 import scala.jdk.CollectionConverters._
 
 object ExternalHighlighters {
@@ -136,13 +134,13 @@ object ExternalHighlighters {
     for {
       highlightRange <- calculateRangeToHighlight(posRange, message, document, psiFile)
     } yield {
-      val description = dropLastLine(message)
+      val description = message.trim.stripSuffix(lineText(message))
 
       def standardBuilder =
         highlightInfoBuilder(highlighting.highlightType, highlightRange, description)
 
       val highlightInfo =
-        if (isUnusedImportString(description.trim)) {
+        if (description.trim.equalsIgnoreCase("unused import")) {
           val leaf = psiFile.findElementAt(highlightRange.getStartOffset)
           val unusedImportRange = inReadAction(unusedImportElementRange(leaf))
           if (unusedImportRange != null) {
@@ -162,7 +160,7 @@ object ExternalHighlighters {
 
   private def escapeHtmlWithNewLines(unescapedTooltip: String): String = {
     val escaped0 = XmlStringUtil.escapeString(unescapedTooltip)
-    val escaped1 = escaped0.replace(System.lineSeparator(), "<br>")
+    val escaped1 = escaped0.replace("\n", "<br>")
     val escaped2 = XmlStringUtil.wrapInHtml(escaped1)
     escaped2
   }
@@ -211,7 +209,7 @@ object ExternalHighlighters {
       if (line < 0) {
         None
       } else {
-        val lineTextFromMessage = lastLine(message)
+        val lineTextFromMessage = lineText(message)
         // TODO: dotc and scalac report different lines in their messages :(
         val actualLine =
           Seq(line, line - 1, line + 1)
@@ -224,18 +222,10 @@ object ExternalHighlighters {
       Some(offset)
   }
 
-  private def dropLastLine(messageText: String): String =
-    Source.fromString(messageText).getLines().toVector.init.mkString(System.lineSeparator())
-
-  private def lastLine(messageText: String): String =
-    Source.fromString(messageText).getLines().toVector.last
-
-  // Compares strings using the default system locale.
-  private def isUnusedImportString(s: String): Boolean = {
-    val collator = Collator.getInstance()
-    collator.setStrength(Collator.IDENTICAL)
-    collator.setDecomposition(Collator.NO_DECOMPOSITION)
-    collator.compare(s, "unused import") == 0
+  private def lineText(messageText: String): String = {
+    val trimmed = messageText.trim
+    val lastLineSeparator = trimmed.lastIndexOf('\n')
+    if (lastLineSeparator > 0) trimmed.substring(lastLineSeparator).trim else ""
   }
 
   private def documentLine(document: Document, line: Int): Option[String] =

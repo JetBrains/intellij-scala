@@ -27,8 +27,9 @@ object ExternalHighlighting {
     
     def fromPosInfo(posInfo: PosInfo): Option[Pos] =
       Option(posInfo).collect {
-        case PosInfo(_, _, Some(offset)) => Offset(offset.toInt)
+        // TODO The cases should be in different order. But the highlighting works incorrect with offset by some reason
         case PosInfo(Some(line), Some(column), _) => LineColumn(line.toInt, column.toInt)
+        case PosInfo(_, _, Some(offset)) => Offset(offset.toInt)
       }
   }
 }
