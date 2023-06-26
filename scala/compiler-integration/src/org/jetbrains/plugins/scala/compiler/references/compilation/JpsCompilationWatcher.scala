@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.compiler.references.{Builder, Messages, TransactionGuard}
 import org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService.CompilerIndicesState
-import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
+import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, inReadAction}
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.sbt.project.settings.CompilerMode
@@ -87,9 +87,11 @@ private[references] class JpsCompilationWatcher(
 
         val modules =
           Option(compileContext.getCompileScope)
-            .fold(Set.empty[String])(
-              _.getAffectedModules.filter(_.hasScala).map(_.getName).toSet
-            )
+            .fold(Set.empty[String]) { scope =>
+              inReadAction {
+                scope.getAffectedModules.filter(_.hasScala).map(_.getName).toSet
+              }
+            }
 
         // @TODO: handle the following scenario:
         // @TODO: no indices are present and all modules are up-to-date
