@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester
 
 import com.intellij.openapi.util.text.{LiteralNameSuggester, StringUtil}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScGivenAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAliasDeclaration
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -133,7 +134,7 @@ object NameSuggester {
 
   private def namesByTypeableElement(typed: TypeableScalaPsiElement): Seq[String] = {
     val maybeName = typed.asOptionOf[ScGivenAliasDeclaration]
-      .map(decl => ScGiven.generateAnonymousGivenName(decl.typeElement))
+      .map(decl => ScalaPsiUtil.generateGivenOrExtensionName(decl.typeElement.toSeq: _*))
 
     maybeName.toSeq ++ namesByTypes(typed.`type`().toSeq)
   }
