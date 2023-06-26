@@ -91,7 +91,8 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
     val line = position.getLine
 
     val lambdas = ScalaPositionManager.lambdasOnLine(file, line)
-    if (lambdas.isEmpty) return emptyList
+    val condRet = ScalaLineBreakpointType.findSingleConditionalReturn(file, line)
+    if (lambdas.isEmpty && condRet.isEmpty) return emptyList
 
     val elementAtLine = SourcePosition.createFromLine(file, line).getElementAt
 
@@ -104,11 +105,18 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
       res = res :+ new ExactScalaBreakpointVariant(position, startMethod, -1)
     }
 
-    for ((lambda, ordinal) <- lambdas.zipWithIndex) {
-      res = res :+ new ExactScalaBreakpointVariant(XSourcePositionImpl.createByElement(lambda), lambda, ordinal)
+    if (lambdas.nonEmpty) {
+      res = new JavaBreakpointVariant(position, lambdas.size) +: res //adding all variants at the beginning
+      for ((lambda, ordinal) <- lambdas.zipWithIndex) {
+        res = res :+ new ExactScalaBreakpointVariant(XSourcePositionImpl.createByElement(lambda), lambda, ordinal)
+      }
     }
 
-    res = new JavaBreakpointVariant(position, lambdas.size) +: res //adding all variants
+    for (elem <- condRet) {
+      val lambdaOrdinal = DebuggerUtil.getContainingMethod(elem).map(lambdas.indexOf).getOrElse(-1)
+      res = res :+ new ConditionalReturnJavaBreakpointVariant(position, elem, lambdaOrdinal)
+    }
+
     res.asJava
   }
 
@@ -139,14 +147,17 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
   override def getHighlightRange(breakpoint: XLineBreakpoint[JavaLineBreakpointProperties]): TextRange = {
     BreakpointManager.getJavaBreakpoint(breakpoint) match {
-      case lineBp: LineBreakpoint[_] if isLambda(lineBp) =>
+      case lineBp: LineBreakpoint[_] =>
+        val condRet = breakpoint.getProperties.isConditionalReturn
+        val lambda = !condRet && isLambda(lineBp)
+
         val dumbService = DumbService.getInstance(lineBp.getProject)
-        if (dumbService.isDumb) {
+        val highlightedElement = if (dumbService.isDumb) {
           breakpoint match {
             case breakpointImpl: XLineBreakpointImpl[_] =>
               dumbService.smartInvokeLater { () =>
                 executeOnPooledThread {
-                  if (lineBp.isValid) {
+                  if (lambda && lineBp.isValid) {
                     inReadAction(getContainingMethod(lineBp)) //populating caches outside edt
                   }
                   invokeLater {
@@ -161,10 +172,13 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
           }
           null
         }
-        else Option(getContainingMethod(lineBp)).map(_.getTextRange).orNull
+        else if (condRet) ScalaLineBreakpointType.findSingleConditionalReturn(lineBp.getSourcePosition).orNull
+        else getContainingMethod(lineBp) ensuring lambda
+
+        if (highlightedElement != null) highlightedElement.getTextRange else null
+
       case _ => null
     }
-
   }
 
   private def lambdaOrdinal(breakpoint: LineBreakpoint[_]): Integer = {
@@ -218,5 +232,27 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
       }
     }
 
+  }
+}
+
+object ScalaLineBreakpointType {
+
+  def isReturnKeyword(element: PsiElement): Boolean =
+    JavaLineBreakpointType.isReturnKeyword(element)
+
+  def findSingleConditionalReturn(position: SourcePosition): Option[PsiElement] = {
+    if (position == null) return None
+    findSingleConditionalReturn(position.getFile, position.getLine)
+  }
+
+  def findSingleConditionalReturn(file: PsiFile, lineNumber: Int): Option[PsiElement] = {
+    val condRet = JavaLineBreakpointType.findSingleConditionalReturn(file, lineNumber)
+    if (condRet == null) return None
+    DebuggerUtil.getContainingMethod(condRet) match {
+      // Not yet supported because non-local transfer without `return` instruction will be used there.
+      Support breakpoint on throw if there is no explicit throw in this line.
+      case Some(l) if ScalaPositionManager.isLambda(l) => None
+      case _ => Some(condRet)
+    }
   }
 }

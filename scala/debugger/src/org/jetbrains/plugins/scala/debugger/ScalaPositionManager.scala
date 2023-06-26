@@ -419,7 +419,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    calcElement().filter(_.isValid).map(SourcePosition.createFromElement)
+    Option(PositionManagerImpl.adjustPositionForConditionalReturn(debugProcess, location, file, lineNumber))
+      .orElse(calcElement().filter(_.isValid).map(SourcePosition.createFromElement))
   }
 
   @Nullable
