@@ -469,18 +469,11 @@ object WorksheetCompiler {
 
     // note that messages text will contain positions from the wrapped code
     private def fixMessage(msg: Client.ClientMsg): Client.ClientMsg = {
-      def fixPosInfo(posInfo: Client.PosInfo): Client.PosInfo = {
-        def fixLine(line: Long): Long = (line - WorksheetWrapper.headerLinesCount).max(0L)
-        def fixOffset(offset: Long): Long = (offset - WorksheetWrapper.header.length).max(0L)
-
-        val fixedLine = posInfo.line.map(fixLine)
-        val fixedOffset = posInfo.offset.map(fixOffset)
-        posInfo.copy(line = fixedLine, offset = fixedOffset)
-      }
-
+      val fixedFromLine = msg.from.line.map(line => (line - WorksheetWrapper.headerLinesCount).max(0))
+      val fixedFromOffset = msg.from.offset.map(offset => (offset - WorksheetWrapper.header.length).max(0))
+      val fixedFrom = msg.from.copy(line = fixedFromLine, offset = fixedFromOffset)
       msg.copy(
-        from = fixPosInfo(msg.from),
-        to = fixPosInfo(msg.to),
+        from = fixedFrom,
         source = msg.source.map(_ => originalFile),
         text = msg.text
           .replace(s"object ${WorksheetWrapper.className}.", "object ") // object WorksheetWrapper.X -> object X
