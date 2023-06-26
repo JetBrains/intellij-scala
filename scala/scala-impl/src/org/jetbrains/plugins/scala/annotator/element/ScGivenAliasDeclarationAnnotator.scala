@@ -92,6 +92,12 @@ private[element] final class NameAnonymousAbstractGivenFix(declaration: ScGivenA
     new NameAnonymousAbstractGivenFix(PsiTreeUtil.findSameElementInCopy(declaration, target))
 
   override protected def doInvoke(implicit editor: Editor, project: Project): Unit = {
+    val typeElement = declaration.typeElement match {
+      case Some(te) => te
+      case None =>
+        return
+    }
+
     val declContext = declaration.getContext
     val validator = new ScalaVariableValidator(declaration, false, declContext, declContext)
     val suggestedNames =
@@ -99,7 +105,7 @@ private[element] final class NameAnonymousAbstractGivenFix(declaration: ScGivenA
         .pipeIf(ApplicationManager.getApplication.isUnitTestMode)(_.sorted.reverse)
     val firstName = suggestedNames.head
 
-    editor.getDocument.insertString(declaration.typeElement.getTextRange.getStartOffset, firstName + ": ")
+    editor.getDocument.insertString(typeElement.getTextRange.getStartOffset, firstName + ": ")
 
     if (!IntentionPreviewUtils.isIntentionPreviewActive) {
       CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(declaration) match {
