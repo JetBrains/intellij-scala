@@ -38,6 +38,8 @@
 
         <externalIconProvider key="BSP" implementationClass="org.jetbrains.bsp.BspIconProvider" />
 
+        <search.topHitProvider implementation="org.jetbrains.bsp.BspTopHitProvider"/>
+
         <applicationService serviceImplementation="org.jetbrains.bsp.settings.BspSystemSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspLocalSettings"/>
