@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode}
 
-import java.text.Collator
 import java.util.Collections
 import scala.io.Source
 import scala.jdk.CollectionConverters._
@@ -142,7 +141,7 @@ object ExternalHighlighters {
         highlightInfoBuilder(highlighting.highlightType, highlightRange, description)
 
       val highlightInfo =
-        if (isUnusedImportString(description.trim)) {
+        if (description.trim.equalsIgnoreCase("unused import")) {
           val leaf = psiFile.findElementAt(highlightRange.getStartOffset)
           val unusedImportRange = inReadAction(unusedImportElementRange(leaf))
           if (unusedImportRange != null) {
@@ -229,14 +228,6 @@ object ExternalHighlighters {
 
   private def lastLine(messageText: String): String =
     Source.fromString(messageText).getLines().toVector.last
-
-  // Compares strings using the default system locale.
-  private def isUnusedImportString(s: String): Boolean = {
-    val collator = Collator.getInstance()
-    collator.setStrength(Collator.IDENTICAL)
-    collator.setDecomposition(Collator.NO_DECOMPOSITION)
-    collator.compare(s, "unused import") == 0
-  }
 
   private def documentLine(document: Document, line: Int): Option[String] =
     if (line >= 0 && line < document.getLineCount) {
