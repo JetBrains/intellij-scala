@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{ParameterRen
 import org.jetbrains.plugins.scala.editor.documentationProvider._
 
 final private [documentationProvider] class ScalaDocParametersRenderer(parameterRenderer: ParameterRenderer)
-  extends ParametersRenderer(parameterRenderer, true, "", "") {
+  extends ParametersRenderer(parameterRenderer, true) {
 
   override protected def renderImplicitModifier(buffer: StringBuilder, clause: ScParameterClause): Unit =
     if (clause.isImplicit) buffer.appendKeyword("implicit").append(" ")
