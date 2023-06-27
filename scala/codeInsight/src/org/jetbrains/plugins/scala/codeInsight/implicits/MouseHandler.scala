@@ -47,14 +47,12 @@ private final class MouseHandler extends ProjectManagerListener {
         errorTooltip.foreach(_.cancel())
 
         if (SwingUtilities.isLeftMouseButton(event)) {
-          if (SystemInfo.isMac && event.isMetaDown || event.isControlDown) {
-            hyperlinkAt(editor, event.getPoint).foreach { case (_, text) =>
+          hyperlinkAt(editor, event.getPoint) match {
+            case Some((_, text)) if SystemInfo.isMac && event.isMetaDown || event.isControlDown =>
               e.consume()
               deactivateActiveHyperlink(editor)
               navigateTo(text, editor.getProject)
-            }
-          } else {
-            expandableAt(editor, event.getPoint).foreach { case (inlay, text) =>
+            case _ => expandableAt(editor, event.getPoint).foreach { case (inlay, text) =>
               inlay.getRenderer.asOptionOfUnsafe[TextPartsHintRenderer].foreach { renderer =>
                 renderer.expand(text)
                 inlay.update()
