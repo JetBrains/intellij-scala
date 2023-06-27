@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.hints
 
 import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener}
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 
 import java.awt.event.{FocusAdapter, FocusEvent, KeyAdapter, KeyEvent, MouseEvent, MouseMotionAdapter}
@@ -47,19 +48,21 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 
     private var firstKeyPressTime = 0L
 
-    override def keyPressed(e: KeyEvent): Unit = if (e.getKeyCode == ModifierKey) {
-      if (System.currentTimeMillis() - firstKeyPressTime < 500) {
-        firstKeyPressTime = 0
-        longDelay.stop()
-        shortDelay.start()
+    override def keyPressed(e: KeyEvent): Unit = if (Registry.is("scala.xray.mode")) {
+      if (e.getKeyCode == ModifierKey) {
+        if (System.currentTimeMillis() - firstKeyPressTime < 500) {
+          firstKeyPressTime = 0
+          longDelay.stop()
+          shortDelay.start()
+        } else {
+          firstKeyPressTime = System.currentTimeMillis()
+          mouseHasMoved = false
+          longDelay.start()
+        }
       } else {
-        firstKeyPressTime = System.currentTimeMillis()
-        mouseHasMoved = false
-        longDelay.start()
+        longDelay.stop()
+        shortDelay.stop()
       }
-    } else {
-      longDelay.stop()
-      shortDelay.stop()
     }
 
     override def keyReleased(e: KeyEvent): Unit = {

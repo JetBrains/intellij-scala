@@ -573,6 +573,9 @@
         <registryKey key="scala.compiler.highlighting.suppress.java.highlighting" defaultValue="false" restartRequired="false"
                      description="If enabled, Scala 3 compiler based highlighting suppresses built-in highlighting of Java files in mixed Scala 3 and Java projects (Java are not highlighted)"/>
 
+        <registryKey key="scala.xray.mode" defaultValue="false" restartRequired="false"
+                     description="If enabled, pressing and holding (or pressing twice and holding) Ctrl / Cmd in the editor shows inlay hints."/>
+
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
         <nameSuggestionProvider id="ScalaDictionarySuggestionProvider" implementation="org.jetbrains.plugins.scala.spellchecker.ScalaDictionarySuggestionProvider" order="first, before DictionarySuggestionProvider"/>
