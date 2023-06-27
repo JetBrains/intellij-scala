@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.highlighter.lexer.{ScalaInterpolatedStringLit
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliTokenTypes
+import org.jetbrains.plugins.scala.lang.scalacli.parser.ScalaCliElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
@@ -52,11 +53,11 @@ final class ScalaSyntaxHighlighter(
 
 object ScalaSyntaxHighlighter {
 
+  import ScalaCliTokenTypes._
   import ScalaDocElementTypes.SCALA_DOC_COMMENT
   import ScalaDocTokenType._
   import ScalaTokenTypes._
   import ScalaXmlTokenTypes._
-  import ScalaCliTokenTypes._
 
   // Comments
   private val tLINE_COMMENTS = TokenSet.create(tLINE_COMMENT)
@@ -222,7 +223,10 @@ object ScalaSyntaxHighlighter {
 
       tINTERPOLATED_STRINGS -> INTERPOLATED_STRING_INJECTION,
 
-      TokenSet.create(tCLI_DIRECTIVE_COMMAND) -> SCALA_CLI_DIRECTIVE_COMMAND
+      TokenSet.create(tCLI_DIRECTIVE_PREFIX) -> SCALA_CLI_DIRECTIVE_PREFIX,
+      TokenSet.create(tCLI_DIRECTIVE_COMMAND) -> SCALA_CLI_DIRECTIVE_COMMAND,
+      TokenSet.create(tCLI_DIRECTIVE_KEY) -> SCALA_CLI_DIRECTIVE_KEY,
+      TokenSet.create(tCLI_DIRECTIVE_VALUE) -> SCALA_CLI_DIRECTIVE_VALUE
     )
   }
 
@@ -307,13 +311,7 @@ object ScalaSyntaxHighlighter {
         tINTERPOLATED_MULTILINE_RAW_STRING
       )
 
-      //scalaCli highlighting
-      val scalaCliLayer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper(scalaCliLexer))
-
-      scalaCliLayer.registerLayer(
-        scalaCliLexer,
-        ScalaCliTokenTypes.tCLI_DIRECTIVE_COMMAND
-      )
+      registerSelfStoppingLayer(scalaCliLexer, Array(ScalaCliElementTypes.SCALA_CLI_DIRECTIVE), IElementType.EMPTY_ARRAY)
 
       //scalaDoc highlighting
       val scalaDocLayer = new LayeredLexer(new ScalaDocLexerHighlightingWrapper(scalaDocLexer))
