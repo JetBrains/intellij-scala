@@ -70,7 +70,6 @@ object ScalaPlainLexer {
 
     private val TokensToMerge = TokenSet.create(
       SCALA_DOC_COMMENT,
-      SCALA_CLI_DIRECTIVE,
       tBLOCK_COMMENT,
       tLINE_COMMENT,
       ScalaTokenTypesEx.SCALA_PLAIN_CONTENT

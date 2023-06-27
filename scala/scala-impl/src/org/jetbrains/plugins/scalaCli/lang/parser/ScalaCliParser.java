@@ -22,6 +22,13 @@ class ScalaCliParser implements PsiParser, LightPsiParser {
         return false;
     }
 
+    private void includeLexeme(@NotNull PsiBuilder builder) {
+        final PsiBuilder.Marker commandMarker = builder.mark();
+        final IElementType tokenType = builder.getTokenType();
+        builder.advanceLexer();
+        commandMarker.done(tokenType);
+    }
+
     @Override
     public void parseLight(@NotNull IElementType root, @NotNull PsiBuilder builder) {
         final PsiBuilder.Marker rootMarker = builder.mark();
@@ -36,9 +43,7 @@ class ScalaCliParser implements PsiParser, LightPsiParser {
 
         if (finalizeIfTokenTypeIsUnexpectedOrError(builder.getTokenType(), tCLI_DIRECTIVE_COMMAND, rootMarker, builder)) return;
 
-        final PsiBuilder.Marker commandMarker = builder.mark();
-        builder.advanceLexer();
-        commandMarker.done(tCLI_DIRECTIVE_COMMAND);
+        includeLexeme(builder);
 
         if (finalizeIfTokenTypeIsUnexpectedOrError(builder.getTokenType(), tCLI_DIRECTIVE_WHITESPACE, rootMarker, builder)) return;
 
@@ -46,9 +51,7 @@ class ScalaCliParser implements PsiParser, LightPsiParser {
 
         if (finalizeIfTokenTypeIsUnexpectedOrError(builder.getTokenType(), tCLI_DIRECTIVE_KEY, rootMarker, builder)) return;
 
-        final PsiBuilder.Marker keyMarker = builder.mark();
-        builder.advanceLexer();
-        keyMarker.done(tCLI_DIRECTIVE_KEY);
+        includeLexeme(builder);
 
         if (finalizeIfTokenTypeIsUnexpectedOrError(builder.getTokenType(), tCLI_DIRECTIVE_WHITESPACE, rootMarker, builder)) return;
 
@@ -59,13 +62,11 @@ class ScalaCliParser implements PsiParser, LightPsiParser {
         while (builder.getTokenType() == tCLI_DIRECTIVE_VALUE || builder.getTokenType() == tCLI_DIRECTIVE_WHITESPACE) {
 
             if (builder.getTokenType() == tCLI_DIRECTIVE_WHITESPACE) {
-                builder.advanceLexer();
+                includeLexeme(builder);
                 continue;
             }
 
-            final PsiBuilder.Marker valueMarker = builder.mark();
-            builder.advanceLexer();
-            valueMarker.done(tCLI_DIRECTIVE_VALUE);
+            includeLexeme(builder);
         }
 
         while (builder.getTokenType() != null) {
