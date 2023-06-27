@@ -119,18 +119,24 @@ abstract class AbstractCompiler extends Compiler {
 
     private def logInClient(msg: String, pos: Position, kind: MessageKind): Unit = {
       val source = pos.sourceFile.toScala
-      val from = PosInfo(
-        line = pos.line().toScala.map(_.toLong),
-        column = pos.pointer().toScala.map(_.toLong + 1L),
-        offset = pos.offset().toScala.map(_.toLong)
-      )
-      val to = PosInfo(
-        line = pos.endLine().toScala.map(_.toLong),
-        column = pos.endColumn().toScala.map(_.toLong + 1L),
-        offset = pos.endOffset().toScala.map(_.toLong)
-      )
+
+      val pointer = for {
+        line <- pos.line().toScala
+        column <- pos.pointer().toScala
+      } yield PosInfo(line, column + 1)
+
+      val problemStart = for {
+        line <- pos.startLine().toScala
+        column <- pos.startColumn().toScala
+      } yield PosInfo(line, column + 1)
+
+      val problemEnd = for {
+        line <- pos.endLine().toScala
+        column <- pos.endColumn().toScala
+      } yield PosInfo(line, column + 1)
+
       //noinspection ReferencePassedToNls
-      client.message(kind, msg, source, from, to)
+      client.message(kind, msg, source, pointer, problemStart, problemEnd)
     }
   }
 

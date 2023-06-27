@@ -11,10 +11,11 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.xml.util.XmlStringUtil
 import org.jetbrains.annotations.{Nls, Nullable}
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaOptimizeImportsFix
-import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.{Pos, PosRange}
+import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -130,9 +131,13 @@ object ExternalHighlighters {
 
     //NOTE: in case there is no location in the file, do not ignore/loose messages
     //instead report them in the beginning of the file
-    val posRange = highlighting.range.getOrElse(PosRange(Pos.Offset(0), Pos.Offset(0)))
+    val range = highlighting.rangeInfo.getOrElse {
+      val start = PosInfo(1, 1)
+      RangeInfo.Range(start, start)
+    }
+
     for {
-      highlightRange <- calculateRangeToHighlight(posRange, message, document, psiFile)
+      highlightRange <- calculateRangeToHighlight(range, document, psiFile)
     } yield {
       val description = message.trim.stripSuffix(lineText(message))
 
@@ -166,25 +171,17 @@ object ExternalHighlighters {
   }
 
   private def calculateRangeToHighlight(
-    posRange: ExternalHighlighting.PosRange,
-    message: String,
+    rangeInfo: RangeInfo,
     document: Document,
     psiFile: PsiFile
-  ): Option[TextRange] = {
-    //if there is no even start offset, there can't be end offset
-    val startOffset = convertToOffset(posRange.from, message, document) match {
-      case Some(start) => start
-      case _ =>
-        return None
-    }
-
-    val endOffsetOpt = convertToOffset(posRange.to, message, document)
-    endOffsetOpt match {
-      case Some(endOffset) if endOffset != startOffset =>
-        Some(TextRange.create(startOffset, endOffset))
-      case _ => //if we have empty-length range (single offset)
-        inReadAction(guessRangeToHighlight(psiFile, startOffset))
-    }
+  ): Option[TextRange] = rangeInfo match {
+    case RangeInfo.Range(PosInfo(startLine, startColumn), PosInfo(endLine, endColumn)) =>
+      val startOffset = convertToOffset(startLine, startColumn, document)
+      val endOffset = convertToOffset(endLine, endColumn, document)
+      Some(TextRange.create(startOffset, endOffset))
+    case RangeInfo.Pointer(PosInfo(line, column)) =>
+      val pointerOffset = convertToOffset(line, column, document)
+      inReadAction(guessRangeToHighlight(psiFile, pointerOffset))
   }
 
   private def guessRangeToHighlight(psiFile: PsiFile, startOffset: Int): Option[TextRange] =
@@ -200,42 +197,14 @@ object ExternalHighlighters {
         Some(other)
     }
 
-  private def convertToOffset(pos: Pos,
-                              message: String,
-                              document: Document): Option[Int] = pos match {
-    case Pos.LineColumn(l, c) =>
-      val line = l - 1
-      val column = (c - 1).max(0)
-      if (line < 0) {
-        None
-      } else {
-        val lineTextFromMessage = lineText(message)
-        // TODO: dotc and scalac report different lines in their messages :(
-        val actualLine =
-          Seq(line, line - 1, line + 1)
-            .find { lineNumber =>
-              documentLine(document, lineNumber).contains(lineTextFromMessage)
-            }
-        actualLine.map(line => document.getLineStartOffset(line) + column)
-      }
-    case Pos.Offset(offset) =>
-      Some(offset)
-  }
+  private def convertToOffset(line: Int, column: Int, document: Document): Int =
+    document.getLineStartOffset(line - 1) + column - 1
 
   private def lineText(messageText: String): String = {
     val trimmed = messageText.trim
     val lastLineSeparator = trimmed.lastIndexOf('\n')
     if (lastLineSeparator > 0) trimmed.substring(lastLineSeparator).trim else ""
   }
-
-  private def documentLine(document: Document, line: Int): Option[String] =
-    if (line >= 0 && line < document.getLineCount) {
-      val lineStart = document.getLineStartOffset(line)
-      val lineEnd = document.getLineEndOffset(line)
-      Some(document.getText(TextRange.create(lineStart, lineEnd)).trim)
-    } else {
-      None
-    }
 
   private def findQuickFixes(file: PsiFile,
                              range: TextRange,

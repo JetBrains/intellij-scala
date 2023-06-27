@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.scala.MessageKind
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
-import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.{Pos, PosRange}
+import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.project.template.FileExt
@@ -29,15 +29,15 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
           source <- msg.source
           virtualFile <- source.toVirtualFile
         } {
-          val fromOpt = Pos.fromPosInfo(msg.from)
-          val rangeOpt = fromOpt.map { fromPos =>
-            val toPos = Pos.fromPosInfo(msg.to).getOrElse(fromPos)
-            PosRange(fromPos, toPos)
-          }
+          val rangeOpt = for {
+            startPos <- msg.problemStart
+            endPos <- msg.problemEnd if startPos != endPos
+          } yield RangeInfo.Range(startPos, endPos)
+          val rangeInfoOpt = rangeOpt.orElse(msg.pointer.map(RangeInfo.Pointer))
           val highlighting = ExternalHighlighting(
             highlightType = kindToHighlightInfoType(msg.kind, text),
             message = text,
-            rangeOpt
+            rangeInfoOpt
           )
           val fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
           val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
