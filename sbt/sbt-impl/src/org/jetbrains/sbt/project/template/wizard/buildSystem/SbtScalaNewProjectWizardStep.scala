@@ -4,6 +4,7 @@ import com.intellij.ide.JavaUiBundle
 import com.intellij.ide.projectWizard.NewProjectWizardCollector.BuildSystem.{INSTANCE => BSLog}
 import com.intellij.ide.wizard.AbstractNewProjectWizardStep
 import com.intellij.openapi.GitRepositoryInitializer
+import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
 import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
 import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
 import com.intellij.openapi.observable.properties.{GraphProperty, ObservableProperty, PropertyGraph}
@@ -69,6 +70,11 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     setProjectOrModuleSdk(project, parent, builder, Option(getSdk))
 
     ExternalProjectsManagerImpl.setupCreatedProject(project)
+    /** NEWLY_CREATED_PROJECT must be set up to prevent the call of markDirtyAllExternalProjects in ExternalProjectsDataStorage#load.
+     * As a result, NEWLY_IMPORTED_PROJECT must also be set to keep the same behaviour as before in ExternalSystemStartupActivity.kt:48 (do not call ExternalSystemUtil#refreshProjects).
+     * Similar thing is done in AbstractGradleModuleBuilder#setupModule */
+    project.putUserData(ExternalSystemDataKeys.NEWLY_CREATED_PROJECT, java.lang.Boolean.TRUE)
+    project.putUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT, java.lang.Boolean.TRUE)
 
     if (needToAddSampleCode) {
       val file = addScalaSampleCode(project, s"$projectRoot/src/main/scala", isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")), this.selections.packagePrefix)
