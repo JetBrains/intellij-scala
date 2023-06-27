@@ -154,8 +154,12 @@ class ImportSelectorUsed(
 
   override def toString: String = "ImportSelectorUsed(" + super.toString + ")"
 
-  //we can't reliable tell that shadowing is redundant, so it should never be marked as unused
-  override def isAlwaysUsed: Boolean = sel.importedName.contains("_") || super.isAlwaysUsed
+  //we can't reliable tell that hiding import (example: `import org.{A => _}`) is redundant, so it should never be marked as unused
+  override def isAlwaysUsed: Boolean = {
+    //note: seems like here it's assumed that import selector `sel` is an alias import
+    val isHidingImport = sel.isAliasedImport && sel.aliasNameWithIgnoredHidingImport.isEmpty
+    isHidingImport || super.isAlwaysUsed
+  }
 }
 
 object ImportSelectorUsed {

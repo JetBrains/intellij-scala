@@ -7,6 +7,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.TokenSets.{ID_SET, IMPORT_WILDCARDS}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tIDENTIFIER
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.IMPORT_SELECTOR
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -48,8 +49,17 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
       else aliasNameFromPsi
     }
 
-  private def aliasNameFromPsi: Option[String] =
-    Option(findChildByType[PsiElement](ID_SET)).map(_.getText)
+  override def aliasNameWithIgnoredHidingImport: Option[String] = {
+    val name = aliasName
+    name.filterNot { name =>
+      name == "_" || name == "*" && this.isScala3OrSource3Enabled
+    }
+  }
+
+  private def aliasNameFromPsi: Option[String] = {
+    val aliasIdentifier = Option(findChildByType[PsiElement](ID_SET))
+    aliasIdentifier.map(_.getText)
+  }
 
   override def reference: Option[ScStableCodeReference] = byPsiOrStub {
     getFirstChild match {
