@@ -16,27 +16,31 @@ trait Client {
   final def message(kind: MessageKind,
                     @Nls text: String,
                     source: Option[File] = None,
-                    from: PosInfo = PosInfo.Empty,
-                    to: PosInfo = PosInfo.Empty): Unit =
-    message(ClientMsg(kind, text, source, from, to))
+                    pointer: Option[PosInfo] = None,
+                    problemStart: Option[PosInfo] = None,
+                    problemEnd: Option[PosInfo] = None): Unit =
+    message(ClientMsg(kind, text, source, pointer, problemStart, problemEnd))
 
   final def error(@Nls text: String,
                   source: Option[File] = None,
-                  from: PosInfo = PosInfo.Empty,
-                  to: PosInfo = PosInfo.Empty): Unit =
-    message(MessageKind.Error, text, source, from, to)
+                  pointer: Option[PosInfo] = None,
+                  problemStart: Option[PosInfo] = None,
+                  problemEnd: Option[PosInfo] = None): Unit =
+    message(MessageKind.Error, text, source, pointer, problemStart, problemEnd)
 
   final def warning(@Nls text: String,
                     source: Option[File] = None,
-                    from: PosInfo = PosInfo.Empty,
-                    to: PosInfo = PosInfo.Empty): Unit =
-    message(MessageKind.Warning, text, source, from, to)
+                    pointer: Option[PosInfo] = None,
+                    problemStart: Option[PosInfo] = None,
+                    problemEnd: Option[PosInfo] = None): Unit =
+    message(MessageKind.Warning, text, source, pointer, problemStart, problemEnd)
 
   final def info(@Nls text: String,
                  source: Option[File] = None,
-                 from: PosInfo = PosInfo.Empty,
-                 to: PosInfo = PosInfo.Empty): Unit =
-    message(MessageKind.Info, text, source, from, to)
+                 pointer: Option[PosInfo] = None,
+                 problemStart: Option[PosInfo] = None,
+                 problemEnd: Option[PosInfo] = None): Unit =
+    message(MessageKind.Info, text, source, pointer, problemStart, problemEnd)
 
   def trace(exception: Throwable): Unit
 
@@ -84,18 +88,9 @@ object Client {
   final case class ClientMsg(kind: MessageKind,
                              @Nls text: String,
                              source: Option[File],
-                             from: PosInfo,
-                             to: PosInfo)
+                             pointer: Option[PosInfo],
+                             problemStart: Option[PosInfo],
+                             problemEnd: Option[PosInfo])
 
-  /**
-   * Information about the position in the source file.
-   */
-  final case class PosInfo(line: Option[Long],
-                           column: Option[Long],
-                           offset: Option[Long])
-  
-  object PosInfo {
-    
-    final val Empty: PosInfo = PosInfo(None, None, None)
-  }
+  final case class PosInfo(line: Int, column: Int)
 }

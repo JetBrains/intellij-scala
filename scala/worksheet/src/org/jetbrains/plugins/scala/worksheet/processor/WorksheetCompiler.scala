@@ -12,6 +12,7 @@ import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.annotations.Nls
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient, MessageKind}
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, JDK}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
@@ -469,17 +470,20 @@ object WorksheetCompiler {
 
     // note that messages text will contain positions from the wrapped code
     private def fixMessage(msg: Client.ClientMsg): Client.ClientMsg = {
-      val fixedFromLine = msg.from.line.map(line => (line - WorksheetWrapper.headerLinesCount).max(0))
-      val fixedFromOffset = msg.from.offset.map(offset => (offset - WorksheetWrapper.header.length).max(0))
-      val fixedFrom = msg.from.copy(line = fixedFromLine, offset = fixedFromOffset)
+      def fixPosInfo(posInfo: PosInfo): PosInfo = {
+        val fixedLine = (posInfo.line - WorksheetWrapper.headerLinesCount).max(0)
+        posInfo.copy(line = fixedLine)
+      }
       msg.copy(
-        from = fixedFrom,
         source = msg.source.map(_ => originalFile),
         text = msg.text
           .replace(s"object ${WorksheetWrapper.className}.", "object ") // object WorksheetWrapper.X -> object X
           .replace(s"object ${WorksheetWrapper.className}", originalFile.getName) // object WorksheetWrapper -> worksheet name
           .replace(s"${WorksheetWrapper.className}", originalFile.getName) // other unknown cases
-          .trim
+          .trim,
+        pointer = msg.pointer.map(fixPosInfo),
+        problemStart = msg.problemStart.map(fixPosInfo),
+        problemEnd = msg.problemEnd.map(fixPosInfo)
       )
     }
 

@@ -16,12 +16,13 @@ object Event {
     ObjectSerialization.fromBytes(bytes)
 }
 
-@SerialVersionUID(1L)
+@SerialVersionUID(2L)
 case class MessageEvent(kind: MessageKind,
                         text: String,
                         source: Option[File],
-                        from: PosInfo,
-                        to: PosInfo) extends Event
+                        pointer: Option[PosInfo],
+                        problemStart: Option[PosInfo],
+                        problemEnd: Option[PosInfo]) extends Event
 
 @SerialVersionUID(-6777609711619086870L)
 case class ProgressEvent(text: String, done: Option[Float]) extends Event

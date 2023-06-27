@@ -23,17 +23,9 @@ class CompilerEventReporter(project: Project,
 
   private def publish(kind: MessageKind, @Nls text: String, position: Option[FilePosition]): Unit =
     position.foreach { pos =>
-      val from = PosInfo(
-        line = Some(pos.getStartLine),
-        column = Some(pos.getStartColumn),
-        offset = None
-      )
-      val to = PosInfo(
-        line = Some(pos.getEndLine.toLong),
-        column = Some(pos.getEndColumn.toLong),
-        offset = None
-      )
-      val msg = Client.ClientMsg(kind, text, Some(pos.getFile), from, to)
+      val problemStart = PosInfo(pos.getStartLine + 1, pos.getStartColumn + 1)
+      val problemEnd = PosInfo(pos.getEndLine + 1, pos.getEndColumn + 1)
+      val msg = Client.ClientMsg(kind, text, Some(pos.getFile), Some(problemStart), Some(problemStart), Some(problemEnd))
       val event = CompilerEvent.MessageEmitted(compilationId, None, None, msg)
       files.add(pos.getFile)
       publisher.eventReceived(event)

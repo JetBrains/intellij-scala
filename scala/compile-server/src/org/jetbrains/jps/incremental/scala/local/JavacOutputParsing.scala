@@ -10,7 +10,7 @@ import java.util.function.Supplier
 import scala.util.matching.Regex
 
 trait JavacOutputParsing extends Logger {
-  private case class Header(file: File, line: Long, kind: MessageKind)
+  private case class Header(file: File, line: Int, kind: MessageKind)
 
   private var header: Option[Header] = None
   private var lines: Vector[String] = Vector.empty
@@ -29,16 +29,15 @@ trait JavacOutputParsing extends Logger {
   private def process(line: String, kind: MessageKind): Unit = {
     line match {
       case HeaderPattern(path, row, modifier, message) =>
-        header = Some(Header(new File(path), row.toLong, if (modifier == null) kind else MessageKind.Warning))
+        header = Some(Header(new File(path), row.toInt, if (modifier == null) kind else MessageKind.Warning))
         lines :+= message
       case PointerPattern(prefix) if header.isDefined =>
         val text = (lines :+ line).mkString("\n")
-        val fromPosInfo = PosInfo(
-          line = header.map(_.line),
-          column = Some(1L + prefix.length),
-          offset = None
+        val pointer = PosInfo(
+          line = header.get.line,
+          column = 1 + prefix.length
         )
-        client.message(header.get.kind, text, header.map(_.file), fromPosInfo)
+        client.message(header.get.kind, text, header.map(_.file), Some(pointer))
         header = None
         lines = Vector.empty
       case NotePattern(message) =>
