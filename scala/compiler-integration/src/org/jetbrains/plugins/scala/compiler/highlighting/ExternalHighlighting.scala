@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
-import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.PosRange
+import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 
 /**
  * All information that needed for highlighting.
@@ -13,23 +13,13 @@ import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.Po
  */
 final case class ExternalHighlighting(highlightType: HighlightInfoType,
                                       message: String,
-                                      range: Option[PosRange])
+                                      rangeInfo: Option[RangeInfo])
 
 object ExternalHighlighting {
+  sealed trait RangeInfo
 
-  final case class PosRange(from: Pos, to: Pos)
-
-  sealed trait Pos
-  
-  object Pos {
-    final case class LineColumn(line: Int, column: Int) extends Pos
-    final case class Offset(offset: Int) extends Pos
-    
-    def fromPosInfo(posInfo: PosInfo): Option[Pos] =
-      Option(posInfo).collect {
-        // TODO The cases should be in different order. But the highlighting works incorrect with offset by some reason
-        case PosInfo(Some(line), Some(column), _) => LineColumn(line.toInt, column.toInt)
-        case PosInfo(_, _, Some(offset)) => Offset(offset.toInt)
-      }
+  object RangeInfo {
+    final case class Range(problemStart: PosInfo, problemEnd: PosInfo) extends RangeInfo
+    final case class Pointer(pointer: PosInfo) extends RangeInfo
   }
 }

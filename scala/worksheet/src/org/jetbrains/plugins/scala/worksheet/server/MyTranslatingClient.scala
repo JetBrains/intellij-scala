@@ -6,7 +6,6 @@ import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
@@ -39,7 +38,7 @@ private class MyTranslatingClient(
   }
 
   override def message(msg: Client.ClientMsg): Unit = {
-    val Client.ClientMsg(kind, text, _, PosInfo(line, column, _), _) = msg
+    val Client.ClientMsg(kind, text, _, pointer, _, _) = msg
     val lines = (if (text == null) "" else text).split("\n")
     val linesLength = lines.length
 
@@ -73,8 +72,8 @@ private class MyTranslatingClient(
 
     val lineOffset = WorksheetDefaultSourcePreprocessor.LinesOffsetToFixErrorPositionInFile
 
-    val line1 = line.map(_ - lineOffset).map(_.toInt).getOrElse(-1)
-    val column1 = column.map(_ - columnOffset).map(_.toInt).getOrElse(-1)
+    val line1 = pointer.map(_.line - lineOffset).getOrElse(-1)
+    val column1 = pointer.map(_.column - columnOffset).getOrElse(-1)
 
     val category = toCompilerMessageCategory(kind)
 

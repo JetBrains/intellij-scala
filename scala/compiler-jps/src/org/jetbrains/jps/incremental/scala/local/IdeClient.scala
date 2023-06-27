@@ -26,7 +26,7 @@ abstract class IdeClient(compilerName: String,
   private val compilationUnitId = Some(IdeClient.getCompilationUnitId(chunk))
 
   override def message(msg: Client.ClientMsg): Unit = {
-    val Client.ClientMsg(kind, text, source, PosInfo(line, column, _), _) = msg
+    val Client.ClientMsg(kind, text, source, pointer, _, _) = msg
     if (kind == MessageKind.Error) {
       hasErrors = true
     }
@@ -34,6 +34,10 @@ abstract class IdeClient(compilerName: String,
     val name = if (source.isEmpty) compilerName else ""
 
     val sourcePath = source.map(file => file.getPath)
+    val (line, column) = pointer match {
+      case Some(PosInfo(line, column)) => (Some(line.toLong), Some(column.toLong))
+      case None => (None, None)
+    }
 
     if (LogFilter.shouldLog(kind, text, source, line, column)) {
       val jpsKind = kind match {
