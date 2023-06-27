@@ -62,7 +62,7 @@ class ScalaCliParser implements PsiParser, LightPsiParser {
         while (builder.getTokenType() == tCLI_DIRECTIVE_VALUE || builder.getTokenType() == tCLI_DIRECTIVE_WHITESPACE) {
 
             if (builder.getTokenType() == tCLI_DIRECTIVE_WHITESPACE) {
-                includeLexeme(builder);
+                builder.advanceLexer();
                 continue;
             }
 
