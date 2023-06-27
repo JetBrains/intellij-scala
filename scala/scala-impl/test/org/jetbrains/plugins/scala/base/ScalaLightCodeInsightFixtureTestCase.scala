@@ -19,8 +19,10 @@ import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader, SmartJDKLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
+import org.junit.Assert
 import org.junit.Assert.{assertNotNull, fail}
 
 import scala.jdk.CollectionConverters._
@@ -88,7 +90,29 @@ abstract class ScalaLightCodeInsightFixtureTestCase
     if (loadScalaLibrary) {
       myFixture.allowTreeAccessForAllFiles()
       super.setUpLibraries(module)
+
+      val compilerOptions = additionalCompilerOptions
+      if (compilerOptions.nonEmpty) {
+        addCompilerOptions(module, compilerOptions)
+      }
     }
+  }
+
+  protected def additionalCompilerOptions: Seq[String] = Nil
+
+  private def addCompilerOptions(module: Module, options: Seq[String]): Unit = {
+    val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(module.getProject)
+
+    val settings = compilerConfiguration.settingsForHighlighting(module) match {
+      case Seq(s) => s
+      case _ =>
+        Assert.fail("expected single settings for module").asInstanceOf[Nothing]
+    }
+
+    val newSettings =
+      if (options.forall(settings.additionalCompilerOptions.contains)) settings
+      else settings.copy(additionalCompilerOptions = settings.additionalCompilerOptions ++ options)
+    compilerConfiguration.configureSettingsForModule(module, "unit tests", newSettings)
   }
   //end section: project descriptor
 

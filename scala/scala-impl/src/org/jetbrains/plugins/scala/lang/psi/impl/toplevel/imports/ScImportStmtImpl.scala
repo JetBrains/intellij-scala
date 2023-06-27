@@ -180,8 +180,7 @@ object ScImportOrExportImpl {
                                givenImports: GivenImports = GivenImports.empty): BaseProcessor = {
       assert(bp == processor)
 
-      if (!isScala3 && shadowed.isEmpty && !givenImports.hasImports) bp
-      else new BaseProcessor(bp.kinds)(project) {
+      class MyBaseProcessor extends BaseProcessor(bp.kinds)(project) {
 
         override def getHint[T](hintKey: Key[T]): T = bp.getHint(hintKey)
 
@@ -234,6 +233,9 @@ object ScImportOrExportImpl {
           bp.execute(namedElement, newState)
         }
       }
+
+      if (!isScala3 && shadowed.isEmpty && !givenImports.hasImports) bp
+      else new MyBaseProcessor
     }
 
     val resolveIterator = resolve.iterator
@@ -344,9 +346,10 @@ object ScImportOrExportImpl {
                     shadowed += ((selector, result.getElement))
                     val importedName = selector.importedName.map(clean)
 
-                    if (!importedName.contains("_")) {
+                    //processor should skip hiding imports
+                    val isHidingImport = selector.aliasNameWithIgnoredHidingImport.isEmpty
+                    if (!isHidingImport) {
                       val refType = qualifierType(isInPackageObject(result.element))
-                      //processor should skip shadowed reference
                       val newImportsUsed =
                         importsUsed + new ImportSelectorUsed(selector)
 

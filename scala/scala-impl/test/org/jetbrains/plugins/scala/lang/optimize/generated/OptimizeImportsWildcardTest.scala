@@ -21,9 +21,96 @@ abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
 
   def testNameConflictTypeAlias(): Unit = doTest()
 
-  def testShadowAndSelectors(): Unit = doTest()
-
   def testMergeIntoWildcard(): Unit = doTest()
+
+  def testShadowAndSelectors(): Unit = doTest(
+    """object A {
+      |  class X
+      |  class Y
+      |
+      |  implicit val s: String = ""
+      |}
+      |
+      |object B1 {
+      |  import A.{X => Z, s => _}
+      |  new Z
+      |}
+      |
+      |object B2 {
+      |  import A.{Y, X => Z, s => _, _}
+      |  (new Y, new Z)
+      |}
+      |
+      |object B3 {
+      |  import A.{X => _, _}
+      |  new Y
+      |}
+      |
+      |object B4 {
+      |  import A.{s => implicitString, X => Z, _}
+      |  (new Y, new Z)
+      |}
+      |
+      |object B5 {
+      |  import A.{s => implicitString, X => Z, _}
+      |
+      |  def foo(implicit s: String) = s
+      |  foo
+      |
+      |  new Y
+      |}
+      |
+      |object B6 {
+      |  import A.{Y, X => Z, s => _, _}
+      |  (new Y, new Z)
+      |}
+      |""".stripMargin,
+    """object A {
+      |  class X
+      |  class Y
+      |
+      |  implicit val s: String = ""
+      |}
+      |
+      |object B1 {
+      |  import A.{X => Z, s => _}
+      |  new Z
+      |}
+      |
+      |object B2 {
+      |  import A.{Y, X => Z, s => _}
+      |  (new Y, new Z)
+      |}
+      |
+      |object B3 {
+      |  import A.{X => _, _}
+      |  new Y
+      |}
+      |
+      |object B4 {
+      |  import A.{X => Z, _}
+      |  (new Y, new Z)
+      |}
+      |
+      |object B5 {
+      |  import A.{s => implicitString, _}
+      |
+      |  def foo(implicit s: String) = s
+      |  foo
+      |
+      |  new Y
+      |}
+      |
+      |object B6 {
+      |  import A.{Y, X => Z, s => _}
+      |  (new Y, new Z)
+      |}
+      |""".stripMargin,
+    "Removed 4 imports"
+  )
+}
+
+abstract class OptimizeImportsWildcardCommon_212_213_Test extends OptimizeImportsWildcardTestBase {
 
   protected def addCommonDeclarationsWithNameClashes(): Unit = {
     myFixture.addFileToProject("org/example/declaration/all.scala",
@@ -246,7 +333,7 @@ abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
   }
 }
 
-class OptimizeImportsWildcardTest_2_12 extends OptimizeImportsWildcardTestBase {
+class OptimizeImportsWildcardTest_2_12 extends OptimizeImportsWildcardCommon_212_213_Test {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_2_12
@@ -296,7 +383,7 @@ class OptimizeImportsWildcardTest_2_12 extends OptimizeImportsWildcardTestBase {
   }
 }
 
-class OptimizeImportsWildcardTest_2_13 extends OptimizeImportsWildcardTestBase {
+class OptimizeImportsWildcardTest_2_13 extends OptimizeImportsWildcardCommon_212_213_Test {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_2_13
@@ -346,4 +433,96 @@ class OptimizeImportsWildcardTest_2_13 extends OptimizeImportsWildcardTestBase {
       "Removed 2 imports"
     )
   }
+}
+
+class OptimizeImportsWildcardTest_2_13_XSource3 extends OptimizeImportsWildcardTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_2_13
+
+  override def testShadowAndSelectors(): Unit = doTest(
+    """object A {
+      |  class X
+      |  class Y
+      |
+      |  implicit val s: String = ""
+      |}
+      |
+      |object B1 {
+      |  import A.{X => Z, s => _}
+      |  new Z
+      |}
+      |
+      |object B2 {
+      |  import A.{Y, X => Z, s => _, _}
+      |  (new Y, new Z)
+      |}
+      |
+      |object B3 {
+      |  import A.{X => _, _}
+      |  new Y
+      |}
+      |
+      |object B4 {
+      |  import A.{s => implicitString, X => Z, _}
+      |  (new Y, new Z)
+      |}
+      |
+      |object B5 {
+      |  import A.{s => implicitString, X => Z, _}
+      |
+      |  def foo(implicit s: String) = s
+      |  foo
+      |
+      |  new Y
+      |}
+      |
+      |object B6 {
+      |  import A.{Y, X => Z, s => _, _}
+      |  (new Y, new Z)
+      |}
+      |""".stripMargin,
+    """object A {
+      |  class X
+      |  class Y
+      |
+      |  implicit val s: String = ""
+      |}
+      |
+      |object B1 {
+      |  import A.{X => Z, s => _}
+      |  new Z
+      |}
+      |
+      |object B2 {
+      |  import A.{Y, X => Z, s => _}
+      |  (new Y, new Z)
+      |}
+      |
+      |object B3 {
+      |  import A.{X => _, _}
+      |  new Y
+      |}
+      |
+      |object B4 {
+      |  import A.{X => Z, _}
+      |  (new Y, new Z)
+      |}
+      |
+      |object B5 {
+      |  import A.{s => implicitString, _}
+      |
+      |  def foo(implicit s: String) = s
+      |  foo
+      |
+      |  new Y
+      |}
+      |
+      |object B6 {
+      |  import A.{Y, X => Z, s => _}
+      |  (new Y, new Z)
+      |}
+      |""".stripMargin,
+    "Removed 4 imports"
+  )
 }

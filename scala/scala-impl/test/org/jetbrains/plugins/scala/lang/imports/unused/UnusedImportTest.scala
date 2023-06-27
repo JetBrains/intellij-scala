@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.imports.unused
 
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
@@ -657,395 +656,67 @@ class UnusedImportTest_213 extends UnusedImportTest_Common_2 {
       messages(text)
     )
   }
-}
 
-class UnusedImportTest_3 extends UnusedImportTestBase with MatcherAssertions {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
-
-  def testUnusedWildcard(): Unit = {
+  /** Same as [[UnusedImportTest_213_XSource3.testShadowAndWildcard_XSource3Syntax]] but without `-Xsource:3 compiler option` */
+  def testUnusedAliasImport_WithStarName_WithoutXSource3CompilerOption(): Unit = {
     val text =
-      """
-        |object A {
+      """object A {
         |  class X
         |  class Y
         |}
         |
-        |import A.{Y, X as Z, *}
+        |import A.{X => *, _}
         |object B {
-        |  (new Y, new Z)
+        |  new Y
         |}
-      """.stripMargin
-
-    assertMatches(messages(text)) {
-      case HighlightMessage("*", _) :: Nil =>
-    }
+        |""".stripMargin
+    assertCollectionEquals(
+      Seq(
+        HighlightMessage("X => *", UnusedImportStatement),
+      ),
+      messages(text)
+    )
   }
 
-  def testUnusedGivenImport(): Unit = {
+  def testUsedAliasImport_WithStarName_WithoutXSource3CompilerOption(): Unit = {
     val text =
-      """
-        |object Source {
-        |  given Int = 0
+      """object A {
+        |  class X
+        |  class Y
         |}
         |
-        |object Target {
-        |  import Source.given
+        |import A.{X => *, _}
+        |object B {
+        |  new Y
+        |  new *
         |}
-      """.stripMargin
-
-    assertMatches(messages(text)) {
-      case HighlightMessage("import Source.given", UnusedImportStatement) :: Nil =>
-    }
+        |""".stripMargin
+    assertCollectionEquals(
+      Seq[HighlightMessage](),
+      messages(text)
+    )
   }
+}
 
-  def testUsedGivenImport(): Unit = {
+class UnusedImportTest_213_XSource3 extends UnusedImportTest_Common_2 {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+
+  override protected def additionalCompilerOptions: Seq[String] = Seq("-Xsource:3")
+
+  def testShadowAndWildcard_XSource3Syntax(): Unit = {
     val text =
-      """
-        |object Source {
-        |  given Int = 0
+      """object A {
+        |  class X
+        |  class Y
+        |  class Z
         |}
         |
-        |object Target {
-        |  import Source.given
-        |  println(given_Int)
+        |import A.{X as *, Z => *, *}
+        |object B {
+        |  new Y
         |}
-      """.stripMargin
-
-    assertNothing(messages(text))
-  }
-
-  def testUnusedGivenImportNextToUsedOne(): Unit = {
-    val text =
-      """
-        |object Source {
-        |  given Int = 0
-        |  given Short = 0
-        |}
-        |
-        |object Target {
-        |  import Source.{given Int, given Short}
-        |  println(given_Int)
-        |}
-      """.stripMargin
-
-    assertMatches(messages(text)) {
-      case HighlightMessage("given Short", UnusedImportStatement) :: Nil =>
-    }
-  }
-
-  def testTwoUsedGivenImports(): Unit = {
-    val text =
-      """
-        |object Source {
-        |  given Int = 0
-        |  given Short = 0
-        |}
-        |
-        |object Target {
-        |  import Source.{given Int, given Short}
-        |  println(given_Int)
-        |  println(given_Short)
-        |}
-      """.stripMargin
-
-    assertNothing(messages(text))
-  }
-
-  def testGivenWildcardImportNextToUnusedImports(): Unit = {
-    val text =
-      """
-        |object Source {
-        |  given Int = 0
-        |  given Short = 0
-        |}
-        |
-        |object Target {
-        |  import Source.{given, given Short}
-        |  println(given_Int)
-        |  println(given_Short)
-        |}
-      """.stripMargin
-
-    assertNothing(messages(text))
-  }
-
-  def testUnusedGivenWildcardImportNextToUsedImports(): Unit = {
-    val text =
-      """
-        |object Source {
-        |  given Int = 0
-        |  given Short = 0
-        |}
-        |
-        |object Target {
-        |  import Source.{given, given Short}
-        |  println(given_Short)
-        |}
-      """.stripMargin
-
-    assertMatches(messages(text)) {
-      case HighlightMessage("given", UnusedImportStatement) :: Nil =>
-    }
-  }
-
-  def testUnusedGivenImportNextToUsedAnyGivenImports(): Unit = {
-    val text =
-      """
-        |object Source {
-        |  given Int = 0
-        |  given Short = 0
-        |}
-        |
-        |object Target {
-        |  import Source.{given Any, given Short}
-        |  println(given_Short)
-        |}
-      """.stripMargin
-
-    assertMatches(messages(text)) {
-      case HighlightMessage("given Short", UnusedImportStatement) :: Nil =>
-    }
-  }
-
-  def testGivenImportWithSameTypeButDifferentRef(): Unit = {
-    val text =
-      """
-        |object Source {
-        |  given Int = 0
-        |}
-        |
-        |object Target {
-        |  import Source.{given scala.Int, given Int}
-        |  println(given_Int)
-        |}
-      """.stripMargin
-
-    assertMatches(messages(text)) {
-      case HighlightMessage("given scala.Int", UnusedImportStatement) :: Nil =>
-    }
-  }
-
-  def testUnusedExtensionMethod(): Unit = {
-    val text =
-      """
-        |object Extensions {
-        |  extension (s: String) def foo: Int = s.length
-        |}
-        |
-        |object Target {
-        |  import Extensions.foo
-        |  println("")
-        |}
-      """.stripMargin
-
-    assertMatches(messages(text)) {
-      case HighlightMessage("import Extensions.foo", UnusedImportStatement) :: Nil =>
-    }
-  }
-
-  def testUsedExtensionMethod(): Unit = {
-    val text =
-      """
-        |object Extensions {
-        |  extension (s: String) def foo: Int = s.length
-        |}
-        |
-        |object Target {
-        |  import Extensions.foo
-        |  println("".foo)
-        |}
-      """.stripMargin
-
-    assertNothing(messages(text))
-  }
-
-  def testUnusedWildcardNextToUsedExtensionMethod(): Unit = {
-    val text =
-      """
-        |object Extensions {
-        |  extension (s: String)
-        |    def foo: Int = s.length
-        |}
-        |
-        |object Target {
-        |  import Extensions.{foo, *}
-        |  println("".foo)
-        |}
-      """.stripMargin
-
-    assertMatches(messages(text)) {
-      case HighlightMessage("*", UnusedImportStatement) :: Nil =>
-    }
-  }
-
-  def testUnusedExtensionMethodImportNextToUsedOne(): Unit = {
-    val text =
-      """
-        |object Extensions {
-        |  extension (s: String)
-        |    def foo: Int = s.length
-        |    def bar: Char = s.head
-        |}
-        |
-        |object Target {
-        |  import Extensions.{foo, bar}
-        |  println("".foo)
-        |}
-      """.stripMargin
-
-    assertMatches(messages(text)) {
-      case HighlightMessage("bar", UnusedImportStatement) :: Nil =>
-    }
-  }
-
-  def testTwoUsedExtensionMethods(): Unit = {
-    val text =
-      """
-        |object Extensions {
-        |  extension (s: String)
-        |    def foo: Int = s.length
-        |    def bar: Char = s.head
-        |}
-        |
-        |object Target {
-        |  import Extensions.{foo, bar}
-        |  println("...".bar)
-        |  println("".foo)
-        |}
-      """.stripMargin
-
-    assertNothing(messages(text))
-  }
-
-  def testUniversalApply(): Unit = {
-    val text =
-      """
-        |object Source {
-        |  class Foo
-        |}
-        |
-        |object Target {
-        |  import Source.Foo
-        |  Foo()
-        |}
-      """.stripMargin
-
-    assertNothing(messages(text))
-  }
-
-  def testUniversalApplyWithCompanion(): Unit = {
-    val text =
-      """
-        |object Source {
-        |  class Foo
-        |  object Foo
-        |}
-        |
-        |object Target {
-        |  import Source.Foo
-        |  Foo()
-        |}
-      """.stripMargin
-
-    assertNothing(messages(text))
-  }
-
-  def testUnusedGivenDefinitionImport(): Unit = {
-    val text =
-      """
-        |trait MyTrait { def i: Int }
-        |object Source:
-        |  given myTrait: MyTrait with
-        |    val i = 1
-        |
-        |object Target:
-        |  def foo: Unit = {
-        |    import Source.given
-        |  }
-        |  def bar: Unit = {
-        |    import Source.myTrait
-        |  }
-      """.stripMargin
-
-    assertMatches(messages(text)) {
-      case HighlightMessage("import Source.given", UnusedImportStatement) ::
-        HighlightMessage("import Source.myTrait", UnusedImportStatement) ::
-        Nil =>
-    }
-  }
-
-  def testUsedGivenDefinitionImport(): Unit = {
-    val text =
-      """
-        |trait MyTrait { def i: Int }
-        |object Source:
-        |  given myTrait: MyTrait with
-        |    val i = 1
-        |
-        |object Target:
-        |  def foo: Unit = {
-        |    import Source.given
-        |    println(myTrait.i)
-        |  }
-        |  def bar: Unit = {
-        |    import Source.myTrait
-        |    println(summon[MyTrait].i)
-        |  }
-      """.stripMargin
-
-    assertNothing(messages(text))
-  }
-
-  // SCL-21320
-  def testUnusedExtensionMethodInsideGivenImport(): Unit = {
-    val text =
-      """
-        |trait MyTrait:
-        |  def i: Int
-        |
-        |object Source:
-        |  given myTrait: MyTrait with
-        |    val i = 8
-        |    extension (s: String)
-        |      def upper: String = s.toUpperCase
-        |
-        |object Target:
-        |  def test: Unit =
-        |    import Source.given
-        |    import Source.myTrait
-        |    println("nothing is used")
-      """.stripMargin
-
-    assertMatches(messages(text)) {
-      case HighlightMessage("import Source.given", UnusedImportStatement) ::
-        HighlightMessage("import Source.myTrait", UnusedImportStatement) ::
-        Nil =>
-    }
-  }
-
-  // SCL-21320
-  def testUsedExtensionMethodInsideGivenImport(): Unit = {
-    val text =
-      """
-        |trait MyTrait:
-        |  def i: Int
-        |
-        |object Source:
-        |  given myTrait: MyTrait with
-        |    val i = 8
-        |    extension (s: String)
-        |      def upper: String = s.toUpperCase
-        |
-        |object Target:
-        |  def extensionFromGivenDefWildcard: Unit =
-        |    import Source.given
-        |    println("abcde".upper)
-        |
-        |  def extensionFromGivenDefByName: Unit =
-        |    import Source.myTrait
-        |    println("abcde".upper)
-      """.stripMargin
-
-    assertNothing(messages(text))
+        |""".stripMargin
+    assert(messages(text).isEmpty)
   }
 }
