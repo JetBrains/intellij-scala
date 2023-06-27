@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScPackaging}
+import org.jetbrains.plugins.scala.lang.scalacli.psi.impl.ScCliDirectiveImpl
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
@@ -65,6 +66,8 @@ final class ScalaBlockBuilder(
     }
     else if (lastNode != null)
       buildSubBlocksInner(firstNode, lastNode)
+    else if (firstNode.is[ScCliDirectiveImpl])
+      new util.ArrayList[Block]
     else
       buildSubBlocksInner(firstNode)
   }
