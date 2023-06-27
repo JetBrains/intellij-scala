@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListe
 import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 
-import java.awt.event.{KeyAdapter, KeyEvent, MouseEvent, MouseMotionAdapter}
+import java.awt.event.{FocusAdapter, FocusEvent, KeyAdapter, KeyEvent, MouseEvent, MouseMotionAdapter}
 import javax.swing.Timer
 
 class ScalaEditorFactoryListener extends EditorFactoryListener {
@@ -18,17 +18,29 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 
   override def editorCreated(event: EditorFactoryEvent): Unit = {
     val component = event.getEditor.getContentComponent
+    component.addFocusListener(editorFocusListener)
     component.addKeyListener(editorKeyListener)
     component.addMouseMotionListener(editorMouseListerner)
   }
 
   override def editorReleased(event: EditorFactoryEvent): Unit = {
     val component = event.getEditor.getContentComponent
+    component.removeFocusListener(editorFocusListener)
     component.removeKeyListener(editorKeyListener)
     component.removeMouseMotionListener(editorMouseListerner)
   }
 
   private var mouseHasMoved = false
+
+  private val editorFocusListener = new FocusAdapter {
+    override def focusLost(e: FocusEvent): Unit = {
+      if (xRayMode) {
+        xRayMode = false
+      }
+      longDelay.stop()
+      shortDelay.stop()
+    }
+  }
 
   private val editorKeyListener = new KeyAdapter {
     private val ModifierKey = if (SystemInfo.isMac) KeyEvent.VK_META else KeyEvent.VK_CONTROL
