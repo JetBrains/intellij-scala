@@ -184,7 +184,8 @@ public interface ScalaTokenTypes {
             tLINE_COMMENT,
             tBLOCK_COMMENT,
             tDOC_COMMENT,
-            ScalaDocElementTypes.SCALA_DOC_COMMENT
+            ScalaDocElementTypes.SCALA_DOC_COMMENT,
+            ScalaCliElementTypes.SCALA_CLI_DIRECTIVE
     );
 
     TokenSet WHITES_SPACES_AND_COMMENTS_TOKEN_SET = TokenSet.orSet(COMMENTS_TOKEN_SET, WHITES_SPACES_TOKEN_SET);
