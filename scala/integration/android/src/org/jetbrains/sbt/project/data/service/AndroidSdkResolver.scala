@@ -2,7 +2,7 @@ package org.jetbrains.sbt.project.data.service
 
 
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
-import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
+import org.jetbrains.android.sdk.{AndroidPlatforms, AndroidSdkType}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.external.{AndroidJdk, SdkReference, SdkResolver}
 
@@ -28,7 +28,7 @@ private object AndroidSdkResolver {
 
     val matchingSdks = for {
       sdk <- allAndroidSdks
-      platform <- Option(AndroidPlatform.getInstance(sdk))
+      platform <- Option(AndroidPlatforms.getInstance(sdk))
       platformVersion = platform.getApiLevel.toString
       if isGEQAsInt(platformVersion, version)
     } yield sdk
