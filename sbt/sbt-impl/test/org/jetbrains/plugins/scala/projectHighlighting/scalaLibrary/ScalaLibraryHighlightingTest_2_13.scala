@@ -81,6 +81,9 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
         (3203, 3210), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
       ),
       "scala/package.scala" -> Set(
+        (3804, 3812), // Cannot resolve symbol nonEmpty
+        (3822, 3826), // Cannot resolve symbol head
+        (3830, 3834), // Cannot resolve symbol tail
         (3979, 3987), // Cannot resolve symbol nonEmpty
         (3997, 4001), // Cannot resolve symbol head
         (4005, 4009), // Cannot resolve symbol tail
