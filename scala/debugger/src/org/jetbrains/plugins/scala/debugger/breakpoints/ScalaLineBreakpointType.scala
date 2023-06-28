@@ -99,8 +99,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
     val method = DebuggerUtil.getContainingMethod(elementAtLine)
 
-    for (startMethod <- method) {
-      assert(!lambdas.contains(startMethod))
+    for (startMethod <- method; if !lambdas.contains(startMethod)) {
       res = res :+ new ExactScalaBreakpointVariant(position, startMethod, -1)
     }
 
