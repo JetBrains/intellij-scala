@@ -23,4 +23,6 @@ final class ScCliDirectiveImpl(buffer: CharSequence, tokenType: IElementType)
     findChildrenByClass[T](clazz)
 
   override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
+
+  override def getTokenType: IElementType = tokenType
 }
