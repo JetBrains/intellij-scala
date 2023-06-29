@@ -4,11 +4,8 @@ import com.intellij.lang.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.tree.ILazyParseableElementType;
-import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliElementType;
-import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliTokenTypes;
 import org.jetbrains.plugins.scala.lang.scalacli.psi.impl.ScCliDirectiveImpl;
 import org.jetbrains.plugins.scalaCli.ScalaCliLanguage;
 
@@ -42,10 +39,4 @@ public interface ScalaCliElementTypes {
             return text != null ? new ScCliDirectiveImpl(text, this) : null;
         }
     };
-
-//    ScalaCliElementType DOC_TAG = new ScalaCliElementType("ScalaCliTag");
-
-//    TokenSet AllElementTypes = TokenSet.create(DOC_TAG);
-//
-//    TokenSet AllElementAndTokenTypes = TokenSet.orSet(AllElementTypes, ScalaCliTokenTypes.ALL_SCALA_CLI_TOKENS);
 }

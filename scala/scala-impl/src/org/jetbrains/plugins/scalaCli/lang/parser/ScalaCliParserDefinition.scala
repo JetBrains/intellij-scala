@@ -30,12 +30,10 @@ class ScalaCliParserDefinition extends ParserDefinition {
     new ScalaCliParser
 
   override def createElement(node: ASTNode): PsiElement = node.getElementType match {
-    case `tCLI_DIRECTIVE_COMMAND` =>
-      new ScCliDirectiveCommandImpl(node)
+    case `tCLI_DIRECTIVE_COMMAND` => new ScCliDirectiveCommandImpl(node)
     case `tCLI_DIRECTIVE_KEY` => new ScCliDirectiveKeyImpl(node)
     case `tCLI_DIRECTIVE_VALUE` => new ScCliDirectiveValueImpl(node)
-    case _ =>
-      new ASTWrapperPsiElement(node)
+    case _ => new ASTWrapperPsiElement(node)
   }
 
   override def createFile(viewProvider: FileViewProvider): PsiFile = null

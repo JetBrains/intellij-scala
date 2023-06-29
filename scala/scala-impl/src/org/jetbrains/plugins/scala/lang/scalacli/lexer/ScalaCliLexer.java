@@ -4,7 +4,7 @@ package org.jetbrains.plugins.scala.lang.scalacli.lexer;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
-import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliTokenTypes;
+import static com.intellij.psi.TokenType.WHITE_SPACE;
 
 
 /**
@@ -498,7 +498,7 @@ public void resetCustom() {}
         case COMMAND_FOUND -> yybegin(FINDING_KEY);
         case KEY_FOUND -> yybegin(FINDING_NEXT_VALUE);
     }
-    return tCLI_DIRECTIVE_WHITESPACE;
+    return WHITE_SPACE;
             } 
             // fall through
           case 12: break;
@@ -515,7 +515,7 @@ public void resetCustom() {}
             // fall through
           case 14: break;
           case 5: 
-            { return tCLI_DIRECTIVE_WHITESPACE;
+            { return WHITE_SPACE;
             } 
             // fall through
           case 15: break;
@@ -532,7 +532,7 @@ public void resetCustom() {}
           case 17: break;
           case 8: 
             { yybegin(FINDING_NEXT_VALUE);
-    return tCLI_DIRECTIVE_WHITESPACE;
+    return WHITE_SPACE;
             } 
             // fall through
           case 18: break;

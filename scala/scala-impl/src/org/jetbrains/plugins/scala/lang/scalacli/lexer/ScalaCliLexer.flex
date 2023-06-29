@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.scalacli.lexer;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
-import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliTokenTypes;
+import static com.intellij.psi.TokenType.WHITE_SPACE;
 
 %%
 
@@ -45,7 +45,7 @@ CLI_DIRECTIVE_VALUE = [a-zA-Z.:0-9_-]+
         case COMMAND_FOUND -> yybegin(FINDING_KEY);
         case KEY_FOUND -> yybegin(FINDING_NEXT_VALUE);
     }
-    return tCLI_DIRECTIVE_WHITESPACE;
+    return WHITE_SPACE;
 }
 
 <FINDING_COMMAND> {CLI_DIRECTIVE_COMMAND} {
@@ -68,12 +68,12 @@ CLI_DIRECTIVE_VALUE = [a-zA-Z.:0-9_-]+
 }
 
 <FINDING_NEXT_VALUE> {CLI_DIRECTIVE_WHITESPACE} {
-    return tCLI_DIRECTIVE_WHITESPACE;
+    return WHITE_SPACE;
 }
 
 <VALUE_FOUND> {CLI_DIRECTIVE_WHITESPACE} {
     yybegin(FINDING_NEXT_VALUE);
-    return tCLI_DIRECTIVE_WHITESPACE;
+    return WHITE_SPACE;
 }
 
 <VALUE_FOUND> {CLI_DIRECTIVE_COMMA} {
