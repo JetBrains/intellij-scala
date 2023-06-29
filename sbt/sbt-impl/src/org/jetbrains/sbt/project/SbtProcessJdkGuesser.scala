@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.sbt.SbtBundle
 
 import java.util.Comparator
+import scala.jdk.CollectionConverters._
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.math.Ordered.orderingToOrdered
 
@@ -55,7 +56,9 @@ object SbtProcessJdkGuesser {
       )
       jdkOpt.foreach { jdk =>
         inWriteAction {
-          jdkTable.addJdk(jdk)
+          val existingJdk = Option(jdkTable.findJdk(jdk.getName))
+            .filter(sdk => sdk.getHomePath != null &&  jdk.getHomePath == sdk.getHomePath)
+          if (existingJdk.isEmpty) jdkTable.addJdk(jdk)
         }
       }
     } catch {
@@ -70,9 +73,11 @@ object SbtProcessJdkGuesser {
     val sdksAll = jdkTable.getSdksOfType(jdkType).asScala.toSeq
     val sdksAllSorted = sdksAll.sorted(versionOrdering)
     val sdksMatchingVersion = sdksAllSorted.filter { sdk =>
-      val sdkVersion = sdk.getVersionString
-      versionStringComparator.compare(sdkVersion, MINIMUM_JAVA_VERSION_STR) >= 0 &&
-        versionStringComparator.compare(sdkVersion, MAXIMUM_JAVA_VERSION_STR) <= 0
+      val versionString = sdk.getVersionString
+      val versionPath = JavaVersion.tryParse(sdk.getHomePath)
+      (versionStringComparator.compare(versionString, MINIMUM_JAVA_VERSION_STR) >= 0 &&
+        versionStringComparator.compare(versionString, MAXIMUM_JAVA_VERSION_STR) <= 0) ||
+        (versionPath != null && MINIMUM_JAVA_VERSION <= versionPath && versionPath <= MAXIMUM_JAVA_VERSION)
     }
 
     if (Log.isTraceEnabled) {
