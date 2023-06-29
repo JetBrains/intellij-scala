@@ -37,7 +37,7 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
    * l is of the form l = 2*k, k a non negative integer
    */
   private static final int ZZ_LEXSTATE[] = { 
-     0,  0,  1,  1,  2,  2,  1,  1,  3,  3,  1,  1,  4,  4,  5, 5
+     0,  0,  1,  1,  2,  2,  1,  1,  3,  3,  4,  4,  5,  5,  6, 6
   };
 
   /** 
@@ -69,11 +69,11 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
-    "\6\0\2\1\1\2\1\3\1\4\1\5\1\6\1\7"+
+    "\7\0\2\1\1\2\1\3\1\4\1\5\1\6\1\7"+
     "\1\10\1\11\1\0\1\12";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[18];
+    int [] result = new int[19];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -99,11 +99,11 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
 
   private static final String ZZ_ROWMAP_PACKED_0 =
     "\0\0\0\10\0\20\0\30\0\40\0\50\0\60\0\70"+
-    "\0\100\0\110\0\120\0\130\0\60\0\140\0\150\0\60"+
-    "\0\160\0\60";
+    "\0\100\0\110\0\120\0\130\0\70\0\140\0\70\0\150"+
+    "\0\160\0\170\0\70";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[18];
+    int [] result = new int[19];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -126,14 +126,14 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
   private static final int [] ZZ_TRANS = zzUnpackTrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
-    "\1\7\1\10\11\7\1\11\11\7\1\12\7\7\2\13"+
-    "\4\7\1\14\1\15\3\16\3\7\1\17\1\20\3\7"+
-    "\11\0\1\21\11\0\1\11\11\0\1\12\7\0\2\13"+
-    "\4\0\1\14\11\0\3\16\3\0\1\17\6\0\1\22"+
-    "\5\0";
+    "\1\10\1\11\11\10\1\12\11\10\1\13\7\10\2\14"+
+    "\4\10\1\12\1\15\6\10\1\16\1\17\3\20\3\10"+
+    "\1\21\1\15\3\10\11\0\1\22\11\0\1\12\11\0"+
+    "\1\13\7\0\2\14\4\0\1\16\11\0\3\20\3\0"+
+    "\1\21\6\0\1\23\5\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[120];
+    int [] result = new int[128];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -171,10 +171,11 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\6\0\1\11\5\1\1\11\2\1\1\11\1\0\1\11";
+    "\7\0\1\11\4\1\1\11\1\1\1\11\2\1\1\0"+
+    "\1\11";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[18];
+    int [] result = new int[19];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -515,30 +516,30 @@ public void resetCustom() {}
             // fall through
           case 14: break;
           case 5: 
-            { return WHITE_SPACE;
+            { yybegin(FINDING_NEXT_VALUE);
+    return tCLI_DIRECTIVE_COMMA;
             } 
             // fall through
           case 15: break;
           case 6: 
-            { return tCLI_DIRECTIVE_COMMA;
+            { return WHITE_SPACE;
             } 
             // fall through
           case 16: break;
           case 7: 
-            { yybegin(VALUE_FOUND);
-    return tCLI_DIRECTIVE_VALUE;
+            { return tCLI_DIRECTIVE_COMMA;
             } 
             // fall through
           case 17: break;
           case 8: 
-            { yybegin(FINDING_NEXT_VALUE);
-    return WHITE_SPACE;
+            { yybegin(VALUE_FOUND);
+    return tCLI_DIRECTIVE_VALUE;
             } 
             // fall through
           case 18: break;
           case 9: 
             { yybegin(FINDING_NEXT_VALUE);
-    return tCLI_DIRECTIVE_COMMA;
+    return WHITE_SPACE;
             } 
             // fall through
           case 19: break;
