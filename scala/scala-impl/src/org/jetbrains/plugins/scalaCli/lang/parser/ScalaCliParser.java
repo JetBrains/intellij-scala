@@ -7,15 +7,17 @@ import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
 import static org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliTokenTypes.*;
 
 class ScalaCliParser implements PsiParser, LightPsiParser {
 
-    private void processCurrentToken(PsiBuilder builder, IElementType expected) {
+    private void processCurrentToken(PsiBuilder builder, IElementType... expected) {
 
         final IElementType currentTokenType = builder.getTokenType();
 
-        if (currentTokenType == expected) {
+        if (Arrays.asList(expected).contains(currentTokenType)) {
             includeCurrentToken(builder);
         } else if (currentTokenType != null) {
             // The current token is an error token, or it is unexpected, in which case we want to parse the
@@ -44,7 +46,7 @@ class ScalaCliParser implements PsiParser, LightPsiParser {
         processCurrentToken(builder, tCLI_DIRECTIVE_KEY);
 
         while (builder.getTokenType() != null) {
-            processCurrentToken(builder, tCLI_DIRECTIVE_VALUE);
+            processCurrentToken(builder, tCLI_DIRECTIVE_VALUE, tCLI_DIRECTIVE_COMMA);
         }
 
         rootMarker.done(root);
