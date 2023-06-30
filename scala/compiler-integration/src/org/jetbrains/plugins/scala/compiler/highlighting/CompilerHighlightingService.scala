@@ -19,7 +19,7 @@ import com.intellij.openapi.roots.{ProjectRootManager, TestSourcesFilter}
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.scala.Client
@@ -208,10 +208,14 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
 
   private[highlighting] def triggerDocumentCompilationInAllOpenEditors(client: Option[CompilerEventGeneratingClient]): Unit = {
     FileEditorManager.getInstance(project).getSelectedFiles.flatMap { vf =>
-      val (document, module) = inReadAction {
-        (FileDocumentManager.getInstance().getDocument(vf), ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(vf))
+      val (document, module, psiFile) = inReadAction {
+        (
+          FileDocumentManager.getInstance().getDocument(vf),
+          ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(vf),
+          PsiManager.getInstance(project).findFile(vf)
+        )
       }
-      if (module ne null) {
+      if ((module ne null) && psiFile.is[ScalaFile]) {
         val sourceScope = if (TestSourcesFilter.isTestSources(vf, project)) SourceScope.Test else SourceScope.Production
         Some((module, sourceScope, document, vf))
       } else None
