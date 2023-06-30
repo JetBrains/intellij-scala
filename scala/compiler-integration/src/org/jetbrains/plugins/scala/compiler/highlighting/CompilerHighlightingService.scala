@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 import java.util.concurrent.ScheduledExecutorService
@@ -215,7 +215,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
           PsiManager.getInstance(project).findFile(vf)
         )
       }
-      if ((module ne null) && psiFile.is[ScalaFile]) {
+      if ((module ne null) && module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3) && psiFile.is[ScalaFile]) {
         val sourceScope = if (TestSourcesFilter.isTestSources(vf, project)) SourceScope.Test else SourceScope.Production
         Some((module, sourceScope, document, vf))
       } else None
