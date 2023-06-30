@@ -82,6 +82,9 @@ final class ScEnumCaseImpl(
   override def enumParent: ScEnum =
     this.getStubOrPsiParentOfType(classOf[ScEnum])
 
+  override def enumCases: ScEnumCases =
+    this.getParentByStub.asInstanceOf[ScEnumCases] //enum case can't exist without parent enum cases
+
   def physicalTypeParameters: Seq[ScTypeParam] = super.typeParameters
 
   override def typeParameters: Seq[ScTypeParam] = cachedInUserData("ScEnumCaseImpl.typeParameters", this, BlockModificationTracker(this)) {
