@@ -2428,4 +2428,32 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
+
+  def testCaseClass(): Unit = {
+    doGenerateDocDefinitionTest(
+      s"""case class ${CARET}MyCaseClass(x: Int)
+         |""".stripMargin,
+      """<span style="color:#000080;font-weight:bold;">case</span>
+        |<span style="color:#000080;font-weight:bold;">class</span>
+        |MyCaseClass(x:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
+        |""".stripMargin,
+    )
+  }
+
+  def testCaseClass_WithExtendsList(): Unit = {
+    doGenerateDocDefinitionTest(
+      s"""abstract class MyClass
+         |trait MyTrait
+         |case class ${CARET}MyCaseClass(x: Int) extends MyClass with MyTrait
+         |""".stripMargin,
+      """<span style="color:#000080;font-weight:bold;">case</span>
+        |<span style="color:#000080;font-weight:bold;">class</span>
+        |MyCaseClass(x:<span style="color:#000000;"><a href="psi_element://scala.Int"><code>Int</code></a></span>)
+        |<span style="color:#000080;font-weight:bold;">extends</span>
+        |<span style="color:#000000;"><a href="psi_element://MyClass"><code>MyClass</code></a></span>
+        |<span style="color:#000080;font-weight:bold;">with</span>
+        |<span style="color:#000000;"><a href="psi_element://MyTrait"><code>MyTrait</code></a></span>
+        |""".stripMargin
+    )
+  }
 }

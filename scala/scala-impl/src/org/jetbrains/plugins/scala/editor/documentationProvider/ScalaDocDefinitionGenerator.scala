@@ -218,10 +218,7 @@ private class ScalaDocDefinitionGenerator private(
             }
           }
         }
-      case None =>
-        if (elem.isUnderCaseClass) {
-          buffer.append(HtmlPsiUtils.psiElementLink("scala.Product", "Product"))
-        }
+      case _ =>
     }
 
     val result = buffer.toString.trim
