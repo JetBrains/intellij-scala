@@ -18,22 +18,12 @@ class ScalaCliParser implements PsiParser, LightPsiParser {
         final IElementType currentTokenType = builder.getTokenType();
 
         if (Arrays.asList(expected).contains(currentTokenType)) {
-            includeCurrentToken(builder);
+            builder.advanceLexer();
         } else if (currentTokenType != null) {
             // The current token is an error token, or it is unexpected, in which case we want to parse the
             // current token as an an error token too.
-            includeToken(builder, tCLI_DIRECTIVE_ERROR);
+            builder.advanceLexer();
         }
-    }
-
-    private void includeCurrentToken(PsiBuilder builder) {
-        includeToken(builder, builder.getTokenType());
-    }
-
-    private void includeToken(PsiBuilder builder, IElementType tokenType) {
-        final PsiBuilder.Marker commandMarker = builder.mark();
-        builder.advanceLexer();
-        commandMarker.done(tokenType);
     }
 
     @Override
