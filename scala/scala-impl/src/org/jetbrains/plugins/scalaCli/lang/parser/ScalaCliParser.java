@@ -17,13 +17,19 @@ class ScalaCliParser implements PsiParser, LightPsiParser {
 
         final IElementType currentTokenType = builder.getTokenType();
 
-        if (Arrays.asList(expected).contains(currentTokenType)) {
-            builder.advanceLexer();
-        } else if (currentTokenType != null) {
-            // The current token is an error token, or it is unexpected, in which case we want to parse the
-            // current token as an an error token too.
-            builder.advanceLexer();
+        if (!Arrays.asList(expected).contains(currentTokenType)) {
+            if (currentTokenType == tCLI_DIRECTIVE_ERROR) {
+                builder.error("Lexer error");
+            } else {
+                if (Arrays.asList(expected).contains(tCLI_DIRECTIVE_KEY)) {
+                    builder.error("Scala CLI key expected: option, dep, jar, etc.");
+                } else {
+                    builder.error("Unexpected token");
+                }
+            }
         }
+
+        builder.advanceLexer();
     }
 
     @Override
