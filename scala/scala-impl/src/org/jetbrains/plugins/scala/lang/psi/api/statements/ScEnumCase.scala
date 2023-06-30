@@ -14,6 +14,8 @@ trait ScEnumCase extends ScConstructorOwner
 
   def enumParent: ScEnum
 
+  def enumCases: ScEnumCases
+
   /**
    * Returns type parameters from an explicit type parameter clause only,
    * as opposed to [[typeParameters]], which will also return

@@ -130,4 +130,191 @@ class Scala3DocumentationProviderTest extends ScalaDocumentationProviderTestBase
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }
+
+  private def ExpectedEnumRenderedContent_Common: String =
+    s"""<html>
+       |${DocHtmlHead(myFixture.getFile)}
+       |$BodyStart
+       |$DefinitionStart
+       |<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://example"><code>example</code></a><br/>
+       |<span style="color:#000080;font-weight:bold;">enum</span>
+       | TestEnum
+       |<span style="color:#000080;font-weight:bold;">extends </span>
+       |<span style="color:#000000;"><a href="psi_element://java.io.Serializable"><code>Serializable</code></a></span>
+       |$DefinitionEnd
+       |$ContentStart
+       |Description of TestEnum
+       |$ContentEnd
+       |$BodyEnd
+       |</html>
+       |""".stripMargin
+
+  def testEnum_AtDefinitionPosition(): Unit =
+    doGenerateDocTest(
+      s"""package example
+         |
+         |/** Description of TestEnum */
+         |enum ${CARET}TestEnum extends Serializable:
+         |  case EnumMember extends TestEnum
+         |""".stripMargin,
+      ExpectedEnumRenderedContent_Common
+    )
+
+  def testEnum_AtUsagePosition_1(): Unit =
+    doGenerateDocTest(
+      s"""package example
+         |
+         |/** Description of TestEnum */
+         |enum TestEnum extends Serializable:
+         |  case EnumMember extends TestEnum
+         |
+         |object usage:
+         |  ${CARET}TestEnum.EnumMember
+         |""".stripMargin,
+      ExpectedEnumRenderedContent_Common
+    )
+
+  def testEnum_AtUsagePosition_2(): Unit =
+    doGenerateDocTest(
+      s"""package example
+         |
+         |/** Description of TestEnum */
+         |enum TestEnum extends Serializable:
+         |  case EnumMember extends TestEnum
+         |
+         |object usage:
+         |  val x: ${CARET}TestEnum = ???
+         |""".stripMargin,
+      ExpectedEnumRenderedContent_Common
+    )
+
+  private def ExpectedEnumCase1RenderedContent_Common: String =
+    s"""<html>
+       |${DocHtmlHead(myFixture.getFile)}
+       |$BodyStart
+       |$DefinitionStart
+       |<icon src="AllIcons.Nodes.Package"/>
+       | <a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a><br/>
+       |<span style="color:#000080;font-weight:bold;">case</span>
+       | MyEnumCase1
+       |$DefinitionEnd
+       |$ContentStart
+       |Description of MyEnumCase1
+       |$ContentEnd
+       |$BodyEnd
+       |</html>
+       |""".stripMargin
+
+  def testEnumCase1_AtDefinitionPosition(): Unit =
+    doGenerateDocTest(
+      s"""package example
+         |
+         |enum MyEnum:
+         |  /** Description of MyEnumCase1 */
+         |  case ${CARET}MyEnumCase1
+         |""".stripMargin,
+      ExpectedEnumCase1RenderedContent_Common
+    )
+
+  def testEnumCase1_AtUsagePosition_1(): Unit =
+    doGenerateDocTest(
+      s"""package example
+         |
+         |enum MyEnum:
+         |  /** Description of MyEnumCase1 */
+         |  case MyEnumCase1
+         |
+         |object usage:
+         |  MyEnum.${CARET}MyEnumCase1
+         |""".stripMargin,
+      ExpectedEnumCase1RenderedContent_Common
+    )
+
+  def testEnumCase1_AtUsagePosition_2(): Unit =
+    doGenerateDocTest(
+      s"""package example
+         |
+         |enum MyEnum:
+         |  /** Description of MyEnumCase1 */
+         |  case MyEnumCase1
+         |
+         |object usage:
+         |  val x: MyEnum.${CARET}MyEnumCase1.type = ???
+         |""".stripMargin,
+      ExpectedEnumCase1RenderedContent_Common
+    )
+
+  private def ExpectedEnumCase2RenderedContent_Common: String =
+    s"""<html>
+       |${DocHtmlHead(myFixture.getFile)}
+       |$BodyStart
+       |$DefinitionStart
+       |<icon src="AllIcons.Nodes.Package"/> <a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a><br/><span style="color:#000080;font-weight:bold;">case</span> MyEnumCase2
+       |$DefinitionEnd
+       |$ContentStart
+       |Description of MyEnumCase1, MyEnumCase2
+       |$ContentEnd
+       |$BodyEnd
+       |</html>
+       |""".stripMargin
+
+  def testEnumCase2_AtDefinitionPosition(): Unit =
+    doGenerateDocTest(
+      s"""package example
+         |
+         |enum MyEnum:
+         |  /** Description of MyEnumCase1, MyEnumCase2 */
+         |  case MyEnumCase1, ${CARET}MyEnumCase2
+         |""".stripMargin,
+      ExpectedEnumCase2RenderedContent_Common
+    )
+
+  def testEnumCase2_AtUsagePosition_1(): Unit =
+    doGenerateDocTest(
+      s"""package example
+         |
+         |enum MyEnum:
+         |  /** Description of MyEnumCase1, MyEnumCase2 */
+         |  case MyEnumCase1, MyEnumCase2
+         |
+         |object usage:
+         |  MyEnum.${CARET}MyEnumCase2
+         |""".stripMargin,
+      ExpectedEnumCase2RenderedContent_Common
+    )
+
+  def testEnumCase2_AtUsagePosition_2(): Unit =
+    doGenerateDocTest(
+      s"""package example
+         |
+         |enum MyEnum:
+         |  /** Description of MyEnumCase1, MyEnumCase2 */
+         |  case MyEnumCase1, MyEnumCase2
+         |
+         |object usage:
+         |  val x: MyEnum.${CARET}MyEnumCase2.type = ???
+         |""".stripMargin,
+      ExpectedEnumCase2RenderedContent_Common
+    )
+
+  def testEnumCase_WithExtendsList(): Unit =
+    doGenerateDocDefinitionTest(
+      s"""package example
+         |
+         |trait MyTrait
+         |
+         |enum MyEnum:
+         |  /** Description of MyEnumCase1 */
+         |  case ${CARET}MyEnumCase1 extends MyEnum with MyTrait
+         |""".stripMargin,
+      """<icon src="AllIcons.Nodes.Package"/>
+        |<a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a><br/>
+        |<span style="color:#000080;font-weight:bold;">case</span>
+        |MyEnumCase1
+        |<span style="color:#000080;font-weight:bold;">extends</span>
+        |<span style="color:#000000;"><a href="psi_element://example.MyEnum"><code>MyEnum</code></a></span>
+        |<span style="color:#000080;font-weight:bold;">with</span>
+        |<span style="color:#000000;"><a href="psi_element://example.MyTrait"><code>MyTrait</code></a></span>
+        |""".stripMargin
+    )
 }
