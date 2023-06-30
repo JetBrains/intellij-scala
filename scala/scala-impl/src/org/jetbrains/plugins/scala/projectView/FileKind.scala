@@ -82,7 +82,7 @@ object FileKind {
   ) extends CompanionsFileKind
     with BaseIconProvider {
 
-    protected override val baseIcon: Icon =
+    protected override lazy val baseIcon: Icon =
       if (delegate.hasAbstractModifier) ABSTRACT_CLASS_AND_OBJECT
       else CLASS_AND_OBJECT
   }
@@ -93,6 +93,6 @@ object FileKind {
   ) extends CompanionsFileKind
     with BaseIconProvider {
 
-    protected override val baseIcon: Icon = TRAIT_AND_OBJECT
+    protected override lazy val baseIcon: Icon = TRAIT_AND_OBJECT
   }
 }
