@@ -221,15 +221,15 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
 
 // TODO Split methods between a companion object and packet object (so that methods can be more private)
 private object GutterUtil {
-  private[gutter] val CompanionOption = new GutterIconDescriptor.Option("scala.companion", ScalaBundle.message("gutter.companion"), Icons.CLASS_COMPANION)
+  private[gutter] lazy val CompanionOption = new GutterIconDescriptor.Option("scala.companion", ScalaBundle.message("gutter.companion"), Icons.CLASS_COMPANION)
   private[gutter] val ImplementedOption = new GutterIconDescriptor.Option("scala.implemented", ScalaBundle.message("gutter.implemented"), AllIcons.Gutter.ImplementedMethod)
   private[gutter] val ImplementingOption = new GutterIconDescriptor.Option("scala.implementing", ScalaBundle.message("gutter.implementing"), AllIcons.Gutter.ImplementingMethod)
   private[gutter] val SamOption = new GutterIconDescriptor.Option("scala.sam", ScalaBundle.message("gutter.sam"), AllIcons.Gutter.ImplementingFunctionalInterface)
   private[gutter] val OverriddenOption = new GutterIconDescriptor.Option("scala.overridden", ScalaBundle.message("gutter.overridden"), AllIcons.Gutter.OverridenMethod)
   private[gutter] val OverridingOption = new GutterIconDescriptor.Option("scala.overriding", ScalaBundle.message("gutter.overriding"), AllIcons.Gutter.OverridingMethod)
-  private[gutter] val RecursionOption = new GutterIconDescriptor.Option("scala.recursion", ScalaBundle.message("gutter.recursion"), Icons.TAIL_RECURSION)
+  private[gutter] lazy val RecursionOption = new GutterIconDescriptor.Option("scala.recursion", ScalaBundle.message("gutter.recursion"), Icons.TAIL_RECURSION)
 
-  private[gutter] val Options = Array(
+  private[gutter] lazy val Options = Array(
     CompanionOption,
     ImplementedOption,
     ImplementingOption,
