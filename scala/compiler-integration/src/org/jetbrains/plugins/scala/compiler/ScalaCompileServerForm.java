@@ -17,6 +17,7 @@ import com.intellij.util.containers.ComparatorUtil;
 import com.intellij.util.ui.UI;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.project.external.SdkUtils;
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings;
 import scala.Some$;
 
@@ -68,7 +69,7 @@ public class ScalaCompileServerForm implements Configurable {
         sdkModel = new ProjectSdksModelWithDefault();
         inEventDispatchThread(() -> sdkModel.reset(project));
 
-        myCompilationServerSdk = new JdkComboBox(project, sdkModel, null, null, null, null);
+        myCompilationServerSdk = new JdkComboBox(project, sdkModel, null, null, null, SdkUtils::addSdkIfNotExists);
         myCompilationServerSdk.setMinimumAndPreferredWidth(500);
         myCompilationServerSdk.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {

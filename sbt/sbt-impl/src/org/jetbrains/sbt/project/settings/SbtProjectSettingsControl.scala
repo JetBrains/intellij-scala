@@ -10,7 +10,7 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.openapi.util.Condition
 import com.intellij.util.messages.Topic
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.project.external.SdkUtils
 
 import java.awt.FlowLayout
 import javax.swing._
@@ -24,10 +24,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     model.reset(getProject)
     val jdkFilter: Condition[SdkTypeId] = (sdk: SdkTypeId) => sdk == JavaSdk.getInstance()
 
-    new JdkComboBox(getProject, model, jdkFilter, null, jdkFilter, (sdk: Sdk) => inWriteAction {
-      val projectJdkTable = ProjectJdkTable.getInstance()
-      if (projectJdkTable.findJdk(sdk.getName) == null) ProjectJdkTable.getInstance().addJdk(sdk)
-    })
+    new JdkComboBox(getProject, model, jdkFilter, null, jdkFilter, (sdk: Sdk) => SdkUtils.addSdkIfNotExists(sdk))
   }
 
   private val extraControls = new SbtExtraControls()
