@@ -1379,7 +1379,15 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
             result = constraints.withLower(uId, u2.typeParameter.lowerType)
           } else if (u.isWrappedExistential) {
             result = constraints.withUpper(u2Id, u.typeParameter.upperType)
-          } else result = constraints.withUpper(u2Id, u)
+          } else {
+            result = if (u2.level > u.level) {
+              constraints.withUpper(u2Id, u)
+            } else if (u.level > u2.level) {
+              constraints.withUpper(uId, u2)
+            } else {
+              constraints
+            }
+          }
         }
       }
 
