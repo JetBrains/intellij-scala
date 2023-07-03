@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatter.intellij.tests
 
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 
-class ScalaCliTest extends AbstractScalaFormatterTestBase {
+class ScalaCliFormattingTest extends AbstractScalaFormatterTestBase {
 
   def test_do_not_format_individual_scala_cli_directives(): Unit = doTextTest(
     """//> using dep foo bar
