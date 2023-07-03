@@ -26,4 +26,28 @@ class OverloadedResolutionWithImplicitParamsTest extends ScalaLightCodeInsightFi
       |  val two = erasure.method(_.val2)
       |}""".stripMargin
   )
+
+  def testSCL21273(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.language.implicitConversions
+      |
+      |object Main {
+      |
+      |  trait AF[+R]
+      |  trait F[+R]
+      |
+      |  implicit def fFromAF[R](f: AF[R]): F[R] = ???
+      |  def future[T](x: =>T): AF[T] = ???
+      |
+      |  implicit class FDoneOps(f: AF[Double]) {
+      |
+      |    def whenDone[X](t: => F[X]): AF[X] = ???
+      |    def whenDone(t: => Double)(implicit dummyHack: DummyImplicit): AF[Double] = ???
+      |  }
+      |
+      |  def main(args: Array[String]): Unit = {
+      |    future(0.0).whenDone(future(0.0))
+      |  }
+      |}""".stripMargin
+  )
 }
