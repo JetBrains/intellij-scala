@@ -118,15 +118,6 @@ final class WorksheetCache extends Disposable {
       }
     }
 
-  def disposeViewer(viewer: Editor, editor: Editor): Unit =
-    synchronized {
-      allViewers get editor match {
-        case null =>
-        case list: List[Editor] =>
-          allViewers.put(editor, list.filter(sViewer => sViewer != viewer))
-      }
-    }
-
   override def dispose(): Unit = {
     invalidatePrinters()
     invalidateViewers()
