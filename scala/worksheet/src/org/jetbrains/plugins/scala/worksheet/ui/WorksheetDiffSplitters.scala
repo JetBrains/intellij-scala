@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterF
 
 import java.awt.event.{MouseAdapter, MouseEvent}
 import java.awt.{Component, Graphics, Graphics2D, GridBagConstraints, GridBagLayout, RenderingHints}
-import javax.swing.JComponent
+import javax.swing.{JComponent, JLayeredPane}
 
 //noinspection ApiStatus
 object WorksheetDiffSplitters {
@@ -247,10 +247,26 @@ object WorksheetDiffSplitters {
   }
 
   private def getGridBagConstraint(textEditorComponent: TextEditorComponent): GridBagConstraints = {
-    val components = textEditorComponent.getComponents
+    val componentsAll = textEditorComponent.getComponents
+    /**
+     * Sometimes text editor component can have some extra non-content layers, which we are not interested in
+     * For example during IDEA open, when editor is loaded, an extra special `coverComponent` component is added with non-default layer
+     * @see SCL-21282
+     * @see [[com.intellij.openapi.fileEditor.impl.text.AsyncEditorLoader]]
+     */
+    val componentsFromDefaultLayer = componentsAll.filter(c => textEditorComponent.getLayer(c) == JLayeredPane.DEFAULT_LAYER)
     val layout = textEditorComponent.getLayout.asInstanceOf[GridBagLayout]
-    Log.assertTrue(components.size == 1, s"Expected 1 child component in text editor component but got ${components.size}")
-    val firstComponent = components(0)
+    if (componentsFromDefaultLayer.length != 1) {
+      Log.assertTrue(
+        false,
+        s"""Expected 1 child component in text editor component but got ${componentsFromDefaultLayer.length}
+           |Parent component:
+           |${textEditorComponent.getClass.getName}
+           |Children components:
+           |${componentsFromDefaultLayer.map(_.getClass.getName).mkString("\n")}""".stripMargin
+      )
+    }
+    val firstComponent = componentsFromDefaultLayer(0)
     layout.getConstraints(firstComponent)
   }
 
@@ -264,7 +280,12 @@ object WorksheetDiffSplitters {
       case _ =>
         return
     }
-    val textEditorComponent = splitter.getParent.asInstanceOf[TextEditorComponent]
+    val textEditorComponent = splitter.getParent match {
+      case tec: TextEditorComponent => tec
+      case _ =>
+        //generally not expected, but could be in some debugging use-cases
+        return
+    }
 
     val constraint = getGridBagConstraint(textEditorComponent)
     textEditorComponent.remove(splitter)
