@@ -13,20 +13,24 @@ import static org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliTokenTypes
 
 class ScalaCliParser implements PsiParser, LightPsiParser {
 
+    boolean error = false;
+
     private void processCurrentToken(PsiBuilder builder, IElementType... expected) {
+
+        if (error) {
+            builder.advanceLexer();
+            return;
+        }
 
         final IElementType currentTokenType = builder.getTokenType();
 
         if (!Arrays.asList(expected).contains(currentTokenType)) {
-            if (currentTokenType == tCLI_DIRECTIVE_ERROR) {
-                builder.error("Lexer error");
+            if (Arrays.asList(expected).contains(tCLI_DIRECTIVE_KEY)) {
+                builder.error("Scala CLI key expected: option, dep, jar, etc.");
             } else {
-                if (Arrays.asList(expected).contains(tCLI_DIRECTIVE_KEY)) {
-                    builder.error("Scala CLI key expected: option, dep, jar, etc.");
-                } else {
-                    builder.error("Unexpected token");
-                }
+                builder.error("Unexpected token");
             }
+            error = true;
         }
 
         builder.advanceLexer();
