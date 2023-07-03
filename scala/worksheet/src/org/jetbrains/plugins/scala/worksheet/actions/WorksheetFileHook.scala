@@ -15,6 +15,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.ui.ClientProperty
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -93,7 +94,9 @@ object WorksheetFileHook {
     restartFileAnalyzing(project, virtualFile)
   }
 
-  private class WorksheetEditorListener(project: Project) extends FileEditorManagerListener {
+  @ApiStatus.Internal
+  @ApiStatus.Experimental
+  final class WorksheetEditorListener(project: Project) extends FileEditorManagerListener {
 
     private def isPluggable(file: VirtualFile): Boolean = file.isValid &&
       WorksheetUtils.isWorksheetFile(project, file)
