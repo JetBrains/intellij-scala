@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
@@ -174,14 +175,16 @@ object ExternalHighlighters {
     rangeInfo: RangeInfo,
     document: Document,
     psiFile: PsiFile
-  ): Option[TextRange] = rangeInfo match {
-    case RangeInfo.Range(PosInfo(startLine, startColumn), PosInfo(endLine, endColumn)) =>
-      val startOffset = convertToOffset(startLine, startColumn, document)
-      val endOffset = convertToOffset(endLine, endColumn, document)
-      Some(TextRange.create(startOffset, endOffset))
-    case RangeInfo.Pointer(PosInfo(line, column)) =>
-      val pointerOffset = convertToOffset(line, column, document)
-      inReadAction(guessRangeToHighlight(psiFile, pointerOffset))
+  ): Option[TextRange] = inReadAction {
+    rangeInfo match {
+      case RangeInfo.Range(PosInfo(startLine, startColumn), PosInfo(endLine, endColumn)) =>
+        for {
+          startOffset <- convertToOffset(startLine, startColumn, document)
+          endOffset <- convertToOffset(endLine, endColumn, document)
+        } yield TextRange.create(startOffset, endOffset)
+      case RangeInfo.Pointer(PosInfo(line, column)) =>
+        convertToOffset(line, column, document).flatMap(guessRangeToHighlight(psiFile, _))
+    }
   }
 
   private def guessRangeToHighlight(psiFile: PsiFile, startOffset: Int): Option[TextRange] =
@@ -197,8 +200,16 @@ object ExternalHighlighters {
         Some(other)
     }
 
-  private def convertToOffset(line: Int, column: Int, document: Document): Int =
-    document.getLineStartOffset(line - 1) + column - 1
+  /**
+   * Must be called inside a read action in order to have a correct evaluation of `Document#getLineCount`,
+   * ensuring that the document has not been modified before subsequently calling `Document.getLineStartOffset`.
+   */
+  private def convertToOffset(line: Int, column: Int, document: Document): Option[Int] = {
+    val ln = line - 1
+    val cl = column - 1
+    if (ln >= 0 && ln < document.getLineCount && cl >= 0) Some(document.getLineStartOffset(ln) + cl)
+    else None
+  }
 
   private def lineText(messageText: String): String = {
     val trimmed = messageText.trim
