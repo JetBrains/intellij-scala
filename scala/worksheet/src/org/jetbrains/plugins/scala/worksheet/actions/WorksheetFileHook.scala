@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, WorksheetDiffSplitters, WorksheetFoldGroup}
@@ -92,6 +93,21 @@ object WorksheetFileHook {
      */
     ScalaCompilerConfiguration.incModificationCount()
     restartFileAnalyzing(project, virtualFile)
+  }
+
+  final class WorksheetBeforeEditorOpenedOrClosedListener(project: Project) extends FileEditorManagerListener.Before {
+    override def beforeFileClosed(source: FileEditorManager, file: VirtualFile): Unit = {
+      if (!isPluggable(file)) return
+
+     val selectedEditor = source.getSelectedTextEditor
+     if (selectedEditor != null) {
+       val cache = WorksheetCache.getInstance(project)
+       cache.editorClosed(selectedEditor)
+     }
+    }
+
+    private def isPluggable(file: VirtualFile): Boolean = file.isValid &&
+      WorksheetUtils.isWorksheetFile(project, file)
   }
 
   @ApiStatus.Internal
