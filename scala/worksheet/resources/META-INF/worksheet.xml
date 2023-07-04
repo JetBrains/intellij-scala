@@ -90,6 +90,8 @@
     <projectListeners>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetEditorListener"/>
+        <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener$Before"
+                  class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetBeforeEditorOpenedOrClosedListener"/>
         <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
                   class="org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook$WorksheetDumbModeListener"/>
     </projectListeners>

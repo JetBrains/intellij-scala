@@ -15,12 +15,14 @@ import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.ui.ClientProperty
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.worksheet.actions.repl.WorksheetReplRunAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.StopWorksheetAction.StoppableProcess
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, WorksheetDiffSplitters, WorksheetFoldGroup}
@@ -40,8 +42,9 @@ object WorksheetFileHook {
 
   private def getDocumentFrom(project: Project, file: VirtualFile): Option[Document] = {
     val fileOpt = Option(PsiManager.getInstance(project).findFile(file))
-    fileOpt.map { file =>
-      PsiDocumentManager.getInstance(project).getCachedDocument(file)
+    fileOpt.flatMap { file =>
+      //getCachedDocument can return `null` for example in some tests where a non-physical file is used
+      Option(PsiDocumentManager.getInstance(project).getCachedDocument(file))
     }
   }
 
@@ -93,7 +96,24 @@ object WorksheetFileHook {
     restartFileAnalyzing(project, virtualFile)
   }
 
-  private class WorksheetEditorListener(project: Project) extends FileEditorManagerListener {
+  final class WorksheetBeforeEditorOpenedOrClosedListener(project: Project) extends FileEditorManagerListener.Before {
+    override def beforeFileClosed(source: FileEditorManager, file: VirtualFile): Unit = {
+      if (!isPluggable(file)) return
+
+     val selectedEditor = source.getSelectedTextEditor
+     if (selectedEditor != null) {
+       val cache = WorksheetCache.getInstance(project)
+       cache.editorClosed(selectedEditor)
+     }
+    }
+
+    private def isPluggable(file: VirtualFile): Boolean = file.isValid &&
+      WorksheetUtils.isWorksheetFile(project, file)
+  }
+
+  @ApiStatus.Internal
+  @ApiStatus.Experimental
+  final class WorksheetEditorListener(project: Project) extends FileEditorManagerListener {
 
     private def isPluggable(file: VirtualFile): Boolean = file.isValid &&
       WorksheetUtils.isWorksheetFile(project, file)

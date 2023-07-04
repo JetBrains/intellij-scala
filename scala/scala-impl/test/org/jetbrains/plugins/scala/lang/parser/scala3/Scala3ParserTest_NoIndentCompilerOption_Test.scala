@@ -1,14 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
-import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaParserTestOps
-import org.jetbrains.plugins.scala.lang.parser.scala3.Scala3ParserTest_NoIndentCompilerOption_Test.addCompilerOptions
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.junit.Assert
 
 // NOTE 1: we need ScalaLightCodeInsightFixtureTestAdapter as a base test in order psi files are assosiated with some module
 //         (currently `-no-indent` is attached to the module)
@@ -22,11 +18,7 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
 
-  override def setUpLibraries(implicit module: Module): Unit = {
-    super.setUpLibraries
-
-    addCompilerOptions(module, Seq("-no-indent"))
-  }
+  override protected def additionalCompilerOptions: Seq[String] = Seq("-no-indent")
 
   override def parseText(text: String) = {
     myFixture.configureByText("a.scala", text.withNormalizedSeparator).asInstanceOf[ScalaFile]
@@ -1260,21 +1252,4 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |        PsiElement())(')')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
-}
-
-object Scala3ParserTest_NoIndentCompilerOption_Test {
-
-  private def addCompilerOptions(module: Module, options: Seq[String]): Unit = {
-    val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(module.getProject)
-
-    val settings = compilerConfiguration.settingsForHighlighting(module) match {
-      case Seq(s) => s
-      case _ => Assert.fail("expected single settings for module").asInstanceOf[Nothing]
-    }
-
-    val newSettings =
-      if (options.forall(settings.additionalCompilerOptions.contains)) settings
-      else  settings.copy(additionalCompilerOptions = settings.additionalCompilerOptions ++ options)
-    compilerConfiguration.configureSettingsForModule(module, "unit tests", newSettings)
-  }
 }

@@ -744,6 +744,8 @@ package object extensions {
     def withContexts: Iterator[PsiElement] = new ContextsIterator(element, strict = false)
 
     def scopes: Iterator[PsiElement] = contexts.filter(ScalaPsiUtil.isScope)
+    def scopes(includeFilesWithAllowedDefinitionNameCollisions: Boolean): Iterator[PsiElement] =
+      contexts.filter(ScalaPsiUtil.isScope(_, includeFilesWithAllowedDefinitionNameCollisions))
 
     @inline def elementType: IElementType = element.getNode.getElementType
 

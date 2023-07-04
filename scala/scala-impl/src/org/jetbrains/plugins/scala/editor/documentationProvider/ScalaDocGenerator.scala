@@ -11,8 +11,8 @@ import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScEnum}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import java.net.URL
@@ -47,7 +47,13 @@ object ScalaDocGenerator {
     val builder = new StringBuilder
 
     // for library classes, get class from sources jar
-    val actualElementWithDoc = elementWithDoc.getNavigationElement
+    val actualElementWithDoc0 = elementWithDoc.getNavigationElement
+    val actualElementWithDoc =
+      actualElementWithDoc0 match {
+        case ScEnumCase.Original(originalEnumCase) => originalEnumCase
+        case ScEnum.Original(originalEnum)         => originalEnum
+        case _                                     => actualElementWithDoc0
+      }
 
     appendHeader(builder, actualElementWithDoc)
 
@@ -126,8 +132,13 @@ object ScalaDocGenerator {
       }
 
     element match {
-      case param: ScParameter => findDocOwner(param.getDeclarationScope).map((_, Some(param)))
-      case _ => findDocOwner(element).map((_, None))
+      case param: ScParameter =>
+        findDocOwner(param.getDeclarationScope).map((_, Some(param)))
+      case enumCase: ScEnumCase =>
+        //in the psi structure the actual doc comment belongs to ScEnumCases not ScEnumCase
+        Some(enumCase.enumCases, None)
+      case _ =>
+        findDocOwner(element).map((_, None))
     }
   }
 
