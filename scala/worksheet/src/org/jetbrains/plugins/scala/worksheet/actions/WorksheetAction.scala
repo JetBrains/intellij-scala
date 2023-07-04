@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, DataCon
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.extensions.{OptionExt, inReadAction}
 import org.jetbrains.plugins.scala.worksheet.WorksheetFile
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 
 trait WorksheetAction {
 
@@ -25,8 +26,14 @@ trait WorksheetAction {
 
   protected final def getCurrentScalaWorksheetEditorAndFile(context: DataContext): Option[(Editor, WorksheetFile)] = {
     for {
-      editor <- Option(CommonDataKeys.EDITOR.getData(context))
+      editorFromContext <- Option(CommonDataKeys.EDITOR.getData(context))
       file <- Option(CommonDataKeys.PSI_FILE.getData(context)).filterByType[WorksheetFile]
-    } yield (editor, file)
+    } yield {
+      //When worksheet viewer editor is focused we want top-panel actions to work anyway
+      //For that we need to return the original editor, because most of the code in other places expects it instead of viewer
+      val originalEditor = WorksheetEditorPrinterFactory.getOriginalEditor(editorFromContext)
+      val editor = originalEditor.getOrElse(editorFromContext)
+      (editor, file)
+    }
   }
 }
