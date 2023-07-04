@@ -18,6 +18,7 @@ trait ScalaFile extends ScalaPsiElement
 
   def packagingRanges: Seq[TextRange]
 
+  /** @return true if in this file it's allowed to have multiple declarations with the same name (for example in REPL worksheets) */
   def isMultipleDeclarationsAllowed: Boolean
 
   def isWorksheetFile: Boolean
