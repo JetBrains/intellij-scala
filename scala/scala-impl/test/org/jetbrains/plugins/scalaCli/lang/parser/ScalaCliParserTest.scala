@@ -103,4 +103,10 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
     "//> using dep foo,bar fizz",
     "ScalaFile\n  PsiElement(SCALA_CLI_DIRECTIVE)\n    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')\n    PsiWhiteSpace(' ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMAND)('using')\n    PsiWhiteSpace(' ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('dep')\n    PsiWhiteSpace(' ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('foo')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMA)(',')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('bar')\n    PsiWhiteSpace(' ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('fizz')"
   )
+
+  // class Foo with CLI directive right above or below
+  def test_do_not_bind_directive_to_class(): Unit = checkTree(
+    "//> using dep foo\nclass Foo",
+    "ScalaFile\n  PsiElement(SCALA_CLI_DIRECTIVE)\n    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')\n    PsiWhiteSpace(' ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMAND)('using')\n    PsiWhiteSpace(' ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('dep')\n    PsiWhiteSpace(' ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('foo')\n  PsiWhiteSpace('\\n')\n  ScClass: Foo\n    AnnotationsList\n      <empty list>\n    Modifiers\n      <empty list>\n    PsiElement(class)('class')\n    PsiWhiteSpace(' ')\n    PsiElement(identifier)('Foo')\n    PrimaryConstructor\n      AnnotationsList\n        <empty list>\n      Modifiers\n        <empty list>\n      Parameters\n        <empty list>\n    ExtendsBlock\n      <empty list>"
+  )
 }
