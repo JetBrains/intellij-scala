@@ -6,20 +6,24 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.annotations.TestOnly
+import org.jetbrains.annotations.{ApiStatus, TestOnly}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.CompilerMessagesCollector
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
 
 import java.io.File
 import java.util
+import scala.collection.immutable.ListSet
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Try}
 
+@ApiStatus.Internal
 @Service(Array(Service.Level.PROJECT))
 final class WorksheetCache extends Disposable {
 
-  private val allViewers      = new util.WeakHashMap[Editor, List[Editor]]()
+  //TODO: why this map value has collection type?
+  // One worksheet editor can have only one viewer so instead it should be some bidirectional map Editor <-> Editor
+  private val allViewers      = new util.WeakHashMap[Editor, ListSet[Editor]]()
   private val allReplPrinters = new util.WeakHashMap[Editor, WorksheetEditorPrinter]()
   private val patchedEditors  = new util.WeakHashMap[Editor, String]()
 
@@ -108,14 +112,17 @@ final class WorksheetCache extends Disposable {
     viewer
   }
 
+  def editorClosed(editor: Editor): Unit = synchronized {
+    allViewers.remove(editor)
+    allReplPrinters.remove(editor)
+    allCompilerMessagesCollectors.remove(editor)
+    patchedEditors.remove(editor)
+  }
+
   def addViewer(viewer: Editor, editor: Editor): Unit =
     synchronized {
-      allViewers.get(editor) match {
-        case null =>
-          allViewers.put(editor, viewer :: Nil)
-        case list: List[Editor] =>
-          allViewers.put(editor, viewer :: list)
-      }
+      val existingViewers = Option(allViewers.get(editor)).getOrElse(ListSet.empty)
+      allViewers.put(editor, existingViewers + viewer)
     }
 
   override def dispose(): Unit = {
@@ -149,10 +156,8 @@ final class WorksheetCache extends Disposable {
 
   private def get(editor: Editor): Editor =
     synchronized {
-      allViewers.get(editor) match {
-        case null => null
-        case list => list.headOption.orNull
-      }
+      val viewers = Option(allViewers.get(editor)).getOrElse(Nil)
+      viewers.lastOption.orNull
     }
 }
 
