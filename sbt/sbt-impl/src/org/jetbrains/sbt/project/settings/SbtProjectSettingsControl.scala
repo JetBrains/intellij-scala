@@ -24,7 +24,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     model.reset(getProject)
     val jdkFilter: Condition[SdkTypeId] = (sdk: SdkTypeId) => sdk == JavaSdk.getInstance()
 
-    new JdkComboBox(getProject, model, jdkFilter, null, jdkFilter, (sdk: Sdk) => SdkUtils.addSdkIfNotExists(sdk))
+    new JdkComboBox(getProject, model, jdkFilter, null, jdkFilter, SdkUtils.addSdkIfNotExists)
   }
 
   private val extraControls = new SbtExtraControls()
