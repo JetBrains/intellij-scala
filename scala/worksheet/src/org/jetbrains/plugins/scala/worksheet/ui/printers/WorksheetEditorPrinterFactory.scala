@@ -254,23 +254,38 @@ object WorksheetEditorPrinterFactory {
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     viewer match {
       case editor: EditorImpl => editor
-      case _                  => createBlankEditor(project)
+      case _                  => createBlankViewerEditor(editor, project)
     }
   }
 
-  private def createBlankEditor(project: Project): Editor = {
+
+  private val ORIGINAL_WORKSHEET_EDITOR: Key[Editor] = Key.create("ORIGINAL_WORKSHEET_EDITOR")
+
+  /**
+   * @return Some worksheet editor, where the actual code is located<br>
+   *         It is set to the viewer editor, which contains worksheet evaluation output <br>
+   *         None in case `editor` is not a worksheet viewer editor
+   */
+  def getOriginalEditor(editor: Editor): Option[Editor] =
+    Option(editor.getUserData(ORIGINAL_WORKSHEET_EDITOR))
+
+  private def setOriginalEditor(viewer: Editor, editor: Editor): Unit =
+    viewer.putUserData(ORIGINAL_WORKSHEET_EDITOR, editor)
+
+  private def createBlankViewerEditor(editor: Editor, project: Project): Editor = {
     val factory: EditorFactory = EditorFactory.getInstance
-    val editor: Editor = factory.createViewer(factory.createDocument(""), project)
-    editor.setBorder(null)
-    editor.getContentComponent.getParent match {
+    val viewer: Editor = factory.createViewer(factory.createDocument(""), project)
+    viewer.setBorder(null)
+    setOriginalEditor(viewer, editor)
+    viewer.getContentComponent.getParent match {
       case jComp: JComponent =>
         val dataProvider: DataProvider = (dataId: String) => {
-          if (CommonDataKeys.HOST_EDITOR.is(dataId)) editor
+          if (CommonDataKeys.HOST_EDITOR.is(dataId)) viewer
           else null
         }
         DataManager.registerDataProvider(jComp, dataProvider)
       case _ =>
     }
-    editor
+    viewer
   }
 }
