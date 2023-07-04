@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil.{findCommonParent, getParentOfType}
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.refactoring.util._
 import org.jetbrains.plugins.scala.util.TestUtils._
+
+import scala.annotation.nowarn
 
 abstract class AbstractIntroduceVariableValidatorTestBase(kind: String)
   extends ActionTestBase("/refactoring/introduceVariable/validator/" + kind) {
@@ -28,6 +30,8 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String)
     myOffset = index - 1
     text.substring(0, index) + text.substring(index + ALL_MARKER.length)
   }
+
+  protected def fileExtension: String = "scala"
 
   protected override def transform(testName: String,
                                    fileText: String,
@@ -47,15 +51,20 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String)
     val endOffset = testFileText.indexOf(END_MARKER)
     testFileText = removeEndMarker(testFileText)
 
-    myFile = createLightFile(testFileText, project)
+    val fileName = s"dummy.$fileExtension"
+
+    //noinspection ScalaDeprecation (It's ok to rely on auto-file type detection from file name in tests)
+    myFile = PsiFileFactory.getInstance(project).createFileFromText(fileName, testFileText): @nowarn("cat=deprecation")
+    val virtualFile = myFile.getViewProvider.getVirtualFile
+
     fileEditorManager = FileEditorManager.getInstance(project)
-    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, myFile.getVirtualFile, 0), false)
+    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, virtualFile, 0), false)
     myEditor.getSelectionModel.setSelection(startOffset, endOffset)
 
     try {
       doTest(replaceAllOccurrences, testFileText, project)
     } finally {
-      fileEditorManager.closeFile(myFile.getVirtualFile)
+      fileEditorManager.closeFile(virtualFile)
       myEditor = null
     }
   }
@@ -104,10 +113,7 @@ object AbstractIntroduceVariableValidatorTestBase {
   private[this] def getVariableValidator(expression: ScExpression, file: PsiFile)
                                         (implicit selectionModel: SelectionModel): ScalaVariableValidator = {
     val occurrences = ScalaRefactoringUtil.getOccurrenceRanges(expression, ScalaRefactoringUtil.fileEncloser(file, selectionModel.getSelectionStart).orNull)
-    val containerOne = getContainerOne(file, occurrences.length)
-
-    val parent = ScalaRefactoringUtil.commonParent(file, occurrences)
-    new ScalaVariableValidator(expression, occurrences.isEmpty, ScalaRefactoringUtil.enclosingContainer(parent), containerOne)
+    ScalaVariableValidator(file, expression, occurrences)
   }
 
   private[this] def getTypeValidator(typeElement: ScTypeElement, file: PsiFile)

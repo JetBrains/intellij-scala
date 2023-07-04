@@ -42,8 +42,9 @@ object WorksheetFileHook {
 
   private def getDocumentFrom(project: Project, file: VirtualFile): Option[Document] = {
     val fileOpt = Option(PsiManager.getInstance(project).findFile(file))
-    fileOpt.map { file =>
-      PsiDocumentManager.getInstance(project).getCachedDocument(file)
+    fileOpt.flatMap { file =>
+      //getCachedDocument can return `null` for example in some tests where a non-physical file is used
+      Option(PsiDocumentManager.getInstance(project).getCachedDocument(file))
     }
   }
 

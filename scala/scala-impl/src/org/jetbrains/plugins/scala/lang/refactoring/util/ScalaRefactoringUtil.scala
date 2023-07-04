@@ -829,11 +829,13 @@ object ScalaRefactoringUtil {
   def isInplaceAvailable(editor: Editor): Boolean =
     editor.getSettings.isVariableInplaceRenameEnabled && !ApplicationManager.getApplication.isUnitTestMode
 
-  def enclosingContainer(parent: PsiElement): PsiElement = {
+  def enclosingContainer(parent: PsiElement): PsiElement =
     Option(parent)
       .map(elem => elem.firstChild.getOrElse(elem)) //to make enclosing container non-strict
-      .flatMap(_.scopes.to(LazyList).headOption).orNull
-  }
+      //Even if a file can have multiple declarations with same name (like REPL worksheets)
+      //we want to use a unique name when introducing variables (see SCL-18151)
+      .flatMap(_.scopes(includeFilesWithAllowedDefinitionNameCollisions = true).to(LazyList).headOption)
+      .orNull
 
   def commonParent(file: PsiFile, textRange: TextRange): PsiElement =
     commonParent(file, Seq(textRange))
