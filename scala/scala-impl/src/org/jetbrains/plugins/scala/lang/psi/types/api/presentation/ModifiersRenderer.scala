@@ -38,7 +38,7 @@ class ModifiersRenderer(
 object ModifiersRenderer {
   val modifiers: Array[String] = Array(
     "abstract", "override", "final", "sealed", "implicit", "lazy",
-    "opaque", "inline", "transparent", "open", "infix"
+    "opaque", "inline", "transparent", "open", "infix", "case"
   )
 
   def SimpleText(

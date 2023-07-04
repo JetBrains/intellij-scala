@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 import org.jetbrains.plugins.scala.lang.structureView.element.Element
 
@@ -29,7 +29,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
 
   private def nodesOf(element: PsiElement): util.Collection[TreeElement] = {
     element match {
-      case clazz: ScTypeDefinition =>
+      case clazz: ScTemplateDefinition =>
         val children = new util.ArrayList[TreeElement]()
         try {
           if (!clazz.isValid) return children
@@ -76,5 +76,9 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
   override def getPresentation: ActionPresentation = new ActionPresentationData(
     StructureViewBundle.message("action.structureview.show.inherited"), null, AllIcons.Hierarchy.Supertypes)
 
-  override def getName: String = "SCALA_SHOW_INHERITED"
+  override def getName: String = ScalaInheritedMembersNodeProvider.ID
+}
+
+object ScalaInheritedMembersNodeProvider {
+  val ID = "SCALA_SHOW_INHERITED"
 }

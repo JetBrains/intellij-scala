@@ -26,8 +26,13 @@ object ScFile {
       originalFile.getVirtualFile match {
         case null =>
           file.getViewProvider.getVirtualFile match {
-            case vFile: LightVirtualFile => Option(vFile.getOriginalFile)
-            case _                       => None
+            case vFile: LightVirtualFile =>
+              //vFile.getOriginalFile can return null for example when the file is created via:
+              //`com.intellij.psi.PsiFileFactory.createFileFromText(java.lang.String, java.lang.String)`
+              // or `com.intellij.psi.PsiFileFactory.createFileFromText(java.lang.String, com.intellij.openapi.fileTypes.FileType, java.lang.CharSequence)`
+              //which can be used in tests
+              Option(vFile.getOriginalFile).orElse(Some(vFile))
+            case _ => None
           }
         case virtualFile =>
           Some(virtualFile)

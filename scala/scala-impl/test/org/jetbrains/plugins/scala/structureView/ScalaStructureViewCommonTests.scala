@@ -5,7 +5,7 @@ import com.intellij.ide.structureView.newStructureView.StructureViewComponent
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.ui.{IconManager, PlatformIcons}
 import org.jetbrains.plugins.scala.icons.Icons._
-import org.jetbrains.plugins.scala.lang.structureView.ScalaAnonymousClassesNodeProvider
+import org.jetbrains.plugins.scala.lang.structureView.{ScalaAnonymousClassesNodeProvider, ScalaInheritedMembersNodeProvider}
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase._
 
 abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase {
@@ -887,6 +887,78 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonimousDisabled)
 
       svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
+
+      PlatformTestUtil.expandAll(tree)
+      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonimousEnabled)
+    })
+  }
+
+  def testAnonimousClass_ShowWithInheritedMembers(): Unit = {
+    val code =
+      """class MyBaseClass {
+        |  def fooFromBaseClass: String = ???
+        |}
+        |
+        |object example {
+        |  new MyBaseClass() {
+        |    def foo: String = ???
+        |  }
+        |}
+        |""".stripMargin
+
+    val expectedStructureWithAnonimousEnabled =
+      s"""-ScalaStructureTest.scala
+         | -MyBaseClass
+         |  fooFromBaseClass: String
+         |  getClass(): Class[_]
+         |  wait(Long, Int): Unit
+         |  wait(Long): Unit
+         |  wait(): Unit
+         |  hashCode(): Int
+         |  equals(Object): Boolean
+         |  notifyAll(): Unit
+         |  clone(): Object
+         |  toString(): String
+         |  finalize(): Unit
+         |  notify(): Unit
+         | -example
+         |  getClass(): Class[_]
+         |  wait(Long, Int): Unit
+         |  wait(Long): Unit
+         |  wait(): Unit
+         |  hashCode(): Int
+         |  equals(Object): Boolean
+         |  notifyAll(): Unit
+         |  clone(): Object
+         |  toString(): String
+         |  finalize(): Unit
+         |  notify(): Unit
+         |  -$$1
+         |   foo: String
+         |   getClass(): Class[_]
+         |   wait(Long, Int): Unit
+         |   wait(Long): Unit
+         |   wait(): Unit
+         |   hashCode(): Int
+         |   equals(Object): Boolean
+         |   notifyAll(): Unit
+         |   clone(): Object
+         |   toString(): String
+         |   finalize(): Unit
+         |   fooFromBaseClass: String
+         |   notify(): Unit
+         | """.stripMargin.trim
+
+    myFixture.configureByText("ScalaStructureTest.scala", code)
+
+    //NOTE: our common test code from `ScalaStructureViewTestBase` can't test
+    // nodes coming from com.intellij.ide.util.FileStructureNodeProvider
+    //In IntelliJ tests they test it using this fixture method
+    myFixture.testStructureView((svc: StructureViewComponent) => {
+      val tree = svc.getTree
+
+      svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
+      svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
 
       PlatformTestUtil.expandAll(tree)
       PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonimousEnabled)

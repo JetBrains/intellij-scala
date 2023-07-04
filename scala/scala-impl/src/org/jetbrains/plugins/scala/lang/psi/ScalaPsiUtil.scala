@@ -975,8 +975,10 @@ object ScalaPsiUtil {
     }
   }
 
-  def isScope(element: PsiElement): Boolean = element match {
-    case scalaFile: ScalaFile => !scalaFile.isMultipleDeclarationsAllowed
+  def isScope(element: PsiElement): Boolean = isScope(element, includeFilesWithAllowedDefinitionNameCollisions = false)
+
+  def isScope(element: PsiElement, includeFilesWithAllowedDefinitionNameCollisions: Boolean): Boolean = element match {
+    case scalaFile: ScalaFile => !scalaFile.isMultipleDeclarationsAllowed || includeFilesWithAllowedDefinitionNameCollisions
     case _: ScBlock | _: ScTemplateBody | _: ScPackaging | _: ScParameters |
          _: ScTypeParamClause | _: ScCaseClause | _: ScFor | _: ScExistentialClause |
          _: ScEarlyDefinitions | _: ScRefinement => true
