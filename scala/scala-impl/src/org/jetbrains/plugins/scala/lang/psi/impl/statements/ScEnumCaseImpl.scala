@@ -8,11 +8,12 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, StubBasedExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTypeDefinition}
@@ -40,6 +41,9 @@ final class ScEnumCaseImpl(
     with ScEnumCase {
 
   import ScalaTokenTypes.kCASE
+
+  override def constructor: Option[ScPrimaryConstructor] =
+    this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
 
   override def processDeclarations(
     processor:  PsiScopeProcessor,
@@ -95,7 +99,7 @@ final class ScEnumCaseImpl(
             tpClause <- enumParent.typeParametersClause
             tpText   = tpClause.getTextByStub
           } yield
-            ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(tpText, this, this.nameId)
+            ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(tpText, this, null)
 
         syntheticClause.fold(Seq.empty[ScTypeParam])(_.typeParameters)
       } catch {

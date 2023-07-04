@@ -1164,7 +1164,7 @@ object ScalaPsiElementFactory {
   }
 
   def createEmptyModifierList(context: PsiElement): ScModifierList =
-    createElementWithContext[ScModifierList]("", context, context.getFirstChild) {
+    createElementWithContext[ScModifierList]("", context, null) {
       _.mark().done(ScalaElementType.MODIFIERS)
     }
 
