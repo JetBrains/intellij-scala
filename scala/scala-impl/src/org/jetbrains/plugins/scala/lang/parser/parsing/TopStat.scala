@@ -4,7 +4,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Export, Extension, 
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateStat
-import org.jetbrains.plugins.scala.lang.scalacli.parser.ScalaCliElementTypes.SCALA_CLI_DIRECTIVE
 
 import scala.annotation.tailrec
 
@@ -41,9 +40,6 @@ object TopStat {
           true
         else
           TopStat.parse()
-      case `SCALA_CLI_DIRECTIVE` =>
-        builder.advanceLexer()
-        true
       case _ =>
         //For simplicity parse all definitions for Scala3, Scala2
         //even though Scala 2 doesn't support top-level definitions.
