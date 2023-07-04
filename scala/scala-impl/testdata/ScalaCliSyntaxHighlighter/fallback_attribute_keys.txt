@@ -1,0 +1,10 @@
+//>
+    Scala CLI directive prefix => DEFAULT_DOC_COMMENT_TAG_VALUE
+using
+    Scala CLI directive command => DEFAULT_DOC_COMMENT_TAG
+foo
+    Scala CLI directive key => DEFAULT_DOC_COMMENT
+bar1
+    Scala CLI directive value => DEFAULT_DOC_MARKUP
+bar2
+    Scala CLI directive value => DEFAULT_DOC_MARKUP
