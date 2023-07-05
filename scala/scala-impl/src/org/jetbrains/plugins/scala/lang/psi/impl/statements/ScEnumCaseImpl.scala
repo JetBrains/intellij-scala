@@ -42,6 +42,8 @@ final class ScEnumCaseImpl(
 
   import ScalaTokenTypes.kCASE
 
+  def modifierListText: String = byPsiOrStub(getModifierList.getText)(_.enumCaseModifierListText.get)
+
   override def constructor: Option[ScPrimaryConstructor] =
     this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
 
