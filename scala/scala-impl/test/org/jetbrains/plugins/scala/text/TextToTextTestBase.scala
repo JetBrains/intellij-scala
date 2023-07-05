@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.text
 
 import com.intellij.psi.PsiPackage
+import com.intellij.util.AstLoadingFilter
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
@@ -30,7 +31,9 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
   def testTextToText(): Unit = {
     try {
       ScalaApplicationSettings.PRECISE_TEXT = true
-      doTestTextToText()
+      AstLoadingFilter.disallowTreeLoading { () =>
+        doTestTextToText()
+      }
     } finally {
       ScalaApplicationSettings.PRECISE_TEXT = false
     }
