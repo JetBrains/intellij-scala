@@ -32,8 +32,7 @@ class ScalaDocParserDefinition extends ParserDefinition {
   //noinspection TypeAnnotation
   override val getStringLiteralElements = TokenSet.create()
 
-  override def createLexer(project: Project) =
-    new ScalaDocLexer
+  override def createLexer(project: Project) = new ScalaDocLexer
 
   override def createParser(project: Project) = {
     val tabSize = CodeStyle.getSettings(project).getLanguageIndentOptions(ScalaLanguage.INSTANCE).TAB_SIZE
