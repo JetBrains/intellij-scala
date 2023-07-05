@@ -20,11 +20,20 @@ object Common {
     "-Ytasty-reader",
     "-Wunused:nowarn"
   )
+  private val globalScala3ScalacOptionsCommon = Seq(
+    "-deprecation",
+    "-explain",
+    "-feature",
+    "-unchecked",
+    "-Werror",
+    "-Wunused:implicits,imports",
+  )
 
-  // options for modules which classes can only be used in IDEA process (uses JRE 11)
+  // options for modules which classes can only be used in IDEA process (uses JRE 17)
   val globalIdeaProcessReleaseOptions: Seq[String] = Seq("--release", "17")
   val globalJavacOptions             : Seq[String] = globalJavacOptionsCommon ++ globalIdeaProcessReleaseOptions
   val globalScalacOptions            : Seq[String] = globalScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
+  val globalScala3ScalacOptions      : Seq[String] = globalScala3ScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
 
   // options for modules which classes can be used outside IDEA process with arbitrary JVM version, e.g.:
   //  - in JPS process (JDK is calculated based on project & module JDK)
