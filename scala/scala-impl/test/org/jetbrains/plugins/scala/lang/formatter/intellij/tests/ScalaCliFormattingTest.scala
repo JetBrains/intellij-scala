@@ -4,10 +4,12 @@ import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 
 class ScalaCliFormattingTest extends AbstractScalaFormatterTestBase {
 
-  def test_do_not_format_individual_scala_cli_directives(): Unit = doTextTest(
+  def test_format_scala_cli_directive_sub_elements(): Unit = doTextTest(
+    """//> using  dep  foo  bar
+      |//> using  dep , foo , bar
+      |""".stripMargin,
     """//> using dep foo bar
-      |//> using  dep  foo  bar
-      |//> using , dep , foo , bar
+      |//> using dep, foo, bar
       |""".stripMargin
   )
 
