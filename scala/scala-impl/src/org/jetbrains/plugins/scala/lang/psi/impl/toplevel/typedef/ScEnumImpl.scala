@@ -33,7 +33,9 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
   override def cases: Seq[ScEnumCase] =
     extendsBlock.cases.flatMap(_.declaredElements)
 
-  private[this] def syntheticClassText = {
+  def syntheticClassText: String = byPsiOrStub(syntheticClassText0)(_.enumSyntheticClassText.get)
+
+  private[this] def syntheticClassText0 = {
     val typeParametersText        = typeParametersClause.fold("")(_.getTextByStub)
     val supersText                = extendsBlock.templateParents.fold("")(_.getText)
     val constructorText           = constructor.fold("")(_.getText)
