@@ -54,7 +54,7 @@ MULTI_LINE_STRING = \"\"\" ( (\"(\")?)? [^\"] )* \"\"\" (\")* // Multi-line stri
 BACKQUOTED_IDENTIFIER=\`[^`]*\`
 
 END_OF_LINE_COMMENT="/""/"[^\r\n]*
-END_OF_CLI_DIRECTIVE="//> "\s*"using"[^\r\n]*
+END_OF_CLI_DIRECTIVE=\s*"//> "\s*"using"[^\r\n]*
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
