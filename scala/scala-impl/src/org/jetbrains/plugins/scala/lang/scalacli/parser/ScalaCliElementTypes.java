@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scalaCli.ScalaCliLanguage;
 
 public interface ScalaCliElementTypes {
 
-    /**
-     * ScalaCli comment
-     */
     @NotNull ILazyParseableElementType SCALA_CLI_DIRECTIVE = new ILazyParseableElementType("SCALA_CLI_DIRECTIVE", ScalaCliLanguage.INSTANCE) {
 
         @Override
@@ -28,9 +25,8 @@ public interface ScalaCliElementTypes {
                     .createBuilder(project, lazyNode, parserDefinition.createLexer(project), language, lazyNode.getText());
 
             ASTNode result = parserDefinition.createParser(project).parse(this, builder);
-            ASTNode firstChildNode = result.getFirstChildNode();
 
-            return firstChildNode;
+            return result.getFirstChildNode();
         }
 
         @Nullable
