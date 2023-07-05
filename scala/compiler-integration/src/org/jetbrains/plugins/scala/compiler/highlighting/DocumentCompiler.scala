@@ -79,11 +79,17 @@ private final class DocumentCompiler(project: Project) extends Disposable {
     extends RemoteServerConnectorBase(module, Some(Seq(tempSourceFile)), outputDir) {
 
     override protected def scalaParameters: Seq[String] = {
-      val original = super.scalaParameters
-      if (module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3))
-        (original :+ "-Wunused:imports").distinct
-      else
-        original
+      def containsUnusedImports(scalacOptions: Seq[String]): Boolean = {
+        val unusedCategories = scalacOptions.collect {
+          case s"-Wunused:$rest" => rest.split(",")
+        }.flatten.toSet
+        unusedCategories.contains("all") || unusedCategories.contains("imports")
+      }
+
+      val scalacOptions = super.scalaParameters
+      if (module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3)) {
+        if (containsUnusedImports(scalacOptions)) scalacOptions else scalacOptions :+ "-Wunused:imports"
+      } else scalacOptions
     }
 
     override protected def assemblyRuntimeClasspath(): Seq[File] = {
