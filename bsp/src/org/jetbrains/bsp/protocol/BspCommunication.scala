@@ -23,6 +23,7 @@ import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.plugins.scala.build.BuildReporter
+import org.jetbrains.plugins.scala.project.external.SdkUtils
 
 import java.io.File
 import java.util.concurrent.atomic.AtomicReference
@@ -61,7 +62,7 @@ class BspCommunication private[protocol](base: File, config: BspServerConfig) ex
   }
 
   private def openSession(job: BspSessionJob[_,_])(implicit reporter: BuildReporter): Either[BspError, BspSession] = {
-    val sessionBuilder = prepareSession(base, config)
+    val sessionBuilder = prepareSession(base, config, findProject)
 
     sessionBuilder match {
       case Left(error) =>
@@ -223,7 +224,8 @@ object BspCommunication {
 
   private def prepareSession(
     base: File,
-    config: BspServerConfig
+    config: BspServerConfig,
+    project: => Option[Project]
   )(implicit reporter: BuildReporter): Either[BspError, Builder] = {
 
     // TODO supported languages should be extendable
@@ -232,6 +234,12 @@ object BspCommunication {
     val compilerOutputDir = BspUtil.compilerOutputDirFromConfig(base)
       .getOrElse(new File(base, "out"))
     val bloopEnabled = BspUtil.bloopConfigDir(base).isDefined
+
+    def configureBloopLauncherIfJdkExists() =
+      SdkUtils.getSdkForProject(project) match {
+        case Some(jdk) => Right(new BloopLauncherConnector(base, compilerOutputDir, capabilities, jdk))
+        case None => Left(BspNoJdkConfiguredError)
+      }
 
     val connector: Either[BspError, BspServerConnector] = config match {
 
@@ -242,13 +250,13 @@ object BspCommunication {
         if (connectionDetails.nonEmpty)
           Right(new GenericConnector(base, compilerOutputDir, capabilities, configuredMethods))
         else if (bloopEnabled)
-          Right(new BloopLauncherConnector(base, compilerOutputDir, capabilities))
+          configureBloopLauncherIfJdkExists()
         else
           Left(BspErrorMessage(s"Unable to automatically determine BSP connection configuration in $base"))
 
       case BspProjectSettings.BloopConfig =>
         if (bloopEnabled)
-          Right(new BloopLauncherConnector(base, compilerOutputDir, capabilities))
+          configureBloopLauncherIfJdkExists()
         else
           Left(BspErrorMessage(s"Bloop is not configured for BSP workspace in $base"))
 

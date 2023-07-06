@@ -26,6 +26,7 @@ import org.jetbrains.bsp._
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.bsp.settings._
+import org.jetbrains.plugins.scala.project.external.SdkUtils
 import org.jetbrains.sbt.project.SbtProjectImportProvider
 
 import java.io.File
@@ -53,11 +54,12 @@ class BspProjectImportBuilder
   }
 
   private[importing] def autoConfigure(workspace: File): Unit = {
-
     val configSetups = bspConfigSteps.configSetupChoices(workspace)
-    if (configSetups.size == 1)
-      bspConfigSteps.configureBuilder(this, workspace, configSetups.head)
-    else ()
+    SdkUtils.getSdkForProject(None) match {
+      case Some(sdk) if configSetups.size == 1 => bspConfigSteps.configureBuilder(sdk, this, workspace, configSetups.head)
+      case _ =>
+    }
+
   }
 
   private def applyBspSetupSettings(project: Project): Unit = {

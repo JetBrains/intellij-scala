@@ -22,16 +22,10 @@ class SbtConfigSetup(dumper: SbtStructureDump, runInit: BuildReporter => Try[Bui
 object SbtConfigSetup {
 
   /** Runs sbt with a dummy command so that the project is initialized and .bsp/sbt.json is created. */
-  def apply(baseDir: File): SbtConfigSetup = {
+  def apply(baseDir: File, jdk: Sdk): SbtConfigSetup = {
     invokeAndWait {
       ProjectJdkTable.getInstance.preconfigure()
     }
-    val jdkType = JavaSdk.getInstance()
-    val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType)
-    apply(baseDir, jdk)
-  }
-
-  def apply(baseDir: File, jdk: Sdk): SbtConfigSetup = {
     val jdkType = JavaSdk.getInstance()
     val jdkExe = new File(jdkType.getVMExecutablePath(jdk))
     val jdkHome = Option(jdk.getHomePath).map(new File(_))

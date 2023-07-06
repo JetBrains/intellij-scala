@@ -1,11 +1,15 @@
 package org.jetbrains.plugins.scala.project.external
 
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.impl.{JavaHomeFinder, SdkConfigurationUtil}
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.serialization.PropertyMapping
+import com.intellij.util.lang.JavaVersion
 import org.apache.commons.codec.digest.DigestUtils
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction}
 
 import java.io.File
 import scala.jdk.CollectionConverters._
@@ -50,7 +54,7 @@ object SdkUtils {
     }
   }
 
-  def mostRecentJdk: Option[Sdk] =
+  def mostRecentSdk: Option[Sdk] =
     findMostRecentJdk(_ => true)
 
   def defaultJavaLanguageLevelIn(jdk: Sdk): Option[LanguageLevel] =
@@ -79,6 +83,30 @@ object SdkUtils {
     }
 
     SdkUtils.findProjectSdk(sdkReference).orElse(createFromHome)
+  }
+
+  def getSdkForProject(project: Option[Project]): Option[Sdk] =
+    project.flatMap { proj => Option(ProjectRootManager.getInstance(proj).getProjectSdk) }
+      .orElse(mostRecentSdk)
+      .orElse(createSdkWithMostRecentFoundJDK)
+
+  private def createSdkWithMostRecentFoundJDK: Option[Sdk] = {
+    val jdkType = JavaSdk.getInstance
+    JavaHomeFinder.suggestHomePaths(false).asScala.toSeq
+      .filter(jdkType.isValidSdkHome)
+      .map(p => (p, JavaVersion.tryParse(p)))
+      .filter(t => t._2 != null)
+      .maxOption((a: (String, JavaVersion), b: (String, JavaVersion)) => a._2.compareTo(b._2))
+      .map(_._1)
+      .map(SdkConfigurationUtil.createAndAddSDK(_, jdkType))
+  }
+
+  def addSdkIfNotExists(sdk: Sdk): Unit = {
+    val projectJdkTable = ProjectJdkTable.getInstance()
+    if (projectJdkTable.findJdk(sdk.getName) == null)
+      inWriteAction {
+        projectJdkTable.addJdk(sdk)
+      }
   }
 }
 
