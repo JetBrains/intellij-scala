@@ -71,7 +71,7 @@ class BspProjectDataService extends ScalaAbstractProjectDataService[BspProjectDa
       jdk
         .flatMap(SdkUtils.findOrCreateSdk)
         .orElse(existingJdk)
-        .orElse(SdkUtils.mostRecentJdk)
+        .orElse(SdkUtils.mostRecentSdk)
     projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
 
     setLanguageLevel(projectJdk, project)

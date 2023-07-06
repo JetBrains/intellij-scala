@@ -2,7 +2,7 @@ package org.jetbrains.bsp.protocol.session
 
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.execution.configurations.JavaParameters
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
+import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.bsp.buildinfo.BuildInfo
 import org.jetbrains.bsp.protocol.session.BspServerConnector.BspCapabilities
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.build.BuildReporter
 import java.io.File
 import scala.jdk.CollectionConverters._
 
-class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: BspCapabilities) extends BspServerConnector {
+class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: BspCapabilities, jdk: Sdk) extends BspServerConnector {
 
   val bloopVersion: String = BuildInfo.bloopVersion
   val bspVersion = "2.0.0"
@@ -27,9 +27,6 @@ class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: Bsp
     val launcherClasspath = DependencyManager.resolve(dependencies: _*)
       .map(_.file.getCanonicalPath)
       .asJava
-
-    // TODO handle no available jdk case
-    val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(JavaSdk.getInstance())
 
     val javaParameters: JavaParameters = new JavaParameters
     javaParameters.setJdk(jdk)
