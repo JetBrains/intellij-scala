@@ -172,10 +172,10 @@ public class DefaultHighlighter {
   public static final TextAttributesKey SCALATEST_KEYWORD = createKey(SCALATEST_KEYWORD_ID, DefaultLanguageHighlighterColors.KEYWORD);
 
   // Scala CLI directives
-  public static final TextAttributesKey SCALA_CLI_DIRECTIVE_PREFIX = createKey(SCALA_CLI_DIRECTIVE_PREFIX_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG_VALUE);
+  public static final TextAttributesKey SCALA_CLI_DIRECTIVE_PREFIX = createKey(SCALA_CLI_DIRECTIVE_PREFIX_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
   public static final TextAttributesKey SCALA_CLI_DIRECTIVE_COMMAND = createKey(SCALA_CLI_DIRECTIVE_COMMAND_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
-  public static final TextAttributesKey SCALA_CLI_DIRECTIVE_KEY = createKey(SCALA_CLI_DIRECTIVE_KEY_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
-  public static final TextAttributesKey SCALA_CLI_DIRECTIVE_VALUE = createKey(SCALA_CLI_DIRECTIVE_VALUE_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP);
+  public static final TextAttributesKey SCALA_CLI_DIRECTIVE_KEY = createKey(SCALA_CLI_DIRECTIVE_KEY_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG_VALUE);
+  public static final TextAttributesKey SCALA_CLI_DIRECTIVE_VALUE = createKey(SCALA_CLI_DIRECTIVE_VALUE_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
 
   private static TextAttributesKey createKey(@NonNls @NotNull String externalName, TextAttributesKey prototype) {
     return TextAttributesKey.createTextAttributesKey(externalName, prototype);
