@@ -14,10 +14,10 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.0": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"],
-    "3.1": ["16", "15", "9", "14", "18", "12", "17", "8", "13", "10", "11"],
-    "3.2": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11", "18", "19"],
-    "3.3": ["16", "15", "9", "20", "14", "12", "17", "8", "13", "10", "11", "18", "19"]
+    "3.0": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.1": ["12", "8", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
+    "3.2": ["12", "8", "19", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
+    "3.3": ["12", "8", "19", "13", "16", "10", "20", "18", "15", "11", "9", "17", "14"]
   },
   "descriptions": {
     "3.0": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. When on JDK 9+, consider -release as a safer alternative.",
@@ -486,7 +486,7 @@
 }, {
   "argType": "Multiple",
   "choices": {
-    "2.13": ["implicitConversions", "postfixOps", "reflectiveCalls", "experimental.macros", "higherKinds", "existentials", "dynamics"]
+    "2.13": ["experimental.macros", "higherKinds", "existentials", "dynamics", "reflectiveCalls", "implicitConversions", "postfixOps"]
   },
   "descriptions": {
     "3.1": "Enable one or more language features.",
@@ -624,7 +624,7 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "2.13": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"]
+    "2.13": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
   },
   "defaultValue": "17",
   "descriptions": {
@@ -635,10 +635,10 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.0": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"],
-    "3.1": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"],
-    "3.2": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"],
-    "3.3": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"]
+    "3.0": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.1": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.2": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.3": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
   },
   "descriptions": {
     "3.0": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version.",
@@ -699,7 +699,7 @@
   "argType": "OneAfterColon",
   "choices": {
     "3.0": ["3.0", "future", "3.0-migration", "future-migration"],
-    "3.1": ["future-migration", "future", "3.0", "3.0-migration", "3.1"]
+    "3.1": ["future", "3.1", "3.0", "3.0-migration", "future-migration"]
   },
   "defaultValue": "3.0",
   "descriptions": {
@@ -711,7 +711,7 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.3": ["3.3-migration", "future-migration", "3.2-migration", "3.3", "future", "3.0", "3.0-migration", "3.2", "3.1"]
+    "3.3": ["future", "3.1", "3.0", "3.2-migration", "3.3-migration", "future-migration", "3.2", "3.0-migration", "3.3"]
   },
   "defaultValue": "3.3",
   "descriptions": {
@@ -722,7 +722,7 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.2": ["future-migration", "3.2-migration", "future", "3.0", "3.0-migration", "3.2", "3.1"]
+    "3.2": ["future", "3.1", "3.0", "3.2-migration", "3.0-migration", "future-migration", "3.2"]
   },
   "defaultValue": "3.2",
   "descriptions": {
@@ -747,8 +747,8 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "2.12": ["16", "15", "6", "9", "7", "14", "12", "17", "8", "5", "13", "10", "11"],
-    "2.13": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"]
+    "2.12": ["12", "8", "13", "16", "5", "10", "6", "7", "15", "11", "9", "17", "14"],
+    "2.13": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
   },
   "defaultValue": "8",
   "descriptions": {
@@ -917,7 +917,7 @@
     "2.11": "Pass an option to a plugin"
   },
   "flag": "-P",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -1229,8 +1229,8 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.2": ["complexity", "tokens", "tasty", "lines", "path", "name"],
-    "3.3": ["complexity", "tokens", "tasty", "lines", "path", "name"]
+    "3.2": ["name", "path", "tasty", "complexity", "tokens", "lines"],
+    "3.3": ["name", "path", "tasty", "complexity", "tokens", "lines"]
   },
   "descriptions": {
     "3.2": "Show metrics about sources and internal representations sorted by given column name",
@@ -1509,7 +1509,7 @@
 }, {
   "argType": "Multiple",
   "choices": {
-    "2.13": ["no-inline-missing-attribute", "at-inline-failed", "no-inline-mixed", "no-inline-missing-bytecode", "any-inline-failed", "none", "at-inline-failed-summary"]
+    "2.13": ["at-inline-failed-summary", "no-inline-missing-bytecode", "any-inline-failed", "no-inline-missing-attribute", "none", "at-inline-failed", "no-inline-mixed"]
   },
   "descriptions": {
     "2.13": "Enable optimizer warnings, `help` for details."
@@ -1539,10 +1539,10 @@
 }, {
   "argType": "Multiple",
   "choices": {
-    "2.13": ["params", "implicits", "linted", "nowarn", "synthetics", "privates", "locals", "patvars", "imports", "explicits"],
+    "2.13": ["synthetics", "privates", "locals", "params", "patvars", "implicits", "explicits", "nowarn", "linted", "imports"],
     "3.1": ["nowarn", "all"],
     "3.2": ["nowarn", "all"],
-    "3.3": ["\n- explicits :\n\tWarn if an explicit parameter is unused", "\n- locals :\n\tWarn if a local definition is unused", "\n- all", "\n- nowarn", "\n- linted :\n\tEnable -Wunused:imports,privates,locals,implicits", "\n- implicits :\n\tWarn if an implicit parameter is unused", "\n- privates :\n\tWarn if a private member is unused", "\n- strict-no-implicit-warn :\n\tSame as -Wunused:import, only for imports of explicit named members.\n\tNOTE : This overrides -Wunused:imports and NOT set by -Wunused:all", "\n- imports :\n\tWarn if an import selector is not referenced.\n\tNOTE : overrided by -Wunused:strict-no-implicit-warn", "\n- unsafe-warn-patvars :\n\t(UNSAFE) Warn if a variable bound in a pattern is unused.\n\tThis warning can generate false positive, as warning cannot be\n\tsuppressed yet.", "\n- params :\n\tEnable -Wunused:explicits,implicits"]
+    "3.3": ["locals", "implicits", "strict-no-implicit-warn", "explicits", "nowarn", "linted", "imports", "privates", "all", "unsafe-warn-patvars", "params"]
   },
   "descriptions": {
     "2.13": "Enable or disable specific `unused` warnings",
@@ -1578,7 +1578,7 @@
     "2.11": "Print a synopsis of advanced options."
   },
   "flag": "-X",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -1679,7 +1679,7 @@
     "2.11": "Fail the compilation if there are any warnings."
   },
   "flag": "-Xfatal-warnings",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -1769,9 +1769,9 @@
 }, {
   "argType": "Multiple",
   "choices": {
-    "2.11": ["inaccessible", "delayedinit-select", "unsound-match", "nullary-unit", "type-parameter-shadow", "doc-detached", "by-name-right-associative", "infer-any", "nullary-override", "missing-interpolator", "stars-align", "option-implicit", "package-object-classes", "poly-implicit-overload", "adapted-args", "private-shadow"],
-    "2.12": ["int-div-to-float", "inaccessible", "delayedinit-select", "unsound-match", "nullary-unit", "deprecation", "type-parameter-shadow", "unused", "doc-detached", "by-name-right-associative", "infer-any", "nullary-override", "missing-interpolator", "stars-align", "option-implicit", "package-object-classes", "poly-implicit-overload", "adapted-args", "constant", "private-shadow"],
-    "2.13": ["int-div-to-float", "inaccessible", "delayedinit-select", "type-parameter-shadow", "eta-zero", "multiarg-infix", "infer-any", "universal-methods", "valpattern", "missing-interpolator", "arg-discard", "strict-unsealed-patmat", "recurse-with-default", "nullary-unit", "implicit-recursion", "deprecation", "stars-align", "option-implicit", "implicit-not-found", "unused", "eta-sam", "doc-detached", "package-object-classes", "poly-implicit-overload", "byname-implicit", "unit-special", "adapted-args", "constant", "private-shadow", "numeric-methods", "nonlocal-return", "serial"]
+    "2.11": ["infer-any", "private-shadow", "poly-implicit-overload", "type-parameter-shadow", "nullary-unit", "inaccessible", "option-implicit", "by-name-right-associative", "stars-align", "unsound-match", "missing-interpolator", "doc-detached", "package-object-classes", "delayedinit-select", "nullary-override", "adapted-args"],
+    "2.12": ["constant", "infer-any", "private-shadow", "poly-implicit-overload", "type-parameter-shadow", "inaccessible", "option-implicit", "by-name-right-associative", "stars-align", "unsound-match", "int-div-to-float", "missing-interpolator", "doc-detached", "unused", "package-object-classes", "delayedinit-select", "deprecation", "nullary-unit", "nullary-override", "adapted-args"],
+    "2.13": ["implicit-not-found", "recurse-with-default", "private-shadow", "poly-implicit-overload", "type-parameter-shadow", "implicit-recursion", "nonlocal-return", "option-implicit", "stars-align", "numeric-methods", "int-div-to-float", "serial", "constant", "universal-methods", "missing-interpolator", "doc-detached", "strict-unsealed-patmat", "infer-any", "unused", "package-object-classes", "delayedinit-select", "eta-sam", "deprecation", "nullary-unit", "adapted-args", "byname-implicit", "eta-zero", "inaccessible", "unit-special", "arg-discard", "multiarg-infix", "valpattern"]
   },
   "descriptions": {
     "2.11": "Enable or disable specific warnings: `_' for all, `-Xlint:help' to list",
@@ -1854,7 +1854,7 @@
     "2.11": "Custom settings for macros."
   },
   "flag": "-Xmacro-settings",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "2.11", "3.2", "3.1"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -1869,7 +1869,7 @@
     "2.11": "Class for manifest's Main-Class entry (only useful with -d <jar>)"
   },
   "flag": "-Xmain-class",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "2.11", "3.2", "3.1"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -1950,7 +1950,7 @@
     "2.11": "Warn about constructs whose behavior may have changed since version."
   },
   "flag": "-Xmigration",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -1987,7 +1987,7 @@
     "2.11": "Do not generate static forwarders in mirror classes."
   },
   "flag": "-Xno-forwarders",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -2048,7 +2048,7 @@
     "2.11": "Load a plugin from each classpath."
   },
   "flag": "-Xplugin",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -2064,7 +2064,7 @@
     "2.11": "Disable plugins by name."
   },
   "flag": "-Xplugin-disable",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -2080,7 +2080,7 @@
     "2.11": "Print a synopsis of loaded plugins."
   },
   "flag": "-Xplugin-list",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -2096,13 +2096,13 @@
     "2.11": "Abort if a named plugin is not loaded."
   },
   "flag": "-Xplugin-require",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneSeparate",
   "choices": {
 
   },
-  "defaultValue": "misc\\scala-devel\\plugins",
+  "defaultValue": "misc/scala-devel/plugins",
   "descriptions": {
     "3.1": "Path to search for plugin archives.",
     "3.0": "Path to search for plugin archives.",
@@ -2113,7 +2113,7 @@
     "2.11": "Path to search for plugin archives."
   },
   "flag": "-Xpluginsdir",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -2129,7 +2129,7 @@
     "2.11": "Print out program after <phases>"
   },
   "flag": "-Xprint",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -2231,7 +2231,7 @@
     "2.11": "Print tree types (debugging option)."
   },
   "flag": "-Xprint-types",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -2247,7 +2247,7 @@
     "2.11": "Display a prompt after each error (debugging option)."
   },
   "flag": "-Xprompt",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -2359,7 +2359,7 @@
     "2.11": "Print a synopsis of compiler phases."
   },
   "flag": "-Xshow-phases",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -2419,10 +2419,10 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.0": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"],
-    "3.1": ["16", "15", "9", "14", "18", "12", "17", "8", "13", "10", "11"],
-    "3.2": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11", "18", "19"],
-    "3.3": ["16", "15", "9", "20", "14", "12", "17", "8", "13", "10", "11", "18", "19"]
+    "3.0": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.1": ["12", "8", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
+    "3.2": ["12", "8", "19", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
+    "3.3": ["12", "8", "19", "13", "16", "10", "20", "18", "15", "11", "9", "17", "14"]
   },
   "descriptions": {
     "3.0": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. When on JDK 9+, consider -release as a safer alternative.",
@@ -2435,9 +2435,9 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.1": ["16", "15", "9", "14", "18", "12", "17", "8", "13", "10", "11"],
-    "3.2": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11", "18", "19"],
-    "3.3": ["16", "15", "9", "20", "14", "12", "17", "8", "13", "10", "11", "18", "19"]
+    "3.1": ["12", "8", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
+    "3.2": ["12", "8", "19", "13", "16", "10", "18", "15", "11", "9", "17", "14"],
+    "3.3": ["12", "8", "19", "13", "16", "10", "20", "18", "15", "11", "9", "17", "14"]
   },
   "descriptions": {
     "3.1": "Emit bytecode for the specified version of the Java platform. This might produce bytecode that will break at runtime. Corresponds to -target flag in javac. When on JDK 9+, consider -java-output-version as a safer alternative.",
@@ -2513,7 +2513,7 @@
     "2.11": "Print a synopsis of private options."
   },
   "flag": "-Y",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -2636,7 +2636,7 @@
     "2.11": "Check the tree at the end of <phases>"
   },
   "flag": "-Ycheck",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -2791,7 +2791,7 @@
     "2.11": "Increase the quantity of debugging output."
   },
   "flag": "-Ydebug",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -2991,7 +2991,7 @@
     "2.11": "Do not cache flat classpath representation of classpath elements from jars across compiler instances."
   },
   "flag": "-YdisableFlatCpCaching",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -3045,7 +3045,7 @@
     "2.11": "Dump the generated bytecode to .class files (useful for reflective compilation that utilizes in-memory classloaders)."
   },
   "flag": "-Ydump-classes",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -3396,7 +3396,7 @@
     "2.11": "Log operations during <phases>"
   },
   "flag": "-Ylog",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -3412,7 +3412,7 @@
     "2.11": "Output information about what classpath is being applied."
   },
   "flag": "-Ylog-classpath",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -3595,7 +3595,7 @@
     "2.11": "Suppress generation of generic signatures for Java."
   },
   "flag": "-Yno-generic-signatures",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -3611,7 +3611,7 @@
     "2.11": "Compile without importing scala.*, java.lang.*, or Predef."
   },
   "flag": "-Yno-imports",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -3663,7 +3663,7 @@
     "2.11": "Compile without importing Predef."
   },
   "flag": "-Yno-predef",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -3687,7 +3687,7 @@
 }, {
   "argType": "Multiple",
   "choices": {
-    "2.11": ["compact-locals", "inline-global", "empty-labels", "l:classpath", "l:project", "closure-elimination", "unreachable-code", "simplify-jumps", "empty-line-numbers", "inline-project", "l:default", "l:method", "nullness-tracking", "l:none"]
+    "2.11": ["unreachable-code", "inline-global", "empty-line-numbers", "closure-elimination", "compact-locals", "l:classpath", "l:project", "nullness-tracking", "empty-labels", "l:method", "l:none", "l:default", "inline-project", "simplify-jumps"]
   },
   "descriptions": {
     "2.11": "Enable optimizations: `_' for all, `-Yopt:help' to list"
@@ -3743,7 +3743,7 @@
 }, {
   "argType": "Multiple",
   "choices": {
-    "2.11": ["no-inline-missing-attribute", "at-inline-failed", "no-inline-mixed", "no-inline-missing-bytecode", "none", "at-inline-failed-summary"]
+    "2.11": ["at-inline-failed-summary", "no-inline-missing-bytecode", "no-inline-missing-attribute", "none", "at-inline-failed", "no-inline-mixed"]
   },
   "descriptions": {
     "2.11": "Enable optimizer warnings: `_' for all, `-Yopt-warnings:help' to list"
@@ -4009,7 +4009,7 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "2.13": ["text+format", "diff", "compact", "format", "text"]
+    "2.13": ["format", "text", "diff", "text+format", "compact"]
   },
   "defaultValue": "text",
   "descriptions": {
@@ -4255,7 +4255,7 @@
     "2.11": "Resolve term conflicts (package,object,error) default:error"
   },
   "flag": "-Yresolve-term-conflict",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -4490,7 +4490,7 @@
     "2.11": "Skip <phases>"
   },
   "flag": "-Yskip",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -4504,7 +4504,7 @@
 }, {
   "argType": "Multiple",
   "choices": {
-    "2.11": ["parser", "erasure", "patmat", "jvm", "cleanup", "typer"]
+    "2.11": ["jvm", "typer", "erasure", "parser", "cleanup", "patmat"]
   },
   "descriptions": {
     "2.11": "Print compiler statistics for specific phases: `_' for all, `-Ystatistics:help' to list",
@@ -4528,7 +4528,7 @@
     "2.11": "Stop after <phases>"
   },
   "flag": "-Ystop-after",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "Multiple",
   "choices": {
@@ -4544,7 +4544,7 @@
     "2.11": "Stop before <phases>"
   },
   "flag": "-Ystop-before",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -4760,8 +4760,8 @@
 }, {
   "argType": "Multiple",
   "choices": {
-    "2.12": ["params", "implicits", "linted", "nowarn", "privates", "locals", "patvars", "imports", "explicits"],
-    "2.13": ["params", "implicits", "linted", "nowarn", "synthetics", "privates", "locals", "patvars", "imports", "explicits"]
+    "2.12": ["privates", "locals", "params", "patvars", "implicits", "explicits", "nowarn", "linted", "imports"],
+    "2.13": ["synthetics", "privates", "locals", "params", "patvars", "implicits", "explicits", "nowarn", "linted", "imports"]
   },
   "descriptions": {
     "2.12": "Enable or disable specific `unused' warnings: `_' for all, `-Ywarn-unused:help' to list choices.",
@@ -4829,7 +4829,7 @@
     "2.11": "Override location of bootstrap class files."
   },
   "flag": "-bootclasspath",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -4846,7 +4846,7 @@
     "2.11": "Specify where to find user class files."
   },
   "flag": "-classpath",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -4891,7 +4891,7 @@
     "2.11": "Specify where to find user class files."
   },
   "flag": "-cp",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -4908,7 +4908,7 @@
     "2.11": "destination for generated classfiles."
   },
   "flag": "-d",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -4937,7 +4937,7 @@
     "2.11": "Emit warning and location for usages of deprecated APIs."
   },
   "flag": "-deprecation",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -5166,7 +5166,7 @@
     "2.11": "Specify character encoding used by source files."
   },
   "flag": "-encoding",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -5219,7 +5219,7 @@
     "2.11": "Explain type errors in more detail."
   },
   "flag": "-explaintypes",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "2.11", "3.2", "3.1"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -5235,7 +5235,7 @@
     "2.11": "Override location of installed extensions."
   },
   "flag": "-extdirs",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -5251,7 +5251,7 @@
     "2.11": "Emit warning and location for usages of features that should be imported explicitly."
   },
   "flag": "-feature",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -5268,9 +5268,9 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "2.11": ["vars", "source", "notailcalls", "line", "none"],
-    "2.12": ["vars", "source", "notailcalls", "line", "none"],
-    "2.13": ["vars", "source", "notailcalls", "line", "none"]
+    "2.11": ["source", "line", "vars", "notailcalls", "none"],
+    "2.12": ["source", "line", "vars", "notailcalls", "none"],
+    "2.13": ["source", "line", "vars", "notailcalls", "none"]
   },
   "defaultValue": "vars",
   "descriptions": {
@@ -5320,7 +5320,7 @@
     "2.11": "Print a synopsis of standard options"
   },
   "flag": "-help",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -5397,9 +5397,9 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.1": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"],
-    "3.2": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"],
-    "3.3": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"]
+    "3.1": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.2": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.3": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
   },
   "descriptions": {
     "3.1": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version. Corresponds to -release flag in javac.",
@@ -5423,7 +5423,7 @@
     "2.11": "Override java boot classpath."
   },
   "flag": "-javabootclasspath",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -5439,7 +5439,7 @@
     "2.11": "Override java extdirs classpath."
   },
   "flag": "-javaextdirs",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -5453,9 +5453,9 @@
 }, {
   "argType": "Multiple",
   "choices": {
-    "2.11": ["implicitConversions", "postfixOps", "reflectiveCalls", "experimental.macros", "higherKinds", "existentials", "dynamics"],
-    "2.12": ["implicitConversions", "postfixOps", "reflectiveCalls", "experimental.macros", "higherKinds", "existentials", "dynamics"],
-    "2.13": ["implicitConversions", "postfixOps", "reflectiveCalls", "experimental.macros", "higherKinds", "existentials", "dynamics"]
+    "2.11": ["experimental.macros", "higherKinds", "existentials", "dynamics", "reflectiveCalls", "implicitConversions", "postfixOps"],
+    "2.12": ["experimental.macros", "higherKinds", "existentials", "dynamics", "reflectiveCalls", "implicitConversions", "postfixOps"],
+    "2.13": ["experimental.macros", "higherKinds", "existentials", "dynamics", "reflectiveCalls", "implicitConversions", "postfixOps"]
   },
   "descriptions": {
     "3.1": "Enable one or more language features.",
@@ -5467,7 +5467,7 @@
     "2.11": "Enable or disable language features: `_' for all, `-language:help' to list"
   },
   "flag": "-language",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -5581,7 +5581,7 @@
     "2.11": "Generate no warnings."
   },
   "flag": "-nowarn",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -5598,8 +5598,8 @@
 }, {
   "argType": "Multiple",
   "choices": {
-    "2.12": ["copy-propagation", "compact-locals", "l:inline", "redundant-casts", "l:classpath", "l:project", "closure-invocations", "simplify-jumps", "l:default", "l:method", "inline", "nullness-tracking", "l:none", "box-unbox", "unreachable-code"],
-    "2.13": ["copy-propagation", "compact-locals", "default", "redundant-casts", "nullness-tracking", "local", "closure-invocations", "assume-modules-non-null", "simplify-jumps", "l", "none", "allow-skip-core-module-init", "box-unbox", "unreachable-code", "inline", "allow-skip-class-loading"]
+    "2.12": ["l:inline", "unreachable-code", "simplify-jumps", "inline", "compact-locals", "redundant-casts", "closure-invocations", "l:classpath", "l:project", "box-unbox", "nullness-tracking", "copy-propagation", "l:method", "l:none", "l:default"],
+    "2.13": ["unreachable-code", "simplify-jumps", "local", "inline", "allow-skip-class-loading", "compact-locals", "allow-skip-core-module-init", "box-unbox", "nullness-tracking", "copy-propagation", "redundant-casts", "l", "default", "closure-invocations", "assume-modules-non-null", "none"]
   },
   "descriptions": {
     "2.12": "Enable optimizations: `_' for all, `-opt:help' to list choices.",
@@ -5621,8 +5621,8 @@
 }, {
   "argType": "Multiple",
   "choices": {
-    "2.12": ["no-inline-missing-attribute", "at-inline-failed", "no-inline-mixed", "no-inline-missing-bytecode", "any-inline-failed", "none", "at-inline-failed-summary"],
-    "2.13": ["no-inline-missing-attribute", "at-inline-failed", "no-inline-mixed", "no-inline-missing-bytecode", "any-inline-failed", "none", "at-inline-failed-summary"]
+    "2.12": ["at-inline-failed-summary", "no-inline-missing-bytecode", "any-inline-failed", "no-inline-missing-attribute", "none", "at-inline-failed", "no-inline-mixed"],
+    "2.13": ["at-inline-failed-summary", "no-inline-missing-bytecode", "any-inline-failed", "no-inline-missing-attribute", "none", "at-inline-failed", "no-inline-mixed"]
   },
   "descriptions": {
     "2.12": "Enable optimizer warnings: `_' for all, `-opt-warnings:help' to list choices.",
@@ -5744,10 +5744,10 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.0": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"],
-    "3.1": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"],
-    "3.2": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"],
-    "3.3": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"]
+    "3.0": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.1": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.2": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"],
+    "3.3": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
   },
   "descriptions": {
     "3.0": "Compile code with classes specific to the given version of the Java platform available on the classpath and emit bytecode for this version.",
@@ -5760,8 +5760,8 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "2.12": ["16", "15", "6", "9", "7", "14", "12", "17", "8", "5", "13", "10", "11"],
-    "2.13": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"]
+    "2.12": ["12", "8", "13", "16", "5", "10", "6", "7", "15", "11", "9", "17", "14"],
+    "2.13": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
   },
   "defaultValue": "17",
   "descriptions": {
@@ -5872,7 +5872,7 @@
   "argType": "OneAfterColon",
   "choices": {
     "3.0": ["3.0", "future", "3.0-migration", "future-migration"],
-    "3.1": ["future-migration", "future", "3.0", "3.0-migration", "3.1"]
+    "3.1": ["future", "3.1", "3.0", "3.0-migration", "future-migration"]
   },
   "defaultValue": "3.0",
   "descriptions": {
@@ -5884,7 +5884,7 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.3": ["3.3-migration", "future-migration", "3.2-migration", "3.3", "future", "3.0", "3.0-migration", "3.2", "3.1"]
+    "3.3": ["future", "3.1", "3.0", "3.2-migration", "3.3-migration", "future-migration", "3.2", "3.0-migration", "3.3"]
   },
   "defaultValue": "3.3",
   "descriptions": {
@@ -5895,7 +5895,7 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "3.2": ["future-migration", "3.2-migration", "future", "3.0", "3.0-migration", "3.2", "3.1"]
+    "3.2": ["future", "3.1", "3.0", "3.2-migration", "3.0-migration", "future-migration", "3.2"]
   },
   "defaultValue": "3.2",
   "descriptions": {
@@ -5918,7 +5918,7 @@
     "2.11": "Specify location(s) of source files."
   },
   "flag": "-sourcepath",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -5948,7 +5948,7 @@
     "2.11": "Stop after <phases>"
   },
   "flag": "-stop",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "OneAfterColon",
   "choices": {
@@ -5963,8 +5963,8 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "2.12": ["16", "15", "6", "9", "7", "14", "12", "17", "8", "5", "13", "10", "11"],
-    "2.13": ["16", "15", "9", "14", "12", "17", "8", "13", "10", "11"]
+    "2.12": ["12", "8", "13", "16", "5", "10", "6", "7", "15", "11", "9", "17", "14"],
+    "2.13": ["12", "8", "13", "16", "10", "15", "11", "9", "17", "14"]
   },
   "defaultValue": "8",
   "descriptions": {
@@ -6000,7 +6000,7 @@
     "2.11": "Enable additional warnings where generated code depends on assumptions."
   },
   "flag": "-unchecked",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -6016,7 +6016,7 @@
     "2.11": "Uniquely tag all identifiers in debugging output."
   },
   "flag": "-uniqid",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -6032,7 +6032,7 @@
     "2.11": "Utilize the java.class.path in classpath resolution."
   },
   "flag": "-usejavacp",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -6060,7 +6060,7 @@
     "2.11": "Output messages about what the compiler is doing."
   },
   "flag": "-verbose",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }, {
   "argType": "No",
   "choices": {
@@ -6076,5 +6076,5 @@
     "2.11": "Print product version and exit."
   },
   "flag": "-version",
-  "scalaVersions": ["3.3", "2.13", "2.11", "2.12", "3.0", "3.2", "3.1"]
+  "scalaVersions": ["3.3", "2.13", "2.12", "3.2", "3.1", "2.11", "3.0"]
 }]

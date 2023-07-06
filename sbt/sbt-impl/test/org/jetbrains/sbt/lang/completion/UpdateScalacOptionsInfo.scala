@@ -207,10 +207,23 @@ object UpdateScalacOptionsInfo {
     val scalaVersionClass = loadClass("dotty.tools.dotc.config.ScalaVersion")
     val scalaVersionUnparseMethod = scalaVersionClass.getMethod("unparse")
 
+    val maybeChoiceWithHelpClass = try Option(loadClass("dotty.tools.dotc.config.Settings$Setting$ChoiceWithHelp")) catch {
+      case _: ClassNotFoundException => None
+    }
+
     def scalaVersionToString(version: Any): String = scalaVersionUnparseMethod
       .invoke(version)
       .asInstanceOf[String]
       .stripSuffix(".")
+
+    // TODO: `description: String` field of the ChoiceWithHelp class might be useful
+    def getChoiceString(choice: Any): String =
+      maybeChoiceWithHelpClass match {
+        case Some(cls) if cls isInstance choice =>
+          val choiceName = declaredFieldByName(cls, "name").get(choice)
+          choiceName.toString
+        case _ => choice.toString
+      }
 
     def defaultScalaVersionStr(setting: Any): String = scalaVersionToString(defaultField.get(setting))
 
@@ -247,7 +260,7 @@ object UpdateScalacOptionsInfo {
 
       val choicesAsStr =
         if (tag == VersionTag) choices.map(scalaVersionToString)
-        else choices.map(_.toString)
+        else choices.map(getChoiceString)
 
       createScalacOptionWithAliases(name = name, argType = argType, description = description,
         aliases = aliases, choices = choicesAsStr, default = defaultValue)
