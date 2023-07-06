@@ -10,8 +10,7 @@ final class ScalaBugsTest extends AbstractScalaFormatterTestBase {
 
   def testSCL2424(): Unit =
     doTextTest(
-      """someMethod(new Something, abc, xyz)""",
-      """someMethod(new Something, abc, xyz)""",
+      """someMethod(new Something, abc, xyz)"""
     )
 
   def testSCL2424_WithDefKeyword(): Unit =
