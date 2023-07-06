@@ -172,15 +172,12 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
     }
 
   private val scalaCliDirectiveDemoText: String = {
-    val prefixTag = "ScalaCliDirectivePrefix>"
-    val commandTag = "ScalaCliDirectiveCommand>"
-    val keyTag = "ScalaCliDirectiveKey>"
-    val valueTag = "ScalaCliDirectiveValue>"
+    val pt = "ScalaCliDirectivePrefix"
+    val ct = "ScalaCliDirectiveCommand"
+    val kt = "ScalaCliDirectiveKey"
+    val vt = "ScalaCliDirectiveValue"
 
-    s"<$prefixTag" + "//>" + s"</$prefixTag " +
-    s"<$commandTag" + "using" + s"</$commandTag " +
-    s"<$keyTag" + "dep" + s"</$keyTag " +
-    s"<$valueTag" + "org.jetbrains::scotlin:4.2.42" + s"</$valueTag"
+    s"<$pt>//></$pt> <$ct>using</$ct> <$kt>dep</$kt> <$vt>org.jetbrains::annotation:4.2.42</$vt>"
   }
 
   override def getDemoText: String =
