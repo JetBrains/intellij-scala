@@ -48,7 +48,7 @@ object SbtOpts {
 
   private val allAvailableOptions = sbtToJdkOpts("") ++ sbtToLauncherOpts
 
-  def loadFrom(directory: File)(implicit reporter: BuildReporter = null): Seq[SbtOption] = {
+  def loadFrom(directory: File)(implicit reporter: BuildReporter): Seq[SbtOption] = {
     val sbtOptsFile = directory / SbtOptsFile
     if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead) {
       val optsFromFile = FileUtil.loadLines(sbtOptsFile)
@@ -92,7 +92,7 @@ object SbtOpts {
     }.getOrElse(Seq.empty)
   }
 
-  def mapOptionsToSbtOptions(opts: Seq[String], projectPath: String)(implicit reporter: BuildReporter = null): Seq[SbtOption] = {
+  def mapOptionsToSbtOptions(opts: Seq[String], projectPath: String)(implicit reporter: BuildReporter): Seq[SbtOption] = {
     val unrecognizedOpts = ListBuffer[(String, Option[String])]()
     val sbtOpts = opts.flatMap { opt =>
       if (sbtToLauncherOpts.contains(opt))

@@ -7,6 +7,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
+import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
@@ -315,7 +316,8 @@ object SbtUtil {
       .getOrElse(Seq.empty)
     java_opts_env ++ JvmOpts.loadFrom(workingDir) ++ vmOptionsFromSettings
   }
-  def collectAllOptionsFromSbt(sbtOptions: Seq[String], directory: File, passParentEnvironment: Boolean, userSetEnv: Map[String, String]): Seq[SbtOption] = {
+  def collectAllOptionsFromSbt(sbtOptions: Seq[String], directory: File, passParentEnvironment: Boolean, userSetEnv: Map[String, String])
+                              (implicit reporter: BuildReporter = null): Seq[SbtOption] = {
     val sbt_opts_env = environmentsToUse(passParentEnvironment, userSetEnv).get("SBT_OPTS")
       .map { options =>
         val combinedOptions = SbtOpts.combineOptionsWithArgs(options)
