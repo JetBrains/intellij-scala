@@ -140,7 +140,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       sb ++= prefix
       textOfDefDef(sb, indent: String, node)
 
-    case node @ Node1(VALDEF) if (privateMembers || !node.contains(PRIVATE)) && !node.contains(SYNTHETIC) && !node.contains(OBJECT) && (!node.contains(CASE) || definition.exists(_.contains(ENUM))) =>
+    case node @ Node1(VALDEF) if (privateMembers || !node.contains(PRIVATE)) && !node.contains(SYNTHETIC) && !node.contains(OBJECT) && (!node.contains(CASE) || definition.exists(_.contains(ENUM))) && !node.name.startsWith("derived$") =>
       sb ++= prefix
       textOfValDef(sb, indent, node, definition)
 
@@ -274,6 +274,18 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       // TODO enum Enum[-A] { case Case extends Enum[Any] }
       if (parents.nonEmpty && !(parents.length == 1 && !parents.head.endsWith("]") && (definition.isEmpty || definition.exists(it => it.contains(ENUM) && it.contains(CASE))))) {
         sb ++= " extends " + parents.mkString(if (legacySyntax) " with " else ", ")
+      }
+      val derived = definition match {
+        case Some(node) => node.nextSiblings.take(2).toSeq match {
+          case Seq(Node2(VALDEF, Seq(name1)), cobj @ Node3(TYPEDEF, Seq(name2), _)) if name2 == name1 + "$" && node.name == name1 => cobj.firstChild.children.collect {
+            case Node2(VALDEF, Seq(name)) if name.startsWith("derived$") => name.substring(8)
+          }
+          case _ => Seq.empty
+        }
+        case _ => Seq.empty
+      }
+      if (derived.nonEmpty) {
+        sb ++= " derives " + derived.mkString(", ")
       }
     }
     val selfType = children.find(_.is(SELFDEF)) match {
