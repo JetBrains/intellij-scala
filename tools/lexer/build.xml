@@ -34,7 +34,7 @@
   </target>
 
   <target name="generate.lexer.scalacli">
-    <flex flexFileName="ScalaCliLexer.flex" flexFileDir="${scalacli.lexer.path}"/>
+    <flex flexFileName="_ScalaCliLexer.flex" flexFileDir="${scalacli.lexer.path}"/>
   </target>
 
   <target name="generate.lexer.sbt.shell">

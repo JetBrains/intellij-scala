@@ -8,7 +8,7 @@ import com.intellij.lexer.FlexAdapter
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliLexer
+import org.jetbrains.plugins.scala.lang.scalacli.lexer._ScalaCliLexer
 import org.jetbrains.plugins.scalaCli.ScalaCliLanguage
 
 class ScalaCliParserDefinition extends ParserDefinition {
@@ -22,7 +22,7 @@ class ScalaCliParserDefinition extends ParserDefinition {
   override val getStringLiteralElements = TokenSet.create()
 
   override def createLexer(project: Project) =
-    new FlexAdapter(new ScalaCliLexer(null.asInstanceOf[java.io.Reader]))
+    new FlexAdapter(new _ScalaCliLexer(null.asInstanceOf[java.io.Reader]))
 
   override def createParser(project: Project) = new ScalaCliParser
 

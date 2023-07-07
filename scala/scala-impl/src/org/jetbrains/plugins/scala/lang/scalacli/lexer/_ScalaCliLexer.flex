@@ -6,7 +6,7 @@ import static com.intellij.psi.TokenType.WHITE_SPACE;
 
 %%
 
-%class ScalaCliLexer
+%class _ScalaCliLexer
 %implements FlexLexer, ScalaCliTokenTypes
 %public
 
