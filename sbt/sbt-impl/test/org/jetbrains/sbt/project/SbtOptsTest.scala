@@ -40,7 +40,7 @@ class SbtOptsTest {
     val optsDir = FileUtil.createTempDirectory("sbtOptsTest","",true)
     val optsFile = new File(optsDir,SbtOpts.SbtOptsFile)
     FileUtil.writeToFile(optsFile, input)
-    val opts = SbtOpts.loadFrom(optsDir)
+    val opts = SbtOpts.loadFrom(optsDir)(null)
     assertEquals(expected, opts)
   }
   @Test
@@ -66,14 +66,14 @@ class SbtOptsTest {
     val optsDir = FileUtil.createTempDirectory("sbtOptsTest", "", true)
     val optsFile = new File(optsDir, SbtOpts.SbtOptsFile)
     FileUtil.writeToFile(optsFile, input)
-    val opts = SbtOpts.loadFrom(optsDir)
+    val opts = SbtOpts.loadFrom(optsDir)(null)
     assertEquals(expected, opts)
   }
 
   @Test
   def testMapOptionsToSbtOptions(): Unit = {
      def doTest(providedArgs: Seq[String], expected: Seq[SbtOption]): Unit = {
-      val actual = SbtOpts.mapOptionsToSbtOptions(providedArgs, "dummy/Path")
+      val actual = SbtOpts.mapOptionsToSbtOptions(providedArgs, "dummy/Path")(null)
       assertThat(actual, equalTo(expected))
     }
     doTest(Seq("-d", "-color=always", "-error"), Seq(SbtLauncherOption("--debug")(), JvmOptionShellOnly("-Dsbt.color=always")(), SbtLauncherOption("--error")()))
