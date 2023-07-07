@@ -8,7 +8,9 @@ import java.util.*;
 import java.lang.reflect.Field;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
-import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliTokenTypes;import org.jetbrains.plugins.scala.lang.scalacli.parser.ScalaCliElementTypes;import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
+import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliTokenTypes;
+import org.jetbrains.plugins.scala.lang.scalacli.parser.ScalaCliElementTypes;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 
 
@@ -36,7 +38,7 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
    * l is of the form l = 2*k, k a non negative integer
    */
   private static final int ZZ_LEXSTATE[] = { 
-     0,  1,  2, 2
+     0,  0,  1, 1
   };
 
   /** 
@@ -58,10 +60,10 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
 
   /* The ZZ_CMAP_A table has 640 entries */
   static final char ZZ_CMAP_A[] = zzUnpackCMap(
-    "\11\0\1\15\1\6\2\15\1\6\22\0\1\17\1\0\1\13\4\0\1\12\2\0\1\2\4\0\1\1\1\10\7"+
-    "\3\2\4\4\0\1\16\2\0\1\11\5\4\25\0\1\5\3\0\1\14\6\4\1\23\1\0\1\21\4\0\1\22"+
-    "\4\0\1\20\1\0\1\7\17\0\1\15\32\0\1\15\337\0\1\15\177\0\13\15\35\0\2\15\5\0"+
-    "\1\15\57\0\1\15\40\0");
+    "\11\0\1\16\1\6\2\16\1\6\22\0\1\16\1\0\1\13\4\0\1\12\2\0\1\2\4\0\1\1\1\10\7"+
+    "\3\2\4\4\0\1\15\2\0\1\11\5\4\25\0\1\5\3\0\1\14\6\4\1\22\1\0\1\20\4\0\1\21"+
+    "\4\0\1\17\1\0\1\7\17\0\1\16\32\0\1\16\337\0\1\16\177\0\13\16\35\0\2\16\5\0"+
+    "\1\16\57\0\1\16\40\0");
 
   /** 
    * Translates DFA states to action switch labels.
@@ -69,13 +71,13 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
-    "\3\0\7\1\3\2\1\3\1\4\2\0\3\1\1\0"+
-    "\1\3\2\0\1\5\1\6\1\7\3\0\1\3\1\0"+
-    "\1\10\4\0\1\3\5\0\1\3\2\0\1\1\1\0"+
-    "\1\3\2\0\1\3\1\0\1\3\1\0\1\11";
+    "\2\0\5\1\3\2\1\3\1\4\2\0\3\1\1\0"+
+    "\1\5\1\6\2\3\1\7\4\0\1\3\1\10\5\0"+
+    "\1\3\4\0\1\3\2\0\1\1\1\0\1\3\2\0"+
+    "\1\11";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[56];
+    int [] result = new int[48];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -100,16 +102,15 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\24\0\50\0\74\0\120\0\144\0\170\0\214"+
-    "\0\240\0\264\0\74\0\310\0\334\0\360\0\u0104\0\u0118"+
-    "\0\u012c\0\u0140\0\u0154\0\u0168\0\214\0\u017c\0\u0190\0\264"+
-    "\0\74\0\74\0\u01a4\0\u01b8\0\u01cc\0\u01e0\0\u01f4\0\u0208"+
-    "\0\74\0\u021c\0\u0230\0\u0244\0\u0258\0\u026c\0\u0280\0\u0294"+
-    "\0\u02a8\0\u02bc\0\u02d0\0\u02e4\0\u02f8\0\u030c\0\u0320\0\u0334"+
-    "\0\u0348\0\u035c\0\u0370\0\u0384\0\u0398\0\u03ac\0\u03c0\0\u03d4";
+    "\0\0\0\23\0\46\0\71\0\114\0\137\0\162\0\46"+
+    "\0\205\0\230\0\253\0\276\0\321\0\344\0\367\0\u010a"+
+    "\0\u011d\0\162\0\46\0\46\0\u0130\0\u0143\0\u0156\0\u0169"+
+    "\0\u017c\0\u018f\0\u01a2\0\u01b5\0\46\0\u01c8\0\u01db\0\u01ee"+
+    "\0\u0201\0\u0214\0\u0227\0\u023a\0\u024d\0\u0260\0\u0273\0\u0286"+
+    "\0\u0299\0\u02ac\0\u02bf\0\u02d2\0\u02e5\0\u02f8\0\u030b\0\u031e";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[56];
+    int [] result = new int[48];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -132,37 +133,32 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
   private static final int [] ZZ_TRANS = zzUnpackTrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
-    "\1\4\1\5\10\4\1\6\1\7\1\10\10\4\1\11"+
-    "\4\4\1\12\3\4\1\6\1\7\1\10\1\12\1\4"+
-    "\1\12\4\4\1\13\1\14\1\15\21\13\25\0\1\16"+
-    "\1\17\21\0\5\20\1\21\1\0\3\20\1\0\11\20"+
-    "\5\22\1\23\1\0\4\22\1\24\10\22\14\25\1\4"+
-    "\7\25\1\0\1\26\1\17\22\0\1\27\4\0\1\30"+
-    "\6\0\1\30\1\0\1\30\6\0\1\31\22\0\1\32"+
-    "\22\0\6\16\1\0\15\16\2\0\1\33\26\0\1\4"+
-    "\4\0\1\4\11\0\3\20\1\34\2\20\1\0\1\35"+
-    "\1\34\13\20\5\22\1\23\1\0\4\22\1\4\16\22"+
-    "\1\0\15\22\13\0\1\36\10\0\6\16\1\0\7\16"+
-    "\1\37\5\16\1\0\1\40\23\0\1\41\25\0\1\42"+
-    "\1\0\1\4\2\0\1\42\1\0\1\4\14\0\2\43"+
-    "\1\4\2\0\1\44\1\43\1\4\11\0\13\36\1\45"+
-    "\10\36\6\16\1\0\10\16\1\46\4\16\16\0\1\47"+
-    "\10\0\1\20\1\0\1\4\2\0\1\20\1\0\1\4"+
-    "\14\0\2\50\3\0\2\50\15\0\2\50\3\0\1\51"+
-    "\1\50\12\0\13\36\1\52\10\36\6\16\1\53\1\54"+
-    "\5\16\1\46\1\16\1\46\4\16\17\0\1\53\7\0"+
-    "\2\55\3\0\2\55\15\0\2\55\3\0\1\56\1\55"+
-    "\12\0\13\36\1\57\10\36\6\0\1\53\1\60\5\0"+
-    "\1\53\1\0\1\53\4\0\6\16\1\0\11\16\1\61"+
-    "\3\16\3\0\2\20\3\0\2\20\15\0\2\20\3\0"+
-    "\1\20\1\62\25\0\1\57\30\0\1\63\3\0\6\16"+
-    "\1\0\12\16\1\64\2\16\12\0\1\4\32\0\1\65"+
-    "\2\0\6\16\1\0\13\16\1\66\1\16\22\0\1\67"+
-    "\1\0\6\16\1\0\14\16\1\70\23\0\7\70\1\0"+
-    "\15\70";
+    "\1\3\1\4\10\3\1\5\1\6\1\7\6\3\1\10"+
+    "\1\11\1\12\20\10\24\0\1\13\1\14\20\0\5\15"+
+    "\1\16\1\0\3\15\1\0\10\15\5\17\1\20\1\0"+
+    "\4\17\1\21\7\17\14\22\1\3\6\22\2\0\1\23"+
+    "\21\0\1\24\21\0\6\25\1\0\6\25\1\26\5\25"+
+    "\2\0\1\27\25\0\1\3\4\0\1\3\10\0\3\15"+
+    "\1\30\2\15\1\0\1\31\1\30\12\15\5\17\1\20"+
+    "\1\0\4\17\1\3\15\17\1\0\14\17\13\0\1\32"+
+    "\7\0\6\25\1\0\22\25\1\33\1\34\6\25\1\26"+
+    "\4\25\1\0\1\35\24\0\1\36\1\0\1\3\2\0"+
+    "\1\36\1\0\1\3\13\0\2\37\1\3\2\0\1\40"+
+    "\1\37\1\3\10\0\13\32\1\41\7\32\6\0\1\33"+
+    "\1\42\6\0\1\33\4\0\6\25\1\0\10\25\1\43"+
+    "\3\25\3\0\1\15\1\0\1\3\2\0\1\15\1\0"+
+    "\1\3\13\0\2\44\3\0\2\44\14\0\2\44\3\0"+
+    "\1\45\1\44\11\0\13\32\1\46\7\32\17\0\1\47"+
+    "\3\0\6\25\1\0\11\25\1\50\2\25\3\0\2\51"+
+    "\3\0\2\51\14\0\2\51\3\0\1\52\1\51\11\0"+
+    "\13\32\1\53\7\32\20\0\1\54\2\0\6\25\1\0"+
+    "\12\25\1\55\1\25\3\0\2\15\3\0\2\15\14\0"+
+    "\2\15\3\0\1\15\1\56\24\0\1\53\30\0\1\57"+
+    "\1\0\6\25\1\0\13\25\1\60\12\0\1\3\32\0"+
+    "\7\60\1\0\14\60";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[1000];
+    int [] result = new int[817];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -200,13 +196,12 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\3\0\1\11\6\1\1\11\4\1\2\0\3\1\1\0"+
-    "\1\1\2\0\2\11\1\1\3\0\1\1\1\0\1\11"+
-    "\4\0\1\1\5\0\1\1\2\0\1\1\1\0\1\1"+
-    "\2\0\1\1\1\0\1\1\1\0\1\1";
+    "\2\0\1\11\4\1\1\11\4\1\2\0\3\1\1\0"+
+    "\2\11\3\1\4\0\1\1\1\11\5\0\1\1\4\0"+
+    "\1\1\2\0\1\1\1\0\1\1\2\0\1\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[56];
+    int [] result = new int[48];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -472,44 +467,11 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
     while (true) {
       zzMarkedPosL = zzMarkedPos;
 
-      if (zzMarkedPosL > zzStartRead) {
-        switch (zzBufferL.charAt(zzMarkedPosL-1)) {
-        case '\n':
-        case '\u000B':  // fall through
-        case '\u000C':  // fall through
-        case '\u0085':  // fall through
-        case '\u2028':  // fall through
-        case '\u2029':  // fall through
-          zzAtBOL = true;
-          break;
-        case '\r': 
-          if (zzMarkedPosL < zzEndReadL)
-            zzAtBOL = zzBufferL.charAt(zzMarkedPosL) != '\n';
-          else if (zzAtEOF)
-            zzAtBOL = false;
-          else {
-            boolean eof = zzRefill();
-            zzMarkedPosL = zzMarkedPos;
-            zzEndReadL = zzEndRead;
-            zzBufferL = zzBuffer;
-            if (eof) 
-              zzAtBOL = false;
-            else 
-              zzAtBOL = zzBufferL.charAt(zzMarkedPosL) != '\n';
-          }
-          break;
-        default:
-          zzAtBOL = false;
-        }
-      }
       zzAction = -1;
 
       zzCurrentPosL = zzCurrentPos = zzStartRead = zzMarkedPosL;
 
-      if (zzAtBOL)
-        zzState = ZZ_LEXSTATE[zzLexicalState+1];
-      else
-        zzState = ZZ_LEXSTATE[zzLexicalState];
+      zzState = ZZ_LEXSTATE[zzLexicalState];
 
       // set up zzAction for empty match case:
       int zzAttributes = zzAttrL[zzState];

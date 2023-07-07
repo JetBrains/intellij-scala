@@ -111,6 +111,11 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
 
   def test_allow_leading_spaces(): Unit = checkTree(
     "  //> using foo",
-    "ScalaFile\n  PsiElement(SCALA_CLI_DIRECTIVE)\n    PsiWhiteSpace('  ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')\n    PsiWhiteSpace(' ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMAND)('using')\n    PsiWhiteSpace(' ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('foo')"
+    "ScalaFile\n  PsiWhiteSpace('  ')\n  PsiElement(SCALA_CLI_DIRECTIVE)\n    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')\n    PsiWhiteSpace(' ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMAND)('using')\n    PsiWhiteSpace(' ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('foo')"
+  )
+
+  def test_allow_adjacent_prefix_and_command(): Unit = checkTree(
+    "//>using foo",
+    "ScalaFile\n  PsiElement(SCALA_CLI_DIRECTIVE)\n    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMAND)('using')\n    PsiWhiteSpace(' ')\n    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('foo')"
   )
 }

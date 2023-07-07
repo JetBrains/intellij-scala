@@ -37,7 +37,7 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
    * l is of the form l = 2*k, k a non negative integer
    */
   private static final int ZZ_LEXSTATE[] = { 
-     0,  0,  1,  1,  2,  2,  1,  1,  3,  3,  4,  4,  5,  5,  6, 6
+     0,  0,  1,  1,  2,  2,  3,  3,  4,  4,  5,  5,  6,  6,  7, 7
   };
 
   /** 
@@ -69,11 +69,11 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
-    "\7\0\2\1\1\2\1\3\1\4\1\5\1\6\1\7"+
+    "\10\0\2\1\1\2\1\3\1\4\1\5\1\6\1\7"+
     "\1\10\1\11\1\0\1\12";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[19];
+    int [] result = new int[20];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -99,11 +99,11 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
 
   private static final String ZZ_ROWMAP_PACKED_0 =
     "\0\0\0\10\0\20\0\30\0\40\0\50\0\60\0\70"+
-    "\0\100\0\110\0\120\0\130\0\70\0\140\0\70\0\150"+
-    "\0\160\0\170\0\70";
+    "\0\100\0\110\0\120\0\130\0\140\0\100\0\150\0\100"+
+    "\0\160\0\170\0\200\0\100";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[19];
+    int [] result = new int[20];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -126,14 +126,15 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
   private static final int [] ZZ_TRANS = zzUnpackTrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
-    "\1\10\1\11\1\10\1\12\7\10\1\12\11\10\1\13"+
-    "\7\10\2\14\4\10\1\12\1\15\6\10\1\16\1\17"+
-    "\3\20\3\10\1\21\1\15\3\10\11\0\1\22\11\0"+
-    "\1\12\11\0\1\13\7\0\2\14\4\0\1\16\11\0"+
-    "\3\20\3\0\1\21\6\0\1\23\5\0";
+    "\1\11\1\12\1\11\1\13\7\11\1\13\1\11\1\14"+
+    "\7\11\1\14\5\11\1\13\11\11\2\15\4\11\1\13"+
+    "\1\16\6\11\1\17\1\20\3\21\3\11\1\22\1\16"+
+    "\3\11\11\0\1\23\11\0\1\13\11\0\1\14\7\0"+
+    "\2\15\4\0\1\17\11\0\3\21\3\0\1\22\6\0"+
+    "\1\24\5\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[128];
+    int [] result = new int[136];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -171,11 +172,11 @@ public class ScalaCliLexer implements FlexLexer, ScalaCliTokenTypes {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\7\0\1\11\4\1\1\11\1\1\1\11\2\1\1\0"+
+    "\10\0\1\11\4\1\1\11\1\1\1\11\2\1\1\0"+
     "\1\11";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[19];
+    int [] result = new int[20];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;

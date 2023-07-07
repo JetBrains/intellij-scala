@@ -32,7 +32,6 @@ object ScalaPlainLexer {
   import ScalaTokenTypes._
   import core.{_ScalaCoreLexer => ScalaCoreLexer, _ScalaSplittingLexer => ScalaSplittingLexer}
   import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes.SCALA_DOC_COMMENT
-  import org.jetbrains.plugins.scala.lang.scalacli.parser.ScalaCliElementTypes.SCALA_CLI_DIRECTIVE
 
   private object IsDisabled {
 
