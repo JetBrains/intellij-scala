@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.intellij.xml.util.XmlStringUtil
 import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
@@ -204,6 +205,7 @@ object ExternalHighlighters {
    * Must be called inside a read action in order to have a correct evaluation of `Document#getLineCount`,
    * ensuring that the document has not been modified before subsequently calling `Document.getLineStartOffset`.
    */
+  @RequiresReadLock
   private def convertToOffset(line: Int, column: Int, document: Document): Option[Int] = {
     val ln = line - 1
     val cl = column - 1
