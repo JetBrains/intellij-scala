@@ -100,6 +100,7 @@ class TastyReaderTest extends TestCase {
   def testParameterVariance(): Unit = doTest("parameter/Variance") // TODO TypeMember
   def testTypeDefinitionClass(): Unit = doTest("typeDefinition/Class")
   def testTypeDefinitionCompanions(): Unit = doTest("typeDefinition/Companions")
+  def testTypeDefinitionDerivation(): Unit = doTest("typeDefinition/Derivation")
   def testTypeDefinitionEnum(): Unit = doTest("typeDefinition/Enum")
   def testTypeDefinitionIdentifiers(): Unit = doTest("typeDefinition/Identifiers")
   def testTypeDefinitionImplicitClass(): Unit = doTest("typeDefinition/ImplicitClass")
