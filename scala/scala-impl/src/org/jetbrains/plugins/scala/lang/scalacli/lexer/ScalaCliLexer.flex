@@ -25,12 +25,20 @@ public void resetCustom() {}
 %state FINDING_NEXT_VALUE
 %state VALUE_FOUND
 
+NOT_SPACE_OR_COMMA_OR_QUOTATION = [^,\s\"\'`]
+VALUE_IN_BACKTICKS              = "`" [^`\r\n]*  "`"
+VALUE_IN_DOUBLE_QUOTES          = \"  [^\"\r\n]* \"
+
 CLI_DIRECTIVE_PREFIX = "//>"
 CLI_DIRECTIVE_WHITESPACE =[\s]+
 CLI_DIRECTIVE_COMMA = [,]
 CLI_DIRECTIVE_COMMAND = "using"
-CLI_DIRECTIVE_KEY = [a-zA-Z.]+
-CLI_DIRECTIVE_VALUE = [a-zA-Z.:0-9_-]+
+CLI_DIRECTIVE_KEY = {NOT_SPACE_OR_COMMA_OR_QUOTATION}+
+                  | {VALUE_IN_BACKTICKS}
+CLI_DIRECTIVE_VALUE = {NOT_SPACE_OR_COMMA_OR_QUOTATION}+
+                    | {VALUE_IN_BACKTICKS}
+                    | {VALUE_IN_DOUBLE_QUOTES}
+
 
 %%
 
