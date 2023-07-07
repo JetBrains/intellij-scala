@@ -18,7 +18,7 @@
   <!-- TARGETS DEFINITION -->
 
   <target name="generate.lexer.all"
-          depends="generate.lexer.scala.core, generate.lexer.scaladoc, generate.lexer.sbt.shell"
+          depends="generate.lexer.scala.core, generate.lexer.scaladoc, generate.lexer.sbt.shell, generate.lexer.scalacli"
           description="main target"/>
 
   <target name="generate.lexer.scala.core" depends="generate.lexer.scala.splitting">
