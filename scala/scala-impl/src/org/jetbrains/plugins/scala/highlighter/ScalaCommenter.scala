@@ -11,6 +11,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 
 class ScalaCommenter extends SelfManagingCommenter[CommenterDataHolder] with CodeDocumentationAwareCommenter  {
+
+  private val ScalaCliPrefix = "//>"
+
   override def getLineCommentPrefix = "//"
 
   override def getBlockCommentPrefix = "/*"
@@ -57,7 +60,7 @@ class ScalaCommenter extends SelfManagingCommenter[CommenterDataHolder] with Cod
 
   override def isLineCommented(line: Int, offset: Int, document: Document, data: CommenterDataHolder): Boolean = {
     CharArrayUtil.regionMatches(document.getCharsSequence, offset, getLineCommentPrefix) &&
-      !CharArrayUtil.regionMatches(document.getCharsSequence, offset, "//>")
+      !CharArrayUtil.regionMatches(document.getCharsSequence, offset, ScalaCliPrefix)
   }
 
   override def getCommentPrefix(line: Int, document: Document, data: CommenterDataHolder): String =
