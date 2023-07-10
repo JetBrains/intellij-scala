@@ -1810,12 +1810,12 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   def testAnnotation_Throws_ShouldIgnoreExceptionClassArgument(): Unit = {
     // NOTE: the exception class is already shown in the annotation type, see SCL-17608
     val fileContent =
-      """@throws(classOf[Exception])
-        |@throws[Exception]("reason 1")
-        |@throws(classOf[java.util.ConcurrentModificationException])
-        |@throws[java.util.ConcurrentModificationException]("reason 2")
-        |def goo() {}
-        |""".stripMargin
+      s"""@throws(classOf[Exception])
+         |@throws[Exception]("reason 1")
+         |@throws(classOf[java.util.ConcurrentModificationException])
+         |@throws[java.util.ConcurrentModificationException]("reason 2")
+         |def ${CARET}goo() {}
+         |""".stripMargin
 
     val expectedDoc =
       s"""
