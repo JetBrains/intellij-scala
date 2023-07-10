@@ -19,7 +19,7 @@ import org.jetbrains.bsp.project.importing.bspConfigSteps._
 import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, FastpassConfigSetup, NoConfigSetup, SbtConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
-import org.jetbrains.bsp.{BspBundle, BspUtil}
+import org.jetbrains.bsp.{BspBundle, BspJdkUtil, BspUtil}
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
@@ -67,8 +67,11 @@ object bspConfigSteps {
     listConstraints.setFill(GridConstraints.FILL_BOTH)
     listConstraints.setIndent(1)
     parent.add(component, listConstraints)
-    if (shouldAddSpacer) addSpacer(parent, row + 2)
-    else row + 2
+    if (shouldAddSpacer) {
+      addSpacer(parent, row + 2)
+    } else {
+      row + 2
+    }
   }
 
   private[importing] def addSpacer(parent: JComponent, row: Int): Int = {
@@ -180,7 +183,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
 
   private val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(setupTaskWorkspace)
   private lazy val workspaceSetupConfigs: List[ConfigSetup] = workspaceSetupChoices(setupTaskWorkspace)
-  private val existingJdk = SdkUtils.getSdkForProject(Option(wizardContext.getProject))
+  private val existingJdk = BspJdkUtil.getMostSuitableJdkForProject(Option(wizardContext.getProject))
 
   private val configSetupChoices: List[ConfigSetup] = {
     if (workspaceBspConfigs.size == 1) List(NoSetup)
@@ -198,7 +201,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
     (workspaceBspConfigs.nonEmpty ||
       configSetupChoices.size == 1 ||
       bspSetupConfigStepUi.chooseBspSetupList.getSelectedIndex >= 0 ) &&
-      bspSetupConfigStepUi.isJdkSelected()
+      bspSetupConfigStepUi.isJdkSelectedIfRequired()
   }
 
   override def updateStep(): Unit = {
@@ -211,8 +214,12 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
       if (configSetupChoices.size == 1) 0
       else bspSetupConfigStepUi.chooseBspSetupList.getSelectedIndex
 
-    runSetupTask = existingJdk.orElse(Option(bspSetupConfigStepUi.jdkComboBox.getSelectedJdk)) match {
-      case Some(jdk) if configSetupChoices.size > configIndex && configIndex >= 0 => configureBuilder(jdk, builder, setupTaskWorkspace, configSetupChoices(configIndex))
+    val jdkOpt = if (configSetupChoices.size > configIndex && configIndex >= 0) {
+      existingJdk.orElse(bspSetupConfigStepUi.getSelectedJdkIfRequired())
+    } else None
+
+    runSetupTask = jdkOpt match {
+      case Some(jdk) => configureBuilder(jdk, builder, setupTaskWorkspace, configSetupChoices(configIndex))
       case _ => NoConfigSetup
     }
 
@@ -228,7 +235,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
     // TODO this spawns an indicator window which is not nice.
     // show a live log in the window or something?
     if (wizardContext.getProjectBuilder.isInstanceOf[BspProjectImportBuilder]) {
-      Option(bspSetupConfigStepUi.jdkComboBox.getSelectedJdk).foreach(SdkUtils.addSdkIfNotExists)
+      bspSetupConfigStepUi.getSelectedJdkIfRequired().foreach(SdkUtils.addJdkIfNotExists)
       updateDataModel() // without it runSetupTask is null
       builder.prepare(wizardContext)
       //this will use DefaultProject, which will lead to exception IDEA-289729
@@ -288,7 +295,9 @@ final class BspSetupConfigStepUi(
       panelForComboBox.add(jdkComboBox, new GridBagConstraints(1, 1, 1, 1, 1.0, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, JBUI.insets(2, 10, 10, 0), 0, 0))
       val jdkTitleWithTip = withTooltip(new TitledSeparator(BspBundle.message("bsp.config.steps.setup.config.choose.jdk")), BspBundle.message("bsp.config.steps.setup.config.choose.jdk.tooltip"))
       addTitledComponent(mainComponent, jdkTitleWithTip, panelForComboBox, row, shouldAddSpacer = true)
-    } else addSpacer(mainComponent, row)
+    } else {
+      addSpacer(mainComponent, row)
+    }
   }
 
   def selectedConfigSetup: ConfigSetup =
@@ -312,7 +321,12 @@ final class BspSetupConfigStepUi(
     }
   }
 
-  def isJdkSelected() =
+  def getSelectedJdkIfRequired(): Option[Sdk] =
+    if (showJdkComboBox) Option(jdkComboBox.getSelectedJdk)
+    else None
+
+
+  def isJdkSelectedIfRequired(): Boolean =
     if (showJdkComboBox) jdkComboBox.getSelectedJdk != null
     else true
 }
@@ -346,7 +360,7 @@ class BspChooseConfigStep(context: WizardContext, builder: BspProjectImportBuild
 
     // there should be at least one config at this point
     val configsExist = !chooseBspConfig.isEmpty
-    val configSelected = (chooseBspConfig.getItemsCount == 1 || chooseBspConfig.getSelectedIndex >= 0)
+    val configSelected = chooseBspConfig.getItemsCount == 1 || chooseBspConfig.getSelectedIndex >= 0
 
     alreadySet || (configsExist && configSelected)
   }

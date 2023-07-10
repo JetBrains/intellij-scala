@@ -15,10 +15,9 @@ import org.jetbrains.bsp.protocol.session.Bsp4JJobFailure
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BuildServerInfo, NotificationAggregator}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspConnectionConfig, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings}
-import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspNoJdkConfiguredError, BspTaskCancelled, BspUtil}
+import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspJdkUtil, BspNoJdkConfiguredError, BspTaskCancelled, BspUtil}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
-import org.jetbrains.plugins.scala.project.external.SdkUtils
 
 import java.io.File
 import java.util.Collections
@@ -260,7 +259,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   }
 
   private def runBloopInstall(baseDir: File)(implicit reporter: BuildReporter) =
-    SdkUtils.getSdkForProject(None) match {
+    BspJdkUtil.getMostSuitableJdkForProject(None) match {
       case Some(sdk) =>
         val preImporter = BloopPreImporter(baseDir, sdk)
         importState = PreImportTask(preImporter)

@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.project.external
 
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.impl.{JavaHomeFinder, SdkConfigurationUtil}
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.serialization.PropertyMapping
-import com.intellij.util.lang.JavaVersion
 import org.apache.commons.codec.digest.DigestUtils
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction}
 
 import java.io.File
@@ -31,15 +28,15 @@ object SdkUtils {
 
   private def findProjectSdk2(sdkRef: SdkReference) =
     sdkRef match {
-      case JdkByVersion(version) => findMostRecentJdk(sdk => Option(sdk.getVersionString).exists(_.contains(version)))
-      case JdkByName(version)    => findMostRecentJdk(_.getName == version).orElse(findMostRecentJdk(_.getName.contains(version)))
-      case JdkByHome(homeFile)   => findMostRecentJdk(sdk =>
+      case JdkByVersion(version) => findMostRecentJdkConfiguredInIde(sdk => Option(sdk.getVersionString).exists(_.contains(version)))
+      case JdkByName(version)    => findMostRecentJdkConfiguredInIde(_.getName == version).orElse(findMostRecentJdkConfiguredInIde(_.getName.contains(version)))
+      case JdkByHome(homeFile)   => findMostRecentJdkConfiguredInIde(sdk =>
         FileUtil.comparePaths(homeFile.getCanonicalPath, sdk.getHomePath) == 0 ||
         FileUtil.pathsEqual(homeFile.getAbsolutePath, sdk.getHomePath))
       case _                     => None
     }
 
-  private def findMostRecentJdk(condition: Sdk => Boolean): Option[Sdk] = {
+  private def findMostRecentJdkConfiguredInIde(condition: Sdk => Boolean): Option[Sdk] = {
     import scala.math.Ordering.comparatorToOrdering
     val sdkType = JavaSdk.getInstance()
 
@@ -54,8 +51,14 @@ object SdkUtils {
     }
   }
 
-  def mostRecentSdk: Option[Sdk] =
-    findMostRecentJdk(_ => true)
+  @deprecated("use mostRecentRegisteredJdk instead")
+  @Deprecated
+  @ScheduledForRemoval(inVersion = "2023.3")
+  def mostRecentJdk: Option[Sdk] =
+    mostRecentRegisteredJdk
+
+  def mostRecentRegisteredJdk: Option[Sdk] =
+    findMostRecentJdkConfiguredInIde(_ => true)
 
   def defaultJavaLanguageLevelIn(jdk: Sdk): Option[LanguageLevel] =
     Option(LanguageLevel.parse(jdk.getVersionString))
@@ -85,23 +88,7 @@ object SdkUtils {
     SdkUtils.findProjectSdk(sdkReference).orElse(createFromHome)
   }
 
-  def getSdkForProject(project: Option[Project]): Option[Sdk] =
-    project.flatMap { proj => Option(ProjectRootManager.getInstance(proj).getProjectSdk) }
-      .orElse(mostRecentSdk)
-      .orElse(createSdkWithMostRecentFoundJDK)
-
-  private def createSdkWithMostRecentFoundJDK: Option[Sdk] = {
-    val jdkType = JavaSdk.getInstance
-    JavaHomeFinder.suggestHomePaths(false).asScala.toSeq
-      .filter(jdkType.isValidSdkHome)
-      .map(p => (p, JavaVersion.tryParse(p)))
-      .filter(t => t._2 != null)
-      .maxOption((a: (String, JavaVersion), b: (String, JavaVersion)) => a._2.compareTo(b._2))
-      .map(_._1)
-      .map(SdkConfigurationUtil.createAndAddSDK(_, jdkType))
-  }
-
-  def addSdkIfNotExists(sdk: Sdk): Unit = {
+  def addJdkIfNotExists(sdk: Sdk): Unit = {
     val projectJdkTable = ProjectJdkTable.getInstance()
     if (projectJdkTable.findJdk(sdk.getName) == null)
       inWriteAction {
