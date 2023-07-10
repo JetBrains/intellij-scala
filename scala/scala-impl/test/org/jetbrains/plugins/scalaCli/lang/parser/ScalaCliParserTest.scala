@@ -601,4 +601,31 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
       |    PsiWhiteSpace(' ')
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('latest')""".stripMargin
   )
+
+  def test_trailing_comment(): Unit = checkTree(
+    """//> using dep // foo
+      |//> using dep foo // bar
+      |""".stripMargin,
+    """ScalaFile
+      |  PsiElement(SCALA_CLI_DIRECTIVE)
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMAND)('using')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('dep')
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('// foo')
+      |  PsiWhiteSpace('\n')
+      |  PsiElement(SCALA_CLI_DIRECTIVE)
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMAND)('using')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('dep')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('foo')
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('// bar')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
 }
