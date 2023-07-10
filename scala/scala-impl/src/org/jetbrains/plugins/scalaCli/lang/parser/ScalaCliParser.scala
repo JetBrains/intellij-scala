@@ -7,6 +7,7 @@ import com.intellij.lang.PsiParser
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scalaCli.lang.lexer.ScalaCliTokenTypes._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tLINE_COMMENT
 
 class ScalaCliParser extends PsiParser with LightPsiParser {
 
@@ -45,7 +46,7 @@ class ScalaCliParser extends PsiParser with LightPsiParser {
     processCurrentToken(builder, tCLI_DIRECTIVE_COMMAND)
     processCurrentToken(builder, tCLI_DIRECTIVE_KEY)
 
-    while (builder.getTokenType != null) processCurrentToken(builder, tCLI_DIRECTIVE_VALUE, tCLI_DIRECTIVE_COMMA)
+    while (builder.getTokenType != null) processCurrentToken(builder, tCLI_DIRECTIVE_VALUE, tCLI_DIRECTIVE_COMMA, tLINE_COMMENT)
 
     rootMarker.done(root)
   }
