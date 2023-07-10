@@ -1299,4 +1299,36 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
     s"""extension (s: String)
        |  ${CARET}def myExt1: String""".stripMargin
   )
+
+  def testAfterBlockCommentInFunction(): Unit = doEnterTest(
+    s"""
+       |class Foo {
+       |  def bar: Int =
+       |    /* */$CARET
+       |}
+       |""".stripMargin,
+
+    s"""
+       |class Foo {
+       |  def bar: Int =
+       |    /* */
+       |    $CARET
+       |}
+       |""".stripMargin
+  )
+
+  def testAfterBlockCommentInFunction_2(): Unit = doEnterTest(
+    s"""
+       |class Foo:
+       |  def bar: Int =
+       |    /* */$CARET
+       |""".stripMargin,
+
+    s"""
+       |class Foo:
+       |  def bar: Int =
+       |    /* */
+       |    $CARET
+       |""".stripMargin
+  )
 }
