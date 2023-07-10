@@ -421,6 +421,28 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestBase {
     exactBreakpointTest()("Some(1)", ".map...", "i => i % 2 == 0", ".foreach...", "println")
   }
 
+  addSourceFile("WholeLineIsLambda.scala",
+    s"""object WholeLineIsLambda {
+       |  def main(args: Array[String]): Unit = {
+       |    Seq(1, 2, 3).foreach {
+       |      Seq(4)
+       |    }
+       |    Seq(1, 2, 3).foreach {
+       |      Seq(4).map(_ + 1)
+       |    }
+       |    Seq(1, 2, 3).foreach {
+       |      Seq(4).map(_ + 1).map(_ + 2)
+       |    }
+       |  }
+       |}""".stripMargin.trim
+  )
+
+  def testWholeLineIsLambda(): Unit = {
+    checkVariants()(3) //no variants
+    checkVariants()(6, "Line and Lambda", "line in containing block", "_ + 1")
+    checkVariants()(9, "Line and Lambdas", "line in containing block", "_ + 1", "_ + 2")
+  }
+
   addSourceFile("PartialFunctionArg.scala",
     s"""object PartialFunctionArg {
        |  def main(args: Array[String]): Unit = {

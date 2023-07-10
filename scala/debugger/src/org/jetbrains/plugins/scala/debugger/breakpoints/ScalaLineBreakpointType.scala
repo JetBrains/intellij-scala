@@ -99,15 +99,23 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
     val method = DebuggerUtil.getContainingMethod(elementAtLine)
 
-    for (startMethod <- method; if !lambdas.contains(startMethod)) {
-      res = res :+ new ExactScalaBreakpointVariant(position, startMethod, -1)
-    }
-
+    var lineVariantWasAdded = false
     for ((lambda, ordinal) <- lambdas.zipWithIndex) {
-      res = res :+ new ExactScalaBreakpointVariant(XSourcePositionImpl.createByElement(lambda), lambda, ordinal)
+      val isLine = method.contains(lambda)
+      res = res :+ new ExactScalaBreakpointVariant(XSourcePositionImpl.createByElement(lambda), lambda, isLine, ordinal)
+      if (isLine) {
+        assert(!lineVariantWasAdded)
+        lineVariantWasAdded = true
+      }
+    }
+    val lambdaVariantCount = lambdas.size - (if (lineVariantWasAdded) 1 else 0)
+    if (!lineVariantWasAdded) {
+      res = new ExactScalaBreakpointVariant(position, method.orNull, isLine = true, -1) +: res
     }
 
-    res = new JavaBreakpointVariant(position, lambdas.size) +: res //adding all variants
+    if (res.size <= 1) return emptyList
+
+    res = new JavaBreakpointVariant(position, lambdaVariantCount) +: res //adding all variants
     res.asJava
   }
 
@@ -186,13 +194,11 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
   override def getPriority: Int = super.getPriority + 1
 
-  private class ExactScalaBreakpointVariant(position: XSourcePosition, element: PsiElement, lambdaOrdinal: Integer)
+  private class ExactScalaBreakpointVariant(position: XSourcePosition, @Nullable element: PsiElement, isLine: Boolean, lambdaOrdinal: Integer)
     extends ExactJavaBreakpointVariant(position, element, lambdaOrdinal) {
 
-    private val isLambda = lambdaOrdinal != null && lambdaOrdinal >= 0
-
     override def getIcon: Icon = {
-      if (isLambda) AllIcons.Nodes.Function
+      if (!isLine) AllIcons.Nodes.Function
       else element match {
         case e @ (_: PsiMethod | _: PsiClass | _: PsiFile) => e.getIcon(0)
         case _ => AllIcons.Debugger.Db_set_breakpoint
@@ -202,7 +208,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
     @Nls
     override def getText: String = {
-      if (isLambda) super.getText
+      if (!isLine) super.getText
       else {
         element match {
           case c: ScClass => DebuggerBundle.message("breakpoint.location.constructor.of", c.name)
