@@ -335,22 +335,18 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('"bar"')""".stripMargin
   )
 
-  // See https://scala-cli.virtuslab.org/docs/guides/using-directives.
-  // The examples of the directives were copied literally, but the comments were
-  // removed, because at the time of writing our Scala CLI parser does not deal
-  // with trailing comments yet. See SCL-
   def test_examples_from_scala_cli_website(): Unit = checkTree(
     """//> using foo bar baz
       |//> using scala 2.13
       |//> using platform scala-js
       |//> using options -Xasync
-      |//> using dep org::name:version
-      |//> using dep org:name:version
-      |//> using dep org::name:version,url=url
-      |//> using resourceDir dir
-      |//> using javaOpt opt
-      |//> using target.scope test
-      |//> using testFramework framework
+      |//> using dep org::name:version // defines dependency to a given library more in dedicated guide
+      |//> using dep org:name:version // defines dependency to a given java library, note the : instead of ::
+      |//> using dep org::name:version,url=url // defines dependency to a given library with a fallback to its jar url
+      |//> using resourceDir dir // marks directory as source of resources. Resources accessible at runtime and packaged together with compiled code.
+      |//> using javaOpt opt // use given java options when running application or tests
+      |//> using target.scope test // used to marked or unmarked given source as test
+      |//> using testFramework framework // select test framework to use
       |//> using options -coverage-out:${.}
       |//> using options -coverage-out:$${.}
       |//> using dep "n1o::lib:123"
@@ -412,6 +408,8 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('dep')
       |    PsiWhiteSpace(' ')
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('org::name:version')
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('// defines dependency to a given library more in dedicated guide')
       |  PsiWhiteSpace('\n')
       |  PsiElement(SCALA_CLI_DIRECTIVE)
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
@@ -421,6 +419,8 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('dep')
       |    PsiWhiteSpace(' ')
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('org:name:version')
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('// defines dependency to a given java library, note the : instead of ::')
       |  PsiWhiteSpace('\n')
       |  PsiElement(SCALA_CLI_DIRECTIVE)
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
@@ -432,6 +432,8 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('org::name:version')
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMA)(',')
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('url=url')
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('// defines dependency to a given library with a fallback to its jar url')
       |  PsiWhiteSpace('\n')
       |  PsiElement(SCALA_CLI_DIRECTIVE)
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
@@ -441,6 +443,8 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('resourceDir')
       |    PsiWhiteSpace(' ')
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('dir')
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('// marks directory as source of resources. Resources accessible at runtime and packaged together with compiled code.')
       |  PsiWhiteSpace('\n')
       |  PsiElement(SCALA_CLI_DIRECTIVE)
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
@@ -450,6 +454,8 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('javaOpt')
       |    PsiWhiteSpace(' ')
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('opt')
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('// use given java options when running application or tests')
       |  PsiWhiteSpace('\n')
       |  PsiElement(SCALA_CLI_DIRECTIVE)
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
@@ -459,6 +465,8 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('target.scope')
       |    PsiWhiteSpace(' ')
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('test')
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('// used to marked or unmarked given source as test')
       |  PsiWhiteSpace('\n')
       |  PsiElement(SCALA_CLI_DIRECTIVE)
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
@@ -468,6 +476,8 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('testFramework')
       |    PsiWhiteSpace(' ')
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('framework')
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('// select test framework to use')
       |  PsiWhiteSpace('\n')
       |  PsiElement(SCALA_CLI_DIRECTIVE)
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
@@ -600,5 +610,32 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('test.toolkit')
       |    PsiWhiteSpace(' ')
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('latest')""".stripMargin
+  )
+
+  def test_trailing_comment(): Unit = checkTree(
+    """//> using dep // foo
+      |//> using dep foo // bar
+      |""".stripMargin,
+    """ScalaFile
+      |  PsiElement(SCALA_CLI_DIRECTIVE)
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMAND)('using')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('dep')
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('// foo')
+      |  PsiWhiteSpace('\n')
+      |  PsiElement(SCALA_CLI_DIRECTIVE)
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMAND)('using')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('dep')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('foo')
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('// bar')
+      |  PsiWhiteSpace('\n')""".stripMargin
   )
 }

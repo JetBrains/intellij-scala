@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scalaCli.lang.lexer;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tLINE_COMMENT;
 import static com.intellij.psi.TokenType.WHITE_SPACE;
 
 %%
@@ -35,6 +36,7 @@ CLI_DIRECTIVE_VALUE = {NOT_SPACE_OR_COMMA_OR_QUOTATION}+
                     | {VALUE_IN_BACKTICKS}
                     | {VALUE_IN_DOUBLE_QUOTES}
 
+END_OF_LINE_COMMENT="/""/"[^\r\n]*
 
 %%
 
@@ -59,6 +61,10 @@ CLI_DIRECTIVE_VALUE = {NOT_SPACE_OR_COMMA_OR_QUOTATION}+
 
 <FINDING_NEXT_VALUE> {CLI_DIRECTIVE_COMMA} {
     return tCLI_DIRECTIVE_COMMA;
+}
+
+<FINDING_NEXT_VALUE> {END_OF_LINE_COMMENT} {
+    return tLINE_COMMENT;
 }
 
 {CLI_DIRECTIVE_WHITESPACE} {
