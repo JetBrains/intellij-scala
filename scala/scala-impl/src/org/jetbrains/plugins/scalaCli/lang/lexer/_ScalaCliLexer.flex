@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.scalacli.lexer;
+package org.jetbrains.plugins.scalaCli.lang.lexer;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;

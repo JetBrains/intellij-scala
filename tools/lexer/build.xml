@@ -13,7 +13,7 @@
 
   <property name="scala.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scala/lang/lexer/core"/>
   <property name="scaladoc.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scala/lang/scaladoc/lexer"/>
-  <property name="scalacli.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scala/lang/scalacli/lexer"/>
+  <property name="scalacli.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scalaCli/lang/lexer"/>
 
   <!-- TARGETS DEFINITION -->
 

@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.lang.scalacli.psi.impl
+package org.jetbrains.plugins.scalaCli.psi.impl
 
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.scalacli.psi.api.ScCliDirective
+import org.jetbrains.plugins.scalaCli.psi.api.ScCliDirective
 
 final class ScCliDirectiveImpl(buffer: CharSequence, tokenType: IElementType)
   extends LazyParseablePsiElement(tokenType, buffer)

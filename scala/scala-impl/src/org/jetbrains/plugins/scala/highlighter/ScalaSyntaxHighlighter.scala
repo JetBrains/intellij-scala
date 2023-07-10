@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter.CustomScal
 import org.jetbrains.plugins.scala.highlighter.lexer.{ScalaInterpolatedStringLiteralLexer, ScalaMultilineStringLiteralLexer, ScalaStringLiteralLexer}
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
-import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliTokenTypes
-import org.jetbrains.plugins.scala.lang.scalacli.parser.ScalaCliElementTypes
+import org.jetbrains.plugins.scalaCli.lang.lexer.ScalaCliTokenTypes
+import org.jetbrains.plugins.scalaCli.lang.parser.ScalaCliElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 

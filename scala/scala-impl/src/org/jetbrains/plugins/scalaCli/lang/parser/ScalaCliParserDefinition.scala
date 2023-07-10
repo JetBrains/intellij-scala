@@ -8,7 +8,7 @@ import com.intellij.lexer.FlexAdapter
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.scalacli.lexer._ScalaCliLexer
+import org.jetbrains.plugins.scalaCli.lang.lexer._ScalaCliLexer
 import org.jetbrains.plugins.scalaCli.ScalaCliLanguage
 
 class ScalaCliParserDefinition extends ParserDefinition {

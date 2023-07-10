@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
-import org.jetbrains.plugins.scala.lang.scalacli.parser.ScalaCliElementTypes;
+import org.jetbrains.plugins.scalaCli.lang.parser.ScalaCliElementTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 import org.jetbrains.plugins.scalaCli.ScalaCliLanguage;
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;

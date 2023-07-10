@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-import static org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliTokenTypes.*;
+import static org.jetbrains.plugins.scalaCli.lang.lexer.ScalaCliTokenTypes.*;
 
 class ScalaCliParser implements PsiParser, LightPsiParser {
 

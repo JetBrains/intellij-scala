@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.scalacli.parser;
+package org.jetbrains.plugins.scalaCli.lang.parser;
 
 import com.intellij.lang.*;
 import com.intellij.openapi.project.Project;
@@ -6,7 +6,7 @@ import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.tree.ILazyParseableElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.lang.scalacli.psi.impl.ScCliDirectiveImpl;
+import org.jetbrains.plugins.scalaCli.psi.impl.ScCliDirectiveImpl;
 import org.jetbrains.plugins.scalaCli.ScalaCliLanguage;
 
 public interface ScalaCliElementTypes {

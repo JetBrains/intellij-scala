@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.lang.parser
 import com.intellij.lang.DefaultASTFactoryImpl
 import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliElementType
-import org.jetbrains.plugins.scala.lang.scalacli.psi.impl.ScCliDirectiveTokenImpl
+import org.jetbrains.plugins.scalaCli.lang.lexer.ScalaCliElementType
+import org.jetbrains.plugins.scalaCli.psi.impl.ScCliDirectiveTokenImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScPsiDocTokenImpl
 

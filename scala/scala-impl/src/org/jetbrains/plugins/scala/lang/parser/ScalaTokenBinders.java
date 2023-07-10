@@ -4,7 +4,7 @@ import com.intellij.lang.WhitespacesAndCommentsBinder;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-import org.jetbrains.plugins.scala.lang.scalacli.parser.ScalaCliElementTypes;
+import org.jetbrains.plugins.scalaCli.lang.parser.ScalaCliElementTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 import java.util.List;

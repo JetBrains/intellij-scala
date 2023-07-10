@@ -7,7 +7,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter;
-import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliTokenTypes;
+import org.jetbrains.plugins.scalaCli.lang.lexer.ScalaCliTokenTypes;
 import org.jetbrains.plugins.scalaCli.ScalaCliLanguage;
 
 import java.util.HashMap;

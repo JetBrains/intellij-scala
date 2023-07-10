@@ -17,7 +17,7 @@ package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
-import org.jetbrains.plugins.scala.lang.scalacli.parser.ScalaCliElementTypes;
+import org.jetbrains.plugins.scalaCli.lang.parser.ScalaCliElementTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 

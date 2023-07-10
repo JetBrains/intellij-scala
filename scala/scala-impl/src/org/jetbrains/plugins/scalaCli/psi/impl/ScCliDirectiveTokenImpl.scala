@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.lang.scalacli.psi.impl
+package org.jetbrains.plugins.scalaCli.psi.impl
 
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.plugins.scala.lang.scalacli.lexer.ScalaCliElementType
-import org.jetbrains.plugins.scala.lang.scalacli.psi.api.ScCliDirectiveToken
+import org.jetbrains.plugins.scalaCli.lang.lexer.ScalaCliElementType
+import org.jetbrains.plugins.scalaCli.psi.api.ScCliDirectiveToken
 
 class ScCliDirectiveTokenImpl(
   override val tokenType: ScalaCliElementType,
