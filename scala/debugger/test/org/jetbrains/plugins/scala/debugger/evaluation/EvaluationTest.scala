@@ -142,12 +142,6 @@ class EvaluationTest_3_0 extends EvaluationTests_2_13_And_Later {
       evalEquals("1 toString ()", "1")
     }
   }
-
-  // TODO: Restore test when the scala-expression-compiler for Scala 3.0, 3.1 and 3.2 is included.
-  override def testLiteral(): Unit = ()
-
-  // TODO: Uncomment when the scala-expression-compiler for Scala 3.0, 3.1 and 3.2 is included.
-  override def testSyntheticOperators(): Unit = ()
 }
 
 class EvaluationTest_3_1 extends EvaluationTest_3_0 {
