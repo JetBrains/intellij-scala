@@ -22,6 +22,7 @@ import java.util.{Timer, TimerTask}
 import scala.annotation.unused
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.jdk.CollectionConverters._
+import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -214,15 +215,29 @@ object Main {
     }
   }
 
-  private val expressionCompilerCache: Cache[true, (AnyRef, Method)] = new Cache(1)
+  private val expressionCompilerCache: Cache[Seq[Path], (AnyRef, Method)] = new Cache(3)
+
+  private val scala3CompilerJarName: String = "scala3-compiler_3"
+
+  private val scalaVersionRegex: Regex = s"""$scala3CompilerJarName-(\\d)\\.(\\d+)\\.(\\d+).*\\.jar""".r
 
   private def evaluateExpressionLogic(args: ExpressionEvaluationArguments): Unit = {
     val ExpressionEvaluationArguments(outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName) = args
-    val (instance, method) = expressionCompilerCache.getOrUpdate(true) {
+
+    val scalaVersion =
+      classpath
+        .collectFirst {
+          case p if p.getFileName.toString.startsWith(scala3CompilerJarName) => p.getFileName.toString
+        }
+        .collect {
+          case scalaVersionRegex(x, y, z) => s"$x.$y.$z"
+        }.getOrElse("3.3.0")
+
+    val (instance, method) = expressionCompilerCache.getOrUpdate(classpath) {
       val path = PathManager.getJarForClass(this.getClass)
         .getParent.getParent.getParent
         .resolve("debugger")
-        .resolve("scala-expression-compiler_3.3.0.jar")
+        .resolve(s"scala-expression-compiler_$scalaVersion.jar")
       val classLoader = new URLClassLoader((classpath :+ path).map(_.toUri.toURL).toArray, this.getClass.getClassLoader)
       val bridgeClass = Class.forName("dotty.tools.dotc.ExpressionCompilerBridge", true, classLoader)
       val instance = bridgeClass.getDeclaredConstructor().newInstance().asInstanceOf[AnyRef]
