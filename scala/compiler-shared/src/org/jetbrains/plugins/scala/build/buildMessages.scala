@@ -72,13 +72,13 @@ case object BuildMessages {
 
   def empty: BuildMessages = BuildMessages(Vector.empty, Vector.empty, Vector.empty, Vector.empty, BuildMessages.Indeterminate)
 
-  def messageWithEscapedAnsi(message: String): String = {
-    Option(message).map { msg =>
-      val textNoAnsiAcceptor = new TextCollector
-      new AnsiEscapeDecoder().escapeText(msg, ProcessOutputTypes.STDOUT, textNoAnsiAcceptor)
-      textNoAnsiAcceptor.result
-    }.getOrElse(message)
-  }
+  def stripAnsiCodes(@Nullable message: String): String =
+    if (message == null) null
+    else {
+      val builder = new StringBuilder()
+      new AnsiEscapeDecoder().escapeText(message, ProcessOutputTypes.STDOUT, (text, _) => builder.append(text))
+      builder.result()
+    }
 
   def message(
     parentId: Any,
@@ -92,9 +92,9 @@ case object BuildMessages {
 
     position match {
       case None =>
-        new BuildEventMessage(parentId, kind, kindGroup, messageWithEscapedAnsi(message), details, eventTime)
+        new BuildEventMessage(parentId, kind, kindGroup, stripAnsiCodes(message), details, eventTime)
       case Some(filePosition) =>
-        new FileMessageEventImpl(parentId, kind, kindGroup, messageWithEscapedAnsi(message), message, filePosition)
+        new FileMessageEventImpl(parentId, kind, kindGroup, stripAnsiCodes(message), message, filePosition)
     }
   }
 }
@@ -149,13 +149,4 @@ case class BuildWarning(@Nls message: String) extends Warning {
   override def getMessage: String = message
 
   override def getDescription: String = null
-}
-
-private class TextCollector extends ColoredTextAcceptor {
-  private val builder = new StringBuilder()
-
-  override def coloredTextAvailable(text: String, attributes: Key[_]): Unit =
-    builder.append(text)
-
-  def result: String = builder.result()
 }

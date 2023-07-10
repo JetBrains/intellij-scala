@@ -216,7 +216,7 @@ class BspTask[T](project: Project,
     reporter.log(text)
 
     // TODO build toolwindow log supports ansi colors, but not some other stuff
-    val textNoAnsi = BuildMessages.messageWithEscapedAnsi(text)
+    val textNoAnsi = BuildMessages.stripAnsiCodes(text)
 
     import bsp4j.MessageType._
     params.getType match {
