@@ -47,14 +47,7 @@ object ScalaDocGenerator {
     val builder = new StringBuilder
 
     // for library classes, get class from sources jar
-    val actualElementWithDoc0 = elementWithDoc.getNavigationElement
-    val actualElementWithDoc =
-      actualElementWithDoc0 match {
-        case ScEnumCase.Original(originalEnumCase) => originalEnumCase
-        case ScEnum.Original(originalEnum)         => originalEnum
-        case _                                     => actualElementWithDoc0
-      }
-
+    val actualElementWithDoc = elementWithDoc.getNavigationElement
     appendHeader(builder, actualElementWithDoc)
 
     ScalaDocDefinitionGenerator.generate(builder, actualElementWithDoc, originalElement)
