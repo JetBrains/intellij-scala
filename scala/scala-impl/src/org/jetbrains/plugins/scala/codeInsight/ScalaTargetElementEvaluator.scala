@@ -7,11 +7,11 @@ import org.jetbrains.plugins.scala.editor.ScalaEditorUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference, ScStableCodeReference, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAliasDefinition, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunctionDefinition, ScTypeAliasDefinition, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -131,9 +131,30 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
       case Some(typeAlias) =>
         typeAlias
       case None =>
-        super.adjustTargetElement(editor, offset, flags, targetElement)
+        adjustTargetElementForScala3Enums(targetElement) match {
+          case Some(result) =>
+            result
+          case None =>
+            super.adjustTargetElement(editor, offset, flags, targetElement)
+        }
     }
   }
+
+  /**
+   * This method is initially added to handle Scala 3 enums, enum cases, enum primary and auxiliary constructors<br>
+   * in "Quick Documentation" and "Quick Definition" actions
+   */
+  private def adjustTargetElementForScala3Enums(targetElement: PsiElement): Option[PsiElement] =
+    targetElement match {
+      case ScEnumCase.Original(enumCase) =>
+        Some(enumCase)
+      case ScEnum.Original(enumDef) =>
+        Some(enumDef)
+      case ScalaConstructor.in(ScEnum.Original(enumDef)) =>
+        enumDef.constructor
+      case _ =>
+        None
+    }
 
   /**
    * This is a solution for SCL-20826
