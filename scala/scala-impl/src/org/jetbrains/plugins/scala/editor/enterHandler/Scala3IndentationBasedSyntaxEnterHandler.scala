@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandler._
 import org.jetbrains.plugins.scala.editor.{AutoBraceUtils, DocumentExt, PsiWhiteSpaceOps, ScalaEditorUtils}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -26,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScEnumCases, ScExtensionBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete
 import org.jetbrains.plugins.scala.util.IndentUtil
 
 /**
@@ -100,7 +102,8 @@ class Scala3IndentationBasedSyntaxEnterHandler extends EnterHandlerDelegateAdapt
         case _ =>
           val indentedElementOpt = previousElementInIndentationContext(elementAtCaret, caretIndentSize, indentOptions)
           indentedElementOpt match {
-            case Some((indentedElement, _)) =>
+            /** Incomplete block comments will be processed by [[com.intellij.codeInsight.editorActions.enter.EnterInBlockCommentHandler]] (SCL-21351) */
+            case Some((indentedElement, _)) if !isIncompleteBlockComment(indentedElement, editor) =>
               insertNewLineWithSpacesAtCaret(editor, document, indentedElement, indentOptions, needRemoveTrailingSpaces = true)
               Result.Stop
             case _ =>
@@ -572,5 +575,11 @@ object Scala3IndentationBasedSyntaxEnterHandler {
     val documentText = document.getCharsSequence
     val shifted = CharArrayUtil.shiftForward(documentText, caretOffset, SpaceOrTab)
     shifted == documentText.length || documentText.charAt(shifted) == '\n'
+  }
+
+  private def isIncompleteBlockComment(element: PsiElement, editor: Editor): Boolean = element match {
+    case (comment: PsiComment) & ElementType(ScalaTokenTypes.tBLOCK_COMMENT) =>
+      !ScalaIsCommentComplete.isCommentComplete(comment, ScalaCommenter, editor)
+    case _ => false
   }
 }
