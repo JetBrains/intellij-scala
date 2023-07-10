@@ -56,7 +56,7 @@ MULTI_LINE_STRING = \"\"\" ( (\"(\")?)? [^\"] )* \"\"\" (\")* // Multi-line stri
 BACKQUOTED_IDENTIFIER=\`[^`]*\`
 
 END_OF_LINE_COMMENT="/""/"[^\r\n]*
-END_OF_CLI_DIRECTIVE="//>"\s*"using"[^\r\n]*
+SCALA_CLI_DIRECTIVE_LINE_COMMENT="//>"\s*"using"[^\r\n]*
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,8 +71,8 @@ END_OF_CLI_DIRECTIVE="//>"\s*"using"[^\r\n]*
 {STRING_LITERAL}           {  return SCALA_PLAIN_CONTENT; }
 {BACKQUOTED_IDENTIFIER}    {  return SCALA_PLAIN_CONTENT; }
 
-{END_OF_CLI_DIRECTIVE}     {  return ScalaCliElementTypes.SCALA_CLI_DIRECTIVE; }
-{END_OF_LINE_COMMENT}      {  return tLINE_COMMENT; }
+{SCALA_CLI_DIRECTIVE_LINE_COMMENT} {  return ScalaCliElementTypes.SCALA_CLI_DIRECTIVE; }
+{END_OF_LINE_COMMENT}              {  return tLINE_COMMENT; }
 
 {SIMPLE_BLOCK_COMMENT}   {  return tBLOCK_COMMENT; }
 
