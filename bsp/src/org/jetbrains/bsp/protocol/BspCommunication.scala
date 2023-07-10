@@ -236,7 +236,7 @@ object BspCommunication {
     val bloopEnabled = BspUtil.bloopConfigDir(base).isDefined
 
     def configureBloopLauncherIfJdkExists() =
-      SdkUtils.getSdkForProject(project) match {
+      BspJdkUtil.getMostSuitableJdkForProject(project) match {
         case Some(jdk) => Right(new BloopLauncherConnector(base, compilerOutputDir, capabilities, jdk))
         case None => Left(BspNoJdkConfiguredError)
       }

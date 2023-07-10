@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.ui.{DialogWrapper, ValidationInfo}
 import org.jetbrains.annotations.ApiStatus
-import org.jetbrains.bsp.BspBundle
+import org.jetbrains.bsp.{BspBundle, BspJdkUtil}
 import org.jetbrains.bsp.project.importing.bspConfigSteps.{ConfigSetup, workspaceSetupChoices}
 import org.jetbrains.bsp.project.importing.preimport.BloopPreImporter
 import org.jetbrains.bsp.project.importing.setup.NoConfigSetup
@@ -37,20 +37,25 @@ final class GenerateBspConfig(project: Project, workspace: File) {
     if (configSetups.isEmpty)
       return //TODO handle?
 
-    val projectSdk = SdkUtils.getSdkForProject(Some(project))
-    if (configSetups.size > 1 || projectSdk.isEmpty) {
-      val generateBspConfigDialog = new GenerateBspConfigDialog(configSetups, project, projectSdk.isEmpty)
+    val projectJdk = BspJdkUtil.getMostSuitableJdkForProject(Some(project))
+    val (configSetupOpt, sdkOpt): (Option[ConfigSetup], Option[Sdk]) = if (configSetups.size > 1 || projectJdk.isEmpty) {
+      val generateBspConfigDialog = new GenerateBspConfigDialog(configSetups, project, projectJdk.isEmpty)
       val ok = generateBspConfigDialog.showAndGet()
       if (ok) {
         val selectedConfigSetup = generateBspConfigDialog.selectedConfigSetup
-        val selectedJdk = generateBspConfigDialog.selectedJdk
-        if (projectSdk.isEmpty) Option(selectedJdk).foreach(SdkUtils.addSdkIfNotExists)
-        val sdk = projectSdk.getOrElse(selectedJdk)
-        runConfigSetupSynchronously(selectedConfigSetup, sdk)
-      }
+        val selectedJdk = generateBspConfigDialog.getSelectedJdkIfRequired()
+        selectedJdk.foreach(SdkUtils.addJdkIfNotExists)
+        val sdk = projectJdk.orElse(selectedJdk)
+        (Some(selectedConfigSetup), sdk)
+      } else (None, None)
     } else {
-      runConfigSetupSynchronously(configSetups.head, projectSdk.get)
+      (configSetups.headOption, projectJdk)
     }
+    for {
+      configSetup <- configSetupOpt
+      sdk <- sdkOpt
+    } runConfigSetupSynchronously(configSetup, sdk)
+
   }
 
   final class GenerateBspConfigDialog(
@@ -61,8 +66,9 @@ final class GenerateBspConfig(project: Project, workspace: File) {
 
     override def doValidateAll(): util.List[ValidationInfo] = {
       val validationInfo = super.doValidateAll()
-      if (!configSetupUi.isJdkSelected())
+      if (!configSetupUi.isJdkSelectedIfRequired()) {
         validationInfo.add(new ValidationInfo(BspBundle.message("jdkComboBox.validation.tooltip")).forComponent(configSetupUi.jdkComboBox))
+      }
       validationInfo
     }
 
@@ -75,8 +81,8 @@ final class GenerateBspConfig(project: Project, workspace: File) {
     def selectedConfigSetup: ConfigSetup =
       configSetupUi.selectedConfigSetup
 
-    def selectedJdk: Sdk =
-      configSetupUi.jdkComboBox.getSelectedJdk
+    def getSelectedJdkIfRequired(): Option[Sdk] =
+      configSetupUi.getSelectedJdkIfRequired()
 
     locally {
       configSetupUi.updateChooseBspSetupComponent(configSetups)
