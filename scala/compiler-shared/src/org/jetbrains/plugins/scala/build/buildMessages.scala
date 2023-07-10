@@ -3,7 +3,10 @@ package org.jetbrains.plugins.scala.build
 import com.intellij.build.events.impl.{AbstractBuildEvent, FileMessageEventImpl, MessageEventImpl}
 import com.intellij.build.events.{MessageEvent, MessageEventResult, Warning}
 import com.intellij.build.{FilePosition, events}
+import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
+import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.pom.Navigatable
 import com.intellij.task._
 import org.jetbrains.annotations.{Nls, Nullable}
@@ -69,6 +72,14 @@ case object BuildMessages {
 
   def empty: BuildMessages = BuildMessages(Vector.empty, Vector.empty, Vector.empty, Vector.empty, BuildMessages.Indeterminate)
 
+  def messageWithEscapedAnsi(message: String): String = {
+    Option(message).map { msg =>
+      val textNoAnsiAcceptor = new TextCollector
+      new AnsiEscapeDecoder().escapeText(msg, ProcessOutputTypes.STDOUT, textNoAnsiAcceptor)
+      textNoAnsiAcceptor.result
+    }.getOrElse(message)
+  }
+
   def message(
     parentId: Any,
     @Nls message: String,
@@ -81,9 +92,9 @@ case object BuildMessages {
 
     position match {
       case None =>
-        new BuildEventMessage(parentId, kind, kindGroup, message, details, eventTime)
+        new BuildEventMessage(parentId, kind, kindGroup, messageWithEscapedAnsi(message), details, eventTime)
       case Some(filePosition) =>
-        new FileMessageEventImpl(parentId, kind, kindGroup, message, null, filePosition)
+        new FileMessageEventImpl(parentId, kind, kindGroup, messageWithEscapedAnsi(message), message, filePosition)
     }
   }
 }
@@ -138,4 +149,13 @@ case class BuildWarning(@Nls message: String) extends Warning {
   override def getMessage: String = message
 
   override def getDescription: String = null
+}
+
+private class TextCollector extends ColoredTextAcceptor {
+  private val builder = new StringBuilder()
+
+  override def coloredTextAvailable(text: String, attributes: Key[_]): Unit =
+    builder.append(text)
+
+  def result: String = builder.result()
 }
