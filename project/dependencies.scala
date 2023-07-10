@@ -42,7 +42,7 @@ object Versions {
 
   val java9rtExportVersion: String = "0.1.0"
 
-  val scalaExpressionCompiler: String = "3.0.9"
+  val scalaExpressionCompiler: String = "3.1.3"
 
   object Sbt {
     val binary_0_13 = "0.13"
