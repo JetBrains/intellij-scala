@@ -71,7 +71,12 @@ object ScalaColorsAndFontsPage {
     new AttributesDescriptor(DisplayNames.XML_ATTRIBUTE_NAME, XML_ATTRIBUTE_NAME),
     new AttributesDescriptor(DisplayNames.XML_ATTRIBUTE_VALUE, XML_ATTRIBUTE_VALUE),
     new AttributesDescriptor(DisplayNames.XML_COMMENT, XML_COMMENT),
-    new AttributesDescriptor(DisplayNames.SCALATEST_KEYWORD, SCALATEST_KEYWORD)
+    new AttributesDescriptor(DisplayNames.SCALATEST_KEYWORD, SCALATEST_KEYWORD),
+
+    new AttributesDescriptor(DisplayNames.SCALA_CLI_DIRECTIVE_PREFIX, SCALA_CLI_DIRECTIVE_PREFIX),
+    new AttributesDescriptor(DisplayNames.SCALA_CLI_DIRECTIVE_COMMAND, SCALA_CLI_DIRECTIVE_COMMAND),
+    new AttributesDescriptor(DisplayNames.SCALA_CLI_DIRECTIVE_KEY, SCALA_CLI_DIRECTIVE_KEY),
+    new AttributesDescriptor(DisplayNames.SCALA_CLI_DIRECTIVE_VALUE, SCALA_CLI_DIRECTIVE_VALUE)
   )
 
   //noinspection TypeAnnotation
@@ -134,6 +139,11 @@ object ScalaColorsAndFontsPage {
     val XML_ATTRIBUTE_VALUE = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.xml.attribute.value")
     val XML_COMMENT = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.xml.comment")
     val SCALATEST_KEYWORD = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scalatest.keyword")
+
+    val SCALA_CLI_DIRECTIVE_PREFIX = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.cli.directive.prefix")
+    val SCALA_CLI_DIRECTIVE_COMMAND = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.cli.directive.command")
+    val SCALA_CLI_DIRECTIVE_KEY = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.cli.directive.key")
+    val SCALA_CLI_DIRECTIVE_VALUE = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.cli.directive.value")
   }
 }
 class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
@@ -161,54 +171,65 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
       case _ => false
     }
 
+  private val scalaCliDirectiveDemoText: String = {
+    val pt = "ScalaCliDirectivePrefix"
+    val ct = "ScalaCliDirectiveCommand"
+    val kt = "ScalaCliDirectiveKey"
+    val vt = "ScalaCliDirectiveValue"
+
+    s"<$pt>//></$pt> <$ct>using</$ct> <$kt>dep</$kt> <$vt>org.jetbrains::annotation:4.2.42</$vt>"
+  }
+
   override def getDemoText: String =
-    """<keyword>import</keyword> scala<dot>.</dot>collection<dot>.</dot>mutable<dot>.</dot>_
-      |<keyword>import</keyword> java<dot>.</dot>util<dot>.</dot>TreeMap
-      |
-      |<scaladoc>/**
-      | * ScalaDoc comment: <scaladocHtml><code></scaladocHtml>Some code<scaladocHtml></code></scaladocHtml>
-      | * Html escape sequence <htmlDocEscape>&#94;</htmlDocEscape>
-      | * <wikiElement>''</wikiElement>Text<wikiElement>''</wikiElement>
-      | * <tag>@param</tag> <paramtagval>x</paramtagval> Int param
-      | * <tag>@author</tag> IntelliJ
-      | */</scaladoc>
-      |<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>x</param><colon>:</colon> <predef>Int</predef><par>)</par> <keyword>extends</keyword> <class>ScalaObject</class> <brace>{</brace>
-      |  <number>1</number> <implicit>to</implicit> <number>5</number>
-      |  <par>(</par><anon_param>x</anon_param><colon>:</colon> <predef>Int</predef><par>)</par> <arrow>=></arrow> <anon_param>x</anon_param>
-      |  <keyword>val</keyword> <val>field</val> <assign>=</assign> <string>"Some<validescape>\n</validescape>Strin<invalidescape>\g</invalidescape>"</string>
-      |  <keyword>def</keyword> <methoddecl>foo</methoddecl><par>(</par><param>x</param><colon>:</colon> <predef>Float</predef><comma>,</comma> <param>y</param><colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>
-      |    <keyword>def</keyword> <methoddecl>empty</methoddecl> <assign>=</assign> <number>2</number>
-      |    <keyword>val</keyword> <local>local</local> <assign>=</assign> <number>1000</number> - <localmethod>empty</localmethod>
-      |    <object>Math</object><dot>.</dot><objectmethod>sqrt</objectmethod><par>(</par><param>x</param> + <param>y</param> + <local>local</local><par>)</par><semicolon>;</semicolon> <linecomment>//this can crash</linecomment>
-      |  <brace>}</brace>
-      |  <keyword>def</keyword> <methoddecl>t</methoddecl><bracket>[</bracket><typeparam>T</typeparam><bracket>]</bracket><colon>:</colon> <typeparam>T</typeparam> <assign>=</assign> <keyword>null</keyword>
-      |  <method>foo</method><par>(</par><number>0</number><comma>,</comma> <number>-1</number><par>)</par> <keyword>match</keyword> <brace>{</brace>
-      |    <keyword>case</keyword> <pattern>x</pattern> <arrow>=></arrow> <pattern>x</pattern>
-      |  <brace>}<brace>
-      |  <keyword>type</keyword> <typeAlias>G</typeAlias> <assign>=</assign> <predef>Int</predef>
-      |  val xml = <xmltag><<xmltagname>element</xmltagname> <xmlattributename>attibute=</xmlattributename><xmlattributevalue>"value"</xmlattributevalue>></xmltag><xmltagdata>data</xmltagdata><xmltag></element></xmltag>
-      |<brace>}</brace>
-      |
-      |<blockcomment>/*
-      |  And now ScalaObject
-      | */</blockcomment>
-      |<keyword>object</keyword> <object>Object</object> <brace>{</brace>
-      |  <keyword>val</keyword> <val>layer</val> <assign>=</assign> <number>-5.0</number>
-      |  <keyword>val</keyword> <val>mutableCollection</val> <assign>=</assign> <mutablec>HashMap</mutablec>[<predef>Int</predef>,  <predef>Int</predef>]()
-      |  <keyword>val</keyword> <val>immutableCollection</val> <assign>=</assign> <immutablec>List</immutablec>(<number>1</number><comma>,</comma> <number>2</number>)
-      |  <keyword>val</keyword> <val>javaCollection</val> <assign>=</assign> <keyword>new</keyword> <javac>TreeMap</javac>[<predef>Int</predef>,  <predef>Int</predef>]()
-      |
-      |  <keyword>def</keyword> <methoddecl>foo</methoddecl><colon>:</colon> <class>ScalaClass</class> <assign>=</assign> <keyword>new</keyword> <class>ScalaClass</class><par>(</par><number>23</number>, <number>9</number><par>)</par>
-      |<brace>}</brace>
-      |
-      |<annotation>@Annotation</annotation><par>(</par><number>2</number><par>)</par>
-      |<keyword>trait</keyword> <trait>Trait</trait> <brace>{</brace>
-      |<brace>}</brace>
-      |
-      |<keyword>abstract</keyword> <keyword>class</keyword> <abstract>SomeAbstract</abstract> <brace>{</brace>
-      |  <keyword>for</keyword> <par>(</par><generator>x</generator> <- list<par>)</par> <brace>{</brace><generator>x</generator><brace>}</brace>
-      |<brace>}</brace>
-      |""".stripMargin.replace("\r", "")
+    s"""$scalaCliDirectiveDemoText
+       |
+       |<keyword>import</keyword> scala<dot>.</dot>collection<dot>.</dot>mutable<dot>.</dot>_
+       |<keyword>import</keyword> java<dot>.</dot>util<dot>.</dot>TreeMap
+       |
+       |<scaladoc>/**
+       | * ScalaDoc comment: <scaladocHtml><code></scaladocHtml>Some code<scaladocHtml></code></scaladocHtml>
+       | * Html escape sequence <htmlDocEscape>&#94;</htmlDocEscape>
+       | * <wikiElement>''</wikiElement>Text<wikiElement>''</wikiElement>
+       | * <tag>@param</tag> <paramtagval>x</paramtagval> Int param
+       | * <tag>@author</tag> IntelliJ
+       | */</scaladoc>
+       |<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>x</param><colon>:</colon> <predef>Int</predef><par>)</par> <keyword>extends</keyword> <class>ScalaObject</class> <brace>{</brace>
+       |  <number>1</number> <implicit>to</implicit> <number>5</number>
+       |  <par>(</par><anon_param>x</anon_param><colon>:</colon> <predef>Int</predef><par>)</par> <arrow>=></arrow> <anon_param>x</anon_param>
+       |  <keyword>val</keyword> <val>field</val> <assign>=</assign> <string>"Some<validescape>\\n</validescape>Strin<invalidescape>\\g</invalidescape>"</string>
+       |  <keyword>def</keyword> <methoddecl>foo</methoddecl><par>(</par><param>x</param><colon>:</colon> <predef>Float</predef><comma>,</comma> <param>y</param><colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>
+       |    <keyword>def</keyword> <methoddecl>empty</methoddecl> <assign>=</assign> <number>2</number>
+       |    <keyword>val</keyword> <local>local</local> <assign>=</assign> <number>1000</number> - <localmethod>empty</localmethod>
+       |    <object>Math</object><dot>.</dot><objectmethod>sqrt</objectmethod><par>(</par><param>x</param> + <param>y</param> + <local>local</local><par>)</par><semicolon>;</semicolon> <linecomment>//this can crash</linecomment>
+       |  <brace>}</brace>
+       |  <keyword>def</keyword> <methoddecl>t</methoddecl><bracket>[</bracket><typeparam>T</typeparam><bracket>]</bracket><colon>:</colon> <typeparam>T</typeparam> <assign>=</assign> <keyword>null</keyword>
+       |  <method>foo</method><par>(</par><number>0</number><comma>,</comma> <number>-1</number><par>)</par> <keyword>match</keyword> <brace>{</brace>
+       |    <keyword>case</keyword> <pattern>x</pattern> <arrow>=></arrow> <pattern>x</pattern>
+       |  <brace>}<brace>
+       |  <keyword>type</keyword> <typeAlias>G</typeAlias> <assign>=</assign> <predef>Int</predef>
+       |  val xml = <xmltag><<xmltagname>element</xmltagname> <xmlattributename>attibute=</xmlattributename><xmlattributevalue>"value"</xmlattributevalue>></xmltag><xmltagdata>data</xmltagdata><xmltag></element></xmltag>
+       |<brace>}</brace>
+       |
+       |<blockcomment>/*
+       |  And now ScalaObject
+       | */</blockcomment>
+       |<keyword>object</keyword> <object>Object</object> <brace>{</brace>
+       |  <keyword>val</keyword> <val>layer</val> <assign>=</assign> <number>-5.0</number>
+       |  <keyword>val</keyword> <val>mutableCollection</val> <assign>=</assign> <mutablec>HashMap</mutablec>[<predef>Int</predef>,  <predef>Int</predef>]()
+       |  <keyword>val</keyword> <val>immutableCollection</val> <assign>=</assign> <immutablec>List</immutablec>(<number>1</number><comma>,</comma> <number>2</number>)
+       |  <keyword>val</keyword> <val>javaCollection</val> <assign>=</assign> <keyword>new</keyword> <javac>TreeMap</javac>[<predef>Int</predef>,  <predef>Int</predef>]()
+       |
+       |  <keyword>def</keyword> <methoddecl>foo</methoddecl><colon>:</colon> <class>ScalaClass</class> <assign>=</assign> <keyword>new</keyword> <class>ScalaClass</class><par>(</par><number>23</number>, <number>9</number><par>)</par>
+       |<brace>}</brace>
+       |
+       |<annotation>@Annotation</annotation><par>(</par><number>2</number><par>)</par>
+       |<keyword>trait</keyword> <trait>Trait</trait> <brace>{</brace>
+       |<brace>}</brace>
+       |
+       |<keyword>abstract</keyword> <keyword>class</keyword> <abstract>SomeAbstract</abstract> <brace>{</brace>
+       |  <keyword>for</keyword> <par>(</par><generator>x</generator> <- list<par>)</par> <brace>{</brace><generator>x</generator><brace>}</brace>
+       |<brace>}</brace>
+       |""".stripMargin.replace("\r", "")
 
   override def getAdditionalHighlightingTagToDescriptorMap: util.Map[String, TextAttributesKey] = {
     val map = RainbowHighlighter.createRainbowHLM
@@ -264,6 +285,11 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
     map.put("scaladocHtml", SCALA_DOC_HTML_TAG)
     map.put("htmlDocEscape", SCALA_DOC_HTML_ESCAPE)
     map.put("paramtagval", SCALA_DOC_TAG_PARAM_VALUE)
+
+    map.put("ScalaCliDirectivePrefix", SCALA_CLI_DIRECTIVE_PREFIX)
+    map.put("ScalaCliDirectiveCommand", SCALA_CLI_DIRECTIVE_COMMAND)
+    map.put("ScalaCliDirectiveKey", SCALA_CLI_DIRECTIVE_KEY)
+    map.put("ScalaCliDirectiveValue", SCALA_CLI_DIRECTIVE_VALUE)
     map
   }
 }
