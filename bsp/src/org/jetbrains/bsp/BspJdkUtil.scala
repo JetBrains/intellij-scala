@@ -16,13 +16,12 @@ object BspJdkUtil {
     Returns JDK assigned to a project or most recent registered JDK in IDEA. If the first two ways return nothing
    then try to create and return SDK based on most recent JDK found on the machine.
    */
-  def getMostSuitableJdkForProject(project: Option[Project]): Option[Sdk] =
+  def findOrCreateBestJdkForProject(project: Option[Project]): Option[Sdk] =
     project.flatMap { proj => Option(ProjectRootManager.getInstance(proj).getProjectSdk) }
       .orElse(SdkUtils.mostRecentRegisteredJdk)
       .orElse(createSdkWithMostRecentFoundJDK)
 
   private def createSdkWithMostRecentFoundJDK: Option[Sdk] = {
-    //return None
     val jdkType = JavaSdk.getInstance
 
     val detectedJavaHomes: Seq[(String, JavaVersion)] = JavaHomeFinder.suggestHomePaths(false).asScala.toSeq
