@@ -10,6 +10,8 @@ class ScalazTest extends TextToTextTestBase(
   ),
   Seq("scalaz"), Set.empty, 1588,
   Set(
+    "scalaz.FingerTree", // Type parameter clause of type lambda, SCL-21205
+    "scalaz.FingerTreeInstances", // Type parameter clause of type lambda, SCL-21205
     "scalaz.Heap", // Excessive parentheses in function type
     "scalaz.\\&/", // id$
     "scalaz.\\/", // id$

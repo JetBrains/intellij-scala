@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 import org.jetbrains.plugins.scala.extensions.{Model, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScEnumCaseImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInjector.{injectEnumCase, methodsForCompanionObject}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -47,7 +48,7 @@ object EnumMembersInjector {
 
   private def injectEnumCase(cse: ScEnumCase): String = {
     val supersText    = superTypesText(cse.superTypes)
-    val modifiers     = cse.getModifierList.getText
+    val modifiers     = cse.asInstanceOf[ScEnumCaseImpl].modifierListText
 
     cse.constructor match {
       case Some(cons) =>

@@ -5,9 +5,12 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
+import org.jetbrains.plugins.scala.extensions.StubBasedExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.EnumKeyword
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTypeDefinition}
@@ -24,10 +27,15 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
     with ScEnum
     with ScNamedBeginImpl {
 
+  override def constructor: Option[ScPrimaryConstructor] =
+    this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
+
   override def cases: Seq[ScEnumCase] =
     extendsBlock.cases.flatMap(_.declaredElements)
 
-  private[this] def syntheticClassText = {
+  def syntheticClassText: String = byPsiOrStub(syntheticClassText0)(_.enumSyntheticClassText.get)
+
+  private[this] def syntheticClassText0 = {
     val typeParametersText        = typeParametersClause.fold("")(_.getTextByStub)
     val supersText                = extendsBlock.templateParents.fold("")(_.getText)
     val constructorText           = constructor.fold("")(_.getText)
