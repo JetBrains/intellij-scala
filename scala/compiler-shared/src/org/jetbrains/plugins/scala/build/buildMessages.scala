@@ -3,7 +3,10 @@ package org.jetbrains.plugins.scala.build
 import com.intellij.build.events.impl.{AbstractBuildEvent, FileMessageEventImpl, MessageEventImpl}
 import com.intellij.build.events.{MessageEvent, MessageEventResult, Warning}
 import com.intellij.build.{FilePosition, events}
+import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
+import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.pom.Navigatable
 import com.intellij.task._
 import org.jetbrains.annotations.{Nls, Nullable}
@@ -69,6 +72,14 @@ case object BuildMessages {
 
   def empty: BuildMessages = BuildMessages(Vector.empty, Vector.empty, Vector.empty, Vector.empty, BuildMessages.Indeterminate)
 
+  def stripAnsiCodes(@Nullable message: String): String =
+    if (message == null) null
+    else {
+      val builder = new StringBuilder()
+      new AnsiEscapeDecoder().escapeText(message, ProcessOutputTypes.STDOUT, (text, _) => builder.append(text))
+      builder.result()
+    }
+
   def message(
     parentId: Any,
     @Nls message: String,
@@ -81,9 +92,9 @@ case object BuildMessages {
 
     position match {
       case None =>
-        new BuildEventMessage(parentId, kind, kindGroup, message, details, eventTime)
+        new BuildEventMessage(parentId, kind, kindGroup, stripAnsiCodes(message), details, eventTime)
       case Some(filePosition) =>
-        new FileMessageEventImpl(parentId, kind, kindGroup, message, null, filePosition)
+        new FileMessageEventImpl(parentId, kind, kindGroup, stripAnsiCodes(message), message, filePosition)
     }
   }
 }

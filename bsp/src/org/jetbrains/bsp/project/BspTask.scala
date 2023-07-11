@@ -4,15 +4,12 @@ import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j._
 import com.intellij.build.FilePosition
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
-import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
-import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspBundle
 import org.jetbrains.bsp.BspUtil._
-import org.jetbrains.bsp.project.BspTask.{BspTarget, TextCollector}
+import org.jetbrains.bsp.project.BspTask.BspTarget
 import org.jetbrains.bsp.protocol.BspJob.CancelCheck
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
@@ -219,9 +216,7 @@ class BspTask[T](project: Project,
     reporter.log(text)
 
     // TODO build toolwindow log supports ansi colors, but not some other stuff
-    val textNoAnsiAcceptor = new TextCollector
-    new AnsiEscapeDecoder().escapeText(text, ProcessOutputTypes.STDOUT, textNoAnsiAcceptor)
-    val textNoAnsi = textNoAnsiAcceptor.result
+    val textNoAnsi = BuildMessages.stripAnsiCodes(text)
 
     import bsp4j.MessageType._
     params.getType match {
@@ -326,15 +321,6 @@ class BspTask[T](project: Project,
 }
 
 object BspTask {
-
-  private class TextCollector extends ColoredTextAcceptor {
-    private val builder = new StringBuilder()
-
-    override def coloredTextAvailable(text: String, attributes: Key[_]): Unit =
-      builder.append(text)
-
-    def result: String = builder.result()
-  }
 
   case class BspTarget(workspace: URI, target: URI)
 
