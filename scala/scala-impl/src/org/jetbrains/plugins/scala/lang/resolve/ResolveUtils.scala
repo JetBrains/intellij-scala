@@ -429,7 +429,7 @@ object ResolveUtils {
       tp:    ScType,
       exprs: Seq[ScExpression],
       call:  Option[MethodInvocation]
-    ): Array[ScalaResolveResult] = cachedWithRecursionGuard("ScExpressionForExpectedTypesEx.shapreResolveApplyMethod", expr, Array.empty[ScalaResolveResult], BlockModificationTracker(expr), (tp, exprs, call)) {
+    ): Array[ScalaResolveResult] = cachedWithRecursionGuard("shapreResolveApplyMethod", expr, Array.empty[ScalaResolveResult], BlockModificationTracker(expr), (tp, exprs, call)) {
       val applyProc =
         new MethodResolveProcessor(
           expr,

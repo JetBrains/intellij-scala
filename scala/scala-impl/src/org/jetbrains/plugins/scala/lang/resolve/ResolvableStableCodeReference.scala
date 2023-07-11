@@ -43,7 +43,7 @@ object ResolvableStableCodeReference {
 
     def resolveNoConstructor: Array[ScalaResolveResult] =
       cachedWithRecursionGuard(
-        "ResolvableStableCodeReference.Ext.resolveNoConstructor",
+        "resolveNoConstructor",
         stableRef,
         ScalaResolveResult.EMPTY_ARRAY,
         BlockModificationTracker(stableRef)
@@ -55,7 +55,7 @@ object ResolvableStableCodeReference {
 
     def resolveAllConstructors: Array[ScalaResolveResult] =
       cachedWithRecursionGuard(
-        "ResolvableStableCodeReference.Ext.ResolveAllConstructors",
+        "ResolveAllConstructors",
         stableRef,
         ScalaResolveResult.EMPTY_ARRAY,
         BlockModificationTracker(stableRef)
@@ -67,7 +67,7 @@ object ResolvableStableCodeReference {
 
     def shapeResolve: Array[ScalaResolveResult] =
       cachedWithRecursionGuard(
-        "ResolvableStableCodeReference.Ext.shapeResolve",
+        "shapeResolve",
         stableRef,
         ScalaResolveResult.EMPTY_ARRAY,
         BlockModificationTracker(stableRef)
@@ -79,7 +79,7 @@ object ResolvableStableCodeReference {
 
     def shapeResolveConstr: Array[ScalaResolveResult] =
       cachedWithRecursionGuard(
-        "ResolvableStableCodeReference.Ext.shareResolveConstr",
+        "shareResolveConstr",
         stableRef,
         ScalaResolveResult.EMPTY_ARRAY,
         BlockModificationTracker(stableRef)

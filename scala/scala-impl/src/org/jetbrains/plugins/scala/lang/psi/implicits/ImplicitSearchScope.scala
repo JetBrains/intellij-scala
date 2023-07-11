@@ -21,7 +21,7 @@ case class ImplicitSearchScope(representative: PsiElement) {
 
   def cachedVisibleImplicits: Set[ScalaResolveResult] =
     cachedWithRecursionGuard(
-      "ImplicitSearchScope.cachedVisibleImplicits",
+      "cachedVisibleImplicits",
       representative,
       Set.empty[ScalaResolveResult],
       BlockModificationTracker(representative)
@@ -31,7 +31,7 @@ case class ImplicitSearchScope(representative: PsiElement) {
 
   def cachedImplicitsByType(scType: ScType): Set[ScalaResolveResult] =
     cachedWithRecursionGuard(
-      "ImplicitSearchScope.cachedImplicitsByType",
+      "cachedImplicitsByType",
       representative,
       Set.empty[ScalaResolveResult],
       BlockModificationTracker(representative),

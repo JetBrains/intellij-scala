@@ -92,7 +92,7 @@ object Compatibility {
       ): ExpressionTypeResult =
         place.fold(default) { e =>
           if (isShape || !checkImplicits) default
-          else cachedWithRecursionGuard("Compatibility.getTypeAfterImplicitConversion", e, ExpressionTypeResult(Right(tpe)), BlockModificationTracker(e), (e, tpe, expectedOption)) {
+          else cachedWithRecursionGuard("getTypeAfterImplicitConversion", e, ExpressionTypeResult(Right(tpe)), BlockModificationTracker(e), (e, tpe, expectedOption)) {
             expectedOption.collect {
               case etpe if !tpe.conforms(etpe) =>
                 e.tryAdaptTypeToSAM(tpe, etpe, fromUnderscore = false, checkResolve = false)
