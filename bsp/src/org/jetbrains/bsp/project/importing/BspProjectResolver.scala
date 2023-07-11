@@ -15,7 +15,7 @@ import org.jetbrains.bsp.protocol.session.Bsp4JJobFailure
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BuildServerInfo, NotificationAggregator}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspConnectionConfig, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings}
-import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspTaskCancelled, BspUtil}
+import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspJdkUtil, BspNoJdkConfiguredError, BspTaskCancelled, BspUtil}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
 
@@ -258,11 +258,14 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
   }
 
-  private def runBloopInstall(baseDir: File)(implicit reporter: BuildReporter) = {
-    val preImporter = BloopPreImporter(baseDir)
-    importState = PreImportTask(preImporter)
-    preImporter.run()
-  }
+  private def runBloopInstall(baseDir: File)(implicit reporter: BuildReporter) =
+    BspJdkUtil.findOrCreateBestJdkForProject(None) match {
+      case Some(sdk) =>
+        val preImporter = BloopPreImporter(baseDir, sdk)
+        importState = PreImportTask(preImporter)
+        preImporter.run()
+      case None => Failure(BspNoJdkConfiguredError)
+    }
 
 }
 

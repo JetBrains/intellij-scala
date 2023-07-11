@@ -1,8 +1,7 @@
 package org.jetbrains.bsp.project.importing.preimport
 
 import java.io.File
-
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.bsp.BspBundle
 import org.jetbrains.bsp.buildinfo.BuildInfo
@@ -23,10 +22,9 @@ class BloopPreImporter(dumper: SbtStructureDump, runDump: SbtStructureDump => Tr
   def run(): Try[BuildMessages] = runDump(dumper)
 }
 object BloopPreImporter {
-  def apply(baseDir: File)(implicit reporter: BuildReporter): BloopPreImporter = {
+  def apply(baseDir: File, jdk: Sdk)(implicit reporter: BuildReporter): BloopPreImporter = {
     invokeAndWait(ProjectJdkTable.getInstance.preconfigure())
     val jdkType = JavaSdk.getInstance()
-    val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType)
     val jdkExe = new File(jdkType.getVMExecutablePath(jdk))
     val jdkHome = Option(jdk.getHomePath).map(new File(_))
     val sbtLauncher = SbtUtil.getDefaultLauncher

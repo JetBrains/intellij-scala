@@ -12,4 +12,5 @@ case class BspResponseError(@Nls message: String, error: ResponseError) extends 
 case class BspException(@Nls message: String, cause: Throwable) extends Exception(message, cause) with BspError
 case class BspConnectionError(@Nls message: String, cause: Throwable = null) extends Exception(message, cause) with BspError
 case class BspConnectionFileError(connectionFile: Path, cause: Throwable = null) extends Exception(BspBundle.message("unable.to.read.bsp.connection.file.at", connectionFile), cause) with BspError
+case object BspNoJdkConfiguredError extends Exception(BspBundle.message("unable.to.detect.any.JDK.on.machine")) with BspError
 case object BspTaskCancelled extends ProcessCanceledException with BspError

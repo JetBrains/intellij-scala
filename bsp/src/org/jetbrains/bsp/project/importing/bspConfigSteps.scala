@@ -3,28 +3,32 @@ package org.jetbrains.bsp.project.importing
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
-import com.intellij.openapi.util.NlsContexts
+import org.jetbrains.plugins.scala.project.external.SdkUtils
+import com.intellij.openapi.projectRoots.{JavaSdk, Sdk, SdkTypeId}
+import com.intellij.openapi.roots.ui.configuration.JdkComboBox
+import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
+import com.intellij.openapi.util.{Condition, NlsContexts}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.TitledSeparator
 import com.intellij.ui.components.JBList
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
-import com.intellij.util.ui.UI
+import com.intellij.util.ui.{JBUI, UI}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
 import org.jetbrains.bsp.project.importing.bspConfigSteps._
 import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, FastpassConfigSetup, NoConfigSetup, SbtConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
-import org.jetbrains.bsp.{BspBundle, BspUtil}
+import org.jetbrains.bsp.{BspBundle, BspJdkUtil, BspUtil}
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectImportProvider
 
-import java.awt.BorderLayout
+import java.awt.{GridBagConstraints, GridBagLayout}
 import java.io.File
 import java.nio.file.Path
-import javax.swing.{DefaultListModel, JComponent, JPanel, ListSelectionModel}
+import javax.swing.{DefaultListModel, JComponent, JLabel, JPanel, ListSelectionModel}
 import scala.annotation.nowarn
 
 object bspConfigSteps {
@@ -52,29 +56,31 @@ object bspConfigSteps {
   private[importing] def withTooltip(component: JComponent, @Nls tooltip: String) =
     UI.PanelFactory.panel(component).withTooltip(tooltip).createPanel(): @nowarn("cat=deprecation")
 
-  private[importing] def addTitledList(parent: JComponent, title: JComponent, list: JBList[String]): Unit = {
-    val manager = new GridLayoutManager(3,1)
-    manager.setSameSizeVertically(false)
-    parent.setLayout(manager)
-
+  private[importing] def addTitledComponent(parent: JComponent, title: JComponent, component: JComponent, row: Int, shouldAddSpacer: Boolean): Int = {
     val titleConstraints = new GridConstraints()
-    titleConstraints.setRow(0)
+    titleConstraints.setRow(row)
     titleConstraints.setFill(GridConstraints.FILL_HORIZONTAL)
     parent.add(title, titleConstraints)
 
     val listConstraints = new GridConstraints()
-    listConstraints.setRow(1)
+    listConstraints.setRow(row + 1)
     listConstraints.setFill(GridConstraints.FILL_BOTH)
     listConstraints.setIndent(1)
-    parent.add(list, listConstraints)
+    parent.add(component, listConstraints)
+    if (shouldAddSpacer) {
+      addSpacer(parent, row + 2)
+    } else {
+      row + 2
+    }
+  }
 
-    list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
-
+  private[importing] def addSpacer(parent: JComponent, row: Int): Int = {
     val spacer = new Spacer()
     val spacerConstraints = new GridConstraints()
-    spacerConstraints.setRow(2)
+    spacerConstraints.setRow(row)
     spacerConstraints.setVSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW | GridConstraints.SIZEPOLICY_CAN_GROW)
     parent.add(spacer, spacerConstraints)
+    row +1
   }
 
   def configSetupChoices(workspace: File): List[ConfigSetup] = {
@@ -84,6 +90,7 @@ object bspConfigSteps {
   }
 
   def configureBuilder(
+    jdk: Sdk,
     builder: BspProjectImportBuilder,
     workspace: File,
     configSetup: ConfigSetup
@@ -93,7 +100,7 @@ object bspConfigSteps {
       preImportConfig: Option[PreImportConfig],
       serverConfig: Option[BspServerConfig],
       externalBspWorkspace: Option[Path]
-    ) = getBuilderConfigurationParameters(workspace, configSetup)
+    ) = getBuilderConfigurationParameters(jdk, workspace, configSetup)
 
     preImportConfig.foreach(builder.setPreImportConfig)
     serverConfig.foreach(builder.setServerConfig)
@@ -110,6 +117,7 @@ object bspConfigSteps {
   )
 
   def getBuilderConfigurationParameters(
+    jdk: Sdk,
     workspace: File,
     configSetup: ConfigSetup
   ): BuilderConfigurationParameters = {
@@ -125,7 +133,7 @@ object bspConfigSteps {
       case bspConfigSteps.BloopSbtSetup =>
         (NoConfigSetup, Some(BloopSbtPreImport), Some(BloopConfig), None)
       case bspConfigSteps.SbtSetup =>
-        (SbtConfigSetup(workspace), Some(NoPreImport), None, None) // server config to be set in next step
+        (SbtConfigSetup(workspace, jdk), Some(NoPreImport), None, None) // server config to be set in next step
       case bspConfigSteps.MillSetup =>
         (NoConfigSetup, Some(MillBspPreImport), Some(AutoConfig), None)
       case bspConfigSteps.FastpassSetup =>
@@ -175,6 +183,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
 
   private val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(setupTaskWorkspace)
   private lazy val workspaceSetupConfigs: List[ConfigSetup] = workspaceSetupChoices(setupTaskWorkspace)
+  private val existingJdk = BspJdkUtil.findOrCreateBestJdkForProject(Option(wizardContext.getProject))
 
   private val configSetupChoices: List[ConfigSetup] = {
     if (workspaceBspConfigs.size == 1) List(NoSetup)
@@ -182,17 +191,17 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
     else List(NoSetup)
   }
 
-  private val bspSetupConfigStepUi = new BspSetupConfigStepUi(BspBundle.message("bsp.config.steps.setup.config.choose.tool"), configSetupChoices)
-
+  private val bspSetupConfigStepUi = new BspSetupConfigStepUi(BspBundle.message("bsp.config.steps.setup.config.choose.tool"), configSetupChoices, existingJdk.isEmpty)
 
   override def getComponent: JComponent = bspSetupConfigStepUi.mainComponent
 
   override def getPreferredFocusedComponent: JComponent = bspSetupConfigStepUi.chooseBspSetupList
 
   override def validate(): Boolean = {
-    workspaceBspConfigs.nonEmpty ||
+    (workspaceBspConfigs.nonEmpty ||
       configSetupChoices.size == 1 ||
-      bspSetupConfigStepUi.chooseBspSetupList.getSelectedIndex >= 0
+      bspSetupConfigStepUi.chooseBspSetupList.getSelectedIndex >= 0 ) &&
+      bspSetupConfigStepUi.isJdkSelectedIfRequired()
   }
 
   override def updateStep(): Unit = {
@@ -205,15 +214,20 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
       if (configSetupChoices.size == 1) 0
       else bspSetupConfigStepUi.chooseBspSetupList.getSelectedIndex
 
-    runSetupTask =
-      if (configSetupChoices.size > configIndex && configIndex >= 0)
-        configureBuilder(builder, setupTaskWorkspace, configSetupChoices(configIndex))
-      else NoConfigSetup
+    val jdkOpt = if (configSetupChoices.size > configIndex && configIndex >= 0) {
+      existingJdk.orElse(bspSetupConfigStepUi.getSelectedJdkIfRequired())
+    } else None
+
+    runSetupTask = jdkOpt match {
+      case Some(jdk) => configureBuilder(jdk, builder, setupTaskWorkspace, configSetupChoices(configIndex))
+      case _ => NoConfigSetup
+    }
+
   }
 
   override def isStepVisible: Boolean = {
     builder.preImportConfig == AutoPreImport &&
-      configSetupChoices.size > 1 &&
+      (configSetupChoices.size > 1 || existingJdk.isEmpty) &&
       workspaceBspConfigs.isEmpty
   }
 
@@ -221,6 +235,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
     // TODO this spawns an indicator window which is not nice.
     // show a live log in the window or something?
     if (wizardContext.getProjectBuilder.isInstanceOf[BspProjectImportBuilder]) {
+      bspSetupConfigStepUi.getSelectedJdkIfRequired().foreach(SdkUtils.addJdkIfNotExists)
       updateDataModel() // without it runSetupTask is null
       builder.prepare(wizardContext)
       //this will use DefaultProject, which will lead to exception IDEA-289729
@@ -248,17 +263,41 @@ object BspSetupConfigStep {
 
 final class BspSetupConfigStepUi(
   @NlsContexts.Separator title: String,
-  configSetups: Seq[ConfigSetup]
+  configSetups: Seq[ConfigSetup],
+  showJdkComboBox: Boolean
 ) {
 
-  val mainComponent = new JPanel()
+  val mainComponent: JPanel = {
+    val manager = new GridLayoutManager(5, 1)
+    manager.setSameSizeHorizontally(false)
+    new JPanel(manager)
+  }
   private val chooseBspSetupModel = new DefaultListModel[String]
   val chooseBspSetupList = new JBList[String](chooseBspSetupModel)
+  private val model = new ProjectSdksModel()
+
+  val jdkComboBox: JdkComboBox = {
+    model.reset(null)
+    val jdkFilter: Condition[SdkTypeId] = (sdk: SdkTypeId) => sdk == JavaSdk.getInstance()
+    new JdkComboBox(null, model, jdkFilter, null, jdkFilter, null)
+  }
 
   locally {
-    val chooseSetupTitle = new TitledSeparator(title)
-    val titleWithTip = withTooltip(chooseSetupTitle, BspBundle.message("bsp.config.steps.setup.config.choose.tool.tooltip"))
-    addTitledList(mainComponent, titleWithTip, chooseBspSetupList)
+    var row = 0
+    val titleWithTip = withTooltip(new TitledSeparator(title), BspBundle.message("bsp.config.steps.setup.config.choose.tool.tooltip"))
+    chooseBspSetupList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+    row = addTitledComponent(mainComponent, titleWithTip, chooseBspSetupList, row, shouldAddSpacer = false)
+
+    if (showJdkComboBox) {
+      val panelForComboBox = new JPanel(new GridBagLayout)
+      val label = new JLabel("JDK")
+      panelForComboBox.add(label, new GridBagConstraints(0, 1, 1, 1, 0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, JBUI.insetsTop(8), 0, 0))
+      panelForComboBox.add(jdkComboBox, new GridBagConstraints(1, 1, 1, 1, 1.0, 0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, JBUI.insets(2, 10, 10, 0), 0, 0))
+      val jdkTitleWithTip = withTooltip(new TitledSeparator(BspBundle.message("bsp.config.steps.setup.config.choose.jdk")), BspBundle.message("bsp.config.steps.setup.config.choose.jdk.tooltip"))
+      addTitledComponent(mainComponent, jdkTitleWithTip, panelForComboBox, row, shouldAddSpacer = true)
+    } else {
+      addSpacer(mainComponent, row)
+    }
   }
 
   def selectedConfigSetup: ConfigSetup =
@@ -281,14 +320,28 @@ final class BspSetupConfigStepUi(
         Nil
     }
   }
+
+  def getSelectedJdkIfRequired(): Option[Sdk] =
+    if (showJdkComboBox) Option(jdkComboBox.getSelectedJdk)
+    else None
+
+
+  def isJdkSelectedIfRequired(): Boolean =
+    if (showJdkComboBox) jdkComboBox.getSelectedJdk != null
+    else true
 }
 
 class BspChooseConfigStep(context: WizardContext, builder: BspProjectImportBuilder)
   extends ModuleWizardStep {
 
-  private val myComponent = new JPanel(new BorderLayout)
+  private val myComponent = {
+    val manager = new GridLayoutManager(5, 1)
+    manager.setSameSizeHorizontally(false)
+    new JPanel(manager)
+  }
   private val chooseBspConfig = new JBList[String]()
   private val chooseBspSetupModel = new DefaultListModel[String]
+  chooseBspConfig.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
   chooseBspConfig.setModel(chooseBspSetupModel)
 
   private def bspConfigs = BspConnectionConfig.allBspConfigs(context.getProjectDirectory.toFile)
@@ -296,7 +349,7 @@ class BspChooseConfigStep(context: WizardContext, builder: BspProjectImportBuild
   {
     val chooseSetupTitle = new TitledSeparator(BspBundle.message("bsp.config.steps.choose.config.title"))
     val titleWithTip = withTooltip(chooseSetupTitle, BspBundle.message("bsp.config.steps.choose.config.title.tooltip"))
-    addTitledList(myComponent, titleWithTip, chooseBspConfig)
+    addTitledComponent(myComponent, titleWithTip, chooseBspConfig, 0, shouldAddSpacer = true)
   }
 
   override def getComponent: JComponent = myComponent
@@ -307,7 +360,7 @@ class BspChooseConfigStep(context: WizardContext, builder: BspProjectImportBuild
 
     // there should be at least one config at this point
     val configsExist = !chooseBspConfig.isEmpty
-    val configSelected = (chooseBspConfig.getItemsCount == 1 || chooseBspConfig.getSelectedIndex >= 0)
+    val configSelected = chooseBspConfig.getItemsCount == 1 || chooseBspConfig.getSelectedIndex >= 0
 
     alreadySet || (configsExist && configSelected)
   }
