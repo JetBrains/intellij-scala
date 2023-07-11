@@ -259,7 +259,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   }
 
   private def runBloopInstall(baseDir: File)(implicit reporter: BuildReporter) =
-    BspJdkUtil.getMostSuitableJdkForProject(None) match {
+    BspJdkUtil.findOrCreateBestJdkForProject(None) match {
       case Some(sdk) =>
         val preImporter = BloopPreImporter(baseDir, sdk)
         importState = PreImportTask(preImporter)
