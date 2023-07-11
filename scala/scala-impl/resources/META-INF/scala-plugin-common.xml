@@ -1904,6 +1904,9 @@
 
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="org.jetbrains.plugins.scala.editor.documentationProvider.listeners.ScalaDocRenderInEditorAdvertiser"/>
+
+        <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
+                  class="org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory$Listener"/>
     </projectListeners>
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaFileAction">
