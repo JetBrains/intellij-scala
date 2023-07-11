@@ -1,11 +1,15 @@
 package org.jetbrains.plugins.scala.components
 
+import com.intellij.openapi.project.DumbService.DumbModeListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.wm.impl.status.widget.StatusBarWidgetsManager
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, StatusBarWidgetFactory}
 import com.intellij.util.messages.Topic
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
+
+import scala.jdk.CollectionConverters._
 
 private final class TypeAwareWidgetFactory extends StatusBarWidgetFactory {
   override def getId: String = TypeAwareWidgetFactory.ID
@@ -31,4 +35,11 @@ private[scala] object TypeAwareWidgetFactory {
   }
 
   val Topic: Topic[UpdateListener] = new Topic("TypeAwareHighlightingWidget update", classOf[UpdateListener])
+
+  final class Listener(project: Project) extends DumbModeListener {
+    override def exitDumbMode(): Unit = {
+      val service = project.getService(classOf[StatusBarWidgetsManager])
+      service.getWidgetFactories.asScala.find(_.getId == ID).foreach(service.updateWidget)
+    }
+  }
 }
