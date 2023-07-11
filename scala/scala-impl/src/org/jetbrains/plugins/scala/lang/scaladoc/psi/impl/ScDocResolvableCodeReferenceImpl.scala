@@ -16,7 +16,7 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
   override protected def debugKind: Option[String] = Some("scalaDoc")
 
   //noinspection RedundantDefaultArgument
-  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = cachedWithRecursionGuard("ScDocResolvableCodeReferenceImpl.multiResolveScala", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this), Tuple1(incomplete)) {
+  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = cachedWithRecursionGuard("multiResolveScala", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this), Tuple1(incomplete)) {
     multiResolveScalaImpl()
   }
 

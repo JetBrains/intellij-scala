@@ -63,7 +63,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   }
 
   //noinspection ScalaExtractStringToBundle
-  private def innerTypeExt: InvocationData = cachedWithRecursionGuard("MethodInvocationImpl.innerTypeExt", this, FailureCase(Failure("Recursive innerTypeExt"), Seq.empty): InvocationData, BlockModificationTracker(this)) {
+  private def innerTypeExt: InvocationData = cachedWithRecursionGuard("innerTypeExt", this, FailureCase(Failure("Recursive innerTypeExt"), Seq.empty): InvocationData, BlockModificationTracker(this)) {
     try {
       tryToGetInnerTypeExt(useExpectedType = true)
     } catch {

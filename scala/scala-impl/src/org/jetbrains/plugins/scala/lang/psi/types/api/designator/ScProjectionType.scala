@@ -81,7 +81,7 @@ final class ScProjectionType private(val projected: ScType,
 
   override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst)
 
-  private def actualImpl(projected: ScType, updateWithProjectionSubst: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = cachedWithRecursionGuard("ScProjectionType.actualImpl", element, Option.empty[(PsiNamedElement, ScSubstitutor)], BlockModificationTracker(element), (projected, updateWithProjectionSubst)) {
+  private def actualImpl(projected: ScType, updateWithProjectionSubst: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = cachedWithRecursionGuard("actualImpl", element, Option.empty[(PsiNamedElement, ScSubstitutor)], BlockModificationTracker(element), (projected, updateWithProjectionSubst)) {
     val resolvePlace = {
       def fromClazz(definition: ScTypeDefinition): PsiElement =
         definition.extendsBlock.templateBody

@@ -14,7 +14,7 @@ object ScImplicitlyConvertible {
 
   def implicits(place: ScExpression, fromUnderscore: Boolean): Seq[PsiNamedElement] =
     findPlaceType(place, fromUnderscore).toSeq.flatMap { placeType =>
-      val regulars = cachedWithRecursionGuard("ScImplicitlyConvertible.collectRegulars", place, Set.empty[ImplicitConversionResolveResult], BlockModificationTracker(place), (place, placeType)) {
+      val regulars = cachedWithRecursionGuard("collectRegulars", place, Set.empty[ImplicitConversionResolveResult], BlockModificationTracker(place), (place, placeType)) {
         placeType match {
           case _: UndefinedType => Set.empty
           case _ if placeType.isNothing => Set.empty
@@ -27,7 +27,7 @@ object ScImplicitlyConvertible {
 
       val argumentTypes = place.expectedTypes(fromUnderscore)
 
-      val companions = cachedWithRecursionGuard("ScImplicitlyConvertible.collectCompanions", place, Set.empty[ImplicitConversionResolveResult], BlockModificationTracker(place), (placeType, argumentTypes, place)) {
+      val companions = cachedWithRecursionGuard("collectCompanions", place, Set.empty[ImplicitConversionResolveResult], BlockModificationTracker(place), (placeType, argumentTypes, place)) {
         val expandedType = argumentTypes match {
           case Seq() => placeType
           case seq => TupleType(Seq(placeType) ++ seq)(place.elementScope)

@@ -59,7 +59,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     maybeAssignmentResult match {
       case Some(value) =>
         value.resolveAssignment.toArray
-      case None => cachedWithRecursionGuard("ScReferenceExpressionImpl.multiResolveScala", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this), Tuple1(incomplete)) {
+      case None => cachedWithRecursionGuard("multiResolveScala", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this), Tuple1(incomplete)) {
         new ReferenceExpressionResolver().resolve(this, shapesOnly = false, incomplete)
       }
     }
@@ -73,7 +73,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     maybeAssignmentResult match {
       case Some(value) =>
         value.shapeResolveAssignment.toArray
-      case None => cachedWithRecursionGuard("ScReferenceExpressionImpl.shapeResolve", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this)) {
+      case None => cachedWithRecursionGuard("shapeResolve", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this)) {
         new ReferenceExpressionResolver().resolve(this, shapesOnly = true, incomplete = false)
       }
     }

@@ -483,7 +483,7 @@ object MixinNodes {
   }
 
   def linearization(clazz: PsiClass): Seq[ScType] =
-    cachedWithRecursionGuard("MixinNodes.linearization", clazz, Seq.empty[ScType], ModTracker.libraryAware(clazz)) {
+    cachedWithRecursionGuard("linearization", clazz, Seq.empty[ScType], ModTracker.libraryAware(clazz)) {
       clazz match {
         case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" =>
           Seq(ScalaType.designator(obj))
