@@ -2,16 +2,16 @@ package org.jetbrains.sbt.project
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
-import com.intellij.openapi.projectRoots.impl.JavaHomeFinder
-import com.intellij.openapi.projectRoots.{JavaSdk, JdkUtil, ProjectJdkTable, Sdk}
+import com.intellij.openapi.projectRoots.impl.{JavaHomeFinder, SdkConfigurationUtil}
+import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.ThrowableComputable
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.sbt.SbtBundle
 
+import java.util
 import java.util.Comparator
-import scala.jdk.CollectionConverters._
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.math.Ordered.orderingToOrdered
 
@@ -30,15 +30,11 @@ object SbtProcessJdkGuesser {
 
   private val Log = Logger.getInstance(getClass)
 
-  private val MINIMUM_JAVA_VERSION_STR: String = "1.8"
-  private val MINIMUM_JAVA_VERSION: JavaVersion = JavaVersion.parse(MINIMUM_JAVA_VERSION_STR)
-
-  private val MAXIMUM_JAVA_VERSION_STR: String = "17"
-  private val MAXIMUM_JAVA_VERSION: JavaVersion = JavaVersion.parse(MAXIMUM_JAVA_VERSION_STR)
+  private val MINIMUM_JAVA_SDK_VERSION: JavaSdkVersion = JavaSdkVersion.JDK_1_8
+  private val MAXIMUM_JAVA_SDK_VERSION: JavaSdkVersion = JavaSdkVersion.JDK_17
 
   private val jdkType: JavaSdk = JavaSdk.getInstance
   private val versionComparator: Comparator[Sdk] = jdkType.versionComparator
-  private val versionStringComparator: Comparator[String] = jdkType.versionStringComparator
   private val versionOrdering: Ordering[Sdk] = Ordering.comparatorToOrdering(versionComparator)
 
   /**
@@ -56,9 +52,7 @@ object SbtProcessJdkGuesser {
       )
       jdkOpt.foreach { jdk =>
         inWriteAction {
-          val existingJdk = Option(jdkTable.findJdk(jdk.getName))
-            .filter(sdk => sdk.getHomePath != null &&  jdk.getHomePath == sdk.getHomePath)
-          if (existingJdk.isEmpty) jdkTable.addJdk(jdk)
+          jdkTable.addJdk(jdk)
         }
       }
     } catch {
@@ -72,13 +66,7 @@ object SbtProcessJdkGuesser {
   def findJdkWithSuitableVersion(jdkTable: ProjectJdkTable): SdkCandidate = {
     val sdksAll = jdkTable.getSdksOfType(jdkType).asScala.toSeq
     val sdksAllSorted = sdksAll.sorted(versionOrdering)
-    val sdksMatchingVersion = sdksAllSorted.filter { sdk =>
-      val versionString = sdk.getVersionString
-      val versionPath = JavaVersion.tryParse(sdk.getHomePath)
-      (versionStringComparator.compare(versionString, MINIMUM_JAVA_VERSION_STR) >= 0 &&
-        versionStringComparator.compare(versionString, MAXIMUM_JAVA_VERSION_STR) <= 0) ||
-        (versionPath != null && MINIMUM_JAVA_VERSION <= versionPath && versionPath <= MAXIMUM_JAVA_VERSION)
-    }
+    val sdksMatchingVersion = sdksAllSorted.filter(hasSuitableVersion)
 
     if (Log.isTraceEnabled) {
       Log.trace(s"findMostSuitableJdkForSbt: all sdks:\n${sdksAllSorted.mkString("\n")}")
@@ -87,32 +75,40 @@ object SbtProcessJdkGuesser {
     SdkCandidate(sdksMatchingVersion.headOption, sdksAllSorted)
   }
 
+  private def hasSuitableVersion(sdk: Sdk): Boolean = {
+    val javaSdkVersion = jdkType.getVersion(sdk)
+    javaSdkVersion != null && MINIMUM_JAVA_SDK_VERSION <= javaSdkVersion && javaSdkVersion <= MAXIMUM_JAVA_SDK_VERSION
+  }
+
   /** Alternative for [[com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl#guessJdk()]] */
   private def createJdkWithSuitableVersion: Option[Sdk] = {
     val javaPaths0 = JavaHomeFinder.suggestHomePaths(false).asScala.toSeq
 
-    val javaPaths: Seq[JavaPathWithVersion] =
+    val javaPaths =
       javaPaths0
         .filter(jdkType.isValidSdkHome)
-        .map(p => JavaPathWithVersion(p, JavaVersion.tryParse(p)))
-        .filter(_.version != null)
+        .flatMap { path =>
+          for {
+            javaVersion <- Option(JavaVersion.tryParse(path))
+            sdkVersion <- Option(JavaSdkVersion.fromJavaVersion(javaVersion))
+          } yield JavaPathWithVersion(path, javaVersion, sdkVersion)
+        }
 
     val javaPathsMatchingVersion: Seq[JavaPathWithVersion] =
-      javaPaths.filter(s => MINIMUM_JAVA_VERSION <= s.version && s.version <= MAXIMUM_JAVA_VERSION)
+      javaPaths.filter(s => MINIMUM_JAVA_SDK_VERSION <= s.sdkVersion && s.sdkVersion <= MAXIMUM_JAVA_SDK_VERSION)
 
     val homePath = javaPathsMatchingVersion.headOption match {
       case Some(value) => value
       case None =>
         return None
     }
-    val suggestedName = JdkUtil.suggestJdkName(homePath.version, null)
-    if (suggestedName == null)
-      return None
+    val allJdks = ProjectJdkTable.getInstance().getAllJdks
+    val suggestedName = SdkConfigurationUtil.createUniqueSdkName(JavaSdk.getInstance(), homePath.path, util.Arrays.asList(allJdks:_*))
 
     ProgressManager.checkCanceled()
 
     Option(jdkType.createJdk(suggestedName, homePath.path, false))
   }
 
-  private case class JavaPathWithVersion(path: String, version: JavaVersion)
+  private case class JavaPathWithVersion(path: String, version: JavaVersion, sdkVersion: JavaSdkVersion)
 }
