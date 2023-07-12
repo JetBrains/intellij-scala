@@ -614,7 +614,9 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
 
   def test_trailing_comment(): Unit = checkTree(
     """//> using dep // foo
+      |//> using dep //foo
       |//> using dep foo // bar
+      |//> using //foo
       |""".stripMargin,
     """ScalaFile
       |  PsiElement(SCALA_CLI_DIRECTIVE)
@@ -633,9 +635,27 @@ class ScalaCliParserTest extends SimpleScalaParserTestBase {
       |    PsiWhiteSpace(' ')
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('dep')
       |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('//foo')
+      |  PsiWhiteSpace('\n')
+      |  PsiElement(SCALA_CLI_DIRECTIVE)
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMAND)('using')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_KEY)('dep')
+      |    PsiWhiteSpace(' ')
       |    ScCliDirectiveToken(tCLI_DIRECTIVE_VALUE)('foo')
       |    PsiWhiteSpace(' ')
       |    PsiComment(comment)('// bar')
+      |  PsiWhiteSpace('\n')
+      |  PsiElement(SCALA_CLI_DIRECTIVE)
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_PREFIX)('//>')
+      |    PsiWhiteSpace(' ')
+      |    ScCliDirectiveToken(tCLI_DIRECTIVE_COMMAND)('using')
+      |    PsiErrorElement:Scala CLI key expected: option, dep, jar, etc.
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiComment(comment)('//foo')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
 }
