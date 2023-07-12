@@ -104,7 +104,10 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
       val prevImports = previousImports(lastParent)
 
       //Resolve all references in previous import expressions in direct order to avoid SOE
-      prevImports.foreach(updateResolveCaches)
+      prevImports.foreach { importStmt =>
+        ProgressManager.checkCanceled()
+        updateResolveCaches(importStmt)
+      }
 
       val shouldStop = prevImports.findLast(!_.processDeclarations(processor, state, lastParent, place))
 
