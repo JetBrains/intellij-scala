@@ -16,6 +16,8 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
   protected lazy val MethodIcon = getPlatformIcon(PlatformIcons.Method)
   protected lazy val PrivateIcon = getPlatformIcon(PlatformIcons.Private)
 
+  private val EmptyBlockNodeText = ""
+
   def testEmptyFile(): Unit = {
     check("")
   }
@@ -88,12 +90,12 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         Node(FIELD_VAR, PrivateIcon, "v: Int")))
   }
 
-//  def testVariableTypeInference(): Unit = {
-//    check("""
-//          var v = 1
-//          """,
-//      Node(VAR, "v: Int"))
-//  }
+  //  def testVariableTypeInference(): Unit = {
+  //    check("""
+  //          var v = 1
+  //          """,
+  //      Node(VAR, "v: Int"))
+  //  }
 
   def testValue(): Unit = {
     check("""
@@ -163,12 +165,12 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         Node(FIELD_VAL, PrivateIcon, "v: Int")))
   }
 
-//  def testValueTypeInference(): Unit = {
-//    check("""
-//          val v = 1
-//          """,
-//      Node(VAL, "v: Int"))
-//  }
+  //  def testValueTypeInference(): Unit = {
+  //    check("""
+  //          val v = 1
+  //          """,
+  //      Node(VAL, "v: Int"))
+  //  }
 
   def testTypeAlias(): Unit = {
     check("""
@@ -231,12 +233,12 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       Node(FUNCTION, PrivateIcon, "m: Int"))
   }
 
-//  def testFunctionTypeInference(): Unit = {
-//    check("""
-//          def m(p: Any) = 1
-//          """,
-//      Node(FUNCTION, "m(Any): Int"))
-//  }
+  //  def testFunctionTypeInference(): Unit = {
+  //    check("""
+  //          def m(p: Any) = 1
+  //          """,
+  //      Node(FUNCTION, "m(Any): Int"))
+  //  }
 
   def testMethod(): Unit = {
     check("""
@@ -275,12 +277,12 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       Node(FUNCTION, "m[A, B]: Int"))
   }
 
-//  def testFunctionTypeParameterPresentation(): Unit = {
-//    check("""
-//          def m[T <: Any]: Int = 1
-//          """,
-//      Node(FUNCTION, "m[T]: Int"))
-//  }
+  //  def testFunctionTypeParameterPresentation(): Unit = {
+  //    check("""
+  //          def m[T <: Any]: Int = 1
+  //          """,
+  //      Node(FUNCTION, "m[T]: Int"))
+  //  }
 
   def testParameterListInFunction(): Unit = {
     check("""
@@ -835,8 +837,6 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         |}
         |""".stripMargin
 
-
-    val EmptyBlockNodeText = ""
     val expectedStructureWithAnonimousDisabled =
       s"""-ScalaStructureTest.scala
          | -ScalaStructureTest
@@ -885,6 +885,83 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
 
       PlatformTestUtil.expandAll(tree)
       PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonimousDisabled)
+
+      svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
+
+      PlatformTestUtil.expandAll(tree)
+      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonimousEnabled)
+    })
+  }
+
+  def testAnonimousClasses_InsideValAndVarBody(): Unit = {
+    val code =
+      """object MyClass {
+        |  //`val`, fields
+        |  val value1: Runnable = new Runnable() { override def run(): Unit = () }
+        |  val value2: Runnable = { new Runnable() { override def run(): Unit = () } }
+        |  val value3: Runnable = { { new Runnable() { override def run(): Unit = () } } }
+        |  val (value4: Runnable) = { new Runnable() { override def run(): Unit = () } }
+        |  val (value5, value6) = (
+        |    new Runnable() { override def run(): Unit = () },
+        |    { new Runnable() { override def run(): Unit = () } },
+        |  )
+        |
+        |  //`var`, local members
+        |  def main(args: Array[String]): Unit = {
+        |    var value1: Runnable = new Runnable() { override def run(): Unit = () }
+        |    var value2: Runnable = { new Runnable() { override def run(): Unit = () } }
+        |    var value3: Runnable = { { new Runnable() { override def run(): Unit = () } } }
+        |    var (value4: Runnable) = { new Runnable() { override def run(): Unit = () } }
+        |    var (value5, value6) = (
+        |      new Runnable() { override def run(): Unit = () },
+        |      { new Runnable() { override def run(): Unit = () } },
+        |    )
+        |  }
+        |}
+        |""".stripMargin
+
+    val expectedStructureWithAnonimousEnabled =
+      s"""-AnonimousClasses_InsideValAndVarBody.scala
+         | -MyClass
+         |  value1: Runnable
+         |  -$$1
+         |   run(): Unit
+         |  -value2: Runnable
+         |   -$$2
+         |    run(): Unit
+         |  -value3: Runnable
+         |   -$EmptyBlockNodeText
+         |    -$$3
+         |     run(): Unit
+         |  value4
+         |  value5
+         |  value6
+         |  -$$5
+         |   run(): Unit
+         |  -$$6
+         |   run(): Unit
+         |  -main(Array[String]): Unit
+         |   -$$7
+         |    run(): Unit
+         |   -$$8
+         |    run(): Unit
+         |   -$$9
+         |    run(): Unit
+         |   -$$10
+         |    run(): Unit
+         |   -$$11
+         |    run(): Unit
+         |   -$$12
+         |    run(): Unit
+         |""".stripMargin.trim
+
+    myFixture.configureByText(s"${getTestName(false)}.scala", code)
+
+    //NOTE: our common test code from `ScalaStructureViewTestBase` can't test
+    // nodes coming from com.intellij.ide.util.FileStructureNodeProvider
+    //In IntelliJ tests they test it using this fixture method
+    myFixture.testStructureView((svc: StructureViewComponent) => {
+      val tree = svc.getTree
 
       svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
 
