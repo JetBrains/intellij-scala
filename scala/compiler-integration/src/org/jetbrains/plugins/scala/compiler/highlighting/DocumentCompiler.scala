@@ -88,8 +88,10 @@ private final class DocumentCompiler(project: Project) extends Disposable {
 
       val scalacOptions = super.scalaParameters
       if (module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3)) {
-        if (containsUnusedImports(scalacOptions)) scalacOptions else scalacOptions :+ "-Wunused:imports"
-      } else scalacOptions
+        if (containsUnusedImports(scalacOptions)) scalacOptions
+        else scalacOptions :+ "-Wunused:imports"
+      }
+      else scalacOptions
     }
 
     override protected def assemblyRuntimeClasspath(): Seq[File] = {
