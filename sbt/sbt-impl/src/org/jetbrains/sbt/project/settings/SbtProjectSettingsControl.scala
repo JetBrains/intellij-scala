@@ -4,12 +4,13 @@ package project.settings
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, SdkTypeId}
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.openapi.util.Condition
 import com.intellij.util.messages.Topic
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.project.external.SdkUtils
 
 import java.awt.FlowLayout
 import javax.swing._
@@ -17,12 +18,13 @@ import javax.swing._
 class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSettings)
   extends AbstractExternalProjectSettingsControl[SbtProjectSettings](initialSettings) {
 
+  private val model = new ProjectSdksModel()
+
   private val jdkComboBox: JdkComboBox = {
-    val model = new ProjectSdksModel()
     model.reset(getProject)
     val jdkFilter: Condition[SdkTypeId] = (sdk: SdkTypeId) => sdk == JavaSdk.getInstance()
 
-    new JdkComboBox(getProject, model, jdkFilter, null, jdkFilter, null)
+    new JdkComboBox(getProject, model, jdkFilter, null, jdkFilter, SdkUtils.addJdkIfNotExists)
   }
 
   private val extraControls = new SbtExtraControls()
@@ -62,6 +64,9 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
     val settings = getInitialSettings
 
+    model.reset(getProject)
+    // note: it is done to keep jdkComboBox in sync with global SDKs list
+    jdkComboBox.reloadModel()
     val jdk = settings.jdkName.flatMap(name => Option(ProjectJdkTable.getInstance.findJdk(name)))
     jdkComboBox.setSelectedJdk(jdk.orNull)
 
