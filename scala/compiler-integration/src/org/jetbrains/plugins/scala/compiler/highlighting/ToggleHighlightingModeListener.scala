@@ -38,11 +38,7 @@ private final class ToggleHighlightingModeListener extends ProjectManagerListene
     DumbService.getInstance(project).runWhenSmart { () =>
       executeOnBackgroundThreadInNotDisposed(project) {
         if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-          inReadAction {
-            AnnotatorHints.clearIn(project)
-            val trigger = TriggerCompilerHighlightingService.get(project)
-            Option(FileEditorManager.getInstance(project).getSelectedEditor).foreach(trigger.triggerOnSelectedEditorChange)
-          }
+          inReadAction(AnnotatorHints.clearIn(project))
         } else {
           ExternalHighlighters.eraseAllHighlightings(project)
         }
@@ -51,6 +47,12 @@ private final class ToggleHighlightingModeListener extends ProjectManagerListene
         invokeLater {
           forceStandardHighlighting(project)
           CompileServerNotificationsService.get(project).resetNotifications()
+          if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+            executeOnBackgroundThreadInNotDisposed(project) {
+              val trigger = TriggerCompilerHighlightingService.get(project)
+              Option(FileEditorManager.getInstance(project).getSelectedEditor).foreach(trigger.triggerOnSelectedEditorChange)
+            }
+          }
         }
       }
     }
