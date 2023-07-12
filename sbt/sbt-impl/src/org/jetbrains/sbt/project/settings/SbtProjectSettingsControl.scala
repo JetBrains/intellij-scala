@@ -24,7 +24,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     model.reset(getProject)
     val jdkFilter: Condition[SdkTypeId] = (sdk: SdkTypeId) => sdk == JavaSdk.getInstance()
 
-    new JdkComboBox(getProject, model, jdkFilter, null, jdkFilter, SdkUtils.addSdkIfNotExists)
+    new JdkComboBox(getProject, model, jdkFilter, null, jdkFilter, SdkUtils.addJdkIfNotExists)
   }
 
   private val extraControls = new SbtExtraControls()
@@ -65,6 +65,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     val settings = getInitialSettings
 
     model.reset(getProject)
+    // note: it is done to keep jdkComboBox in sync with global SDKs list
     jdkComboBox.reloadModel()
     val jdk = settings.jdkName.flatMap(name => Option(ProjectJdkTable.getInstance.findJdk(name)))
     jdkComboBox.setSelectedJdk(jdk.orNull)

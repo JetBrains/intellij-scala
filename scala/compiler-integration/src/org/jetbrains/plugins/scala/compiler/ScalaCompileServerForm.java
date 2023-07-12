@@ -69,7 +69,7 @@ public class ScalaCompileServerForm implements Configurable {
         sdkModel = new ProjectSdksModelWithDefault();
         inEventDispatchThread(() -> sdkModel.reset(project));
 
-        myCompilationServerSdk = new JdkComboBox(project, sdkModel, null, null, null, SdkUtils::addSdkIfNotExists);
+        myCompilationServerSdk = new JdkComboBox(project, sdkModel, null, null, null, SdkUtils::addJdkIfNotExists);
         myCompilationServerSdk.setMinimumAndPreferredWidth(500);
         myCompilationServerSdk.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
