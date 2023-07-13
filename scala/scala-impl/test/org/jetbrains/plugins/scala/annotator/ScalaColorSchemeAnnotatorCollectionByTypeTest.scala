@@ -536,8 +536,8 @@ abstract class ScalaColorSchemeAnnotatorCollectionByTypeTestBase
     filterAnnotationMessagesWithFileText: Set[MessageWithCode],
     expectedAnnotationsText: String
   )(implicit d: DummyImplicit): Unit = {
-    val holder = annotateWithColorSchemeAnnotator(text)
-    val annotationsWithMatchingMessage = holder.annotations.filter(a => {
+    val annotations = annotateWithColorSchemeAnnotator(text)
+    val annotationsWithMatchingMessage = annotations.filter(a => {
       filterAnnotationMessagesWithFileText.contains(MessageWithCode(a.message, a.code))
     })
     val actualAnnotationsText = buildAnnotationsTestText(annotationsWithMatchingMessage)

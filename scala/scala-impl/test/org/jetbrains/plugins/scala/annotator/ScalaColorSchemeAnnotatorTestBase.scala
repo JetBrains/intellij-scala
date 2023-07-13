@@ -26,7 +26,7 @@ abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsigh
 
   protected def needToAnnotateElement(element: PsiElement): Boolean
 
-  protected def annotateWithColorSchemeAnnotator(text: String): AnnotatorHolderExtendedMock = {
+  protected def annotateWithColorSchemeAnnotator(text: String): Seq[Message2] = {
     configureFromFileText("dummy.scala", text.withNormalizedSeparator)
 
     val scalaFile = getFile.asInstanceOf[ScalaFile]
@@ -39,7 +39,7 @@ abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsigh
       }
     }
 
-    holder
+    holder.annotations.sortBy(_.range.getStartOffset)
   }
 
   protected def testHasNoAnnotations(
@@ -66,10 +66,8 @@ abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsigh
     filterAnnotationItems: Set[T],
     expectedAnnotationsText: String
   ): Unit = {
-    val holder = annotateWithColorSchemeAnnotator(text)
-    val annotationsAll = holder.annotations.sortBy(_.range.getStartOffset)
-
-    val annotationsWithMatchingMessage = annotationsAll.filter { a =>
+    val annotations = annotateWithColorSchemeAnnotator(text)
+    val annotationsWithMatchingMessage = annotations.filter { a =>
       filterAnnotationItems.contains(getFilterByField(a))
     }
     val actualAnnotationsText = buildAnnotationsTestText(annotationsWithMatchingMessage)
