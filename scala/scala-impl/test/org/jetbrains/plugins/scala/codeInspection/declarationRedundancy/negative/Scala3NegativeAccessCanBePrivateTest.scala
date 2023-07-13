@@ -7,6 +7,8 @@ class Scala3NegativeAccessCanBePrivateTest extends ScalaAccessCanBePrivateInspec
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
 
+  def test_fail_so_no_auto_merge(): Unit = throw new Exception
+
   def test_opaque_type(): Unit =
     checkTextHasNoErrors("object A { opaque type Foo = Int; val x: Foo = 1 }")
 

@@ -42,8 +42,22 @@ object Common {
   val outOfIDEAProcessJavacOptions       : Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions
   val outOfIDEAProcessScalacOptions      : Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
 
-  val headCommitSum: String =
-    scala.sys.process.Process("git rev-parse HEAD").!!.trim.take(7)
+  val headCommitSum: String = {
+    // If you're working exclusively with the Community portion of the Scala plugin, `communityOrUltimateRevision` will
+    // hold the community revision, and `maybeCommunityRevision` will contain an empty string.
+    // If the file you're looking at is used in the context of working with both Ultimate and Community code,
+    // `communityOrUltimateRevision` will hold the ultimate revision.
+    // Note that the `communityRevision` system property is set by the `build.sbt` that is part of the proprietary part
+    // of the Scala plugin codebase. If you're only working on Community code, `communityRevision` will not be
+    // defined.
+    val communityOrUltimateRevision = scala.sys.process.Process("git rev-parse HEAD").!!.trim.take(8)
+    val maybeCommunityRevision = Option(System.getProperty("communityRevision")).map(_.trim.take(8)).getOrElse("")
+
+    println(s"communityOrUltimateRevision: $communityOrUltimateRevision")
+    println(s"maybeCommunityRevision: $maybeCommunityRevision")
+
+    communityOrUltimateRevision + maybeCommunityRevision
+  }
 
   val compilationCacheSettings: Seq[Def.Setting[?]] = Seq(
     Compile / remoteCacheId := headCommitSum,
