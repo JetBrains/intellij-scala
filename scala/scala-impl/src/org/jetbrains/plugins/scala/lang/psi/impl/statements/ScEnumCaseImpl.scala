@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCaseKind, ScEnumCases, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -145,6 +145,10 @@ final class ScEnumCaseImpl(
   override protected def baseIcon: Icon = Icons.ENUM
 
   override def isLocal: Boolean = false
+
+  override def enumKind: ScEnumCaseKind =
+    if (constructor.isEmpty) ScEnumCaseKind.SingletonCase
+    else ScEnumCaseKind.ClassCase
 
   override def getSyntheticCounterpart: ScNamedElement = {
     val res = enumParent.syntheticClass.flatMap(ScalaPsiUtil.getCompanionModule).toSeq

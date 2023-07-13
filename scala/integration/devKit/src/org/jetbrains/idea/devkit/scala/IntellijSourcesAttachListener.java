@@ -14,7 +14,7 @@ import static org.jetbrains.idea.devkit.scala.SbtIdeaPluginDetector.hasSbtIdeaPl
 public class IntellijSourcesAttachListener extends ExternalSystemTaskNotificationListenerAdapter {
 
     private static final int MAX_ATTEMPTS = 10;
-    private static final int RETRY_DELAY_MS = 1000;
+    private static final int RETRY_DELAY_MS = 3000;
 
     private static final Logger LOG = Logger.getInstance(IntellijSourcesAttachListener.class);
 
@@ -34,6 +34,7 @@ public class IntellijSourcesAttachListener extends ExternalSystemTaskNotificatio
         if (attempt >= MAX_ATTEMPTS) {
             LOG.info("Failed to wait for dumb mode after " + attempt + " attempts, trying to attach sources anyway");
             attachIJSources(project);
+            return;
         }
         if (DumbService.isDumb(project)) {
             LOG.info("Scheduling sources attach after " + attempt + " attempts");
@@ -42,7 +43,8 @@ public class IntellijSourcesAttachListener extends ExternalSystemTaskNotificatio
             // apparently there is no way to run a callback AFTER all external system data has been committed to the project model
             // when the external project is refreshed (counter to imported) "onSuccess" callback is invoked before new libraries model
             // is committed and not in dumb mode so we can't even properly postpone attaching sources
-            new Alarm().addRequest(() -> tryAttach(project, attempt+1), RETRY_DELAY_MS);
+            //NOTE: `addRequest` schedules a single request, it doesn't call it periodically
+            new Alarm().addRequest(() -> tryAttach(project, attempt + 1), RETRY_DELAY_MS);
         }
     }
 
