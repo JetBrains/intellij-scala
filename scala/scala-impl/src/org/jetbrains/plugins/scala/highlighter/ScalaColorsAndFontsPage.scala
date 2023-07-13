@@ -4,9 +4,9 @@ import com.intellij.codeHighlighting.RainbowHighlighter
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.{SyntaxHighlighter, SyntaxHighlighterFactory}
 import com.intellij.openapi.options.colors.{AttributesDescriptor, ColorDescriptor, RainbowColorSettingsPage}
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 import java.util
 import javax.swing.Icon
@@ -44,10 +44,13 @@ object ScalaColorsAndFontsPage {
     new AttributesDescriptor(DisplayNames.CLASS, CLASS),
     new AttributesDescriptor(DisplayNames.ABSTRACT_CLASS, ABSTRACT_CLASS),
     new AttributesDescriptor(DisplayNames.OBJECT, OBJECT),
+    new AttributesDescriptor(DisplayNames.TRAIT, TRAIT),
+    new AttributesDescriptor(DisplayNames.ENUM, ENUM),
+    new AttributesDescriptor(DisplayNames.ENUM_SINGLETON_CASE, ENUM_SINGLETON_CASE),
+    new AttributesDescriptor(DisplayNames.ENUM_CLASS_CASE, ENUM_CLASS_CASE),
     new AttributesDescriptor(DisplayNames.TYPEPARAM, TYPEPARAM),
     new AttributesDescriptor(DisplayNames.TYPE_ALIAS, TYPE_ALIAS),
     new AttributesDescriptor(DisplayNames.PREDEF, PREDEF),
-    new AttributesDescriptor(DisplayNames.TRAIT, TRAIT),
     new AttributesDescriptor(DisplayNames.LOCAL_VALUES, LOCAL_VALUES),
     new AttributesDescriptor(DisplayNames.LOCAL_VARIABLES, LOCAL_VARIABLES),
     new AttributesDescriptor(DisplayNames.LOCAL_LAZY, LOCAL_LAZY),
@@ -100,6 +103,11 @@ object ScalaColorsAndFontsPage {
     val PREDEF = ScalaOptionsBundle.message("options.scala.attribute.descriptor.predefined.types")
     val OBJECT = ScalaOptionsBundle.message("options.scala.attribute.descriptor.object")
     val CLASS = ScalaOptionsBundle.message("options.scala.attribute.descriptor.class")
+    val ABSTRACT_CLASS = ScalaOptionsBundle.message("options.scala.attribute.descriptor.abstract.class")
+    val TRAIT = ScalaOptionsBundle.message("options.scala.attribute.descriptor.trait")
+    val ENUM = ScalaOptionsBundle.message("options.scala.attribute.descriptor.enum")
+    val ENUM_SINGLETON_CASE = ScalaOptionsBundle.message("options.scala.attribute.descriptor.enum.case.singleton")
+    val ENUM_CLASS_CASE = ScalaOptionsBundle.message("options.scala.attribute.descriptor.enum.case.class")
     val BAD_CHARACTER = ScalaOptionsBundle.message("options.scala.attribute.descriptor.bad.character")
     val DOC_COMMENT = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scaladoc.comment")
     val SCALA_DOC_TAG = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scaladoc.comment.tag")
@@ -108,8 +116,6 @@ object ScalaColorsAndFontsPage {
     val SCALA_DOC_HTML_ESCAPE = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scaladoc.html.escape.sequences")
     val SCALA_DOC_TAG_PARAM_VALUE = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scaladoc.param.value")
     val IMPLICIT_CONVERSIONS = ScalaOptionsBundle.message("options.scala.attribute.descriptor.implicit.conversion")
-    val ABSTRACT_CLASS = ScalaOptionsBundle.message("options.scala.attribute.descriptor.abstract.class")
-    val TRAIT = ScalaOptionsBundle.message("options.scala.attribute.descriptor.trait")
     val LOCAL_VALUES = ScalaOptionsBundle.message("options.scala.attribute.descriptor.local.value")
     val LOCAL_VARIABLES = ScalaOptionsBundle.message("options.scala.attribute.descriptor.local.variable")
     val LOCAL_LAZY = ScalaOptionsBundle.message("options.scala.attribute.descriptor.local.lazy.val.var")
@@ -189,9 +195,6 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
       |  val xml = <xmltag><<xmltagname>element</xmltagname> <xmlattributename>attibute=</xmlattributename><xmlattributevalue>"value"</xmlattributevalue>></xmltag><xmltagdata>data</xmltagdata><xmltag></element></xmltag>
       |<brace>}</brace>
       |
-      |<blockcomment>/*
-      |  And now ScalaObject
-      | */</blockcomment>
       |<keyword>object</keyword> <object>Object</object> <brace>{</brace>
       |  <keyword>val</keyword> <val>layer</val> <assign>=</assign> <number>-5.0</number>
       |  <keyword>val</keyword> <val>mutableCollection</val> <assign>=</assign> <mutablec>HashMap</mutablec>[<predef>Int</predef>,  <predef>Int</predef>]()
@@ -208,6 +211,10 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
       |<keyword>abstract</keyword> <keyword>class</keyword> <abstract>SomeAbstract</abstract> <brace>{</brace>
       |  <keyword>for</keyword> <par>(</par><generator>x</generator> <- list<par>)</par> <brace>{</brace><generator>x</generator><brace>}</brace>
       |<brace>}</brace>
+      |
+      |<keyword>enum</keyword> <enum>MyEnum</enum>:
+      |  <keyword>case</keyword> <enum_singleton_case>MySingletonCase</enum_singleton_case>
+      |  <keyword>case</keyword> <enum_class_case>MyClassCase</enum_class_case>(<param>x</param>: <predef>Int</predef>)
       |""".stripMargin.replace("\r", "")
 
   override def getAdditionalHighlightingTagToDescriptorMap: util.Map[String, TextAttributesKey] = {
@@ -232,10 +239,13 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
     map.put("number", NUMBER)
     map.put("linecomment", LINE_COMMENT)
     map.put("blockcomment", BLOCK_COMMENT)
-    map.put("class", CLASS)
     map.put("predef", PREDEF)
+    map.put("class", CLASS)
     map.put("object", OBJECT)
     map.put("trait", TRAIT)
+    map.put("enum", ENUM)
+    map.put("enum_singleton_case", ENUM_SINGLETON_CASE)
+    map.put("enum_class_case", ENUM_CLASS_CASE)
     map.put("annotation", ANNOTATION)
     map.put("attribute", ANNOTATION_ATTRIBUTE)
     map.put("abstract", ABSTRACT_CLASS)

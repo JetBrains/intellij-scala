@@ -7,11 +7,11 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiMember
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator, ScMethodCall, ScNameValuePair, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCaseKind, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 
@@ -24,6 +24,8 @@ object ScalaColorsSchemeUtils {
       case c: ScClass                                 => Some(DefaultHighlighter.CLASS)
       case _: ScObject                                => Some(DefaultHighlighter.OBJECT)
       case _: ScTrait                                 => Some(DefaultHighlighter.TRAIT)
+      case _: ScEnum                                  => Some(DefaultHighlighter.ENUM)
+      case ec: ScEnumCase                             => Some(enumCaseAttributes(ec))
       case x: ScBindingPattern =>
         x.nameContext match {
           case r@(_: ScValue | _: ScVariable) =>
@@ -53,11 +55,18 @@ object ScalaColorsSchemeUtils {
       case _ => None
     }
 
+  private def enumCaseAttributes(ec: ScEnumCase): TextAttributesKey =
+    if (ec.enumKind == ScEnumCaseKind.SingletonCase) DefaultHighlighter.ENUM_SINGLETON_CASE
+    else DefaultHighlighter.ENUM_CLASS_CASE
+
   def textAttributesKey(resolvedElement: PsiElement,
                         refElement: Option[ScReference] = None,
                         qualNameToType: Map[String, StdType] = Map.empty): TextAttributesKey =
     resolvedElement match {
       case c: PsiClass if qualNameToType.contains(c.qualifiedName)                       => DefaultHighlighter.PREDEF //this is td, it's important!
+      case _: ScEnum | ScEnum.Original(_) | ScEnum.OriginalFromObject(_)                 => DefaultHighlighter.ENUM
+      case ec: ScEnumCase                                                                => enumCaseAttributes(ec)
+      case ScEnumCase.Original(ec)                                                       => enumCaseAttributes(ec)
       case c: ScClass if c.getModifierList.isAbstract                                    => DefaultHighlighter.ABSTRACT_CLASS
       case _: ScTypeParam                                                                => DefaultHighlighter.TYPEPARAM
       case _: ScTypeAlias                                                                => DefaultHighlighter.TYPE_ALIAS

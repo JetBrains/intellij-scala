@@ -69,6 +69,9 @@ public class DefaultHighlighter {
   static final String IMPLICIT_CONVERSIONS_ID = "Implicit conversion";
   static final String ABSTRACT_CLASS_ID = "Scala Abstract class";
   static final String TRAIT_ID = "Scala Trait";
+  static final String ENUM_ID = "Scala Enum";
+  static final String ENUM_SINGLETON_CASE_ID = "Scala Enum Singleton Case";
+  static final String ENUM_CLASS_CASE_ID = "Scala Enum Class Case";
   static final String LOCAL_VALUES_ID = "Scala Local value";
   static final String LOCAL_VARIABLES_ID = "Scala Local variable";
   static final String LOCAL_LAZY_ID = "Scala Local lazy val/var";
@@ -155,6 +158,10 @@ public class DefaultHighlighter {
   // TODO Inherit Java's arrow attributes when Java will support them
   public static final TextAttributesKey ARROW = createKey(ARROW_ID, DefaultLanguageHighlighterColors.OPERATION_SIGN);
   public static final TextAttributesKey BAD_CHARACTER = createKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER);
+
+  public static final TextAttributesKey ENUM = createKey(ENUM_ID, JavaHighlightInfoTypes.ENUM_NAME.getAttributesKey());
+  public static final TextAttributesKey ENUM_SINGLETON_CASE = createKey(ENUM_SINGLETON_CASE_ID, VALUES);
+  public static final TextAttributesKey ENUM_CLASS_CASE = createKey(ENUM_CLASS_CASE_ID, CLASS);
 
   public static final TextAttributesKey XML_TAG = createKey(XML_TAG_ID, XmlHighlighterColors.XML_TAG);
   public static final TextAttributesKey XML_TAG_NAME = createKey(XML_TAG_NAME_ID, XmlHighlighterColors.XML_TAG_NAME);
