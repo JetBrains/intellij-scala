@@ -8,8 +8,10 @@ import org.junit.Assert.assertTrue
 
 class ScParametersTest extends ScalaFixtureTestCase {
 
+  private val TestClassName = "Foo"
+
   private def assertJvmFacingParameterCountAndType(methodName: String, expectedTypes: Seq[String]): Unit = {
-    val clazz = ScalaPsiManager.instance(getProject).getClassesByName("Foo", GlobalSearchScope.fileScope(getFile)).head.asInstanceOf[ScClass]
+    val clazz = ScalaPsiManager.instance(getProject).getClassesByName(TestClassName, GlobalSearchScope.fileScope(getFile)).head.asInstanceOf[ScClass]
 
     val method = clazz.functions.filter(_.name == methodName).head
 
@@ -25,8 +27,8 @@ class ScParametersTest extends ScalaFixtureTestCase {
   }
 
   def test_jvm_facing_parameters_of_method_in_class(): Unit = {
-    myFixture.configureByText("Foo.scala",
-      """class Foo {
+    myFixture.configureByText(s"$TestClassName.scala",
+      s"""class $TestClassName {
         |  def bar0(): Unit = ()
         |  def bar1(i: Int): Unit = ()
         |  def bar2(i: Int, s: String): Unit = ()
@@ -38,9 +40,9 @@ class ScParametersTest extends ScalaFixtureTestCase {
   }
 
   def test_jvm_facing_parameters_of_method_in_implicit_class(): Unit = {
-    myFixture.configureByText("Foo.scala",
-      """object Scope {
-        |  implicit class Foo(d: Double) {
+    myFixture.configureByText(s"$TestClassName.scala",
+      s"""object Scope {
+        |  implicit class $TestClassName(d: Double) {
         |    def bar0(): Unit = ()
         |    def bar1(i: Int): Unit = ()
         |    def bar2(i: Int, s: String): Unit = ()
@@ -53,9 +55,9 @@ class ScParametersTest extends ScalaFixtureTestCase {
   }
 
   def test_jvm_facing_parameters_of_method_in_implicit_anyval_class(): Unit = {
-    myFixture.configureByText("Foo.scala",
-      """object Scope {
-        |  implicit class Foo(val d: Double) extends AnyVal {
+    myFixture.configureByText(s"$TestClassName.scala",
+      s"""object Scope {
+        |  implicit class $TestClassName(val d: Double) extends AnyVal {
         |    def bar0(): Unit = ()
         |    def bar1(i: Int): Unit = ()
         |    def bar2(i: Int, s: String): Unit = ()
