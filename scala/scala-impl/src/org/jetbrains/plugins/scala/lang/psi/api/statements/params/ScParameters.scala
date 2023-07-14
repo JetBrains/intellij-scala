@@ -3,8 +3,7 @@ package params
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.{ImplicitValueClass, extendsAnyVal}
+import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.ImplicitValueClass
 
 trait ScParameters extends ScalaPsiElement with PsiParameterList {
 
@@ -28,13 +27,14 @@ trait ScParameters extends ScalaPsiElement with PsiParameterList {
    * that extend AnyVal. For example:
    * {{{
    * implicit class RichInt(i: Int) extends AnyVal {
-   *   def addOne(): Int = i + 1
+   *   def addN(n: Int): Int = i + 1
    * }
    * }}}
    *
-   * In such cases, from the perspective of non-Scala JVM languages, addOne should be treated like it accepts the one
+   * In such cases, from the perspective of non-Scala JVM languages, addN should be treated like it accepts the one
    * class parameter of RichInt, congruent with the optimization mentioned here:
-   * https://docs.scala-lang.org/overviews/core/value-classes.html#extension-methods
+   * https://docs.scala-lang.org/overviews/core/value-classes.html#extension-methods, followed by the parameters that
+   * are explicitly defined.
    */
   override def getParameters: Array[PsiParameter] = {
     val anyValParams = this.getContext match {
@@ -48,6 +48,6 @@ trait ScParameters extends ScalaPsiElement with PsiParameterList {
       case _ => None
     }
 
-    (params ++ anyValParams).toArray
+    (anyValParams ++ params).toArray
   }
 }
