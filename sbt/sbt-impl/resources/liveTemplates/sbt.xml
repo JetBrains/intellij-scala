@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templateSet group="sbt">
   <template name="dep" value="&quot;$GROUP$&quot; % &quot;$ARTIFACT$&quot; % &quot;$VERSION$&quot;"
-            description="Template for dependency">
+            resource-bundle="messages.SbtBundle" key="template.for.dependency">
     <variable name="ARTIFACT" expression="complete()" defaultValue="" alwaysStopAt="true"/>
     <variable name="GROUP" expression="complete()" defaultValue="" alwaysStopAt="true"/>
     <variable name="VERSION" expression="complete()" defaultValue="" alwaysStopAt="true"/>
@@ -10,7 +10,7 @@
     </context>
   </template>
   <template name="deps" value="&quot;$GROUP$&quot; %% &quot;$ARTIFACT$&quot; % &quot;$VERSION$&quot;"
-            description="Template for dependency built with sbt">
+            resource-bundle="messages.SbtBundle" key="template.for.dependency.built.with.sbt">
     <variable name="ARTIFACT" expression="complete()" defaultValue="" alwaysStopAt="true"/>
     <variable name="GROUP" expression="complete()" defaultValue="" alwaysStopAt="true"/>
     <variable name="VERSION" expression="complete()" defaultValue="" alwaysStopAt="true"/>
