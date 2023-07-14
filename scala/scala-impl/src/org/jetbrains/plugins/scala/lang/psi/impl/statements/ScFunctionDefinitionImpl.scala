@@ -31,7 +31,8 @@ class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S
 
   override def getContainingClass: PsiClass =
     super.getContainingClass match {
-      case containingClazz@ImplicitValueClass(c) => c.fakeCompanionModule.getOrElse(containingClazz)
+      case containingClazz@ImplicitValueClass(c) if !this.isPrivate && !this.isProtected =>
+        c.fakeCompanionModule.getOrElse(containingClazz)
       case containingClazz => containingClazz
     }
 
