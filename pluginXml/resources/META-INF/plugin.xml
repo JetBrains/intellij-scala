@@ -50,7 +50,7 @@
         <!-- CHANGE_NOTES -->
     </change-notes>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
-    <idea-version since-build="233.1638" until-build="233.*"/>
+    <idea-version since-build="233.1832" until-build="233.*"/>
 
     <depends>com.intellij.modules.java</depends>
     <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
