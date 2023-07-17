@@ -107,15 +107,15 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   private def isHighlightingEnabled: Boolean =
     !PowerSaveMode.isEnabled && ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED
 
-  private def isHighlightingEnabledFor(psiFile: PsiFile, virtualFile: VirtualFile): Boolean = {
+  private def isHighlightingEnabledFor(psiFile: PsiFile, virtualFile: VirtualFile): Boolean = inReadAction {
     ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile) &&
       virtualFile.isInLocalFileSystem &&
       (psiFile match {
         case _ if psiFile.isScalaWorksheet => true
-        case _: ScalaFile | _: PsiJavaFile if !inReadAction(JavaProjectRootsUtil.isOutsideJavaSourceRoot(psiFile)) => true
+        case _: ScalaFile | _: PsiJavaFile if !JavaProjectRootsUtil.isOutsideJavaSourceRoot(psiFile) => true
         case _ => false
       }) &&
-      inReadAction(ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project))
+      ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project)
   }
 
   private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile, document: Document, psiFile: PsiFile): Unit = {
