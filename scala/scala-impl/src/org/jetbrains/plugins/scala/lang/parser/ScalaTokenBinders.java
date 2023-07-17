@@ -4,7 +4,7 @@ import com.intellij.lang.WhitespacesAndCommentsBinder;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-import org.jetbrains.plugins.scalaCli.lang.parser.ScalaCliElementTypes;
+import org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveElementTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 import java.util.List;
@@ -56,7 +56,7 @@ public class ScalaTokenBinders {
             }
           }
         }
-        else if (ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(type) && type != ScalaCliElementTypes.SCALA_CLI_DIRECTIVE) {
+        else if (ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(type) && type != ScalaDirectiveElementTypes.SCALA_DIRECTIVE) {
           lastCommentIdx = idx;
           lastCommentIsLine = type == ScalaTokenTypes.tLINE_COMMENT;
         }
