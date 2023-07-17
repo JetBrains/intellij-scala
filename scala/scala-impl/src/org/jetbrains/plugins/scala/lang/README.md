@@ -41,7 +41,7 @@ At the bottom of the hierarchy, there are lexers generated from [JFlex](https://
 - [`org.jetbrains.plugins.scala.lang.lexer.core._ScalaCoreLexer`](./lexer/core/_ScalaCoreLexer.java)
 - [`org.jetbrains.plugins.scala.lang.lexer.core._ScalaSplittingLexer`](./lexer/core/_ScalaSplittingLexer.java)
 - [`org.jetbrains.plugins.scala.lang.scaladoc.lexer._ScalaDocLexer`](./scaladoc/lexer/_ScalaDocLexer.java)
-- [`org.jetbrains.plugins.scalaCli.lang.lexer._ScalaCliLexer`](../../scalaCli/lang/lexer/_ScalaCliLexer.java)
+- [`org.jetbrains.plugins.scalaDirective.lang.lexer._ScalaDirectiveLexer`](../../scalaDirective/lang/lexer/_ScalaDirectiveLexer.java)
 
 They are generated using build scripts located in [`tools/lexer/build.xml`](../../../../../../../../tools/lexer/build.xml).
 

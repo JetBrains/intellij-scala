@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxE
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
-import org.jetbrains.plugins.scalaCli.lang.parser.ScalaCliElementTypes
+import org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveElementTypes
 
 import scala.annotation.{nowarn, tailrec}
 
@@ -263,7 +263,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return ON_NEW_LINE
     }
 
-    if (leftElementType == ScalaCliElementTypes.SCALA_CLI_DIRECTIVE || rightElementType == ScalaCliElementTypes.SCALA_CLI_DIRECTIVE) {
+    if (leftElementType == ScalaDirectiveElementTypes.SCALA_DIRECTIVE || rightElementType == ScalaDirectiveElementTypes.SCALA_DIRECTIVE) {
       return ON_NEW_LINE
     }
 

@@ -29,9 +29,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
-import org.jetbrains.plugins.scalaCli.lang.parser.ScalaCliElementTypes;
+import org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveElementTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
-import org.jetbrains.plugins.scalaCli.ScalaCliLanguage;
+import org.jetbrains.plugins.scalaDirective.ScalaDirectiveLanguage;
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;
 
 import static com.intellij.openapi.fileTypes.SyntaxHighlighterFactory.getSyntaxHighlighter;
@@ -47,7 +47,7 @@ public final class ScalaEditorHighlighterProvider implements EditorHighlighterPr
                 getSyntaxHighlighter(ScalaLanguage.INSTANCE, project, virtualFile),
                 getSyntaxHighlighter(XMLLanguage.INSTANCE, project, virtualFile),
                 getSyntaxHighlighter(ScalaDocLanguage.INSTANCE, project, virtualFile),
-                getSyntaxHighlighter(ScalaCliLanguage.INSTANCE, project, virtualFile),
+                getSyntaxHighlighter(ScalaDirectiveLanguage.INSTANCE, project, virtualFile),
                 colors
         );
     }
@@ -58,7 +58,7 @@ public final class ScalaEditorHighlighterProvider implements EditorHighlighterPr
         private ScalaEditorHighlighter(@NotNull SyntaxHighlighter scalaHighlighter,
                                        @NotNull SyntaxHighlighter xmlHighlighter,
                                        @NotNull SyntaxHighlighter scalaDocHighlighter,
-                                       @NotNull SyntaxHighlighter scalaCliHighlighter,
+                                       @NotNull SyntaxHighlighter scalaDirectiveHighlighter,
                                        @NotNull EditorColorsScheme colors) {
             super(scalaHighlighter, colors);
 
@@ -73,8 +73,8 @@ public final class ScalaEditorHighlighterProvider implements EditorHighlighterPr
             );
 
             registerLayer(
-                    ScalaCliElementTypes.SCALA_CLI_DIRECTIVE,
-                    new LayerDescriptor(scalaCliHighlighter, "\n", DefaultHighlighter.JAVA_COLLECTION)
+                    ScalaDirectiveElementTypes.SCALA_DIRECTIVE,
+                    new LayerDescriptor(scalaDirectiveHighlighter, "\n", DefaultHighlighter.JAVA_COLLECTION)
             );
         }
 

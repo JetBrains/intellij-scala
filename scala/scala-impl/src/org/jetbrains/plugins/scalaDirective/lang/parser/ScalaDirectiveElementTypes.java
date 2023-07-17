@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scalaCli.lang.parser;
+package org.jetbrains.plugins.scalaDirective.lang.parser;
 
 import com.intellij.lang.*;
 import com.intellij.openapi.project.Project;
@@ -6,12 +6,12 @@ import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.tree.ILazyParseableElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scalaCli.psi.impl.ScCliDirectiveImpl;
-import org.jetbrains.plugins.scalaCli.ScalaCliLanguage;
+import org.jetbrains.plugins.scalaDirective.psi.impl.ScDirectiveImpl;
+import org.jetbrains.plugins.scalaDirective.ScalaDirectiveLanguage;
 
-public interface ScalaCliElementTypes {
+public interface ScalaDirectiveElementTypes {
 
-    @NotNull ILazyParseableElementType SCALA_CLI_DIRECTIVE = new ILazyParseableElementType("SCALA_CLI_DIRECTIVE", ScalaCliLanguage.INSTANCE) {
+    @NotNull ILazyParseableElementType SCALA_DIRECTIVE = new ILazyParseableElementType("SCALA_DIRECTIVE", ScalaDirectiveLanguage.INSTANCE) {
 
         @Override
         @Nullable
@@ -32,7 +32,7 @@ public interface ScalaCliElementTypes {
         @Nullable
         @Override
         public ASTNode createNode(CharSequence text) {
-            return text != null ? new ScCliDirectiveImpl(text, this) : null;
+            return text != null ? new ScDirectiveImpl(text, this) : null;
         }
     };
 }
