@@ -10,8 +10,6 @@ class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
 
   private val TestClassName = "Foo"
 
-  def test_that_fails_on_purpose_in_order_to_prevent_merge(): Unit = throw new Exception
-
   private def assertFakeCompanionModuleExists(fakeCompanionModuleQualifiedName: Option[String]): Unit = {
     val clazz = ScalaPsiManager.instance(getProject).getClassesByName(TestClassName, GlobalSearchScope.fileScope(getFile)).head.asInstanceOf[ScClass]
     clazz.fakeCompanionModule match {
