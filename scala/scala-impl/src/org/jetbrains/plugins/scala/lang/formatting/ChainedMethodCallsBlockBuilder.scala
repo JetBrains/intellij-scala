@@ -24,7 +24,7 @@ private final class ChainedMethodCallsBlockBuilder(
 
   private val chainAlignment = if (cs.ALIGN_MULTILINE_CHAINED_METHODS) Alignment.createAlignment() else null
   private val chainWrap = block.suggestedWrap
-  private val smartIndent = Indent.getSmartIndent(Indent.Type.CONTINUATION, false)
+  private val smartIndent: Indent = Indent.getSmartIndent(Indent.Type.CONTINUATION, false)
 
   def buildSubBlocks(node: ASTNode): util.List[ScalaBlock] = {
     val result = new util.ArrayList[ScalaBlock]
@@ -43,7 +43,7 @@ private final class ChainedMethodCallsBlockBuilder(
   @tailrec//TODO
   private def collectChainedMethodCalls(
     node: ASTNode,
-    dotFollowedByNewLine: Boolean = false,
+    dotIsFollowedByNewLine: Boolean = false,
     delegatedChildren: List[ASTNode] = List(),
     delegatedContext: Map[ASTNode, SubBlocksContext] = Map(),
   )(implicit result: java.util.List[ScalaBlock]): Unit = {
@@ -89,7 +89,7 @@ private final class ChainedMethodCallsBlockBuilder(
     //|---|.|-----|.|-----||~~~~~~||~~~~~~~| delegated: args `(1, 2, 3)` and type args `[String]`
     children match {
       case expr :: Nil =>
-        val actualAlignment = if (dotFollowedByNewLine) chainAlignment else null
+        val actualAlignment = if (dotIsFollowedByNewLine) chainAlignment else null
         val context = SubBlocksContext.withChild(expr, delegatedChildrenNotAlreadyInSomeContext, None, delegatedContext)
         result.add(subBlock(expr, delegatedChildrenSorted.lastOption.orNull, actualAlignment, None, None, Some(context)))
 
@@ -98,22 +98,22 @@ private final class ChainedMethodCallsBlockBuilder(
       //|--------------------caller----------------------||-args--|
       case caller :: args :: Nil if args.getElementType == ScalaElementType.ARG_EXPRS =>
         val delegatedChildrenNew = args :: delegatedChildren ++ comments
-        collectChainedMethodCalls(caller, dotFollowedByNewLine, delegatedChildrenNew, delegatedContext)
+        collectChainedMethodCalls(caller, dotIsFollowedByNewLine, delegatedChildrenNew, delegatedContext)
 
       //caller[typeArgs]
       //expr.method1[String](1, 2, 3).method2[Int, String](4, 5, 6)
       //|--------------caller---------------||-typeArgs--|
       case caller :: typeArgs :: Nil if typeArgs.getElementType == ScalaElementType.TYPE_ARGS =>
         val delegatedChildrenNew = typeArgs :: delegatedChildren ++ comments
-        collectChainedMethodCalls(caller, dotFollowedByNewLine, delegatedChildrenNew, Map(typeArgs -> new SubBlocksContext(sortByStartOffset(delegatedChildren))))
+        collectChainedMethodCalls(caller, dotIsFollowedByNewLine, delegatedChildrenNew, Map(typeArgs -> new SubBlocksContext(sortByStartOffset(delegatedChildren))))
 
       //expr.method1[String](1, 2, 3).method2[Int, String](4, 5, 6)
       //|------------expr-----------|.|-id--|
       case expr :: dot :: id :: Nil if dot.getElementType == tDOT =>
         //NOTE: we shadow `dotFollowedByNewLine` parameter, cause here we are interested in the new dot
-        val dotFollowedByNewLine = dot.getPsi.followedByNewLine()
+        val dotIsFollowedByNewLine = dot.getPsi.followedByNewLine()
 
-        val splitAtNode = if (dotFollowedByNewLine) id else dot
+        val splitAtNode = if (dotIsFollowedByNewLine) id else dot
 
         assert(childrenNonEmpty.head.eq(expr), "assuming that first child is expr and comments can't go before it")
         val (nodesOnPrevLine, nodesOnNextLine) = childrenNonEmpty.tail.span(c => {
@@ -140,7 +140,7 @@ private final class ChainedMethodCallsBlockBuilder(
         val nodes = (if (nodesOnNextLine.nonEmpty) nodesOnNextLine else nodesOnPrevLine) ++ delegatedChildrenSorted
         result.add(subBlock(nodes.head, nodes.lastOption.orNull, chainAlignment, Some(smartIndent), Some(chainWrap), Some(context)))
 
-        collectChainedMethodCalls(expr, dotFollowedByNewLine)
+        collectChainedMethodCalls(expr, dotIsFollowedByNewLine)
       case _ =>
         val childrenWithDelegated = children ++ delegatedChildren
         for (child <- childrenWithDelegated.filter(isNotEmptyNode)) {
