@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.junit.Assert.{assertFalse, assertTrue}
 
-class ScFunctionDefinitionImplJvmFacingContainingClassTest extends ScalaFixtureTestCase {
+class ScFunctionDefinitionImplJvmFacingTest extends ScalaFixtureTestCase {
 
   private val TestClassName = "Foo"
 
