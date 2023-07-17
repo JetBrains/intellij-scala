@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursiveReferences, ScExpressionExt, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.junit.Assert._
 
 class ScFunctionDefinitionImplTest extends SimpleTestCase {
@@ -187,6 +188,28 @@ class ScFunctionDefinitionImplTest extends SimpleTestCase {
       "return 2",
       "3"
     ), actual)
+  }
+
+  def test_name_of_anyval_extension_method(): Unit = {
+    val code =
+      s"""object Scope {
+         |  implicit class Foo(val d: Double) extends AnyVal {
+         |    def bar(): Unit = ()
+         |  }
+         |}""".stripMargin
+
+    val clazz = code.parse[ScClass]
+    val method = clazz.functions.filter(_.name == "bar").head
+
+    /**
+     * When exposed to the JVM, the name of this method would be `bar$extension`, because it's an AnyVal extension
+     * method. In all other cases, and most certainly when exposed to other Scala, the name of this method must be
+     * exactly the same as in the Scala source.
+     *
+     * See [[org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImplJvmFacingTest.test_jvm_facing_name_of_method_in_implicit_anyval_class()]]
+     * for the JVM test covering the `$extension` suffix.
+     */
+    assertTrue(method.name == "bar")
   }
 
   private def assertRecursionTypeIs(@Language("Scala") code: String)
