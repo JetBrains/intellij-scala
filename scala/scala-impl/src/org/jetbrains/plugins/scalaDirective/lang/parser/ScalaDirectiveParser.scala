@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scalaCli.lang.parser
+package org.jetbrains.plugins.scalaDirective.lang.parser
 
 import com.intellij.lang.ASTNode
 import com.intellij.lang.LightPsiParser
@@ -6,13 +6,13 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiParser
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scalaCli.lang.lexer.ScalaCliTokenTypes._
+import org.jetbrains.plugins.scalaDirective.lang.lexer.ScalaDirectiveTokenTypes._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tLINE_COMMENT
 
-class ScalaCliParser extends PsiParser with LightPsiParser {
+class ScalaDirectiveParser extends PsiParser with LightPsiParser {
 
   /**
-   * Parses a [[org.jetbrains.plugins.scalaCli.psi.impl.ScCliDirectiveImpl]].
+   * Parses a [[org.jetbrains.plugins.scalaDirective.psi.impl.ScDirectiveImpl]].
    *
    * The approach is to stop processing tokens after an unexpected or erroneous token is encountered.
    * This is tracked via <code>noErrorsOccurred</code>.
@@ -29,7 +29,7 @@ class ScalaCliParser extends PsiParser with LightPsiParser {
       if (!error) {
         val currentTokenType = builder.getTokenType
         if (!expected.contains(currentTokenType)) {
-          if (expected.contains(tCLI_DIRECTIVE_KEY)) builder.error("Scala CLI key expected: option, dep, jar, etc.")
+          if (expected.contains(tDIRECTIVE_KEY)) builder.error("Scala directive key expected: option, dep, jar, etc.")
           else {
             builder.error("Unexpected token")
           }
@@ -42,11 +42,11 @@ class ScalaCliParser extends PsiParser with LightPsiParser {
 
     val rootMarker = builder.mark
 
-    processCurrentToken(builder, tCLI_DIRECTIVE_PREFIX)
-    processCurrentToken(builder, tCLI_DIRECTIVE_COMMAND)
-    processCurrentToken(builder, tCLI_DIRECTIVE_KEY)
+    processCurrentToken(builder, tDIRECTIVE_PREFIX)
+    processCurrentToken(builder, tDIRECTIVE_COMMAND)
+    processCurrentToken(builder, tDIRECTIVE_KEY)
 
-    while (builder.getTokenType != null) processCurrentToken(builder, tCLI_DIRECTIVE_VALUE, tCLI_DIRECTIVE_COMMA, tLINE_COMMENT)
+    while (builder.getTokenType != null) processCurrentToken(builder, tDIRECTIVE_VALUE, tDIRECTIVE_COMMA, tLINE_COMMENT)
 
     rootMarker.done(root)
   }

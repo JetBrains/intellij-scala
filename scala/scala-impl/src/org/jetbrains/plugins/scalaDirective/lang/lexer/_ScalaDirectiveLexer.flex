@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scalaCli.lang.lexer;
+package org.jetbrains.plugins.scalaDirective.lang.lexer;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
@@ -7,8 +7,8 @@ import static com.intellij.psi.TokenType.WHITE_SPACE;
 
 %%
 
-%class _ScalaCliLexer
-%implements FlexLexer, ScalaCliTokenTypes
+%class _ScalaDirectiveLexer
+%implements FlexLexer, ScalaDirectiveTokenTypes
 %public
 
 %function advance
@@ -26,13 +26,13 @@ NOT_SPACE_OR_COMMA_OR_QUOTATION = [^,\s\"\'`]
 VALUE_IN_BACKTICKS              = "`" [^`\r\n]*  "`"
 VALUE_IN_DOUBLE_QUOTES          = \"  [^\"\r\n]* \"
 
-CLI_DIRECTIVE_PREFIX = "//>"
-CLI_DIRECTIVE_WHITESPACE =[\s]+
-CLI_DIRECTIVE_COMMA = [,]
-CLI_DIRECTIVE_COMMAND = "using"
-CLI_DIRECTIVE_KEY = {NOT_SPACE_OR_COMMA_OR_QUOTATION}+
+DIRECTIVE_PREFIX = "//>"
+DIRECTIVE_WHITESPACE =[\s]+
+DIRECTIVE_COMMA = [,]
+DIRECTIVE_COMMAND = "using"
+DIRECTIVE_KEY = {NOT_SPACE_OR_COMMA_OR_QUOTATION}+
                   | {VALUE_IN_BACKTICKS}
-CLI_DIRECTIVE_VALUE = {NOT_SPACE_OR_COMMA_OR_QUOTATION}+
+DIRECTIVE_VALUE = {NOT_SPACE_OR_COMMA_OR_QUOTATION}+
                     | {VALUE_IN_BACKTICKS}
                     | {VALUE_IN_DOUBLE_QUOTES}
 
@@ -40,35 +40,35 @@ END_OF_LINE_COMMENT="/""/"[^\r\n]*
 
 %%
 
-<YYINITIAL> {CLI_DIRECTIVE_PREFIX} {
+<YYINITIAL> {DIRECTIVE_PREFIX} {
     yybegin(FINDING_COMMAND);
-    return tCLI_DIRECTIVE_PREFIX;
+    return tDIRECTIVE_PREFIX;
 }
 
-<FINDING_COMMAND> {CLI_DIRECTIVE_COMMAND} {
+<FINDING_COMMAND> {DIRECTIVE_COMMAND} {
     yybegin(FINDING_KEY);
-    return tCLI_DIRECTIVE_COMMAND;
+    return tDIRECTIVE_COMMAND;
 }
 
 <FINDING_KEY, FINDING_NEXT_VALUE> {END_OF_LINE_COMMENT} {
     return tLINE_COMMENT;
 }
 
-<FINDING_KEY> {CLI_DIRECTIVE_KEY} {
+<FINDING_KEY> {DIRECTIVE_KEY} {
     yybegin(FINDING_NEXT_VALUE);
-    return tCLI_DIRECTIVE_KEY;
+    return tDIRECTIVE_KEY;
 }
 
-<FINDING_NEXT_VALUE> {CLI_DIRECTIVE_VALUE} {
-    return tCLI_DIRECTIVE_VALUE;
+<FINDING_NEXT_VALUE> {DIRECTIVE_VALUE} {
+    return tDIRECTIVE_VALUE;
 }
 
-<FINDING_NEXT_VALUE> {CLI_DIRECTIVE_COMMA} {
-    return tCLI_DIRECTIVE_COMMA;
+<FINDING_NEXT_VALUE> {DIRECTIVE_COMMA} {
+    return tDIRECTIVE_COMMA;
 }
 
-{CLI_DIRECTIVE_WHITESPACE} {
+{DIRECTIVE_WHITESPACE} {
     return WHITE_SPACE;
 }
 
-[^] { return tCLI_DIRECTIVE_ERROR; }
+[^] { return tDIRECTIVE_ERROR; }

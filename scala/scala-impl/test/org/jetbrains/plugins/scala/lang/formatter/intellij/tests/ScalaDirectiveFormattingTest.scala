@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.lang.formatter.intellij.tests
 
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 
-class ScalaCliFormattingTest extends AbstractScalaFormatterTestBase {
+class ScalaDirectiveFormattingTest extends AbstractScalaFormatterTestBase {
 
-  def test_format_scala_cli_directive_sub_elements(): Unit = doTextTest(
+  def test_format_scala_directive_sub_elements(): Unit = doTextTest(
     """//> using  dep  foo  bar
       |//> using  dep , foo , bar
       |""".stripMargin,

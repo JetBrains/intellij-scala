@@ -1,15 +1,8 @@
 package org.jetbrains.plugins.scala.lang.lexer.core;
 
-import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
-import java.util.*;
-import java.lang.reflect.Field;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
-import org.jetbrains.plugins.scalaCli.lang.lexer.ScalaCliTokenTypes;
-import org.jetbrains.plugins.scalaCli.lang.parser.ScalaCliElementTypes;
+import org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveElementTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 
 %%
 
@@ -56,7 +49,7 @@ MULTI_LINE_STRING = \"\"\" ( (\"(\")?)? [^\"] )* \"\"\" (\")* // Multi-line stri
 BACKQUOTED_IDENTIFIER=\`[^`]*\`
 
 END_OF_LINE_COMMENT="/""/"[^\r\n]*
-SCALA_CLI_DIRECTIVE_LINE_COMMENT="//>"\s*"using"[^\r\n]*
+SCALA_DIRECTIVE_LINE_COMMENT="//>"\s*"using"[^\r\n]*
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +64,7 @@ SCALA_CLI_DIRECTIVE_LINE_COMMENT="//>"\s*"using"[^\r\n]*
 {STRING_LITERAL}           {  return SCALA_PLAIN_CONTENT; }
 {BACKQUOTED_IDENTIFIER}    {  return SCALA_PLAIN_CONTENT; }
 
-{SCALA_CLI_DIRECTIVE_LINE_COMMENT} {  return ScalaCliElementTypes.SCALA_CLI_DIRECTIVE; }
+{SCALA_DIRECTIVE_LINE_COMMENT} {  return ScalaDirectiveElementTypes.SCALA_DIRECTIVE; }
 {END_OF_LINE_COMMENT}              {  return tLINE_COMMENT; }
 
 {SIMPLE_BLOCK_COMMENT}   {  return tBLOCK_COMMENT; }

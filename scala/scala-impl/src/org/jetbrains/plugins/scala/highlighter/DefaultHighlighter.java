@@ -97,11 +97,11 @@ public class DefaultHighlighter {
   static final String XML_COMMENT_ID = "Scala XML comment";
   static final String SCALATEST_KEYWORD_ID = "Scalatest keyword";
 
-  //Scala CLI directives
-  static final String SCALA_CLI_DIRECTIVE_PREFIX_ID = "Scala CLI directive prefix";
-  static final String SCALA_CLI_DIRECTIVE_COMMAND_ID = "Scala CLI directive command";
-  static final String SCALA_CLI_DIRECTIVE_KEY_ID = "Scala CLI directive key";
-  static final String SCALA_CLI_DIRECTIVE_VALUE_ID = "Scala CLI directive value";
+  //Scala directives
+  static final String SCALA_DIRECTIVE_PREFIX_ID = "Scala directive prefix";
+  static final String SCALA_DIRECTIVE_COMMAND_ID = "Scala directive command";
+  static final String SCALA_DIRECTIVE_KEY_ID = "Scala directive key";
+  static final String SCALA_DIRECTIVE_VALUE_ID = "Scala directive value";
 
   public static final TextAttributesKey LINE_COMMENT = createKey(LINE_COMMENT_ID, DefaultLanguageHighlighterColors.LINE_COMMENT);
   public static final TextAttributesKey BLOCK_COMMENT = createKey(BLOCK_COMMENT_ID, DefaultLanguageHighlighterColors.BLOCK_COMMENT);
@@ -178,11 +178,11 @@ public class DefaultHighlighter {
 
   public static final TextAttributesKey SCALATEST_KEYWORD = createKey(SCALATEST_KEYWORD_ID, DefaultLanguageHighlighterColors.KEYWORD);
 
-  // Scala CLI directives
-  public static final TextAttributesKey SCALA_CLI_DIRECTIVE_PREFIX = createKey(SCALA_CLI_DIRECTIVE_PREFIX_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
-  public static final TextAttributesKey SCALA_CLI_DIRECTIVE_COMMAND = createKey(SCALA_CLI_DIRECTIVE_COMMAND_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
-  public static final TextAttributesKey SCALA_CLI_DIRECTIVE_KEY = createKey(SCALA_CLI_DIRECTIVE_KEY_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG_VALUE);
-  public static final TextAttributesKey SCALA_CLI_DIRECTIVE_VALUE = createKey(SCALA_CLI_DIRECTIVE_VALUE_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
+  // Scala directives
+  public static final TextAttributesKey SCALA_DIRECTIVE_PREFIX = createKey(SCALA_DIRECTIVE_PREFIX_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
+  public static final TextAttributesKey SCALA_DIRECTIVE_COMMAND = createKey(SCALA_DIRECTIVE_COMMAND_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
+  public static final TextAttributesKey SCALA_DIRECTIVE_KEY = createKey(SCALA_DIRECTIVE_KEY_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG_VALUE);
+  public static final TextAttributesKey SCALA_DIRECTIVE_VALUE = createKey(SCALA_DIRECTIVE_VALUE_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
 
   private static TextAttributesKey createKey(@NonNls @NotNull String externalName, TextAttributesKey prototype) {
     return TextAttributesKey.createTextAttributesKey(externalName, prototype);
