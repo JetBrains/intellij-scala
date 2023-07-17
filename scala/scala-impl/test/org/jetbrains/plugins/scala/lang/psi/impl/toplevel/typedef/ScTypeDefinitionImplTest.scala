@@ -45,7 +45,7 @@ class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
   def test_fake_companion_module_of_implicit_class(): Unit = {
     myFixture.configureByText(s"$TestClassName.scala",
       s"""object Scope {
-         |  implicit class $TestClassName(d: Double)
+         |  implicit class $TestClassName(val d: Double)
          |}""".stripMargin)
     assertFakeCompanionModuleExists(None)
   }
@@ -53,7 +53,7 @@ class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
   def test_fake_companion_module_of_implicit_anyval_class(): Unit = {
     myFixture.configureByText(s"$TestClassName.scala",
       s"""object Scope {
-         |  implicit class $TestClassName(d: Double) extends AnyVal
+         |  implicit class $TestClassName(val d: Double) extends AnyVal
          |}""".stripMargin)
     assertFakeCompanionModuleExists(Some(s"Scope.$TestClassName"))
   }
@@ -61,7 +61,7 @@ class ScTypeDefinitionImplTest extends ScalaFixtureTestCase {
   def test_fake_companion_module_of_implicit_anyval_class_in_package_object(): Unit = {
     myFixture.configureByText(s"$TestClassName.scala",
       s"""package object Scope {
-         |  implicit class $TestClassName(d: Double) extends AnyVal
+         |  implicit class $TestClassName(val d: Double) extends AnyVal
          |}""".stripMargin)
     assertFakeCompanionModuleExists(Some(s"Scope.package$$$TestClassName"))
   }
