@@ -35,7 +35,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     (root: PsiElement, _: FileHighlightingSetting) => {
       if (root.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
         executeOnBackgroundThreadInNotDisposed(project) {
-          val psiFile = root.getContainingFile
+          val psiFile = inReadAction(root.getContainingFile)
           if (psiFile ne null) {
             val virtualFile = psiFile.getVirtualFile
             if (virtualFile ne null) {
