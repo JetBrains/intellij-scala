@@ -6,9 +6,20 @@ import com.intellij.psi.codeStyle.CodeStyleSettings
 import org.jetbrains.annotations.Nullable
 
 /**
- * Represents a part of method call chain. Example: {{{
+ * Represents a part of method call chain.<br>
+ * Example: {{{
  *    myDefinition.myMethodCall1().myMethodCall2()
  *    |---part1--||----part2-----||----part3-----|
+ * }}}
+ *
+ * @param endsWithColonArgs true for block `.bar: 42` in {{{
+ *                             foo.bar:
+ *                               42
+ * }}}
+ *                          false for block .bar(42) in {{{
+ *                            foo.bar(
+ *                              42
+ *                            )
  * }}}
  */
 final class ChainedMethodCallBlock(
@@ -19,7 +30,8 @@ final class ChainedMethodCallBlock(
   @Nullable indent: Indent,
   @Nullable wrap: Wrap,
   settings: CodeStyleSettings,
-  subBlocksContext: Option[SubBlocksContext] = None
+  subBlocksContext: Option[SubBlocksContext],
+  val endsWithColonArgs: Boolean,
 ) extends ScalaBlock(
   Some(parentBlock),
   node,
@@ -29,4 +41,10 @@ final class ChainedMethodCallBlock(
   wrap,
   settings,
   subBlocksContext
-)
+) {
+
+  override def getDebugName: String = {
+    val suffix = if (endsWithColonArgs) " (colon arg)" else ""
+    classOf[ChainedMethodCallBlock].getSimpleName + suffix
+  }
+}
