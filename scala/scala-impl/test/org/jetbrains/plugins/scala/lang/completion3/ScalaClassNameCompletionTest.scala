@@ -416,6 +416,30 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
   ) {
     predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
   }
+
+  def testEnumCase(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |enum Target:
+         |  case Definition, Extension, ExtensionMethod
+         |
+         |def test(target: Target): Unit =
+         |  target match
+         |    case Extens$CARET
+        """.stripMargin,
+    resultText =
+      s"""
+         |import Target.ExtensionMethod
+         |
+         |enum Target:
+         |  case Definition, Extension, ExtensionMethod
+         |
+         |def test(target: Target): Unit =
+         |  target match
+         |    case ExtensionMethod$CARET
+        """.stripMargin,
+    item = "ExtensionMethod"
+  )
 }
 
 class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {
