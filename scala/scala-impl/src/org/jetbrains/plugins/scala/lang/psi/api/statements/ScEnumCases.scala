@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 
@@ -18,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwn
 trait ScEnumCases
   extends ScDeclaredElementsHolder
     with ScModifierListOwner
+    with ScAnnotationsHolder
     //Note regarding ScDocCommentOwner: see scaladoc comment
     with ScDocCommentOwner {
 

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCaseKind, ScEnumCases, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTypeDefinition}
@@ -43,6 +43,12 @@ final class ScEnumCaseImpl(
   import ScalaTokenTypes.kCASE
 
   def modifierListText: String = byPsiOrStub(getModifierList.getText)(_.enumCaseModifierListText.get)
+
+  def annotationsText: String = byPsiOrStub {
+    val enumCases   = getContext.asOptionOf[ScEnumCases]
+    val annotations = enumCases.fold(Seq.empty[ScAnnotation])(_.annotations)
+    annotations.map(_.getText).mkString(" ")
+  }(_.enumCaseAnnotationsText.get)
 
   override def constructor: Option[ScPrimaryConstructor] =
     this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)

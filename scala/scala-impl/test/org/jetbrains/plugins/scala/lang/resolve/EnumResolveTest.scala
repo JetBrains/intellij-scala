@@ -285,5 +285,22 @@ class EnumResolveTest extends SimpleResolveTestBase {
       |  }
       |""".stripMargin
   )
+
+  def testSCL21388(): Unit = checkTextHasNoErrors(
+    """enum Color { case Green }
+      |object Color
+      |
+      |object Test { Color.values }
+      |""".stripMargin
+  )
+
+  def testSCL21397(): Unit = checkHasErrorAroundCaret(
+    s"""
+      |object Scope {
+      |  private enum Color { case Green }
+      |}
+      |type T = Scope.Co${CARET}lor
+      |""".stripMargin
+  )
 }
 

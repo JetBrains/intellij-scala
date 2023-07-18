@@ -273,27 +273,7 @@ package object types {
       case _                    => scType
     }
 
-    def parents: Seq[ScType] = scType match {
-      case ParameterizedType(des, args) => {
-        val targetCls = des match {
-          case ScDesignatorType(cls: PsiClass)    => cls
-          case ScProjectionType(_, cls: PsiClass) => cls
-        }
 
-        val subst = ScSubstitutor.bind(targetCls.getTypeParameters, args)
-        targetCls.superTypes.map(subst)
-      }
-      case ScDesignatorType(cls: PsiClass)    => cls.superTypes
-      case ScProjectionType(_, cls: PsiClass) => cls.superTypes
-      case _                                  => Seq.empty
-    }
-
-    def widenToParent: ScType = {
-      val parentTypes = parents
-
-      if (parents.isEmpty) scType
-      else                 ScCompoundType(parentTypes)(scType.projectContext)
-    }
   }
 
   implicit class ScalaSeqExt(private val context: PsiElement) {

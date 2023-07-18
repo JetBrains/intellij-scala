@@ -12,10 +12,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.Update
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFun, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
@@ -150,6 +151,27 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     case t                       => replaceWith(t)
   }
 
+  private def widenToDirectParents(tpe: ScType): ScType = {
+    def directParents(tpe: ScType): Seq[ScType] = tpe match {
+      case ParameterizedType(des, args) =>
+        des match {
+          case DesignatorOwner(tdef: ScTemplateDefinition) =>
+            val subst = ScSubstitutor.bind(tdef.getTypeParameters, args)
+            tdef.extendsBlock.templateParents.fold(Seq.empty[ScType])(_.superTypes.map(subst))
+          case _ => Seq.empty
+        }
+      case DesignatorOwner(tdef: ScTemplateDefinition) =>
+        tdef.extendsBlock.templateParents.fold(Seq.empty[ScType])(_.superTypes)
+      case _ => Seq.empty
+    }
+
+    val parentTypes = directParents(tpe)
+
+    if (parentTypes.isEmpty)        tpe
+    else if (parentTypes.size == 1) parentTypes.head
+    else                            ScCompoundType(parentTypes)(tpe.projectContext)
+  }
+
   /**
    * If method resolves to synthetic copy/apply method of an enum case,
    * widen its return type to the underlying type as long as it is
@@ -175,7 +197,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           method.isCopyMethod && ScEnumCase.isDesugaredEnumCase(cls)
 
         if (isEnumCaseApplyMethod || isEnumCaseCopyMethod) {
-          val widened = replaceLastComponent(tpe.inferValueType, _.widenToParent)
+          val widened = replaceLastComponent(tpe.inferValueType, widenToDirectParents)
 
           if (this.expectedType().forall(widened.conforms)) widened
           else                                              tpe

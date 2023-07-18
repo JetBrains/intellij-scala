@@ -1183,7 +1183,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i12508(): Unit = doTest("i12508", true)
   def test_i12508a(): Unit = doTest("i12508a", true)
   def test_i12508b(): Unit = doTest("i12508b", true)
-  def test_i12508c(): Unit = doTest("i12508c", false) // #enum
+  def test_i12508c(): Unit = doTest("i12508c", true) // #enum
   def test_i12616(): Unit = doTest("i12616", true) // #unionType
   def test_i12632(): Unit = doTest("i12632", true)
   def test_i12645(): Unit = doTest("i12645", false)
@@ -1298,8 +1298,8 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i14660(): Unit = doTest("i14660", true) // #opaque
   def test_i14699(): Unit = doTest("i14699", true)
   def test_i14707(): Unit = doTest("i14707", true)
-  def test_i14726(): Unit = doTest("i14726", false) // #enum
-  def test_i14726_upper(): Unit = doTest("i14726-upper", false) // #enum
+  def test_i14726(): Unit = doTest("i14726", true) // #enum
+  def test_i14726_upper(): Unit = doTest("i14726-upper", true) // #enum
   def test_i14729(): Unit = doTest("i14729", false) // #extension
   def test_i14739(): Unit = doTest("i14739", true)
   def `test_i14739.works`(): Unit = doTest("i14739.works", true)

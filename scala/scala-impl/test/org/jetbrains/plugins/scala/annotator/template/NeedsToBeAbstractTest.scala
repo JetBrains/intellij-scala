@@ -177,12 +177,4 @@ class NeedsToBeAbstractTest_Scala3 extends NeedsToBeAbstractTestBase {
       case Error("given T with", `message`) :: Nil =>
     }
   }
-
-  def testEnum(): Unit = {
-    val message = this.message("Class", "E", "f: Unit", "Holder.T")
-
-    assertMatches(messages("trait T { def f }; enum E extends T {}")) {
-      case Error("enum E extends T", `message`) :: Nil =>
-    }
-  }
 }

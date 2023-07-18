@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction, SyntheticClasses}
 
 object ComparisonSymbol {
@@ -89,10 +90,15 @@ object ComparisonSymbol {
       } match {
         case Some(e) => addSymName(e)
         case None =>
-          val hasPackage = e.getContainingFile match {
-            case p: PsiClassOwner if p.getPackageName.nonEmpty => true
-            case _ => false
-          }
+          val file = e.getContainingFile
+
+          val hasPackage =
+            if (ScalaPsiElementFactory.SyntheticFileKey.isIn(file)) false
+            else file match {
+              case p: PsiClassOwner if p.getPackageName.nonEmpty => true
+              case _ => false
+            }
+
           if (!hasPackage) {
             add("_empty_/")
           }

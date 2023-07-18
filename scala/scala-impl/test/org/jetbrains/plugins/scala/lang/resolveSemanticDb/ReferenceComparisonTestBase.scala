@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, 
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScModifierList, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScQuoted, ScSpliced}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportSelector, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTrait}
@@ -261,6 +261,16 @@ object ReferenceComparisonTestBase {
   }
 
   case class PhysicalRefTarget(element: PsiNamedElement) extends RefTarget
+
+  case class DesugaredEnumRefTarget(element: PsiNamedElement) extends RefTarget
+
+  private def desugaredEnumTarget(syntheticElement: PsiNamedElement): Option[RefTarget] =
+    syntheticElement match {
+      case ScEnum.Original(enum)    => Option(DesugaredEnumRefTarget(enum))
+      case ScEnumCase.Original(cse) => Option(DesugaredEnumRefTarget(cse))
+      case _                        => None
+    }
+
   case class AssignmentRefTarget(element: PsiNamedElement) extends RefTarget {
     override lazy val symbol: String =
       ComparisonSymbol.fromPsi(element)
@@ -283,7 +293,7 @@ object ReferenceComparisonTestBase {
       .flatMap(r => Seq(r.element) ++ r.parentElement)
       .filterByType[PsiNamedElement]
       .flatMap { named =>
-        Seq(PhysicalRefTarget(named)) ++ assignmentTarget(named) ++ opaqueTarget(named)
+        Seq(PhysicalRefTarget(named)) ++ assignmentTarget(named) ++ opaqueTarget(named) ++ desugaredEnumTarget(named)
       }
 
     /*lazy val problems: Option[String] = {

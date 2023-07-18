@@ -4,7 +4,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiElementFinder, PsiPackage}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 import java.util
@@ -31,6 +31,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
     val x: Seq[Option[PsiClass]] = cacheManager.getClassesByFQName(qualifiedName, scope).collect {
       case o: ScObject if !o.isPackageObject =>
         o.fakeCompanionClass
+      case e: ScEnum => e.syntheticClass
     }
     val x$: Seq[Option[PsiClass]] = classesWoSuffix("$").collect {
       case c: ScTypeDefinition =>
