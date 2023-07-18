@@ -35,7 +35,76 @@ private final class ChainedMethodCallsBlockBuilder(
     //We need to sort blocks because we add them in arbitrary order
     util.Collections.sort(result, util.Comparator.comparingInt[ScalaBlock](_.node.getTextRange.getStartOffset))
 
+    adjustIndentationForBlocksWithArgumentsWithColonSyntax(result)
+
     result
+  }
+
+  private def adjustIndentationForBlocksWithArgumentsWithColonSyntax(chainBlocks: util.ArrayList[ScalaBlock]): Unit = {
+    val noneIndent = Indent.getNoneIndent
+
+    /**
+     * `true` if before current block there was at least one block like `.bar: 42` from this example {{{
+     *   foo.bar:
+     *       42
+     *   .baz(42)
+     * }}}
+     * In this case we must not indent following chain blocks.
+     * Otherwise, if we add extra indent format it like this: {{{
+     *   foo.bar:
+     *           42
+     *       .baz(42)
+     * }}}
+     * scala compiler will generate error "The start of this line does not match any of the previous indentation widths"
+     */
+    var chainHasBlockWithColonArgStartingNotFromNewLineBeforeCurrent = false
+    //First block in method chain is special (see comment in Scala3FormatterMethodCallChainWithArgumentsWithColonSyntaxTest.testOnlyBracesSyntax2)
+    var chainFirstBlockHasColonArgSyntax = false
+    //tracks the presence of a line break in the chain before the current block
+    var chainHasLineBreakBefore = false
+
+    var doNotIndentRemainingChainBlocks = false
+
+    //using imperative style: during many experiments with implementation of this method
+    // `while` proved to be most readable and agile (it's easier to quickly change the implementation)
+    var idx = 0
+    while (idx < chainBlocks.size()) {
+      val currentBlock = chainBlocks.get(idx)
+      val currentBlockStartsFromNewLine = currentBlock.getNode.getPsi.startsFromNewLine()
+
+      doNotIndentRemainingChainBlocks |= chainFirstBlockHasColonArgSyntax || {
+        !scalaSettings.INDENT_FEWER_BRACES_IN_METHOD_CALL_CHAINS &&
+          chainHasBlockWithColonArgStartingNotFromNewLineBeforeCurrent &&
+          currentBlockStartsFromNewLine
+      }
+
+      if (doNotIndentRemainingChainBlocks) {
+        currentBlock.indent = noneIndent
+      }
+      else {
+        val isFirstBlock = idx == 0
+        if (currentBlockStartsFromNewLine && !isFirstBlock) {
+          chainHasLineBreakBefore = true
+        }
+
+        val currentBlockEndsWithColonArgs = isBlockWithColonArgInTheEnd(currentBlock)
+        if (currentBlockEndsWithColonArgs) {
+          if (!chainHasLineBreakBefore) {
+            chainHasBlockWithColonArgStartingNotFromNewLineBeforeCurrent = true
+          }
+          if (isFirstBlock) {
+            chainFirstBlockHasColonArgSyntax = true
+          }
+        }
+      }
+
+      idx += 1
+    }
+  }
+
+  @inline private def isBlockWithColonArgInTheEnd(block: ScalaBlock): Boolean = block match {
+    case block: ChainedMethodCallBlock => block.endsWithColonArgs
+    case _ => false
   }
 
   /**
@@ -172,15 +241,16 @@ private final class ChainedMethodCallsBlockBuilder(
 
   private def chainSubBlock(
     node: ASTNode,
-    lastNode: Option[ASTNode] = None,
+    lastNode: Option[ASTNode],
     alignment: Option[Alignment] = None,
     indent: Option[Indent] = None,
     wrap: Option[Wrap] = None,
     context: Option[SubBlocksContext] = None
   ): ScalaBlock = {
+    val endsWithColonArgs = lastNode.map(_.getPsi).exists { case args: ScArgumentExprList => args.isColonArgs case _ => false }
     val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(parentBlock, node))
     val wrapFinal = wrap.getOrElse(ScalaWrapManager.arrangeSuggestedWrapForChild(parentBlock, node, parentBlock.suggestedWrap)(scalaSettings))
-    new ChainedMethodCallBlock(parentBlock, node, lastNode.orNull, alignment.orNull, indentFinal, wrapFinal, settings, context)
+    new ChainedMethodCallBlock(parentBlock, node, lastNode.orNull, alignment.orNull, indentFinal, wrapFinal, settings, context, endsWithColonArgs)
   }
 }
 

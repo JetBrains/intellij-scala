@@ -33,12 +33,16 @@ import java.util
 import scala.annotation.{tailrec, unused}
 import scala.jdk.CollectionConverters._
 
+/**
+ * @param indent using `var` for `indent` because it's much easier this way when handling method call chains
+ *               (see [[ChainedMethodCallsBlockBuilder]]
+ */
 class ScalaBlock(
   var parentBlock: Option[ScalaBlock],
   val node: ASTNode,
   val lastNode: ASTNode,
   @Nullable val alignment: Alignment,
-  @Nullable val indent: Indent,
+  @Nullable var indent: Indent,
   @Nullable val wrap: Wrap,
   val settings: CodeStyleSettings,
   val subBlocksContext: Option[SubBlocksContext]
