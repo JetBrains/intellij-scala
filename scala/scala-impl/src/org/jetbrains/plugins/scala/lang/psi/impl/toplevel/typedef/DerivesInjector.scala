@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDerivesClaus
 
 /**
  * Injects synthetic given definitions generated from data-type derives clause
- * into compation object.
+ * into companion object.
  */
 class DerivesInjector extends SyntheticMembersInjector{
   override def needsCompanionObject(source: ScTypeDefinition): Boolean = source match {
