@@ -123,3 +123,7 @@ Close to the very tail of the output of this command you will find a line that g
 [info] Written HTML coverage report [/Users/alice/intellij-scala/scala/scala-impl/target/scala-2.13/scoverage-report/index.html]
 ```
 Note that in order to continue working from IntelliJ IDEA again you need to perform Build > Rebuild Project.
+
+### Lexers and parsers
+
+See [our dedicated lexer/parser README](./scala/scala-impl/src/org/jetbrains/plugins/scala/lang/README.md).
