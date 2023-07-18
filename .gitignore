@@ -27,3 +27,5 @@ scala/scala-impl/testdata/projectsForHighlightingTests/downloaded
 scala/scala-impl/testdata/projectsForHighlightingTests/.ivy_cache
 scala/scala-impl/testdata/projectsForHighlightingTests/.coursier_cache
 scala/scala-impl/testdata/testingSupport
+
+tools/lexer/lib/
