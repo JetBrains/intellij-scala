@@ -7,23 +7,24 @@ import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.ChainedMethodCallsBlockBuilder._
 import org.jetbrains.plugins.scala.lang.formatting.getDummyBlocksUtils._
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaIndentProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 import java.util
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 
 private final class ChainedMethodCallsBlockBuilder(
-  block: ScalaBlock,
+  parentBlock: ScalaBlock,
   settings: CodeStyleSettings,
   commonSettings: CommonCodeStyleSettings,
   scalaSettings: ScalaCodeStyleSettings
-) extends ScalaBlockBuilderBase(block, settings, commonSettings, scalaSettings) {
+) extends ScalaBlockBuilderBase(parentBlock, settings, commonSettings, scalaSettings) {
 
   private val chainAlignment = if (cs.ALIGN_MULTILINE_CHAINED_METHODS) Alignment.createAlignment() else null
-  private val chainWrap = block.suggestedWrap
+  private val chainWrap = parentBlock.suggestedWrap
   private val smartIndent: Indent = Indent.getSmartIndent(Indent.Type.CONTINUATION, false)
 
   def buildSubBlocks(node: ASTNode): util.List[ScalaBlock] = {
@@ -40,7 +41,7 @@ private final class ChainedMethodCallsBlockBuilder(
   /**
    * @param delegatedChildren can contain arguments, type arguments and comments between them
    */
-  @tailrec//TODO
+  @tailrec
   private def collectChainedMethodCalls(
     node: ASTNode,
     dotIsFollowedByNewLine: Boolean = false,
@@ -91,7 +92,12 @@ private final class ChainedMethodCallsBlockBuilder(
       case expr :: Nil =>
         val actualAlignment = if (dotIsFollowedByNewLine) chainAlignment else null
         val context = SubBlocksContext.withChild(expr, delegatedChildrenNotAlreadyInSomeContext, None, delegatedContext)
-        result.add(subBlock(expr, delegatedChildrenSorted.lastOption.orNull, actualAlignment, None, None, Some(context)))
+        result.add(chainSubBlock(
+          expr,
+          delegatedChildrenSorted.lastOption,
+          Some(actualAlignment),
+          context = Some(context)
+        ))
 
       //caller(args)
       //expr.method1[String](1, 2, 3).method2[Int, String](4, 5, 6)
@@ -133,20 +139,48 @@ private final class ChainedMethodCallsBlockBuilder(
         //    map(x => x)
         val chainCallIsSplitToTwoBlocks = nodesOnPrevLine.nonEmpty && nodesOnNextLine.nonEmpty
         if (chainCallIsSplitToTwoBlocks) {
-          result.add(subBlock(nodesOnPrevLine.head, nodesOnPrevLine.lastOption.orNull, null, Some(Indent.getContinuationIndent), Some(null), None))
+          result.add(chainSubBlock(
+            nodesOnPrevLine.head,
+            nodesOnPrevLine.lastOption,
+            None,
+            Some(Indent.getContinuationIndent),
+            Some(null),
+            None
+          ))
         }
 
         val context = SubBlocksContext.withChild(id, delegatedChildrenNotAlreadyInSomeContext, None, delegatedContext)
         val nodes = (if (nodesOnNextLine.nonEmpty) nodesOnNextLine else nodesOnPrevLine) ++ delegatedChildrenSorted
-        result.add(subBlock(nodes.head, nodes.lastOption.orNull, chainAlignment, Some(smartIndent), Some(chainWrap), Some(context)))
+        result.add(chainSubBlock(
+          nodes.head,
+          nodes.lastOption,
+          Some(chainAlignment),
+          Some(smartIndent),
+          Some(chainWrap),
+          Some(context)
+        ))
 
         collectChainedMethodCalls(expr, dotIsFollowedByNewLine)
       case _ =>
+        //NOTE: this branch is generally not expected, but don't ignore children if there are some left
         val childrenWithDelegated = children ++ delegatedChildren
         for (child <- childrenWithDelegated.filter(isNotEmptyNode)) {
           result.add(subBlock(child))
         }
     }
+  }
+
+  private def chainSubBlock(
+    node: ASTNode,
+    lastNode: Option[ASTNode] = None,
+    alignment: Option[Alignment] = None,
+    indent: Option[Indent] = None,
+    wrap: Option[Wrap] = None,
+    context: Option[SubBlocksContext] = None
+  ): ScalaBlock = {
+    val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(parentBlock, node))
+    val wrapFinal = wrap.getOrElse(ScalaWrapManager.arrangeSuggestedWrapForChild(parentBlock, node, parentBlock.suggestedWrap)(scalaSettings))
+    new ChainedMethodCallBlock(parentBlock, node, lastNode.orNull, alignment.orNull, indentFinal, wrapFinal, settings, context)
   }
 }
 
