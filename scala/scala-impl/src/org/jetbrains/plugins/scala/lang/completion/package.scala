@@ -30,10 +30,16 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
+import java.util.function.Predicate
+
 package object completion {
 
   import PlatformPatterns.psiElement
   import ScalaTokenTypes._
+
+  @inline def condition[T](debugName: String)(predicate: Predicate[T]): PatternCondition[T] = new PatternCondition[T](debugName) {
+    override def accepts(element: T, context: ProcessingContext): Boolean = predicate.test(element)
+  }
 
   private[completion] def identifierPattern =
     psiElement(tIDENTIFIER)
@@ -65,29 +71,24 @@ package object completion {
       afterNewKeywordPattern
 
   private[completion] def isInScala3FilePattern =
-    new PatternCondition[PsiElement]("isInScala3FilePattern") {
-      override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = elem.isInScala3File
-    }
+    condition[PsiElement]("isInScala3FilePattern")(_.isInScala3File)
 
   implicit class PsiElementPatternExt[T <: PsiElement](private val pattern: PsiElementPattern.Capture[T]) extends AnyVal {
     def isInScala3File: PsiElementPattern.Capture[T] = pattern.`with`(isInScala3FilePattern)
 
     def notAfterLeafSkippingWhitespaceComment(tp: IElementType): PsiElementPattern.Capture[T] =
-      pattern.`with`(new PatternCondition[T](s"prevVisibleLeaf(skipComments = true).elementType != $tp") {
-        override def accepts(element: T, context: ProcessingContext): Boolean =
-          element.prevVisibleLeaf(skipComments = true).forall(_.elementType != tp)
+      pattern.`with`(condition[T](s"prevVisibleLeaf(skipComments = true).elementType != $tp") { element =>
+        element.prevVisibleLeaf(skipComments = true).forall(_.elementType != tp)
       })
 
     def withPrevSiblingNotWhitespace(prevSiblingType: IElementType): PsiElementPattern.Capture[T] =
-      pattern.`with`(new PatternCondition[T](s"prevSiblingNotWhitespace.elementType = $prevSiblingType") {
-        override def accepts(element: T, context: ProcessingContext): Boolean =
-          element.prevSiblingNotWhitespace.exists(_.elementType == prevSiblingType)
+      pattern.`with`(condition[T](s"prevSiblingNotWhitespace.elementType = $prevSiblingType") { element =>
+        element.prevSiblingNotWhitespace.exists(_.elementType == prevSiblingType)
       })
 
     def withNextSiblingNotWhitespaceComment(nextSiblingType: IElementType): PsiElementPattern.Capture[T] =
-      pattern.`with`(new PatternCondition[T](s"nextSiblingNotWhitespaceComment.elementType = $nextSiblingType") {
-        override def accepts(element: T, context: ProcessingContext): Boolean =
-          element.nextSiblingNotWhitespaceComment.exists(_.elementType == nextSiblingType)
+      pattern.`with`(condition[T](s"nextSiblingNotWhitespaceComment.elementType = $nextSiblingType") { element =>
+        element.nextSiblingNotWhitespaceComment.exists(_.elementType == nextSiblingType)
       })
   }
 

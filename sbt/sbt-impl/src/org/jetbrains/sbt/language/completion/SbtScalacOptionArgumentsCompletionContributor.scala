@@ -2,7 +2,6 @@ package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
-import com.intellij.patterns.PatternCondition
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.util.ProcessingContext
@@ -21,9 +20,8 @@ class SbtScalacOptionArgumentsCompletionContributor extends CompletionContributo
 
 object SbtScalacOptionArgumentsCompletionContributor {
   private val scalacOptionsWithNonEmptyChoicesPatternCondition =
-    new PatternCondition[ScStringLiteral]("scalacOptionWithNonEmptyChoices") {
-      override def accepts(str: ScStringLiteral, context: ProcessingContext): Boolean =
-        getScalacOptionsForLiteralValue(str).exists(_.choices.nonEmpty)
+    condition[ScStringLiteral]("scalacOptionWithNonEmptyChoices") { str =>
+      getScalacOptionsForLiteralValue(str).exists(_.choices.nonEmpty)
     }
 
   private val pattern = psiElement()

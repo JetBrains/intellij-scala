@@ -2,12 +2,11 @@ package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementRenderer}
-import com.intellij.patterns.{ElementPattern, PatternCondition, PlatformPatterns, PsiElementPattern}
+import com.intellij.patterns.{ElementPattern, PlatformPatterns, PsiElementPattern}
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
 import com.intellij.psi.{util => _, _}
-import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
@@ -56,12 +55,7 @@ package object clauses {
 
   private[clauses] def nonQualifiedReference =
     psiElement(classOf[ScReferenceExpression])
-      .`with`(new PatternCondition[ScReferenceExpression]("isNonQualified") {
-
-        override def accepts(reference: ScReferenceExpression,
-                             processingContext: ProcessingContext): Boolean =
-          !reference.isQualified
-      })
+      .`with`(condition[ScReferenceExpression]("isNonQualified")(reference => !reference.isQualified))
 
   private[clauses] def adjustTypesOnClauses(addImports: Boolean,
                                             pairs: Iterable[(ScCaseClause, PatternComponents)]): Unit =

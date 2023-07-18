@@ -4,7 +4,7 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
 import com.intellij.patterns.PlatformPatterns.psiElement
-import com.intellij.patterns.{ElementPattern, PatternCondition, PsiElementPattern}
+import com.intellij.patterns.{ElementPattern, PsiElementPattern}
 import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType}
@@ -60,10 +60,9 @@ object ScalaEndMarkerCompletionContributor {
 
   private val whitespaceWithoutLineBreaksPattern =
     psiElement.`with`(
-      new PatternCondition[PsiElement]("whitespaceWithoutLineBreaksPattern") {
-        override def accepts(element: PsiElement, context: ProcessingContext): Boolean =
-          element.is[PsiWhiteSpace] && !isMultiline(element) ||
-            element.getNode != null && element.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE
+      condition[PsiElement]("whitespaceWithoutLineBreaksPattern") { element =>
+        element.is[PsiWhiteSpace] && !isMultiline(element) ||
+          element.getNode != null && element.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE
       }
     )
 
@@ -79,12 +78,11 @@ object ScalaEndMarkerCompletionContributor {
       )
 
   private val firstNonWhitespaceChildInLinePattern =
-    new PatternCondition[PsiElement]("firstNonWhitespaceChildInLinePattern") {
-      override def accepts(element: PsiElement, context: ProcessingContext): Boolean =
-        element.prevSiblings
-          .dropWhile(whitespaceWithoutLineBreaksPattern.accepts)
-          .nextOption()
-          .forall(_.is[PsiWhiteSpace]) // accept if none or whitespace with line break
+    condition[PsiElement]("firstNonWhitespaceChildInLinePattern") { element =>
+      element.prevSiblings
+        .dropWhile(whitespaceWithoutLineBreaksPattern.accepts)
+        .nextOption()
+        .forall(_.is[PsiWhiteSpace]) // accept if none or whitespace with line break
     }
 
   private def isFirstNonWhitespaceChildInLine(element: PsiElement): Boolean =
