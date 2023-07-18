@@ -1,13 +1,13 @@
-package org.jetbrains.plugins.scalaCli.psi.impl
+package org.jetbrains.plugins.scalaDirective.psi.impl
 
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scalaCli.psi.api.ScCliDirective
+import org.jetbrains.plugins.scalaDirective.psi.api.ScDirective
 
-final class ScCliDirectiveImpl(buffer: CharSequence, tokenType: IElementType)
+final class ScDirectiveImpl(buffer: CharSequence, tokenType: IElementType)
   extends LazyParseablePsiElement(tokenType, buffer)
-    with ScCliDirective {
+    with ScDirective {
 
   override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)

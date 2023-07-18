@@ -76,10 +76,10 @@ object ScalaColorsAndFontsPage {
     new AttributesDescriptor(DisplayNames.XML_COMMENT, XML_COMMENT),
     new AttributesDescriptor(DisplayNames.SCALATEST_KEYWORD, SCALATEST_KEYWORD),
 
-    new AttributesDescriptor(DisplayNames.SCALA_CLI_DIRECTIVE_PREFIX, SCALA_CLI_DIRECTIVE_PREFIX),
-    new AttributesDescriptor(DisplayNames.SCALA_CLI_DIRECTIVE_COMMAND, SCALA_CLI_DIRECTIVE_COMMAND),
-    new AttributesDescriptor(DisplayNames.SCALA_CLI_DIRECTIVE_KEY, SCALA_CLI_DIRECTIVE_KEY),
-    new AttributesDescriptor(DisplayNames.SCALA_CLI_DIRECTIVE_VALUE, SCALA_CLI_DIRECTIVE_VALUE)
+    new AttributesDescriptor(DisplayNames.SCALA_DIRECTIVE_PREFIX, SCALA_DIRECTIVE_PREFIX),
+    new AttributesDescriptor(DisplayNames.SCALA_DIRECTIVE_COMMAND, SCALA_DIRECTIVE_COMMAND),
+    new AttributesDescriptor(DisplayNames.SCALA_DIRECTIVE_KEY, SCALA_DIRECTIVE_KEY),
+    new AttributesDescriptor(DisplayNames.SCALA_DIRECTIVE_VALUE, SCALA_DIRECTIVE_VALUE)
   )
 
   //noinspection TypeAnnotation
@@ -146,10 +146,10 @@ object ScalaColorsAndFontsPage {
     val XML_COMMENT = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.xml.comment")
     val SCALATEST_KEYWORD = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scalatest.keyword")
 
-    val SCALA_CLI_DIRECTIVE_PREFIX = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.cli.directive.prefix")
-    val SCALA_CLI_DIRECTIVE_COMMAND = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.cli.directive.command")
-    val SCALA_CLI_DIRECTIVE_KEY = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.cli.directive.key")
-    val SCALA_CLI_DIRECTIVE_VALUE = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.cli.directive.value")
+    val SCALA_DIRECTIVE_PREFIX = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.directive.prefix")
+    val SCALA_DIRECTIVE_COMMAND = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.directive.command")
+    val SCALA_DIRECTIVE_KEY = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.directive.key")
+    val SCALA_DIRECTIVE_VALUE = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.directive.value")
   }
 }
 class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
@@ -177,17 +177,17 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
       case _ => false
     }
 
-  private val scalaCliDirectiveDemoText: String = {
-    val pt = "ScalaCliDirectivePrefix"
-    val ct = "ScalaCliDirectiveCommand"
-    val kt = "ScalaCliDirectiveKey"
-    val vt = "ScalaCliDirectiveValue"
+  private val scalaDirectiveDemoText: String = {
+    val pt = "ScalaDirectivePrefix"
+    val ct = "ScalaDirectiveCommand"
+    val kt = "ScalaDirectiveKey"
+    val vt = "ScalaDirectiveValue"
 
     s"<$pt>//></$pt> <$ct>using</$ct> <$kt>dep</$kt> <$vt>org.jetbrains::annotation:4.2.42</$vt>"
   }
 
   override def getDemoText: String =
-    s"""$scalaCliDirectiveDemoText
+    s"""$scalaDirectiveDemoText
        |
        |<keyword>import</keyword> scala<dot>.</dot>collection<dot>.</dot>mutable<dot>.</dot>_
        |<keyword>import</keyword> java<dot>.</dot>util<dot>.</dot>TreeMap
@@ -296,10 +296,10 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
     map.put("htmlDocEscape", SCALA_DOC_HTML_ESCAPE)
     map.put("paramtagval", SCALA_DOC_TAG_PARAM_VALUE)
 
-    map.put("ScalaCliDirectivePrefix", SCALA_CLI_DIRECTIVE_PREFIX)
-    map.put("ScalaCliDirectiveCommand", SCALA_CLI_DIRECTIVE_COMMAND)
-    map.put("ScalaCliDirectiveKey", SCALA_CLI_DIRECTIVE_KEY)
-    map.put("ScalaCliDirectiveValue", SCALA_CLI_DIRECTIVE_VALUE)
+    map.put("ScalaDirectivePrefix", SCALA_DIRECTIVE_PREFIX)
+    map.put("ScalaDirectiveCommand", SCALA_DIRECTIVE_COMMAND)
+    map.put("ScalaDirectiveKey", SCALA_DIRECTIVE_KEY)
+    map.put("ScalaDirectiveValue", SCALA_DIRECTIVE_VALUE)
     map
   }
 }

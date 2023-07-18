@@ -70,25 +70,25 @@ class ScalaCommenterTest extends BasePlatformTestCase {
     testAction(before, after, ActionCommentBlock)
   }
 
-  def test_scala_cli_line_comment(): Unit = {
+  def test_scala_directive_line_comment(): Unit = {
     val before = s"$Caret//> using foo"
     val after = "////> using foo"
     testAction(before, after, ActionCommentLine)
   }
 
-  def test_scala_cli_line_uncomment(): Unit = {
+  def test_scala_directive_line_uncomment(): Unit = {
     val before = s"$Caret////> using foo"
     val after = "//> using foo"
     testAction(before, after, ActionCommentLine)
   }
 
-  def test_scala_cli_block_comment(): Unit = {
+  def test_scala_directive_block_comment(): Unit = {
     val before = s"$SelectionStart//> using foo$SelectionEnd"
     val after = "/*//> using foo*/"
     testAction(before, after, ActionCommentBlock)
   }
 
-  def test_scala_cli_block_uncomment(): Unit = {
+  def test_scala_directive_block_uncomment(): Unit = {
     val before = s"$SelectionStart/*//> using foo*/$SelectionEnd"
     val after = "//> using foo"
     testAction(before, after, ActionCommentBlock)
