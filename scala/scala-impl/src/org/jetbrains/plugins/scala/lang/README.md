@@ -43,7 +43,8 @@ At the bottom of the hierarchy, there are lexers generated from [JFlex](https://
 - [`org.jetbrains.plugins.scala.lang.scaladoc.lexer._ScalaDocLexer`](./scaladoc/lexer/_ScalaDocLexer.java)
 - [`org.jetbrains.plugins.scalaDirective.lang.lexer._ScalaDirectiveLexer`](../../scalaDirective/lang/lexer/_ScalaDirectiveLexer.java)
 
-They are generated using build scripts located in [`tools/lexer/build.xml`](../../../../../../../../tools/lexer/build.xml).
+They are generated using the Ant buildfile [`tools/lexer/build.xml`](../../../../../../../../tools/lexer/build.xml).
+Please use JDK11 when running any of these targets. This can be configured in the Ant tool window's "Build File Properties" panel, in the "Execution" tab.
 
 Examples (ignoring technologies not related to plain Scala, like Play, SSP, SBT):
 
