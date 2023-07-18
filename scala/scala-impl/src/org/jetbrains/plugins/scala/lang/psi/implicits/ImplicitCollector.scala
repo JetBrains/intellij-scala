@@ -261,7 +261,7 @@ class ImplicitCollector(
       val compatible = checkCompatible(c, withLocalTypeInference = false) ++ checkCompatible(c, withLocalTypeInference = true)
       filteredCandidates ++= compatible.filter(isValidImplicitResult)
       if (withExtensions) {
-        filteredCandidates ++= collectExtensionsFromImplicitResult(c, extensionData)
+        filteredCandidates ++= collectExtensionsFromImplicitResult(c, extensionData, c.substitutor)
       }
     }
     filteredCandidates.toSeq
@@ -343,7 +343,8 @@ class ImplicitCollector(
             for {
               result <- compatible
             } {
-              val extensions = collectExtensionsFromImplicitResult(result, extensionData)
+              val subst      = result.substitutor
+              val extensions = collectExtensionsFromImplicitResult(result, extensionData, subst)
               filteredCandidates ++= extensions
             }
           }
@@ -376,16 +377,25 @@ class ImplicitCollector(
    */
   private def collectExtensionsFromImplicitResult(
     result:        ScalaResolveResult,
-    extensionData: Option[ExtensionConversionData]
+    extensionData: Option[ExtensionConversionData],
+    subst:         ScSubstitutor
   ): Set[ScalaResolveResult] = {
     val proc  = new ExtensionProcessor(place, name = extensionData.map(_.refName).getOrElse(""), forCompletion)
     val tp    = InferUtil.extractImplicitParameterType(result)
+
+    val unresolvedTypeParams = result.unresolvedTypeParameters
 
     tp.foreach { t =>
       val state = ScalaResolveState
         .withImplicitScopeObject(t)
         .withImportsUsed(result.importsUsed)
-      proc.processType(t, place, state)
+
+      val stateWithUnresolved = unresolvedTypeParams match {
+        case Some(params) => state.withUnresolvedTypeParams(params)
+        case None         => state
+      }
+
+      proc.processType(t, place, stateWithUnresolved)
     }
 
     proc.candidatesS
@@ -551,7 +561,12 @@ class ImplicitCollector(
           if (hadDependents) UndefinedType.revertDependentTypes(updated)
           else               updated
 
-        val propagatedError = Option.when(c.implicitReason != NoResult)(c)
+        val propagatedError = Option.when(c.implicitReason != NoResult){
+          val (_, unresolvedTps) = inferValueType(nonValueType0)
+
+          if (unresolvedTps.isEmpty) c
+          else                       c.copy(unresolvedTypeParameters = Option(unresolvedTps))
+        }
 
         (noDependents, propagatedError)
       }
@@ -595,8 +610,11 @@ class ImplicitCollector(
           reportParamNotFoundResult(resType, implicitParams)
         else
           conversionDataCheckedResult match {
-            case earlierError @ Some(_) => earlierError
-            case _                      => fullResult(resType, implicitParams, constraints, hadDependents)
+            case Some(earlierError) =>
+              constraints.toSubst.fold(earlierError)(constraintSubst =>
+                earlierError.copy(subst = earlierError.substitutor.followed(constraintSubst))
+              ).toOption
+            case _ => fullResult(resType, implicitParams, constraints, hadDependents)
           }
       } catch {
         case _: SafeCheckException => wrongTypeParam(nonValueType, CantInferTypeParameterResult)
@@ -688,8 +706,19 @@ class ImplicitCollector(
     val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
     val typeFromMacro  = macroEvaluator.checkMacro(fun, MacroContext(place, Some(tp)))
 
+    val undefineGivenInstanceParameters =
+      if (c.isExtension) {
+        val typeParams = c.unresolvedTypeParameters.getOrElse(Seq.empty)
+        ScSubstitutor.bind(typeParams)(UndefinedType(_))
+      }
+      else ScSubstitutor.empty
+
     val nonValueFunctionTypes =
-      ImplicitCollector.cache(project).getNonValueTypes(fun, c.substitutor, typeFromMacro)
+      ImplicitCollector.cache(project).getNonValueTypes(
+        fun,
+        c.substitutor.followed(undefineGivenInstanceParameters),
+        typeFromMacro
+      )
 
     nonValueFunctionTypes.undefinedType match {
       case Some(undefined0: ScType) =>
@@ -735,7 +764,7 @@ class ImplicitCollector(
    *   }
    * }}}
    * Here `fab.foo` is problematic, bc unresolved type parameter `B`
-   * is propagated to the `foo` method and later is replaced with undefiend type,
+   * is propagated to the `foo` method and later is replaced with undefined type,
    * but since `A` is set to `A => B` and all these [[TypeParameterType]]s point to the same
    * physical type parameters `B` in `A => B` is replaced with undefined type as well.
    * To avoid that, here each type parameter ref is replaced with a fresh one
