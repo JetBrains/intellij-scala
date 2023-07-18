@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScExpression, ScNewTemplateDefinition, ScPostfixExpr, ScReferenceExpression}
@@ -64,7 +65,10 @@ package object completion {
 
   private[completion] def universalApplyPattern: PsiElementPattern.Capture[PsiElement] = identifierPattern
     .isInScala3File
-    .withParent(classOf[ScReferenceExpression])
+    .withParent(
+      psiElement(classOf[ScReferenceExpression])
+        .without(condition[ScReferenceExpression]("isChildOfScPattern")(_.parent.exists(_.is[ScPattern])))
+    )
 
   private[completion] def insideTypePattern =
     psiElement.inside(classOf[ScTypeElement]) ||
