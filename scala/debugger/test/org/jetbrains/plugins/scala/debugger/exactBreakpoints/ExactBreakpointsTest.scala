@@ -64,8 +64,8 @@ class ExactBreakpointsTest_2_13 extends ExactBreakpointsTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-class ExactBreakpointsTest_3_0 extends ExactBreakpointsTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+class ExactBreakpointsTest_3 extends ExactBreakpointsTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 
   addSourceFile("TopLevelDefinitions.scala",
     s"""object a:
@@ -160,10 +160,6 @@ class ExactBreakpointsTest_3_0 extends ExactBreakpointsTestBase {
   override def testNestedLambdas(): Unit = {}
 
   override def testEither(): Unit = {}
-}
-
-class ExactBreakpointsTest_3_1 extends ExactBreakpointsTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 abstract class ExactBreakpointsTestWithEarlyDefinitions extends ExactBreakpointsTestBase {

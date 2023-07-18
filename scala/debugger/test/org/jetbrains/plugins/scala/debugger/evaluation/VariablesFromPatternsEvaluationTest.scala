@@ -14,8 +14,8 @@ class VariablesFromPatternsEvaluationTest_2_13 extends VariablesFromPatternsEval
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-class VariablesFromPatternsEvaluationTest_3_0 extends VariablesFromPatternsEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+class VariablesFromPatternsEvaluationTest_3 extends VariablesFromPatternsEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 
   override def testAnonymousInMatch(): Unit = {
     expressionEvaluationTest() { implicit ctx =>
@@ -26,10 +26,6 @@ class VariablesFromPatternsEvaluationTest_3_0 extends VariablesFromPatternsEvalu
       failing(evalEquals("i", "10"))
     }
   }
-}
-
-class VariablesFromPatternsEvaluationTest_3_1 extends VariablesFromPatternsEvaluationTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 abstract class VariablesFromPatternsEvaluationTestBase extends ExpressionEvaluationTestBase {

@@ -14,8 +14,8 @@ class ObjectEvaluationTest_2_13 extends ObjectEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-class ObjectEvaluationTest_3_0 extends ObjectEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+class ObjectEvaluationTest_3 extends ObjectEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 
   override def testInnerClassObjectFromObject(): Unit = {
     expressionEvaluationTest() { implicit ctx =>
@@ -25,10 +25,6 @@ class ObjectEvaluationTest_3_0 extends ObjectEvaluationTestBase {
       evalStartsWith("localSS", "InnerClassObjectFromObject$S$SS$")
     }
   }
-}
-
-class ObjectEvaluationTest_3_1 extends ObjectEvaluationTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 abstract class ObjectEvaluationTestBase extends ExpressionEvaluationTestBase {

@@ -61,15 +61,15 @@ class StepOverTest_2_13 extends StepOverTest_2_12 {
   }
 }
 
-class StepOverTest_3_0 extends StepOverTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+class StepOverTest_3 extends StepOverTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 
   override def testSimple(): Unit = {
-    stepOverTest()(2, 3, 4, 5, 6, 8, 10)
+    stepOverTest()(2, 3, 4, 5, 6, 8)
   }
 
   override def testMultilineExpr(): Unit = {
-    stepOverTest()(2, 3, 4, 6, 8, 9, 10)
+    stepOverTest()(2, 3, 4, 6, 8, 9)
   }
 
   override def testSkipStoreResult(): Unit = {
@@ -77,7 +77,7 @@ class StepOverTest_3_0 extends StepOverTest_2_13 {
   }
 
   override def testPartialFun(): Unit = {
-    stepOverTest()(4, 5, 6, 9, 4, 7, 8, 9, 4, 7, 9, 9, 11)
+    stepOverTest()(4, 5, 6, 4, 7, 8, 9, 4, 7, 9, 9, 11)
   }
 
   override def testNestedMatch(): Unit = {
@@ -85,7 +85,7 @@ class StepOverTest_3_0 extends StepOverTest_2_13 {
   }
 
   override def testCaseClausesReturn(): Unit = {
-    stepOverTest()(6, 7, 9, 11, 12, 2)
+    stepOverTest()(6, 7, 12, 2)
   }
 
   override def testComplexPattern(): Unit = {
@@ -94,14 +94,6 @@ class StepOverTest_3_0 extends StepOverTest_2_13 {
 
   override def testAccessorInDelayedInit(): Unit = {
     stepOverTest()(1, 2, 3, 4)
-  }
-}
-
-class StepOverTest_3_1 extends StepOverTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
-
-  override def testCaseClausesReturn(): Unit = {
-    stepOverTest()(6, 7, 12, 2)
   }
 }
 

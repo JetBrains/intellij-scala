@@ -51,8 +51,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     def buildSimpleEvaluator: Evaluator = {
       cached.getOrElse {
-        val newEvaluator = new ScalaEvaluatorBuilder(scalaFragment, position).getEvaluator
-        cache.add(position, scalaFragment, newEvaluator)
+        val simple = new ScalaEvaluatorBuilder(scalaFragment, position).getEvaluator
+        val evaluator =
+          if (codeFragment.getLanguage.is(Scala3Language.INSTANCE)) {
+            val shim: Evaluator = new ExpressionCompilerEvaluator(codeFragment, position).evaluate(_)
+            ScalaDuplexEvaluator(simple, shim)
+          } else simple
+
+        cache.add(position, scalaFragment, evaluator)
       }
     }
 

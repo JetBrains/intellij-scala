@@ -14,23 +14,8 @@ class InAnonFunEvaluationTest_2_13 extends InAnonFunEvaluationTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-class InAnonFunEvaluationTest_3_0 extends InAnonFunEvaluationTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
-
-  override def testFunctionExpr(): Unit = {
-    expressionEvaluationTest() { implicit ctx =>
-      failing(evalEquals("a", "a"))
-      failing(evalEquals("x", "x"))
-      evalEquals("param", "param")
-      evalEquals("name", "name")
-      evalEquals("notUsed", "notUsed")
-      evalEquals("args", "[]")
-    }
-  }
-}
-
-class InAnonFunEvaluationTest_3_1 extends InAnonFunEvaluationTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+class InAnonFunEvaluationTest_3 extends InAnonFunEvaluationTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 }
 
 abstract class InAnonFunEvaluationTestBase extends ExpressionEvaluationTestBase {
@@ -102,6 +87,7 @@ abstract class InAnonFunEvaluationTestBase extends ExpressionEvaluationTestBase 
        |            val x = "x"
        |            println(a + param)
        |            println() $breakpoint
+       |            println()
        |      }
        |    }
        |    printName("param", "notUsed")

@@ -14,12 +14,8 @@ class FieldEvaluationTest_2_13 extends FieldEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-class FieldEvaluationTest_3_0 extends FieldEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
-}
-
-class FieldEvaluationTest_3_1 extends FieldEvaluationTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+class FieldEvaluationTest_3 extends FieldEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 }
 
 abstract class FieldEvaluationTestBase extends ExpressionEvaluationTestBase {

@@ -14,8 +14,8 @@ class CodeFragmentEvaluationTest_2_13 extends CodeFragmentEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-class CodeFragmentEvaluationTest_3_0 extends CodeFragmentEvaluationTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+class CodeFragmentEvaluationTest_3 extends CodeFragmentEvaluationTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 
   addSourceFile("Scala3Syntax.scala",
     s"""package test
@@ -38,10 +38,6 @@ class CodeFragmentEvaluationTest_3_0 extends CodeFragmentEvaluationTest_2_13 {
           |  0""".stripMargin.trim, "5")
     }
   }
-}
-
-class CodeFragmentEvaluationTest_3_1 extends CodeFragmentEvaluationTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 abstract class CodeFragmentEvaluationTestBase extends ExpressionEvaluationTestBase {
