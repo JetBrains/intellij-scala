@@ -139,4 +139,23 @@ class Scala3DerivingTest extends ImplicitParametersTestBase {
        |}
        |""".stripMargin
   )
+
+  def testSCL21404(): Unit = checkNoImplicitParameterProblems(
+    s"""
+      |trait Eq[A]
+      |
+      |object Eq {
+      |  def derived[A]: Eq[A] = ???
+      |}
+      |
+      |enum Color derives Eq {
+      |  case Green
+      |  case Red(x: Int)
+      |}
+      |
+      |def foo[A: Eq](x: A): Unit = ???
+      |
+      |${START}foo(Color.Red(1))$END
+      |""".stripMargin
+  )
 }

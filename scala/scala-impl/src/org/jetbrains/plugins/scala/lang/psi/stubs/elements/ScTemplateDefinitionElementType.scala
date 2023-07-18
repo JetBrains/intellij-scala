@@ -43,6 +43,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeNames(stub.givenClassNames)
     dataStream.writeOptionName(stub.enumSyntheticClassText)
     dataStream.writeOptionName(stub.enumCaseModifierListText)
+    dataStream.writeOptionName(stub.enumCaseAnnotationsText)
   }
 
   override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]) =
@@ -68,6 +69,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       givenClassNames                  = dataStream.readNames,
       enumSyntheticClassText           = dataStream.readOptionName,
       enumCaseModifierListText         = dataStream.readOptionName,
+      enumCaseAnnotationsText          = dataStream.readOptionName,
     )
 
   override final def createStubImpl(definition: TypeDef,
@@ -133,6 +135,11 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       case _                 => None
     }
 
+    val enumCaseAnnotationsText = definition match {
+      case e: ScEnumCaseImpl => Some(e.annotationsText)
+      case _                 => None
+    }
+
     new ScTemplateDefinitionStubImpl(
       parent,
       this,
@@ -155,6 +162,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       givenClassNames                  = givenDefinitionClassNames,
       enumSyntheticClassText           = enumSyntheticClassText,
       enumCaseModifierListText         = enumCaseModifierListText,
+      enumCaseAnnotationsText          = enumCaseAnnotationsText
     )
   }
 

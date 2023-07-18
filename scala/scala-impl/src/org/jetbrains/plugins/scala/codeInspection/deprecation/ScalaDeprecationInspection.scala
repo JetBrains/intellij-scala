@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, S
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -50,6 +51,12 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
             case Constructor.ofClass(clazz) if clazz.isDeprecated => Some(clazz)
             case func@ScFunction.inSynthetic(clazz) if func.isApplyMethod && clazz.isDeprecated => Some(clazz)
             case other if other.isDeprecated => Some(other)
+            case obj: ScObject =>
+              obj.fakeCompanionClassOrCompanionClass match {
+                case enum: ScEnum if enum.isDeprecated => Option(obj)
+                case ScEnum.Original(enum) if enum.isDeprecated => Option(obj)
+                case _ => None
+              }
             case _: ScFunction =>
               result.getActualElement.asOptionOfUnsafe[PsiDocCommentOwner].filter(_.isDeprecated)
             case _ =>

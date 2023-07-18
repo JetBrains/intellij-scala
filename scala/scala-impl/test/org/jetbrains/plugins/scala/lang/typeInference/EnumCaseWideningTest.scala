@@ -14,7 +14,7 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
        |object Test {
        |  val bar = ${START}Foo.Bar(1)$END
        |}
-       |//Foo with Product with Serializable
+       |//Foo
        |""".stripMargin
   )
 
@@ -29,7 +29,7 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
        |  import Either._
        |  val r = ${START}Right(123)$END
        |}
-       |//Either[Nothing, Int] with Product with Serializable
+       |//Either[Nothing, Int]
        |""".stripMargin
   )
 
@@ -92,7 +92,7 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
        |object A {
        |  val x = ${START}Foo.Bar(1)$END
        |}
-       |//Foo with X with Y with Product with Serializable
+       |//Foo with X with Y
        |""".stripMargin
   )
 
@@ -107,7 +107,30 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
       |  import Option._
       |  val a = ${START}Option.Some(12223)$END
       |}
-      |//Int => Option[Int] with Product with Serializable
+      |//Int => Option[Int]
+      |""".stripMargin
+  )
+
+  def testSCL21386(): Unit = checkTextHasNoErrors(
+    """
+      |enum Color {
+      |  case Green
+      |}
+      |
+      |object A {
+      |  val p: Product = Color.Green
+      |  val s: Serializable = Color.Green
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL21393(): Unit = checkHasErrorAroundCaret(
+    s"""
+      |object A {
+      |  enum Color { case Green }
+      |  object Bar
+      |  val b: Bar.type = Co${CARET}lor.Green
+      |}
       |""".stripMargin
   )
 }

@@ -16,25 +16,26 @@ class EnumMembersInjector extends SyntheticMembersInjector {
   private[this] def processEnumCases(scEnum: ScEnum): Seq[String] =
     scEnum.cases.map(injectEnumCase)
 
+  private[this] def companionEnum(obj: ScObject): Option[ScEnum] =
+    obj.fakeCompanionClassOrCompanionClass match {
+      case enum: ScEnum          => Option(enum)
+      case ScEnum.Original(enum) => Option(enum)
+      case _                     => None
+    }
+
   override def injectMembers(source: ScTypeDefinition): Seq[String] = source match {
-    case obj: ScObject =>
-      obj.fakeCompanionClassOrCompanionClass match {
-        case scEnum: ScEnum        => processEnumCases(scEnum)
-        case ScEnum.Original(enum) => processEnumCases(enum)
-        case _                     => Seq.empty
-      }
-    case _ => Seq.empty
+    case obj: ScObject => companionEnum(obj).fold(Seq.empty[String])(processEnumCases)
+    case _             => Seq.empty
   }
 
   override def injectFunctions(source: ScTypeDefinition): Seq[String] = source match {
-    case obj: ScObject if obj.isSynthetic => obj.fakeCompanionClassOrCompanionClass match {
-      case ScEnum.Original(enum) =>
+    case obj: ScObject =>
+      companionEnum(obj).fold(Seq.empty[String]) { enum =>
         val singletonCases =
           enum.cases.collect { case cse @ ScEnumCase.SingletonCase(_, _) => cse }
+
         methodsForCompanionObject(enum, singletonCases)
-      case _ => Seq.empty
-    }
-    case _: ScEnum | ScEnum.Original(_) => Seq("def ordinal: Int = ???")
+      }
     case _ => Seq.empty
   }
 
@@ -43,12 +44,13 @@ class EnumMembersInjector extends SyntheticMembersInjector {
 }
 
 object EnumMembersInjector {
-  private def superTypesText(superTypes: Seq[ScType]): String =
-    superTypes.map(_.canonicalText).mkString(" with ")
-
   private def injectEnumCase(cse: ScEnumCase): String = {
-    val supersText    = superTypesText(cse.superTypes)
-    val modifiers     = cse.asInstanceOf[ScEnumCaseImpl].modifierListText
+    def supersToString(superTypes: Seq[ScType]): String =
+      superTypes.map(_.canonicalText).mkString(" with ")
+
+    val modifiers   = cse.asInstanceOf[ScEnumCaseImpl].modifierListText
+    val annotations = cse.asInstanceOf[ScEnumCaseImpl].annotationsText
+    val supersText  = supersToString(cse.superTypes)
 
     cse.constructor match {
       case Some(cons) =>
@@ -58,10 +60,16 @@ object EnumMembersInjector {
           if (tps.isEmpty) ""
           else             tps.map(_.typeParameterText).commaSeparated(model = Model.SquareBrackets)
 
-        s"$modifiers case class ${cse.name}$typeParamsText${cons.getText} extends $supersText"
+        s"""$annotations
+           |$modifiers final case class ${cse.name}$typeParamsText${cons.getText} extends $supersText {
+           |  override def ordinal: Int = ???
+           |}""".stripMargin
       case None =>
-        val separator = if (cse.name.lastOption.exists(c => !c.isLetterOrDigit && c != '`')) " " else ""
-        s"$modifiers val ${cse.name}$separator: $supersText = ???"
+        val separator =
+          if (cse.name.lastOption.exists(c => !c.isLetterOrDigit && c != '`')) " "
+          else                                                                 ""
+
+        s"$annotations $modifiers val ${cse.name}$separator: $supersText = ???"
     }
   }
 
@@ -75,7 +83,7 @@ object EnumMembersInjector {
     val rawEnumTypeText = s"${owner.name}$wildcardsText"
     val fromOrdinal     = s"def fromOrdinal(ordinal: Int): $rawEnumTypeText = ???"
 
-    // @TODO: valueOf return type is acutually LUB of all singleton cases
+    // @TODO: valueOf return type is actually LUB of all singleton cases
     if (singletonCases.size == owner.cases.size)
       Seq(
         s"def values: Array[$rawEnumTypeText] = ???",
