@@ -8,7 +8,7 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill" %% "quill-sql" % "4.6.0",
     "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
   ),
-  Seq("io.getquill"), Set("io.getquill.metaprog", "io.getquill.parser") /* Reflect, ContextFunction */ , 597,
+  Seq("io.getquill"), Set("io.getquill.metaprog", "io.getquill.parser") /* Reflect, ContextFunction */ , 594,
   Set(
     "io.getquill.DynamicInsert", // No parentheses for repeated function type
     "io.getquill.EntityQueryModel", // No parentheses for repeated function type

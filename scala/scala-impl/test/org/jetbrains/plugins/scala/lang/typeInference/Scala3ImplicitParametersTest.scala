@@ -181,4 +181,26 @@ class Scala3ImplicitParametersTest extends ImplicitParametersTestBase {
        |""".stripMargin
   )
 
+  def testTopLevelGivenDefinition(): Unit = {
+    myFixture.addFileToProject(
+      "topLevelGiven.scala",
+      """
+        |package foo
+        |
+        |trait F[A] { def foo: A = ??? }
+        |given fInt: F[Int] with
+        |  def foo: Int = 12
+        |""".stripMargin
+    )
+
+    checkNoImplicitParameterProblems(
+      s"""
+        |package foo
+        |object A {
+        |  ${START}implicitly[F[Int]]$END
+        |}
+        |""".stripMargin
+    )
+  }
+
 }
