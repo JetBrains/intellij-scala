@@ -88,8 +88,8 @@ class SmartStepIntoTest_2_13 extends SmartStepIntoTest_2_12 {
   }
 }
 
-class SmartStepIntoTest_3_0 extends SmartStepIntoTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+class SmartStepIntoTest_3 extends SmartStepIntoTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 
   override def testInfixAndApply(): Unit = {
     smartStepIntoTest()(
@@ -188,10 +188,6 @@ class SmartStepIntoTest_3_0 extends SmartStepIntoTest_2_13 {
       Breakpoint("MethodValue.scala", "decr", 16) -> resume
     )
   }
-}
-
-class SmartStepIntoTest_3_1 extends SmartStepIntoTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 abstract class SmartStepIntoTestBase extends ScalaDebuggerTestBase {

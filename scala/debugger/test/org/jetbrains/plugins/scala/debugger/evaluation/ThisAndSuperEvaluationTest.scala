@@ -14,12 +14,8 @@ class ThisAndSuperEvaluationTest_2_13 extends ThisAndSuperEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-class ThisAndSuperEvaluationTest_3_0 extends ThisAndSuperEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
-}
-
-class ThisAndSuperEvaluationTest_3_1 extends ThisAndSuperEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+class ThisAndSuperEvaluationTest_3 extends ThisAndSuperEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 }
 
 abstract class ThisAndSuperEvaluationTestBase extends ExpressionEvaluationTestBase {

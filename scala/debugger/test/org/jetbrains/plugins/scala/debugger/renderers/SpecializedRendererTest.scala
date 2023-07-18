@@ -8,8 +8,7 @@ import org.junit.runner.RunWith
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_0,
-  TestScalaVersion.Scala_3_1
+  TestScalaVersion.Scala_3_Latest
 ))
 class SpecializedRendererTest extends RendererTestBase {
 

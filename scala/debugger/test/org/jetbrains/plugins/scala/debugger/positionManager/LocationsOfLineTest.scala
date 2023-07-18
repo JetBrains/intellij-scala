@@ -79,14 +79,14 @@ class LocationOfLineTest_2_13 extends LocationsOfLineTestBase {
   }
 }
 
-class LocationOfLineTest_3_0 extends LocationOfLineTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+class LocationOfLineTest_3 extends LocationOfLineTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 
   override def testLambdas(): Unit = {
     checkLocationsOfLine()(
       Set(Loc("Lambdas$", "main", 4), Loc("Lambdas$", "main$$anonfun$1", 4)),
-      Set(Loc("Lambdas$", "main", 5), Loc("Lambdas$", "main$$anonfun$2", 5), Loc("Lambdas$", "main$$anonfun$4", 5)),
-      Set(Loc("Lambdas$", "main", 6), Loc("Lambdas$", "main$$anonfun$3", 6))
+      Set(Loc("Lambdas$", "main", 5), Loc("Lambdas$", "main$$anonfun$2", 5), Loc("Lambdas$", "main$$anonfun$3", 5)),
+      Set(Loc("Lambdas$", "main", 6), Loc("Lambdas$", "main$$anonfun$4", 6))
     )
   }
 
@@ -108,18 +108,6 @@ class LocationOfLineTest_3_0 extends LocationOfLineTest_2_13 {
       noLocations,
       noLocations,
       Set(Loc("test.MultilevelClasses$", "main", 20))
-    )
-  }
-}
-
-class LocationOfLineTest_3_1 extends LocationOfLineTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
-
-  override def testLambdas(): Unit = {
-    checkLocationsOfLine()(
-      Set(Loc("Lambdas$", "main", 4), Loc("Lambdas$", "main$$anonfun$1", 4)),
-      Set(Loc("Lambdas$", "main", 5), Loc("Lambdas$", "main$$anonfun$2", 5), Loc("Lambdas$", "main$$anonfun$3", 5)),
-      Set(Loc("Lambdas$", "main", 6), Loc("Lambdas$", "main$$anonfun$4", 6))
     )
   }
 }

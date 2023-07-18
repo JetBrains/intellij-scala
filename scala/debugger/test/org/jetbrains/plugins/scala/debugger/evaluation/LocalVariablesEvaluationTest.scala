@@ -14,8 +14,8 @@ class LocalVariablesEvaluationTest_2_13 extends LocalVariablesEvaluationTestBase
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-class LocalVariablesEvaluationTest_3_0 extends LocalVariablesEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+class LocalVariablesEvaluationTest_3 extends LocalVariablesEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 
   override def testLocalObjectOuter(): Unit = {
     expressionEvaluationTest() { implicit ctx =>
@@ -28,10 +28,6 @@ class LocalVariablesEvaluationTest_3_0 extends LocalVariablesEvaluationTestBase 
       failing(evalStartsWith("x", "LocalMethodLocalObject$x"))
     }
   }
-}
-
-class LocalVariablesEvaluationTest_3_1 extends LocalVariablesEvaluationTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 abstract class LocalVariablesEvaluationTestBase extends ExpressionEvaluationTestBase {

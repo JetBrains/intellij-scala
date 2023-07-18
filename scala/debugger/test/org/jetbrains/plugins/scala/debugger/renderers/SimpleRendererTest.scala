@@ -9,8 +9,7 @@ import org.junit.runner.RunWith
   TestScalaVersion.Scala_2_11,
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_0,
-  TestScalaVersion.Scala_3_1
+  TestScalaVersion.Scala_3_Latest
 ))
 class SimpleRendererTest extends RendererTestBase {
   protected def checkLabelRendering(variableToExpectedLabel: (String, String)*): Unit = {
