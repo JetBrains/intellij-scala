@@ -11,7 +11,7 @@ class ScPsiDocTokenImpl(
   text: CharSequence
 ) extends LeafPsiElement(tokenType, text) with ScPsiDocToken {
 
-  override def toString: String = s"ScPsiDocToken(${tokenType.toString})";
+  override def toString: String = s"ScPsiDocToken(${tokenType.toString})"
 
   override def getReferences: Array[PsiReference] =
     ReferenceProvidersRegistry.getReferencesFromProviders(this)
