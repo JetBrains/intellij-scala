@@ -42,7 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScFieldId}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScEnumCase, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
@@ -1122,16 +1122,17 @@ package object extensions {
               processName(method.getName)
             }
           } else {
-            val toProcess = signature.exportedIn.fold(method) { 
+            val toProcess = signature.exportedIn.fold(method) {
               exportedCls =>
                 val wrapper = new LightMethod(method.getManager, method, exportedCls)
                 wrapper.setNavigationElement(method.getNavigationElement)
                 wrapper
             }
-            
+
             processMethod(toProcess)
             processName(toProcess.getName)
           }
+        case ScEnumCase.Original(_) => () // why no forwarder is generated for enum cases???
         case t: ScTypedDefinition if t.isVal || t.isVar ||
           (t.is[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
           PsiTypedDefinitionWrapper.processWrappersFor(

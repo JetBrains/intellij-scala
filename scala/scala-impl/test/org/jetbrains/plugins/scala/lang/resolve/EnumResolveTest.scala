@@ -285,5 +285,7 @@ class EnumResolveTest extends SimpleResolveTestBase {
       |  }
       |""".stripMargin
   )
+
+  def testTemp(): Unit = assert(false)
 }
 

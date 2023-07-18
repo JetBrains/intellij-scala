@@ -27,14 +27,13 @@ class EnumMembersInjector extends SyntheticMembersInjector {
   }
 
   override def injectFunctions(source: ScTypeDefinition): Seq[String] = source match {
-    case obj: ScObject if obj.isSynthetic => obj.fakeCompanionClassOrCompanionClass match {
+    case obj: ScObject => obj.fakeCompanionClassOrCompanionClass match {
       case ScEnum.Original(enum) =>
         val singletonCases =
           enum.cases.collect { case cse @ ScEnumCase.SingletonCase(_, _) => cse }
         methodsForCompanionObject(enum, singletonCases)
       case _ => Seq.empty
     }
-    case _: ScEnum | ScEnum.Original(_) => Seq("def ordinal: Int = ???")
     case _ => Seq.empty
   }
 
@@ -58,7 +57,7 @@ object EnumMembersInjector {
           if (tps.isEmpty) ""
           else             tps.map(_.typeParameterText).commaSeparated(model = Model.SquareBrackets)
 
-        s"$modifiers case class ${cse.name}$typeParamsText${cons.getText} extends $supersText"
+        s"$modifiers final case class ${cse.name}$typeParamsText${cons.getText} extends $supersText"
       case None =>
         val separator = if (cse.name.lastOption.exists(c => !c.isLetterOrDigit && c != '`')) " " else ""
         s"$modifiers val ${cse.name}$separator: $supersText = ???"
@@ -75,7 +74,7 @@ object EnumMembersInjector {
     val rawEnumTypeText = s"${owner.name}$wildcardsText"
     val fromOrdinal     = s"def fromOrdinal(ordinal: Int): $rawEnumTypeText = ???"
 
-    // @TODO: valueOf return type is acutually LUB of all singleton cases
+    // @TODO: valueOf return type is actually LUB of all singleton cases
     if (singletonCases.size == owner.cases.size)
       Seq(
         s"def values: Array[$rawEnumTypeText] = ???",

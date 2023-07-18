@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScPrimaryConstructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScEnumCase, ScFunctionDefinition, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScEnumCase, ScFunction, ScFunctionDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TypePresentationContext, ValueClassType}
@@ -190,8 +190,9 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
                                         (implicit holder: ScalaAnnotationHolder): Unit = {
     val enumCase = element.asOptionOf[ScEnumCase].getOrElse(return)
     val membersToImplement = ScalaOIUtil.getMembersToImplement(enumCase)
-      .collect {
-        case m: ScalaTypedMember => m // See SCL-2887
+      .filter {
+        case m: ScalaTypedMember => m.name != "ordinal" // See SCL-2887
+        case _                   => false
       }
 
     if (membersToImplement.isEmpty) return
@@ -341,7 +342,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   // TODO package private
   def annotateNeedsToBeAbstract(element: ScTemplateDefinition)
                                (implicit holder: ScalaAnnotationHolder): Unit = element match {
-    case _: ScNewTemplateDefinition | _: ScObject | _: ScEnumCase =>
+    case _: ScNewTemplateDefinition | _: ScObject | _: ScEnumCase | _: ScEnum =>
     case _ if isAbstract(element) =>
     case _ =>
       ScalaOIUtil.getMembersToImplement(element, withOwn = true).collectFirst {
