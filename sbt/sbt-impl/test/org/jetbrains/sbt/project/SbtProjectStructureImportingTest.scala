@@ -227,22 +227,29 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
 
   def testSharedSources(): Unit = runTest(
     new project("sharedSourcesProject") {
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk("2.13.6")
+      libraries := scalaLibraries
+
       lazy val root: module = new module("sharedSourcesProject") {
         contentRoots := Seq(getProjectPath)
         sources := Seq("src/main/scala")
+        libraryDependencies := scalaLibraries
         moduleDependencies := Nil
       }
 
       lazy val sharedSourcesModule: module = new module("sharedSources-sources") {
         contentRoots := Seq(getProjectPath + "/shared")
+        libraryDependencies := scalaLibraries
         sources := Seq("src/main/scala")
       }
 
       lazy val foo: module = new module("foo") {
+        libraryDependencies := scalaLibraries
         moduleDependencies := Seq(sharedSourcesModule)
       }
 
       lazy val bar: module = new module("bar") {
+        libraryDependencies := scalaLibraries
         moduleDependencies := Seq(sharedSourcesModule)
       }
 
