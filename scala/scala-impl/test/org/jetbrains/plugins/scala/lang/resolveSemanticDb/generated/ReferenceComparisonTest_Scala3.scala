@@ -280,7 +280,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_getset(): Unit = doTest("getset", true)
   def test_given_constrapps(): Unit = doTest("given-constrapps", false)
   def test_given_pattern(): Unit = doTest("given-pattern", true) // #transparentInline
-  def test_givenFallback(): Unit = doTest("givenFallback", false)
+  def test_givenFallback(): Unit = doTest("givenFallback", true)
   def test_givenIn(): Unit = doTest("givenIn", true)
   def test_gosh(): Unit = doTest("gosh", true)
   def test_gui(): Unit = doTest("gui", true)
@@ -986,7 +986,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i9515(): Unit = doTest("i9515", true)
   def test_i9525(): Unit = doTest("i9525", true)
   def test_i9529(): Unit = doTest("i9529", true) // #extension
-  def test_i9530(): Unit = doTest("i9530", false) // #extension
+  def test_i9530(): Unit = doTest("i9530", true) // #extension
   def test_i9531(): Unit = doTest("i9531", true)
   def test_i9533(): Unit = doTest("i9533", true)
   def test_i9562(): Unit = doTest("i9562", true) // #extension
@@ -1107,7 +1107,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i11464(): Unit = doTest("i11464", true)
   def test_i11481(): Unit = doTest("i11481", true)
   def test_i11499(): Unit = doTest("i11499", true)
-  def test_i11538a(): Unit = doTest("i11538a", false) // #givenImport
+  def test_i11538a(): Unit = doTest("i11538a", true) // #givenImport
   def test_i11538b(): Unit = doTest("i11538b", true) // #givenImport
   def test_i11556(): Unit = doTest("i11556", true) // #extension
   def test_i11557(): Unit = doTest("i11557", true) // #givenImport
@@ -1204,7 +1204,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i12896(): Unit = doTest("i12896", true) // #intersectionType
   def test_i12897(): Unit = doTest("i12897", true) // #extension
   def test_i12909(): Unit = doTest("i12909", true)
-  def test_i12910(): Unit = doTest("i12910", false)
+  def test_i12910(): Unit = doTest("i12910", true)
   def test_i12915(): Unit = doTest("i12915", true)
   def test_i12945(): Unit = doTest("i12945", false) // #opaque
   def test_i12949(): Unit = doTest("i12949", false) // #export, #givenImport, #transparentInline

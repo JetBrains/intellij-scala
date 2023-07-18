@@ -164,6 +164,10 @@ class ScalaPsiManager(implicit val project: Project) {
     if (DumbService.getInstance(project).isDumb) Seq.empty
     else getTopLevelImplicitClassesByPackageCached(fqn, scope).toSeq
 
+  def getTopLevelGivenDefinitionsByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScGivenDefinition] =
+    if (DumbService.getInstance(project).isDumb) Seq.empty
+    else getTopLevelGivenDefinitionsByPackageCached(fqn, scope).toSeq
+
   def getTopLevelExtensionsByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScExtension] =
     if (DumbService.getInstance(project).isDumb) Seq.empty
     else getTopLevelExtensionsByPackageCached(fqn, scope).toSeq
@@ -184,6 +188,14 @@ class ScalaPsiManager(implicit val project: Project) {
       ValueWrapper.SofterReference,
       clearCacheOnTopLevelChange,
       (fqn: String, scope: GlobalSearchScope) => TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY.elements(cleanFqn(fqn), scope)
+    )
+
+  private val getTopLevelGivenDefinitionsByPackageCached =
+    cachedWithoutModificationCount(
+      "ScalaPsiManager.getTopLevelGivenDefinitionsByPackageCached",
+      ValueWrapper.SofterReference,
+      clearCacheOnTopLevelChange,
+      (fqn: String, scope: GlobalSearchScope) => TOP_LEVEL_GIVEN_DEFINITIONS_BY_PKG_KEY.elements(cleanFqn(fqn), scope)
     )
 
   private val getTopLevelExtensionsByPackageCached =

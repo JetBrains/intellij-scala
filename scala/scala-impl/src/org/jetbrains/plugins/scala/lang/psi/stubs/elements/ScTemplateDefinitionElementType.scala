@@ -18,9 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScGivenStub, ScImplicitStub, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](debugName: String,
-                                                                                language: Language = ScalaLanguage.INSTANCE)
-  extends ScStubElementType.Impl[ScTemplateDefinitionStub[TypeDef], TypeDef](debugName, language) {
+abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
+  debugName: String,
+  language: Language = ScalaLanguage.INSTANCE
+) extends ScStubElementType.Impl[ScTemplateDefinitionStub[TypeDef], TypeDef](debugName, language) {
 
   override final def serialize(stub: ScTemplateDefinitionStub[TypeDef], dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
@@ -102,7 +103,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     val isVisibleInJava = definition.parents.forall {
       case o: ScObject => !o.isPackageObject
       case _ => true
-    }
+    } && !definition.isInstanceOf[ScEnum]
 
     val isImplicit = definition.hasModifierPropertyScala("implicit")
 
@@ -202,8 +203,13 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       sink.occurrence(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, pack)
       if (stub.isImplicitObject) sink.occurrence(ScalaIndexKeys.IMPLICIT_OBJECT_KEY, pack)
 
-      if (stub.isTopLevel && stub.implicitConversionParameterClass.nonEmpty)
-        sink.occurrence(ScalaIndexKeys.TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY, pack)
+      if (stub.isTopLevel) {
+        if (stub.implicitConversionParameterClass.nonEmpty)
+          sink.occurrence(ScalaIndexKeys.TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY, pack)
+
+        if (stub.isGiven)
+          sink.occurrence(ScalaIndexKeys.TOP_LEVEL_GIVEN_DEFINITIONS_BY_PKG_KEY, pack)
+      }
 
       stub.indexImplicits(sink)
       stub.indexGivens(sink)
