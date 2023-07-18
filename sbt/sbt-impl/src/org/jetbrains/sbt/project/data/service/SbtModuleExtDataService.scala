@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import java.io.File
 import java.util
 import scala.jdk.CollectionConverters._
 
@@ -32,47 +31,15 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
     for {
       dataNode <- dataToImport
       module <- modelsProvider.getIdeModuleByNode(dataNode)
-      SbtModuleExtData(scalaVersion, scalacClasspath, scaladocExtraClasspath, scalacOptions, sdk, javacOptions, packagePrefix, basePackage, compileOrder) = dataNode.getData
+      SbtModuleExtData(scalacOptions, sdk, javacOptions, packagePrefix, basePackage, compileOrder) = dataNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala, compileOrder)
-      Option(scalaVersion).foreach(configureScalaSdk(module, _, scalacClasspath.asScala.toSeq, scaladocExtraClasspath.asScala.toSeq)(modelsProvider))
       configureOrInheritSdk(module, Option(sdk))(modelsProvider)
       importJavacOptions(module, javacOptions.asScala.toSeq)(project, modelsProvider)
 
       val contentEntries = modelsProvider.getModifiableRootModel(module).getContentEntries
       contentEntries.foreach(_.getSourceFolders.foreach(_.setPackagePrefix(Option(packagePrefix).getOrElse(""))))
       ScalaProjectSettings.getInstance(project).setCustomBasePackage(module.getName, basePackage)
-    }
-  }
-
-  /**
-   * Reminder: SbtModuleExtData is built based on `show scalaInstance` sbt command result.
-   * In theory looks like if there are no scala libraries in the module, no SbtModuleExtData should be reported for the module
-   * But sbt creates `scalaInstance` in such cases anyway
-   * see https://github.com/sbt/sbt/issues/6559
-   * Also e.g. for Scala 3 (dotty) project, there is not explicit scala3-library dependency in modules,
-   * because all modules already depend on scala3-module in the Scala3 project itself
-   * So scalaInstance is reported for modules only as compiler which should be used to compile sources
-   */
-  private def configureScalaSdk(
-    module: Module,
-    compilerVersion: String,
-    scalacClasspath: Seq[File],
-    scaladocExtraClasspath: Seq[File]
-  )(
-    implicit modelsProvider: IdeModifiableModelsProvider
-  ): Unit = {
-    val rootModel = modelsProvider.getModifiableRootModel(module)
-    val scalaSDKForSpecificVersion = modelsProvider.getModifiableProjectLibrariesModel
-      .getLibraries
-      .find { lib => lib.getName == s"sbt: scala-sdk-$compilerVersion" && lib.isScalaSdk }
-    scalaSDKForSpecificVersion match {
-      case Some(scalaSDK) => rootModel.addLibraryEntry(scalaSDK)
-      case None =>
-        val tableModel = modelsProvider.getModifiableProjectLibrariesModel
-        val scalaSdkLibrary = tableModel.createLibrary(s"sbt: scala-sdk-$compilerVersion")
-        ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, scalaSdkLibrary, scalacClasspath, scaladocExtraClasspath)
-        rootModel.addLibraryEntry(scalaSdkLibrary)
     }
   }
 

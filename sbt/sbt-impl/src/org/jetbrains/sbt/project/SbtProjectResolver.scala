@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.build._
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, SdkReference}
+import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, ScalaSdkUtils, SdkReference}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver._
@@ -30,7 +30,7 @@ import org.jetbrains.sbt.project.structure.SbtStructureDump.PrintProcessOutputOn
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
-import org.jetbrains.sbt.structure.{BuildData, Configuration, ConfigurationData, DependencyData, DirectoryData, JavaData, ModuleDependencyData, ModuleIdentifier, ProjectData}
+import org.jetbrains.sbt.structure.{BuildData, Configuration, ConfigurationData, DependencyData, DirectoryData, JavaData, ModuleDependencyData, ModuleIdentifier, ProjectData, ScalaData}
 import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, usingTempFile, structure => sbtStructure}
 
 import java.io.{File, FileNotFoundException}
@@ -475,6 +475,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.add(contentRootNode)
       moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraryNodes.map(_.data)))
       moduleNode.add(createModuleExtData(project))
+      moduleNode.add(createScalaSdkData(project.scala))
       moduleNode.add(new SbtModuleNode(SbtModuleData(project.id, project.buildURI)))
       moduleNode.addAll(createTaskData(project))
       moduleNode.addAll(createSettingData(project))
@@ -512,6 +513,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     libs :+ unmanagedSourceLibrary
   }
 
+  protected def createScalaSdkData(scala: Option[ScalaData]): ScalaSdkNode = {
+    val data = SbtScalaSdkData(
+      scalaVersion = scala.map(_.version),
+      scalacClasspath = scala.fold(Seq.empty[File])(_.allCompilerJars),
+      scaladocExtraClasspath = scala.fold(Seq.empty[File])(_.extraJars)
+    )
+    new ScalaSdkNode(data)
+  }
+
   private def createModuleExtData(project: sbtStructure.ProjectData): ModuleExtNode = {
     val ProjectData(_, _, _, _, _, _, packagePrefix, basePackages, _, _, java, scala, compileOrder, android, _, _, _, _, _, _) = project
 
@@ -519,9 +529,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       .orElse(java.flatMap(_.home).map(JdkByHome))
 
     val data = SbtModuleExtData(
-      scalaVersion           = scala.map(_.version),
-      scalacClasspath        = scala.fold(Seq.empty[File])(_.allCompilerJars),
-      scaladocExtraClasspath = scala.fold(Seq.empty[File])(_.extraJars),
       scalacOptions          = scala.fold(Seq.empty[String])(_.options),
       sdk                    = sdk,
       javacOptions           = java.fold(Seq.empty[String])(_.options),
