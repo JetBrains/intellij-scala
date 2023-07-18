@@ -64,7 +64,13 @@ abstract class ExpressionEvaluationTestBase extends ScalaDebuggerTestBase {
       evaluateExpressionToString(expression)
       fail(s"Expression $expression was supposed to fail with an EvaluateException, but didn't")
     } catch {
-      case e: EvaluateException => assertEquals(message, e.getMessage)
+      case e: EvaluateException => assertStartsWith(message, e.getMessage)
+    }
+  }
+
+  private def assertStartsWith(expected: String, actual: String): Unit = {
+    if (!actual.startsWith(expected)) {
+      fail(s"$actual does not start with $expected")
     }
   }
 

@@ -65,8 +65,8 @@ class StepIntoTest_2_13 extends StepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-class StepIntoTest_3_0 extends StepIntoTest_2_12 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+class StepIntoTest_3 extends StepIntoTest_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 
   override def testSamAbstractClass(): Unit = {
     stepIntoTest()(
@@ -90,10 +90,6 @@ class StepIntoTest_3_0 extends StepIntoTest_2_12 {
       Breakpoint("PrivateMethodUsedInLambda.scala", "privateMethod", 3) -> resume
     )
   }
-}
-
-class StepIntoTest_3_1 extends StepIntoTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 abstract class StepIntoTestBase extends ScalaDebuggerTestBase {

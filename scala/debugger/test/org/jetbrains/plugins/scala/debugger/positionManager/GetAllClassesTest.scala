@@ -56,16 +56,12 @@ class GetAllClassesTest_2_13 extends GetAllClassesTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-class GetAllClassesTest_3_0 extends GetAllClassesTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+class GetAllClassesTest_3 extends GetAllClassesTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
 
   override def testPartialFunctions(): Unit = {
     checkGetAllClasses()("PartialFunctions$")
   }
-}
-
-class GetAllClassesTest_3_1 extends GetAllClassesTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 
   override def testLocalObject(): Unit = {
     checkGetAllClasses()("LocalObject$A$2$")

@@ -127,8 +127,134 @@ abstract class EvaluationTests_2_13_And_Later extends EvaluationTestBase {
 
 class EvaluationTest_2_13 extends EvaluationTests_2_13_And_Later with LocalLazyValEvaluationTests
 
-class EvaluationTest_3_0 extends EvaluationTests_2_13_And_Later {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+class EvaluationTest_3 extends EvaluationTests_2_13_And_Later {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+
+  override def testInstanceOfWithLiteralTypes(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      evalEquals("123.isInstanceOf[123]", "true")
+      evalEquals("123.isInstanceOf[234]", "false")
+      evalEquals("123.0.isInstanceOf[123.0f]", "false")
+      evalEquals("'c'.isInstanceOf['c']", "true")
+      evalEquals("""123.isInstanceOf["123"]""", """false""")
+      evalEquals("123.isInstanceOf[LiteralValueAlias]", "true")
+      evalEquals("456.isInstanceOf[LiteralValueAlias]", "false")
+      evalEquals("123.isInstanceOf[DoubleValueAlias]", "true")
+      evalEquals("456.isInstanceOf[DoubleValueAlias]", "false")
+      evalEquals(""""123".isInstanceOf["234"]""", "false")
+      evalEquals(""""123".isInstanceOf[123]""", "false")
+      evalEquals(""""123".isInstanceOf[LiteralRefAlias]""", "true")
+      evalEquals(""""456".isInstanceOf[LiteralRefAlias]""", "false")
+      evalEquals(""""123".isInstanceOf[DoubleRefAlias]""", "true")
+      evalEquals(""""456".isInstanceOf[DoubleRefAlias]""", "false")
+
+      evalEquals("123.asInstanceOf[123]", "123")
+      evalEquals("123.asInstanceOf[234]", "123")
+      evalEquals("123.0.asInstanceOf[123.0f]", "123.0")
+      evalEquals("'c'.asInstanceOf['c']", "c")
+      evalFailsWith("""123.asInstanceOf["123"]""", """Cannot cast value of type 'Int' to type 'java.lang.String'""")
+      evalEquals("123.asInstanceOf[LiteralValueAlias]", "123")
+      evalEquals("456.asInstanceOf[LiteralValueAlias]", "456")
+      evalEquals("123.asInstanceOf[DoubleValueAlias]", "123")
+      evalEquals("456.asInstanceOf[DoubleValueAlias]", "456")
+      evalEquals(""""123".asInstanceOf["234"]""", "123")
+      evalFailsWith(""""123".asInstanceOf[123]""", "Cannot cast value of type 'java.lang.String' to type 'Int'")
+      evalEquals(""""123".asInstanceOf[LiteralRefAlias]""", "123")
+      evalEquals(""""456".asInstanceOf[LiteralRefAlias]""", "456")
+      evalEquals(""""123".asInstanceOf[DoubleRefAlias]""", "123")
+      evalEquals(""""456".asInstanceOf[DoubleRefAlias]""", "456")
+    }
+  }
+
+  override def testInstanceOf(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      evalEquals("x.isInstanceOf[A]", "true")
+      evalEquals("x.isInstanceOf[B]", "false")
+      evalEquals("y.isInstanceOf[B]", "true")
+      evalEquals("y.isInstanceOf[String]", "false")
+      evalEquals("\"\".isInstanceOf[String]", "true")
+      evalEquals(""""123".isInstanceOf[Int]""", "false")
+      evalEquals("123.isInstanceOf[Int]", "true")
+      evalEquals("123.0f.isInstanceOf[Float]", "true")
+      evalEquals("123.isInstanceOf[Float]", "false")
+      evalEquals("123.0f.isInstanceOf[Double]", "false")
+      evalEquals("123.isInstanceOf[Byte]", "false")
+      evalEquals("123.0.isInstanceOf[Double]", "true")
+      evalEquals("123.0.isInstanceOf[Float]", "false")
+      evalEquals("123.isInstanceOf[Short]", "false")
+      evalEquals("123.isInstanceOf[Long]", "false")
+      evalEquals("123L.isInstanceOf[Long]", "true")
+      evalEquals("123L.isInstanceOf[Int]", "false")
+      evalFailsWith("123.isInstanceOf[String]", "cannot test if value of type Int is a reference of type String")
+      evalEquals(""""123".isInstanceOf[String]""", "true")
+      evalEquals(""""123".isInstanceOf[Long]""", "false")
+      evalEquals(""""123".isInstanceOf[AnyRef]""", "true")
+      evalEquals(""""123".isInstanceOf[Any]""", "true")
+      evalEquals(""""123".isInstanceOf[AnyVal]""", "true")
+      evalEquals("null.isInstanceOf[String]", "false")
+      evalFailsWith("null.isInstanceOf[Null]", "class Null cannot be used in runtime type tests")
+      evalFailsWith("123.isInstanceOf[Value]", "cannot test if value of type Int is a reference of type InstanceOf.Value")
+      evalEquals("new Object().isInstanceOf[Object]", "true")
+      evalEquals("new Object().isInstanceOf[AnyRef]", "true")
+      evalEquals("new Object().isInstanceOf[Any]", "true")
+      evalEquals("new Object().isInstanceOf[AnyVal]", "true")
+      evalEquals("new Value(123).isInstanceOf[Value]", "true")
+      evalEquals("new Value(123).isInstanceOf[AnyVal]", "true")
+      evalEquals("new Value(123).isInstanceOf[AnyRef]", "true")
+      evalEquals("new Value(123).isInstanceOf[Int]", "false")
+      evalFailsWith(""""123".isInstanceOf""", "isInstanceOf called without an explicit type argument")
+      evalFailsWith("123.isInstanceOf", "isInstanceOf called without an explicit type argument")
+      evalEquals(""""123".isInstanceOf[Alias]""", "true")
+      evalFailsWith("123.isInstanceOf[Singleton]", "trait Singleton cannot be used in runtime type tests")
+      evalFailsWith(""""123".isInstanceOf[Singleton]""", "trait Singleton cannot be used in runtime type tests")
+      evalEquals("new Structural().isInstanceOf[{ def foo(name: String): Int }]", "true")
+      evalEquals("new Structural().isInstanceOf[StructuralAlias]", "true")
+      evalEquals("InstanceOf.isInstanceOf[InstanceOf.type]", "true")
+      evalEquals("MyObject.isInstanceOf[MyObject.type]", "true")
+      evalEquals("MyObject.Nested.isInstanceOf[MyObject.Nested.type]", "true")
+      evalEquals("new MyTraitImpl().isInstanceOf[MyTrait]", "true")
+
+      evalEquals("x.asInstanceOf[A]", "A")
+      evalFailsWith("x.asInstanceOf[B]", "Cannot cast value of type 'InstanceOf$A' to type 'InstanceOf$B'")
+      evalEquals("y.asInstanceOf[B]", "B")
+      evalFailsWith("y.asInstanceOf[String]", "Cannot cast value of type 'InstanceOf$B' to type 'java.lang.String'")
+      evalEquals("\"\".asInstanceOf[String]", "")
+      evalFailsWith(""""123".asInstanceOf[Int]""", "Cannot cast value of type 'java.lang.String' to type 'Int'")
+      evalEquals("123.asInstanceOf[Int]", "123")
+      evalEquals("123.0f.asInstanceOf[Float]", "123.0")
+      evalEquals("123.asInstanceOf[Float]", "123.0")
+      evalEquals("123.0f.asInstanceOf[Double]", "123.0")
+      evalEquals("123.asInstanceOf[Byte]", "123")
+      evalEquals("123.0.asInstanceOf[Double]", "123.0")
+      evalEquals("123.0.asInstanceOf[Float]", "123.0")
+      evalEquals("123.asInstanceOf[Short]", "123")
+      evalEquals("123.asInstanceOf[Long]", "123")
+      evalEquals("123L.asInstanceOf[Long]", "123")
+      evalEquals("123L.asInstanceOf[Int]", "123")
+      evalFailsWith("123.asInstanceOf[String]", "Cannot cast value of type 'Int' to type 'java.lang.String'")
+      evalEquals(""""123".asInstanceOf[String]""", "123")
+      evalFailsWith(""""123".asInstanceOf[Long]""", "Cannot cast value of type 'java.lang.String' to type 'Long'")
+      evalEquals(""""123".asInstanceOf[AnyRef]""", "123")
+      evalEquals(""""123".asInstanceOf[Any]""", "123")
+      evalEquals("null.asInstanceOf[String]", "null")
+      evalFailsWith("123.asInstanceOf[Value]", s"Cannot cast value of type 'Int' to type 'InstanceOf$$Value'${System.lineSeparator()} Cannot cast value of type 'Int' to type 'InstanceOf$$Value'")
+      evalEquals("new Object().asInstanceOf[Object].toString.isInstanceOf[String]", "true")
+      evalEquals("new Object().asInstanceOf[AnyRef].toString.isInstanceOf[String]", "true")
+      evalEquals("new Object().asInstanceOf[Any].toString.isInstanceOf[String]", "true")
+      evalEquals("new Value(123).asInstanceOf[Value]", "123")
+      evalEquals("new Value(123).asInstanceOf[AnyVal]", "123")
+      evalEquals("new Value(123).asInstanceOf[AnyRef]", "123")
+      evalFailsWith("new Value(123).asInstanceOf[Int]", "Cannot cast value of type 'InstanceOf$Value' to type 'Int'")
+      evalFailsWith(""""123".asInstanceOf""", "asInstanceOf called without an explicit type argument")
+      evalFailsWith("123.asInstanceOf", "asInstanceOf called without an explicit type argument")
+      evalEquals(""""123".asInstanceOf[Alias]""", "123")
+      evalEquals("new Structural().asInstanceOf[{ def foo(name: String): Int }]", "Structural")
+      evalEquals("new Structural().asInstanceOf[StructuralAlias]", "Structural")
+      evalEquals("MyObject.asInstanceOf[MyObject.type]", "MyObject")
+      evalEquals("MyObject.Nested.asInstanceOf[MyObject.Nested.type]", "Nested")
+      evalEquals("new MyTraitImpl().asInstanceOf[MyTrait]", "MyTraitImpl")
+    }
+  }
 
   override def testPrefixedThis(): Unit = {
     expressionEvaluationTest() { implicit ctx =>
@@ -142,10 +268,6 @@ class EvaluationTest_3_0 extends EvaluationTests_2_13_And_Later {
       evalEquals("1 toString ()", "1")
     }
   }
-}
-
-class EvaluationTest_3_1 extends EvaluationTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 abstract class EvaluationTestBase extends ExpressionEvaluationTestBase {

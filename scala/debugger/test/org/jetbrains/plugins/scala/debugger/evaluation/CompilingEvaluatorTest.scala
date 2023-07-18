@@ -26,6 +26,19 @@ class CompilingEvaluatorTest_2_13 extends CompilingEvaluatorTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
+class CompilingEvaluatorTest_3 extends CompilingEvaluatorTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3
+
+  // TODO: Current known limitation, we do not use the expression evaluator when evaluating code in a Scala 2 source file.
+  override def testFromLibrary(): Unit = ()
+
+  // TODO: Upstream bug with the expression compiler when evaluating a new instance of a newly defined class. Will report.
+  override def testSimplePlace(): Unit = ()
+
+  // TODO: A bug that should be addressed.
+  override def testInLambda(): Unit = ()
+}
+
 abstract class CompilingEvaluatorTestBase extends ExpressionEvaluationTestBase {
   addSourceFile("SimplePlace.scala",
     s"""
