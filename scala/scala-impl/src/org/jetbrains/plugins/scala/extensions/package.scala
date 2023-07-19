@@ -682,7 +682,8 @@ package object extensions {
 
     def elementAt(offset: Int): Option[PsiElement] = Option(element.findElementAt(offset))
 
-    def isAncestorOf(otherElement: PsiElement): Boolean = PsiTreeUtil.isAncestor(element, otherElement, true)
+    def isAncestorOf(otherElement: PsiElement): Boolean = isAncestorOf(otherElement, true)
+    def isAncestorOf(otherElement: PsiElement, strict: Boolean): Boolean = PsiTreeUtil.isAncestor(element, otherElement, strict)
 
     def parents: Iterator[PsiElement] = new ParentsIterator(element)
 

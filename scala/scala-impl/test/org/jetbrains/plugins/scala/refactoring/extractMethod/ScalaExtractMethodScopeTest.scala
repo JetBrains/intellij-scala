@@ -9,4 +9,5 @@ class ScalaExtractMethodScopeTest extends ScalaExtractMethodTestBase {
   def testNewClassScope4(): Unit = doTest()
   def testNewClassScope5(): Unit = doTest()
   def testNewClassScope6(): Unit = doTest()
+  def testNewClassScope7(): Unit = doTest()
 }
