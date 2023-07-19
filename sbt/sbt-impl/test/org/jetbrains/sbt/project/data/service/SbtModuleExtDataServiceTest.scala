@@ -18,7 +18,7 @@ import org.junit.Assert._
 import java.io.File
 import scala.jdk.CollectionConverters._
 
-class SbtModuleExtDataServiceTest extends SbtModuleTest {
+class SbtModuleExtDataServiceTest extends SbtModuleDataServiceTestCase {
 
   import ExternalSystemDataDsl._
 
