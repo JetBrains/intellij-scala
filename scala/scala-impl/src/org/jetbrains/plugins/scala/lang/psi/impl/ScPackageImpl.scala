@@ -190,7 +190,11 @@ object ScPackageImpl {
           manager
             .getTopLevelImplicitClassesByPackage(pkgFqn, scope)
             .iterator
-            .flatMap(_.getSyntheticImplicitMethod)
+            .flatMap(_.getSyntheticImplicitMethod) ++
+          manager
+            .getTopLevelGivenDefinitionsByPackage(pkgFqn, scope)
+            .iterator
+            .flatMap(_.desugaredDefinitions)
 
       while (topLevelImplicits.hasNext) {
         val obj = topLevelImplicits.next()
