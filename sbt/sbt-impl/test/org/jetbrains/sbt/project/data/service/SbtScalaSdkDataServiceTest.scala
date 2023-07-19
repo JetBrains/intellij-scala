@@ -61,7 +61,7 @@ class SbtScalaSdkDataServiceTest extends SbtModuleDataServiceTestCase {
         externalConfigPath := getProject.getBasePath + "/module1"
         libraryDependencies += newScalaLibrary
         arbitraryNodes ++= Seq(
-          new ModuleExtNode(SbtModuleExtData()),
+          new ModuleExtNode(SbtModuleExtData(Some(evictedVersion))),
           new ScalaSdkNode(SbtScalaSdkData(Some(evictedVersion)))
         )
       }

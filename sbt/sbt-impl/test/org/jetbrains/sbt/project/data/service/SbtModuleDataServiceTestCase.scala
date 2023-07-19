@@ -68,7 +68,11 @@ trait SbtModuleDataServiceTestCase extends ProjectDataServiceTestCase {
         externalConfigPath := getProject.getBasePath + "/module1"
         scalaLibrary.foreach(libraryDependencies += _)
         arbitraryNodes ++= Seq(
-          new ModuleExtNode(SbtModuleExtData(scalacOptions, sdk, javacOptions)),
+          new ModuleExtNode(SbtModuleExtData(
+            scalaVersion = scalaVersion,
+            scalacOptions = scalacOptions,
+            sdk = sdk,
+            javacOptions = javacOptions)),
           new ScalaSdkNode(SbtScalaSdkData(scalaVersion))
         )
       }

@@ -529,6 +529,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       .orElse(java.flatMap(_.home).map(JdkByHome))
 
     val data = SbtModuleExtData(
+      scalaVersion           = scala.map(_.version),
+      scalacClasspath        = scala.fold(Seq.empty[File])(_.allCompilerJars),
+      scaladocExtraClasspath = scala.fold(Seq.empty[File])(_.extraJars),
       scalacOptions          = scala.fold(Seq.empty[String])(_.options),
       sdk                    = sdk,
       javacOptions           = java.fold(Seq.empty[String])(_.options),
