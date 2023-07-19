@@ -132,7 +132,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
         arbitraryNodes ++= Seq(
-          new ModuleExtNode(SbtModuleExtData(basePackage = basePackages.headOption)),
+          new ModuleExtNode(SbtModuleExtData(None, basePackage = basePackages.headOption)),
           new ScalaSdkNode(SbtScalaSdkData(None))
         )
       }
