@@ -6,6 +6,7 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.apache.commons.lang3.StringUtils
+import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.MessageKind
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
@@ -29,15 +30,23 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
           source <- msg.source
           virtualFile <- source.toVirtualFile
         } {
-          val rangeOpt = for {
-            startPos <- msg.problemStart
-            endPos <- msg.problemEnd if startPos != endPos
-          } yield RangeInfo.Range(startPos, endPos)
-          val rangeInfoOpt = rangeOpt.orElse(msg.pointer.map(RangeInfo.Pointer))
+          def calculateRangeInfo(startInfo: Option[PosInfo], endInfo: Option[PosInfo], alternative: Option[PosInfo]): Option[RangeInfo] = {
+            val rangeOpt = for {
+              startPos <- startInfo
+              endPos <- endInfo if startPos != endPos
+            } yield RangeInfo.Range(startPos, endPos)
+            rangeOpt.orElse(alternative.map(RangeInfo.Pointer))
+          }
+
+          val highlightingType = kindToHighlightInfoType(msg.kind, text)
+          val rangeInfo = highlightingType match {
+            case HighlightInfoType.WRONG_REF => calculateRangeInfo(msg.pointer, msg.problemEnd, msg.pointer)
+            case _ => calculateRangeInfo(msg.problemStart, msg.problemEnd, msg.pointer)
+          }
           val highlighting = ExternalHighlighting(
-            highlightType = kindToHighlightInfoType(msg.kind, text),
+            highlightType = highlightingType,
             message = text,
-            rangeInfoOpt
+            rangeInfo = rangeInfo
           )
           val fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
           val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
