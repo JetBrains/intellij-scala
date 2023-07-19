@@ -14,7 +14,7 @@ import org.jetbrains.sbt.project.data._
 import java.io.File
 import java.net.URI
 
-trait SbtModuleTest extends ProjectDataServiceTestCase {
+trait SbtModuleDataServiceTestCase extends ProjectDataServiceTestCase {
 
   import ExternalSystemDataDsl._
 

@@ -9,7 +9,7 @@ import org.junit.Assert._
 import java.io.File
 import java.net.URI
 
-class SbtScalaSdkDataServiceTest extends SbtModuleTest {
+class SbtScalaSdkDataServiceTest extends SbtModuleDataServiceTestCase {
 
   import ExternalSystemDataDsl._
 
