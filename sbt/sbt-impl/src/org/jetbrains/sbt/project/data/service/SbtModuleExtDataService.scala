@@ -31,7 +31,7 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
     for {
       dataNode <- dataToImport
       module <- modelsProvider.getIdeModuleByNode(dataNode)
-      SbtModuleExtData(scalacOptions, sdk, javacOptions, packagePrefix, basePackage, compileOrder) = dataNode.getData
+      SbtModuleExtData(_, _, _, scalacOptions, sdk, javacOptions, packagePrefix, basePackage, compileOrder) = dataNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala, compileOrder)
       configureOrInheritSdk(module, Option(sdk))(modelsProvider)

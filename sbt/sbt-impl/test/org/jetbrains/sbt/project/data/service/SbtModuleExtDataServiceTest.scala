@@ -75,7 +75,7 @@ class SbtModuleExtDataServiceTest extends SbtModuleDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new ModuleExtNode(SbtModuleExtData())
+      arbitraryNodes += new ModuleExtNode(SbtModuleExtData(Some("2.11.5")))
     }.build.toDataNode
 
     importProjectData(testProject)
