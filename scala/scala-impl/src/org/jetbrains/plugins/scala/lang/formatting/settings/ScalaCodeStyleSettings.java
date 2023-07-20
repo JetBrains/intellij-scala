@@ -160,6 +160,20 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public static final int NEW_LINE_FOR_MULTIPLE_ARGUMENTS = 2;
   public int CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = NO_NEW_LINE;
 
+  //When set to true formats like this:
+  //  foo0.foo1:
+  //      42
+  //    .foo0
+  //    .foo0
+  //When set to false formats like this:
+  //  foo0.foo1:
+  //      42
+  //  .foo0
+  //  .foo0
+  //NOTE: the name is not the best and can be changed
+  //NOTE: syntax with extra indent is only valid since Scala 3.3.1-RC1
+  public boolean INDENT_FEWER_BRACES_IN_METHOD_CALL_CHAINS = false;
+
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;
 

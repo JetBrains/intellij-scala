@@ -33,18 +33,34 @@ import java.util
 import scala.annotation.{tailrec, unused}
 import scala.jdk.CollectionConverters._
 
-class ScalaBlock(val node: ASTNode,
-                 val lastNode: ASTNode,
-                 @Nullable val alignment: Alignment,
-                 @Nullable val indent: Indent,
-                 @Nullable val wrap: Wrap,
-                 val settings: CodeStyleSettings,
-                 val subBlocksContext: Option[SubBlocksContext] = None)
-  extends ASTBlock with ScalaTokenTypes {
+/**
+ * @param indent using `var` for `indent` because it's much easier this way when handling method call chains
+ *               (see [[ChainedMethodCallsBlockBuilder]]
+ */
+class ScalaBlock(
+  var parentBlock: Option[ScalaBlock],
+  val node: ASTNode,
+  val lastNode: ASTNode,
+  @Nullable val alignment: Alignment,
+  @Nullable var indent: Indent,
+  @Nullable val wrap: Wrap,
+  val settings: CodeStyleSettings,
+  val subBlocksContext: Option[SubBlocksContext]
+) extends ASTBlock with ScalaTokenTypes {
+
+  def this(
+    node: ASTNode,
+    lastNode: ASTNode,
+    @Nullable alignment: Alignment,
+    @Nullable indent: Indent,
+    @Nullable wrap: Wrap,
+    settings: CodeStyleSettings,
+    subBlocksContext: Option[SubBlocksContext] = None
+  ) = {
+    this(None, node, lastNode, alignment, indent, wrap, settings, subBlocksContext)
+  }
 
   protected var subBlocks: util.List[Block] = _
-
-  var parentBlock: Option[ScalaBlock] = None
 
   def commonSettings: CommonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
 
