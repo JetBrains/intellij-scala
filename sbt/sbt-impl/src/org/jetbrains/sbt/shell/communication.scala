@@ -2,10 +2,14 @@ package org.jetbrains.sbt.shell
 
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.ApiStatus.Internal
+import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.ide.PooledThreadExecutor
+import org.jetbrains.plugins.scala.extensions.LoggerExt
+import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 
@@ -180,12 +184,15 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
   * @param whenReady callback when going into Ready state
   * @param whenWorking callback when going into Working state
   */
-class SbtShellReadyListener(whenReady: => Unit, whenWorking: => Unit) extends LineListener {
-
+class SbtShellReadyListener(
+  whenReady: => Unit,
+  whenWorking: => Unit
+) extends LineListener {
   private var readyState: Boolean = false
 
   override def onLine(line: String): Unit = {
-    val sbtReady = promptReady(line) || (readyState && debuggerMessage(line))
+    val sbtReady: Boolean = promptReady(line) || (readyState && debuggerMessage(line))
+    log.traceSafe(f"onLine: (sbtReady: $sbtReady%-5s) $line")
 
     if (sbtReady && !readyState) {
       readyState = true
@@ -222,43 +229,80 @@ private[shell] object SbtProcessUtil {
 /**
   * Pieces lines back together from parts of colored lines.
   */
-private[shell] abstract class LineListener extends ProcessAdapter with AnsiEscapeDecoder.ColoredTextAcceptor {
+abstract class LineListener extends ProcessAdapter with AnsiEscapeDecoder.ColoredTextAcceptor {
+  protected val log: Logger = Logger.getInstance(getClass)
 
   def onLine(line: String): Unit
 
   override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit =
-    updateLine(event.getText)
+    processCompleteLines(event.getText)
 
   override def coloredTextAvailable(text: String, attributes: Key[_]): Unit =
-    updateLine(text)
+    processCompleteLines(text)
 
-  private[this] val builder = new StringBuilder
+  /**
+   * Tracks content of the last line until new line character is processed
+   */
+  private[this] var lastIncompleteLine: String = ""
 
-  private def buildLine(text: String): Option[String] = builder.synchronized {
-    def lineDone(): Option[String] = {
-      val line = builder.result().trimRight
-      builder.clear()
-      Some(line)
+  /**
+   * @param text can start from new line, end with new line, have new line in the middle and no line at all.
+   *             Examples: {{{
+   *               hello
+   *               \nhello
+   *               hello\n
+   *               hello\r\nworld\r\n
+   *               etc ...
+   *             }}}
+   */
+  private def getCompleteLines(text: String): Seq[String] = lastIncompleteLine.synchronized {
+    if (log.isTraceEnabled) {
+      val textWithEscapedNewLines = escapeNewLines(text)
+      log.trace(f"buildLine: $textWithEscapedNewLines")
     }
 
-    text match {
-      case "\n" =>
-        lineDone()
-      case t if t.endsWith("\n") =>
-        builder.append(t.dropRight(1))
-        lineDone()
-      case t =>
-        builder.append(t)
-        val lineSoFar = builder.result()
+    val endsWithLineSeparator = text.endsWith("\n") || text.endsWith("\r\n")
 
-        if (promptReady(lineSoFar) || promptError(lineSoFar))
-          lineDone()
-        else None
+    val textWithRemainingLineContent = lastIncompleteLine + text
+
+    //split lines by line separator, "-1" argument is to keep empty lines
+    val lines = LineSeparatorRegex.pattern.split(textWithRemainingLineContent, -1).toSeq
+
+    lastIncompleteLine = ""
+
+    if (endsWithLineSeparator) {
+      //flush all lines, but drop trailing empty line
+      //(it's an empty string, because we used '-1' in 'split' method)
+      lines.init
+    }
+    else {
+      val lastLineOption = lines.lastOption
+      val shouldFlushLastLine = lastLineOption.exists(line => promptReady(line) || promptError(line))
+      if (shouldFlushLastLine) {
+        //NOTE: last line with IJ prompt or error might not have new line character in the end
+        //But we still want it to be reported the line to detect that the console is "ready"
+        lines
+      }
+      else {
+        lastIncompleteLine = lastLineOption.getOrElse("")
+        lines.init
+      }
     }
   }
 
-  private def updateLine(text: String): Unit = {
-    val ready = buildLine(text)
-    ready.foreach(onLine)
+  @TestOnly
+  @Internal
+  def processCompleteLines(text: String): Unit = {
+    val lines = getCompleteLines(text)
+    lines.foreach(onLine)
   }
+}
+
+object LineListener {
+  private val LineSeparatorRegex = """\r?\n""".r
+
+  private def escapeNewLines(text: String): String =
+    text
+      .replace("\\n", "\\\\n").replace("\n", "\\n")
+      .replace("\\r", "\\\\r").replace("\r", "\\r")
 }
