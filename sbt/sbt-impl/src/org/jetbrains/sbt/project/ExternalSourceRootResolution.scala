@@ -46,6 +46,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       // Please note that we mix source modules into other modules on compilation,
       // so source module dependencies are not relevant for compilation, only for highlighting.
       val representativeProject = representativeProjectIn(rootGroup.projects)
+      moduleNode.add(createScalaSdkData(representativeProject.scala))
 
       val representativeProjectDependencies = representativeProject.dependencies
 

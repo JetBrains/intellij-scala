@@ -141,6 +141,7 @@ object SbtCommandData {
     SbtCommandData(name, toJavaMap(help.toMap))
 }
 
+//TODO remove scalaVersion, scalacClasspath, scaladocExtraClasspath after the 2023.2 release
 /**
  * @param scalacClasspath        contains jars required to create scala compiler instance
  * @param scaladocExtraClasspath contains extra jars required to run ScalaDoc in Scala 3<br>
@@ -184,6 +185,34 @@ object SbtModuleExtData {
       packagePrefix.orNull,
       basePackage.orNull,
       compileOrder
+    )
+}
+
+/**
+ * @param scalacClasspath        contains jars required to create scala compiler instance
+ * @param scaladocExtraClasspath contains extra jars required to run ScalaDoc in Scala 3<br>
+ *                               Needs to be added to `scalacClasspath`<br>
+ *                               For Scala 2 it is empty, because scaladoc generation is built into compiler
+ */
+@SerialVersionUID(1)
+case class SbtScalaSdkData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scaladocExtraClasspath")) (
+  @Nullable scalaVersion: String,
+  scalacClasspath: JList[File],
+  scaladocExtraClasspath: JList[File],
+) extends SbtEntityData
+
+object SbtScalaSdkData {
+  val Key: Key[SbtScalaSdkData] = datakey(classOf[SbtScalaSdkData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
+
+  def apply(
+    scalaVersion: Option[String],
+    scalacClasspath: Seq[File] = Seq.empty,
+    scaladocExtraClasspath: Seq[File] = Seq.empty,
+  ): SbtScalaSdkData =
+    new SbtScalaSdkData(
+      scalaVersion.orNull,
+      scalacClasspath.toJavaList,
+      scaladocExtraClasspath.toJavaList
     )
 }
 

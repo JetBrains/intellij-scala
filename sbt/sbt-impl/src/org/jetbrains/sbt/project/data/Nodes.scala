@@ -115,6 +115,10 @@ class SbtCommandNode(override val data: SbtCommandData) extends Node[SbtCommandD
   override protected def key: Key[SbtCommandData] = SbtCommandData.Key
 }
 
+class ScalaSdkNode(override val data: SbtScalaSdkData) extends Node[SbtScalaSdkData] {
+  override protected def key: Key[SbtScalaSdkData] = SbtScalaSdkData.Key
+}
+
 class ModuleExtNode(override val data: SbtModuleExtData) extends Node[SbtModuleExtData] {
   override protected def key: Key[SbtModuleExtData] = SbtModuleExtData.Key
 }
