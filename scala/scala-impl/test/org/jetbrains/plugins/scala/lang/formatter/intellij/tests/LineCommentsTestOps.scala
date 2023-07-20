@@ -4,6 +4,10 @@ import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 
 trait LineCommentsTestOps { self: AbstractScalaFormatterTestBase =>
 
+  /**
+   * This test method ensures that formatting doesn't change even if there are line comments on each line.
+   * It's needed because in some cases handling of line comments is quite tricky
+   */
   def doTextTestWithLineComments(before: String, after: String): Unit = {
     doTextTest(before, after)
     doTextTest(appendLineComments(before), appendLineComments(after))

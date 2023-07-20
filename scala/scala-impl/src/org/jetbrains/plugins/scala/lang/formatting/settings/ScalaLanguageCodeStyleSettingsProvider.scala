@@ -5,13 +5,15 @@ import com.intellij.application.options.{CodeStyleAbstractConfigurable, CodeStyl
 import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable.OptionAnchor
 import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
 import com.intellij.psi.codeStyle._
+import com.intellij.psi.{PsiFile, PsiFileFactory}
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider._
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle, ScalaLanguage}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters.ListHasAsScala
@@ -40,6 +42,15 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       case SettingsType.LANGUAGE_SPECIFIC            => GeneralCodeSample // TODO: looks like other setting types are not displayed for now
       case _                                         => GeneralCodeSample
     }
+
+  override def createFileFromText(project: Project, text: String): PsiFile = {
+    if (text == WrappingAndBracesSample) {
+      //Use Scala 3 in "Indent" tab, to show more code examples
+      val language = Scala3Language.INSTANCE
+      PsiFileFactory.getInstance(project).createFileFromText("sample.scala", language, text, false, false)
+    }
+    else super.createFileFromText(project, text)
+  }
 
   override def customizeDefaults(commonSettings: CommonCodeStyleSettings, indentOptions: CommonCodeStyleSettings.IndentOptions): Unit = {
     super.customizeDefaults(commonSettings, indentOptions)
@@ -295,6 +306,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
       opt("INDENT_TYPE_ARGUMENTS", ScalaBundle.message("wrapping.and.braces.panel.indent"), TYPE_ARGUMENTS)
       opt("INDENT_TYPE_PARAMETERS", ScalaBundle.message("wrapping.and.braces.panel.indent"), TYPE_PARAMETERS)
+
+      opt("INDENT_FEWER_BRACES_IN_METHOD_CALL_CHAINS", "Indent arguments with colons (Scala 3)", options.WRAPPING_CALL_CHAIN)
     }
 
     if (settingsType == SettingsType.SPACING_SETTINGS) {
@@ -541,6 +554,12 @@ object ScalaLanguageCodeStyleSettingsProvider {
       |    .foo(1, 2, 3).foo()
       |
       |  fooObj.foo().foo(1, 2)
+      |
+      |  //Scala 3 syntax
+      |  value.foo1:
+      |    2 + 2
+      |  .foo1:
+      |    2+ 2
       |
       |  multipleParams(param2 = 4,
       |                 param3 = 5) {
