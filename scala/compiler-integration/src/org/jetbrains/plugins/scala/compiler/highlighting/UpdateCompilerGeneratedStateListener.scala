@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.Ra
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.project.template.FileExt
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private class UpdateCompilerGeneratedStateListener(project: Project) extends CompilerEventListener {
 
@@ -41,7 +42,8 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
           val highlightingType = kindToHighlightInfoType(msg.kind, text)
           val rangeInfo = highlightingType match {
             case HighlightInfoType.WRONG_REF => calculateRangeInfo(msg.pointer, msg.problemEnd, msg.pointer)
-            case _ => calculateRangeInfo(msg.problemStart, msg.problemEnd, msg.pointer)
+            case _ if ScalaProjectSettings.in(project).isUseCompilerRanges => calculateRangeInfo(msg.problemStart, msg.problemEnd, msg.pointer)
+            case _ => calculateRangeInfo(msg.pointer, msg.problemEnd, msg.pointer)
           }
           val highlighting = ExternalHighlighting(
             highlightType = highlightingType,
