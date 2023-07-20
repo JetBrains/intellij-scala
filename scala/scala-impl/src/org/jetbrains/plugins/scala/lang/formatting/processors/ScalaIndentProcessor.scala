@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isConstructorArgOrMemberFunctionParameter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.formatting.{ScalaBlock, isYieldOrDo}
+import org.jetbrains.plugins.scala.lang.formatting.{ChainedMethodCallBlock, ScalaBlock, isYieldOrDo}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScCodeBlockElementType.BlockExpression
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -178,6 +178,13 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       return res
     }
 
+    def matchChildIndent: Indent =
+      childPsi match {
+        case _: ScCaseClauses | _: ScMatchTypeCases if settings.INDENT_CASE_FROM_SWITCH => Indent.getNormalIndent
+        case _: PsiComment => Indent.getNormalIndent
+        case _ => Indent.getNoneIndent
+      }
+
     parentNode.getPsi match {
       case expr: ScFunctionExpr =>
         processFunExpr(expr)
@@ -195,11 +202,13 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNoneIndent
         }
       case _: ScMatch | _: ScMatchTypeElement =>
-        childPsi match {
-          case _: ScCaseClauses | _: ScMatchTypeCases if settings.INDENT_CASE_FROM_SWITCH => Indent.getNormalIndent
-          case _: PsiComment => Indent.getNormalIndent
-          case _ => Indent.getNoneIndent
-        }
+        matchChildIndent
+      case _ if parent.asOptionOf[ChainedMethodCallBlock].exists(_.isInMatchExpr)  =>
+        //NOTE: right now match expressions with dot have different block structure then without dot
+        //expr.match{...} is considered to be a part of method call chain
+        //This might be reviesed, especially after SCL-21458 is fixed and we need to support
+        //match chains without dots
+        matchChildIndent
       case _: ScTry =>
         childElementType match {
           case ScalaTokenTypes.kTRY | ScalaElementType.CATCH_BLOCK | ScalaElementType.FINALLY_BLOCK => Indent.getNoneIndent
