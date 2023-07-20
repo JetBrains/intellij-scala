@@ -9,9 +9,12 @@ import org.jetbrains.plugins.scala.lang.formatting.ChainedMethodCallsBlockBuilde
 import org.jetbrains.plugins.scala.lang.formatting.getDummyBlocksUtils._
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaIndentProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScMatchImpl
 
 import java.util
 import scala.annotation.tailrec
@@ -103,7 +106,7 @@ private final class ChainedMethodCallsBlockBuilder(
   }
 
   @inline private def isBlockWithColonArgInTheEnd(block: ScalaBlock): Boolean = block match {
-    case block: ChainedMethodCallBlock => block.endsWithColonArgs
+    case block: ChainedMethodCallBlock => block.endsWithColonArgsOrBraceOrIndentedCaseClauses
     case _ => false
   }
 
@@ -157,6 +160,54 @@ private final class ChainedMethodCallsBlockBuilder(
     //|-------------------||------||~~~~~~~| delegated: args `(1, 2, 3)`
     //|-----------|.|-----||~~~~~~||~~~~~~~| delegated: args `(1, 2, 3)` and type args `[String]`
     //|---|.|-----|.|-----||~~~~~~||~~~~~~~| delegated: args `(1, 2, 3)` and type args `[String]`
+
+    def `add blocks for "expr.xxx"`(expr: ASTNode, dot: ASTNode, nodeAfterDot: ASTNode): Boolean = {
+      //NOTE: we shadow `dotFollowedByNewLine` parameter, cause here we are interested in the new dot
+      val dotIsFollowedByNewLine = dot.getPsi.followedByNewLine()
+
+      val splitAtNode = if (dotIsFollowedByNewLine) nodeAfterDot else dot
+
+      assert(childrenNonEmpty.head.eq(expr), "assuming that first child is expr and comments can't go before it")
+      val (nodesOnPrevLine, nodesOnNextLine) = childrenNonEmpty.tail.span(c => {
+        //if chain part starts with a comment, include it into block:
+        //value
+        //  /*comment*/.map(x => x)
+        val split = (c eq splitAtNode) || c.getPsi.startsFromNewLine(false)
+        !split
+      })
+
+      //add whatever goes on previous line to a separate block
+      //Example 1 (here `//comment` goes to separate block)
+      //  seq //comment
+      //    .map(x => x)
+      //Example 2 (here `. //comment` goes to separate block)
+      //  seq.//comment
+      //    map(x => x)
+      val chainCallIsSplitToTwoBlocks = nodesOnPrevLine.nonEmpty && nodesOnNextLine.nonEmpty
+      if (chainCallIsSplitToTwoBlocks) {
+        result.add(chainSubBlock(
+          nodesOnPrevLine.head,
+          nodesOnPrevLine.lastOption,
+          None,
+          Some(Indent.getContinuationIndent),
+          Some(null),
+          None
+        ))
+      }
+
+      val context = SubBlocksContext.withChild(nodeAfterDot, delegatedChildrenNotAlreadyInSomeContext, None, delegatedContext)
+      val nodes = (if (nodesOnNextLine.nonEmpty) nodesOnNextLine else nodesOnPrevLine) ++ delegatedChildrenSorted
+      result.add(chainSubBlock(
+        nodes.head,
+        nodes.lastOption,
+        Some(chainAlignment),
+        Some(smartIndent),
+        Some(chainWrap),
+        Some(context)
+      ))
+      dotIsFollowedByNewLine
+    }
+
     children match {
       case expr :: Nil =>
         val actualAlignment = if (dotIsFollowedByNewLine) chainAlignment else null
@@ -185,50 +236,12 @@ private final class ChainedMethodCallsBlockBuilder(
       //expr.method1[String](1, 2, 3).method2[Int, String](4, 5, 6)
       //|------------expr-----------|.|-id--|
       case expr :: dot :: id :: Nil if dot.getElementType == tDOT =>
-        //NOTE: we shadow `dotFollowedByNewLine` parameter, cause here we are interested in the new dot
-        val dotIsFollowedByNewLine = dot.getPsi.followedByNewLine()
+        val dotIsFollowedByNewLine = `add blocks for "expr.xxx"`(expr, dot, id)
+        collectChainedMethodCalls(expr, dotIsFollowedByNewLine)
 
-        val splitAtNode = if (dotIsFollowedByNewLine) id else dot
-
-        assert(childrenNonEmpty.head.eq(expr), "assuming that first child is expr and comments can't go before it")
-        val (nodesOnPrevLine, nodesOnNextLine) = childrenNonEmpty.tail.span(c => {
-          //if chain part starts with a comment, include it into block:
-          //value
-          //  /*comment*/.map(x => x)
-          val split = (c eq splitAtNode) || c.getPsi.startsFromNewLine(false)
-          !split
-        })
-
-        //add whatever goes on previous line to a separate block
-        //Example 1 (here `//comment` goes to separate block)
-        //  seq //comment
-        //    .map(x => x)
-        //Example 2 (here `. //comment` goes to separate block)
-        //  seq.//comment
-        //    map(x => x)
-        val chainCallIsSplitToTwoBlocks = nodesOnPrevLine.nonEmpty && nodesOnNextLine.nonEmpty
-        if (chainCallIsSplitToTwoBlocks) {
-          result.add(chainSubBlock(
-            nodesOnPrevLine.head,
-            nodesOnPrevLine.lastOption,
-            None,
-            Some(Indent.getContinuationIndent),
-            Some(null),
-            None
-          ))
-        }
-
-        val context = SubBlocksContext.withChild(id, delegatedChildrenNotAlreadyInSomeContext, None, delegatedContext)
-        val nodes = (if (nodesOnNextLine.nonEmpty) nodesOnNextLine else nodesOnPrevLine) ++ delegatedChildrenSorted
-        result.add(chainSubBlock(
-          nodes.head,
-          nodes.lastOption,
-          Some(chainAlignment),
-          Some(smartIndent),
-          Some(chainWrap),
-          Some(context)
-        ))
-
+      //handle `expr.match{...}` (match expression with dot is a new syntax in Scala 3)
+      case expr :: dot :: matchKeyword :: _ if dot.getElementType == tDOT && matchKeyword.getElementType == kMATCH =>
+        val dotIsFollowedByNewLine = `add blocks for "expr.xxx"`(expr, dot, matchKeyword)
         collectChainedMethodCalls(expr, dotIsFollowedByNewLine)
       case _ =>
         //NOTE: this branch is generally not expected, but don't ignore children if there are some left
@@ -247,10 +260,15 @@ private final class ChainedMethodCallsBlockBuilder(
     wrap: Option[Wrap] = None,
     context: Option[SubBlocksContext] = None
   ): ScalaBlock = {
-    val endsWithColonArgs = lastNode.map(_.getPsi).exists { case args: ScArgumentExprList => args.isColonArgs case _ => false }
+    val isInMatchExpr = lastNode.exists { _.getTreeParent.getElementType == ScalaElementType.MATCH_STMT }
+    val endsWithColonArgs = lastNode.map(_.getPsi).exists {
+      case args: ScArgumentExprList => args.isColonArgs
+      case _: ScCaseClauses => isInMatchExpr //if case clauses is the last node it means that there are no braces in the match statement
+      case _ => false
+    }
     val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(parentBlock, node))
     val wrapFinal = wrap.getOrElse(ScalaWrapManager.arrangeSuggestedWrapForChild(parentBlock, node, parentBlock.suggestedWrap)(scalaSettings))
-    new ChainedMethodCallBlock(parentBlock, node, lastNode.orNull, alignment.orNull, indentFinal, wrapFinal, settings, context, endsWithColonArgs)
+    new ChainedMethodCallBlock(parentBlock, node, lastNode.orNull, alignment.orNull, indentFinal, wrapFinal, settings, context, endsWithColonArgs, isInMatchExpr)
   }
 }
 
@@ -265,6 +283,10 @@ object ChainedMethodCallsBlockBuilder {
            _: ScThisReference |
            _: ScSuperReference |
            _: ScMethodCall => true
+      case m: ScMatchImpl =>
+        //handle `expr.match {...}`
+        val hasDot = Option(m.getFirstChild.getNextSiblingNotWhitespaceComment).exists(_.elementType == ScalaTokenTypes.tDOT)
+        hasDot
       case _ => false
     }
 }

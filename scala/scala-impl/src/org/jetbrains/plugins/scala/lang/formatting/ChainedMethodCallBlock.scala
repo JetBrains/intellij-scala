@@ -12,15 +12,16 @@ import org.jetbrains.annotations.Nullable
  *    |---part1--||----part2-----||----part3-----|
  * }}}
  *
- * @param endsWithColonArgs true for block `.bar: 42` in {{{
- *                             foo.bar:
- *                               42
- * }}}
- *                          false for block .bar(42) in {{{
- *                            foo.bar(
- *                              42
- *                            )
- * }}}
+ * @param endsWithColonArgsOrBraceOrIndentedCaseClauses true for block `.bar: 42` in {{{
+ *                                                        foo.bar:
+ *                                                        42
+ *                                                      }}}
+ *
+ *                                                      false for block .bar(42) in {{{
+ *                                                        foo.bar(
+ *                                                          42
+ *                                                        )
+ *                                                      }}}
  */
 final class ChainedMethodCallBlock(
   parentBlock: ScalaBlock,
@@ -31,7 +32,8 @@ final class ChainedMethodCallBlock(
   @Nullable wrap: Wrap,
   settings: CodeStyleSettings,
   subBlocksContext: Option[SubBlocksContext],
-  val endsWithColonArgs: Boolean,
+  val endsWithColonArgsOrBraceOrIndentedCaseClauses: Boolean,
+  val isInMatchExpr: Boolean
 ) extends ScalaBlock(
   Some(parentBlock),
   node,
@@ -44,7 +46,8 @@ final class ChainedMethodCallBlock(
 ) {
 
   override def getDebugName: String = {
-    val suffix = if (endsWithColonArgs) " (colon arg)" else ""
-    classOf[ChainedMethodCallBlock].getSimpleName + suffix
+    val suffix1 = if (endsWithColonArgsOrBraceOrIndentedCaseClauses) " (colon arg)" else ""
+    val suffix2 = if (isInMatchExpr) " (match)" else ""
+    classOf[ChainedMethodCallBlock].getSimpleName + suffix1 + suffix2
   }
 }
