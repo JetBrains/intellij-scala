@@ -148,7 +148,8 @@ final class ScUAnonymousClass(
   with ScUClassCommon
   with UClass
   with ScUElement
-  with UAnonymousClass {
+  with UAnonymousClass
+  with PsiAnonymousClass {
 
   override protected val scTemplate: ScTemplateDefinition = newTemplateDefinition
 

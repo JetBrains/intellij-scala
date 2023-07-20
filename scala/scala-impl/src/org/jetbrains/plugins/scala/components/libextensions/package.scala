@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.components
 
+import com.intellij.openapi.vfs.JarFileSystem
+
 import java.io.File
 import scala.collection.mutable.ArrayBuffer
 
@@ -13,4 +15,10 @@ package object libextensions {
 
   case class ExtensionJarData(descriptor: LibraryDescriptor, file: File, loadedExtensions: Map[Class[_], ArrayBuffer[Any]])
   case class ExtensionProps(artifact: String, urlOverride: String)
+
+  final implicit class JarPathStringExt(private val path: String) extends AnyVal {
+    def withJarSeparator: String =
+      if (path.contains(JarFileSystem.JAR_SEPARATOR)) path
+      else path + JarFileSystem.JAR_SEPARATOR
+  }
 }

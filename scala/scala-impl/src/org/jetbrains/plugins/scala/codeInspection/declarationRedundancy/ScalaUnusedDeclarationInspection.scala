@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
-import com.intellij.codeInspection.SetInspectionOptionFix
 import com.intellij.codeInspection.options.OptPane
 import com.intellij.codeInspection.options.OptPane.{checkbox, dropdown, option, pane}
+import com.intellij.codeInspection.{LocalQuickFix, UpdateInspectionOptionFix}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiAnnotationOwner, PsiElement}
 import org.jetbrains.annotations.{Nls, NonNls}
@@ -70,11 +70,13 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
 
           val dontReportPublicDeclarationsQuickFix = if (isOnlyVisibleInLocalFile(named)) None
           else Some(
-            new SetInspectionOptionFix(
-              this,
-              reportPublicDeclarationsPropertyName,
-              ScalaInspectionBundle.message("fix.unused.declaration.report.public.declarations"),
-              false
+            LocalQuickFix.from(
+              new UpdateInspectionOptionFix(
+                this,
+                reportPublicDeclarationsPropertyName,
+                ScalaInspectionBundle.message("fix.unused.declaration.report.public.declarations"),
+                false
+              )
             )
           )
 

@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.worksheet.ammonite
 
-import java.io.File
-import java.util.regex.Pattern
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
@@ -9,6 +7,7 @@ import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi.{PsiDirectory, PsiFileSystemItem, PsiManager}
 import com.intellij.util.SystemProperties
 import org.apache.commons.lang.SystemUtils
+import org.jetbrains.plugins.scala.components.libextensions.JarPathStringExt
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfo
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
@@ -21,6 +20,8 @@ import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.{WorksheetFileType, WorksheetUtils}
 import org.jetbrains.sbt.project.SbtProjectSystem
 
+import java.io.File
+import java.util.regex.Pattern
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -154,7 +155,7 @@ object AmmoniteUtil {
               !name.endsWith("-sources.jar") &&
               !name.endsWith("-javadoc.jar")
           }
-          res <-  Option(JarFileSystem.getInstance().findLocalVirtualFileByPath(jarModuleRoot.getCanonicalPath))
+          res <-  Option(JarFileSystem.getInstance().findFileByPath(jarModuleRoot.getCanonicalPath.withJarSeparator))
         } yield res
     }
   }

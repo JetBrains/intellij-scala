@@ -8,6 +8,7 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ex.InspectionProfileImpl
 import com.intellij.codeInspection.{LocalQuickFix, LocalQuickFixAsIntentionAdapter, ProblemDescriptor, ProblemDescriptorUtil}
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.modcommand.ModCommandService
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.colors.TextAttributesKey
@@ -28,6 +29,7 @@ import javax.swing.Icon
 import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
+import scala.util.chaining.scalaUtilChainingOps
 
 abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option[Document], inspection: HighlightingPassInspection)
   extends TextEditorHighlightingPass(
@@ -124,8 +126,14 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
           lazy val problemDescriptor = ProblemDescriptorUtil.toProblemDescriptor(file, highlightInfo)
           val action = fix match {
             case intention: IntentionAction => intention //no need to wrap - the fix is an intention at the same time
-            case iconable: Iconable         => new LocalQuickFixAsIntentionIconableAdapter(iconable, problemDescriptor)
-            case _                          => new LocalQuickFixAsIntentionAdapter(fix, problemDescriptor)
+            case iconable: Iconable => new LocalQuickFixAsIntentionIconableAdapter(iconable, problemDescriptor)
+            case _ =>
+              val unwrappedModCommandAction = ModCommandService.getInstance().unwrap(fix)
+              if (unwrappedModCommandAction != null) {
+                unwrappedModCommandAction.asIntention().tap { intention =>
+                  intention.isAvailable(file.getProject, null, file) // cache presentation
+                }
+              } else new LocalQuickFixAsIntentionAdapter(fix, problemDescriptor)
           }
           highlightInfo.registerFix(action, null, info.message, range, highlightKey): @nowarn("cat=deprecation")
         }

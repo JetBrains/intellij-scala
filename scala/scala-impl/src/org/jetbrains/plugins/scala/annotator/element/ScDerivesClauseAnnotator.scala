@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClau
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.DerivesUtil.{checkIfCanBeDerived, resolveTypeClassReference}
 
+import scala.annotation.nowarn
+
 object ScDerivesClauseAnnotator extends ElementAnnotator[ScDerivesClause] {
   private def annotateSyntheticDerivedMembers(
     ref:       ScReference,
@@ -48,7 +50,7 @@ object ScDerivesClauseAnnotator extends ElementAnnotator[ScDerivesClause] {
     holder: ScalaAnnotationHolder
   ): Unit = {
     val owner     = element.owner
-    val session   = new AnnotationSession(element.getContainingFile)
+    val session   = new AnnotationSession(element.getContainingFile): @nowarn("cat=deprecation")
     val companion = owner.baseCompanion.collect { case obj: ScObject => obj }.orElse(owner.fakeCompanionModule)
 
     element.derivedReferences.foreach { ref =>

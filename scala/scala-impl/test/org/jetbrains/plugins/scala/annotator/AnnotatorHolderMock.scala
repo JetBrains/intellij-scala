@@ -57,7 +57,7 @@ abstract class AnnotatorHolderMockBase[T](file: PsiFile) extends ScalaAnnotation
   def createMockAnnotation(severity: HighlightSeverity, range: TextRange, message: String, enforcedAttributes: TextAttributesKey): Option[T]
 
   //noinspection ApiStatus,UnstableApiUsage
-  override def getCurrentAnnotationSession: AnnotationSession = new AnnotationSession(file)
+  override def getCurrentAnnotationSession: AnnotationSession = new AnnotationSession(file): @nowarn("cat=deprecation")
 
   override def isBatchMode: Boolean = false
 

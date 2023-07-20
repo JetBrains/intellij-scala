@@ -47,9 +47,9 @@ final class PrivateShadowInspection extends LocalInspectionTool {
     fixes.addOne(new RenameElementQuickfix(elem, renameQuickFixDescription) with HighPriorityAction)
     fixes.addOne(new DisableInspectionToolAction(this) with LowPriorityAction)
     if (!privateShadowCompilerOption)
-      fixes.addOne(new SetInspectionOptionFix(this, privateShadowPropertyName, ScalaInspectionBundle.message("fix.private.shadow.compiler.option.label"), true))
+      fixes.addOne(LocalQuickFix.from(new UpdateInspectionOptionFix(this, privateShadowPropertyName, ScalaInspectionBundle.message("fix.private.shadow.compiler.option.label"), true)))
     if (!fatalWarningsCompilerOption)
-      fixes.addOne(new SetInspectionOptionFix(this, fatalWarningsPropertyName, ScalaInspectionBundle.message("fix.private.shadow.fatal.warnings.label"), true))
+      fixes.addOne(LocalQuickFix.from(new UpdateInspectionOptionFix(this, fatalWarningsPropertyName, ScalaInspectionBundle.message("fix.private.shadow.fatal.warnings.label"), true)))
     manager.createProblemDescriptor(
       elem.nameId,
       description,

@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 
+import scala.annotation.nowarn
+
 /** see also [[ScStringLiteralAnnotator]] */
 object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpolatedStringLiteral] {
 
@@ -30,7 +32,7 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
             reference,
             call,
             offsetToRange,
-            new AnnotationSession(call.getContainingFile)
+            new AnnotationSession(call.getContainingFile): @nowarn("cat=deprecation")
           )
         case _ =>
           holder.createErrorAnnotation(

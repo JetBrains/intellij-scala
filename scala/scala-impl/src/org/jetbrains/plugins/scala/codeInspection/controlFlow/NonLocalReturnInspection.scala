@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.controlFlow
 
 import com.intellij.codeInspection.options.OptPane
 import com.intellij.codeInspection.options.OptPane.{checkbox, pane}
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder, SetInspectionOptionFix}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder, UpdateInspectionOptionFix}
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -27,8 +27,9 @@ final class NonLocalReturnInspection extends LocalInspectionTool {
     case scReturn: ScReturn if isNonLocal(scReturn) &&
       isInspectionAllowed(scReturn, checkCompilerOption, "-Xlint:nonlocal-return") =>
       if (!checkCompilerOption) {
-        val fix = new SetInspectionOptionFix(this, propertyName, ScalaInspectionBundle.message("fix.nonlocal.return.check.compiler.option"), true)
-        holder.registerProblem(scReturn, annotationDescription, fix)
+        val fix = new UpdateInspectionOptionFix(this, propertyName, ScalaInspectionBundle.message("fix.nonlocal.return.check.compiler.option"), true)
+        val quickFix = LocalQuickFix.from(fix)
+        holder.registerProblem(scReturn, annotationDescription, quickFix)
       } else {
         holder.registerProblem(scReturn, annotationDescription)
       }

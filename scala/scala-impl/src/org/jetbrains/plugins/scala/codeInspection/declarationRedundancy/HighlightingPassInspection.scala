@@ -9,7 +9,7 @@ trait HighlightingPassInspection extends LocalInspectionTool {
     if (isOnTheFly)
       PsiElementVisitor.EMPTY_VISITOR //highlighting pass should take care of that
     else {
-      //REMINDER: this is for the case when inspection are tun in batch mode
+      //REMINDER: this is for the case when inspection are run in batch mode
       new PsiElementVisitor {
         override def visitElement(element: PsiElement): Unit = if (shouldProcessElement(element)) {
           invoke(element, isOnTheFly).foreach { info =>

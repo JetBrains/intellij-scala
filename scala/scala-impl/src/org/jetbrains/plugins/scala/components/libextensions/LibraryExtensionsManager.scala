@@ -136,9 +136,10 @@ final class LibraryExtensionsManager(project: Project) {
   //NOTE: the is 1 usage in `zio-direct-intellij` test code in `ZioDirectMacroSupportTest.registerScalaPluginExtensions`
   //https://github.com/zio/zio-direct-intellij/blob/48fd4cb957f3be153f6395e2987fdaf229c91132/src/test/scala/ZioDirectMacroSupportTest.scala#L38
   def processResolvedExtension(resolved: File): Unit = {
-    if (myLoadedLibraries.exists(_.file.getAbsolutePath == resolved.getAbsolutePath))
+    val resolvedAbsolutePath = resolved.getAbsolutePath
+    if (myLoadedLibraries.exists(_.file.getAbsolutePath == resolvedAbsolutePath))
       throw new ExtensionAlreadyLoadedException(resolved)
-    val vFile = JarFileSystem.getInstance().findLocalVirtualFileByPath(resolved.getAbsolutePath)
+    val vFile = JarFileSystem.getInstance().findFileByPath(resolvedAbsolutePath.withJarSeparator)
     val manifest = Option(vFile.findFileByRelativePath(MANIFEST_PATH))
       .map(vFile => Using(vFile.getInputStream)(XMLNoDTD.load))
 

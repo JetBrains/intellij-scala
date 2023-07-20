@@ -5,13 +5,14 @@ import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationBuilder, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.annotator.annotationHolder.{DelegateAnnotationHolder, ErrorIndication}
 import org.jetbrains.plugins.scala.annotator.element.ScForBindingAnnotator.RemoveCaseFromPatternedEnumeratorFix
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationBuilder, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.RemoveValFromGeneratorIntentionAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScFor, ScGenerator}
 
+import scala.annotation.nowarn
 import scala.math.Ordering.Implicits._
 
 object ScForAnnotator extends ElementAnnotator[ScFor] {
@@ -50,10 +51,10 @@ object ScForAnnotator extends ElementAnnotator[ScFor] {
     for {
       forExpression <- generator.forStatement
       ScEnumerator.withDesugaredAndEnumeratorToken(desugaredGenerator, generatorToken) <- Some(generator)
-      session = new AnnotationSession(desugaredGenerator.analogMethodCall.getContainingFile)
+      session = new AnnotationSession(desugaredGenerator.analogMethodCall.getContainingFile): @nowarn("cat=deprecation")
     } {
       val followingEnumerators = generator.nextSiblings
-        .takeWhile(!_.isInstanceOf[ScGenerator])
+        .takeWhile(!_.is[ScGenerator])
 
       val foundUnresolvedSymbol = followingEnumerators
         .exists {
@@ -128,5 +129,3 @@ object ScForAnnotator extends ElementAnnotator[ScFor] {
       }
     }
 }
-
-
