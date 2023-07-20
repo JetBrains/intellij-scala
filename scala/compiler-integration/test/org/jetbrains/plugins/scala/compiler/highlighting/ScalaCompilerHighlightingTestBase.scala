@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, inReadAction, invokeAndWait}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.util.matchers.{HamcrestMatchers, ScalaBaseMatcher}
 import org.junit.experimental.categories.Category
@@ -162,5 +163,14 @@ abstract class ScalaCompilerHighlightingTestBase
       additionalCompilerOptions = options
     )
     defaultProfile.setSettings(newSettings)
+  }
+
+  protected def withUseCompilerRangesDisabled(test: => Unit): Unit = {
+    try {
+      ScalaProjectSettings.in(getProject).setUseCompilerRanges(false)
+      test
+    } finally {
+      ScalaProjectSettings.in(getProject).setUseCompilerRanges(true)
+    }
   }
 }

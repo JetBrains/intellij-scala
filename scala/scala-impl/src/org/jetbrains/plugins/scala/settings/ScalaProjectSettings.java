@@ -179,6 +179,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean TYPE_AWARE_HIGHLIGHTING_ENABLED = true;
   private boolean COMPILER_HIGHLIGHTING_SCALA2 = false;
   private boolean COMPILER_HIGHLIGHTING_SCALA3 = true;
+  private boolean USE_COMPILER_RANGES = true;
 
   public static ScalaProjectSettings in(@NotNull Project project) {
     return getInstance(project);
@@ -386,6 +387,10 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     return COMPILER_HIGHLIGHTING_SCALA3;
   }
 
+  public boolean isUseCompilerRanges() {
+    return USE_COMPILER_RANGES;
+  }
+
   public void setCompilerHighlightingScala2(boolean value) {
     COMPILER_HIGHLIGHTING_SCALA2 = value;
     var listener = ApplicationManager.getApplication().getMessageBus()
@@ -397,6 +402,10 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     var listener = ApplicationManager.getApplication().getMessageBus()
             .syncPublisher(CompilerHighlightingListener$.MODULE$.Topic());
     listener.compilerHighlightingScala3Changed(value);
+  }
+
+  public void setUseCompilerRanges(boolean value) {
+    USE_COMPILER_RANGES = value;
   }
 
   public boolean isTypeAwareHighlightingEnabled() {
