@@ -256,7 +256,23 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestCa
          |}
          |""".stripMargin
 
-    doTest(code, Seq("Red", "Color.Red"))
+    doTest(code, Seq("Red", "Red"))
+  }
+
+  def testSCL20883CaseClassCase(): Unit = {
+    val code =
+      s"""
+         |enum Tree[+A] {
+         |  case Leaf
+         |  case Node(value: A, r: Tree[A], l: Tree[A])
+         |}
+         |
+         |object A {
+         |  val n = println(Tree.No${|}de(1, Tree.Leaf, Tree.Leaf))
+         |}
+         |""".stripMargin
+
+    doTest(code, Seq("Node", "Node"))
   }
 
   def assertHandlerIsNull(fileText: String): Unit = {

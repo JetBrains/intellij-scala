@@ -26,7 +26,10 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
         |  val f: Foo = new Foo {}
         |}
         |""".stripMargin
-    )(Error("Foo", "Extending enums is prohibited"))
+    )(
+      Error("Foo", "Extending enums is prohibited"),
+      Error("Foo", "Object creation impossible, since member ordinal: Int in scala.reflect.Enum is not defined")
+    )
 
   def testInheritFromEnumClass(): Unit =
     doTest(
@@ -36,7 +39,10 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
         |  class X extends Foo
         |}
         |""".stripMargin
-    )(Error("Foo", "Extending enums is prohibited"))
+    )(
+      Error("Foo", "Extending enums is prohibited"),
+      Error("class X extends Foo", "Class 'X' must either be declared abstract or implement abstract member 'ordinal: Int' in 'scala.reflect.Enum'")
+    )
 
   def testNonVariantTypeParameterNeg(): Unit =
     doTest(
@@ -138,4 +144,13 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
         |}
         |""".stripMargin
     )()
+
+  def testSCL21387(): Unit = doTest(
+    """
+      |enum Color { case Green(x: Int) }
+      |
+      |class C extends Color.Green(1)
+      |""".stripMargin
+  )(Error("Color.Green", "Illegal inheritance from final class 'Green'")
+  )
 }

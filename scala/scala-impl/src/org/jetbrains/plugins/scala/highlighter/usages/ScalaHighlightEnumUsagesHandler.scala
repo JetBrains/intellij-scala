@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
@@ -48,7 +49,10 @@ class ScalaHighlightEnumUsagesHandler(target: ScalaPsiElement, file: PsiFile, ed
 
       manager
         .findReferencesToHighlight(target, localSearchScope)
-        .forEach(e => addOccurrence(e.getElement))
+        .forEach {
+          case scRef: ScReference => addOccurrence(scRef.nameId)
+          case e => e.getElement
+        }
     }
   }
 }

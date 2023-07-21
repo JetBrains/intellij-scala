@@ -258,5 +258,49 @@ class EnumResolveTest extends SimpleResolveTestBase {
 //         |""".stripMargin
 //    )
   }
+
+  def testSCL20882(): Unit = checkTextHasNoErrors(
+    """
+      |object example1:
+      |  object obj {
+      |    enum MyColor:
+      |      case red2, green2
+      |    MyColor.red2
+      |  }
+      |
+      |//Enum inside function
+      |object example2:
+      |  def foo(): Unit = {
+      |    enum MyColor:
+      |      case red3, green3
+      |    MyColor.red3
+      |  }
+      |
+      |//Enum inside local scope
+      |object example3:
+      |  {
+      |    enum MyColor:
+      |      case red4, green4
+      |    MyColor.red4
+      |  }
+      |""".stripMargin
+  )
+
+  def testSCL21388(): Unit = checkTextHasNoErrors(
+    """enum Color { case Green }
+      |object Color
+      |
+      |object Test { Color.values }
+      |""".stripMargin
+  )
+
+  def testSCL21397(): Unit = checkHasErrorAroundCaret(
+    s"""
+      |object Scope {
+      |  private enum Color { case Green }
+      |}
+      |type T = Scope.Co${CARET}lor
+      |""".stripMargin
+  )
 }
 

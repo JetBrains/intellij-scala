@@ -197,19 +197,19 @@ final class ScProjectionType private(val projected: ScType,
       case _                => false
     }
 
-    def checkDesignatorType(e: PsiNamedElement): ConstraintsResult = e match {
+    def checkDesignatorType(e: PsiNamedElement, other: ScType): ConstraintsResult = e match {
       case td: ScTypedDefinition if td.isStable =>
         val tp = actualSubst(td.`type`().getOrAny)
         tp match {
           case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
-            tp.equiv(r, constraints, falseUndef)
-          case lit: ScLiteralType => lit.equiv(r, constraints, falseUndef)
+            tp.equiv(other, constraints, falseUndef)
+          case lit: ScLiteralType => lit.equiv(other, constraints, falseUndef)
           case _                  => ConstraintsResult.Left
         }
       case _ => ConstraintsResult.Left
     }
 
-    val desRes = checkDesignatorType(actualElement)
+    val desRes = checkDesignatorType(actualElement, r)
     if (desRes.isRight) return desRes
 
     r match {
@@ -233,7 +233,7 @@ final class ScProjectionType private(val projected: ScType,
           case _ => ConstraintsResult.Left
         }
       case proj2 @ ScProjectionType(p1, _) =>
-        val desRes = checkDesignatorType(proj2.actualElement)
+        val desRes = checkDesignatorType(proj2.actualElement, this)
         if (desRes.isRight) return desRes
 
         val lElement = actualElement

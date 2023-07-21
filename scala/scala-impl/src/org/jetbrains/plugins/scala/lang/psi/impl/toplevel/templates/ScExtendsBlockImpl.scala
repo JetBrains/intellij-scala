@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 package templates
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiClass
+import com.intellij.psi.{PsiClass, PsiNamedElement}
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScDerivesClauseFactory, ScTemplateParentsFactory}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScExtension, ScFunction, ScTypeAlias, ScTypeAliasDefinition, ScValueOrVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScExtension, ScFunction, ScTypeAlias, ScTypeAliasDefinition, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
@@ -79,7 +79,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       case _ => syntheticTypeElements.map(_.`type`().getOrAny).foreach(addType)
     }
 
-    if (isUnderCaseClass) {
+    if (isUnderCaseClass && !isInDesugaredEnumCase) {
       buffer ++= scalaProduct
       buffer ++= scalaSerializable
     }
@@ -230,6 +230,12 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   override def isEnumDefinition: Boolean = getParentByStub match {
     case _: ScEnum => true
     case _         => false
+  }
+
+  private def isInDesugaredEnumCase: Boolean = getParentByStub match {
+    case cse: ScEnumCase       => true
+    case named: ScNamedElement => ScEnumCase.isDesugaredEnumCase(named)
+    case _                     => false
   }
 
   private def templateBodies = templateBody.toSeq
