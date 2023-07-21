@@ -8,8 +8,10 @@ import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.LockExtensions
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange}
 import org.junit.Assert.{assertNotSame, fail}
 import org.junit.experimental.categories.Category
@@ -41,8 +43,13 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
 
   private val compilerConfig: RevertableChange = CompilerTestUtil.withEnabledCompileServer(false)
 
+  protected def incrementalityType: IncrementalityType = IncrementalityType.SBT
+
   override def setUp(): Unit = {
     super.setUp()
+
+    ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType = incrementalityType
+
     try {
       compilerConfig.applyChange()
       setUpLibrariesFor(getModule)

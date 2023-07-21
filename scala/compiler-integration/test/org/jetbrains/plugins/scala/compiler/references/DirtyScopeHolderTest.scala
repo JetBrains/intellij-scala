@@ -6,11 +6,20 @@ import com.intellij.openapi.module.{JavaModuleType, Module, ModuleType}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.PsiTestUtil
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.references.ScalaDirtyScopeHolder.ScopedModule
 import org.junit.Assert._
 import org.junit.Ignore
 
-class DirtyScopeHolderTest extends ScalaCompilerReferenceServiceFixture {
+class DirtyScopeHolderTest_IdeaIncrementality extends DirtyScopeHolderTestBase {
+  override protected def incrementalityType: IncrementalityType = IncrementalityType.IDEA
+}
+
+class DirtyScopeHolderTest_SbtIncrementality extends DirtyScopeHolderTestBase {
+  override protected def incrementalityType: IncrementalityType = IncrementalityType.SBT
+}
+
+abstract class DirtyScopeHolderTestBase extends ScalaCompilerReferenceServiceFixture {
   private[this] var moduleA: Module = _
   private[this] var moduleB: Module = _
 
