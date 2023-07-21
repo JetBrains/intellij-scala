@@ -42,7 +42,7 @@ object ResolveUtils {
             case obj: ScObject if obj.isPackageObject   => kinds contains PACKAGE
             case _: ScObject                            => (kinds contains OBJECT) || (kinds contains METHOD)
             case c: ScEnumCase if c.constructor.isEmpty => (kinds contains OBJECT) || (kinds contains VAL)
-            case _: ScEnumCase                          => kinds contains CLASS
+            case _: ScEnumCase                          => (kinds contains CLASS) || (kinds contains METHOD) // method is for universal apply
             case _: ScTypeVariableTypeElement           => kinds contains CLASS
             case _: ScTypeParam                         => kinds contains CLASS
             case _: ScTypeAlias                         => kinds contains CLASS

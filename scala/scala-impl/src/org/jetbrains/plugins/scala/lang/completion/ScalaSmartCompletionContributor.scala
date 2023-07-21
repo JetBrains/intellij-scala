@@ -8,14 +8,17 @@ import com.intellij.codeInsight.template.impl.ConstantNode
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.ElementPattern
+import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.NotImplementedError
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.{ScalaChainLookupElement, ScalaKeywordLookupItem, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -27,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursive
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -37,7 +40,6 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 
 final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
@@ -48,27 +50,25 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     ref = expr
     expr = ref
    */
-  extend(
+  extendSmartAndBasic(
     classOf[ScAssignment],
-    new CompletionProvider[CompletionParameters] {
-      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                                  result: CompletionResultSet): Unit = {
-        val element = positionFromParameters(parameters)
-
-        extractReference[ScAssignment](element).foreach { case (ref, assign) =>
+    new ScalaSmartCompletionProvider {
+      override def addCompletions(implicit parameters: CompletionParameters,
+                                  result: CompletionResultSet,
+                                  place: PsiElement): Unit =
+        extractReference[ScAssignment](place).foreach { case (ref, assign) =>
           if (assign.rightExpression.contains(ref)) {
             assign.leftExpression match {
               case _: ScMethodCall => //todo: it's update method
               case _: ScExpression =>
                 //we can expect that the type is same for left and right parts.
-                acceptTypes(ref.expectedTypes(), ref.getVariants, result, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
+                acceptTypes(ref.expectedTypes(), ref)
             }
           } else {
             //so it's left expression
             //todo: if right expression exists?
           }
         }
-      }
     }
   )
 
@@ -76,33 +76,30 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     val x: Type = ref
     var y: Type = ref
    */
-  extend(
+  extendSmartAndBasic(
     superParentPattern(classOf[ScPatternDefinition]) || superParentPattern(classOf[ScVariableDefinition]),
-    new CompletionProvider[CompletionParameters] {
-      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                                  result: CompletionResultSet): Unit = {
-        val element = positionFromParameters(parameters)
-        extractReference[PsiElement](element).foreach { case (ref, _) =>
-          acceptTypes(ref.expectedType().toList, ref.getVariants, result,
-            parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
+    new ScalaSmartCompletionProvider {
+      override def addCompletions(implicit parameters: CompletionParameters,
+                                  result: CompletionResultSet,
+                                  place: PsiElement): Unit =
+        extractReference[PsiElement](place).foreach { case (ref, _) =>
+          acceptTypes(ref.expectedType(), ref)
         }
-      }
     })
 
   /*
     return ref
    */
-  extend(
+  extendSmartAndBasic(
     classOf[ScReturn],
-    new CompletionProvider[CompletionParameters] {
-      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
-        val element = positionFromParameters(parameters)
-        extractReference[ScReturn](element).foreach { case (ref, _) =>
-          val fun: ScFunction = PsiTreeUtil.getContextOfType(ref, classOf[ScFunction])
-          if (fun == null) return
-          acceptTypes(Seq[ScType](fun.returnType.getOrAny), ref.getVariants, result, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
+    new ScalaSmartCompletionProvider {
+      override def addCompletions(implicit parameters: CompletionParameters, result: CompletionResultSet, place: PsiElement): Unit =
+        extractReference[ScReturn](place).foreach { case (ref, _) =>
+          PsiTreeUtil.getContextOfType(ref, classOf[ScFunction]) match {
+            case null =>
+            case fun => acceptTypes(Seq[ScType](fun.returnType.getOrAny), ref)
+          }
         }
-      }
     }
   )
 
@@ -110,17 +107,16 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     call(exprs, ref, exprs)
     if expected type is function, so we can suggest anonymous function creation
    */
-  extend(
+  extendSmart(
     classOf[ScArgumentExprList],
-    new CompletionProvider[CompletionParameters] {
-      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                                  result: CompletionResultSet): Unit = {
-        val element = positionFromParameters(parameters)
-        extractReference[ScArgumentExprList](element).foreach { case (referenceExpression, args) =>
+    new ScalaSmartCompletionProvider {
+      override def addCompletions(implicit parameters: CompletionParameters,
+                                  result: CompletionResultSet,
+                                  place: PsiElement): Unit =
+        extractReference[ScArgumentExprList](place).foreach { case (referenceExpression, args) =>
           val elements = functionArguments(args, referenceExpression)
           result.addAllElements(elements)
         }
-      }
     }
   )
 
@@ -128,13 +124,13 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     call {ref}
     if expected type is function, so we can suggest anonymous function creation
    */
-  extend(
+  extendSmart(
     identifierWithParentsPattern(classOf[ScReferenceExpression], classOf[ScBlockExpr], classOf[ScArgumentExprList], classOf[ScMethodCall]),
-    new CompletionProvider[CompletionParameters] {
-      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                                  result: CompletionResultSet): Unit = {
-        val element = positionFromParameters(parameters)
-        val referenceExpression = element.getContext.asInstanceOf[ScReferenceExpression]
+    new ScalaSmartCompletionProvider {
+      override def addCompletions(implicit parameters: CompletionParameters,
+                                  result: CompletionResultSet,
+                                  place: PsiElement): Unit = {
+        val referenceExpression = place.getContext.asInstanceOf[ScReferenceExpression]
         val block = referenceExpression.getContext.asInstanceOf[ScBlockExpr]
         val args = block.getContext.asInstanceOf[ScArgumentExprList]
 
@@ -147,25 +143,39 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   /*
     call(exprs, ref, exprs)
    */
-  extend(classOf[ScArgumentExprList])
+  extend(classOf[ScArgumentExprList], onlySmart = false)
 
   /*
     if (ref) expr
     if (expr) ref
     if (expr) expr else ref
    */
-  extend(
+  extendSmartAndBasic(
     classOf[ScIf],
-    new CompletionProvider[CompletionParameters] {
-      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                                  result: CompletionResultSet): Unit = {
-        val element = positionFromParameters(parameters)
-        extractReference[ScIf](element).foreach { case (ref, ifStmt) =>
-          if (ifStmt.condition.getOrElse(null: ScExpression) == ref)
-            acceptTypes(ref.expectedTypes(), ref.getVariants, result, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
-          else acceptTypes(ifStmt.expectedTypes(), ref.getVariants, result, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
+    new ScalaSmartCompletionProvider {
+      override def addCompletions(implicit parameters: CompletionParameters,
+                                  result: CompletionResultSet,
+                                  place: PsiElement): Unit =
+        extractReference[ScIf](place).foreach { case (ref, ifStmt) =>
+          val expr = if (ifStmt.condition.contains(ref)) ref else ifStmt
+          acceptTypes(expr.expectedTypes(), ref)
         }
-      }
+    }
+  )
+
+  /*
+    case expr
+   */
+  extendSmartAndBasic(
+    psiElement.inside(classOf[ScCaseClause]),
+    new ScalaSmartCompletionProvider {
+      override def addCompletions(implicit parameters: CompletionParameters,
+                                  result: CompletionResultSet,
+                                  place: PsiElement): Unit = for {
+        ref <- place.findContextOfType(classOf[ScReferenceExpression])
+        caseClause <- ref.findContextOfType(classOf[ScCaseClause])
+        if caseClause.pattern.contains(ref.getContext)
+      } acceptTypes(caseClause.pattern.flatMap(_.expectedType), ref)
     }
   )
 
@@ -173,18 +183,15 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     while (ref) expr
     while (expr) ref
    */
-  extend(
+  extendSmart(
     classOf[ScWhile],
-    new CompletionProvider[CompletionParameters] {
-      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                                  result: CompletionResultSet): Unit = {
-        val element = positionFromParameters(parameters)
-        extractReference[ScWhile](element).foreach { case (ref, whileStmt) =>
-          if (whileStmt.condition.getOrElse(null: ScExpression) == ref)
-            acceptTypes(ref.expectedTypes(), ref.getVariants, result, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
-          else acceptTypes(ref.expectedTypes(), ref.getVariants, result, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
+    new ScalaSmartCompletionProvider {
+      override def addCompletions(implicit parameters: CompletionParameters,
+                                  result: CompletionResultSet,
+                                  place: PsiElement): Unit =
+        extractReference[ScWhile](place).foreach { case (ref, _) =>
+          acceptTypes(ref.expectedTypes(), ref)
         }
-      }
     }
   )
 
@@ -192,18 +199,15 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
    do expr while (ref)
    do ref while (expr)
   */
-  extend(
+  extendSmart(
     classOf[ScDo],
-    new CompletionProvider[CompletionParameters] {
-      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                                  result: CompletionResultSet): Unit = {
-        val element = positionFromParameters(parameters)
-        extractReference[ScDo](element).foreach { case (ref, doStmt) =>
-          if (doStmt.condition.getOrElse(null: ScExpression) == ref)
-            acceptTypes(ref.expectedTypes(), ref.getVariants, result, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
-          else acceptTypes(ref.expectedTypes(), ref.getVariants, result, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
+    new ScalaSmartCompletionProvider {
+      override def addCompletions(implicit parameters: CompletionParameters,
+                                  result: CompletionResultSet,
+                                  place: PsiElement): Unit =
+        extractReference[ScDo](place).foreach { case (ref, _) =>
+          acceptTypes(ref.expectedTypes(), ref)
         }
-      }
     }
   )
 
@@ -212,89 +216,93 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     expr ref name
     ref op expr
    */
-  extend(
+  extendSmartAndBasic(
     classOf[ScInfixExpr],
-    new CompletionProvider[CompletionParameters] {
-      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
-        val element = positionFromParameters(parameters)
-        extractReference[ScInfixExpr](element).foreach { case (ref, infix) =>
-          val typez: ArrayBuffer[ScType] = new ArrayBuffer[ScType]
-          if (infix.left == ref) {
-            if (infix.isRightAssoc) {
-              typez ++= ref.expectedTypes()
-            }
-          } else if (infix.right == ref) {
-            if (infix.isLeftAssoc) {
-              typez ++= ref.expectedTypes()
-            }
+    new ScalaSmartCompletionProvider {
+      override def addCompletions(implicit parameters: CompletionParameters,
+                                  result: CompletionResultSet,
+                                  place: PsiElement): Unit =
+        extractReference[ScInfixExpr](place).foreach { case (ref, infix) =>
+          if (infix.left == ref && infix.isRightAssoc || infix.right == ref && infix.isLeftAssoc) {
+            acceptTypes(ref.expectedTypes(), ref)
           }
-          acceptTypes(typez, ref.getVariants, result, parameters.getInvocationCount > 1,
-            ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
         }
-      }
     }
   )
 
   /*
     inside try block according to expected type
    */
-  extend(classOf[ScTry])
+  extend(classOf[ScTry], onlySmart = false)
 
   /*
    inside block expression according to expected type
    */
-  extend(classOf[ScBlockExpr])
+  extend(classOf[ScBlockExpr], onlySmart = false)
 
   /*
    inside finally block
    */
-  extend(classOf[ScFinallyBlock])
+  extend(classOf[ScFinallyBlock], onlySmart = true)
 
   /*
    inside anonymous function
    */
-  extend(classOf[ScFunctionExpr])
+  extend(classOf[ScFunctionExpr], onlySmart = true)
 
   /*
    for function definitions
    */
-  extend(classOf[ScFunctionDefinition])
+  extend(classOf[ScFunctionDefinition], onlySmart = false)
 
   /*
    for default parameters
    */
-  extend(classOf[ScParameter])
+  extend(classOf[ScParameter], onlySmart = false)
 
-  private def extend[T <: ScalaPsiElement](clazz: Class[T]): Unit =
-    extend(clazz, new ScalaSmartCompletionProvider)
+  private def extend[T <: ScalaPsiElement](clazz: Class[T], onlySmart: Boolean): Unit = {
+    val provider = new ScalaSmartCompletionProvider {
+      override def addCompletions(implicit parameters: CompletionParameters,
+                                  resultSet: CompletionResultSet,
+                                  place: PsiElement): Unit =
+        place match {
+          case Reference(reference) => acceptTypes(reference.expectedTypes(), reference)
+          case _ =>
+        }
+    }
 
-  private def extend(clazz: Class[_ <: ScalaPsiElement],
-                     provider: CompletionProvider[CompletionParameters]): Unit =
-    extend(superParentPattern(clazz), provider)
+    if (onlySmart) extendSmart(clazz, provider)
+    else extendSmartAndBasic(clazz, provider)
+  }
 
-  private def extend(pattern: ElementPattern[_ <: PsiElement],
-                     provider: CompletionProvider[CompletionParameters]): Unit =
+  private def extendSmart(clazz: Class[_ <: ScalaPsiElement],
+                          provider: CompletionProvider[CompletionParameters]): Unit =
+    extendSmart(superParentPattern(clazz), provider)
+
+  private def extendSmartAndBasic(clazz: Class[_ <: ScalaPsiElement],
+                                  provider: CompletionProvider[CompletionParameters]): Unit =
+    extendSmartAndBasic(superParentPattern(clazz), provider)
+
+  private def extendSmart(pattern: ElementPattern[_ <: PsiElement],
+                          provider: CompletionProvider[CompletionParameters]): Unit =
     extend(CompletionType.SMART, pattern, provider)
+
+  private def extendSmartAndBasic(pattern: ElementPattern[_ <: PsiElement],
+                                  provider: CompletionProvider[CompletionParameters]): Unit = {
+    extendSmart(pattern, provider)
+    extend(CompletionType.BASIC, pattern, provider) // SCL-19749
+  }
 }
 
 object ScalaSmartCompletionContributor {
 
-  private class ScalaSmartCompletionProvider[T <: PsiElement] extends CompletionProvider[CompletionParameters] {
+  private abstract class ScalaSmartCompletionProvider extends CompletionProvider[CompletionParameters] {
+    final override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+      val place = positionFromParameters(parameters)
+      addCompletions(parameters, result, place)
+    }
 
-    override def addCompletions(parameters: CompletionParameters,
-                                context: ProcessingContext,
-                                resultSet: CompletionResultSet): Unit =
-      positionFromParameters(parameters) match {
-        case place@Reference(reference) => acceptTypes(
-          reference.expectedTypes(),
-          reference.getVariants,
-          resultSet,
-          parameters.getInvocationCount > 1,
-          ScalaCompletionUtil.hasNoQualifier(reference),
-          parameters.getOriginalPosition
-        )(place)
-        case _ =>
-      }
+    protected def addCompletions(implicit parameters: CompletionParameters, result: CompletionResultSet, place: PsiElement): Unit
   }
 
   private[completion] object Reference {
@@ -319,11 +327,24 @@ object ScalaSmartCompletionContributor {
     identifierWithParentsPattern(classOf[ScReferenceExpression], clazz) ||
       identifierWithParentsPattern(classOf[ScReferenceExpression], classOf[ScReferenceExpression], clazz)
 
+  private def acceptTypes(types: Iterable[ScType], ref: ScReferenceExpression)
+                         (implicit parameters: CompletionParameters, result: CompletionResultSet, place: PsiElement): Unit =
+    acceptTypes(
+      types,
+      ref.getVariants,
+      result,
+      parameters.getInvocationCount > 1,
+      ScalaCompletionUtil.hasNoQualifier(ref),
+      parameters.getOriginalPosition,
+      parameters.getCompletionType == CompletionType.SMART
+    )
+
   private def acceptTypes(typez: Iterable[ScType], variants: Array[Object],
                           result: CompletionResultSet,
                           secondCompletion: Boolean,
                           completeThis: Boolean,
-                          originalPlace: PsiElement)
+                          originalPlace: PsiElement,
+                          isSmart: Boolean)
                          (implicit place: PsiElement): Unit = {
     implicit val project: Project = place.getProject
 
@@ -378,6 +399,12 @@ object ScalaSmartCompletionContributor {
             elementAdded
           }
 
+          def checkTyped(typed: PsiNamedElement with Typeable): Unit = {
+            if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false) &&
+              (originalPlace == null || !PsiTreeUtil.isContextAncestor(typed.nameContext, originalPlace, false)))
+              for (tt <- typed.`type`()) checkType(tt, ScSubstitutor.empty, checkForSecondCompletion)
+          }
+
           scalaLookupItem.getPsiElement match {
             case clazz: PsiClass if isExcluded(clazz) =>
             case fun: ScSyntheticFunction =>
@@ -407,10 +434,10 @@ object ScalaSmartCompletionContributor {
               val second = checkForSecondCompletion && method.getParameterList.getParametersCount == 0
               val infer = if (chainVariant) ScSubstitutor.empty else ScalaPsiUtil.undefineMethodTypeParams(method)
               checkType(method.getReturnType.toScType(), infer, second)
-            case typed: ScTypedDefinition =>
-              if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false) &&
-                (originalPlace == null || !PsiTreeUtil.isContextAncestor(typed.nameContext, originalPlace, false)))
-                for (tt <- typed.`type`()) checkType(tt, ScSubstitutor.empty, checkForSecondCompletion)
+            case typed: ScTypedDefinition => checkTyped(typed)
+            case typed: ScEnumCase => checkTyped(typed)
+            // TODO: java classes?
+            case typed: ScTypeDefinition => checkTyped(typed)
             case f: PsiField =>
               checkType(f.getType.toScType(), ScSubstitutor.empty, checkForSecondCompletion)
             case _ =>
@@ -460,7 +487,28 @@ object ScalaSmartCompletionContributor {
 
           @tailrec
           def checkType(tp: ScType): Unit = {
-            tp.extractClass match {
+            if (!isSmart) { // SCL-19749
+              tp.extractClass match {
+                case Some(ScEnum.Original(scEnum)) =>
+                  if (isAccessible(scEnum)) {
+                    val cases = scEnum.cases
+                    cases.foreach { enumCase =>
+                      applyVariant(createLookupElement(enumCase, scEnum))
+                    }
+                  }
+                case Some(javaEnum@JavaEnum(fields)) if isAccessible(javaEnum) =>
+                  fields.foreach(field => applyVariant(createLookupElementWithPrefix(field, javaEnum)))
+                case _ =>
+                  val valueType = tp.extractDesignatorSingleton.getOrElse(tp)
+                  valueType match {
+                    case ScProjectionType(DesignatorOwner(enumeration@ScalaEnumeration(vals)), _) if isAccessible(enumeration) =>
+                      val applicableVals = vals.filter(v => isAccessible(v) && v.`type`().exists(_.conforms(valueType)))
+                      val fields = applicableVals.flatMap(_.declaredElements)
+                      fields.foreach(field => applyVariant(createLookupElementWithPrefix(field, enumeration)))
+                    case _ =>
+                  }
+              }
+            } else tp.extractClass match {
               case Some(c: ScClass) if c.qualifiedName == "scala.Option" || c.qualifiedName == "scala.Some" =>
                 tp match {
                   case ParameterizedType(_, Seq(scType)) => checkType(scType)
@@ -488,50 +536,99 @@ object ScalaSmartCompletionContributor {
 
           checkType(tp)
         }
-        variants.foreach(applyVariant(_, checkForSecondCompletion = true))
-        if (typez.exists(_.equiv(Boolean))) {
-          ScalaKeywordLookupItem.addFor(result, ScalaKeyword.FALSE, ScalaKeyword.TRUE)
-        }
-        if (completeThis) {
-          var parent = place
-          var foundClazz = false
-          while (parent != null) {
-            parent match {
-              case _: ScNewTemplateDefinition if foundClazz => //do nothing, impossible to invoke
-              case t: ScTemplateDefinition =>
-                t.getTypeWithProjections(thisProjections = true) match {
-                  case Right(scType) =>
-                    val lookupString = (if (foundClazz) t.name + "." else "") + "this"
-                    val el = new ScalaLookupItem(t, lookupString)
-                    if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {
-                      if (!foundClazz) el.bold = true
-                      result.addElement(el)
-                    } else {
-                      var elementAdded = false
-                      typez.foreach {
-                        case ParameterizedType(tp, Seq(arg)) if !elementAdded =>
-                          tp.extractClass match {
-                            case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.qualifiedName == "scala.Some" =>
-                              if (!scType.equiv(Nothing) && scType.conforms(arg)) {
-                                el.someSmartCompletion = true
-                                result.addElement(el)
-                                elementAdded = true
-                              }
-                            case _ =>
-                          }
-                        case _ =>
+
+        if (isSmart) {
+          variants.foreach(applyVariant(_, checkForSecondCompletion = true))
+          if (typez.exists(_.equiv(Boolean))) {
+            ScalaKeywordLookupItem.addFor(result, ScalaKeyword.FALSE, ScalaKeyword.TRUE)
+          }
+          if (completeThis) {
+            var parent = place
+            var foundClazz = false
+            while (parent != null) {
+              parent match {
+                case _: ScNewTemplateDefinition if foundClazz => //do nothing, impossible to invoke
+                case t: ScTemplateDefinition =>
+                  t.getTypeWithProjections(thisProjections = true) match {
+                    case Right(scType) =>
+                      val lookupString = (if (foundClazz) t.name + "." else "") + "this"
+                      val el = new ScalaLookupItem(t, lookupString)
+                      if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {
+                        if (!foundClazz) el.bold = true
+                        result.addElement(el)
+                      } else {
+                        var elementAdded = false
+                        typez.foreach {
+                          case ParameterizedType(tp, Seq(arg)) if !elementAdded =>
+                            tp.extractClass match {
+                              case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.qualifiedName == "scala.Some" =>
+                                if (!scType.equiv(Nothing) && scType.conforms(arg)) {
+                                  el.someSmartCompletion = true
+                                  result.addElement(el)
+                                  elementAdded = true
+                                }
+                              case _ =>
+                            }
+                          case _ =>
+                        }
                       }
-                    }
-                  case _ =>
-                }
-                foundClazz = true
-              case _ =>
+                    case _ =>
+                  }
+                  foundClazz = true
+                case _ =>
+              }
+              parent = parent.getContext
             }
-            parent = parent.getContext
           }
         }
-      case _ => variants.foreach(applyVariant(_, checkForSecondCompletion = true))
+      case _ =>
+        if (isSmart) variants.foreach(applyVariant(_, checkForSecondCompletion = true))
     }
+  }
+
+  /**
+   * @param element lookup element
+   * @param context parent class for the `element`
+   * @param isInner is `element` inside of `context`
+   */
+  private[this] def createLookupElement(element: PsiClass, context: PsiClass, isInner: Boolean = true): ScalaLookupItem = {
+    val resolveResult = new ScalaResolveResult(element)
+
+    val lookupElement = resolveResult.createLookupElement(
+      isClassName = true,
+      shouldImport = true,
+      containingClass = Option.when(isInner)(context)
+    )
+    lookupElement.addLookupStrings(context.name + "." + lookupElement.getPsiElement.name)
+
+    val typeParametersEvaluator: (ScType => String) => String = Function.const("")
+
+    lookupElement.setInsertHandler(
+      new InsertHandler[LookupElement] {
+        private val constructorInsertHandler = new ScalaConstructorInsertHandler(
+          typeParametersEvaluator,
+          resolveResult.problems.nonEmpty,
+          element.isInterface,
+          lookupElement.isRenamed.isDefined,
+          lookupElement.prefixCompletion
+        )
+
+        override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
+          constructorInsertHandler.handleInsert(context, item)
+          item.asOptionOf[ScalaLookupItem].foreach { scalaLookupItem =>
+            context.commitDocument()
+            scalaLookupItem.findReferenceAtOffset(context) match {
+              // method call is covered in constructorInsertHandler
+              case ref: ScReference if !ref.getContext.is[ScMethodCall] =>
+                ref.bindToElement(element)
+              case _ =>
+            }
+          }
+        }
+      }
+    )
+
+    lookupElement
   }
 
   private[this] def isAccessible(item: ScalaLookupItem)
@@ -735,5 +832,4 @@ object ScalaSmartCompletionContributor {
       }.commaSeparated(if (types.size != 1 || !braceArgs) Parentheses else None)
     }
   }
-
 }
