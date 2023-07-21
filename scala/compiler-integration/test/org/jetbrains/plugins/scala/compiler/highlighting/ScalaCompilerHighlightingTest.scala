@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
-  def testFunctionLiteral(): Unit = runTestCase(
+  private def runTestFunctionLiteral(startOffset: Int): Unit = runTestCase(
     fileName = "FunctionLiteral.scala",
     content =
       """object FunctionLiteral {
@@ -19,14 +19,20 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     expectedResult = expectedResult(
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = Some(TextRange.create(48, 58)),
+        range = Some(TextRange.create(startOffset, 58)),
         quickFixDescriptions = Seq.empty,
         msgPrefix = "type mismatch;"
       )
     )
   )
 
-  def testErrorHighlighting(): Unit = runTestCase(
+  def testFunctionLiteral(): Unit = runTestFunctionLiteral(48)
+
+  def testFunctionLiteral_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestFunctionLiteral(50)
+  }
+
+  private def runTestErrorHighlighting(startOffset: Int): Unit = runTestCase(
     fileName = "AbstractMethodInClassError.scala",
     content =
       """
@@ -36,13 +42,19 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.ERROR,
-      range = Some(TextRange.create(1, 55)),
+      range = Some(TextRange.create(startOffset, 55)),
       quickFixDescriptions = Seq.empty,
       msgPrefix = "class AbstractMethodInClassError needs to be abstract"
     ))
   )
 
-  def testWrongReturnType(): Unit = runTestCase(
+  def testErrorHighlighting(): Unit = runTestErrorHighlighting(1)
+
+  def testErrorHighlighting_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestErrorHighlighting(7)
+  }
+
+  private def runTestWrongReturnType(startOffset: Int): Unit = runTestCase(
     fileName = "WrongReturnType.scala",
     content =
       """object WrongReturnType {
@@ -52,13 +64,19 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.ERROR,
-      range = Some(TextRange.create(53, 59)),
+      range = Some(TextRange.create(startOffset, 59)),
       quickFixDescriptions = Seq.empty,
       msgPrefix = "type mismatch;"
     ))
   )
 
-  def testUnusedLocalDefinitions(): Unit = {
+  def testWrongReturnType(): Unit = runTestWrongReturnType(53)
+
+  def testWrongReturnType_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestWrongReturnType(56)
+  }
+
+  private def runTestUnusedLocalDefinitions(startOffsets: Int*): Unit = {
     setCompilerOptions("-Wunused:locals")
 
     runTestCase(
@@ -76,24 +94,30 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
       expectedResult = expectedResult(
         ExpectedHighlighting(
           severity = HighlightSeverity.WARNING,
-          range = Some(TextRange.create(65, 78)),
+          range = Some(TextRange.create(startOffsets.head, 78)),
           quickFixDescriptions = Seq.empty,
           msgPrefix = "local val abc in method fn is never used"
         ),
         ExpectedHighlighting(
           severity = HighlightSeverity.WARNING,
-          range = Some(TextRange.create(83, 96)),
+          range = Some(TextRange.create(startOffsets(1), 96)),
           quickFixDescriptions = Seq.empty,
           msgPrefix = "local val dfe in method fn is never used"
         ),
         ExpectedHighlighting(
           severity = HighlightSeverity.WARNING,
-          range = Some(TextRange.create(101, 114)),
+          range = Some(TextRange.create(startOffsets(2), 114)),
           quickFixDescriptions = Seq.empty,
           msgPrefix = "local val xyz in method fn is never used"
         )
       )
     )
+  }
+
+  def testUnusedLocalDefinitions(): Unit = runTestUnusedLocalDefinitions(65, 83, 101)
+
+  def testUnusedLocalDefinitions_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestUnusedLocalDefinitions(69, 87, 105)
   }
 }
 
@@ -112,7 +136,7 @@ class ScalaCompilerHighlightingTest_3_2 extends ScalaCompilerHighlightingTest_3 
 class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 {
   override implicit def version: ScalaVersion = ScalaVersion.Latest.Scala_3_3
 
-  def testUnusedImports(): Unit = {
+  private def runTestUnusedImports(): Unit = {
     setCompilerOptions("-Wunused:imports")
 
     def highlighting(startOffset: Int, endOffset: Int): ExpectedHighlighting =
@@ -137,7 +161,13 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 
     )
   }
 
-  def testAutomaticUnusedImports(): Unit = {
+  def testUnusedImports(): Unit = runTestUnusedImports()
+
+  def testUnusedImports_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestUnusedImports()
+  }
+
+  private def runTestAutomaticUnusedImports(): Unit = {
     def highlighting(startOffset: Int, endOffset: Int): ExpectedHighlighting =
       ExpectedHighlighting(
         severity = HighlightSeverity.WARNING,
@@ -160,7 +190,13 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 
     )
   }
 
-  def testUnusedLocalDefinitions(): Unit = {
+  def testAutomaticUnusedImports(): Unit = runTestAutomaticUnusedImports()
+
+  def testAutomaticUnusedImports_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestAutomaticUnusedImports()
+  }
+
+  private def runTestUnusedLocalDefinitions(): Unit = {
     setCompilerOptions("-Wunused:locals")
 
     def expectedHighlighting(startOffset: Int, endOffset: Int): ExpectedHighlighting =
@@ -187,11 +223,17 @@ class ScalaCompilerHighlightingTest_3_3 extends ScalaCompilerHighlightingTest_3 
       )
     )
   }
+
+  def testUnusedLocalDefinitions(): Unit = runTestUnusedLocalDefinitions()
+
+  def testUnusedLocalDefinitions_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestUnusedLocalDefinitions()
+  }
 }
 
 abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
 
-  def testImportTypeFix(): Unit = runTestCase(
+  private def runTestImportTypeFix(): Unit = runTestCase(
     fileName = "ImportTypeFix.scala",
     content =
       """
@@ -207,7 +249,13 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
     ))
   )
 
-  def testImportMemberFix(): Unit = runTestCase(
+  def testImportTypeFix(): Unit = runTestImportTypeFix()
+
+  def testImportTypeFix_UseCompilerRanges(): Unit = withUseCompilerRangesDisabled {
+    runTestImportTypeFix()
+  }
+
+  private def runTestImportMemberFix(): Unit = runTestCase(
     fileName = "ImportMemberFix.scala",
     content =
       """
@@ -221,7 +269,13 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
     ))
   )
 
-  def testFunctionLiteral(): Unit = runTestCase(
+  def testImportMemberFix(): Unit = runTestImportMemberFix()
+
+  def testImportMemberFix_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestImportMemberFix()
+  }
+
+  private def runTestFunctionLiteral(): Unit = runTestCase(
     fileName = "FunctionLiteral.scala",
     content =
       """val fn: Int => Int = _.toString
@@ -236,7 +290,13 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
     )
   )
 
-  def testErrorHighlighting(): Unit = runTestCase(
+  def testFunctionLiteral(): Unit = runTestFunctionLiteral()
+
+  def testFunctionLiteral_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestFunctionLiteral()
+  }
+
+  private def runTestErrorHighlighting(): Unit = runTestCase(
     fileName = "AbstractMethodInClassError.scala",
     content =
       """
@@ -252,7 +312,13 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
     ))
   )
 
-  def testWrongReturnType(): Unit = runTestCase(
+  def testErrorHighlighting(): Unit = runTestErrorHighlighting()
+
+  def testErrorHighlighting_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestErrorHighlighting()
+  }
+
+  private def runTestWrongReturnType(startOffset: Int): Unit = runTestCase(
     fileName = "WrongReturnType.scala",
     content =
       """def fn1(n: Int): String = fn2(n)
@@ -260,17 +326,23 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.ERROR,
-      range = Some(TextRange.create(26, 32)),
+      range = Some(TextRange.create(startOffset, 32)),
       quickFixDescriptions = Seq.empty,
       msgPrefix = "Found:    Int"
     ))
   )
+
+  def testWrongReturnType(): Unit = runTestWrongReturnType(26)
+
+  def testWrongReturnType_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestWrongReturnType(29)
+  }
 }
 
 trait ScalaCompilerHighlightingCommonScala2Scala3Test {
   self: ScalaCompilerHighlightingTestBase =>
 
-  def testWarningHighlighting(): Unit = runTestCase(
+  private def runTestWarningHighlighting(): Unit = runTestCase(
     fileName = "ExhaustiveMatchWarning.scala",
     content =
       """
@@ -288,4 +360,10 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
       msgPrefix = "match may not be exhaustive"
     ))
   )
+
+  def testWarningHighlighting(): Unit = runTestWarningHighlighting()
+
+  def testWarningHighlighting_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestWarningHighlighting()
+  }
 }
