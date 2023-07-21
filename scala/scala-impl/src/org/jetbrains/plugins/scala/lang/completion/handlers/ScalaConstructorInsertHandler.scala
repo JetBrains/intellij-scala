@@ -6,11 +6,12 @@ import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.InsertionContextExt
+import org.jetbrains.plugins.scala.lang.completion.{InsertionContextExt, afterNewKeywordPattern}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScGenericCall, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createReferenceExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -53,14 +54,16 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
             c.constructor match {
               case Some(constr)
                 if constr.parameters.nonEmpty ||
-                  // TODO: do not insert empty parentheses in Scala 3 after `new` keyword?
-                  c.isInScala3File =>
+                  // universal apply
+                  file.isScala3File && !afterNewKeywordPattern.accepts(file.findElementAt(startOffset)) =>
                 needsEmptyParens = true
               case _ =>
             }
             c.secondaryConstructors.foreach(fun => if (fun.parameters.nonEmpty) needsEmptyParens = true)
+          case enumCase: ScEnumCase =>
+            if (enumCase.constructor.isDefined) needsEmptyParens = true
           case _ =>
-            clazz.getConstructors.foreach(meth => if (meth.getParameterList.getParametersCount > 0) needsEmptyParens = true)
+            clazz.constructors.foreach(meth => if (meth.getParameterList.getParametersCount > 0) needsEmptyParens = true)
         }
         if (context.getCompletionChar == '(') needsEmptyParens = true
         if (hasSubstitutionProblem) {
@@ -93,7 +96,7 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
         }
         PsiDocumentManager.getInstance(project).commitDocument(document)
 
-        onDefinitionOrMethodCall(file, endOffset - 1) { newTemplateDefinition =>
+        onDefinitionOrMethodCall(file, startOffset) { newTemplateDefinition =>
           newTemplateDefinition.extendsBlock.templateParents.toSeq.flatMap(_.typeElements) match {
             case Seq(ScSimpleTypeElement.unwrapped(reference)) if !isRenamed =>
               simplifyReference(clazz, reference).bindToElement(clazz)
@@ -102,7 +105,7 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
 
           ScalaPsiUtil.adjustTypes(newTemplateDefinition)
         } { ref =>
-          if (context.getFile.isScala3File && !isRenamed) {
+          if (file.isScala3File && !isRenamed) {
             simplifyReference(clazz, ref).bindToElement(clazz)
 
             ScalaPsiUtil.adjustTypes(ref)
@@ -162,16 +165,25 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
 
   private def onDefinitionOrMethodCall(file: PsiFile, offset: Int)
                                       (onDefinition: ScNewTemplateDefinition => Unit)
-                                      (onCall: ScReferenceExpression => Unit): Unit =
-    getParentOfType(findNonWhitespaceElement(file, offset), classOf[ScMethodCall], classOf[ScNewTemplateDefinition]) match {
-      case null =>
+                                      (onCall: ScReferenceExpression => Unit): Unit = {
+    val parent = getParentOfType(findNonWhitespaceElement(file, offset),
+      // parent classes:
+      classOf[ScNewTemplateDefinition], classOf[ScMethodCall],
+      // stop at:
+      classOf[ScArgumentExprList]
+    )
+
+    parent match {
       case definition: ScNewTemplateDefinition => onDefinition(definition)
-      case call: ScMethodCall => call.getInvokedExpr match {
-        case ref: ScReferenceExpression => onCall(ref)
-        case ScGenericCall(ref, _) => onCall(ref)
-        case _ =>
-      }
+      case call: ScMethodCall =>
+        call.getInvokedExpr match {
+          case ref: ScReferenceExpression => onCall(ref)
+          case ScGenericCall(ref, _) => onCall(ref)
+          case _ =>
+        }
+      case _ => // do nothing
     }
+  }
 
   @Nullable
   private def findNonWhitespaceElement(file: PsiFile, offset: Int): PsiElement =

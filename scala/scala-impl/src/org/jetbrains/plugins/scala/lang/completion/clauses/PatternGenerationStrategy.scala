@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.completion.clauses
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiClass, PsiEnumConstant}
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiClassExt}
+import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.extensions.{JavaEnum, ObjectExt, ScalaEnumeration}
 import org.jetbrains.plugins.scala.lang.completion.{ScalaKeyword, toValueType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
@@ -96,26 +96,6 @@ object PatternGenerationStrategy {
     }
 
     Option(strategy)
-  }
-
-  private[this] object ScalaEnumeration {
-
-    private[this] val EnumerationFQN = "scala.Enumeration"
-
-    def unapply(enumClass: ScObject): Option[Seq[ScValue]] =
-      if (enumClass.supers.map(_.qualifiedName).contains(EnumerationFQN))
-        Some(enumClass.members.filterByType[ScValue])
-      else
-        None
-  }
-
-  private[this] object JavaEnum {
-
-    def unapply(enumClass: PsiClass): Option[Seq[PsiEnumConstant]] =
-      if (enumClass.isEnum)
-        Some(enumClass.getFields.toSeq.filterByType[PsiEnumConstant])
-      else
-        None
   }
 
   private final class DirectInheritorsGenerationStrategy(inheritors: Inheritors) extends PatternGenerationStrategy {
