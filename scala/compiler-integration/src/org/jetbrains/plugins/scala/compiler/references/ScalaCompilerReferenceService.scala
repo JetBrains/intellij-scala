@@ -79,7 +79,14 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
   override def dispose(): Unit = {}
 
   private[this] val publisher = new CompilerIndicesEventPublisher {
+    private def debugPublisher(message: => String): Unit = {
+      if (logger.isDebugEnabled) {
+        logger.debug(s"(event publisher) $message")
+      }
+    }
+
     override def onCompilerModeChange(mode: CompilerMode): Unit = {
+      debugPublisher(s"onCompilerModeChange: $mode")
       // IDEA JPS compiler <-> sbt shell change happened
       // current index must be invalidated
       onIndexCorruption()
@@ -88,11 +95,14 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     }
 
     override def onCompilationStart(): Unit = {
+      debugPublisher("onCompilationStart")
+
       closeReader(incrementBuildCount = true)
       logCompilerIndicesEvent(s"onCompilationStart. active indexing phases: ${activeIndexingPhases.get()}")
     }
 
     override def startIndexing(isCleanBuild: Boolean): Unit = {
+      debugPublisher(s"startIndexing, isCleanBuild: $isCleanBuild")
       indexerScheduler.schedule(OpenWriter(isCleanBuild))
       logCompilerIndicesEvent(s"startIndexing. clean build: $isCleanBuild")
     }
@@ -103,6 +113,7 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
     }
 
     override def onCompilationFinish(success: Boolean): Unit = {
+      debugPublisher(s"onCompilationFinish, success: $success")
       indexerScheduler.schedule(CompilerIntegrationBundle.message("open.compiler.index.reader"), () => {
         openReader(success)
         logCompilerIndicesEvent(
@@ -170,6 +181,8 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
   }
 
   private[this] def openReader(indexingSuccessful: Boolean): Unit = transactionManager.inTransaction { _ =>
+    logger.debug(s"openReader step 1, active indexing phases: ${activeIndexingPhases.get()}, project.isOpen: ${project.isOpen}")
+
     if (activeIndexingPhases.get() > 0) {
       compilationCount.increment()
       dirtyScopeHolder.indexingFinished()
@@ -188,6 +201,8 @@ final private[references] class ScalaCompilerReferenceService(project: Project) 
           messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingPhaseFinished(indexingSuccessful)
         }
       }
+
+      logger.debug(s"openReader step 2, active indexing phases: ${activeIndexingPhases.get()}, project.isOpen: ${project.isOpen}")
     }
   }
 
