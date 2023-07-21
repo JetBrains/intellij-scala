@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scalaDirective.psi.api.ScDirective
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -308,10 +309,21 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
 
     val insertionRangeWithImportsToAdd: Option[(RangeInfo, Seq[ImportInfo])] =
       if (needToInsertFirst) {
+
+        @tailrec
+        def determineAnchor(candidate: PsiElement, directiveWasEncountered: Boolean = false): PsiElement =
+          candidate match {
+            case _: ScDirective =>
+              determineAnchor(candidate.getNextSibling, true)
+            case _ if directiveWasEncountered && candidate.isWhitespaceOrComment =>
+              determineAnchor(candidate.getNextSibling, true)
+            case _ => candidate
+          }
+
         //ScalaImportOptimizer only works with import ranges
         //So we insert a temporary dummy import to simply replace it with a well-formatted import
         val dummyImport: ScImportStmt = ScalaPsiElementFactory.createImportFromText("import dummy.dummy", this)
-        val inserted = insertFirstImport(dummyImport, getFirstChild).asInstanceOf[ScImportStmt]
+        val inserted = insertFirstImport(dummyImport, determineAnchor(getFirstChild)).asInstanceOf[ScImportStmt]
         val psiAnchor = PsiAnchor.create(inserted)
         val rangeInfo = RangeInfo(psiAnchor, psiAnchor, Seq((dummyImport, importInfosToAdd)), usedImportedNames = Set.empty, isLocal = false)
         val infosToAdd = ScalaImportOptimizer.optimizedImportInfos(rangeInfo, settings)
