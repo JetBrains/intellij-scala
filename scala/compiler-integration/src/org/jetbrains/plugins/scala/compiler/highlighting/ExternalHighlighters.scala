@@ -134,6 +134,7 @@ object ExternalHighlighters {
     //NOTE: in case there is no location in the file, do not ignore/loose messages
     //instead report them in the beginning of the file
     val range = highlighting.rangeInfo.getOrElse {
+      // IDEA TextRange expects 1-based line and column information.
       val start = PosInfo(1, 1)
       RangeInfo.Range(start, start)
     }
