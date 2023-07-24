@@ -23,6 +23,7 @@ class CompilerEventReporter(project: Project,
 
   private def publish(kind: MessageKind, @Nls text: String, position: Option[FilePosition]): Unit =
     position.foreach { pos =>
+      // com.intellij.build.FilePosition contains 0-based line and column information, PosInfo expect 1-based indices.
       val problemStart = PosInfo(pos.getStartLine + 1, pos.getStartColumn + 1)
       val problemEnd = PosInfo(pos.getEndLine + 1, pos.getEndColumn + 1)
       val msg = Client.ClientMsg(kind, text, Some(pos.getFile), Some(problemStart), Some(problemStart), Some(problemEnd))
