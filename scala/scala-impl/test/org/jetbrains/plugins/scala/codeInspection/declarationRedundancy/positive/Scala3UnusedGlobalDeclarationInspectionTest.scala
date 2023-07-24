@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.positive
 
-import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedDeclarationInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.Scala3UnusedDeclarationInspectionTestBase
 
-class Scala3UnusedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
+class Scala3UnusedGlobalDeclarationInspectionTest extends Scala3UnusedDeclarationInspectionTestBase {
 
   private def addFile(text: String): Unit = myFixture.addFileToProject("Foo.scala", text)
 

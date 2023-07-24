@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
 abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaInspectionTestBase {
@@ -20,5 +21,11 @@ abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaInspectionT
     super.setUp()
 
     deleteAllGlobalScratchFiles()
+  }
+
+  protected def getInspectionTool: ScalaUnusedDeclarationInspection = {
+    val inspectionProfile = InspectionProjectProfileManager.getInstance(getProject).getCurrentProfile
+    val inspectionToolWrapper = inspectionProfile.getInspectionTool("ScalaUnusedSymbol", getProject)
+    inspectionToolWrapper.getTool.asInstanceOf[ScalaUnusedDeclarationInspection]
   }
 }
