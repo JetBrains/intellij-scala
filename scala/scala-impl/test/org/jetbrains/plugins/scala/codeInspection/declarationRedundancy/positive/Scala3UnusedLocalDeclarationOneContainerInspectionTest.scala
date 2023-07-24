@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.positive
 
-import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedDeclarationInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.Scala3UnusedDeclarationInspectionTestBase
 
-class Scala3UnusedLocalDeclarationOneContainerInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
+class Scala3UnusedLocalDeclarationOneContainerInspectionTest extends Scala3UnusedDeclarationInspectionTestBase {
 
   def test_extension_method(): Unit =
     checkTextHasError(
