@@ -120,6 +120,9 @@ abstract class AbstractCompiler extends Compiler {
     private def logInClient(msg: String, pos: Position, kind: MessageKind): Unit = {
       val source = pos.sourceFile.toScala
 
+      // xsbti.Position#line, xsbti.Position#startLine and xsbti.Position#endLine contain 1-based line information.
+      // xsbti.Position#pointer, xsbti.Position#startColumn and xsbti.Position#endColumn contain 0-based column information.
+
       val pointer = for {
         line <- pos.line().toScala
         column <- pos.pointer().toScala
