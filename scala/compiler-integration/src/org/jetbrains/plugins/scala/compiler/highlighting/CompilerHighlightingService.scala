@@ -215,6 +215,9 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
           PsiManager.getInstance(project).findFile(vf)
         )
       }
+      // Filtering by the Scala language level also ensures that the module has a Scala SDK configured and that the
+      // document compiler will not be called in modules which do not have Scala configured (or during project import).
+      // The Scala language level of a module is derived from the configured SDK.
       if ((module ne null) && module.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_3_3) && psiFile.is[ScalaFile]) {
         val sourceScope = if (TestSourcesFilter.isTestSources(vf, project)) SourceScope.Test else SourceScope.Production
         Some((module, sourceScope, document, vf))
