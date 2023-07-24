@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.quickfix
 
-import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedDeclarationInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.Scala3UnusedDeclarationInspectionTestBase
 
-class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspectionTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
+class Scala3UnusedDeclarationQuickFixTest extends Scala3UnusedDeclarationInspectionTestBase {
 
   def test_extension_method(): Unit = {
     val text =

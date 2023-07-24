@@ -9,7 +9,7 @@ import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -33,8 +33,12 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
   @BeanProperty
   var reportLocalDeclarations: Int = 0
 
+  @BooleanBeanProperty
+  var enableInScala3: Boolean = false
+
   override def getOptionsPane: OptPane = pane(
     checkbox(reportPublicDeclarationsPropertyName, ScalaInspectionBundle.message("name.unused.declaration.report.public.declarations")),
+    checkbox(enableInScala3PropertyName, ScalaInspectionBundle.message("enable.in.scala.3")), //TODO
     dropdown(
       reportLocalDeclarationsPropertyName,
       ScalaInspectionBundle.message("name.unused.declaration.report.local.declarations"),
@@ -102,7 +106,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
   }
 
   override def shouldProcessElement(element: PsiElement): Boolean =
-    Search.Util.shouldProcessElement(element) && {
+    (enableInScala3 || !element.isInScala3File) && Search.Util.shouldProcessElement(element) && {
       element match {
         case n: ScNamedElement =>
           if (isOnlyVisibleInLocalFile(n)) {
@@ -135,6 +139,9 @@ object ScalaUnusedDeclarationInspection {
 
   @NonNls
   private val reportPublicDeclarationsPropertyName: String = "reportPublicDeclarations"
+
+  @NonNls
+  private val enableInScala3PropertyName: String = "enableInScala3"
 
   @NonNls
   private val reportLocalDeclarationsPropertyName: String = "reportLocalDeclarations"
