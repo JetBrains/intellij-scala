@@ -1,4 +1,4 @@
 val x: (Int) => (Int) => String = null
 
 x(2)(<caret>)
-//v1: Int
+//TEXT: v1: Int, STRIKEOUT: false

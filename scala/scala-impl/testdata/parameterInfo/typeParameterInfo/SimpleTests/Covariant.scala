@@ -1,4 +1,4 @@
 class Covariant[-T]
 
 new Covariant[<caret>]
-//-T
+//TEXT: -T, STRIKEOUT: false

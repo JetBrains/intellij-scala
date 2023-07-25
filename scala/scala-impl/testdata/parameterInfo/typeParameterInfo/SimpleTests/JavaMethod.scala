@@ -1,2 +1,2 @@
 java.util.Collections.emptyList[String<caret>]()
-// T
+//TEXT: T, STRIKEOUT: false

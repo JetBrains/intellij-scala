@@ -1,4 +1,4 @@
 class Foo[A : Ordering](x: Int)
 
 Foo(<caret>)
-//[A: Ordering](x: Int)
+//TEXT: [A: Ordering](x: Int), STRIKEOUT: false

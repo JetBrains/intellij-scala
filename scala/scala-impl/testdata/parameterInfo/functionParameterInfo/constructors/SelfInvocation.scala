@@ -12,6 +12,6 @@ class SelfInvocation(x: Int, y: Int) {
   }
 }
 /*
-s: String
-x: Int, y: Int
+TEXT: s: String, STRIKEOUT: false
+TEXT: x: Int, y: Int, STRIKEOUT: false
 */

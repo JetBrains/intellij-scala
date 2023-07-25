@@ -9,4 +9,4 @@ object TransitiveApplyNoParamsDef {
 object Test {
   TransitiveApplyNoParamsDef.foo(<caret>)
 }
-//i: Int, s: String
+//TEXT: i: Int, s: String, STRIKEOUT: false

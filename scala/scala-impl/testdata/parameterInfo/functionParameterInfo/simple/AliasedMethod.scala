@@ -7,4 +7,4 @@ object test2 {
 
   val x = bar(<caret>)
 }
-//x: Int, y: Int
+//TEXT: x: Int, y: Int, STRIKEOUT: false

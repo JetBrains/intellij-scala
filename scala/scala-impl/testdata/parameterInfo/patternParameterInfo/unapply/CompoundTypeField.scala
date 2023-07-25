@@ -8,4 +8,4 @@ object X {
 22 match {
   case X.A(<caret>) =>
 }
-//Int
+//TEXT: Int, STRIKEOUT: false

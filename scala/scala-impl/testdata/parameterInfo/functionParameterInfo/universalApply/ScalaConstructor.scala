@@ -3,4 +3,4 @@ class ScalaConstructor(x: Int) {
 }
 
 ScalaConstructor(<caret>)
-//x: Int
+//TEXT: x: Int, STRIKEOUT: false

@@ -10,4 +10,4 @@ object test2 {
     case BBB(<caret>)
   }
 }
-//i: Int
+//TEXT: i: Int, STRIKEOUT: false

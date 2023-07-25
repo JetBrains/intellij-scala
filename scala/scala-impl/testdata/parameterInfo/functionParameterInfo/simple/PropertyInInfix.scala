@@ -5,4 +5,4 @@ class Property {
 
 val y = new Property
 y ++ y.fo<caret>o
-//foo: Int
+//TEXT: foo: Int, STRIKEOUT: false

@@ -1,4 +1,4 @@
 def foo(@deprecated x: Int = 45) = x
 
 foo(<caret>)
-//@deprecated x: Int = 45
+//TEXT: @deprecated x: Int = 45, STRIKEOUT: false

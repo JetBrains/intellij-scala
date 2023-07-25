@@ -1,4 +1,4 @@
 def foo(implicit x: Int, y: Any) = x
 
 foo(<caret>)
-//implicit x: Int, y: Any
+//TEXT: implicit x: Int, y: Any, STRIKEOUT: false

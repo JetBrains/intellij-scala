@@ -5,4 +5,4 @@ class A {
 object B extends A
 
 B[Int<caret>]
-// a
+//TEXT: a, STRIKEOUT: false

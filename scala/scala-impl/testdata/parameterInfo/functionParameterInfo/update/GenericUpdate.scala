@@ -6,6 +6,6 @@ class GenericUpdate[T] {
 val x = new GenericUpdate[Int]
 x(<caret>)
 /*
-x: Boolean
-x: Int
+TEXT: x: Boolean, STRIKEOUT: false
+TEXT: x: Int, STRIKEOUT: false
 */

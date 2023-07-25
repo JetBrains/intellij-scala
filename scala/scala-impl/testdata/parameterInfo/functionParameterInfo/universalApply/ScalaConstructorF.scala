@@ -1,4 +1,4 @@
 class ScalaConstructorB(using a: Int)
 
 ScalaConstructorB()(<caret>)
-// ()(implicit a: Int)
+//TEXT: ()(implicit a: Int), STRIKEOUT: false

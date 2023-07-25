@@ -14,6 +14,22 @@ import org.junit.ComparisonFailure
 import java.awt.Color
 import scala.collection.mutable
 
+/**
+ * Place expected test data in the comment at the end of a file.
+ * Test data format per entry: `TEXT: *paramInfoText*, STRIKEOUT: *boolean*`
+ *
+ * Example: {{{
+ * def foo(x: Int) = 1
+ * @deprecated def foo(x: Boolean) = 2
+ * foo(<caret>)
+ * /*
+ * TEXT: x: Boolean, STRIKEOUT: true
+ * TEXT: x: Int, STRIKEOUT: false
+ * */
+ * }}}
+ *
+ * Use `NO_ELEMENTS` if nothing is expected to be shown
+ */
 abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCodeInsightFixtureTestCase {
 
   override def getTestDataPath: String =
@@ -43,7 +59,7 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
       throw new ComparisonFailure("signatures don't match", expected.flatten.mkString("\n"), actual.mkString("\n"))
     }
 
-    if (testUpdate && actual.nonEmpty) {
+    if (testUpdate && actual.nonEmpty && actual != Seq(ParameterInfoResult.NoElements)) {
       //todo test correct parameter index after moving caret
       val actualAfterUpdate = handleUpdateUI(handler, context)
       assertTrue(expected.contains(actualAfterUpdate))
@@ -84,6 +100,21 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
 
 object ParameterInfoTestBase {
 
+  // TODO: check background color and whether it is disabled
+  private[parameterInfo] final case class ParameterInfoResult(text: String, disabled: Boolean, strikeout: Boolean, backgroundColor: Color) {
+
+    import ParameterInfoResult._
+
+    override def toString: String = s"$TextField: $text, $StrikeoutField: $strikeout"
+  }
+
+  private[parameterInfo] object ParameterInfoResult {
+    val TextField = "TEXT"
+    val StrikeoutField = "STRIKEOUT"
+
+    val NoElements = "NO_ELEMENTS"
+  }
+
   private def uiStrings[Owner <: PsiElement](items: Seq[AnyRef],
                                              handler: ParameterInfoHandler[Owner, Any],
                                              parameterOwner: Owner): Seq[String] = {
@@ -95,6 +126,8 @@ object ParameterInfoTestBase {
       handler.updateUI(item, uiContext)
     }
 
+    if (result.isEmpty) result += ParameterInfoResult.NoElements
+
     result.toSeq.flatMap(normalize)
   }
 
@@ -105,7 +138,8 @@ object ParameterInfoTestBase {
     override def setupUIComponentPresentation(text: String, highlightStartOffset: Int, highlightEndOffset: Int,
                                               isDisabled: Boolean, strikeout: Boolean, isDisabledBeforeHighlight: Boolean,
                                               background: Color): String = {
-      consume(text)
+      val result = ParameterInfoResult(text = text, disabled = isDisabled, strikeout = strikeout, backgroundColor = background)
+      consume(result.toString)
       text
     }
 
@@ -138,4 +172,3 @@ object ParameterInfoTestBase {
       .filterNot(_.isEmpty)
       .toSeq
 }
-

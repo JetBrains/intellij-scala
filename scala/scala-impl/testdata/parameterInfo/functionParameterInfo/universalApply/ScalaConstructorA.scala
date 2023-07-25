@@ -1,4 +1,4 @@
 class ScalaConstructorA
 
 ScalaConstructorA(<caret>)
-// <no parameters>
+//TEXT: <no parameters>, STRIKEOUT: false

@@ -7,4 +7,4 @@ def foo(A: Any with Unapply) {
     case A(<caret>) =>
   }
 }
-//Int
+//TEXT: Int, STRIKEOUT: false

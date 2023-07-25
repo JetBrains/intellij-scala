@@ -7,4 +7,4 @@ object Example {
   val q = Q
   val s = q[<caret>]("a")
 }
-// A <: String
+//TEXT: A <: String, STRIKEOUT: false

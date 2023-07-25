@@ -3,4 +3,4 @@ class H extends Y
 class ScalaLowerBound[t >: H]
 
 new ScalaLowerBound[Y<caret>]
-//t >: H
+//TEXT: t >: H, STRIKEOUT: false

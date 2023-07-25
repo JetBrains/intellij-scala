@@ -7,4 +7,4 @@ object test2 {
 
   val x = new BBB[<caret>]
 }
-//T, S <: T
+//TEXT: T, S <: T, STRIKEOUT: false

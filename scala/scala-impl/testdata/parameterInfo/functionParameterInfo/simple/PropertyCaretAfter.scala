@@ -4,4 +4,4 @@ class Property {
 
 val y = new Property
 y.foo<caret>
-//implicit x: Int
+//TEXT: implicit x: Int, STRIKEOUT: false

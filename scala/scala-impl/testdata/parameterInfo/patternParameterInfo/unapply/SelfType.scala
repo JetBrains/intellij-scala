@@ -8,4 +8,4 @@ object X {
     case Self(<caret>) =>
   }
 }
-//Int
+//TEXT: Int, STRIKEOUT: false
