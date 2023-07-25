@@ -47,7 +47,8 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
               // If the setting is checked, the full text range provided by the compiler is used.
               calculateRangeInfo(msg.problemStart, msg.problemEnd)
             case _ =>
-              // Otherwise, the range from the pointer to the end is used, matching the previous behavior.
+              // Otherwise, the range from the pointer to the end is used, matching the behaviour before
+              // SCL-21339, SCL-21292 were implemented.
               calculateRangeInfo(msg.pointer, msg.problemEnd)
           }).orElse(msg.pointer.map(RangeInfo.Pointer))
           val highlighting = ExternalHighlighting(
