@@ -3,4 +3,4 @@ class A {
 }
 
 (new A) foo (<caret>)
-//<no parameters>
+//TEXT: <no parameters>, STRIKEOUT: false

@@ -5,4 +5,4 @@ object Unapply {
 22 match {
   case Unapply(<caret>) =>
 }
-//Int
+//TEXT: Int, STRIKEOUT: false

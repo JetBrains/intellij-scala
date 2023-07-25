@@ -78,6 +78,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
         var isGrey = false
+        var isDeprecated = false
 
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
           val typeRenderer: TypeRenderer = subst(_).presentableText
@@ -124,6 +125,9 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
                 maybeApplyMethod.fold(noParams(buffer))(processMethod)
               }
+
+              if (psiMethod != null)
+                isDeprecated = psiMethod.isDeprecated
 
               psiMethod match {
                 case method: ScFunction =>
@@ -250,6 +254,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
             processMethod(sign.method)
           case (constructor: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) if constructor.isValid =>
+            isDeprecated = constructor.isDeprecated
             val isEffective = constructor.allClauses.length <= i
             val clauses = if (isEffective) constructor.effectiveParameterClauses else constructor.allClauses
 
@@ -310,7 +315,15 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
         if (endOffset != -1) buffer.replace(endOffset, endOffset + 4, "")
 
         if (buffer.toString != "")
-          context.setupUIComponentPresentation(buffer.toString(), startOffset, endOffset, isGrey, false, false, color)
+          context.setupUIComponentPresentation(
+            buffer.toString(),
+            startOffset,
+            endOffset,
+            isGrey,
+            isDeprecated && !context.isSingleParameterInfo && !context.isSingleOverload,
+            false,
+            color
+          )
         else
           context.setUIComponentEnabled(false)
       case _ =>

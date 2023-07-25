@@ -5,6 +5,6 @@ object ObjectApply {
 
 ObjectApply(<caret>)
 /*
-x: Double, y: Int
-x: Int
+TEXT: x: Double, y: Int, STRIKEOUT: false
+TEXT: x: Int, STRIKEOUT: false
 */

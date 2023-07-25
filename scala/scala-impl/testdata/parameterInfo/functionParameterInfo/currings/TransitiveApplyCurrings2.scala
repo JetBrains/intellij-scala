@@ -9,4 +9,4 @@ object TransitiveApplyCurrings {
 object Test {
   TransitiveApplyCurrings.foo(42)(<caret>)
 }
-//(i: Int)(s: String)
+//TEXT: (i: Int)(s: String), STRIKEOUT: false

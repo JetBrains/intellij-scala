@@ -9,7 +9,7 @@ class ThisScalaConstructor {
 
 ThisScalaConstructor(<caret>)
 /*
-<no parameters>
-x: Boolean
-x: Int
+TEXT: <no parameters>, STRIKEOUT: false
+TEXT: x: Boolean, STRIKEOUT: false
+TEXT: x: Int, STRIKEOUT: false
 */

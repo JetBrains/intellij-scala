@@ -4,4 +4,4 @@ class A {
 
 val a = new A
 a[Int<caret>] // TODO
-// a
+//TEXT: a, STRIKEOUT: false

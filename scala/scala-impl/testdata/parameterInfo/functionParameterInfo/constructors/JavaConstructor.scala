@@ -1,10 +1,10 @@
 val g = new java.util.ArrayList[Int](<caret>)
 /*
-<no parameters>
-c: util.Collection[_ <: Int]
-initialCapacity: Int
+TEXT: <no parameters>, STRIKEOUT: false
+TEXT: c: util.Collection[_ <: Int], STRIKEOUT: false
+TEXT: initialCapacity: Int, STRIKEOUT: false
 <--->
-<no parameters>
-collection: util.Collection[_ <: Int]
-i: Int
+TEXT: <no parameters>, STRIKEOUT: false
+TEXT: collection: util.Collection[_ <: Int], STRIKEOUT: false
+TEXT: i: Int, STRIKEOUT: false
 */

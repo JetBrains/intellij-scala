@@ -6,4 +6,4 @@ class UpdateOnly {
 
 val x = new UpdateOnly
 x(2<caret>) = 3
-//x: Int
+//TEXT: x: Int, STRIKEOUT: false

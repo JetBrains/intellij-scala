@@ -3,4 +3,4 @@ class Foo[A, M[x, y]] {
   <caret>
   ]
 
-// x, y
+//TEXT: x, y, STRIKEOUT: false

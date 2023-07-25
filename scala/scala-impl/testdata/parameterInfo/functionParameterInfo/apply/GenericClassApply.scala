@@ -4,4 +4,4 @@ class GenericClassApply[T] {
 
 val y = new GenericClassApply[Int]
 y(<caret>)
-//x: Int
+//TEXT: x: Int, STRIKEOUT: false

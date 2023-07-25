@@ -1,4 +1,4 @@
 val t: String => String = _.toUpperCase
 
 t(<caret>)
-//v1: String
+//TEXT: v1: String, STRIKEOUT: false

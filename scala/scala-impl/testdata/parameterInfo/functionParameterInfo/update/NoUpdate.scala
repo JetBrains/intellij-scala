@@ -6,4 +6,4 @@ class NoUpdate {
 
 val x = new NoUpdate
 2 + x(<caret>)
-//x: Int
+//TEXT: x: Int, STRIKEOUT: false

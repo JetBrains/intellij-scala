@@ -6,5 +6,5 @@ case class Bar(@Foo thing: Thing, @Foo what: What)
 
 Bar(<caret>)
 /*
-thing: Thing, what: What
+TEXT: thing: Thing, what: What, STRIKEOUT: false
 */

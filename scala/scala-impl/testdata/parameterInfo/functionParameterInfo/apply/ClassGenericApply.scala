@@ -6,6 +6,6 @@ class ClassGenericApply {
 val y = new ClassGenericApply
 y[Double](<caret>5)
 /*
-[T](x: Double)
-x: Int
+TEXT: [T](x: Double), STRIKEOUT: false
+TEXT: x: Int, STRIKEOUT: false
 */

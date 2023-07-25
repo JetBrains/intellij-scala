@@ -3,4 +3,4 @@ object ApplyCurrings {
 }
 
 ApplyCurrings(1)(<caret>)
-//(x: Int)(y: Int)
+//TEXT: (x: Int)(y: Int), STRIKEOUT: false

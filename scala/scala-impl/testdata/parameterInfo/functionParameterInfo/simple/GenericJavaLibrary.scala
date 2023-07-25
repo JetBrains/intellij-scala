@@ -1,9 +1,9 @@
 val x = new java.util.ArrayList[Int](1)
 x.add(<caret>)
 /*
-e: Int
-index: Int, element: Int
+TEXT: e: Int, STRIKEOUT: false
+TEXT: index: Int, element: Int, STRIKEOUT: false
 <--->
-e: Int
-i: Int, e: Int
+TEXT: e: Int, STRIKEOUT: false
+TEXT: i: Int, e: Int, STRIKEOUT: false
 */

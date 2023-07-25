@@ -10,4 +10,4 @@ object UnapplySeq {
     }
   }
 }
-//String, String, MetaData, NamespaceBinding, Node*
+//TEXT: String, String, MetaData, NamespaceBinding, Node*, STRIKEOUT: false

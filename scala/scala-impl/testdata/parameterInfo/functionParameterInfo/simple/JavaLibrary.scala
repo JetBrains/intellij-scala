@@ -1,17 +1,17 @@
 val s = ""
 s.indexOf(<caret>)
 /*
-[B >: Char](elem: B)
-[B >: Char](elem: B, from: Int)
-ch: Int
-ch: Int, fromIndex: Int
-str: String
-str: String, fromIndex: Int
+TEXT: [B >: Char](elem: B), STRIKEOUT: false
+TEXT: [B >: Char](elem: B, from: Int), STRIKEOUT: false
+TEXT: ch: Int, STRIKEOUT: false
+TEXT: ch: Int, fromIndex: Int, STRIKEOUT: false
+TEXT: str: String, STRIKEOUT: false
+TEXT: str: String, fromIndex: Int, STRIKEOUT: false
 <--->
-[B >: Char](elem: B)
-[B >: Char](elem: B, from: Int)
-i: Int
-i: Int, i1: Int
-s: String
-s: String, i: Int
+TEXT: [B >: Char](elem: B), STRIKEOUT: false
+TEXT: [B >: Char](elem: B, from: Int), STRIKEOUT: false
+TEXT: i: Int, STRIKEOUT: false
+TEXT: i: Int, i1: Int, STRIKEOUT: false
+TEXT: s: String, STRIKEOUT: false
+TEXT: s: String, i: Int, STRIKEOUT: false
 */

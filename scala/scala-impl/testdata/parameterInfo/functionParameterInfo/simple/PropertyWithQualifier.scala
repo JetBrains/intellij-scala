@@ -4,4 +4,4 @@ class Property {
 
 val prop = new Property
 pro<caret>p.foo
-//
+//NO_ELEMENTS

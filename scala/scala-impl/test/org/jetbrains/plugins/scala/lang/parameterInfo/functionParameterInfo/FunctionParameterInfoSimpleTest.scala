@@ -77,4 +77,6 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
   def testSeveralParameterLists2(): Unit = doTest()
 
   def testSeveralParameterListsWithImplicit(): Unit = doTest()
+
+  def testDeprecatedOverloads(): Unit = doTest()
 }

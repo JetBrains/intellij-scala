@@ -1,4 +1,4 @@
 class Contravariant[-T]
 
 new Contravariant[<caret>]
-//-T
+//TEXT: -T, STRIKEOUT: false

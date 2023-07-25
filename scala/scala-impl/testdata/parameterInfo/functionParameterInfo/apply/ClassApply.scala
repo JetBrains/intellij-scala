@@ -4,4 +4,4 @@ class ClassApply {
 
 val t = new ClassApply
 t(<caret>)
-//x: Int
+//TEXT: x: Int, STRIKEOUT: false

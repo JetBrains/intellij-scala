@@ -6,4 +6,4 @@ object Example {
   val x: X[String] = null
   ("", ""): x.Pair[String <caret>]
 }
-// a <: String
+//TEXT: a <: String, STRIKEOUT: false

@@ -8,4 +8,4 @@ val y = new Property
 bar {
   y.fo<caret>o
 }
-//l: Long
+//TEXT: l: Long, STRIKEOUT: false

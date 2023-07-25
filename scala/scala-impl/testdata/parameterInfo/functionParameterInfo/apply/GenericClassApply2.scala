@@ -6,4 +6,4 @@ trait Map[AA, BB] extends MapLike[AA, BB]
 
 val intmap: Map[Int, Int] = null
 intmap(<caret>)
-//a: Int
+//TEXT: a: Int, STRIKEOUT: false

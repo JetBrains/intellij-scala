@@ -4,4 +4,4 @@ class Simple {
 
 val y = new Simple
 y.addOne(<caret>)
-//x: Int
+//TEXT: x: Int, STRIKEOUT: false

@@ -4,4 +4,4 @@ trait Apply {
 def foo(compound: Any with Apply, regular: Apply) {
   compound(<caret>0) // no param info
 }
-//a: Int
+//TEXT: a: Int, STRIKEOUT: false

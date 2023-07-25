@@ -3,4 +3,4 @@ class A {
 }
 
 (new A) foo 1<caret> +1
-//x: Int
+//TEXT: x: Int, STRIKEOUT: false

@@ -9,4 +9,4 @@ object TransitiveApplyWithParamsDef2 {
 object Test {
   TransitiveApplyWithParamsDef2.foo(true)(<caret>)
 }
-//i: Int, s: String
+//TEXT: i: Int, s: String, STRIKEOUT: false

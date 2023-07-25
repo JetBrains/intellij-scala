@@ -3,4 +3,4 @@ class ScalaConstructor(protected override val x: Int) {
 }
 
 new ScalaConstructor(<caret>)
-//x: Int
+//TEXT: x: Int, STRIKEOUT: false

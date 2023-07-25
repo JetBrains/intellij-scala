@@ -7,4 +7,4 @@ object test2 {
 
   val x = new BBB(<caret>)
 }
-//i: Int
+//TEXT: i: Int, STRIKEOUT: false
