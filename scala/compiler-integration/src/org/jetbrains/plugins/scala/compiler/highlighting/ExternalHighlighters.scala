@@ -134,7 +134,7 @@ object ExternalHighlighters {
     //NOTE: in case there is no location in the file, do not ignore/loose messages
     //instead report them in the beginning of the file
     val range = highlighting.rangeInfo.getOrElse {
-      // IDEA TextRange expects 1-based line and column information.
+      // Our PosInfo data structure expects 1-based line and column information.
       val start = PosInfo(1, 1)
       RangeInfo.Range(start, start)
     }
@@ -205,9 +205,14 @@ object ExternalHighlighters {
   /**
    * Must be called inside a read action in order to have a correct evaluation of `Document#getLineCount`,
    * ensuring that the document has not been modified before subsequently calling `Document.getLineStartOffset`.
+   *
+   * @param line 1-based line index
+   * @param column 1-based column index
+   * @param document the document that corresponds to the line and column information, used for calculating offsets
    */
   @RequiresReadLock
   private def convertToOffset(line: Int, column: Int, document: Document): Option[Int] = {
+    // Document works with 0-based line and column indices.
     val ln = line - 1
     val cl = column - 1
     if (ln >= 0 && ln < document.getLineCount && cl >= 0) Some(document.getLineStartOffset(ln) + cl)

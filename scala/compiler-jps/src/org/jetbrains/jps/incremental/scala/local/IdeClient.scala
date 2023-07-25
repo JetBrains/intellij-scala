@@ -57,6 +57,7 @@ abstract class IdeClient(compilerName: String,
         mySessionIdField.get(cancelStatus).asInstanceOf[UUID]
       }.toOption
 
+      // CompilerMessage expects 1-based line and column indices.
       context.processMessage(new CompilerMessage(name, jpsKind, text, sourcePath.orNull,
         -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
       context.processMessage(CompilerEvent.MessageEmitted(compilationId, compilationUnitId, uuid, msg).toCustomMessage)
