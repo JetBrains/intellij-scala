@@ -94,9 +94,9 @@ object Client {
 
   /**
    * Contains positional information for a highlighting information produced by the Scala compiler. The information
-   * contained in this class is supposed to be 1-based, because it is directly consumed by IDEA TextRange. The Scala
-   * compiler reports errors using a 0-based index. This information needs to be adjusted accordingly before storing it
-   * in this data structure.
+   * contained in this class is supposed to be 1-based, because it is directly consumed by
+   * `org.jetbrains.jps.incremental.messages.CompilerMessage`. The Scala compiler reports errors using a 0-based index.
+   * This information needs to be adjusted accordingly before storing it in this data structure.
    *
    * @param line 1-based index that represents a line of a physical file
    * @param column 1-based index that represents a column of the line
