@@ -165,6 +165,7 @@
         <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaDocTypedHandler" order="first"/>
         <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler" order="first"/>
         <typedHandler implementation="org.jetbrains.plugins.scala.lang.completion.ScalaAutoPopupCompletionHandler"/>
+        <typedHandler implementation="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveAutoPopupCompletionHandler"/>
         <backspaceHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.backspaceHandler.ScalaBackspaceHandler"/>
         <!-- order=first because `Scala3BackspaceHandler` should go before `SmartIndentingBackspaceHandler` to correctly handle scala3 indentation based syntax -->
         <!-- NOTE: order="before ..." doesn't work because backspace handlers do not have orderIds -->
@@ -248,6 +249,10 @@
         <completion.contributor language="Scala" id="scalaTypeAnnotationsCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaTypeAnnotationsCompletionContributor"
                                 order="before keywordCompletionContributor"/>
+
+        <completion.contributor language="Scala" id="scalaDirectiveCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveCompletionContributor"/>
+        <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.EnableAutoPopupInScalaDirectiveComment"/>
 
         <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
         <completion.confidence language="Scala" implementationClass="com.intellij.codeInsight.completion.SkipAutopopupInStrings"/>
