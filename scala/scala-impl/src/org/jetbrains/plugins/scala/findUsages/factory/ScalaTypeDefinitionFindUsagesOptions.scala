@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.findUsages.factory
 
-import com.intellij.find.findUsages.JavaFindUsagesOptions
 import com.intellij.openapi.project.Project
 
-class ScalaTypeDefinitionFindUsagesOptions(project: Project) extends JavaFindUsagesOptions(project) {
+final class ScalaTypeDefinitionFindUsagesOptions(project: Project) extends ScalaFindUsagesOptionsBase(project) {
   isSearchForTextOccurrences = false
 
   var isImplementingTypeDefinitions = false
