@@ -6,7 +6,7 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
+import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesConfiguration, ScalaFindUsagesHandler}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -46,8 +46,8 @@ class ScalaHighlightConstructorInvocationUsages(reference: Option[ScReference], 
 
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = elementsToHighlight.foreach { case (classToHighlight, constructor) =>
     val project = file.getProject
-    val factory = ScalaFindUsagesHandlerFactory.getInstance(project)
-    val manager = new ScalaFindUsagesHandler(classToHighlight, factory)
+    val config = ScalaFindUsagesConfiguration.getInstance(project)
+    val manager = new ScalaFindUsagesHandler(classToHighlight, config)
     val localSearchScope = new LocalSearchScope(file)
 
     manager

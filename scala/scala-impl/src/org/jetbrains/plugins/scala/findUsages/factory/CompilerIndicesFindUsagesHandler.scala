@@ -20,9 +20,9 @@ import java.util.Collections
   * See also: `org.jetbrains.plugins.scala.compiler.references.ScalaCompilerReferenceService`
   */
 class CompilerIndicesFindUsagesHandler(
-  e:       PsiElement,
-  factory: ScalaFindUsagesHandlerFactory
-) extends ScalaFindUsagesHandlerBase(e, factory) {
+  e: PsiElement,
+  config: ScalaFindUsagesConfiguration
+) extends ScalaFindUsagesHandlerBase(e, config) {
   private[this] val pfindex = ProjectFileIndex.getInstance(e.getProject)
 
   private[this] def isInLibrary(element: PsiElement): Boolean = inReadAction {

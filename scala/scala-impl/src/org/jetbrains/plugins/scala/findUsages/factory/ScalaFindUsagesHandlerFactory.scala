@@ -23,10 +23,6 @@ import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 
 class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerFactory { self =>
-  private[factory] val typeDefinitionOptions  = new ScalaTypeDefinitionFindUsagesOptions(project)
-  private[factory] val memberOptions          = new ScalaMemberFindUsagesOptions(project)
-  private[factory] val localOptions           = new ScalaLocalFindUsagesOptions(project)
-  private[factory] val compilerIndicesOptions = CompilerIndicesSettings(project)
 
   override def canFindUsages(element: PsiElement): Boolean =
     element match {
@@ -65,8 +61,9 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
 
     replaced match {
       case Some((e, useCompilerIndices)) =>
-        if (useCompilerIndices) new CompilerIndicesFindUsagesHandler(e, this)
-        else                    new ScalaFindUsagesHandler(e, this)
+        val config = ScalaFindUsagesConfiguration.getInstance(project)
+        if (useCompilerIndices) new CompilerIndicesFindUsagesHandler(e, config)
+        else                    new ScalaFindUsagesHandler(e, config)
       case None => FindUsagesHandler.NULL_HANDLER
     }
   }

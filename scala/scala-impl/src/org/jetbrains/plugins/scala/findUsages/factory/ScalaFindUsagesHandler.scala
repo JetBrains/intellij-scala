@@ -21,8 +21,10 @@ import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 
 import java.util
 
-class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandlerFactory)
-        extends ScalaFindUsagesHandlerBase(element, factory) {
+class ScalaFindUsagesHandler(
+  element: PsiElement,
+  config: ScalaFindUsagesConfiguration
+) extends ScalaFindUsagesHandlerBase(element, config) {
 
   override def getStringsToSearch(element: PsiElement): util.Collection[String] = ScalaUsageNamesUtil.getStringsToSearch(element)
 
@@ -88,7 +90,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
                                                      processor: Processor[_ >: UsageInfo],
                                                      options: ScalaTypeDefinitionFindUsagesOptions): Boolean = {
     element match {
-      case definition: ScTypeDefinition if factory.compilerIndicesOptions.isEnabledForSAMTypes && inReadAction(definition.isSAMable) =>
+      case definition: ScTypeDefinition if config.getCompilerIndicesOptions.isEnabledForSAMTypes && inReadAction(definition.isSAMable) =>
         //noinspection ApiStatus
         ExternalInheritorsSearcher.searchExternally(definition, options.searchScope, false)
           .forEach((e: PsiElement) => processor.process(new UsageInfo(e)))

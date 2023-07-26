@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.Consumer
-import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
+import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesConfiguration, ScalaFindUsagesHandler}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
@@ -36,11 +36,11 @@ class ScalaHighlightEnumUsagesHandler(target: ScalaPsiElement, file: PsiFile, ed
 
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = {
     val project = file.getProject
-    val factory = ScalaFindUsagesHandlerFactory.getInstance(project)
+    val config = ScalaFindUsagesConfiguration.getInstance(project)
     val localSearchScope = new LocalSearchScope(file)
 
     targets.forEach { target =>
-      val manager = new ScalaFindUsagesHandler(target, factory)
+      val manager = new ScalaFindUsagesHandler(target, config)
 
       target match {
         case named: ScNamedElement if named.isPhysical => addOccurrence(named.nameId)

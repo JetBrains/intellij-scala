@@ -17,11 +17,12 @@ import org.jetbrains.plugins.scala.compiler.CompilerIntegrationBundle
 import org.jetbrains.plugins.scala.compiler.references.{CompilerReferenceServiceStatusListener, ScalaCompilerReferenceService, UsagesInFile, task, upToDateCompilerIndexExists}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.SearchTargetExtractors.SAMType
+import org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesConfiguration
 //noinspection ApiStatus
 import org.jetbrains.plugins.scala.compiler.references.indices.ScalaCompilerIndices
 import org.jetbrains.plugins.scala.compiler.references.search.ImplicitUsagesSearchDialogs._
 import org.jetbrains.plugins.scala.compiler.references.search.UsageToPsiElements._
-import org.jetbrains.plugins.scala.findUsages.factory.{CompilerIndicesFindUsagesHandler, ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
+import org.jetbrains.plugins.scala.findUsages.factory.{CompilerIndicesFindUsagesHandler, ScalaFindUsagesHandler}
 import org.jetbrains.plugins.scala.findUsages.{ExternalSearchScopeChecker, UsageType}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
@@ -171,11 +172,11 @@ object CompilerIndicesReferencesSearcher extends ExternalSearchScopeChecker {
           if (targetModuleNames.isEmpty) {
             lock.withLock(indexingFinishedCondition.signal())
             val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
-            val factory     = ScalaFindUsagesHandlerFactory.getInstance(project)
+            val config      = ScalaFindUsagesConfiguration.getInstance(project)
 
             val handler = inReadAction(target match {
-              case SAMType(_) => new ScalaFindUsagesHandler(target, factory)
-              case _          => new CompilerIndicesFindUsagesHandler(target, factory)
+              case SAMType(_) => new ScalaFindUsagesHandler(target, config)
+              case _          => new CompilerIndicesFindUsagesHandler(target, config)
             })
 
             val runnable: Runnable = () =>
