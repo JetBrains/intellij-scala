@@ -1,22 +1,21 @@
 package org.jetbrains.plugins.scala.lang.findUsages
 
-import com.intellij.find.findUsages.FindUsagesOptions
-import com.intellij.openapi.util.TextRange
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.openapi.util.{Segment, TextRange}
 import com.intellij.usageView.UsageInfo
-import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory, ScalaTypeDefinitionFindUsagesOptions}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesConfiguration
 import org.jetbrains.plugins.scala.util.Markers
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 
-import scala.collection.immutable.ListSet
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 abstract class FindUsagesTestBase extends ScalaFixtureTestCase with Markers {
 
-  protected def defaultOptions = new ScalaTypeDefinitionFindUsagesOptions(getProject)
+  override def tearDown(): Unit = {
+    ScalaFindUsagesConfiguration.getInstance(getProject).reset()
+    super.tearDown()
+  }
 
   protected case class MyUsage(
     navigationRange: TextRange,
@@ -24,14 +23,7 @@ abstract class FindUsagesTestBase extends ScalaFixtureTestCase with Markers {
   )
 
   protected def doTest(
-    fileText: String,
-  ): Unit = {
-    doTest(fileText, defaultOptions)
-  }
-
-  protected def doTest(
     fileText0: String,
-    options: FindUsagesOptions
   ): Unit = {
     val fileText = fileText0.withNormalizedSeparator
     val (fileTextClean, expectedUsageRanges) = extractNumberedMarkers(fileText)
@@ -45,40 +37,36 @@ abstract class FindUsagesTestBase extends ScalaFixtureTestCase with Markers {
       )
     }
 
-    doTest(fileTextClean, expectedUsages, options)
+    doTest(fileTextClean, expectedUsages)
   }
 
   protected def doTest(
     fileText: String,
     expectedUsages: Seq[MyUsage],
-    options: FindUsagesOptions
   ): Unit = {
     myFixture.configureByText("dummy.scala", fileText.withNormalizedSeparator)
 
-    val elementAtCaret = myFixture.getElementAtCaret
-    val namedElement = PsiTreeUtil.getParentOfType(elementAtCaret, classOf[ScNamedElement], false)
-
-    val actualUsages: Seq[MyUsage] = {
-      val result = ListSet.newBuilder[MyUsage]
-
-      val usagesProcessor: Processor[UsageInfo] = usage => {
-        val element = usage.getElement
-        val navigationRange = usage.getNavigationRange.asInstanceOf[TextRange]
-        val navigationText = element.getContainingFile.getText.substring(navigationRange.getStartOffset, navigationRange.getEndOffset)
-        result += MyUsage(navigationRange, navigationText)
-        true
-      }
-
-      val handler = new ScalaFindUsagesHandler(namedElement, ScalaFindUsagesHandlerFactory.getInstance(getProject))
-      handler.processElementUsages(namedElement, usagesProcessor, options)
-
-      result.result().toSeq.sortBy(_.navigationRange.getStartOffset)
-    }
+    val usageInfos: Seq[UsageInfo] = myFixture.findUsages(myFixture.getElementAtCaret)
+      .asScala.toSeq
+      .sortBy(_.getNavigationRange.getStartOffset)
+    val actualUsages: Seq[MyUsage] = usageInfos
+      .map(toMyUsage)
+      //NOTE: for some reason in some cases there are duplicates usages found. It looks like it's not critical, though
+      .distinct
 
     assertCollectionEquals(
       "Usages",
       expectedUsages,
       actualUsages
     )
+  }
+
+  private def toRange(s: Segment): TextRange =
+    TextRange.create(s.getStartOffset, s.getEndOffset)
+
+  private def toMyUsage(usage: UsageInfo): MyUsage = {
+    val range = toRange(usage.getNavigationRange)
+    val text = range.substring(usage.getFile.getText)
+    MyUsage(range, text)
   }
 }

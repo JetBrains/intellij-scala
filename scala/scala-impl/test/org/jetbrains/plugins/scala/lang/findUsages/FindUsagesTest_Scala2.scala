@@ -1,20 +1,15 @@
 package org.jetbrains.plugins.scala.lang.findUsages
 
-import com.intellij.find.findUsages.FindUsagesOptions
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.findUsages.factory.ScalaTypeDefinitionFindUsagesOptions
+import org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesConfiguration
 
 class FindUsagesTest_Scala2 extends FindUsagesTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
-  private def classWithMembersOptions: FindUsagesOptions = {
-    val options = new ScalaTypeDefinitionFindUsagesOptions(getProject)
-    options.isMembersUsages = true
-    options
-  }
-
   def testFindObjectWithMembers(): Unit = {
+    ScalaFindUsagesConfiguration.getInstance(getProject).getTypeDefinitionOptions.isMembersUsages = true
+
     doTest(
       s"""object ${CARET}Test {
          |  def foo() = ???
@@ -22,7 +17,7 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
          |  ${start(1)}Test${end(1)}.${start(0)}foo${end(0)}
          |}
          |""".stripMargin,
-      classWithMembersOptions)
+    )
   }
 
   def testFindValOverriders(): Unit = {

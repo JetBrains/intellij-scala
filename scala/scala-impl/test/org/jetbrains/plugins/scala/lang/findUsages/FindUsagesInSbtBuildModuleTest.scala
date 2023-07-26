@@ -7,7 +7,7 @@ import com.intellij.psi.{PsiFile, PsiManager, PsiNamedElement}
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory, ScalaTypeDefinitionFindUsagesOptions}
+import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesConfiguration, ScalaFindUsagesHandler, ScalaTypeDefinitionFindUsagesOptions}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
@@ -83,7 +83,7 @@ class FindUsagesInSbtBuildModuleTest extends SbtExternalSystemImportingTestLike 
       result += usage
       true
     }
-    val handler = new ScalaFindUsagesHandler(namedElement, ScalaFindUsagesHandlerFactory.getInstance(namedElement.getProject))
+    val handler = new ScalaFindUsagesHandler(namedElement, ScalaFindUsagesConfiguration.getInstance(namedElement.getProject))
     handler.processElementUsages(namedElement, usagesProcessor, options)
 
     result.toSeq
