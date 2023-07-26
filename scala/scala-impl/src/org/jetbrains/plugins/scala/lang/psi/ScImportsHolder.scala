@@ -289,7 +289,6 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     optimizer: ScalaImportOptimizer,
     @Nullable refsContainer: PsiElement
   ): Unit = {
-    implicit val manager: PsiManager = getManager
 
     //don't add wildcard imports here, it should be done only on explicit "Optimize Imports" action
     val settings = fileOptimizeSettings.withoutCollapseSelectorsToWildcard
