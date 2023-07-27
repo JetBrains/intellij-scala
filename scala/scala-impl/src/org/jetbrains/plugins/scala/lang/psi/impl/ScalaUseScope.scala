@@ -39,10 +39,8 @@ private object ScalaUseScope {
   def apply(baseUseScope: SearchScope, file: ScalaFile): SearchScope =
     file match {
       case ScFile.VirtualFile(virtualFile) =>
-        if (ScratchUtil.isScratch(virtualFile))
+        if (ScratchUtil.isScratch(virtualFile) || file.isWorksheetFile)
           fileScopeForScratchFiles(file)
-        else if (file.isWorksheetFile)
-          GlobalSearchScope.fileScope(file.getProject, virtualFile)
         else
           baseUseScope
       case _ =>
@@ -52,7 +50,7 @@ private object ScalaUseScope {
   /**
    * There are two possible ways to define "file scope":
    *  1. new LocalSearchScope(file)
-   *  1. GlobalSearchScope.fileScope(project, virtualFile)
+   *  2. GlobalSearchScope.fileScope(project, virtualFile)
    *
    * With both approaches "Show hierarchy" action doesn't work in Scratch files due to this bug in IntelliJ Platform:<br>
    * [[https://youtrack.jetbrains.com/issue/IDEA-313012/type-hierarchy-doesnt-detect-inheritors-for-classes-in-scratch-files]]
@@ -63,6 +61,11 @@ private object ScalaUseScope {
    * This is due to a workaround in
    * [[org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaLocalInheritorsSearcher.processQuery]]
    * which only can handle `LocalSearchScope`
+   *
+   * [[com.intellij.refactoring.rename.RenameUtil#processUsages(com.intellij.psi.PsiElement, com.intellij.refactoring.rename.RenamePsiElementProcessorBase, java.lang.String, com.intellij.psi.search.SearchScope, boolean, boolean, boolean, com.intellij.util.Processor)]]
+   * adds an intersection with a searchScope for all scopes except LocalSearchScope. This could break rename refactorings
+   * for external worksheets (for useScope=GlobalSearchScope.fileScope and searchScope=ProjectScope an intersection doesn't include external files)
+   * See #SCL-21278
    */
   private def fileScopeForScratchFiles(file: PsiFile): SearchScope = {
     //GlobalSearchScope.fileScope(file.getProject, virtualFile)
