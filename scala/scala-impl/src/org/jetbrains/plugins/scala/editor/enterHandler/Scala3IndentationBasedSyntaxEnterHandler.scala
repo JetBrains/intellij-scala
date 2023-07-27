@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.ScalaCommenter
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -485,8 +486,12 @@ object Scala3IndentationBasedSyntaxEnterHandler {
   }
 
   private def isCaretBeforeOneLineExtensionDef(elementAtCaret: PsiElement): Boolean = {
-    elementAtCaret match {
-      case ElementType(ScalaTokenTypes.kDEF) & Parent(Parent(_: ScExtensionBody)) if !elementAtCaret.startsFromNewLine()=>
+    val elementAtCaretAdjusted  = elementAtCaret.getParent match {
+      case parent@ElementType(ScalaElementType.MODIFIERS) => parent.nextSiblingNotWhitespaceComment.getOrElse(elementAtCaret)
+      case _ => elementAtCaret
+    }
+    elementAtCaretAdjusted match {
+      case ElementType(ScalaTokenTypes.kDEF) & Parent(Parent(_: ScExtensionBody)) if !elementAtCaret.startsFromNewLine() =>
         true
       case _ => false
     }

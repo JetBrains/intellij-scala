@@ -1271,7 +1271,7 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
     }
   }
 
-  def testBeforeDefinitionInOneLineExtension_1(): Unit = doEnterTest(
+  def testBeforeDefinitionInOneLineExtension(): Unit = doEnterTest(
     s"""extension (s: String) ${CARET}def myExt1: String""",
 
     s"""extension (s: String)
@@ -1282,22 +1282,67 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
        |  ${CARET}def myExt1: String""".stripMargin
   )
 
-  def testBeforeDefinitionInOneLineExtension_2_with_comment(): Unit = doEnterTest(
+  def testBeforeDefinitionInOneLineExtension_with_comment(): Unit = doEnterTest(
     s"""extension (s: String) /*my comment*/${CARET}def myExt1: String""",
-
     s"""extension (s: String) /*my comment*/
        |  ${CARET}def myExt1: String""".stripMargin,
-
     s"""extension (s: String) /*my comment*/
        |
        |  ${CARET}def myExt1: String""".stripMargin
   )
 
-  def testBeforeDefinitionInOneLineExtension_3(): Unit = doEnterTest(
-    s"""extension (s: String)${CARET} def myExt1: String""",
-
+  def testBeforeDefinitionInOneLineExtension_WithExtraSpaceAfterCaret(): Unit = doEnterTest(
+    s"""extension (s: String)$CARET def myExt1: String""",
     s"""extension (s: String)
        |  ${CARET}def myExt1: String""".stripMargin
+  )
+
+  def testBeforeDefinitionInOneLineExtension_BeforeSingleModifier(): Unit = doEnterTest(
+    s"""extension (s: String) ${CARET}override def myExt1: String""",
+    s"""extension (s: String)
+       |  ${CARET}override def myExt1: String""".stripMargin
+  )
+
+  def testBeforeDefinitionInOneLineExtension_BeforeSingleModifier_WithExtraSpaceAfterCaret(): Unit = doEnterTest(
+    s"""extension (s: String)$CARET override def myExt1: String""",
+    s"""extension (s: String)
+       |  ${CARET}override def myExt1: String""".stripMargin
+  )
+
+  def testBeforeDefinitionInOneLineExtension_BeforeMultipleModifiers(): Unit = doEnterTest(
+    s"""extension (s: String) ${CARET}final override def myExt1: String""",
+    s"""extension (s: String)
+       |  ${CARET}final override def myExt1: String""".stripMargin
+  )
+
+  def testBeforeDefinitionInOneLineExtension_BeforeMultipleModifiers_WithExtraSpaceAfterCaret(): Unit = doEnterTest(
+    s"""extension (s: String)$CARET final override def myExt1: String""",
+    s"""extension (s: String)
+       |  ${CARET}final override def myExt1: String""".stripMargin
+  )
+
+  def testBeforeDefinitionInOneLineExtension_BeforeSingleSoftModifier(): Unit = doEnterTest(
+    s"""extension (s: String) ${CARET}inline def myExt1: String""",
+    s"""extension (s: String)
+       |  ${CARET}inline def myExt1: String""".stripMargin
+  )
+
+  def testBeforeDefinitionInOneLineExtension_BeforeMultipleModifiersAndSoftModifiers_1(): Unit = doEnterTest(
+    s"""extension (s: String) ${CARET}inline final def myExt1: String""",
+    s"""extension (s: String)
+       |  ${CARET}inline final def myExt1: String""".stripMargin
+  )
+
+  def testBeforeDefinitionInOneLineExtension_BeforeMultipleModifiersAndSoftModifiers_2(): Unit = doEnterTest(
+    s"""extension (s: String) ${CARET}final inline def myExt1: String""",
+    s"""extension (s: String)
+       |  ${CARET}final inline def myExt1: String""".stripMargin
+  )
+
+  def testBeforeDefinitionInOneLineExtension_BeforeMultipleModifiers_WithCommentsBetween(): Unit = doEnterTest(
+    s"""extension (s: String) ${CARET}final /*strange comment 1*/ inline /*strange comment 2*/ def myExt1: String""",
+    s"""extension (s: String)
+       |  ${CARET}final /*strange comment 1*/ inline /*strange comment 2*/ def myExt1: String""".stripMargin
   )
 
   def testAfterBlockCommentInFunction(): Unit = doEnterTest(
