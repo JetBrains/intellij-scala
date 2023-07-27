@@ -20,7 +20,7 @@ import scala.jdk.CollectionConverters._
 
 class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware {
 
-  //noinspection ApiStatus
+  //noinspection UnstableApiUsage,ApiStatus
   override def getIcon: Icon = com.intellij.icons.AllIcons.Toolwindows.ToolWindowProfiler
 
   override def init(toolWindow: ToolWindow): Unit = {
@@ -77,6 +77,15 @@ object InternalProfilerToolWindowFactory {
     )(preferredWidths = Seq(5, 1, 1))
   }
 
+  lazy val modificationTrackersModel: DataByIdTableModel[ModificationTrackersData] = {
+    val dataById = new DataById[ModificationTrackersData](_.uniqueName)
+    new DataByIdTableModel(
+      dataById,
+      dataById.stringColumn("ModificationTracker", _.uniqueName),
+      dataById.numColumn("Modification Count", _.modificationCount),
+    )(preferredWidths = Seq(1, 5))
+  }
+
   private def parentCallsText(data: TracerData): String = {
     val parentCalls = data.parentCalls
     val sorted = parentCalls.asScala.sortBy(_._2).reverse
@@ -93,12 +102,14 @@ object InternalProfilerToolWindowFactory {
     val timingsTable = createTableWithToolbarPanel(ScalaCacheTracerDataSource, timingsModel, project)
     val parentCalls = createTableWithToolbarPanel(ScalaCacheTracerDataSource, parentCallsModel, project)
     val memory = createTableWithToolbarPanel(ScalaCacheMemoryDataSource, memoryModel, project)
+    val modificationTrackers = createTableWithToolbarPanel(new ScalaModificationTrackersDataSource(project), modificationTrackersModel, project)
 
     val factory = ContentFactory.getInstance()
     Seq(
       factory.createContent(timingsTable, "Timings", false),
       factory.createContent(parentCalls, "Parent Calls", false),
-      factory.createContent(memory, "Memory", false)
+      factory.createContent(memory, "Memory", false),
+      factory.createContent(modificationTrackers, "Modification Trackers", false)
     )
   }
 
