@@ -317,8 +317,22 @@ class ScalaFileImpl(
     case stub => byStub(stub)
   }
 
+  /**
+   * Set to `false` when constructing a new synthetic element, for which a temporary `ScalaFileImpl` is created
+   *
+   * Details:<br>
+   * We shouldn't increment global modification counter and drop caches when no psi actually changes.
+   * When we construct a new synthetic psi element there are some modifications applied no a new temp scala file.
+   * In this case we need to ignore incrementing of `ModTracker.anyScalaPsiChange`
+   *
+   * @see SCL-21468
+   */
+  private[psi] var incrementModificationCounterOnSubtreeChange = true
+
   override def subtreeChanged(): Unit = {
-    ModTracker.anyScalaPsiChange.incModificationCount()
+    if (incrementModificationCounterOnSubtreeChange) {
+      ModTracker.anyScalaPsiChange.incModificationCount()
+    }
     super.subtreeChanged()
   }
 

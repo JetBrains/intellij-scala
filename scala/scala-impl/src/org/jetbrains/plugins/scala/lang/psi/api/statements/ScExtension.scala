@@ -7,6 +7,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOw
 trait ScExtension extends ScParameterOwner.WithContextBounds
   with ScDocCommentOwner
   with ScCommentOwner
+  //TODO: extension is technically not a member.
+  // It's "BlockStat", "TopStat" and "TemplateStat" (see https://docs.scala-lang.org/scala3/reference/syntax.html)
+  // For example it can't have modifiers (but methods in the extension can have them)
+  // Extending ScMember can lead to unexpected issues
+  // We need to rethink the hierarchy for extensions.
+  //NOTE: it's also extended in ScExtensionImpl
   with ScMember
   with ScDeclaredElementsHolder {
 

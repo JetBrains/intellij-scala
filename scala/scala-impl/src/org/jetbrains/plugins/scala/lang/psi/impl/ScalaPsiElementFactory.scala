@@ -1240,7 +1240,11 @@ object ScalaPsiElementFactory {
     chameleon.getFirstChildNode
 
     if (first ne null) {
-      chameleon.rawAddChildren(first)
+      val valueBefore = scalaFile.incrementModificationCounterOnSubtreeChange
+      scalaFile.incrementModificationCounterOnSubtreeChange = false
+      try chameleon.rawAddChildren(first) finally {
+        scalaFile.incrementModificationCounterOnSubtreeChange = valueBefore
+      }
     }
 
     val result = getResult(scalaFile)

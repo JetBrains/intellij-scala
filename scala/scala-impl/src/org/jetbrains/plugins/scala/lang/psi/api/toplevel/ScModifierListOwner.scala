@@ -10,6 +10,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with PsiModifierListOwnerAdapter {
+  /**
+   * @note despite `getModifierList` is @Nullable in `PsiModifierListOwner.getModifierList`
+   *       a lot of code in Scala Plugin assumes that it's not-null.
+   *       That's why it creates a synthetic empty modifier list in exceptional case, when there are no modifiers<br>
+   *
+   *       Ideally, we should patch all our places, which we don't check getModifierList for null and simply return null from ScModifierListOwner#getModifierList
+   *       But before that, it would be nice to have SCL-8749 in order we don't break anything during the refactoring.
+   */
   override def getModifierList: ScModifierList = _getModifierList()
 
   private val _getModifierList = cached("getModifierList", ModTracker.anyScalaPsiChange, () => {
