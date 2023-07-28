@@ -5,12 +5,12 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage, ScalaVersion}
 import org.junit.Assert.assertEquals
 
-class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTestCase with PsiSelectionUtil {
+abstract class ScalaOverridingMemberSearcherTestBase extends ScalaLightCodeInsightFixtureTestCase with PsiSelectionUtil {
 
-  def check(code: String, origin: NamedElementPath, overriding: Seq[NamedElementPath]): Unit = {
+  protected def check(code: String, origin: NamedElementPath, overriding: Seq[NamedElementPath]): Unit = {
     val file = myFixture.configureByText(ScalaFileType.INSTANCE, code)
 
     val originElem = selectElement[ScNamedElement](file, origin)
@@ -18,7 +18,7 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
     val foundOverridingMembers = ScalaOverridingMemberSearcher.search(originElem, withSelfType = true)
 
     def getLineNumber(element: PsiElement): Int =
-      file.getText.substring(0, element.getTextRange.getStartOffset).count(_ =='\n')
+      file.getText.substring(0, element.getTextRange.getStartOffset).count(_ == '\n')
 
     val name = origin.last
     expectedOverridingMembers.foreach { expected =>
@@ -46,6 +46,9 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
 
     assert(foundOverridingMembers.length == expectedOverridingMembers.length)
   }
+}
+
+class ScalaOverridingMemberSearcherTest extends ScalaOverridingMemberSearcherTestBase {
 
   def test_not_overridden(): Unit = check(
     """
@@ -249,4 +252,52 @@ class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTest
       path("Impl2", "test")
     )
   )*/
+}
+
+class ScalaOverridingMemberSearcherTest_Scala3 extends ScalaOverridingMemberSearcherTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  def testExtensionMethod_1(): Unit = {
+    check(
+      """trait Base:
+        |  extension (x: String)
+        |    def findMyExtension1: String = ???
+        |
+        |class Impl1 extends Base:
+        |  extension (x: String)
+        |    override def findMyExtension1: String = ???
+        |
+        |class Impl2 extends Base:
+        |  extension (x: String)
+        |    override def findMyExtension1: String = ???
+        |""".stripMargin,
+      path("Base", "findMyExtension1"),
+      Seq(
+        path("Impl1", "findMyExtension1"),
+        path("Impl2", "findMyExtension1")
+      )
+    )
+  }
+
+  def testExtensionMethod_2(): Unit = {
+    check(
+      """trait Base:
+        |  extension (x: String)
+        |    def findMyExtension2: String = ???
+        |
+        |class Impl1 extends Base:
+        |  extension (i: Int)
+        |    def findMyExtension2: String = ???
+        |
+        |class Impl2 extends Base:
+        |  extension (x: String)
+        |    override def findMyExtension2: String = ???
+        |""".stripMargin,
+      path("Base", "findMyExtension2"),
+      Seq(
+        //NOTE: path("Impl1", "findMyExtension2") is not found because parent extension has different receiver type and is doesn't override anything
+        path("Impl2", "findMyExtension2")
+      )
+    )
+  }
 }
