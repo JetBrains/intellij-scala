@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.project.maven
 
 import com.intellij.build.events.BuildEvent
-import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
-import com.intellij.openapi.module.{Module, ModuleType, StdModuleTypes}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{DependencyScope, LibraryOrderEntry}
@@ -13,7 +12,7 @@ import org.jdom.Element
 import org.jetbrains.idea.maven.importing.{MavenImporter, MavenRootModelAdapter}
 import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenPlugin}
 import org.jetbrains.idea.maven.project._
-import org.jetbrains.idea.maven.server.{MavenEmbedderWrapper, NativeMavenProjectHolder}
+import org.jetbrains.idea.maven.server.{MavenArtifactResolutionRequest, MavenEmbedderWrapper, NativeMavenProjectHolder}
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
@@ -24,7 +23,6 @@ import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
 
 import java.io.File
 import java.util
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
@@ -171,10 +169,15 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
       def pom(id: MavenId): MavenArtifactInfo = new MavenArtifactInfo(id.groupId, id.artifactId, id.version, "pom", null)
       def jar(id: MavenId): MavenArtifactInfo = new MavenArtifactInfo(id.groupId, id.artifactId, id.version, "jar", id.classifier.orNull)
 
-      @nowarn("cat=deprecation")
-      def resolve(id: MavenId): MavenArtifact = {
-        embedder.resolve(pom(id), repositories)
-        embedder.resolve(jar(id), repositories)
+      def resolveArtifact(info: MavenArtifactInfo): util.List[MavenArtifact] = {
+        val request = new MavenArtifactResolutionRequest(info, repositories)
+        embedder.resolveArtifacts(util.List.of(request), null, null, null)
+      }
+
+      def resolveJar(id: MavenId): MavenArtifact = {
+        //note sure why, but resolving of poms is done before resolving jars, it was done so since this class was created
+        resolveArtifact(pom(id))
+        resolveArtifact(jar(id)).get(0)
       }
 
       def resolveTransitively(id: MavenId): Seq[MavenArtifact] = {
@@ -190,13 +193,13 @@ final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-s
       // Scala Maven plugin can add scala-library to compilation classpath, without listing it as a project dependency.
       // Such an approach is probably incorrect, but we have to support that behaviour "as is".
       val implicitScalaLibrary = implicitScalaLibraryIfNeeded(configuration)
-      implicitScalaLibrary.map(resolve).foreach(mavenProject.addDependency)
+      implicitScalaLibrary.map(resolveJar).foreach(mavenProject.addDependency)
 
       // compiler classpath should be resolved transitively, e.g. Scala3 compiler contains quite a lot of jar files in the classpath
       val compilerClasspathWithTransitives: Seq[File] = resolveTransitively(configuration.compilerArtifact).map(_.getFile)
       project.putUserData(MavenFullCompilerClasspathKey, compilerClasspathWithTransitives)
 
-      configuration.plugins.foreach(resolve)
+      configuration.plugins.foreach(resolveJar)
     }
   }
 
