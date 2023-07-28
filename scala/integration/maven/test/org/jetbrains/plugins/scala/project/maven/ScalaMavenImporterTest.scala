@@ -1,31 +1,45 @@
 package org.jetbrains.plugins.scala.project.maven
 
 import com.intellij.maven.testFramework.MavenImportingTestCase
+import com.intellij.openapi.application.WriteAction
+import com.intellij.openapi.module
 import com.intellij.openapi.module.{ModuleTypeManager, StdModuleTypes}
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
+import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
+import com.intellij.openapi.roots.{ModuleRootModificationUtil, ProjectRootManager}
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.util.SystemProperties
 import org.jetbrains.idea.maven.utils.MavenUtil
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
+import org.jetbrains.plugins.scala.base.{LibrariesOwner, ScalaVersionProvider}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, IncrementalityType}
-import org.jetbrains.plugins.scala.extensions.{RichFile, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{RichFile, inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher}
 import org.junit.Assert
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
 import java.io.File
 
 //noinspection ApiStatus
 @Category(Array(classOf[SlowTests]))
-class ScalaMavenImporterTest
+abstract class ScalaMavenImporterTest
   extends MavenImportingTestCase
     with ProjectStructureMatcher
     with ExactMatch {
 
   import ProjectStructureMatcher.ProjectComparisonOptions.Implicit.default
+
+  /** None means use whatever default JDK is chosen by IDEA (most probably internal IDEA JDK) */
+  protected def projectJdkVersion: Option[LanguageLevel]
+  private var jdk: Sdk = _
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -35,10 +49,23 @@ class ScalaMavenImporterTest
     // and org.jetbrains.idea.maven.importing.MavenModuleImporter
     // (Note that it uses `==` instead of `equals` for some reason: `importer.getModuleType() == moduleType`)
     ModuleTypeManager.getInstance.registerModuleType(StdModuleTypes.JAVA)
+
+    projectJdkVersion.foreach { jdkVersion =>
+      inWriteAction {
+        jdk = SmartJDKLoader.getOrCreateJDK(jdkVersion)
+        ProjectRootManager.getInstance(myProject).setProjectSdk(jdk)
+      }
+    }
   }
 
   override protected def tearDown(): Unit = {
+    if (jdk != null) {
+      val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
+      inWriteAction(jdkTable.removeJdk(jdk))
+    }
+
     ModuleTypeManager.getInstance.unregisterModuleType(StdModuleTypes.JAVA)
+
     super.tearDown()
   }
 
