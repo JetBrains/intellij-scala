@@ -1,10 +1,15 @@
 package org.jetbrains.plugins.scala.lang.typeInference.generated
 
-import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.annotator.{Message, ScalaHighlightingTestBase}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceDoTest
 
-class PackageTypeInferenceTest extends ScalaFixtureTestCase with TypeInferenceDoTest {
+class PackageTypeInferenceTest extends ScalaHighlightingTestBase with TypeInferenceDoTest {
+
+  override protected def errorsFromAnnotator(file: PsiFile): Seq[Message.Error] =
+    super.errorsFromScalaCode(file)
+
   def testImplicitPackageObjects(): Unit = {
     val foo =
       """

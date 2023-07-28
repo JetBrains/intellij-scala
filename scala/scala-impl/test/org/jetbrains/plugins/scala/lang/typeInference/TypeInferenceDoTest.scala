@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
+import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.testFramework.EditorTestUtil
 import junit.framework.TestCase
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotationHolder, ScalaAnnotator}
+import org.jetbrains.plugins.scala.annotator.Message
 import org.jetbrains.plugins.scala.base.{FailableTest, ScalaSdkOwner}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
@@ -20,10 +20,8 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner {
-  import Message._
-
-  protected val START = "/*start*/"
-  protected val END = "/*end*/"
+  protected val START_MARKER = "/*start*/"
+  protected val END_MARKER = "/*end*/"
 
   private val ExpectedPattern = """expected: (.*)""".r
   private val SimplifiedPattern = """simplified: (.*)""".r
@@ -34,8 +32,10 @@ trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner 
 
   def configureFromFileText(fileName: String, fileText: Option[String]): ScalaFile
 
+  protected def errorsFromAnnotator(file: PsiFile): Seq[Message.Error]
+
   final protected def doTest(fileText: String): Unit = {
-    doTest(fileText, true)
+    doTest(fileText, failIfNoAnnotatorErrorsInFileIfTestIsSupposedToFail = true)
   }
 
   final protected def doTest(
@@ -102,11 +102,11 @@ trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner 
   protected def findSelectedExpression(scalaFile: ScalaFile): ScExpression = {
     val fileText = scalaFile.getText
 
-    val startMarkerOffset = fileText.indexOf(START)
-    val startOffset = startMarkerOffset + START.length
+    val startMarkerOffset = fileText.indexOf(START_MARKER)
+    val startOffset = startMarkerOffset + START_MARKER.length
     assert(startMarkerOffset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
 
-    val endOffset = fileText.indexOf(END)
+    val endOffset = fileText.indexOf(END_MARKER)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
 
     val elementAtOffset = PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset), classOf[ScExpression])
@@ -161,21 +161,4 @@ trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner 
         .getOrElse(resultsWithVersions.last._2)
     }
   }
-
-  private def errorsFromAnnotator(file: PsiFile): Seq[Message] = {
-    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
-
-    file.depthFirst().foreach(annotate(_))
-
-    val annotations = mock.annotations
-    val errors = annotations.filter {
-      case Error(_, null) | Error(null, _) => false
-      case Error(_, _) => true
-      case _ => false
-    }
-    errors
-  }
-
-  private def annotate(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit =
-    new ScalaAnnotator().annotate(element)
 }

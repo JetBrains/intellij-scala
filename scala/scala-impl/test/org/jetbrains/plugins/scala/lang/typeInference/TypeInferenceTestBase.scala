@@ -5,6 +5,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.annotator.{Message, ScalaHighlightingTestLike}
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
@@ -15,14 +16,17 @@ import org.junit.experimental.categories.Category
 import java.io.File
 
 @Category(Array(classOf[TypecheckerTests]))
-abstract class TypeInferenceTestBase extends ScalaLightCodeInsightFixtureTestCase with TypeInferenceDoTest {
-
-  override val START = "/*start*/"
-  override val END = "/*end*/"
+abstract class TypeInferenceTestBase
+  extends ScalaLightCodeInsightFixtureTestCase
+    with TypeInferenceDoTest
+    with ScalaHighlightingTestLike {
 
   protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"
 
   override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
+
+  override protected val START = START_MARKER
+  override protected val END = END_MARKER
 
   protected def doInjectorTest(injector: SyntheticMembersInjector): Unit = {
     val extensionArea = ApplicationManager.getApplication.getExtensionArea
@@ -40,6 +44,9 @@ abstract class TypeInferenceTestBase extends ScalaLightCodeInsightFixtureTestCas
     configureFromFileText(ScalaFileType.INSTANCE, StringUtil.convertLineSeparators(text.trim))
     getFile.asInstanceOf[ScalaFile]
   }
+
+  override protected def errorsFromAnnotator(file: PsiFile): Seq[Message.Error] =
+    super.errorsFromScalaCode(file)
 
   protected def addFileToProject(fileName: String, text: String): PsiFile =
     PsiFileTestUtil.addFileToProject(fileName, text, getProject)
