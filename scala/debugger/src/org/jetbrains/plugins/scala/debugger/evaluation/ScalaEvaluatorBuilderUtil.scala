@@ -913,9 +913,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val fromPatternEvaluator = evaluateSubpatternFromPattern(exprEval, pattern.get, namedElement.asInstanceOf[ScPattern])
           ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name, fileName), fromPatternEvaluator)
         case _: ScBlockExpr => //it is anonymous function
-          val argEvaluator = new ScalaLocalVariableEvaluator("", fileName)
-          argEvaluator.setParameterIndex(-1) // Last parameter
-          val fromPatternEvaluator = evaluateSubpatternFromPattern(argEvaluator, pattern.get, namedElement.asInstanceOf[ScPattern])
+          val partialFunctionPatternEvaluator = new PartialFunctionPatternEvaluator()
+          val fromPatternEvaluator =
+            unboxEvaluator(evaluateSubpatternFromPattern(partialFunctionPatternEvaluator, pattern.get, namedElement.asInstanceOf[ScPattern]))
           ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name, fileName), fromPatternEvaluator)
         case _ => new ScalaLocalVariableEvaluator(name, fileName)
       }
