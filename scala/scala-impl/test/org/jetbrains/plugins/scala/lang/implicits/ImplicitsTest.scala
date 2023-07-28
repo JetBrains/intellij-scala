@@ -77,7 +77,7 @@ class ImplicitsTest extends TypeInferenceTestBase {
     """.stripMargin.trim
   }
 
-  def testJavaRawStackOverflowSCL19526: Unit = {
+  def testJavaRawStackOverflowSCL19526(): Unit = {
     addFileToProject("JavaRaw.java",
       """
         |public class JavaRaw {

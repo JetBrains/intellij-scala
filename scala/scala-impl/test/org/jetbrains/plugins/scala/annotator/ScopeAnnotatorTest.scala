@@ -481,7 +481,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     Assert.assertTrue(clashesOf("class A; trait `A`").toSet == Set("A", "`A`"))
   }
 
-  def testFunctionSignatureTypeConformanceAndErasure: Unit = {
+  def testFunctionSignatureTypeConformanceAndErasure(): Unit = {
     assertMatches(messages("type Alias = Any; def f(p: Any) {}; def f(p: Alias) {}")) {
       case Error("f", _) :: Error("f", _) :: Nil =>
     }

@@ -28,22 +28,22 @@ class SpecFinderSuite extends FinderSuite {
         object `whenever it is empty` {
           println("nested -")
           object `certainly ought to` {
-            def `be empty` {
+            def `be empty`() {
         
             }
-            def `complain on peek` {
+            def `complain on peek`() {
               println("in nested")
             }
-            def `complain on pop` {
+            def `complain on pop`() {
           
             }
           }
         }
         object `but when full, by contrast, must` {
-          def `be full` {
+          def `be full`() {
             
           }
-          def `complain on push` {
+          def `complain on push`() {
           
           }
         }

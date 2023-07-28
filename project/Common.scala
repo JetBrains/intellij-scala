@@ -15,6 +15,7 @@ object Common {
     "-unchecked",
     "-feature",
     "-Xlint:serial",
+    "-Xlint:nullary-unit",
     "-Xfatal-warnings",
     "-language:existentials",
     "-Ytasty-reader",
