@@ -30,8 +30,6 @@ import scala.util.Try
 
 final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-plugin") {
 
-  override def getModuleType: ModuleType[_ <: ModuleBuilder] =  StdModuleTypes.JAVA
-
   override def collectSourceRoots(
     mavenProject: MavenProject,
     result: PairConsumer[String, JpsModuleSourceRootType[_]]
