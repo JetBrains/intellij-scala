@@ -42,32 +42,44 @@ object GivenDef {
   private def parseGivenAlias(hasSignature: Boolean, iw: IndentationWidth, templateMarker: PsiBuilder.Marker)
                              (implicit builder: ScalaPsiBuilder): Boolean = {
     val aliasMarker = builder.mark()
-    if (AnnotType(isPattern = false)) {
-      val tokenType = builder.getTokenType
-      val isAliasDefinition = tokenType == ScalaTokenTypes.tASSIGN
-      val isAliasDeclaration = !LPAREN_WITH_TOKEN_SET.contains(tokenType)
 
-      if (isAliasDefinition || isAliasDeclaration) {
-        if (!hasSignature)
-          builder.mark().done(ScalaElementType.PARAM_CLAUSES)
+    //NOTE: using AnnotType instead of Type, because
+    //Type would parse `given Foo with { ... }` as a CompoundType instead of ExtendsBlock
+    val typeAnnotationParsed = AnnotType(isPattern = false)
 
-        val elementType = if (isAliasDefinition) {
-          builder.advanceLexer() // ate =
+    val tokenType = builder.getTokenType
+    val isAliasDefinition = tokenType == ScalaTokenTypes.tASSIGN
+    val isAliasDeclaration = !LPAREN_WITH_TOKEN_SET.contains(tokenType)
+    val isGivenAlias = isAliasDefinition || isAliasDeclaration
 
-          if (!ExprInIndentationRegion())
-            builder.error(ScalaBundle.message("expression.expected"))
-
-          End(iw)
-          ScalaElementType.GIVEN_ALIAS_DEFINITION
-        } else ScalaElementType.GIVEN_ALIAS_DECLARATION
-
-        aliasMarker.drop()
-        templateMarker.done(elementType)
-        true
+    if (!typeAnnotationParsed) {
+      if (hasSignature && isGivenAlias) {
+        //parse incomplete given alias definition during typing:
+        //given value: <Caret> =
+        builder.error(ScalaBundle.message("wrong.type"))
       } else {
         aliasMarker.rollbackTo()
-        false
+        return false
       }
+    }
+
+    if (isGivenAlias) {
+      if (!hasSignature)
+        builder.mark().done(ScalaElementType.PARAM_CLAUSES)
+
+      val elementType = if (isAliasDefinition) {
+        builder.advanceLexer() // ate =
+
+        if (!ExprInIndentationRegion())
+          builder.error(ScalaBundle.message("expression.expected"))
+
+        End(iw)
+        ScalaElementType.GIVEN_ALIAS_DEFINITION
+      } else ScalaElementType.GIVEN_ALIAS_DECLARATION
+
+      aliasMarker.drop()
+      templateMarker.done(elementType)
+      true
     } else {
       aliasMarker.rollbackTo()
       false
@@ -82,9 +94,16 @@ object GivenDef {
     val templateParents = builder.mark()
 
     if (!Constructor()) {
-      templateParents.drop()
-      extendsBlockMarker.rollbackTo()
-      return false
+      if (builder.getTokenType == ScalaTokenTypes.kWITH) {
+        //parse incomplete given structural instance during typing:
+        //given value: <CARET> with MyTrait with {}
+        builder.error(ScalaBundle.message("wrong.type"))
+      }
+      else {
+        templateParents.drop()
+        extendsBlockMarker.rollbackTo()
+        return false
+      }
     }
 
     @tailrec

@@ -254,6 +254,152 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')""".stripMargin
   )
 
+  def test_incomplete_given_alias_declaration_without_type_annotation(): Unit = checkTree(
+    """given value:
+      |given value(x: Int):
+      |""".stripMargin,
+    """ScalaFile
+      |  ScGivenAliasDeclaration: value
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('value')
+      |    Parameters
+      |      <empty list>
+      |    PsiElement(:)(':')
+      |    PsiErrorElement:Wrong type
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |  ScGivenAliasDeclaration: value
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('value')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiErrorElement:Wrong type
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_incomplete_given_alias_definition_without_type_annotation(): Unit = checkTree(
+    """given value: = ???
+      |given value(x: Int): = ???
+      |""".stripMargin,
+    """ScalaFile
+      |  ScGivenAliasDefinition: value
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('value')
+      |    Parameters
+      |      <empty list>
+      |    PsiElement(:)(':')
+      |    PsiErrorElement:Wrong type
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: ???
+      |      PsiElement(identifier)('???')
+      |  PsiWhiteSpace('\n')
+      |  ScGivenAliasDefinition: value
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('value')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiErrorElement:Wrong type
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: ???
+      |      PsiElement(identifier)('???')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_incomplete_given_structural_instance_without_constructor_invocation(): Unit = checkTree(
+    """given value: with MyTrait with {}
+      |""".stripMargin,
+    """ScalaFile
+      |  ScGivenDefinition: value
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('value')
+      |    Parameters
+      |      <empty list>
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        PsiErrorElement:Wrong type
+      |          <empty list>
+      |        PsiElement(with)('with')
+      |        PsiWhiteSpace(' ')
+      |        ConstructorInvocation
+      |          SimpleType: MyTrait
+      |            CodeReferenceElement: MyTrait
+      |              PsiElement(identifier)('MyTrait')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(with)('with')
+      |      PsiWhiteSpace(' ')
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_full(): Unit = checkTree(
     """
       |given Test[T](using Ord[T]): Ord[Int] with {}
