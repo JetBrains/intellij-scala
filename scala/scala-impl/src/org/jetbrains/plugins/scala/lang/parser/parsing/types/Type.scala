@@ -8,11 +8,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type.parseWildcardStartToken
 
 /**
+ * {{{
  * Type ::= [[InfixTypePrefix]]
  *        | [[PolyFunOrTypeLambda]] (Scala 3)
  *        | _ SubtypeBounds
  *        | ? SubtypeBounds (Scala 3)
  * SubtypeBounds : == [>: Type] [<: Type]
+ * }}}
  */
 object Type extends Type {
   override protected def infixType: InfixType = InfixType
