@@ -59,7 +59,8 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
         |  override def method(arg: JavaDummy[_ <: JavaDummy[_]]): Unit = super.method(arg)
         |}""".stripMargin
 
-    assertNothing(errorsFromScalaCode(scala, java))
+    addDummyJavaFile(java)
+    assertNothing(errorsFromScalaCode(scala))
   }
 
   def testSCL6114(): Unit = {
@@ -104,7 +105,8 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
         |}
       """.stripMargin
 
-    assertNothing(errorsFromScalaCode(scala, java))
+    addDummyJavaFile(java)
+    assertNothing(errorsFromScalaCode(scala))
   }
 
   def testSCL8666(): Unit = {
@@ -190,6 +192,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
         |}
       """.stripMargin
 
-    assertNothing(errorsFromScalaCode(scala, java))
+    addDummyJavaFile(java)
+    assertNothing(errorsFromScalaCode(scala))
   }
 }

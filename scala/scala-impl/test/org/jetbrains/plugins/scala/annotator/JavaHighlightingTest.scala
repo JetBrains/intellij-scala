@@ -55,7 +55,8 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
         |}
       """.stripMargin
 
-    assertNothing(errorsFromScalaCode(scala, java))
+    addDummyJavaFile(java)
+    assertNothing(errorsFromScalaCode(scala))
   }
 
   def testSCL18045(): Unit = {
@@ -79,7 +80,8 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
         |}
         |""".stripMargin
 
-    assertNothing(errorsFromScalaCode(scala, java))
+    addDummyJavaFile(java)
+    assertNothing(errorsFromScalaCode(scala))
   }
 
   def testSCL10930(): Unit = {
@@ -109,7 +111,8 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
         |}
       """.stripMargin
 
-    assertNothing(errorsFromScalaCode(scala, java))
+    addDummyJavaFile(java)
+    assertNothing(errorsFromScalaCode(scala))
   }
 
 }

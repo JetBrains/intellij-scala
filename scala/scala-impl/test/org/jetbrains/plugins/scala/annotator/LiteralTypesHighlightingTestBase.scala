@@ -10,7 +10,13 @@ import java.io.File
 abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBase {
   def folderPath = TestUtils.getTestDataPath + "/annotator/literalTypes/"
 
-  def errorsFromScalaCode(scalaFileText: String, settingOn: Boolean): List[Message] = {
+  def doTest(expectedErrors: List[Message] = Nil, fileText: Option[String] = None, settingOn: Boolean = false): Unit = {
+    val text = fileText.getOrElse {
+      val filePath = folderPath + getTestName(true) + ".scala"
+      val ioFile: File = new File(filePath)
+      FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
+    }
+
     if (settingOn) {
       import org.jetbrains.plugins.scala.project._
       val profile = myFixture.getModule.scalaCompilerSettingsProfile
@@ -20,16 +26,7 @@ abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBas
       profile.setSettings(newSettings)
     }
 
-    super.errorsFromScalaCode(scalaFileText)
-  }
-
-  def doTest(expectedErrors: List[Message] = Nil, fileText: Option[String] = None, settingOn: Boolean = false): Unit = {
-    val text = fileText.getOrElse {
-      val filePath = folderPath + getTestName(true) + ".scala"
-      val ioFile: File = new File(filePath)
-      FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
-    }
-    val errors = errorsFromScalaCode(text, settingOn)
+    val errors = errorsFromScalaCode(text)
     assertMessages(errors)(expectedErrors: _*)
   }
 }

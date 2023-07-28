@@ -15,13 +15,14 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
 
   private var filesCreated: Boolean = false
 
-  protected def withHints = false
-
   def assertNoErrors(code: String): Unit =
     assertErrors(code, Nil: _*)
 
   def assertErrors(code: String, messages: Message*): Unit =
     assertErrorsText(code, messages.mkString("\n"))
+
+  def assertErrorsWithHints(code: String, messages: Message*): Unit =
+    assertErrorsWithHintsText(code, messages.mkString("\n"))
 
   def assertMessages(code: String, messages: Message*): Unit =
     assertMessagesText(code, messages.mkString("\n"))
@@ -31,6 +32,11 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
 
   def assertErrorsText(code: String, messagesConcatenated: String): Unit = {
     val actualMessages = errorsFromScalaCode(code)
+    assertMessagesTextImpl(messagesConcatenated, actualMessages)
+  }
+
+  def assertErrorsWithHintsText(code: String, messagesConcatenated: String): Unit = {
+    val actualMessages = errorsWithHintsFromScalaCode(code)
     assertMessagesTextImpl(messagesConcatenated, actualMessages)
   }
 
@@ -54,15 +60,23 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
     )
   }
 
-  def errorsFromScalaCode(scalaFileText: String): List[Message] =
+  def errorsFromScalaCode(scalaFileText: String): List[Error] =
     errorsFromScalaCode(scalaFileText, s"dummy.scala")
+
+  def errorsWithHintsFromScalaCode(scalaFileText: String): List[Message] =
+    errorsWithHintsFromScalaCode(scalaFileText, s"dummy.scala")
 
   def messagesFromScalaCode(scalaFileText: String): List[Message] =
     messagesFromScalaCode(scalaFileText, s"dummy.scala")
 
-  def errorsFromScalaCode(scalaFileText: String, fileName: String): List[Message] = {
+  def errorsFromScalaCode(scalaFileText: String, fileName: String): List[Error] = {
     createFile(scalaFileText, fileName)
     errorsFromScalaCode(getFile)
+  }
+
+  def errorsWithHintsFromScalaCode(scalaFileText: String, fileName: String): List[Message] = {
+    createFile(scalaFileText, fileName)
+    errorsWithHintsFromScalaCode(getFile)
   }
 
   def messagesFromScalaCode(scalaFileText: String, fileName: String): List[Message] = {
@@ -79,19 +93,17 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
     filesCreated = true
   }
 
+  def errorsFromScalaCode(file: PsiFile): List[Error] =
+    nonEmptyMessagesFromScalaCode(file).filterByType[Error]
 
-  def errorsFromScalaCode(file: PsiFile): List[Message] = {
+  def errorsWithHintsFromScalaCode(file: PsiFile): List[Message] = {
     val errors = nonEmptyMessagesFromScalaCode(file).filterByType[Error]
 
-    if (withHints) {
-      // TODO allow to check prefix / suffix, text attributes, error tooltip
-      val hints = file.elements
-        .flatMap(AnnotatorHints.in(_).toSeq.flatMap(_.hints))
-        .map(hint => Hint(hint.element.getText, hint.parts.map(_.string).mkString, offsetDelta = hint.offsetDelta)).toList
-      hints ::: errors
-    } else {
-      errors
-    }
+    val hints = file.elements
+      .flatMap(AnnotatorHints.in(_).toSeq.flatMap(_.hints))
+      .map(hint => Hint(hint.element.getText, hint.parts.map(_.string).mkString, offsetDelta = hint.offsetDelta)).toList
+
+    hints ::: errors
   }
 
   private def nonEmptyMessagesFromScalaCode(file: PsiFile): List[Message] =

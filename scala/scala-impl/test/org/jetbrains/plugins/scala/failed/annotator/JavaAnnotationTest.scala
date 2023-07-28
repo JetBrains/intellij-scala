@@ -19,7 +19,8 @@ class JavaAnnotationTest extends JavaHighlightingTestBase() {
         |}
       """.stripMargin
 
-    assertNothing(errorsFromScalaCode(scala, java))
+    addDummyJavaFile(java)
+    assertNothing(errorsFromScalaCode(scala))
   }
 
   def testSCL11283(): Unit = {

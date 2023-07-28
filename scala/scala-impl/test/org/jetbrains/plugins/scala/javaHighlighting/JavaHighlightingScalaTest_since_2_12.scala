@@ -33,7 +33,8 @@ class JavaHighlightingScalaTest_since_2_12 extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNothing(errorsFromScalaCode(scala, java))
+    addDummyJavaFile(java)
+    assertNothing(errorsFromScalaCode(scala))
   }
 
   def testSCL15021(): Unit = {
@@ -75,7 +76,8 @@ class JavaHighlightingScalaTest_since_2_12 extends JavaHighlightingTestBase {
         |}
         |""".stripMargin
 
-    assertMessages(errorsFromScalaCode(scala, java))(
+    addDummyJavaFile(java)
+    assertMessages(errorsFromScalaCode(scala))(
       Error(
         "new java.util.TreeMap[String, Any]()",
         "Type mismatch, expected: util.Map[String, AnyRef], actual: util.TreeMap[String, Any]"
