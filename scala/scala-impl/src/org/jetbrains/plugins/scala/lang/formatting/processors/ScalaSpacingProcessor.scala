@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes, ScalaTokenTypesEx, ScalaXmlTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaTokenType, ScalaTokenTypes, ScalaTokenTypesEx, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -1111,14 +1111,21 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _ =>
       }
     }
-    if (rightPsi.isInstanceOf[ScParameters] &&
-      leftNode.getTreeParent.getPsi.isInstanceOf[ScFunction]) {
-      if (settings.SPACE_BEFORE_METHOD_PARENTHESES || (scalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES &&
-        ScalaNamesUtil.isOperatorName(leftNode.getTreeParent.getPsi.asInstanceOf[ScFunction].name)) ||
-        (scalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME &&
-          rightNode.getTreePrev.getPsi.isInstanceOf[PsiWhiteSpace]))
-        return WITH_SPACING
-      else return WITHOUT_SPACING
+    if (rightPsi.isInstanceOf[ScParameters]) {
+      leftPsiParent match {
+        case fun: ScFunction =>
+          val addSpacing = settings.SPACE_BEFORE_METHOD_PARENTHESES ||
+            (scalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES && ScalaNamesUtil.isOperatorName(fun.name)) ||
+            (scalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME && rightNode.getTreePrev.getPsi.isInstanceOf[PsiWhiteSpace])
+          return if (addSpacing) WITH_SPACING else WITHOUT_SPACING
+        case _: ScExtension =>
+          //We could add some extring setting like we do for ScFunction, but lets not do that unless we will see the demand from users
+          val result =
+            if (leftElementType == ScalaTokenType.ExtensionKeyword) WITH_SPACING //extension (param: String)
+            else WITHOUT_SPACING //extension [TypeParam](param: String)
+          return result
+        case _ =>
+      }
     }
 
     if (rightPsi.is[ScArgumentExprList, ScPatternArgumentList] && (
@@ -1178,7 +1185,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case _ =>
     }
     if (leftPsi.isInstanceOf[ScParameterClause] && rightPsi.isInstanceOf[ScParameterClause]) {
-      return WITHOUT_SPACING //todo: add setting
+      return WITHOUT_SPACING
     }
     if (rightPsi.isInstanceOf[ScPatternArgumentList] &&
       rightNode.getTreeParent.getPsi.isInstanceOf[ScConstructorPattern]) {
@@ -1296,7 +1303,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case ScalaTokenTypes.tRSQBRACKET =>
         return if (settings.SPACE_WITHIN_BRACKETS)  WITH_SPACING else WITHOUT_SPACING
       case ScalaElementType.TYPE_PARAM_CLAUSE =>
-        return if (scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST) WITH_SPACING else WITHOUT_SPACING
+        val result =
+          if (leftNodeParentElementType == EXTENSION) WITH_SPACING //"extension [T]..."s
+          else if (scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST) WITH_SPACING
+          else WITHOUT_SPACING
+        return result
       case ScalaElementType.TYPE_ARGS  =>
         return if (settings.SPACE_BEFORE_TYPE_PARAMETER_LIST) WITH_SPACING else WITHOUT_SPACING
       case ScalaElementType.TYPE_LAMBDA =>

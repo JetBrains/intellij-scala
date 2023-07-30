@@ -242,6 +242,10 @@ class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
       |    def ff: String = x.f ++ x.f
       |  end extension
       |
+      |  extension [T, E](y: D)(using String, Int)(using Long)
+      |    def gg: String = x.f ++ x.f
+      |  end extension
+      |
       |end p2
       |""".stripMargin,
     actionRepeats = 3

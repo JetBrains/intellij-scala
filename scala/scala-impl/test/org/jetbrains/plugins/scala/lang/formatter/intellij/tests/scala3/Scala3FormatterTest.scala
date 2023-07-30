@@ -407,4 +407,21 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
         |""".stripMargin
     )
   }
+
+  def testExtensions(): Unit = {
+    doTextTest(
+      """extension (p: String) def foo: String = ???
+        |
+        |extension (p: String)
+        |  def foo: String
+        |
+        |extension [T, E](y: D)(using String, Int)(using Long)
+        |  def gg: String = x.f ++ x.f
+        |
+        |extension [T, E](y: D)(using String, Int)(using Long) {
+        |  def gg: String = x.f ++ x.f
+        |}
+        |""".stripMargin
+    )
+  }
 }
