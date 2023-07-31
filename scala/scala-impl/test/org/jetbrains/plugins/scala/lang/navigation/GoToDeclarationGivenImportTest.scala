@@ -106,4 +106,19 @@ final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
        |""".stripMargin,
     expected = (is[ScGiven], "str")
   )
+
+  def testGoToGivenSelectorByType_caretAtTheEndOfLine(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  class Bar
+       |  given Bar = Bar()
+       |}
+       |
+       |object Test {
+       |  import Foo.Bar
+       |  import Foo.given Bar$CARET
+       |}
+       |""".stripMargin,
+    expected = (is[ScGiven], "given_Bar")
+  )
 }

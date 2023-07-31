@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler._
 import org.jetbrains.plugins.scala.extensions._
@@ -30,7 +31,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     if (element == null) return null
     val containingFile = element.getContainingFile
     if (containingFile == null) return null
-    val sourceElement = containingFile.findElementAt(offset)
+    val sourceElement = findSourceElement(containingFile, offset)
     if (sourceElement == null) return null
     if (!sourceElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return null
 
@@ -239,4 +240,10 @@ object ScalaGoToDeclarationHandler {
       case parameter: ScParameter                                 => parameterForSyntheticParameter(parameter).toSeq
       case _                                                      => Seq.empty
     }
+
+  @Nullable
+  private def findSourceElement(file: PsiFile, offset: Int): PsiElement = file.findElementAt(offset) match {
+    case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws)
+    case element           => element
+  }
 }
