@@ -20,6 +20,10 @@ abstract class GotoDeclarationTestBase extends GoToTestBase {
         .map(_.getNavigationElement)
         .toSet
 
+    checkTargets(targets, expected)
+  }
+
+  protected def checkTargets(targets: Iterable[PsiElement], expected: Seq[(PsiElement => Boolean, String)]): Unit = {
     assertEquals("Wrong number of targets: ", expected.size, targets.size)
 
     val wrongTargets = for {
@@ -104,7 +108,7 @@ class GoToDeclarationTest extends GotoDeclarationTestBase {
        |import org.example.foo.b${CARET}ar
      """.stripMargin,
     expected = (isPackageObject, "org.example.foo.bar"),
-    (_.isInstanceOf[PsiPackage], "org.example.foo.bar")
+    (is[PsiPackage], "org.example.foo.bar")
   )
 
   def testImportSelectorsMixed(): Unit = doTest(
@@ -121,7 +125,7 @@ class GoToDeclarationTest extends GotoDeclarationTestBase {
        |
        |import org.example.foo.ba${CARET}r.{Bar, baz}
      """.stripMargin,
-    (_.isInstanceOf[PsiPackage], "org.example.foo.bar"),
+    (is[PsiPackage], "org.example.foo.bar"),
     (isPackageObject, "org.example.foo.bar")
   )
 
@@ -203,12 +207,12 @@ class GoToDeclarationTest extends GotoDeclarationTestBase {
 
   def testLibraryClassParam(): Unit = doTestFromLibrarySource(
     s"""import scala.util.Failure
-      |
-      |object Test {
-      |  val f: Failure[Unit] = ???
-      |  f.${CARET}exception
-      |}
-      |""".stripMargin,
+       |
+       |object Test {
+       |  val f: Failure[Unit] = ???
+       |  f.${CARET}exception
+       |}
+       |""".stripMargin,
     expected = (is[ScClassParameter], "exception")
   )
 

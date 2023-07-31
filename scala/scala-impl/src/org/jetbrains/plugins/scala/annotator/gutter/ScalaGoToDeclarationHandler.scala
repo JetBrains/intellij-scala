@@ -9,15 +9,16 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.IsTemplateDefinition
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScEnd, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScEnumerator, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelector, ScImportSelectors}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 
@@ -41,6 +42,9 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     }
 
     sourceElement.getNode.getElementType match {
+      case ScalaTokenType.GivenKeyword if maybeParent.exists(_.is[ScImportSelector]) =>
+        getGotoDeclarationTargetsForGivenImport(maybeParent)
+
       case IsTemplateDefinition() =>
         PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition]) match {
           case null => null
@@ -95,6 +99,30 @@ object ScalaGoToDeclarationHandler {
       .map { expr => getGotoDeclarationTargetsForElement(expr, Some(expr))}
       .orNull
   }
+
+  private def getGotoDeclarationTargetsForGivenImport(maybeParent: Option[PsiElement]): Array[PsiElement] =
+    maybeParent
+      .collect { case selector: ScImportSelector if selector.isGivenSelector =>
+        val members = selector
+          .parentImportExpression
+          .reference
+          .flatMap(_.resolve().toOption)
+          .filterByType[ScTemplateDefinition]
+          .toSeq
+          .flatMap(_.members)
+
+        val givens = selector.givenTypeElement match {
+          case Some(typeElement) => members.filter {
+            case (_: ScGiven) & Typeable(givenType) =>
+              typeElement.`type`().exists(givenType.conforms)
+            case _ => false
+          }
+          case None => members.filterByType[ScGiven]
+        }
+
+        givens.toArray[PsiElement]
+      }
+      .orNull
 
   private def getGotoDeclarationTargetsForElement(reference: PsiReference,
                                                   maybeParent: Option[PsiElement]): Array[PsiElement] = {
