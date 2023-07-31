@@ -247,7 +247,7 @@ object Main {
 
     val consumer: java.util.function.Consumer[String] = _ => ()
 
-    method.invoke(instance, outDir, "CompiledExpression", classpath.mkString(":"), scalacOptions.toArray, source, line,
+    method.invoke(instance, outDir, "CompiledExpression", classpath.mkString(File.pathSeparator), scalacOptions.toArray, source, line,
       expression, localVariableNames.asJava, packageName, consumer, false)
   }
 
