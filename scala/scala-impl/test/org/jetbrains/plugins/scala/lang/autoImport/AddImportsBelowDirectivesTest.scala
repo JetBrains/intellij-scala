@@ -14,6 +14,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
 
     val expected =
       s"""$Directive
+        |
         |import $ImportName
         |
         |val x = $ExprThatNeedsImport
@@ -31,6 +32,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
 
     val expected =
       s"""$Directive
+        |
         |import $ImportName
         |
         |// comment
@@ -52,6 +54,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
       s"""$Directive
         |// comment
         |$Directive
+        |
         |import $ImportName
         |
         |val x = $ExprThatNeedsImport
@@ -69,6 +72,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
 
     val expected =
       s"""$Directive
+        |
         |import $ImportName
         |
         |/* comment */
@@ -90,6 +94,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
       s"""$Directive
         |/* comment */
         |$Directive
+        |
         |import $ImportName
         |
         |val x = $ExprThatNeedsImport
@@ -107,6 +112,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
 
     val expected =
       s"""$Directive
+        |
         |import $ImportName
         |
         |/** ScalaDoc */
@@ -128,6 +134,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
       s"""$Directive
         |/** ScalaDoc */
         |$Directive
+        |
         |import $ImportName
         |
         |val x = $ExprThatNeedsImport

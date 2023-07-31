@@ -322,11 +322,18 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
         //ScalaImportOptimizer only works with import ranges
         //So we insert a temporary dummy import to simply replace it with a well-formatted import
         val dummyImport: ScImportStmt = ScalaPsiElementFactory.createImportFromText("import dummy.dummy", this)
-        val inserted = insertFirstImport(dummyImport, determineAnchor(getFirstChild)).asInstanceOf[ScImportStmt]
+
+        val anchor = determineAnchor(getFirstChild)
+
+        if (!anchor.getParent.is[ScPackaging]) {
+          getNode.addChildren(ScalaPsiElementFactory.createNewLine().getNode, null, anchor.getNode)
+        }
+
+        val inserted = insertFirstImport(dummyImport, anchor)
+
         val psiAnchor = PsiAnchor.create(inserted)
         val rangeInfo = RangeInfo(psiAnchor, psiAnchor, Seq((dummyImport, importInfosToAdd)), usedImportedNames = Set.empty, isLocal = false)
         val infosToAdd = ScalaImportOptimizer.optimizedImportInfos(rangeInfo, settings)
-
         Some((rangeInfo, infosToAdd))
       }
       else {
