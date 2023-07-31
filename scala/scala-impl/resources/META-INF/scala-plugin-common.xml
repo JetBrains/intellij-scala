@@ -579,7 +579,7 @@
         <registryKey key="scalafmt.min.time.between.format.on.save.action.ms" defaultValue="300" restartRequired="false"
                      description="Minimum allowed time between 'Format on Save' triggers (when Scalafmt formatter is enabled)"/>
 
-        <registryKey key="scala.compiler.highlighting.suppress.java.highlighting" defaultValue="true" restartRequired="false"
+        <registryKey key="scala.compiler.highlighting.suppress.java.highlighting" defaultValue="false" restartRequired="false"
                      description="If enabled, Scala 3 compiler based highlighting suppresses built-in highlighting of Java files in mixed Scala 3 and Java projects (Java are not highlighted)"/>
 
         <registryKey key="scala.xray.mode" defaultValue="false" restartRequired="false"
