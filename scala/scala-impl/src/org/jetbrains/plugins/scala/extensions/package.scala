@@ -1271,6 +1271,17 @@ package object extensions {
   }
 
   implicit class IteratorExt[A](private val delegate: Iterator[A]) extends AnyVal {
+    def findLast(p: A => Boolean): Option[A] = {
+      var last: Option[A] = None
+      while (delegate.hasNext) {
+        val current = delegate.next()
+        if (p(current)) {
+          last = Some(current)
+        }
+      }
+      last
+    }
+    
     def findByType[T: ClassTag]: Option[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
       delegate.find(aClass.isInstance).asInstanceOf[Option[T]]
