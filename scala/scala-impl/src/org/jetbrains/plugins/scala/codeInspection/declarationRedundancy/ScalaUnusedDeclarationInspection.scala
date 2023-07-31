@@ -34,7 +34,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
   var reportLocalDeclarations: Int = 0
 
   @BooleanBeanProperty
-  var enableInScala3: Boolean = false
+  var enableInScala3: Boolean = true //TODO
 
   override def getOptionsPane: OptPane = pane(
     checkbox(reportPublicDeclarationsPropertyName, ScalaInspectionBundle.message("name.unused.declaration.report.public.declarations")),
