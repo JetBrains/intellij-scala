@@ -32,7 +32,7 @@ final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
     expected = (is[ScGiven], "str"), (is[ScGiven], "given_Int")
   )
 
-  def testGoToGivenSelectorByType(): Unit = doTest(
+  def testGoToGivenSelectorByType_caretOnKeyword(): Unit = doTest(
     s"""
        |object Foo {
        |  given str: String = "foo"
@@ -44,6 +44,53 @@ final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
        |}
        |""".stripMargin,
     expected = (is[ScGiven], "given_Int")
+  )
+
+  def testGoToGivenSelectorByType_caretOnType(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  class Bar
+       |  given Bar = Bar()
+       |}
+       |
+       |object Test {
+       |  import Foo.Bar
+       |  import Foo.given B${CARET}ar
+       |}
+       |""".stripMargin,
+    expected = (is[ScGiven], "given_Bar")
+  )
+
+  def testGoToGivenSelectorByType_caretOnTypeParameter(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  class Bar
+       |  given List[Bar] = Bar() :: Nil
+       |  given List[String] = "foo" :: Nil
+       |}
+       |
+       |object Test {
+       |  import Foo.Bar
+       |  import Foo.given List[Ba${CARET}r]
+       |}
+       |""".stripMargin,
+    expected = (is[ScGiven], "given_List_Bar")
+  )
+
+  def testGoToGivenSelectorByType_caretOnParameterizedType(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  class Bar
+       |  given List[Bar] = Bar() :: Nil
+       |  given List[String] = "foo" :: Nil
+       |}
+       |
+       |object Test {
+       |  import Foo.Bar
+       |  import Foo.given Li${CARET}st[Bar]
+       |}
+       |""".stripMargin,
+    expected = (is[ScGiven], "given_List_Bar")
   )
 
   def testGoToImportedGivenName(): Unit = doTest(

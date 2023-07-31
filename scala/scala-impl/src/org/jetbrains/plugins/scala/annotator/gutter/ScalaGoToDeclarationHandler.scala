@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.IsTemplateDefinitio
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
-import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScEnd, ScPrimaryConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScEnd, ScPrimaryConstructor, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScEnumerator, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction}
@@ -81,7 +81,13 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
         if (reference == null)
           return null
 
-        getGotoDeclarationTargetsForElement(reference, maybeParent)
+        val maybeGivenSelector =
+          if (reference.is[ScStableCodeReference])
+            PsiTreeUtil.getParentOfType(element, classOf[ScImportSelector]).toOption.filter(_.isGivenSelector)
+          else None
+
+        if (maybeGivenSelector.isEmpty) getGotoDeclarationTargetsForElement(reference, maybeParent)
+        else getGotoDeclarationTargetsForGivenImport(maybeGivenSelector)
 
       case _ => null
     }
