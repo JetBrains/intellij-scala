@@ -108,16 +108,14 @@ object ScalaGoToDeclarationHandler {
   }
 
   private def getGotoDeclarationTargetsForGivenImport(maybeParent: Option[PsiElement]): Array[PsiElement] =
-    maybeParent
-      .collect { case selector: ScImportSelector if selector.isGivenSelector =>
-        val members = selector
+    maybeParent match {
+      case Some(selector: ScImportSelector) if selector.isGivenSelector =>
+        val reference = selector
           .parentImportExpression
           .reference
-          .flatMap(_.resolve().toOption)
-          .filterByType[ScTemplateDefinition]
-          .toSeq
-          .flatMap(_.members)
-
+        val resolved = reference.flatMap(_.resolve().toOption)
+        val maybeTypeDef = resolved.flatMap(extractTypeDef)
+        val members = maybeTypeDef.toSeq.flatMap(_.members)
         val givens = selector.givenTypeElement match {
           case Some(typeElement) => members.filter {
             case (_: ScGiven) & Typeable(givenType) =>
@@ -128,8 +126,8 @@ object ScalaGoToDeclarationHandler {
         }
 
         givens.toArray[PsiElement]
-      }
-      .orNull
+      case _ => null
+    }
 
   private def getGotoDeclarationTargetsForElement(reference: PsiReference,
                                                   maybeParent: Option[PsiElement]): Array[PsiElement] = {
@@ -245,5 +243,11 @@ object ScalaGoToDeclarationHandler {
   private def findSourceElement(file: PsiFile, offset: Int): PsiElement = file.findElementAt(offset) match {
     case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws)
     case element           => element
+  }
+
+  private def extractTypeDef(element: PsiElement): Option[ScTemplateDefinition] = element match {
+    case td: ScTemplateDefinition => Some(td)
+    case Typeable(tpe)            => tpe.extractClass.filterByType[ScTemplateDefinition]
+    case _                        => None
   }
 }

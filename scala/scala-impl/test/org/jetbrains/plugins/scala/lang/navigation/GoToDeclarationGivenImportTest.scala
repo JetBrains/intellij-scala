@@ -43,6 +43,25 @@ final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
     expected = (is[ScGiven], "str"), (is[ScGiven], "given_Int")
   )
 
+  def testGoToWildcardGivenFromInstance(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  class Bar(val i: Int) {
+       |    given number: Int = i * 2
+       |  }
+       |}
+       |
+       |object Test {
+       |  import Foo.Bar
+       |
+       |  val bar = Bar(21)
+       |
+       |  import bar.giv${CARET}en
+       |}
+       |""".stripMargin,
+    expected = (is[ScGiven], "number")
+  )
+
   def testGoToGivenSelectorByType_caretOnKeyword(): Unit = doTest(
     s"""
        |object Foo {
@@ -152,6 +171,25 @@ final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
        |}
        |""".stripMargin,
     expected = (is[ScGiven], "str")
+  )
+
+  def testGoToImportedGivenNameFromInstance(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  class Bar(val i: Int) {
+       |    given number: Int = i * 2
+       |  }
+       |}
+       |
+       |object Test {
+       |  import Foo.Bar
+       |
+       |  val bar = Bar(21)
+       |
+       |  import bar.num${CARET}ber
+       |}
+       |""".stripMargin,
+    expected = (is[ScGiven], "number")
   )
 
   def testGoToGivenSelectorByType_caretAtTheEndOfLine(): Unit = doTest(
