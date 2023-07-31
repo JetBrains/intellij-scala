@@ -14,6 +14,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
 
     val expected =
       s"""$Directive
+        |
         |import $ImportName
         |
         |val x = $ExprThatNeedsImport
@@ -31,6 +32,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
 
     val expected =
       s"""$Directive
+        |
         |import $ImportName
         |
         |// comment
@@ -52,6 +54,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
       s"""$Directive
         |// comment
         |$Directive
+        |
         |import $ImportName
         |
         |val x = $ExprThatNeedsImport
@@ -69,6 +72,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
 
     val expected =
       s"""$Directive
+        |
         |import $ImportName
         |
         |/* comment */
@@ -90,6 +94,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
       s"""$Directive
         |/* comment */
         |$Directive
+        |
         |import $ImportName
         |
         |val x = $ExprThatNeedsImport
@@ -107,6 +112,7 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
 
     val expected =
       s"""$Directive
+        |
         |import $ImportName
         |
         |/** ScalaDoc */
@@ -128,10 +134,35 @@ class AddImportsBelowDirectivesTest extends ScalaImportTypeFixTestBase {
       s"""$Directive
         |/** ScalaDoc */
         |$Directive
+        |
         |import $ImportName
         |
         |val x = $ExprThatNeedsImport
         |""".stripMargin
+
+    doTest(code, expected, ImportName)
+  }
+
+  def test_directive_followed_by_comment_statement_comment_statement(): Unit = {
+    val code =
+      s"""$Directive
+         |// comment
+         |println("")
+         |// comment
+         |println("")
+         |val x = $CARET$ExprThatNeedsImport
+         |""".stripMargin
+
+    val expected =
+      s"""$Directive
+         |
+         |import $ImportName
+         |// comment
+         |println("")
+         |// comment
+         |println("")
+         |val x = $ExprThatNeedsImport
+         |""".stripMargin
 
     doTest(code, expected, ImportName)
   }

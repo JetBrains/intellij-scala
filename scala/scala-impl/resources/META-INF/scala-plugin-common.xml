@@ -133,6 +133,9 @@
                                 implementationClass="org.jetbrains.plugins.scalaDoc.highlighter.ScalaDocSyntaxHighlighter"/>
         <lang.syntaxHighlighter language="ScalaDirective"
                                 implementationClass="org.jetbrains.plugins.scalaDirective.highlighter.ScalaDirectiveSyntaxHighlighter"/>
+
+        <lang.tokenSeparatorGenerator language="ScalaDirective" implementationClass="org.jetbrains.plugins.scala.lang.ScalaTokenSeparatorGenerator"/>
+
         <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>
         <additionalTextAttributes scheme="Darcula" file="colorSchemes/ScalaDarcula.xml"/>
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider" order="last"/>
