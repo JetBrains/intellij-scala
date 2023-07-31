@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -62,7 +63,7 @@ private case class AstChildrenBuffer(parent: ASTNode,
 
   def insert(idx: Int, toInsert: Seq[ASTNode]): Unit = {
     val anchorBefore = get(idx)
-    parent.addChildren(toInsert.head, toInsert.last.getTreeNext, anchorBefore)
+    CodeEditUtil.addChildren(parent, toInsert.head, toInsert.last, anchorBefore)
 
     lastElemIndex += toInsert.size
   }
