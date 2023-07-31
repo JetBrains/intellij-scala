@@ -19,9 +19,6 @@ trait ScGiven extends ScalaPsiElement
 
   // TODO Why it's a subtype of ScNamedElement if there might be no name?
   def nameElement: Option[PsiElement]
-
-  override def getNavigationElement: PsiElement =
-    if (nameElement.isDefined) super.getNavigationElement else getFirstChild
 }
 
 object ScGiven {

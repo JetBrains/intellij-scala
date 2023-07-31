@@ -18,6 +18,17 @@ final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
     checkTargets(targets, expected)
   }
 
+  private val ExpectedCaret = "<expected-caret>"
+  private val ActionId = "GotoDeclaration"
+
+  private def checkNavigation(fileText: String): Unit = {
+    configureFromFileText(fileText.replace(ExpectedCaret, ""))
+    myFixture.performEditorAction(ActionId)
+
+    val expectedText = fileText.replace(CARET, "").replace(ExpectedCaret, CARET)
+    myFixture.checkResult(expectedText.trim, true)
+  }
+
   def testGoToWildcardGiven(): Unit = doTest(
     s"""
        |object Foo {
@@ -93,6 +104,42 @@ final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
     expected = (is[ScGiven], "given_List_Bar")
   )
 
+  def testGoToGivenSelectorByType_compoundDefinition(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  trait Bar
+       |  trait Baz
+       |  given barBaz: Bar with Baz with {
+       |    val x = 2
+       |  }
+       |}
+       |
+       |object Test {
+       |  import Foo.*
+       |  import Foo.given Ba${CARET}r
+       |}
+       |""".stripMargin,
+    expected = (is[ScGiven], "Foo.barBaz")
+  )
+
+  def testGoToGivenSelectorByType_compoundDefinition2(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  trait Bar
+       |  trait Baz
+       |  given barBaz: Bar with Baz with {
+       |    val x = 2
+       |  }
+       |}
+       |
+       |object Test {
+       |  import Foo.*
+       |  import Foo.given Ba${CARET}z
+       |}
+       |""".stripMargin,
+    expected = (is[ScGiven], "Foo.barBaz")
+  )
+
   def testGoToImportedGivenName(): Unit = doTest(
     s"""
        |object Foo {
@@ -120,5 +167,76 @@ final class GoToDeclarationGivenImportTest extends GotoDeclarationTestBase {
        |}
        |""".stripMargin,
     expected = (is[ScGiven], "given_Bar")
+  )
+
+  def testNavigation_namedGivenAlias(): Unit = checkNavigation(
+    s"""
+       |object Foo {
+       |  given ${ExpectedCaret}number: Int = 2
+       |}
+       |
+       |object Test {
+       |  import Foo.giv${CARET}en
+       |}
+       |""".stripMargin
+  )
+
+  def testNavigation_anonymousGivenAlias(): Unit = checkNavigation(
+    s"""
+       |object Foo {
+       |  given ${ExpectedCaret}Int = 2
+       |}
+       |
+       |object Test {
+       |  import Foo.giv${CARET}en
+       |}
+       |""".stripMargin
+  )
+
+  def testNavigation_namedGivenDefinition(): Unit = checkNavigation(
+    s"""
+       |object Foo {
+       |  class Bar
+       |  given ${ExpectedCaret}bar: Bar with {
+       |    val x = 2
+       |  }
+       |}
+       |
+       |object Test {
+       |  import Foo.giv${CARET}en
+       |}
+       |""".stripMargin
+  )
+
+  def testNavigation_anonymousGivenDefinition(): Unit = checkNavigation(
+    s"""
+       |object Foo {
+       |  class Bar
+       |  given ${ExpectedCaret}Bar with {
+       |    val x = 2
+       |  }
+       |}
+       |
+       |object Test {
+       |  import Foo.giv${CARET}en
+       |}
+       |""".stripMargin
+  )
+
+  def testNavigation_compoundAnonymousGivenDefinition(): Unit = checkNavigation(
+    s"""
+       |object Foo {
+       |  trait Bar
+       |  trait Baz
+       |  given ${ExpectedCaret}Bar with Baz with {
+       |    val x = 2
+       |  }
+       |}
+       |
+       |object Test {
+       |  import Foo.Bar
+       |  import Foo.given Ba${CARET}r
+       |}
+       |""".stripMargin
   )
 }

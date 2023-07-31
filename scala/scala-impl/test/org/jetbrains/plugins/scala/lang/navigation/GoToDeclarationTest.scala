@@ -28,9 +28,10 @@ abstract class GotoDeclarationTestBase extends GoToTestBase {
 
     val wrongTargets = for {
       (actualElement, (predicate, expectedName)) <- targets.zip(expected)
+      actualName = this.actualName(actualElement)
 
-      if !predicate(actualElement) || actualName(actualElement) != expectedName
-    } yield actualElement
+      if !predicate(actualElement) || actualName != expectedName
+    } yield actualElement -> actualName
 
     assertTrue("Wrong targets: " + wrongTargets, wrongTargets.isEmpty)
   }
