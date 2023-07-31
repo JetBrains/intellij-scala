@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.lookup.LookupElementPresentation
-import com.intellij.codeInsight.lookup.impl.JavaElementLookupRenderer.isDeprecated
 import com.intellij.psi.PsiNamedElement
 import com.intellij.util.IconUtil.getEmptyIcon
+import com.siyeh.ig.psiutils.JavaDeprecationUtils.isDeprecated
 
 package object lookups {
 
@@ -12,7 +12,7 @@ package object lookups {
 
     def setStrikeout(element: PsiNamedElement): Unit =
       presentation.setStrikeout {
-        isReal && isDeprecated(element)
+        isReal && isDeprecated(element, null)
       }
 
     def setIcon(element: PsiNamedElement): Unit = presentation.setIcon {
