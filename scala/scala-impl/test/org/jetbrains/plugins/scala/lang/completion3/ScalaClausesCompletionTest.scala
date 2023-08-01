@@ -653,6 +653,61 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          """.stripMargin
   )
 
+  def testInnerJavaEnum(): Unit = {
+    configureJavaFile(
+      """
+        |public class Scope {
+        |  public enum Color {
+        |    Red, Green, Blue
+        |  }
+        |}
+        |""".stripMargin,
+      "Scope"
+    )
+
+    doMatchCompletionTest(
+      fileText =
+        s"""(_: Scope.Color) m$CARET
+         """.stripMargin,
+      resultText =
+        s"""(_: Scope.Color) match {
+           |  case Scope.Color.Red => $START$CARET???$END
+           |  case Scope.Color.Green => ???
+           |  case Scope.Color.Blue => ???
+           |}
+         """.stripMargin
+    )
+  }
+
+  def testInnerJavaEnum2(): Unit = {
+    configureJavaFile(
+      """public class Scope {
+        |  public enum Color {
+        |    Red, Green, Blue
+        |  }
+        |}
+        |""".stripMargin,
+      "Scope"
+    )
+
+    doMatchCompletionTest(
+      fileText =
+        s"""import Scope.Color
+           |
+           |(_: Color) m$CARET
+           |""".stripMargin,
+      resultText =
+        s"""import Scope.Color
+           |
+           |(_: Color) match {
+           |  case Scope.Color.Red => $START$CARET???$END
+           |  case Scope.Color.Green => ???
+           |  case Scope.Color.Blue => ???
+           |}
+         """.stripMargin
+    )
+  }
+
   def testEmptyJavaEnum(): Unit = {
     configureJavaFile(
       "public enum EmptyEnum {}",
@@ -722,6 +777,42 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |  case Margin.Bottom => ???
          |  case Margin.Left => ???
          |  case Margin.Right => ???
+         |}
+       """.stripMargin
+  )
+
+  def testInnerScalaEnumeration(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""object Scope {
+         |  object Margin extends Enumeration {
+         |    type Margin = Value
+         |
+         |    val TOP, BOTTOM = Value
+         |    val LEFT, RIGHT = Value
+         |
+         |    private val NULL = Value
+         |  }
+         |}
+         |
+         |(_: Scope.Margin.Margin) m$CARET
+       """.stripMargin,
+    resultText =
+      s"""object Scope {
+         |  object Margin extends Enumeration {
+         |    type Margin = Value
+         |
+         |    val TOP, BOTTOM = Value
+         |    val LEFT, RIGHT = Value
+         |
+         |    private val NULL = Value
+         |  }
+         |}
+         |
+         |(_: Scope.Margin.Margin) match {
+         |  case Scope.Margin.TOP => $START$CARET???$END
+         |  case Scope.Margin.BOTTOM => ???
+         |  case Scope.Margin.LEFT => ???
+         |  case Scope.Margin.RIGHT => ???
          |}
        """.stripMargin
   )

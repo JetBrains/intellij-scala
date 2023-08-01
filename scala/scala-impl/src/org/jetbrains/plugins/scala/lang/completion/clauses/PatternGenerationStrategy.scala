@@ -64,7 +64,7 @@ object PatternGenerationStrategy {
           case Seq() => null
           case _ => new EnumGenerationStrategy(enumClass, enumClass.qualifiedName, membersNames)
         }
-      case ScDesignatorType(enumClass@JavaEnum(enumConstants)) =>
+      case DesignatorOwner(enumClass@JavaEnum(enumConstants)) =>
         enumConstants match {
           case Seq() => null
           case _ =>
