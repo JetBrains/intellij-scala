@@ -1982,7 +1982,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
       s"""
          |class A {
          |  class BBBBB
-         |  new BBBBB($CARET)
+         |  new BBBBB$CARET
          |}
       """.stripMargin,
     item = "BBBBB"
@@ -2011,7 +2011,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
          |}
          |
          |object Test {
-         | new ScalaClass($CARET)
+         | new ScalaClass$CARET
          |}
       """.stripMargin,
     item = "ScalaClass"
