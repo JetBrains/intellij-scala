@@ -87,4 +87,33 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |    case MyEnum.Bar(value) => ???
        """.stripMargin
   )
+
+  def testInnerScala3Enum(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""object Scope:
+         |  enum Direction:
+         |    case North, South
+         |    case West, East
+         |end Scope
+         |
+         |object O:
+         |  (_: Scope.Direction) m$CARET
+       """.stripMargin,
+    resultText =
+      s"""import Scope.Direction
+         |
+         |object Scope:
+         |  enum Direction:
+         |    case North, South
+         |    case West, East
+         |end Scope
+         |
+         |object O:
+         |  (_: Scope.Direction) match
+         |    case Direction.North => $START$CARET???$END
+         |    case Direction.South => ???
+         |    case Direction.West => ???
+         |    case Direction.East => ???
+       """.stripMargin
+  )
 }
