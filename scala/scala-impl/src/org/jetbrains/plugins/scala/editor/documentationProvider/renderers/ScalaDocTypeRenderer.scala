@@ -12,6 +12,24 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
 private [documentationProvider] object ScalaDocTypeRenderer {
   import org.apache.commons.lang.StringEscapeUtils.escapeHtml
+  import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils._
+
+  private val annotationsRenderer = new NameRenderer {
+    override def renderName(e: PsiNamedElement): String = nameFun(e, withPoint = false)
+
+    override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
+
+    private def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
+      val res = e match {
+        case clazz: PsiClass =>
+          clazz.qualifiedNameOpt
+            .fold(escapeName(clazz.name))(_ => classLinkWithLabel(clazz, clazz.name, defLinkHighlight = false, isAnnotation = true))
+        case _ =>
+          psiElement(e, Some(e.name))
+      }
+      res + TypePresentation.pointStr(withPoint && res.nonEmpty)
+    }
+  }
 
   private val renderer: NameRenderer = new NameRenderer {
     override def escapeName(e: String): String = escapeHtml(e)
@@ -21,7 +39,6 @@ private [documentationProvider] object ScalaDocTypeRenderer {
     override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
 
     private def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
-      import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils._
       val res = e match {
         case o: ScObject if withPoint && TypePresentation.isPredefined(o) => ""
         case _: PsiPackage if withPoint => ""
@@ -48,6 +65,12 @@ private [documentationProvider] object ScalaDocTypeRenderer {
     val presentableContext =
       originalElement.fold(TypePresentationContext.emptyContext)(TypePresentationContext.psiElementPresentationContext)
     _.typeText(renderer, options)(presentableContext)
+  }
+
+  def forAnnotations(originalElement: Option[PsiElement]): TypeRenderer = {
+    val presentableContext =
+      originalElement.fold(TypePresentationContext.emptyContext)(TypePresentationContext.psiElementPresentationContext)
+    _.typeText(annotationsRenderer, options)(presentableContext)
   }
 
   def apply(originalElement: PsiElement, substitutor: ScSubstitutor): TypeRenderer =
