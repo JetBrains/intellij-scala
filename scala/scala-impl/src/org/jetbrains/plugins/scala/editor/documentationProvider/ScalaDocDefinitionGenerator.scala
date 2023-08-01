@@ -192,8 +192,10 @@ private class ScalaDocDefinitionGenerator private(
 
   private lazy val typeAnnotationRenderer: TypeAnnotationRenderer =
     new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorateOptions.DecorateAll)
+  private lazy val annotationsTypeRenderer =
+    ScalaDocTypeRenderer.forAnnotations(originalElement)
   private lazy val annotationsRenderer =
-    new ScalaDocAnnotationRenderer()
+    new ScalaDocAnnotationRenderer(annotationsTypeRenderer)
   private lazy val typeParamsRenderer =
     new TypeParamsRenderer(typeRenderer, new TypeBoundsRenderer(Html))
   private lazy val definitionParamsRenderer: ParametersRenderer =

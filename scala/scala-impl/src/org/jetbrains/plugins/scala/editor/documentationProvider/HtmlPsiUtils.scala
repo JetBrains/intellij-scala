@@ -36,9 +36,10 @@ private [documentationProvider] object HtmlPsiUtils {
     }
   }
 
-  def classLinkWithLabel(clazz: PsiClass, label: String, defLinkHighlight: Boolean): String = {
+  def classLinkWithLabel(clazz: PsiClass, label: String, defLinkHighlight: Boolean, isAnnotation: Boolean = false): String = {
     val attributesKey =
       if (defLinkHighlight) None
+      else if (isAnnotation) Some(DefaultHighlighter.ANNOTATION)
       else Some(ScalaColorsSchemeUtils.textAttributesKey(clazz))
     psiElementLink(clazz.qualifiedName, label, attributesKey = attributesKey)
   }
