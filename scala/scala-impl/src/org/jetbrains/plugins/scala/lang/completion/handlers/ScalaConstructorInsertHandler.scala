@@ -42,12 +42,19 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
 
     val model = editor.getCaretModel
     element.getPsiElement match {
-      case _: ScObject =>
-        if (isAfterNew && context.getCompletionChar != '.') {
-          document.insertString(endOffset, ".")
-          endOffset += 1
-          model.moveToOffset(endOffset)
-          context.scheduleAutoPopup()
+      case obj: ScObject =>
+        if (isAfterNew) {
+          if (context.getCompletionChar != '.') {
+            document.insertString(endOffset, ".")
+            endOffset += 1
+            model.moveToOffset(endOffset)
+            context.scheduleAutoPopup()
+          }
+        } else {
+          PsiDocumentManager.getInstance(project).commitDocument(document)
+          onCallOrReference(file, startOffset, call = false) { ref =>
+            if (!isRenamed) simplifyReference(obj, ref).bindToElement(obj)
+          }
         }
       case clazz: PsiClass =>
         var needsEmptyParens = false
