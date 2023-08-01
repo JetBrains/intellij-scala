@@ -4,7 +4,7 @@ import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.SharedTestProjectToken
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
@@ -270,6 +270,27 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
         """.stripMargin,
     item = "StandardCharsets"
   )
+
+  // SCL-21466
+  def testAutoImportObjectWithoutNew(): Unit = doRawCompletionTest(
+    fileText =
+      s"""
+         |object Test {
+         |  def main(args: Array[String]): Unit = {
+         |    Futu$CARET
+         |  }
+         |}
+        """.stripMargin,
+    resultText =
+      s"""import scala.concurrent.Future
+         |
+         |object Test {
+         |  def main(args: Array[String]): Unit = {
+         |    Future$CARET
+         |  }
+         |}
+        """.stripMargin
+  )(lookupItem => ScalaCompletionTestBase.hasLookupString(lookupItem, "Future") && lookupItem.getPsiElement.is[ScObject])
 }
 
 @RunWithScalaVersions(Array(
