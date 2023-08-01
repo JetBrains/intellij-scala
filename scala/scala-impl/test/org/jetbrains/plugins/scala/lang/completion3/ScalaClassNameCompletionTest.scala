@@ -248,6 +248,28 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
       ScalaCompletionTestBase.hasItemText(_, "Foo")(typeText = "")
     }
   }
+
+  // SCL-21466
+  def testAutoImportWithoutNew(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |object Test {
+         |  def main(args: Array[String]): Unit = {
+         |    StandardCh$CARET
+         |  }
+         |}
+        """.stripMargin,
+    resultText =
+      s"""import java.nio.charset.StandardCharsets
+         |
+         |object Test {
+         |  def main(args: Array[String]): Unit = {
+         |    StandardCharsets$CARET
+         |  }
+         |}
+        """.stripMargin,
+    item = "StandardCharsets"
+  )
 }
 
 @RunWithScalaVersions(Array(

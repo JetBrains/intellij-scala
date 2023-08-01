@@ -38,10 +38,12 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
     val lookupStringLength = element.getLookupString.length
     var endOffset = startOffset + lookupStringLength
 
+    val isAfterNew = afterNewKeywordPattern.accepts(file.findElementAt(startOffset))
+
     val model = editor.getCaretModel
     element.getPsiElement match {
       case _: ScObject =>
-        if (context.getCompletionChar != '.') {
+        if (isAfterNew && context.getCompletionChar != '.') {
           document.insertString(endOffset, ".")
           endOffset += 1
           model.moveToOffset(endOffset)
@@ -55,7 +57,7 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
               case Some(constr)
                 if constr.parameters.nonEmpty ||
                   // universal apply
-                  file.isScala3File && !afterNewKeywordPattern.accepts(file.findElementAt(startOffset)) =>
+                  file.isScala3File && !isAfterNew =>
                 needsEmptyParens = true
               case _ =>
             }
@@ -96,19 +98,20 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
         }
         PsiDocumentManager.getInstance(project).commitDocument(document)
 
-        onDefinitionOrMethodCall(file, startOffset) { newTemplateDefinition =>
-          newTemplateDefinition.extendsBlock.templateParents.toSeq.flatMap(_.typeElements) match {
-            case Seq(ScSimpleTypeElement.unwrapped(reference)) if !isRenamed =>
-              simplifyReference(clazz, reference).bindToElement(clazz)
-            case _ =>
+        if (isAfterNew) {
+          onDefinition(file, startOffset) { newTemplateDefinition =>
+            newTemplateDefinition.extendsBlock.templateParents.toSeq.flatMap(_.typeElements) match {
+              case Seq(ScSimpleTypeElement.unwrapped(reference)) if !isRenamed =>
+                simplifyReference(clazz, reference).bindToElement(clazz)
+              case _ =>
+            }
+
+            ScalaPsiUtil.adjustTypes(newTemplateDefinition)
           }
-
-          ScalaPsiUtil.adjustTypes(newTemplateDefinition)
-        } { ref =>
-          if (file.isScala3File && !isRenamed) {
-            simplifyReference(clazz, ref).bindToElement(clazz)
-
-            ScalaPsiUtil.adjustTypes(ref)
+        } else if (file.isScala3File) {
+          val lookForCall = needsEmptyParens && !clazz.is[ScEnumCase]
+          onCallOrReference(file, startOffset, lookForCall) { ref =>
+            if (!isRenamed) simplifyReference(clazz, ref).bindToElement(clazz)
           }
         }
 
@@ -131,11 +134,13 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
     }
   }
 
-  private def simplifyReference(`class`: PsiClass, reference: ScStableCodeReference): ScStableCodeReference =
-    doSimplifyReference(`class`, reference, createReferenceFromText(_)(`class`))
-
-  private def simplifyReference(`class`: PsiClass, reference: ScReferenceExpression): ScReferenceExpression =
-    doSimplifyReference(`class`, reference, createReferenceExpressionFromText(_)(`class`))
+  private def simplifyReference(`class`: PsiClass, reference: ScReference): ScReference = reference match {
+    case ref: ScStableCodeReference =>
+      doSimplifyReference(`class`, ref, createReferenceFromText(_)(`class`))
+    case ref: ScReferenceExpression =>
+      doSimplifyReference(`class`, ref, createReferenceExpressionFromText(_)(`class`))
+    case _ => reference
+  }
 
   private def doSimplifyReference[Ref <: ScReference](`class`: PsiClass,
                                                       reference: Ref,
@@ -163,25 +168,22 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
       case newTemplateDefinition => action(newTemplateDefinition)
     }
 
-  private def onDefinitionOrMethodCall(file: PsiFile, offset: Int)
-                                      (onDefinition: ScNewTemplateDefinition => Unit)
-                                      (onCall: ScReferenceExpression => Unit): Unit = {
-    val parent = getParentOfType(findNonWhitespaceElement(file, offset),
-      // parent classes:
-      classOf[ScNewTemplateDefinition], classOf[ScMethodCall],
-      // stop at:
-      classOf[ScArgumentExprList]
-    )
+  private def onCallOrReference(file: PsiFile, offset: Int, call: Boolean)
+                               (action: ScReference => Unit): Unit = {
+    val element = findNonWhitespaceElement(file, offset)
+    val parent =
+      if (call) getParentOfType(element, classOf[ScMethodCall], /* stop at: */ classOf[ScArgumentExprList])
+      else getParentOfType(element, classOf[ScReference])
 
     parent match {
-      case definition: ScNewTemplateDefinition => onDefinition(definition)
+      case ref: ScReference => action(ref)
       case call: ScMethodCall =>
         call.getInvokedExpr match {
-          case ref: ScReferenceExpression => onCall(ref)
-          case ScGenericCall(ref, _) => onCall(ref)
+          case ref: ScReferenceExpression => action(ref)
+          case ScGenericCall(ref, _) => action(ref)
           case _ =>
         }
-      case _ => // do nothing
+      case _ =>
     }
   }
 

@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.{ScalaChainLookupElement, ScalaKeywordLookupItem, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -604,28 +603,13 @@ object ScalaSmartCompletionContributor {
     val typeParametersEvaluator: (ScType => String) => String = Function.const("")
 
     lookupElement.setInsertHandler(
-      new InsertHandler[LookupElement] {
-        private val constructorInsertHandler = new ScalaConstructorInsertHandler(
-          typeParametersEvaluator,
-          resolveResult.problems.nonEmpty,
-          element.isInterface,
-          lookupElement.isRenamed.isDefined,
-          lookupElement.prefixCompletion
-        )
-
-        override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
-          constructorInsertHandler.handleInsert(context, item)
-          item.asOptionOf[ScalaLookupItem].foreach { scalaLookupItem =>
-            context.commitDocument()
-            scalaLookupItem.findReferenceAtOffset(context) match {
-              // method call is covered in constructorInsertHandler
-              case ref: ScReference if !ref.getContext.is[ScMethodCall] =>
-                ref.bindToElement(element)
-              case _ =>
-            }
-          }
-        }
-      }
+      new ScalaConstructorInsertHandler(
+        typeParametersEvaluator,
+        resolveResult.problems.nonEmpty,
+        element.isInterface,
+        lookupElement.isRenamed.isDefined,
+        lookupElement.prefixCompletion
+      )
     )
 
     lookupElement
