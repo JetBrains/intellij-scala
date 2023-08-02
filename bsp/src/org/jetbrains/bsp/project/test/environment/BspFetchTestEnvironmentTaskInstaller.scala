@@ -1,9 +1,7 @@
 package org.jetbrains.bsp.project.test.environment
 
 import com.intellij.execution.{RunManager, RunManagerEx, RunManagerListener, RunnerAndConfigurationSettings}
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
-
 
 class BspFetchTestEnvironmentTaskInstaller(project: Project) extends RunManagerListener {
   private var settingsToInit: List[RunnerAndConfigurationSettings] = Nil
