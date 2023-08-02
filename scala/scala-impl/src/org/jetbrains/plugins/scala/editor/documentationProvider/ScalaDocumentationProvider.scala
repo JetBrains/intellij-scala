@@ -61,7 +61,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
   }
 
   override def generateDoc(element: PsiElement, @Nullable originalElement: PsiElement): String = {
-    if (!isInScalaFile(originalElement)) {
+    if (!isInScalaFile(element)) {
       if (element.is[ScalaPsiElement])
         debugMessage("Asked to build doc for a scala element, but it is in non scala file (1)", element)
 
