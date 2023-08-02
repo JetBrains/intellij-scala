@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.util
 
-import scala.language.higherKinds
 import scala.reflect.ClassTag
 
 /** This trait is necessary for "opaque type" pattern, which allows to use EnumSet[E]

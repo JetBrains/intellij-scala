@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaBundle
 
 import scala.collection.immutable.{HashMap, HashSet, ListSet}
-import scala.language.higherKinds
 
 //noinspection TypeAnnotation,SameParameterValue
 //TODO: use names from bundle

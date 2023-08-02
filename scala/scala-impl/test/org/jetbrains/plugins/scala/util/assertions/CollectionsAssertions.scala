@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.util.assertions
 
 import org.junit.ComparisonFailure
 
-import scala.language.higherKinds
-
 trait CollectionsAssertions {
 
   def assertCollectionEquals[T, C[_] <: Iterable[_]](expected: C[T], actual: C[T]): Unit =

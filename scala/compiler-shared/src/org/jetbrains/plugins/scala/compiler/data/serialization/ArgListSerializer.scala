@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.compiler.data.serialization
 
 import org.jetbrains.plugins.scala.compiler.data.serialization.ArgListSerializer._
 
-import scala.language.higherKinds
-
 trait ArgListSerializer[A] extends Serializer {
 
   type From = A
