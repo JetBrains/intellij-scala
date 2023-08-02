@@ -26,7 +26,7 @@ import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
 import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
-import org.junit.Assert.assertEquals
+import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
 
 import java.net.URI
@@ -42,6 +42,11 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
 
   override protected def getTestProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/${getTestName(true)}"
+
+  override def setUp(): Unit = {
+    super.setUp()
+    SbtProjectResolver.processOutputOfLatestStructureDump = ""
+  }
 
   protected def runTest(expected: project): Unit = {
     importProject(false)
@@ -60,6 +65,12 @@ final class SbtProjectStructureImportingTest extends SbtExternalSystemImportingT
       "modulesWithScala should return list of non *-build modules",
       Seq("simple"),
       myProject.modulesWithScala.map(_.getName),
+    )
+
+    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
+    assertTrue(
+      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
+      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
     )
   }
 
