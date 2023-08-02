@@ -13,13 +13,13 @@ import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.util.SystemProperties
-import org.jetbrains.annotations.{NonNls, Nullable, TestOnly}
+import org.jetbrains.annotations.{ApiStatus, NonNls, Nullable, TestOnly}
 import org.jetbrains.plugins.scala._
 import org.jetbrains.plugins.scala.build._
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, ScalaSdkUtils, SdkReference}
+import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkByName, SdkReference}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver._
@@ -143,6 +143,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                             settings:SbtExecutionSettings,
                             @Nullable project: Project
                            )(implicit reporter: BuildReporter): Try[(Elem, BuildMessages)] = {
+    SbtProjectResolver.processOutputOfLatestStructureDump = ""
+
     val useShellImport = settings.useShellForImport && shellImportSupported(sbtVersion) && project != null
     val options = dumpOptions(settings)
 
@@ -201,9 +203,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           Failure(new Exception(message, error.getCause))
         }
       }
+
+      lazy val processOutput = dumper.processOutput.mkString
+      if (isUnitTestMode) {
+        SbtProjectResolver.processOutputOfLatestStructureDump = processOutput
+      }
       if (result.isFailure) {
         //NOTE: exception is logged in other places
-        val processOutput = dumper.processOutput.mkString
         val processOutputHint =
           if (processOutput.nonEmpty) s", sbt process output:\n$processOutput"
           else s" (to see sbt process output pass -D$PrintProcessOutputOnFailurePropertyName=true)"
@@ -845,6 +851,12 @@ object SbtProjectResolver {
   case class ImportCancelledException(cause: Throwable) extends Exception(cause)
 
   val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
+
+  //I know that it's a hacky dirty solution, but it's sufficient for now
+  //It's hard to access process output from tests, because we use quite high-level project import API in tests
+  @TestOnly
+  @ApiStatus.Internal
+  var processOutputOfLatestStructureDump: String = ""
 
   def shellImportSupported(sbtVersion: Version): Boolean =
     sbtVersion >= sinceSbtVersionShell
