@@ -1,22 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.ui
 
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.project.ModuleExt
 
 object CompilerInspectionOptions {
-  implicit class InspectionOptionsComboboxPanelExt(val panel: InspectionOptionsComboboxPanel) extends AnyVal {
-    def addComboboxForCompilerOption(label:              String,
-                    compilerOptionName: String,
-                    getSelectedIndex:   () => Int,
-                    setSelectedIndex:   Int => Unit): Unit =
-      panel.addCombobox(label, createOptions(compilerOptionName), getSelectedIndex, setSelectedIndex)
-
-    def addComboboxForCompilerOption(label:            String,
-                    getSelectedIndex: () => Int,
-                    setSelectedIndex: Int => Unit): Unit =
-      panel.addCombobox(label, createOptions, getSelectedIndex, setSelectedIndex)
-  }
 
   val AlwaysEnabled: Int = 0
   val ComplyToCompilerOption: Int = 1
@@ -34,18 +21,4 @@ object CompilerInspectionOptions {
       case ComplyToCompilerOption => isCompilerOptionPresent(elem, compilerOptionName)
       case _                      => false
     }
-
-  private def createOptions(compilerOptionName: String): Seq[String] =
-    Seq(
-      ScalaInspectionBundle.message("inspection.option.enabled"),
-      ScalaInspectionBundle.message("inspection.option.check.compiler", compilerOptionName),
-      ScalaInspectionBundle.message("inspection.option.disabled")
-    )
-
-  private def createOptions: Seq[String] =
-    Seq(
-      ScalaInspectionBundle.message("inspection.option.enabled"),
-      ScalaInspectionBundle.message("inspection.option.check.compiler.unnamed"),
-      ScalaInspectionBundle.message("inspection.option.disabled")
-    )
 }
