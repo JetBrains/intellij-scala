@@ -5,22 +5,27 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.plugins.scala.compiler.data.SbtData
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
 
+import java.util.Collections
 import scala.jdk.CollectionConverters._
 
 class ScalaBuildProcessParametersProvider(project: Project)
   extends BuildProcessParametersProvider {
   
-  override def getVMArguments: java.util.List[String] = {
-    customScalaCompilerInterfaceDir().toSeq ++
-    parallelCompilationOptions() ++
-    addOpens() ++
-    java9rtParams() :+
-    scalaCompileServerSystemDir() :+
-    // this is the only way to propagate registry values to the JPS process
-    s"-Dscala.compile.server.socket.connect.timeout.milliseconds=${Registry.intValue("scala.compile.server.socket.connect.timeout.milliseconds")}"
-  }.asJava
+  override def getVMArguments: java.util.List[String] =
+    if (project.hasScala) {
+      (
+        customScalaCompilerInterfaceDir().toSeq ++
+          parallelCompilationOptions() ++
+          addOpens() ++
+          java9rtParams() :+
+          scalaCompileServerSystemDir() :+
+          // this is the only way to propagate registry values to the JPS process
+          s"-Dscala.compile.server.socket.connect.timeout.milliseconds=${Registry.intValue("scala.compile.server.socket.connect.timeout.milliseconds")}"
+      ).asJava
+    } else Collections.emptyList()
 
   private def customScalaCompilerInterfaceDir(): Option[String] = {
     val key = SbtData.compilerInterfacesKey
@@ -56,5 +61,8 @@ class ScalaBuildProcessParametersProvider(project: Project)
   }
 
   override def isProcessPreloadingEnabled: Boolean =
-    !ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
+    if (project.hasScala)
+      !ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
+    else
+      super.isProcessPreloadingEnabled
 }
