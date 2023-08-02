@@ -1871,6 +1871,8 @@
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
 
         <iconMapper mappingFile="ScalaIconMappings.json" />
+
+        <generalTroubleInfoCollector implementation="org.jetbrains.plugins.scala.internal.ScalaGeneralTroubleInfoCollector"/>
    </extensions>
 
     <applicationListeners>
