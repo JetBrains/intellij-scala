@@ -1779,13 +1779,14 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
     val expectedDoc =
       """
-        |<a href="psi_element://Outer"><code>Outer</code></a><br/>
-        |<span style="color:#808000;"><a href="psi_element://deprecated"><code>@deprecated</code></a></span>
-        |(<span style="color:#008000;font-weight:bold;">&quot;use 'foo' instead&quot;</span>,<span style="color:#008000;font-weight:bold;">&quot;1.2.3&quot;</span>)<br/>
-        |<span style="color:#808000;"><a href="psi_element://transient"><code>@transient</code></a></span><br/>
-        |<span style="color:#000080;font-weight:bold;">def</span> boo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
-        |""".stripMargin
-
+         |<a href="psi_element://Outer"><code>Outer</code></a><br/>
+         |<span style="color:#808000;">@</span>
+         |<span style="color:#808000;"><a href="psi_element://scala.deprecated"><code>deprecated</code></a></span>
+         |(<span style="color:#008000;font-weight:bold;">&quot;use 'foo' instead&quot;</span>,<span style="color:#008000;font-weight:bold;">&quot;1.2.3&quot;</span>)<br/>
+         |<span style="color:#808000;">@</span>
+         |<span style="color:#808000;"><a href="psi_element://scala.transient"><code>transient</code></a></span><br/>
+         |<span style="color:#000080;font-weight:bold;">def</span>boo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+         |""".stripMargin
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
   }
 
@@ -1797,11 +1798,10 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |}""".stripMargin
 
     val expectedDoc =
-      s"""
+      """
          |<a href="psi_element://Outer"><code>Outer</code></a><br/>
-         |<span style="color:#808000;"><a href="psi_element://deprecatedName"><code>@deprecatedName</code></a></span>
-         |(<span style="color:#008000;font-weight:bold;">&quot;inner tags &lt;p&gt;example&lt;/p&gt;&quot;</span>,
-         |<span style="color:#008000;font-weight:bold;">&quot;since 2020&quot;</span>)<br/>
+         |<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.deprecatedName"><code>deprecatedName</code></a></span>
+         |(<span style="color:#008000;font-weight:bold;">&quot;inner tags &lt;p&gt;example&lt;/p&gt;&quot;</span>,<span style="color:#008000;font-weight:bold;">&quot;since 2020&quot;</span>)<br/>
          |<span style="color:#000080;font-weight:bold;">def</span>boo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
@@ -1818,14 +1818,24 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |""".stripMargin
 
     val expectedDoc =
-      s"""
-         |<span style="color:#808000;"><a href="psi_element://throws"><code>@throws</code></a></span><br/>
-         |<span style="color:#808000;"><a href="psi_element://throws[Exception]"><code>@throws[Exception]</code></a></span>(<span style="color:#008000;font-weight:bold;">&quot;reason 1&quot;</span>)<br/>
-         |<span style="color:#808000;"><a href="psi_element://throws"><code>@throws</code></a></span><br/>
-         |<span style="color:#808000;"><a href="psi_element://throws[java.util.ConcurrentModificationException]"><code>@throws[java.util.ConcurrentModificationException]</code></a></span>(<span style="color:#008000;font-weight:bold;">&quot;reason 2&quot;</span>)<br/>
+      """
+         |<span style="color:#808000;">@</span>
+         |<span style="color:#808000;"><a href="psi_element://scala.throws"><code>throws</code></a></span>
+         |[<span style="color:#808000;"><a href="psi_element://java.lang.Exception"><code>Exception</code></a></span>]
+         |(classOf[Exception])<br/>
+         |<span style="color:#808000;">@</span><span style="color:#808000;"><a href="psi_element://scala.throws"><code>throws</code></a></span>
+         |[<span style="color:#808000;"><a href="psi_element://java.lang.Exception"><code>Exception</code></a></span>]
+         |(<span style="color:#008000;font-weight:bold;">&quot;reason 1&quot;</span>)<br/>
+         |<span style="color:#808000;">@</span>
+         |<span style="color:#808000;"><a href="psi_element://scala.throws"><code>throws</code></a></span>
+         |[<span style="color:#808000;"><a href="psi_element://java.util.ConcurrentModificationException"><code>ConcurrentModificationException</code></a></span>]
+         |(classOf[java.util.ConcurrentModificationException])<br/>
+         |<span style="color:#808000;">@</span>
+         |<span style="color:#808000;"><a href="psi_element://scala.throws"><code>throws</code></a></span>
+         |[<span style="color:#808000;"><a href="psi_element://java.util.ConcurrentModificationException"><code>ConcurrentModificationException</code></a></span>]
+         |(<span style="color:#008000;font-weight:bold;">&quot;reason 2&quot;</span>)<br/>
          |<span style="color:#000080;font-weight:bold;">def</span>goo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin
-
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
   }
 
@@ -1839,7 +1849,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     // For now interpolated strings are displayed in ScalaDoc popups as regular strings, with no additional highlighting
     val expectedDoc =
       """
-         |<span style="color:#808000;"><a href="psi_element://deprecated"><code>@deprecated</code></a></span>
+         |<span style="color:#808000;">@</span>
+         |<span style="color:#808000;"><a href="psi_element://scala.deprecated"><code>deprecated</code></a></span>
          |(<span style="color:#008000;font-weight:bold;">s&quot;test ${42}&quot;</span>)<br/>
          |<span style="color:#000080;font-weight:bold;">def</span>foo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
          |""".stripMargin
@@ -1856,10 +1867,11 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
     val expectedDoc =
       """
-        |<span style="color:#808000;"><a href="psi_element://deprecated"><code>@deprecated</code></a></span>(<span style="color:#0000ff;">42</span>)
-        |<br/>
-        |<span style="color:#000080;font-weight:bold;">def</span>foo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
-        |""".stripMargin
+         |<span style="color:#808000;">@</span>
+         |<span style="color:#808000;"><a href="psi_element://scala.deprecated"><code>deprecated</code></a></span>
+         |(<span style="color:#0000ff;">42</span>)<br/>
+         |<span style="color:#000080;font-weight:bold;">def</span>foo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
+         |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedDoc)
   }
@@ -1873,8 +1885,9 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
     val expectedDoc =
       """
-        |<span style="color:#808000;"><a href="psi_element://deprecated"><code>@deprecated</code></a></span>(<span style="color:#000080;font-weight:bold;">true</span>)
-        |<br/>
+        |<span style="color:#808000;">@</span>
+        |<span style="color:#808000;"><a href="psi_element://scala.deprecated"><code>deprecated</code></a></span>
+        |(<span style="color:#000080;font-weight:bold;">true</span>)<br/>
         |<span style="color:#000080;font-weight:bold;">def</span>foo():<span style="color:#000000;"><a href="psi_element://scala.Unit"><code>Unit</code></a></span>
         |""".stripMargin
 
@@ -2340,9 +2353,9 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
 
     val expectedContent =
       """
-        |<span style="color:#808000;"><a href="psi_element://Source"><code>@Source</code></a></span>
-        |(url =<span style="color:#008000;font-weight:bold;">&quot;https://foo.com/&quot;</span>)
-        |<br/>
+        |<span style="color:#808000;">@</span>
+        |<span style="color:#808000;"><a href="psi_element://scala.Any"><code>Any</code></a></span>
+        |(url =<span style="color:#008000;font-weight:bold;">&quot;https://foo.com/&quot;</span>)<br/>
         |<span style="color:#000080;font-weight:bold;">trait</span>Foo
         |""".stripMargin
 
