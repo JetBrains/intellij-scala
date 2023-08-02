@@ -365,7 +365,10 @@ object SbtStructureDump {
         System.err.println(text)
       }
     }
-    if (text.startsWith("[error]") && messages.status != BuildMessages.Error) {
+    //NOTE: we can't simply check for "[error]" prefix, some output errors might still not fail the build
+    //See to SCL-21478 and SCL-13038
+    val setBuildStatusToError = text.startsWith("[error] Total time")
+    if (setBuildStatusToError && messages.status != BuildMessages.Error) {
       messages
         .status(BuildMessages.Error)
         .addError(SbtBundle.message("sbt.import.check.root.node.for.details"))
