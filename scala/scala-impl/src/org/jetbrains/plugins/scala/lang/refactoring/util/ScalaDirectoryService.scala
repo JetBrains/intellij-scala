@@ -3,16 +3,16 @@ package org.jetbrains.plugins.scala.lang.refactoring.util
 import com.intellij.ide.fileTemplates.impl.FileTemplateBase
 import com.intellij.ide.fileTemplates.ui.CreateFromTemplateDialog
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, FileTemplateUtil}
+import com.intellij.java.JavaBundle
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.{PsiBundle, PsiClass, PsiDirectory, PsiElement}
+import com.intellij.psi.{PsiClass, PsiDirectory, PsiElement}
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import java.util.Properties
-import scala.annotation.nowarn
 
 object ScalaDirectoryService {
   private final val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.refactoring.move.ScalaDirectoryService")
@@ -45,11 +45,11 @@ object ScalaDirectoryService {
   }
 
   private def getIncorrectTemplateMessage(templateName: String): String = {
-    PsiBundle.message(
+    JavaBundle.message(
       "psi.error.incorrect.class.template.message",
       FileTemplateManager.getDefaultInstance.internalTemplateToSubject(templateName),
       templateName
-    ): @nowarn("cat=deprecation")
+    )
   }
 
   private def templateForUnitTest(templateName: String, name: String): FileTemplate = {
