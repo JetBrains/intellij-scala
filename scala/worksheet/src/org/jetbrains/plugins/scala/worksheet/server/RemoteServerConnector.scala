@@ -5,6 +5,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
@@ -201,7 +202,7 @@ object RemoteServerConnector {
   }
 
   trait WorksheetEvaluation extends CompilerMessagesConsumer {
-    def progress(text: String, done: Option[Float]): Unit
+    def progress(@Nls text: String, done: Option[Float]): Unit
 
     def worksheetOutput(text: String): Unit
 

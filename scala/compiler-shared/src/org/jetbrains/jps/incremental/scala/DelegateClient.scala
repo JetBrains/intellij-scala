@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
 
 import java.io.File
@@ -13,7 +14,7 @@ class DelegateClient(client: Client)
   override def trace(exception: Throwable): Unit =
     client.trace(exception)
 
-  override def progress(text: String, done: Option[Float]): Unit =
+  override def progress(@Nls text: String, done: Option[Float]): Unit =
     client.progress(text, done)
 
   override def internalInfo(text: String): Unit =
