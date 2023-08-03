@@ -12,6 +12,23 @@ abstract class UnnecessaryPartialFunctionInspectionTestBase extends ScalaInspect
   override protected val description: String = UnnecessaryPartialFunctionInspection.inspectionName
 
   protected def testFix(text: String, fixed: String): Unit = testQuickFix(text, fixed, hint)
+
+  def testInspectionDoesNotCaptureCaseWithTypeConstraintMoreRestrictiveThanExpectedInputType(): Unit = {
+    val text = s"def f: Any => String = {case x: Int  => x.toString}"
+
+    checkTextHasNoErrors(text)
+  }
+
+  def testInspectionCapturesMethodArgumentWithTypeConstraint(): Unit = {
+    val text =
+      s"""def foo(bar: Int => String) = bar(42)
+         |foo { ${START}case$END x: Any => x.toString }""".stripMargin
+    val fixed =
+      """def foo(bar: Int => String) = bar(42)
+        |foo { x: Any => x.toString }""".stripMargin
+    checkTextHasError(text)
+    testFix(text, fixed)
+  }
 }
 
 class UnnecessaryPartialFunctionInspectionTest extends UnnecessaryPartialFunctionInspectionTestBase {
@@ -93,12 +110,6 @@ class UnnecessaryPartialFunctionInspectionTest extends UnnecessaryPartialFunctio
     testFix(text, fixed)
   }
 
-  def testInspectionDoesNotCaptureCaseWithTypeConstraintMoreRestrictiveThanExpectedInputType(): Unit = {
-    val text = s"def f: Any => String = {case x: Int  => x.toString}"
-
-    checkTextHasNoErrors(text)
-  }
-
   def testInspectionCapturesCaseWithTypeConstraintLessRestrictiveThanExpectedInputType(): Unit = {
     val text = s"def f: Int => String = { ${START}case$END x: Any => x.toString }"
     val fixed = "def f: Int => String = { x: Any => x.toString }"
@@ -161,17 +172,6 @@ class UnnecessaryPartialFunctionInspectionTest extends UnnecessaryPartialFunctio
     val fixed =
       """def foo(bar: Int => String) = bar(42)
         |foo(x => x.toString)""".stripMargin
-    checkTextHasError(text)
-    testFix(text, fixed)
-  }
-
-  def testInspectionCapturesMethodArgumentWithTypeConstraint(): Unit = {
-    val text =
-      s"""def foo(bar: Int => String) = bar(42)
-         |foo { ${START}case$END x: Any => x.toString }""".stripMargin
-    val fixed =
-      """def foo(bar: Int => String) = bar(42)
-        |foo { x: Any => x.toString }""".stripMargin
     checkTextHasError(text)
     testFix(text, fixed)
   }
