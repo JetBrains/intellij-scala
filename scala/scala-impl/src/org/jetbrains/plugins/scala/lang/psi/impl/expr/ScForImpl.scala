@@ -534,7 +534,7 @@ object ScForImpl {
       case null => false
       case _: ScWildcardPattern => false
       case _: ScReferencePattern => false
-      case _: ScTypedPattern => false
+      case _: ScTypedPatternLike => false
       case _ => true
     }
   }
