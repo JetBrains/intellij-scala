@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.matcher
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class ExpandPatternIntentionTest extends ScalaIntentionTestBase {
+sealed abstract class ExpandPatternIntentionTestBase extends ScalaIntentionTestBase {
 
   override def familyName: String = "Expand to Constructor pattern"
 
@@ -25,7 +26,6 @@ class ExpandPatternIntentionTest extends ScalaIntentionTestBase {
          |""".stripMargin
   )
 
-
   def test_wildcard(): Unit = doTest(
     text =
       s"""
@@ -44,4 +44,12 @@ class ExpandPatternIntentionTest extends ScalaIntentionTestBase {
          |}
          |""".stripMargin
   )
+}
+
+final class ExpandPatternIntentionTest extends ExpandPatternIntentionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
+}
+
+final class ExpandPatternIntentionTest_Scala3 extends ExpandPatternIntentionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 }

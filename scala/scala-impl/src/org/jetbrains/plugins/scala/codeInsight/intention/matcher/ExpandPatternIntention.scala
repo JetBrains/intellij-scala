@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScTypePattern, ScTypedPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScTypePattern, ScTypedPatternLike}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromText
@@ -64,17 +64,15 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
     element.parents
       .takeWhile(_.is[ScPattern, ScTypeElement, ScTypePattern, ScReference])
       .flatMap {
-        case typePattern: ScTypedPattern =>
-          val patText = typePattern.typePattern
-            .map(_.typeElement)
-            .flatMap(_.`type`().toOption)
+        case typedPattern@ScTypedPatternLike.withNameId(typePattern, nameId) =>
+          val patText = typePattern.typeElement
+            .`type`().toOption
             .flatMap(nestedPatternText)
 
           patText.map { patText =>
-            val nameId = typePattern.nameId.getText
-            nameId match {
-              case "_" => (typePattern, patText)
-              case _ => (typePattern, s"$nameId@$patText")
+            nameId.getText match {
+              case "_"  => (typedPattern, patText)
+              case name => (typedPattern, s"$name@$patText")
             }
           }
         case _ => None
