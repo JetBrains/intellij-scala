@@ -19,11 +19,11 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
 import com.intellij.ui.NonFocusableCheckBox
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPatternLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForBinding}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -62,7 +62,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
   private val myFile: PsiFile = namedElement.getContainingFile
   private val myBalloonPanel: JPanel = new JPanel()
   private var nameIsValid: Boolean = true
-  private val isForBinding: Boolean = newDeclaration.exists(_.isInstanceOf[ScForBinding])
+  private val isForBinding: Boolean = newDeclaration.exists(_.is[ScForBinding])
   private val initialName = ScalaNamesUtil.scalaName(namedElement)
 
   private val myLabel = new JLabel()
@@ -134,7 +134,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
         writeCommandAction(myProject)
           .withName(getCommandName)
           .withGroupId(getCommandName)
-          .run ( () => {
+          .run(() => {
             val asVar = myVarCheckbox.isSelected
             getDeclaration.collect {
               case value: ScValue if asVar => (value, createVarFromValDeclaration(value))
@@ -215,12 +215,11 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
         case holder: ScDeclaredElementsHolder =>
           val colon  = holder.findFirstChildByType(ScalaTokenTypes.tCOLON).get
           val assign = holder.findFirstChildByType(ScalaTokenTypes.tASSIGN).get
-          implicit val manager: PsiManager = myFile.getManager
           val newWhiteSpace = holder.addBefore(createWhitespace, assign)
           holder.getNode.removeRange(colon.getNode, newWhiteSpace.getNode)
           setDeclaration(holder)
           commitDocument()
-        case forBinding: ScForBinding if forBinding.pattern.isInstanceOf[ScTypedPattern] =>
+        case forBinding: ScForBinding if forBinding.pattern.is[ScTypedPatternLike] =>
           val colon = forBinding.pattern.findFirstChildByType(ScalaTokenTypes.tCOLON).get
           forBinding.pattern.getNode.removeRange(colon.getNode, null)
           setDeclaration(forBinding)
