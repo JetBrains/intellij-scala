@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala.local.worksheet
 
 import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
 import org.jetbrains.jps.incremental.scala.local.worksheet.util.IOUtils
-import org.jetbrains.jps.incremental.scala.{Client, MessageKind, compilerVersion}
+import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle, MessageKind, compilerVersion}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.compiler.data.{CompilerJars, SbtData}
 import org.jetbrains.plugins.scala.project.Version
@@ -48,7 +48,7 @@ class ILoopWrapperFactoryHandler {
 
     cachedReplFactory = Some(cachedFactory)
 
-    client.progress("Running REPL...")
+    client.progress(CompileServerBundle.message("running.repl"))
     IOUtils.patchSystemOut(out)
     val factory = cachedFactory.replFactory
     factory.loadReplWrapperAndRun(args, replContext, out, replWrapperClassName, scalaVersion, client, cachedFactory.classLoader)

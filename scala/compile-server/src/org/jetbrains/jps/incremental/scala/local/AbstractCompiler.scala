@@ -64,6 +64,7 @@ abstract class AbstractCompiler extends Compiler {
     override def advance(current: Int, total: Int, prevPhase: String, nextPhase: String): Boolean = {
       val currentTime = System.currentTimeMillis()
 
+      //noinspection ScalaExtractStringToBundle
       client.progress("", Some(current.toFloat / total.toFloat))
 
       // Since isCanceled is blocking method (waiting on flush on socket connection to finish).
