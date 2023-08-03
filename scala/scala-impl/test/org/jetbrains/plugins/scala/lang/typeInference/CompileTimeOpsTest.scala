@@ -17,6 +17,20 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
   private final val IntOps =     "import scala.compiletime.ops.int.*; "
   private final val StringOps =  "import scala.compiletime.ops.string.*; "
 
+  private final val CommonAliases =
+    """type AliasTo1 = 1
+      |type AliasToTrue = true
+      |type AliasToFalse = false
+      |type AliasToInt = Int
+      |type AliasToString = String
+      |""".stripMargin.trim
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    getFixture.addFileToProject("commons.scala", CommonAliases)
+  }
+
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
   //
@@ -49,6 +63,22 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
   def testAnyEqual(): Unit = assertTypeIs(AnyOps +
     "type T = 1 == true", "false")
 
+  def testAnyEqual_StringLiteral_1(): Unit = assertTypeIs(AnyOps +
+    "type T = \"42\" == \"42\"", "true")
+
+  def testAnyEqual_StringLiteral_2(): Unit = assertTypeIs(AnyOps +
+    "type T = \"42\" == \"23\"", "false")
+
+  def testAnyEqual_AliasToTrue(): Unit = assertTypeIs(AnyOps +
+    "type T = true == AliasToTrue", "true")
+
+  def testAnyEqual_AliasToFalse(): Unit = assertTypeIs(AnyOps +
+    "type T = true == AliasToFalse", "false")
+
+  def testAnyEqual_NonLiteralTypes(): Unit = assertTypeIs(AnyOps +
+    "type T = String == String", "String == String")
+
+  // !=
   def testAnyNotEqual(): Unit = assertTypeIs(AnyOps +
     "type T = 1 != true", "true")
 
@@ -78,6 +108,12 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
       "type T = IsConst[MyObject.type]", "false")
   }
 
+  def testAnyIsConst_AliasToLiteralType(): Unit = assertTypeIs(AnyOps +
+    """type T = IsConst[AliasTo1]""", "true")
+
+  def testAnyIsConst_AliasToNonLiteralType(): Unit = assertTypeIs(AnyOps +
+    """type T = IsConst[AliasToString]""", "false")
+
   // ToString
   def testToString_IntLiteral_1(): Unit = assertTypeIs(AnyOps +
     """type T = ToString[1] == "1"""", "true")
@@ -96,6 +132,9 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testToString_StringLiteral_2(): Unit = assertTypeIs(AnyOps +
     """type T = ToString["42"] == "23"""", "false")
+
+  def testToString_NonLiteralType(): Unit = assertTypeIs(AnyOps +
+    """type T = ToString[AliasToInt] == "1"""", """ToString[AliasToInt] == "1"""")
 
   //
   // Boolean

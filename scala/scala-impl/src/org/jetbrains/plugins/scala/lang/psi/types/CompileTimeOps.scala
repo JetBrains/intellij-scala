@@ -19,11 +19,15 @@ private object CompileTimeOps {
 
       val containingClassName = Option(alias.containingClass).map(_.qualifiedName).orNull
 
+      lazy val argumentsDealiased = arguments.map {
+        case AliasType(_, _, Right(right)) => right
+        case other => other
+      }
       (containingClassName: @switch) match {
-        case "scala.compiletime.ops.any" => anyOp(alias.name, arguments)
-        case "scala.compiletime.ops.boolean" => booleanOp(alias.name, arguments)
-        case "scala.compiletime.ops.int" => intOp(alias.name, arguments)
-        case "scala.compiletime.ops.string" => stringOp(alias.name, arguments)
+        case "scala.compiletime.ops.any" => anyOp(alias.name, argumentsDealiased)
+        case "scala.compiletime.ops.boolean" => booleanOp(alias.name, argumentsDealiased)
+        case "scala.compiletime.ops.int" => intOp(alias.name, argumentsDealiased)
+        case "scala.compiletime.ops.string" => stringOp(alias.name, argumentsDealiased)
         case _ => None
       }
     case _ => None
