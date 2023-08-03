@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.{ScBooleanLiteralImpl, ScIntegerLiteralImpl}
@@ -80,12 +81,26 @@ private object CompileTimeOps {
     }
   }
 
-  private def anyOp(operator: String, operands: Seq[ScType])(implicit project: Project) = operands match {
+  private def anyOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
     case Seq(AnyValue(l), AnyValue(r)) => (operator: @switch) match {
       case "==" => Some(BooleanValue(l == r))
       case "!=" => Some(BooleanValue(l != r))
       case _ => None
     }
+    case Seq(operand) =>
+      (operator: @switch) match {
+        case "IsConst" =>
+          val isConst = operand.is[ScLiteralType]
+          Some(BooleanValue(isConst))
+        case "ToString" =>
+          operand match {
+            case AnyValue(value) =>
+              Some(StringValue(value.toString))
+            case _ => None
+          }
+        case _ => None
+      }
+    case _ => None
   }
 
   private object AnyValue {
