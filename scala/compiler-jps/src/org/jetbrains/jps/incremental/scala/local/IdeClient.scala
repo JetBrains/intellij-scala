@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package local
 
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, CustomBuilderMessage, FileDeletedEvent, ProgressMessage}
@@ -85,7 +86,7 @@ abstract class IdeClient(compilerName: String,
   override def trace(exception: Throwable): Unit =
     context.processMessage(CompilerMessage.createInternalCompilationError(compilerName, exception))
 
-  override def progress(text: String, done: Option[Float]): Unit = {
+  override def progress(@Nls text: String, done: Option[Float]): Unit = {
     // SCL-18190
 //    for {
 //      unitId <- compilationUnitId

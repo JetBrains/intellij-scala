@@ -45,7 +45,7 @@ trait Client {
   def trace(exception: Throwable): Unit
 
   // TODO: extract to bundle carefully, DynamicBundle isn't available in JSP process
-  def progress(text: String, done: Option[Float] = None): Unit
+  def progress(@Nls text: String, done: Option[Float] = None): Unit
 
   /** Log info message to the JPS log (build.log) */
   def internalInfo(text: String): Unit

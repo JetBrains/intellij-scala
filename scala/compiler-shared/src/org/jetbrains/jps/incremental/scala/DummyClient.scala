@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
 
 import java.io.File
@@ -7,7 +8,7 @@ import java.io.File
 class DummyClient extends Client {
   override def message(msg: Client.ClientMsg): Unit = ()
   override def deleted(module: File): Unit = ()
-  override def progress(text: String, done: Option[Float]): Unit = ()
+  override def progress(@Nls text: String, done: Option[Float]): Unit = ()
   override def isCanceled: Boolean = false
   override def internalInfo(text: String): Unit = ()
   override def internalDebug(text: String): Unit = ()

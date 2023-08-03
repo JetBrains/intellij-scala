@@ -6,6 +6,7 @@ import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
@@ -25,7 +26,7 @@ private class MyTranslatingClient(
   private def testLog(text: String, e: Throwable): Unit =
     e.printStackTrace()
 
-  override def progress(text: String, done: Option[Float]): Unit =
+  override def progress(@Nls text: String, done: Option[Float]): Unit =
     worksheetEvaluation.progress(text, done)
 
   override def trace(exception: Throwable): Unit =

@@ -1,6 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
+import org.jetbrains.annotations.Nls
 import sbt.internal.inc.CompileFailed
 
 import java.io.File
@@ -34,7 +35,7 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
     publishEvent(TraceEvent(exception.getClass.getName, message, exception.getStackTrace))
   }
 
-  override def progress(text: String, done: Option[Float]): Unit =
+  override def progress(@Nls text: String, done: Option[Float]): Unit =
     publishEvent(ProgressEvent(text, done))
 
   override def internalInfo(text: String): Unit =

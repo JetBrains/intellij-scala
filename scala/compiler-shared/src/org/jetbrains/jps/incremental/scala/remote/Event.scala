@@ -1,6 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.util.ObjectSerialization
 
@@ -18,14 +19,14 @@ object Event {
 
 @SerialVersionUID(2L)
 case class MessageEvent(kind: MessageKind,
-                        text: String,
+                        @Nls text: String,
                         source: Option[File],
                         pointer: Option[PosInfo],
                         problemStart: Option[PosInfo],
                         problemEnd: Option[PosInfo]) extends Event
 
 @SerialVersionUID(-6777609711619086870L)
-case class ProgressEvent(text: String, done: Option[Float]) extends Event
+case class ProgressEvent(@Nls text: String, done: Option[Float]) extends Event
 
 @SerialVersionUID(3L)
 case class InternalInfoEvent(text: String) extends Event
