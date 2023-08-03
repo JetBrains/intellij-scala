@@ -19,7 +19,9 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
+  //
   // General
+  //
 
   def testSingleton(): Unit = assertTypeIs(IntOps +
     "type T = 1 + 2", "3")
@@ -39,15 +41,65 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
   def testTypeVariable(): Unit = assertTypeIs(IntOps +
     "type T[A <: Int] = 1 + A", "1 + A")
 
+  //
   // Any
+  //
 
+  // ==
   def testAnyEqual(): Unit = assertTypeIs(AnyOps +
     "type T = 1 == true", "false")
 
   def testAnyNotEqual(): Unit = assertTypeIs(AnyOps +
     "type T = 1 != true", "true")
 
+  // IsConst
+  def testAnyIsConst_NumericLiteral(): Unit = assertTypeIs(AnyOps +
+    "type T = IsConst[1]", "true")
+
+  def testAnyIsConst_StringLiteral(): Unit = assertTypeIs(AnyOps +
+    """type T = IsConst["hi"]""", "true")
+
+  def testAnyIsConst_BooleanLiteral_1(): Unit = assertTypeIs(AnyOps +
+    "type T = IsConst[true]", "true")
+
+  def testAnyIsConst_BooleanLiteral_2(): Unit = assertTypeIs(AnyOps +
+    "type T = IsConst[false]", "true")
+
+  def testAnyIsConst_Any(): Unit = assertTypeIs(AnyOps +
+    "type T = IsConst[Any]", "false")
+
+  def testAnyIsConst_String(): Unit = assertTypeIs(AnyOps +
+    "type T = IsConst[String]", "false")
+
+  def testAnyIsConst_SingletonObjectType(): Unit = {
+    getFixture.addFileToProject("dummy.scala",
+      "object MyObject")
+    assertTypeIs(AnyOps +
+      "type T = IsConst[MyObject.type]", "false")
+  }
+
+  // ToString
+  def testToString_IntLiteral_1(): Unit = assertTypeIs(AnyOps +
+    """type T = ToString[1] == "1"""", "true")
+
+  def testToString_IntLiteral_2(): Unit = assertTypeIs(AnyOps +
+    """type T = ToString[1] == "2"""", "false")
+
+  def testToString_BooleanLiteral_1(): Unit = assertTypeIs(AnyOps +
+    """type T = ToString[true] == "true"""", "true")
+
+  def testToString_BooleanLiteral_2(): Unit = assertTypeIs(AnyOps +
+    """type T = ToString[true] == "false"""", "false")
+
+  def testToString_StringLiteral_1(): Unit = assertTypeIs(AnyOps +
+    """type T = ToString["42"] == "42"""", "true")
+
+  def testToString_StringLiteral_2(): Unit = assertTypeIs(AnyOps +
+    """type T = ToString["42"] == "23"""", "false")
+
+  //
   // Boolean
+  //
 
   def testBooleanNot(): Unit = assertTypeIs(BooleanOps +
     "type T = ![true]", "false")
@@ -61,7 +113,9 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
   def testBooleanOr(): Unit = assertTypeIs(BooleanOps +
     "type T = true || false", "true")
 
+  //
   // Int
+  //
 
   def testIntS(): Unit = assertTypeIs(IntOps +
     "type T = S[1]", "2")
@@ -126,7 +180,9 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
   def testIntToString(): Unit = assertTypeIs(IntOps +
     "type T = ToString[1]", "\"1\"")
 
+  //
   // String
+  //
 
   def testStringPlus(): Unit = assertTypeIs(StringOps +
     "type T = \"foo\" + \"bar\"", "\"foobar\"")
