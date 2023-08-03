@@ -152,7 +152,7 @@ object CompilerFactoryImpl {
       val targetJar = new File(home, interfaceId + ".jar")
 
       if (!targetJar.exists) {
-        client.foreach(_.progress(s"Compiling Scalac $scalaVersion interface"))
+        client.foreach(_.progress(CompileServerBundle.message("compiling.scalac.interface", scalaVersion)))
         home.mkdirs()
         val raw = new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto, NullLogger)
         AnalyzingCompiler.compileSources(

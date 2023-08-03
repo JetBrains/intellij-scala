@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
-import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle}
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory.{ILoopCreationException, MyUpdatePrintStream, MyUpdatePrintWriter}
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.{ReplContext, ScalaVersion}
 import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.{ILoopWrapper, ILoopWrapperReporter, NoopReporter, PrintWriterReporter}
@@ -37,9 +37,9 @@ class ILoopWrapperFactory {
     client: Client,
     classLoader: ClassLoader
   ): Unit = {
-    client.progress("Retrieving REPL instance...")
+    client.progress(CompileServerBundle.message("retrieving.repl.instance"))
     val instOpt = cache.getOrCreate(args.sessionId, () => {
-      client.progress("Creating REPL instance...")
+      client.progress(CompileServerBundle.message("creating.repl.instance"))
       createILoopWrapper(args, replContext, replWrapperClassName, scalaVersion, outStream, classLoader) match {
         case Right(inst) =>
           inst.init()
@@ -57,7 +57,7 @@ class ILoopWrapperFactory {
       case writer: MyUpdatePrintWriter => writer.updateOut(outStream)
       case _                           =>
     }
-    client.progress("Worksheet execution started", Some(0))
+    client.progress(CompileServerBundle.message("worksheet.execution.started"), Some(0))
     printService(out, ReplStart)
 
     try out.flush()
@@ -78,7 +78,7 @@ class ILoopWrapperFactory {
           printService(out, ReplChunkStart)
 
           val progress = (idx + 1f) / statements.size
-          client.progress("Executing worksheet...", Some(progress))
+          client.progress(CompileServerBundle.message("executing.worksheet"), Some(progress))
 
           val noErrors = try inst.processChunk(statement) catch {
             case NonFatal(ex) =>
@@ -95,7 +95,7 @@ class ILoopWrapperFactory {
       }
     }
 
-    client.progress("Worksheet execution finished", Some(1))
+    client.progress(CompileServerBundle.message("worksheet.execution.finished"), Some(1))
     printService(out, ReplEnd)
   }
 
