@@ -310,17 +310,16 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
       if (needToInsertFirst) {
 
         def determineAnchor(): PsiElement = {
-          def isWhitespaceOrCommentOrDirective(el: PsiElement): Boolean = el.isWhitespaceOrComment || el.is[ScDirective]
-
           def isDirective(el: PsiElement): Boolean = el.is[ScDirective]
+
+          def isWhitespaceOrCommentOrDirective(el: PsiElement): Boolean = el.isWhitespaceOrComment || isDirective(el)
 
           val firstElement: PsiElement = getFirstChild
 
           (firstElement +: firstElement.nextSiblings.toSeq)
             .takeWhile(isWhitespaceOrCommentOrDirective)
-            .findLast(isDirective).map { directive =>
-              directive.getNextSibling
-            }.getOrElse(getFirstChild)
+            .findLast(isDirective)
+            .map(_.getNextSibling).getOrElse(firstElement)
         }
 
         //ScalaImportOptimizer only works with import ranges
