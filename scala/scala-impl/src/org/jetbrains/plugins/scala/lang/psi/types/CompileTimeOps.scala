@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.{ScBooleanLiteralImpl, ScIntegerLiteralImpl}
@@ -18,11 +19,15 @@ private object CompileTimeOps {
 
       val containingClassName = Option(alias.containingClass).map(_.qualifiedName).orNull
 
+      lazy val argumentsDealiased = arguments.map {
+        case AliasType(_, _, Right(right)) => right
+        case other => other
+      }
       (containingClassName: @switch) match {
-        case "scala.compiletime.ops.any" => anyOp(alias.name, arguments)
-        case "scala.compiletime.ops.boolean" => booleanOp(alias.name, arguments)
-        case "scala.compiletime.ops.int" => intOp(alias.name, arguments)
-        case "scala.compiletime.ops.string" => stringOp(alias.name, arguments)
+        case "scala.compiletime.ops.any" => anyOp(alias.name, argumentsDealiased)
+        case "scala.compiletime.ops.boolean" => booleanOp(alias.name, argumentsDealiased)
+        case "scala.compiletime.ops.int" => intOp(alias.name, argumentsDealiased)
+        case "scala.compiletime.ops.string" => stringOp(alias.name, argumentsDealiased)
         case _ => None
       }
     case _ => None
@@ -80,12 +85,26 @@ private object CompileTimeOps {
     }
   }
 
-  private def anyOp(operator: String, operands: Seq[ScType])(implicit project: Project) = operands match {
+  private def anyOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
     case Seq(AnyValue(l), AnyValue(r)) => (operator: @switch) match {
       case "==" => Some(BooleanValue(l == r))
       case "!=" => Some(BooleanValue(l != r))
       case _ => None
     }
+    case Seq(operand) =>
+      (operator: @switch) match {
+        case "IsConst" =>
+          val isConst = operand.is[ScLiteralType]
+          Some(BooleanValue(isConst))
+        case "ToString" =>
+          operand match {
+            case AnyValue(value) =>
+              Some(StringValue(value.toString))
+            case _ => None
+          }
+        case _ => None
+      }
+    case _ => None
   }
 
   private object AnyValue {
