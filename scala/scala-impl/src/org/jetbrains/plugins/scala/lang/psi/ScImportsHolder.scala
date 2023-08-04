@@ -328,7 +328,7 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
 
         val anchor = determineAnchor()
 
-        val inserted = insertFirstImport(dummyImport, anchor).asInstanceOf[ScImportStmt]
+        val inserted = insertFirstImport(dummyImport, anchor)
         val psiAnchor = PsiAnchor.create(inserted)
         val rangeInfo = RangeInfo(psiAnchor, psiAnchor, Seq((dummyImport, importInfosToAdd)), usedImportedNames = Set.empty, isLocal = false)
         val infosToAdd = ScalaImportOptimizer.optimizedImportInfos(rangeInfo, settings)
