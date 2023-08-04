@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AbstractTypeAnnotationIntention._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern, ScTypedPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScReferencePattern, ScTypedPatternLike, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScTypedExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
@@ -97,7 +97,7 @@ object AbstractTypeAnnotationIntention {
     }
 
     underscoreSectionParent(element).foreach { underscore =>
-      return if (underscore.getParent.isInstanceOf[ScTypedExpression])
+      return if (underscore.getParent.is[ScTypedExpression])
         strategy.underscoreSectionWithType(underscore)
       else
         strategy.underscoreSectionWithoutType(underscore)
@@ -124,12 +124,12 @@ object AbstractTypeAnnotationIntention {
       }
     }
 
-    for (pattern <- element.parentsInFile.findByType[ScBindingPattern]) {
+    for (pattern <- element.parentsInFile.findByType[ScPattern]) {
       pattern match {
-        case p: ScTypedPattern if p.typePattern.isDefined =>
+        case p@ScTypedPatternLike(_) =>
           return strategy.patternWithType(p)
-        case _: ScReferencePattern =>
-          return strategy.patternWithoutType(pattern)
+        case p: ScReferencePattern =>
+          return strategy.patternWithoutType(p)
         case _ =>
       }
     }

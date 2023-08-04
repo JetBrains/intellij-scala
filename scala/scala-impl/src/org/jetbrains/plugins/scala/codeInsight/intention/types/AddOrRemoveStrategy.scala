@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.codeInsight.intention.types
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScTypedPattern, ScTypedPatternLike}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -26,13 +27,26 @@ class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy
                                 typeElement: ScTypeElement): Boolean =
     removeTypeAnnotation(typeElement)
 
-  override def patternWithType(pattern: ScTypedPattern): Boolean = {
+  override def patternWithType(pattern: ScTypedPatternLike): Boolean = {
     import pattern.projectContext
 
-    val newPattern = createPatternFromText(pattern.name, pattern)
-    pattern.replace(newPattern)
+    pattern match {
+      case p: ScTypedPattern =>
 
-    true
+        val newPattern = createPatternFromText(p.name, pattern)
+        pattern.replace(newPattern)
+
+        true
+      case _: Sc3TypedPattern =>
+        val copy = pattern.copy().asInstanceOf[ScTypedPatternLike]
+        copy.findFirstChildByType(ScalaTokenTypes.tCOLON).fold(false) { colon =>
+          copy.getNode.removeRange(colon.getNode, null)
+          val newPattern = createPatternFromText(copy.getText, pattern)
+          pattern.replace(newPattern)
+          true
+        }
+      case _ => false
+    }
   }
 
   override def parameterWithType(parameter: ScParameter): Boolean = {

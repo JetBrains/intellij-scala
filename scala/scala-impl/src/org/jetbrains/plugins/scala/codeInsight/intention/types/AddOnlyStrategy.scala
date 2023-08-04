@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPatternLike, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -35,7 +35,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   override def variableWithType(variable: ScVariableDefinition,
                                 typeElement: ScTypeElement): Boolean = true
 
-  override def patternWithType(pattern: ScTypedPattern): Boolean = true
+  override def patternWithType(pattern: ScTypedPatternLike): Boolean = true
 
   override def parameterWithType(param: ScParameter): Boolean = true
 

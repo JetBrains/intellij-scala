@@ -67,7 +67,7 @@ class ToggleTypeAnnotation extends AbstractTypeAnnotationIntention {
       true
     }
 
-    override def patternWithType(pattern: ScTypedPattern): Boolean = {
+    override def patternWithType(pattern: ScTypedPatternLike): Boolean = {
       setText(message("intention.type.annotation.pattern.remove.text"))
 
       true
@@ -106,7 +106,3 @@ object ToggleTypeAnnotation {
   private[types] val FamilyName: String =
     message("intention.type.annotation.toggle.family")
 }
-
-
-
-
