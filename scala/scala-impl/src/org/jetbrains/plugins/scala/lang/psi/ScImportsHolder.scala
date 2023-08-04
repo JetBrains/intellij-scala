@@ -589,12 +589,12 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     true
   }
 
-  protected def insertFirstImport(importSt: ScImportStmt, first: PsiElement): PsiElement = {
+  protected def insertFirstImport(importSt: ScImportStmt, anchor: PsiElement): PsiElement = {
     childBeforeFirstImport match {
-      case Some(elem) if first != null && elem.endOffset > first.startOffset =>
+      case Some(elem) if anchor != null && elem.endOffset > anchor.startOffset =>
         addImportAfter(importSt, elem)
       case _ =>
-        addImportBefore(importSt, first)
+        addImportBefore(importSt, anchor)
     }
   }
 
