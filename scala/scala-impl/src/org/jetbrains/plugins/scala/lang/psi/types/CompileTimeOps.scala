@@ -19,6 +19,11 @@ private object CompileTimeOps {
 
       val containingClassName = Option(alias.containingClass).map(_.qualifiedName).orNull
 
+      //TODO: question of de-aliasing/reducing type aliases is more general and complicated
+      // For example see SCL-21176 and SCL-20263)
+      // For now (in Scala 3.2.1-RC4) it's done for scala.compiletime.ops
+      // But ideally it should be done more uniformly.
+      // See also: https://github.com/lampepfl/dotty/pull/14586
       lazy val argumentsDealiased = arguments.map {
         case AliasType(_, _, Right(right)) => right
         case other => other
