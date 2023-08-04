@@ -18,15 +18,19 @@ public class ScalaTokenBinders {
 
       int tokensSize = tokens.size();
 
-      /* Bind doc comment, but only if no directive is encountered */
+      /* Bind doc comment, but only if no directive is encountered between the doc comment and its potential owner */
 
       boolean directiveEncountered = false;
 
       for (int idx = tokensSize - 1; idx >= 0; idx--) {
-        if (tokens.get(idx) == ScalaDirectiveElementTypes.SCALA_DIRECTIVE)
+
+        final var currentToken = tokens.get(idx);
+
+        if (currentToken == ScalaDirectiveElementTypes.SCALA_DIRECTIVE) {
           directiveEncountered = true;
-        if (tokens.get(idx) == ScalaDocElementTypes.SCALA_DOC_COMMENT && !directiveEncountered)
+        } else if (currentToken == ScalaDocElementTypes.SCALA_DOC_COMMENT && !directiveEncountered) {
           return idx;
+        }
       }
 
       /* Bind other comments (mainly Line comments).
