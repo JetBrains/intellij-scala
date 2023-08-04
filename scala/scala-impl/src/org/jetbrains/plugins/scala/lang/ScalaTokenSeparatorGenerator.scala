@@ -9,6 +9,11 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScImportStmtElementType
 import org.jetbrains.plugins.scalaDirective.lang.lexer.ScalaDirectiveElementType
 
+/**
+ * Here we handle cases where 2 adjacent elements of different languages require a newline or other whitespace separator.
+ *
+ * Note that cases of same-language adjacent elements are handled by [[com.intellij.lang.LanguageTokenSeparatorGenerators]]
+ */
 class ScalaTokenSeparatorGenerator extends TokenSeparatorGenerator {
 
   override def generateWhitespaceBetweenTokens(left: ASTNode, right: ASTNode): ASTNode = {
