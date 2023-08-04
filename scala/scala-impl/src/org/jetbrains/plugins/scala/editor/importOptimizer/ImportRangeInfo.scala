@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.editor.importOptimizer
 import com.intellij.psi.{PsiAnchor, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 
-//TODO: rename to "ImportRangeInfo" or "ImportRangeInfo"
-final case class RangeInfo(
+final case class ImportRangeInfo(
   firstPsi: PsiAnchor,
   lastPsi: PsiAnchor,
   importStmtWithInfos: Seq[(ScImportStmt, Seq[ImportInfo])],

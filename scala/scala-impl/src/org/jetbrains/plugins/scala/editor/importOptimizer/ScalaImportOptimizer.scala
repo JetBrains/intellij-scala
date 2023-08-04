@@ -124,8 +124,8 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       indicator.setText2(ScalaEditorBundle.message("imports.collecting.additional.info", file.name))
     }
 
-    def collectRanges(createInfo: ScImportStmt => Seq[ImportInfo]): Seq[RangeInfo] = {
-      val importsInfo = ContainerUtil.newConcurrentSet[RangeInfo]()
+    def collectRanges(createInfo: ScImportStmt => Seq[ImportInfo]): Seq[ImportRangeInfo] = {
+      val importsInfo = ContainerUtil.newConcurrentSet[ImportRangeInfo]()
       processAllElementsConcurrentlyUnderProgress(importHolders) {
         case holder: ScImportsHolder =>
           importsInfo.addAll(collectImportRanges(holder, createInfo, usedImportedNames.asScala.toSet).asJava)
@@ -171,7 +171,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
         val document: Document = documentManager.getDocument(scalaFile)
         documentManager.commitDocument(document)
 
-        val ranges: Seq[(RangeInfo, Seq[ImportInfo])] =
+        val ranges: Seq[(ImportRangeInfo, Seq[ImportInfo])] =
           if (document.getText != analyzingDocumentText)  //something was changed...
             sameInfosWithUpdatedRanges()
           else optimized
@@ -182,7 +182,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
         documentManager.commitDocument(document)
       }
 
-      def sameInfosWithUpdatedRanges(): Seq[(RangeInfo, Seq[ImportInfo])] = {
+      def sameInfosWithUpdatedRanges(): Seq[(ImportRangeInfo, Seq[ImportInfo])] = {
         optimized.zip {
           collectRanges(_ => Seq.empty)
         }.map {
@@ -232,7 +232,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
         }))
 
   def replaceWithNewImportInfos(
-    range: RangeInfo,
+    range: ImportRangeInfo,
     importInfos: Iterable[ImportInfo],
     settings: OptimizeImportSettings,
     file: ScalaFile
@@ -333,7 +333,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
   def collectImportRanges(
     holder: ScImportsHolder
-  ): Set[RangeInfo] =
+  ): Set[ImportRangeInfo] =
     collectImportRanges(
       holder,
       Set.empty
@@ -342,7 +342,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
   def collectImportRanges(
     holder: ScImportsHolder,
     allUsedImportedNames: Set[UsedName]
-  ): Set[RangeInfo] =
+  ): Set[ImportRangeInfo] =
     collectImportRanges(
       holder,
       ImportInfo.createInfos(_),
@@ -353,8 +353,8 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     holder: ScImportsHolder,
     createInfo: ScImportStmt => Seq[ImportInfo],
     allUsedImportedNames: Set[UsedName]
-  ): Set[RangeInfo] = {
-    val result = mutable.HashSet[RangeInfo]()
+  ): Set[ImportRangeInfo] = {
+    val result = mutable.HashSet[ImportRangeInfo]()
 
     val isLocalRange = isLocalImportHolder(holder)
 
@@ -368,7 +368,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
         val importStmtWithInfos: Seq[(ScImportStmt, Seq[ImportInfo])] =
           importStmts.map(importStmt => (importStmt, createInfo(importStmt)))
 
-        val rangeInfo = RangeInfo(PsiAnchor.create(firstPsi), PsiAnchor.create(lastPsi), importStmtWithInfos.toVector, usedImportedNames, isLocalRange)
+        val rangeInfo = ImportRangeInfo(PsiAnchor.create(firstPsi), PsiAnchor.create(lastPsi), importStmtWithInfos.toVector, usedImportedNames, isLocalRange)
         result += rangeInfo
       }
 
@@ -697,8 +697,8 @@ object ScalaImportOptimizer {
       getImportExprText(importInfo, ImportTextGenerationOptions.from(settings))
   }
 
-  def optimizedImportInfos(rangeInfo: RangeInfo, settings: OptimizeImportSettings): Seq[ImportInfo] = {
-    val RangeInfo(firstPsi, _, importStatementsWithInfos, usedImportedNames, isLocalRange) = rangeInfo
+  def optimizedImportInfos(rangeInfo: ImportRangeInfo, settings: OptimizeImportSettings): Seq[ImportInfo] = {
+    val ImportRangeInfo(firstPsi, _, importStatementsWithInfos, usedImportedNames, isLocalRange) = rangeInfo
 
     val importInfos = importStatementsWithInfos.flatMap(_._2)
     val buffer = ArrayBuffer(importInfos: _*)
@@ -896,7 +896,7 @@ object ScalaImportOptimizer {
    */
   def bestPlaceToInsertNewImport(
     newInfo: ImportInfo,
-    rangeInfo: RangeInfo,
+    rangeInfo: ImportRangeInfo,
     settings: OptimizeImportSettings
   ): ImportInsertionPlace = {
     if (rangeInfo.importStmtWithInfos.isEmpty)
@@ -948,9 +948,9 @@ object ScalaImportOptimizer {
 
   sealed trait ImportInsertionPlace
   object ImportInsertionPlace {
-    final case class MergeInto(importRange: RangeInfo, importInfoIdx: Int) extends ImportInsertionPlace
-    final case class InsertFirst(importRange: RangeInfo) extends ImportInsertionPlace
-    final case class InsertAfterStatement(importRange: RangeInfo, importStmtIdx: Int) extends ImportInsertionPlace {
+    final case class MergeInto(importRange: ImportRangeInfo, importInfoIdx: Int) extends ImportInsertionPlace
+    final case class InsertFirst(importRange: ImportRangeInfo) extends ImportInsertionPlace
+    final case class InsertAfterStatement(importRange: ImportRangeInfo, importStmtIdx: Int) extends ImportInsertionPlace {
       assert(importStmtIdx >= 0, "importInfoIdx must be non negative")
     }
   }

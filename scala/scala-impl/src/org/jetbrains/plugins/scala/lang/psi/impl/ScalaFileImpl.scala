@@ -293,8 +293,8 @@ class ScalaFileImpl(
     case element => element.getNextSibling
   }
 
-  override protected def insertFirstImport(importSt: ScImportStmt, first: PsiElement): PsiElement =
-    super.insertFirstImport(importSt, first)
+  override protected def insertFirstImport(importSt: ScImportStmt, anchor: PsiElement): PsiElement =
+    super.insertFirstImport(importSt, anchor)
 
   override def typeDefinitions: Seq[ScTypeDefinition] = {
     val typeDefinitions = foldStub(findChildren[ScTypeDefinition]) { stub =>
