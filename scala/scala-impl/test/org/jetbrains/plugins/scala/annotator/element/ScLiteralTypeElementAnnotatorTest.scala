@@ -80,6 +80,27 @@ class ScLiteralTypeElementAnnotatorTest_Scala_2_13 extends ScLiteralTypeElementA
         |Error('Symbol,An identifier expected, but quoted identifier found)
         |""".stripMargin
     )
+
+  def testLiteralType_InsideRange(): Unit = assertNoErrors(
+    """type T1 = 2147483647 //Int.MaxValue
+      |type T2 = -2147483648 //Int.MinValue
+      |type T3 = 9223372036854775807L //Long.MaxValue
+      |type T4 = -9223372036854775808L //Long.MinValue
+      |""".stripMargin
+  )
+
+  def testLiteralType_OutsideRange(): Unit = assertErrorsText(
+    """type T1 = 2147483648 //Int.MaxValue + 1
+      |type T2 = -2147483649 //Int.MinValue - 1
+      |type T3 = 9223372036854775808L //Long.MaxValue + 1
+      |type T4 = -9223372036854775809L //Long.MinValue - 1
+      |""".stripMargin,
+    """Error(2147483648,Integer literal is out of range for type Int)
+      |Error(-2147483649,Integer literal is out of range for type Int)
+      |Error(9223372036854775808L,Integer number is out of range even for type Long)
+      |Error(-9223372036854775809L,Integer number is out of range even for type Long)
+      |""".stripMargin
+  )
 }
 
 class ScLiteralTypeElementAnnotatorTest_Scala_3_0 extends ScLiteralTypeElementAnnotatorTest_Scala_2_13 {

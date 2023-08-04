@@ -6,9 +6,13 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.{IntegerKind, Oct, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.annotator.quickfix.NumberLiteralQuickFix._
 import org.jetbrains.plugins.scala.extensions.ElementText
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPrefixExpr}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScLiteralTypeElementImpl
+import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag](isLong: Boolean) extends ElementAnnotator[L] {
@@ -21,7 +25,6 @@ sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag]
     val kind = IntegerKind(text)
 
     val target = literal.getParent match {
-      // only "-1234" is negative, "- 1234" should be considered as positive 1234
       case parent: ScPrefixExpr =>
         parent.getChildren match {
           case Array(ElementText("-"), `literal`) => parent
@@ -47,7 +50,29 @@ sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag]
         }
     }
 
-    val maybeNumber = stringToNumber(number, kind, target != literal)()
+    //Literal can be found in expression and in type
+    // 1. In expressions, negative value -42 is represented by:
+    //    PrefixExpression
+    //      ReferenceExpression: -
+    //        IntegerLiteral
+    //          PsiElement(integer)
+    // 2. In literal type "-" is kept inside the integral literal itself
+    //    LiteralType: -42
+    //      IntegerLiteral
+    //        PsiElement(identifier)
+    //          PsiElement(integer)
+    val isNegativeExpression = target != literal
+    val isNegativeInsideLiteralType = literal match {
+      case numeric: Numeric =>
+        val c = numeric.getFirstChild
+        val startsWithMinus = c != null &&
+          c.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER &&
+          c.textMatches("-")
+        startsWithMinus
+      case _ => false
+    }
+    val isNegative = isNegativeExpression || isNegativeInsideLiteralType
+    val maybeNumber = stringToNumber(number, kind, isNegative)()
     if (maybeNumber.isEmpty) {
       holder.createErrorAnnotation(target, ScalaBundle.message("long.literal.is.out.of.range"))
     }
