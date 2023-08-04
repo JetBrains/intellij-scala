@@ -351,7 +351,7 @@ object WorksheetDefaultSourcePreprocessor {
       }
 
     protected def processVarDef(varDef: ScVariableDefinition): Unit = {
-      def writeTypedPatter(p: ScTypedPattern) =
+      def writeTypedPattern(p: ScTypedPattern) =
         p.typePattern.map(typed => p.name + ":" + typed.typeElement.getText).getOrElse(p.name)
 
       def typeElement2Types(te: ScTypeElement) = te match {
@@ -381,8 +381,9 @@ object WorksheetDefaultSourcePreprocessor {
           val names = withOptionalBraces(namesList)
           varDefText(names.getOrElse("_"), expr)
         case (_, Some(expr)) =>
+          // TODO: fix for Scala 3 (SCL-21494)
           val namesList = varDef.declaredElements.map {
-            case tpePattern: ScTypedPattern => writeTypedPatter(tpePattern)
+            case tpePattern: ScTypedPattern => writeTypedPattern(tpePattern)
             case a                          => a.name
           }
           val names = withOptionalBraces(namesList)
