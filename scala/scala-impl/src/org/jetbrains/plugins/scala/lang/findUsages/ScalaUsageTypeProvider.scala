@@ -99,7 +99,7 @@ object ScalaUsageTypeProvider {
 
     if (patterns.exists(isPatternAncestor)) CLASS_CATCH_CLAUSE_PARAMETER_DECLARATION
     else pattern match {
-      case ScTypedPattern(typeElement) if isPatternAncestor(typeElement) => ClassTypedPattern
+      case ScTypedPatternLike(typePattern) if isPatternAncestor(typePattern.typeElement) => ClassTypedPattern
       case _: ScConstructorPattern | _: ScInfixPattern => Extractor
       case _ => null
     }
