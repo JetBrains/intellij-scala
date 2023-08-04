@@ -269,7 +269,7 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
 
   /**
    * Implementation:
-   *  1. search for the best [[RangeInfo import range]] to insert import into<br>
+   *  1. search for the best [[ImportRangeInfo import range]] to insert import into<br>
    *     (it constructs import infos for each import in the range)
    *  1. insert new import infos to appropriate places
    *  1. REPLACES THE WHOLE IMPORT RANGE with a newly-rendered import infos (using ScalaImportOptimizer)
@@ -306,7 +306,7 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
       if (importRanges.isEmpty) true
       else refsContainer == null && hasCodeBeforeImports
 
-    val insertionRangeWithImportsToAdd: Option[(RangeInfo, Seq[ImportInfo])] =
+    val insertionRangeWithImportsToAdd: Option[(ImportRangeInfo, Seq[ImportInfo])] =
       if (needToInsertFirst) {
 
         def determineAnchor(): PsiElement = {
@@ -330,14 +330,14 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
 
         val inserted = insertFirstImport(dummyImport, anchor)
         val psiAnchor = PsiAnchor.create(inserted)
-        val rangeInfo = RangeInfo(psiAnchor, psiAnchor, Seq((dummyImport, importInfosToAdd)), usedImportedNames = Set.empty, isLocal = false)
+        val rangeInfo = ImportRangeInfo(psiAnchor, psiAnchor, Seq((dummyImport, importInfosToAdd)), usedImportedNames = Set.empty, isLocal = false)
         val infosToAdd = ScalaImportOptimizer.optimizedImportInfos(rangeInfo, settings)
 
         Some((rangeInfo, infosToAdd))
       }
       else {
         val sortedRanges = importRanges.toSeq.sortBy(_.startOffset)
-        val selectedRange: Option[RangeInfo] =
+        val selectedRange: Option[ImportRangeInfo] =
           if (refsContainer != null && ScalaCodeStyleSettings.getInstance(getProject).isAddImportMostCloseToReference)
             sortedRanges.findLast(_.endOffset < refsContainer.getTextRange.getStartOffset)
           else
@@ -475,14 +475,14 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
        s" (scalaFile: $scalaFile, import: $path, oldImportStatementOffset: ${oldImportStatementOffset})")
     }
 
-    val existingImportRanges: Set[RangeInfo] = optimizer.collectImportRanges(this)
+    val existingImportRanges: Set[ImportRangeInfo] = optimizer.collectImportRanges(this)
     if (existingImportRanges.isEmpty) {
       error(s"expecting at least single import statement")
     }
     else {
-      val importRangesSorted: Seq[RangeInfo] = existingImportRanges.toSeq.sortBy(_.startOffset)
+      val importRangesSorted: Seq[ImportRangeInfo] = existingImportRanges.toSeq.sortBy(_.startOffset)
 
-      val selectedImportRange: Option[RangeInfo] =
+      val selectedImportRange: Option[ImportRangeInfo] =
         importRangesSorted.find(_.rangeCanAccept(oldImportStatementOffset))
 
       selectedImportRange match {
