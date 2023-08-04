@@ -20,11 +20,13 @@ class ScalaTokenSeparatorGenerator extends TokenSeparatorGenerator {
 
     if (left.getElementType.is[ScalaDirectiveElementType] && right.getTreeParent.getElementType.is[ScImportStmtElementType]) {
 
-      val manager = right.getTreeParent.getPsi.getManager
-      val commonCodeStyleSettings = CodeStyle.getSettings(right.getPsi.getProject).getCommonSettings(ScalaLanguage.INSTANCE)
+      val leftPsi = left.getPsi
+      val project = leftPsi.getProject
+      val commonCodeStyleSettings = CodeStyle.getSettings(project).getCommonSettings(ScalaLanguage.INSTANCE)
       val repeatCount = commonCodeStyleSettings.BLANK_LINES_BEFORE_IMPORTS + 1
+      val psiManager = leftPsi.getManager
 
-      Factory.createSingleLeafElement(TokenType.WHITE_SPACE, "\n".repeat(repeatCount), 0, repeatCount, null, manager)
+      Factory.createSingleLeafElement(TokenType.WHITE_SPACE, "\n".repeat(repeatCount), 0, repeatCount, null, psiManager)
     } else {
       null
     }
