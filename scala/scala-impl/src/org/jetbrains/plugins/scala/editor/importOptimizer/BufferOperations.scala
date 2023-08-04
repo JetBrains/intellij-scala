@@ -15,6 +15,11 @@ trait BufferOperations[Buffer, Elem] {
 }
 
 object BufferOperations {
+
+  /**
+   * In production code, [[astNodeChildrenOperations]] is the only [[BufferOperations]] implementation used.
+   * Currently [[ScalaImportOptimizer]] is its only place of usage.
+   */
   private[importOptimizer] implicit val astNodeChildrenOperations: BufferOperations[AstChildrenBuffer, ASTNode] =
     new BufferOperations[AstChildrenBuffer, ASTNode] {
 
@@ -28,6 +33,9 @@ object BufferOperations {
         buffer.asArray
     }
 
+  /**
+   * [[scalaBufferOperations]] is only used in org.jetbrains.plugins.scala.lang.optimize.IncrementalBufferUpdateTest.
+   */
   implicit def scalaBufferOperations[E: ClassTag, B <: mutable.Buffer[E]]: BufferOperations[B, E] =
     new BufferOperations[B, E] {
       override def remove(buffer: B, startIdx: Int, count: Int): Unit = buffer.remove(startIdx, count)
