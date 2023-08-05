@@ -1,19 +1,20 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.caches.measure
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.{ScBooleanLiteralImpl, ScDoubleLiteralImpl, ScFloatLiteralImpl, ScIntegerLiteralImpl, ScLongLiteralImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.{ScBooleanLiteralImpl, ScCharLiteralImpl, ScDoubleLiteralImpl, ScFloatLiteralImpl, ScIntegerLiteralImpl, ScLongLiteralImpl}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ValueType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 
+import java.util.regex.PatternSyntaxException
 import scala.annotation.switch
 
 /** @see [[scala.compiletime.ops]] */
-
 private object CompileTimeOps {
-  def apply(designator: ScType, arguments: Seq[ScType]): Option[ValueType] = designator match {
+  def apply(designator: ScType, arguments: Seq[ScType]): Option[ValueType] = measure("CompileTimeOps") { designator match {
     case ScProjectionType.withActual(alias: ScTypeAliasDeclaration, _) =>
       implicit def project: Project = designator.projectContext.project
 
@@ -39,11 +40,36 @@ private object CompileTimeOps {
         case _ => None
       }
     case _ => None
-  }
+  } }
 
-  private def stringOp(operator: String, operands: Seq[ScType])(implicit project: Project) = operands match {
+  private def stringOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
     case Seq(StringValue(l), StringValue(r)) => (operator: @switch) match {
       case "+" => Some(StringValue(l + r))
+      case "Matches" =>
+        //TODO: Ideally we need to cache compiled regular expressions for performance reasons (probably some bounded cache would do)"
+        // But at this moment it's not clear how much `scala.compiletime.ops.string.Matches` will be used in practice
+        // and whether it's worth caching, so for now leave it as is
+        try Some(BooleanValue(l.matches(r))) catch {
+          case _: PatternSyntaxException =>
+            None
+        }
+      case _ => None
+    }
+    case Seq(StringValue(l), IntValue(r)) => (operator: @switch) match {
+      case "CharAt" =>
+        if (0 <= r && r < l.length) Some(CharValue(l.charAt(r)))
+        else None
+      case _ => None
+    }
+    case Seq(StringValue(s), IntValue(x), IntValue(y)) => (operator: @switch) match {
+      case "Substring" =>
+        if (0 <= x && x <= y && y <= s.length)
+          Some(StringValue(s.substring(x, y)))
+        else None
+      case _ => None
+    }
+    case Seq(StringValue(v)) => (operator: @switch) match {
+      case "Length" => Some(IntValue(v.length))
       case _ => None
     }
     case _ => None
@@ -246,6 +272,15 @@ private object CompileTimeOps {
 
     def unapply(t: ScLiteralType): Option[String] = t.value match {
       case ScStringLiteralImpl.Value(v) => Some(v)
+      case _ => None
+    }
+  }
+
+  private object CharValue {
+    def apply(v: Char)(implicit context: Project): ScLiteralType = ScLiteralType(ScCharLiteralImpl.Value(v))
+
+    def unapply(t: ScLiteralType): Option[Char] = t.value match {
+      case ScCharLiteralImpl.Value(v) => Some(v)
       case _ => None
     }
   }

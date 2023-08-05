@@ -491,6 +491,42 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
   def testStringPlus(): Unit = assertTypeIs(StringOps +
     "type T = \"foo\" + \"bar\"", "\"foobar\"")
 
+  def testStringLength(): Unit = assertTypeIs(StringOps +
+    """type T = Length["hello"]""", "5")
+
+  def testStringChatAt(): Unit = assertTypeIs(StringOps +
+    """type T = CharAt["hello", 4]""", "'o'")
+
+  def testStringChatAt_Bad_IndexLargerThenLength(): Unit = assertTypeIs(StringOps +
+    """type T = CharAt["hello", 5]""", """CharAt["hello", 5]""")
+
+  def testStringChatAt_Bad_NegativeIndex(): Unit = assertTypeIs(StringOps +
+    """type T = CharAt["hello", -1]""", """CharAt["hello", -1]""")
+
+  def testStringSubstring(): Unit = assertTypeIs(StringOps +
+    """type T = Substring["hello", 2, 5]""", """"llo"""")
+
+  def testStringSubstring_EmptyRange(): Unit = assertTypeIs(StringOps +
+    """type T = Substring["hello", 2, 2]""", """""""")
+
+  def testStringSubstring_BadRange_1(): Unit = assertTypeIs(StringOps +
+    """type T = Substring["hello", 2, 1]""", """Substring["hello", 2, 1]""")
+
+  def testStringSubstring_BadRange_2(): Unit = assertTypeIs(StringOps +
+    """type T = Substring["hello", -1, 5]""", """Substring["hello", -1, 5]""")
+
+  def testStringSubstring_BadRange_3(): Unit = assertTypeIs(StringOps +
+    """type T = Substring["hello", 2, 6]""", """Substring["hello", 2, 6]""")
+
+  def testStringMatches_True(): Unit = assertTypeIs(StringOps +
+    """type T = Matches["unhappy", "un.*"]""", "true")
+
+  def testStringMatches_False(): Unit = assertTypeIs(StringOps +
+    """type T = Matches["unhappy", "ab.*"]""", "false")
+
+  def testStringMatches_Bad_WrongPattern(): Unit = assertTypeIs(StringOps +
+    """type T = Matches["unhappy", "{"]""", """Matches["unhappy", "{"]""")
+
   private def assertTypeIs(code: String, tpe: String): Unit = {
     val file = ScalaPsiElementFactory.createScalaFileFromText(code, ScalaFeatures.onlyByVersion(version))(getProject)
     val typeElement = file.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
