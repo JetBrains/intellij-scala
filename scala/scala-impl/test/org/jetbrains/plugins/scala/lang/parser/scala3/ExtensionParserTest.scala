@@ -736,4 +736,84 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |        <empty list>
       |  PsiWhiteSpace('\n  ')""".stripMargin
   )
+
+  def test_methods_with_scaladoc(): Unit = checkTree(
+    """extension (target: String)
+      |  /** doc 1 */
+      |  def foo1: String
+      |  /** doc 2 */
+      |  def foo2: String
+      |""".stripMargin,
+    """ScalaFile
+      |  Extension on String
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: target
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('target')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: String
+      |              CodeReferenceElement: String
+      |                PsiElement(identifier)('String')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace('\n  ')
+      |    ScExtensionBody
+      |      ScFunctionDeclaration: foo1
+      |        DocComment
+      |          ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |          ScDocParagraph
+      |            ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |            ScPsiDocToken(DOC_COMMENT_DATA)('doc 1')
+      |            ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |          ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |        PsiWhiteSpace('\n  ')
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('foo1')
+      |        Parameters
+      |          <empty list>
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace(' ')
+      |        SimpleType: String
+      |          CodeReferenceElement: String
+      |            PsiElement(identifier)('String')
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDeclaration: foo2
+      |        DocComment
+      |          ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |          ScDocParagraph
+      |            ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |            ScPsiDocToken(DOC_COMMENT_DATA)('doc 2')
+      |            ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |          ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |        PsiWhiteSpace('\n  ')
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('foo2')
+      |        Parameters
+      |          <empty list>
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace(' ')
+      |        SimpleType: String
+      |          CodeReferenceElement: String
+      |            PsiElement(identifier)('String')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

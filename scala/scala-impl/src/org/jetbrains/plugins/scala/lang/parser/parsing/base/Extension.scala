@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.base
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{ExtensionKeyword, InlineKeyword}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ErrMsg, ScalaElementType, ScalaTokenBinders}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{Param, ParamClause, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{FunDcl, FunDef}
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
+import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ErrMsg, ScalaElementType, ScalaTokenBinders}
 
 /*
  * Extension  ::=  ‘extension’ [DefTypeParamClause] ‘(’ DefParam ‘)’
@@ -46,6 +46,9 @@ object Extension extends ParsingRule {
 object ExtMethods extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): true = {
     val extDefinitionsMarker = builder.mark()
+    //we need to register extra commet binder to later delegate it by binder of function inside the body
+    //otherwise, the doc comment will be parsed as sibling of parameters & extension body
+    extDefinitionsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
     val (blockIndentation, baseIndentation, onlyOne) = builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE  =>
         builder.advanceLexer() // Ate {
@@ -116,8 +119,9 @@ object ExtMethods extends ParsingRule {
 object ExtensionParameterClauses extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark()
-    //@TODO: leading using clauses
-    if (!ExtensionParameterClause()) builder.error(ErrMsg("param.clause.expected"))
+
+    if (!ExtensionParameterClause())
+      builder.error(ErrMsg("param.clause.expected"))
 
     while (ParamClause(mustBeUsing = true)) {}
 

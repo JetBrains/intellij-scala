@@ -424,4 +424,28 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
         |""".stripMargin
     )
   }
+
+  def testExtensionsWithComments(): Unit = {
+    doTextTest(
+      """extension (self: String)
+        |
+        |  /** description 1 */
+        |  def pos: Int
+        |  /** description 2 */
+        |  def range: (Int, Int)
+        |
+        |extension (self: String)
+        |  /* description 1 */
+        |  def pos2: Int
+        |  /* description 2 */
+        |  def range2: (Int, Int)
+        |
+        |extension (self: String)
+        |  // description 1
+        |  def pos3: Int
+        |  // description 2
+        |  def range3: (Int, Int)
+        |""".stripMargin
+    )
+  }
 }
