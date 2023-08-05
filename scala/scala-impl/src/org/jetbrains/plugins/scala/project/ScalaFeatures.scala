@@ -188,6 +188,7 @@ object ScalaFeatures {
   }
 
   val default: SerializableScalaFeatures = onlyByVersion(ScalaVersion.Latest.Scala_2_13)
+  private val defaultScala3: SerializableScalaFeatures = onlyByVersion(ScalaVersion.Latest.Scala_3)
 
   val `-Xsource:3 in 2.12.14 or 2.13.6`: SerializableScalaFeatures = default.copy(
     version = ScalaVersion.Latest.Scala_2_13.withMinor(6),
@@ -222,23 +223,29 @@ object ScalaFeatures {
 
   private def forPsi(psi: PsiElement): Option[ScalaFeatures] = {
     val containingFile = Option(psi.getContainingFile)
+    containingFile.map(forFile)
+  }
 
-    containingFile.map { file =>
-      //It may happen that `psi`, that is being passed as a context to some
-      //ScalaPsiElementFactory method is already synthetic, in this case just use
-      //ScalaFeatures stored in containing file userdata.
-      //Preview elements are not physical but they most probably don't have attached features
-      if (!file.isPhysical && !IntentionPreviewUtils.isPreviewElement(file))
-        getAttachedScalaFeatures(file).getOrElse(default)
-      else {
-        val module = file.module
-
-        module.fold {
-          if (file.isScala3File) ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3)
-          else                   default
-        }(_.features)
-      }
-    }
+  /**
+   * @note It may happen that psi element (and containing psi file),
+   *       that is being passed as a context to some `ScalaPsiElementFactory` method is already synthetic.
+   *       In this case we just use ScalaFeatures stored in/attached to containing file userdata.
+   *       However not all synthetic/non-physical files are created by ScalaPsiElementFactory.
+   *       That's why we need to fallback to features extracted from module
+   *       Examples:
+   *        - temp files, created for intention preview
+   *        - in-memory files created in light unit tests
+   */
+  @inline
+  private def forFile(file: PsiFile): ScalaFeatures = {
+    val featuresAttached =
+      if (!file.isPhysical)
+        getAttachedScalaFeatures(file)
+      else
+        None
+    val featuresAttachedOrFromModule = featuresAttached.orElse(file.module.map(_.features))
+    val result = featuresAttachedOrFromModule.getOrElse(if (file.isScala3File) defaultScala3 else default)
+    result
   }
 
   implicit def forPsiOrDefault(psi: PsiElement): ScalaFeatures = {

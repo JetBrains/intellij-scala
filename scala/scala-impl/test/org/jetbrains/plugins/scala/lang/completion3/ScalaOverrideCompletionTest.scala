@@ -308,8 +308,48 @@ class ScalaOverrideCompletionTest2 extends ScalaCompletionTestBase {
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest
 ))
+class ScalaOverrideCompletionTest_Scala3 extends ScalaCompletionTestBase {
+
+  def testFunctionWithImplicitParameters(): Unit = doRawCompletionTest(
+    fileText =
+      s"""abstract class Base[T]:
+         |  def myFunction(p: String, p2: T)(implicit c: CharSequence, t: T): String
+         |
+         |class Child extends Base[Short]:
+         |  override def myFunction$CARET
+         |""".stripMargin,
+    resultText =
+      s"""abstract class Base[T]:
+        |  def myFunction(p: String, p2: T)(implicit c: CharSequence, t: T): String
+        |
+        |class Child extends Base[Short]:
+        |  override def myFunction(p: String, p2: Short)(implicit c: CharSequence, t: Short): String = $CARET$START???$END
+        |""".stripMargin
+  )()
+
+  def testFunctionWithUsingParameters(): Unit = doRawCompletionTest(
+    fileText =
+      s"""abstract class Base[T]:
+         |  def myFunction(p: String, p2: T)(using c: CharSequence, t: T): String
+         |
+         |class Child extends Base[Short]:
+         |  override def myFunction$CARET
+         |""".stripMargin,
+    resultText =
+      s"""abstract class Base[T]:
+         |  def myFunction(p: String, p2: T)(using c: CharSequence, t: T): String
+         |
+         |class Child extends Base[Short]:
+         |  override def myFunction(p: String, p2: Short)(using c: CharSequence, t: Short): String = $CARET$START???$END
+         |""".stripMargin
+  )()
+}
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_Latest
+))
 class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestBase {
-//TODO
+
   def testFunction(): Unit = doRawCompletionTest(
     fileText =
       s"""class Inheritor extends BaseTrait {

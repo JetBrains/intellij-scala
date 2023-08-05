@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.overrideImplement._
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import javax.swing.Icon
@@ -52,7 +53,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
           val (clazz, members) = membersOf(body)
 
           val lookupElements = members.map { member =>
-            createLookupElement(member, createText(member, clazz, position, full = true), hasOverride = false)
+            createLookupElement(member, createText(member, clazz, full = true), hasOverride = false)
           }
 
           resultSet.addAllElements(lookupElements.asJava)
@@ -79,7 +80,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         val lookupElements = members.collect { case member @ (_: ScValueMember | _: ScVariableMember) =>
           createLookupElement(
             member,
-            createText(member, clazz, position, full = !hasOverride, withBody = false),
+            createText(member, clazz, full = !hasOverride, withBody = false),
             hasOverride
           )
         }
@@ -118,7 +119,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
           val (clazz, classMembers) = membersOf(body)
 
           val lookupElements = classMembers.filter(filterClass.isInstance).map { member =>
-            createLookupElement(member, createText(member, clazz, position), hasOverride)
+            createLookupElement(member, createText(member, clazz), hasOverride)
           }
 
           resultSet.addAllElements(lookupElements.asJava)
@@ -127,10 +128,12 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     }
   })
 
-  private def createText(classMember: ClassMember, clazz: ScTemplateDefinition, position: PsiElement, full: Boolean = false, withBody: Boolean = true): String = {
+  private def createText(classMember: ClassMember, clazz: ScTemplateDefinition, full: Boolean = false, withBody: Boolean = true): String = {
     import ScalaPsiElementFactory._
     import TypeAnnotationUtil._
     import clazz.projectContext
+
+    val scalaFeatures = ScalaFeatures.forPsiOrDefault(clazz)
 
     val text: String = classMember match {
       case member @ ScMethodMember(signature, isOverride) =>
@@ -141,11 +144,11 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
               signature,
               needsOverrideModifier = true,
               mBody,
-              position,
+              scalaFeatures,
               withComment = false,
               withAnnotation = false
             )
-          else createMethodFromSignature(signature, mBody, position, withComment = false, withAnnotation = false)
+          else createMethodFromSignature(signature, mBody, scalaFeatures, withComment = false, withAnnotation = false)
 
         removeTypeAnnotationIfNeeded(fun)
         fun.getText
@@ -157,7 +160,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
           member.substitutor,
           needsOverrideModifier = false,
           isVal = true,
-          features = position,
+          features = scalaFeatures,
           withBody = withBody
         )
         removeTypeAnnotationIfNeeded(variable)
@@ -168,7 +171,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
           member.substitutor,
           needsOverrideModifier = false,
           isVal = false,
-          features = position,
+          features = scalaFeatures,
           withBody = withBody
         )
         removeTypeAnnotationIfNeeded(variable)
