@@ -7,16 +7,17 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getSelectedExpression
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 class ShowTypeInfoAction extends AnAction(
   ScalaBundle.message("type.info.text"),
@@ -87,6 +88,8 @@ class ShowTypeInfoAction extends AnAction(
 }
 
 object ShowTypeInfoAction {
+  val ActionId: String = "Scala.TypeInfo"
+
   def getTypeInfoHint(file: PsiFile, offset: Int): Option[String] = {
     val typeInfoFromRef = file.findReferenceAt(offset) match {
       case ref @ ResolvedWithSubst(e, subst) => typeTextOf(e, subst)(ref.getElement)
@@ -113,8 +116,18 @@ object ShowTypeInfoAction {
     }
 
   private[this] def typeTextOf(elem: PsiElement, subst: ScSubstitutor)
-                              (implicit context: TypePresentationContext): Option[String] =
-    typeText(elem.ofNamedElement(subst))
+                              (implicit context: TypePresentationContext): Option[String] = {
+    //NOTE: type alias handled here, not inside `org.jetbrains.plugins.scala.extensions.PsiElementExt.ofNamedElement$extension`
+    //because it's not directly clear how it will effect other usage places of ofNamedElement
+    //(mainly org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler)
+    val scType: Option[ScType] = elem match {
+      case alias: ScTypeAliasDefinition =>
+        alias.aliasedType.toOption.map(subst)
+      case _ =>
+        elem.ofNamedElement(subst)
+    }
+    typeText(scType)
+  }
 
   private[this] def typeText(optType: Option[ScType])
                             (implicit context: TypePresentationContext): Option[String] =

@@ -42,7 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScFieldId}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScEnumCase, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScEnumCase, ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
@@ -619,6 +619,7 @@ package object extensions {
 
     def projectContext: ProjectContext = element.getProject
 
+    //TODO: better name? "typeOfNamedElement"?
     def ofNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty, scalaScope: Option[ElementScope] = None): Option[ScType] = {
       def lift(`type`: PsiType) = Option(`type`.toScType())
 
@@ -631,6 +632,7 @@ package object extensions {
         case e: ScParameter      => e.getRealParameterType.toOption
         case e: PsiMethod        => e.functionType(scope)
         case e: PsiVariable      => lift(e.getType)
+        case e: ScTypeAliasDefinition => e.aliasedType.toOption
         case _                   => None
       }).map(substitutor)
     }
