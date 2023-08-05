@@ -7,6 +7,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiMethod}
 import com.intellij.util.{Consumer, EmptyConsumer}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOverrideImplementMethod
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
@@ -35,6 +36,8 @@ class ScalaMethodImplementor extends MethodImplementor {
   }
 
   override def createGenerationInfo(method: PsiMethod, mergeIfExists: Boolean): GenerationInfo = {
+    if (!method.isInstanceOf[ScalaPsiElement])
+      return null
     val baseMethod = prototypeToBaseMethod.get(method)
     prototypeToBaseMethod.clear()
     new ScalaPsiMethodGenerationInfo(method, baseMethod.orNull)
