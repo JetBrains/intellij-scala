@@ -33,17 +33,16 @@ abstract class InlineRefactoringTestBase extends ScalaLightCodeInsightFixtureTes
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileText(ScalaFileType.INSTANCE, fileText)
+    configureFromFileText(ScalaFileType.INSTANCE, fileText.replace(caretMarker, CARET))
 
-
-    val offset = fileText.indexOf(caretMarker) + caretMarker.length
-    assert(offset != -1, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")
     val editor = CommonDataKeys.EDITOR.getData(DataManager.getInstance().getDataContextFromFocusAsync.blockingGet(5, TimeUnit.SECONDS))
-    editor.getCaretModel.moveToOffset(offset)
+    val caretModel = editor.getCaretModel
+    assert(caretModel.getCaretCount == 1, "Expected exactly one caret.")
+    assert(caretModel.getOffset > 0, s"Not specified caret marker in test case. Use $caretMarker in scala file for this.")
 
     val scalaFile = getFile.asInstanceOf[ScalaFile]
     var element = CommonDataKeys.PSI_ELEMENT.getData(DataManager.getInstance().getDataContextFromFocusAsync.blockingGet(5, TimeUnit.SECONDS))
-    if (element == null){
+    if (element == null) {
       element = BaseRefactoringAction.getElementAtCaret(editor, scalaFile)
     }
 
@@ -70,6 +69,6 @@ abstract class InlineRefactoringTestBase extends ScalaLightCodeInsightFixtureTes
     }
 
     val ExpectedResultFromLastComment(res, expectedResult) = TestUtils.extractExpectedResultFromLastComment(scalaFile)
-    assertEquals(expectedResult, res.replace(caretMarker, ""))
+    assertEquals(expectedResult, res)
   }
 }

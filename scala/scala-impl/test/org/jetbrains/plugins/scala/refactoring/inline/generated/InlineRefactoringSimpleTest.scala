@@ -37,4 +37,10 @@ class InlineRefactoringSimpleTest extends InlineRefactoringTestBase {
   def testStandardInterpolationSimple(): Unit = doTest()
 
   def testStandardInterpolationLast(): Unit = doTest()
+
+  def testComment(): Unit = doTest()
+
+  def testDocComment(): Unit = doTest()
+
+  def testMultipleComments(): Unit = doTest()
 }

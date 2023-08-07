@@ -50,7 +50,7 @@ class ScalaInlineHandler extends InlineHandler {
       for (child <- children) {
         child.getParent.getNode.removeChild(child.getNode)
       }
-      value.getParent.getNode.removeChild(value.getNode)
+      ScalaPsiUtil.deleteElementKeepingComments(value)
     }
 
     element match {
