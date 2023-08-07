@@ -9,7 +9,7 @@ import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.addTargetNameAnnotationIfNeeded
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiModifierListOwnerExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiFileExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -53,7 +53,8 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
           val (clazz, members) = membersOf(body)
 
           val lookupElements = members.map { member =>
-            createLookupElement(member, createText(member, clazz, full = true), hasOverride = false)
+            val lookupString = createText(member, clazz, full = true, withBody = true)
+            createLookupElement(member, lookupString, hasOverride = false)
           }
 
           resultSet.addAllElements(lookupElements.asJava)
@@ -78,11 +79,8 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         val (clazz, members) = membersOf(position)
 
         val lookupElements = members.collect { case member @ (_: ScValueMember | _: ScVariableMember) =>
-          createLookupElement(
-            member,
-            createText(member, clazz, full = !hasOverride, withBody = false),
-            hasOverride
-          )
+          val lookupString = createText(member, clazz, full = !hasOverride, withBody = false)
+          createLookupElement(member, lookupString, hasOverride)
         }
 
         completionResultSet.addAllElements(lookupElements.asJava)
@@ -106,7 +104,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
           case body: ScTemplateBody => body
         }
 
-        val filterClass = declaration match {
+        val filterClass: Class[_ <: ScalaNamedMember] = declaration match {
           case _: PsiMethod => classOf[ScMethodMember]
           case _: ScValueDeclaration => classOf[ScValueMember]
           case _: ScVariableDeclaration => classOf[ScVariableMember]
@@ -118,8 +116,10 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
           val hasOverride = declaration.hasModifierPropertyScala("override")
           val (clazz, classMembers) = membersOf(body)
 
-          val lookupElements = classMembers.filter(filterClass.isInstance).map { member =>
-            createLookupElement(member, createText(member, clazz), hasOverride)
+          val classMembersFiltered = classMembers.filter(filterClass.isInstance)
+          val lookupElements = classMembersFiltered.map { member =>
+            val lookupString = createText(member, clazz, full = false, withBody = true)
+            createLookupElement(member, lookupString, hasOverride)
           }
 
           resultSet.addAllElements(lookupElements.asJava)
@@ -128,7 +128,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     }
   })
 
-  private def createText(classMember: ClassMember, clazz: ScTemplateDefinition, full: Boolean = false, withBody: Boolean = true): String = {
+  private def createText(classMember: ClassMember, clazz: ScTemplateDefinition, full: Boolean, withBody: Boolean): String = {
     import ScalaPsiElementFactory._
     import TypeAnnotationUtil._
     import clazz.projectContext
@@ -152,6 +152,27 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
 
         removeTypeAnnotationIfNeeded(fun)
         fun.getText
+      case member@ScExtensionMethodMember(_, isOverride) =>
+        val methodBody = if (isOverride) ScalaGenerationInfo.getExtensionMethodBody(member, clazz, isImplement = false) else "???"
+
+        val extensionMethodConstructionInfo: ExtensionMethodConstructionInfo = {
+          val methodSignature = member.signature
+          val needsOverride = member.isOverride || ScalaGenerationInfo.toAddOverrideToImplemented
+          ExtensionMethodConstructionInfo(methodSignature, needsOverride, methodBody)
+        }
+        val newExtension = createOverrideImplementExtensionMethods(
+          Seq(extensionMethodConstructionInfo),
+          scalaFeatures,
+          wrapMultipleExtensionsWithBraces = !clazz.containingFile.exists(_.useIndentationBasedSyntax),
+          withComment = false
+        )
+
+        val addedExtensionMethod = newExtension.extensionMethods.head
+        addTargetNameAnnotationIfNeeded(addedExtensionMethod, member)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeeded(addedExtensionMethod, ScalaGenerationInfo.typeAnnotationsPolicy)
+
+        removeTypeAnnotationIfNeeded(newExtension)
+        newExtension.getText
       case ScAliasMember(element, substitutor, _) =>
         getOverrideImplementTypeSign(element, substitutor, needsOverride = false)
       case member: ScValueMember =>
@@ -179,13 +200,17 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       case _ => " "
     }
 
-    if (!full) text.indexOf(" ", 1) match {
-      //remove val, var, def or type
-      case -1 => text
-      case part => text.substring(part + 1)
-    } else if (classMember.is[ScMethodMember]) text else "override " + text
+    if (!full)
+      text.indexOf(" ", 1) match {
+        //remove val, var, def or type
+        case -1 => text
+        case part => text.substring(part + 1)
+      }
+    else if (classMember.is[ScMethodMember, ScExtensionMethodMember])
+      text
+    else
+      "override " + text
   }
-
 }
 
 object ScalaOverrideContributor {
@@ -221,7 +246,8 @@ object ScalaOverrideContributor {
 
     override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
       val startElement = context.getFile.findElementAt(context.getStartOffset)
-      getContextOfType(startElement, classOf[ScModifierListOwner]) match {
+      val member = getContextOfType(startElement, classOf[ScModifierListOwner])
+      member match {
         case member: PsiMember =>
           onMember(member, item)
           ScalaGenerationInfo.positionCaret(context.getEditor, member)
@@ -242,6 +268,7 @@ object ScalaOverrideContributor {
   private def quickRenderer(member: ClassMember): LookupElementRenderer[LookupElement] = { (_, presentation) =>
     def itemText: String = "override " + (member match {
       case methodMember: ScMethodMember => methodMember.getText + " = {...}"
+      case extensionMethodMember: ScExtensionMethodMember => extensionMethodMember.getText + " = {...}"
       case _ => member.name
     })
 
