@@ -672,12 +672,11 @@ object ScalaPsiUtil {
     TypeAdjuster.adjustFor(Seq(element), addImports, useTypeAliases)
   }
 
-  def isLineTerminator(element: PsiElement): Boolean = {
+  def isLineTerminator(element: PsiElement): Boolean =
     element match {
-      case _: PsiWhiteSpace if element.getText.indexOf('\n') != -1 => true
+      case _: PsiWhiteSpace => element.textContains('\n')
       case _ => false
     }
-  }
 
   def getApplyMethods(clazz: PsiClass): Seq[PhysicalMethodSignature] = {
     val isObject = clazz.is[ScObject]
