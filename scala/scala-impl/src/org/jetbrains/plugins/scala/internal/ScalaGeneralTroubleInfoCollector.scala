@@ -4,9 +4,10 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module
 import com.intellij.openapi.project.Project
 import com.intellij.troubleshooting.GeneralTroubleInfoCollector
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.internal.ScalaGeneralTroubleInfoCollector.Log
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, Version}
 
 import scala.util.control.NonFatal
 
@@ -30,32 +31,13 @@ final class ScalaGeneralTroubleInfoCollector extends GeneralTroubleInfoCollector
     val scalaVersionToModules: Map[ScalaVersion, Seq[module.Module]] =
       mainModules.groupBy(_.scalaMinorVersion).collect { case Some(v) -> modules => v -> modules }
 
-    val uniqueScalaVersionsText = scalaVersionToModules
-      .keys.toSeq
-      .distinct.sorted.reverse
-      .map { version =>
-        val numberOfModulesWithVersion = scalaVersionToModules.getOrElse(version, Nil).size
-        val numberOfModulesSuffix = s"${if (numberOfModulesWithVersion > 1) s" ($numberOfModulesWithVersion)" else ""}"
-        s"${version.minor}$numberOfModulesSuffix"
-      }
-      .mkString(", ")
+    val sbtVersionToModules: Map[Version, Seq[module.Module]] =
+      buildModules.groupBy(_.sbtVersion).collect { case Some(v) -> modules => v -> modules }
 
-    val result = new StringBuilder
-    if (uniqueScalaVersionsText.nonEmpty) {
-      result.append(s"Scala versions: $uniqueScalaVersionsText")
-      result.append("\n")
-    }
-
-    //NOTE: we generally expect a single SBT version, but still using sequence, just in case...
-    //Who knows what configurations there might be in projects...
-    val sbtVersions = buildModules.flatMap(_.sbtVersion)
-    val sbtVersionsText = sbtVersions.map(_.toString).mkString(", ")
-    if (sbtVersionsText.nonEmpty) {
-      result.append(s"SBT version: $sbtVersionsText")
-      result.append("\n")
-    }
-
-    result.toString.trim
+    ScalaGeneralTroubleInfoCollector.buildText(
+      scalaVersionToModules,
+      sbtVersionToModules
+    )
   } catch {
     case NonFatal(ex) =>
       //In case of unexpected exceptions, don't want to block platform from collecting troubleshoot information
@@ -65,5 +47,50 @@ final class ScalaGeneralTroubleInfoCollector extends GeneralTroubleInfoCollector
 }
 
 object ScalaGeneralTroubleInfoCollector {
+
   private val Log = Logger.getInstance(classOf[ScalaGeneralTroubleInfoCollector])
+
+  @VisibleForTesting
+  def buildText(
+    scalaVersionToModules: Map[ScalaVersion, Seq[_]],
+    sbtVersionToModules: Map[Version, Seq[_]]
+  ): String = {
+    val result = new StringBuilder
+
+    val uniqueScalaVersionsText = buildKeysTextWithNumberOfOccurrences(scalaVersionToModules)(_.minor)
+    if (uniqueScalaVersionsText.nonEmpty) {
+      result.append(s"Scala versions: $uniqueScalaVersionsText")
+      result.append("\n")
+    }
+
+    val sbtVersionsText = buildKeysTextWithNumberOfOccurrences(sbtVersionToModules)(_.toString)
+    if (sbtVersionsText.nonEmpty) {
+      result.append(s"SBT version: $sbtVersionsText")
+      result.append("\n")
+    }
+
+    result.toString.trim
+  }
+
+  /**
+   * @example {{{
+   *   input: Map(2.13 -> Seq(a, b, c), 2.11 -> Seq(c), 2.12 -> Seq(d, e)
+   *   output: 2.13 (3), 2.12 (2), 2.11
+   * }}}
+   */
+  private def buildKeysTextWithNumberOfOccurrences[T: Ordering, MyModule](
+    map: Map[T, Seq[MyModule]]
+  )(present: T => String): String = {
+    val keyToOccurrences: Seq[(T, Int)] = map.view
+      .mapValues(_.size)
+      .toSeq
+      .sortBy(_._1)
+      .reverse
+    keyToOccurrences
+      .map { case (key, occurrencesCount) =>
+        val occurrencesText = s"${if (occurrencesCount > 1) s" ($occurrencesCount)" else ""}"
+        s"${present(key)}$occurrencesText"
+      }
+      .mkString(", ")
+  }
 }
