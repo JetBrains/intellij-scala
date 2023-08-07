@@ -1,15 +1,6 @@
 package org.jetbrains.plugins.scala.editor.enterHandler
 
-import com.intellij.psi.{PsiElement, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-
 object EnterHandlerUtils {
-
-  private[enterHandler] def precededIndentWhitespace(element: PsiElement): Option[PsiWhiteSpace] =
-    element.getPrevNonEmptyLeaf match {
-      case ws: PsiWhiteSpace if ws.textContains('\n') => Some(ws)
-      case _                                          => None
-    }
 
   /**
    * @return Some(indent) - if caret is in the beginning of the line (after some indent whitespace)<br>
