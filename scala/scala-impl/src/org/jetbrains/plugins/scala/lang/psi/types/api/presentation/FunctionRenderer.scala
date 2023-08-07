@@ -31,15 +31,16 @@ object FunctionRenderer {
 
   def simple(typeRenderer: TypeRenderer): FunctionRenderer = {
     val typeAnnotationRenderer = new TypeAnnotationRenderer(typeRenderer)
+    val parameterRenderer = new ParameterRenderer(
+      typeRenderer,
+      ModifiersRenderer.SimpleText(),
+      typeAnnotationRenderer
+    )
     new FunctionRenderer(
       new TypeParamsRenderer(typeRenderer),
-      new ParametersRenderer(new ParameterRenderer(
-        typeRenderer,
-        ModifiersRenderer.SimpleText(),
-        typeAnnotationRenderer
-      )),
+      new ParametersRenderer(parameterRenderer, shouldRenderImplicitModifier = false),
       typeAnnotationRenderer,
-      false
+      renderDefKeyword = false
     )
   }
 }

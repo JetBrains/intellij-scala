@@ -276,7 +276,7 @@ object ScalaDocQuickInfoGenerator {
 
   private def functionParametersRenderer(implicit typeRenderer: TypeRenderer): ParametersRenderer = {
     val paramRenderer = new ParameterRenderer(typeRenderer, WithHtmlPsiLink.renderer, simpleTypeAnnotationRenderer)
-    new ParametersRenderer(paramRenderer)
+    new ParametersRenderer(paramRenderer, shouldRenderImplicitModifier = false)
   }
 
   private def richTypeAnnotationRenderer(implicit typeRenderer: TypeRenderer): TypeAnnotationRenderer =

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 
 class ParametersRenderer(
   parameterRenderer: ParameterRendererLike,
-  shouldRenderImplicitModifier: Boolean = false,
+  shouldRenderImplicitModifier: Boolean,
   clausesSeparator: String = "",
   paramsSeparator: String = ", "
 ) {
