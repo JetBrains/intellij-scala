@@ -227,7 +227,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       case _: ScEarlyDefinitions | _: ScTemplateBody | _: ScExtensionBody =>
         childElementType match {
-          case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tRBRACE | ScalaElementType.END_STMT => Indent.getNoneIndent
+          case ScalaTokenTypes.tLBRACE  => Indent.getNoneIndent
+          case et if TokenSets.RBRACE_OR_END_STMT.contains(et) => Indent.getNoneIndent
           case _ if settings.CLASS_BRACE_STYLE == NEXT_LINE_SHIFTED => Indent.getNoneIndent
           case _ => Indent.getNormalIndent
         }

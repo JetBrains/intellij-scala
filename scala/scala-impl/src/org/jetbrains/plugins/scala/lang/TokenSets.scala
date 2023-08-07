@@ -75,6 +75,8 @@ object TokenSets {
 
   val IMPORT_ALIAS_INDICATORS: TokenSet = TokenSet.create(tFUNTYPE, AsKeyword)
 
+  val RBRACE_OR_END_STMT: TokenSet = TokenSet.create(tRBRACE, END_STMT)
+
   implicit class TokenSetExt(private val set: TokenSet) extends AnyVal {
     def ++ (other: TokenSet): TokenSet = TokenSet.orSet(set, other)
     def ++ (other: IElementType*): TokenSet = TokenSet.orSet(set, TokenSet.create(other: _*))

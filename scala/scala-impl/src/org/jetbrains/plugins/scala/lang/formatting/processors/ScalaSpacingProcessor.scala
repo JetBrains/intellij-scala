@@ -12,6 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaTokenType, ScalaTokenTypes, ScalaTokenTypesEx, ScalaXmlTokenTypes}
@@ -729,7 +730,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     // '}' or 'end'
-    if (rightElementType == ScalaTokenTypes.tRBRACE || rightElementType == END_STMT) {
+    if (TokenSets.RBRACE_OR_END_STMT.contains(rightElementType)) {
       val rightTreeParent = rightNode.getTreeParent
       val result = rightTreeParent.getPsi match {
         case block@(_: ScEarlyDefinitions |
