@@ -41,7 +41,7 @@ class ScalaPsiBuilderImpl(
 
   override final lazy val features: ScalaFeatures = presetFeatures.getOrElse {
     def featuresByVersion: ScalaFeatures = {
-      val version = if (isScala3) ScalaVersion.Latest.Scala_3_0 else ScalaVersion.Latest.Scala_2_13
+      val version = if (isScala3) ScalaVersion.Latest.Scala_3 else ScalaVersion.Latest.Scala_2_13
       ScalaFeatures.onlyByVersion(version)
     }
 
