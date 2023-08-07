@@ -5,9 +5,9 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnu
 
 class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
 
-  private def addScalaFile(text: String, name: String = "Foo"): Unit = myFixture.addFileToProject(s"$name.scala", text)
+  private def addScalaFile(text: String): Unit = myFixture.addFileToProject(s"Foo.scala", text)
 
-  private def addJavaFile(text: String, name: String = "Foo"): Unit = myFixture.addFileToProject(s"$name.java", text)
+  private def addJavaFile(text: String): Unit = myFixture.addFileToProject(s"Foo.java", text)
 
   def test_trait_extends_trait(): Unit = {
     addScalaFile("trait Foo extends Bar")
@@ -102,11 +102,11 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
 
   private def doTestOperatorUsedFromJava(operatorName: String, javaMethodName: String): Unit = {
     addJavaFile(
-      s"""public class UsedOperatorJava {
+      s"""public class Foo {
          |  public static void main(String[] args) {
          |    new Num(1).$javaMethodName(1);
          |  }
-         |}""".stripMargin, "UsedOperatorJava")
+         |}""".stripMargin)
 
     checkTextHasNoErrors(
       s"""class Num(n: Int) {
@@ -150,10 +150,10 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
 
   private def doTestOperatorUsedFromScala(operatorName: String): Unit = {
     addScalaFile(
-      s"""object UsedOperator {
+      s"""object Foo {
          |  val num = new Num(1)
          |  num $operatorName 1
-         |}""".stripMargin, "UsedOperator")
+         |}""".stripMargin)
 
     checkTextHasNoErrors(
       s"""class Num(n: Int) {
