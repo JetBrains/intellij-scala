@@ -9,6 +9,13 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
 
   private def addJavaFile(text: String): Unit = myFixture.addFileToProject(s"Foo.java", text)
 
+  private def addKotlinFile(text: String): Unit = myFixture.addFileToProject(s"Foo.kt", text)
+
+  def test_foo(): Unit = {
+    addKotlinFile("class Bar : Foo")
+    checkTextHasNoErrors("trait Foo")
+  }
+
   def test_trait_extends_trait(): Unit = {
     addScalaFile("trait Foo extends Bar")
     checkTextHasNoErrors("trait Bar")

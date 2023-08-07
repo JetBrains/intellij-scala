@@ -1,11 +1,15 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch
 
+import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
-import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.psi.{NavigatablePsiElement, PsiElement, PsiReference}
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline.ShouldProcess
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.{Method, SearchMethodResult}
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.TextSearch.{isNotScalaOrJava, isUReferenceExpression}
 import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
+import org.jetbrains.uast.{UReferenceExpression, UastFacade}
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -34,7 +38,10 @@ private[cheapRefSearch] final class TextSearch(
         } else {
 
           val maybeUsage = e2 match {
-            case r: PsiReference => Some(ElementUsageWithKnownReference(r, psiElement))
+            case r: PsiReference =>
+              Some(ElementUsageWithKnownReference(r, psiElement))
+            case n: NavigatablePsiElement if isNotScalaOrJava(n) && isUReferenceExpression(n) =>
+              Some(ElementUsageWithKnownReference(n, psiElement))
             case _ => None
           }
 
@@ -58,4 +65,15 @@ private[cheapRefSearch] final class TextSearch(
 
     new SearchMethodResult(buffer.asScala.toSeq, didExitBeforeExhaustion)
   }
+}
+
+object TextSearch {
+
+  private val uastFacade: UastFacade = UastFacade.INSTANCE
+
+  private def isNotScalaOrJava(e: PsiElement): Boolean =
+    !e.getLanguage.isKindOf(ScalaLanguage.INSTANCE) && !e.getLanguage.isKindOf(JavaLanguage.INSTANCE)
+
+  private def isUReferenceExpression(e: PsiElement): Boolean =
+    uastFacade.convertElementWithParent(e, classOf[UReferenceExpression]) != null
 }
