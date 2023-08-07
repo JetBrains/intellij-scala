@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElemen
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScCompoundType, Signature, TermSignature, TypeSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ExtensionSignatureInfo, PhysicalMethodSignature, ScCompoundType, Signature, TermSignature, TypeSignature}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState, StdKinds}
@@ -205,7 +205,7 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
           new PhysicalMethodSignature(
             m,
             subst,
-            extensionTypeParameters = Option(ext.typeParameters),
+            extensionSignature = Option(ExtensionSignatureInfo(ext, ext.typeParameters, ext.allClauses)),
             renamed = name,
             exportedIn = exportedIn
           )

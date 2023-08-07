@@ -5,13 +5,12 @@ import com.intellij.psi._
 import com.intellij.psi.util.MethodSignatureUtil
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.methodName
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScMethodLike}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.{ScFunctionWrapper, ScPrimaryConstructorWrapper}
@@ -20,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, PsiTyp
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._
@@ -401,17 +401,23 @@ final class PhysicalMethodSignature(
   val method:               PsiMethod,
   override val substitutor: ScSubstitutor,
   override val exportedIn:  Option[PsiClass]         = None,
-  extensionTypeParameters:  Option[Seq[ScTypeParam]] = None,
+  val extensionSignature:   Option[ExtensionSignatureInfo] = None,
   override val renamed:     Option[String]           = None
 ) extends TermSignature(
   renamed.getOrElse(method.name),
   PhysicalMethodSignature.typesEval(method),
-  PhysicalMethodSignature.typeParamsWithExtension(method, extensionTypeParameters.getOrElse(Seq.empty)),
+  PhysicalMethodSignature.typeParamsWithExtension(method, extensionSignature.map(_.typeParams).getOrElse(Seq.empty)),
   substitutor,
   method,
   exportedIn,
   PhysicalMethodSignature.hasRepeatedParam(method)
 ) {
   override def isScala: Boolean = method.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
-  override def isExtensionMethod: Boolean = extensionTypeParameters.nonEmpty
+  override def isExtensionMethod: Boolean = extensionSignature.nonEmpty
 }
+
+case class ExtensionSignatureInfo(
+  extension: ScExtension, //keep original extension reference just for the convenience
+  typeParams: Seq[ScTypeParam],
+  paramClauses: Seq[ScParameterClause]
+)

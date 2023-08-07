@@ -54,8 +54,10 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     super.typeParameters
 
   override def add(element: PsiElement): PsiElement = element match {
-    case member: ScMember => addMember(member, None)
-      case _ => super.add(element)
+    case member: ScMember =>
+      addMember(member, None)
+    case _ =>
+      super.add(element)
   }
 
   override def getSuperTypes: Array[PsiClassType] =

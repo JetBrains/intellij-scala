@@ -1,13 +1,16 @@
 package org.jetbrains.plugins.scala.overrideImplement
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.generation.{GenerateMembersUtil, ClassMember => JClassMember}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.{ApiStatus, VisibleForTesting}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.editor.ScalaEditorUtils
+import org.jetbrains.plugins.scala.editor.enterHandler.EnterHandlerUtils
+import org.jetbrains.plugins.scala.editor.{ScalaEditorUtils, ScalaIndentationSyntaxUtils}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.Constructor
@@ -66,36 +69,73 @@ object ScalaOIUtil {
                              (implicit project: Project, editor: Editor): Unit =
     invokeOverrideImplement(file, isImplement, None)
 
-  def invokeOverrideImplement(file: PsiFile, isImplement: Boolean, methodName: Option[String])
-                             (implicit project: Project, editor: Editor): Unit = {
+  @VisibleForTesting
+  def invokeOverrideImplement(
+    file: PsiFile,
+    isImplement: Boolean,
+    methodName: Option[String]
+  )(implicit project: Project, editor: Editor): Unit = {
+    val td = getTemplateDefinitionForOverrideImplementAction(file, editor)
+    td.foreach { td =>
+      invokeOverrideImplement(td, isImplement, methodName)
+    }
+  }
+
+  @VisibleForTesting
+  @ApiStatus.Internal
+  def getTemplateDefinitionForOverrideImplementAction(
+    file: PsiFile,
+    editor: Editor
+  ): Option[ScTemplateDefinition] = {
     val caretOffset = editor.getCaretModel.getOffset
     val elementAtCaret = ScalaEditorUtils.findElementAtCaret_WithFixedEOF(file, editor.getDocument, caretOffset)
     val elementAtCaretFixed = elementAtCaret match {
       case ws: PsiWhiteSpace if caretOffset == ws.getNode.getStartOffset =>
         // in case when caret is right after the error end offset
         PsiTreeUtil.prevLeaf(ws)
-      case (_: PsiWhiteSpace) & PrevElement(colon @ ElementType(ScalaTokenTypes.tCOLON) & Parent(body: ScTemplateBody))
+      case (_: PsiWhiteSpace) & PrevElement(colon@ElementType(ScalaTokenTypes.tCOLON) & Parent(body: ScTemplateBody))
         if file.isScala3File && body.exprs.isEmpty =>
         // in case when caret is inside an empty template body in Scala 3 indentation-based syntax
         colon
+      case ws: PsiWhiteSpace if file.isScala3File =>
+        //When we are in the end of indentation-based syntax template body
+        //we need to take into account current current indentation level when choosing template definition
+        val adjusted = getPreviousElementInSameIndentationLevel(file, editor, caretOffset, elementAtCaret)
+        adjusted.getOrElse(ws)
       case e => e
     }
-    elementAtCaretFixed
-      .parentOfType(classOf[ScTemplateDefinition], strict = false)
-      .map {
-        case enumCase: ScEnumCase => enumCase.enumParent
-        case td => td
-      }
-      .foreach(invokeOverrideImplement(_, isImplement, methodName))
+
+    val templateDefinition = elementAtCaretFixed.parentOfType(classOf[ScTemplateDefinition])
+    templateDefinition.map {
+      case enumCase: ScEnumCase => enumCase.enumParent
+      case td => td
+    }
+  }
+
+  private def getPreviousElementInSameIndentationLevel(
+    file: PsiFile,
+    editor: Editor,
+    caretOffset: Int,
+    elementAtCaret: PsiElement
+  ): Option[PsiElement] = {
+    val indentOptions = CodeStyle.getIndentOptions(file)
+    val caretIndent = EnterHandlerUtils.calcCaretIndent(caretOffset, editor.getDocument.getCharsSequence, indentOptions.TAB_SIZE)
+    val caretIndentSize = caretIndent.getOrElse(Int.MaxValue) // using MaxValue if the caret isn't inside code indent
+    val prevElementWithSameIndent = ScalaIndentationSyntaxUtils.previousElementInIndentationContext(elementAtCaret, caretIndentSize, indentOptions)
+    prevElementWithSameIndent.map(_._1)
   }
 
   def invokeOverrideImplement(clazz: ScTemplateDefinition, isImplement: Boolean)
                              (implicit project: Project, editor: Editor): Unit =
     invokeOverrideImplement(clazz, isImplement, None)
 
-  def invokeOverrideImplement(clazz: ScTemplateDefinition, isImplement: Boolean, methodName: Option[String])
-                             (implicit project: Project, editor: Editor): Unit = {
+  private def invokeOverrideImplement(
+    clazz: ScTemplateDefinition,
+    isImplement: Boolean,
+    methodName: Option[String]
+  )(implicit project: Project, editor: Editor): Unit = {
     ScalaActionUsagesCollector.logOverrideImplement(project)
+
     val classMembers =
       if (isImplement) getMembersToImplement(clazz, withSelfType = true)
       else getMembersToOverride(clazz)
@@ -147,11 +187,11 @@ object ScalaOIUtil {
                 clazz: ScTemplateDefinition)
                (implicit project: Project, editor: Editor): Unit =
     executeWriteActionCommand(if (isImplement) ScalaBundle.message("action.implement.method") else ScalaBundle.message("action.override.method")) {
-      val sortedMembers = ScalaMemberChooser.sorted(selectedMembers, clazz)
+      val sortedMembers = ScalaMemberChooser.sortedWithExtensionMethodsGrouped(selectedMembers, clazz)
       val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
-      val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
-
-      val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.orNull, genInfos.reverse.asJava).asScala
+      val memberPrototypes = genInfos.reverse.asJava
+      val caretOffset = ScalaEditorUtils.caretOffsetWithFixedEof(editor)
+      val inserted = GenerateMembersUtil.insertMembersAtOffset(clazz, caretOffset, memberPrototypes).asScala
       inserted.lastOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
     }
 
@@ -164,11 +204,14 @@ object ScalaOIUtil {
   def getMembersToOverride(clazz: ScTemplateDefinition): Seq[ClassMember] =
     classMembersWithFilter(clazz, withSelfType = true)(needOverride(_, clazz), needOverride(_, clazz))
 
-  private[this] def classMembersWithFilter(definition: ScTemplateDefinition,
-                                           withSelfType: Boolean,
-                                           isOverride: Boolean = true)
-                                          (f1: PhysicalMethodSignature => Boolean,
-                                           f2: PsiNamedElement => Boolean): Seq[ClassMember] = {
+  private[this] def classMembersWithFilter(
+    definition: ScTemplateDefinition,
+    withSelfType: Boolean,
+    isOverride: Boolean = true
+  )(
+    f1: PhysicalMethodSignature => Boolean,
+    f2: PsiNamedElement => Boolean
+  ): Seq[ClassMember] = {
     val maybeThisType = if (withSelfType)
       for {
         selfType <- definition.selfType
@@ -188,16 +231,18 @@ object ScalaOIUtil {
       case (compoundType, compoundTypeThisType) => getSignatures(compoundType, compoundTypeThisType)
     }
 
-    val methods = signatures.allSignatures.filter {
-      case signature: PhysicalMethodSignature
-        if signature.namedElement.isValid &&
-          !signature.isExtensionMethod => f1(signature)
+    val methodsAndExtensionMethods = signatures.allSignatures.filter {
+      case signature: PhysicalMethodSignature if signature.namedElement.isValid =>
+        f1(signature)
       case _ => false
     }.map {
       case signature: PhysicalMethodSignature =>
         val method = signature.method
         assert(method.containingClass != null, s"Containing Class is null: ${method.getText}")
-        ScMethodMember(signature, isOverride)
+        if (signature.isExtensionMethod)
+          ScExtensionMethodMember(signature, isOverride)
+        else
+          ScMethodMember(signature, isOverride)
     }
 
     val values = signatures.allSignatures.filter(isValSignature)
@@ -208,7 +253,7 @@ object ScalaOIUtil {
       toClassMember(_, isOverride, definition)
     }
 
-    (methods ++ aliasesAndValues).toSeq
+    (methodsAndExtensionMethods ++ aliasesAndValues).toSeq
   }
 
   private def isProductAbstractMethod(m: PsiMethod, cls: PsiClass): Boolean = {
@@ -356,22 +401,44 @@ object ScalaOIUtil {
     }
   }
 
-  def getAnchor(offset: Int, clazz: ScTemplateDefinition): Option[ScMember] = {
+  def getAnchor(offset: Int, clazz: ScTemplateDefinition): Option[PsiElement] = {
+    val elementAtOffset = clazz.getContainingFile.findElementAt(offset)
+    getAnchor(clazz, elementAtOffset)
+  }
+
+  def getAnchor(clazz: ScTemplateDefinition, leaf: PsiElement): Option[PsiElement] = {
+    val elementClosestToBody = getElementAtCaretClosestToBodyChildren(clazz, leaf)
+    elementClosestToBody.flatMap {
+      case ws: PsiWhiteSpace =>
+        Some(ws)
+      case member: ScMember =>
+        Some(member)
+      case colon if colon.elementType == ScalaTokenTypes.tCOLON =>
+        //Handle empty indentation-based class body `class A extends B:`
+        None
+      case el =>
+        val nextMember = PsiTreeUtil.getNextSiblingOfType(el, classOf[ScMember])
+        Some(if (nextMember == null) el else nextMember)
+    }
+  }
+
+  private def getElementAtCaretClosestToBodyChildren(clazz: ScTemplateDefinition, leaf: PsiElement): Option[PsiElement] = {
     val body: ScTemplateBody = clazz.extendsBlock.templateBody match {
       case Some(x) => x
-      case None => return None
+      case _ =>
+        return None
     }
-    var element: PsiElement = body.getContainingFile.findElementAt(offset)
-    while (element != null && element.getParent != body) element = element.getParent
 
-    element match {
-      case member: ScMember => Some(member)
-      case null => None
-      case _ => PsiTreeUtil.getNextSiblingOfType(element, classOf[ScMember]) match {
-        case null => None
-        case member => Some(member)
-      }
+    getElementClosestToChildrenOf(leaf, body)
+  }
+
+
+  private def getElementClosestToChildrenOf(leaf: PsiElement, parent: PsiElement): Option[PsiElement] = {
+    var element: PsiElement = leaf
+    while (element != null && element.getParent != parent) {
+      element = element.getParent
     }
+    Option(element)
   }
 
   def methodSignaturesToOverride(definition: ScTemplateDefinition): Iterator[PhysicalMethodSignature] =

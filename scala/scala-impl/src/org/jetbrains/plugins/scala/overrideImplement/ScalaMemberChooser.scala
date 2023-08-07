@@ -6,7 +6,8 @@ import com.intellij.ui.{HyperlinkLabel, NonFocusableCheckBox}
 import com.intellij.util.ui.ThreeStateCheckBox
 import com.intellij.util.ui.ThreeStateCheckBox.State
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Location, ScalaTypeAnnotationSettings}
@@ -132,12 +133,30 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
 
 object ScalaMemberChooser {
   def sorted[T <: ClassMember](members: Seq[T], targetClass: ScTemplateDefinition): Seq[T] = {
-    val groupedMembers = members.groupBy(cm => cm.getElement.getContainingClass)
-    val sortedClasses = mutable.LinkedHashSet[PsiClass]()
+    val result = sortedImpl(members, targetClass, groupExtensionMethods = false)
+    //We are sure that original members instances won't be modified, just sorted
+    result.asInstanceOf[Seq[T]]
+  }
+
+  def sortedWithExtensionMethodsGrouped[T <: ClassMember](members: Seq[T], targetClass: ScTemplateDefinition): Seq[ClassMember0] =
+    sortedImpl(members, targetClass, groupExtensionMethods = true)
+
+  private def sortedImpl[T <: ClassMember](
+    members: Seq[T],
+    targetClass: ScTemplateDefinition,
+    groupExtensionMethods: Boolean
+  ): Seq[ClassMember0] = {
+    val clazzToMembers: Map[PsiClass, Seq[T]] =
+      members.groupBy(cm => cm.getElement.getContainingClass)
+
+    val sortedClasses: mutable.Set[PsiClass] =
+      mutable.LinkedHashSet()
+
     if (targetClass != null) {
       val supers = targetClass.supers
       sortedClasses ++= supers
     }
+
     val ordering = new Ordering[PsiClass] {
       override def compare(c1: PsiClass, c2: PsiClass): Int = {
         val less = c1.isInheritor(c2, /*checkDeep =*/ true)
@@ -147,11 +166,39 @@ object ScalaMemberChooser {
         else 1
       }
     }
-    sortedClasses ++= groupedMembers.keys.toSeq.sorted(ordering)
+    val groupedMembersSorted = clazzToMembers.keys.toSeq.sorted(ordering)
+    sortedClasses ++= groupedMembersSorted
 
     sortedClasses.flatMap { c =>
-      val members = groupedMembers.getOrElse(c, Seq.empty)
-      members.sortBy(_.getPsiElement.getTextOffset)
+      val membersFromClass: Seq[T] = clazzToMembers.getOrElse(c, Seq.empty)
+      val membersFromClassMaybeGrouped =
+        if (groupExtensionMethods)
+          doGroupExtensionMethods(membersFromClass)
+        else
+          membersFromClass
+
+      membersFromClassMaybeGrouped.sortBy(_.getElement.getTextOffset)
     }.toSeq
+  }
+
+  /**
+   * Replace all instances of `ScExtensionMethodMember` belonging to the same extension
+   * with an instance of `ScExtensionMember`, which groups all extension methods
+   */
+  private def doGroupExtensionMethods[T <: ClassMember](members: Seq[T]): Seq[ClassMember0] = {
+    val extensionsGrouped: Map[Option[ScExtension], Seq[T]] =
+      members.groupBy { m =>
+        val extensionMethod = m.asOptionOfUnsafe[ScExtensionMethodMember]
+        val extension = extensionMethod.flatMap(_.signature.extensionSignature.map(_.extension))
+        extension
+      }
+
+    extensionsGrouped.toSeq.flatMap {
+      case (None, nonExtensions) =>
+        nonExtensions
+      case (Some(extension), members) =>
+        val extensionMethodsSorted = members.asInstanceOf[Seq[ScExtensionMethodMember]].sortBy(_.getElement.getTextOffset)
+        Seq(ScExtensionMember(extension, extensionMethodsSorted))
+    }
   }
 }

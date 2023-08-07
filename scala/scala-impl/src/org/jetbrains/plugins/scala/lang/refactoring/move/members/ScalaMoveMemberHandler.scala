@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.refactoring.Associations
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
@@ -122,7 +123,12 @@ final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
     val associations = collectDataForElement(scMember)
     val memberCopy = scMember.copy()
 
-    val movedMember = targetClass.add(memberCopy)
+    val movedMember = (targetClass, memberCopy) match {
+      case (td: ScTemplateDefinition, m: ScMember) =>
+        td.addMember(m, None)
+      case _ =>
+        targetClass.add(memberCopy)
+    }
 
     Associations.Data(movedMember) = associations
     MovedElementData(targetClass) = movedMember

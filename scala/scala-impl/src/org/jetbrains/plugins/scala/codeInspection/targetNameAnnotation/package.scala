@@ -35,14 +35,20 @@ package object targetNameAnnotation {
   private def addAnnotation(element: ScAnnotationsHolder, annotationText: String): ScAnnotation =
     element.addAnnotation(annotationText, addNewLine = !element.is[ScParameter])
 
+  /**
+   * When we override a member which has a `@targetName("someName")` annotation
+   * an overriding member must also have the same annotation with the same name, otherwise it won't compile
+   */
   def addTargetNameAnnotationIfNeeded(element: ScAnnotationsHolder, superElementObject: AnyRef): Unit =
-    if (element.isInScala3File) superElementObject match {
-      case superElement: ScAnnotationsHolder if hasTargetNameAnnotation(superElement) && !hasTargetNameAnnotation(element) =>
-        targetNameAnnotationExternalName(superElement)
-          .foreach { extName =>
-            addAnnotation(element, targetNameAnnotationWithParamFQN(extName))
-          }
-      case _ =>
+    if (element.isInScala3File) {
+      superElementObject match {
+        case superElement: ScAnnotationsHolder if hasTargetNameAnnotation(superElement) && !hasTargetNameAnnotation(element) =>
+          targetNameAnnotationExternalName(superElement)
+            .foreach { extName =>
+              addAnnotation(element, targetNameAnnotationWithParamFQN(extName))
+            }
+        case _ =>
+      }
     }
 
   class AddTargetNameAnnotationQuickFix(element: ScAnnotationsHolder, extName: String = "")

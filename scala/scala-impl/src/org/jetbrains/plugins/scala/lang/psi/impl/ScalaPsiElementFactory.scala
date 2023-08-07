@@ -789,12 +789,7 @@ object ScalaPsiElementFactory {
     val PhysicalMethodSignature(method, substitutor) = signature
 
     if (withComment) {
-      val maybeCommentText = method.firstChild.collect { case comment: PsiDocComment =>
-        comment.getText
-      }
-
-      maybeCommentText.foreach(builder.append)
-      if (maybeCommentText.isDefined) builder.append("\n")
+      appendCommentText(builder, method)
     }
 
     if (withAnnotation) {
@@ -815,7 +810,20 @@ object ScalaPsiElementFactory {
       .append(" ")
       .append(body)
 
-    createClassWithBody(builder.toString(), scalaFeatures).functions.head
+    createClassWithBody(builder.toString, scalaFeatures).functions.head
+  }
+
+  private def appendCommentText(builder: StringBuilder, method: PsiMethod): Boolean = {
+    val maybeCommentText = method.firstChild.collect { case comment: PsiDocComment =>
+      comment.getText
+    }
+
+    maybeCommentText.foreach(builder.append)
+    val commentAdded = maybeCommentText.isDefined
+    if (commentAdded) {
+      builder.append("\n")
+    }
+    commentAdded
   }
 
   def createOverrideImplementMethod(
@@ -830,6 +838,119 @@ object ScalaPsiElementFactory {
   ): ScFunction = {
     val function = createMethodFromSignature(signature, body, features, withComment, withAnnotation)
     addModifiersFromSignature(function, signature, needsOverrideModifier)
+    function
+  }
+
+  case class ExtensionMethodConstructionInfo(
+    signature: PhysicalMethodSignature,
+    needsOverrideModifier: Boolean,
+    @NonNls body: String,
+  )
+
+  /**
+   * @param extensionMethodsInfos represents extension methods belonging to the same extension (extension with same signature)
+   */
+  def createOverrideImplementExtensionMethods(
+    extensionMethodsInfos: Seq[ExtensionMethodConstructionInfo],
+    features: ScalaFeatures,
+    wrapMultipleExtensionsWithBraces: Boolean,
+    withComment: Boolean = true,
+  )(implicit
+    ctx: ProjectContext
+  ): ScExtension = {
+    assert(extensionMethodsInfos.nonEmpty)
+
+    val extension = createExtensionMethodFromSignature(extensionMethodsInfos, features, wrapMultipleExtensionsWithBraces, withComment)
+
+    extension.extensionMethods.zip(extensionMethodsInfos).foreach { case (newMethod, methodConstructionInfo) =>
+      addModifiersFromSignature(newMethod, methodConstructionInfo.signature, methodConstructionInfo.needsOverrideModifier)
+    }
+
+    extension
+  }
+
+  private def createExtensionMethodFromSignature(
+    extensionMethodsInfos: Seq[ExtensionMethodConstructionInfo],
+    scalaFeatures: ScalaFeatures,
+    wrapMultipleExtensionsWithBraces: Boolean,
+    withComment: Boolean
+  )(implicit
+    ctx: ProjectContext
+  ): ScExtension = {
+    val builder = new StringBuilder()
+
+    //Using any extension method to get signature of extension
+    val representativeMethod = extensionMethodsInfos.head.signature
+    assert(representativeMethod.isExtensionMethod)
+    val extensionSignature = representativeMethod.extensionSignature.get
+    appendExtensionSignatureText(builder, extensionSignature, representativeMethod.substitutor)
+
+    val addBraces = wrapMultipleExtensionsWithBraces && extensionMethodsInfos.size > 1
+    if (addBraces) {
+      builder.append(" {")
+    }
+    builder.append("\n")
+
+    extensionMethodsInfos.foreach { info =>
+      assert(info.signature.isExtensionMethod)
+
+      val PhysicalMethodSignature(method, substitutor) = info.signature
+
+      // use an indent which is 2 times bigger, cause it will be extra-indented in class body, to get
+      //class wrapper:
+      //  extension (p: Any)
+      //    |
+      val ExtensionBodyIndent = "    "
+      builder.append(ExtensionBodyIndent)
+
+      if (withComment) {
+        val commentAdded = appendCommentText(builder, method)
+        if (commentAdded) {
+          builder.append(ExtensionBodyIndent)
+        }
+      }
+
+      signatureText(method, substitutor)(builder)
+
+      builder
+        .append(" = ")
+        .append(info.body)
+        .append("\n")
+    }
+
+    if (addBraces) {
+      builder.append(" }")
+    }
+
+    val text = builder.toString.trimRight
+    val classBody = createClassWithBody(text, scalaFeatures)
+    classBody.extensions.head
+  }
+
+  private def appendExtensionSignatureText(
+    builder: StringBuilder,
+    extensionSignature: ExtensionSignatureInfo,
+    substitutor: ScSubstitutor
+  )(implicit projectContext: ProjectContext): Unit = {
+    builder.append("extension ")
+
+    val typeParams = extensionSignature.typeParams
+
+    val typeParameters: Seq[String] = {
+      val renderer = new TypeParamsRenderer(substitutor(_).canonicalText, stripContextTypeArgs = true)
+
+      def buildText(typeParam: ScTypeParam): String =
+        renderer.render(typeParam)
+
+      typeParams.map(buildText)
+    }
+
+    if (typeParameters.nonEmpty) {
+      val typeParametersText = typeParameters.mkString(tLSQBRACKET.toString, ", ", tRSQBRACKET.toString)
+      builder.append(typeParametersText)
+    }
+
+    appendParameterClausesText(builder, extensionSignature.paramClauses, substitutor)
   }
 
   def createOverrideImplementType(
@@ -901,27 +1022,38 @@ object ScalaPsiElementFactory {
 
   def createSemicolon(implicit ctx: ProjectContext): PsiElement = createElementFromText(";", ScalaFeatures.default)
 
-  private def addModifiersFromSignature(function: ScFunction, sign: PhysicalMethodSignature, addOverride: Boolean): ScFunction = {
-    sign.method match {
+  private def addModifiersFromSignature(target: ScFunction, source: PhysicalMethodSignature, addOverride: Boolean): Unit = {
+    source.method match {
       case fun: ScFunction =>
-        val res = function.getModifierList.replace(fun.getModifierList)
-        if (res.getText.nonEmpty) res.getParent.addAfter(createWhitespace(fun.getManager), res)
-        function.setModifierProperty(ScalaModifier.ABSTRACT, value = false)
-        if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty(ScalaModifier.OVERRIDE)
+        val res = target.getModifierList.replace(fun.getModifierList)
+        if (res.getText.nonEmpty) {
+          res.getParent.addAfter(createWhitespace(fun.getManager), res)
+        }
+        target.setModifierProperty(ScalaModifier.ABSTRACT, value = false)
+        if (!fun.hasModifierProperty("override") && addOverride) {
+          target.setModifierProperty(ScalaModifier.OVERRIDE)
+        }
+
       case m: PsiMethod =>
         var hasOverride = false
         if (m.getModifierList.getNode != null)
-          for (modifier <- m.getModifierList.getNode.getChildren(null); modText = modifier.getText) {
+          for {modifier <- m.getModifierList.getNode.getChildren(null)} {
+            val modText = modifier.getText
             modText match {
-              case "override" => hasOverride = true; function.setModifierProperty("override")
-              case "protected" => function.setModifierProperty("protected")
-              case "final" => function.setModifierProperty("final")
+              case "override" =>
+                hasOverride = true
+                target.setModifierProperty("override")
+              case "protected" =>
+                target.setModifierProperty("protected")
+              case "final" =>
+                target.setModifierProperty("final")
               case _ =>
             }
           }
-        if (addOverride && !hasOverride) function.setModifierProperty("override")
+        if (addOverride && !hasOverride) {
+          target.setModifierProperty("override")
+        }
     }
-    function
   }
 
   private def signatureText(method: PsiMethod, substitutor: ScSubstitutor)
@@ -960,22 +1092,7 @@ object ScalaPsiElementFactory {
     // do not substitute aliases
     method match {
       case method: ScFunction if method.paramClauses != null =>
-        for (paramClause <- method.paramClauses.clauses) {
-          val parameters = paramClause.parameters.map { param =>
-            val arrow = if (param.isCallByNameParameter) functionArrow else ""
-            val asterisk = if (param.isRepeatedParameter) "*" else ""
-
-            val name = param.name
-            val tpe = param.`type`().map(substitutor).getOrAny
-
-            val isAnonymous = param.typeElement.contains(param.nameId)
-
-            if (isAnonymous) s"$arrow${tpe.canonicalText}"
-            else s"$name${colon(name)} $arrow${tpe.canonicalText}$asterisk"
-          }
-
-          myBuilder.append(parameters.mkString(if (paramClause.isImplicit) "(implicit " else if (paramClause.isUsing) "(using " else "(", ", ", ")"))
-        }
+        appendParameterClausesText(myBuilder, method.paramClauses.clauses, substitutor)
       case _ if !method.isParameterless || !method.hasQueryLikeName =>
         val params = for (param <- method.parameters) yield {
           val paramName = param.name match {
@@ -1030,6 +1147,35 @@ object ScalaPsiElementFactory {
           .append(" ")
           .append(typeText)
       case _ =>
+    }
+  }
+
+  private def appendParameterClausesText(
+    builder: StringBuilder,
+    paramClauses: Seq[ScParameterClause],
+    substitutor: ScSubstitutor
+  )(implicit project: ProjectContext): Unit = {
+    for (paramClause <- paramClauses) {
+      val parameters = paramClause.parameters.map { param =>
+        val arrow = if (param.isCallByNameParameter) functionArrow else ""
+        val asterisk = if (param.isRepeatedParameter) "*" else ""
+
+        val name = param.name
+        val tpe = param.`type`().map(substitutor).getOrAny
+
+        val isAnonymous = param.typeElement.contains(param.nameId)
+
+        if (isAnonymous) s"$arrow${tpe.canonicalText}"
+        else s"$name${colon(name)} $arrow${tpe.canonicalText}$asterisk"
+      }
+
+      builder.append("(")
+      if (paramClause.isImplicit)
+        builder.append("implicit ")
+      else if (paramClause.isUsing)
+        builder.append("using ")
+      builder.append(parameters.mkString(", "))
+      builder.append(")")
     }
   }
 
@@ -1517,8 +1663,10 @@ object ScalaPsiElementFactory {
     features:     ScalaFeatures
   )(implicit
     ctx: ProjectContext
-  ): ScMember =
-    createClassWithBody(text, features).members.head
+  ): ScMember = {
+    val clazz = createClassWithBody(text, features)
+    clazz.members.head
+  }
 
   final class ScalaPsiElementCreationException(message: String, cause: Throwable)
     extends IncorrectOperationException(message, cause)

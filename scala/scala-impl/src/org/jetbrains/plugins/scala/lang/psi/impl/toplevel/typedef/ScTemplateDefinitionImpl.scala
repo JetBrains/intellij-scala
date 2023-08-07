@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.{Key, Pair => JBPair}
 import com.intellij.psi._
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -15,6 +16,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.caches.{ModTracker, ScalaShortNamesCacheManager, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.TokenSets.RBRACE_OR_END_STMT
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
@@ -398,53 +400,75 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
   override def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
     implicit val projectContext: ProjectContext = member.projectContext
     val templateBodyNode = extendsBlock.templateBody.map(_.getNode)
-    templateBodyNode.map { templateBody: ASTNode =>
-      val beforeNode = anchor.map(_.getNode).getOrElse {
-        val last = templateBody.getLastChildNode
-        // `last` may be null when the template body is empty (e.g.: `given Foo with`)
-        last.nullSafe.map(_.getTreePrev).orNull match {
-          case result if isNullOrLineTerminator(result) => result
-          case _ => last
-        }
-      }
+    templateBodyNode match {
+      case Some(body) =>
+        addMemberToTemplateBody(member, anchor, body)
+      case None =>
+        addMemberToEmptyTemplateBody(member, projectContext)
+    }
+  }
 
-      if (isNullOrLineTerminator(beforeNode))
-        templateBody.addChild(createNewLineNode(), beforeNode)
-      templateBody.addChild(member.getNode, beforeNode)
+  private def addMemberToTemplateBody(member: ScMember, anchor: Option[PsiElement], templateBody: ASTNode): ScMember = {
+    val beforeNode = anchor.map(_.getNode)
+      .getOrElse(calcAnchorNodeForNewMember(templateBody))
 
-      if (beforeNode != null) {
-        val newLineNode = createNewLineNode()
-        if (isLineTerminator(beforeNode.getPsi)) {
-          templateBody.replaceChild(beforeNode, newLineNode)
-        } else {
-          templateBody.addChild(newLineNode, beforeNode)
-        }
-      }
 
-      member
-    }.getOrElse {
-      //when class doesn't yet have body: `class A`
-      val extendsBlockNode = extendsBlock.getNode
-      val features: ScalaFeatures = extendsBlockNode.getPsi
-      if (!projectContext.project.indentationBasedSyntaxEnabled(features)) {
-        val whitespace = createWhitespace.getNode
-        //Add a whitespace before `{` to make it `class B {}` and not `class B{}
-        if (extendsBlock.getFirstChild == null) {
-          //When extends block is empty (e.g. in `class A`) we need to add a whitespace before it, because extends block must start with `{`
-          extendsBlockNode.getTreeParent.addChild(whitespace, extendsBlockNode)
-        }
-        else {
-          extendsBlockNode.addChild(whitespace)
-        }
+    if (beforeNode == null) {
+      templateBody.addChild(createNewLineNode(), beforeNode)
+    }
+
+    CodeEditUtil.addChild(templateBody, member.getNode, beforeNode)
+
+    if (beforeNode != null) {
+      val newLineNode = createNewLineNode()
+      val anchorIsLineTerminator = isLineTerminator(beforeNode.getPsi)
+      if (anchorIsLineTerminator) {
+        templateBody.replaceChild(beforeNode, newLineNode)
+      } else {
+        templateBody.addChild(newLineNode, beforeNode)
       }
-      val isGiven = this.isInstanceOf[ScGivenDefinition]
-      if (isGiven) {
-        // given definition does not have a new line inside a template body
-        extendsBlockNode.addChild(createWhitespace("\n  ").getNode)
+    }
+
+    member
+  }
+
+  private def addMemberToEmptyTemplateBody(member: ScMember, projectContext: ProjectContext): ScMember = {
+    //when class doesn't yet have body: `class A`
+    val extendsBlockNode = extendsBlock.getNode
+    val features: ScalaFeatures = extendsBlockNode.getPsi
+
+    if (!projectContext.project.indentationBasedSyntaxEnabled(features)) {
+      val whitespace = createWhitespace.getNode
+      //Add a whitespace before `{` to make it `class B {}` and not `class B{}
+      if (extendsBlock.getFirstChild == null) {
+        //When extends block is empty (e.g. in `class A`) we need to add a whitespace before it, because extends block must start with `{`
+        extendsBlockNode.getTreeParent.addChild(whitespace, extendsBlockNode)
       }
-      val bodyElement = createBodyFromMember(member.getText, isGiven, features)
-      extendsBlockNode.addChild(bodyElement.getNode)
-      members.head
+      else {
+        extendsBlockNode.addChild(whitespace)
+      }
+    }
+
+    val isGiven = this.isInstanceOf[ScGivenDefinition]
+    if (isGiven) {
+      // given definition does not have a new line inside a template body
+      extendsBlockNode.addChild(createWhitespace("\n  ").getNode)
+    }
+    val bodyElement = createBodyFromMember(member.getText, isGiven, features)
+    extendsBlockNode.addChild(bodyElement.getNode)
+    members.head
+  }
+
+  private def calcAnchorNodeForNewMember(templateBody: ASTNode): ASTNode = {
+    val lastChild = templateBody.getLastChildNode
+    val isTemplateEndElement = lastChild != null && RBRACE_OR_END_STMT.contains(lastChild.getElementType)
+    if (isTemplateEndElement)
+      lastChild
+    else {
+      //We can have empty template body, which doesn't yet has closing element.
+      //This can happen e.g. when we have indentation-based body with colon `:` and no code in body: `class A: <caret>`
+      //In this case we can't return any anchor, so we return null
+      null
     }
   }
 

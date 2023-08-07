@@ -25,6 +25,12 @@ class TypeParamsRenderer(
     buffer.result()
   }
 
+  final def renderParams(params: Seq[ScTypeParam]): String = {
+    val buffer = new StringBuilder
+    renderParams(buffer, params)(render)
+    buffer.result()
+  }
+
   def render(param: ScTypeParam): String = {
     val buffer = new StringBuilder
     render(buffer, param)
