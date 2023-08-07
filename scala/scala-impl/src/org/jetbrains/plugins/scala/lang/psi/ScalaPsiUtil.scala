@@ -1612,6 +1612,41 @@ object ScalaPsiUtil {
     CodeEditUtil.removeChildren(list.getNode, begin, end)
   }
 
+  /**
+   * Given:
+   * {{{
+   *   val foo = 1
+   *   // important comment
+   *   val bar = 2
+   *   val baz = 3
+   * }}}
+   *
+   * Removing `bar`:
+   * {{{
+   *   val foo = 1
+   *   // important comment
+   *   val baz = 3
+   * }}}
+   */
+  def deleteElementKeepingComments(element: PsiElement): Unit = {
+    val comments = element match {
+      case commentOwner: ScCommentOwner => commentOwner.allComments
+      case _                            => Seq.empty
+    }
+
+    val elementNode = element.getNode
+    val parentNode  = elementNode.getTreeParent
+
+    def newLineNode = ScalaPsiElementFactory.createNewLineNode()(element.getProject)
+
+    comments.foreach { comment =>
+      parentNode.addChild(comment.copy().getNode, elementNode)
+      parentNode.addChild(newLineNode, elementNode)
+    }
+
+    parentNode.removeChild(elementNode)
+  }
+
   def generateGivenOrExtensionName(tes: ScTypeElement*): String = {
     // todo: implement correct naming : https://dotty.epfl.ch/docs/reference/contextual/relationship-implicits.html#anonymous-given-instances
     var text = tes.map(_.getText).mkString("_")
