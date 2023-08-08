@@ -1376,4 +1376,33 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
        |    $CARET
        |""".stripMargin
   )
+
+  def testEnterHandlerShouldWorkEvenWhenCodeStyleSettingIsDisabled(): Unit = {
+    val before = getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX
+    getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
+
+    try {
+      doEnterTestWithAndWithoutTabs(
+        s"""class A:
+           |    def foo =
+           |        println("start")
+           |        if 2 + 2 == 42 then
+           |            println(1)
+           |            println(2)
+           |      $CARET
+           |""".stripMargin,
+        s"""class A:
+           |    def foo =
+           |        println("start")
+           |        if 2 + 2 == 42 then
+           |            println(1)
+           |            println(2)
+           |
+           |    $CARET
+           |""".stripMargin,
+      )
+    } finally  {
+      getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = before
+    }
+  }
 }

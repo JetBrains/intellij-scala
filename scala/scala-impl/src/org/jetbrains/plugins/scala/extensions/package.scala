@@ -165,6 +165,18 @@ package object extensions {
       case _ => false
     }
 
+    /**
+     * @return true if file supports indentation-based syntax, regardless of the
+     *         [[ScalaCodeStyleSettings#USE_SCALA3_INDENTATION_BASED_SYNTAX]] setting value
+     */
+    def isIndentationBasedSyntaxSupported: Boolean =
+      isScala3File &&
+        file.features.indentationBasedSyntaxEnabled
+
+    /**
+     * @return true if file supports indentation-based syntax
+     *         and it's prefered to use it during codegeneration according to the code style setting
+     */
     def useIndentationBasedSyntax: Boolean =
       isScala3File &&
         ScalaCodeStyleSettings.getInstance(file.getProject).USE_SCALA3_INDENTATION_BASED_SYNTAX &&

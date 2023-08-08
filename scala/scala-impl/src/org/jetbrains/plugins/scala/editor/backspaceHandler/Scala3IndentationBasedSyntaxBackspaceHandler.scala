@@ -38,6 +38,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatch
  *     (simply delegating to `getContainingFile.getLanguage` for every element seems to be too much.
  *  1. the logic of default handlers is quite primitive and you can't customize it to handle Scala3 indentation-based syntax
  *     in a more sophisticated way
+ *
+ * Also see [[org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandlerZ]]
  */
 //noinspection InstanceOf
 class Scala3IndentationBasedSyntaxBackspaceHandler extends BackspaceHandlerDelegate {
@@ -56,7 +58,7 @@ class Scala3IndentationBasedSyntaxBackspaceHandler extends BackspaceHandlerDeleg
       case _ => return
     }
 
-    if (!scalaFile.useIndentationBasedSyntax)
+    if (!scalaFile.isIndentationBasedSyntaxSupported)
       return
 
     val mode = getBackspaceMode(Scala3Language.INSTANCE)

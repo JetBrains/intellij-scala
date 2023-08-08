@@ -45,6 +45,8 @@ import org.jetbrains.plugins.scala.util.IndentUtil
  *      def foo = <caret>
  *    }}}
  *  - [[org.jetbrains.plugins.scala.editor.ScalaLineIndentProvider.getLineIndent]]
+ *
+ *  Also see [[org.jetbrains.plugins.scala.editor.backspaceHandler.Scala3IndentationBasedSyntaxBackspaceHandler]]
  */
 class Scala3IndentationBasedSyntaxEnterHandler extends EnterHandlerDelegateAdapter {
 
@@ -63,7 +65,7 @@ class Scala3IndentationBasedSyntaxEnterHandler extends EnterHandlerDelegateAdapt
     if (!file.is[ScalaFile])
       return Result.Continue
 
-    if (!file.useIndentationBasedSyntax)
+    if (!file.isIndentationBasedSyntaxSupported)
       return Result.Continue
 
     if (!CodeInsightSettings.getInstance.SMART_INDENT_ON_ENTER)

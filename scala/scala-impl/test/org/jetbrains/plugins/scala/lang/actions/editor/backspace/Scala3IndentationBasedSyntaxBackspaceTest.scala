@@ -655,4 +655,33 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
     ){
       () => performBackspaceAction()
     }
+
+
+  def testBackspaceHandlerShouldWorkEvenWhenCodeStyleSettingIsDisabled(): Unit = {
+    val before = getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX
+    getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
+
+    try {
+      doSequentialBackspaceTest(
+        """class A {
+          |  def foo =
+          |    println(1)
+          |    println(2)
+          |
+          |  def fooOuter =
+          |    println(1)
+          |    println(2)
+          |
+          |    def fooInner =
+          |      println(1)
+          |      println(2)#
+          |  #
+          |  # # #    #
+          |}
+          |""".stripMargin
+      )
+    } finally {
+      getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = before
+    }
+  }
 }
