@@ -160,8 +160,8 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
           val needsOverride = member.isOverride || ScalaGenerationInfo.toAddOverrideToImplemented
           ExtensionMethodConstructionInfo(methodSignature, needsOverride, methodBody)
         }
-        val newExtension = createOverrideImplementExtensionMethods(
-          Seq(extensionMethodConstructionInfo),
+        val newExtension = ScalaPsiElementFactory.createOverrideImplementExtensionMethod(
+          extensionMethodConstructionInfo,
           scalaFeatures,
           wrapMultipleExtensionsWithBraces = !clazz.containingFile.exists(_.useIndentationBasedSyntax),
           withComment = false

@@ -62,8 +62,7 @@ class ScalaOverrideCompletionTest_Scala3 extends ScalaOverrideCompletionTestBase
          |    def myExt2(p: String): String
          |
          |class MyChildInScala3 extends MyBaseFromScala3:
-         |  extension (target: String)(using c1: Char)
-         |    override def myExt1(p: String)(using c2: CharSequence): String = $CARET$START???$END
+         |  extension (target: String)(using c1: Char) override def myExt1(p: String)(using c2: CharSequence): String = $CARET$START???$END
          |""".stripMargin
   )()
 
@@ -90,8 +89,7 @@ class ScalaOverrideCompletionTest_Scala3 extends ScalaOverrideCompletionTestBase
          |  object wrapper2:
          |    object wrapper3:
          |      class MyChildInScala3 extends MyBaseFromScala3:
-         |        extensiaon (target: String)(using c1: Char)
-         |          override def myExt1(p: String)(using c2: CharSequence): String = $CARET$START???$END
+         |        extension (target: String)(using c1: Char) override def myExt1(p: String)(using c2: CharSequence): String = $CARET$START???$END
          |""".stripMargin
   )()
 }

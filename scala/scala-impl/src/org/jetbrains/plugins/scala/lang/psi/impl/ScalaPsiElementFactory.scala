@@ -857,10 +857,48 @@ object ScalaPsiElementFactory {
     withComment: Boolean = true,
   )(implicit
     ctx: ProjectContext
+  ): ScExtension =
+    createOverrideImplementExtensionMethodsImpl(
+      extensionMethodsInfos,
+      features,
+      wrapMultipleExtensionsWithBraces,
+      withComment,
+      addNewLineAfterExtensionSignature = true
+    )
+
+  def createOverrideImplementExtensionMethod(
+    extensionMethodsInfo: ExtensionMethodConstructionInfo,
+    features: ScalaFeatures,
+    wrapMultipleExtensionsWithBraces: Boolean,
+    withComment: Boolean = true,
+  )(implicit
+    ctx: ProjectContext
+  ): ScExtension = createOverrideImplementExtensionMethodsImpl(
+    Seq(extensionMethodsInfo),
+    features,
+    wrapMultipleExtensionsWithBraces,
+    withComment,
+    addNewLineAfterExtensionSignature = false
+  )
+
+  private def createOverrideImplementExtensionMethodsImpl(
+    extensionMethodsInfos: Seq[ExtensionMethodConstructionInfo],
+    features: ScalaFeatures,
+    wrapMultipleExtensionsWithBraces: Boolean,
+    withComment: Boolean,
+    addNewLineAfterExtensionSignature: Boolean
+  )(implicit
+    ctx: ProjectContext
   ): ScExtension = {
     assert(extensionMethodsInfos.nonEmpty)
 
-    val extension = createExtensionMethodFromSignature(extensionMethodsInfos, features, wrapMultipleExtensionsWithBraces, withComment)
+    val extension = createExtensionMethodFromSignature(
+      extensionMethodsInfos,
+      features,
+      wrapMultipleExtensionsWithBraces,
+      withComment,
+      addNewLineAfterExtensionSignature
+    )
 
     extension.extensionMethods.zip(extensionMethodsInfos).foreach { case (newMethod, methodConstructionInfo) =>
       addModifiersFromSignature(newMethod, methodConstructionInfo.signature, methodConstructionInfo.needsOverrideModifier)
@@ -873,7 +911,8 @@ object ScalaPsiElementFactory {
     extensionMethodsInfos: Seq[ExtensionMethodConstructionInfo],
     scalaFeatures: ScalaFeatures,
     wrapMultipleExtensionsWithBraces: Boolean,
-    withComment: Boolean
+    withComment: Boolean,
+    addNewLineAfterExtensionSignature: Boolean
   )(implicit
     ctx: ProjectContext
   ): ScExtension = {
@@ -886,10 +925,13 @@ object ScalaPsiElementFactory {
     appendExtensionSignatureText(builder, extensionSignature, representativeMethod.substitutor)
 
     val addBraces = wrapMultipleExtensionsWithBraces && extensionMethodsInfos.size > 1
-    if (addBraces) {
+    if (addBraces)
       builder.append(" {")
-    }
-    builder.append("\n")
+
+    if (addNewLineAfterExtensionSignature)
+      builder.append("\n")
+    else
+      builder.append(" ")
 
     extensionMethodsInfos.foreach { info =>
       assert(info.signature.isExtensionMethod)
@@ -901,11 +943,12 @@ object ScalaPsiElementFactory {
       //  extension (p: Any)
       //    |
       val ExtensionBodyIndent = "    "
-      builder.append(ExtensionBodyIndent)
+      if (addNewLineAfterExtensionSignature)
+        builder.append(ExtensionBodyIndent)
 
       if (withComment) {
         val commentAdded = appendCommentText(builder, method)
-        if (commentAdded) {
+        if (commentAdded && addNewLineAfterExtensionSignature) {
           builder.append(ExtensionBodyIndent)
         }
       }
