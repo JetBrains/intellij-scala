@@ -16,6 +16,13 @@ trait BaseIconProvider extends Iconable {
   protected def baseIcon: Icon
 
   // TODO baseIcon shouldn't return null in ScVariable and ScFunction
+  /**
+   * Adds visibility icons if specified in `flags`<br>
+   * Similar logic is done in other places, examples:
+   *  - [[com.intellij.psi.impl.source.PsiMethodImpl#getElementIcon]]
+   *  - [[com.intellij.psi.impl.source.PsiEnumConstantImpl#getElementIcon]]
+   *  - etc...
+   */
   override def getIcon(flags: Int): Icon = baseIcon match {
     case icon: Icon if delegate.isValid =>
       val layerFlags = getLayerFlags(flags)
