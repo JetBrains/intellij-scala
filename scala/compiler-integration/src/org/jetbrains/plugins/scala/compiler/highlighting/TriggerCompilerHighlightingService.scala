@@ -13,11 +13,11 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi._
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
-import org.jetbrains.plugins.scala.ScalaLanguage
 
 import scala.collection.concurrent.TrieMap
 import scala.jdk.CollectionConverters._
@@ -38,7 +38,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
           val psiFile = inReadAction(root.getContainingFile)
           if (psiFile ne null) {
             val virtualFile = psiFile.getVirtualFile
-            if (virtualFile ne null) {
+            if ((virtualFile ne null) && virtualFile.isValid) { //file could be deleted (this code is called in background activity)
               val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
               invokeAndWait {
                 EditorFactory.getInstance().getEditors(document).foreach { editor =>
@@ -49,12 +49,14 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
                 }
               }
               executeOnBackgroundThreadInNotDisposed(project) {
-                WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(virtualFile, ExternalHighlighters)
+                if (virtualFile.isValid) { //file could be deleted (this code is called in background activity)
+                  WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(virtualFile, ExternalHighlighters)
+                }
               }
 
               if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {
                 val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
-                triggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
+                doTriggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
               }
             }
           }
@@ -69,12 +71,12 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
       val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
       if (document ne null) {
         if (psiFile.isScalaWorksheet) {
-          triggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
+          doTriggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
         } else {
           if (documentCompilerAvailable.contains(virtualFile)) {
-            triggerDocumentCompilation(virtualFile, document, debugReason)
+            doTriggerDocumentCompilation(virtualFile, document, debugReason)
           } else {
-            triggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
+            doTriggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
           }
         }
       }
@@ -84,16 +86,16 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   private[highlighting] def triggerOnSelectedEditorChange(editor: FileEditor): Unit = executeOnBackgroundThreadInNotDisposed(project) {
     if (isHighlightingEnabled && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
       val virtualFile = editor.getFile
-      if (virtualFile ne null) {
+      if ((virtualFile ne null) && virtualFile.isValid) { //file could be deleted (this code is called in background activity)
         val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
         if ((psiFile ne null) && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
           val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
           if (document ne null) {
             val debugReason = s"selected editor changed: ${virtualFile.getName}"
             if (psiFile.isScalaWorksheet)
-              triggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
+              doTriggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
             else
-              triggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
+              doTriggerIncrementalCompilation(debugReason, virtualFile, document, psiFile)
           }
         }
       }
@@ -118,7 +120,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
       ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project)
   }
 
-  private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile, document: Document, psiFile: PsiFile): Unit = {
+  private def doTriggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile, document: Document, psiFile: PsiFile): Unit = {
     val module = inReadAction(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
     if (module ne null) {
       val sourceScope = calculateSourceScope(virtualFile)
@@ -148,7 +150,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     documentCompilerAvailable.remove(virtualFile, java.lang.Boolean.TRUE)
   }
 
-  private def triggerDocumentCompilation(
+  private def doTriggerDocumentCompilation(
     virtualFile: VirtualFile,
     document: Document,
     debugReason: String
@@ -160,7 +162,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     }
   }
 
-  private def triggerWorksheetCompilation(
+  private def doTriggerWorksheetCompilation(
     virtualFile: VirtualFile,
     psiFile: ScalaFile,
     document: Document,
