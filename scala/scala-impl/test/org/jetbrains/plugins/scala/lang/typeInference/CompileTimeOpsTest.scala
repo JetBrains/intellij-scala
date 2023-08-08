@@ -117,6 +117,13 @@ class CompileTimeOpsTest extends ScalaLightCodeInsightFixtureTestCase {
   def testAnyIsConst_AliasToNonLiteralType(): Unit = assertTypeIs(AnyOps +
     """type T = IsConst[AliasToString]""", "false")
 
+  def testDeAliasTypesRecursively(): Unit = assertTypeIs(IntOps +
+    """type A1 = 1
+      |type A2 = A1
+      |
+      |type T = A2 + 2
+      |""".stripMargin, "3")
+
   // ToString
   def testToString_IntLiteral_1(): Unit = assertTypeIs(AnyOps +
     """type T = ToString[1] == "1"""", "true")

@@ -25,10 +25,7 @@ private object CompileTimeOps {
       // For now (in Scala 3.2.1-RC4) it's done for scala.compiletime.ops
       // But ideally it should be done more uniformly.
       // See also: https://github.com/lampepfl/dotty/pull/14586
-      lazy val argumentsDealiased = arguments.map {
-        case AliasType(_, _, Right(right)) => right
-        case other => other
-      }
+      lazy val argumentsDealiased = arguments.map(_.removeAliasDefinitions())
       (containingClassName: @switch) match {
         case "scala.compiletime.ops.any" => anyOp(alias.name, argumentsDealiased)
         case "scala.compiletime.ops.boolean" => booleanOp(alias.name, argumentsDealiased)
