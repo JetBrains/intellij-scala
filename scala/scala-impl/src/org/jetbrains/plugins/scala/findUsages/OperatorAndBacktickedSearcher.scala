@@ -47,9 +47,21 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
             reference <- references
             if reference.getRangeInElement.contains(offsetInElement)
           } inReadAction {
-            if (reference.isReferenceTo(elementToSearch) || reference.resolve() == elementToSearch) {
-              if (!consumer.process(reference)) return false
-            }
+            if (!processReference(reference))
+              return false
+          }
+
+          true
+        }
+
+        private def processReference(reference: PsiReference): Boolean = {
+          if (reference.isReferenceTo(elementToSearch)) {
+            return consumer.process(reference)
+          }
+
+          val refResolvedElement = reference.resolve()
+          if (refResolvedElement == elementToSearch) {
+            return consumer.process(reference)
           }
 
           true
@@ -57,8 +69,8 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
       }
 
       try {
-        new ScalaPsiSearchHelper(queryParameters.getProject)
-          .processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
+        val searchHelper = new ScalaPsiSearchHelper(queryParameters.getProject)
+        searchHelper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
       } catch {
         case _: IndexNotReadyException =>
       }
