@@ -7,8 +7,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.cache.impl.id.{IdIndex, IdIndexEntry}
 import com.intellij.psi.impl.search.PsiSearchHelperImpl
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.{GlobalSearchScope, TextOccurenceProcessor, UsageSearchContext}
+import com.intellij.psi.search.{GlobalSearchScope, SearchScope, TextOccurenceProcessor, UsageSearchContext}
 import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.util.{CommonProcessors, Processor, QueryExecutor}
@@ -22,53 +23,27 @@ import java.{util => ju}
 
 class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
 
-  override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
+  override def execute(
+    queryParameters: ReferencesSearch.SearchParameters,
+    consumer: Processor[_ >: PsiReference]
+  ): Boolean = {
     val elementToSearch = queryParameters.getElementToSearch
-
-    val namesToProcess = inReadAction {
-      var names = Set.empty[String]
-      elementToSearch match {
-        case named: ScNamedElement if named.isValid =>
-          val name = named.name
-          names += name
-          names += withoutBackticks(name)
-          names += withoutBackticks(name).stripPrefix("unary_")
-        case _ =>
-      }
-      names
+    val scalaElementToSearch: ScNamedElement = elementToSearch match {
+      case named: ScNamedElement if named.isValid => named
+      case _ =>
+        return true
     }
 
-    val scope = inReadAction(ScalaFilterScope(queryParameters))
-    namesToProcess.foreach { name =>
-      val processor = new TextOccurenceProcessor {
-        override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
-          val references = inReadAction(element.getReferences)
-          for {
-            reference <- references
-            if reference.getRangeInElement.contains(offsetInElement)
-          } inReadAction {
-            if (!processReference(reference))
-              return false
-          }
-
-          true
-        }
-
-        private def processReference(reference: PsiReference): Boolean = {
-          if (reference.isReferenceTo(elementToSearch)) {
-            return consumer.process(reference)
-          }
-
-          val refResolvedElement = reference.resolve()
-          if (refResolvedElement == elementToSearch) {
-            return consumer.process(reference)
-          }
-
-          true
-        }
+    val (namesToProcess, scope) =
+      inReadAction {
+        val names = getNamesToProcess(scalaElementToSearch)
+        val scope = ScalaFilterScope(queryParameters)
+        (names, scope)
       }
 
+    namesToProcess.foreach { name =>
       try {
+        val processor = new MyTextOccurenceProcessor(scalaElementToSearch, consumer)
         val searchHelper = new ScalaPsiSearchHelper(queryParameters.getProject)
         searchHelper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
       } catch {
@@ -77,6 +52,48 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
     }
 
     true
+  }
+
+  @RequiresReadLock
+  private def getNamesToProcess(elementToSearch: ScNamedElement): Set[String] = {
+    var names = Set.empty[String]
+    val name = elementToSearch.name
+    names += name
+    names += withoutBackticks(name)
+    names += withoutBackticks(name).stripPrefix("unary_")
+    names
+  }
+
+  private class MyTextOccurenceProcessor(
+    elementToSearch: PsiElement,
+    consumer: Processor[_ >: PsiReference]
+  ) extends TextOccurenceProcessor {
+
+    override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+      val references = inReadAction(element.getReferences)
+      for {
+        reference <- references
+        if reference.getRangeInElement.contains(offsetInElement)
+      } inReadAction {
+        if (!processReference(reference))
+          return false
+      }
+
+      true
+    }
+
+    private def processReference(reference: PsiReference): Boolean = {
+      if (reference.isReferenceTo(elementToSearch)) {
+        return consumer.process(reference)
+      }
+
+      val refResolvedElement = reference.resolve()
+      if (refResolvedElement == elementToSearch) {
+        return consumer.process(reference)
+      }
+
+      true
+    }
   }
 
   private class ScalaPsiSearchHelper(project: Project)
@@ -105,5 +122,5 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
       ContainerUtil.process(collectProcessor.getResults, readActionProcessor)
     }
   }
-
 }
+
