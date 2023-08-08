@@ -51,18 +51,44 @@ object ScalaExpressionSurroundDescriptor {
   @tailrec
   private def expressionsInRange(startOffset: Int, endOffset: Int)
                                 (implicit file: PsiFile): List[PsiElement] = {
+    if (startOffset > endOffset)
+      return Nil
+
     import ScalaPsiUtil.isLineTerminator
 
-    (file.findElementAt(startOffset), file.findElementAt(endOffset - 1)) match {
-      case (ws: PsiWhiteSpace, _) => expressionsInRange(ws.getTextRange.getEndOffset, endOffset)
-      case (_, ws: PsiWhiteSpace) => expressionsInRange(startOffset, ws.getTextRange.getStartOffset)
-      case (null, _) | (_, null) => Nil
-      case (_, semicolon) if semicolon.getNode.getElementType == tSEMICOLON => expressionsInRange(startOffset, endOffset - 1)
-      case (lineSeparator, _) if isLineTerminator(lineSeparator) => expressionsInRange(lineSeparator.getTextRange.getEndOffset, endOffset)
-      case (_, lineSeparator) if isLineTerminator(lineSeparator) => expressionsInRange(startOffset, lineSeparator.getTextRange.getStartOffset)
-      case (comment, _) if COMMENTS_TOKEN_SET.contains(comment.getNode.getElementType) => expressionsInRange(comment.getTextRange.getEndOffset, endOffset)
-      case (_, comment) if COMMENTS_TOKEN_SET.contains(comment.getNode.getElementType) => expressionsInRange(startOffset, comment.getTextRange.getStartOffset)
-      case _ => findAllInRange(startOffset, endOffset)
+    val element1 = file.findElementAt(startOffset)
+    val element2 = file.findElementAt(endOffset - 1)
+    val (startOffsetNew, endOffsetNew) = (element1, element2) match {
+      case (ws: PsiWhiteSpace, _) =>
+        (ws.getTextRange.getEndOffset, endOffset)
+      case (_, ws: PsiWhiteSpace) =>
+        (startOffset, ws.getTextRange.getStartOffset)
+      case (null, _) | (_, null) =>
+        (-1, -1)
+      case (_, semicolon) if semicolon.getNode.getElementType == tSEMICOLON =>
+        (startOffset, endOffset - 1)
+      case (lineSeparator, _) if isLineTerminator(lineSeparator) =>
+        (lineSeparator.getTextRange.getEndOffset, endOffset)
+      case (_, lineSeparator) if isLineTerminator(lineSeparator) =>
+        (startOffset, lineSeparator.getTextRange.getStartOffset)
+      case (comment, _) if COMMENTS_TOKEN_SET.contains(comment.getNode.getElementType) =>
+        (comment.getTextRange.getEndOffset, endOffset)
+      case (_, comment) if COMMENTS_TOKEN_SET.contains(comment.getNode.getElementType) =>
+        (startOffset, comment.getTextRange.getStartOffset)
+      case _ =>
+        (startOffset, endOffset)
+    }
+
+    if (startOffset == -1)
+      Nil
+    else {
+      val rangeLength = endOffset - startOffset
+      val rangeLengthNew = endOffsetNew - startOffsetNew
+      val rangeIsNarrowed = rangeLengthNew < rangeLength
+      if (rangeIsNarrowed && rangeLengthNew > 0) //avoid potential infinite recursion
+        expressionsInRange(startOffsetNew, endOffsetNew)
+      else
+        findAllInRange(startOffset, endOffset)
     }
   }
 
