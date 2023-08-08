@@ -79,7 +79,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
         if (client.hasReportedErrors || client.isCanceled) {
           JpsExitCode.ABORT
         } else {
-          client.progress("Compilation completed", Some(1.0F))
+          client.progress(JpsBundle.message("compilation.completed"), Some(1.0F))
           code match {
             case ExitCode.NothingDone => JpsExitCode.NOTHING_DONE
             case ExitCode.Ok => JpsExitCode.OK

@@ -86,7 +86,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
         if (delta != null && JavaBuilderUtil.updateMappings(context, delta, dirtyFilesHolder, chunk, scalaSources, successfullyCompiled.asJava): @nowarn("cat=deprecation"))
           JpsExitCode.ADDITIONAL_PASS_REQUIRED
         else {
-          client.progress("Compilation completed", Some(1.0F))
+          client.progress(JpsBundle.message("compilation.completed"), Some(1.0F))
           code match {
             case ExitCode.NothingDone => JpsExitCode.NOTHING_DONE
             case ExitCode.Ok => JpsExitCode.OK

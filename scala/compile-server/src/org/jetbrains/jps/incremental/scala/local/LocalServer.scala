@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.local
 
-import org.jetbrains.jps.incremental.scala.{Client, DelegateClient, ExitCode, Server}
+import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle, DelegateClient, ExitCode, Server}
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, SbtData}
 import sbt.internal.inc.FileAnalysisStore
 import xsbti.compile.AnalysisStore
@@ -34,7 +34,7 @@ final class LocalServer extends Server {
     val compiler = try lock.synchronized {
       val compilerFactory = compilerFactoryFrom(sbtData, compilerData, client)
 
-      collectingSourcesClient.progress("Instantiating compiler...")
+      collectingSourcesClient.progress(CompileServerBundle.message("instantiating.compiler"))
       compilerFactory.createCompiler(compilerData, collectingSourcesClient, LocalServer.createAnalysisStore)
     } catch {
       case e: Throwable =>
