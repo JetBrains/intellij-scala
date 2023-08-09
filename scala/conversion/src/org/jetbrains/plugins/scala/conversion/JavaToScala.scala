@@ -355,9 +355,22 @@ object JavaToScala {
         ArrayInitializer(a.getInitializers.map(convertPsiToIntermediate(_, externalProperties)).toIndexedSeq)
       case c: PsiClassObjectAccessExpression => ClassObjectAccess(convertPsiToIntermediate(c.getOperand, externalProperties))
       case i: PsiInstanceOfExpression =>
+        val checkType = i.getCheckType match {
+          case null =>
+            //type can be null since Java 15/16 when there is a variable: `obj instanceof String str`
+            //NOTE: this is a fast workaround just to avoid NPE (see SCL-21509)
+            //TODO support Java pattern matching truly, see SCL-21510
+            i.getPattern match {
+              case typeTest: PsiTypeTestPattern => typeTest.getCheckType
+              case _ => null
+            }
+          case t => t
+        }
+        val checkTypeNode = if (checkType != null) convertTypePsiToIntermediate(checkType) else EmptyTypeNode()
         InstanceOfConstruction(
           convertPsiToIntermediate(i.getOperand, externalProperties),
-          convertTypePsiToIntermediate(i.getCheckType))
+          checkTypeNode
+        )
       case m: PsiMethodCallExpression =>
         def isSuper: Boolean = m.getMethodExpression.getQualifierExpression.isInstanceOf[PsiSuperExpression]
 
