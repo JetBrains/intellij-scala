@@ -115,6 +115,8 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
 
   def testSwitchMultiLabel(): Unit = doTestJava14()
 
+  def testJavaPatternMatchingExamples(): Unit = doTestJava20_preview()
+
   def testCountingLoopSimple(): Unit = doTest()
 
   def testCountingLoopInclusive(): Unit = doTest()
@@ -132,11 +134,19 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
   def testPreserveFieldModifiersAndAnnotations(): Unit = doTest()
 
   private def doTestJava14(): Unit = {
+    doTestJavaWithVersion(LanguageLevel.JDK_14)
+  }
+
+  private def doTestJava20_preview(): Unit = {
+    doTestJavaWithVersion(LanguageLevel.JDK_20_PREVIEW)
+  }
+
+  private def doTestJavaWithVersion(languageLevel: LanguageLevel): Unit = {
     import com.intellij.openapi.roots.LanguageLevelProjectExtension
     val projectExtension = LanguageLevelProjectExtension.getInstance(getProject)
     val oldLevel = projectExtension.getLanguageLevel
     try {
-      projectExtension.setLanguageLevel(LanguageLevel.JDK_14)
+      projectExtension.setLanguageLevel(languageLevel)
       doTest()
     } finally {
       projectExtension.setLanguageLevel(oldLevel)
