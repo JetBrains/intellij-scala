@@ -9,6 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 
 import javax.swing.Icon
 
+/**
+ * Created by analogy with [[com.intellij.ide.structureView.impl.java.JavaAnonymousClassTreeElement]]
+ */
 final class ScalaAnonymousClassTreeElement(definition: ScNewTemplateDefinition)
   extends AbstractTreeElementDelegatingChildrenToPsi(definition)
     with LocationPresentation {
