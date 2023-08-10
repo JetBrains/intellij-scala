@@ -12,6 +12,7 @@ import java.io.File
 import java.util.Optional
 import scala.jdk.OptionConverters._
 import scala.util.Try
+import scala.util.matching.Regex
 
 class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileToStore: File => AnalysisStore) extends AbstractCompiler {
 
@@ -97,13 +98,52 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
       if (result.hasModified || cacheDetails.isCached) {
         analysisStore.set(AnalysisContents.create(result.analysis(), result.setup()))
 
-        intellijClassfileManager.deletedDuringCompilation().foreach(_.foreach(client.deleted))
-
         val binaryToSource = BinaryToSource(result.analysis, compilationData)
 
+        def findClassFileOnDisk(classFile: File): (File, String) = {
+          val fullJavaName = binaryToSource.className(classFile)
+          if (classFile.exists()) {
+            (classFile, fullJavaName)
+          } else {
+            // The file doesn't exist on disk, it must have been compactified by scalac
+            // https://github.com/scala/scala/blob/714c2f84fc3d093cb424f6e0c421ba3881d09bbc/src/reflect/scala/reflect/internal/StdNames.scala#L49
+            // Classes that would result in class files with names longer than ~255 characters cannot be saved to disk,
+            // because of limitations in the native file systems.
+            // The Scala compiler uses a process called "compactification", which computes an md5 hash of the full
+            // name of a class and uses the hash to shorten the name.
+            // At a high level, the final name has the following form: prefix + marker + md5 + marker + suffix,
+            // where the prefix, md5 and suffix are derived from the full name, and the marker is a fixed string defined
+            // by the compiler.
+            classFile.getParentFile.listFiles().map(_.getName).find {
+              case SbtCompiler.CompactifiedName(prefix, suffix) =>
+                val javaClassName = fullJavaName match {
+                  case SbtCompiler.PackageAndClassPattern(_, cls) => cls
+                  case cls => cls
+                }
+                javaClassName.startsWith(prefix) && javaClassName.endsWith(suffix)
+              case _ => false
+            }.map { fileName =>
+              val file = classFile.toPath.getParent.resolve(fileName).toFile
+              val withoutClass = fileName.dropRight(".class".length)
+              val className = fullJavaName match {
+                case SbtCompiler.PackageAndClassPattern(pkg, _) => pkg + withoutClass
+                case _ => withoutClass
+              }
+              (file, className)
+            }.getOrElse((classFile, fullJavaName))
+          }
+        }
+
+        intellijClassfileManager.deletedDuringCompilation().foreach(_.filter(_.getName.endsWith(".class")).foreach { cf =>
+          val (file, _) = findClassFileOnDisk(cf)
+          client.deleted(file)
+        })
+
         def processGeneratedFile(classFile: File): Unit = {
-          for (source <- binaryToSource.classfileToSources(classFile))
-            client.generated(source, classFile, binaryToSource.className(classFile))
+          for (source <- binaryToSource.classfileToSources(classFile)) {
+            val (file, className) = findClassFileOnDisk(classFile)
+            client.generated(source, file, className)
+          }
         }
 
         intellijClassfileManager.generatedDuringCompilation().flatten.foreach(processGeneratedFile)
@@ -139,4 +179,9 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
 
     zincMetadata.compilationFinished(compilationData, compilationResult, intellijClassfileManager, cacheDetails)
   }
+}
+
+private object SbtCompiler {
+  private val CompactifiedName: Regex = """(.*)\$\$\$\$[0-9a-f]*\$\$\$\$(.*)\.class""".r
+  private val PackageAndClassPattern: Regex = """(.*\.)(.*)$""".r
 }
