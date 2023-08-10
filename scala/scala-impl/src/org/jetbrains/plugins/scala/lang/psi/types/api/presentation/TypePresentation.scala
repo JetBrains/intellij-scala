@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt, 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
@@ -59,7 +60,10 @@ trait TypePresentation {
                   case o: ScObject =>
                     (if (ScalaApplicationSettings.PRECISE_TEXT && o.isStatic) "_root_." else "") +
                       renderNameImpl(o, withPoint = true) + e.name // SCL-21182
-                  case _ => e.name
+                  case _ => m.getParent match {
+                    case p: ScPackaging if ScalaApplicationSettings.PRECISE_TEXT => "_root_." + p.fullPackageName + "." + e.name // SCL-21514
+                    case _ => e.name
+                  }
                 }
               case _ => e.name
             }

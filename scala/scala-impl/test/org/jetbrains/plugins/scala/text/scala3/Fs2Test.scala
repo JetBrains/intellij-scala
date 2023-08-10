@@ -14,6 +14,5 @@ class Fs2Test extends TextToTextTestBase(
     "fs2.ChunkPlatform", // IArray is Any
     "fs2.CollectorPlatform", // type.Aux
     "fs2.Pull", // fs2.Pull.Terminal is Any
-    "fs2.Stream", // No prefix in fs2.compat.NotGiven
   )
 )
