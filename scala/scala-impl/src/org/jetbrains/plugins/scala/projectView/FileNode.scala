@@ -6,6 +6,7 @@ import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.tasty.TastyFileType
 
 import java.{util => ju}
 import javax.swing.Icon
@@ -39,7 +40,10 @@ private[projectView] object FileNode {
     override protected def updateImpl(data: PresentationData): Unit = {
       super.updateImpl(data)
 
-      val presentableText = file.getName.stripSuffix(ScalaFileType.INSTANCE.getExtensionWithDot)
+      val presentableText = file.getName
+        .stripSuffix(ScalaFileType.INSTANCE.getExtensionWithDot)
+        .stripSuffix("$package." + TastyFileType.getDefaultExtension) // Compiled top-level definitions
+
       data.setPresentableText(presentableText)
     }
   }
