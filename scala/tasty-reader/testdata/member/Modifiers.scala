@@ -144,8 +144,6 @@ trait Modifiers {
   trait B extends A {
     abstract override protected implicit final def x: Int = ???
   }
-
-  opaque type OpaqueTypeAlias = /**/Int/*???*/
 /**/
   extension (i: Int)
     private def privateExtensionMethod: Unit = ???

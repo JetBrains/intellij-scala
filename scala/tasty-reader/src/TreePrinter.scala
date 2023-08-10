@@ -217,7 +217,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       } else {
         sb ++= " = "
         if (node.contains(OPAQUE)) {
-          sb ++= CompiledCode
+          sb ++= "\"" + CompiledCode + "\""
         } else {
           repr.children.findLast(_.isTypeTree).orElse(repr.children.find(_.is(TYPEBOUNDS)).flatMap(_.children.headOption)) match {
             case Some(t) =>

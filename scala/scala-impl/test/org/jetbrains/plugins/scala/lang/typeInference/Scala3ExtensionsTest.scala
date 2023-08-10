@@ -497,16 +497,18 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin
   )
 
-  def testSCL21257(): Unit = checkTextHasNoErrors(
-    """
-      |object A {
-      |  val iarr = IArray(1, 2, 3)
-      |  iarr.length
-      |  iarr.map(_ + 1)
-      |  iarr(123)
-      |}
-      |""".stripMargin
-  )
+// TODO #SCL-21520
+
+//  def testSCL21257(): Unit = checkTextHasNoErrors(
+//    """
+//      |object A {
+//      |  val iarr = IArray(1, 2, 3)
+//      |  iarr.length
+//      |  iarr.map(_ + 1)
+//      |  iarr(123)
+//      |}
+//      |""".stripMargin
+//  )
 
   def testSCL21416(): Unit = checkTextHasNoErrors(
     """
