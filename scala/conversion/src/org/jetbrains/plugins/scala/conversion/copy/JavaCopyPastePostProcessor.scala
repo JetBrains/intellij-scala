@@ -5,7 +5,7 @@ package copy
 import com.intellij.codeInsight.editorActions._
 import com.intellij.openapi.diagnostic.{Attachment, ControlFlowException, Logger}
 import com.intellij.openapi.editor.{Editor, RangeMarker}
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.{DumbService, Project, ProjectManager}
 import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.conversion.copy.ScalaPasteFromJavaDialog.Copy
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring._
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings._
 
 import scala.collection.mutable
@@ -32,6 +33,8 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
     if (DumbService.getInstance(file.getProject).isDumb) return None
     if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion ||
       !file.isInstanceOf[PsiJavaFile]) return None
+
+    if (!ProjectManager.getInstance.getOpenProjects.exists(_.hasScala)) return None // SCL-21511
 
     try {
       val data: Seq[ReferenceData] =
