@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.caches.measure
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.{ScBooleanLiteralImpl, ScCharLiteralImpl, ScDoubleLiteralImpl, ScFloatLiteralImpl, ScIntegerLiteralImpl, ScLongLiteralImpl}
-import org.jetbrains.plugins.scala.lang.psi.types.api.ValueType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 
 import java.util.regex.PatternSyntaxException
@@ -14,7 +12,7 @@ import scala.annotation.switch
 
 /** @see [[scala.compiletime.ops]] */
 private object CompileTimeOps {
-  def apply(designator: ScType, arguments: Seq[ScType]): Option[ValueType] = measure("CompileTimeOps") { designator match {
+  def apply(designator: ScType, arguments: Seq[ScType]): Option[ScLiteralType] = designator match {
     case ScProjectionType.withActual(alias: ScTypeAliasDeclaration, _) =>
       implicit def project: Project = designator.projectContext.project
 
@@ -37,7 +35,7 @@ private object CompileTimeOps {
         case _ => None
       }
     case _ => None
-  } }
+  }
 
   private def stringOp(operator: String, operands: Seq[ScType])(implicit project: Project): Option[ScLiteralType] = operands match {
     case Seq(StringValue(l), StringValue(r)) => (operator: @switch) match {
