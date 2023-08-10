@@ -192,7 +192,7 @@ class ScalaPsiManager(implicit val project: Project) {
 
   private val getTopLevelGivenDefinitionsByPackageCached =
     cachedWithoutModificationCount(
-      "ScalaPsiManager.getTopLevelGivenDefinitionsByPackageCached",
+      "getTopLevelGivenDefinitionsByPackageCached",
       ValueWrapper.SofterReference,
       clearCacheOnTopLevelChange,
       (fqn: String, scope: GlobalSearchScope) => TOP_LEVEL_GIVEN_DEFINITIONS_BY_PKG_KEY.elements(cleanFqn(fqn), scope)
