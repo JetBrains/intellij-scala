@@ -215,15 +215,17 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       if (bounds.isDefined) {
         boundsIn(sb, bounds.get)
       } else {
-        sb ++= " = "
-        if (node.contains(OPAQUE)) {
-          sb ++= "\"" + CompiledCode + "\""
-        } else {
-          repr.children.findLast(_.isTypeTree).orElse(repr.children.find(_.is(TYPEBOUNDS)).flatMap(_.children.headOption)) match {
-            case Some(t) =>
-              sb ++= simple(textOfType(t))
-            case None =>
-              sb ++= simple("") // TODO implement
+        if (!node.contains(OPAQUE)) { // TODO Enable when opaque types are implemented, #SCL-21516
+          sb ++= " = "
+          if (node.contains(OPAQUE)) {
+            sb ++= "\"" + CompiledCode + "\""
+          } else {
+            repr.children.findLast(_.isTypeTree).orElse(repr.children.find(_.is(TYPEBOUNDS)).flatMap(_.children.headOption)) match {
+              case Some(t) =>
+                sb ++= simple(textOfType(t))
+              case None =>
+                sb ++= simple("") // TODO implement
+            }
           }
         }
       }
@@ -909,7 +911,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       sb ++= "transparent "
     }
     if (node.contains(OPAQUE) && !excluding(OPAQUE)) {
-      sb ++= "opaque "
+      //sb ++= "opaque " // TODO Enable when opaque types are implemented, #SCL-21516
     }
     if (node.contains(INLINE)) {
       sb ++= "inline "
