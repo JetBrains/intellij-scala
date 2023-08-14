@@ -68,6 +68,10 @@ object ScalaTestAstTransformer {
             case _: ClassNotFoundException =>
               LOG.debug("Failed to load finders API class " + finderFqn)
           }
+
+          val finder = ScalaTestFqnToFinderMapping.BaseClassToFinder.get(td.qualifiedName)
+          if (finder.isDefined)
+            return finder
         case _ =>
       }
     }
