@@ -14,7 +14,7 @@ final private [documentationProvider] class ScalaDocAnnotationRenderer(typeRende
     val arguments = elem.annotationExpr.getAnnotationParameters
     val constrInvocation = elem.constructorInvocation
     val typ = constrInvocation.typeElement.`type`().getOrAny
-    val link = typeRenderer(typ)
+    val typeRendered = typeRenderer(typ)
     val argList =
       if (arguments.isEmpty)
         ""
@@ -27,6 +27,6 @@ final private [documentationProvider] class ScalaDocAnnotationRenderer(typeRende
           case expr =>
             HtmlPsiUtils.psiElement(expr)
         }.mkString("(", ", ", ")")
-    withStyledSpan("@", DefaultHighlighter.ANNOTATION) + link + argList
+    withStyledSpan("@", DefaultHighlighter.ANNOTATION) + typeRendered + argList
   }
 }
