@@ -524,7 +524,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
             if (s == "_root_.scala.annotation.internal.Repeated") textOfType(tpe.children(1), parens = 1) + "*"
             else if (s != "_root_.scala.annotation.internal.InlineParam") textOfType(tpe) // SCL-21207
             else textOfType(tpe) + " " + "@" + simple(s) + {
-              val args = annotation.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ")
+              val args = annotation.children.map(textOfConstantOrArray).filter(_.nonEmpty).mkString(", ")
               if (args.nonEmpty) "(" + args + ")" else ""
             }
           case _ => textOfType(tpe)
@@ -589,6 +589,26 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     case _ => ""
   }
 
+  private def textOfArray(node: Node): String = node match {
+    case Node3(APPLY, _, Seq(
+           Node3(APPLY, _, Seq(
+             Node3(TYPEAPPLY, _, Seq(
+               Node3(SELECTin, Seq("apply[...]"), Seq(
+                 Node2(TERMREF, Seq("Array")),
+                 _)),
+               _)),
+             Node3(TYPED, _, Seq(
+               Node3(REPEATED, _, args),
+               _)))),
+           _)) => "_root_.scala.Array(" + args.map(textOfConstantOrArray).filter(_.nonEmpty).mkString(", ") + ")"
+    case _ => ""
+  }
+
+  private def textOfConstantOrArray(node: Node): String = textOfConstant(node) match {
+    case "" => textOfArray(node)
+    case s => s
+  }
+
   private def textOfAnnotationIn(sb: StringBuilder, indent: String, node: Node, suffix: String, parens: Boolean = false): Unit = {
     node.children.reverseIterator.takeWhile(_.is(ANNOTATION)).foreach {  // TODO sb.insert?
       case Node3(ANNOTATION, _, Seq(tpe, apply @ Node3(APPLY, _, Seq(tail, _: _*)))) =>
@@ -603,9 +623,9 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
               sb ++= "]"
             case _ =>
           }
-          val args = apply.children.map(textOfConstant).filter(_.nonEmpty) // TODO optimize
+          val args = apply.children.map(textOfConstantOrArray).filter(_.nonEmpty) // TODO optimize
           val namedArgs = apply.children.collect {
-            case Node3(NAMEDARG, Seq(name), Seq(tail)) => name + " = " + textOfConstant(tail)
+            case Node3(NAMEDARG, Seq(name), Seq(tail)) => name + " = " + textOfConstantOrArray(tail)
           }
           if (parens || args.nonEmpty || namedArgs.nonEmpty) {
             sb ++= "("
