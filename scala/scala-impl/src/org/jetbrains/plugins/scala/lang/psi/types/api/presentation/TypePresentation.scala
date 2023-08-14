@@ -38,10 +38,13 @@ trait TypePresentation {
 
   final def canonicalText(`type`: ScType, context: TypePresentationContext): String = {
     val renderer: NameRenderer = new NameRenderer {
-      override def renderName(e: PsiNamedElement): String = nameFun(e, withPoint = false)
-      override def renderNameWithPoint(e: PsiNamedElement): String = nameFun(e, withPoint = true)
+      override def renderName(e: PsiNamedElement): String = renderNameImpl(e, withPoint = false)
+      override def renderNameWithPoint(e: PsiNamedElement): String = {
+        val res = renderNameImpl(e, withPoint = true)
+        if (res.nonEmpty) res + "." else res
+      }
 
-      private def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
+      private def renderNameImpl(e: PsiNamedElement, withPoint: Boolean): String = {
         val str = e match {
           case c: PsiClass =>
             val qname = c.qualifiedName
@@ -53,13 +56,15 @@ trait TypePresentation {
             e.nameContext match {
               case m: ScMember =>
                 m.containingClass match {
-                  case o: ScObject => (if (ScalaApplicationSettings.PRECISE_TEXT && o.isStatic) "_root_." else "") + nameFun(o, withPoint = true) + e.name // SCL-21182
+                  case o: ScObject =>
+                    (if (ScalaApplicationSettings.PRECISE_TEXT && o.isStatic) "_root_." else "") +
+                      renderNameImpl(o, withPoint = true) + e.name // SCL-21182
                   case _ => e.name
                 }
               case _ => e.name
             }
         }
-        removeKeywords(str) + pointStr(withPoint)
+        removeKeywords(str)
       }
     }
     typeText(`type`, renderer, PresentationOptions(renderStdTypes = ScalaApplicationSettings.PRECISE_TEXT, canonicalForm = true))(context)
@@ -73,9 +78,6 @@ object TypePresentation {
   private val PredefinedPackages = Set("scala.Predef", "scala")
   def isPredefined(td: ScTypeDefinition): Boolean =
     PredefinedPackages.contains(td.qualifiedName)
-
-  def pointStr(withPoint: Boolean): String =
-    if (withPoint) "." else ""
 
   private def removeKeywords(text: String): String =
     ScalaNamesUtil.escapeKeywordsFqn(text)
