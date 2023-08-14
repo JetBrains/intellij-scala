@@ -12,7 +12,7 @@ object ScalaTestLatestVersions {
   val Scalatest_2_2 = "2.2.6"
   val Scalatest_3_0 = "3.0.9"
   val Scalatest_3_1 = "3.1.4"
-  val Scalatest_3_2 = "3.2.12"
+  val Scalatest_3_2 = "3.2.16"
 }
 
 trait WithScalaTest_2_2 extends ScalaTestTestCase {
