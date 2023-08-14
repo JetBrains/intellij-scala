@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceField
 
-import com.intellij.codeInsight.navigation.NavigationUtil
-import com.intellij.ide.util.PsiClassListCellRenderer
+import com.intellij.codeInsight.navigation.PsiTargetNavigator
+import com.intellij.ide.util.PsiClassRenderingInfo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -10,7 +10,8 @@ import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.codeInsight.navigation.DelegatingPsiTargetPresentationRenderer
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
@@ -39,15 +40,16 @@ abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHand
         case 1 => action(new IntroduceFieldContext[T](project, editor, file, elem, types, classes(0).asInstanceOf[ScTemplateDefinition]))
         case _ =>
           val selection = classes(0)
-          val processor = new PsiElementProcessor[PsiClass] {
-            override def execute(aClass: PsiClass): Boolean = {
-              action(new IntroduceFieldContext[T](project, editor, file, elem, types, aClass.asInstanceOf[ScTemplateDefinition]))
-              false
-            }
+          val processor: PsiElementProcessor[PsiClass] = { aClass =>
+            action(new IntroduceFieldContext[T](project, editor, file, elem, types, aClass.asInstanceOf[ScTemplateDefinition]))
+            false
           }
-          NavigationUtil.getPsiElementPopup(classes, new PsiClassListCellRenderer() {
-            override def getElementText(element: PsiClass): String = super.getElementText(element).replace("$", "")
-          }, title, processor, selection).showInBestPositionFor(editor)
+
+          new PsiTargetNavigator(classes)
+            .selection(selection)
+            .presentationProvider(new DelegatingPsiTargetPresentationRenderer(PsiClassRenderingInfo.INSTANCE))
+            .createPopup(project, title, processor)
+            .showInBestPositionFor(editor)
       }
     }
     catch {
@@ -102,7 +104,7 @@ object ScalaIntroduceFieldHandlerBase {
     val parExpr = findParentExpr(commonParent(file, occurrences))
     if (parExpr == null) return None
 
-    val isNotBlock = !parExpr.isInstanceOf[ScBlock]
+    val isNotBlock = !parExpr.is[ScBlock]
     val parent =
       if (isNotBlock && needBraces(parExpr, nextParent(parExpr, file))) {
         firstRange = firstRange.shiftRight(1)
