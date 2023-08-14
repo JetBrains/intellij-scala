@@ -6,7 +6,6 @@ import com.intellij.psi.PsiElement
 
 import javax.swing.Icon
 
-//noinspection ReferencePassedToNls
 class DelegatingPsiTargetPresentationRenderer[T <: PsiElement](private val renderingInfo: PsiElementRenderingInfo[T]) extends PsiTargetPresentationRenderer[T] {
   override def getElementText(element: T): String = renderingInfo.getPresentableText(element)
 

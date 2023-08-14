@@ -76,11 +76,11 @@ object ReferencePassedToNlsInspection {
   private def evaluatesNotToNls(ref: PsiElement, found: mutable.Set[PsiElement]): Boolean =
     if (!found.add(ref)) false
     else ref match {
-      case _ if isAnnotatedWithNls(ref) => false
+      case _ if isAnnotatedWithNlsOrNlsSafe(ref) => false
       case _: PsiReference | _: MethodInvocation => resolveToNotNlsAnnotated(ref, found).isDefined
       case (pattern: ScBindingPattern) & Parent(Parent(ScConstructorPattern(ResolvesTo(unapply: ScFunctionDefinition), ScPatternArgumentList(args@_*)))) if unapply.isSynthetic && args.contains(pattern) =>
         val caseClassParam = originalCaseClassParameter(unapply, args.indexOf(pattern))
-        !caseClassParam.exists(isAnnotatedWithNls)
+        !caseClassParam.exists(isAnnotatedWithNlsOrNlsSafe)
       case pattern: ScBindingPattern => evaluatesNotToNls(pattern.nameContext, found)
       case pd: ScPatternDefinition => pd.expr.exists(_.calculateTailReturns.exists(evaluatesNotToNls(_, found)))
       case func: ScFunctionDefinition => func.returnUsages.exists(evaluatesNotToNls(_, found))

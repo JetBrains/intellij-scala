@@ -3,7 +3,6 @@ package scalai18n
 package codeInspection
 package i18n
 
-import java.text.MessageFormat
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.properties.psi.PropertiesFile
 import com.intellij.lang.properties.{IProperty, PropertiesImplUtil, PropertiesReferenceManager}
@@ -15,7 +14,7 @@ import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, _}
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiMethodExt, PsiParameterExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral}
@@ -25,15 +24,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import java.text.MessageFormat
 import scala.annotation.tailrec
 import scala.collection.mutable
 
 object ScalaI18nUtil {
+  // com.intellij.codeInspection.i18n.NlsInfo.NLS_SAFE is package-private
+  private val NLS_SAFE = "com.intellij.openapi.util.NlsSafe"
+
   trait AnnotationChecker {
     def check(owner: PsiModifierListOwner): Boolean
   }
 
-  object PassedToNlsChecker extends AnnotationChecker {
+  sealed abstract class PassedToAnnotatedChecker(protected val annotations: Seq[String]) extends AnnotationChecker {
     override def check(owner: PsiModifierListOwner): Boolean = {
       def resolveAnnotation(annotation: PsiAnnotation): Option[PsiModifierListOwner] = {
         def resolveInScala =
@@ -51,20 +54,22 @@ object ScalaI18nUtil {
         resolveInJava.orElse(resolveInScala)
       }
 
-
-      // annotated with @Nls
-      AnnotationUtil.findAnnotation(owner, AnnotationUtil.NLS) != null ||
-        // annotated with Annotation itself annotated with @Nls
+      // annotated with one of the given annotations
+      AnnotationUtil.findAnnotation(owner, annotations: _*) != null ||
+        // annotated with Annotation itself annotated with one of the given annotations
         owner
           .getAnnotations.iterator
           .flatMap(resolveAnnotation)
-          .exists(AnnotationUtil.findAnnotation(_, AnnotationUtil.NLS) != null)
+          .exists(AnnotationUtil.findAnnotation(_, annotations: _*) != null)
     }
   }
 
+  object PassedToNlsChecker extends PassedToAnnotatedChecker(Seq(AnnotationUtil.NLS))
+
+  object PassedToNlsOrNlsSafeChecker extends PassedToAnnotatedChecker(Seq(AnnotationUtil.NLS, NLS_SAFE))
+
   def isPassedToNls(element: PsiElement): Boolean =
     ScalaI18nUtil.isPassedToAnnotated(element, PassedToNlsChecker)
-
 
   def mustBePropertyKey(literal: ScLiteral,
                         @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef] = null): Boolean = {
@@ -156,7 +161,7 @@ object ScalaI18nUtil {
     isAnnotated(param, checker)
   }
 
-  def isAnnotatedWithNls(element: PsiElement): Boolean = isAnnotated(element, PassedToNlsChecker)
+  def isAnnotatedWithNlsOrNlsSafe(element: PsiElement): Boolean = isAnnotated(element, PassedToNlsOrNlsSafeChecker)
 
   def isAnnotated(element: PsiElement, checker: AnnotationChecker): Boolean = {
     import ScalaPsiUtil._
