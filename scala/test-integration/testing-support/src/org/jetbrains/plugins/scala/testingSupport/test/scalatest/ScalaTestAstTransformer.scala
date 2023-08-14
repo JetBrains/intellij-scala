@@ -6,8 +6,8 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -56,13 +56,17 @@ object ScalaTestAstTransformer {
         case td: ScTypeDefinition =>
           ProgressManager.checkCanceled()
 
-          val finderFqn: String = getFinderClassFqn(td)
-          if (finderFqn != null) try {
-            val finderClass: Class[_] = Class.forName(finderFqn)
-            return Option(finderClass.getDeclaredConstructor().newInstance().asInstanceOf[Finder])
-          } catch {
-            case _: ClassNotFoundException =>
-              LOG.debug("Failed to load finders API class " + finderFqn)
+          val finderFqnOpt = getFinderClassFqn(td)
+          finderFqnOpt match {
+            case Some(finderFqn) =>
+              try {
+                val finderClass: Class[_] = Class.forName(finderFqn)
+                return Option(finderClass.getDeclaredConstructor().newInstance().asInstanceOf[Finder])
+              } catch {
+                case _: ClassNotFoundException =>
+                  LOG.debug(s"Failed to load finders API class $finderFqn")
+              }
+            case _ =>
           }
         case _ =>
       }
@@ -77,71 +81,75 @@ object ScalaTestAstTransformer {
     astNode
   }
 
-  private def getNameFromAnnotLiteral(expr: ScExpression): String = expr match {
-    case lit: ScLiteral if lit.isString => lit.getValue.toString
-    case _ => null
+  private def getNameFromAnnotLiteral(expr: ScExpression): Option[String] = expr match {
+    case lit: ScLiteral if lit.isString => Some(lit.getValue.toString)
+    case _ => None
   }
 
-  private def getNameFromAnnotAssign(assignStmt: ScAssignment): String = {
+  private def getNameFromAnnotAssign(assignStmt: ScAssignment): Option[String] = {
     assignStmt.leftExpression match {
       case expression: ScReferenceExpression if expression.refName == "value" =>
-        var expr = assignStmt.rightExpression.get
+        val expr = assignStmt.rightExpression.get
         if (expr != null) {
-          expr match {
+          val exprAdjusted = expr match {
             case methodCall: ScMethodCall =>
               methodCall.getInvokedExpr match {
                 case ref: ScReferenceExpression if ref.refName == "Array" =>
                   val constructorArgs = methodCall.args
                   constructorArgs.exprs match {
-                    case Seq(single) if constructorArgs.invocationCount == 1 => expr = single
+                    case Seq(single) if constructorArgs.invocationCount == 1 =>
+                      single
                     case _ =>
+                      expr
                   }
               }
             case _ =>
+              expr
           }
-          return getNameFromAnnotLiteral(expr)
+          getNameFromAnnotLiteral(exprAdjusted)
         }
-      case _ =>
+        else None
+      case _ => None
     }
-    null
   }
 
-  private def getFinderClassFqn(suiteTypeDef: ScTypeDefinition): String = {
-    var finderClassName: String = null
-
-    val annotationOption = suiteTypeDef.annotations(FindersAnnotationFqn).headOption
-    if (annotationOption.isDefined && annotationOption.get != null) {
-      val styleAnnotation = annotationOption.get
-      try {
-        val constrInvocation = styleAnnotation.constructorInvocation
-        if (constrInvocation != null) {
-          val args = constrInvocation.args.orNull
-
-          val annotationExpr = styleAnnotation.annotationExpr
-          val valuePairs = annotationExpr.getAttributes
-
-          if (args == null && valuePairs.nonEmpty)
-            finderClassName = valuePairs.head.getLiteralValue
-          else if (args != null) {
-            args.exprs.headOption match {
-              case Some(assignment: ScAssignment) =>
-                finderClassName = getNameFromAnnotAssign(assignment)
-              case Some(expr) =>
-                finderClassName = getNameFromAnnotLiteral(expr)
-              case _ =>
-            }
-          }
-        }
-      } catch {
+  private def getFinderClassFqn(suiteTypeDef: ScTypeDefinition): Option[String] = {
+    val finderAnnotationOpt = suiteTypeDef.annotations(FindersAnnotationFqn).headOption
+    if (finderAnnotationOpt.isDefined && finderAnnotationOpt.get != null) {
+      val annotation = finderAnnotationOpt.get
+      try getFinderClassFqnFromAnnotation(annotation) catch {
         case e: Exception =>
           LOG.debug(
-            s"""Failed to extract finder class name from annotation $styleAnnotation:
+            s"""Failed to extract finder class name from annotation $annotation:
                |$e""".stripMargin
           )
+          None
       }
-      finderClassName
     }
-    else null
+    else None
+  }
+
+  private def getFinderClassFqnFromAnnotation(annotation: ScAnnotation): Option[String] = {
+    val constrInvocation = annotation.constructorInvocation
+    if (constrInvocation != null) {
+      val args = constrInvocation.args.orNull
+
+      val annotationExpr = annotation.annotationExpr
+      val valuePairs = annotationExpr.getAttributes
+
+      if (args == null && valuePairs.nonEmpty)
+        Some(valuePairs.head.getLiteralValue)
+      else if (args != null) {
+        args.exprs.headOption.flatMap {
+          case assignment: ScAssignment =>
+            getNameFromAnnotAssign(assignment)
+          case expr =>
+            getNameFromAnnotLiteral(expr)
+        }
+      }
+      else None
+    }
+    else None
   }
 
   private def getTarget(className: String, element: PsiElement, selected: MethodInvocation): AstNode = {
