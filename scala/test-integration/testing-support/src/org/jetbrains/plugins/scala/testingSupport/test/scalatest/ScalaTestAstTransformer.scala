@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.testingSupport.test.scalatest
 
 import com.intellij.execution.Location
-import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -21,9 +20,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil.{
 import org.jetbrains.plugins.scala.testingSupport.test.utils.StringOps
 import org.scalatest.finders.{MethodInvocation => _, _}
 
-import java.io.File
-import java.lang.annotation.Annotation
-import java.net.{URL, URLClassLoader}
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
 
@@ -45,14 +41,14 @@ object ScalaTestAstTransformer {
     }
   }
 
-  private def testSelection(element: PsiElement, typeDef: ScTypeDefinition, module: Module): Option[Selection] =
+  private def testSelection(element: PsiElement, typeDef: ScTypeDefinition): Option[Selection] =
     for {
-      finder    <- getFinder(typeDef, module)
+      finder    <- getFinder(typeDef)
       selected  <- getSelectedAstNode(typeDef.qualifiedName, element)
       selection <- Option(finder.find(selected))
     } yield selection
 
-  def getFinder(clazz: ScTypeDefinition, module: Module): Option[Finder] = {
+  def getFinder(clazz: ScTypeDefinition): Option[Finder] = {
     val classes = MixinNodes.linearization(clazz).flatMap(_.extractClass.toSeq)
 
     for (clazz <- classes) {
@@ -60,7 +56,7 @@ object ScalaTestAstTransformer {
         case td: ScTypeDefinition =>
           ProgressManager.checkCanceled()
 
-          val finderFqn: String = getFinderClassFqn(td, module, "org.scalatest.Style", "org.scalatest.Finders")
+          val finderFqn: String = getFinderClassFqn(td, "org.scalatest.Style", "org.scalatest.Finders")
           if (finderFqn != null) try {
             val finderClass: Class[_] = Class.forName(finderFqn)
             return Option(finderClass.getDeclaredConstructor().newInstance().asInstanceOf[Finder])
@@ -110,47 +106,29 @@ object ScalaTestAstTransformer {
     null
   }
 
-  private def loadClass(className: String, module: Module) = {
-    val loaderUrls = OrderEnumerator
-      .orderEntries(module)
-      .recursively
-      .runtimeOnly
-      .classes
-      .getRoots
-      .map { root =>
-        val rawUrl = root.getPresentableUrl
-        val cpFile = new File(rawUrl)
-        if (cpFile.exists && cpFile.isDirectory && !rawUrl.endsWith(File.separator)) {
-          new URL(s"file:/$rawUrl/")
-        } else {
-          new URL(s"file:/$rawUrl")
-        }
-      }
-
-    val loader = new URLClassLoader(loaderUrls, getClass.getClassLoader)
-    loader.loadClass(className)
-  }
-
-  private def getFinderClassFqn(suiteTypeDef: ScTypeDefinition, module: Module, annotationFqns: String*): String = {
+  private def getFinderClassFqn(suiteTypeDef: ScTypeDefinition, annotationFqns: String*): String = {
     var finderClassName: String = null
-    var annotations: Array[Annotation] = null
+
     for (annotationFqn <- annotationFqns) {
       val annotationOption = suiteTypeDef.annotations(annotationFqn).headOption
       if (annotationOption.isDefined && annotationOption.get != null) {
         val styleAnnotation = annotationOption.get
         try {
-          val constrInvocation = styleAnnotation.getClass.getMethod("constructorInvocation").invoke(styleAnnotation).asInstanceOf[ScConstructorInvocation]
+          val constrInvocation = styleAnnotation.constructorInvocation
           if (constrInvocation != null) {
             val args = constrInvocation.args.orNull
 
             val annotationExpr = styleAnnotation.annotationExpr
             val valuePairs = annotationExpr.getAttributes
 
-            if (args == null && valuePairs.nonEmpty) finderClassName = valuePairs.head.getLiteralValue
+            if (args == null && valuePairs.nonEmpty)
+              finderClassName = valuePairs.head.getLiteralValue
             else if (args != null) {
               args.exprs.headOption match {
-                case Some(assignment: ScAssignment) => finderClassName = getNameFromAnnotAssign(assignment)
-                case Some(expr) => finderClassName = getNameFromAnnotLiteral(expr)
+                case Some(assignment: ScAssignment) =>
+                  finderClassName = getNameFromAnnotAssign(assignment)
+                case Some(expr) =>
+                  finderClassName = getNameFromAnnotLiteral(expr)
                 case _ =>
               }
             }
@@ -159,26 +137,8 @@ object ScalaTestAstTransformer {
           case e: Exception =>
             LOG.debug("Failed to extract finder class name from annotation " + styleAnnotation + ":\n" + e)
         }
-        if (finderClassName != null) return finderClassName
-        //the annotation is present, but arguments are not: have to load a Class, not PsiClass, in order to extract finder FQN
-        if (annotations == null) try {
-          val suiteClass = loadClass(suiteTypeDef.qualifiedName, module)
-          annotations = suiteClass.getAnnotations
-        } catch {
-          case c: ControlFlowException => throw c
-          case _: Exception =>
-            LOG.debug("Failed to load suite class " + suiteTypeDef.qualifiedName)
-        }
-        if (annotations != null) for (a <- annotations) {
-          if (a.annotationType.getName == annotationFqn) try {
-            val valueMethod = a.annotationType.getMethod("value")
-            val args = valueMethod.invoke(a).asInstanceOf[Array[String]]
-            if (args.length != 0) return args(0)
-          } catch {
-            case e: Exception =>
-              LOG.debug("Failed to extract finder class name from annotation " + styleAnnotation + ":\n" + e)
-          }
-        }
+        if (finderClassName != null)
+          return finderClassName
       }
     }
     null
@@ -413,10 +373,10 @@ object ScalaTestAstTransformer {
   private class StToStringTarget(val element: PsiElement, pClassName: String, target: Any)
     extends ToStringTarget(pClassName, null, new Array[AstNode](0), target) {
 
-    protected def isIt: Boolean =
+    private def isIt: Boolean =
       element.is[ScReferenceExpression] && target == "it" && itWordFqns.contains(pClassName)
 
-    protected def isThey: Boolean =
+    private def isThey: Boolean =
       element.is[ScReferenceExpression] && target == "they" && theyWordFqns.contains(pClassName)
 
     override def parent: AstNode = getParentNode(pClassName, element)
