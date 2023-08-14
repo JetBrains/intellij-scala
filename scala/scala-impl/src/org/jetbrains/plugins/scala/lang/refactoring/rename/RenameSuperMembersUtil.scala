@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
-import com.intellij.codeInsight.navigation.NavigationUtil
-import com.intellij.ide.util.PsiClassListCellRenderer
+import com.intellij.codeInsight.navigation.PsiTargetNavigator
+import com.intellij.ide.util.PsiClassRenderingInfo
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Key
@@ -10,8 +10,8 @@ import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import org.jetbrains.annotations.{Nls, NotNull}
+import org.jetbrains.plugins.scala.codeInsight.navigation.DelegatingPsiTargetPresentationRenderer
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTrait}
@@ -124,8 +124,8 @@ object RenameSuperMembersUtil {
       }
       else ScalaBundle.message("rename.has.multiple.base.members", name)
 
-    val popup = NavigationUtil.getPsiElementPopup(classesToNamed.keys.toArray, new PsiClassListCellRenderer() {
-      override def getIcon(element: PsiElement): Icon = {
+    val renderer = new DelegatingPsiTargetPresentationRenderer(PsiClassRenderingInfo.INSTANCE) {
+      override def getIcon(element: PsiClass): Icon = {
         if (element == renameAllMarker(element) || oneSuperClass) null
         else super.getIcon(element)
       }
@@ -142,11 +142,15 @@ object RenameSuperMembersUtil {
         else ScalaBundle.message("rename.only.in", classKind, ScalaNamesUtil.scalaName(clazz))
       }
 
-      override def getContainerText(clazz: PsiClass, name: String): String = {
-        if (clazz == renameAllMarker(clazz) || clazz == classes.last || oneSuperClass) null //don't show package name
-        else super.getContainerText(clazz, name)
-      }
-    }, title, processor, selection)
+      override def getContainerText(clazz: PsiClass): String =
+        if (clazz == renameAllMarker(clazz) || clazz == classes.last || oneSuperClass) null // don't show package name
+        else super.getContainerText(clazz)
+    }
+
+    val popup = new PsiTargetNavigator(classesToNamed.keys.toArray)
+      .selection(selection)
+      .presentationProvider(renderer)
+      .createPopup(element.getProject, title, processor)
 
     if (editor != null) popup.showInBestPositionFor(editor)
     else popup.showInFocusCenter()
