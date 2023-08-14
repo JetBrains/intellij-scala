@@ -59,21 +59,24 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
   }
 
   override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
-    val refCopy = inCopy(ref, file)
-    refCopy.qualifier match {
-      case Some(InstanceOfClass(typeDef: ScTypeDefinition)) =>
-        createInnerClassIn(inCopy(typeDef, file))
-        IntentionPreviewInfo.DIFF
-      case Some(ResolvesTo(_: PsiPackage)) =>
-        createSyntheticDefinitionForPreview
-      case None =>
-        val possibleSiblings = getPossibleSiblingsInThisFile(refCopy)
-        if (possibleSiblings.exists(!_.is[PsiFile])) {
-          createClassWithLevelChoosing(editor, possibleSiblings)
-          IntentionPreviewInfo.DIFF
-        } else createSyntheticDefinitionForPreview
-      case _ => IntentionPreviewInfo.EMPTY
-    }
+    // TODO(SCL-21523, SCL-21524): Fix preview
+    IntentionPreviewInfo.EMPTY
+
+//    val refCopy = inCopy(ref, file)
+//    refCopy.qualifier match {
+//      case Some(InstanceOfClass(typeDef: ScTypeDefinition)) =>
+//        createInnerClassIn(inCopy(typeDef, file))
+//        IntentionPreviewInfo.DIFF
+//      case Some(ResolvesTo(_: PsiPackage)) =>
+//        createSyntheticDefinitionForPreview
+//      case None =>
+//        val possibleSiblings = getPossibleSiblingsInThisFile(refCopy)
+//        if (possibleSiblings.exists(!_.is[PsiFile])) {
+//          createClassWithLevelChoosing(editor, possibleSiblings)
+//          IntentionPreviewInfo.DIFF
+//        } else createSyntheticDefinitionForPreview
+//      case _ => IntentionPreviewInfo.EMPTY
+//    }
   }
 
   private def getPossibleSiblingsInThisFile(reference: ScReference): Seq[PsiElement] =
