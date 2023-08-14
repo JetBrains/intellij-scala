@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.testingSupport.test.scalatest
 
 import com.intellij.execution.Location
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
@@ -26,13 +25,14 @@ import scala.util.{Failure, Success, Try}
 object ScalaTestAstTransformer {
 
   private val LOG: Logger = Logger.getInstance(ScalaTestAstTransformer.getClass)
+  private val FindersAnnotationFqn = "org.scalatest.Finders"
 
   def testSelection(location: Location[_ <: PsiElement]): Option[Selection] = {
     val element = location.getPsiElement
     val typeDef = PsiTreeUtil.getNonStrictParentOfType(element, classOf[ScClass], classOf[ScTrait])
 
     if (typeDef == null) return None
-    Try(testSelection(element, typeDef, location.getModule)) match {
+    Try(testSelection(element, typeDef)) match {
       case Failure(e)     =>
         LOG.debug(s"Failed to load scalatest-finders API class for test suite ${typeDef.qualifiedName}", e)
         None
@@ -56,7 +56,7 @@ object ScalaTestAstTransformer {
         case td: ScTypeDefinition =>
           ProgressManager.checkCanceled()
 
-          val finderFqn: String = getFinderClassFqn(td, "org.scalatest.Style", "org.scalatest.Finders")
+          val finderFqn: String = getFinderClassFqn(td)
           if (finderFqn != null) try {
             val finderClass: Class[_] = Class.forName(finderFqn)
             return Option(finderClass.getDeclaredConstructor().newInstance().asInstanceOf[Finder])
@@ -106,42 +106,42 @@ object ScalaTestAstTransformer {
     null
   }
 
-  private def getFinderClassFqn(suiteTypeDef: ScTypeDefinition, annotationFqns: String*): String = {
+  private def getFinderClassFqn(suiteTypeDef: ScTypeDefinition): String = {
     var finderClassName: String = null
 
-    for (annotationFqn <- annotationFqns) {
-      val annotationOption = suiteTypeDef.annotations(annotationFqn).headOption
-      if (annotationOption.isDefined && annotationOption.get != null) {
-        val styleAnnotation = annotationOption.get
-        try {
-          val constrInvocation = styleAnnotation.constructorInvocation
-          if (constrInvocation != null) {
-            val args = constrInvocation.args.orNull
+    val annotationOption = suiteTypeDef.annotations(FindersAnnotationFqn).headOption
+    if (annotationOption.isDefined && annotationOption.get != null) {
+      val styleAnnotation = annotationOption.get
+      try {
+        val constrInvocation = styleAnnotation.constructorInvocation
+        if (constrInvocation != null) {
+          val args = constrInvocation.args.orNull
 
-            val annotationExpr = styleAnnotation.annotationExpr
-            val valuePairs = annotationExpr.getAttributes
+          val annotationExpr = styleAnnotation.annotationExpr
+          val valuePairs = annotationExpr.getAttributes
 
-            if (args == null && valuePairs.nonEmpty)
-              finderClassName = valuePairs.head.getLiteralValue
-            else if (args != null) {
-              args.exprs.headOption match {
-                case Some(assignment: ScAssignment) =>
-                  finderClassName = getNameFromAnnotAssign(assignment)
-                case Some(expr) =>
-                  finderClassName = getNameFromAnnotLiteral(expr)
-                case _ =>
-              }
+          if (args == null && valuePairs.nonEmpty)
+            finderClassName = valuePairs.head.getLiteralValue
+          else if (args != null) {
+            args.exprs.headOption match {
+              case Some(assignment: ScAssignment) =>
+                finderClassName = getNameFromAnnotAssign(assignment)
+              case Some(expr) =>
+                finderClassName = getNameFromAnnotLiteral(expr)
+              case _ =>
             }
           }
-        } catch {
-          case e: Exception =>
-            LOG.debug("Failed to extract finder class name from annotation " + styleAnnotation + ":\n" + e)
         }
-        if (finderClassName != null)
-          return finderClassName
+      } catch {
+        case e: Exception =>
+          LOG.debug(
+            s"""Failed to extract finder class name from annotation $styleAnnotation:
+               |$e""".stripMargin
+          )
       }
+      finderClassName
     }
-    null
+    else null
   }
 
   private def getTarget(className: String, element: PsiElement, selected: MethodInvocation): AstNode = {
