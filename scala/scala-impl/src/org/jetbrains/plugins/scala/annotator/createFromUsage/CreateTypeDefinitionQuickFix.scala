@@ -2,17 +2,16 @@ package org.jetbrains.plugins.scala.annotator.createFromUsage
 
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.intention.preview.{IntentionPreviewInfo, IntentionPreviewUtils}
-import com.intellij.codeInsight.navigation.NavigationUtil
+import com.intellij.codeInsight.navigation.{PsiTargetNavigator, TargetPresentationProvider}
 import com.intellij.codeInsight.template.{TemplateBuilder, TemplateBuilderImpl, TemplateManager}
-import com.intellij.ide.util.PsiElementListCellRenderer
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.platform.backend.presentation.TargetPresentation
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions._
@@ -24,8 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTem
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, isUnitTestMode}
-
-import javax.swing.Icon
 
 abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
   extends CreateFromUsageQuickFixBase(ref) {
@@ -132,45 +129,42 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
     }
   }
 
-  private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement]): Unit = {
-    val renderer: PsiElementListCellRenderer[PsiElement] = new PsiElementListCellRenderer[PsiElement] {
-      @Nls
-      override def getElementText(element: PsiElement): String = element match {
-        case _: PsiFile => ScalaBundle.message("new.class.location.new.file")
-        case td: ScTypeDefinition if td.isTopLevel => ScalaBundle.message("new.class.location.top.level.in.this.file")
-        case _ childOf (tb: ScTemplateBody) =>
-          val containingClass = PsiTreeUtil.getParentOfType(tb, classOf[ScTemplateDefinition])
-          ScalaBundle.message("new.class.location.inner.in.class", containingClass.name)
-        case _ => ScalaBundle.message("new.class.location.local.scope")
-      }
-
-      override def getContainerText(element: PsiElement, name: String): String = null
-      override def getIconFlags = 0
-      override def getIcon(element: PsiElement): Icon = null
-    }
+  private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement]): Unit =
     siblings match {
       case Seq() =>
       case Seq(elem) => createClassAtLevel(elem)
       case _ =>
         val selection = siblings.head
-        val processor = new PsiElementProcessor[PsiElement] {
-          override def execute(elem: PsiElement): Boolean = {
-            inWriteCommandAction {
-              createClassAtLevel(elem)
-            }(elem.getProject)
-            false
-          }
-        }
         if (isUnitTestMode || IntentionPreviewUtils.isIntentionPreviewActive) {
           val sibling = siblings.find(!_.is[PsiFile])
             .getOrElse(siblings.head)
           createClassAtLevel(sibling)
-        } else
-          NavigationUtil
-            .getPsiElementPopup(siblings.toArray, renderer, ScalaBundle.message("choose.level.popup.title"), processor, selection)
+        } else {
+          val title = ScalaBundle.message("choose.level.popup.title")
+          val processor: PsiElementProcessor[PsiElement] = { elem =>
+            inWriteCommandAction(createClassAtLevel(elem))(elem.getProject)
+            false
+          }
+          val renderer: TargetPresentationProvider[PsiElement] = { element =>
+            val text = element match {
+              case _: PsiFile => ScalaBundle.message("new.class.location.new.file")
+              case td: ScTypeDefinition if td.isTopLevel => ScalaBundle.message("new.class.location.top.level.in.this.file")
+              case _ childOf (tb: ScTemplateBody) =>
+                val containingClass = PsiTreeUtil.getParentOfType(tb, classOf[ScTemplateDefinition])
+                ScalaBundle.message("new.class.location.inner.in.class", containingClass.name)
+              case _ => ScalaBundle.message("new.class.location.local.scope")
+            }
+
+            TargetPresentation.builder(text).presentation()
+          }
+
+          new PsiTargetNavigator(siblings.toArray)
+            .selection(selection)
+            .presentationProvider(renderer)
+            .createPopup(projectContext.project, title, processor)
             .showInBestPositionFor(editor)
+        }
     }
-  }
 
   private def createClassAtLevel(sibling: PsiElement): Unit = {
     sibling match {
