@@ -21,10 +21,23 @@ class ScalaExtractStringToBundleInspectionTest extends ScalaInspectionTestBase{
        |    }
        |  }
        |}
+       |
+       |object com {
+       |  object intellij {
+       |    object openapi {
+       |      object util {
+       |        class NlsSafe extends scala.annotation.StaticAnnotation
+       |      }
+       |    }
+       |  }
+       |}
+       |
+       |import com.intellij.openapi.util.NlsSafe
        |import org.jetbrains.annotations.Nls
        |import org.jetbrains.annotations.SpecificNls
        |
        |def toNls(@Nls arg: String): Unit = ()
+       |def toNlsSafe(@NlsSafe arg: String): Unit = ()
        |
        |$text
        |""".stripMargin
@@ -32,6 +45,9 @@ class ScalaExtractStringToBundleInspectionTest extends ScalaInspectionTestBase{
 
   def test_simple_string(): Unit =
     checkTextHasError(raw""" toNls($START"blub"$END) """)
+
+  def test_simple_string_nls_safe(): Unit =
+    checkTextHasNoErrors("""toNlsSafe("blub")""")
 
   def test_interpolated_string(): Unit =
     checkTextHasError(raw"""val v = 3; toNls(${START}s"$$v blub"$END) """)

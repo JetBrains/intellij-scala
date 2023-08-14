@@ -20,13 +20,28 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
        |    }
        |  }
        |}
+       |
+       |object com {
+       |  object intellij {
+       |    object openapi {
+       |      object util {
+       |        class NlsSafe extends scala.annotation.StaticAnnotation
+       |      }
+       |    }
+       |  }
+       |}
+       |
+       |import com.intellij.openapi.util.NlsSafe
        |import org.jetbrains.annotations.Nls
        |import org.jetbrains.annotations.SpecificNls
        |
        |@Nls
        |val nls: String = null
        |val nonnls: String = null
+       |@NlsSafe
+       |val nlssafe: String = null
        |def toNls(@Nls arg: String): Unit = ()
+       |def toNlsSafe(@NlsSafe arg: String): Unit = ()
        |
        |$text
        |""".stripMargin
@@ -51,6 +66,18 @@ class ReferencePassedToNlsInspectionTest extends ScalaInspectionTestBase {
          |@Nls
          |def ref = null
          |toNls(ref)
+         |""".stripMargin)
+
+  def test_nls_safe_ref(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |toNls(nlssafe)
+         |""".stripMargin)
+
+  def test_simple_ref_to_nls_safe(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |toNlsSafe(nonnls)
          |""".stripMargin)
 
   def test_inner_def(): Unit =
