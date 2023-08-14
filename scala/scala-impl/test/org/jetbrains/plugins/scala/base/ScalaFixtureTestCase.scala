@@ -16,7 +16,7 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with Scal
 
   protected final implicit def projectContext: Project = getProject
 
-  override def librariesLoaders: Seq[LibraryLoader] = Seq(
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaSDKLoader(includeScalaCompilerIntoLibraryClasspath = includeCompilerAsLibrary),
     HeavyJDKLoader()
   )
