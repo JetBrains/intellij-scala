@@ -21,9 +21,7 @@ object ScalaTestTestLocationsFinder {
 
   @RequiresReadLock
   def calculateTestLocations(definition: ScTypeDefinition): Seq[PsiElement] = cachedInUserData("calculateTestLocations", definition, CachesUtil.fileModTracker(definition.getContainingFile), Tuple1(definition)) {
-    //Thread.sleep(5000) // uncomment to test long resolve
-    val module = definition.module
-    val finder = module.flatMap(ScalaTestAstTransformer.getFinder(definition, _))
+    val finder = ScalaTestAstTransformer.getFinder(definition)
     finder.toSeq.flatMap(doCalculateScalaTestTestLocations(definition, _))
   }
 

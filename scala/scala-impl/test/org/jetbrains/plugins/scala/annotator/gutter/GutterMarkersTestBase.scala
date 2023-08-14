@@ -91,18 +91,24 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     }
   }
 
-  protected def doTestAllGuttersShort(fileText: String, expectedGutters: Seq[ExpectedGutter], fileExtension: String = "scala"): Unit =
+  protected def doTestAllGuttersShort(fileText: String, expectedGutters: Seq[ExpectedGutter], fileExtension: String = "scala"): Unit = {
+    val expectedGuttersSortedText = guttersDebugText(expectedGutters.sorted)
+    doTestAllGuttersShortWithText(
+      fileText,
+      expectedGuttersSortedText,
+      fileExtension
+    )
+  }
+
+  protected def doTestAllGuttersShortWithText(fileText: String, expectedGuttersSortedText: String, fileExtension: String = "scala"): Unit =
     doTest(fileText, fileExtension) {
       val gutters0 = myFixture.findAllGutters().asScala.toSeq
       val gutters = gutters0.map(toFullExpectedGutter)
-      val guttersShort = gutters.map(g => g.copy(tooltipContent = extractFirstParagraph(g.tooltipContent).getOrElse("<empty>")))
+      val guttersShort = gutters.map(g => g.copy(tooltipContent = extractFirstParagraph(g.tooltipContent).getOrElse(g.tooltipContent)))
 
       val guttersSorted = guttersShort.sorted
-      val expectedGuttersSorted = expectedGutters.sorted
-
-      val expectedText = guttersDebugText(expectedGuttersSorted)
       val actualText = guttersDebugText(guttersSorted)
-      assertEquals(expectedText, actualText)
+      assertEquals(expectedGuttersSortedText, actualText)
     }
 
   /** Use this if gutter html content is too complex to directly test it via assertEquals */
