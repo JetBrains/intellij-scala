@@ -50,6 +50,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocPar
 import org.jetbrains.plugins.scala.project.ProjectContext.toManager
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
+import org.jetbrains.plugins.scalaDirective.psi.api.ScDirective
 
 import java.{util => ju}
 import scala.annotation.tailrec
@@ -290,6 +291,14 @@ object ScalaPsiElementFactory {
     ctx: ProjectContext
   ): E =
     createScalaFileFromText(text, features).getFirstChild.asInstanceOf[E]
+
+  def createDirectiveValueFromText(text: String, features: ScalaFeatures = ScalaFeatures.default)(implicit ctx: ProjectContext): PsiElement = {
+    val directiveText = s"//> using key $text"
+    createScalaFileFromText(directiveText, features).getFirstChild
+      .asInstanceOf[ScDirective]
+      .value
+      .getOrElse(throw ScalaPsiElementCreationException("directive value", text))
+  }
 
   def createWildcardNode(features: ScalaFeatures)(implicit ctx: ProjectContext): ASTNode = {
     val wildcard = if (features.isScala3) "*" else "_"
