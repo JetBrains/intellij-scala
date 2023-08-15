@@ -26,7 +26,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
@@ -93,6 +96,17 @@ package object completion {
     def withNextSiblingNotWhitespaceComment(nextSiblingType: IElementType): PsiElementPattern.Capture[T] =
       pattern.`with`(condition[T](s"nextSiblingNotWhitespaceComment.elementType = $nextSiblingType") { element =>
         element.nextSiblingNotWhitespaceComment.exists(_.elementType == nextSiblingType)
+      })
+
+    def withType(fqn: String): PsiElementPattern.Capture[T] =
+      pattern.`with`(condition[T](s"hasType $fqn") {
+        case typeable: Typeable =>
+          val psiManager = ScalaPsiManager.instance(typeable.getProject)
+          val resolveScope = typeable.resolveScope
+          val cls = psiManager.getCachedClass(resolveScope, fqn).orNull
+          cls != null &&
+            typeable.`type`().exists(_.conforms(ScDesignatorType(cls)))
+        case _ => false
       })
   }
 
