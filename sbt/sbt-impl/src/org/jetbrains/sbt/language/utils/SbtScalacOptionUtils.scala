@@ -5,7 +5,7 @@ import com.intellij.openapi.util.ModificationTracker
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.codeInspection.collections.isSeq
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
@@ -30,11 +30,8 @@ object SbtScalacOptionUtils {
   private def projectScalaVersions(project: Project): List[ScalaLanguageLevel] =
     SbtDependencyUtils.getAllScalaVers(project).flatMap(ScalaLanguageLevel.findByVersion)
 
-  def projectVersionsSorted(project: Project, reverse: Boolean): List[ScalaLanguageLevel] = {
-    val ordering = implicitly[Ordering[ScalaLanguageLevel]]
-
-    projectScalaVersions(project).distinct.sorted(if (reverse) ordering.reverse else ordering)
-  }
+  def projectVersionsSorted(project: Project, reverse: Boolean): List[ScalaLanguageLevel] =
+    projectScalaVersions(project).distinct.sort(reverse)
 
   @tailrec
   def matchesScalacOptionsSbtSetting(expr: ScExpression): Boolean = expr match {

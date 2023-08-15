@@ -270,6 +270,12 @@ package object extensions {
     def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
   }
 
+  implicit class SeqExt[CC[X] <: collection.SeqOps[X, CC, CC[X]], A](private val value: CC[A]) extends AnyVal {
+    // Don't use `sorted` to improve auto import (avoiding name clash)
+    def sort[B >: A](reverse: Boolean)(implicit ordering: Ordering[B]): CC[A] =
+      value.sorted(if (reverse) ordering.reverse else ordering)
+  }
+
   implicit class IterableOfNullablesExt[CC[X] <: collection.IterableOps[X, CC, CC[X]], A <: AnyRef](private val value: CC[A]) extends AnyVal {
     //may return same instance if no element was changed
     def smartMapWithIndex(f: (A, Int) => A): CC[A] = {
