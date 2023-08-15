@@ -7,9 +7,10 @@ import com.intellij.psi.stubs.StringStubIndexExtension
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 
 import java.{util => ju}
+import scala.annotation.nowarn
 
 abstract class ScStringStubIndexExtension[E <: PsiElement] extends StringStubIndexExtension[E] {
 
   override final def get(key: String, project: Project, scope: GlobalSearchScope): ju.Collection[E] =
-    super.get(key, project, ScalaFilterScope(scope)(project))
+    super.get(key, project, ScalaFilterScope(scope)(project)): @nowarn("cat=deprecation") // TODO(SCL-21528)
 }

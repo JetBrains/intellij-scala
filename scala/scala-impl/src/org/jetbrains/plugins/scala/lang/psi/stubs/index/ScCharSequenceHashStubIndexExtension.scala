@@ -9,13 +9,14 @@ import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import java.util
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
 abstract class ScCharSequenceHashStubIndexExtension[Psi <: PsiElement] extends CharSequenceHashStubIndexExtension[Psi] {
 
   override final def get(key: CharSequence, project: Project, scope: GlobalSearchScope): util.Collection[Psi] = {
     val keyPreprocessed = preprocessKey(key)
-    super.get(keyPreprocessed, project, ScalaFilterScope(scope)(project))
+    super.get(keyPreprocessed, project, ScalaFilterScope(scope)(project)): @nowarn("cat=deprecation") // TODO(SCL-21528)
   }
 
   protected def preprocessKey(key: CharSequence): CharSequence
