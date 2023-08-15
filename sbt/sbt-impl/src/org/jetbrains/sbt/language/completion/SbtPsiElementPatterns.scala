@@ -33,12 +33,13 @@ object SbtPsiElementPatterns {
   }
 
   def inBuildModule: Capture[PsiElement] = psiElement(classOf[PsiElement])
-    .`with`(condition[PsiElement]("isSbtModuleIdPattern")(_.module.exists(_.isBuildModule)))
+    .`with`(condition[PsiElement]("isSbtModulePattern")(_.module.exists(_.isBuildModule)))
 
   def sbtModuleIdPattern: Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(condition[PsiElement]("isSbtModuleIdPattern") {
     case expr: ScInfixExpr => expr.left.textMatches("libraryDependencies") && SEQ_ADD_OPS.contains(expr.operation.refName) || SBT_MODULE_ID_TYPE.contains(expr.`type`().getOrAny.canonicalText)
     case patDef: ScPatternDefinition =>
-      SBT_MODULE_ID_TYPE.contains(patDef.`type`().getOrAny.canonicalText) || SBT_MODULE_ID_TYPE.exists(patDef.`type`().getOrAny.canonicalText.contains)
+      val typeCanonicalText = patDef.`type`().getOrAny.canonicalText
+      SBT_MODULE_ID_TYPE.contains(typeCanonicalText) || SBT_MODULE_ID_TYPE.exists(typeCanonicalText.contains)
     case _ => false
   })
 
