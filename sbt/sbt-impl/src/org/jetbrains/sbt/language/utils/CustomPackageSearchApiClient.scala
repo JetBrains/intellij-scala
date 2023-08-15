@@ -8,6 +8,7 @@ import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.HttpRequests
+import org.jetbrains.annotations.ApiStatus
 import spray.json._
 
 import java.net.{HttpURLConnection, URLEncoder}
@@ -47,7 +48,7 @@ object CustomPackageSearchApiClient {
   )
 
 
-  def handleRequest(url: String, acceptContentType: String, timeoutInSeconds: Int = 10): String = try {
+  private def handleRequest(url: String, acceptContentType: String, timeoutInSeconds: Int = 10): String = try {
 
     val builder = HttpRequests
       .request(url)
@@ -77,11 +78,11 @@ object CustomPackageSearchApiClient {
       ""
   }
 
-  def performSearch(cacheKey: String,
-                    searchParams: CustomPackageSearchParams,
-                    consumer: SbtExtendedArtifactInfo => Unit,
-                    searchLogic: () => List[SbtExtendedArtifactInfo]
-                   ): Future[List[SbtExtendedArtifactInfo]] = {
+  private def performSearch(cacheKey: String,
+                            searchParams: CustomPackageSearchParams,
+                            consumer: SbtExtendedArtifactInfo => Unit,
+                            searchLogic: () => List[SbtExtendedArtifactInfo]
+                           ): Future[List[SbtExtendedArtifactInfo]] = {
     val cacheAvailable = {
       if (searchParams.useCache) Option(cache.getIfPresent(cacheKey))
       else None
@@ -124,9 +125,9 @@ object CustomPackageSearchApiClient {
 
   }
 
-  def searchExactDependencyFromServer(groupId: String,
-                                      artifactId: String,
-                                      contentType: ContentTypes = ContentTypes.Minimal): () => List[SbtExtendedArtifactInfo] = () => try {
+  private def searchExactDependencyFromServer(groupId: String,
+                                              artifactId: String,
+                                              contentType: ContentTypes = ContentTypes.Minimal): () => List[SbtExtendedArtifactInfo] = () => try {
     val reqRes = handleRequest(createExactDependencyURL(groupId, artifactId), contentType.toString, timeoutInSeconds)
     if (reqRes.nonEmpty) {
       List(extractDepFromJson(reqRes.parseJson.asJsObject.getFields("package").head)).filter(_ != null)
@@ -152,7 +153,7 @@ object CustomPackageSearchApiClient {
       Nil
   }
 
-  def searchFullTextFromServer(text: String, contentType: ContentTypes = ContentTypes.Minimal): () => List[SbtExtendedArtifactInfo] = () => try {
+  private def searchFullTextFromServer(text: String, contentType: ContentTypes = ContentTypes.Minimal): () => List[SbtExtendedArtifactInfo] = () => try {
     if (text.nonEmpty) {
       val reqRes = handleRequest(createFullTextURL(text), contentType.toString, timeoutInSeconds)
       extractDepsJson(reqRes)
@@ -166,6 +167,7 @@ object CustomPackageSearchApiClient {
 
   }
 
+  @ApiStatus.Obsolete
   def searchExactDependency(groupId: String,
                             artifactId: String,
                             searchParams: CustomPackageSearchParams,
@@ -175,6 +177,7 @@ object CustomPackageSearchApiClient {
     performSearch(cacheKey, searchParams, consumer, searchExactDependencyFromServer(groupId, artifactId, contentType))
   }
 
+  @ApiStatus.Obsolete
   def searchFullText(text: String,
                      searchParams: CustomPackageSearchParams,
                      contentTypes: ContentTypes = ContentTypes.Minimal,
@@ -188,6 +191,8 @@ object CustomPackageSearchApiClient {
 case class CustomPackageSearchParams(useCache: Boolean)
 
 object CustomPackageSearchApiHelper {
+  /** Use [[org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient.searchById]] */
+  @ApiStatus.Obsolete
   def searchDependencyVersions(groupId: String,
                                artifactId: String,
                                searchParams: CustomPackageSearchParams,
@@ -202,6 +207,8 @@ object CustomPackageSearchApiHelper {
 
   }
 
+  /** Use [[org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient.searchByQuery]] */
+  @ApiStatus.Obsolete
   def searchDependency(groupId: String,
                        artifactId: String,
                        searchParams: CustomPackageSearchParams,
@@ -227,6 +234,7 @@ object CustomPackageSearchApiHelper {
 
   }
 
+  @ApiStatus.Obsolete
   def waitAndAdd(searchFuture: Future[List[SbtExtendedArtifactInfo]],
                  cld: ConcurrentLinkedDeque[SbtExtendedArtifactInfo],
                  consumer: SbtExtendedArtifactInfo => Unit):Unit = {
