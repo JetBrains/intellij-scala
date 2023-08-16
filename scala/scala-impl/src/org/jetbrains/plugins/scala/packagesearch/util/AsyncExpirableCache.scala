@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.packagesearch.util
 
 import com.github.benmanes.caffeine.cache.{AsyncLoadingCache, Caffeine}
+import org.jetbrains.annotations.ApiStatus.Internal
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.packagesearch.util.AsyncExpirableCache.{ExpirationTimeout, MaxSize}
 
 import java.time.Duration
@@ -20,6 +22,10 @@ final class AsyncExpirableCache[K, V](maxSize: Long,
     .buildAsync(computeValue(_))
 
   def get(key: K): CompletableFuture[V] = cache.get(key)
+
+  @Internal
+  @VisibleForTesting
+  def updateCache(key: K, value: CompletableFuture[V]): Unit = cache.put(key, value)
 }
 
 object AsyncExpirableCache {

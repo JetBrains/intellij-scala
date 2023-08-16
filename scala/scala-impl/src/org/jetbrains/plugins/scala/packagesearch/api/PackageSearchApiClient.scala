@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.packagesearch.api
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.HttpRequests
+import org.jetbrains.annotations.ApiStatus.Internal
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.packagesearch.model.ApiPackage
 import org.jetbrains.plugins.scala.packagesearch.util.AsyncExpirableCache
@@ -26,14 +28,12 @@ object PackageSearchApiClient {
     new AsyncExpirableCache(executor, searchById)
 
   def searchByQuery(groupId: String, artifactId: String): CompletableFuture[Seq[ApiPackage]] = {
-    val query =
-      if (groupId.isEmpty || artifactId.isEmpty) groupId + artifactId
-      else s"$groupId:$artifactId"
+    val query = queryCacheKey(groupId, artifactId)
     byQueryCache.get(query)
   }
 
   def searchById(groupId: String, artifactId: String): CompletableFuture[Option[ApiPackage]] = {
-    val id = s"$groupId:$artifactId"
+    val id = idCacheKey(groupId, artifactId)
     byIdCache.get(id)
   }
 
@@ -75,4 +75,18 @@ object PackageSearchApiClient {
   private def querySearchUrl(query: String): String = s"$baseUrl/package?query=${encode(query)}"
 
   private def idSearchUrl(id: String): String = s"$baseUrl/package/$id"
+
+  private def queryCacheKey(groupId: String, artifactId: String): String =
+    if (groupId.isEmpty || artifactId.isEmpty) groupId + artifactId
+    else s"$groupId:$artifactId"
+
+  private def idCacheKey(groupId: String, artifactId: String): String = s"$groupId:$artifactId"
+
+  @Internal
+  @VisibleForTesting
+  def updateByIdCache(groupId: String, artifactId: String, result: Option[ApiPackage]): Unit = {
+    val key = idCacheKey(groupId, artifactId)
+    val value = CompletableFuture.completedFuture(result)
+    byIdCache.updateCache(key, value)
+  }
 }

@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient
 import org.jetbrains.plugins.scala.packagesearch.codeInspection.DependencyVersionInspection.{ArtifactIdSuffix, DependencyDescriptor}
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 
+import scala.math.Ordered.orderingToOrdered
+
 abstract class DependencyVersionInspection extends LocalInspectionTool {
   protected def isAvailable(element: PsiElement): Boolean
 
@@ -46,6 +48,7 @@ abstract class DependencyVersionInspection extends LocalInspectionTool {
           .collect { case v if DependencyUtil.isStable(v) => new ComparableVersion(v) }
           .sort(reverse = true)
           .headOption
+          .filter(_ > new ComparableVersion(dependencyDescriptor.version)) // don't suggest update from 3.2.1-RC1 to 3.2.0
           .fold(dependencyDescriptor.version)(_.toString)
 
         if (newestStableVersion != dependencyDescriptor.version) {
