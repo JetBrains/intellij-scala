@@ -96,4 +96,15 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
        |}
        |""".stripMargin
   )
+
+  def testIntersectionOfUpperBoundedTypeParametersWithUnboundedTypeParameters(): Unit = {
+    val code =
+      """trait Foo {
+        |  def foo[A, B, C <: A, D <: B](): Unit = { val x: C & D = ???; x.toString }
+        |}
+        |""".stripMargin
+
+    myFixture.configureByText("Foo.scala", code)
+    assertNoThrowable(() => myFixture.doHighlighting())
+  }
 }

@@ -79,7 +79,7 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
     }
 
     val maps = collectChildrenNodes(andTpe)
-    maps.reduce(_ intersect _)
+    maps.fold(MixinNodes.emptyMap)(_ intersect _)
   }
 
   def build(cp: ScCompoundType, compoundThisType: Option[ScType]): Map = {
