@@ -423,6 +423,12 @@ package object project {
       val name = project.getName
       name == "scalaUltimate" || name == "scalaCommunity"
     }
+
+    def allScalaVersions: Seq[ScalaVersion] = {
+      val modules = modulesWithScala
+      val scalaVersions = modules.flatMap(_.scalaMinorVersion)
+      scalaVersions.distinct
+    }
   }
 
   implicit class UserDataHolderExt(private val holder: UserDataHolder) extends AnyVal {

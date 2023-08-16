@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt}
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.SbtUtil.{getBuildModuleData, getSbtModuleData}
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
@@ -113,9 +113,9 @@ object SbtDependencyUtils {
     case object GetDep extends GetMode
   }
 
-  def getAllScalaVersionsOrDefault(psiElement: PsiElement, majorOnly: Boolean = false): List[String] = {
-    var scalaVers = SbtDependencyUtils.getAllScalaVers(psiElement.getProject).sortWith(SbtDependencyUtils.isGreaterStableVersion)
-    if (scalaVers.isEmpty) scalaVers = List(psiElement.scalaLanguageLevelOrDefault.getVersion)
+  def getAllScalaVersionsOrDefault(psiElement: PsiElement, majorOnly: Boolean = false): Seq[String] = {
+    var scalaVers = psiElement.getProject.allScalaVersions.map(_.minor).sortWith(SbtDependencyUtils.isGreaterStableVersion)
+    if (scalaVers.isEmpty) scalaVers = Seq(psiElement.scalaLanguageLevelOrDefault.getVersion)
     if (majorOnly) scalaVers = scalaVers.map(ver => ver.split("\\.").take(2).mkString("."))
     scalaVers.distinct
   }
@@ -141,18 +141,6 @@ object SbtDependencyUtils {
       .zipAll(oldVerPreprocessed.split("\\."), "0", "0")
       .find {case(a, b) => a != b }
       .fold(0) { case (a, b) => a.toInt - b.toInt } > 0
-  }
-
-  def getScalaVerFromModule(module: OpenapiModule): String = {
-    val scalaVersion = module.scalaMinorVersion.map(_.minor)
-    scalaVersion.getOrElse("")
-  }
-
-  def getAllScalaVers(project: Project): List[String] = {
-    val modulesAll = ModuleManager.getInstance(project).getModules.toList
-    val modulesMain = modulesAll.filterNot(_.isBuildModule)
-    val scalaVersions = modulesMain.map(getScalaVerFromModule)
-    scalaVersions.filter(_.nonEmpty).distinct
   }
 
   def buildScalaArtifactIdString(groupId: String, artifactId: String, scalaVer: String): String = {

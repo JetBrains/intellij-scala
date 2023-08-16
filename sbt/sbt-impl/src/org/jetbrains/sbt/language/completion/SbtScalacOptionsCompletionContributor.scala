@@ -57,7 +57,7 @@ object SbtScalacOptionsCompletionContributor {
     }
   }
 
-  private def lookupElementMatchingVersions(option: SbtScalacOptionInfo, scalaVersions: List[ScalaLanguageLevel])(implicit project: Project): Option[LookupElement] = {
+  private def lookupElementMatchingVersions(option: SbtScalacOptionInfo, scalaVersions: Seq[ScalaLanguageLevel])(implicit project: Project): Option[LookupElement] = {
     val matchingVersions = scalaVersions.filter(option.scalaVersions)
 
     Option.when(matchingVersions.nonEmpty) {

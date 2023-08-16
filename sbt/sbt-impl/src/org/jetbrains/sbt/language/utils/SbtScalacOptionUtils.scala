@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.collections.isSeq
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScParenthesisedExpr, ScReferenceExpression}
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaLanguageLevel}
 import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
 import org.slf4j.LoggerFactory
@@ -27,10 +27,10 @@ object SbtScalacOptionUtils {
   val SEQ_OPS = Set("++=", "--=", ":=")
   val SINGLE_OPS = Set("+=", "-=")
 
-  private def projectScalaVersions(project: Project): List[ScalaLanguageLevel] =
-    SbtDependencyUtils.getAllScalaVers(project).flatMap(ScalaLanguageLevel.findByVersion)
+  private def projectScalaVersions(project: Project): Seq[ScalaLanguageLevel] =
+    project.allScalaVersions.map(_.languageLevel)
 
-  def projectVersionsSorted(project: Project, reverse: Boolean): List[ScalaLanguageLevel] =
+  def projectVersionsSorted(project: Project, reverse: Boolean): Seq[ScalaLanguageLevel] =
     projectScalaVersions(project).distinct.sort(reverse)
 
   @tailrec

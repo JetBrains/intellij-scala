@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfi
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyPreviewWizard
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.language.utils.SbtDependencyCommon.defaultLibScope
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
@@ -164,10 +165,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator {
       getLibraryDependenciesOrPlaces(getSbtFileOpt(module), module.getProject, module, GetDep).
       map(_.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)])
 
-
-    implicit val project: Project = module.getProject
-
-    val scalaVer = SbtDependencyUtils.getScalaVerFromModule(module)
+    val scalaVer = module.scalaMinorVersion.fold("")(_.minor)
 
     inReadAction({
       libDeps.map(libDepInfixAndString => {
