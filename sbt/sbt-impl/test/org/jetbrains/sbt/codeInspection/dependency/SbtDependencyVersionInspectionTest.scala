@@ -2,6 +2,8 @@ package org.jetbrains.sbt.codeInspection.dependency
 
 import com.intellij.openapi.fileTypes.LanguageFileType
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
+import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchApiClient
+import org.jetbrains.plugins.scala.packagesearch.model.ApiPackage
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.codeInspection.SbtDependencyVersionInspection
 import org.jetbrains.sbt.language.SbtFileType
@@ -21,6 +23,12 @@ class SbtDependencyVersionInspectionTest extends ScalaInspectionTestBase with Mo
   }
 
   def testDependencyVersionInspection(): Unit = {
+    val groupId = "org.scalatest"
+    val artifactId = s"scalatest_${version.major}"
+
+    PackageSearchApiClient.updateByIdCache(groupId, artifactId,
+      Some(ApiPackage(groupId, artifactId, Seq("3.0.7", "3.0.8", "3.0.6"))))
+
     val text =
       s"""
          |libraryDependencies += "org.scalatest" %% "scalatest" % $START"3.0.7"$END
