@@ -9,6 +9,7 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -113,6 +114,8 @@ object SbtDependencyUtils {
     case object GetDep extends GetMode
   }
 
+  /** Use [[org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil.getAllScalaVersionsOrDefault]] */
+  @ApiStatus.Obsolete
   def getAllScalaVersionsOrDefault(psiElement: PsiElement, majorOnly: Boolean = false): Seq[String] = {
     var scalaVers = psiElement.getProject.allScalaVersions.map(_.minor).sortWith(SbtDependencyUtils.isGreaterStableVersion)
     if (scalaVers.isEmpty) scalaVers = Seq(psiElement.scalaLanguageLevelOrDefault.getVersion)
@@ -143,6 +146,8 @@ object SbtDependencyUtils {
       .fold(0) { case (a, b) => a.toInt - b.toInt } > 0
   }
 
+  /** Use [[org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil.buildScalaArtifactIdString]] */
+  @ApiStatus.Obsolete
   def buildScalaArtifactIdString(groupId: String, artifactId: String, scalaVer: String): String = {
     if (scalaVer == null || scalaVer.isEmpty) return artifactId
     val shouldIncludeScalaMinorVer = SCALA_DEPENDENCIES_WITH_MINOR_SCALA_VERSION_LIST contains s"$groupId:$artifactId"

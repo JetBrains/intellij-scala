@@ -1862,6 +1862,16 @@
                          key="displayname.specs2.matchers"
                          shortName="Specs2Matchers" groupKey="group.specs2" groupPath="Scala"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
+
+        <localInspection implementationClass="org.jetbrains.plugins.scalaDirective.codeInspection.dependencies.ScalaDirectiveDependencyVersionInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.directive.dependency.version"
+                         groupPath="Scala"
+                         groupKey="group.directive"
+                         language="ScalaDirective"
+                         level="WEAK WARNING"
+                         shortName="ScalaDirectiveDependencyVersion"
+                         enabledByDefault="true"/>
         <!-- End of inspections -->
 
         <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType"/>
