@@ -48,7 +48,7 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
   private def revertScalaSdkFromLibraries(modelsProvider: IdeModifiableModelsProvider): Unit = {
     val libraries = modelsProvider.getModifiableProjectLibrariesModel.getLibraries.filter(_.hasRuntimeLibrary)
     libraries
-      .filter { library => library.isScalaSdk && !library.getName.startsWith("sbt: scala-sdk") }
+      .filter { library => library.isScalaSdk && !Seq("sbt: scala-sdk", "Gradle:", "Maven:").exists(library.getName.startsWith)}
       .foreach { library =>
         val model = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
         model.setKind(null)
