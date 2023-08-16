@@ -13,7 +13,6 @@ class ZioTest extends TextToTextTestBase(
     "zio.Experimental", // Extension
     "zio.ProvideSomePartiallyApplied", // No inline parameter modifier
     "zio.UnsafeVersionSpecific", // Context function type
-    "zio.VersionSpecific", // External library reference
     "zio.WirePartiallyApplied", // No inline parameter modifier
     "zio.WireSomePartiallyApplied", // No inline parameter modifier
     "zio.ZIOAppVersionSpecific", // No inline parameter modifier
