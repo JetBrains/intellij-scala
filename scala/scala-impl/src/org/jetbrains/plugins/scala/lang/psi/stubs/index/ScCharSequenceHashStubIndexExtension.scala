@@ -10,19 +10,29 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import java.util
 import scala.jdk.CollectionConverters.IterableHasAsScala
+import scala.reflect.{ClassTag, classTag}
 
-abstract class ScCharSequenceHashStubIndexExtension[Psi <: PsiElement] extends CharSequenceHashStubIndexExtension[Psi] {
+// No external usages for this class and our inheritors
+abstract class ScCharSequenceHashStubIndexExtension[Psi <: PsiElement : ClassTag] extends CharSequenceHashStubIndexExtension[Psi] {
 
-  override final def get(key: CharSequence, project: Project, scope: GlobalSearchScope): util.Collection[Psi] = {
+  private def getStubIndexElements(key: CharSequence, project: Project, scope: GlobalSearchScope): util.Collection[Psi] = {
     val keyPreprocessed = preprocessKey(key)
-    super.get(keyPreprocessed, project, ScalaFilterScope(scope)(project))
+    val requiredClass = classTag[Psi].runtimeClass.asInstanceOf[Class[Psi]]
+    val scalaScope = ScalaFilterScope(scope)(project)
+    StubIndex.getElements(getKey, keyPreprocessed, project, scalaScope, requiredClass)
+  }
+
+  @deprecated
+  @deprecatedOverriding
+  // No internal usages
+  override final def get(key: CharSequence, project: Project, scope: GlobalSearchScope): util.Collection[Psi] = {
+    getStubIndexElements(key, project, scope)
   }
 
   protected def preprocessKey(key: CharSequence): CharSequence
 
   final def elementsByHash(key: CharSequence, project: Project, scope: GlobalSearchScope): Iterable[Psi] = {
-    val collection = get(key, project, scope)
-    collection.asScala
+    getStubIndexElements(key, project, scope).asScala
   }
 
   final def hasElement(key: CharSequence, project: Project, scope: GlobalSearchScope, requiredClass: Class[Psi]): Boolean = {
@@ -42,7 +52,7 @@ abstract class ScCharSequenceHashStubIndexExtension[Psi <: PsiElement] extends C
   }
 }
 
-abstract class ScFqnHashStubIndexExtension[Psi <: PsiElement] extends ScCharSequenceHashStubIndexExtension[Psi] {
+abstract class ScFqnHashStubIndexExtension[Psi <: PsiElement : ClassTag] extends ScCharSequenceHashStubIndexExtension[Psi] {
   override protected def preprocessKey(fqn: CharSequence): CharSequence =
     ScalaNamesUtil.cleanFqn(fqn.toString)
 }
