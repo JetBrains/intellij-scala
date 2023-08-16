@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScClassFqnIndex, ScPack
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 
 import scala.collection.immutable.ArraySeq.unsafeWrapArray
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Service(Array(Service.Level.PROJECT))
 final class ScalaShortNamesCacheManager(implicit project: Project) {
@@ -22,7 +23,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
       return null
     }
 
-    val elements = ScClassFqnIndex.instance.elementsByHash(fqn, project, scope)
+    val elements = ScClassFqnIndex.instance.getElements(fqn, project, scope).asScala
     elements
       .find { cls =>
         val qualifiedName = cls.qualifiedName
@@ -36,7 +37,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
       return Nil
     }
 
-    ScClassFqnIndex.instance.elementsByHash(fqn, project, scope)
+    ScClassFqnIndex.instance.getElements(fqn, project, scope).asScala
       .filter(cls => cls.qualifiedName != null && equivalentFqn(fqn, cls.qualifiedName))
       .flatMap {
         case cls: ScTypeDefinition => // Add fakeCompanionModule when ScTypeDefinition
@@ -60,7 +61,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
     if (DumbService.getInstance(project).isDumb) {
       None
     } else {
-      ScPackageObjectFqnIndex.instance.elementsByHash(fqn, project, scope)
+      ScPackageObjectFqnIndex.instance.getElements(fqn, project, scope).asScala
         .collectFirst {
           case scalaObject: ScObject if scalaObject.qualifiedName != null &&
             equivalentFqn(fqn, scalaObject.qualifiedName.stripSuffix(".`package`")) => scalaObject

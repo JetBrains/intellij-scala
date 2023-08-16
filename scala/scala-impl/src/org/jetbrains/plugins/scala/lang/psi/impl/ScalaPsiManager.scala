@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class ScalaPsiManager(implicit val project: Project) {
 
@@ -324,7 +325,7 @@ class ScalaPsiManager(implicit val project: Project) {
     TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope)
 
   def getStableAliasesByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] = {
-    val elements = ScStableTypeAliasFqnIndex.instance.elementsByHash(fqn, project, scope)
+    val elements = ScStableTypeAliasFqnIndex.instance.getElements(fqn, project, scope).asScala
     elements.filter(_.qualifiedNameOpt.contains(fqn))
   }
 

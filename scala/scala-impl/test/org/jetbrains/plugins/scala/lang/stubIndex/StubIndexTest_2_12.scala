@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 import org.junit.Assert._
 
 import scala.collection.immutable.Iterable
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
@@ -30,7 +31,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
     indexKey.elements(key, moduleWithLibrariesScope)(getProject).toList
 
   private def elementsInScalaLibraryByFqnKey[Psi <: PsiElement : ClassTag](fqn: CharSequence, index: ScFqnHashStubIndexExtension[Psi]): Seq[Psi] =
-    index.elementsByHash(fqn, getProject, moduleWithLibrariesScope).toList
+    index.getElements(fqn, getProject, moduleWithLibrariesScope).asScala.toSeq
 
   private def checkNamesFromIndex[Psi <: PsiMember : ClassTag](indexKey: StubIndexKey[String, Psi], key: String)
                                                               (expected: String*): Unit = {
