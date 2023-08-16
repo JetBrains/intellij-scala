@@ -18,4 +18,7 @@ trait Text {
 
   @throws[RuntimeException]("cause")
   def f6: Int = ???
+
+  @SuppressWarnings(Array("one", "two"))
+  def f7: Int = ???
 }
