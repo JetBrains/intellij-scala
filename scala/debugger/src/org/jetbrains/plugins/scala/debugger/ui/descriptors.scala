@@ -96,8 +96,8 @@ private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: 
 
   private val icon: Icon = {
     var base = AllIcons.Nodes.Field
-    if (field.isFinal) base = new LayeredIcon(base, AllIcons.Nodes.FinalMark)
-    if (field.isStatic) base = new LayeredIcon(base, AllIcons.Nodes.StaticMark)
+    if (field.isFinal) base = LayeredIcon.layeredIcon(Array(base, AllIcons.Nodes.FinalMark))
+    if (field.isStatic) base = LayeredIcon.layeredIcon(Array(base, AllIcons.Nodes.StaticMark))
     base
   }
 }
@@ -136,7 +136,7 @@ private[debugger] final class NotInitializedLocalLazyValDescriptor(project: Proj
     node.setPresentation(icon, typeString, DebuggerBundle.message("lazy.val.not.initialized"), false)
   }
 
-  private val icon: Icon = new LayeredIcon(AllIcons.Nodes.Variable, AllIcons.Nodes.FinalMark)
+  private val icon: Icon = LayeredIcon.layeredIcon(Array(AllIcons.Nodes.Variable, AllIcons.Nodes.FinalMark))
 
   private val typeString: String = getType.name() match {
     case "scala.runtime.LazyRef" => "lazy AnyRef reference"
