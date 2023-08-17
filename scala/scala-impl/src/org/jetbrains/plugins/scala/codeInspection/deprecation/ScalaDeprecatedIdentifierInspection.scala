@@ -13,13 +13,11 @@ class ScalaDeprecatedIdentifierInspection extends LocalInspectionTool {
       holder.registerProblem(
         ref.nameId,
         ScalaInspectionBundle.message("usage.of.deprecatedname.as.identifier.is.deprecated", ref.refName),
-        ProblemHighlightType.LIKE_DEPRECATED
       )
     case named: ScNamedElement if deprecatedNames.contains(named.name) =>
       holder.registerProblem(
         named.nameId,
         ScalaInspectionBundle.message("usage.of.deprecatedname.as.identifier.is.deprecated", named.name),
-        ProblemHighlightType.LIKE_DEPRECATED
       )
     case _ =>
   }
