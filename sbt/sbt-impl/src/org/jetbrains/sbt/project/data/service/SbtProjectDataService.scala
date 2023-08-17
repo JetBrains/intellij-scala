@@ -41,14 +41,19 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
     } {
       projectData.removeUserData(ContentRootDataService.CREATE_EMPTY_DIRECTORIES) //we don't need creating empty dirs anyway
     }
-    revertScalaSdkFromLibraries(modelsProvider)
+    if (dataToImport.nonEmpty) {
+      revertScalaSdkFromLibraries(modelsProvider)
+    }
     dataToImport.foreach(node => doImport(project, node.getData, modelsProvider))
   }
 
   private def revertScalaSdkFromLibraries(modelsProvider: IdeModifiableModelsProvider): Unit = {
     val libraries = modelsProvider.getModifiableProjectLibrariesModel.getLibraries.filter(_.hasRuntimeLibrary)
+    // note: there is a possibility that in IDEA we will have projects with different subsystems (I think it very rare case
+    // but from a technical point of view it is possible). In such case we do not want to remove scala SDK kind from libraries that come from systems other than SBT.
+    // "sbt: scala-sdk" prefix is left because it indicates that this SDK comes from the new implementation of Scala SDK and shouldn't be removed.
     libraries
-      .filter { library => library.isScalaSdk && !Seq("sbt: scala-sdk", "Gradle:", "Maven:").exists(library.getName.startsWith)}
+      .filter { library => library.isScalaSdk && !Seq("sbt: scala-sdk", "Gradle:", "Maven:", "BSP:").exists(library.getName.startsWith)}
       .foreach { library =>
         val model = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
         model.setKind(null)
