@@ -14,6 +14,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
 
   protected lazy val BlockIcon = getPlatformIcon(PlatformIcons.ClassInitializer)
   protected lazy val MethodIcon = getPlatformIcon(PlatformIcons.Method)
+  protected lazy val AbstractMethodIcon = getPlatformIcon(PlatformIcons.AbstractMethod)
   protected lazy val PrivateIcon = getPlatformIcon(PlatformIcons.Private)
 
   private val EmptyBlockNodeText = ""
@@ -96,6 +97,41 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
   //          """,
   //      Node(VAR, "v: Int"))
   //  }
+
+  def testDeprecation(): Unit = check(
+    """
+       object Container {
+         @deprecated var v1: Int = 1
+         @deprecated val v2: Int = 1
+         @deprecated val v3, v4 = 1
+         @deprecated type A = Int
+         @deprecated def m: Int = 1
+         @deprecated class C
+         class C2 @deprecated() (i: Int, @deprecated val s: String) {
+           @deprecated def this() = this(2, "")
+           def this(@deprecated i: Int) = this(i, "")
+         }
+         @deprecated trait T
+         @deprecated object O
+       }
+    """,
+    Node(OBJECT, "Container",
+      Node(FIELD_VAR, "v1: Int", DeprecatedAttributesKey),
+      Node(FIELD_VAL, "v2: Int", DeprecatedAttributesKey),
+      Node(FIELD_VAL, "v3", DeprecatedAttributesKey),
+      Node(FIELD_VAL, "v4", DeprecatedAttributesKey),
+      Node(TYPE_ALIAS, "A", DeprecatedAttributesKey),
+      Node(MethodIcon, "m: Int", DeprecatedAttributesKey),
+      Node(CLASS, "C", DeprecatedAttributesKey),
+      Node(CLASS, "C2(Int, String)",
+        Node(FIELD_VAL, "s: String", DeprecatedAttributesKey),
+        Node(MethodIcon, "this()", DeprecatedAttributesKey),
+        Node(MethodIcon, "this(Int)"),
+      ),
+      Node(TRAIT, "T", DeprecatedAttributesKey),
+      Node(OBJECT, "O", DeprecatedAttributesKey)
+    )
+  )
 
   def testValue(): Unit = {
     check("""
@@ -837,7 +873,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         |}
         |""".stripMargin
 
-    val expectedStructureWithAnonimousDisabled =
+    val expectedStructureWithAnonymousDisabled =
       s"""-ScalaStructureTest.scala
          | -ScalaStructureTest
          |  $EmptyBlockNodeText
@@ -884,7 +920,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       val tree = svc.getTree
 
       PlatformTestUtil.expandAll(tree)
-      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonimousDisabled)
+      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonymousDisabled)
 
       svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
 

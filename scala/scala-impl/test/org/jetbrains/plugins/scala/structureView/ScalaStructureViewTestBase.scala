@@ -4,6 +4,8 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.ide.structureView.newStructureView.StructureViewComponent
 import com.intellij.ide.util.treeView.smartTree.TreeElement
+import com.intellij.navigation.ColoredItemPresentation
+import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiFileFactory
@@ -13,6 +15,7 @@ import com.intellij.ui.{IconManager, LayeredIcon, PlatformIcons}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewBuilder
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
@@ -27,6 +30,8 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
 
   protected val FinalMark = AllIcons.Nodes.FinalMark
   protected val Private = AllIcons.Nodes.Private
+
+  protected val DeprecatedAttributesKey = ScalaStructureViewTestBase.DeprecatedAttributesKey
 
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
@@ -112,39 +117,61 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
 
   protected def layered(icons: Icon*): Icon = {
     val result = new LayeredIcon(icons.length)
-    icons.zipWithIndex.foreach { case (icon, index) => result.setIcon(icon, index)}
+    icons.zipWithIndex.foreach { case (icon, index) => result.setIcon(icon, index) }
     result
   }
 }
 
 private object ScalaStructureViewTestBase {
+  private val DeprecatedAttributesKey = CodeInsightColors.DEPRECATED_ATTRIBUTES
+
   // Example of Icon.toString:
   // Row icon. myIcons=[Layered icon 16x16. myIcons=[UrlResolver{ownerClass=org.jetbrains.plugins.scala.icons.Icons, classLoader=jdk.internal.loader.ClassLoaders$AppClassLoader@61064425, overriddenPath='/org/jetbrains/plugins/scala/images/class_scala.svg', url=file:/unresolved, useCacheOnLoad=true}, nodes/finalMark.svg], nodes/c_public.svg]
   // we need just: [class_scala, finalMark, c_public]
   private final val IconFileName = new Regex("(?<=/)[^/]+(?=\\.\\w+)") // detect any extension
 
-  class Node(icon: Icon, name: String, children: Node*) {
+  class Node(icon: Icon, name: String, textAttributesKey: Option[TextAttributesKey], children: Node*) {
+    def this(icon: Icon, name: String, children: Node*) = this(icon, name, None, children: _*)
+    def this(icon: Icon, name: String, textAttributesKey: TextAttributesKey, children: Node*) =
+      this(icon, name, Some(textAttributesKey), children: _*)
+
     def presentation(deep: Int = 0): String = {
       val iconString = IconFileName.findAllIn(Option(icon).mkString).mkString("[", ", ", "] ")
       val childIndent = "  " * deep
       val childrenString = children.map(_.presentation(deep + 1)).map(childIndent + _)
-      iconString + (name +: childrenString).mkString("\n")
+      iconString + (withAttributes(name) +: childrenString).mkString("\n")
+    }
+
+    private def withAttributes(text: String): String = textAttributesKey match {
+      case Some(DeprecatedAttributesKey) => s"~~~$text~~~"
+      case _ => text
     }
   }
 
   object Node {
     def apply(baseIcon: Icon, visibilityIcon: Icon, name: String, children: Node*): Node =
-      new Node(ElementBase.buildRowIcon(baseIcon, visibilityIcon), name, children: _*)
+      Node(baseIcon, visibilityIcon, name, None, children: _*)
+
+    def apply(baseIcon: Icon, visibilityIcon: Icon, name: String, textAttributesKey: Option[TextAttributesKey], children: Node*): Node =
+      new Node(ElementBase.buildRowIcon(baseIcon, visibilityIcon), name, textAttributesKey, children: _*)
 
     def apply(icon: Icon, name: String, children: Node*): Node =
-      Node(icon, IconManager.getInstance.getPlatformIcon(PlatformIcons.Public), name, children: _*)
+      Node(icon, name, None, children: _*)
+
+    def apply(icon: Icon, name: String, textAttributesKey: TextAttributesKey, children: Node*): Node =
+      Node(icon, name, Some(textAttributesKey), children: _*)
+
+    def apply(icon: Icon, name: String, textAttributesKey: Option[TextAttributesKey], children: Node*): Node =
+      Node(icon, IconManager.getInstance.getPlatformIcon(PlatformIcons.Public), name, textAttributesKey, children: _*)
 
     def apply(element: StructureViewTreeElement, sorter: Seq[TreeElement] => Seq[TreeElement]): Node = {
       val presentation = element.getPresentation
       val icon = presentation.getIcon(false)
       val text = presentation.getPresentableText
+      val textAttributesKey = presentation.asOptionOf[ColoredItemPresentation]
+        .flatMap(_.getTextAttributesKey.toOption)
       val children = sorter(element.getChildren.toSeq).map { case element: StructureViewTreeElement => Node(element, sorter) }
-      new Node(icon, text, children: _*)
+      new Node(icon, text, textAttributesKey, children: _*)
     }
   }
 }

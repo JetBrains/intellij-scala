@@ -232,4 +232,77 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
 //        |    [method, c_public] ext2: String""".stripMargin
 //    )
 //  }
+
+  def testDeprecatedScala3(): Unit = check(
+    """
+      |@deprecated
+      |enum E1:
+      |  case A, B
+      |  case C
+      |
+      |enum E2:
+      |  @deprecated
+      |  case A, B
+      |  @deprecated case C
+      |  @deprecated
+      |  case D(i: Int) extends E2
+      |  case E(@deprecated s: String)
+      |
+      |extension (x: String)
+      |  @deprecated def f1: String = ???
+      |  @deprecated def f2(i: Int): String = ???
+      |
+      |trait Foo { val foo: Int }
+      |
+      |@deprecated
+      |given Foo with {
+      |  val foo = 1
+      |}
+      |
+      |@deprecated
+      |given f: Foo with {
+      |  val foo = 2
+      |}
+      |
+      |abstract class C:
+      |  @deprecated given f: Foo
+      |  @deprecated given String = "foo"
+      |
+      |""".stripMargin,
+
+    Node(ENUM, "E1", DeprecatedAttributesKey,
+      Node(EnumCaseIcon, "A"),
+      Node(EnumCaseIcon, "B"),
+      Node(EnumCaseIcon, "C")
+    ),
+
+    Node(ENUM, "E2",
+      Node(EnumCaseIcon, "A", DeprecatedAttributesKey),
+      Node(EnumCaseIcon, "B", DeprecatedAttributesKey),
+      Node(EnumCaseIcon, "C", DeprecatedAttributesKey),
+      Node(EnumCaseIcon, "D(Int)", DeprecatedAttributesKey),
+      Node(EnumCaseIcon, "E(String)")
+    ),
+
+    Node(EXTENSION, "extension (String)",
+      Node(FUNCTION, "f1: String", DeprecatedAttributesKey),
+      Node(FUNCTION, "f2(Int): String", DeprecatedAttributesKey)
+    ),
+
+    Node(TRAIT, "Foo",
+      Node(ABSTRACT_FIELD_VAL, "foo: Int")
+    ),
+
+    // TODO: better rendering for givens (SCL-19360)
+    Node(CLASS, "Foo with {\n  val foo = 1\n}", DeprecatedAttributesKey,
+      Node(FIELD_VAL, "foo")
+    ),
+    Node(CLASS, "f", DeprecatedAttributesKey,
+      Node(FIELD_VAL, "foo")
+    ),
+    Node(ABSTRACT_CLASS, "C",
+      Node(AbstractMethodIcon, "f: Foo", DeprecatedAttributesKey),
+      Node(MethodIcon, "given_String: String", DeprecatedAttributesKey)
+    )
+  )
 }
