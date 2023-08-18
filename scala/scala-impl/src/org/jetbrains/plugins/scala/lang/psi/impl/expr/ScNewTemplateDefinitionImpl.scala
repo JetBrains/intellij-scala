@@ -44,7 +44,6 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   override def firstConstructorInvocation: Option[ScConstructorInvocation] =
     Option(extendsBlock)
       .flatMap(_.templateParents)
-      .filter(_.typeElements.length == 1)
       .flatMap(_.firstParentClause)
 
   override protected def updateImplicitArguments(): Unit = {

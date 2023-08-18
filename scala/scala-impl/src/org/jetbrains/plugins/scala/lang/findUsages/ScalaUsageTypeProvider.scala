@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.findUsages
 
 import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import com.intellij.usages.impl.rules.UsageType._
 import com.intellij.usages.impl.rules.{UsageType, UsageTypeProviderEx}
 import com.intellij.usages.{PsiElementUsageTarget, UsageTarget}
@@ -11,13 +11,12 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeArgs, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScAnnotation, ScAnnotationExpr, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, ScAccessModifier, ScAnnotationExpr, ScConstructorInvocation, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -50,6 +49,7 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
           if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
           Some(ParameterInPattern)
         case _ =>
+          //TODO: Only run this logic for references or leaf elements?
           element.withParentsInFile
             .flatMap(usageType(_, element))
             .nextOption()
@@ -58,12 +58,13 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
 }
 
 object ScalaUsageTypeProvider {
-  private def isSAMTypeUsageTarget(t: Array[UsageTarget]): Boolean =
-    t.collect { case psiUsageTarget: PsiElementUsageTarget => psiUsageTarget.getElement }
-      .exists {
-        case cls: PsiClass => cls.isSAMable
-        case _             => false
-      }
+  private def isSAMTypeUsageTarget(usageTargets: Array[UsageTarget]): Boolean = {
+    val psiElements = usageTargets.collect { case psiUsageTarget: PsiElementUsageTarget => psiUsageTarget.getElement }
+    psiElements.exists {
+      case cls: PsiClass => cls.isSAMable
+      case _ => false
+    }
+  }
 
   private def isImplicitUsageTarget(target: PsiElementUsageTarget): Boolean = target.getElement match {
     case ImplicitSearchTarget(_) => true
@@ -76,17 +77,24 @@ object ScalaUsageTypeProvider {
       case _                          => false
     }
 
-  def referenceExpressionUsageType(expression: ScReferenceExpression): UsageType = {
+  def referenceExpressionUsageType(referenceExpr: ScReferenceExpression): UsageType = {
     def resolvedElement(result: ScalaResolveResult) =
       result.innerResolveResult
         .getOrElse(result).element
 
-    expression.bind()
-      .map(resolvedElement)
-      .collect {
-        case function: ScFunction if function.isApplyMethod => MethodApply
-        case definition: ScFunctionDefinition if isAncestor(definition, expression, false) => RECURSION
-      }.orNull
+    val referenceResolved: Option[PsiNamedElement] = referenceExpr.bind().map(resolvedElement)
+    referenceResolved.collect {
+      case function: ScFunction if function.isApplyMethod =>
+        MethodApply
+      case _: ScPrimaryConstructor | AuxiliaryConstructor(_) =>
+        //Handle Scala 3 "Universal Apply Methods" (https://docs.scala-lang.org/scala3/reference/other-new-features/creator-applications.html)
+        //Even though there is no "new" keyword, it seems we should place usages in same group
+        //So `new MyClass()` and `MyClass()` (when it's not invocation of apply method) should be placed in same group
+        //Note, on UI it will be called "New instance creation", "new" keyword won't be mentioned
+        CLASS_NEW_OPERATOR
+      case definition: ScFunctionDefinition if isAncestor(definition, referenceExpr, false) =>
+        RECURSION
+    }.orNull
   }
 
   def patternUsageType(pattern: ScPattern): UsageType = {
@@ -133,6 +141,18 @@ object ScalaUsageTypeProvider {
     case _ => false
   }
 
+  //TODO: handle Scala 3 universal apply syntax
+  private def usageTypeOfConstructorInvocation(constructorInvocation: ScConstructorInvocation): UsageType = {
+    val templateDefinition = constructorInvocation.templateDefinitionContext
+    templateDefinition match {
+      //We are only interested in first constructor invocation (`MyClass` in `new MyClass with MyTrait`, but not `MyTrait`)
+      case Some(newTd: ScNewTemplateDefinition) if newTd.firstConstructorInvocation.contains(constructorInvocation) =>
+        if (newTd.extendsBlock.isAnonymousClass) CLASS_ANONYMOUS_NEW_OPERATOR else CLASS_NEW_OPERATOR
+      case _ =>
+        CLASS_EXTENDS_IMPLEMENTS_LIST
+    }
+  }
+
   private[this] def nullableUsageType(element: PsiElement, original: PsiElement): UsageType = {
     def isAppropriate(parent: PsiElement): Boolean = isAncestor(parent, original, false)
 
@@ -141,7 +161,8 @@ object ScalaUsageTypeProvider {
     element match {
       case _: ScImportExpr => CLASS_IMPORT
       case typeArgs: ScTypeArgs => typeArgsUsageType(typeArgs)
-      case templateParents: ScTemplateParents => templateParentsUsageType(templateParents)
+      case constructorInvocation: ScConstructorInvocation =>
+        usageTypeOfConstructorInvocation(constructorInvocation)
       case _: ScParameter => CLASS_METHOD_PARAMETER_DECLARATION
       case pattern: ScPattern => patternUsageType(pattern)
       case typeElement: ScTypeElement => typeUsageType(typeElement)
@@ -155,7 +176,9 @@ object ScalaUsageTypeProvider {
       case assignment: ScAssignment if isAppropriate(assignment.leftExpression) =>
         if (assignment.isNamedParameter) NamedParameter else WRITE
       case MethodValue(_)                                                         => FunctionExpression
-      case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions                 => READ
+      case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScArgumentExprList =>
+        //Stop processing parents early, consider usage type to be just "READ"
+        READ
       case invocation: ScSelfInvocation if !isAppropriate(invocation.args.orNull) => SecondaryConstructor
       case _                                                                      => null
     }
@@ -169,14 +192,6 @@ object ScalaUsageTypeProvider {
       case "asInstanceOf" => CLASS_CAST_TO
       case "classOf" => CLASS_CLASS_OBJECT_ACCESS
     }.getOrElse(TYPE_PARAMETER)
-
-  private[this] def templateParentsUsageType(tp: ScTemplateParents): UsageType =
-    getParentOfType(tp, classOf[ScTemplateDefinition], classOf[ScAnnotation]) match {
-      case templateDefinition: ScNewTemplateDefinition =>
-        if (templateDefinition.extendsBlock.isAnonymousClass) CLASS_ANONYMOUS_NEW_OPERATOR else CLASS_NEW_OPERATOR
-      case _: ScTemplateDefinition => CLASS_EXTENDS_IMPLEMENTS_LIST
-      case _ => null
-    }
 
   private[this] def typeUsageType(typeElement: ScTypeElement): UsageType = {
     def isAppropriate(maybeTypeElement: Option[ScTypeElement]) = maybeTypeElement.contains(typeElement)
