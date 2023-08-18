@@ -93,16 +93,7 @@ object ScalaTestAstTransformer {
         if (expr != null) {
           val exprAdjusted = expr match {
             case methodCall: ScMethodCall =>
-              methodCall.getInvokedExpr match {
-                case ref: ScReferenceExpression if ref.refName == "Array" =>
-                  val constructorArgs = methodCall.args
-                  constructorArgs.exprs match {
-                    case Seq(single) if constructorArgs.invocationCount == 1 =>
-                      single
-                    case _ =>
-                      expr
-                  }
-              }
+              getExpressionFromAnnotCall(methodCall).getOrElse(expr)
             case _ =>
               expr
           }
@@ -112,6 +103,21 @@ object ScalaTestAstTransformer {
       case _ => None
     }
   }
+
+  private def getExpressionFromAnnotCall(methodCall: ScMethodCall): Option[ScExpression] =
+    methodCall.getInvokedExpr match {
+      // TODO Resolve reference, check fully-qualified name, apply method, SCL-21533
+      case ref: ScReferenceExpression if ref.refName == "Array" =>
+        val constructorArgs = methodCall.args
+        constructorArgs.exprs match {
+          // TODO Support multiple arguments, SCL-21533
+          // TODO There's an optional second argument list, SCL-21533
+          case Seq(single) if constructorArgs.invocationCount == 1 =>
+            Some(single)
+          case _ => None
+        }
+      case _ => None
+    }
 
   private def getFinderClassFqn(suiteTypeDef: ScTypeDefinition): Option[String] = {
     val finderAnnotationOpt = suiteTypeDef.annotations(FindersAnnotationFqn).headOption
@@ -143,6 +149,9 @@ object ScalaTestAstTransformer {
         args.exprs.headOption.flatMap {
           case assignment: ScAssignment =>
             getNameFromAnnotAssign(assignment)
+          case call: ScMethodCall =>
+            val expr = getExpressionFromAnnotCall(call)
+            expr.flatMap(getNameFromAnnotLiteral)
           case expr =>
             getNameFromAnnotLiteral(expr)
         }
