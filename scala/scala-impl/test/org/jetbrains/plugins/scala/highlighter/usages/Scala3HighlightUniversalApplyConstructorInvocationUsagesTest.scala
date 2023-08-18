@@ -10,7 +10,7 @@ class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends Scala
     val code =
       s"""
          |object Obj {
-         |  class ${|<}Te${|}st${>|}
+         |  class ${|<}Te${CARET}st${>|}
          |  val x: ${|<}Test${>|} = ${|<}Test${>|}()
          |}
        """.stripMargin
@@ -22,7 +22,7 @@ class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends Scala
       s"""
          |object Obj {
          |  class ${|<}Test${>|}
-         |  val x: ${|<}Test${>|} = ${|<}Te${|}st${>|}()
+         |  val x: ${|<}Test${>|} = ${|<}Te${CARET}st${>|}()
          |  ${|<}Test${>|}()
          |  new ${|<}Test${>|}
          |}
@@ -37,7 +37,7 @@ class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends Scala
          |  class ${|<}Test${>|} {
          |    def ${|<}this${>|}(i: Int) = this()
          |  }
-         |  val x: ${|<}Test${>|} = ${|<}Te${|}st${>|}(3)
+         |  val x: ${|<}Test${>|} = ${|<}Te${CARET}st${>|}(3)
          |  ${|<}Test${>|}()
          |}
          |""".stripMargin
@@ -49,7 +49,7 @@ class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends Scala
       s"""
          |object Obj {
          |  class Test {
-         |    def ${|<}th${|}is${>|}(i: Int) = this()
+         |    def ${|<}th${CARET}is${>|}(i: Int) = this()
          |  }
          |  val x: Test = ${|<}Test${>|}(3)
          |  Test()
@@ -63,7 +63,7 @@ class Scala3HighlightUniversalApplyConstructorInvocationUsagesTest extends Scala
       s"""
          |object Obj {
          |  class ${|<}Test${>|}
-         |  val x: ${|<}Te${|}st${>|} = ${|<}Test${>|}()
+         |  val x: ${|<}Te${CARET}st${>|} = ${|<}Test${>|}()
          |  ${|<}Test${>|}()
          |}
        """.stripMargin

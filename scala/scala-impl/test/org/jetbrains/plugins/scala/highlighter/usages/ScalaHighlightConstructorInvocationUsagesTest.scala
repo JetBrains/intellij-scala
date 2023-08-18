@@ -5,7 +5,7 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
     val code =
       s"""
          |object Obj {
-         |  class ${|<}Te${|}st${>|}
+         |  class ${|<}Te${CARET}st${>|}
          |  val x: ${|<}Test${>|} = new ${|<}Test${>|}
          |}
        """.stripMargin
@@ -17,7 +17,7 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
       s"""
          |object Obj {
          |  class ${|<}Test${>|}
-         |  val x: ${|<}Test${>|} = new ${|<}Te${|}st${>|}
+         |  val x: ${|<}Test${>|} = new ${|<}Te${CARET}st${>|}
          |  new ${|<}Test${>|}
          |}
        """.stripMargin
@@ -31,7 +31,7 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
          |  class ${|<}Test${>|} {
          |    def ${|<}this${>|}(i: Int) = this()
          |  }
-         |  val x: ${|<}Test${>|} = new ${|<}Te${|}st${>|}(3)
+         |  val x: ${|<}Test${>|} = new ${|<}Te${CARET}st${>|}(3)
          |  new ${|<}Test${>|}
          |}
          |""".stripMargin
@@ -43,7 +43,7 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
       s"""
          |object Obj {
          |  class Test {
-         |    def ${|<}th${|}is${>|}(i: Int) = this()
+         |    def ${|<}th${CARET}is${>|}(i: Int) = this()
          |  }
          |  val x: Test = new ${|<}Test${>|}(3)
          |  new Test
@@ -57,7 +57,7 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
       s"""
          |object Obj {
          |  class ${|<}Test${>|}
-         |  val x: ${|<}Te${|}st${>|} = new ${|<}Test${>|}
+         |  val x: ${|<}Te${CARET}st${>|} = new ${|<}Test${>|}
          |  new ${|<}Test${>|}
          |}
        """.stripMargin
@@ -69,7 +69,7 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaHighlightConstr
       s"""
          |object Obj {
          |  trait ${|<}Test${>|}
-         |  val x: ${|<}Test${>|} = new ${|<}Te${|}st${>|} {}
+         |  val x: ${|<}Test${>|} = new ${|<}Te${CARET}st${>|} {}
          |  new ${|<}Test${>|} {}
          |}
        """.stripMargin

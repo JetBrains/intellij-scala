@@ -11,7 +11,6 @@ abstract class ScalaHighlightConstructorInvocationUsagesTestBase
     with AssertionMatchers
     with Markers {
 
-  protected val | = CARET
   protected val |< = startMarker
   protected val >| = endMarker
 
