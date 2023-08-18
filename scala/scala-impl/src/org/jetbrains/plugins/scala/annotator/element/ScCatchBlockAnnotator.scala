@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+//https://youtrack.jetbrains.com/issue/SCL-3328
 object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
 
   override def annotate(element: ScCatchBlock, typeAware: Boolean)

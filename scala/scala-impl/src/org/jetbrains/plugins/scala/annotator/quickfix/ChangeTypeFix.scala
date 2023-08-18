@@ -14,7 +14,18 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 
-final class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends IntentionAction {
+/**
+ * @param widenNewType true to replace singleton types with wider version, e.g. use String instead of "42" (see SCL-16489)
+ */
+final class ChangeTypeFix(
+  typeElement: ScTypeElement,
+  newTypeOriginal: ScType,
+  widenNewType: Boolean = true
+) extends IntentionAction {
+
+  private lazy val newType: ScType =
+    if (widenNewType) newTypeOriginal.widen
+    else newTypeOriginal
 
   override val getText: String = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(typeElement)
