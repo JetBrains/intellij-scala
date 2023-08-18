@@ -1,0 +1,12 @@
+<idea-plugin>
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.intellij.scala.structureViewModelProvider"
+                        interface="org.jetbrains.plugins.scala.structureView.ScalaStructureViewModelProvider"
+                        dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <lang.psiStructureViewFactory language="Scala"
+                                      implementationClass="org.jetbrains.plugins.scala.structureView.ScalaStructureViewFactory"/>
+    </extensions>
+</idea-plugin>

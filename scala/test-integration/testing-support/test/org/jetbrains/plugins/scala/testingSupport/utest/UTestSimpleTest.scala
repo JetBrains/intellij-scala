@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.utest
 
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
-import org.jetbrains.plugins.scala.lang.structureView.element.Test
+import org.jetbrains.plugins.scala.structureView.element.Test
 
 trait UTestSimpleTest extends UTestTestCase {
 

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport
 import com.intellij.ide.util.treeView.smartTree.{NodeProvider, TreeElement}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModelProvider
+import org.jetbrains.plugins.scala.structureView.ScalaStructureViewModelProvider
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
 //noinspection ApiStatus

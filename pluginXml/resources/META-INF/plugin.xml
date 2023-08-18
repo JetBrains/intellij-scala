@@ -73,6 +73,7 @@
     <xi:include href="conversion.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="compiler-integration.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="debugger.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="structure-view.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="testing-support.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="uast.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="worksheet.xml" xpointer="xpointer(/idea-plugin/*)"/>

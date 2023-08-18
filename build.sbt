@@ -52,6 +52,7 @@ lazy val scalaCommunity: sbt.Project =
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
+      structureView % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       compilerIntegration % "test->test;compile->compile",
       debugger % "test->test;compile->compile",
@@ -267,6 +268,14 @@ lazy val worksheetReplInterfaceImpl_3_3_0: Project =
     .dependsOn(worksheetReplInterface)
     .settings(worksheetReplInterfaceImplCommonSettings("3.3.0"))
 
+lazy val structureView = newProject("structure-view", file("scala/structure-view"))
+  .dependsOn(scalaImpl % "test->test;compile->compile")
+  .withCompilerPluginIn(scalacPatches)
+  .settings(
+    scalaVersion := Versions.scala3Version,
+    Compile / scalacOptions := globalScala3ScalacOptions,
+  )
+
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .settings(
     name := "tasty-reader",
@@ -462,7 +471,8 @@ lazy val testingSupport =
   newProject("testing-support", file("scala/test-integration/testing-support"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      sbtImpl % "test->test;compile->compile"
+      sbtImpl % "test->test;compile->compile",
+      structureView % "test->test;compile->compile"
     )
     .settings(
       intellijPlugins += "JUnit".toPlugin

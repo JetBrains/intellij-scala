@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.base
 
-import org.jetbrains.plugins.scala.lang.structureView.element.Test._
+import org.jetbrains.plugins.scala.structureView.element.Test._
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer

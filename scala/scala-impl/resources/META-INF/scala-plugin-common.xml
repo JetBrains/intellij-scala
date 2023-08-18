@@ -26,8 +26,6 @@
         <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalReferenceSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalReferenceSearcher"/>
         <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalInheritorsSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher"/>
         <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalSearchScopeChecker" interface="org.jetbrains.plugins.scala.findUsages.ExternalSearchScopeChecker"/>
-
-        <extensionPoint qualifiedName="org.intellij.scala.structureViewModelProvider" interface="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModelProvider" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -164,7 +162,6 @@
         <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaDocCommentDataSurroundDescriptor"/>
         <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaIgnoreErrorHighlightingSurroundDescriptor"/>
         <lang.unwrapDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.unwrap.ScalaUnwrapDescriptor"/>
-        <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
         <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaDocTypedHandler" order="first"/>
         <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler" order="first"/>
         <typedHandler implementation="org.jetbrains.plugins.scala.lang.completion.ScalaAutoPopupCompletionHandler"/>

@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternsImpl
-import org.jetbrains.plugins.scala.lang.structureView.element.{Test, TypeDefinition, Value}
+import org.jetbrains.plugins.scala.structureView.element.{Test, TypeDefinition, Value}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo.ClassWithTestName
 import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitUtils

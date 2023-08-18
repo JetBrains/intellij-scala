@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
-import org.jetbrains.plugins.scala.lang.structureView.element.Test._
+import org.jetbrains.plugins.scala.structureView.element.Test._
 
 abstract class Specs2FileStructureViewTest extends Specs2TestCase {
 
