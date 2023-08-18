@@ -8,31 +8,15 @@ import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemN
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.externalSystem.service.project.manage.AbstractProjectDataService
 import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.nowarn
 
-abstract class ScalaAbstractProjectDataService[E, I](key: Key[E]) extends AbstractProjectDataService[E, I] {
+abstract class ScalaAbstractProjectDataService[E, I](key: Key[E]) extends AbstractProjectDataService[E, I] with IdeModifiableModelsProviderImplicitConversions {
 
   override def getTargetDataKey: Key[E] = key
-
-  protected implicit class IdeModifiableModelsProviderOps(private val modelsProvider: IdeModifiableModelsProvider) {
-
-    def findIdeModuleOpt(name: String): Option[Module] =
-      Option(modelsProvider.findIdeModule(name))
-
-    def findIdeModuleOpt(data: ModuleData): Option[Module] =
-      Option(modelsProvider.findIdeModule(data))
-
-    def getIdeModuleByNode(node: DataNode[_]): Option[Module] =
-      for {
-        moduleData <- Option(node.getData(ProjectKeys.MODULE))
-        module <- findIdeModuleOpt(moduleData)
-      } yield module
-  }
 
   @nowarn("cat=deprecation")
   protected final def executeProjectChangeAction(project: Project)(action: => Unit): Unit =

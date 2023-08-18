@@ -34,6 +34,7 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtBuildModuleDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleNewDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtSettingDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtTaskDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtCommandDataService"/>
