@@ -346,4 +346,46 @@ class ScalaUsageTypeProviderTest_Scala2 extends ScalaUsageTypeProviderTestBase {
       |                    Reference expression[JavaClass] -> Value read
       |""".stripMargin
   )
+
+  def testClassWithMultipleConstructors_FromSecondaryConstructorInvocation(): Unit = doTest(
+    s"""class MyClass(s: String) {
+       |  def this(x: Int) = this(x.toString)
+       |  def this(x: Short) = this(x.toInt)
+       |}
+       |""".stripMargin,
+    """scala.FILE
+      |  ScClass[MyClass]
+      |    primary constructor
+      |      parameter clauses
+      |        parameter clause
+      |          class parameter[s] -> Method parameter declaration
+      |            parameter type -> Method parameter declaration
+      |              simple type -> Method parameter declaration
+      |                reference[String] -> Method parameter declaration
+      |    extends block
+      |      template body -> Value read
+      |        function definition[this] -> Value read
+      |          parameter clauses -> Value read
+      |            parameter clause -> Value read
+      |              parameter[x] -> Method parameter declaration
+      |                parameter type -> Method parameter declaration
+      |                  simple type -> Method parameter declaration
+      |                    reference[Int] -> Method parameter declaration
+      |          self invocation -> Secondary constructor
+      |            arguments of function -> Value read
+      |              Reference expression[toString] -> Value read
+      |                Reference expression[x] -> Value read
+      |        function definition[this] -> Value read
+      |          parameter clauses -> Value read
+      |            parameter clause -> Value read
+      |              parameter[x] -> Method parameter declaration
+      |                parameter type -> Method parameter declaration
+      |                  simple type -> Method parameter declaration
+      |                    reference[Short] -> Method parameter declaration
+      |          self invocation -> Secondary constructor
+      |            arguments of function -> Value read
+      |              Reference expression[toInt] -> Value read
+      |                Reference expression[x] -> Value read
+      |""".stripMargin
+  )
 }

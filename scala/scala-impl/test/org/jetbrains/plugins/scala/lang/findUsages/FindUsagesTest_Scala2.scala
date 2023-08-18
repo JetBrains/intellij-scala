@@ -39,10 +39,6 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
          |}
       """.stripMargin)
   }
-         |  }
-         |}
-      """.stripMargin)
-  }
 
   def testFindDefOverriders(): Unit = {
     doTest(
@@ -161,6 +157,59 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
        |
        |new ${start}MyCaseClass$end(42)
        |${start}MyCaseClass$end(42)
+       |""".stripMargin
+  )
+
+  def testClassWithMultipleConstructors_FindFromDefinition(): Unit = doTest(
+    s"""class ${CARET}MyClass(s: String) {
+       |  def this(x: Int) = this(x.toString)
+       |  def this(x: Short) = this(x.toInt)
+       |}
+       |new ${start}MyClass$end("test1")
+       |new ${start}MyClass$end("test2")
+       |new ${start}MyClass$end(42)
+       |new ${start}MyClass$end(23)
+       |val x: ${start}MyClass$end = ???
+       |""".stripMargin
+  )
+
+  def testClassWithMultipleConstructors_FromPrimaryConstructorInvocation(): Unit = doTest(
+    s"""class MyClass(s: String) {
+       |  def this(x: Int) = ${start}this$end(x.toString)
+       |  def this(x: Short) = this(x.toInt)
+       |}
+       |new $CARET${start}MyClass$end("test1")
+       |new ${start}MyClass$end("test2")
+       |new MyClass(42)
+       |new MyClass(23)
+       |val x: MyClass = ???
+       |""".stripMargin
+  )
+
+  def testClassWithMultipleConstructors_FromPrimaryConstructorInvocation_WithEmptyParameters(): Unit = doTest(
+    s"""class MyClass {
+       |  def this(x: Int) = this(x.toString)
+       |  def this(x: Short) = this(x.toInt)
+       |}
+       |new $CARET${start}MyClass$end
+       |new ${start}MyClass$end()
+       |new MyClass(42)
+       |new MyClass(23)
+       |val x: MyClass = ???
+       |""".stripMargin
+  )
+
+  def testClassWithMultipleConstructors_FromSecondaryConstructorInvocation(): Unit = doTest(
+    s"""class MyClass(s: String) {
+       |  def this(x: Int) = this(x.toString)
+       |  def this(x: Short) = ${start}this$end(x.toInt)
+       |}
+       |
+       |new MyClass("test1")
+       |new MyClass("test2")
+       |new $CARET${start}MyClass$end(42)
+       |new ${start}MyClass$end(23)
+       |val x: MyClass = ???
        |""".stripMargin
   )
 }

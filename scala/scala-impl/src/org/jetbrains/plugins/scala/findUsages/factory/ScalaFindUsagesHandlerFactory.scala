@@ -97,8 +97,12 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     }
 
     e match {
-      case named: ScNamedElement => showDialog(named)
-      case _                     => None
+      case named: ScNamedElement =>
+        showDialog(named)
+      case pc: ScPrimaryConstructor =>
+        Some(pc)
+      case _ =>
+        None
     }
   }
 }
