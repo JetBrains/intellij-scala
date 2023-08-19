@@ -1045,7 +1045,7 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
       fileText,
       "MyClass",
       _ => true,
-      """[T <: CharSequence, E](target: T)(c: E) myExt1[X <: CharSequence, Y]: String""",
+      """[T <: CharSequence, E](target: T)(using c: E) myExt1[X <: CharSequence, Y]: String""",
     )
   }
 
