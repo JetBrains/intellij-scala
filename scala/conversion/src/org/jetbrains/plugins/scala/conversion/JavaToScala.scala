@@ -241,8 +241,10 @@ object JavaToScala {
           case rs: PsiSwitchLabeledRuleStatement => Option(rs.getBody)
           case _ => None
         }
+        val guardExpression = s.getGuardExpression.toOption
         SwitchLabelStatement(
           caseValues,
+          guardExpression.map(convertPsiToIntermediate(_, externalProperties)),
           ScalaPsiUtil.functionArrow(s.getProject),
           body.map(convertPsiToIntermediate(_, externalProperties))
         )
@@ -251,7 +253,7 @@ object JavaToScala {
           Option(s.getBody).map(_.getStatements)
 
         def defaultStatement: SwitchLabelStatement =
-          SwitchLabelStatement(Seq(LiteralExpression("_")), ScalaPsiUtil.functionArrow(s.getProject))
+          SwitchLabelStatement(Seq(LiteralExpression("_")), None, ScalaPsiUtil.functionArrow(s.getProject))
 
         val expr = Option(s.getExpression).map(convertPsiToIntermediate(_, externalProperties))
         val body = Option(s.getBody).map(convertPsiToIntermediate(_, externalProperties))
@@ -354,6 +356,9 @@ object JavaToScala {
       case a: PsiArrayInitializerExpression =>
         ArrayInitializer(a.getInitializers.map(convertPsiToIntermediate(_, externalProperties)).toIndexedSeq)
       case c: PsiClassObjectAccessExpression => ClassObjectAccess(convertPsiToIntermediate(c.getOperand, externalProperties))
+      case typeTest: PsiTypeTestPattern =>
+        //TODO support Java pattern matching truly, see SCL-21510
+        LiteralExpression(typeTest.getText)
       case i: PsiInstanceOfExpression =>
         val checkType = i.getCheckType match {
           case null =>

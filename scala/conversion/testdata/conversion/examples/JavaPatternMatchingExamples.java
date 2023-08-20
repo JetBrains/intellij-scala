@@ -175,7 +175,7 @@ class JavaPatternMatchingExamples {
 
   def example_switch_guarded_pattern(obj: AnyRef): Unit = {
     val formatter: String = obj match {
-      case String s when ! s.isEmpty() => String.format("Non-empty string %s", s)
+      case String s if !s.isEmpty => String.format("Non-empty string %s", s)
       case Object o => String.format("Object %s", o.toString)
     }
   }
