@@ -110,7 +110,8 @@ class SimplePrintVisitor protected() {
       visitTryCatch(resourcesList, tryBlock, catchStatements, finallyStatements, arrow)
     case sb: SwitchBlock =>
       visitSwitchBlock(sb)
-    case SwitchLabelStatement(caseValues, arrow, body) => visitSwitchLabelStatement(caseValues, arrow, body)
+    case SwitchLabelStatement(caseValues, guardExpression, arrow, body) =>
+      visitSwitchLabelStatement(caseValues, guardExpression, arrow, body)
     case SynchronizedStatement(lock, body) =>
       visitSynchronizedStatement(lock, body)
     case ExpressionListStatement(exprs) => visitExpressionListStatement(exprs)
@@ -865,9 +866,16 @@ class SimplePrintVisitor protected() {
     }
   }
 
-  protected def visitSwitchLabelStatement(caseValues: Seq[IntermediateNode], arrow: String,
+  protected def visitSwitchLabelStatement(caseValues: Seq[IntermediateNode],
+                                          guardExpression: Option[IntermediateNode],
+                                          arrow: String,
                                           body: Option[IntermediateNode]): Unit = {
-    printWithSeparator(caseValues, " | ", "case ", s" $arrow ")
+    printWithSeparator(caseValues, " | ", "case ", "")
+    guardExpression.foreach { guard =>
+      printer.append(" if ")
+      visit(guard)
+    }
+    printer.append(s" $arrow ")
     body.foreach(visit)
   }
 
