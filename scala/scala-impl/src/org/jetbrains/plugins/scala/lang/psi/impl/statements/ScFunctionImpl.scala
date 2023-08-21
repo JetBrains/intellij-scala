@@ -58,7 +58,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override final def isStable: Boolean = {
     val clauses = effectiveParameterClauses
-    if (clauses.exists(c => !c.isImplicit && !c.isUsing))
+    if (clauses.exists(c => !c.isImplicitOrUsing))
       false
     else
       this.isInScala3File && returnTypeElement.exists(_.isSingleton)
