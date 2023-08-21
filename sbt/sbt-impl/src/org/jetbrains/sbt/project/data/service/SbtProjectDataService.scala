@@ -41,6 +41,7 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
     } {
       projectData.removeUserData(ContentRootDataService.CREATE_EMPTY_DIRECTORIES) //we don't need creating empty dirs anyway
     }
+    // note: this condition is required because sbt service might also be invoked for non-sbt projects
     if (dataToImport.nonEmpty) {
       revertScalaSdkFromLibraries(modelsProvider)
     }
@@ -52,6 +53,8 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
     // note: there is a possibility that in IDEA we will have projects with different subsystems (I think it very rare case
     // but from a technical point of view it is possible). In such case we do not want to remove scala SDK kind from libraries that come from systems other than SBT.
     // "sbt: scala-sdk" prefix is left because it indicates that this SDK comes from the new implementation of Scala SDK and shouldn't be removed.
+    //TODO checking if library name does not start with hardcoded prefixes ("Gradle:", "Maven:", "BSP:") is not an ideal implementation.
+    // It would be best to identify which system the library comes from by a different-more predictable value
     libraries
       .filter { library => library.isScalaSdk && !Seq("sbt: scala-sdk", "Gradle:", "Maven:", "BSP:").exists(library.getName.startsWith)}
       .foreach { library =>
