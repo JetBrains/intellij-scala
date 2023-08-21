@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.surroundWith.descriptors
 
 import com.intellij.lang.surroundWith.{SurroundDescriptor, Surrounder}
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -125,13 +126,8 @@ object ScalaExpressionSurroundDescriptor {
     }
   }
 
-  private def isWhitespaceOrCommentOrSemicolon(e: PsiElement): Boolean = {
-    val elementType = e.getNode.getElementType
-    //TODO: use org.jetbrains.plugins.scala.extensions.PsiElementExt#isWhitespaceOrComment
-    e.isInstanceOf[PsiWhiteSpace] ||
-      elementType == tSEMICOLON ||
-      COMMENTS_TOKEN_SET.contains(elementType)
-  }
+  private def isWhitespaceOrCommentOrSemicolon(e: PsiElement): Boolean =
+    e.isWhitespaceOrComment || e.getNode.getElementType == tSEMICOLON
 
   private[this] def isAcceptable(element: PsiElement) = element match {
     case _: ScExpression |
