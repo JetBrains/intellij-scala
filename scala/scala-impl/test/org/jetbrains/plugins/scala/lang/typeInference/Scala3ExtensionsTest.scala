@@ -481,6 +481,24 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin
   )
 
+  def testSCL21520(): Unit = checkTextHasNoErrors(
+    """
+      |object Abstract {
+      |  object Scope:
+      |    type MyAbstractType
+      |
+      |    object MyAbstractType:
+      |      extension (t: MyAbstractType)
+      |        def myExtensionForAbstract: String = "42"
+      |
+      |  def main(): Unit = {
+      |    val valueOpaque: Scope.MyAbstractType = ???
+      |    valueOpaque.myExtensionForAbstract
+      |  }
+      |}
+      |""".stripMargin
+  )
+
   def testSCL21084(): Unit = checkTextHasNoErrors(
     """
       |
@@ -497,18 +515,16 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin
   )
 
-// TODO #SCL-21520
-
-//  def testSCL21257(): Unit = checkTextHasNoErrors(
-//    """
-//      |object A {
-//      |  val iarr = IArray(1, 2, 3)
-//      |  iarr.length
-//      |  iarr.map(_ + 1)
-//      |  iarr(123)
-//      |}
-//      |""".stripMargin
-//  )
+  def testSCL21257(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  val iarr = IArray(1, 2, 3)
+      |  iarr.length
+      |  iarr.map(_ + 1)
+      |  iarr(123)
+      |}
+      |""".stripMargin
+  )
 
   def testSCL21416(): Unit = checkTextHasNoErrors(
     """

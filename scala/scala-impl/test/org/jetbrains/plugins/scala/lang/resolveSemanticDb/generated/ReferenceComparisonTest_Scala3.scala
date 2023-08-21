@@ -1448,7 +1448,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i16673(): Unit = doTest("i16673", true)
   def test_i16777(): Unit = doTest("i16777", false)
   def test_i16950(): Unit = doTest("i16950", true)
-  def test_IArrayToArraySeq(): Unit = doTest("IArrayToArraySeq", false)
+  def test_IArrayToArraySeq(): Unit = doTest("IArrayToArraySeq", true)
   def test_ift_assign(): Unit = doTest("ift-assign", true)
   def test_ilya(): Unit = doTest("ilya", true)
   def test_ilya2(): Unit = doTest("ilya2", true)
