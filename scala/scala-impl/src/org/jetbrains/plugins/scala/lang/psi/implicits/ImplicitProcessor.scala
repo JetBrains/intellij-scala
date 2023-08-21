@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -255,6 +255,7 @@ object ImplicitProcessor {
         case ScDesignatorType(p: ScParameter)      => collectPartsTr(p.`type`())
         case ScCompoundType(comps, _, _)           => collectPartsIter(comps)
         case ScDesignatorType(alias: ScTypeAliasDefinition) if alias.isOpaque => parts += tp
+        case ScDesignatorType(alias: ScTypeAliasDeclaration) if alias.isInScala3File => parts += tp
         case ParameterizedType(a: ScAbstractType, args) =>
           collectParts(a)
           collectPartsIter(args)
@@ -282,6 +283,7 @@ object ImplicitProcessor {
             case v: ScBindingPattern => collectPartsTr(v.`type`().map(proj.actualSubst))
             case v: ScFieldId        => collectPartsTr(v.`type`().map(proj.actualSubst))
             case v: ScParameter      => collectPartsTr(v.`type`().map(proj.actualSubst))
+            case v: ScTypeAliasDeclaration if v.isInScala3File => parts += tp
             case _                   =>
           }
 
@@ -332,15 +334,22 @@ object ImplicitProcessor {
       }
     }
 
-    def workWithTypeAlias(alias: ScTypeAliasDefinition, subst: ScSubstitutor = ScSubstitutor.empty): Unit = {
-      if (alias.isOpaque) {
-        val companionName = alias.qualifiedNameOpt
-        companionName.foreach { fqn =>
-          elementScope
-            .getCachedObject(fqn)
-            .foreach(obj => addResult(fqn, ScDesignatorType(obj)))
+    def workWithTypeAlias(alias: ScTypeAlias, subst: ScSubstitutor = ScSubstitutor.empty): Unit = alias match {
+      case alias: ScTypeAliasDefinition =>
+        if (alias.isOpaque) {
+          for (fqn <- alias.qualifiedNameOpt;
+               companionObject <- elementScope.getCachedObject(fqn)) {
+            addResult(fqn, ScDesignatorType(companionObject))
+          }
+        } else {
+          collectObjects(subst(alias.aliasedType.getOrAny))
         }
-      } else collectObjects(subst(alias.aliasedType.getOrAny))
+      case declaration: ScTypeAliasDeclaration if declaration.isInScala3File =>
+        for (fqn <- alias.qualifiedNameOpt;
+             companionObject <- elementScope.getCachedObject(fqn)) {
+          addResult(fqn, ScDesignatorType(companionObject))
+        }
+      case _ =>
     }
 
     def collectObjects(tp: ScType): Unit = {
@@ -350,9 +359,9 @@ object ImplicitProcessor {
           elementScope
             .getCachedObject("scala." + tp.name)
             .foreach(o => addResult(o.qualifiedName, ScDesignatorType(o)))
-        case ScDesignatorType(ta: ScTypeAliasDefinition) => workWithTypeAlias(ta)
-        case ScProjectionType.withActual(ta: ScTypeAliasDefinition, actualSubst) => workWithTypeAlias(ta, actualSubst)
-        case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
+        case ScDesignatorType(ta: ScTypeAlias) => workWithTypeAlias(ta)
+        case ScProjectionType.withActual(ta: ScTypeAlias, actualSubst) => workWithTypeAlias(ta, actualSubst)
+        case ParameterizedType(ScDesignatorType(ta: ScTypeAlias), args) =>
           val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
           workWithTypeAlias(ta, genericSubst)
         case ParameterizedType(ScProjectionType.withActual(ta: ScTypeAliasDefinition, actualSubst), args) =>
