@@ -94,21 +94,25 @@ object ScalaExpressionSurroundDescriptor {
 
   private[this] def findAllInRange(startOffset: Int, endOffset: Int)
                                   (implicit file: PsiFile): List[PsiElement] = {
-    var element = file.findElementAt(startOffset)
+    val elementAtCaret = file.findElementAt(startOffset)
 
-    while (element != null &&
-      isValid(element) &&
-      !element.isInstanceOf[PsiWhiteSpace] &&
-      element.getNode.getElementType != tSEMICOLON &&
-      !COMMENTS_TOKEN_SET.contains(element.getNode.getElementType) ||
-      (element != null && !isValid(element.getParent) && {
-        val textRange = element.getParent.getTextRange
-        textRange.getStartOffset == startOffset && textRange.getEndOffset <= endOffset
-      })) {
-      element = element.getParent
-      if (element == null || element.getTextRange == null || element.getTextRange.getStartOffset != startOffset) return Nil
+    def continueProcessing(e: PsiElement): Boolean = {
+      isAcceptable(e) && !isWhitespaceOrCommentOrSemicolon(e) ||
+        !isAcceptable(e.getParent) && {
+          val textRange = e.getParent.getTextRange
+          // Q: is it expected that we have `textRange.getStartOffset == startOffset` here and not `textRange.getStartOffset <= startOffset`
+          textRange.getStartOffset == startOffset && textRange.getEndOffset <= endOffset
+        }
     }
-    if (element == null) return Nil
+
+    var element = elementAtCaret
+    while (element != null && continueProcessing(element)) {
+      element = element.getParent
+      if (element == null || element.getTextRange == null || element.getTextRange.getStartOffset != startOffset)
+        return Nil
+    }
+    if (element == null)
+      return Nil
 
     element.getTextRange.getEndOffset match {
       case `endOffset` => element :: Nil
@@ -121,7 +125,15 @@ object ScalaExpressionSurroundDescriptor {
     }
   }
 
-  private[this] def isValid(element: PsiElement) = element match {
+  private def isWhitespaceOrCommentOrSemicolon(e: PsiElement): Boolean = {
+    val elementType = e.getNode.getElementType
+    //TODO: use org.jetbrains.plugins.scala.extensions.PsiElementExt#isWhitespaceOrComment
+    e.isInstanceOf[PsiWhiteSpace] ||
+      elementType == tSEMICOLON ||
+      COMMENTS_TOKEN_SET.contains(elementType)
+  }
+
+  private[this] def isAcceptable(element: PsiElement) = element match {
     case _: ScExpression |
          _: ScValue |
          _: ScVariable |
