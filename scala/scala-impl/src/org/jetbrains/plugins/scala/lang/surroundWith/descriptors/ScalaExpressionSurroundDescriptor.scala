@@ -101,7 +101,7 @@ object ScalaExpressionSurroundDescriptor {
       !element.isInstanceOf[PsiWhiteSpace] &&
       element.getNode.getElementType != tSEMICOLON &&
       !COMMENTS_TOKEN_SET.contains(element.getNode.getElementType) ||
-      (!isValid(element.getParent) && {
+      (element != null && !isValid(element.getParent) && {
         val textRange = element.getParent.getTextRange
         textRange.getStartOffset == startOffset && textRange.getEndOffset <= endOffset
       })) {
