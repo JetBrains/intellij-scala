@@ -9,17 +9,15 @@ class FunctionParameterInfoSimpleTest_since_2_12 extends FunctionParameterInfoTe
   override def getTestDataPath: String =
     s"${super.getTestDataPath}simple/"
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
   def testJavaLibrary(): Unit = doTest()
 }
 
-
-class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
-
+abstract class FunctionParameterInfoSimpleTestBase extends FunctionParameterInfoTestBase {
   override def getTestDataPath: String =
     s"${super.getTestDataPath}simple/"
-  
+
   def testAnnotation(): Unit = doTest()
 
   def testProperty(): Unit = doTest()
@@ -42,8 +40,6 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
 
   def testDefaultParameter(): Unit = doTest()
 
-  def testDefaultParameterFromSources(): Unit = doTest()
-
   def testFromPositionalToNaming(): Unit = doTest()
 
   def testGenericJavaLibrary(): Unit = doTest()
@@ -62,8 +58,6 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
 
   def testPositionalAfterNamed(): Unit = doTest()
 
-  def testScalaLibrary(): Unit = doTest()
-
   def testSimple(): Unit = doTest()
 
   def testSyntheticParameter(): Unit = doTest()
@@ -79,4 +73,39 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
   def testSeveralParameterListsWithImplicit(): Unit = doTest()
 
   def testDeprecatedOverloads(): Unit = doTest()
+}
+
+final class FunctionParameterInfoSimpleTest extends FunctionParameterInfoSimpleTestBase {
+  def testDefaultParameterFromSources(): Unit = doTest()
+
+  def testScalaLibrary(): Unit = doTest()
+}
+
+final class FunctionParameterInfoSimpleTest_Scala3 extends FunctionParameterInfoSimpleTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
+
+  def testUsingParameter(): Unit = doTest()
+
+  def testPropertyUsing(): Unit = doTest()
+
+  def testPropertyUsingMultipleLists(): Unit = doTest()
+
+  def testPropertyUsingCaretAfter(): Unit = doTest()
+
+  def testPropertyUsingGeneric(): Unit = doTest()
+
+  def testPropertyWithUsingParameterInArgumentList(): Unit = doTest()
+
+  def testPropertyUsingWithQualifier(): Unit = doTest()
+
+  def testSeveralParameterListsWithUsing(): Unit = doTest()
+
+  def testSeveralParameterListsWithUsing2(): Unit = doTest()
+
+  def testSeveralParameterListsWithUsing3(): Unit = doTest()
+
+  def testSeveralParameterListsWithUsing4(): Unit = doTest()
+
+  def testSeveralParameterListsWithUsing5(): Unit = doTest()
 }

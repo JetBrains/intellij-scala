@@ -534,7 +534,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     private def hasOnlyImplicitParameters(e: ScReferenceExpression) = {
       Option(e.resolve())
         .flatMap(_.asOptionOf[ScFunctionDefinition])
-        .exists(f => f.paramClauses.clauses.length == 1 && f.paramClauses.clauses.head.isImplicit)
+        .exists(f => f.paramClauses.clauses.nonEmpty && f.paramClauses.clauses.forall(_.isImplicitOrUsing))
     }
   }
 
