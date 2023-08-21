@@ -6,7 +6,6 @@ import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler.{AnnotationParameters, UniversalApplyCall, UniversalApplyCallContext}
@@ -109,7 +108,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                   (new Parameter(name, None, tp, tp, value != null, false, false, paramIndex),
                     s"$name: ${tp.presentableText}$valueText")
               }
-              isGrey = applyToParameters(paramsSeq, ScSubstitutor.empty, canBeNaming = true, isImplicit = false)(args, buffer, index)
+              isGrey = applyToParameters(paramsSeq, ScSubstitutor.empty, canBeNaming = true)(args, buffer, index)
             }
           case (sign: PhysicalMethodSignature, i: Int) => //i  can be -1 (it's update method)
             val subst = sign.substitutor
@@ -166,7 +165,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                       buffer.append("(")
                       val parameters = parametersOf(clause)
                       if (parameters.nonEmpty) {
-                        applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicitOrUsing)(args, buffer, -1)
+                        applyToParameters(parameters, subst, clause, canBeNaming = true)(args, buffer, -1)
                       }
                       buffer.append(")")
                     }
@@ -174,7 +173,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     if (multipleLists) {
                       buffer.append("(")
                     }
-                    isGrey = applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicitOrUsing)(args, buffer, index)
+                    isGrey = applyToParameters(parametersOf(clause), subst, clause, canBeNaming = true)(args, buffer, index)
                     if (multipleLists) {
                       buffer.append(")")
                     }
@@ -183,7 +182,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                       buffer.append("(")
                       val parameters = parametersOf(clause)
                       if (parameters.nonEmpty) {
-                        applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicitOrUsing)(args, buffer, -1)
+                        applyToParameters(parameters, subst, clause, canBeNaming = true)(args, buffer, -1)
                       }
                       buffer.append(")")
                     }
@@ -284,7 +283,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                 buffer.append("(")
                 val parameters = parametersOf(clause)
                 if (parameters.nonEmpty) {
-                  applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicitOrUsing)(args, buffer, -1)
+                  applyToParameters(parameters, subst, clause, canBeNaming = true)(args, buffer, -1)
                 }
                 buffer.append(")")
               }
@@ -292,7 +291,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
               if (multipleLists) {
                 buffer.append("(")
               }
-              isGrey = applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicitOrUsing)(args, buffer, index)
+              isGrey = applyToParameters(parametersOf(clause), subst, clause, canBeNaming = true)(args, buffer, index)
               if (multipleLists) {
                 buffer.append(")")
               }
@@ -301,7 +300,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                 buffer.append("(")
                 val parameters = parametersOf(clause)
                 if (parameters.nonEmpty) {
-                  applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicitOrUsing)(args, buffer, -1)
+                  applyToParameters(parameters, subst, clause, canBeNaming = true)(args, buffer, -1)
                 }
                 buffer.append(")")
               }
@@ -334,8 +333,16 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
   private def applyToParameters(parameters: Seq[(Parameter, String)],
                                 subst: ScSubstitutor,
+                                clause: ScParameterClause,
+                                canBeNaming: Boolean)(args: PsiElement, buffer: StringBuilder, index: Int): Boolean = {
+    val clauseModifiersText = if (clause.isImplicit) "implicit " else if (clause.isUsing) "using " else ""
+    applyToParameters(parameters, subst, canBeNaming, clauseModifiersText)(args, buffer, index)
+  }
+
+  private def applyToParameters(parameters: Seq[(Parameter, String)],
+                                subst: ScSubstitutor,
                                 canBeNaming: Boolean,
-                                isImplicit: Boolean = false)(args: PsiElement, buffer: StringBuilder, index: Int): Boolean = {
+                                clauseModifiersText: String = "")(args: PsiElement, buffer: StringBuilder, index: Int): Boolean = {
     var isGrey = false
     //todo: var isGreen = true
     var namedMode = false
@@ -343,7 +350,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     if (parameters.nonEmpty) {
       var k = 0
       val exprs: Seq[ScExpression] = getActualParameters(args).toSeq
-      if (isImplicit) buffer.append("implicit ")
+      if (clauseModifiersText.nonEmpty) buffer.append(clauseModifiersText)
       val used = new Array[Boolean](parameters.length)
       while (k < parameters.length) {
         val namedPrefix = "["

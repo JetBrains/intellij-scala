@@ -4,4 +4,4 @@ class Property {
 
 val y = new Property
 y.fo<caret>o[Int]
-//TEXT: [T](implicit x: Int), STRIKEOUT: false
+//TEXT: [T](using x: Int), STRIKEOUT: false

@@ -60,8 +60,6 @@ abstract class FunctionParameterInfoSimpleTestBase extends FunctionParameterInfo
 
   def testSimple(): Unit = doTest()
 
-  def testSyntheticParameter(): Unit = doTest()
-
   def testTypeRefinement(): Unit = doTest()
 
   def testAliasedMethod(): Unit = doTest()
@@ -79,6 +77,8 @@ final class FunctionParameterInfoSimpleTest extends FunctionParameterInfoSimpleT
   def testDefaultParameterFromSources(): Unit = doTest()
 
   def testScalaLibrary(): Unit = doTest()
+
+  def testSyntheticParameter(): Unit = doTest()
 }
 
 final class FunctionParameterInfoSimpleTest_Scala3 extends FunctionParameterInfoSimpleTestBase {
@@ -108,4 +108,6 @@ final class FunctionParameterInfoSimpleTest_Scala3 extends FunctionParameterInfo
   def testSeveralParameterListsWithUsing4(): Unit = doTest()
 
   def testSeveralParameterListsWithUsing5(): Unit = doTest()
+
+  def testSyntheticParameterScala3(): Unit = doTest()
 }
