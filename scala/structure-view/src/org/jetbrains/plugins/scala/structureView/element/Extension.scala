@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.structureView.element
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
-import org.jetbrains.plugins.scala.structureView.element.Extension.clauseText
 
 // TODO: improve in SCL-19224
 // - inherited extensions
@@ -14,7 +12,7 @@ final class Extension(extension: ScExtension)
 
   override def getPresentableText: String = {
     val typeParameters = extension.typeParametersClause.fold("")(_.getTextByStub)
-    val parametersText = extension.allClauses.map(clauseText).mkString
+    val parametersText = FromStubsParameterRenderer.renderClauses(extension.allClauses)
     s"extension $typeParameters$parametersText"
   }
 
@@ -27,13 +25,4 @@ final class Extension(extension: ScExtension)
   override def isAlwaysLeaf: Boolean = false
 
   override def isAlwaysShowsPlus: Boolean = super.isAlwaysShowsPlus
-}
-
-object Extension {
-
-  private def clauseText(paramsClause: ScParameterClause): String = {
-    val prefix = if (paramsClause.isUsing) "?=> " else ""
-    val parametersTexts  = paramsClause.parameters.map(p => s"${p.typeElement.fold("")(_.getText)}")
-    "(" + prefix + parametersTexts.mkString(", ") + ")"
-  }
 }

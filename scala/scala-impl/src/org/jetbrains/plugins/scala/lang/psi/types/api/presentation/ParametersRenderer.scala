@@ -3,23 +3,21 @@ package org.jetbrains.plugins.scala.lang.psi.types.api.presentation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 
-
 class ParametersRenderer(
   parameterRenderer: ParameterRendererLike,
   shouldRenderImplicitModifier: Boolean = false,
   clausesSeparator: String = "",
   paramsSeparator: String = ", "
 ) {
+  def renderClauses(parameters: ScParameters): String =
+    renderClauses(parameters.clauses)
 
-  def renderClauses(parameters: ScParameters): String = {
-    val buffer = new StringBuilder()
-    renderClauses(buffer, parameters.clauses)
-    buffer.result()
-  }
+  def renderClauses(parametersOwner: ScParameterOwner): String =
+    renderClauses(parametersOwner.allClauses)
 
-  def renderClauses(parametersOwner: ScParameterOwner): String = {
+  def renderClauses(clauses: Seq[ScParameterClause]): String = {
     val buffer = new StringBuilder()
-    renderClauses(buffer, parametersOwner.allClauses)
+    renderClauses(buffer, clauses)
     buffer.result()
   }
 

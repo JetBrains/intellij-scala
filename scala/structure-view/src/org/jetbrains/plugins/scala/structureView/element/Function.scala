@@ -4,7 +4,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.structureView.element.AbstractItemPresentation.withSimpleNames
 
 private class Function(function: ScFunction, inherited: Boolean)
@@ -14,10 +13,8 @@ private class Function(function: ScFunction, inherited: Boolean)
   override def location: Option[String] = Option(function.containingClass).map(_.name)
 
   override def getPresentableText: String = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(function)
-
     val presentation = renderFunctionFromStubs(function)
-    withSimpleNames(presentation )
+    withSimpleNames(presentation)
   }
 
   private def renderFunctionFromStubs(function: ScFunction): String = {

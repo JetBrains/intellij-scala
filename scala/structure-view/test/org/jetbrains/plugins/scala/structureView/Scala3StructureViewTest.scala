@@ -305,4 +305,39 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
       Node(MethodIcon, "given_String: String", DeprecatedAttributesKey)
     )
   )
+
+  def testImplicitAndUsingParams(): Unit = check(
+    """
+       object Container {
+         class C1(i: Int)(using s: String)
+         class C2(i: Int) {
+           def this()(using s: String) = this(s.length)
+         }
+         class C3(using val i: Int)(s: String)(using d: Double)(implicit val b: Boolean)
+         def m1(using i: Int, s: String): Unit = {}
+         def m2[A, B, C, D](using a: A)(b: B)(using c: C, d: D): Unit = {}
+         extension [T](x: T)(using n: Numeric[T])
+           def + (y: T): T = n.plus(x, y)
+           def foo(i: Int)(using n2: Numeric[Int]): Unit =
+             println(n2.plus(i, 2))
+             println(n.plus(x, x))
+       }
+    """,
+    Node(OBJECT, "Container",
+      Node(CLASS, "C1(Int)(?=> String)"),
+      Node(CLASS, "C2(Int)",
+        Node(MethodIcon, "this()(?=> String)")
+      ),
+      Node(CLASS, "C3(?=> Int)(String)(?=> Double)(?=> Boolean)",
+        Node(FIELD_VAL, "i: Int"),
+        Node(FIELD_VAL, "b: Boolean"),
+      ),
+      Node(MethodIcon, "m1(?=> Int, String): Unit"),
+      Node(MethodIcon, "m2[A, B, C, D](?=> A)(B)(?=> C, D): Unit"),
+      Node(EXTENSION, "extension [T](T)(?=> Numeric[T])",
+        Node(FUNCTION, "+(T): T"),
+        Node(FUNCTION, "foo(Int)(?=> Numeric[Int]): Unit"),
+      ),
+    )
+  )
 }

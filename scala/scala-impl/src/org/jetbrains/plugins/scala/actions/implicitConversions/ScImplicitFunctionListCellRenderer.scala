@@ -110,8 +110,7 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
 
   private def paramsRenderer: ParametersRenderer = new ParametersRenderer(
     paramRenderer,
-    shouldRenderImplicitModifier = true,
-    clausesSeparator = ""
+    shouldRenderImplicitModifier = true
   )
 
   private def textEscaper: TextEscaper = TextEscaper.Html

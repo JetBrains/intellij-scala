@@ -132,6 +132,27 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     )
   )
 
+  def testImplicitParams(): Unit = check(
+    """
+       object Container {
+         class C1(i: Int)(implicit s: String)
+         class C2(i: Int) {
+           def this()(implicit s: String) = this(s.length)
+         }
+         def m1(implicit i: Int, s: String): Unit = {}
+         def m2[A, B, C, D](a: A)(implicit b: B, c: C): D = ???
+       }
+    """,
+    Node(OBJECT, "Container",
+      Node(CLASS, "C1(Int)(?=> String)"),
+      Node(CLASS, "C2(Int)",
+        Node(MethodIcon, "this()(?=> String)")
+      ),
+      Node(MethodIcon, "m1(?=> Int, String): Unit"),
+      Node(MethodIcon, "m2[A, B, C, D](A)(?=> B, C): D"),
+    )
+  )
+
   def testValue(): Unit = {
     check("""
           val v: Int = 1

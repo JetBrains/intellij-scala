@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala.structureView
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{ParameterRendererLike, ParametersRenderer}
 
 package object element {
 
   private[structureView]
-  val FromStubsParameterRenderer = new ParametersRenderer(RenderOnlyParameterTypeFromStub)
+  object FromStubsParameterRenderer extends ParametersRenderer(RenderOnlyParameterTypeFromStub, shouldRenderImplicitModifier = true) {
+    override protected def renderImplicitModifier(buffer: StringBuilder, clause: ScParameterClause): Unit =
+      if (clause.isImplicitOrUsing) buffer.append("?=> ")
+  }
 
   private[structureView]
   object RenderOnlyParameterTypeFromStub extends ParameterRendererLike {
