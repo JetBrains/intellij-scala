@@ -820,7 +820,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       new Node(BlockIcon, ""))
   }
 
-  def testAnonimousClasses(): Unit = {
+  def testAnonymousClasses(): Unit = {
     val code =
       """class ScalaStructureTest {
         |
@@ -883,7 +883,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
          |   Inner
          |""".stripMargin.trim
 
-    val expectedStructureWithAnonimousEnabled =
+    val expectedStructureWithAnonymousEnabled =
       s"""-ScalaStructureTest.scala
          | -ScalaStructureTest
          |  $$1
@@ -924,11 +924,11 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
 
       PlatformTestUtil.expandAll(tree)
-      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonimousEnabled)
+      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonymousEnabled)
     })
   }
 
-  def testAnonimousClasses_InsideValAndVarBody(): Unit = {
+  def testAnonymousClasses_InsideValAndVarBody(): Unit = {
     val code =
       """object MyClass {
         |  //`val`, fields
@@ -955,8 +955,8 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         |}
         |""".stripMargin
 
-    val expectedStructureWithAnonimousEnabled =
-      s"""-AnonimousClasses_InsideValAndVarBody.scala
+    val expectedStructureWithAnonymousEnabled =
+      s"""-AnonymousClasses_InsideValAndVarBody.scala
          | -MyClass
          |  value1: Runnable
          |  -$$1
@@ -1001,11 +1001,11 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
 
       PlatformTestUtil.expandAll(tree)
-      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonimousEnabled)
+      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonymousEnabled)
     })
   }
 
-  def testAnonimousClass_ShowWithInheritedMembers(): Unit = {
+  def testAnonymousClass_ShowWithInheritedMembers(): Unit = {
     val code =
       """class MyBaseClass {
         |  def fooFromBaseClass: String = ???
@@ -1018,7 +1018,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         |}
         |""".stripMargin
 
-    val expectedStructureWithAnonimousEnabled =
+    val expectedStructureWithAnonymousEnabled =
       s"""-ScalaStructureTest.scala
          | -MyBaseClass
          |  fooFromBaseClass: String
@@ -1073,7 +1073,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
       svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
 
       PlatformTestUtil.expandAll(tree)
-      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonimousEnabled)
+      PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonymousEnabled)
     })
   }
 }
