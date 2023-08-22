@@ -42,7 +42,7 @@ object ScalaBundleSorting {
     def bundleAbsolutePath: String = messagesPath + bundleMessagesRelativePath
   }
 
-  private val communityDir: String = TestUtils.findCommunityRoot
+  val communityDir: String = TestUtils.findCommunityRoot
   val scalaModDir: String = communityDir + "scala/"
   val sbtModDir: String = communityDir + "sbt/"
   val scalaImplDir: String = scalaModDir + "scala-impl/"
