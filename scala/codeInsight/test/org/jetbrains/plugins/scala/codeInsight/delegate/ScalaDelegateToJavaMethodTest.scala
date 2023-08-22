@@ -1,31 +1,21 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package delegate
+package org.jetbrains.plugins.scala.codeInsight.delegate
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.testFramework._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.junit.Assert
 
-class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestCase
-  with ScalaDelegateMethodTestBase {
+class ScalaDelegateToJavaMethodTest extends ScalaDelegateMethodTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET}
   import ScalaDelegateMethodTestBase._
-  import builders.JavaModuleFixtureBuilder
 
-  protected override def tuneFixture(moduleBuilder: JavaModuleFixtureBuilder[_]): Unit = {
-    moduleBuilder.setMockJdkLevel(JavaModuleFixtureBuilder.MockJdkLevel.jdk15)
-    // TODO: the path returned from IdeaTestUtil.getMockJdk14Path is invalid in the scala plugin
-    //       because the mock-jdk14 does only exists in the intellij-community source
-    //       we either have to copy the mock directory into our repo as well or just not add it at all
-    //moduleBuilder.addJdk(IdeaTestUtil.getMockJdk14Path.getPath)
-  }
-
-  private def doTest(javaText: String, scalaText: String, expectedText: String,
-                     settings: ScalaCodeStyleSettings = defaultSettings(getProject)): Unit = {
+  private def doTestWithJava(
+    javaText: String,
+    scalaText: String,
+    expectedText: String,
+    settings: ScalaCodeStyleSettings = defaultSettings(getProject)
+  ): Unit = {
     import StringUtil.convertLineSeparators
 
     implicit val project: Project = getProject
@@ -33,7 +23,7 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
     val scalaFile = myFixture.configureByText("ScalaDummy.scala", convertLineSeparators(scalaText))
 
     implicit val editor: Editor = myFixture.getEditor
-    doTest(scalaFile, settings)
+    invokeScalaGenerateDelegateHandler(scalaFile, settings)
     Assert.assertEquals(convertLineSeparators(expectedText), convertLineSeparators(scalaFile.getText))
   }
 
@@ -56,7 +46,7 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
       s"""class A extends JavaClass {
          |  def foo(i: Int): Int = d.foo(i)
          |}""".stripMargin
-    doTest(javaText, scalaText, result)
+    doTestWithJava(javaText, scalaText, result)
   }
 
   def testJavaGetterTarget(): Unit = {
@@ -80,7 +70,7 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
       s"""class A extends JavaClass {
          |  def foo(i: Int): Int = getD.foo(i)
          |}""".stripMargin
-    doTest(javaText, scalaText, result)
+    doTestWithJava(javaText, scalaText, result)
   }
 
   def testPrivateFieldTarget(): Unit = {
@@ -102,7 +92,7 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
       s"""class A extends JavaClass {
          |
         |}""".stripMargin
-    doTest(javaText, scalaText, result)
+    doTestWithJava(javaText, scalaText, result)
   }
 
   def testDelegateToJavaMethod_NoCaretSet(): Unit = {
@@ -123,7 +113,7 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
          |
          |  def foo(i: Int): Int = d.foo(i)
          |}""".stripMargin
-    doTest(javaText, scalaText, result)
+    doTestWithJava(javaText, scalaText, result)
   }
 
   def testDelegateToGenericTarget(): Unit = {
@@ -144,7 +134,7 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
          |
          |  def foo(t: Int): Int = d.foo(t)
          |}""".stripMargin
-    doTest(javaText, scalaText, result)
+    doTestWithJava(javaText, scalaText, result)
   }
 
   def testDelegateToJavaMethodWithTypeParameter(): Unit = {
@@ -165,7 +155,7 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
          |
          |  def foo[T](): T = d.foo()
          |}""".stripMargin
-    doTest(javaText, scalaText, result)
+    doTestWithJava(javaText, scalaText, result)
   }
 
   def testDelegateToJavaMethodWithTypeParameter2(): Unit = {
@@ -186,6 +176,6 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
          |
          |  def foo[T]() = d.foo[T]()
          |}""".stripMargin
-    doTest(javaText, scalaText, result, settings = noTypeAnnotationForPublic(getProject))
+    doTestWithJava(javaText, scalaText, result, settings = noTypeAnnotationForPublic(getProject))
   }
 }

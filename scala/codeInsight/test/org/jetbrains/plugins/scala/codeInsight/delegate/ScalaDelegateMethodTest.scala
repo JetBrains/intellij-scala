@@ -1,27 +1,8 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package delegate
+package org.jetbrains.plugins.scala.codeInsight.delegate
 
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-
-class ScalaDelegateMethodTest extends base.ScalaLightCodeInsightFixtureTestCase
-  with ScalaDelegateMethodTestBase {
+class ScalaDelegateMethodTest extends ScalaDelegateMethodTestBase {
 
   import ScalaDelegateMethodTestBase._
-
-  private def doTest(fileText: String, expectedText: String,
-                     settings: ScalaCodeStyleSettings = defaultSettings(getProject)): Unit = {
-    implicit val project: Project = getProject
-    configureFromFileText("dummy.scala", fileText)
-
-    implicit val editor: Editor = getEditor
-    doTest(getFile, settings)
-    myFixture.checkResult(StringUtil.convertLineSeparators(expectedText))
-  }
 
   def testVal(): Unit = {
     val text =
