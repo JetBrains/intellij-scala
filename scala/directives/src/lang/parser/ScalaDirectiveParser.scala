@@ -7,7 +7,7 @@ import com.intellij.lang.PsiParser
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scalaDirective.lang.lexer.ScalaDirectiveTokenTypes._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tLINE_COMMENT
+//import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tLINE_COMMENT
 
 class ScalaDirectiveParser extends PsiParser with LightPsiParser {
 
@@ -46,7 +46,7 @@ class ScalaDirectiveParser extends PsiParser with LightPsiParser {
     processCurrentToken(builder, tDIRECTIVE_COMMAND)
     processCurrentToken(builder, tDIRECTIVE_KEY)
 
-    while (builder.getTokenType != null) processCurrentToken(builder, tDIRECTIVE_VALUE, tDIRECTIVE_COMMA, tLINE_COMMENT)
+    while (builder.getTokenType != null) processCurrentToken(builder, tDIRECTIVE_VALUE, tDIRECTIVE_COMMA/*, tLINE_COMMENT*/)
 
     rootMarker.done(root)
   }

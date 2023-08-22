@@ -48,6 +48,7 @@ lazy val scalaCommunity: sbt.Project =
     .dependsOn(
       bsp % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
+      scalaDirectives % "test->test;compile->compile",
       conversion % "test->test;compile->compile",
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
@@ -109,6 +110,20 @@ lazy val scalaApi = newProject(
 ).settings(
   idePackagePrefix := Some("org.jetbrains.plugins.scala"),
 )
+
+lazy val scalaDirectives: sbt.Project =
+  newProject("directives", file("scala/directives"))
+    .dependsOn(scalaApi)
+    .settings(
+      name := "directives",
+      organization := "JetBrains",
+      scalaVersion := Versions.scalaVersion,
+      idePackagePrefix := Some("org.jetbrains.plugins.scalaDirective"),
+      intellijMainJars := Nil,
+//      intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
+      Compile / unmanagedJars ++= Common.jpsClasspath.value,
+      Compile / unmanagedJars ++= Common.compilerSharedClasspath.value
+    )
 
 lazy val sbtApi =
   newProject("sbt-api", file("sbt/sbt-api"))
@@ -297,6 +312,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
 
 lazy val scalacPatches: sbt.Project =
   Project("scalac-patches", file("scalac-patches"))
+    .dependsOn(scalaApi)
     .settings(
       name := "scalac-patches",
       organization := "JetBrains",
@@ -319,6 +335,7 @@ lazy val scalaImpl: sbt.Project =
       scalatestFinders,
       runners % "test->test;compile->compile",
       testRunners % "test->test;compile->compile",
+      scalaDirectives
     )
     .settings(
       ideExcludedDirectories := Seq(

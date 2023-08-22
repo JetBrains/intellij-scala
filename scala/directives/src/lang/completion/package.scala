@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scalaDirective.lang
+package org.jetbrains.plugins.scalaDirective
+package lang
 
 package object completion {
   private[completion] val DirectivePrefix = "//>"

@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
+import org.jetbrains.plugins.scalaDirective.highlighter.ScalaDirectiveSyntaxHighlighter
 import org.jetbrains.plugins.scalaDirective.lang.lexer.ScalaDirectiveTokenTypes
 import org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveElementTypes
 
@@ -223,10 +224,10 @@ object ScalaSyntaxHighlighter {
 
       tINTERPOLATED_STRINGS -> INTERPOLATED_STRING_INJECTION,
 
-      TokenSet.create(tDIRECTIVE_PREFIX) -> SCALA_DIRECTIVE_PREFIX,
-      TokenSet.create(tDIRECTIVE_COMMAND) -> SCALA_DIRECTIVE_COMMAND,
-      TokenSet.create(tDIRECTIVE_KEY) -> SCALA_DIRECTIVE_KEY,
-      TokenSet.create(tDIRECTIVE_VALUE) -> SCALA_DIRECTIVE_VALUE
+      TokenSet.create(tDIRECTIVE_PREFIX) -> ScalaDirectiveSyntaxHighlighter.SCALA_DIRECTIVE_PREFIX,
+      TokenSet.create(tDIRECTIVE_COMMAND) -> ScalaDirectiveSyntaxHighlighter.SCALA_DIRECTIVE_COMMAND,
+      TokenSet.create(tDIRECTIVE_KEY) -> ScalaDirectiveSyntaxHighlighter.SCALA_DIRECTIVE_KEY,
+      TokenSet.create(tDIRECTIVE_VALUE) -> ScalaDirectiveSyntaxHighlighter.SCALA_DIRECTIVE_VALUE
     )
   }
 

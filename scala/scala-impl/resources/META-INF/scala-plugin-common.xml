@@ -165,7 +165,7 @@
         <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaDocTypedHandler" order="first"/>
         <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler" order="first"/>
         <typedHandler implementation="org.jetbrains.plugins.scala.lang.completion.ScalaAutoPopupCompletionHandler"/>
-        <typedHandler implementation="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveAutoPopupCompletionHandler"/>
+<!--        <typedHandler implementation="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveAutoPopupCompletionHandler"/>-->
         <backspaceHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.backspaceHandler.ScalaBackspaceHandler"/>
         <!-- order=first because `Scala3BackspaceHandler` should go before `SmartIndentingBackspaceHandler` to correctly handle scala3 indentation based syntax -->
         <!-- NOTE: order="before ..." doesn't work because backspace handlers do not have orderIds -->
@@ -250,9 +250,9 @@
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaTypeAnnotationsCompletionContributor"
                                 order="before keywordCompletionContributor"/>
 
-        <completion.contributor language="Scala" id="scalaDirectiveCompletionContributor"
-                                implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveCompletionContributor"/>
-        <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.EnableAutoPopupInScalaDirectiveComment"/>
+<!--        <completion.contributor language="Scala" id="scalaDirectiveCompletionContributor"-->
+<!--                                implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveCompletionContributor"/>-->
+<!--        <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scalaDirective.lang.completion.EnableAutoPopupInScalaDirectiveComment"/>-->
 
         <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
         <completion.confidence language="Scala" implementationClass="com.intellij.codeInsight.completion.SkipAutopopupInStrings"/>
@@ -1863,15 +1863,15 @@
                          shortName="Specs2Matchers" groupKey="group.specs2" groupPath="Scala"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
 
-        <localInspection implementationClass="org.jetbrains.plugins.scalaDirective.codeInspection.dependencies.ScalaDirectiveDependencyVersionInspection"
-                         bundle="messages.ScalaInspectionBundle"
-                         key="displayname.directive.dependency.version"
-                         groupPath="Scala"
-                         groupKey="group.directive"
-                         language="ScalaDirective"
-                         level="WEAK WARNING"
-                         shortName="ScalaDirectiveDependencyVersionInspection"
-                         enabledByDefault="true"/>
+<!--        <localInspection implementationClass="org.jetbrains.plugins.scalaDirective.codeInspection.dependencies.ScalaDirectiveDependencyVersionInspection"-->
+<!--                         bundle="messages.ScalaInspectionBundle"-->
+<!--                         key="displayname.directive.dependency.version"-->
+<!--                         groupPath="Scala"-->
+<!--                         groupKey="group.directive"-->
+<!--                         language="ScalaDirective"-->
+<!--                         level="WEAK WARNING"-->
+<!--                         shortName="ScalaDirectiveDependencyVersionInspection"-->
+<!--                         enabledByDefault="true"/>-->
         <!-- End of inspections -->
 
         <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType"/>

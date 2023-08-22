@@ -7,6 +7,7 @@ import com.intellij.openapi.options.colors.{AttributesDescriptor, ColorDescripto
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
+import org.jetbrains.plugins.scalaDirective.highlighter.ScalaDirectiveSyntaxHighlighter
 
 import java.util
 import javax.swing.Icon
@@ -76,10 +77,10 @@ object ScalaColorsAndFontsPage {
     new AttributesDescriptor(DisplayNames.XML_COMMENT, XML_COMMENT),
     new AttributesDescriptor(DisplayNames.SCALATEST_KEYWORD, SCALATEST_KEYWORD),
 
-    new AttributesDescriptor(DisplayNames.SCALA_DIRECTIVE_PREFIX, SCALA_DIRECTIVE_PREFIX),
-    new AttributesDescriptor(DisplayNames.SCALA_DIRECTIVE_COMMAND, SCALA_DIRECTIVE_COMMAND),
-    new AttributesDescriptor(DisplayNames.SCALA_DIRECTIVE_KEY, SCALA_DIRECTIVE_KEY),
-    new AttributesDescriptor(DisplayNames.SCALA_DIRECTIVE_VALUE, SCALA_DIRECTIVE_VALUE)
+    new AttributesDescriptor(DisplayNames.SCALA_DIRECTIVE_PREFIX1, ScalaDirectiveSyntaxHighlighter.SCALA_DIRECTIVE_PREFIX),
+    new AttributesDescriptor(DisplayNames.SCALA_DIRECTIVE_COMMAND1, ScalaDirectiveSyntaxHighlighter.SCALA_DIRECTIVE_COMMAND),
+    new AttributesDescriptor(DisplayNames.SCALA_DIRECTIVE_KEY1, ScalaDirectiveSyntaxHighlighter.SCALA_DIRECTIVE_KEY),
+    new AttributesDescriptor(DisplayNames.SCALA_DIRECTIVE_VALUE1, ScalaDirectiveSyntaxHighlighter.SCALA_DIRECTIVE_VALUE)
   )
 
   //noinspection TypeAnnotation
@@ -146,10 +147,10 @@ object ScalaColorsAndFontsPage {
     val XML_COMMENT = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.xml.comment")
     val SCALATEST_KEYWORD = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scalatest.keyword")
 
-    val SCALA_DIRECTIVE_PREFIX = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.directive.prefix")
-    val SCALA_DIRECTIVE_COMMAND = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.directive.command")
-    val SCALA_DIRECTIVE_KEY = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.directive.key")
-    val SCALA_DIRECTIVE_VALUE = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.directive.value")
+    val SCALA_DIRECTIVE_PREFIX1 = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.directive.prefix")
+    val SCALA_DIRECTIVE_COMMAND1 = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.directive.command")
+    val SCALA_DIRECTIVE_KEY1 = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.directive.key")
+    val SCALA_DIRECTIVE_VALUE1 = ScalaOptionsBundle.message("options.scala.attribute.descriptor.scala.directive.value")
   }
 }
 class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
@@ -296,10 +297,10 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
     map.put("htmlDocEscape", SCALA_DOC_HTML_ESCAPE)
     map.put("paramtagval", SCALA_DOC_TAG_PARAM_VALUE)
 
-    map.put("ScalaDirectivePrefix", SCALA_DIRECTIVE_PREFIX)
-    map.put("ScalaDirectiveCommand", SCALA_DIRECTIVE_COMMAND)
-    map.put("ScalaDirectiveKey", SCALA_DIRECTIVE_KEY)
-    map.put("ScalaDirectiveValue", SCALA_DIRECTIVE_VALUE)
+    map.put("ScalaDirectivePrefix", ScalaDirectiveSyntaxHighlighter.SCALA_DIRECTIVE_PREFIX)
+    map.put("ScalaDirectiveCommand", ScalaDirectiveSyntaxHighlighter.SCALA_DIRECTIVE_COMMAND)
+    map.put("ScalaDirectiveKey", ScalaDirectiveSyntaxHighlighter.SCALA_DIRECTIVE_KEY)
+    map.put("ScalaDirectiveValue", ScalaDirectiveSyntaxHighlighter.SCALA_DIRECTIVE_VALUE)
     map
   }
 }

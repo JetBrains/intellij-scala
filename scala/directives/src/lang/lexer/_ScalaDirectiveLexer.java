@@ -4,7 +4,7 @@ package org.jetbrains.plugins.scalaDirective.lang.lexer;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
-import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tLINE_COMMENT;
+//import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tLINE_COMMENT;
 import static com.intellij.psi.TokenType.WHITE_SPACE;
 
 
@@ -519,9 +519,9 @@ public void resetCustom() {}
             } 
             // fall through
           case 13: break;
-          case 6: 
-            { return tLINE_COMMENT;
-            } 
+//          case 6:
+//            { return tLINE_COMMENT;
+//            }
             // fall through
           case 14: break;
           case 7: 
