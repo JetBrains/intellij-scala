@@ -105,7 +105,7 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
     doTest(javaText, scalaText, result)
   }
 
-  def testDelegateToJavaMethod(): Unit = {
+  def testDelegateToJavaMethod_NoCaretSet(): Unit = {
     val javaText =
       s"""public class JavaClass {
          |    public int foo(int i) {
@@ -116,7 +116,7 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
       s"""class A {
          |  val d = new JavaClass()
          |
-        |}""".stripMargin
+         |}""".stripMargin
     val result =
       s"""class A {
          |  val d = new JavaClass()
@@ -188,7 +188,4 @@ class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestC
          |}""".stripMargin
     doTest(javaText, scalaText, result, settings = noTypeAnnotationForPublic(getProject))
   }
-
-  def template(): Unit =
-    doTest("""""", """""", """""")
 }

@@ -31,6 +31,7 @@ import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
+//TODO: Ensure that methods are selected as in Java (first?)
 final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   import overrideImplement._
@@ -41,45 +42,51 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     targetElements(file, editor).nonEmpty
 
   override def invoke(@NotNull project: Project, @NotNull editor: Editor, @NotNull file: PsiFile): Unit = {
-    if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
+    if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project))
+      return
     PsiDocumentManager.getInstance(project).commitAllDocuments()
 
     val target = chooseTarget(file, editor)
-    if (target == null) return
+    if (target == null)
+      return
     val candidates = chooseMethods(target, file, editor, project)
-    if (candidates == null || candidates.isEmpty) return
+    if (candidates == null || candidates.isEmpty)
+      return
 
-    val elementAtOffset = file.findElementAt(editor.getCaretModel.getOffset)
+    val caretOffset = editor.getCaretModel.getOffset
 
     inWriteCommandAction {
       try {
-        val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
+        val aClass = classAtOffset(caretOffset, file)
         val generatedMethods = for (member <- candidates) yield {
           val ScMethodMember(signature, isOverride) = member
           val prototype: ScFunctionDefinition =
             createMethodFromSignature(signature, body = "???", aClass)(aClass.getManager).asInstanceOf[ScFunctionDefinition]
           TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype, ScalaGenerationInfo.typeAnnotationsPolicy)
-          prototype.setModifierProperty("override", value = isOverride)
+
+          val genInfo = new ScalaGenerationInfo(member, needsOverrideModifier = false)
+          val insertedMembers = GenerateMembersUtil.insertMembersAtOffset(aClass, caretOffset, java.util.List.of(genInfo))
+          val insertedMember = insertedMembers.get(0)
+          val newFunction = insertedMember.getPsiMember.asInstanceOf[ScFunctionDefinition]
+          val needsOverrideModifier = isOverride || newFunction.superMethod.nonEmpty
+          if (needsOverrideModifier) {
+            newFunction.setModifierProperty("override")
+          }
+
           val body = methodBody(target, prototype, target.getPsiElement)
-          prototype.body.foreach(_.replace(body))
-          val genInfo = new ScalaGenerationInfo(member)
-          val added = aClass.addMember(prototype, Option(genInfo.findInsertionAnchor(aClass, elementAtOffset)))
-                  .asInstanceOf[ScFunctionDefinition]
-          if (added.superMethod.nonEmpty) added.setModifierProperty("override")
-          added
+          newFunction.body.foreach(_.replace(body))
+          newFunction
         }
 
-        if (generatedMethods.nonEmpty) {
-          val firstMethod = generatedMethods(0)
-          val body = firstMethod.body.get
-          editor.getCaretModel.moveToOffset(body.getTextRange.getStartOffset)
-          editor.getScrollingModel.scrollToCaret(ScrollType.RELATIVE)
-          editor.getSelectionModel.removeSelection()
-        }
+        //TODO: unify with org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil.runAction
+        generatedMethods.headOption.foreach(ScalaGenerationInfo.positionCaret(editor, _))
+
+        //TODO: remove this, types are already adjusted in ScalaGenerationInfo.insert
         TypeAdjuster.adjustFor(generatedMethods)
       }
       catch {
-        case _: IncorrectOperationException => throw new IncorrectOperationException(s"Could not delegate methods to ${target.getText}")
+        case _: IncorrectOperationException =>
+          throw new IncorrectOperationException(s"Could not delegate methods to ${target.getText}")
       }
     }(project)
   }
@@ -123,6 +130,8 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     delegateText
   }
 
+  //TODO 1: Select all methods from delegate which do not yet exist like in Java
+  // (see com.intellij.codeInsight.generation.GenerateDelegateHandler.chooseMethods)
   @Nullable
   private def chooseMethods(delegate: ClassMember, file: PsiFile, editor: Editor, project: Project): ArraySeq[ScMethodMember] = {
     val delegateType = delegate.asInstanceOf[ScalaTypedMember].scType
