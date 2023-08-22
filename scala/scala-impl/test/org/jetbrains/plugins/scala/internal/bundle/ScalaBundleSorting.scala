@@ -57,28 +57,48 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaCodeInsightBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "conversion/",
-      bundleMessagesRelativePath = "ScalaConversionBundle.properties",
+      rootPath = scalaModDir + "compile-server/",
+      bundleMessagesRelativePath = "ScalaCompileServerBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "integration/devKit/",
-      bundleMessagesRelativePath = "ScalaDevkitBundle.properties",
+      rootPath = scalaModDir + "compiler-integration/",
+      bundleMessagesRelativePath = "CompilerIntegrationBundle.properties"
     ),
     ModuleWithBundleInfo(
       rootPath = scalaModDir + "compiler-jps/",
       bundleMessagesRelativePath = "ScalaJpsBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "compile-server/",
-      bundleMessagesRelativePath = "ScalaCompileServerBundle.properties"
+      rootPath = scalaModDir + "compiler-shared/",
+      bundleMessagesRelativePath = "CompilerSharedBuildBundle.properties"
     ),
     ModuleWithBundleInfo(
       rootPath = scalaModDir + "compiler-shared/",
       bundleMessagesRelativePath = "ScalaCompileServerSharedBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "compiler-shared/",
-      bundleMessagesRelativePath = "CompilerSharedBuildBundle.properties"
+      rootPath = scalaModDir + "conversion/",
+      bundleMessagesRelativePath = "ScalaConversionBundle.properties",
+    ),
+    ModuleWithBundleInfo(
+      rootPath = scalaModDir + "debugger/",
+      bundleMessagesRelativePath = "DebuggerBundle.properties"
+    ),
+    ModuleWithBundleInfo(
+      rootPath = scalaModDir + "integration/devKit/",
+      bundleMessagesRelativePath = "ScalaDevkitBundle.properties",
+    ),
+    ModuleWithBundleInfo(
+      rootPath = scalaModDir + "integration/intellilang/",
+      bundleMessagesRelativePath = "ScalaIntellilangBundle.properties",
+    ),
+    ModuleWithBundleInfo(
+      rootPath = scalaModDir + "integration/packagesearch/",
+      bundleMessagesRelativePath = "PackageSearchSbtBundle.properties",
+    ),
+    ModuleWithBundleInfo(
+      rootPath = scalaModDir + "integration/properties/",
+      bundleMessagesRelativePath = "ScalaI18nBundle.properties",
     ),
     ModuleWithBundleInfo(
       rootPath = sbtModDir + "sbt-api/",
@@ -108,32 +128,12 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaMetaBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "compiler-integration/",
-      bundleMessagesRelativePath = "CompilerIntegrationBundle.properties"
-    ),
-    ModuleWithBundleInfo(
-      rootPath = scalaModDir + "debugger/",
-      bundleMessagesRelativePath = "DebuggerBundle.properties"
-    ),
-    ModuleWithBundleInfo(
       rootPath = scalaModDir + "test-integration/testing-support/",
       bundleMessagesRelativePath = "TestingSupportBundle.properties"
     ),
     ModuleWithBundleInfo(
       rootPath = scalaModDir + "worksheet/",
       bundleMessagesRelativePath = "ScalaWorksheetBundle.properties",
-    ),
-    ModuleWithBundleInfo(
-      rootPath = scalaModDir + "integration/intellilang/",
-      bundleMessagesRelativePath = "ScalaIntellilangBundle.properties",
-    ),
-    ModuleWithBundleInfo(
-      rootPath = scalaModDir + "integration/packagesearch/",
-      bundleMessagesRelativePath = "PackageSearchSbtBundle.properties",
-    ),
-    ModuleWithBundleInfo(
-      rootPath = scalaModDir + "integration/properties/",
-      bundleMessagesRelativePath = "ScalaI18nBundle.properties",
     ),
   )
 
