@@ -75,7 +75,7 @@ private class ClientCallback(client: Client, output: Path) extends ClientCallbac
   override def enabled(): Boolean = false
 }
 
-abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
+abstract class ClientCallbackBase extends xsbti.AnalysisCallback2 {
 
   override def isPickleJava: Boolean = false
 
@@ -125,6 +125,18 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
     )
 
   override def problem(what: String, position: Position, x$3: String, msg: Severity, reported: Boolean): Unit = {}
+
+  override def problem2(
+    what: String,
+    pos: Position,
+    msg: String,
+    severity: Severity,
+    reported: Boolean,
+    rendered: Optional[String],
+    diagnosticCode: Optional[DiagnosticCode],
+    diagnosticRelatedInformation: util.List[DiagnosticRelatedInformation],
+    actions: util.List[Action]
+  ): Unit = {}
 
   override def startSource(source: VirtualFile): Unit = {}
 
