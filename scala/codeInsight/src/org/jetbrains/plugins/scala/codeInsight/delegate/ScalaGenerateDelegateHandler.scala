@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.delegate
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.generation._
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.{Editor, ScrollType}
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
@@ -14,7 +14,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParam}
@@ -24,19 +23,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.overrideImplement
-import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
-//TODO: Ensure that methods are selected as in Java (first?)
 final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   import overrideImplement._
-
-  type ClassMember = overrideImplement.ClassMember
+  import ScalaOIUtil.getElementAtCaretAdjustedForIndentationBasedSyntax
 
   override def isValidFor(editor: Editor, file: PsiFile): Boolean =
     targetElements(file, editor).nonEmpty
@@ -49,40 +44,31 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val target = chooseTarget(file, editor)
     if (target == null)
       return
-    val candidates = chooseMethods(target, file, editor, project)
+    val candidates = chooseMethods(target, file, editor)
     if (candidates == null || candidates.isEmpty)
       return
 
-    val caretOffset = editor.getCaretModel.getOffset
-
     inWriteCommandAction {
       try {
-        val aClass = classAtOffset(caretOffset, file)
-        val generatedMethods = for (member <- candidates) yield {
-          val ScMethodMember(signature, isOverride) = member
-          val prototype: ScFunctionDefinition =
-            createMethodFromSignature(signature, body = "???", aClass)(aClass.getManager).asInstanceOf[ScFunctionDefinition]
-          TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype, ScalaGenerationInfo.typeAnnotationsPolicy)
+        val aClass = findClassAtCaret(file, editor)
 
-          val genInfo = new ScalaGenerationInfo(member, needsOverrideModifier = false)
-          val insertedMembers = GenerateMembersUtil.insertMembersAtOffset(aClass, caretOffset, java.util.List.of(genInfo))
-          val insertedMember = insertedMembers.get(0)
+        //Insert members with dummy body `???` and without override modifier
+        val insertedMembers = ScalaGenerateMembersUtil.insertMembersAtCaretPosition(candidates, aClass, editor, addOverrideModifierIfEnforcedBySettings = false)
+
+        //For every inserted method generate actual delegated method body and add "override" modifier if needded
+        insertedMembers.foreach { insertedMember =>
           val newFunction = insertedMember.getPsiMember.asInstanceOf[ScFunctionDefinition]
-          val needsOverrideModifier = isOverride || newFunction.superMethod.nonEmpty
+
+          val body = methodBody(target, newFunction, target.getPsiElement)
+          newFunction.body.foreach(_.replace(body))
+
+          val needsOverrideModifier = newFunction.superMethod.nonEmpty
           if (needsOverrideModifier) {
             newFunction.setModifierProperty("override")
           }
-
-          val body = methodBody(target, prototype, target.getPsiElement)
-          newFunction.body.foreach(_.replace(body))
-          newFunction
         }
 
-        //TODO: unify with org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil.runAction
-        generatedMethods.headOption.foreach(ScalaGenerationInfo.positionCaret(editor, _))
-
-        //TODO: remove this, types are already adjusted in ScalaGenerationInfo.insert
-        TypeAdjuster.adjustFor(generatedMethods)
+        insertedMembers.lastOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
       }
       catch {
         case _: IncorrectOperationException =>
@@ -133,9 +119,9 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   //TODO 1: Select all methods from delegate which do not yet exist like in Java
   // (see com.intellij.codeInsight.generation.GenerateDelegateHandler.chooseMethods)
   @Nullable
-  private def chooseMethods(delegate: ClassMember, file: PsiFile, editor: Editor, project: Project): ArraySeq[ScMethodMember] = {
+  private def chooseMethods(delegate: ClassMember, file: PsiFile, editor: Editor): ArraySeq[ScMethodMember] = {
     val delegateType = delegate.asInstanceOf[ScalaTypedMember].scType
-    val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
+    val aClass = findClassAtCaret(file, editor)
     if (aClass == null) return null
     val tBody = aClass.extendsBlock.templateBody.get
     val place = createExpressionWithContextFromText(delegateText(delegate), tBody, tBody.getFirstChild)
@@ -143,21 +129,20 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val candidates = CompletionProcessor.variants(delegateType, place)
     val members = toMethodMembers(candidates, place)
 
-    if (!ApplicationManager.getApplication.isUnitTestMode) {
+    if (ApplicationManager.getApplication.isUnitTestMode)
+      members
+    else {
       val chooser = new ScalaMemberChooser[ScMethodMember](members, false, true, false, true, false, aClass)
       chooser.setTitle(CodeInsightBundle.message("generate.delegate.method.chooser.title"))
       chooser.show()
       if (chooser.getExitCode != DialogWrapper.OK_EXIT_CODE) return null
       chooser.getSelectedElements.asScala.to(ArraySeq)
     }
-    else if (members.nonEmpty) ArraySeq(members.head)
-    else ArraySeq()
   }
 
   private def toMethodMembers(candidates: Iterable[ScalaResolveResult], place: PsiElement): ArraySeq[ScMethodMember] = {
     def toMember(srr: ScalaResolveResult): Option[ScMethodMember] = {
       val ScalaResolveResult(element, subst) = srr
-      implicit val ctx: ProjectContext = element
 
       if (srr.implicitFunction.nonEmpty) return None
       element match {
@@ -178,7 +163,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     if (elements.isEmpty) null
     else if (ApplicationManager.getApplication.isUnitTestMode) elements.head
     else {
-      val chooser = new ScalaMemberChooser(elements, false, false, false, false, false, classAtOffset(editor.getCaretModel.getOffset, file))
+      val chooser = new ScalaMemberChooser(elements, false, false, false, false, false, findClassAtCaret(file, editor))
       chooser.setTitle(CodeInsightBundle.message("generate.delegate.target.chooser.title"))
       chooser.show()
 
@@ -189,11 +174,13 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     }
   }
 
-  private def targetElements(file: PsiFile, editor: Editor): ArraySeq[ClassMember] =
-    parentClasses(file, editor).iterator
+  private def targetElements(file: PsiFile, editor: Editor): ArraySeq[ClassMember] = {
+    val parents = findParentClassesAtCaret(file, editor)
+    parents.iterator
       .flatMap(targetsIn)
       .to(ArraySeq)
       .sortBy(m => (m.getPsiElement.getContainingFile.name, m.getPsiElement.getTextRange.getStartOffset))
+  }
 
   // todo add ScObjectMember for targets
   private def targetsIn(clazz: ScTemplateDefinition): Seq[ClassMember] =
@@ -205,7 +192,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     case typed: ScalaTypedMember if typed.scType.isUnit => false
     case ScMethodMember(PhysicalMethodSignature(method, _), _) =>
       method match {
-        case m: PsiMethod if {val cl = m.containingClass; cl != null && cl.qualifiedName == CommonClassNames.JAVA_LANG_OBJECT} => false
+        case m: PsiMethod if isMethodFromJavaLangObject(m) => false
         case f: ScFunction => (f.isParameterless || f.isEmptyParen) && ResolveUtils.isAccessible(f, clazz)
         case m: PsiMethod => m.isAccessor && ResolveUtils.isAccessible(m, clazz)
         case _ => false
@@ -214,15 +201,20 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     case _ => false
   }
 
-  private def classAtOffset(offset: Int, file: PsiFile) = {
-    val td = PsiTreeUtil.getContextOfType(file.findElementAt(offset), classOf[ScTemplateDefinition])
-    if (td == null || td.extendsBlock.templateBody.isEmpty) null
-    else td
+  private def isMethodFromJavaLangObject(m: PsiMethod): Boolean = {
+    val cl = m.containingClass
+    cl != null && cl.qualifiedName == CommonClassNames.JAVA_LANG_OBJECT
   }
 
-  private def parentClasses(file: PsiFile, editor: Editor): Seq[ScTemplateDefinition] = {
-    val closestClass = classAtOffset(editor.getCaretModel.getOffset, file)
-    if (closestClass == null) return Seq.empty
+  private def findClassAtCaret(file: PsiFile, editor: Editor): ScTemplateDefinition = {
+    val elementAtCaret = getElementAtCaretAdjustedForIndentationBasedSyntax(file, editor)
+    PsiTreeUtil.getContextOfType(elementAtCaret, classOf[ScTemplateDefinition])
+  }
+
+  private def findParentClassesAtCaret(file: PsiFile, editor: Editor): Seq[ScTemplateDefinition] = {
+    val closestClass = findClassAtCaret(file, editor)
+    if (closestClass == null)
+      return Seq.empty
 
     closestClass.withParentsInFile.toSeq.collect {case td: ScTemplateDefinition => td}
   }

@@ -68,6 +68,11 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
 
   def allSignatures: Iterator[TermSignature]
 
+  /**
+   * Instead of using this method directly,
+   * consider using [[com.intellij.codeInsight.generation.GenerateMembersUtil#insertMembersAtOffset]].
+   * That utility method will make some extra preprocessing of whitespaces
+   */
   def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember
 
   def deleteMember(member: ScMember): Unit

@@ -29,16 +29,6 @@ import java.util.Properties
 class ScalaGenerationInfo(classMember: ClassMember0, needsOverrideModifier: Boolean)
   extends GenerationInfoBase {
 
-  def this(classMember: ClassMember0) = this(
-    classMember,
-    classMember match {
-      case overridable: ScalaOverridableMember =>
-        overridable.isOverride || toAddOverrideToImplemented
-      case _ =>
-        false
-    }
-  )
-
   private var myMember: PsiMember = classMember.getElement
 
   override def getPsiMember: PsiMember = myMember
@@ -62,7 +52,7 @@ class ScalaGenerationInfo(classMember: ClassMember0, needsOverrideModifier: Bool
       case _: ScExtensionMethodMember =>
         throw new AssertionError("Unexpected extension method member. It's expected that all extension method members are grouped in ScMethodMember")
       case member: ScExtensionMember =>
-        myMember = insertExtension(member, templDef, anchor, needsOverrideModifier)
+        myMember = insertExtension(member, templDef, anchor)
       case ScAliasMember(alias, substitutor, _) =>
         val m = createOverrideImplementType(alias, substitutor, needsOverrideModifier, aClass, comment)(alias.getManager)
 
@@ -259,13 +249,13 @@ object ScalaGenerationInfo {
     member: ScExtensionMember,
     td: ScTemplateDefinition,
     anchor: PsiElement,
-    needsOverrideModifier: Boolean
   ): ScExtension = {
     val ScExtensionMember(extension, methodMembers) = member
 
     val extensionMethodConstructionInfos = methodMembers.map { methodMember =>
       val methodSignature = methodMember.signature
       val bodyText = getExtensionMethodBody(methodMember, td, !methodMember.isOverride)
+      val needsOverrideModifier = methodMember.isOverride || toAddOverrideToImplemented
       ExtensionMethodConstructionInfo(methodSignature, needsOverrideModifier, bodyText)
     }
 

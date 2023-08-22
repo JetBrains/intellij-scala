@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.overrideImplement
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.codeInsight.generation.{GenerateMembersUtil, ClassMember => JClassMember}
+import com.intellij.codeInsight.generation.{ClassMember => JClassMember}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -33,21 +33,24 @@ import scala.jdk.CollectionConverters._
 //noinspection InstanceOf
 object ScalaOIUtil {
 
-  private[this] def toClassMember(signature: Signature, isOverride: Boolean, context: PsiElement): Option[ClassMember] = {
+  private def toClassMember(signature: Signature, isOverride: Boolean, tdContext: ScTemplateDefinition): Option[ClassMember] = {
     val Signature(named, substitutor) = signature
     val maybeContext = Option(named.nameContext)
 
     def createMember(parameter: ScClassParameter): ScValue = {
       implicit val projectContext: ProjectContext = parameter.projectContext
 
-      createOverrideImplementVariableWithClass(
+      val member = createOverrideImplementVariableWithClass(
         variable = parameter,
         substitutor = substitutor,
-        needsOverrideModifier = true,
+        needsOverrideModifier = false,
         isVal = true,
         clazz = parameter.containingClass,
-        features = context
+        features = tdContext
       ).asInstanceOf[ScValue]
+
+      member.context = tdContext
+      member
     }
 
     named match {
@@ -87,6 +90,16 @@ object ScalaOIUtil {
     file: PsiFile,
     editor: Editor
   ): Option[ScTemplateDefinition] = {
+    val elementAtCaret = getElementAtCaretAdjustedForIndentationBasedSyntax(file, editor)
+    val templateDefinition = elementAtCaret.parentOfType(classOf[ScTemplateDefinition])
+    templateDefinition.map {
+      case enumCase: ScEnumCase => enumCase.enumParent
+      case td => td
+    }
+  }
+
+  //TODO: find a better place for this method
+  def getElementAtCaretAdjustedForIndentationBasedSyntax(file: PsiFile, editor: Editor): PsiElement = {
     val caretOffset = editor.getCaretModel.getOffset
     val elementAtCaret = ScalaEditorUtils.findElementAtCaret_WithFixedEOF(file, editor.getDocument, caretOffset)
     val elementAtCaretFixed = elementAtCaret match {
@@ -104,12 +117,7 @@ object ScalaOIUtil {
         adjusted.getOrElse(ws)
       case e => e
     }
-
-    val templateDefinition = elementAtCaretFixed.parentOfType(classOf[ScTemplateDefinition])
-    templateDefinition.map {
-      case enumCase: ScEnumCase => enumCase.enumParent
-      case td => td
-    }
+    elementAtCaretFixed
   }
 
   private def getPreviousElementInSameIndentationLevel(
@@ -187,12 +195,8 @@ object ScalaOIUtil {
                 clazz: ScTemplateDefinition)
                (implicit project: Project, editor: Editor): Unit =
     executeWriteActionCommand(if (isImplement) ScalaBundle.message("action.implement.method") else ScalaBundle.message("action.override.method")) {
-      val sortedMembers = ScalaMemberChooser.sortedWithExtensionMethodsGrouped(selectedMembers, clazz)
-      val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
-      val memberPrototypes = genInfos.reverse.asJava
-      val caretOffset = ScalaEditorUtils.caretOffsetWithFixedEof(editor)
-      val inserted = GenerateMembersUtil.insertMembersAtOffset(clazz, caretOffset, memberPrototypes).asScala
-      inserted.lastOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
+      val inserted = ScalaGenerateMembersUtil.insertMembersAtCaretPosition(selectedMembers, clazz, editor, addOverrideModifierIfEnforcedBySettings = true)
+      ScalaGenerateMembersUtil.positionCaret(editor, inserted)
     }
 
   def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Seq[ClassMember] =

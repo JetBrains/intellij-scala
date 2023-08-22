@@ -370,4 +370,73 @@ class ScalaDelegateMethodTest extends ScalaDelegateMethodTestBase {
          |}""".stripMargin
     doTest(text, result)
   }
+
+  def testMultipleDelegatedMethod(): Unit = {
+    val text =
+      s"""class D {
+         |  def foo1(i: Int): String = null
+         |
+         |  def foo2(s: String): String = null
+         |}
+         |
+         |class A  {
+         |  val d = new D()
+         |  $CARET
+         |}""".stripMargin
+    val result =
+      s"""class D {
+         |  def foo1(i: Int): String = null
+         |
+         |  def foo2(s: String): String = null
+         |}
+         |
+         |class A  {
+         |  val d = new D()
+         |
+         |  def foo1(i: Int): String = $CARET${START}d.foo1(i)$END
+         |
+         |  def foo2(s: String): String = d.foo2(s)
+         |}""".stripMargin
+    doTest(text, result)
+  }
+
+  def testDelegateToConstructorParameterInstance_DefinedAsExplicitPublicMember(): Unit = {
+    val text =
+      s"""class D {
+         |  def foo: String = null
+         |}
+         |
+         |class A(val d: D)  {
+         |  $CARET
+         |}""".stripMargin
+    val result =
+      s"""class D {
+         |  def foo: String = null
+         |}
+         |
+         |class A(val d: D)  {
+         |  def foo: String = d.foo
+         |}""".stripMargin
+    doTest(text, result)
+  }
+
+  def testDelegateToConstructorParameterInstance_DefinedAsExplicitPrivateMember(): Unit = {
+    val text =
+      s"""class D {
+         |  def foo: String = null
+         |}
+         |
+         |class A(private val d: D)  {
+         |  $CARET
+         |}""".stripMargin
+    val result =
+      s"""class D {
+         |  def foo: String = null
+         |}
+         |
+         |class A(private val d: D)  {
+         |  def foo: String = d.foo
+         |}""".stripMargin
+    doTest(text, result)
+  }
 }
