@@ -46,6 +46,7 @@ object ScalaBundleSorting {
   val scalaModDir: String = communityDir + "scala/"
   val sbtModDir: String = communityDir + "sbt/"
   val scalaImplDir: String = scalaModDir + "scala-impl/"
+  val integrationDir: String = scalaModDir + "integration/"
 
   val allModuleInfos: Seq[ModuleWithBundleInfo] = Seq(
     ModuleWithBundleInfo(
@@ -85,27 +86,27 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "DebuggerBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "integration/devKit/",
+      rootPath = integrationDir + "devKit/",
       bundleMessagesRelativePath = "ScalaDevkitBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "integration/gradle/",
+      rootPath = integrationDir + "gradle/",
       bundleMessagesRelativePath = "ScalaGradleBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "integration/intellilang/",
+      rootPath = integrationDir + "intellilang/",
       bundleMessagesRelativePath = "ScalaIntellilangBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "integration/java-decompiler/",
+      rootPath = integrationDir + "java-decompiler/",
       bundleMessagesRelativePath = "ScalaJavaDecompilerBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "integration/packagesearch/",
+      rootPath = integrationDir + "packagesearch/",
       bundleMessagesRelativePath = "PackageSearchSbtBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir + "integration/properties/",
+      rootPath = integrationDir + "properties/",
       bundleMessagesRelativePath = "ScalaI18nBundle.properties",
     ),
     ModuleWithBundleInfo(
@@ -132,7 +133,7 @@ object ScalaBundleSorting {
       rootPath = scalaImplDir,
       bundleMessagesRelativePath = "ScalaInspectionBundle.properties",
       extraUsageModules = Seq(
-        ModuleInfo(scalaModDir + "integration/properties/")
+        ModuleInfo(integrationDir + "properties/")
       )
     ),
     ModuleWithBundleInfo(
