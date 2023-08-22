@@ -1,10 +1,12 @@
-package org.jetbrains.plugins.scalaDirective.lang.completion.lookups
+package org.jetbrains.plugins.scalaDirective
+package lang.completion.lookups
+
+import lang.completion.UsingDirective
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.util.ui.EmptyIcon
-import org.jetbrains.plugins.scalaDirective.lang.completion.UsingDirective
 
 object ScalaDirectiveLookupItem {
   def apply(text: String): LookupElement =
