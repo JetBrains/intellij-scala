@@ -89,8 +89,16 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaDevkitBundle.properties",
     ),
     ModuleWithBundleInfo(
+      rootPath = scalaModDir + "integration/gradle/",
+      bundleMessagesRelativePath = "ScalaGradleBundle.properties",
+    ),
+    ModuleWithBundleInfo(
       rootPath = scalaModDir + "integration/intellilang/",
       bundleMessagesRelativePath = "ScalaIntellilangBundle.properties",
+    ),
+    ModuleWithBundleInfo(
+      rootPath = scalaModDir + "integration/java-decompiler/",
+      bundleMessagesRelativePath = "ScalaJavaDecompilerBundle.properties",
     ),
     ModuleWithBundleInfo(
       rootPath = scalaModDir + "integration/packagesearch/",
@@ -114,6 +122,10 @@ object ScalaBundleSorting {
     ),
     ModuleWithBundleInfo(
       rootPath = scalaImplDir,
+      bundleMessagesRelativePath = "ScalaDirectiveBundle.properties",
+    ),
+    ModuleWithBundleInfo(
+      rootPath = scalaImplDir,
       bundleMessagesRelativePath = "ScalaEditorBundle.properties",
     ),
     ModuleWithBundleInfo(
@@ -126,6 +138,14 @@ object ScalaBundleSorting {
     ModuleWithBundleInfo(
       rootPath = scalaImplDir,
       bundleMessagesRelativePath = "ScalaMetaBundle.properties"
+    ),
+    ModuleWithBundleInfo(
+      rootPath = scalaImplDir,
+      bundleMessagesRelativePath = "ScalaOptionsBundle.properties"
+    ),
+    ModuleWithBundleInfo(
+      rootPath = scalaModDir + "structure-view/",
+      bundleMessagesRelativePath = "ScalaStructureViewBundle.properties"
     ),
     ModuleWithBundleInfo(
       rootPath = scalaModDir + "test-integration/testing-support/",
