@@ -1870,7 +1870,7 @@
                          groupKey="group.directive"
                          language="ScalaDirective"
                          level="WEAK WARNING"
-                         shortName="ScalaDirectiveDependencyVersion"
+                         shortName="ScalaDirectiveDependencyVersionInspection"
                          enabledByDefault="true"/>
         <!-- End of inspections -->
 
