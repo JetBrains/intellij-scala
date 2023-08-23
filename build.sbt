@@ -125,6 +125,34 @@ lazy val scalaDirectives: sbt.Project =
       Compile / unmanagedJars ++= Common.compilerSharedClasspath.value
     )
 
+lazy val scalaImplUtils: sbt.Project =
+  newProject("scala-impl-utils", file("scala/scala-impl-utils"))
+    .dependsOn(scalaApi)
+    .settings(
+      name := "directives",
+      organization := "JetBrains",
+      scalaVersion := Versions.scalaVersion,
+      idePackagePrefix := Some("org.jetbrains.plugins.scalaDirective"),
+      intellijMainJars := Nil,
+//      intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
+      Compile / unmanagedJars ++= Common.jpsClasspath.value,
+      Compile / unmanagedJars ++= Common.compilerSharedClasspath.value
+    )
+
+lazy val scalaPsiApi: sbt.Project =
+  newProject("scala-psi-api", file("scala/scala-psi-api"))
+    .dependsOn(scalaApi, scalaImplUtils)
+    .settings(
+      name := "scala-psi-api",
+      organization := "JetBrains",
+      scalaVersion := Versions.scalaVersion,
+      idePackagePrefix := Some("org.jetbrains.plugins.scala.lang.psi.api"),
+      intellijMainJars := Nil,
+//      intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
+      Compile / unmanagedJars ++= Common.jpsClasspath.value,
+      Compile / unmanagedJars ++= Common.compilerSharedClasspath.value
+    )
+
 lazy val sbtApi =
   newProject("sbt-api", file("sbt/sbt-api"))
     .dependsOn(scalaApi, compilerShared)
