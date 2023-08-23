@@ -128,4 +128,36 @@ class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTes
       |  }
       |}""".stripMargin
   )
+
+  def testSCL21549(): Unit = checkTextHasNoErrors(
+    """import scala.language.postfixOps
+      |
+      |class Pay[T](v: Float) {
+      |  def myCopy0[E]: Pay[E] = new Pay[E](42)
+      |  def myCopy1[E](p1: Float): Pay[E] = new Pay[E](42)
+      |  def myCopy2[E](p1: Float, p2: Float): Pay[E] = new Pay[E](42)
+      |}
+      |
+      |val pay: Pay[String] = new Pay(42)
+      |pay myCopy0: Pay[String]
+      |pay myCopy1 (p1 = 42): Pay[String]
+      |pay myCopy2(p1 = 42, p2 = 23): Pay[String]
+      |""".stripMargin
+  )
+
+  def testSCL21549_ExampleWithCaseClassAndSyntheticCopyMethod(): Unit = checkTextHasNoErrors(
+    """import scala.language.postfixOps
+      |
+      |case class Pay[T](v1: Float, v2: Float)
+      |
+      |val pay: Pay[String] = Pay(1, 2)
+      |
+      |pay.copy(): Pay[String]
+      |pay.copy(v1 = 42): Pay[String]
+      |pay.copy(v1 = 42, v2 = 23): Pay[String]
+      |
+      |pay copy (v1 = 42): Pay[String]
+      |pay copy(v1 = 42, v2 = 23): Pay[String]
+      |""".stripMargin
+  )
 }
