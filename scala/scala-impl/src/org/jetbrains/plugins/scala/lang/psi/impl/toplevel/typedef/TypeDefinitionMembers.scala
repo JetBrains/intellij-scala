@@ -10,11 +10,11 @@ import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -244,10 +244,10 @@ object TypeDefinitionMembers {
   }
 
   private trait SignatureMapsProvider {
-    def allSignatures: MixinNodes.Map[TermSignature]
-    def stable       : MixinNodes.Map[TermSignature]
-    def types        : MixinNodes.Map[TypeSignature]
-    def fromCompanion: MixinNodes.Map[TermSignature]
+    def allSignatures: MixinNodesBase.Map[TermSignature]
+    def stable       : MixinNodesBase.Map[TermSignature]
+    def types        : MixinNodesBase.Map[TypeSignature]
+    def fromCompanion: MixinNodesBase.Map[TermSignature]
   }
 
   private object AllSignatures {
@@ -265,31 +265,30 @@ object TypeDefinitionMembers {
     def apply(tpe: ScAndType): SignatureMapsProvider = new AndTypeSignatures(tpe)
 
     private class ClassSignatures(c: PsiClass, withSupers: Boolean) extends SignatureMapsProvider {
-      override def allSignatures: MixinNodes.Map[TermSignature] = getSignatures(c, withSupers)
+      override def allSignatures: MixinNodesBase.Map[TermSignature] = getSignatures(c, withSupers)
 
-      override def stable: MixinNodes.Map[TermSignature] = getStableSignatures(c, withSupers)
+      override def stable: MixinNodesBase.Map[TermSignature] = getStableSignatures(c, withSupers)
 
-      override def types: MixinNodes.Map[TypeSignature] = getTypes(c, withSupers)
+      override def types: MixinNodesBase.Map[TypeSignature] = getTypes(c, withSupers)
 
-      override def fromCompanion: MixinNodes.Map[TermSignature] = signaturesFromCompanion(c, withSupers)
+      override def fromCompanion: MixinNodesBase.Map[TermSignature] = signaturesFromCompanion(c, withSupers)
     }
 
-
     private class CompoundTypeSignatures(ct: ScCompoundType, compoundTypeThisType: Option[ScType]) extends SignatureMapsProvider {
-      override def allSignatures: MixinNodes.Map[TermSignature] = getSignatures(ct, compoundTypeThisType)
+      override def allSignatures: MixinNodesBase.Map[TermSignature] = getSignatures(ct, compoundTypeThisType)
 
-      override def stable: MixinNodes.Map[TermSignature] = getStableSignatures(ct, compoundTypeThisType)
+      override def stable: MixinNodesBase.Map[TermSignature] = getStableSignatures(ct, compoundTypeThisType)
 
-      override def types: MixinNodes.Map[TypeSignature] = getTypes(ct, compoundTypeThisType)
+      override def types: MixinNodesBase.Map[TypeSignature] = getTypes(ct, compoundTypeThisType)
 
-      override def fromCompanion: MixinNodes.Map[TermSignature] = MixinNodes.emptyMap[TermSignature]
+      override def fromCompanion: MixinNodesBase.Map[TermSignature] = MixinNodes.emptyMap[TermSignature]
     }
 
     private class AndTypeSignatures(tpe: ScAndType) extends SignatureMapsProvider {
-      override def allSignatures: MixinNodes.Map[TermSignature] = getSignatures(tpe)
-      override def stable: MixinNodes.Map[TermSignature]        = getStableSignatures(tpe)
-      override def types: MixinNodes.Map[TypeSignature]         = getTypes(tpe)
-      override def fromCompanion: MixinNodes.Map[TermSignature] = MixinNodes.emptyMap
+      override def allSignatures: MixinNodesBase.Map[TermSignature] = getSignatures(tpe)
+      override def stable: MixinNodesBase.Map[TermSignature]        = getStableSignatures(tpe)
+      override def types: MixinNodesBase.Map[TypeSignature]         = getTypes(tpe)
+      override def fromCompanion: MixinNodesBase.Map[TermSignature] = MixinNodes.emptyMap
     }
   }
 

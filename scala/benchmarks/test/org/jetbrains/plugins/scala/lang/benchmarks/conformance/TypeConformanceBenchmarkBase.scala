@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiModificationTrackerImpl
 import org.jetbrains.plugins.scala.lang.benchmarks._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerImpl
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
 import org.openjdk.jmh.annotations.{Measurement, OutputTimeUnit, Warmup, _}
@@ -17,7 +17,7 @@ import org.openjdk.jmh.infra.Blackhole
 abstract class TypeConformanceBenchmarkBase(testName: String) extends TypeConformanceTestBase {
   var lType: ScType = _
   var rType: ScType = _
-  var scalaPsiManager: ScalaPsiManager = _
+  var scalaPsiManager: ScalaPsiManagerImpl = _
   var psiModTracker: PsiModificationTrackerImpl = _
 
   override def folderPath: String = "testdata/conformance/"

@@ -6,9 +6,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import kotlin.Pair
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 final class ScalaEditorFileSwapper extends EditorFileSwapper {
   override def getFileToSwapTo(project: Project, editorComposite: EditorComposite): Pair[VirtualFile, Integer] = {

@@ -4,7 +4,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiManager
 import org.junit.Assert.{assertEquals, fail}
 
 class ScEnumCaseTest extends ScalaFixtureTestCase {
