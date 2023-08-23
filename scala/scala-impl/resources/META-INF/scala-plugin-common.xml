@@ -513,7 +513,7 @@
                         serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigServiceImpl"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerHolder"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerHolderImpl" serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiManagerHolder"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>

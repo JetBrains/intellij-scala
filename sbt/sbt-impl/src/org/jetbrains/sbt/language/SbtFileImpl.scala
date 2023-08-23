@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaFeatures}

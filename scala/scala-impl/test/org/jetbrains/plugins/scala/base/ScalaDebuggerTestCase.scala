@@ -18,8 +18,8 @@ import com.intellij.xdebugger.{XDebuggerManager, XDebuggerUtil}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange, TestUtils}
 import org.junit.Assert.assertTrue

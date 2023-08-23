@@ -13,8 +13,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, ObjectExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo.{AllInPackage, ClassWithTestName}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer._

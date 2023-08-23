@@ -16,13 +16,12 @@ import com.intellij.ui.{EditorTextField, EditorTextFieldWithBrowseButton, EnumCo
 import com.intellij.uiDesigner.core.{GridConstraints, Spacer}
 import com.intellij.util.ui.JBUI
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.testdata._
-import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm.{PackageChooserActionListener, _}
+import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm._
 import org.jetbrains.plugins.scala.util.ui.TextWithMnemonic.AbstractButtonExt
 import org.jetbrains.sbt.settings.SbtSettings
 

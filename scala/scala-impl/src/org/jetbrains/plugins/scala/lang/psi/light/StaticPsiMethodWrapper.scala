@@ -4,7 +4,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.light.{LightMethod, LightModifierList}
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiManager
 
 import _root_.scala.collection.immutable.HashMap
 

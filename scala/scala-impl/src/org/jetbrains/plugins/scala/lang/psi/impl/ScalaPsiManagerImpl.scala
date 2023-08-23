@@ -18,14 +18,14 @@ import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaShortNamesCacheManager, ValueWrapper, cachedInUserData, cachedWithoutModificationCount}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
+import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiManager, ScalaPsiManagerHolder, SignatureCaches}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.source.GlobalSearchScopeWithRecommendedResultsSorting
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
@@ -51,29 +51,29 @@ import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class ScalaPsiManager(implicit val project: Project) {
+class ScalaPsiManagerImpl(override implicit val project: Project) extends ScalaPsiManager {
 
   private val inJavaPsiFacade: ThreadLocal[Boolean] = new ThreadLocal[Boolean] {
     override def initialValue(): Boolean = false
   }
 
-  def isInJavaPsiFacade: Boolean = inJavaPsiFacade.get
+  override def isInJavaPsiFacade: Boolean = inJavaPsiFacade.get
 
   private val clearCacheOnChange = new CleanupScheduler
   private val clearCacheOnTopLevelChange = new CleanupScheduler
   private val clearCacheOnRootsChange = new CleanupScheduler
 
-  val collectImplicitObjectsCache: ConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]] =
+  override val collectImplicitObjectsCache: ConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]] =
     new ConcurrentHashMap[(ScType, GlobalSearchScope), Seq[ScType]]()
 
-  val implicitCollectorCache: ImplicitCollectorCache =
+  override val implicitCollectorCache: ImplicitCollectorCache =
     CacheTracker.alwaysTrack("ScalaPsiManager.implicitCollectorCache", "ScalaPsiManager.implicitCollectorCache") {
       new ImplicitCollectorCache(project)
     }
 
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
 
-  def getStableSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap =
+  override def getStableSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap =
     if (dontCacheCompound) StableNodes.build(tp, compoundTypeThisType)
     else getStableSignaturesCached(tp, compoundTypeThisType)
 
@@ -85,7 +85,7 @@ class ScalaPsiManager(implicit val project: Project) {
       (tp: ScCompoundType, compoundTypeThisType: Option[ScType]) => StableNodes.build(tp, compoundTypeThisType)
     )
 
-  def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap =
+  override def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap =
     if (dontCacheCompound) TypeNodes.build(tp, compoundTypeThisType)
     else getTypesCached(tp, compoundTypeThisType)
 
@@ -97,7 +97,7 @@ class ScalaPsiManager(implicit val project: Project) {
       (tp: ScCompoundType, compoundTypeThisType: Option[ScType]) => TypeNodes.build(tp, compoundTypeThisType)
     )
 
-  def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
+  override def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
     if (dontCacheCompound) return TermNodes.build(tp, compoundTypeThisType)
     getSignaturesCached(tp, compoundTypeThisType)
   }
@@ -110,7 +110,7 @@ class ScalaPsiManager(implicit val project: Project) {
       (tp: ScCompoundType, compoundTypeThisType: Option[ScType]) => TermNodes.build(tp, compoundTypeThisType)
     )
 
-  def getStableSignatures(tp: ScAndType): PMap =
+  override def getStableSignatures(tp: ScAndType): PMap =
     if (dontCacheCompound) StableNodes.build(tp)
     else getIntersectionStableSignaturesCached(tp)
 
@@ -122,7 +122,7 @@ class ScalaPsiManager(implicit val project: Project) {
       (tp: ScAndType) => StableNodes.build(tp)
     )
 
-  def getTypes(tp: ScAndType): TMap =
+  override def getTypes(tp: ScAndType): TMap =
     if (dontCacheCompound) TypeNodes.build(tp)
     else getIntersectionTypesCached(tp)
 
@@ -134,7 +134,7 @@ class ScalaPsiManager(implicit val project: Project) {
       (tp: ScAndType) => TypeNodes.build(tp)
     )
 
-  def getSignatures(tp: ScAndType): SMap = {
+  override def getSignatures(tp: ScAndType): SMap = {
     if (dontCacheCompound) return TermNodes.build(tp)
     getIntersectionSignaturesCached(tp)
   }
@@ -147,7 +147,7 @@ class ScalaPsiManager(implicit val project: Project) {
       (tp: ScAndType) => TermNodes.build(tp)
     )
 
-  def simpleAliasProjectionCached(projection: ScProjectionType): ScType = _simpleAliasProjectionCached(projection)
+  override def simpleAliasProjectionCached(projection: ScProjectionType): ScType = _simpleAliasProjectionCached(projection)
 
   private val _simpleAliasProjectionCached =
     cachedWithoutModificationCount(
@@ -157,15 +157,15 @@ class ScalaPsiManager(implicit val project: Project) {
       (projection: ScProjectionType) => ScProjectionType.simpleAliasProjection(projection)
     )
 
-  def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] =
+  override def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] =
     if (DumbService.getInstance(project).isDumb) Seq.empty
     else getPackageImplicitObjectsCached(fqn, scope).toSeq
 
-  def getTopLevelImplicitClassesByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScClass] =
+  override def getTopLevelImplicitClassesByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScClass] =
     if (DumbService.getInstance(project).isDumb) Seq.empty
     else getTopLevelImplicitClassesByPackageCached(fqn, scope).toSeq
 
-  def getTopLevelGivenDefinitionsByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScGivenDefinition] =
+  override def getTopLevelGivenDefinitionsByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScGivenDefinition] =
     if (DumbService.getInstance(project).isDumb) Seq.empty
     else getTopLevelGivenDefinitionsByPackageCached(fqn, scope).toSeq
 
@@ -207,7 +207,7 @@ class ScalaPsiManager(implicit val project: Project) {
       (fqn: String, scope: GlobalSearchScope) => TOP_LEVEL_EXTENSION_BY_PKG_KEY.elements(cleanFqn(fqn), scope)
     )
 
-  def getCachedPackage(inFqn: String): Option[PsiPackage] = _getCachedPackage(inFqn)
+  override def getCachedPackage(inFqn: String): Option[PsiPackage] = _getCachedPackage(inFqn)
 
   private val _getCachedPackage =
     cachedWithoutModificationCount(
@@ -221,7 +221,7 @@ class ScalaPsiManager(implicit val project: Project) {
       }
     )
 
-  private[psi] def noNamePackage: ScPackageImpl = _noNamePackage()
+  private[psi] override def noNamePackage: ScPackageImpl = _noNamePackage()
 
   private val _noNamePackage: () => ScPackageImpl = cachedWithoutModificationCount(
     "noNamePackage",
@@ -245,7 +245,7 @@ class ScalaPsiManager(implicit val project: Project) {
       ScPackageObjectFqnIndex.instance.hasElement(fqn, project, scope, classOf[PsiClass])
   }
 
-  def getCachedPackageInScope(
+  override def getCachedPackageInScope(
     fqn: String
   )(
     implicit
@@ -267,7 +267,7 @@ class ScalaPsiManager(implicit val project: Project) {
         }
     )
 
-  def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = _getCachedClass(scope, fqn)
+  override def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = _getCachedClass(scope, fqn)
 
   private val _getCachedClass =
     cachedWithoutModificationCount(
@@ -289,7 +289,7 @@ class ScalaPsiManager(implicit val project: Project) {
       }
     )
 
-  def getTopLevelExportsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScExportStmt] =
+  override def getTopLevelExportsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScExportStmt] =
     _getTopLevelExportsByPackage(pkgFqn, scope)
 
   private val _getTopLevelExportsByPackage =
@@ -304,7 +304,7 @@ class ScalaPsiManager(implicit val project: Project) {
     )
 
 
-  def getTopLevelDefinitionsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScMember] =
+  override def getTopLevelDefinitionsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScMember] =
     _getTopLevelDefinitionsByPackage(pkgFqn, scope)
 
   private val _getTopLevelDefinitionsByPackage =
@@ -321,15 +321,15 @@ class ScalaPsiManager(implicit val project: Project) {
       }
     )
 
-  def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
+  override def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope)
 
-  def getStableAliasesByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] = {
+  override def getStableAliasesByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] = {
     val elements = ScStableTypeAliasFqnIndex.instance.getElements(fqn, project, scope).asScala
     elements.filter(_.qualifiedNameOpt.contains(fqn))
   }
 
-  def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
+  override def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
     val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
     val builder = ArraySeq.newBuilder[PsiClass]
     builder ++= PsiShortNamesCache
@@ -345,7 +345,7 @@ class ScalaPsiManager(implicit val project: Project) {
     builder.result()
   }
 
-  def getClasses(
+  override def getClasses(
     `package`: PsiPackage
   )(
     implicit
@@ -408,7 +408,7 @@ class ScalaPsiManager(implicit val project: Project) {
       .flatMap(getCachedClasses(scope, _))
   }
 
-  def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = _getCachedClasses(scope, fqn)
+  override def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = _getCachedClasses(scope, fqn)
 
   private val _getCachedClasses = cachedWithoutModificationCount(
     "getCachedClasses",
@@ -451,7 +451,7 @@ class ScalaPsiManager(implicit val project: Project) {
     }
   )
 
-  def cachedFunction1Type(elementScope: ElementScope): Option[ScParameterizedType] = _cachedFunction1Type(elementScope)
+  override def cachedFunction1Type(elementScope: ElementScope): Option[ScParameterizedType] = _cachedFunction1Type(elementScope)
 
   private val _cachedFunction1Type = cachedWithoutModificationCount(
     "cachedFunction1Type",
@@ -460,7 +460,7 @@ class ScalaPsiManager(implicit val project: Project) {
     (elementScope: ElementScope) => elementScope.function1Type()
   )
 
-  def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] = _scalaSeqAlias(scope)
+  override def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] = _scalaSeqAlias(scope)
 
   private val _scalaSeqAlias = cachedWithoutModificationCount(
     "scalaSeqAlias",
@@ -469,7 +469,7 @@ class ScalaPsiManager(implicit val project: Project) {
     (scope: GlobalSearchScope) => getStableAliasesByFqn("scala.Seq", scope).headOption
   )
 
-  def getJavaPackageClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
+  override def getJavaPackageClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
     if (DumbService.getInstance(project).isDumb) return Set.empty
     getJavaPackageClassNamesCached(psiPackage, scope)
   }
@@ -491,7 +491,7 @@ class ScalaPsiManager(implicit val project: Project) {
     }
   )
 
-  def getScalaPackageClassNames(
+  override def getScalaPackageClassNames(
     implicit
     scope: GlobalSearchScope
   ): Set[String] =
@@ -527,7 +527,7 @@ class ScalaPsiManager(implicit val project: Project) {
     clearCaches()
   }
 
-  private def clearOnLowMemory(): Unit = clearAllCaches()
+  private[psi] override def clearOnLowMemory(): Unit = clearAllCaches()
 
   private def clearOnTopLevelChange(): Unit = {
     clearOnChange()
@@ -542,7 +542,7 @@ class ScalaPsiManager(implicit val project: Project) {
 
   private val psiChangeListener = ScalaPsiChangeListener(clearOnScalaElementChange, () => clearOnNonScalaChange())
 
-  private[impl] def projectOpened(): Unit = {
+  override private[psi] def projectOpened(): Unit = {
     project.subscribeToModuleRootChanged() { _ =>
       LOG.debug("Clear caches on root change")
       clearOnRootsChange()
@@ -554,7 +554,7 @@ class ScalaPsiManager(implicit val project: Project) {
   private val syntheticPackages = ContainerUtil.createConcurrentWeakValueMap[String, AnyRef]()
   private val emptyMarker: AnyRef = ObjectUtils.sentinel("syntheticPackageEmptyMarker")
 
-  def syntheticPackage(fqn: String): ScSyntheticPackage = {
+  override def syntheticPackage(fqn: String): ScSyntheticPackage = {
     val syntheticOrEmptyMarker =
       syntheticPackages.computeIfAbsent(fqn, fqn => Option(ScSyntheticPackage(fqn)(project)).getOrElse(emptyMarker))
 
@@ -564,7 +564,7 @@ class ScalaPsiManager(implicit val project: Project) {
     }
   }
 
-  def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = _javaPsiTypeParameterUpperType(
+  override def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = _javaPsiTypeParameterUpperType(
     typeParameter
   )
 
@@ -588,7 +588,7 @@ class ScalaPsiManager(implicit val project: Project) {
   private def andType(psiTypes: Seq[PsiType]): ScType =
     new ProjectContext(project).typeSystem.andType(psiTypes.map(_.toScType()))
 
-  def getStableTypeAliasesNames: Iterable[String] = {
+  override def getStableTypeAliasesNames: Iterable[String] = {
     import ScalaIndexKeys._
     STABLE_ALIAS_NAME_KEY.allKeys
   }
@@ -618,21 +618,21 @@ class ScalaPsiManager(implicit val project: Project) {
 
   val rootManager: ModificationTracker = ProjectRootManager.getInstance(project)
 
-  sealed abstract class SignatureCaches[T <: Signature](val nodes: MixinNodes[T]) {
+  final class SignatureCachesImpl[T <: Signature](override protected val nodes: MixinNodes[T]) extends SignatureCaches[T] {
 
-    private val forLibraryMap: ConcurrentMap[(PsiClass, Boolean), nodes.Map] = ContainerUtil.createConcurrentWeakMap()
-    private val forTopLevelMap: ConcurrentMap[(PsiClass, Boolean), nodes.Map] = ContainerUtil.createConcurrentWeakMap()
+    override protected val forLibraryMap: ConcurrentMap[(PsiClass, Boolean), nodes.Map] = ContainerUtil.createConcurrentWeakMap()
+    override protected val forTopLevelMap: ConcurrentMap[(PsiClass, Boolean), nodes.Map] = ContainerUtil.createConcurrentWeakMap()
 
     clearCacheOnRootsChange.subscribe(() => forLibraryMap.clear())
     clearCacheOnTopLevelChange.subscribe(() => forTopLevelMap.clear())
 
-    private def forLibraryClasses(clazz: PsiClass, withSupers: Boolean): nodes.Map =
+    override protected def forLibraryClasses(clazz: PsiClass, withSupers: Boolean): nodes.Map =
       forLibraryMap.computeIfAbsent((clazz, withSupers), { case (cls, supers) => nodes.build(cls, supers) })
 
-    private def forTopLevelClasses(clazz: PsiClass, withSupers: Boolean): nodes.Map =
+    override protected def forTopLevelClasses(clazz: PsiClass, withSupers: Boolean): nodes.Map =
       forTopLevelMap.computeIfAbsent((clazz, withSupers), { case (cls, supers) => nodes.build(cls, supers) })
 
-    def cachedMap(clazz: PsiClass, withSupers: Boolean): nodes.Map =
+    override def cachedMap(clazz: PsiClass, withSupers: Boolean): nodes.Map =
       ModTracker.libraryAware(clazz) match {
         case `rootManager`               => forLibraryClasses(clazz, withSupers)
         case TopLevelModificationTracker => forTopLevelClasses(clazz, withSupers)
@@ -643,15 +643,15 @@ class ScalaPsiManager(implicit val project: Project) {
       }
   }
 
-  object TermNodesCache extends SignatureCaches(TermNodes)
-  object StableNodesCache extends SignatureCaches(StableNodes)
-  object TypeNodesCache extends SignatureCaches(TypeNodes)
+  override val TermNodesCache: SignatureCaches[TermSignature] = new SignatureCachesImpl(TermNodes)
+  override val StableNodesCache: SignatureCaches[TermSignature] = new SignatureCachesImpl(StableNodes)
+  override val TypeNodesCache: SignatureCaches[TypeSignature]  = new SignatureCachesImpl(TypeNodes)
 
-  def clearAllCaches(): Unit = invokeLater {
+  override def clearAllCaches(): Unit = invokeLater {
     doClearAllCaches()
   }
 
-  def clearAllCachesAndWait(): Unit = invokeAndWait {
+  override def clearAllCachesAndWait(): Unit = invokeAndWait {
     doClearAllCaches()
   }
 
@@ -667,20 +667,10 @@ class ScalaPsiManager(implicit val project: Project) {
     clearOnChange()
 }
 
-object ScalaPsiManager {
+object ScalaPsiManagerImpl {
   val TYPE_VARIABLE_KEY: Key[TypeParameterType] = Key.create("type.variable.key")
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager")
-
-  def instance(
-    implicit
-    ctx: ProjectContext,
-    d:   DummyImplicit
-  ): ScalaPsiManager =
-    instance(ctx.getProject)
-
-  def instance(project: Project): ScalaPsiManager =
-    project.getService(classOf[ScalaPsiManagerHolder]).get
 
   private def registerLowMemoryWatcher(project: Project): Unit =
     LowMemoryWatcher.register(
@@ -700,19 +690,19 @@ object ScalaPsiManager {
     }
 }
 
-private class ScalaPsiManagerHolder(
+private[psi] class ScalaPsiManagerHolderImpl(
   implicit
-  project: Project) {
+  project: Project) extends ScalaPsiManagerHolder {
   private val scalaPsiManager: AtomicReference[ScalaPsiManager] = new AtomicReference()
 
-  def get: ScalaPsiManager = {
+  override def get: ScalaPsiManager = {
     if (scalaPsiManager.get() == null && !project.isDisposed) {
-      scalaPsiManager.compareAndSet(null, new ScalaPsiManager)
+      scalaPsiManager.compareAndSet(null, new ScalaPsiManagerImpl)
     }
     scalaPsiManager.get()
   }
 
-  def dispose(): Unit =
+  override def dispose(): Unit =
     scalaPsiManager.set(null)
 }
 

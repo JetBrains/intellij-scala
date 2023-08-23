@@ -21,8 +21,8 @@ import com.intellij.util.xmlb.annotations.Transient
 import org.jdom.Element
 import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration._
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, TestConfigurationData}

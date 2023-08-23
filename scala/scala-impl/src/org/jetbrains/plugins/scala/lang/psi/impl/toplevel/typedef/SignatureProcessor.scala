@@ -9,15 +9,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScValue, ScValueOrVariable, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ExtensionSignatureInfo, PhysicalMethodSignature, ScCompoundType, Signature, TermSignature, TypeSignature}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState, StdKinds}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 
@@ -235,7 +233,7 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
   }
 
   override def processPsiClass(cls: PsiClass, subst: ScSubstitutor, sink: Sink): Unit =
-    MixinNodes.withSignaturesFor(cls, sink.asInstanceOf[MixinNodes.Map[TermSignature]])(
+    MixinNodes.withSignaturesFor(cls, sink.asInstanceOf[MixinNodesBase.Map[TermSignature]])(
       processAll(cls, subst, sink)
     )
 
