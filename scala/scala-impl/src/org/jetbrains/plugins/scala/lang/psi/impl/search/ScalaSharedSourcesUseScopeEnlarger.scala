@@ -6,7 +6,7 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope
 import com.intellij.psi.{PsiElement, PsiMember}
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.caches.cachedInUserData
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 

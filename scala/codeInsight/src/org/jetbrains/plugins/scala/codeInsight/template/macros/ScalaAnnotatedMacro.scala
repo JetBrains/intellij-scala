@@ -7,7 +7,7 @@ import com.intellij.psi.search.searches.AnnotatedMembersSearch
 import com.intellij.psi.{PsiClass, PsiMember}
 import com.intellij.util.{EmptyQuery, Query}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiManager
 
 import scala.jdk.CollectionConverters._
 

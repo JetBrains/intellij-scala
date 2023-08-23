@@ -115,12 +115,8 @@ lazy val scalaDirectives: sbt.Project =
   newProject("directives", file("scala/directives"))
     .dependsOn(scalaApi)
     .settings(
-      name := "directives",
-      organization := "JetBrains",
-      scalaVersion := Versions.scalaVersion,
       idePackagePrefix := Some("org.jetbrains.plugins.scalaDirective"),
       intellijMainJars := Nil,
-//      intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
       Compile / unmanagedJars ++= Common.jpsClasspath.value,
       Compile / unmanagedJars ++= Common.compilerSharedClasspath.value
     )

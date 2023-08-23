@@ -6,7 +6,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiModificationTrackerImpl
 import org.jetbrains.plugins.scala.lang.benchmarks._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerImpl
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
@@ -16,7 +16,7 @@ import org.openjdk.jmh.infra.Blackhole
 @State(Scope.Benchmark)
 abstract class TypeInferenceBenchmarkBase(testName: String) extends TypeInferenceTestBase {
   var expr: ScExpression = _
-  var scalaPsiManager: ScalaPsiManager = _
+  var scalaPsiManager: ScalaPsiManagerImpl = _
   var psiModTracker: PsiModificationTrackerImpl = _
 
   override protected def folderPath: String = "testdata/typeInference/"
