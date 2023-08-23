@@ -9,7 +9,7 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.compiler.CompileServerNotificationsService
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
-import org.jetbrains.plugins.scala.extensions.{inReadAction, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction, invokeLater}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaHighlightingMode}
 
@@ -57,7 +57,7 @@ private final class ToggleHighlightingModeListener extends ProjectManagerListene
       }
     }
   
-  private def forceStandardHighlighting(project: Project): Unit = {
+  private def forceStandardHighlighting(project: Project): Unit = inWriteAction {
     ResolveCache.getInstance(project).clearCache(true)
     PsiManager.getInstance(project).dropPsiCaches()
     DaemonCodeAnalyzer.getInstance(project).restart()
