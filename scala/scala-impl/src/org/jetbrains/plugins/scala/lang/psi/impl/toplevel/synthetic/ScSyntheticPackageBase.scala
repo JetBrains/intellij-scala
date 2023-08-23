@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScSyntheticPackage
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScPackageObjectFqnIndex, ScPackagingFqnIndex}
@@ -21,8 +22,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-abstract class ScSyntheticPackage(name: String, manager: PsiManager)
-  extends LightElement(manager, ScalaLanguage.INSTANCE) with PsiPackage {
+abstract class ScSyntheticPackageBase(name: String, manager: PsiManager)
+  extends LightElement(manager, ScalaLanguage.INSTANCE) with ScSyntheticPackage with PsiPackage {
 
   override def handleQualifiedNameChange(newQualifiedName: String): Unit = {
   }
@@ -68,10 +69,10 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
 }
 
 
-object ScSyntheticPackage {
+object ScSyntheticPackageBase {
 
   def apply(fqn: String)
-           (implicit project: Project): ScSyntheticPackage = {
+           (implicit project: Project): ScSyntheticPackageBase = {
     val (name, parentName) = fqn.lastIndexOf(".") match {
       case -1 => (fqn, "")
       case i => (fqn.substring(i + 1), fqn.substring(0, i))
@@ -87,7 +88,7 @@ object ScSyntheticPackage {
         fqnFromIndex != null && ScalaNamesUtil.equivalentFqn(fqnFromIndex, fqn)
       })
       if (withSameFqn.nonEmpty) {
-        new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
+        new ScSyntheticPackageBase(name, PsiManager.getInstance(project)) {
           override def getFiles(globalSearchScope: GlobalSearchScope): Array[PsiFile] = Array.empty //todo: ?
           override def containsClassNamed(name: String): Boolean = false
 
@@ -115,7 +116,7 @@ object ScSyntheticPackage {
       } match {
         case seq if seq.isEmpty => null
         case filtered =>
-          new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
+          new ScSyntheticPackageBase(name, PsiManager.getInstance(project)) {
             override def getFiles(globalSearchScope: GlobalSearchScope): Array[PsiFile] = Array.empty //todo: ?
 
             override def findClassByShortName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {

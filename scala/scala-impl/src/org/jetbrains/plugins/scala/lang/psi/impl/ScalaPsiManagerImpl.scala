@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.source.GlobalSearchScopeWithRecommendedResultsSorting
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackageBase, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TermNodes.{Map => SMap}
@@ -554,12 +554,12 @@ class ScalaPsiManagerImpl(override implicit val project: Project) extends ScalaP
   private val syntheticPackages = ContainerUtil.createConcurrentWeakValueMap[String, AnyRef]()
   private val emptyMarker: AnyRef = ObjectUtils.sentinel("syntheticPackageEmptyMarker")
 
-  override def syntheticPackage(fqn: String): ScSyntheticPackage = {
+  override def syntheticPackage(fqn: String): ScSyntheticPackageBase = {
     val syntheticOrEmptyMarker =
-      syntheticPackages.computeIfAbsent(fqn, fqn => Option(ScSyntheticPackage(fqn)(project)).getOrElse(emptyMarker))
+      syntheticPackages.computeIfAbsent(fqn, fqn => Option(ScSyntheticPackageBase(fqn)(project)).getOrElse(emptyMarker))
 
     syntheticOrEmptyMarker match {
-      case s: ScSyntheticPackage => s
+      case s: ScSyntheticPackageBase => s
       case _                     => null
     }
   }

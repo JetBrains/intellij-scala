@@ -357,6 +357,7 @@ lazy val scalaImpl: sbt.Project =
     .dependsOn(
       compilerShared % "test->test;compile->compile",
       scalaApi,
+      scalaPsiApi % "test->test;compile->compile",
       sbtApi,
       decompiler % "test->test;compile->compile",
       tastyReader % "test->test;compile->compile",
