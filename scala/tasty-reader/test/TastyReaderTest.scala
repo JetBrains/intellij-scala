@@ -121,6 +121,7 @@ class TastyReaderTest extends TestCase {
   def testTypesFunctionPolymorphic(): Unit = doTest("types/FunctionPolymorphic")
   def testTypesIdent(): Unit = doTest("types/Ident")
   def testTypesInfix(): Unit = doTest("types/Infix")
+  def testTypesInlined(): Unit = doTest("types/Inlined")
   def testTypesKindProjector(): Unit = doTest("types/KindProjector")
   def testTypesLambda(): Unit = doTest("types/Lambda")
   def testTypesLiteral(): Unit = doTest("types/Literal")

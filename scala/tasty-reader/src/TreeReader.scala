@@ -90,6 +90,7 @@ private class TreeReader(nameAtRef: NameTable) {
         node.isSharedType = true
         node
       case SHAREDterm => readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache?
+      case INLINED => children().head
       case _ =>
         val node = new Node(addr, tag, names, children)
         tag match {
